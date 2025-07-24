@@ -214,11 +214,21 @@ function informAllSubscribersAboutActivity(
             break;
 
         case ArticleType::User:  // User wall
-            $wallUserData = User::find($articleID);
-            $subscribers = getSubscribersOfUserWall($articleID, $wallUserData['User']);
-            $subjectAuthor = $wallUserData->display_name;
-            $articleTitle = $wallUserData->display_name;
-            $urlTarget = "user/" . $wallUserData->display_name;
+            $wallUser = User::find($articleID);
+            if (!$wallUser)
+                return;
+
+            $articleTitle = $wallUser->display_name;
+            $urlTarget = "user/" . $wallUser->display_name;
+            $subjectAuthor = $wallUser->User;
+
+            $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::UserWall, $wallUser->ID)
+                ->filter(fn($s) => isset($s->user->EmailAddress) && BitSet($s->user->websitePrefs, UserPreference::EmailOn_UserWallComment))
+                ->map(fn($s) => [
+                    'User' => $s->user->User,
+                    'display_name' => $s->user->display_name,
+                    'EmailAddress' => $s->user->EmailAddress,
+                ]);
             break;
 
         case ArticleType::News:  // News

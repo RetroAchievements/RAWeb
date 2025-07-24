@@ -92,6 +92,7 @@ class SubscriptionService
             SubscriptionSubjectType::GameAchievements => $this->getNoImplicitSubscriptionQuery(),
             SubscriptionSubjectType::GameTickets => $this->getNoImplicitSubscriptionQuery(),
             SubscriptionSubjectType::GameWall => $this->getImplicitCommentSubscriptionQuery(ArticleType::Game, $subjectId),
+            SubscriptionSubjectType::UserWall => $this->getImplicitCommentSubscriptionQuery(ArticleType::User, $subjectId),
         };
     }
 
