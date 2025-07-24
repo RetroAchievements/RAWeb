@@ -21,15 +21,6 @@ function updateSubscription(SubscriptionSubjectType $subjectType, int $subjectId
 }
 
 /**
- * Checks whether a given user is subscribed to a subject.
- */
-function isUserSubscribedTo(SubscriptionSubjectType $subjectType, int $subjectId, User $user): bool
-{
-    $service = new SubscriptionService();
-    return $service->isSubscribed($user, $subjectType, $subjectId);
-}
-
-/**
  * @deprecated $implicitSubscriptionQry considered harmful. Use Eloquent ORM.
  *
  * Retrieves the list of users that are subscribed to a given subject either implicitly or explicitly.
@@ -226,26 +217,3 @@ function getSubscribersOfArticle(
     );
 }
 
-function isUserSubscribedToArticleComments(int $articleType, int $articleID, int $userID): bool
-{
-    $subjectType = SubscriptionSubjectType::fromArticleType($articleType);
-
-    if ($subjectType === null) {
-        return false;
-    }
-
-    $explicitSubcription = Subscription::where('subject_type', $subjectType)
-        ->where('subject_id', $articleID)
-        ->where('user_id', $userID)
-        ->first();
-
-    if ($explicitSubcription) {
-        return $explicitSubcription->state;
-    }
-
-    // a user is implicitly subscribed if they've authored at least one comment for the article
-    return Comment::where('ArticleType', $articleType)
-        ->where('ArticleID', $articleID)
-        ->where('user_id', $userID)
-        ->exists();
-}

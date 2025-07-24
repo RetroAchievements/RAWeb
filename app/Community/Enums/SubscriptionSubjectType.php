@@ -13,6 +13,7 @@ enum SubscriptionSubjectType: string
     case UserWall = "UserWall";
     case GameWall = "GameWall";
     case Achievement = "Achievement";
+    case Leaderboard = "Leaderboard";
     case GameTickets = "GameTickets";
     case GameAchievements = "GameAchievements";
     case AchievementTicket = "AchievementTicket";
