@@ -13,6 +13,7 @@ use App\Models\Subscription;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -70,6 +71,9 @@ class SubscriptionService
         ]);
     }
 
+    /**
+     * @return Builder<Model>
+     */
     private function getImplicitSubscriptionsQuery(SubscriptionSubjectType $subjectType, ?int $subjectId, ?int $forUserId = null, ?array $ignoreUserIds = null): Builder
     {
         return match ($subjectType) {
@@ -79,17 +83,27 @@ class SubscriptionService
             SubscriptionSubjectType::GameAchievements => $this->getNoImplicitSubscriptionQuery(),
             SubscriptionSubjectType::GameTickets => $this->getNoImplicitSubscriptionQuery(),
             SubscriptionSubjectType::GameWall => $this->getImplicitCommentSubscriptionQuery(ArticleType::Game, $subjectId, $forUserId, $ignoreUserIds),
+            SubscriptionSubjectType::Leaderboard => $this->getImplicitCommentSubscriptionQuery(ArticleType::Leaderboard, $subjectId, $forUserId, $ignoreUserIds),
             SubscriptionSubjectType::UserWall => $this->getImplicitCommentSubscriptionQuery(ArticleType::User, $subjectId, $forUserId, $ignoreUserIds),
         };
     }
 
+    /**
+     * @return Builder<Model>
+     */
     private function getNoImplicitSubscriptionQuery(): Builder
     {
-        return Subscription::whereRaw('1 = 0');
+        /** @var Builder<Model> $query */
+        $query = Subscription::whereRaw('1 = 0');
+        return $query;
     }
 
+    /**
+     * @return Builder<Model>
+     */
     private function getImplicitCommentSubscriptionQuery(int $articleType, ?int $articleId, ?int $forUserId, ?array $ignoreUserIds): Builder
     {
+        /** @var Builder<Model> $query */
         $query = Comment::where('ArticleType', $articleType)
             ->where('user_id', '!=', Comment::SYSTEM_USER_ID);
 
@@ -108,6 +122,9 @@ class SubscriptionService
         return $query;
     }
 
+    /**
+     * @return Builder<Model>
+     */
     private function getImplicitAchievementCommentSubscriptionQuery(?int $articleId, ?int $forUserId, ?array $ignoreUserIds): Builder
     {
         // find any users who have commented on the achievement
@@ -117,6 +134,7 @@ class SubscriptionService
             // find any users subscribed to GameAchievements for the game owning the achievement
             $achievement = Achievement::find($articleId);
             if ($achievement) {
+                /** @var Builder<Model> $query2 */
                 $query2 = Subscription::query()
                     ->where('subject_type', SubscriptionSubjectType::GameAchievements)
                     ->where('subject_id', $achievement->GameID)
@@ -135,6 +153,9 @@ class SubscriptionService
         return $query;
     }
 
+    /**
+     * @return Builder<Model>
+     */
     private function getImplicitTicketSubscriptionQuery(?int $articleId, ?int $forUserId, ?array $ignoreUserIds): Builder
     {
         // find any users who have commented on the ticket
@@ -144,6 +165,7 @@ class SubscriptionService
             // find any users subscribed to GameTickets for the game owning the ticketed achievement
             $ticket = Ticket::with('achievement')->find($articleId);
             if ($ticket) {
+                /** @var Builder<Model> $query2 */
                 $query2 = Subscription::query()
                     ->where('subject_type', SubscriptionSubjectType::GameTickets)
                     ->where('subject_id', $ticket->achievement->GameID)
@@ -162,10 +184,11 @@ class SubscriptionService
                 if ($forUserId !== null) {
                     $includeReporter = $ticket->reporter_id === $forUserId;
                 } else {
-                $includeReporter = !$ignoreUserIds || !in_array($ticket->reporter_id, $ignoreUserIds);
+                    $includeReporter = !$ignoreUserIds || !in_array($ticket->reporter_id, $ignoreUserIds);
                 }
 
                 if ($includeReporter) {
+                    /** @var Builder<Model> $query3 */
                     $query3 = Ticket::query()
                         ->select([
                             DB::raw('reporter_id as user_id'),
@@ -181,8 +204,12 @@ class SubscriptionService
         return $query;
     }
 
+    /**
+     * @return Builder<Model>
+     */
     private function getImplicitForumTopicSubscriptionQuery(?int $forumTopicId, ?int $forUserId, ?array $ignoreUserIds): Builder
     {
+        /** @var Builder<Model> $query */
         $query = ForumTopicComment::query();
 
         if ($forumTopicId !== null) {

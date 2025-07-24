@@ -396,10 +396,9 @@ function authorizeAllForumPostsForUser(User $user): bool
     foreach ($userUnauthorizedPosts as $unauthorizedPost) {
         if ($unauthorizedPost->forumTopic) {
             notifyUsersAboutForumActivity(
-                $unauthorizedPost->forumTopic->id,
-                $unauthorizedPost->forumTopic->title,
+                $unauthorizedPost->forumTopic,
                 $user,
-                $unauthorizedPost->id,
+                $unauthorizedPost,
             );
         }
     }

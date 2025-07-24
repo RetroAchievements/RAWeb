@@ -7,6 +7,7 @@ namespace Tests\Feature\Community\Services;
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Services\SubscriptionService;
+use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
