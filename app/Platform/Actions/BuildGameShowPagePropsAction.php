@@ -274,7 +274,7 @@ class BuildGameShowPagePropsAction
     private function buildAchievementSetClaims(Game $game, ?User $user): Collection
     {
         // Build the include array based on current user permissions.
-        $claimIncludes = ['user', 'finishedAt'];
+        $claimIncludes = ['user', 'finishedAt', 'status'];
         if ($user && $user->hasAnyRole([Role::DEV_COMPLIANCE, Role::MODERATOR, Role::ADMINISTRATOR])) {
             $claimIncludes[] = 'userLastPlayedAt';
         }
