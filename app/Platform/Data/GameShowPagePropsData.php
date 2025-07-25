@@ -53,6 +53,7 @@ class GameShowPagePropsData extends Data
         /** @var GameAchievementSetData[] */
         public array $selectableGameAchievementSets,
         public ?SeriesHubData $seriesHub,
+        public ?GameSetRequestData $setRequestData,
         public ?int $targetAchievementSetId,
     ) {
     }

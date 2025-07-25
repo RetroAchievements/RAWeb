@@ -20,6 +20,7 @@ use App\Platform\Data\AggregateAchievementSetCreditsData;
 use App\Platform\Data\GameAchievementSetData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
+use App\Platform\Data\GameSetRequestData;
 use App\Platform\Data\GameShowPagePropsData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
@@ -246,6 +247,7 @@ class BuildGameShowPagePropsAction
                 ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($backingGame->id, $user))
                 : null,
             seriesHub: $this->buildSeriesHubDataAction->execute($game),
+            setRequestData: $this->buildSetRequestData($backingGame, $user),
             targetAchievementSetId: $targetAchievementSet?->achievement_set_id,
 
             selectableGameAchievementSets: $game->getAttribute('selectableGameAchievementSets')
@@ -492,5 +494,31 @@ class BuildGameShowPagePropsAction
 
         // Otherwise use the main game's hashes.
         return $game->hashes->where('compatibility', GameHashCompatibility::Compatible)->count();
+    }
+
+    private function buildSetRequestData(Game $backingGame, ?User $user): ?GameSetRequestData
+    {
+        // Only return set request data for games without achievements.
+        if ($backingGame->achievements_published > 0) {
+            return null;
+        }
+
+        $totalRequests = getSetRequestCount($backingGame->id);
+
+        if (!$user) {
+            return new GameSetRequestData(
+                hasUserRequestedSet: false,
+                totalRequests: $totalRequests,
+                userRequestsRemaining: 0,
+            );
+        }
+
+        $userRequestInfo = getUserRequestsInformation($user, $backingGame->id);
+
+        return new GameSetRequestData(
+            hasUserRequestedSet: (bool) $userRequestInfo['requestedThisGame'],
+            totalRequests: $totalRequests,
+            userRequestsRemaining: $userRequestInfo['remaining'],
+        );
     }
 }
