@@ -1,6 +1,7 @@
 import type {
   ColumnDef,
   ColumnFiltersState,
+  ColumnSort,
   PaginationState,
   SortingState,
   Table,
@@ -34,7 +35,9 @@ interface GamesDataTableContainerProps {
   setSorting: Dispatch<SetStateAction<SortingState>>;
 
   // Table configuration
+  defaultChipOfInterest?: App.Platform.Enums.GameListSortField;
   defaultColumnFilters: ColumnFiltersState;
+  defaultColumnSort: ColumnSort;
   columnDefinitions: ColumnDef<App.Platform.Data.GameListEntry>[];
 
   // API configuration
@@ -58,7 +61,9 @@ export const GamesDataTableContainer: FC<GamesDataTableContainerProps> = ({
   setSorting,
 
   // Table configuration
+  defaultChipOfInterest = 'achievementsPublished',
   defaultColumnFilters,
+  defaultColumnSort,
   columnDefinitions,
 
   // API configuration
@@ -107,24 +112,26 @@ export const GamesDataTableContainer: FC<GamesDataTableContainerProps> = ({
   return (
     <div className="flex flex-col gap-3">
       <DataTableToolbar
-        table={table}
-        unfilteredTotal={gameListQuery.data?.unfilteredTotal ?? null}
         defaultColumnFilters={defaultColumnFilters}
         randomGameApiRouteName={randomGameApiRouteName}
+        table={table}
         tableApiRouteName={apiRouteName}
         tableApiRouteParams={apiRouteParams}
+        unfilteredTotal={gameListQuery.data?.unfilteredTotal ?? null}
       />
 
       {ziggy.device === 'mobile' ? (
         <div className="mt-3">
           <Suspense fallback={<GameListItemsSuspenseFallback />}>
             <GameListItems
-              columnFilters={columnFilters}
-              pagination={pagination}
-              sorting={sorting}
               apiRouteName={apiRouteName}
               apiRouteParams={apiRouteParams}
+              columnFilters={columnFilters}
+              defaultChipOfInterest={defaultChipOfInterest}
+              defaultColumnSort={defaultColumnSort}
+              pagination={pagination}
               shouldHideItemIfNotInBacklog={shouldHideItemIfNotInBacklog}
+              sorting={sorting}
             />
           </Suspense>
         </div>

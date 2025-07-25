@@ -1,12 +1,6 @@
 import { AwardType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
-import {
-  createGame,
-  createGameClaimant,
-  createPlayerBadge,
-  createPlayerGame,
-  createSystem,
-} from '@/test/factories';
+import { createGame, createPlayerBadge, createPlayerGame, createSystem } from '@/test/factories';
 
 import { ChipOfInterest } from './ChipOfInterest';
 
@@ -47,7 +41,7 @@ describe('Component: ChipOfInterest', () => {
     render(<ChipOfInterest game={game} fieldId="achievementsPublished" />);
 
     // ASSERT
-    expect(screen.getByText(/0/i)).toBeVisible();
+    expect(screen.getAllByText(/0/i)[0]).toBeVisible();
   });
 
   it('given the field is pointsTotal, shows the number of points for the game', () => {
@@ -67,7 +61,7 @@ describe('Component: ChipOfInterest', () => {
     render(<ChipOfInterest game={game} fieldId="pointsTotal" />);
 
     // ASSERT
-    expect(screen.getByText(/0/i)).toBeVisible();
+    expect(screen.getAllByText(/0/i)[0]).toBeVisible();
   });
 
   it('given the field is retroRatio, shows the rarity of the game', () => {
@@ -359,11 +353,11 @@ describe('Component: ChipOfInterest', () => {
     expect(screen.getByText(/0/i)).toBeVisible();
   });
 
-  it('given the field is numRequests and the game has claimants, shows both the request count and claimed chip', () => {
+  it('given the field is numRequests and the game has claims, shows both the request count and claimed chip', () => {
     // ARRANGE
     const game = createGame({
+      hasActiveOrInReviewClaims: true,
       numRequests: 123,
-      claimants: [createGameClaimant(), createGameClaimant()], // !!
     });
 
     render(<ChipOfInterest game={game} fieldId="numRequests" />);
