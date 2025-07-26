@@ -65,6 +65,11 @@ class ResumePlayerSessionAction
             $user->saveQuietly();
         }
 
+        // if the timestamp is within the session, just return it (backdated unlocks)
+        if ($playerSession && $timestamp->between($playerSession->created_at, $playerSession->rich_presence_updated_at)) {
+            return $playerSession;
+        }
+
         // if the session is less than 10 minutes old, resume session
         if ($playerSession && ($timestamp->diffInMinutes($playerSession->rich_presence_updated_at, true) < 10)) {
             $newDuration = max(1, (int) $timestamp->diffInMinutes($playerSession->created_at, true));
