@@ -636,7 +636,7 @@ class HomeControllerTest extends TestCase
             'forum_topic_id' => $topic->id,
             'author_id' => $user->id,
             'is_authorized' => true,
-            'body' => 'This is a test forum post with enough content to test truncation This is a test forum post with enough content to test truncation This is a test forum post with enough content to test truncation This is a test forum post with enough content to test truncation.',
+            'body' => 'This is a test forum post',
         ]);
 
         // Act
