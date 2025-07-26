@@ -653,7 +653,7 @@ class HomeControllerTest extends TestCase
             ->missing('recentForumPosts.0.commentCount7d')
 
             ->where('recentForumPosts.0.latestComment.id', $comment->id)
-            ->where('recentForumPosts.0.latestComment.body', 'This is a test forum post with enough content to test truncation This is a test forum post with enou...')
+            ->where('recentForumPosts.0.latestComment.body', 'This is a test forum post')
         );
     }
 
