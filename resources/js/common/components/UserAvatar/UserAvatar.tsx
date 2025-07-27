@@ -7,6 +7,7 @@ import { cn } from '@/common/utils/cn';
 
 type UserAvatarProps = BaseAvatarProps &
   App.Data.User & {
+    canLinkToUser?: boolean;
     labelClassName?: string;
     wrapperClassName?: string;
   };
@@ -19,6 +20,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
   isGone,
   labelClassName,
   wrapperClassName,
+  canLinkToUser = true,
   hasTooltip = true,
   showImage = true,
   showLabel = true,
@@ -26,14 +28,14 @@ export const UserAvatar: FC<UserAvatarProps> = ({
 }) => {
   const { cardTooltipProps } = useCardTooltip({ dynamicType: 'user', dynamicId: displayName });
 
-  const canLinkToUser = displayName && !deletedAt && !isGone;
-  const Wrapper = canLinkToUser ? 'a' : 'span';
+  const shouldLinkToUser = canLinkToUser && displayName && !deletedAt && !isGone;
+  const Wrapper = shouldLinkToUser ? 'a' : 'span';
 
   return (
     <Wrapper
-      href={canLinkToUser ? route('user.show', [displayName]) : undefined}
+      href={shouldLinkToUser ? route('user.show', [displayName]) : undefined}
       className={cn('flex max-w-fit items-center gap-2', wrapperClassName)}
-      {...(hasTooltip && canLinkToUser ? cardTooltipProps : undefined)}
+      {...(hasTooltip && shouldLinkToUser ? cardTooltipProps : undefined)}
     >
       {showImage ? (
         <img

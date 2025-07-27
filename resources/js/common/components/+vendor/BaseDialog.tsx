@@ -73,7 +73,6 @@ const BaseDialogContent = React.forwardRef<
               )}
             >
               <RxCross2 className="size-4" />
-
               <span className="sr-only">{t('Close')}</span>
             </DialogPrimitive.Close>
           ) : null}

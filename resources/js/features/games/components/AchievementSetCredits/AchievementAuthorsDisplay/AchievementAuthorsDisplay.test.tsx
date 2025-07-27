@@ -228,4 +228,24 @@ describe('Component: AchievementAuthorsDisplay', () => {
     expect(tooltipBob).not.toHaveClass('text-neutral-500');
     expect(tooltipBob).not.toHaveClass('line-through');
   });
+
+  it('given shouldAlwaysUseAvatarStack is true, still shows user avatars', () => {
+    // ARRANGE
+    const authors = [
+      createUserCredits({ displayName: 'Alice', count: 50 }),
+      createUserCredits({ displayName: 'Bob', count: 20 }),
+      createUserCredits({ displayName: 'Charlie', count: 15 }),
+      createUserCredits({ displayName: 'David', count: 10 }),
+      createUserCredits({ displayName: 'Eve', count: 5 }),
+    ];
+
+    render(<AchievementAuthorsDisplay authors={authors} shouldAlwaysUseAvatarStack={true} />, {
+      pageProps: {
+        game: createGame({ achievementsPublished: 100 }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getAllByRole('img')).toHaveLength(5);
+  });
 });

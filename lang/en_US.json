@@ -1000,6 +1000,8 @@
     "Credits": "Credits",
     "{{val, number}} authors_one": "{{val, number}} author",
     "{{val, number}} authors_other": "{{val, number}} authors",
+    "+{{val, number}} contributors_one": "+{{val, number}} contributor",
+    "+{{val, number}} contributors_other": "+{{val, number}} contributors",
     "Achievement Authors": "Achievement Authors",
     "Game Badge Artwork": "Game Badge Artwork",
     "Achievement Artwork": "Achievement Artwork",
@@ -1050,5 +1052,6 @@
     "filterRequests_active": "Active",
     "filterRequests_all": "All",
     "Game Forum Topic": "Game Forum Topic",
-    "Subset Forum Topic": "Subset Forum Topic"
+    "Subset Forum Topic": "Subset Forum Topic",
+    "This is a list of everyone known to have contributed to this achievement set.": "This is a list of everyone known to have contributed to this achievement set."
 }
