@@ -7,6 +7,7 @@ namespace Tests\Feature\Community\Actions;
 use App\Community\Actions\BuildActivePlayersAction;
 use App\Enums\Permissions;
 use App\Models\Game;
+use App\Models\GameRecentPlayer;
 use App\Models\System;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,6 +16,16 @@ use Tests\TestCase;
 class BuildActivePlayersActionTest extends TestCase
 {
     use RefreshDatabase;
+
+    private function createActivePlayer(User $user, Game $game, ?string $richPresence = null): void
+    {
+        GameRecentPlayer::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'rich_presence' => $richPresence ?? 'Playing Stage 1',
+            'rich_presence_updated_at' => now(),
+        ]);
+    }
 
     public function testItReturnsEmptyDataWhenNoActivePlayers(): void
     {
@@ -33,11 +44,15 @@ class BuildActivePlayersActionTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        User::factory()->count(5)->create([
+        $users = User::factory()->count(5)->create([
             'LastGameID' => $game->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
         ]);
+
+        foreach ($users as $user) {
+            $this->createActivePlayer($user, $game);
+        }
 
         // Act
         $result = (new BuildActivePlayersAction())->execute(perPage: 2, page: 1);
@@ -56,16 +71,23 @@ class BuildActivePlayersActionTest extends TestCase
         $game1 = Game::factory()->create(['ConsoleID' => $system->id]);
         $game2 = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        User::factory()->count(5)->create([
+        $game1Users = User::factory()->count(5)->create([
             'LastGameID' => $game1->id, // !!
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
         ]);
-        User::factory()->count(3)->create([
+        $game2Users = User::factory()->count(3)->create([
             'LastGameID' => $game2->id, // !!
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
         ]);
+
+        foreach ($game1Users as $user) {
+            $this->createActivePlayer($user, $game1);
+        }
+        foreach ($game2Users as $user) {
+            $this->createActivePlayer($user, $game2);
+        }
 
         // Act
         $result = (new BuildActivePlayersAction())->execute(gameIds: [$game1->id]);
@@ -83,20 +105,23 @@ class BuildActivePlayersActionTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        User::factory()->create([
+        $user1 = User::factory()->create([
             'LastGameID' => $game->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
             'User' => 'testuser123', // !!
             'RichPresenceMsg' => 'Playing game',
         ]);
-        User::factory()->create([
+        $user2 = User::factory()->create([
             'LastGameID' => $game->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
             'User' => 'otheruser456', // !!
             'RichPresenceMsg' => 'Playing game',
         ]);
+
+        $this->createActivePlayer($user1, $game, 'Playing game');
+        $this->createActivePlayer($user2, $game, 'Playing game');
 
         // Act
         $result = (new BuildActivePlayersAction())->execute(search: 'testuser');
@@ -112,20 +137,23 @@ class BuildActivePlayersActionTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        User::factory()->create([
+        $user1 = User::factory()->create([
             'LastGameID' => $game->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
             'User' => 'testuser123',
             'RichPresenceMsg' => 'Developing achievements',
         ]);
-        User::factory()->create([
+        $user2 = User::factory()->create([
             'LastGameID' => $game->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
             'User' => 'otheruser456',
             'RichPresenceMsg' => 'Playing game',
         ]);
+
+        $this->createActivePlayer($user1, $game, 'Developing achievements');
+        $this->createActivePlayer($user2, $game, 'Playing game');
 
         // Act
         $result = (new BuildActivePlayersAction())->execute(search: 'developing');
@@ -143,18 +171,21 @@ class BuildActivePlayersActionTest extends TestCase
         $game1 = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => 'Sonic the Hedgehog']);
         $game2 = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => 'Legend of Zelda']);
 
-        User::factory()->create([
+        $user1 = User::factory()->create([
             'LastGameID' => $game1->id, // !!
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
             'User' => 'Scott',
         ]);
-        User::factory()->create([
+        $user2 = User::factory()->create([
             'LastGameID' => $game2->id, // !!
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
             'User' => 'Batman',
         ]);
+
+        $this->createActivePlayer($user1, $game1);
+        $this->createActivePlayer($user2, $game2);
 
         // Act
         $result = (new BuildActivePlayersAction())->execute(search: 'zelda');
@@ -171,24 +202,28 @@ class BuildActivePlayersActionTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        User::factory()->create([
+        $user1 = User::factory()->create([
             'LastGameID' => $game->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
             'RichPresenceMsg' => 'Playing game',
         ]);
-        User::factory()->create([
+        $user2 = User::factory()->create([
             'LastGameID' => $game->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
             'RichPresenceMsg' => 'Developing achievements',
         ]);
-        User::factory()->create([
+        $user3 = User::factory()->create([
             'LastGameID' => $game->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
             'RichPresenceMsg' => 'Fixing achievements',
         ]);
+
+        $this->createActivePlayer($user1, $game, 'Playing game');
+        $this->createActivePlayer($user2, $game, 'Developing achievements');
+        $this->createActivePlayer($user3, $game, 'Fixing achievements');
 
         // Act
         $result = (new BuildActivePlayersAction())->execute(search: 'developing|fixing');
@@ -203,15 +238,26 @@ class BuildActivePlayersActionTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        User::factory()->create([
+        $activeUser = User::factory()->create([
             'LastGameID' => $game->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
         ]);
-        User::factory()->create([
+        $inactiveUser = User::factory()->create([
             'LastGameID' => $game->id,
             'RichPresenceMsgDate' => now()->subDays(2),
             'Permissions' => Permissions::Registered,
+        ]);
+
+        // ... create recent activity for the active user ...
+        $this->createActivePlayer($activeUser, $game);
+
+        // ... create old activity for the inactive user ...
+        GameRecentPlayer::factory()->create([
+            'user_id' => $inactiveUser->id,
+            'game_id' => $game->id,
+            'rich_presence' => 'Playing Stage 1',
+            'rich_presence_updated_at' => now()->subDays(2), // !! old timestamp -- edge case
         ]);
 
         // Act
@@ -227,7 +273,7 @@ class BuildActivePlayersActionTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        User::factory()->create([
+        $trackedHighPoints = User::factory()->create([
             'LastGameID' => $game->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
@@ -235,7 +281,7 @@ class BuildActivePlayersActionTest extends TestCase
             'Untracked' => 0,
             'RAPoints' => 100000,
         ]);
-        User::factory()->create([
+        $untrackedHighPoints = User::factory()->create([
             'LastGameID' => $game->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
@@ -243,7 +289,7 @@ class BuildActivePlayersActionTest extends TestCase
             'Untracked' => 1,
             'RAPoints' => 999999,
         ]);
-        User::factory()->create([
+        $trackedLowPoints = User::factory()->create([
             'LastGameID' => $game->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
@@ -251,6 +297,10 @@ class BuildActivePlayersActionTest extends TestCase
             'Untracked' => 0,
             'RAPoints' => 50000,
         ]);
+
+        $this->createActivePlayer($trackedHighPoints, $game);
+        $this->createActivePlayer($untrackedHighPoints, $game);
+        $this->createActivePlayer($trackedLowPoints, $game);
 
         // Act
         $result = (new BuildActivePlayersAction())->execute();

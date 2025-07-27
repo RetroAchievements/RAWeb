@@ -6,6 +6,7 @@ namespace Tests\Feature\Community\Controllers\Api;
 
 use App\Enums\Permissions;
 use App\Models\Game;
+use App\Models\GameRecentPlayer;
 use App\Models\System;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -48,11 +49,20 @@ class ActivePlayersApiControllerTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        User::factory()->count(5)->create([
+        $users = User::factory()->count(5)->create([
             'LastGameID' => $game->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
         ]);
+
+        foreach ($users as $user) {
+            GameRecentPlayer::factory()->create([
+                'user_id' => $user->id,
+                'game_id' => $game->id,
+                'rich_presence' => 'Playing Stage 1',
+                'rich_presence_updated_at' => now(),
+            ]);
+        }
 
         // Act
         $response = $this->getJson(route('api.active-player.index', [

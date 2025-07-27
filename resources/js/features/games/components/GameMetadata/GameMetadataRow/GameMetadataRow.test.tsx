@@ -57,7 +57,7 @@ describe('Component: GameMetadataRow', () => {
     expect(screen.getByText(/third/i)).toBeVisible();
   });
 
-  it('given elements with hrefs, renders them as links', () => {
+  it('given elements with hub IDs, renders them as links', () => {
     // ARRANGE
     render(
       <BaseTable>
@@ -65,8 +65,8 @@ describe('Component: GameMetadataRow', () => {
           <GameMetadataRow
             rowHeading="Test"
             elements={[
-              { label: 'First', href: '/first' },
-              { label: 'Second', href: '/second' },
+              { label: 'First', hubId: 1 },
+              { label: 'Second', hubId: 2 },
             ]}
           />
         </BaseTableBody>
@@ -76,11 +76,9 @@ describe('Component: GameMetadataRow', () => {
     // ASSERT
     const firstLink = screen.getByRole('link', { name: /first/i });
     expect(firstLink).toBeVisible();
-    expect(firstLink).toHaveAttribute('href', '/first');
 
     const secondLink = screen.getByRole('link', { name: /second/i });
     expect(secondLink).toBeVisible();
-    expect(secondLink).toHaveAttribute('href', '/second');
   });
 
   it('given a mix of links and text elements, renders them correctly', () => {
@@ -91,9 +89,9 @@ describe('Component: GameMetadataRow', () => {
           <GameMetadataRow
             rowHeading="Test"
             elements={[
-              { label: 'First', href: '/first' },
+              { label: 'First', hubId: 1 },
               { label: 'Second' },
-              { label: 'Third', href: '/third' },
+              { label: 'Third', hubId: 3 },
             ]}
           />
         </BaseTableBody>

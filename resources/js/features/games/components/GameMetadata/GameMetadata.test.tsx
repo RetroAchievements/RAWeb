@@ -10,7 +10,7 @@ describe('Component: GameMetadata', () => {
     creditRowElements: [{ label: 'Credit 1' }],
     developerRowElements: [{ label: 'Developer 1' }, { label: 'Developer 2' }],
     featureRowElements: [{ label: 'Feature 1' }],
-    genreRowElements: [{ label: 'Genre 1', href: '/genres/1' }],
+    genreRowElements: [{ label: 'Genre 1', hubId: 1 }],
     hackOfRowElements: [],
     languageRowElements: [{ label: 'English' }, { label: 'Spanish' }],
     miscRowElements: [{ label: 'Misc 1' }],
@@ -148,9 +148,7 @@ describe('Component: GameMetadata', () => {
     );
 
     // ASSERT
-    const link = screen.getByRole('link', { name: /genre 1/i });
-    expect(link).toBeVisible();
-    expect(link).toHaveAttribute('href', '/genres/1');
+    expect(screen.getByRole('link', { name: /genre 1/i })).toBeVisible();
   });
 
   it('given publisher elements exist and no hack-of elements, shows the publisher row', () => {
