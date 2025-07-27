@@ -7,6 +7,7 @@ import { render, screen } from '@/test';
 import {
   createAchievement,
   createAchievementSet,
+  createAggregateAchievementSetCredits,
   createGame,
   createGameAchievementSet,
 } from '@/test/factories';
@@ -27,6 +28,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -49,6 +52,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -84,6 +89,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -112,6 +119,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -144,6 +153,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -188,6 +199,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -222,6 +235,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -256,6 +271,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -292,6 +309,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
