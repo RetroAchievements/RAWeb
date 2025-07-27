@@ -235,6 +235,20 @@ declare module 'ziggy-js' {
         }
     ],
     "api.ticket.store": [],
+    "api.game.set-request.store": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.game.set-request.destroy": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "player.games.resettable": [],
     "player.game.achievements.resettable": [
         {

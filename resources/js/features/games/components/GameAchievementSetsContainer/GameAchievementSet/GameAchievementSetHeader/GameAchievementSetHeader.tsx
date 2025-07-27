@@ -1,5 +1,5 @@
 import { type FC, useMemo } from 'react';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import { WeightedPointsContainer } from '@/common/components/WeightedPointsContainer';
 
@@ -10,6 +10,8 @@ interface GameAchievementSetHeaderProps {
 export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
   gameAchievementSet,
 }) => {
+  const { t } = useTranslation();
+
   const { achievementSet, title } = gameAchievementSet;
   const { achievements, imageAssetPathUrl } = achievementSet;
 
@@ -34,19 +36,23 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
           <span>{title ?? 'Base Set'}</span>
 
           <span className="text-xs text-text">
-            <Trans
-              i18nKey="<1>{{achievementsCount, number}}</1> achievements worth <2>{{pointsCount, number}}</2> <3>({{retroPointsCount, number}})</3> points"
-              values={{
-                achievementsCount: achievements.length,
-                pointsCount: totalPoints,
-                retroPointsCount: totalPointsWeighted,
-              }}
-              components={{
-                1: <span className="font-bold" />,
-                2: <span className="font-bold" />,
-                3: <WeightedPointsContainer />,
-              }}
-            />
+            {achievements.length ? (
+              <Trans
+                i18nKey="<1>{{achievementsCount, number}}</1> achievements worth <2>{{pointsCount, number}}</2> <3>({{retroPointsCount, number}})</3> points"
+                values={{
+                  achievementsCount: achievements.length,
+                  pointsCount: totalPoints,
+                  retroPointsCount: totalPointsWeighted,
+                }}
+                components={{
+                  1: <span className="font-bold" />,
+                  2: <span className="font-bold" />,
+                  3: <WeightedPointsContainer />,
+                }}
+              />
+            ) : (
+              t('There are no achievements for this set yet.')
+            )}
           </span>
         </div>
       </div>
