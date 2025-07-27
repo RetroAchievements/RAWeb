@@ -1,7 +1,12 @@
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
-import { createAchievementSet, createGame, createGameAchievementSet } from '@/test/factories';
+import {
+  createAchievement,
+  createAchievementSet,
+  createGame,
+  createGameAchievementSet,
+} from '@/test/factories';
 
 import { GameAchievementSetsContainer } from './GameAchievementSetsContainer';
 
@@ -30,7 +35,9 @@ describe('Component: GameAchievementSetsContainer', () => {
     // ARRANGE
     const game = createGame({
       gameAchievementSets: [
-        createGameAchievementSet({ achievementSet: createAchievementSet({ id: 123 }) }),
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ id: 123, achievements: [createAchievement()] }),
+        }),
       ],
     });
 
@@ -64,7 +71,9 @@ describe('Component: GameAchievementSetsContainer', () => {
     // ARRANGE
     const game = createGame({
       gameAchievementSets: [
-        createGameAchievementSet({ achievementSet: createAchievementSet({ id: 123 }) }),
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ id: 123, achievements: [createAchievement()] }),
+        }),
       ],
     });
 

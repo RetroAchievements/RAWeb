@@ -10,6 +10,7 @@ import {
 } from '@/common/components/+vendor/BaseTooltip';
 import { UserAvatarStack } from '@/common/components/UserAvatarStack';
 import { cn } from '@/common/utils/cn';
+import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 import { useDiffForHumans } from '@/common/utils/l10n/useDiffForHumans';
 
@@ -114,9 +115,15 @@ const ClaimsIcon: FC<ClaimsIconProps> = ({ achievementSetClaims }) => {
                   displayName: claim.user!.displayName,
                 }}
               >
-                {dayjs(claim.finishedAt!).isAfter(dayjs())
-                  ? t('Expires {{date}}', { date: formatDate(claim.finishedAt!, 'l') })
-                  : t('Expired {{date}}', { date: formatDate(claim.finishedAt!, 'l') })}
+                {claim.status === ClaimStatus.InReview ? (
+                  t('In Review')
+                ) : (
+                  <>
+                    {dayjs(claim.finishedAt!).isAfter(dayjs())
+                      ? t('Expires {{date}}', { date: formatDate(claim.finishedAt!, 'l') })
+                      : t('Expired {{date}}', { date: formatDate(claim.finishedAt!, 'l') })}
+                  </>
+                )}
               </TooltipCreditRow>
             ))}
           </TooltipCreditsSection>
