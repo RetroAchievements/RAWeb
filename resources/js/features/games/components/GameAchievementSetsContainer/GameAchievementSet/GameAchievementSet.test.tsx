@@ -344,6 +344,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
