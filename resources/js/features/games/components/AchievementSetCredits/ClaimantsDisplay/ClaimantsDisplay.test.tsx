@@ -1,5 +1,6 @@
 import userEvent from '@testing-library/user-event';
 
+import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { render, screen, waitFor } from '@/test';
 import { createAchievementSetClaim, createUser } from '@/test/factories';
 
@@ -163,5 +164,27 @@ describe('Component: ClaimantsDisplay', () => {
 
     // ASSERT
     expect(screen.getByText(/claimed by/i)).toBeInTheDocument();
+  });
+
+  it('given the claim has the In Review status, shows the correct label', async () => {
+    // ARRANGE
+    const achievementSetClaims = [
+      createAchievementSetClaim({
+        user: createUser({ displayName: 'Alice' }),
+        status: ClaimStatus.InReview, // !!
+      }),
+    ];
+
+    render(<ClaimantsDisplay achievementSetClaims={achievementSetClaims} />);
+
+    // ACT
+    await userEvent.hover(screen.getAllByRole('button')[0]);
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/in review/i)[0]).toBeVisible();
+    });
+
+    expect(screen.queryByText(/expir/i)).not.toBeInTheDocument();
   });
 });

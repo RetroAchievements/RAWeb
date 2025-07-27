@@ -9,6 +9,7 @@ import { PlayableTopPlayers } from '@/common/components/PlayableTopPlayers';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
+import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
 import { getSidebarExcludedHubIds } from '../../utils/getSidebarExcludedHubIds';
 import { GameMetadata } from '../GameMetadata';
 import { GameSidebarFullWidthButtons } from '../GameSidebarFullWidthButtons';
@@ -27,16 +28,13 @@ export const GameShowSidebarRoot: FC = () => {
     playerGame,
     seriesHub,
     similarGames,
+    targetAchievementSetId,
     topAchievers,
   } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
-  let coreAchievements: App.Platform.Data.Achievement[] = [];
-  const coreSet = game.gameAchievementSets?.find((s) => s.type === 'core');
-  if (coreSet) {
-    coreAchievements = coreSet.achievementSet.achievements;
-  }
-
   const allMetaRowElements = useAllMetaRowElements(game, hubs);
+
+  const achievements = getAllPageAchievements(game.gameAchievementSets!, targetAchievementSetId);
 
   return (
     <div data-testid="sidebar" className="flex flex-col gap-6">
@@ -56,18 +54,22 @@ export const GameShowSidebarRoot: FC = () => {
         hubs={hubs}
         excludeHubIds={getSidebarExcludedHubIds(hubs, seriesHub, allMetaRowElements.allUsedHubIds)}
       />
-      <PlayableCompareProgress
-        followedPlayerCompletions={followedPlayerCompletions}
-        game={game}
-        variant="game"
-      />
+
+      {achievements.length ? (
+        <PlayableCompareProgress
+          followedPlayerCompletions={followedPlayerCompletions}
+          game={game}
+          variant="game"
+        />
+      ) : null}
+
       <PlayableAchievementDistribution
         buckets={playerAchievementChartBuckets}
         playerGame={playerGame}
         variant="game"
       />
       <PlayableTopPlayers
-        achievements={coreAchievements}
+        achievements={achievements}
         game={game}
         numMasters={numMasters}
         players={topAchievers}

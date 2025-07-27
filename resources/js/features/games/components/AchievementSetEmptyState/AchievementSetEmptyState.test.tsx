@@ -1,0 +1,116 @@
+import { createAuthenticatedUser } from '@/common/models';
+import { render, screen } from '@/test';
+import { createGame, createGameSetRequestData } from '@/test/factories';
+
+import { AchievementSetEmptyState } from './AchievementSetEmptyState';
+
+describe('Component: AchievementSetEmptyState', () => {
+  it('renders without crashing', () => {
+    // ARRANGE
+    const { container } = render(<AchievementSetEmptyState />, {
+      pageProps: {
+        auth: null,
+        backingGame: createGame(),
+        setRequestData: createGameSetRequestData(),
+      },
+    });
+
+    // ASSERT
+    expect(container).toBeTruthy();
+  });
+
+  it('given setRequestData is null, renders nothing', () => {
+    // ARRANGE
+    render(<AchievementSetEmptyState />, {
+      pageProps: {
+        auth: null,
+        backingGame: createGame(),
+        setRequestData: null, // !!
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/no achievements yet/i)).not.toBeInTheDocument();
+  });
+
+  it('displays the correct labels', () => {
+    // ARRANGE
+    render(<AchievementSetEmptyState />, {
+      pageProps: {
+        auth: null,
+        backingGame: createGame(),
+        setRequestData: createGameSetRequestData(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText('No achievements yet')).toBeVisible();
+    expect(
+      screen.getByText('Set requests help developers decide what games to work on next.'),
+    ).toBeVisible();
+  });
+
+  it('displays the request set toggle button', () => {
+    // ARRANGE
+    render(<AchievementSetEmptyState />, {
+      pageProps: {
+        auth: null,
+        backingGame: createGame(),
+        setRequestData: createGameSetRequestData(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /request/i })).toBeVisible();
+  });
+
+  it('displays the total requests count', () => {
+    // ARRANGE
+    const setRequestData = createGameSetRequestData({ totalRequests: 123 }); // !!
+
+    render(<AchievementSetEmptyState />, {
+      pageProps: {
+        auth: null,
+        backingGame: createGame({ id: 456 }),
+        setRequestData,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /123/ })).toHaveAttribute(
+      'href',
+      '/setRequestors.php?g=456',
+    );
+  });
+
+  it('given the user is not authenticated, does not display remaining requests', () => {
+    // ARRANGE
+    render(<AchievementSetEmptyState />, {
+      pageProps: {
+        auth: null, // !!
+        backingGame: createGame(),
+        setRequestData: createGameSetRequestData(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/my remaining requests/i)).not.toBeInTheDocument();
+  });
+
+  it('given the user is authenticated, displays remaining requests', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({ displayName: 'Scott' });
+    const setRequestData = createGameSetRequestData({ userRequestsRemaining: 3 }); // !!
+
+    render(<AchievementSetEmptyState />, {
+      pageProps: {
+        auth: { user },
+        backingGame: createGame(),
+        setRequestData,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /3/ })).toBeVisible();
+  });
+});

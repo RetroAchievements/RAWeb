@@ -727,6 +727,11 @@ declare namespace App.Platform.Data {
     gameId?: number | null;
     hasMatureContent?: boolean;
   };
+  export type GameSetRequestData = {
+    hasUserRequestedSet: boolean;
+    totalRequests: number;
+    userRequestsRemaining: number;
+  };
   export type GameShowPageProps = {
     aggregateCredits: App.Platform.Data.AggregateAchievementSetCredits;
     backingGame: App.Platform.Data.Game;
@@ -754,6 +759,7 @@ declare namespace App.Platform.Data {
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
     selectableGameAchievementSets: Array<App.Platform.Data.GameAchievementSet>;
     seriesHub: App.Platform.Data.SeriesHub | null;
+    setRequestData: App.Platform.Data.GameSetRequestData | null;
     targetAchievementSetId: number | null;
   };
   export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
