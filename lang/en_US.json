@@ -1051,5 +1051,18 @@
     "filterRequests_all": "All",
     "Game Forum Topic": "Game Forum Topic",
     "Subset Forum Topic": "Subset Forum Topic",
-    "In Review": "In Review"
+    "In Review": "In Review",
+    "There are no achievements for this set yet.": "There are no achievements for this set yet.",
+    "No achievements yet": "No achievements yet",
+    "Set requests help developers decide what games to work on next.": "Set requests help developers decide what games to work on next.",
+    "requestsFromPlayers_one": "<1>{{val, number}} request</1> from players",
+    "requestsFromPlayers_other": "<1>{{val, number}} requests</1> from players",
+    "myRemainingRequests_one": "<1>{{val, number}} request</1> remaining",
+    "myRemainingRequests_other": "<1>{{val, number}} requests</1> remaining",
+    "Request Set": "Request Set",
+    "Requested": "Requested",
+    "Requesting...": "Requesting...",
+    "Requested!": "Requested!",
+    "Removing request...": "Removing request...",
+    "Removed request!": "Removed request!"
 }

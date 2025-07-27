@@ -25,6 +25,7 @@ export * from './createGameListEntry';
 export * from './createGameRecentPlayer';
 export * from './createGameRelease';
 export * from './createGameSet';
+export * from './createGameSetRequestData';
 export * from './createGameSuggestionEntry';
 export * from './createGameTopAchiever';
 export * from './createHomePageProps';
