@@ -226,9 +226,7 @@ describe('Component: MobileCreditDialogTrigger', () => {
     });
     expect(screen.getByText(/credits/i)).toBeVisible();
     expect(
-      screen.getByText(
-        /this is a list of everyone known to have contributed to this achievement set/i,
-      ),
+      screen.getByText(/the following users have contributed to this achievement set/i),
     ).toBeVisible();
   });
 
