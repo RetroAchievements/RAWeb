@@ -21,16 +21,9 @@ class GameProgressionTest extends TestCase
 
     public function testUnknownGame(): void
     {
-        $this->get($this->apiUrl('GetGameProgress', ['i' => 999999]))
+        $this->get($this->apiUrl('GetGameProgression', ['i' => 999999]))
             ->assertStatus(404)
-            ->assertExactJson([
-                'message' => 'Not Found',
-                'errors' => [[
-                    'code' => 'not_found',
-                    'status' => 404,
-                    'title' => 'Not Found',
-                ]],
-            ]);
+            ->assertExactJson([]);
     }
 
     private function createSession(User $user, Game $game, Carbon $startTime, int $durationInSeconds): PlayerSession
