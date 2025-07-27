@@ -252,7 +252,7 @@ describe('Component: ShowForumTopicMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.queryByRole('link', { name: /edit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Edit' })).not.toBeInTheDocument();
   });
 
   it('given the user is muted, does not show edit button on their posts', () => {
@@ -280,7 +280,7 @@ describe('Component: ShowForumTopicMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.queryByRole('link', { name: /edit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Edit' })).not.toBeInTheDocument();
   });
 
   it('given the user is the post author and not muted, shows edit button on their posts', () => {
@@ -308,7 +308,7 @@ describe('Component: ShowForumTopicMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('link', { name: /edit/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Edit' })).toBeVisible();
   });
 
   it('given the topic is locked, shows a message indicating it is locked', () => {
