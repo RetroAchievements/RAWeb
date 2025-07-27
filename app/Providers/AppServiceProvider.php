@@ -14,6 +14,7 @@ use App\Console\Commands\DeleteOverdueUserAccounts;
 use App\Console\Commands\GenerateTypeScript;
 use App\Console\Commands\LogUsersOnlineCount;
 use App\Console\Commands\MakeJsComponent;
+use App\Console\Commands\SquashMigrations;
 use App\Console\Commands\SyncUsers;
 use App\Console\Commands\SystemAlert;
 use App\Http\InertiaResponseFactory;
@@ -56,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
                 DeleteOverdueUserAccounts::class,
                 GenerateTypeScript::class,
                 LogUsersOnlineCount::class,
+                SquashMigrations::class,
 
                 // User Accounts
                 CleanupAvatars::class,
