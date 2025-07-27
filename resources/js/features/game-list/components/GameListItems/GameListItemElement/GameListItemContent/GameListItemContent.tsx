@@ -60,7 +60,7 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
             </a>
 
             <div className="flex flex-wrap items-center gap-1">
-              {game.system ? (
+              {route().current() !== 'system.game.index' && game.system ? (
                 <SystemChip
                   {...game.system}
                   className="light:bg-neutral-200/70"
@@ -70,10 +70,6 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
                 />
               ) : null}
 
-              {playerGame ? (
-                <ChipOfInterest game={game} playerGame={playerGame} fieldId="progress" />
-              ) : null}
-
               {sortFieldId !== 'progress' ? (
                 <ChipOfInterest
                   game={game}
@@ -81,6 +77,10 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
                   playerGame={undefined}
                   fieldId={chipOfInterestFieldId}
                 />
+              ) : null}
+
+              {playerGame ? (
+                <ChipOfInterest game={game} playerGame={playerGame} fieldId="progress" />
               ) : null}
             </div>
           </div>
