@@ -41,7 +41,7 @@ describe('Component: CreateMessageThreadForm', () => {
         subject: null,
         templateKind: null,
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) }, // !!
-        senderUserDisplayName: 'Scott', // !!
+        senderUser: createUser({ displayName: 'Scott' }), // !!
       },
     });
 
@@ -57,7 +57,7 @@ describe('Component: CreateMessageThreadForm', () => {
         subject: null,
         templateKind: null,
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) }, // !!
-        senderUserDisplayName: 'RAdmin', // !!
+        senderUser: createUser({ displayName: 'RAdmin' }), // !!
       },
     });
 
