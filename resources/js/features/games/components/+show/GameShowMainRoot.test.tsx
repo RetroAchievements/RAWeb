@@ -4,6 +4,7 @@ import { render, screen } from '@/test';
 import {
   createAchievement,
   createAchievementSet,
+  createAggregateAchievementSetCredits,
   createGame,
   createGameAchievementSet,
   createGameSet,
@@ -39,6 +40,8 @@ describe('Component: GameShowMainRoot', () => {
     const { container } = render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         can: {},
         hubs: [createGameSet()],
@@ -64,6 +67,8 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         can: {},
         hubs: [],
@@ -96,6 +101,8 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         can: {},
         hubs: [],
@@ -123,6 +130,8 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         can: {},
         hubs: [],
@@ -154,6 +163,8 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         can: {},
         hasMatureContent: true, // !!
@@ -182,6 +193,8 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         can: {},
         hasMatureContent: false, // !!
@@ -213,6 +226,8 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         can: {},
         hubs: [],
@@ -251,6 +266,8 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         can: {},
         hubs: [],

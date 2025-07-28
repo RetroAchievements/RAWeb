@@ -89,7 +89,7 @@ const CodeCreditIcon: FC<CodeCreditIconProps> = ({ activeMaintainers, logicCredi
             <TooltipCreditsSection headingLabel={t('Code Contributors')}>
               {logicCredits.map((credit) => (
                 <TooltipCreditRow
-                  key={`maintainer-credit-${credit.displayName}`}
+                  key={`logic-credit-${credit.displayName}`}
                   credit={credit}
                   showAchievementCount={true}
                 />
