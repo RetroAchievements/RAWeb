@@ -7,22 +7,35 @@ import { PlayableMainMedia } from '@/common/components/PlayableMainMedia';
 import { PlayableMobileMediaCarousel } from '@/common/components/PlayableMobileMediaCarousel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
+import { AchievementSetEmptyState } from '../AchievementSetEmptyState';
 import { GameAchievementSetsContainer } from '../GameAchievementSetsContainer';
 import { GameCommentList } from '../GameCommentList';
 import { GameHeaderSlotContent } from '../GameHeaderSlotContent';
+import { GameRecentPlayers } from '../GameRecentPlayers';
 
 export const GameShowMainRoot: FC = () => {
-  const { game, hasMatureContent } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { game, hasMatureContent, targetAchievementSetId } =
+    usePageProps<App.Platform.Data.GameShowPageProps>();
 
   if (!game.badgeUrl || !game.system?.iconUrl) {
     return null;
   }
 
+  const allPageAchievements = getAllPageAchievements(
+    game.gameAchievementSets!,
+    targetAchievementSetId,
+  );
+
   return (
     <div data-testid="game-show" className="flex flex-col gap-3">
       {hasMatureContent ? <MatureContentWarningDialog /> : null}
 
-      <GameBreadcrumbs game={game} system={game.system} />
+      <GameBreadcrumbs
+        game={game}
+        gameAchievementSet={game.gameAchievementSets?.[0]}
+        system={game.system}
+      />
       <PlayableHeader
         badgeUrl={game.badgeUrl}
         systemIconUrl={game.system.iconUrl}
@@ -47,7 +60,12 @@ export const GameShowMainRoot: FC = () => {
       </div>
 
       <div className="flex flex-col gap-6">
-        <GameAchievementSetsContainer game={game} />
+        <div className="flex flex-col">
+          <GameAchievementSetsContainer game={game} />
+          {!allPageAchievements.length ? <AchievementSetEmptyState /> : null}
+        </div>
+
+        <GameRecentPlayers />
         <GameCommentList />
       </div>
     </div>

@@ -14,6 +14,9 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class GameShowPagePropsData extends Data
 {
     /**
+     * @param Collection<int, FollowedPlayerCompletionData> $followedPlayerCompletions
+     * @param Collection<int, PlayerAchievementChartBucketData> $playerAchievementChartBuckets
+     * @param Collection<int, GameRecentPlayerData> $recentPlayers
      * @param Collection<int, AchievementSetClaimData> $achievementSetClaims
      * @param Collection<int, CommentData> $recentVisibleComments
      * @param Collection<int, FollowedPlayerCompletionData> $followedPlayerCompletions
@@ -21,10 +24,11 @@ class GameShowPagePropsData extends Data
      * @param Collection<int, PlayerAchievementChartBucketData> $playerAchievementChartBuckets
      */
     public function __construct(
-        public Collection $achievementSetClaims,
         public AggregateAchievementSetCreditsData $aggregateCredits,
-        public GameData $game,
+        public GameData $backingGame,
         public UserPermissionsData $can,
+        public GameData $game,
+        public Collection $achievementSetClaims,
         public bool $hasMatureContent,
         /** @var GameSetData[] */
         public array $hubs,
@@ -39,13 +43,18 @@ class GameShowPagePropsData extends Data
         public int $numCompatibleHashes,
         public int $numMasters,
         public int $numOpenTickets,
+        public Collection $recentPlayers,
         public Collection $recentVisibleComments,
         /** @var GameData[] */
         public array $similarGames,
         public Collection $topAchievers,
         public ?PlayerGameData $playerGame,
         public ?PlayerGameProgressionAwardsData $playerGameProgressionAwards,
+        /** @var GameAchievementSetData[] */
+        public array $selectableGameAchievementSets,
         public ?SeriesHubData $seriesHub,
+        public ?GameSetRequestData $setRequestData,
+        public ?int $targetAchievementSetId,
     ) {
     }
 }

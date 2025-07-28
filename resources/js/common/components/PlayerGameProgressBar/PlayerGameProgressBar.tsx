@@ -25,6 +25,7 @@ interface PlayerGameProgressBarProps {
   playerGame: App.Platform.Data.PlayerGame | null;
 
   ariaLabel?: TranslatedString;
+  className?: string;
 
   /**
    * When undefined, defaults to game.show.
@@ -47,16 +48,17 @@ interface PlayerGameProgressBarProps {
 
   /**
    * base: The award label is subdued. Useful when many progress bars are in a "stacked" layout.
-   * event: The award label is not shown. Points is only shown in the tooltip if pointsTotal is different from achievementsPublished.
+   * minimal: The award label is not shown. Points is only shown in the tooltip if pointsTotal is different from achievementsPublished.
    * unmuted: The award label is not subdued. Good for when there aren't many bars to display.
    */
-  variant?: 'base' | 'event' | 'unmuted';
+  variant?: 'base' | 'minimal' | 'unmuted';
 
   width?: number;
 }
 
 export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
   ariaLabel,
+  className,
   game,
   href,
   playerGame,
@@ -89,7 +91,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
    * details is largely redundant.
    */
   const canShowDetailedProgress =
-    variant === 'event' || achievementsUnlocked !== achievementsPublished;
+    variant === 'minimal' || achievementsUnlocked !== achievementsPublished;
 
   const isEventGame = getIsEventGame(game);
 
@@ -106,7 +108,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
 
   const canLink = href && achievementsUnlocked;
   const canShowTooltipPoints =
-    (variant === 'event' && achievementsPublished !== pointsTotal) || variant !== 'event';
+    (variant === 'minimal' && achievementsPublished !== pointsTotal) || variant !== 'minimal';
 
   const Wrapper = canLink && achievementsUnlocked ? 'a' : 'div';
 
@@ -117,6 +119,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
           'group',
           achievementsUnlocked === 0 ? '!cursor-auto' : '',
           !highestAward && isTooltipEnabled ? 'py-2' : '', // increase the hover surface area
+          className,
         )}
         style={{ minWidth: width, maxWidth: width }}
       >
@@ -139,7 +142,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
           />
 
           <div className={cn('flex w-full items-center justify-between')}>
-            {highestAward && !isEventGame && variant !== 'event' ? (
+            {highestAward && !isEventGame && variant !== 'minimal' ? (
               <div className={cn('flex items-center gap-1')}>
                 <PlayerBadgeIndicator playerBadge={highestAward} className="mt-px" />
                 <p>

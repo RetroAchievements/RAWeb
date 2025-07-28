@@ -168,7 +168,7 @@ describe('Component: PlayerGameProgressBar', () => {
     expect(tooltipEl).toHaveTextContent(/mastered/i);
   });
 
-  it('given variant is "event" and pointsTotal equals achievementsPublished, does not show points metadata in the tooltip', async () => {
+  it('given variant is "minimal" and pointsTotal equals achievementsPublished, does not show points metadata in the tooltip', async () => {
     // ARRANGE
     const system = createSystem({ id: 1 });
     const game = createGame({ system, achievementsPublished: 400, pointsTotal: 400 });
@@ -184,7 +184,7 @@ describe('Component: PlayerGameProgressBar', () => {
       }),
     });
 
-    render(<PlayerGameProgressBar game={game} playerGame={playerGame} variant="event" />);
+    render(<PlayerGameProgressBar game={game} playerGame={playerGame} variant="minimal" />);
 
     // ACT
     await userEvent.hover(screen.getByRole('progressbar'));

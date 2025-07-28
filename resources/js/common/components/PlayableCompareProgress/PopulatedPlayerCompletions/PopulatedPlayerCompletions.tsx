@@ -100,16 +100,17 @@ const PlayerCompletionList: FC<PlayerCompletionListProps> = ({ completions, game
     <ul className="zebra-list">
       {completions.map((completion) => (
         <li
-          className="flex w-full items-center justify-between gap-2 p-2"
+          className="flex w-full items-center justify-between gap-2 p-2 first:rounded-t-lg last:rounded-b-lg"
           key={`completion-${completion.user.displayName}`}
         >
           <span className="lg:w-[130px] xl:w-[176px]">
             <UserAvatar {...completion.user} size={24} labelClassName="truncate" />
           </span>
+
           <PlayerGameProgressBar
             playerGame={completion.playerGame}
             game={game}
-            variant="event"
+            variant="minimal"
             width={108}
             href={route('game.compare-unlocks', {
               game: game.id,

@@ -58,11 +58,15 @@ class ResumePlayerSessionAction
             ->orderByDesc('id')
             ->first();
 
+        // As best as we can, we'll try to only write once to the user model.
+        $doesUserNeedsUpdate = false;
+
         if ($user->LastGameID !== $game->id) {
             expireRecentlyPlayedGames($user->User);
+
             // TODO deprecated, read from last player_sessions entry where needed
             $user->LastGameID = $game->id;
-            $user->saveQuietly();
+            $doesUserNeedsUpdate = true;
         }
 
         // if the timestamp is within the session, just return it (backdated unlocks)
@@ -96,7 +100,7 @@ class ResumePlayerSessionAction
                 // TODO deprecated, read from last player_sessions entry where needed
                 $user->RichPresenceMsg = utf8_sanitize($presence);
                 $user->RichPresenceMsgDate = $timestamp;
-                $user->saveQuietly();
+                $doesUserNeedsUpdate = true;
 
                 // Update the player's game_recent_players table entry.
                 GameRecentPlayer::upsert(
@@ -125,6 +129,10 @@ class ResumePlayerSessionAction
             }
 
             $playerSession->save(['touch' => true]);
+
+            if ($doesUserNeedsUpdate) {
+                $user->saveQuietly();
+            }
 
             PlayerSessionResumed::dispatch($user, $game, $presence);
 

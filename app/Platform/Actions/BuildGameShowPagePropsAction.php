@@ -10,20 +10,24 @@ use App\Community\Enums\UserGameListType;
 use App\Data\UserPermissionsData;
 use App\Enums\GameHashCompatibility;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Platform\Data\AchievementSetClaimData;
 use App\Platform\Data\AggregateAchievementSetCreditsData;
+use App\Platform\Data\GameAchievementSetData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
+use App\Platform\Data\GameSetRequestData;
 use App\Platform\Data\GameShowPagePropsData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
 use App\Platform\Data\UserCreditsData;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementSetAuthorTask;
+use App\Platform\Enums\AchievementSetType;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 
@@ -34,16 +38,47 @@ class BuildGameShowPagePropsAction
         protected BuildGameAchievementDistributionAction $buildGameAchievementDistributionAction,
         protected LoadGameTopAchieversAction $loadGameTopAchieversAction,
         protected BuildSeriesHubDataAction $buildSeriesHubDataAction,
+        protected ResolveBackingGameForAchievementSetAction $resolveBackingGameForAchievementSetAction,
+        protected LoadGameRecentPlayersAction $loadGameRecentPlayersAction,
         protected ProcessGameReleasesForViewAction $processGameReleasesForViewAction,
     ) {
     }
 
-    public function execute(Game $game, ?User $user): GameShowPagePropsData
+    public function execute(Game $game, ?User $user, ?GameAchievementSet $targetAchievementSet = null): GameShowPagePropsData
     {
-        [$numMasters, $topAchievers] = $this->loadGameTopAchieversAction->execute($game);
+        // The backing game is the legacy game that backs the target achievement set.
+        // For core sets, this will be $game->id. For subsets, it'll be a different ID.
+        $backingGameId = null;
+
+        if ($targetAchievementSet !== null) {
+            $backingGameId = $this->resolveBackingGameForAchievementSetAction->execute(
+                $targetAchievementSet->achievement_set_id
+            );
+        }
+
+        // If we have a backing game ID different from the current game, load it.
+        // Otherwise, use the current game as the backing game.
+        $backingGame = null;
+        if ($backingGameId && $backingGameId !== $game->id) {
+            $backingGame = Game::find($backingGameId);
+
+            // Load the visible comments relationship for the backing game.
+            $backingGame->load(['visibleComments' => function ($query) {
+                $query->latest('Submitted')
+                    ->limit(20)
+                    ->with(['user' => function ($userQuery) {
+                        $userQuery->withTrashed();
+                    }]);
+            }]);
+        } else {
+            // Use the current game as the backing game.
+            $backingGame = $game;
+        }
+
+        [$numMasters, $topAchievers] = $this->loadGameTopAchieversAction->execute($backingGame);
 
         $playerGame = $user
-            ? $user->playerGames()->whereGameId($game->id)->first()
+            ? $user->playerGames()->whereGameId($backingGame->id)->first()
             : null;
 
         // Attach PlayerAchievement records directly to the achievements collection.
@@ -118,6 +153,7 @@ class BuildGameShowPagePropsAction
             ->values()
             ->all();
 
+        $initialUserGameListState = $this->getInitialUserGameListState($backingGame, $user);
         $initialUserGameListState = $this->getInitialUserGameListState($game, $user);
         $achievementSetClaims = $this->buildAchievementSetClaims($game, $user);
 
@@ -184,27 +220,70 @@ class BuildGameShowPagePropsAction
             ))->values()->all(),
 
             aggregateCredits: $this->buildAggregateCredits($game),
-            hasMatureContent: $game->hasMatureContent,
+
+            backingGame: GameData::fromGame($backingGame)->include(
+                'achievementsPublished',
+                'forumTopicId'
+            ),
+
+            hasMatureContent: $backingGame->hasMatureContent,
             hubs: $relatedHubs,
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
             isOnWantToPlayList: $initialUserGameListState['isOnWantToPlayList'],
-            isSubscribedToComments: $user ? isUserSubscribedToArticleComments(ArticleType::Game, $game->id, $user->id) : false,
+            isSubscribedToComments: $user ? isUserSubscribedToArticleComments(ArticleType::Game, $backingGame->id, $user->id) : false,
             isLockedOnlyFilterEnabled: $isLockedOnlyFilterEnabled,
             isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
-            followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $game),
-            playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($game, $user),
-            numComments: $game->visibleComments($user)->count(),
-            numCompatibleHashes: $game->hashes->where('compatibility', GameHashCompatibility::Compatible)->count(),
+            followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
+            playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($backingGame, $user),
+            numComments: $backingGame->visibleComments($user)->count(),
+            numCompatibleHashes: $this->getCompatibleHashesCount($game, $backingGame, $targetAchievementSet),
             numMasters: $numMasters,
-            numOpenTickets: Ticket::forGame($game)->unresolved()->count(),
-            recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($game->visibleComments))),
+            numOpenTickets: Ticket::forGame($backingGame)->unresolved()->count(),
+            recentPlayers: $this->loadGameRecentPlayersAction->execute($game),
+            recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($backingGame->visibleComments))),
             topAchievers: $topAchievers,
             playerGame: $playerGame ? PlayerGameData::fromPlayerGame($playerGame) : null,
             playerGameProgressionAwards: $user
-                ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($game->id, $user))
+                ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($backingGame->id, $user))
                 : null,
             seriesHub: $this->buildSeriesHubDataAction->execute($game),
+            setRequestData: $this->buildSetRequestData($backingGame, $user),
+            targetAchievementSetId: $targetAchievementSet?->achievement_set_id,
+
+            selectableGameAchievementSets: $game->getAttribute('selectableGameAchievementSets')
+                ->map(function ($gas) {
+                    $gas->achievementSet->setRelation('achievements', collect());
+
+                    return GameAchievementSetData::from($gas)->include(
+                        'type',
+                        'title',
+                        'achievementSet.id',
+                        'achievementSet.imageAssetPathUrl',
+                        'achievementSet.achievementsPublished',
+                        'achievementSet.pointsTotal',
+                        'achievementSet.pointsWeighted',
+                        'achievementSet.achievements', // this will always be empty
+                    );
+                })
+                ->values()
+                ->all(),
         );
+    }
+
+    /**
+     * @return Collection<int, AchievementSetClaimData>
+     */
+    private function buildAchievementSetClaims(Game $game, ?User $user): Collection
+    {
+        // Build the include array based on current user permissions.
+        $claimIncludes = ['user', 'finishedAt', 'status'];
+        if ($user && $user->hasAnyRole([Role::DEV_COMPLIANCE, Role::MODERATOR, Role::ADMINISTRATOR])) {
+            $claimIncludes[] = 'userLastPlayedAt';
+        }
+
+        return $game->achievementSetClaims
+            ->map(fn ($claim) => AchievementSetClaimData::fromAchievementSetClaim($claim)->include(...$claimIncludes))
+            ->values();
     }
 
     private function buildAggregateCredits(Game $game): AggregateAchievementSetCreditsData
@@ -218,6 +297,7 @@ class BuildGameShowPagePropsAction
         $achievementsLogicCredits = collect();
         $achievementsTestingCredits = collect();
         $achievementsWritingCredits = collect();
+        $hashCompatibilityTestingCredits = collect();
 
         // Process achievement set authors. Right now, we only support badge artwork as a task.
         foreach ($game->gameAchievementSets as $gameAchievementSet) {
@@ -237,6 +317,24 @@ class BuildGameShowPagePropsAction
                     'user' => $mostRecentArtworkAuthor->user,
                     'count' => ($existing['count'] ?? 0) + 1,
                     'created_at' => $mostRecentArtworkAuthor->created_at,
+                ]);
+            }
+        }
+
+        // Process hash compatibility testing credits.
+        // Credit is given to users who successfully tested hash compatibility.
+        $compatibleHashes = $game->hashes()
+            ->where('compatibility', GameHashCompatibility::Compatible)
+            ->whereNotNull('compatibility_tester_id')
+            ->whereColumn('compatibility_tester_id', '!=', 'user_id')
+            ->with('compatibilityTester')
+            ->get();
+        foreach ($compatibleHashes as $hash) {
+            if ($hash->compatibilityTester) {
+                $hashCompatibilityTestingCredits->put($hash->compatibilityTester->id, [
+                    'user' => $hash->compatibilityTester,
+                    'count' => 0,
+                    'created_at' => $hash->updated_at,
                 ]);
             }
         }
@@ -339,6 +437,7 @@ class BuildGameShowPagePropsAction
             achievementsLogic: $sortByCountDesc($achievementsLogicCredits),
             achievementsTesting: $sortByCountDesc($achievementsTestingCredits),
             achievementsWriting: $sortByCountDesc($achievementsWritingCredits),
+            hashCompatibilityTesting: $sortByCountDesc($hashCompatibilityTestingCredits),
         );
     }
 
@@ -366,22 +465,6 @@ class BuildGameShowPagePropsAction
         ];
     }
 
-    /**
-     * @return Collection<int, AchievementSetClaimData>
-     */
-    private function buildAchievementSetClaims(Game $game, ?User $user): Collection
-    {
-        // Build the include array based on current user permissions.
-        $claimIncludes = ['user', 'finishedAt'];
-        if ($user && $user->hasAnyRole([Role::DEV_COMPLIANCE, Role::MODERATOR, Role::ADMINISTRATOR])) {
-            $claimIncludes[] = 'userLastPlayedAt';
-        }
-
-        return $game->achievementSetClaims
-            ->map(fn ($claim) => AchievementSetClaimData::fromAchievementSetClaim($claim)->include(...$claimIncludes))
-            ->values();
-    }
-
     private function getIsGameIdInCookie(string $cookieName, int $gameId): bool
     {
         $cookieValue = Cookie::get($cookieName);
@@ -392,5 +475,50 @@ class BuildGameShowPagePropsAction
         $gameIds = array_filter(array_map('intval', explode(',', $cookieValue)));
 
         return in_array($gameId, $gameIds);
+    }
+
+    private function getCompatibleHashesCount(Game $game, Game $backingGame, ?GameAchievementSet $targetAchievementSet): int
+    {
+        // Use the backing game's hashes for Specialty and Exclusive set types.
+        if ($targetAchievementSet !== null) {
+            $setType = $targetAchievementSet->type;
+            if (in_array($setType, [
+                AchievementSetType::Specialty,
+                AchievementSetType::WillBeSpecialty,
+                AchievementSetType::Exclusive,
+                AchievementSetType::WillBeExclusive,
+            ])) {
+                return $backingGame->hashes->where('compatibility', GameHashCompatibility::Compatible)->count();
+            }
+        }
+
+        // Otherwise use the main game's hashes.
+        return $game->hashes->where('compatibility', GameHashCompatibility::Compatible)->count();
+    }
+
+    private function buildSetRequestData(Game $backingGame, ?User $user): ?GameSetRequestData
+    {
+        // Only return set request data for games without achievements.
+        if ($backingGame->achievements_published > 0) {
+            return null;
+        }
+
+        $totalRequests = getSetRequestCount($backingGame->id);
+
+        if (!$user) {
+            return new GameSetRequestData(
+                hasUserRequestedSet: false,
+                totalRequests: $totalRequests,
+                userRequestsRemaining: 0,
+            );
+        }
+
+        $userRequestInfo = getUserRequestsInformation($user, $backingGame->id);
+
+        return new GameSetRequestData(
+            hasUserRequestedSet: (bool) $userRequestInfo['requestedThisGame'],
+            totalRequests: $totalRequests,
+            userRequestsRemaining: $userRequestInfo['remaining'],
+        );
     }
 }

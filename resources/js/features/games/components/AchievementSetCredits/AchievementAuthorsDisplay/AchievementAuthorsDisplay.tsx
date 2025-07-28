@@ -35,11 +35,11 @@ export const AchievementAuthorsDisplay: FC<AchievementAuthorsDisplayProps> = ({ 
     percentage: totalAchievements > 0 ? (author.count / totalAchievements) * 100 : 0,
   }));
 
-  // Separate authors who contributed at least 33% from the rest.
-  const prominentAuthors = authorsWithPercentage.filter((author) => author.percentage >= 33);
-  const otherAuthors = authorsWithPercentage.filter((author) => author.percentage < 33);
+  // Separate authors who contributed at least 30% from the rest.
+  const prominentAuthors = authorsWithPercentage.filter((author) => author.percentage >= 30);
+  const otherAuthors = authorsWithPercentage.filter((author) => author.percentage < 30);
 
-  // If no prominent authors (all have < 33%), show them all in a stack.
+  // If no prominent authors (all have < 30%), show them all in a stack.
   if (prominentAuthors.length === 0) {
     return (
       <div className={containerClassNames}>

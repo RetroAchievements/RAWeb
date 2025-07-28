@@ -96,7 +96,7 @@ class WriteUserActivity
                 $storeActivity = !empty($subjectId);
 
                 // don't update user's LastLogin when creating player_game entries for events
-                $updateLastLogin = System::isGameSystem($event->game->system->id);
+                $updateLastLogin = System::isGameSystem($event->game->ConsoleID);
                 break;
             default:
         }

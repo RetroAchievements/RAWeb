@@ -9,6 +9,7 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     // ARRANGE
     const { container } = render(<GameSidebarFullWidthButtons game={createGame()} />, {
       pageProps: {
+        backingGame: createGame(),
         can: {},
       },
     });
@@ -21,6 +22,7 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     // ARRANGE
     render(<GameSidebarFullWidthButtons game={createGame()} />, {
       pageProps: {
+        backingGame: createGame(),
         can: {},
       },
     });
@@ -38,6 +40,7 @@ describe('Component: GameSidebarFullWidthButtons', () => {
       {
         pageProps: {
           auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
           can: {},
         },
       },
@@ -54,6 +57,7 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     render(<GameSidebarFullWidthButtons game={createGame({ guideUrl: 'google.com' })} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
         can: {},
       },
     });
@@ -67,6 +71,7 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     render(<GameSidebarFullWidthButtons game={createGame()} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
         can: { manageGames: true },
       },
     });
@@ -81,6 +86,7 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     render(<GameSidebarFullWidthButtons game={createGame({ forumTopicId: undefined })} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
         can: { manageGames: true, createGameForumTopic: true },
       },
     });
@@ -94,6 +100,7 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     render(<GameSidebarFullWidthButtons game={createGame({ forumTopicId: 123 })} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
         can: { manageGames: true, createGameForumTopic: true },
       },
     });
@@ -113,6 +120,7 @@ describe('Component: GameSidebarFullWidthButtons', () => {
       {
         pageProps: {
           auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
           can: { manageGames: true, createGameForumTopic: true },
         },
       },
@@ -128,6 +136,7 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     render(<GameSidebarFullWidthButtons game={createGame()} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
         can: { manageGames: true, createGameForumTopic: true },
         numCompatibleHashes: 0, // !!
       },
@@ -142,6 +151,7 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     render(<GameSidebarFullWidthButtons game={createGame()} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
         can: { manageGames: true, createGameForumTopic: true },
         numCompatibleHashes: 1, // !!
       },
@@ -156,6 +166,7 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     render(<GameSidebarFullWidthButtons game={createGame({ forumTopicId: undefined })} />, {
       pageProps: {
         auth: null,
+        backingGame: createGame(),
         can: { manageGames: false, createGameForumTopic: false },
         numCompatibleHashes: 0, // !!
       },
@@ -172,6 +183,7 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     render(<GameSidebarFullWidthButtons game={createGame({ forumTopicId: undefined })} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        backingGame: createGame(),
         game: createGame(),
         can: { manageGames: true, createGameForumTopic: false },
       },

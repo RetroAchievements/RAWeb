@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\GameRecentPlayerFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class GameRecentPlayer extends BaseModel
 {
+    /** @use HasFactory<GameRecentPlayerFactory> */
+    use HasFactory;
+
     protected $table = 'game_recent_players';
 
     protected $fillable = [
@@ -23,6 +28,11 @@ class GameRecentPlayer extends BaseModel
     ];
 
     public $timestamps = false;
+
+    protected static function newFactory(): GameRecentPlayerFactory
+    {
+        return GameRecentPlayerFactory::new();
+    }
 
     // == accessors
 

@@ -17,11 +17,17 @@ import { InertiaLink } from '../InertiaLink';
 
 interface GameBreadcrumbsProps {
   game?: App.Platform.Data.Game;
+  gameAchievementSet?: App.Platform.Data.GameAchievementSet;
   system?: App.Platform.Data.System;
   t_currentPageLabel?: TranslatedString;
 }
 
-export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({ t_currentPageLabel, game, system }) => {
+export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({
+  t_currentPageLabel,
+  game,
+  gameAchievementSet,
+  system,
+}) => {
   const { t } = useTranslation();
 
   return (
@@ -57,10 +63,39 @@ export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({ t_currentPageLabel, 
                   <BaseBreadcrumbLink href={route('game.show', { game: game.id })}>
                     <GameTitle title={game.title} />
                   </BaseBreadcrumbLink>
-                ) : (
+                ) : null}
+
+                {!t_currentPageLabel && !gameAchievementSet?.title ? (
                   <BaseBreadcrumbPage>
                     <GameTitle title={game.title} />
                   </BaseBreadcrumbPage>
+                ) : null}
+
+                {!t_currentPageLabel && gameAchievementSet?.title ? (
+                  <BaseBreadcrumbLink href={route('game.show', { game: game.id })}>
+                    <GameTitle title={game.title} />
+                  </BaseBreadcrumbLink>
+                ) : null}
+              </BaseBreadcrumbItem>
+            </>
+          ) : null}
+
+          {game && gameAchievementSet?.title ? (
+            <>
+              <BaseBreadcrumbSeparator />
+
+              <BaseBreadcrumbItem aria-label={gameAchievementSet.title}>
+                {t_currentPageLabel ? (
+                  <BaseBreadcrumbLink
+                    href={route('game2.show', {
+                      game: game.id,
+                      set: gameAchievementSet.achievementSet.id,
+                    })}
+                  >
+                    {gameAchievementSet.title}
+                  </BaseBreadcrumbLink>
+                ) : (
+                  <BaseBreadcrumbPage>{gameAchievementSet.title}</BaseBreadcrumbPage>
                 )}
               </BaseBreadcrumbItem>
             </>

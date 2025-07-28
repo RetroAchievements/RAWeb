@@ -235,6 +235,20 @@ declare module 'ziggy-js' {
         }
     ],
     "api.ticket.store": [],
+    "api.game.set-request.store": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "api.game.set-request.destroy": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "player.games.resettable": [],
     "player.game.achievements.resettable": [
         {
@@ -469,6 +483,15 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "api.set-request.index": [],
+    "api.set-request.random": [],
+    "api.set-request.user": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "api.subscription.store": [
         {
             "name": "subjectType",
@@ -584,6 +607,14 @@ declare module 'ziggy-js' {
     "game.hashes.comment.index": [
         {
             "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "game.request.index": [],
+    "game.request.user": [
+        {
+            "name": "user",
             "required": true,
             "binding": "ID"
         }

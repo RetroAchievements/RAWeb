@@ -252,7 +252,7 @@ describe('Component: ShowForumTopicMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.queryByRole('link', { name: /edit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Edit' })).not.toBeInTheDocument();
   });
 
   it('given the user is muted, does not show edit button on their posts', () => {
@@ -280,7 +280,7 @@ describe('Component: ShowForumTopicMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.queryByRole('link', { name: /edit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Edit' })).not.toBeInTheDocument();
   });
 
   it('given the user is the post author and not muted, shows edit button on their posts', () => {
@@ -308,7 +308,7 @@ describe('Component: ShowForumTopicMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('link', { name: /edit/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Edit' })).toBeVisible();
   });
 
   it('given the topic is locked, shows a message indicating it is locked', () => {
@@ -396,5 +396,69 @@ describe('Component: ShowForumTopicMainRoot', () => {
 
     // ASSERT
     expect(screen.getByRole('textbox')).toBeVisible();
+  });
+
+  it('given the topic is locked and the user is still allowed to apply, shows some text saying so', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({
+      displayName: 'TestUser',
+    });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+    const forumTopic = createForumTopic({ forum, lockedAt: new Date().toISOString() }); // !!
+
+    const comment = createForumTopicComment({ user: createUser({ displayName: 'TestUser' }) });
+    const paginatedForumTopicComments = createPaginatedData([comment]);
+
+    render(<ShowForumTopicMainRoot />, {
+      pageProps: {
+        auth: { user },
+        forumTopic,
+        paginatedForumTopicComments,
+        can: {
+          createForumTopicComments: true, // !!
+        },
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/this topic is locked/i)).toBeVisible();
+    expect(screen.getByText(/as staff, you can still reply/i)).toBeVisible();
+
+    expect(screen.getByRole('textbox')).toBeVisible();
+  });
+
+  it('given the topic is locked and user is not staff, shows only locked message without reply form', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({
+      displayName: 'TestUser',
+    });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+    const forumTopic = createForumTopic({ forum, lockedAt: new Date().toISOString() }); // !!
+
+    const comment = createForumTopicComment({ user: createUser({ displayName: 'TestUser' }) });
+    const paginatedForumTopicComments = createPaginatedData([comment]);
+
+    render(<ShowForumTopicMainRoot />, {
+      pageProps: {
+        auth: { user },
+        forumTopic,
+        paginatedForumTopicComments,
+        can: {
+          createForumTopicComments: false, // !!
+        },
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/this topic is locked/i)).toBeVisible();
+    expect(screen.queryByText(/as staff, you can still reply/i)).not.toBeInTheDocument();
+
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   });
 });

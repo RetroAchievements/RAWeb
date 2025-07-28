@@ -11,11 +11,7 @@ describe('Component: GameAchievementSetHeader', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <GameAchievementSetHeader
-        gameAchievementSet={createGameAchievementSet()}
-        isOnlySetForGame={false}
-        isOpen={false}
-      />,
+      <GameAchievementSetHeader gameAchievementSet={createGameAchievementSet()} />,
     );
 
     // ASSERT
@@ -28,13 +24,7 @@ describe('Component: GameAchievementSetHeader', () => {
       title: null,
     });
 
-    render(
-      <GameAchievementSetHeader
-        gameAchievementSet={gameAchievementSet}
-        isOnlySetForGame={false}
-        isOpen={false}
-      />,
-    );
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />);
 
     // ASSERT
     expect(screen.getByText(/base set/i)).toBeVisible();
@@ -46,57 +36,15 @@ describe('Component: GameAchievementSetHeader', () => {
       title: 'Professor Oak Challenge',
     });
 
-    render(
-      <GameAchievementSetHeader
-        gameAchievementSet={gameAchievementSet}
-        isOnlySetForGame={false}
-        isOpen={false}
-      />,
-    );
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />);
 
     // ASSERT
     expect(screen.getByText('Professor Oak Challenge')).toBeVisible();
   });
 
-  it('given it is not the only set for the game and is closed, shows a downward-facing chevron', () => {
-    // ARRANGE
-    render(
-      <GameAchievementSetHeader
-        gameAchievementSet={createGameAchievementSet()}
-        isOnlySetForGame={false}
-        isOpen={false}
-      />,
-    );
-
-    // ASSERT
-    const icon = screen.getByTestId('chevron');
-    expect(icon).toHaveClass('rotate-0');
-  });
-
-  it('given it is not the only set for the game and is open, shows an upward-facing chevron', () => {
-    // ARRANGE
-    render(
-      <GameAchievementSetHeader
-        gameAchievementSet={createGameAchievementSet()}
-        isOnlySetForGame={false}
-        isOpen={true}
-      />,
-    );
-
-    // ASSERT
-    const icon = screen.getByTestId('chevron');
-    expect(icon).toHaveClass('rotate-180');
-  });
-
   it('given it is the only set for the game, does not show a chevron', () => {
     // ARRANGE
-    render(
-      <GameAchievementSetHeader
-        gameAchievementSet={createGameAchievementSet()}
-        isOnlySetForGame={true}
-        isOpen={false}
-      />,
-    );
+    render(<GameAchievementSetHeader gameAchievementSet={createGameAchievementSet()} />);
 
     // ASSERT
     expect(screen.queryByTestId('chevron')).not.toBeInTheDocument();
@@ -107,13 +55,7 @@ describe('Component: GameAchievementSetHeader', () => {
     const gameAchievementSet = createGameAchievementSet();
     const { imageAssetPathUrl } = gameAchievementSet.achievementSet;
 
-    render(
-      <GameAchievementSetHeader
-        gameAchievementSet={gameAchievementSet}
-        isOnlySetForGame={false}
-        isOpen={false}
-      />,
-    );
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />);
 
     // ASSERT
     const imgElement = screen.getByRole('img');
@@ -132,16 +74,26 @@ describe('Component: GameAchievementSetHeader', () => {
       }),
     });
 
-    render(
-      <GameAchievementSetHeader
-        gameAchievementSet={gameAchievementSet}
-        isOnlySetForGame={false}
-        isOpen={false}
-      />,
-    );
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />);
 
     // ASSERT
-    expect(screen.getByText(/2 achievements worth 30/i)).toBeVisible();
+    expect(screen.getByText(/2/i)).toBeVisible();
+    expect(screen.getByText(/achievements worth/i)).toBeVisible();
+    expect(screen.getByText(/30/i)).toBeVisible();
     expect(screen.getByText(/15/i)).toBeVisible();
+  });
+
+  it('given the set has no achievements, shows the correct label', () => {
+    // ARRANGE
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements: [], // !!
+      }),
+    });
+
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />);
+
+    // ASSERT
+    expect(screen.getByText(/there are no achievements for this set yet/i)).toBeVisible();
   });
 });

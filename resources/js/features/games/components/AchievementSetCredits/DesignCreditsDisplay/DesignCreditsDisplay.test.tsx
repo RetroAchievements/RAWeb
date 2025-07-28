@@ -9,7 +9,12 @@ describe('Component: DesignCreditsDisplay', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <DesignCreditsDisplay designCredits={[]} testingCredits={[]} writingCredits={[]} />,
+      <DesignCreditsDisplay
+        designCredits={[]}
+        hashCompatibilityTestingCredits={[]}
+        testingCredits={[]}
+        writingCredits={[]}
+      />,
     );
 
     // ASSERT
@@ -26,6 +31,7 @@ describe('Component: DesignCreditsDisplay', () => {
     render(
       <DesignCreditsDisplay
         designCredits={designCredits}
+        hashCompatibilityTestingCredits={[]}
         testingCredits={[]}
         writingCredits={[]}
       />,
@@ -52,6 +58,7 @@ describe('Component: DesignCreditsDisplay', () => {
     render(
       <DesignCreditsDisplay
         designCredits={[]}
+        hashCompatibilityTestingCredits={[]}
         testingCredits={testingCredits}
         writingCredits={[]}
       />,
@@ -78,6 +85,7 @@ describe('Component: DesignCreditsDisplay', () => {
     render(
       <DesignCreditsDisplay
         designCredits={[]}
+        hashCompatibilityTestingCredits={[]}
         testingCredits={[]}
         writingCredits={writingCredits}
       />,
@@ -103,6 +111,7 @@ describe('Component: DesignCreditsDisplay', () => {
     render(
       <DesignCreditsDisplay
         designCredits={designCredits}
+        hashCompatibilityTestingCredits={[]}
         testingCredits={testingCredits}
         writingCredits={writingCredits}
       />,
@@ -130,6 +139,7 @@ describe('Component: DesignCreditsDisplay', () => {
     render(
       <DesignCreditsDisplay
         designCredits={designCredits}
+        hashCompatibilityTestingCredits={[]}
         testingCredits={testingCredits}
         writingCredits={writingCredits}
       />,
@@ -148,6 +158,7 @@ describe('Component: DesignCreditsDisplay', () => {
     render(
       <DesignCreditsDisplay
         designCredits={designCredits}
+        hashCompatibilityTestingCredits={[]}
         testingCredits={[]}
         writingCredits={[]}
       />,
@@ -162,5 +173,74 @@ describe('Component: DesignCreditsDisplay', () => {
     });
     expect(screen.queryByText(/playtesters/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/writing contributions/i)).not.toBeInTheDocument();
+  });
+
+  it('given hash compatibility testing credits exist, shows them in the tooltip', async () => {
+    // ARRANGE
+    const hashCompatibilityTestingCredits = [
+      createUserCredits({ displayName: 'Alice', dateCredited: '2024-01-15' }),
+      createUserCredits({ displayName: 'Bob', dateCredited: '2024-01-20' }),
+    ];
+
+    render(
+      <DesignCreditsDisplay
+        designCredits={[]}
+        hashCompatibilityTestingCredits={hashCompatibilityTestingCredits}
+        testingCredits={[]}
+        writingCredits={[]}
+      />,
+    );
+
+    // ACT
+    await userEvent.hover(screen.getByRole('button'));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/hash compatibility testing/i)[0]).toBeVisible();
+    });
+    expect(screen.getAllByText('Alice')[0]).toBeVisible();
+    expect(screen.getAllByText('Bob')[0]).toBeVisible();
+  });
+
+  it('shows hash compatibility credits in the avatar stack', () => {
+    // ARRANGE
+    const hashCompatibilityTestingCredits = [
+      createUserCredits({ displayName: 'Alice' }),
+      createUserCredits({ displayName: 'Bob' }),
+    ];
+    const designCredits = [createUserCredits({ displayName: 'Charlie' })];
+
+    render(
+      <DesignCreditsDisplay
+        designCredits={designCredits}
+        hashCompatibilityTestingCredits={hashCompatibilityTestingCredits}
+        testingCredits={[]}
+        writingCredits={[]}
+      />,
+    );
+
+    // ASSERT
+    const avatarImages = screen.getAllByRole('img');
+    expect(avatarImages).toHaveLength(3);
+  });
+
+  it('given the same user appears in hash compatibility and other credits, only shows them once', () => {
+    // ARRANGE
+    const sharedUser = createUserCredits({ displayName: 'Scott' });
+    const hashCompatibilityTestingCredits = [sharedUser]; // !! same user in hash compatibility
+    const testingCredits = [sharedUser]; // !! and testing credits
+
+    render(
+      <DesignCreditsDisplay
+        designCredits={[]}
+        hashCompatibilityTestingCredits={hashCompatibilityTestingCredits}
+        testingCredits={testingCredits}
+        writingCredits={[]}
+      />,
+    );
+
+    // ASSERT
+    const avatarImages = screen.getAllByRole('img');
+    expect(avatarImages).toHaveLength(1);
   });
 });

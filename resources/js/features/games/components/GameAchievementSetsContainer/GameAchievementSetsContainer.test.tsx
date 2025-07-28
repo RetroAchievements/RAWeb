@@ -1,7 +1,12 @@
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
-import { createGame, createGameAchievementSet } from '@/test/factories';
+import {
+  createAchievement,
+  createAchievementSet,
+  createGame,
+  createGameAchievementSet,
+} from '@/test/factories';
 
 import { GameAchievementSetsContainer } from './GameAchievementSetsContainer';
 
@@ -29,25 +34,33 @@ describe('Component: GameAchievementSetsContainer', () => {
   it('given the game has achievement sets, shows the sort button', () => {
     // ARRANGE
     const game = createGame({
-      gameAchievementSets: [createGameAchievementSet()],
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ id: 123, achievements: [createAchievement()] }),
+        }),
+      ],
     });
 
-    render(<GameAchievementSetsContainer game={game} />, { pageProps: { game } });
+    render(<GameAchievementSetsContainer game={game} />, {
+      pageProps: { game, backingGame: game, targetAchievementSetId: 123 },
+    });
 
     // ASSERT
     expect(screen.getByRole('button', { name: /display order/i })).toBeVisible();
   });
 
-  it('given the game has achievement sets, renders each set component', () => {
+  it('given the game has achievement sets and there is no target achievement set ID, renders each set component', () => {
     // ARRANGE
     const game = createGame({
       gameAchievementSets: [
-        createGameAchievementSet({ id: 1 }),
-        createGameAchievementSet({ id: 2 }),
+        createGameAchievementSet({ achievementSet: createAchievementSet({ id: 123 }) }),
+        createGameAchievementSet({ achievementSet: createAchievementSet({ id: 456 }) }),
       ],
     });
 
-    render(<GameAchievementSetsContainer game={game} />, { pageProps: { game } });
+    render(<GameAchievementSetsContainer game={game} />, {
+      pageProps: { game, backingGame: game },
+    });
 
     // ASSERT
     expect(screen.getByTestId('game-achievement-sets')).toBeVisible();
@@ -57,10 +70,16 @@ describe('Component: GameAchievementSetsContainer', () => {
   it('given the user changes the sort order, does not crash', async () => {
     // ARRANGE
     const game = createGame({
-      gameAchievementSets: [createGameAchievementSet()],
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ id: 123, achievements: [createAchievement()] }),
+        }),
+      ],
     });
 
-    render(<GameAchievementSetsContainer game={game} />, { pageProps: { game } });
+    render(<GameAchievementSetsContainer game={game} />, {
+      pageProps: { game, backingGame: game, targetAchievementSetId: 123 },
+    });
 
     // ACT
     const sortButton = screen.getByRole('button', { name: /display order/i });

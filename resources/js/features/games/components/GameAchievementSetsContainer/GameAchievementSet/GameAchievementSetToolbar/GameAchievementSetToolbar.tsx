@@ -28,15 +28,18 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
   missableAchievementsCount,
   unlockedAchievementsCount,
 }) => {
-  const { game } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { backingGame } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { t } = useTranslation();
   const { formatNumber } = useFormatNumber();
 
-  const lockedOnlyCookie = usePersistedGameIdsCookie('hide_unlocked_achievements_games', game.id);
+  const lockedOnlyCookie = usePersistedGameIdsCookie(
+    'hide_unlocked_achievements_games',
+    backingGame.id,
+  );
   const missableOnlyCookie = usePersistedGameIdsCookie(
     'hide_nonmissable_achievements_games',
-    game.id,
+    backingGame.id,
   );
 
   const [currentAchievementSort, setCurrentAchievementSort] = useAtom(currentAchievementSortAtom);
@@ -58,7 +61,10 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
   };
 
   return (
-    <div className="-mt-1.5 flex w-full flex-col items-center justify-between gap-2 rounded bg-embed px-2 py-1.5 sm:flex-row">
+    <div
+      data-testid="game-achievement-set-toolbar"
+      className="-mt-1.5 flex w-full flex-col items-center justify-between gap-2 rounded bg-embed px-2 py-1.5 sm:flex-row"
+    >
       <AchievementSortButton
         value={currentAchievementSort}
         onChange={(newValue) => setCurrentAchievementSort(newValue)}

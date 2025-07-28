@@ -157,4 +157,40 @@ describe('Component: CreateTopicForm', () => {
     // ASSERT
     expect(screen.getByText(/5.*60,000/)).toBeVisible();
   });
+
+  it('given the user presses Cmd+Enter while focused in the form, submits the form', async () => {
+    // ARRANGE
+    vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
+
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({
+      data: { success: true, newTopicId: 789 },
+    });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+
+    render(<CreateTopicForm onPreview={vi.fn()} />, {
+      pageProps: { forum },
+    });
+
+    // ACT
+    await userEvent.type(
+      screen.getByPlaceholderText(/enter your new topic's title/i),
+      'Test Title',
+    );
+    const textArea = screen.getByPlaceholderText(/don't ask for links/i);
+    await userEvent.type(textArea, 'Test Body');
+    await userEvent.keyboard('{Meta>}{Enter}{/Meta}');
+
+    // ASSERT
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledWith(
+        route('api.forum-topic.store', { category: category.id, forum: forum.id }),
+        {
+          title: 'Test Title',
+          body: 'Test Body',
+        },
+      );
+    });
+  });
 });
