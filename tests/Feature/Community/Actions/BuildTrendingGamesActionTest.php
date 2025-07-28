@@ -8,6 +8,7 @@ use App\Community\Actions\BuildTrendingGamesAction;
 use App\Community\Data\TrendingGameData;
 use App\Enums\Permissions;
 use App\Models\Game;
+use App\Models\GameRecentPlayer;
 use App\Models\System;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,26 +39,53 @@ class BuildTrendingGamesActionTest extends TestCase
         $game2 = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => 'second_most_popular']);
         $game5 = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => 'fifth_most_popular']);
 
-        User::factory()->create([
+        $game4User = User::factory()->create([
             'LastGameID' => $game4->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
         ]);
-        User::factory()->count(2)->create([
+        $game3Users = User::factory()->count(2)->create([
             'LastGameID' => $game3->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
         ]);
-        User::factory()->count(3)->create([
+        $game2Users = User::factory()->count(3)->create([
             'LastGameID' => $game2->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
         ]);
-        User::factory()->count(4)->create([
+        $game1Users = User::factory()->count(4)->create([
             'LastGameID' => $game1->id,
             'RichPresenceMsgDate' => now(),
             'Permissions' => Permissions::Registered,
         ]);
+
+        GameRecentPlayer::factory()->create([
+            'user_id' => $game4User->id,
+            'game_id' => $game4->id,
+            'rich_presence_updated_at' => now(),
+        ]);
+        foreach ($game3Users as $user) {
+            GameRecentPlayer::factory()->create([
+                'user_id' => $user->id,
+                'game_id' => $game3->id,
+                'rich_presence_updated_at' => now(),
+            ]);
+        }
+        foreach ($game2Users as $user) {
+            GameRecentPlayer::factory()->create([
+                'user_id' => $user->id,
+                'game_id' => $game2->id,
+                'rich_presence_updated_at' => now(),
+            ]);
+        }
+        foreach ($game1Users as $user) {
+            GameRecentPlayer::factory()->create([
+                'user_id' => $user->id,
+                'game_id' => $game1->id,
+                'rich_presence_updated_at' => now(),
+            ]);
+        }
 
         // Act
         $result = (new BuildTrendingGamesAction())->execute();

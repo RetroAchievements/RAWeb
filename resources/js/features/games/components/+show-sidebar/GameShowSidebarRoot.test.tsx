@@ -1,7 +1,9 @@
 import { faker } from '@faker-js/faker';
 
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import {
+  createAchievement,
   createAchievementSet,
   createGame,
   createGameAchievementSet,
@@ -47,7 +49,13 @@ describe('Component: GameShowSidebarRoot', () => {
 
   it('given the game has a series hub, renders the series hub component', () => {
     // ARRANGE
-    const game = createGame();
+    const game = createGame({
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ achievements: [] }),
+        }),
+      ],
+    });
     const seriesHub = createSeriesHub();
 
     render(<GameShowSidebarRoot />, {
@@ -68,7 +76,13 @@ describe('Component: GameShowSidebarRoot', () => {
 
   it('given the game does not have a series hub, does not render the series hub component', () => {
     // ARRANGE
-    const game = createGame();
+    const game = createGame({
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ achievements: [] }),
+        }),
+      ],
+    });
 
     render(<GameShowSidebarRoot />, {
       pageProps: {
@@ -88,7 +102,13 @@ describe('Component: GameShowSidebarRoot', () => {
 
   it('given the game is flagged for having mature content, shows an indicator', () => {
     // ARRANGE
-    const game = createGame();
+    const game = createGame({
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ achievements: [] }),
+        }),
+      ],
+    });
 
     render(<GameShowSidebarRoot />, {
       pageProps: {
@@ -108,7 +128,13 @@ describe('Component: GameShowSidebarRoot', () => {
 
   it('given the game is not flagged for having mature content, does not show an indicator', () => {
     // ARRANGE
-    const game = createGame();
+    const game = createGame({
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ achievements: [] }),
+        }),
+      ],
+    });
 
     render(<GameShowSidebarRoot />, {
       pageProps: {
@@ -124,5 +150,33 @@ describe('Component: GameShowSidebarRoot', () => {
 
     // ASSERT
     expect(screen.queryByText(/mature content/i)).not.toBeInTheDocument();
+  });
+
+  it('given there are published achievements and the user is authenticated, shows the compare progress component', () => {
+    // ARRANGE
+    const game = createGame({
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ achievements: [createAchievement()] }), // !!
+        }),
+      ],
+    });
+
+    render(<GameShowSidebarRoot />, {
+      pageProps: {
+        game,
+        auth: { user: createAuthenticatedUser() },
+        backingGame: game,
+        can: {},
+        followedPlayerCompletions: [],
+        hasMatureContent: false, // !!
+        hubs: [],
+        playerAchievementChartBuckets: [],
+        topAchievers: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/compare progress/i)).toBeVisible();
   });
 });
