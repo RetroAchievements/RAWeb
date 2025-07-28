@@ -14,6 +14,7 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\PlayerGameMetricsUpdated;
+use App\Platform\Jobs\UpdateGameBeatenMetricsJob;
 use App\Platform\Jobs\UpdateGamePlayerCountJob;
 use App\Platform\Services\PlayerGameActivityService;
 use ErrorException;
@@ -179,11 +180,16 @@ class UpdatePlayerGameMetricsAction
         $beatSummary = $activityService->getBeatProgressMetrics($coreAchievementSet, $playerGame);
         $playerGame->time_to_beat = $beatSummary['beatPlaytimeSoftcore'];
         $playerGame->time_to_beat_hardcore = $beatSummary['beatPlaytimeHardcore'];
+        $beatenChanged = $playerGame->isDirty(['time_to_beat', 'time_to_beat_hardcore']);
 
         $playerGame->save();
 
         if (!$silent) {
             PlayerGameMetricsUpdated::dispatch($user, $game);
+        }
+
+        if ($beatenChanged) {
+            dispatch(new UpdateGameBeatenMetricsJob($game->ID))->onQueue('game-beaten-metrics');
         }
 
         foreach ($possiblePlayerCountChangeGameIds as $gameId) {
