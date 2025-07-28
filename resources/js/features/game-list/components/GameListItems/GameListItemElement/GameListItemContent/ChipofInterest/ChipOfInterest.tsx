@@ -132,7 +132,7 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
           <BaseChip
             data-testid="progress-chip"
             className={cn(
-              'h-[22px]',
+              'h-[22px] text-neutral-400 light:text-neutral-500',
               !isComplete ? 'px-2' : null,
               buildAwardLabelColorClassNames(
                 playerGame?.highestAward?.awardType,
