@@ -76,9 +76,8 @@ class ForumRecentActivity extends Component
 
     private function buildShortMessage(array $rawRecentPost): string
     {
-        $shortMsg = trim($rawRecentPost['ShortMsg']);
-        $shortMsg = $rawRecentPost['IsTruncated'] ? $shortMsg . "..." : $shortMsg;
+        $payload = trim($rawRecentPost['Payload']);
 
-        return Shortcode::stripAndClamp($shortMsg);
+        return Shortcode::stripAndClamp($payload, 100);
     }
 }
