@@ -178,7 +178,7 @@ foreach ($allSessions->get() as $session) {
 
         // remove processed element so we don't try to process it again.
         // this also allows us to avoid processing the user in the future once
-        // all of their acheivements have been processed.
+        // all of their achievements have been processed.
         array_pop($userUnlocks);
     } while (!empty($userUnlocks));
 
