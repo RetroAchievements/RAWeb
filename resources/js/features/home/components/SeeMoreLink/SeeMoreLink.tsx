@@ -27,7 +27,9 @@ export const SeeMoreLink: FC<SeeMoreLinkProps> = ({ href, asClientSideRoute }) =
 
   return (
     <div className="mt-1.5 flex w-full justify-end text-xs">
-      <Wrapper href={href}>{t('See more')}</Wrapper>
+      <Wrapper href={href} prefetch={asClientSideRoute ? 'desktop-hover-only' : undefined}>
+        {t('See more')}
+      </Wrapper>
     </div>
   );
 };
