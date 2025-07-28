@@ -218,7 +218,9 @@ describe('Component: AchievementSetCredits', () => {
       hashCompatibilityTesting: [createUserCredits({ displayName: 'HashTester1' })], // !!
     };
 
-    render(<AchievementSetCredits />, { pageProps: { aggregateCredits } });
+    render(<AchievementSetCredits />, {
+      pageProps: { achievementSetClaims: [], aggregateCredits },
+    });
 
     // ASSERT
     expect(screen.getByTestId('design-credits-display')).toBeVisible();

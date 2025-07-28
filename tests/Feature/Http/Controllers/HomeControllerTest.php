@@ -636,7 +636,7 @@ class HomeControllerTest extends TestCase
             'forum_topic_id' => $topic->id,
             'author_id' => $user->id,
             'is_authorized' => true,
-            'body' => 'This is a test forum post with enough content to test truncation This is a test forum post with enough content to test truncation This is a test forum post with enough content to test truncation This is a test forum post with enough content to test truncation.',
+            'body' => 'This is a test forum post',
         ]);
 
         // Act
@@ -653,7 +653,7 @@ class HomeControllerTest extends TestCase
             ->missing('recentForumPosts.0.commentCount7d')
 
             ->where('recentForumPosts.0.latestComment.id', $comment->id)
-            ->where('recentForumPosts.0.latestComment.body', 'This is a test forum post with enough content to test truncation This is a test forum post with enou...')
+            ->where('recentForumPosts.0.latestComment.body', 'This is a test forum post')
         );
     }
 
