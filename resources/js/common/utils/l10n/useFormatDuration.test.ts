@@ -43,4 +43,37 @@ describe('Hook: useFormatDuration', () => {
     // ASSERT
     expect(formatted).toEqual('1h 1m 5s');
   });
+
+  it('given only seconds with truncateSeconds option, still shows seconds', () => {
+    // ARRANGE
+    const { result } = renderHook(() => useFormatDuration());
+
+    // ACT
+    const formatted = result.current.formatDuration(29, { shouldTruncateSeconds: true }); // !! only seconds
+
+    // ASSERT
+    expect(formatted).toEqual('29s');
+  });
+
+  it('given minutes and seconds with truncateSeconds option, only shows minutes', () => {
+    // ARRANGE
+    const { result } = renderHook(() => useFormatDuration());
+
+    // ACT
+    const formatted = result.current.formatDuration(125, { shouldTruncateSeconds: true }); // !! truncateSeconds enabled
+
+    // ASSERT
+    expect(formatted).toEqual('2m');
+  });
+
+  it('given hours, minutes, and seconds with truncateSeconds option, only shows hours and minutes', () => {
+    // ARRANGE
+    const { result } = renderHook(() => useFormatDuration());
+
+    // ACT
+    const formatted = result.current.formatDuration(8549, { shouldTruncateSeconds: true }); // !! 2h 22m 29s truncated
+
+    // ASSERT
+    expect(formatted).toEqual('2h 22m');
+  });
 });
