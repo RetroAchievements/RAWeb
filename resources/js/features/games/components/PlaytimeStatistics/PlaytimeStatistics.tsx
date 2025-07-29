@@ -1,3 +1,4 @@
+import * as motion from 'motion/react-m';
 import { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuAward, LuCheck, LuCircleDot } from 'react-icons/lu';
@@ -57,7 +58,12 @@ export const PlaytimeStatistics: FC = () => {
         </BaseToggleGroup>
       </div>
 
-      <div className="flex flex-col gap-1 rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
+      <motion.div
+        className="flex flex-col gap-1 rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white"
+        animate={{ opacity: [0.7, 1] }}
+        transition={{ duration: 0.3 }}
+        key={currentMode}
+      >
         <PlaytimeRow
           headingLabel={t('Unlocked an achievement')}
           Icon={LuCheck}
@@ -99,7 +105,7 @@ export const PlaytimeStatistics: FC = () => {
               : achievementSet.timesCompleted
           }
         />
-      </div>
+      </motion.div>
     </div>
   );
 };
