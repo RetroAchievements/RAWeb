@@ -53,15 +53,19 @@ class MessageThreadController extends Controller
         }
 
         $currentPage = (int) $request->input('page', 1);
+        $wasPageExplicitlyRequested = $request->has('page');
 
         $actionResult = (new BuildMessageThreadShowPagePropsAction())->execute(
             $messageThread,
             $user,
-            $currentPage
+            $currentPage,
+            20,
+            $wasPageExplicitlyRequested
         );
 
         if ($actionResult['redirectToPage'] !== null) {
             return redirect()->route('message-thread.show', [
+                'messageThread' => $messageThread->id,
                 'page' => $actionResult['redirectToPage'],
             ]);
         }

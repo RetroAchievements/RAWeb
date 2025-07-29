@@ -24,18 +24,26 @@ class BuildMessageThreadShowPagePropsAction
         User $user,
         int $currentPage = 1,
         int $perPage = 20,
+        bool $wasPageExplicitlyRequested = true,
     ): array {
-        $paginatedMessages = $messageThread->messages()
-            ->with(['author', 'sentBy'])
-            ->orderBy('created_at')
-            ->paginate($perPage);
+        // First, check if we need to redirect.
+        $totalMessages = $messageThread->messages()->count();
+        $lastPage = max(1, (int) ceil($totalMessages / $perPage));
 
-        $totalMessages = $paginatedMessages->total();
-        $lastPage = (int) ceil($totalMessages / $perPage);
+        // If no page was explicitly requested and there are multiple pages, redirect to the last page.
+        if (!$wasPageExplicitlyRequested && $currentPage === 1 && $lastPage > 1) {
+            return ['props' => null, 'redirectToPage' => $lastPage];
+        }
 
         if ($currentPage !== 1 && $currentPage > $lastPage) {
             return ['props' => null, 'redirectToPage' => $lastPage];
         }
+
+        // Only fetch the actual messages if we're not redirecting.
+        $paginatedMessages = $messageThread->messages()
+            ->with(['author', 'sentBy'])
+            ->orderBy('created_at')
+            ->paginate($perPage);
 
         // If we're viewing the last page, mark all messages in the thread as read.
         if ($currentPage === $lastPage) {
