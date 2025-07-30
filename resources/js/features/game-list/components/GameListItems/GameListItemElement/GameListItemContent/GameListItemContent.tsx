@@ -1,3 +1,4 @@
+import type { ColumnSort } from '@tanstack/react-table';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdClose } from 'react-icons/md';
@@ -11,7 +12,7 @@ import { SystemChip } from '@/common/components/SystemChip';
 import { cn } from '@/common/utils/cn';
 
 import type { useGameBacklogState } from '../../useGameBacklogState';
-import { ChipOfInterest } from './ChipOfInterest';
+import { ChipOfInterest } from './ChipofInterest';
 
 /**
  * 🔴 If you make layout updates to this component, you must
@@ -25,11 +26,15 @@ interface GameListItemContentProps {
   isLastItem: boolean;
   gameListEntry: App.Platform.Data.GameListEntry;
 
+  defaultChipOfInterest?: App.Platform.Enums.GameListSortField;
+  defaultColumnSort?: ColumnSort;
   sortFieldId?: App.Platform.Enums.GameListSortField;
 }
 
 export const GameListItemContent: FC<GameListItemContentProps> = ({
   backlogState,
+  defaultChipOfInterest,
+  defaultColumnSort,
   gameListEntry,
   isLastItem,
   sortFieldId,
@@ -37,6 +42,9 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
   const { t } = useTranslation();
 
   const { game, playerGame } = gameListEntry;
+
+  const chipOfInterestFieldId =
+    sortFieldId === defaultColumnSort?.id ? defaultChipOfInterest : sortFieldId;
 
   return (
     <li>
@@ -52,7 +60,7 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
             </a>
 
             <div className="flex flex-wrap items-center gap-1">
-              {game.system ? (
+              {route().current() !== 'system.game.index' && game.system ? (
                 <SystemChip
                   {...game.system}
                   className="light:bg-neutral-200/70"
@@ -62,17 +70,17 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
                 />
               ) : null}
 
-              {playerGame ? (
-                <ChipOfInterest game={game} playerGame={playerGame} fieldId="progress" />
-              ) : null}
-
-              {sortFieldId && sortFieldId !== 'progress' ? (
+              {sortFieldId !== 'progress' ? (
                 <ChipOfInterest
                   game={game}
                   // This is undefined because the progress chip is always shown.
                   playerGame={undefined}
-                  fieldId={sortFieldId}
+                  fieldId={chipOfInterestFieldId}
                 />
+              ) : null}
+
+              {playerGame ? (
+                <ChipOfInterest game={game} playerGame={playerGame} fieldId="progress" />
               ) : null}
             </div>
           </div>
