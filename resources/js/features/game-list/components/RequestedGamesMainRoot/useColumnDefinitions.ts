@@ -1,6 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { RouteName } from 'ziggy-js';
 
 import { buildAchievementsPublishedColumnDef } from '../../utils/column-definitions/buildAchievementsPublishedColumnDef';
 import { buildHasActiveOrInReviewClaimsColumnDef } from '../../utils/column-definitions/buildHasActiveOrInReviewClaimsColumnDef';
@@ -15,18 +16,22 @@ export function useColumnDefinitions(
 ): ColumnDef<App.Platform.Data.GameListEntry>[] {
   const { t } = useTranslation();
 
+  const tableApiRouteName: RouteName = targetUser
+    ? 'api.set-request.user'
+    : 'api.set-request.index';
+
   const columnDefinitions = useMemo(() => {
     const columns: ColumnDef<App.Platform.Data.GameListEntry>[] = [
-      buildTitleColumnDef({ t_label: t('Title'), tableApiRouteName: 'api.set-request.index' }),
-      buildSystemColumnDef({ t_label: t('System'), tableApiRouteName: 'api.set-request.index' }),
+      buildTitleColumnDef({ t_label: t('Title'), tableApiRouteName }),
+      buildSystemColumnDef({ t_label: t('System'), tableApiRouteName }),
       buildReleasedAtColumnDef({
+        tableApiRouteName,
         t_label: t('Release Date'),
         strings: { t_unknown: t('unknown') },
-        tableApiRouteName: 'api.set-request.index',
       }),
       buildNumRequestsColumnDef({
+        tableApiRouteName,
         t_label: t('Requests'),
-        tableApiRouteName: 'api.set-request.index',
       }),
     ];
 
@@ -37,18 +42,18 @@ export function useColumnDefinitions(
 
     columns.push(
       buildHasActiveOrInReviewClaimsColumnDef({
+        tableApiRouteName,
         t_label: t('Claimed'),
         strings: {
           t_no: t('No'),
           t_yes: t('Yes'),
         },
-        tableApiRouteName: 'api.set-request.index',
       }),
       buildRowActionsColumnDef({ shouldAnimateBacklogIconOnChange: true }),
     );
 
     return columns;
-  }, [t, targetUser]);
+  }, [t, tableApiRouteName, targetUser]);
 
   return columnDefinitions;
 }
