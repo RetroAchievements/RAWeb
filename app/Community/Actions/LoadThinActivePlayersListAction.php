@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Community\Actions;
 
 use App\Enums\Permissions;
-use App\Models\User;
+use App\Models\GameRecentPlayer;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
@@ -31,31 +31,30 @@ class LoadThinActivePlayersListAction
             function () use ($lookbackMinutes, $minimumPermissions) {
                 $timestampCutoff = Carbon::now()->subMinutes($lookbackMinutes);
 
-                $activePlayers = User::select([
-                    'ID',
-                    'LastGameID',
-                    'User',
-                    'display_name',
-                    'RichPresenceMsg',
-                ])
-                    ->with(['lastGame'])
-                    ->where('RichPresenceMsgDate', '>', $timestampCutoff)
-                    ->where('LastGameID', '<>', 0)
-                    ->where('Permissions', '>=', $minimumPermissions)
-                    ->orderBy('Untracked', 'asc')
-                    ->orderByDesc('RAPoints')
-                    ->orderByDesc('RASoftcorePoints')
-                    ->orderBy('ID', 'asc')
+                $activePlayers = GameRecentPlayer::with(['game'])
+                    ->where('rich_presence_updated_at', '>', $timestampCutoff)
+                    ->join('UserAccounts', 'UserAccounts.ID', '=', 'game_recent_players.user_id')
+                    ->where('UserAccounts.Permissions', '>=', $minimumPermissions)
+                    ->whereNull('UserAccounts.banned_at')
+                    ->orderBy('UserAccounts.Untracked', 'asc')
+                    ->orderByDesc('UserAccounts.RAPoints')
+                    ->orderByDesc('UserAccounts.RASoftcorePoints')
+                    ->orderBy('UserAccounts.ID', 'asc')
+                    ->select(
+                        'game_recent_players.*',
+                        'UserAccounts.User as username',
+                        'UserAccounts.display_name'
+                    )
                     ->get();
 
                 return $activePlayers->map(function ($player) {
                     return [
-                        'user_id' => $player->ID,
-                        'game_id' => $player->LastGameID,
+                        'user_id' => $player->user_id,
+                        'game_id' => $player->game_id,
                         'username' => $player->username,
                         'display_name' => $player->display_name,
-                        'rich_presence' => $player->RichPresenceMsg,
-                        'game_title' => $player->lastGame?->Title ?? '',
+                        'rich_presence' => $player->rich_presence,
+                        'game_title' => $player->game?->Title ?? '',
                     ];
                 })->toArray();
             }

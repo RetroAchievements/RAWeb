@@ -53,9 +53,8 @@ class BuildThinRecentForumPostsDataAction
 
         return $latestComments->map(function ($post) use ($numMessageChars) {
             $postArray = (array) $post;
-            $postArray['ShortMsg'] = mb_substr($postArray['Payload'], 0, $numMessageChars);
 
-            return ForumTopicData::fromHomePageQuery($postArray)->include('latestComment');
+            return ForumTopicData::fromHomePageQuery($postArray, $numMessageChars)->include('latestComment');
         });
     }
 

@@ -1,7 +1,13 @@
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
-import { createAchievementSet, createGame, createGameAchievementSet } from '@/test/factories';
+import {
+  createAchievement,
+  createAchievementSet,
+  createAggregateAchievementSetCredits,
+  createGame,
+  createGameAchievementSet,
+} from '@/test/factories';
 
 import { GameAchievementSetsContainer } from './GameAchievementSetsContainer';
 
@@ -30,12 +36,20 @@ describe('Component: GameAchievementSetsContainer', () => {
     // ARRANGE
     const game = createGame({
       gameAchievementSets: [
-        createGameAchievementSet({ achievementSet: createAchievementSet({ id: 123 }) }),
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ id: 123, achievements: [createAchievement()] }),
+        }),
       ],
     });
 
     render(<GameAchievementSetsContainer game={game} />, {
-      pageProps: { game, backingGame: game, targetAchievementSetId: 123 },
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        targetAchievementSetId: 123,
+      },
     });
 
     // ASSERT
@@ -52,7 +66,12 @@ describe('Component: GameAchievementSetsContainer', () => {
     });
 
     render(<GameAchievementSetsContainer game={game} />, {
-      pageProps: { game, backingGame: game },
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+      },
     });
 
     // ASSERT
@@ -64,12 +83,20 @@ describe('Component: GameAchievementSetsContainer', () => {
     // ARRANGE
     const game = createGame({
       gameAchievementSets: [
-        createGameAchievementSet({ achievementSet: createAchievementSet({ id: 123 }) }),
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ id: 123, achievements: [createAchievement()] }),
+        }),
       ],
     });
 
     render(<GameAchievementSetsContainer game={game} />, {
-      pageProps: { game, backingGame: game, targetAchievementSetId: 123 },
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        targetAchievementSetId: 123,
+      },
     });
 
     // ACT

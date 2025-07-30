@@ -1,7 +1,15 @@
 import { faker } from '@faker-js/faker';
 
 import { render, screen } from '@/test';
-import { createGame, createGameSet, createSystem } from '@/test/factories';
+import {
+  createAchievement,
+  createAchievementSet,
+  createAggregateAchievementSetCredits,
+  createGame,
+  createGameAchievementSet,
+  createGameSet,
+  createSystem,
+} from '@/test/factories';
 
 import { GameShowMainRoot } from './GameShowMainRoot';
 
@@ -20,6 +28,7 @@ describe('Component: GameShowMainRoot', () => {
     // ARRANGE
     const game = createGame({
       badgeUrl: 'badge.jpg',
+      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
       imageBoxArtUrl: faker.internet.url(),
       imageTitleUrl: faker.internet.url(),
       imageIngameUrl: faker.internet.url(),
@@ -31,6 +40,8 @@ describe('Component: GameShowMainRoot', () => {
     const { container } = render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         can: {},
         hubs: [createGameSet()],
@@ -47,6 +58,7 @@ describe('Component: GameShowMainRoot', () => {
     // ARRANGE
     const game = createGame({
       badgeUrl: undefined,
+      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
       system: createSystem({
         iconUrl: 'icon.jpg',
       }),
@@ -55,6 +67,8 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         can: {},
         hubs: [],
@@ -71,6 +85,7 @@ describe('Component: GameShowMainRoot', () => {
     // ARRANGE
     const game = createGame({
       badgeUrl: 'badge.jpg',
+      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
       imageBoxArtUrl: faker.internet.url(),
       imageTitleUrl: faker.internet.url(),
       imageIngameUrl: faker.internet.url(),
@@ -86,6 +101,8 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         can: {},
         hubs: [],
@@ -102,6 +119,7 @@ describe('Component: GameShowMainRoot', () => {
     // ARRANGE
     const game = createGame({
       badgeUrl: 'badge.jpg',
+      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
       system: createSystem({
         iconUrl: 'icon.jpg',
       }),
@@ -112,6 +130,8 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         can: {},
         hubs: [],
@@ -131,6 +151,7 @@ describe('Component: GameShowMainRoot', () => {
     // ARRANGE
     const game = createGame({
       badgeUrl: 'badge.jpg',
+      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
       imageBoxArtUrl: faker.internet.url(),
       imageTitleUrl: faker.internet.url(),
       imageIngameUrl: faker.internet.url(),
@@ -142,6 +163,8 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         can: {},
         hasMatureContent: true, // !!
@@ -158,6 +181,7 @@ describe('Component: GameShowMainRoot', () => {
     // ARRANGE
     const game = createGame({
       badgeUrl: 'badge.jpg',
+      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
       imageBoxArtUrl: faker.internet.url(),
       imageTitleUrl: faker.internet.url(),
       imageIngameUrl: faker.internet.url(),
@@ -169,6 +193,8 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         can: {},
         hasMatureContent: false, // !!
@@ -181,14 +207,16 @@ describe('Component: GameShowMainRoot', () => {
     expect(screen.queryByRole('alertdialog', { name: /content warning/i })).not.toBeInTheDocument();
   });
 
-  it('given the game has no achievement sets, still renders the game page', () => {
+  it('given the game has no achievements, renders an empty state', () => {
     // ARRANGE
     const game = createGame({
       badgeUrl: 'badge.jpg',
+      gameAchievementSets: [
+        createGameAchievementSet({ achievementSet: createAchievementSet({ achievements: [] }) }), // !!
+      ],
       imageBoxArtUrl: faker.internet.url(),
       imageTitleUrl: faker.internet.url(),
       imageIngameUrl: faker.internet.url(),
-      gameAchievementSets: undefined, // !!
       system: createSystem({
         iconUrl: 'icon.jpg',
       }),
@@ -198,15 +226,62 @@ describe('Component: GameShowMainRoot', () => {
     render(<GameShowMainRoot />, {
       pageProps: {
         game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         can: {},
         hubs: [],
         recentPlayers: [],
         recentVisibleComments: [],
+        setRequestData: {
+          hasUserRequestedSet: false,
+          totalRequests: 0,
+          userRequestsRemaining: 0,
+        },
       },
     });
 
     // ASSERT
-    expect(screen.getByRole('heading', { name: 'Test Game' })).toBeVisible();
+    expect(screen.getByText(/no achievements yet/i)).toBeVisible();
+  });
+
+  it('given the game has achievements, does not render an empty state', () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ achievements: [createAchievement()] }), // !!
+        }),
+      ],
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+      title: 'Test Game',
+    });
+
+    render(<GameShowMainRoot />, {
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        recentPlayers: [],
+        recentVisibleComments: [],
+        setRequestData: {
+          hasUserRequestedSet: false,
+          totalRequests: 0,
+          userRequestsRemaining: 0,
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/no achievements yet/i)).not.toBeInTheDocument();
   });
 });

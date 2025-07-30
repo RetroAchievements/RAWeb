@@ -12,7 +12,7 @@ export const TooltipCreditsSection: FC<TooltipCreditsSectionProps> = ({
   headingLabel,
 }) => {
   return (
-    <div>
+    <div className="flex flex-col gap-1 sm:gap-0">
       <p className="font-bold">{headingLabel}</p>
       <div className="flex flex-col gap-1">{children}</div>
     </div>

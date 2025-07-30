@@ -11,6 +11,8 @@ import { UserAvatar } from '../UserAvatar';
 interface UserAvatarStackProps {
   users: App.Data.User[];
 
+  canLinkToUsers?: boolean;
+
   isOverlappingAvatars?: boolean;
 
   /**
@@ -27,6 +29,7 @@ interface UserAvatarStackProps {
 
 export const UserAvatarStack: FC<UserAvatarStackProps> = ({
   users,
+  canLinkToUsers = true,
   isOverlappingAvatars = true,
   maxVisible = 5,
   size = 32,
@@ -58,6 +61,7 @@ export const UserAvatarStack: FC<UserAvatarStackProps> = ({
         <UserAvatar
           key={`user-avatar-stack-${id}-${user.displayName}`}
           {...user}
+          canLinkToUser={canLinkToUsers}
           size={size}
           showLabel={false}
           imgClassName={cn(

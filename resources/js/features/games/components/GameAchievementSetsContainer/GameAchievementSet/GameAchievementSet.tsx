@@ -74,11 +74,13 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
         <AchievementSetCredits />
       </div>
 
-      <GameAchievementSetToolbar
-        lockedAchievementsCount={lockedAchievements.length}
-        missableAchievementsCount={missableAchievements.length}
-        unlockedAchievementsCount={unlockedAchievements.length}
-      />
+      {achievements.length ? (
+        <GameAchievementSetToolbar
+          lockedAchievementsCount={lockedAchievements.length}
+          missableAchievementsCount={missableAchievements.length}
+          unlockedAchievementsCount={unlockedAchievements.length}
+        />
+      ) : null}
 
       <div className="relative">
         <AnimatePresence mode="popLayout" initial={false}>

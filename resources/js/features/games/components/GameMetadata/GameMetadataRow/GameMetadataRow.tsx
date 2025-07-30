@@ -1,12 +1,14 @@
 import { type FC, memo } from 'react';
+import { route } from 'ziggy-js';
 
 import { BaseTableCell, BaseTableHead, BaseTableRow } from '@/common/components/+vendor/BaseTable';
 import { InertiaLink } from '@/common/components/InertiaLink';
+import { useCardTooltip } from '@/common/hooks/useCardTooltip';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 interface GameMetadataRowProps {
   rowHeading: string;
-  elements: Array<{ label: string; href?: string }>;
+  elements: Array<{ label: string; hubId?: number }>;
 }
 
 export const GameMetadataRow: FC<GameMetadataRowProps> = memo(({ rowHeading, elements }) => {
@@ -19,10 +21,8 @@ export const GameMetadataRow: FC<GameMetadataRowProps> = memo(({ rowHeading, ele
   const locale = auth?.user.locale?.replace('_', '-') ?? 'en-US'; // Use Intl locale code format.
 
   const formattedElements = elements.map((item, index) =>
-    item.href ? (
-      <InertiaLink key={`link-${index}`} href={item.href} prefetch="desktop-hover-only">
-        {item.label}
-      </InertiaLink>
+    item.hubId ? (
+      <HubLink key={`${rowHeading}-link-${index}`} hubId={item.hubId} label={item.label} />
     ) : (
       <span key={`text-${index}`}>{item.label}</span>
     ),
@@ -58,3 +58,22 @@ export const GameMetadataRow: FC<GameMetadataRowProps> = memo(({ rowHeading, ele
     </BaseTableRow>
   );
 });
+
+interface HubLinkProps {
+  hubId: number;
+  label: string;
+}
+
+const HubLink: FC<HubLinkProps> = ({ hubId, label }) => {
+  const { cardTooltipProps } = useCardTooltip({ dynamicId: hubId, dynamicType: 'hub' });
+
+  return (
+    <InertiaLink
+      href={route('hub.show', { gameSet: hubId })}
+      prefetch="desktop-hover-only"
+      {...cardTooltipProps}
+    >
+      {label}
+    </InertiaLink>
+  );
+};

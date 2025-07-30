@@ -7,6 +7,7 @@ import { render, screen } from '@/test';
 import {
   createAchievement,
   createAchievementSet,
+  createAggregateAchievementSetCredits,
   createGame,
   createGameAchievementSet,
 } from '@/test/factories';
@@ -27,6 +28,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -49,6 +52,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -84,6 +89,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -91,6 +98,7 @@ describe('Component: GameAchievementSet', () => {
 
     // ASSERT
     expect(screen.getAllByRole('listitem').length).toBeGreaterThanOrEqual(50);
+    expect(screen.getByTestId('game-achievement-set-toolbar')).toBeVisible();
   });
 
   it('given the collapsible is initially opened, shows achievements', () => {
@@ -112,6 +120,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -144,6 +154,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -188,6 +200,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -222,6 +236,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -256,6 +272,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -292,6 +310,8 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
         },
       },
@@ -302,5 +322,36 @@ describe('Component: GameAchievementSet', () => {
     expect(screen.queryByText('Normal Achievement')).not.toBeInTheDocument();
     expect(screen.getByText('Missable Achievement 1')).toBeVisible();
     expect(screen.getByText('Missable Achievement 2')).toBeVisible();
+  });
+
+  it('given the set has no achievements, does not display the sort/filter toolbar', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements: App.Platform.Data.Achievement[] = []; // !!
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+      }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentAchievementSortAtom, 'normal'],
+          [isMissableOnlyFilterEnabledAtom, true], // !!
+        ],
+        pageProps: {
+          game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.queryByTestId('game-achievement-set-toolbar')).not.toBeInTheDocument();
   });
 });

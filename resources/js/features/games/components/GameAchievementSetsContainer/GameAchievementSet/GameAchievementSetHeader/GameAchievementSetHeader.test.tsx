@@ -82,4 +82,18 @@ describe('Component: GameAchievementSetHeader', () => {
     expect(screen.getByText(/30/i)).toBeVisible();
     expect(screen.getByText(/15/i)).toBeVisible();
   });
+
+  it('given the set has no achievements, shows the correct label', () => {
+    // ARRANGE
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements: [], // !!
+      }),
+    });
+
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />);
+
+    // ASSERT
+    expect(screen.getByText(/there are no achievements for this set yet/i)).toBeVisible();
+  });
 });
