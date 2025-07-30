@@ -8,7 +8,7 @@ use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 
-class LogApiUsage
+class LogLegacyApiUsage
 {
     public function handle(Request $request, Closure $next): mixed
     {

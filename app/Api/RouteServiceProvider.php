@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Api;
 
 use App\Api\Internal\Controllers\HealthController;
-use App\Api\Middleware\LogApiUsage;
+use App\Api\Middleware\LogApiRequest;
+use App\Api\Middleware\LogLegacyApiUsage;
 use App\Api\Middleware\ServiceAccountOnly;
 use App\Api\V1\Controllers\WebApiV1Controller;
 use App\Api\V2\Controllers\WebApiController;
@@ -77,7 +78,12 @@ class RouteServiceProvider extends ServiceProvider
                 Route::prefix('internal')->group(function () {
                     $rateLimit = config('internal-api.rate_limit.requests', 60) . ',' . config('internal-api.rate_limit.minutes', 1);
 
-                    Route::middleware(['auth:api-token-header', ServiceAccountOnly::class, 'throttle:' . $rateLimit])->group(function () {
+                    Route::middleware([
+                        'auth:api-token-header',
+                        ServiceAccountOnly::class,
+                        LogApiRequest::class . ':internal',
+                        'throttle:' . $rateLimit,
+                    ])->group(function () {
                         Route::get('health', [HealthController::class, 'check'])->name('api.internal.health');
 
                         // Add more internal service routes here as needed.
@@ -100,7 +106,7 @@ class RouteServiceProvider extends ServiceProvider
          * Casing should be handled by web server (API vs api).
          * Always has to be authenticated with an api token.
          */
-        Route::middleware(['api', 'auth:api-token', LogApiUsage::class])->prefix('API')->group(function () {
+        Route::middleware(['api', 'auth:api-token', LogLegacyApiUsage::class])->prefix('API')->group(function () {
             /*
              * Usually called via GET, should allow POST, too though
              */

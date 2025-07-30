@@ -20,7 +20,7 @@ class ServiceAccountOnly
 
         $allowedUserIds = $this->getAllowedUserIds();
 
-        if (!in_array($user->id, $allowedUserIds, true)) {
+        if (!in_array((int) $user->id, $allowedUserIds, true)) {
             return response()->json(['error' => 'Access denied'], 403);
         }
 
