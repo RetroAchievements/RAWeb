@@ -1,49 +1,21 @@
 import { type FC } from 'react';
 
-import { usePageProps } from '@/common/hooks/usePageProps';
-
 import { AchievementAuthorsDisplay } from './AchievementAuthorsDisplay';
 import { ArtworkCreditsDisplay } from './ArtworkCreditsDisplay';
 import { ClaimantsDisplay } from './ClaimantsDisplay';
 import { CodeCreditsDisplay } from './CodeCreditsDisplay';
 import { DesignCreditsDisplay } from './DesignCreditsDisplay';
+import { MobileCreditDialogTrigger } from './MobileCreditDialogTrigger';
+import { useAchievementSetCredits } from './useAchievementSetCredits';
 
 export const AchievementSetCredits: FC = () => {
-  const { achievementSetClaims, aggregateCredits } =
-    usePageProps<App.Platform.Data.GameShowPageProps>();
-
-  if (!achievementSetClaims?.length && !aggregateCredits) {
-    return null;
-  }
-
-  const artCreditUsers = [
-    ...aggregateCredits.achievementSetArtwork,
-    ...aggregateCredits.achievementsArtwork,
-  ].filter(
-    (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
-  );
-
-  const logicCreditUsers = aggregateCredits.achievementsLogic.filter(
-    (logicUser) =>
-      !aggregateCredits.achievementsAuthors.some(
-        (author) => author.displayName === logicUser.displayName,
-      ),
-  );
-  const codingCreditUsers = [
-    ...aggregateCredits.achievementsMaintainers,
-    ...logicCreditUsers,
-  ].filter(
-    (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
-  );
-
-  const designCreditUsers = [
-    ...aggregateCredits.achievementsDesign,
-    ...aggregateCredits.achievementsTesting,
-    ...aggregateCredits.achievementsWriting,
-    ...aggregateCredits.hashCompatibilityTesting,
-  ].filter(
-    (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
-  );
+  const {
+    achievementSetClaims,
+    aggregateCredits,
+    artCreditUsers,
+    codingCreditUsers,
+    designCreditUsers,
+  } = useAchievementSetCredits();
 
   if (
     !aggregateCredits.achievementsAuthors.length &&
@@ -58,9 +30,17 @@ export const AchievementSetCredits: FC = () => {
   return (
     <div
       data-testid="set-credits"
-      className="hidden items-center justify-between text-neutral-300 light:text-neutral-700 sm:flex"
+      className="flex items-center justify-between text-neutral-300 light:text-neutral-700"
     >
-      <div className="flex w-full items-center rounded lg:flex-col lg:items-start lg:gap-2 xl:flex-row xl:items-center xl:gap-0">
+      <MobileCreditDialogTrigger
+        achievementSetClaims={achievementSetClaims}
+        aggregateCredits={aggregateCredits}
+        artCreditUsers={artCreditUsers}
+        codingCreditUsers={codingCreditUsers}
+        designCreditUsers={designCreditUsers}
+      />
+
+      <div className="hidden w-full items-center rounded sm:flex lg:flex-col lg:items-start lg:gap-2 xl:flex-row xl:items-center xl:gap-0">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 xl:gap-4">
           {aggregateCredits.achievementsAuthors.length ? (
             <AchievementAuthorsDisplay authors={aggregateCredits.achievementsAuthors} />

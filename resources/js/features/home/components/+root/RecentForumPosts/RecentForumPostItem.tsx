@@ -38,7 +38,9 @@ export const RecentForumPostItem: FC<RecentForumPostItemProps> = ({ post }) => {
           </span>
         </div>
 
-        <InertiaLink href={postUrl}>{t('View')}</InertiaLink>
+        <InertiaLink href={postUrl} prefetch="desktop-hover-only">
+          {t('View')}
+        </InertiaLink>
       </div>
 
       <p>
@@ -46,7 +48,7 @@ export const RecentForumPostItem: FC<RecentForumPostItemProps> = ({ post }) => {
           i18nKey="in <1>{{forumTopicTitle}}</1>"
           values={{ forumTopicTitle: post.title }}
           components={{
-            1: <InertiaLink href={postUrl} />,
+            1: <InertiaLink href={postUrl} prefetch="desktop-hover-only" />,
           }}
         />
       </p>

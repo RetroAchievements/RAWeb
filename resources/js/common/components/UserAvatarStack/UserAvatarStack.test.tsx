@@ -165,4 +165,19 @@ describe('Component: UserAvatarStack', () => {
     const overflowIndicator = screen.getByTestId('overflow-indicator');
     expect(overflowIndicator).not.toHaveClass('ring-2');
   });
+
+  it('given canLinkToUsers is false, does not link to user profiles', () => {
+    // ARRANGE
+    const users = [createUser()];
+
+    render(
+      <UserAvatarStack
+        users={users}
+        canLinkToUsers={false} // !!
+      />,
+    );
+
+    // ASSERT
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
 });

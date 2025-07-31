@@ -82,8 +82,8 @@ class UserForumTopicCommentController extends Controller
                 lftc.author_id,
                 ua.User AS Author, 
                 ua.display_name AS AuthorDisplayName,
-                LEFT(lftc.body, 260) AS ShortMsg,
-                LENGTH(lftc.body) > 260 AS IsTruncated
+                lftc.body AS ShortMsg,
+                0 AS IsTruncated
             FROM forum_topic_comments AS lftc
             INNER JOIN forum_topics AS ft ON ft.id = lftc.forum_topic_id
             INNER JOIN forums AS f ON f.id = ft.forum_id

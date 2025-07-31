@@ -91,6 +91,7 @@ export const SystemGamesMainRoot: FC = memo(() => {
           setSorting={setSorting}
           // Table configuration
           defaultColumnFilters={defaultColumnFilters}
+          defaultColumnSort={defaultColumnSort}
           columnDefinitions={columnDefinitions}
           // API configuration
           apiRouteName="api.system.game.index"

@@ -17,10 +17,16 @@ import { TooltipCreditsSection } from '../TooltipCreditsSection';
 
 interface AchievementAuthorsDisplayProps {
   authors: App.Platform.Data.UserCredits[];
+
+  shouldAlwaysUseAvatarStack?: boolean;
 }
 
-export const AchievementAuthorsDisplay: FC<AchievementAuthorsDisplayProps> = ({ authors }) => {
+export const AchievementAuthorsDisplay: FC<AchievementAuthorsDisplayProps> = ({
+  authors,
+  shouldAlwaysUseAvatarStack,
+}) => {
   const { game } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { t } = useTranslation();
 
   const totalAchievements = game.achievementsPublished!;
 
@@ -28,6 +34,28 @@ export const AchievementAuthorsDisplay: FC<AchievementAuthorsDisplayProps> = ({ 
     'flex items-center rounded-md bg-neutral-800/70 py-1 pr-2',
     'light:bg-white light:border light:border-amber-300',
   );
+
+  if (shouldAlwaysUseAvatarStack) {
+    return (
+      <div className="flex items-center py-1">
+        <div className="flex flex-col gap-1.5 px-2 py-[2.25px]">
+          <div className="flex items-center gap-1.5">
+            <FaTrophy className="h-full text-yellow-500" />
+            <span className="pr-1">
+              {t('{{val, number}} authors', { val: authors.length, count: authors.length })}
+            </span>
+          </div>
+
+          <UserAvatarStack
+            users={authors}
+            maxVisible={999}
+            size={20}
+            isOverlappingAvatars={false}
+          />
+        </div>
+      </div>
+    );
+  }
 
   // Calculate each author's contribution percentage.
   const authorsWithPercentage = authors.map((author) => ({
