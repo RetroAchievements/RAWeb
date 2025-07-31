@@ -484,9 +484,45 @@ class PlayerGameActivityService
             return $metrics;
         }
 
+        $this->getFilteredAchievementSetMetrics($achievementSet, $metrics,
+            [PlayerGameActivitySessionType::Player, PlayerGameActivitySessionType::Reconstructed]);
+
+        // if no player-initiated unlocks were found, check for manual unlocks
+        if (!$metrics['firstUnlockTimeSoftcore'] || !$metrics['firstUnlockTimeHardcore']) {
+            $this->getFilteredAchievementSetMetrics($achievementSet, $metrics,
+                [PlayerGameActivitySessionType::ManualUnlock]);
+        }
+
+        if (!$achievementSet->achievements_first_published_at) {
+            $achievementSet->achievements_first_published_at = (new ComputeAchievementsSetPublishedAtAction())->execute($achievementSet);
+            $achievementSet->save();
+        }
+        $achievementsPublishedAt = $achievementSet->achievements_first_published_at;
+
+        if ($achievementsPublishedAt) {
+            // Use the reset date as the start time if it's more recent than achievements published date.
+            $startTime = $achievementsPublishedAt;
+            if ($this->lastResetCreatedAt && $this->lastResetCreatedAt->gt($achievementsPublishedAt)) {
+                $startTime = $this->lastResetCreatedAt;
+            }
+
+            $metrics['achievementPlaytimeSoftcore'] = $this->calculatePlaytime($startTime, $metrics['lastUnlockTimeSoftcore'], UnlockMode::Softcore);
+            $metrics['achievementPlaytimeHardcore'] = $this->calculatePlaytime($startTime, $metrics['lastUnlockTimeHardcore'], UnlockMode::Hardcore);
+        } else {
+            // don't count any playtime if achievements haven't been published yet
+            $metrics['achievementPlaytimeSoftcore'] = 0;
+            $metrics['achievementPlaytimeHardcore'] = 0;
+        }
+
+        $metrics['devTime'] = $this->calculatePlaytime(null, $achievementsPublishedAt, UnlockMode::Softcore);
+
+        return $metrics;
+    }
+
+    private function getFilteredAchievementSetMetrics(AchievementSet $achievementSet, array &$metrics, array $sessionTypes): void
+    {
         foreach ($this->sessions as $session) {
-            if ($session['type'] !== PlayerGameActivitySessionType::Player
-                && $session['type'] !== PlayerGameActivitySessionType::Reconstructed) {
+            if (!in_array($session['type'], $sessionTypes)) {
                 continue;
             }
 
@@ -521,31 +557,6 @@ class PlayerGameActivityService
 
         $metrics['firstUnlockTimeSoftcore'] ??= $metrics['firstUnlockTimeHardcore'];
         $metrics['lastUnlockTimeSoftcore'] ??= $metrics['lastUnlockTimeHardcore'];
-
-        if (!$achievementSet->achievements_first_published_at) {
-            $achievementSet->achievements_first_published_at = (new ComputeAchievementsSetPublishedAtAction())->execute($achievementSet);
-            $achievementSet->save();
-        }
-        $achievementsPublishedAt = $achievementSet->achievements_first_published_at;
-
-        if ($achievementsPublishedAt) {
-            // Use the reset date as the start time if it's more recent than achievements published date.
-            $startTime = $achievementsPublishedAt;
-            if ($this->lastResetCreatedAt && $this->lastResetCreatedAt->gt($achievementsPublishedAt)) {
-                $startTime = $this->lastResetCreatedAt;
-            }
-
-            $metrics['achievementPlaytimeSoftcore'] = $this->calculatePlaytime($startTime, $metrics['lastUnlockTimeSoftcore'], UnlockMode::Softcore);
-            $metrics['achievementPlaytimeHardcore'] = $this->calculatePlaytime($startTime, $metrics['lastUnlockTimeHardcore'], UnlockMode::Hardcore);
-        } else {
-            // don't count any playtime if achievements haven't been published yet
-            $metrics['achievementPlaytimeSoftcore'] = 0;
-            $metrics['achievementPlaytimeHardcore'] = 0;
-        }
-
-        $metrics['devTime'] = $this->calculatePlaytime(null, $achievementsPublishedAt, UnlockMode::Softcore);
-
-        return $metrics;
     }
 
     private function calculatePlaytime(?Carbon $startTime, ?Carbon $endTime, int $unlockMode): ?int
