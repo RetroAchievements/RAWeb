@@ -64,10 +64,20 @@ class MessageThreadController extends Controller
         );
 
         if ($actionResult['redirectToPage'] !== null) {
-            return redirect()->route('message-thread.show', [
+            $queryParams = [
                 'messageThread' => $messageThread->id,
                 'page' => $actionResult['redirectToPage'],
-            ]);
+            ];
+
+            if ($request->has('message')) {
+                $queryParams['message'] = $request->input('message');
+            }
+
+            if (isset($actionResult['redirectToMessage']) && !$request->has('message')) {
+                $queryParams['message'] = $actionResult['redirectToMessage'];
+            }
+
+            return redirect()->route('message-thread.show', $queryParams);
         }
 
         return Inertia::render('messages/[messageThread]', $actionResult['props']);

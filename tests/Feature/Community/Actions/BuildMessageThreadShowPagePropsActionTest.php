@@ -242,6 +242,8 @@ class BuildMessageThreadShowPagePropsActionTest extends TestCase
         // Assert
         $this->assertNull($result['props']);
         $this->assertEquals(2, $result['redirectToPage']); // !! should redirect to page 2
+        $this->assertArrayHasKey('redirectToMessage', $result);
+        $this->assertNotNull($result['redirectToMessage']);
     }
 
     public function testItDoesNotRedirectWhenPageExplicitlyRequested(): void

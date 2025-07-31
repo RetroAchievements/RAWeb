@@ -17,7 +17,7 @@ use App\Policies\MessageThreadPolicy;
 class BuildMessageThreadShowPagePropsAction
 {
     /**
-     * @return array{props: ?MessageThreadShowPagePropsData, redirectToPage: ?int}
+     * @return array{props: ?MessageThreadShowPagePropsData, redirectToPage: ?int, redirectToMessage?: int}
      */
     public function execute(
         MessageThread $messageThread,
@@ -32,7 +32,16 @@ class BuildMessageThreadShowPagePropsAction
 
         // If no page was explicitly requested and there are multiple pages, redirect to the last page.
         if (!$wasPageExplicitlyRequested && $currentPage === 1 && $lastPage > 1) {
-            return ['props' => null, 'redirectToPage' => $lastPage];
+            // Get the ID of the newest message to scroll to.
+            $newestMessage = $messageThread->messages()
+                ->orderBy('created_at', 'desc')
+                ->first(['id']);
+
+            return [
+                'props' => null,
+                'redirectToPage' => $lastPage,
+                'redirectToMessage' => $newestMessage?->id ?? null,
+            ];
         }
 
         if ($currentPage !== 1 && $currentPage > $lastPage) {

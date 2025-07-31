@@ -15,6 +15,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class MessageData extends Data
 {
     public function __construct(
+        public int $id,
         public string $body,
         public Carbon $createdAt,
         public Lazy|UserData $author,
@@ -25,6 +26,7 @@ class MessageData extends Data
     public static function fromMessage(Message $message): self
     {
         return new self(
+            id: $message->id,
             body: $message->body,
             createdAt: $message->created_at,
             author: Lazy::create(fn () => UserData::fromUser($message->author)->include('deletedAt')),
