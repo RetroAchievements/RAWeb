@@ -25,7 +25,8 @@ export const PlaytimeStatistics: FC = () => {
   const achievementSet = game.gameAchievementSets[0].achievementSet;
 
   const playersHardcore = game.playersHardcore!;
-  const totalPlayers = currentMode === 'hardcore' ? playersHardcore : game.playersTotal!;
+  const totalPlayers =
+    currentMode === 'hardcore' ? playersHardcore : game.playersTotal! - playersHardcore;
 
   return (
     <div data-testid="playtime-statistics">
@@ -88,10 +89,16 @@ export const PlaytimeStatistics: FC = () => {
         ) : null}
 
         <PlaytimeRow
-          headingLabel={t('Mastered')}
+          headingLabel={currentMode === 'hardcore' ? t('Mastered') : t('Completed')}
           Icon={LuAward}
-          iconClassName="text-amber-400 light:text-amber-500"
-          iconContainerClassName="bg-amber-500/20"
+          iconClassName={
+            currentMode === 'hardcore'
+              ? 'text-amber-400 light:text-amber-500'
+              : 'text-neutral-200 light:text-neutral-500'
+          }
+          iconContainerClassName={
+            currentMode === 'hardcore' ? 'bg-amber-500/20' : 'bg-neutral-50/30 light:bg-neutral-300'
+          }
           rowPlayers={currentMode === 'hardcore' ? numMasters : numCompletions}
           rowSeconds={
             currentMode === 'hardcore'

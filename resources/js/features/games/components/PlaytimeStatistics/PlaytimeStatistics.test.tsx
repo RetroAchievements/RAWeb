@@ -272,8 +272,11 @@ describe('Component: PlaytimeStatistics', () => {
     await userEvent.click(screen.getByRole('radio', { name: /toggle softcore/i }));
 
     // ASSERT
-    expect(screen.getByText(/200 players/i)).toBeVisible();
-    expect(screen.getByText(/75 players/i)).toBeVisible();
-    expect(screen.getByText(/80 players/i)).toBeVisible();
+    expect(screen.getByText(/completed/i)).toBeVisible();
+    expect(screen.queryByText(/mastered/i)).not.toBeInTheDocument();
+
+    expect(screen.getByText(/100 players/i)).toBeVisible(); // !! totalPlayers in softcore = 200 - 100 = 100
+    expect(screen.getByText(/75 players/i)).toBeVisible(); // !! numBeatenSoftcore
+    expect(screen.getByText(/80 players/i)).toBeVisible(); // !! numCompletions
   });
 });

@@ -97,10 +97,8 @@ class GameData extends Data
 
             gameAchievementSets: Lazy::create(fn () => $game->gameAchievementSets->map(
                 function ($gameAchievementSet) {
-                    $gameAchievementSet->achievementSet->median_time_to_complete =
-                        $gameAchievementSet->achievementSet->median_time_to_complete ?? 0;
-                    $gameAchievementSet->achievementSet->median_time_to_complete_hardcore =
-                        $gameAchievementSet->achievementSet->median_time_to_complete_hardcore ?? 0;
+                    $gameAchievementSet->achievementSet->median_time_to_complete ??= 0;
+                    $gameAchievementSet->achievementSet->median_time_to_complete_hardcore ??= 0;
 
                     return GameAchievementSetData::from($gameAchievementSet);
                 }
