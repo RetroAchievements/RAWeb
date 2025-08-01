@@ -70,6 +70,7 @@ declare namespace App.Community.Data {
     canComment: boolean;
   };
   export type Message = {
+    id: number;
     body: string;
     createdAt: string;
     author?: App.Data.User;

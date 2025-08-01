@@ -3,16 +3,29 @@ import { Trans } from 'react-i18next';
 
 import { ShortcodeRenderer } from '@/common/components/ShortcodeRenderer';
 import { UserAvatar } from '@/common/components/UserAvatar';
+import { cn } from '@/common/utils/cn';
 
 import { MessageTimestamp } from './MessageTimestamp';
 
 interface ReadableMessageCardProps {
   message: App.Community.Data.Message;
+
+  isHighlighted?: boolean;
 }
 
-export const ReadableMessageCard: FC<ReadableMessageCardProps> = ({ message }) => {
+export const ReadableMessageCard: FC<ReadableMessageCardProps> = ({
+  message,
+  isHighlighted = false,
+}) => {
   return (
-    <div className="rounded bg-embed px-2.5 py-1.5">
+    <div
+      id={`${message.id}`}
+      data-testid={`message-${message.id}`}
+      className={cn(
+        'scroll-mt-14 rounded bg-embed px-2.5 py-1.5',
+        isHighlighted ? 'outline outline-2' : null,
+      )}
+    >
       <div className="flex w-full flex-col justify-between gap-1 sm:flex-row sm:items-center sm:gap-2">
         <div className="flex items-center gap-2">
           <UserAvatar {...message.author!} size={24} />
