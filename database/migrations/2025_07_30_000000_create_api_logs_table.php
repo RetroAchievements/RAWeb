@@ -11,12 +11,13 @@ return new class() extends Migration {
     {
         Schema::create('api_logs', function (Blueprint $table) {
             $table->id();
-            $table->string('api_version', 10); // 'internal', 'v1', 'v2'.
+            $table->string('api_version', 10); // 'internal', '1', '2'
             $table->unsignedBigInteger('user_id')->nullable();
             $table->string('endpoint', 255);
             $table->string('method', 10);
             $table->integer('response_code');
             $table->integer('response_time_ms')->nullable();
+            $table->unsignedInteger('response_size_bytes')->nullable();
             $table->string('ip_address', 45);
             $table->text('user_agent')->nullable();
             $table->json('request_data')->nullable();

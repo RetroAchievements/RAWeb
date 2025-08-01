@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api;
 
 use App\Api\Internal\Controllers\HealthController;
+use App\Api\Middleware\AddContentLengthHeader;
 use App\Api\Middleware\LogApiRequest;
 use App\Api\Middleware\LogLegacyApiUsage;
 use App\Api\Middleware\ServiceAccountOnly;
@@ -79,9 +80,10 @@ class RouteServiceProvider extends ServiceProvider
                     $rateLimit = config('internal-api.rate_limit.requests', 60) . ',' . config('internal-api.rate_limit.minutes', 1);
 
                     Route::middleware([
+                        LogApiRequest::class . ':internal',
                         'auth:api-token-header',
                         ServiceAccountOnly::class,
-                        LogApiRequest::class . ':internal',
+                        AddContentLengthHeader::class,
                         'throttle:' . $rateLimit,
                     ])->group(function () {
                         Route::get('health', [HealthController::class, 'check'])->name('api.internal.health');

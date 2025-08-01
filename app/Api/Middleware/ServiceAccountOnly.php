@@ -6,6 +6,7 @@ namespace App\Api\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use LaravelJsonApi\Core\Exceptions\JsonApiException;
 use Symfony\Component\HttpFoundation\Response;
 
 class ServiceAccountOnly
@@ -13,15 +14,14 @@ class ServiceAccountOnly
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
-
-        if (!$user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-
         $allowedUserIds = $this->getAllowedUserIds();
 
         if (!in_array((int) $user->id, $allowedUserIds, true)) {
-            return response()->json(['error' => 'Access denied'], 403);
+            throw JsonApiException::error([
+                'status' => 403,
+                'title' => 'Unauthorized',
+                'code' => 'forbidden',
+            ]);
         }
 
         return $next($request);

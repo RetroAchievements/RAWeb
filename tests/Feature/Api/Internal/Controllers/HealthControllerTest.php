@@ -37,7 +37,16 @@ class HealthControllerTest extends TestCase
 
         // Assert
         $response->assertForbidden();
-        $response->assertJson(['error' => 'Access denied']);
+        $response->assertJson([
+            'message' => 'Unauthorized',
+            'errors' => [
+                [
+                    'status' => '403',
+                    'code' => 'forbidden',
+                    'title' => 'Unauthorized',
+                ],
+            ],
+        ]);
     }
 
     public function testItReturnsOkWhenServiceAccountAuthenticated(): void
@@ -111,6 +120,15 @@ class HealthControllerTest extends TestCase
 
         // Assert
         $response->assertForbidden();
-        $response->assertJson(['error' => 'Access denied']);
+        $response->assertJson([
+            'message' => 'Unauthorized',
+            'errors' => [
+                [
+                    'status' => '403',
+                    'code' => 'forbidden',
+                    'title' => 'Unauthorized',
+                ],
+            ],
+        ]);
     }
 }

@@ -20,6 +20,7 @@ class ApiLogEntry extends Model
         'method',
         'response_code',
         'response_time_ms',
+        'response_size_bytes',
         'ip_address',
         'user_agent',
         'request_data',
@@ -27,9 +28,6 @@ class ApiLogEntry extends Model
     ];
 
     protected $casts = [
-        'user_id' => 'integer',
-        'response_code' => 'integer',
-        'response_time_ms' => 'integer',
         'request_data' => 'array',
         'created_at' => 'datetime',
     ];
@@ -62,6 +60,7 @@ class ApiLogEntry extends Model
         string $method,
         int $responseCode,
         ?int $responseTimeMs,
+        ?int $responseSizeBytes,
         string $ipAddress,
         ?string $userAgent,
         ?array $requestData = null,
@@ -74,6 +73,7 @@ class ApiLogEntry extends Model
             'method' => $method,
             'response_code' => $responseCode,
             'response_time_ms' => $responseTimeMs,
+            'response_size_bytes' => $responseSizeBytes,
             'ip_address' => $ipAddress,
             'user_agent' => $userAgent,
             'request_data' => $requestData,

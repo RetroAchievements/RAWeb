@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exceptions;
 
+use App\Models\ApiLogEntry;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\QueryException;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use LaravelJsonApi\Core\Exceptions\JsonApiException;
 use Sentry\Laravel\Integration as SentryIntegration;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
@@ -120,6 +122,15 @@ class Handler extends ExceptionHandler
         }
 
         if ($request->expectsJson()) {
+            if ($e instanceof JsonApiException) {
+                $errors = $e->getErrors()->toArray();
+                $message = isset($errors[0]['title']) ? $errors[0]['title'] : 'JSON:API error';
+
+                return response()->json([
+                    'message' => $message,
+                    'errors' => $errors,
+                ], $e->getStatusCode());
+            }
             if ($e instanceof HttpExceptionInterface) {
                 return response()->json([
                     'message' => __($e->getMessage() ?: Response::$statusTexts[$e->getStatusCode()] ?? ''),
@@ -145,6 +156,23 @@ class Handler extends ExceptionHandler
                 ], 419);
             }
             if ($e instanceof AuthenticationException) {
+                // Log failed auth attempts for the internal service API.
+                if ($request->is('api/internal/*')) {
+                    ApiLogEntry::logRequest(
+                        'internal',
+                        null,
+                        $request->path(),
+                        $request->method(),
+                        401,
+                        0,
+                        null, // can't grab response sizes in exception handlers
+                        $request->ip(),
+                        $request->userAgent(),
+                        null,
+                        'Unauthenticated'
+                    );
+                }
+
                 return response()->json([
                     'message' => __($e->getMessage() ?: Response::$statusTexts[401]),
                     'errors' => [

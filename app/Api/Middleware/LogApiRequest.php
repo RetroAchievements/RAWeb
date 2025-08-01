@@ -19,20 +19,18 @@ class LogApiRequest
     public function handle(Request $request, Closure $next, ?string $apiVersion = null): Response
     {
         $startTime = microtime(true);
-
         $version = $apiVersion ?? $this->apiVersion;
 
         $response = $next($request);
 
-        $user = $request->user();
-
         ApiLogEntry::logRequest(
             $version,
-            $user?->id,
+            $request->user()?->id,
             $request->path(),
             $request->method(),
             $response->getStatusCode(),
             $this->calculateResponseTime($startTime),
+            $this->calculateResponseSize($response),
             $request->ip(),
             $request->userAgent(),
             $this->sanitizeRequestData($request),
@@ -75,5 +73,15 @@ class LogApiRequest
         $content = json_decode($response->getContent(), true);
 
         return $content['error'] ?? $content['message'] ?? null;
+    }
+
+    private function calculateResponseSize(Response $response): ?int
+    {
+        $content = $response->getContent();
+        if ($content === false) {
+            return null;
+        }
+
+        return strlen($content);
     }
 }
