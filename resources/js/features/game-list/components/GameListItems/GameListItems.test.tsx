@@ -34,9 +34,10 @@ describe('Component: GameListItems', () => {
 
     const { container } = render(
       <GameListItems
-        sorting={[{ id: 'title', desc: false }]}
-        pagination={{ pageIndex: 0, pageSize: 100 }}
         columnFilters={[]}
+        defaultColumnSort={{ id: 'title', desc: false }}
+        pagination={{ pageIndex: 0, pageSize: 100 }}
+        sorting={[{ id: 'title', desc: false }]}
       />,
       {
         pageProps: {
@@ -66,9 +67,10 @@ describe('Component: GameListItems', () => {
 
     render(
       <GameListItems
-        sorting={[{ id: 'title', desc: false }]}
-        pagination={{ pageIndex: 0, pageSize: 100 }}
         columnFilters={[]}
+        defaultColumnSort={{ id: 'title', desc: false }}
+        pagination={{ pageIndex: 0, pageSize: 100 }}
+        sorting={[{ id: 'title', desc: false }]}
       />,
       {
         pageProps: {
@@ -102,9 +104,10 @@ describe('Component: GameListItems', () => {
 
     render(
       <GameListItems
-        sorting={[{ id: 'title', desc: false }]}
-        pagination={{ pageIndex: 0, pageSize: 100 }}
         columnFilters={[]}
+        defaultColumnSort={{ id: 'title', desc: false }}
+        pagination={{ pageIndex: 0, pageSize: 100 }}
+        sorting={[{ id: 'title', desc: false }]}
       />,
       {
         pageProps: {
@@ -139,9 +142,10 @@ describe('Component: GameListItems', () => {
 
     render(
       <GameListItems
-        sorting={[{ id: 'title', desc: false }]}
-        pagination={{ pageIndex: 0, pageSize: 100 }}
         columnFilters={[]}
+        defaultColumnSort={{ id: 'title', desc: false }}
+        pagination={{ pageIndex: 0, pageSize: 100 }}
+        sorting={[{ id: 'title', desc: false }]}
       />,
       {
         pageProps: {
@@ -194,9 +198,10 @@ describe('Component: GameListItems', () => {
     render(
       <QueryClientProvider client={queryClient}>
         <GameListItems
-          sorting={[{ id: 'title', desc: false }]}
-          pagination={{ pageIndex: 0, pageSize: 100 }}
           columnFilters={[]}
+          defaultColumnSort={{ id: 'title', desc: false }}
+          pagination={{ pageIndex: 0, pageSize: 100 }}
+          sorting={[{ id: 'title', desc: false }]}
         />
       </QueryClientProvider>,
       {
@@ -264,9 +269,10 @@ describe('Component: GameListItems', () => {
     render(
       <QueryClientProvider client={queryClient}>
         <GameListItems
-          sorting={[{ id: 'title', desc: false }]}
-          pagination={{ pageIndex: 0, pageSize: 100 }}
           columnFilters={[]}
+          defaultColumnSort={{ id: 'title', desc: false }}
+          pagination={{ pageIndex: 0, pageSize: 100 }}
+          sorting={[{ id: 'title', desc: false }]}
         />
       </QueryClientProvider>,
       {
@@ -354,9 +360,10 @@ describe('Component: GameListItems', () => {
       render(
         <QueryClientProvider client={queryClient}>
           <GameListItems
-            sorting={[{ id: 'title', desc: false }]}
-            pagination={{ pageIndex: 0, pageSize: 100 }}
             columnFilters={[]}
+            defaultColumnSort={{ id: 'title', desc: false }}
+            pagination={{ pageIndex: 0, pageSize: 100 }}
+            sorting={[{ id: 'title', desc: false }]}
           />
         </QueryClientProvider>,
         {
