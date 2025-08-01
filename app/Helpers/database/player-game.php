@@ -395,7 +395,7 @@ function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
     foreach ($sessions->get() as $session) {
         $retval[] = [
             'UserID' => $session->user_id,
-            'User' => $session->user->display_name,
+            'User' => $session->user,
             'Date' => $session->rich_presence_updated_at->__toString(),
             'Activity' => $session->rich_presence,
             'NumAwarded' => 0,
