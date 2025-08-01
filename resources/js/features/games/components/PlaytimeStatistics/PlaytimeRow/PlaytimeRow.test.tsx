@@ -148,7 +148,7 @@ describe('Component: PlaytimeRow', () => {
     });
   });
 
-  it('given no player data is provided, does not show player count', () => {
+  it('given no player data is provided, shows a 0 player count', () => {
     // ARRANGE
     render(
       <PlaytimeRow
@@ -156,11 +156,12 @@ describe('Component: PlaytimeRow', () => {
         Icon={LuStar}
         iconContainerClassName="bg-blue-500"
         iconClassName="text-white"
+        rowPlayers={0}
       />,
     );
 
     // ASSERT
-    expect(screen.queryByText(/players/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/0 players/i)).toBeVisible();
   });
 
   it('given totalSamples is 5 or more but rowSeconds is not provided, does not show the median time label', () => {
