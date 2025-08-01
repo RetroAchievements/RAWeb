@@ -63,24 +63,22 @@ export const PlaytimeRow: FC<PlaytimeRowProps> = ({
         <div className="flex flex-col">
           <p className="text-xs">{headingLabel}</p>
 
-          {rowPlayers ? (
-            <p className="text-xs text-neutral-500">
-              {totalPlayers && rowPlayers !== totalPlayers ? (
-                <span>
-                  {t('{{val, number}} players ({{playersPercentage}})', {
-                    count: rowPlayers,
-                    val: rowPlayers,
-                    playersPercentage: formatPercentage(rowPlayers / totalPlayers, {
-                      minimumFractionDigits: 1,
-                      maximumFractionDigits: 1,
-                    }),
-                  })}
-                </span>
-              ) : (
-                <span>{t('{{val, number}} players', { count: rowPlayers, val: rowPlayers })}</span>
-              )}
-            </p>
-          ) : null}
+          <p className="text-xs text-neutral-500">
+            {totalPlayers && rowPlayers && rowPlayers !== totalPlayers ? (
+              <span>
+                {t('{{val, number}} players ({{playersPercentage}})', {
+                  count: rowPlayers,
+                  val: rowPlayers,
+                  playersPercentage: formatPercentage(rowPlayers / totalPlayers, {
+                    minimumFractionDigits: 1,
+                    maximumFractionDigits: 1,
+                  }),
+                })}
+              </span>
+            ) : (
+              <span>{t('{{val, number}} players', { count: rowPlayers, val: rowPlayers })}</span>
+            )}
+          </p>
         </div>
       </div>
 
