@@ -1,7 +1,12 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions -- this is redundant */
 /* eslint-disable jsx-a11y/click-events-have-key-events -- this is redundant */
 
-import type { ColumnFiltersState, PaginationState, SortingState } from '@tanstack/react-table';
+import type {
+  ColumnFiltersState,
+  ColumnSort,
+  PaginationState,
+  SortingState,
+} from '@tanstack/react-table';
 import { type FC, useEffect, useState } from 'react';
 import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -24,12 +29,14 @@ import { LoadingGameListItemContent } from './GameListItemElement/GameListItemCo
  */
 
 interface GameListItemsProps {
-  sorting: SortingState;
-  pagination: PaginationState;
   columnFilters: ColumnFiltersState;
+  defaultColumnSort: ColumnSort;
+  pagination: PaginationState;
+  sorting: SortingState;
 
   apiRouteName?: RouteName;
   apiRouteParams?: Record<string, unknown>;
+  defaultChipOfInterest?: App.Platform.Enums.GameListSortField;
 
   /**
    * If truthy, non-backlog items will be optimistically hidden from
@@ -43,6 +50,8 @@ interface GameListItemsProps {
 const GameListItems: FC<GameListItemsProps> = ({
   apiRouteParams,
   columnFilters,
+  defaultChipOfInterest,
+  defaultColumnSort,
   pagination,
   sorting,
   apiRouteName = 'api.game.index',
@@ -157,10 +166,12 @@ const GameListItems: FC<GameListItemsProps> = ({
               return (
                 <GameListItemElement
                   key={`mobile-${item.game.id}`}
+                  defaultChipOfInterest={defaultChipOfInterest}
+                  defaultColumnSort={defaultColumnSort}
                   gameListEntry={item}
-                  sortFieldId={sorting?.[0]?.id as App.Platform.Enums.GameListSortField}
                   isLastItem={isLastItem}
                   shouldHideItemIfNotInBacklog={shouldHideItemIfNotInBacklog}
+                  sortFieldId={sorting?.[0]?.id as App.Platform.Enums.GameListSortField}
                 />
               );
             })}
