@@ -88,21 +88,21 @@ class DownloadsController extends Controller
      */
     private function getPopularEmulatorsBySystem(Collection $allSystems): array
     {
-        $popularEmulatorsBySystem = [];
+        // First, build all the keys we need to do the popular emulators fetch.
+        $systemIds = $allSystems->pluck('id')->prepend(0);
+        $keys = $systemIds->map(fn ($id) => "popular-emulators-for-system:{$id}");
 
-        // Check for overall popular emulators (ID 0).
-        $overallKey = "popular-emulators-for-system:0";
-        $overallMetric = DownloadsPopularityMetric::where('key', $overallKey)->first();
-        $popularEmulatorsBySystem[0] = $overallMetric ? $overallMetric->ordered_ids : [];
+        // Then, fetch the popularity metrics in a single query and transform the results.
+        return DownloadsPopularityMetric::whereIn('key', $keys)
+            ->get()
+            ->mapWithKeys(function ($metric) {
+                // Extract the system ID from the key ("popular-emulators-for-system:21" -> 21).
+                $systemId = (int) str_replace('popular-emulators-for-system:', '', $metric->key);
 
-        foreach ($allSystems as $system) {
-            $key = "popular-emulators-for-system:{$system->id}";
-
-            $metric = DownloadsPopularityMetric::where('key', $key)->first();
-            $popularEmulatorsBySystem[$system->id] = $metric ? $metric->ordered_ids : [];
-        }
-
-        return $popularEmulatorsBySystem;
+                return [$systemId => $metric->ordered_ids];
+            })
+            ->union($systemIds->mapWithKeys(fn ($id) => [$id => []])) // Fill missing keys with empty arrays.
+            ->all();
     }
 
     /**
