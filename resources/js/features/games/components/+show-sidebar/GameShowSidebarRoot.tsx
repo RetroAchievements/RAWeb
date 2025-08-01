@@ -48,7 +48,7 @@ export const GameShowSidebarRoot: FC = () => {
 
       <BaseSeparator className="mb-4" />
 
-      <PlaytimeStatistics />
+      {game.playersTotal ? <PlaytimeStatistics /> : null}
 
       {seriesHub ? <SeriesHubDisplay seriesHub={seriesHub} /> : null}
 
