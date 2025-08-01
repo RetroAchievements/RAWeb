@@ -31,7 +31,7 @@ export const SeriesHubDisplay: FC<SeriesHubDisplayProps> = ({ seriesHub }) => {
       <h2 className="mb-0 border-0 text-lg font-semibold">{t('Series')}</h2>
 
       <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
-        <div className="flex flex-col gap-3 rounded-lg bg-[rgba(50,50,50,0.3)] p-2">
+        <div className="flex flex-col gap-3 rounded-lg bg-[rgba(50,50,50,0.3)] p-2 light:bg-neutral-50">
           <div className="flex items-center gap-3">
             <a href={hubHref}>
               <img
