@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\EventResource\Pages;
 
-use App\Filament\Actions\ProcessUploadedImageAction;
+use App\Filament\Actions\ApplyUploadedImageToDataAction;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\EventResource;
 use App\Models\Game;
@@ -16,19 +16,14 @@ class Edit extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        if (isset($data['image_asset_path'])) {
-            $data['image_asset_path'] = (new ProcessUploadedImageAction())->execute(
-                $data['image_asset_path'],
-                ImageUploadType::GameBadge,
-            );
+        (new ApplyUploadedImageToDataAction())->execute($data, 'image_asset_path', ImageUploadType::GameBadge);
 
+        // If we have a new processed image, also update the legacy game.
+        if (isset($data['image_asset_path'])) {
             /** @var Game $game */
             $game = $this->getRecord()->legacyGame;
             $game->ImageIcon = $data['image_asset_path'];
             $game->save();
-        } else {
-            // If no new image was uploaded, retain the existing image.
-            unset($data['image_asset_path']);
         }
 
         return $data;

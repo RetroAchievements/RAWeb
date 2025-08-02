@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\Pages;
 
-use App\Filament\Actions\ProcessUploadedImageAction;
+use App\Filament\Actions\ApplyUploadedImageToDataAction;
 use App\Filament\Concerns\HasFieldLevelAuthorization;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\GameResource;
@@ -20,24 +20,12 @@ class Edit extends EditRecord
     {
         $this->authorizeFields($this->record, $data);
 
-        $imageTypes = [
-            'ImageIcon' => ImageUploadType::GameBadge,
-            'ImageTitle' => ImageUploadType::GameTitle,
-            'ImageIngame' => ImageUploadType::GameInGame,
-            'ImageBoxArt' => ImageUploadType::GameBoxArt,
-        ];
+        $action = new ApplyUploadedImageToDataAction();
 
-        foreach ($imageTypes as $field => $uploadType) {
-            if (isset($data[$field])) {
-                $data[$field] = (new ProcessUploadedImageAction())->execute(
-                    $data[$field],
-                    $uploadType,
-                );
-            } else {
-                // If no new image was uploaded, retain the existing image.
-                unset($data[$field]);
-            }
-        }
+        $action->execute($data, 'ImageIcon', ImageUploadType::GameBadge);
+        $action->execute($data, 'ImageTitle', ImageUploadType::GameTitle);
+        $action->execute($data, 'ImageIngame', ImageUploadType::GameInGame);
+        $action->execute($data, 'ImageBoxArt', ImageUploadType::GameBoxArt);
 
         return $data;
     }

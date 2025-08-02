@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
-use App\Filament\Actions\ProcessUploadedImageAction;
+use App\Filament\Actions\ApplyUploadedImageToDataAction;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EventResource\Pages;
@@ -228,23 +228,11 @@ class EventResource extends Resource
                             ->previewable(true),
                     ])
                     ->mutateRelationshipDataBeforeSaveUsing(function (array $data): array {
-                        if (isset($data['ImageBoxArt'])) {
-                            $data['ImageBoxArt'] = (new ProcessUploadedImageAction())->execute($data['ImageBoxArt'], ImageUploadType::GameBoxArt);
-                        } else {
-                            unset($data['ImageBoxArt']); // prevent clearing out existing value
-                        }
+                        $action = new ApplyUploadedImageToDataAction();
 
-                        if (isset($data['ImageTitle'])) {
-                            $data['ImageTitle'] = (new ProcessUploadedImageAction())->execute($data['ImageTitle'], ImageUploadType::GameTitle);
-                        } else {
-                            unset($data['ImageTitle']); // prevent clearing out existing value
-                        }
-
-                        if (isset($data['ImageIngame'])) {
-                            $data['ImageIngame'] = (new ProcessUploadedImageAction())->execute($data['ImageIngame'], ImageUploadType::GameInGame);
-                        } else {
-                            unset($data['ImageIngame']); // prevent clearing out existing value
-                        }
+                        $action->execute($data, 'ImageBoxArt', ImageUploadType::GameBoxArt);
+                        $action->execute($data, 'ImageTitle', ImageUploadType::GameTitle);
+                        $action->execute($data, 'ImageIngame', ImageUploadType::GameInGame);
 
                         return $data;
                     })

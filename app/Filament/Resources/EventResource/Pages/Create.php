@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\EventResource\Pages;
 
-use App\Filament\Actions\ProcessUploadedImageAction;
+use App\Filament\Actions\ApplyUploadedImageToDataAction;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\EventResource;
 use App\Models\Event;
@@ -21,10 +21,12 @@ class Create extends CreateRecord
     protected function handleRecordCreation(array $data): Model
     {
         // promote the uploaded image
-        $data['image_asset_path'] = (new ProcessUploadedImageAction())->execute(
-            $data['image_asset_path'],
-            ImageUploadType::GameBadge,
-        );
+        (new ApplyUploadedImageToDataAction())->execute($data, 'image_asset_path', ImageUploadType::GameBadge);
+
+        // use the default image if no image given or image processing failed
+        if (!isset($data['image_asset_path'])) {
+            $data['image_asset_path'] = '/Images/000001.png';
+        }
 
         // create the legacy game record
         $game = Game::create([
