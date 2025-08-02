@@ -7,21 +7,30 @@ namespace App\Filament\Actions;
 use App\Filament\Enums\ImageUploadType;
 use App\Platform\Enums\ImageType;
 use Exception;
+use Filament\Notifications\Notification;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ProcessUploadedImageAction
 {
-    public function execute(string $tempImagePath, ImageUploadType $imageUploadType): string
+    public function execute(string $tempImagePath, ImageUploadType $imageUploadType): ?string
     {
         try {
             /** @var Filesystem $disk */
             $disk = Storage::disk('livewire-tmp');
 
-            // Ensure the Livewire temporary image file exists.
+            // Check if the temporary file still exists.
+            // If it doesn't, notify the user.
             if (!$disk->exists($tempImagePath)) {
-                throw new Exception("Temporary image file does not exist: {$tempImagePath}");
+                Notification::make()
+                    ->title('Image upload expired')
+                    ->body('Your image upload has expired. Uploaded files are only kept for 10 minutes. Please re-upload the image and save promptly.')
+                    ->danger()
+                    ->persistent()
+                    ->send();
+
+                return null;
             }
 
             // Read the file content.

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\AchievementResource\Pages;
 
-use App\Filament\Actions\ProcessUploadedImageAction;
+use App\Filament\Actions\ApplyUploadedImageToDataAction;
 use App\Filament\Concerns\HasFieldLevelAuthorization;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\AchievementResource;
@@ -46,15 +46,7 @@ class Edit extends EditRecord
     {
         $this->authorizeFields($this->record, $data);
 
-        if (isset($data['BadgeName'])) {
-            $data['BadgeName'] = (new ProcessUploadedImageAction())->execute(
-                $data['BadgeName'],
-                ImageUploadType::AchievementBadge,
-            );
-        } else {
-            // If no new image was uploaded, retain the existing image.
-            unset($data['BadgeName']);
-        }
+        (new ApplyUploadedImageToDataAction())->execute($data, 'BadgeName', ImageUploadType::AchievementBadge);
 
         return $data;
     }
