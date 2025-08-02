@@ -1081,5 +1081,11 @@
     "Toggle all players": "Toggle all players",
     "allPlayers": "All",
     "Not enough data": "Not enough data",
-    "Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available.": "Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available."
+    "Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available.": "Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available.",
+    "<1>{{achievementsCount, number}}</1> unpublished achievements_one": "<1>{{achievementsCount, number}}</1> unpublished achievement",
+    "<1>{{achievementsCount, number}}</1> unpublished achievements_other": "<1>{{achievementsCount, number}}</1> unpublished achievements",
+    "There are currently no unpublished achievements for this set.": "There are currently no unpublished achievements for this set.",
+    "Author: <1>{{displayName}}</1>": "Author: <1>{{displayName}}</1>",
+    "View Published Achievements": "View Published Achievements",
+    "View Unpublished Achievements": "View Unpublished Achievements"
 }

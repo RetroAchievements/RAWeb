@@ -754,6 +754,7 @@ declare namespace App.Platform.Data {
     isOnWantToDevList: boolean;
     isOnWantToPlayList: boolean;
     isSubscribedToComments: boolean;
+    isViewingPublishedAchievements: boolean;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
     numBeaten: number;

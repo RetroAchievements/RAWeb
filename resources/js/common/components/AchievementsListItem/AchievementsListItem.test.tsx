@@ -1,5 +1,5 @@
 import { __UNSAFE_VERY_DANGEROUS_SLEEP, render, screen, waitFor } from '@/test';
-import { createAchievement, createGame } from '@/test/factories';
+import { createAchievement, createGame, createUser } from '@/test/factories';
 
 import { AchievementsListItem } from './AchievementsListItem';
 
@@ -198,6 +198,28 @@ describe('Component: AchievementsListItem', () => {
     // ASSERT
     await waitFor(() => {
       expect(screen.getByText(/decorator/i)).toBeVisible();
+    });
+  });
+
+  it('given shouldShowAuthor is truthy and there is developer data for the achievement, shows the author', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      developer: createUser({ displayName: 'Scott' }),
+    });
+
+    render(
+      <AchievementsListItem
+        achievement={achievement}
+        index={0}
+        isLargeList={false}
+        shouldShowAuthor={true} // !!
+        playersTotal={100}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: /scott/i })).toBeVisible();
     });
   });
 });
