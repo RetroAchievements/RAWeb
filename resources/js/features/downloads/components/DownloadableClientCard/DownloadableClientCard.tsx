@@ -1,5 +1,7 @@
 import type { FC } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuCircleAlert } from 'react-icons/lu';
 
 import {
   BaseCard,
@@ -9,6 +11,11 @@ import {
   BaseCardTitle,
 } from '@/common/components/+vendor/BaseCard';
 import { BaseChip } from '@/common/components/+vendor/BaseChip';
+import {
+  BasePopover,
+  BasePopoverContent,
+  BasePopoverTrigger,
+} from '@/common/components/+vendor/BasePopover';
 import {
   BaseTooltip,
   BaseTooltipContent,
@@ -27,8 +34,9 @@ interface DownloadableClientCardProps {
 
 export const DownloadableClientCard: FC<DownloadableClientCardProps> = ({ emulator }) => {
   const { topSystemIds } = usePageProps<App.Http.Data.DownloadsPageProps>();
-
   const { t } = useTranslation();
+
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   if (!emulator.systems) {
     return null;
@@ -52,7 +60,32 @@ export const DownloadableClientCard: FC<DownloadableClientCardProps> = ({ emulat
       className="flex h-full flex-col light:bg-white light:shadow-sm"
     >
       <BaseCardHeader>
-        <BaseCardTitle className="text-xl">{emulator.name}</BaseCardTitle>
+        <BaseCardTitle className="flex items-center gap-2 text-xl">
+          <span>{emulator.name}</span>
+
+          {!emulator.canDebugTriggers ? (
+            <BasePopover open={isPopoverOpen}>
+              <BasePopoverTrigger
+                onMouseEnter={() => setIsPopoverOpen(true)}
+                onMouseLeave={() => setIsPopoverOpen(false)}
+                onClick={(e) => e.preventDefault()}
+              >
+                <LuCircleAlert data-testid="warning-icon" className="text-neutral-500" />
+              </BasePopoverTrigger>
+
+              <BasePopoverContent
+                onMouseEnter={() => setIsPopoverOpen(true)}
+                onMouseLeave={() => setIsPopoverOpen(false)}
+                onPointerDownOutside={(e) => e.preventDefault()}
+                onInteractOutside={(e) => e.preventDefault()}
+              >
+                {t(
+                  'Developers may not be able to easily resolve tickets submitted from this emulator.',
+                )}
+              </BasePopoverContent>
+            </BasePopover>
+          ) : null}
+        </BaseCardTitle>
       </BaseCardHeader>
 
       <BaseCardContent className="flex flex-grow flex-col gap-8">
