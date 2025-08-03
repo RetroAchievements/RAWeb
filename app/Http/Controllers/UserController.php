@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
@@ -93,6 +94,7 @@ class UserController extends Controller
 
         try {
             UploadAvatar($user->username, $request->imageData);
+            $this->purgeUserAvatarFromCloudflare($user);
 
             return response()->json(['success' => true]);
         } catch (Exception $exception) {
@@ -122,6 +124,7 @@ class UserController extends Controller
         $this->authorize('updateAvatar', $user);
 
         removeAvatar($user->username);
+        $this->purgeUserAvatarFromCloudflare($user);
 
         return response()->json(['success' => true]);
     }
@@ -149,5 +152,25 @@ class UserController extends Controller
         cancelDeleteRequest($user->username);
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Avatars unfortunately are required to use stable usernames due to downstream concerns such as emulators.
+     * This makes them difficult to cache. There isn't anything that inherently can cachebust them like a query parameter.
+     * We'll manually tell Cloudflare when it's time to cachebust these assets.
+     */
+    private function purgeUserAvatarFromCloudflare(User $user): void
+    {
+        $token = config('services.cloudflare.purge_token');
+        $zone = config('services.cloudflare.zone');
+        $mediaUrl = config('filesystems.disks.media.url');
+
+        if ($token && $zone && $mediaUrl) {
+            Http::withToken($token)
+                ->post("https://api.cloudflare.com/client/v4/zones/{$zone}/purge_cache", [
+                    // "https://media.retroachievements.org/UserPic/Scott.png"
+                    'files' => ["{$mediaUrl}/UserPic/{$user->username}.png"],
+                ]);
+        }
     }
 }
