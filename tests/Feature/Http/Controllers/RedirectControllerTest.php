@@ -127,15 +127,14 @@ class RedirectControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('pages.redirect');
 
-        // ... the URL should be properly escaped in the view ...
         $response->assertViewHas('url', 'https://example.com/<script>alert(1)</script>');
-
-        // ... the script tag should be escaped in the actual output ...
         $response->assertDontSee('<script>alert(1)</script>', false);
-        $response->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false);
+
+        $content = $response->getContent();
+        $this->assertStringContainsString('https://example.com/&lt;script&gt;alert(1)&lt;/script&gt;', $content);
     }
 
-    public function testRedirectStillBlocksDangerousProtocols(): void
+    public function testRedirectBlocksDangerousProtocols(): void
     {
         $response = $this->get('/redirect?url=javascript:alert(1)');
         $response->assertRedirect('/');
@@ -145,17 +144,30 @@ class RedirectControllerTest extends TestCase
 
         $response3 = $this->get('/redirect?url=file:///etc/passwd');
         $response3->assertRedirect('/');
+
+        $response4 = $this->get('/redirect?url=vbscript:alert(1)');
+        $response4->assertRedirect('/');
+
+        $response5 = $this->get('/redirect?url=about:blank');
+        $response5->assertRedirect('/');
+
+        $response6 = $this->get('/redirect?url=blob:https://example.com/123');
+        $response6->assertRedirect('/');
     }
 
-    public function testRedirectBlocksMaliciousSubdomains(): void
+    public function testRedirectBlocksEncodedDangerousProtocols(): void
     {
-        // Act
-        $response = $this->get('/redirect?url=https://malicious.github.com/evil');
+        $response = $this->get('/redirect?url=%6A%61%76%61%73%63%72%69%70%74:alert(1)');
+        $response->assertRedirect('/');
 
-        // Assert
-        $response->assertStatus(200);
-        $response->assertViewIs('pages.redirect');
-        $response->assertViewHas('url', 'https://malicious.github.com/evil');
+        $response2 = $this->get('/redirect?url=java%73cript:alert(1)');
+        $response2->assertRedirect('/');
+
+        $response3 = $this->get('/redirect?url=%256A%2561%2576%2561%2573%2563%2572%2569%2570%2574:alert(1)');
+        $response3->assertRedirect('/');
+
+        $response4 = $this->get('/redirect?url=&#106;&#97;&#118;&#97;&#115;&#99;&#114;&#105;&#112;&#116;:alert(1)');
+        $response4->assertRedirect('/');
     }
 
     public function testRedirectAllowsLegitimateSubdomains(): void
@@ -199,12 +211,39 @@ class RedirectControllerTest extends TestCase
     public function testRedirectBlocksArbitraryGithubSubdomains(): void
     {
         // Act
-        $response = $this->get('/redirect?url=https://gist.github.com/malicious');
+        $response = $this->get('/redirect?url=https://malicious.github.com/evil');
 
         // Assert
         $response->assertStatus(200);
         $response->assertViewIs('pages.redirect');
-        $response->assertViewHas('url', 'https://gist.github.com/malicious');
+        $response->assertViewHas('url', 'https://malicious.github.com/evil');
+    }
+
+    public function testRedirectAllowsGithubGist(): void
+    {
+        // Act
+        $response = $this->get('/redirect?url=https://gist.github.com/user/abc123');
+
+        // Assert
+        $response->assertRedirect('https://gist.github.com/user/abc123');
+    }
+
+    public function testRedirectAllowsRawGithubusercontent(): void
+    {
+        // Act
+        $response = $this->get('/redirect?url=https://raw.githubusercontent.com/repo/file.txt');
+
+        // Assert
+        $response->assertRedirect('https://raw.githubusercontent.com/repo/file.txt');
+    }
+
+    public function testRedirectAllowsGithubUserImages(): void
+    {
+        // Act
+        $response = $this->get('/redirect?url=https://user-images.githubusercontent.com/123/image.png');
+
+        // Assert
+        $response->assertRedirect('https://user-images.githubusercontent.com/123/image.png');
     }
 
     public function testRedirectHandlesCaseInsensitiveDomains(): void
