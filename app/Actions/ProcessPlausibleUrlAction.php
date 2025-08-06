@@ -107,10 +107,10 @@ class ProcessPlausibleUrlAction
                         ? substr($route['titleField'], strrpos($route['titleField'], '.') + 1)
                         : $route['titleField'];
 
-                    $props = [
-                        'id' => $id,
-                        strtolower($propName) => $titleValue,
-                    ];
+                    $props = ['id' => $id];
+                    if ($titleValue !== null) {
+                        $props[strtolower($propName)] = $titleValue;
+                    }
                 } elseif ($id) {
                     $props = ['id' => $id];
                 }
@@ -245,7 +245,7 @@ class ProcessPlausibleUrlAction
     /**
      * Gets a value from a model relationship.
      */
-    private function getNestedValue(Model $model, string $path): string
+    private function getNestedValue(Model $model, string $path): ?string
     {
         $parts = explode('.', $path);
         $value = $model;
