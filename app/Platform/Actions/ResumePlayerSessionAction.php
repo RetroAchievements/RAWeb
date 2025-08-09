@@ -17,6 +17,7 @@ use App\Platform\Events\PlayerSessionResumed;
 use App\Platform\Events\PlayerSessionStarted;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 
 class ResumePlayerSessionAction
 {
@@ -103,7 +104,7 @@ class ResumePlayerSessionAction
                 $doesUserNeedsUpdate = true;
 
                 // Update the player's game_recent_players table entry.
-                GameRecentPlayer::upsert(
+                $this->upsertGameRecentPlayer(
                     [
                         'game_id' => $game->id,
                         'user_id' => $user->id,
@@ -166,7 +167,7 @@ class ResumePlayerSessionAction
         $user->playerSessions()->save($playerSession);
 
         // Update the player's game_recent_players table entry.
-        GameRecentPlayer::upsert(
+        $this->upsertGameRecentPlayer(
             [
                 'game_id' => $game->id,
                 'user_id' => $user->id,
@@ -218,6 +219,45 @@ class ResumePlayerSessionAction
                 $baseQuery->clone()
                     ->whereNull('completed_hardcore_at')
                     ->increment('time_taken_hardcore', $adjustment);
+            }
+        }
+    }
+
+    /**
+     * Upsert to game_recent_players with retry logic for MySQL deadlocks.
+     *
+     * With concurrent workers processing player-sessions queue (49M jobs/month),
+     * deadlocks can occur when multiple workers try to update the same user+game row.
+     * MySQL error 1213 "Deadlock found" is expected but rare (every ~3 days).
+     * We retry up to 3 times with random delay to resolve it automatically.
+     *
+     * This is a bit more surgical than putting a retry on the job.
+     * We don't want to retry everything on the job.
+     */
+    private function upsertGameRecentPlayer(array $values, array $uniqueBy, array $update): void
+    {
+        $maxAttempts = 3;
+
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            try {
+                GameRecentPlayer::upsert([$values], $uniqueBy, $update);
+
+                return;
+            } catch (QueryException $e) {
+                // If it's a non-deadlock error, propagate the exception.
+                if (!str_contains($e->getMessage(), 'Deadlock found')) {
+                    throw $e;
+                }
+
+                // On the final attempt, propagate the deadlock exception.
+                if ($attempt === $maxAttempts) {
+                    throw $e;
+                }
+
+                // Exponential delay with jitter prevents all workers from retrying simultaneously.
+                $baseDelay = 100_000 * (2 ** ($attempt - 1));
+                $jitter = random_int(0, $baseDelay);
+                usleep($baseDelay + $jitter); // 100-200ms -> 200-400ms
             }
         }
     }
