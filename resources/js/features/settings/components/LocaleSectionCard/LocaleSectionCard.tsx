@@ -57,9 +57,11 @@ export const LocaleSectionCard: FC = () => {
                       {/* These labels should not be localized. */}
                       <BaseSelectItem value="en_US">{'English (US)'}</BaseSelectItem>
                       <BaseSelectItem value="en_GB">{'English (UK)'}</BaseSelectItem>
+                      <BaseSelectItem value="cy_GB">{'Cymraeg (Cymru)'}</BaseSelectItem>
                       <BaseSelectItem value="de_DE">{'Deutsch (Deutschland)'}</BaseSelectItem>
                       <BaseSelectItem value="es_ES">{'Español (España)'}</BaseSelectItem>
                       <BaseSelectItem value="fr_FR">{'Français (France)'}</BaseSelectItem>
+                      <BaseSelectItem value="it_IT">{'Italiano (Italia)'}</BaseSelectItem>
                       <BaseSelectItem value="pl_PL">{'Polski (Polska)'}</BaseSelectItem>
                       <BaseSelectItem value="pt_BR">{'Português (Brasil)'}</BaseSelectItem>
                       <BaseSelectItem value="ru_RU">{'Русский (Россия)'}</BaseSelectItem>
