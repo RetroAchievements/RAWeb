@@ -14,6 +14,7 @@ use App\Console\Commands\DeleteOverdueUserAccounts;
 use App\Console\Commands\GenerateTypeScript;
 use App\Console\Commands\LogUsersOnlineCount;
 use App\Console\Commands\MakeJsComponent;
+use App\Console\Commands\PruneApiLogs;
 use App\Console\Commands\SquashMigrations;
 use App\Console\Commands\SyncUsers;
 use App\Console\Commands\SystemAlert;
@@ -57,6 +58,7 @@ class AppServiceProvider extends ServiceProvider
                 DeleteOverdueUserAccounts::class,
                 GenerateTypeScript::class,
                 LogUsersOnlineCount::class,
+                PruneApiLogs::class,
                 SquashMigrations::class,
 
                 // User Accounts
@@ -81,6 +83,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->booted(function () {
             $schedule = $this->app->make(Schedule::class);
 
+            $schedule->command(PruneApiLogs::class)->dailyAt('9:00'); // ~ 4:00AM US Eastern
             $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes();
 
             if (app()->environment() === 'production') {

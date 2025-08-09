@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Controllers;
+namespace App\Api\V1\Controllers;
 
 use App\Http\Controller;
 use Illuminate\Http\JsonResponse;
