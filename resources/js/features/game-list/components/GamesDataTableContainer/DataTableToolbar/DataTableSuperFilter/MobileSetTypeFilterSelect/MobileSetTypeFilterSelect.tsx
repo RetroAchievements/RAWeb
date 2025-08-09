@@ -58,7 +58,7 @@ export function MobileSetTypeFilterSelect<TData>({
         {t('Set type')}
       </BaseLabel>
 
-      <BaseSelect value={selectedValues[0]} onValueChange={handleValueChange}>
+      <BaseSelect value={selectedValues[0] ?? 'null'} onValueChange={handleValueChange}>
         <BaseSelectTrigger id="drawer-set-type" className="w-full">
           <BaseSelectValue placeholder={t('All Sets')} />
         </BaseSelectTrigger>
