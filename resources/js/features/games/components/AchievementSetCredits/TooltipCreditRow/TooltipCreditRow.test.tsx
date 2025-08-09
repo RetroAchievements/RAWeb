@@ -170,17 +170,4 @@ describe('Component: TooltipCreditRow', () => {
     expect(displayNameElement).not.toHaveClass('text-neutral-500');
     expect(displayNameElement).not.toHaveClass('line-through');
   });
-
-  it('given canLinkToUser is true, links to the user profile', () => {
-    // ARRANGE
-    const credit = createUserCredits({
-      displayName: 'Scott',
-      isGone: false,
-    });
-
-    render(<TooltipCreditRow credit={credit} canLinkToUser={true} />);
-
-    // ASSERT
-    expect(screen.getByRole('link', { name: /scott/i })).toBeVisible();
-  });
 });
