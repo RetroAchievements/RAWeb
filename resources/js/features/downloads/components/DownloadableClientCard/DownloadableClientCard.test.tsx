@@ -1,3 +1,5 @@
+import userEvent from '@testing-library/user-event';
+
 import { render, screen } from '@/test';
 import { createEmulator, createPlatform, createSystem } from '@/test/factories';
 
@@ -143,5 +145,174 @@ describe('Component: DownloadableClientCard', () => {
     // ASSERT
     expect(screen.getByText('With Environment')).toBeVisible();
     expect(screen.getByText('Without Environment')).toBeVisible();
+  });
+
+  it('given an emulator that cannot debug triggers, shows a warning icon', () => {
+    // ARRANGE
+    const emulator = createEmulator({
+      systems: [createSystem()],
+      platforms: [createPlatform()],
+      canDebugTriggers: false, // !! This triggers the warning icon to appear.
+    });
+
+    render(<DownloadableClientCard emulator={emulator} />, {
+      pageProps: { topSystemIds: [] },
+    });
+
+    // ASSERT
+    expect(screen.getByTestId('warning-icon')).toBeVisible();
+  });
+
+  it('given an emulator that can debug triggers, does not show a warning icon', () => {
+    // ARRANGE
+    const emulator = createEmulator({
+      systems: [createSystem()],
+      platforms: [createPlatform()],
+      canDebugTriggers: true, // !! No warning icon should appear.
+    });
+
+    render(<DownloadableClientCard emulator={emulator} />, {
+      pageProps: { topSystemIds: [] },
+    });
+
+    // ASSERT
+    expect(screen.queryByTestId('warning-icon')).not.toBeInTheDocument();
+  });
+
+  it('given the user hovers over the warning icon, shows the warning popover', async () => {
+    // ARRANGE
+    const emulator = createEmulator({
+      systems: [createSystem()],
+      platforms: [createPlatform()],
+      canDebugTriggers: false, // !! This triggers the warning icon to appear.
+    });
+
+    render(<DownloadableClientCard emulator={emulator} />, {
+      pageProps: { topSystemIds: [] },
+    });
+
+    // ACT
+    const warningIcon = screen.getByTestId('warning-icon');
+    await userEvent.hover(warningIcon);
+
+    // ASSERT
+    expect(
+      screen.getByText(
+        'Developers may not be able to easily resolve tickets submitted from this emulator.',
+      ),
+    ).toBeVisible();
+  });
+
+  it('given the user unhovers from warning icon, hides the warning popover', async () => {
+    // ARRANGE
+    const emulator = createEmulator({
+      systems: [createSystem()],
+      platforms: [createPlatform()],
+      canDebugTriggers: false, // !! This triggers the warning icon to appear.
+    });
+
+    render(<DownloadableClientCard emulator={emulator} />, {
+      pageProps: { topSystemIds: [] },
+    });
+
+    // ACT
+    const warningIcon = screen.getByTestId('warning-icon');
+    await userEvent.hover(warningIcon);
+
+    // ... verify the popover is visible ...
+    expect(
+      screen.getByText(
+        'Developers may not be able to easily resolve tickets submitted from this emulator.',
+      ),
+    ).toBeVisible();
+
+    // ... now move the mouse away ...
+    await userEvent.unhover(warningIcon);
+
+    // ASSERT
+    expect(
+      screen.queryByText(
+        'Developers may not be able to easily resolve tickets submitted from this emulator.',
+      ),
+    ).not.toBeInTheDocument();
+  });
+
+  it('given clicking the warning icon, does not close the popover', async () => {
+    // ARRANGE
+    const emulator = createEmulator({
+      systems: [createSystem()],
+      platforms: [createPlatform()],
+      canDebugTriggers: false, // !! This triggers the warning icon to appear.
+    });
+
+    render(<DownloadableClientCard emulator={emulator} />, {
+      pageProps: { topSystemIds: [] },
+    });
+
+    // ACT
+    const warningIcon = screen.getByTestId('warning-icon');
+    await userEvent.hover(warningIcon);
+    await userEvent.click(warningIcon);
+
+    // ASSERT
+    expect(
+      screen.getByText(
+        'Developers may not be able to easily resolve tickets submitted from this emulator.',
+      ),
+    ).toBeVisible();
+  });
+
+  it('given the user hovers over the popover content, keeps it visible', async () => {
+    // ARRANGE
+    const emulator = createEmulator({
+      systems: [createSystem()],
+      platforms: [createPlatform()],
+      canDebugTriggers: false, // !!
+    });
+
+    render(<DownloadableClientCard emulator={emulator} />, {
+      pageProps: { topSystemIds: [] },
+    });
+
+    // ACT
+    const warningIcon = screen.getByTestId('warning-icon');
+    await userEvent.hover(warningIcon);
+
+    const popoverContent = screen.getByText(
+      'Developers may not be able to easily resolve tickets submitted from this emulator.',
+    );
+
+    // ... move the mouse to the popover content ...
+    await userEvent.hover(popoverContent);
+
+    // ASSERT
+    expect(popoverContent).toBeVisible();
+  });
+
+  it('given the user unhovers over the popover content, closes it', async () => {
+    // ARRANGE
+    const emulator = createEmulator({
+      systems: [createSystem()],
+      platforms: [createPlatform()],
+      canDebugTriggers: false, // !!
+    });
+
+    render(<DownloadableClientCard emulator={emulator} />, {
+      pageProps: { topSystemIds: [] },
+    });
+
+    // ACT
+    const warningIcon = screen.getByTestId('warning-icon');
+    await userEvent.hover(warningIcon);
+
+    const popoverContent = screen.getByText(
+      'Developers may not be able to easily resolve tickets submitted from this emulator.',
+    );
+
+    await userEvent.hover(popoverContent);
+    await userEvent.unhover(popoverContent);
+
+    // ASSERT
+    expect(popoverContent).not.toBeInTheDocument();
   });
 });
