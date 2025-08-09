@@ -2,6 +2,7 @@ import type { FC } from 'react';
 
 import { BaseTableCell, BaseTableRow } from '@/common/components/+vendor/BaseTable';
 import { UserAvatar } from '@/common/components/UserAvatar';
+import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { formatDate } from '@/common/utils/l10n/formatDate';
@@ -29,6 +30,8 @@ export const PlayableTopPlayersRow: FC<PlayableTopPlayersRowProps> = ({
 }) => {
   const { auth } = usePageProps();
 
+  const { formatNumber } = useFormatNumber();
+
   const getRowNumber = (): number => {
     // For latest masters, we always use the reversed index.
     if (listKind === 'latest-masters') {
@@ -46,7 +49,7 @@ export const PlayableTopPlayersRow: FC<PlayableTopPlayersRowProps> = ({
       key={`top-players-${player.userDisplayName}`}
       className={cn('last:rounded-b-lg [&>td]:py-[6px]', isMe ? 'outline outline-text' : null)}
     >
-      <BaseTableCell className="text-right">{getRowNumber()}</BaseTableCell>
+      <BaseTableCell className="text-right">{formatNumber(getRowNumber())}</BaseTableCell>
 
       <BaseTableCell>
         <UserAvatar
