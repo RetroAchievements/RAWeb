@@ -70,6 +70,13 @@ switch ($input['action']) {
         }
         break;
 
+    case TicketAction::UnableToDebug:
+        if ($permissions >= Permissions::Developer) {
+            $ticketState = TicketState::Closed;
+            $reason = "Unable to debug";
+        }
+        break;
+
     case TicketAction::ClosedOther:
         if ($permissions >= Permissions::Developer) {
             $ticketState = TicketState::Closed;
