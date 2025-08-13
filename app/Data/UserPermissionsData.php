@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Data;
 
 use App\Models\Achievement;
+use App\Models\AchievementSetClaim;
 use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\Leaderboard;
@@ -19,6 +20,7 @@ class UserPermissionsData extends Data
 {
     public function __construct(
         public Lazy|bool $authorizeForumTopicComments,
+        public Lazy|bool $createAchievementSetClaims,
         public Lazy|bool $createForumTopicComments,
         public Lazy|bool $createGameComments,
         public Lazy|bool $createGameForumTopic,
@@ -35,6 +37,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $manageGames,
         public Lazy|bool $manageGameSets,
         public Lazy|bool $manipulateApiKeys,
+        public Lazy|bool $reviewAchievementSetClaims,
         public Lazy|bool $updateAvatar,
         public Lazy|bool $updateForumTopic,
         public Lazy|bool $updateMotto,
@@ -47,12 +50,14 @@ class UserPermissionsData extends Data
         Achievement|Leaderboard|null $triggerable = null,
         ?Game $game = null,
         ?ForumTopic $forumTopic = null,
+        ?AchievementSetClaim $claim = null,
     ): self {
         return new self(
             authorizeForumTopicComments: Lazy::create(fn () => $user
                 ? $user->can('authorize', \App\Models\ForumTopicComment::class)
                 : false
             ),
+            createAchievementSetClaims: Lazy::create(fn () => $user ? $user->can('create', AchievementSetClaim::class) : false),
             createForumTopicComments: Lazy::create(fn () => $user && $forumTopic
                 ? $user->can('create', [\App\Models\ForumTopicComment::class, $forumTopic])
                 : false
@@ -81,6 +86,10 @@ class UserPermissionsData extends Data
             manageGames: Lazy::create(fn () => $user ? $user->can('manage', Game::class) : false),
             manageGameSets: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\GameSet::class) : false),
             manipulateApiKeys: Lazy::create(fn () => $user ? $user->can('manipulateApiKeys', $user) : false),
+            reviewAchievementSetClaims: Lazy::create(fn () => $user && $claim
+                ? $user->can('review', $claim)
+                : false
+            ),
             updateAvatar: Lazy::create(fn () => $user ? $user->can('updateAvatar', $user) : false),
             updateForumTopic: Lazy::create(fn () => $user && $forumTopic ? $user->can('update', $forumTopic) : false),
             updateMotto: Lazy::create(fn () => $user ? $user->can('updateMotto', $user) : false),

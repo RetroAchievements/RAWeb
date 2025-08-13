@@ -414,7 +414,6 @@ function getExpiringClaim(User $user): array
     return $value;
 }
 
-// TODO use a policy
 /**
  * Gets the number of claims a user is allowed to have based on their permission
  */
