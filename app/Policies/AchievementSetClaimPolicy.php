@@ -92,7 +92,7 @@ class AchievementSetClaimPolicy
             return $game->achievements_published > 0; // TODO this probably needs to use achievement sets at some point in the future
         }
 
-        // Keep in mind, inactive systems will land here. 
+        // Keep in mind, inactive systems will land here.
         // In practice, this doesn't matter because developers can't
         // promote achievements for inactive systems anyway.
         return true;
