@@ -12,7 +12,6 @@ interface Variables {
 export function useUpdateClaimStatusMutation() {
   return useMutation({
     mutationFn: ({ claimId, status }: Variables) => {
-      // Create form data to match what the Laravel backend expects.
       const formData = new FormData();
       formData.append('status', status.toString());
 
