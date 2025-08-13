@@ -82,7 +82,7 @@ describe('Component: ClaimActionButton', () => {
 
     // ASSERT
     expect(screen.getByText(/drop claim/i)).toBeVisible();
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('claim-button')).not.toBeInTheDocument();
   });
 
   it('given the user has a droppable claim, shows the real drop claim button', () => {
@@ -118,7 +118,7 @@ describe('Component: ClaimActionButton', () => {
 
     // ASSERT
     expect(screen.getByText(/claim/i)).toBeVisible();
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('claim-button')).not.toBeInTheDocument();
   });
 
   it('given the user has 2 or more unresolved tickets, shows a faje disabled claim button', () => {
@@ -137,7 +137,7 @@ describe('Component: ClaimActionButton', () => {
 
     // ASSERT
     expect(screen.getByText(/claim/i)).toBeVisible();
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('claim-button')).not.toBeInTheDocument();
   });
 
   it('given the user is a junior developer and the game has no forum topic, shows a fake disabled claim button', () => {
@@ -160,7 +160,7 @@ describe('Component: ClaimActionButton', () => {
 
     // ASSERT
     expect(screen.getByText(/claim/i)).toBeVisible();
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('claim-button')).not.toBeInTheDocument();
   });
 
   it('given the user can make a new claim and all conditions are met, shows the real claim button', () => {

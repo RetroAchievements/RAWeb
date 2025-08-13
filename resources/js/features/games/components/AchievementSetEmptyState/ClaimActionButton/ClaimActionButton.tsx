@@ -23,6 +23,7 @@ export const ClaimActionButton: FC = () => {
     if (claimData.userClaim.isExtendable) {
       return (
         <ClaimConfirmationDialog
+          data-testid="claim-button"
           action="extend"
           trigger={
             <BaseButton className="gap-1.5">
@@ -50,6 +51,7 @@ export const ClaimActionButton: FC = () => {
 
     return (
       <ClaimConfirmationDialog
+        data-testid="claim-button"
         action="drop"
         trigger={
           <BaseButton className="gap-1.5">
@@ -103,6 +105,7 @@ export const ClaimActionButton: FC = () => {
 
   return (
     <ClaimConfirmationDialog
+      data-testid="claim-button"
       action="create"
       trigger={
         <BaseButton className="gap-1.5">
