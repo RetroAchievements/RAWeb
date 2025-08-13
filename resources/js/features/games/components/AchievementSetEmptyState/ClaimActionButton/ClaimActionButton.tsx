@@ -38,7 +38,7 @@ export const ClaimActionButton: FC = () => {
     if (!claimData.userClaim.isDroppable) {
       return (
         <BaseTooltip>
-          <BaseTooltipTrigger asChild>
+          <BaseTooltipTrigger>
             <DisabledButton>{t('Drop Claim')}</DisabledButton>
           </BaseTooltipTrigger>
           <BaseTooltipContent>
@@ -122,7 +122,14 @@ const DisabledButton: FC<DisabledButtonProps> = ({ children }) => {
   const { t } = useTranslation();
 
   return (
-    <span className={baseButtonVariants({ variant: 'defaultDisabled', className: 'gap-1.5' })}>
+    <span
+      role="button"
+      aria-disabled={true}
+      className={baseButtonVariants({
+        variant: 'defaultDisabled',
+        className: 'cursor-not-allowed gap-1.5',
+      })}
+    >
       <LuWrench />
       {children ?? t('Claim')}
     </span>
