@@ -13,6 +13,7 @@ NOTE: The website does not support RTL (right-to-left) languages at this time.
 - [Review Process](#review-process)
 - [Getting Help](#getting-help)
 - [Tips for New Translators](#tips-for-new-translators)
+- [Developer Guide: Adding a New Language](#developer-guide-adding-a-new-language)
 
 ## Prerequisites
 
@@ -99,6 +100,8 @@ Thank you for helping make RetroAchievements accessible to more people around th
 When a language reaches sufficient translation coverage and approval on Crowdin, developers can enable it in the user interface by following these steps:
 
 ### 1. Register the Language
+
+Open Target File Bundles at https://crowdin.com/project/retroachievements/translations. Look at "Translated files" to get the new lang JSON filenames.
 
 Add the new language to the `LANGUAGES` constant in _crowdin-download.ts_:
 

@@ -35,10 +35,12 @@ import { join } from 'path';
  * ADD NEW LANGUAGES HERE!
  */
 const LANGUAGES = {
+  cy_GB: 'cy',
   de_DE: 'de',
   en_GB: 'en-GB',
   es_ES: 'es-ES',
   fr_FR: 'fr',
+  it_IT: 'it',
   pl_PL: 'pl',
   ru_RU: 'ru',
   sv_SE: 'sv-SE',
