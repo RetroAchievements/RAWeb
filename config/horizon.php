@@ -190,11 +190,12 @@ return [
     /**
      * QUEUE SUPERVISOR ARCHITECTURE
      *
-     * This configuration was optimized in July 2025 to handle Sunday traffic
-     * spikes and prevent queue starvation. The architecture isolates high-volume
-     * and slow queues to prevent them from monopolizing shared workers.
+     * This configuration was originally optimized in July 2025 to handle Sunday traffic
+     * spikes and prevent queue starvation. It was updated again in August 2025 to account
+     * for a CCX53 server upgrade which doubled the CPU and RAM. The architecture isolates
+     * high-volume and slow queues to prevent them from monopolizing shared workers.
      *
-     * Total Workers: 25 (11+8+1+3+2)
+     * Total Workers: 37 (16+10+1+6+4)
      * - supervisor-1: General queues (fast, medium volume)
      * - supervisor-2: Batch processing (slower, larger timeout)
      * - supervisor-3: Search indexing (very fast, isolated)
@@ -222,7 +223,7 @@ return [
             ],
             'balance' => 'auto',
             'autoScalingStrategy' => 'size',
-            'maxProcesses' => 11, // Optimized for high-volume queues with auto-scaling
+            'maxProcesses' => 16, // Optimized for high-volume queues with auto-scaling
             'balanceMaxShift' => 1,
             'balanceCooldown' => 3,
             'maxTime' => 0,
@@ -248,7 +249,7 @@ return [
             ],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
-            'maxProcesses' => 8,
+            'maxProcesses' => 10,
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 128,
@@ -287,7 +288,7 @@ return [
                 'player-sessions',
             ],
             'balance' => 'simple',
-            'processes' => 3, // Pinned at 3 - 38ms avg job time
+            'processes' => 6, // Pinned at 6 - 38ms avg job time
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 128,
@@ -307,7 +308,7 @@ return [
                 'game-player-count',
             ],
             'balance' => 'simple',
-            'processes' => 2, // Pinned at 2 - limited due to slow job execution time
+            'processes' => 4, // Pinned at 4 - limited due to slow job execution time
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 128,

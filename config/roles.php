@@ -35,15 +35,16 @@ $adminAssignable = [
 ];
 
 $modAssignable = [
-    Role::DEV_COMPLIANCE,
-    Role::QUALITY_ASSURANCE,
-    Role::DEVELOPER,
-    Role::DEVELOPER_JUNIOR,
     Role::ARTIST,
-    Role::WRITER,
+    Role::CHEAT_INVESTIGATOR,
+    Role::DEV_COMPLIANCE,
+    Role::DEVELOPER_JUNIOR,
+    Role::DEVELOPER,
+    Role::EVENT_MANAGER,
     Role::GAME_EDITOR,
     Role::PLAY_TESTER,
-    Role::CHEAT_INVESTIGATOR,
+    Role::QUALITY_ASSURANCE,
+    Role::WRITER,
 ];
 
 /*
