@@ -139,7 +139,6 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
                 {achievementSetClaims.map((claim) => (
                   <TooltipCreditRow
                     key={`tooltip-claim-${claim.user!.displayName}`}
-                    canLinkToUser={true}
                     credit={{
                       avatarUrl: claim.user!.avatarUrl,
                       count: 0, // noop
@@ -160,7 +159,6 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
                 {aggregateCredits.achievementsAuthors.map((credit) => (
                   <TooltipCreditRow
                     key={`tooltip-author-${credit.displayName}`}
-                    canLinkToUser={true}
                     credit={credit}
                     showAchievementCount={true}
                   />
@@ -173,7 +171,6 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
                 {aggregateCredits.achievementSetArtwork.map((credit) => (
                   <TooltipCreditRow
                     key={`tooltip-badge-artwork-credit-${credit.displayName}`}
-                    canLinkToUser={true}
                     credit={credit}
                     showCreditDate={true}
                   />
@@ -186,7 +183,6 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
                 {aggregateCredits.achievementsArtwork.map((credit) => (
                   <TooltipCreditRow
                     key={`tooltip-ach-artwork-credit-${credit.displayName}`}
-                    canLinkToUser={true}
                     credit={credit}
                     showAchievementCount={true}
                   />
@@ -199,7 +195,6 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
                 {aggregateCredits.achievementsMaintainers.map((credit) => (
                   <TooltipCreditRow
                     key={`maintainer-credit-${credit.displayName}`}
-                    canLinkToUser={true}
                     credit={credit}
                     showCreditDate={true}
                   />
@@ -212,7 +207,6 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
                 {filteredLogicCredits.map((credit) => (
                   <TooltipCreditRow
                     key={`logic-credit-${credit.displayName}`}
-                    canLinkToUser={true}
                     credit={credit}
                     showAchievementCount={true}
                   />
@@ -225,7 +219,6 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
                 {aggregateCredits.achievementsDesign.map((credit) => (
                   <TooltipCreditRow
                     key={`design-credit-${credit.displayName}`}
-                    canLinkToUser={true}
                     credit={credit}
                     showAchievementCount={true}
                   />
@@ -240,11 +233,7 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
                    * TODO show dates
                    * right now these are attached to achievements... it should probably be set credit
                    */
-                  <TooltipCreditRow
-                    key={`testing-credit-${credit.displayName}`}
-                    canLinkToUser={true}
-                    credit={credit}
-                  />
+                  <TooltipCreditRow key={`testing-credit-${credit.displayName}`} credit={credit} />
                 ))}
               </TooltipCreditsSection>
             ) : null}
@@ -254,7 +243,6 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
                 {aggregateCredits.hashCompatibilityTesting.map((credit) => (
                   <TooltipCreditRow
                     key={`hash-compatibility-credit-${credit.displayName}`}
-                    canLinkToUser={true}
                     credit={credit}
                     showCreditDate={true}
                   />
@@ -267,7 +255,6 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
                 {aggregateCredits.achievementsWriting.map((credit) => (
                   <TooltipCreditRow
                     key={`writing-credit-${credit.displayName}`}
-                    canLinkToUser={true}
                     credit={credit}
                     showAchievementCount={true}
                   />
