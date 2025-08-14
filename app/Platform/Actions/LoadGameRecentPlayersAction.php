@@ -23,6 +23,9 @@ class LoadGameRecentPlayersAction
     public function execute(Game $game, int $limit = 10): Collection
     {
         $recentPlayers = GameRecentPlayer::with('user')
+            ->whereHas('user', function ($query) {
+                $query->whereNull('Deleted');
+            })
             ->where('game_id', $game->id)
             ->orderBy('rich_presence_updated_at', 'DESC')
             ->limit($limit)
@@ -46,19 +49,22 @@ class LoadGameRecentPlayersAction
             ->get()
             ->groupBy('user_id');
 
-        return $recentPlayers->map(function (GameRecentPlayer $recentPlayer) use ($playerGames, $badges) {
-            $playerGame = $playerGames->get($recentPlayer->user_id);
+        return $recentPlayers
+            ->filter(fn (GameRecentPlayer $recentPlayer) => $recentPlayer->user !== null)
+            ->map(function (GameRecentPlayer $recentPlayer) use ($playerGames, $badges) {
+                $playerGame = $playerGames->get($recentPlayer->user_id);
 
-            // Find the highest award for this user and game.
-            $userBadges = $badges->get($recentPlayer->user_id, collect());
-            $highestAward = $this->getHighestAward($userBadges);
+                // Find the highest award for this user and game.
+                $userBadges = $badges->get($recentPlayer->user_id, collect());
+                $highestAward = $this->getHighestAward($userBadges);
 
-            return GameRecentPlayerData::fromGameRecentPlayer(
-                $recentPlayer,
-                $playerGame,
-                $highestAward
-            )->include('highestAward');
-        });
+                return GameRecentPlayerData::fromGameRecentPlayer(
+                    $recentPlayer,
+                    $playerGame,
+                    $highestAward
+                )->include('highestAward');
+            }
+        );
     }
 
     /**
