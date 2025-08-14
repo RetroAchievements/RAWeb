@@ -4,7 +4,12 @@ import { route } from 'ziggy-js';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
-import { createMessage, createMessageThread, createPaginatedData } from '@/test/factories';
+import {
+  createMessage,
+  createMessageThread,
+  createPaginatedData,
+  createZiggyProps,
+} from '@/test/factories';
 
 import { MessagesShowRoot } from './MessagesShowRoot';
 
@@ -31,6 +36,7 @@ describe('Component: MessagesShowRoot', () => {
         messageThread,
         paginatedMessages,
         canReply: true,
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -49,6 +55,7 @@ describe('Component: MessagesShowRoot', () => {
         paginatedMessages,
         canReply: true, // !!
         auth: { user: createAuthenticatedUser() },
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -67,6 +74,7 @@ describe('Component: MessagesShowRoot', () => {
         paginatedMessages,
         canReply: false, // !!
         auth: { user: createAuthenticatedUser() },
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -87,6 +95,7 @@ describe('Component: MessagesShowRoot', () => {
         paginatedMessages,
         canReply: false,
         auth: { user: createAuthenticatedUser() },
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -106,6 +115,7 @@ describe('Component: MessagesShowRoot', () => {
         paginatedMessages,
         canReply: true,
         auth: { user: createAuthenticatedUser() },
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -141,6 +151,7 @@ describe('Component: MessagesShowRoot', () => {
         paginatedMessages,
         canReply: true,
         auth: { user: createAuthenticatedUser() },
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -172,6 +183,7 @@ describe('Component: MessagesShowRoot', () => {
         canReply: true,
         senderUserDisplayName: 'Scott',
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -199,6 +211,7 @@ describe('Component: MessagesShowRoot', () => {
         canReply: true,
         senderUserDisplayName: 'RAdmin',
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -225,6 +238,7 @@ describe('Component: MessagesShowRoot', () => {
         paginatedMessages,
         canReply: true,
         auth: { user: createAuthenticatedUser() },
+        ziggy: createZiggyProps(),
       },
     });
 

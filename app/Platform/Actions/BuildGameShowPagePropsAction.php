@@ -75,7 +75,8 @@ class BuildGameShowPagePropsAction
             $backingGame = $game;
         }
 
-        [$numMasters, $topAchievers] = $this->loadGameTopAchieversAction->execute($backingGame);
+        [$numMasters, $topAchievers, $numCompletions, $numBeaten, $numBeatenSoftcore] =
+            $this->loadGameTopAchieversAction->execute($backingGame);
 
         $playerGame = $user
             ? $user->playerGames()->whereGameId($backingGame->id)->first()
@@ -193,12 +194,19 @@ class BuildGameShowPagePropsAction
                 'gameAchievementSets.achievementSet.achievements.unlockPercentage',
                 'gameAchievementSets.achievementSet.achievements.unlocksHardcoreTotal',
                 'gameAchievementSets.achievementSet.achievements.unlocksTotal',
+                'gameAchievementSets.achievementSet.medianTimeToComplete',
+                'gameAchievementSets.achievementSet.medianTimeToCompleteHardcore',
+                'gameAchievementSets.achievementSet.timesCompleted',
+                'gameAchievementSets.achievementSet.timesCompletedHardcore',
                 'genre',
                 'guideUrl',
                 'imageBoxArtUrl',
                 'imageIngameUrl',
                 'imageTitleUrl',
+                'medianTimeToBeat',
+                'medianTimeToBeatHardcore',
                 'playersHardcore',
+                'playersTotal',
                 'pointsTotal',
                 'publisher',
                 'releasedAt',
@@ -208,6 +216,8 @@ class BuildGameShowPagePropsAction
                 'system.iconUrl',
                 'system.nameShort',
                 'system',
+                'timesBeaten',
+                'timesBeatenHardcore',
             ),
 
             similarGames: $similarGames->map(fn ($game) => GameData::fromGame($game)->include(
@@ -238,6 +248,9 @@ class BuildGameShowPagePropsAction
             numComments: $backingGame->visibleComments($user)->count(),
             numCompatibleHashes: $this->getCompatibleHashesCount($game, $backingGame, $targetAchievementSet),
             numMasters: $numMasters,
+            numCompletions: $numCompletions,
+            numBeaten: $numBeaten,
+            numBeatenSoftcore: $numBeatenSoftcore,
             numOpenTickets: Ticket::forGame($backingGame)->unresolved()->count(),
             recentPlayers: $this->loadGameRecentPlayersAction->execute($game),
             recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($backingGame->visibleComments))),
@@ -253,6 +266,9 @@ class BuildGameShowPagePropsAction
             selectableGameAchievementSets: $game->getAttribute('selectableGameAchievementSets')
                 ->map(function ($gas) {
                     $gas->achievementSet->setRelation('achievements', collect());
+
+                    $gas->achievementSet->median_time_to_complete = $gas->achievementSet->median_time_to_complete ?? 0;
+                    $gas->achievementSet->median_time_to_complete_hardcore = $gas->achievementSet->median_time_to_complete_hardcore ?? 0;
 
                     return GameAchievementSetData::from($gas)->include(
                         'type',

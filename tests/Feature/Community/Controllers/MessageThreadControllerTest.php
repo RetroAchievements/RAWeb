@@ -72,4 +72,64 @@ class MessageThreadControllerTest extends TestCase
             ->where('unreadMessageCount', 0)
         );
     }
+
+    public function testShowPreservesMessageQueryParameterDuringRedirect(): void
+    {
+        // Arrange
+        $this->actingAs($this->user);
+        $thread = $this->createMessageThreadWithParticipant($this->user);
+
+        // ... create 25 messages to force multiple pages ...
+        for ($i = 0; $i < 24; $i++) {
+            Message::factory()->create([
+                'thread_id' => $thread->id,
+                'author_id' => $this->user->id,
+            ]);
+        }
+
+        // Act
+        $response = $this->get(route('message-thread.show', [
+            'messageThread' => $thread->id,
+            'message' => '12345', // !!
+        ]));
+
+        // Assert
+        $response->assertRedirect(route('message-thread.show', [
+            'messageThread' => $thread->id,
+            'page' => 2,
+            'message' => '12345', // !!
+        ]));
+    }
+
+    public function testShowAutoRedirectIncludesNewestMessageId(): void
+    {
+        // Arrange
+        $this->actingAs($this->user);
+        $thread = $this->createMessageThreadWithParticipant($this->user);
+
+        // ... create 25 messages to force multiple pages ...
+        $messages = [];
+        for ($i = 0; $i < 24; $i++) {
+            $messages[] = Message::factory()->create([
+                'thread_id' => $thread->id,
+                'author_id' => $this->user->id,
+                'created_at' => now()->addMinutes($i),
+            ]);
+        }
+
+        $newestMessage = end($messages);
+
+        // Act
+        $response = $this->get(route('message-thread.show', [
+            'messageThread' => $thread->id,
+            // !! no message id
+        ]));
+
+        // Assert
+        $response->assertRedirect(route('message-thread.show', [
+            'messageThread' => $thread->id,
+            'page' => 2,
+            'message' => $newestMessage->id, // !!
+        ]));
+    }
 }

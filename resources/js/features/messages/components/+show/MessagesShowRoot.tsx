@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import type { FC } from 'react';
+import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
@@ -10,6 +10,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { useShortcodeBodyPreview } from '@/common/hooks/useShortcodeBodyPreview';
 import type { TranslatedString } from '@/types/i18next';
 
+import { useAutoScrollToMessage } from '../../hooks/useAutoScrollToMessage';
 import { useDeleteMessageThreadMutation } from '../../hooks/useDeleteMessageThreadMutation';
 import { CreateMessageReplyForm } from '../CreateMessageReplyForm';
 import { MessagePreviewContent } from '../MessagePreviewContent';
@@ -17,14 +18,15 @@ import { MessagesBreadcrumbs } from '../MessagesBreadcrumbs';
 import { ReadableMessageCard } from '../ReadableMessageCard';
 
 export const MessagesShowRoot: FC = () => {
-  const { auth, canReply, messageThread, paginatedMessages, senderUserDisplayName } =
+  const { auth, canReply, messageThread, paginatedMessages, senderUserDisplayName, ziggy } =
     usePageProps<App.Community.Data.MessageThreadShowPageProps>();
-
   const { t } = useTranslation();
 
   const { initiatePreview, previewContent } = useShortcodeBodyPreview();
 
   const deleteMessageThreadMutation = useDeleteMessageThreadMutation();
+
+  useAutoScrollToMessage();
 
   if (!auth) {
     return null;
@@ -86,7 +88,11 @@ export const MessagesShowRoot: FC = () => {
 
       <div className="flex flex-col gap-4">
         {paginatedMessages.items.map((message, messageIndex) => (
-          <ReadableMessageCard key={`msg-${messageIndex}`} message={message} />
+          <ReadableMessageCard
+            key={`msg-${messageIndex}`}
+            message={message}
+            isHighlighted={ziggy.query.message === String(message.id)}
+          />
         ))}
       </div>
 

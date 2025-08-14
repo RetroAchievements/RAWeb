@@ -86,6 +86,7 @@ export const WantToPlayGamesMainRoot: FC = memo(() => {
           setSorting={setSorting}
           // Table configuration
           defaultColumnFilters={defaultColumnFilters}
+          defaultColumnSort={defaultColumnSort}
           columnDefinitions={columnDefinitions}
           // API configuration
           apiRouteName="api.user-game-list.index"

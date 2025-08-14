@@ -1,7 +1,7 @@
 @use('App\Support\Shortcode\Shortcode')
 
 @php
-    $url = route('message-thread.show', ['messageThread' => $messageThread]);
+    $url = route('message-thread.show', ['messageThread' => $messageThread, 'message' => $message->id]);
 
     $body = $message->body ?? '';
     if (!empty($body)) {
