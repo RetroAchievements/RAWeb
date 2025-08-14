@@ -16,14 +16,16 @@ import { formatDate } from '@/common/utils/l10n/formatDate';
 import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 import { gameListFieldIconMap } from '@/features/game-list/utils/gameListFieldIconMap';
 
+import { AchievementsAndPointsChip } from './AchievementsAndPointsChip';
+
 dayjs.extend(utc);
 dayjs.extend(localizedFormat);
 
 interface ChipOfInterestProps {
   game: App.Platform.Data.Game;
 
-  playerGame?: App.Platform.Data.PlayerGame;
   fieldId?: string;
+  playerGame?: App.Platform.Data.PlayerGame;
 }
 
 export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fieldId }) => {
@@ -35,21 +37,8 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
 
   switch (fieldId) {
     case 'achievementsPublished':
-      chipContent = (
-        <BaseChip className="text-neutral-300 light:text-neutral-700">
-          <gameListFieldIconMap.achievementsPublished className="size-3" />
-          {formatNumber(game.achievementsPublished ?? 0)}
-        </BaseChip>
-      );
-      break;
-
     case 'pointsTotal':
-      chipContent = (
-        <BaseChip className="text-neutral-300 light:text-neutral-700">
-          <gameListFieldIconMap.pointsTotal className="size-3" />
-          {formatNumber(game.pointsTotal ?? 0)}
-        </BaseChip>
-      );
+      chipContent = <AchievementsAndPointsChip game={game} />;
       break;
 
     case 'retroRatio':
@@ -110,7 +99,7 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
             {formatNumber(game.numRequests ?? 0)}
           </BaseChip>
 
-          {game.claimants?.length ? (
+          {game.hasActiveOrInReviewClaims ? (
             <BaseChip className="text-neutral-300 light:text-neutral-700">{t('Claimed')}</BaseChip>
           ) : null}
         </>
@@ -143,7 +132,7 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
           <BaseChip
             data-testid="progress-chip"
             className={cn(
-              'h-[22px]',
+              'h-[22px] text-neutral-500',
               !isComplete ? 'px-2' : null,
               buildAwardLabelColorClassNames(
                 playerGame?.highestAward?.awardType,

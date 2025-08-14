@@ -84,6 +84,7 @@ export const AllGamesMainRoot: FC = memo(() => {
           setSorting={setSorting}
           // Table configuration
           defaultColumnFilters={defaultColumnFilters}
+          defaultColumnSort={defaultColumnSort}
           columnDefinitions={columnDefinitions}
         />
       </HydrationBoundary>

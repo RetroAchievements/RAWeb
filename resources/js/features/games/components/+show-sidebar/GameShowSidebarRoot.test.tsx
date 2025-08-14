@@ -179,4 +179,94 @@ describe('Component: GameShowSidebarRoot', () => {
     // ASSERT
     expect(screen.getByText(/compare progress/i)).toBeVisible();
   });
+
+  it('given there are no players yet, does not show playtime statistics', () => {
+    // ARRANGE
+    const game = createGame({
+      playersTotal: 0, // !!
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ achievements: [createAchievement()] }),
+        }),
+      ],
+    });
+
+    render(<GameShowSidebarRoot />, {
+      pageProps: {
+        game,
+        auth: { user: createAuthenticatedUser() },
+        backingGame: game,
+        can: {},
+        followedPlayerCompletions: [],
+        hasMatureContent: false, // !!
+        hubs: [],
+        playerAchievementChartBuckets: [],
+        topAchievers: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByTestId('playtime-statistics')).not.toBeInTheDocument();
+    expect(screen.queryByText(/unlocked an achievement/i)).not.toBeInTheDocument();
+  });
+
+  it('given there are players and achievements, shows playtime statistics', () => {
+    // ARRANGE
+    const game = createGame({
+      playersTotal: 100, // !!
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ achievements: [createAchievement()] }), // !!
+        }),
+      ],
+    });
+
+    render(<GameShowSidebarRoot />, {
+      pageProps: {
+        game,
+        auth: { user: createAuthenticatedUser() },
+        backingGame: game,
+        can: {},
+        followedPlayerCompletions: [],
+        hasMatureContent: false, // !!
+        hubs: [],
+        playerAchievementChartBuckets: [],
+        topAchievers: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByTestId('playtime-statistics')).toBeVisible();
+    expect(screen.getByText(/unlocked an achievement/i)).toBeVisible();
+  });
+
+  it('given there are no achievements, does not show playtime statistics', () => {
+    // ARRANGE
+    const game = createGame({
+      playersTotal: 100, // !!
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ achievements: [] }), // !!
+        }),
+      ],
+    });
+
+    render(<GameShowSidebarRoot />, {
+      pageProps: {
+        game,
+        auth: { user: createAuthenticatedUser() },
+        backingGame: game,
+        can: {},
+        followedPlayerCompletions: [],
+        hasMatureContent: false, // !!
+        hubs: [],
+        playerAchievementChartBuckets: [],
+        topAchievers: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByTestId('playtime-statistics')).not.toBeInTheDocument();
+    expect(screen.queryByText(/unlocked an achievement/i)).not.toBeInTheDocument();
+  });
 });

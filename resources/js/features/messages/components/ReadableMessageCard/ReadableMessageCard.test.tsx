@@ -117,4 +117,34 @@ describe('Component: ReadableMessageCard', () => {
     expect(screen.getByText(/sent by/i)).toBeVisible();
     expect(screen.getByRole('link', { name: /scott/i })).toBeVisible();
   });
+
+  it('given isHighlighted is true, applies outline styling', () => {
+    // ARRANGE
+    const message = createMessage({
+      author: createUser(),
+      body: 'Hello world',
+      createdAt: '2024-01-01T00:00:00Z',
+    });
+
+    render(<ReadableMessageCard message={message} isHighlighted={true} />);
+
+    // ASSERT
+    const messageCard = screen.getByTestId(`message-${message.id}`);
+    expect(messageCard).toHaveClass('outline', 'outline-2');
+  });
+
+  it('given isHighlighted is false, does not apply outline styling', () => {
+    // ARRANGE
+    const message = createMessage({
+      author: createUser(),
+      body: 'Hello world',
+      createdAt: '2024-01-01T00:00:00Z',
+    });
+
+    render(<ReadableMessageCard message={message} isHighlighted={false} />);
+
+    // ASSERT
+    const messageCard = screen.getByTestId(`message-${message.id}`);
+    expect(messageCard).not.toHaveClass('outline');
+  });
 });

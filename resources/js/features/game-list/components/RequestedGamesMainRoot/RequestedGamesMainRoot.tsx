@@ -101,7 +101,9 @@ export const RequestedGamesMainRoot: FC = memo(() => {
           setPagination={setPagination}
           setSorting={setSorting}
           // Table configuration
+          defaultChipOfInterest="numRequests"
           defaultColumnFilters={defaultColumnFilters}
+          defaultColumnSort={defaultColumnSort}
           columnDefinitions={columnDefinitions}
           // API configuration
           apiRouteName={targetUser ? 'api.set-request.user' : 'api.set-request.index'}

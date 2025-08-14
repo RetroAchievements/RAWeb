@@ -17,25 +17,42 @@ use App\Policies\MessageThreadPolicy;
 class BuildMessageThreadShowPagePropsAction
 {
     /**
-     * @return array{props: ?MessageThreadShowPagePropsData, redirectToPage: ?int}
+     * @return array{props: ?MessageThreadShowPagePropsData, redirectToPage: ?int, redirectToMessage?: int}
      */
     public function execute(
         MessageThread $messageThread,
         User $user,
         int $currentPage = 1,
         int $perPage = 20,
+        bool $wasPageExplicitlyRequested = true,
     ): array {
-        $paginatedMessages = $messageThread->messages()
-            ->with(['author', 'sentBy'])
-            ->orderBy('created_at')
-            ->paginate($perPage);
+        // First, check if we need to redirect.
+        $totalMessages = $messageThread->messages()->count();
+        $lastPage = max(1, (int) ceil($totalMessages / $perPage));
 
-        $totalMessages = $paginatedMessages->total();
-        $lastPage = (int) ceil($totalMessages / $perPage);
+        // If no page was explicitly requested and there are multiple pages, redirect to the last page.
+        if (!$wasPageExplicitlyRequested && $currentPage === 1 && $lastPage > 1) {
+            // Get the ID of the newest message to scroll to.
+            $newestMessage = $messageThread->messages()
+                ->orderBy('created_at', 'desc')
+                ->first(['id']);
+
+            return [
+                'props' => null,
+                'redirectToPage' => $lastPage,
+                'redirectToMessage' => $newestMessage?->id ?? null,
+            ];
+        }
 
         if ($currentPage !== 1 && $currentPage > $lastPage) {
             return ['props' => null, 'redirectToPage' => $lastPage];
         }
+
+        // Only fetch the actual messages if we're not redirecting.
+        $paginatedMessages = $messageThread->messages()
+            ->with(['author', 'sentBy'])
+            ->orderBy('created_at')
+            ->paginate($perPage);
 
         // If we're viewing the last page, mark all messages in the thread as read.
         if ($currentPage === $lastPage) {
