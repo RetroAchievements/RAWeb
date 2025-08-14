@@ -25,7 +25,7 @@ name('redirect');
                 </p>
 
                 <div class="w-full flex justify-center">
-                    <a href="{{ $url }}" rel="noreferrer" class="btn">Continue to external site</a>
+                    <a href="{{ $url }}" rel="noopener noreferrer" class="btn">Continue to external site</a>
                 </div>
             </div>
         </div>
