@@ -6,6 +6,7 @@ namespace App\Platform\Actions;
 
 use App\Community\Data\CommentData;
 use App\Community\Enums\ArticleType;
+use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\UserGameListType;
 use App\Data\UserPermissionsData;
 use App\Enums\GameHashCompatibility;
@@ -62,14 +63,20 @@ class BuildGameShowPagePropsAction
         if ($backingGameId && $backingGameId !== $game->id) {
             $backingGame = Game::find($backingGameId);
 
-            // Load the visible comments relationship for the backing game.
-            $backingGame->load(['visibleComments' => function ($query) {
-                $query->latest('Submitted')
-                    ->limit(20)
-                    ->with(['user' => function ($userQuery) {
-                        $userQuery->withTrashed();
-                    }]);
-            }]);
+            // Load the visible comments and achievement set claims for the backing game.
+            $backingGame->load([
+                'achievementSetClaims' => function ($query) {
+                    $query->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
+                        ->with('user');
+                },
+                'visibleComments' => function ($query) {
+                    $query->latest('Submitted')
+                        ->limit(20)
+                        ->with(['user' => function ($userQuery) {
+                            $userQuery->withTrashed();
+                        }]);
+                },
+            ]);
         } else {
             // Use the current game as the backing game.
             $backingGame = $game;
@@ -155,8 +162,7 @@ class BuildGameShowPagePropsAction
             ->all();
 
         $initialUserGameListState = $this->getInitialUserGameListState($backingGame, $user);
-        $initialUserGameListState = $this->getInitialUserGameListState($game, $user);
-        $achievementSetClaims = $this->buildAchievementSetClaims($game, $user);
+        $achievementSetClaims = $this->buildAchievementSetClaims($backingGame, $user);
 
         // Deduplicate releases by region and sort them by date.
         // Then, override the releases in the game object for proper display.
