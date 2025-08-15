@@ -136,7 +136,7 @@ class Handler extends ExceptionHandler
                     'message' => __($e->getMessage() ?: Response::$statusTexts[$e->getStatusCode()] ?? ''),
                     'errors' => [
                         [
-                            'status' => $e->getStatusCode(),
+                            'status' => (string) $e->getStatusCode(),
                             'code' => Str::snake(Response::$statusTexts[$e->getStatusCode()] ?? $e->getStatusCode()),
                             'title' => __($e->getMessage() ?: Response::$statusTexts[$e->getStatusCode()] ?? ''),
                         ],
@@ -148,7 +148,7 @@ class Handler extends ExceptionHandler
                     'message' => __('Token Mismatch'),
                     'errors' => [
                         [
-                            'status' => 419,
+                            'status' => '419',
                             'code' => 'token_mismatch',
                             'title' => __('Token Mismatch'),
                         ],
@@ -156,8 +156,21 @@ class Handler extends ExceptionHandler
                 ], 419);
             }
             if ($e instanceof AuthenticationException) {
+                $responseData = [
+                    'message' => __($e->getMessage() ?: Response::$statusTexts[401]),
+                    'errors' => [
+                        [
+                            'status' => '401',
+                            'code' => Str::snake(Response::$statusTexts[401]),
+                            'title' => __($e->getMessage() ?: Response::$statusTexts[401]),
+                        ],
+                    ],
+                ];
+
                 // Log failed auth attempts for the internal service API.
                 if ($request->is('api/internal/*')) {
+                    $responseSize = strlen(json_encode($responseData));
+
                     ApiLogEntry::logRequest(
                         'internal',
                         null,
@@ -165,7 +178,7 @@ class Handler extends ExceptionHandler
                         $request->method(),
                         401,
                         0,
-                        null, // can't grab response sizes in exception handlers
+                        $responseSize,
                         $request->ip(),
                         $request->userAgent(),
                         null,
@@ -173,23 +186,14 @@ class Handler extends ExceptionHandler
                     );
                 }
 
-                return response()->json([
-                    'message' => __($e->getMessage() ?: Response::$statusTexts[401]),
-                    'errors' => [
-                        [
-                            'status' => 419,
-                            'code' => Str::snake(Response::$statusTexts[401]),
-                            'title' => __($e->getMessage() ?: Response::$statusTexts[401]),
-                        ],
-                    ],
-                ], 401);
+                return response()->json($responseData, 401);
             }
             if ($e instanceof AuthorizationException) {
                 return response()->json([
                     'message' => __($e->getMessage() ?: Response::$statusTexts[403]),
                     'errors' => [
                         [
-                            'status' => 403,
+                            'status' => '403',
                             'code' => Str::snake(Response::$statusTexts[403]),
                             'title' => __($e->getMessage() ?: Response::$statusTexts[403]),
                         ],
