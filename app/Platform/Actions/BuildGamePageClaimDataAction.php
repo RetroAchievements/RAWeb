@@ -42,10 +42,10 @@ class BuildGamePageClaimDataAction
             ->first();
 
         // Determine the user's max number of claims, based on their developer role.
-        $maxClaims = $this->calculateMaxClaimCount($user);
+        $maxClaimCount = AchievementSetClaim::getMaxClaimsForUser($user);
 
         // Calculate if the user is the sole author of all existing achievements for the set.
-        $isSoleAuthor = $this->calculateIsSoleAuthor($game, $user);
+        $isSoleAuthor = once(fn () => checkIfSoleDeveloper($user, $game->id));
 
         // Calculate if the game has official/published achievements and if the system is valid (rolled out).
         $hasOfficialAchievements = $this->calculateHasOfficialAchievements($game);
@@ -72,55 +72,20 @@ class BuildGamePageClaimDataAction
 
             doesPrimaryClaimExist: $primaryClaimByOtherUser !== null,
             isSoleAuthor: $isSoleAuthor,
-            maxClaimCount: $maxClaims,
-            numClaimsRemaining: $this->calculateNumClaimsRemaining($user, $maxClaims),
+            maxClaimCount: $maxClaimCount,
+            numClaimsRemaining: $this->calculateNumClaimsRemaining($user, $maxClaimCount),
             numUnresolvedTickets: Ticket::forDeveloper($user)->unresolved()->count(),
             wouldBeCollaboration: $wouldBeCollaboration,
             wouldBeRevision: $wouldBeRevision,
         );
     }
 
-    private function calculateMaxClaimCount(User $user): int
-    {
-        // Junior developers get 1 claim. Full developers get 4 claims.
-        if ($user->hasRole(Role::DEVELOPER_JUNIOR)) {
-            return 1;
-        } elseif ($user->hasRole(Role::DEVELOPER)) {
-            return 4;
-        }
-
-        return 0;
-    }
-
     private function calculateNumClaimsRemaining(User $user, int $maxClaims): int
     {
-        $activeClaimCount = getActiveClaimCount($user, true, false);
+        $activeClaimCount = once(fn () => getActiveClaimCount($user, true, false));
         $remaining = $maxClaims - $activeClaimCount;
 
         return max(0, $remaining);
-    }
-
-    private function calculateIsSoleAuthor(Game $game, User $user): bool
-    {
-        // If the game has no achievements, the user can't be the sole author.
-        if ($game->achievements_published === 0) {
-            return false;
-        }
-
-        // Collect all unique developer IDs from published achievements.
-        $developerIds = collect();
-        foreach ($game->gameAchievementSets as $gameAchievementSet) {
-            foreach ($gameAchievementSet->achievementSet->achievements as $achievement) {
-                if ($achievement->Flags === AchievementFlag::OfficialCore->value) {
-                    $developerIds->add($achievement->user_id);
-                }
-            }
-        }
-
-        $uniqueDeveloperIds = $developerIds->unique();
-
-        // If the user is the only developer, they're the sole author.
-        return $uniqueDeveloperIds->count() === 1 && $uniqueDeveloperIds->first() === $user->id;
     }
 
     private function calculateHasOfficialAchievements(Game $game): bool

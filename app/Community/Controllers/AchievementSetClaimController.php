@@ -24,7 +24,7 @@ class AchievementSetClaimController extends Controller
         Game $game,
         CreateGameClaimAction $action,
     ): RedirectResponse {
-        $this->authorize('create', [AchievementSetClaim::class]);
+        $this->authorize('create', [AchievementSetClaim::class, $game]);
 
         $claim = $action->execute($game);
 

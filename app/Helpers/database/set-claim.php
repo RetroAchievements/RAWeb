@@ -413,20 +413,3 @@ function getExpiringClaim(User $user): array
 
     return $value;
 }
-
-/**
- * Gets the number of claims a user is allowed to have based on their permission
- */
-function permissionsToClaim(int $permissions): int
-{
-    return match ($permissions) {
-        Permissions::Spam => 0,
-        Permissions::Banned => 0,
-        Permissions::Unregistered => 0,
-        Permissions::Registered => 0,
-        Permissions::JuniorDeveloper => 1,
-        Permissions::Developer => 4,
-        Permissions::Moderator => 4,
-        default => 0,
-    };
-}

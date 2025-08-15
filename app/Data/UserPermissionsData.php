@@ -57,7 +57,7 @@ class UserPermissionsData extends Data
                 ? $user->can('authorize', \App\Models\ForumTopicComment::class)
                 : false
             ),
-            createAchievementSetClaims: Lazy::create(fn () => $user ? $user->can('create', AchievementSetClaim::class) : false),
+            createAchievementSetClaims: Lazy::create(fn () => $user ? $user->can('create', [AchievementSetClaim::class, $game]) : false),
             createForumTopicComments: Lazy::create(fn () => $user && $forumTopic
                 ? $user->can('create', [\App\Models\ForumTopicComment::class, $forumTopic])
                 : false

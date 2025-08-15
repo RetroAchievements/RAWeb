@@ -66,7 +66,7 @@ export const ClaimActionButton: FC = () => {
   if (!claimData?.numClaimsRemaining && !claimData?.isSoleAuthor) {
     return (
       <BaseTooltip>
-        <BaseTooltipTrigger asChild>
+        <BaseTooltipTrigger>
           <DisabledButton />
         </BaseTooltipTrigger>
 
@@ -78,7 +78,7 @@ export const ClaimActionButton: FC = () => {
   if (claimData.numUnresolvedTickets >= 2) {
     return (
       <BaseTooltip>
-        <BaseTooltipTrigger asChild>
+        <BaseTooltipTrigger>
           <DisabledButton />
         </BaseTooltipTrigger>
 
@@ -92,7 +92,7 @@ export const ClaimActionButton: FC = () => {
   if (auth.user.roles.includes('developer-junior') && !backingGame.forumTopicId) {
     return (
       <BaseTooltip>
-        <BaseTooltipTrigger asChild>
+        <BaseTooltipTrigger>
           <DisabledButton />
         </BaseTooltipTrigger>
 

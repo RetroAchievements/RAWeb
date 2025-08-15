@@ -7,6 +7,7 @@ namespace App\Policies;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Models\AchievementSetClaim;
+use App\Models\Game;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -33,12 +34,36 @@ class AchievementSetClaimPolicy
         return true;
     }
 
-    public function create(User $user): bool
+    public function create(User $user, ?Game $game = null): bool
     {
-        return $user->hasAnyRole([
-            Role::DEVELOPER,
-            Role::DEVELOPER_JUNIOR,
-        ]);
+        // First, check the basic role requirement.
+        if (!$user->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])) {
+            return false;
+        }
+
+        // If no game is provided, we'll just be happy the user passes role verification.
+        if (!$game) {
+            return true;
+        }
+
+        // If the user already has a claim on this game, allow it (for extensions).
+        $existingClaim = $game->achievementSetClaims()
+            ->activeOrInReview()
+            ->where('user_id', $user->id)
+            ->exists();
+
+        if ($existingClaim) {
+            return true;
+        }
+
+        // Determine max claims based on role.
+        $maxClaims = AchievementSetClaim::getMaxClaimsForUser($user);
+
+        $activeClaimCount = once(fn () => getActiveClaimCount($user, true, false));
+        $isSoleAuthor = once(fn () => checkIfSoleDeveloper($user, $game->id));
+
+        // The user can create a claim if they have claims remaining OR they're the sole author.
+        return ($activeClaimCount < $maxClaims) || $isSoleAuthor;
     }
 
     public function update(User $user, AchievementSetClaim $achievementSetClaim): bool
