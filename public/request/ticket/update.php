@@ -73,7 +73,7 @@ switch ($input['action']) {
     case TicketAction::UnableToDebug:
         if ($permissions >= Permissions::Developer) {
             $ticketState = TicketState::Closed;
-            $reason = "Unable to debug";
+            $reason = "Unable to debug due to no toolkit support";
         }
         break;
 
