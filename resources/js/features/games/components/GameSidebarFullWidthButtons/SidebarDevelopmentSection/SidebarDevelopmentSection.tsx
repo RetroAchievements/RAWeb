@@ -53,15 +53,22 @@ export const SidebarDevelopmentSection: FC = () => {
         {backingGame.achievementsPublished ? t('Want to Revise') : t('Want to Develop')}
       </PlayableSidebarButton>
 
-      <PlayableSidebarButton
-        IconComponent={isViewingPublishedAchievements ? LuFolderLock : LuFolder}
-        href={buildToggleHref()}
-        showSubsetIndicator={game.id !== backingGame.id}
-      >
-        {isViewingPublishedAchievements
-          ? t('View Unpublished Achievements')
-          : t('View Published Achievements')}
-      </PlayableSidebarButton>
+      {!isViewingPublishedAchievements || backingGame.achievementsUnpublished ? (
+        <PlayableSidebarButton
+          IconComponent={isViewingPublishedAchievements ? LuFolderLock : LuFolder}
+          href={buildToggleHref()}
+          showSubsetIndicator={game.id !== backingGame.id}
+          count={
+            isViewingPublishedAchievements
+              ? backingGame.achievementsUnpublished
+              : backingGame.achievementsPublished
+          }
+        >
+          {isViewingPublishedAchievements
+            ? t('View Unpublished Achievements')
+            : t('View Published Achievements')}
+        </PlayableSidebarButton>
+      ) : null}
     </>
   );
 };

@@ -641,6 +641,7 @@ declare namespace App.Platform.Data {
     lastUpdated?: string;
     releasedAt?: string | null;
     achievementsPublished?: number;
+    achievementsUnpublished?: number;
     forumTopicId?: number;
     medianTimeToBeat?: number;
     medianTimeToBeatHardcore?: number;

@@ -93,12 +93,21 @@ class GameController extends Controller
         /** @var ?User $user */
         $user = $request->user();
 
+        // Redirect the legacy ?f=5 parameter to ?unpublished=true.
+        if ($request->query('f') === '5') {
+            $queryParams = $request->query();
+            unset($queryParams['f']);
+            $queryParams['unpublished'] = 'true';
+
+            return redirect()->route('game2.show', array_merge(['game' => $game], $queryParams));
+        }
+
         // Get the target achievement set ID from query params.
         $targetAchievementSetId = $request->query('set') ? (int) $request->query('set') : null;
 
         // Get whether to show published or unpublished achievements from query params.
         $targetAchievementFlag =
-            $request->query('unpublished') === 'true' || $request->query('f') === '5'
+            $request->query('unpublished') === 'true'
                 ? AchievementFlag::Unofficial
                 : AchievementFlag::OfficialCore;
 

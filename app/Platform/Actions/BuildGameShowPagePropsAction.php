@@ -238,6 +238,7 @@ class BuildGameShowPagePropsAction
 
             backingGame: GameData::fromGame($backingGame)->include(
                 'achievementsPublished',
+                'achievementsUnpublished',
                 'forumTopicId'
             ),
 
@@ -250,7 +251,11 @@ class BuildGameShowPagePropsAction
             isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
             isViewingPublishedAchievements: $targetAchievementFlag === AchievementFlag::OfficialCore,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
-            playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($backingGame, $user),
+
+            playerAchievementChartBuckets: $targetAchievementFlag === AchievementFlag::OfficialCore
+                ? $this->buildGameAchievementDistributionAction->execute($backingGame, $user)
+                : collect(),
+
             numComments: $backingGame->visibleComments($user)->count(),
             numCompatibleHashes: $this->getCompatibleHashesCount($game, $backingGame, $targetAchievementSet),
             numMasters: $numMasters,
