@@ -26,13 +26,6 @@ class Edit extends EditRecord
     {
         (new ApplyUploadedImageToDataAction())->execute($data, 'image_asset_path', ImageUploadType::News);
 
-        // If no new image was uploaded, retain the existing image.
-        if (!isset($data['image_asset_path'])) {
-            /** @var News $record */
-            $record = $this->record;
-            $data['image_asset_path'] = $record->image_asset_path;
-        }
-
         return $data;
     }
 }

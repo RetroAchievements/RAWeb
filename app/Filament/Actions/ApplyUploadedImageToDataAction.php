@@ -25,7 +25,8 @@ class ApplyUploadedImageToDataAction
      */
     public function execute(array &$data, string $field, ImageUploadType $uploadType): void
     {
-        // If we don't have a value, bail.
+        // If no file was uploaded, unset the field to preserve the existing database value.
+        // Filament sends blank values for file inputs when nothing is uploaded.
         if (!isset($data[$field])) {
             unset($data[$field]);
 
