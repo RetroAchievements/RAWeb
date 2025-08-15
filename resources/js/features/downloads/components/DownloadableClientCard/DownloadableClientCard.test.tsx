@@ -198,7 +198,7 @@ describe('Component: DownloadableClientCard', () => {
     // ASSERT
     expect(
       screen.getByText(
-        'Developers may not be able to easily resolve tickets submitted from this emulator.',
+        'Developers may not be able to easily resolve tickets for issues encountered while using this emulator.',
       ),
     ).toBeVisible();
   });
@@ -222,7 +222,7 @@ describe('Component: DownloadableClientCard', () => {
     // ... verify the popover is visible ...
     expect(
       screen.getByText(
-        'Developers may not be able to easily resolve tickets submitted from this emulator.',
+        'Developers may not be able to easily resolve tickets for issues encountered while using this emulator.',
       ),
     ).toBeVisible();
 
@@ -232,7 +232,7 @@ describe('Component: DownloadableClientCard', () => {
     // ASSERT
     expect(
       screen.queryByText(
-        'Developers may not be able to easily resolve tickets submitted from this emulator.',
+        'Developers may not be able to easily resolve tickets for issues encountered while using this emulator.',
       ),
     ).not.toBeInTheDocument();
   });
@@ -257,7 +257,7 @@ describe('Component: DownloadableClientCard', () => {
     // ASSERT
     expect(
       screen.getByText(
-        'Developers may not be able to easily resolve tickets submitted from this emulator.',
+        'Developers may not be able to easily resolve tickets for issues encountered while using this emulator.',
       ),
     ).toBeVisible();
   });
@@ -279,7 +279,7 @@ describe('Component: DownloadableClientCard', () => {
     await userEvent.hover(warningIcon);
 
     const popoverContent = screen.getByText(
-      'Developers may not be able to easily resolve tickets submitted from this emulator.',
+      'Developers may not be able to easily resolve tickets for issues encountered while using this emulator.',
     );
 
     // ... move the mouse to the popover content ...
@@ -306,7 +306,7 @@ describe('Component: DownloadableClientCard', () => {
     await userEvent.hover(warningIcon);
 
     const popoverContent = screen.getByText(
-      'Developers may not be able to easily resolve tickets submitted from this emulator.',
+      'Developers may not be able to easily resolve tickets for issues encountered while using this emulator.',
     );
 
     await userEvent.hover(popoverContent);

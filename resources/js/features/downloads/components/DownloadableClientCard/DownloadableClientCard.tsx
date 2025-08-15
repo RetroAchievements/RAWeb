@@ -69,18 +69,21 @@ export const DownloadableClientCard: FC<DownloadableClientCardProps> = ({ emulat
                 onMouseEnter={() => setIsPopoverOpen(true)}
                 onMouseLeave={() => setIsPopoverOpen(false)}
                 onClick={(e) => e.preventDefault()}
+                className="cursor-help focus:outline-none focus:ring-0"
               >
                 <LuCircleAlert data-testid="warning-icon" className="text-neutral-500" />
               </BasePopoverTrigger>
 
               <BasePopoverContent
+                side="top"
                 onMouseEnter={() => setIsPopoverOpen(true)}
                 onMouseLeave={() => setIsPopoverOpen(false)}
                 onPointerDownOutside={(e) => e.preventDefault()}
                 onInteractOutside={(e) => e.preventDefault()}
+                className="text-menu-link"
               >
                 {t(
-                  'Developers may not be able to easily resolve tickets submitted from this emulator.',
+                  'Developers may not be able to easily resolve tickets for issues encountered while using this emulator.',
                 )}
               </BasePopoverContent>
             </BasePopover>
