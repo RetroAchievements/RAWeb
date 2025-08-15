@@ -49,7 +49,9 @@ export const GameShowSidebarRoot: FC = () => {
 
       <BaseSeparator className="mb-4" />
 
-      {isViewingPublishedAchievements && game.playersTotal ? <PlaytimeStatistics /> : null}
+      {isViewingPublishedAchievements && game.playersTotal && achievements.length ? (
+        <PlaytimeStatistics />
+      ) : null}
 
       {seriesHub ? <SeriesHubDisplay seriesHub={seriesHub} /> : null}
 

@@ -129,7 +129,10 @@ describe('Component: MobileGameTypeFilterSelect', () => {
     const setColumnFiltersSpy = vi.fn();
     const mockTable = createMockTable({
       getState: vi.fn().mockReturnValue({
-        columnFilters: [{ id: 'otherFilter', value: 'someValue' }],
+        columnFilters: [
+          { id: 'otherFilter', value: 'someValue' },
+          { id: 'game-type', value: ['hack'] }, // !! start with a game type selected
+        ],
       }),
       setColumnFilters: setColumnFiltersSpy,
     });
@@ -138,16 +141,16 @@ describe('Component: MobileGameTypeFilterSelect', () => {
 
     // ACT
     await userEvent.click(screen.getByRole('combobox'));
-    await userEvent.click(screen.getByTestId('hack-option'));
-
-    await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByTestId('all-games-option'));
 
     // ASSERT
     expect(setColumnFiltersSpy).toHaveBeenCalledWith(expect.any(Function));
 
-    const updateFn = setColumnFiltersSpy.mock.calls[1][0];
-    const result = updateFn([{ id: 'otherFilter', value: 'someValue' }]);
+    const updateFn = setColumnFiltersSpy.mock.calls[0][0];
+    const result = updateFn([
+      { id: 'otherFilter', value: 'someValue' },
+      { id: 'game-type', value: ['hack'] },
+    ]);
     expect(result).toEqual([{ id: 'otherFilter', value: 'someValue' }]);
   });
 });
