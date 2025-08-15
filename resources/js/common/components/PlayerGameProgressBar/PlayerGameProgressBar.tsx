@@ -112,13 +112,16 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
 
   const Wrapper = canLink && achievementsUnlocked ? 'a' : 'div';
 
+  const isTooltipDisabled = achievementsUnlocked === 0 || !isTooltipEnabled;
+
   return (
-    <BaseTooltip open={achievementsUnlocked === 0 || !isTooltipEnabled ? false : undefined}>
+    <BaseTooltip>
       <BaseTooltipTrigger
         className={cn(
           'group',
           achievementsUnlocked === 0 ? '!cursor-auto' : '',
           !highestAward && isTooltipEnabled ? 'py-2' : '', // increase the hover surface area
+          isTooltipDisabled ? 'pointer-events-none [&>*]:pointer-events-auto' : '',
           className,
         )}
         style={{ minWidth: width, maxWidth: width }}
