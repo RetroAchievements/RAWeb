@@ -301,12 +301,12 @@ $permissions = $user->getAttribute('Permissions');
     </div>
 
     <div>
-        <form method="post" action="/request/ticket/update.php">
+        <form method="post" action="/request/ticket/update.php" id="ticketActionForm">
             {!! csrf_field() !!}
             <input type="hidden" name="ticket" value="{{ $ticket->ID }}">
             @if ($permissions >= Permissions::Developer)
                 @if (TicketState::isOpen($ticket->ReportState))
-                    <select name="action" required>
+                    <select name="action" id="ticketAction" required>
                         <option value="" disabled selected hidden>Choose an action...</option>
                         <option value="{{ TicketAction::Resolved }}">Resolve as fixed (add comments about your fix above)</option>
                         @if ($ticket->ReportState === TicketState::Open)
@@ -329,10 +329,28 @@ $permissions = $user->getAttribute('Permissions');
                         <option value="{{ TicketAction::NotEnoughInfo }}">Close - Not enough information</option>
                         <option value="{{ TicketAction::WrongRom }}">Close - Wrong ROM</option>
                         <option value="{{ TicketAction::UnableToReproduce }}">Close - Unable to reproduce</option>
+                        @if (!$ticket->emulator->can_debug_triggers)
+                            <option value="{{ TicketAction::UnableToDebug }}">Close - Unable to debug due to no toolkit support</option>
+                        @endif
                         <option value="{{ TicketAction::ClosedMistaken }}">Close - Mistaken report</option>
                         <option value="{{ TicketAction::ClosedOther }}">Close - Another reason (add comments above)</option>
                     </select>
-                    <button class='btn'>Perform action</button>           
+                    <button class='btn' type="submit">Perform action</button>
+                    
+                    <script>
+                        document.getElementById('ticketActionForm').addEventListener('submit', function(e) {
+                            const actionSelect = document.getElementById('ticketAction');
+
+                            // Check if "Unable to debug" is selected. If it is, we'll add a minor speedbump.
+                            if (actionSelect.value === '{{ TicketAction::UnableToDebug }}') {
+                                if (!confirm('If the player provided reproduction steps, you should still try to reproduce the issue before closing the ticket. Are you sure you want to close this ticket?')) {
+                                    e.preventDefault();
+
+                                    return false;
+                                }
+                            }
+                        });
+                    </script>
                 @else
                     <input type="hidden" name="action" value="{{ TicketAction::Reopen }}">
                     <button class='btn'>Reopen this ticket</button>
