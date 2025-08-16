@@ -27,6 +27,7 @@ use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
 use App\Platform\Data\UserCreditsData;
 use App\Platform\Enums\AchievementAuthorTask;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetAuthorTask;
 use App\Platform\Enums\AchievementSetType;
 use Illuminate\Support\Collection;
@@ -45,8 +46,12 @@ class BuildGameShowPagePropsAction
     ) {
     }
 
-    public function execute(Game $game, ?User $user, ?GameAchievementSet $targetAchievementSet = null): GameShowPagePropsData
-    {
+    public function execute(
+        Game $game,
+        ?User $user,
+        AchievementFlag $targetAchievementFlag = AchievementFlag::OfficialCore,
+        ?GameAchievementSet $targetAchievementSet = null
+    ): GameShowPagePropsData {
         // The backing game is the legacy game that backs the target achievement set.
         // For core sets, this will be $game->id. For subsets, it'll be a different ID.
         $backingGameId = null;
@@ -239,6 +244,7 @@ class BuildGameShowPagePropsAction
 
             backingGame: GameData::fromGame($backingGame)->include(
                 'achievementsPublished',
+                'achievementsUnpublished',
                 'forumTopicId'
             ),
 
@@ -249,8 +255,13 @@ class BuildGameShowPagePropsAction
             isSubscribedToComments: $user ? isUserSubscribedToArticleComments(ArticleType::Game, $backingGame->id, $user->id) : false,
             isLockedOnlyFilterEnabled: $isLockedOnlyFilterEnabled,
             isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
+            isViewingPublishedAchievements: $targetAchievementFlag === AchievementFlag::OfficialCore,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
-            playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($backingGame, $user),
+
+            playerAchievementChartBuckets: $targetAchievementFlag === AchievementFlag::OfficialCore
+                ? $this->buildGameAchievementDistributionAction->execute($backingGame, $user)
+                : collect(),
+
             numComments: $backingGame->visibleComments($user)->count(),
             numCompatibleHashes: $this->getCompatibleHashesCount($game, $backingGame, $targetAchievementSet),
             numMasters: $numMasters,

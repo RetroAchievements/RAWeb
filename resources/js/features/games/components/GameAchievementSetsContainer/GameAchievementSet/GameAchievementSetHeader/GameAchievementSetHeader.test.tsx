@@ -12,6 +12,9 @@ describe('Component: GameAchievementSetHeader', () => {
     // ARRANGE
     const { container } = render(
       <GameAchievementSetHeader gameAchievementSet={createGameAchievementSet()} />,
+      {
+        pageProps: { isViewingPublishedAchievements: true },
+      },
     );
 
     // ASSERT
@@ -24,7 +27,9 @@ describe('Component: GameAchievementSetHeader', () => {
       title: null,
     });
 
-    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />);
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />, {
+      pageProps: { isViewingPublishedAchievements: true },
+    });
 
     // ASSERT
     expect(screen.getByText(/base set/i)).toBeVisible();
@@ -36,7 +41,9 @@ describe('Component: GameAchievementSetHeader', () => {
       title: 'Professor Oak Challenge',
     });
 
-    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />);
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />, {
+      pageProps: { isViewingPublishedAchievements: true },
+    });
 
     // ASSERT
     expect(screen.getByText('Professor Oak Challenge')).toBeVisible();
@@ -55,7 +62,9 @@ describe('Component: GameAchievementSetHeader', () => {
     const gameAchievementSet = createGameAchievementSet();
     const { imageAssetPathUrl } = gameAchievementSet.achievementSet;
 
-    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />);
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />, {
+      pageProps: { isViewingPublishedAchievements: true },
+    });
 
     // ASSERT
     const imgElement = screen.getByRole('img');
@@ -74,7 +83,9 @@ describe('Component: GameAchievementSetHeader', () => {
       }),
     });
 
-    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />);
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />, {
+      pageProps: { isViewingPublishedAchievements: true },
+    });
 
     // ASSERT
     expect(screen.getByText(/2/i)).toBeVisible();
@@ -91,9 +102,43 @@ describe('Component: GameAchievementSetHeader', () => {
       }),
     });
 
-    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />);
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />, {
+      pageProps: { isViewingPublishedAchievements: true },
+    });
 
     // ASSERT
     expect(screen.getByText(/there are no achievements for this set yet/i)).toBeVisible();
+  });
+
+  it('given the user is viewing unpublished achievements and there are achievements, shows the correct label', () => {
+    // ARRANGE
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements: [createAchievement(), createAchievement()], // !!
+      }),
+    });
+
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />, {
+      pageProps: { isViewingPublishedAchievements: false }, // !!
+    });
+
+    // ASSERT
+    expect(screen.getByText(/unpublished achievements/i)).toBeVisible();
+  });
+
+  it('given the user is viewing unpublished achievements and there are not any achievements, shows the correct label', () => {
+    // ARRANGE
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements: [], // !!
+      }),
+    });
+
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />, {
+      pageProps: { isViewingPublishedAchievements: false }, // !!
+    });
+
+    // ASSERT
+    expect(screen.getByText(/there are currently no unpublished achievements/i)).toBeVisible();
   });
 });

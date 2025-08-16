@@ -38,6 +38,7 @@ describe('Component: GameShowSidebarRoot', () => {
         backingGame: game,
         can: {},
         hubs: [createGameSet()],
+        isViewingPublishedAchievements: true,
         playerAchievementChartBuckets: [],
         topAchievers: [],
       },
@@ -65,6 +66,7 @@ describe('Component: GameShowSidebarRoot', () => {
         seriesHub, // !!
         can: {},
         hubs: [],
+        isViewingPublishedAchievements: true,
         playerAchievementChartBuckets: [],
         topAchievers: [],
       },
@@ -117,6 +119,7 @@ describe('Component: GameShowSidebarRoot', () => {
         can: {},
         hasMatureContent: true, // !!
         hubs: [],
+        isViewingPublishedAchievements: true,
         playerAchievementChartBuckets: [],
         topAchievers: [],
       },
@@ -143,6 +146,7 @@ describe('Component: GameShowSidebarRoot', () => {
         can: {},
         hasMatureContent: false, // !!
         hubs: [],
+        isViewingPublishedAchievements: true,
         playerAchievementChartBuckets: [],
         topAchievers: [],
       },
@@ -171,6 +175,7 @@ describe('Component: GameShowSidebarRoot', () => {
         followedPlayerCompletions: [],
         hasMatureContent: false, // !!
         hubs: [],
+        isViewingPublishedAchievements: true,
         playerAchievementChartBuckets: [],
         topAchievers: [],
       },
@@ -200,6 +205,7 @@ describe('Component: GameShowSidebarRoot', () => {
         followedPlayerCompletions: [],
         hasMatureContent: false, // !!
         hubs: [],
+        isViewingPublishedAchievements: true,
         playerAchievementChartBuckets: [],
         topAchievers: [],
       },
@@ -230,6 +236,7 @@ describe('Component: GameShowSidebarRoot', () => {
         followedPlayerCompletions: [],
         hasMatureContent: false, // !!
         hubs: [],
+        isViewingPublishedAchievements: true,
         playerAchievementChartBuckets: [],
         topAchievers: [],
       },
