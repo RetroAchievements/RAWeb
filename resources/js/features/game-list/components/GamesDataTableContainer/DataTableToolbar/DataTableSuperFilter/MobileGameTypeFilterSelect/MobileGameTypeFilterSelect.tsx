@@ -52,7 +52,7 @@ export function MobileGameTypeFilterSelect<TData>({
         {t('Game type')}
       </BaseLabel>
 
-      <BaseSelect value={selectedValues[0]} onValueChange={handleValueChange}>
+      <BaseSelect value={selectedValues[0] ?? 'null'} onValueChange={handleValueChange}>
         <BaseSelectTrigger id="drawer-game-type" className="w-full">
           <BaseSelectValue placeholder={t('All Games')} />
         </BaseSelectTrigger>

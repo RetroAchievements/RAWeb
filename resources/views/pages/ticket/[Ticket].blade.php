@@ -64,7 +64,7 @@ $permissions = $user->getAttribute('Permissions');
 @endphp
 
 <x-app-layout
-    pageTitle="Ticket {{ $ticket->ID }}: {{ $ticket->achievement->Title }} ({{ TicketType::toString($ticket->ReportType) }})"
+    pageTitle="Ticket {{ $ticket->ID }}: {!! $ticket->achievement->Title !!} ({!! TicketType::toString($ticket->ReportType) !!})"
     pageDescription="{{ $ticket->achievement->Description }}"
     pageImage="{{ media_asset('/Badge/' . $ticket->achievement->BadgeName . '.png') }}"
     pageType="retroachievements:ticket"
