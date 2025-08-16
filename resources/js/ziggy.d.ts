@@ -97,6 +97,7 @@ declare module 'ziggy-js' {
     "claims.completed": [],
     "claims.active": [],
     "pulse": [],
+    "api.internal.health": [],
     "api.hub.game.index": [
         {
             "name": "gameSet",

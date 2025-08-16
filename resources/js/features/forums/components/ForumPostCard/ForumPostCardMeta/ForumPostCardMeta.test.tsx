@@ -112,4 +112,156 @@ describe('Component: ForumPostCardMeta', () => {
     // ASSERT
     expect(screen.queryByText(/op/i)).not.toBeInTheDocument();
   });
+
+  it('given the comment has a sentBy user, shows the "Posted by" text with the user avatar', () => {
+    // ARRANGE
+    const topic = createForumTopic();
+    const teamAccount = createUser({
+      displayName: 'RAdmin',
+      avatarUrl: 'https://example.com/radmin-avatar.png',
+    });
+    const actualSender = createUser({
+      displayName: 'Scott',
+      avatarUrl: 'https://example.com/scott-avatar.png',
+    });
+    const comment = createForumTopicComment({
+      user: teamAccount, // !!
+      sentBy: actualSender, // !!
+    });
+
+    render(<ForumPostCardMeta comment={comment} topic={topic} />, {
+      pageProps: { can: { authorizeForumTopicComments: false } },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/posted by/i)).toBeVisible();
+
+    // ... check for the avatar image within the "Posted by" text ...
+    const postedByAvatar = screen.getByRole('img', { name: /scott/i });
+    expect(postedByAvatar).toHaveAttribute('src', 'https://example.com/scott-avatar.png');
+  });
+
+  it('given the comment does not have a sentBy user, does not show the "Sent by" text', () => {
+    // ARRANGE
+    const topic = createForumTopic();
+    const comment = createForumTopicComment({
+      user: createUser({ displayName: 'Regular User' }),
+      sentBy: null, // !!
+    });
+
+    render(<ForumPostCardMeta comment={comment} topic={topic} />, {
+      pageProps: { can: { authorizeForumTopicComments: false } },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/sent by/i)).not.toBeInTheDocument();
+  });
+
+  it('given the comment has sentBy, shows the separator dot between timestamp and sent by', () => {
+    // ARRANGE
+    const topic = createForumTopic();
+    const teamAccount = createUser({
+      displayName: 'RAdmin',
+      avatarUrl: 'https://example.com/radmin-avatar.png',
+    });
+    const actualSender = createUser({
+      displayName: 'Scott',
+      avatarUrl: 'https://example.com/scott-avatar.png',
+    });
+    const comment = createForumTopicComment({
+      user: teamAccount,
+      sentBy: actualSender, // !!
+    });
+
+    render(<ForumPostCardMeta comment={comment} topic={topic} />, {
+      pageProps: { can: { authorizeForumTopicComments: false } },
+    });
+
+    // ASSERT
+    const separatorDots = screen.getAllByText('·');
+    expect(separatorDots.length).toBeGreaterThan(0);
+  });
+
+  it('given the comment has an editedBy user different from sentBy, shows the "Edited by" text', () => {
+    // ARRANGE
+    const topic = createForumTopic();
+    const teamAccount = createUser({
+      displayName: 'RAdmin',
+      avatarUrl: 'https://example.com/radmin-avatar.png',
+    });
+    const originalSender = createUser({
+      displayName: 'Scott',
+      avatarUrl: 'https://example.com/scott-avatar.png',
+    });
+    const editor = createUser({
+      displayName: 'Jane',
+      avatarUrl: 'https://example.com/jane-avatar.png',
+    });
+    const comment = createForumTopicComment({
+      user: teamAccount,
+      sentBy: originalSender, // !!
+      editedBy: editor, // !!
+    });
+
+    render(<ForumPostCardMeta comment={comment} topic={topic} />, {
+      pageProps: { can: { authorizeForumTopicComments: false } },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/edited by/i)).toBeVisible();
+    const editedByAvatar = screen.getByRole('img', { name: /jane/i });
+    expect(editedByAvatar).toHaveAttribute('src', 'https://example.com/jane-avatar.png');
+  });
+
+  it('given the comment has an editedBy user who is the same as sentBy, does not show the "Edited by" text', () => {
+    // ARRANGE
+    const topic = createForumTopic();
+    const teamAccount = createUser({
+      displayName: 'RAdmin',
+      avatarUrl: 'https://example.com/radmin-avatar.png',
+    });
+    const samePerson = createUser({
+      displayName: 'Scott',
+      avatarUrl: 'https://example.com/scott-avatar.png',
+    });
+    const comment = createForumTopicComment({
+      user: teamAccount,
+      sentBy: samePerson, // !!
+      editedBy: samePerson, // !! same as sentBy
+    });
+
+    render(<ForumPostCardMeta comment={comment} topic={topic} />, {
+      pageProps: { can: { authorizeForumTopicComments: false } },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/posted by/i)).toBeVisible();
+    expect(screen.queryByText(/edited by/i)).not.toBeInTheDocument();
+  });
+
+  it('given the comment has editedBy but no sentBy, shows the "Edited by" text', () => {
+    // ARRANGE
+    const topic = createForumTopic();
+    const teamAccount = createUser({
+      displayName: 'RAdmin',
+      avatarUrl: 'https://example.com/radmin-avatar.png',
+    });
+    const editor = createUser({
+      displayName: 'Jane',
+      avatarUrl: 'https://example.com/jane-avatar.png',
+    });
+    const comment = createForumTopicComment({
+      user: teamAccount,
+      sentBy: null, // !!
+      editedBy: editor, // !!
+    });
+
+    render(<ForumPostCardMeta comment={comment} topic={topic} />, {
+      pageProps: { can: { authorizeForumTopicComments: false } },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/posted by/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/edited by/i)).toBeVisible();
+  });
 });

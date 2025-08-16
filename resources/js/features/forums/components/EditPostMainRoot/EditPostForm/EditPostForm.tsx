@@ -25,15 +25,14 @@ interface EditPostFormProps {
 
 export const EditPostForm: FC<EditPostFormProps> = ({ onPreview }) => {
   const { forumTopicComment } = usePageProps<App.Data.EditForumTopicCommentPageProps>();
-
   const { t } = useTranslation();
 
   const { form, mutation, onSubmit } = useUpsertPostForm(
     { targetComment: forumTopicComment },
-    { body: forumTopicComment.body },
+    { body: forumTopicComment.body, postAsUserId: 'self' },
   );
 
-  const [body] = form.watch(['body']);
+  const [watchedBody] = form.watch(['body']);
 
   const formRef = useRef<HTMLFormElement>(null);
   useSubmitOnMetaEnter({
@@ -74,13 +73,17 @@ export const EditPostForm: FC<EditPostFormProps> = ({ onPreview }) => {
           <div className="flex w-full justify-between gap-3">
             <span className="text-neutral-400">
               {t('{{current, number}} / {{max, number}}', {
-                current: getStringByteCount(body),
+                current: getStringByteCount(watchedBody),
                 max: 60_000,
               })}
             </span>
 
             <div className="flex gap-3">
-              <BaseButton type="button" onClick={() => onPreview(body)} disabled={!body.length}>
+              <BaseButton
+                type="button"
+                onClick={() => onPreview(watchedBody)}
+                disabled={!watchedBody.length}
+              >
                 {t('Preview')}
               </BaseButton>
 

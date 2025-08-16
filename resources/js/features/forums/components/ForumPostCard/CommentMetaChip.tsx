@@ -8,7 +8,7 @@ interface CommentMetaChipProps {
 
 export const CommentMetaChip: FC<CommentMetaChipProps> = ({ children }) => {
   return (
-    <BaseChip className="whitespace-nowrap text-2xs text-neutral-300 light:text-neutral-900">
+    <BaseChip className="whitespace-nowrap text-2xs text-neutral-300 light:bg-white light:text-neutral-900">
       {children}
     </BaseChip>
   );

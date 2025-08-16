@@ -14,12 +14,12 @@ import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcess
 const formSchema = z.object({
   title: z.string().min(2).max(255),
   body: z.string().min(1).max(60_000),
+  postAsUserId: z.string().optional(),
 });
 type FormValues = z.infer<typeof formSchema>;
 
 export function useCreateTopicForm() {
   const { forum } = usePageProps<App.Data.CreateForumTopicPageProps>();
-
   const { t } = useTranslation();
 
   const form = useForm<FormValues>({
@@ -27,14 +27,16 @@ export function useCreateTopicForm() {
     defaultValues: {
       title: '',
       body: '',
+      postAsUserId: 'self',
     },
   });
 
   const mutation = useMutation({
     mutationFn: (payload: FormValues) => {
-      const normalizedPayload: FormValues = {
-        ...payload,
+      const normalizedPayload = {
+        title: payload.title,
         body: preProcessShortcodesInBody(payload.body),
+        postAsUserId: payload.postAsUserId === 'self' ? null : Number(payload.postAsUserId),
       };
 
       return axios.post<{ success: boolean; newTopicId: number }>(

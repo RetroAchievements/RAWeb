@@ -72,8 +72,8 @@ class BuildMessageThreadIndexPagePropsAction
     private function getAccessibleInboxes(User $user): array
     {
         $policy = new MessageThreadPolicy();
-        $accessibleTeamInboxes = $policy->getAccessibleTeamInboxes($user);
+        $accessibleTeamUsernames = $policy->getAccessibleTeamUsernames($user);
 
-        return [$user->display_name, ...$accessibleTeamInboxes];
+        return [$user->display_name, ...$accessibleTeamUsernames];
     }
 }

@@ -24,7 +24,7 @@ interface CreateMessageReplyFormProps {
 }
 
 export const CreateMessageReplyForm: FC<CreateMessageReplyFormProps> = ({ onPreview }) => {
-  const { auth, senderUserDisplayName } =
+  const { auth, senderUserAvatarUrl, senderUserDisplayName } =
     usePageProps<App.Community.Data.MessageThreadShowPageProps>();
 
   const { t } = useTranslation();
@@ -79,10 +79,23 @@ export const CreateMessageReplyForm: FC<CreateMessageReplyFormProps> = ({ onPrev
                 {t('Preview')}
               </BaseButton>
 
-              <BaseButton type="submit" disabled={!form.formState.isValid || mutation.isPending}>
+              <BaseButton
+                type="submit"
+                className="flex items-center gap-2"
+                disabled={!form.formState.isValid || mutation.isPending}
+              >
+                {senderUserAvatarUrl && auth!.user.displayName !== senderUserDisplayName ? (
+                  <img
+                    src={senderUserAvatarUrl}
+                    alt={senderUserDisplayName}
+                    className="size-6 rounded-full"
+                    aria-hidden={true}
+                  />
+                ) : null}
+
                 {auth!.user.displayName === senderUserDisplayName
                   ? t('Submit')
-                  : t('Submit (as {{username}})', { username: senderUserDisplayName })}
+                  : t('Submit as {{displayName}}', { displayName: senderUserDisplayName })}
               </BaseButton>
             </div>
           </div>

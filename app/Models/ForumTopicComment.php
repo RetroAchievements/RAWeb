@@ -27,6 +27,8 @@ class ForumTopicComment extends BaseModel
         'forum_topic_id',
         'body',
         'author_id',
+        'sent_by_id',
+        'edited_by_id',
         'is_authorized',
         'authorized_at',
     ];
@@ -110,6 +112,22 @@ class ForumTopicComment extends BaseModel
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id')->withTrashed();
+    }
+
+    /**
+     * @return BelongsTo<User, ForumTopicComment>
+     */
+    public function sentBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'sent_by_id')->withTrashed();
+    }
+
+    /**
+     * @return BelongsTo<User, ForumTopicComment>
+     */
+    public function editedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'edited_by_id')->withTrashed();
     }
 
     // == scopes

@@ -3,13 +3,16 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { __UNSAFE_VERY_DANGEROUS_SLEEP, render, screen, waitFor } from '@/test';
+import { __UNSAFE_VERY_DANGEROUS_SLEEP, render, screen, waitFor, within } from '@/test';
 import { createMessageThread, createPaginatedData } from '@/test/factories';
 
 import { CreateMessageReplyForm } from './CreateMessageReplyForm';
 
 // Suppress window.scrollTo not implemented error.
 console.error = vi.fn();
+
+// Prevent the autosize textarea from flooding the console with errors.
+window.scrollTo = vi.fn();
 
 describe('Component: CreateMessageReplyForm', () => {
   it('renders without crashing', () => {
@@ -257,5 +260,120 @@ describe('Component: CreateMessageReplyForm', () => {
     await waitFor(() => {
       expect(postSpy).toHaveBeenCalled();
     });
+  });
+
+  it('given the user is sending on behalf of a team account, shows the team avatar in the submit button', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({ displayName: 'Scott' });
+    const messageThread = createMessageThread();
+    const paginatedMessages = createPaginatedData([], { lastPage: 5 });
+    const mockOnPreview = vi.fn();
+
+    render(<CreateMessageReplyForm onPreview={mockOnPreview} />, {
+      pageProps: {
+        messageThread,
+        paginatedMessages,
+        auth: { user },
+        senderUserDisplayName: 'RAdmin', // !!
+        senderUserAvatarUrl: 'https://example.com/radmin-avatar.png', // !!
+      },
+    });
+
+    // ASSERT
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+    const avatarImage = within(submitButton).getByRole('img', { hidden: true });
+    expect(avatarImage).toHaveAttribute('src', 'https://example.com/radmin-avatar.png');
+    expect(avatarImage).toHaveAttribute('alt', 'RAdmin');
+  });
+
+  it('given the user is sending as themselves, does not show an avatar in the submit button', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({ displayName: 'Scott' });
+    const messageThread = createMessageThread();
+    const paginatedMessages = createPaginatedData([], { lastPage: 5 });
+    const mockOnPreview = vi.fn();
+
+    render(<CreateMessageReplyForm onPreview={mockOnPreview} />, {
+      pageProps: {
+        messageThread,
+        paginatedMessages,
+        auth: { user },
+        senderUserDisplayName: 'Scott', // !! same as `user`
+        senderUserAvatarUrl: 'https://example.com/scott-avatar.png',
+      },
+    });
+
+    // ASSERT
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+    const avatarImage = within(submitButton).queryByRole('img', { hidden: true });
+    expect(avatarImage).not.toBeInTheDocument();
+  });
+
+  it('given no avatar URL is provided, does not show an avatar in the submit button', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({ displayName: 'Scott' });
+    const messageThread = createMessageThread();
+    const paginatedMessages = createPaginatedData([], { lastPage: 5 });
+    const mockOnPreview = vi.fn();
+
+    render(<CreateMessageReplyForm onPreview={mockOnPreview} />, {
+      pageProps: {
+        messageThread,
+        paginatedMessages,
+        auth: { user },
+        senderUserDisplayName: 'RAdmin',
+        senderUserAvatarUrl: null, // !! edge case, this is missing for some reason
+      },
+    });
+
+    // ASSERT
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+    const avatarImage = within(submitButton).queryByRole('img', { hidden: true });
+    expect(avatarImage).not.toBeInTheDocument();
+  });
+
+  it('given the user is sending on behalf of a team account, shows "Submit as" text', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({ displayName: 'Scott' });
+    const messageThread = createMessageThread();
+    const paginatedMessages = createPaginatedData([], { lastPage: 5 });
+    const mockOnPreview = vi.fn();
+
+    render(<CreateMessageReplyForm onPreview={mockOnPreview} />, {
+      pageProps: {
+        messageThread,
+        paginatedMessages,
+        auth: { user },
+        senderUserDisplayName: 'RAdmin', // !! different from `user`
+        senderUserAvatarUrl: 'https://example.com/radmin-avatar.png',
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /submit as radmin/i })).toBeVisible();
+  });
+
+  it('given the user is sending as themselves, shows only "Submit" text', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({ displayName: 'Scott' });
+    const messageThread = createMessageThread();
+    const paginatedMessages = createPaginatedData([], { lastPage: 5 });
+    const mockOnPreview = vi.fn();
+
+    render(<CreateMessageReplyForm onPreview={mockOnPreview} />, {
+      pageProps: {
+        messageThread,
+        paginatedMessages,
+        auth: { user },
+        senderUserDisplayName: 'Scott', // !! same as `user`
+        senderUserAvatarUrl: 'https://example.com/scott-avatar.png',
+      },
+    });
+
+    // ASSERT
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+    expect(submitButton).toBeVisible();
+    expect(submitButton).toHaveTextContent('Submit');
+    expect(submitButton).not.toHaveTextContent('Submit as');
   });
 });

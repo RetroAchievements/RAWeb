@@ -59,7 +59,7 @@ export const ForumPostCardTimestamps: FC<ForumPostCardTimestampsProps> = ({ comm
     dayjs.utc(comment.updatedAt!).isAfter(dayjs.utc().subtract(24, 'hour'));
 
   return (
-    <p className="smalltext !leading-[14px]">
+    <p className="smalltext !leading-[14px] light:text-neutral-700">
       {shouldShowCreatedTooltip ? (
         <BaseTooltip>
           <BaseTooltipTrigger>
@@ -77,7 +77,7 @@ export const ForumPostCardTimestamps: FC<ForumPostCardTimestampsProps> = ({ comm
       {editedLabel ? (
         <>
           {', '}
-          <span className="smalltext italic !leading-[14px]">
+          <span className="smalltext italic !leading-[14px] light:text-neutral-700">
             <Trans
               i18nKey="<1>last</1> edited"
               components={{ 1: <span className="hidden sm:inline" /> }}

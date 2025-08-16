@@ -12,6 +12,7 @@ use App\Models\Forum;
 use App\Models\ForumCategory;
 use App\Models\ForumTopic;
 use App\Models\Game;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 
 class ForumTopicApiController extends Controller
@@ -21,13 +22,32 @@ class ForumTopicApiController extends Controller
         Forum $forum,
         StoreForumTopicRequest $request
     ): JsonResponse {
-        $this->authorize('create', [ForumTopic::class, $forum]);
+        // The actual user making this API request.
+        $requestingUser = $request->user();
+        $sentByUser = null; // we'll keep this null unless it differs from $authorUser (someone posting as a team account)
+
+        // The user that will publicly appear to everyone as the author.
+        $authorUser = $requestingUser;
+
+        if ($request->input('postAsUserId')) {
+            $teamAccount = User::find($request->input('postAsUserId'));
+            if ($teamAccount) {
+                // Authorize posting as the team account.
+                $this->authorize('create', [ForumTopic::class, $forum, $teamAccount]);
+
+                $authorUser = $teamAccount;
+                $sentByUser = $requestingUser; // track who actually sent it
+            }
+        } else {
+            $this->authorize('create', [ForumTopic::class, $forum]);
+        }
 
         $newForumTopicComment = submitNewTopic(
-            $request->user(),
+            $authorUser,
             $forum->id,
             $request->input('title'),
             $request->input('body'),
+            $sentByUser,
         );
 
         return response()->json([

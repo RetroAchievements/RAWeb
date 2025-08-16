@@ -12,6 +12,7 @@ import {
   BaseFormMessage,
   BaseFormProvider,
 } from '@/common/components/+vendor/BaseForm';
+import { BaseSelectNative } from '@/common/components/+vendor/BaseSelectNative';
 import { ShortcodePanel } from '@/common/components/ShortcodePanel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useSubmitOnMetaEnter } from '@/common/hooks/useSubmitOnMetaEnter';
@@ -24,12 +25,26 @@ interface QuickReplyFormProps {
 }
 
 export const QuickReplyForm: FC<QuickReplyFormProps> = ({ onPreview }) => {
-  const { auth, forumTopic } = usePageProps<App.Data.ShowForumTopicPageProps>();
+  const { auth, forumTopic, accessibleTeamAccounts } =
+    usePageProps<App.Data.ShowForumTopicPageProps>();
 
   const { t } = useTranslation();
 
-  const { form, mutation, onSubmit } = useUpsertPostForm({ targetTopic: forumTopic }, { body: '' });
-  const [body] = form.watch(['body']);
+  const { form, mutation, onSubmit } = useUpsertPostForm(
+    { targetTopic: forumTopic },
+    { body: '', postAsUserId: 'self' },
+  );
+  const [watchedBody, watchedPostAsUserId] = form.watch(['body', 'postAsUserId']);
+
+  const watchedPostAsUser =
+    watchedPostAsUserId !== 'self'
+      ? accessibleTeamAccounts?.find((ta) => ta.id === Number(watchedPostAsUserId))
+      : null;
+
+  // Sort team accounts alphabetically by display name.
+  const sortedTeamAccounts = accessibleTeamAccounts
+    ? [...accessibleTeamAccounts].sort((a, b) => a.displayName.localeCompare(b.displayName))
+    : null;
 
   const formRef = useRef<HTMLFormElement>(null);
   useSubmitOnMetaEnter({
@@ -47,11 +62,37 @@ export const QuickReplyForm: FC<QuickReplyFormProps> = ({ onPreview }) => {
       <form
         ref={formRef}
         onSubmit={form.handleSubmit(onSubmit)}
-        className="rounded-lg bg-embed p-2 sm:p-4"
+        className="rounded-lg bg-embed p-2 light:border light:border-neutral-300 light:bg-white sm:p-4"
         name="quick-reply"
       >
         <div className="flex flex-col gap-3">
-          <ShortcodePanel className="p-0" />
+          <div className="flex w-full flex-col gap-2 lg:flex-row lg:justify-between lg:gap-5">
+            <ShortcodePanel className="p-0" />
+
+            {sortedTeamAccounts?.length ? (
+              <BaseFormField
+                control={form.control}
+                name="postAsUserId"
+                render={({ field }) => (
+                  <BaseFormItem className="flex w-full items-center gap-2 lg:w-auto">
+                    <BaseFormLabel className="whitespace-nowrap">{t('Post as')}</BaseFormLabel>
+
+                    <BaseFormControl>
+                      <BaseSelectNative {...field} className="h-10 min-w-[200px] lg:h-[30px]">
+                        <option value="self">{auth.user.displayName}</option>
+
+                        {sortedTeamAccounts.map((teamAccount) => (
+                          <option key={`acct-${teamAccount.id}`} value={teamAccount.id}>
+                            {teamAccount.displayName}
+                          </option>
+                        ))}
+                      </BaseSelectNative>
+                    </BaseFormControl>
+                  </BaseFormItem>
+                )}
+              />
+            ) : null}
+          </div>
 
           <BaseFormField
             control={form.control}
@@ -79,18 +120,46 @@ export const QuickReplyForm: FC<QuickReplyFormProps> = ({ onPreview }) => {
           <div className="flex w-full justify-between gap-3">
             <span className="text-neutral-400">
               {t('{{current, number}} / {{max, number}}', {
-                current: getStringByteCount(body),
+                current: getStringByteCount(watchedBody),
                 max: 60_000,
               })}
             </span>
 
             <div className="flex gap-3">
-              <BaseButton type="button" onClick={() => onPreview(body)} disabled={!body.length}>
+              <BaseButton
+                type="button"
+                onClick={() => onPreview(watchedBody)}
+                disabled={!watchedBody.length}
+              >
                 {t('Preview')}
               </BaseButton>
 
-              <BaseButton type="submit" disabled={!form.formState.isValid || mutation.isPending}>
-                {t('Submit')}
+              <BaseButton
+                type="submit"
+                className="flex items-center gap-2"
+                disabled={!form.formState.isValid || mutation.isPending}
+              >
+                {watchedPostAsUser ? (
+                  <img
+                    src={watchedPostAsUser.avatarUrl}
+                    alt={watchedPostAsUser.displayName}
+                    className="size-6 rounded-full"
+                    aria-hidden={true}
+                  />
+                ) : null}
+
+                {!watchedPostAsUser && accessibleTeamAccounts?.length ? (
+                  <img
+                    src={auth.user.avatarUrl}
+                    alt={auth.user.displayName}
+                    className="size-6 rounded-full"
+                    aria-hidden={true}
+                  />
+                ) : null}
+
+                {watchedPostAsUser
+                  ? t('Submit as {{displayName}}', { displayName: watchedPostAsUser.displayName })
+                  : t('Submit')}
               </BaseButton>
             </div>
           </div>

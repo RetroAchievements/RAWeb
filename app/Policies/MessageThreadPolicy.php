@@ -6,27 +6,14 @@ namespace App\Policies;
 
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
-use App\Models\Role;
 use App\Models\User;
+use App\Policies\Concerns\HandlesTeamAccounts;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class MessageThreadPolicy
 {
     use HandlesAuthorization;
-
-    /**
-     * Inbox display_name => [Roles]
-     */
-    protected const INBOX_ROLES_MAP = [
-        'CodeReviewTeam' => [Role::CODE_REVIEWER],
-        'DevCompliance' => [Role::DEV_COMPLIANCE],
-        'QATeam' => [Role::QUALITY_ASSURANCE],
-        'RAArtTeam' => [Role::ARTIST],
-        'RACheats' => [Role::CHEAT_INVESTIGATOR],
-        'RAdmin' => [Role::ADMINISTRATOR, Role::MODERATOR],
-        'RAEvents' => [Role::EVENT_MANAGER],
-        'WritingTeam' => [Role::WRITER],
-    ];
+    use HandlesTeamAccounts;
 
     public function manage(User $user): bool
     {
@@ -57,18 +44,7 @@ class MessageThreadPolicy
         // Users are able to view inboxes of team accounts, assuming
         // the correct role is attached to the user.
         if ($user && $teamAccount) {
-            $teamDisplayName = $teamAccount->display_name;
-
-            if (isset(static::INBOX_ROLES_MAP[$teamDisplayName])) {
-                $allowedRoles = static::INBOX_ROLES_MAP[$teamDisplayName];
-                foreach ($allowedRoles as $role) {
-                    if ($user->hasRole($role)) {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+            return $this->canActAsTeamAccount($user, $teamAccount);
         }
 
         return true;
@@ -79,18 +55,7 @@ class MessageThreadPolicy
         // Users are able to create threads on behalf of team accounts,
         // assuming the correct role is attached to the user.
         if ($teamAccount) {
-            $teamDisplayName = $teamAccount->display_name;
-
-            if (isset(static::INBOX_ROLES_MAP[$teamDisplayName])) {
-                $allowedRoles = static::INBOX_ROLES_MAP[$teamDisplayName];
-                foreach ($allowedRoles as $role) {
-                    if ($user->hasRole($role)) {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+            return $this->canActAsTeamAccount($user, $teamAccount);
         }
 
         return true;
@@ -118,38 +83,5 @@ class MessageThreadPolicy
     public function forceDelete(User $user, MessageThread $messageThread): bool
     {
         return false;
-    }
-
-    /**
-     * Get user IDs of team accounts that this user can access.
-     */
-    public function getAccessibleTeamIds(User $user): array
-    {
-        $accessibleInboxes = $this->getAccessibleTeamInboxes($user);
-
-        if (empty($accessibleInboxes)) {
-            return [];
-        }
-
-        return User::whereIn('User', $accessibleInboxes)
-            ->pluck('ID')
-            ->toArray();
-    }
-
-    /**
-     * Get all team inboxes this user can access.
-     */
-    public function getAccessibleTeamInboxes(User $user): array
-    {
-        $userRoles = $user->roles()->pluck('name')->toArray();
-        $accessibleInboxes = [];
-
-        foreach (static::INBOX_ROLES_MAP as $inboxDisplayName => $roles) {
-            if (count(array_intersect($userRoles, $roles)) > 0) {
-                $accessibleInboxes[] = $inboxDisplayName;
-            }
-        }
-
-        return $accessibleInboxes;
     }
 }

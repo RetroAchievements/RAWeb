@@ -81,6 +81,7 @@ declare namespace App.Community.Data {
     message: string | null;
     subject: string | null;
     templateKind: App.Community.Enums.MessageThreadTemplateKind | null;
+    senderUserAvatarUrl: string | null;
     senderUserDisplayName: string;
   };
   export type MessageThread = {
@@ -103,6 +104,7 @@ declare namespace App.Community.Data {
     paginatedMessages: App.Data.PaginatedData<TItems>;
     dynamicEntities: App.Community.Data.ShortcodeDynamicEntities;
     canReply: boolean;
+    senderUserAvatarUrl: string | null;
     senderUserDisplayName: string;
   };
   export type RecentLeaderboardEntry = {
@@ -222,6 +224,7 @@ declare namespace App.Data {
   };
   export type CreateForumTopicPageProps = {
     forum: App.Data.Forum;
+    accessibleTeamAccounts: Array<App.Data.User> | null;
   };
   export type CurrentlyOnline = {
     logEntries: Array<number>;
@@ -254,6 +257,8 @@ declare namespace App.Data {
     isAuthorized: boolean;
     forumTopicId: number | null;
     forumTopic?: App.Data.ForumTopic | null;
+    sentBy?: App.Data.User | null;
+    editedBy?: App.Data.User | null;
   };
   export type ForumTopic = {
     id: number;
@@ -309,6 +314,7 @@ declare namespace App.Data {
     isSubscribed: boolean;
     paginatedForumTopicComments: App.Data.PaginatedData<TItems>;
     metaDescription: string;
+    accessibleTeamAccounts: Array<App.Data.User> | null;
   };
   export type StaticData = {
     numGames: number;

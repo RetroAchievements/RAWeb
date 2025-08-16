@@ -17,7 +17,7 @@ export const ShortcodePanel: FC<ShortcodePanelProps> = ({ className }) => {
   const { injectShortcode } = useShortcodeInjection({ fieldName: 'body' });
 
   return (
-    <div className={cn('w-full rounded bg-embed p-2', className)}>
+    <div className={cn('w-full rounded bg-embed p-2 light:bg-inherit', className)}>
       <div className="flex flex-wrap gap-2">
         {shortcodesList.map((shortcode, shortcodeIndex) => (
           <BaseTooltip key={`shortcode-${shortcodeIndex}`}>

@@ -27,8 +27,15 @@ interface CreateMessageThreadFormProps {
 }
 
 export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPreview }) => {
-  const { auth, message, subject, templateKind, senderUserDisplayName, toUser } =
-    usePageProps<App.Community.Data.MessageThreadCreatePageProps>();
+  const {
+    auth,
+    message,
+    subject,
+    templateKind,
+    senderUserAvatarUrl,
+    senderUserDisplayName,
+    toUser,
+  } = usePageProps<App.Community.Data.MessageThreadCreatePageProps>();
 
   const { t } = useTranslation();
 
@@ -159,10 +166,23 @@ export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPr
                 {t('Preview')}
               </BaseButton>
 
-              <BaseButton type="submit" disabled={!form.formState.isValid || mutation.isPending}>
-                {auth!.user.displayName === senderUserDisplayName
-                  ? t('Submit')
-                  : t('Submit (as {{username}})', { username: senderUserDisplayName })}
+              <BaseButton
+                type="submit"
+                className="flex items-center gap-2"
+                disabled={!form.formState.isValid || mutation.isPending}
+              >
+                {senderUserAvatarUrl && auth!.user.displayName !== senderUserDisplayName ? (
+                  <img
+                    src={senderUserAvatarUrl}
+                    alt={senderUserDisplayName}
+                    className="size-6 rounded-full"
+                    aria-hidden={true}
+                  />
+                ) : null}
+
+                {auth!.user.displayName !== senderUserDisplayName
+                  ? t('Submit as {{displayName}}', { displayName: senderUserDisplayName })
+                  : t('Submit')}
               </BaseButton>
             </div>
           </div>

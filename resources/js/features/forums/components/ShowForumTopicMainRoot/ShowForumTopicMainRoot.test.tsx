@@ -461,4 +461,193 @@ describe('Component: ShowForumTopicMainRoot', () => {
 
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   });
+
+  it('given the user has access to a team account that authored a post, shows the edit button', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({
+      displayName: 'Scott',
+      isMuted: false,
+    });
+
+    const teamAccount = createUser({
+      displayName: 'RAdmin',
+      avatarUrl: 'https://example.com/radmin-avatar.png',
+    });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+    const forumTopic = createForumTopic({ forum });
+
+    const comment = createForumTopicComment({
+      user: teamAccount, // !!
+    });
+    const paginatedForumTopicComments = createPaginatedData([comment]);
+
+    render(<ShowForumTopicMainRoot />, {
+      pageProps: {
+        forumTopic,
+        paginatedForumTopicComments,
+        accessibleTeamAccounts: [teamAccount], // !!
+        auth: { user },
+        can: {},
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: 'Edit' })).toBeVisible();
+  });
+
+  it('given the user does not have access to a team account that authored a post, does not show the edit button', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({
+      displayName: 'Scott',
+      isMuted: false,
+    });
+
+    const teamAccount = createUser({
+      displayName: 'RAdmin',
+      avatarUrl: 'https://example.com/radmin-avatar.png',
+    });
+
+    const otherTeamAccount = createUser({
+      displayName: 'DevCompliance',
+      avatarUrl: 'https://example.com/dev-avatar.png',
+    });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+    const forumTopic = createForumTopic({ forum });
+
+    const comment = createForumTopicComment({
+      user: teamAccount, // !!
+    });
+    const paginatedForumTopicComments = createPaginatedData([comment]);
+
+    render(<ShowForumTopicMainRoot />, {
+      pageProps: {
+        auth: { user },
+        forumTopic,
+        paginatedForumTopicComments,
+        accessibleTeamAccounts: [otherTeamAccount], // !! user only has access to a different team account
+        can: {},
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: 'Edit' })).not.toBeInTheDocument();
+  });
+
+  it('given the user has no accessible team accounts, does not show the edit button on team posts', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({
+      displayName: 'Scott',
+      isMuted: false,
+    });
+
+    const teamAccount = createUser({
+      displayName: 'RAdmin',
+      avatarUrl: 'https://example.com/radmin-avatar.png',
+    });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+    const forumTopic = createForumTopic({ forum });
+
+    const comment = createForumTopicComment({
+      user: teamAccount, // !!
+    });
+    const paginatedForumTopicComments = createPaginatedData([comment]);
+
+    render(<ShowForumTopicMainRoot />, {
+      pageProps: {
+        auth: { user },
+        forumTopic,
+        paginatedForumTopicComments,
+        accessibleTeamAccounts: null, // !! no team account access
+        can: {},
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: 'Edit' })).not.toBeInTheDocument();
+  });
+
+  it('given the topic is locked, does not show edit button even for a team account posts user has access to', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({
+      displayName: 'Scott',
+      isMuted: false,
+    });
+
+    const teamAccount = createUser({
+      displayName: 'RAdmin',
+      avatarUrl: 'https://example.com/radmin-avatar.png',
+    });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+    const forumTopic = createForumTopic({
+      forum,
+      lockedAt: new Date().toISOString(), // !!
+    });
+
+    const comment = createForumTopicComment({
+      user: teamAccount,
+    });
+    const paginatedForumTopicComments = createPaginatedData([comment]);
+
+    render(<ShowForumTopicMainRoot />, {
+      pageProps: {
+        auth: { user },
+        forumTopic,
+        paginatedForumTopicComments,
+        accessibleTeamAccounts: [teamAccount], // !! user has access to team account
+        can: {},
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: 'Edit' })).not.toBeInTheDocument();
+  });
+
+  it('given the user is muted, does not show edit button even for a team account posts user has access to', () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({
+      displayName: 'Scott',
+      isMuted: true, // !!
+      mutedUntil: new Date(Date.now() + 86400000).toISOString(),
+    });
+
+    const teamAccount = createUser({
+      displayName: 'RAdmin',
+      avatarUrl: 'https://example.com/radmin-avatar.png',
+    });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+    const forumTopic = createForumTopic({ forum });
+
+    const comment = createForumTopicComment({
+      user: teamAccount,
+    });
+    const paginatedForumTopicComments = createPaginatedData([comment]);
+
+    render(<ShowForumTopicMainRoot />, {
+      pageProps: {
+        auth: { user },
+        forumTopic,
+        paginatedForumTopicComments,
+        accessibleTeamAccounts: [teamAccount], // !!
+        can: {},
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: 'Edit' })).not.toBeInTheDocument();
+  });
 });
