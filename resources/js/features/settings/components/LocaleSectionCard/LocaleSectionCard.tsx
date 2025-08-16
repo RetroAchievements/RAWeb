@@ -62,6 +62,7 @@ export const LocaleSectionCard: FC = () => {
                       <BaseSelectItem value="es_ES">{'Español (España)'}</BaseSelectItem>
                       <BaseSelectItem value="fr_FR">{'Français (France)'}</BaseSelectItem>
                       <BaseSelectItem value="it_IT">{'Italiano (Italia)'}</BaseSelectItem>
+                      <BaseSelectItem value="nl_BE">{'Nederlands (België)'}</BaseSelectItem>
                       <BaseSelectItem value="pl_PL">{'Polski (Polska)'}</BaseSelectItem>
                       <BaseSelectItem value="pt_BR">{'Português (Brasil)'}</BaseSelectItem>
                       <BaseSelectItem value="ru_RU">{'Русский (Россия)'}</BaseSelectItem>
