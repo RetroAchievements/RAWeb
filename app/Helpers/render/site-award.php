@@ -317,6 +317,15 @@ function RenderAwardOrderTable(
 
     echo "<div class='flex w-full items-center justify-between'>";
     echo "<h4>$title</h4>";
+    echo <<<HTML
+        <div class="flex items-center gap-x-1 ml-auto mr-4">
+            <p class="text-3xs">
+                Sort by Award Date:
+            </p>
+            <button onclick='reorderSiteAwards.handleSortByAwardDate("asc", "$humanReadableAwardKind")' class="btn text-3xs py-0.5">↑</button>
+            <button onclick='reorderSiteAwards.handleSortByAwardDate("desc", "$humanReadableAwardKind")' class="btn text-3xs py-0.5">↓</button>
+        </div>
+    HTML;
     echo "<select data-award-kind='$humanReadableAwardKind'>";
     for ($i = 1; $i <= $renderedSectionCount; $i++) {
         if ($initialSectionOrder === $i) {
@@ -344,6 +353,7 @@ function RenderAwardOrderTable(
         $awardType = $award['AwardType'];
         $awardData = $award['AwardData'];
         $awardDataExtra = $award['AwardDataExtra'];
+        $awardDate = $award['AwardedAt'];
         $awardTitle = $award['Title'];
         $awardDisplayOrder = $award['DisplayOrder'];
 
@@ -380,6 +390,7 @@ function RenderAwardOrderTable(
             <tr
                 data-row-index='$awardCounter'
                 data-award-kind='$humanReadableAwardKind'
+                data-award-date='$awardDate'
                 draggable='$isDraggable'
                 class='$rowClassNames'
                 ondragstart='reorderSiteAwards.handleRowDragStart(event)'
