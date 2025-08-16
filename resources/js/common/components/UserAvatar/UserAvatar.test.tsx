@@ -99,4 +99,29 @@ describe('Component: UserAvatar', () => {
 
     expect(nameEl).toHaveClass('line-through');
   });
+
+  it('given the canLinkToUser prop is falsy, never renders a link to the user profile', () => {
+    // ARRANGE
+    const user = createUser({ displayName: 'Scott', deletedAt: new Date().toISOString() });
+
+    render(<UserAvatar {...user} canLinkToUser={false} />);
+
+    // ASSERT
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
+  it('given the user is deleted and canLinkToUser is true, does not render a link', () => {
+    // ARRANGE
+    const user = createUser({
+      displayName: 'Scott',
+      deletedAt: new Date().toISOString(), // !! deleted user
+    });
+
+    render(<UserAvatar {...user} canLinkToUser={true} />);
+
+    // ASSERT
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    expect(screen.getByText(/scott/i)).toBeVisible();
+    expect(screen.getByText(/scott/i).parentElement?.tagName).toBe('SPAN');
+  });
 });

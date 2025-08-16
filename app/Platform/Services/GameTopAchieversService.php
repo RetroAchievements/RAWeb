@@ -38,6 +38,33 @@ class GameTopAchieversService
             });
     }
 
+    public function numBeatenSoftcore(): int
+    {
+        return $this->baseQuery()
+            ->whereNotNull('beaten_at')
+            ->whereNull('beaten_hardcore_at')
+            ->count();
+    }
+
+    public function numBeaten(): int
+    {
+        return $this->baseQuery()
+            ->whereNotNull('beaten_hardcore_at')
+            ->count();
+    }
+
+    public function numCompletions(): int
+    {
+        if ($this->masteryAchievements > 0) {
+            return $this->baseQuery()
+                ->where('achievements_unlocked', $this->masteryAchievements)
+                ->where('achievements_unlocked_hardcore', '!=', $this->masteryAchievements)
+                ->count();
+        }
+
+        return 0;
+    }
+
     /**
      * @return Builder<PlayerGame>
      */
@@ -130,13 +157,13 @@ class GameTopAchieversService
 
     public static function expireTopAchieversComponentData(int $gameId): void
     {
-        $cacheKey = "game:{$gameId}:top-achievers:v2";
+        $cacheKey = "game:{$gameId}:top-achievers:v3";
         Cache::forget($cacheKey);
     }
 
     public function getTopAchieversComponentData(): array
     {
-        $cacheKey = "game:{$this->gameId}:top-achievers:v2";
+        $cacheKey = "game:{$this->gameId}:top-achievers:v3";
         $retval = Cache::get($cacheKey);
         if ($retval !== null) {
             $userIds = array_column($retval[1], 'user_id');
@@ -147,16 +174,25 @@ class GameTopAchieversService
         }
 
         $numMasteries = $this->numMasteries();
+        $numCompletions = $this->numCompletions();
+        $numBeaten = $this->numBeaten();
+        $numBeatenSoftcore = $this->numBeatenSoftcore();
         if ($numMasteries < 10) {
             return [
                 $numMasteries,
                 $this->convertPlayerGames($this->highestPointEarners()),
+                $numCompletions,
+                $numBeaten,
+                $numBeatenSoftcore,
             ];
         }
 
         $retval = [
             $numMasteries,
             $this->convertPlayerGames($this->recentMasteries()),
+            $numCompletions,
+            $numBeaten,
+            $numBeatenSoftcore,
         ];
 
         // only cache the result if the masters list is full.

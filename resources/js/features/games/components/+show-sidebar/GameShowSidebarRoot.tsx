@@ -14,6 +14,7 @@ import { getSidebarExcludedHubIds } from '../../utils/getSidebarExcludedHubIds';
 import { GameMetadata } from '../GameMetadata';
 import { GameSidebarFullWidthButtons } from '../GameSidebarFullWidthButtons';
 import { MatureContentIndicator } from '../MatureContentIndicator';
+import { PlaytimeStatistics } from '../PlaytimeStatistics';
 import { SeriesHubDisplay } from '../SeriesHubDisplay';
 import { SimilarGamesList } from '../SimilarGamesList';
 
@@ -46,6 +47,8 @@ export const GameShowSidebarRoot: FC = () => {
       <GameSidebarFullWidthButtons game={game} />
 
       <BaseSeparator className="mb-4" />
+
+      {game.playersTotal && achievements.length ? <PlaytimeStatistics /> : null}
 
       {seriesHub ? <SeriesHubDisplay seriesHub={seriesHub} /> : null}
 

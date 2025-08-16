@@ -70,6 +70,7 @@ declare namespace App.Community.Data {
     canComment: boolean;
   };
   export type Message = {
+    id: number;
     body: string;
     createdAt: string;
     author?: App.Data.User;
@@ -506,13 +507,17 @@ declare namespace App.Platform.Data {
   };
   export type AchievementSet = {
     id: number;
-    playersTotal: number;
-    playersHardcore: number;
     achievementsPublished: number;
     achievementsUnpublished: number;
+    imageAssetPathUrl: string;
+    medianTimeToComplete?: number;
+    medianTimeToCompleteHardcore?: number;
+    playersHardcore: number;
+    playersTotal: number;
     pointsTotal: number;
     pointsWeighted: number;
-    imageAssetPathUrl: string;
+    timesCompleted?: number;
+    timesCompletedHardcore?: number;
     createdAt: string | null;
     updatedAt: string | null;
     achievements: Array<App.Platform.Data.Achievement>;
@@ -637,6 +642,8 @@ declare namespace App.Platform.Data {
     releasedAt?: string | null;
     achievementsPublished?: number;
     forumTopicId?: number;
+    medianTimeToBeat?: number;
+    medianTimeToBeatHardcore?: number;
     numRequests?: number;
     numUnresolvedTickets?: number;
     numVisibleLeaderboards?: number;
@@ -654,6 +661,8 @@ declare namespace App.Platform.Data {
     imageTitleUrl?: string;
     publisher?: string;
     system?: App.Platform.Data.System;
+    timesBeaten?: number;
+    timesBeatenHardcore?: number;
     claimants?: Array<App.Platform.Data.GameClaimant>;
     gameAchievementSets?: Array<App.Platform.Data.GameAchievementSet>;
     releases?: Array<App.Platform.Data.GameRelease>;
@@ -747,8 +756,11 @@ declare namespace App.Platform.Data {
     isSubscribedToComments: boolean;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
+    numBeaten: number;
+    numBeatenSoftcore: number;
     numComments: number;
     numCompatibleHashes: number;
+    numCompletions: number;
     numMasters: number;
     numOpenTickets: number;
     recentPlayers: Array<App.Platform.Data.GameRecentPlayer>;

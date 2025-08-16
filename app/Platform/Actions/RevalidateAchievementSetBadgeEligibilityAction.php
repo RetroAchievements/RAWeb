@@ -29,13 +29,18 @@ class RevalidateAchievementSetBadgeEligibilityAction
             $playerGame->game->loadMissing('event');
             $this->revalidateEventBadgeEligibility($playerGame);
         } else {
-            $this->revalidateBeatenBadgeEligibility($playerGame);
-            $this->revalidateCompletionBadgeEligibility($playerGame);
+            $beatenStatusChanged = $this->revalidateBeatenBadgeEligibility($playerGame);
+            $completionStatusChanged = $this->revalidateCompletionBadgeEligibility($playerGame);
+
+            if ($beatenStatusChanged || $completionStatusChanged) {
+                expireGameTopAchievers($playerGame->game->id);
+            }
         }
     }
 
-    private function revalidateBeatenBadgeEligibility(PlayerGame $playerGame): void
+    private function revalidateBeatenBadgeEligibility(PlayerGame $playerGame): bool
     {
+        $statusChanged = false;
         $badge = $playerGame->user->playerBadges()
             ->where('AwardType', AwardType::GameBeaten)
             ->where('AwardData', $playerGame->game->id);
@@ -45,11 +50,15 @@ class RevalidateAchievementSetBadgeEligibilityAction
         if ($playerGame->beaten_at === null && $softcoreBadge->exists()) {
             $this->dispatchBadgeLostEvent($softcoreBadge->first());
             $softcoreBadge->delete();
+
+            $statusChanged = true;
         }
 
         if ($playerGame->beaten_hardcore_at === null && $hardcoreBadge->exists()) {
             $this->dispatchBadgeLostEvent($hardcoreBadge->first());
             $hardcoreBadge->delete();
+
+            $statusChanged = true;
         }
 
         if ($playerGame->beaten_hardcore_at === null && $playerGame->beaten_at !== null && !$softcoreBadge->exists()) {
@@ -62,6 +71,8 @@ class RevalidateAchievementSetBadgeEligibilityAction
             );
             PlayerBadgeAwarded::dispatch($badge);
             PlayerGameBeaten::dispatch($playerGame->user, $playerGame->game);
+
+            $statusChanged = true;
         }
 
         if ($playerGame->beaten_hardcore_at !== null && !$hardcoreBadge->exists()) {
@@ -80,11 +91,16 @@ class RevalidateAchievementSetBadgeEligibilityAction
             if ($playerGame->beaten_hardcore_at->gte(Carbon::now()->subMinutes(10))) {
                 static_addnewhardcoregamebeaten($playerGame->game->id, $playerGame->user->username);
             }
+
+            $statusChanged = true;
         }
+
+        return $statusChanged;
     }
 
-    private function revalidateCompletionBadgeEligibility(PlayerGame $playerGame): void
+    private function revalidateCompletionBadgeEligibility(PlayerGame $playerGame): bool
     {
+        $statusChanged = false;
         $badge = $playerGame->user->playerBadges()
             ->where('AwardType', AwardType::Mastery)
             ->where('AwardData', $playerGame->game->id);
@@ -98,6 +114,8 @@ class RevalidateAchievementSetBadgeEligibilityAction
             if (!$playerGame->achievements_unlocked && $playerGame->achievements_total) {
                 $this->dispatchBadgeLostEvent($softcoreBadge->first());
                 $softcoreBadge->delete();
+
+                $statusChanged = true;
             }
         }
 
@@ -108,11 +126,13 @@ class RevalidateAchievementSetBadgeEligibilityAction
             if (!$playerGame->achievements_unlocked && !$playerGame->achievements_unlocked_hardcore && $playerGame->achievements_total) {
                 $this->dispatchBadgeLostEvent($hardcoreBadge->first());
                 $hardcoreBadge->delete();
+
+                $statusChanged = true;
             }
         }
 
         if ($playerGame->achievements_total < PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY) {
-            return;
+            return $statusChanged;
         }
 
         if ($playerGame->completed_hardcore_at === null && $playerGame->completed_at !== null && !$softcoreBadge->exists()) {
@@ -125,6 +145,8 @@ class RevalidateAchievementSetBadgeEligibilityAction
             );
             PlayerBadgeAwarded::dispatch($badge);
             PlayerGameCompleted::dispatch($playerGame->user, $playerGame->game);
+
+            $statusChanged = true;
         }
 
         if ($playerGame->completed_hardcore_at !== null && !$hardcoreBadge->exists()) {
@@ -144,8 +166,10 @@ class RevalidateAchievementSetBadgeEligibilityAction
                 static_addnewhardcoremastery($playerGame->game->id, $playerGame->user->username);
             }
 
-            expireGameTopAchievers($playerGame->game->id);
+            $statusChanged = true;
         }
+
+        return $statusChanged;
     }
 
     private function dispatchBadgeLostEvent(PlayerBadge $badge): void

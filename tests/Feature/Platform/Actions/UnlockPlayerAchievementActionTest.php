@@ -7,6 +7,7 @@ namespace Tests\Feature\Platform\Actions;
 use App\Models\Game;
 use App\Models\User;
 use App\Platform\Actions\UnlockPlayerAchievementAction;
+use App\Platform\Enums\AchievementType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -63,5 +64,70 @@ class UnlockPlayerAchievementActionTest extends TestCase
         $user1->refresh();
         $this->assertEquals($now, $user1->LastLogin);
         $this->assertEquals(1, $user1->playerSessions()->count());
+    }
+
+    public function testEntireSetManuallyUnlockAwardsBadge(): void
+    {
+        $game = $this->seedGame(achievements: 6);
+
+        $achievement1 = $game->achievements->get(0);
+        $achievement1->type = AchievementType::Progression;
+        $achievement1->save();
+        $achievement2 = $game->achievements->get(1);
+        $achievement2->type = AchievementType::Progression;
+        $achievement2->save();
+        $achievement3 = $game->achievements->get(2);
+        $achievement3->type = AchievementType::Progression;
+        $achievement3->save();
+        $achievement4 = $game->achievements->get(3);
+        $achievement4->type = AchievementType::WinCondition;
+        $achievement4->save();
+        $achievement5 = $game->achievements->get(4);
+        $achievement6 = $game->achievements->get(5);
+
+        $action = new UnlockPlayerAchievementAction();
+
+        $now = Carbon::now()->startOfSecond();
+        Carbon::setTestNow($now);
+
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+        $action->execute($user1, $achievement1, true, unlockedBy: $user2);
+        $action->execute($user1, $achievement2, true, unlockedBy: $user2);
+        $action->execute($user1, $achievement3, true, unlockedBy: $user2);
+
+        // manual unlocks don't create player sessions
+        $user1->refresh();
+        $this->assertEquals(0, $user1->playerSessions()->count());
+
+        $playerGame = $user1->playerGames()->firstWhere('game_id', $game->id);
+        $this->assertNotNull($playerGame);
+        $this->assertEquals(3, $playerGame->achievements_unlocked);
+        $this->assertEquals(3, $playerGame->achievements_unlocked_hardcore);
+
+        // this should mark the game as beaten for the user.
+        $now2 = $now->clone()->addMinutes(5);
+        Carbon::setTestNow($now2);
+        $action->execute($user1, $achievement4, true, unlockedBy: $user2);
+
+        $playerGame->refresh();
+        $this->assertEquals($now2, $playerGame->beaten_at);
+        $this->assertEquals($now2, $playerGame->beaten_hardcore_at);
+
+        // this should mark the game as completed for the user.
+        $now3 = $now2->clone()->addMinutes(2);
+        Carbon::setTestNow($now3);
+        $action->execute($user1, $achievement5, true, unlockedBy: $user2);
+        $action->execute($user1, $achievement6, true, unlockedBy: $user2);
+
+        $playerGame->refresh();
+        $this->assertEquals($now2, $playerGame->beaten_at);
+        $this->assertEquals($now2, $playerGame->beaten_hardcore_at);
+        $this->assertEquals($now3, $playerGame->completed_at);
+        $this->assertEquals($now3, $playerGame->completed_hardcore_at);
+
+        // there still shouldn't be any player sessions
+        $user1->refresh();
+        $this->assertEquals(0, $user1->playerSessions()->count());
     }
 }

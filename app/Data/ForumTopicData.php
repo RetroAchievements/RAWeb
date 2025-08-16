@@ -51,7 +51,7 @@ class ForumTopicData extends Data
         );
     }
 
-    public static function fromHomePageQuery(array $comment): self
+    public static function fromHomePageQuery(array $comment, int $numMessageChars): self
     {
         return new self(
             id: $comment['ForumTopicID'],
@@ -71,7 +71,7 @@ class ForumTopicData extends Data
 
             latestComment: Lazy::create(fn () => new ForumTopicCommentData(
                 id: $comment['CommentID'],
-                body: Shortcode::stripAndClamp($comment['ShortMsg'], 100),
+                body: Shortcode::stripAndClamp($comment['Payload'], $numMessageChars),
                 createdAt: Carbon::parse($comment['PostedAt']),
                 updatedAt: null,
                 user: UserData::fromRecentForumTopic($comment),

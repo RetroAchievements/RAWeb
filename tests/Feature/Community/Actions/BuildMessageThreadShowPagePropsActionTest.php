@@ -213,4 +213,96 @@ class BuildMessageThreadShowPagePropsActionTest extends TestCase
         // Assert
         $this->assertEquals(0, $participant->fresh()->num_unread);
     }
+
+    public function testItRedirectsToLastPageWhenNoPageRequested(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $thread = MessageThread::factory()->create();
+        MessageThreadParticipant::factory()->create([
+            'thread_id' => $thread->id,
+            'user_id' => $user->id,
+        ]);
+
+        // ... create 25 messages to have more than one page ...
+        Message::factory()->count(25)->create([
+            'thread_id' => $thread->id,
+            'author_id' => $user->id,
+        ]);
+
+        // Act
+        $result = $this->action->execute(
+            $thread,
+            $user,
+            currentPage: 1,
+            perPage: 20,
+            wasPageExplicitlyRequested: false // !!
+        );
+
+        // Assert
+        $this->assertNull($result['props']);
+        $this->assertEquals(2, $result['redirectToPage']); // !! should redirect to page 2
+        $this->assertArrayHasKey('redirectToMessage', $result);
+        $this->assertNotNull($result['redirectToMessage']);
+    }
+
+    public function testItDoesNotRedirectWhenPageExplicitlyRequested(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $thread = MessageThread::factory()->create();
+        MessageThreadParticipant::factory()->create([
+            'thread_id' => $thread->id,
+            'user_id' => $user->id,
+        ]);
+
+        // ... create 25 messages to have more than one page ...
+        Message::factory()->count(25)->create([
+            'thread_id' => $thread->id,
+            'author_id' => $user->id,
+        ]);
+
+        // Act
+        $result = $this->action->execute(
+            $thread,
+            $user,
+            currentPage: 1,
+            perPage: 20,
+            wasPageExplicitlyRequested: true // !!
+        );
+
+        // Assert
+        $this->assertNotNull($result['props']); // !! should not redirect
+        $this->assertNull($result['redirectToPage']);
+    }
+
+    public function testItDoesNotRedirectForSinglePageThreads(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $thread = MessageThread::factory()->create();
+        MessageThreadParticipant::factory()->create([
+            'thread_id' => $thread->id,
+            'user_id' => $user->id,
+        ]);
+
+        // ... create only 5 messages to have just one page ...
+        Message::factory()->count(5)->create([
+            'thread_id' => $thread->id,
+            'author_id' => $user->id,
+        ]);
+
+        // Act
+        $result = $this->action->execute(
+            $thread,
+            $user,
+            currentPage: 1,
+            perPage: 20,
+            wasPageExplicitlyRequested: false
+        );
+
+        // Assert
+        $this->assertNotNull($result['props']); // !! should not redirect
+        $this->assertNull($result['redirectToPage']);
+    }
 }

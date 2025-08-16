@@ -6,5 +6,6 @@ export * from './base-avatar-props.model';
 export * from './event-achievement-time-status.model';
 export * from './laravel-validation-error.model';
 export * from './link-prefetch-behavior.model';
+export * from './play-mode.model';
 export * from './shortcode';
 export * from './ziggy-props.model';

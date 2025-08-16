@@ -51,6 +51,16 @@ return [
             // TODO 'storage_key' => 'api_token',
         ],
 
+        'api-token-header' => [
+            'driver' => 'header-token',
+            'provider' => 'users',
+            'input_key' => 'api_key',
+            'storage_key' => 'APIKey',
+            // TODO 'storage_key' => 'api_token',
+            'header_name' => 'X-API-Key',
+            'hash' => false,
+        ],
+
         'connect-token' => [
             'driver' => 'token', // 'sanctum', 'passport',
             'provider' => 'users',

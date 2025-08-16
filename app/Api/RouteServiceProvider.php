@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Api;
 
-use App\Api\Controllers\WebApiController;
-use App\Api\Controllers\WebApiV1Controller;
-use App\Api\Middleware\LogApiUsage;
+use App\Api\Internal\Controllers\HealthController;
+use App\Api\Middleware\AddContentLengthHeader;
+use App\Api\Middleware\LogApiRequest;
+use App\Api\Middleware\LogLegacyApiUsage;
+use App\Api\Middleware\ServiceAccountOnly;
+use App\Api\V1\Controllers\WebApiV1Controller;
+use App\Api\V2\Controllers\WebApiController;
 use App\Http\Concerns\HandlesPublicFileRequests;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -68,6 +72,27 @@ class RouteServiceProvider extends ServiceProvider
                 });
 
                 /*
+                 * Internal API routes for service-to-service communication
+                 * Restricted to specific service accounts (eg: RABot).
+                 * This is not intended for regular users to access.
+                 */
+                Route::prefix('internal')->group(function () {
+                    $rateLimit = config('internal-api.rate_limit.requests', 60) . ',' . config('internal-api.rate_limit.minutes', 1);
+
+                    Route::middleware([
+                        LogApiRequest::class . ':internal',
+                        'auth:api-token-header',
+                        ServiceAccountOnly::class,
+                        AddContentLengthHeader::class,
+                        'throttle:' . $rateLimit,
+                    ])->group(function () {
+                        Route::get('health', [HealthController::class, 'check'])->name('api.internal.health');
+
+                        // Add more internal service routes here as needed.
+                    });
+                });
+
+                /*
                  * Make sure to register a catch-all, too, to prevent the web app from ever responding
                  */
                 Route::any('/{path?}', [WebApiController::class, 'noop'])->where('path', '(.*)');
@@ -83,7 +108,7 @@ class RouteServiceProvider extends ServiceProvider
          * Casing should be handled by web server (API vs api).
          * Always has to be authenticated with an api token.
          */
-        Route::middleware(['api', 'auth:api-token', LogApiUsage::class])->prefix('API')->group(function () {
+        Route::middleware(['api', 'auth:api-token', LogLegacyApiUsage::class])->prefix('API')->group(function () {
             /*
              * Usually called via GET, should allow POST, too though
              */

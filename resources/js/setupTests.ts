@@ -44,7 +44,17 @@ beforeEach(() => {
   // We'll directly dump all arguments given to Ziggy's route() function.
   vi.mock('ziggy-js', () => ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- tests are ok
-    route: vi.fn((...args: any[]) => args),
+    route: vi.fn((...args: any[]) => {
+      // If called with no arguments, return an object with current() method.
+      if (args.length === 0) {
+        return {
+          current: vi.fn(() => 'some.route'),
+        };
+      }
+
+      // Otherwise, return the arguments as before for compatibility.
+      return args;
+    }),
   }));
 });
 

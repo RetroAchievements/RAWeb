@@ -6,6 +6,7 @@ namespace App\Platform\Actions;
 
 use App\Community\Data\CommentData;
 use App\Community\Enums\ArticleType;
+use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\UserGameListType;
 use App\Data\UserPermissionsData;
 use App\Enums\GameHashCompatibility;
@@ -62,20 +63,27 @@ class BuildGameShowPagePropsAction
         if ($backingGameId && $backingGameId !== $game->id) {
             $backingGame = Game::find($backingGameId);
 
-            // Load the visible comments relationship for the backing game.
-            $backingGame->load(['visibleComments' => function ($query) {
-                $query->latest('Submitted')
-                    ->limit(20)
-                    ->with(['user' => function ($userQuery) {
-                        $userQuery->withTrashed();
-                    }]);
-            }]);
+            // Load the visible comments and achievement set claims for the backing game.
+            $backingGame->load([
+                'achievementSetClaims' => function ($query) {
+                    $query->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
+                        ->with('user');
+                },
+                'visibleComments' => function ($query) {
+                    $query->latest('Submitted')
+                        ->limit(20)
+                        ->with(['user' => function ($userQuery) {
+                            $userQuery->withTrashed();
+                        }]);
+                },
+            ]);
         } else {
             // Use the current game as the backing game.
             $backingGame = $game;
         }
 
-        [$numMasters, $topAchievers] = $this->loadGameTopAchieversAction->execute($backingGame);
+        [$numMasters, $topAchievers, $numCompletions, $numBeaten, $numBeatenSoftcore] =
+            $this->loadGameTopAchieversAction->execute($backingGame);
 
         $playerGame = $user
             ? $user->playerGames()->whereGameId($backingGame->id)->first()
@@ -154,8 +162,7 @@ class BuildGameShowPagePropsAction
             ->all();
 
         $initialUserGameListState = $this->getInitialUserGameListState($backingGame, $user);
-        $initialUserGameListState = $this->getInitialUserGameListState($game, $user);
-        $achievementSetClaims = $this->buildAchievementSetClaims($game, $user);
+        $achievementSetClaims = $this->buildAchievementSetClaims($backingGame, $user);
 
         // Deduplicate releases by region and sort them by date.
         // Then, override the releases in the game object for proper display.
@@ -193,12 +200,19 @@ class BuildGameShowPagePropsAction
                 'gameAchievementSets.achievementSet.achievements.unlockPercentage',
                 'gameAchievementSets.achievementSet.achievements.unlocksHardcoreTotal',
                 'gameAchievementSets.achievementSet.achievements.unlocksTotal',
+                'gameAchievementSets.achievementSet.medianTimeToComplete',
+                'gameAchievementSets.achievementSet.medianTimeToCompleteHardcore',
+                'gameAchievementSets.achievementSet.timesCompleted',
+                'gameAchievementSets.achievementSet.timesCompletedHardcore',
                 'genre',
                 'guideUrl',
                 'imageBoxArtUrl',
                 'imageIngameUrl',
                 'imageTitleUrl',
+                'medianTimeToBeat',
+                'medianTimeToBeatHardcore',
                 'playersHardcore',
+                'playersTotal',
                 'pointsTotal',
                 'publisher',
                 'releasedAt',
@@ -208,6 +222,8 @@ class BuildGameShowPagePropsAction
                 'system.iconUrl',
                 'system.nameShort',
                 'system',
+                'timesBeaten',
+                'timesBeatenHardcore',
             ),
 
             similarGames: $similarGames->map(fn ($game) => GameData::fromGame($game)->include(
@@ -238,6 +254,9 @@ class BuildGameShowPagePropsAction
             numComments: $backingGame->visibleComments($user)->count(),
             numCompatibleHashes: $this->getCompatibleHashesCount($game, $backingGame, $targetAchievementSet),
             numMasters: $numMasters,
+            numCompletions: $numCompletions,
+            numBeaten: $numBeaten,
+            numBeatenSoftcore: $numBeatenSoftcore,
             numOpenTickets: Ticket::forGame($backingGame)->unresolved()->count(),
             recentPlayers: $this->loadGameRecentPlayersAction->execute($game),
             recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($backingGame->visibleComments))),
@@ -253,6 +272,9 @@ class BuildGameShowPagePropsAction
             selectableGameAchievementSets: $game->getAttribute('selectableGameAchievementSets')
                 ->map(function ($gas) {
                     $gas->achievementSet->setRelation('achievements', collect());
+
+                    $gas->achievementSet->median_time_to_complete = $gas->achievementSet->median_time_to_complete ?? 0;
+                    $gas->achievementSet->median_time_to_complete_hardcore = $gas->achievementSet->median_time_to_complete_hardcore ?? 0;
 
                     return GameAchievementSetData::from($gas)->include(
                         'type',

@@ -24,6 +24,8 @@ class GameData extends Data
         public Lazy|Carbon|null $releasedAt,
         public Lazy|int $achievementsPublished,
         public Lazy|int $forumTopicId,
+        public Lazy|int $medianTimeToBeat,
+        public Lazy|int $medianTimeToBeatHardcore,
         public Lazy|int $numRequests,
         public Lazy|int $numUnresolvedTickets,
         public Lazy|int $numVisibleLeaderboards,
@@ -41,6 +43,8 @@ class GameData extends Data
         public Lazy|string $imageTitleUrl,
         public Lazy|string $publisher,
         public Lazy|SystemData $system,
+        public Lazy|int $timesBeaten,
+        public Lazy|int $timesBeatenHardcore,
 
         /** @var Lazy|array<GameClaimantData> */
         public Lazy|array $claimants,
@@ -68,6 +72,8 @@ class GameData extends Data
             imageTitleUrl: Lazy::create(fn () => $game->image_title_url),
             isSubsetGame: Lazy::create(fn () => $game->is_subset_game),
             lastUpdated: Lazy::create(fn () => $game->lastUpdated),
+            medianTimeToBeat: Lazy::create(fn () => $game->median_time_to_beat),
+            medianTimeToBeatHardcore: Lazy::create(fn () => $game->median_time_to_beat_hardcore),
             numRequests: Lazy::create(fn () => $game->num_requests ?? 0),
             numUnresolvedTickets: Lazy::create(fn () => $game->num_unresolved_tickets ?? 0),
             numVisibleLeaderboards: Lazy::create(fn () => $game->num_visible_leaderboards ?? 0),
@@ -79,6 +85,8 @@ class GameData extends Data
             releasedAt: Lazy::create(fn () => $game->released_at),
             releasedAtGranularity: Lazy::create(fn () => $game->released_at_granularity),
             system: Lazy::create(fn () => SystemData::fromSystem($game->system)),
+            timesBeaten: Lazy::create(fn () => $game->times_beaten),
+            timesBeatenHardcore: Lazy::create(fn () => $game->times_beaten_hardcore),
 
             claimants: Lazy::create(fn () => $game->achievementSetClaims->map(
                 fn ($claim) => GameClaimantData::fromUser(
@@ -88,7 +96,12 @@ class GameData extends Data
             )->all()),
 
             gameAchievementSets: Lazy::create(fn () => $game->gameAchievementSets->map(
-                fn ($gameAchievementSet) => GameAchievementSetData::from($gameAchievementSet)
+                function ($gameAchievementSet) {
+                    $gameAchievementSet->achievementSet->median_time_to_complete ??= 0;
+                    $gameAchievementSet->achievementSet->median_time_to_complete_hardcore ??= 0;
+
+                    return GameAchievementSetData::from($gameAchievementSet);
+                }
             )->all()),
 
             releases: Lazy::create(fn () => $game->releases->map(
