@@ -10,7 +10,7 @@ import { ClaimConfirmationDialog } from '@/features/games/components/ClaimConfir
 import { getAllPageAchievements } from '@/features/games/utils/getAllPageAchievements';
 
 export const SidebarClaimButtons: FC = () => {
-  const { achievementSetClaims, backingGame, can, claimData, game, targetAchievementSetId } =
+  const { achievementSetClaims, auth, backingGame, claimData, game, targetAchievementSetId } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
@@ -25,9 +25,12 @@ export const SidebarClaimButtons: FC = () => {
   );
   const wouldBeRevisionClaim = allPageAchievements.length > 0;
 
+  const hasClaimRole =
+    auth?.user.roles.includes('developer-junior') || auth?.user.roles.includes('developer');
+
   return (
     <>
-      {can.createAchievementSetClaims &&
+      {hasClaimRole &&
       (claimData?.numClaimsRemaining || claimData?.isSoleAuthor) &&
       !claimData.userClaim ? (
         <ClaimConfirmationDialog

@@ -12,10 +12,13 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { ClaimConfirmationDialog } from '@/features/games/components/ClaimConfirmationDialog';
 
 export const ClaimActionButton: FC = () => {
-  const { auth, backingGame, can, claimData } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { auth, backingGame, claimData } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
-  if (!auth?.user || !can.createAchievementSetClaims) {
+  const hasClaimRole =
+    auth?.user.roles.includes('developer-junior') || auth?.user.roles.includes('developer');
+
+  if (!auth?.user || !hasClaimRole) {
     return null;
   }
 

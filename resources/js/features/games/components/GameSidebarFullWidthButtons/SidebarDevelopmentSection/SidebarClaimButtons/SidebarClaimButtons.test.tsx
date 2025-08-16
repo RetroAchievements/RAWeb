@@ -1,3 +1,4 @@
+import { createAuthenticatedUser } from '@/common/models';
 import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
 import {
@@ -17,8 +18,8 @@ describe('Component: SidebarClaimButtons', () => {
     const { container } = render(<SidebarClaimButtons />, {
       pageProps: {
         achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
-        can: { createAchievementSetClaims: true },
         claimData: createGamePageClaimData(),
         game: createGame({ gameAchievementSets: [] }),
         targetAchievementSetId: null,
@@ -34,8 +35,8 @@ describe('Component: SidebarClaimButtons', () => {
     render(<SidebarClaimButtons />, {
       pageProps: {
         achievementSetClaims: [createAchievementSetClaim({ status: ClaimStatus.InReview })],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
-        can: { createAchievementSetClaims: true },
         claimData: createGamePageClaimData(),
         game: createGame({ gameAchievementSets: [] }),
         targetAchievementSetId: null,
@@ -51,8 +52,8 @@ describe('Component: SidebarClaimButtons', () => {
     render(<SidebarClaimButtons />, {
       pageProps: {
         achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
-        can: { createAchievementSetClaims: true },
         claimData: createGamePageClaimData({
           numClaimsRemaining: 1,
           userClaim: null,
@@ -78,8 +79,8 @@ describe('Component: SidebarClaimButtons', () => {
     render(<SidebarClaimButtons />, {
       pageProps: {
         achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
-        can: { createAchievementSetClaims: true },
         claimData: createGamePageClaimData({
           numClaimsRemaining: 1,
           userClaim: null,
@@ -99,8 +100,8 @@ describe('Component: SidebarClaimButtons', () => {
     render(<SidebarClaimButtons />, {
       pageProps: {
         achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
-        can: { createAchievementSetClaims: true },
         claimData: createGamePageClaimData({
           numClaimsRemaining: 0,
           isSoleAuthor: true,
@@ -120,8 +121,8 @@ describe('Component: SidebarClaimButtons', () => {
     render(<SidebarClaimButtons />, {
       pageProps: {
         achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
-        can: { createAchievementSetClaims: true },
         claimData: createGamePageClaimData({
           userClaim: createAchievementSetClaim({ isCompletable: true }),
         }),
@@ -139,8 +140,8 @@ describe('Component: SidebarClaimButtons', () => {
     render(<SidebarClaimButtons />, {
       pageProps: {
         achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
-        can: { createAchievementSetClaims: true },
         claimData: createGamePageClaimData({
           userClaim: createAchievementSetClaim({ isExtendable: true, isDroppable: false }),
         }),
@@ -158,8 +159,8 @@ describe('Component: SidebarClaimButtons', () => {
     render(<SidebarClaimButtons />, {
       pageProps: {
         achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
-        can: { createAchievementSetClaims: true },
         claimData: createGamePageClaimData({
           userClaim: createAchievementSetClaim({ isExtendable: false, isDroppable: true }),
         }),
@@ -177,8 +178,8 @@ describe('Component: SidebarClaimButtons', () => {
     render(<SidebarClaimButtons />, {
       pageProps: {
         achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
-        can: { createAchievementSetClaims: true },
         claimData: createGamePageClaimData({
           userClaim: createAchievementSetClaim({ isExtendable: true, isDroppable: true }),
         }),
@@ -200,8 +201,8 @@ describe('Component: SidebarClaimButtons', () => {
     render(<SidebarClaimButtons />, {
       pageProps: {
         achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame({ id: 999 }),
-        can: { createAchievementSetClaims: true },
         claimData: createGamePageClaimData({
           numClaimsRemaining: 1,
           userClaim: null,
@@ -220,8 +221,8 @@ describe('Component: SidebarClaimButtons', () => {
     render(<SidebarClaimButtons />, {
       pageProps: {
         achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
-        can: { createAchievementSetClaims: true },
         claimData: createGamePageClaimData({
           numClaimsRemaining: 1,
           userClaim: createAchievementSetClaim({
