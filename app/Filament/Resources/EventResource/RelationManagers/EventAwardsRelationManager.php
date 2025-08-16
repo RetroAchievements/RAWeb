@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\EventResource\RelationManagers;
 
-use App\Filament\Actions\ProcessUploadedImageAction;
+use App\Filament\Actions\ApplyUploadedImageToDataAction;
 use App\Filament\Enums\ImageUploadType;
 use App\Models\Event;
 use App\Models\EventAward;
@@ -152,14 +152,6 @@ class EventAwardsRelationManager extends RelationManager
 
     protected function processUploadedImage(array &$data, ?EventAward $record): void
     {
-        if (isset($data['image_asset_path'])) {
-            $data['image_asset_path'] = (new ProcessUploadedImageAction())->execute(
-                $data['image_asset_path'],
-                ImageUploadType::EventAward,
-            );
-        } else {
-            // If no new image was uploaded, retain the existing image.
-            unset($data['image_asset_path']);
-        }
+        (new ApplyUploadedImageToDataAction())->execute($data, 'image_asset_path', ImageUploadType::EventAward);
     }
 }

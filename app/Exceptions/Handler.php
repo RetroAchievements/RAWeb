@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exceptions;
 
+use App\Models\ApiLogEntry;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\QueryException;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use LaravelJsonApi\Core\Exceptions\JsonApiException;
 use Sentry\Laravel\Integration as SentryIntegration;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
@@ -120,12 +122,21 @@ class Handler extends ExceptionHandler
         }
 
         if ($request->expectsJson()) {
+            if ($e instanceof JsonApiException) {
+                $errors = $e->getErrors()->toArray();
+                $message = isset($errors[0]['title']) ? $errors[0]['title'] : 'JSON:API error';
+
+                return response()->json([
+                    'message' => $message,
+                    'errors' => $errors,
+                ], $e->getStatusCode());
+            }
             if ($e instanceof HttpExceptionInterface) {
                 return response()->json([
                     'message' => __($e->getMessage() ?: Response::$statusTexts[$e->getStatusCode()] ?? ''),
                     'errors' => [
                         [
-                            'status' => $e->getStatusCode(),
+                            'status' => (string) $e->getStatusCode(),
                             'code' => Str::snake(Response::$statusTexts[$e->getStatusCode()] ?? $e->getStatusCode()),
                             'title' => __($e->getMessage() ?: Response::$statusTexts[$e->getStatusCode()] ?? ''),
                         ],
@@ -137,7 +148,7 @@ class Handler extends ExceptionHandler
                     'message' => __('Token Mismatch'),
                     'errors' => [
                         [
-                            'status' => 419,
+                            'status' => '419',
                             'code' => 'token_mismatch',
                             'title' => __('Token Mismatch'),
                         ],
@@ -145,23 +156,44 @@ class Handler extends ExceptionHandler
                 ], 419);
             }
             if ($e instanceof AuthenticationException) {
-                return response()->json([
+                $responseData = [
                     'message' => __($e->getMessage() ?: Response::$statusTexts[401]),
                     'errors' => [
                         [
-                            'status' => 419,
+                            'status' => '401',
                             'code' => Str::snake(Response::$statusTexts[401]),
                             'title' => __($e->getMessage() ?: Response::$statusTexts[401]),
                         ],
                     ],
-                ], 401);
+                ];
+
+                // Log failed auth attempts for the internal service API.
+                if ($request->is('api/internal/*')) {
+                    $responseSize = strlen(json_encode($responseData));
+
+                    ApiLogEntry::logRequest(
+                        'internal',
+                        null,
+                        $request->path(),
+                        $request->method(),
+                        401,
+                        0,
+                        $responseSize,
+                        $request->ip(),
+                        $request->userAgent(),
+                        null,
+                        'Unauthenticated'
+                    );
+                }
+
+                return response()->json($responseData, 401);
             }
             if ($e instanceof AuthorizationException) {
                 return response()->json([
                     'message' => __($e->getMessage() ?: Response::$statusTexts[403]),
                     'errors' => [
                         [
-                            'status' => 403,
+                            'status' => '403',
                             'code' => Str::snake(Response::$statusTexts[403]),
                             'title' => __($e->getMessage() ?: Response::$statusTexts[403]),
                         ],

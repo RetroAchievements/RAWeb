@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\HubResource\Pages;
 
-use App\Filament\Actions\ProcessUploadedImageAction;
+use App\Filament\Actions\ApplyUploadedImageToDataAction;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\HubResource;
 use App\Platform\Enums\GameSetType;
@@ -16,12 +16,9 @@ class Create extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        if (isset($data['image_asset_path'])) {
-            $data['image_asset_path'] = (new ProcessUploadedImageAction())->execute(
-                $data['image_asset_path'],
-                ImageUploadType::HubBadge
-            );
-        } else {
+        (new ApplyUploadedImageToDataAction())->execute($data, 'image_asset_path', ImageUploadType::HubBadge);
+
+        if (!isset($data['image_asset_path'])) {
             $data['image_asset_path'] = '/Images/000001.png';
         }
 
