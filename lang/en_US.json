@@ -1127,5 +1127,6 @@
     "You can't drop this claim while it's in review": "You can't drop this claim while it's in review",
     "This will create a new collaboration claim for <1>{{gameTitle}}</1>.": "This will create a new collaboration claim for <1>{{gameTitle}}</1>.",
     "This will create a new primary claim for <1>{{gameTitle}}</1>.": "This will create a new primary claim for <1>{{gameTitle}}</1>.",
-    "Claim History": "Claim History"
+    "Claim History": "Claim History",
+    "Developers may not be able to easily resolve tickets for issues encountered while using this emulator.": "Developers may not be able to easily resolve tickets for issues encountered while using this emulator."
 }
