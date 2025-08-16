@@ -1,6 +1,5 @@
 <?php
 
-use App\Community\Enums\AwardType;
 use App\Enums\Permissions;
 use App\Models\User;
 
@@ -29,32 +28,7 @@ $initialSectionOrders = getInitialSectionOrders($gameAwards, $eventAwards, $site
 <x-app-layout pageTitle="Reorder Site Awards">
 <script>
 function handleSaveAllClick() {
-    const mappedTableRows = [];
-
-    const awardTableRowEls = document.querySelectorAll('.award-table-row');
-
-    // Query and iterate over each table row on the page.
-    // We'll invisibly compute the correct Display Order and
-    // then send the values off to the back-end.
-    awardTableRowEls.forEach((element) => {
-        const parentTableEl = element.closest('table');
-        const parentTableId = parentTableEl.getAttribute('id');
-
-        const rowEl = element.closest('tr');
-        const awardType = rowEl.querySelector("input[type='hidden'][name='type']").value;
-        const awardData = rowEl.querySelector("input[type='hidden'][name='data']").value;
-        const awardDataExtra = rowEl.querySelector("input[type='hidden'][name='extra']").value;
-        const awardKind = rowEl.dataset.awardKind;
-        const isHidden = rowEl.querySelector('input[type="checkbox"]').checked;
-
-        mappedTableRows.push({
-            isHidden,
-            type: awardType,
-            data: awardData,
-            extra: awardDataExtra,
-            kind: awardKind,
-        });
-    });
+    const mappedTableRows = reorderSiteAwards.collectMappedTableRows();
 
     try {
         const withComputedDisplayOrderValues = reorderSiteAwards.computeDisplayOrderValues(mappedTableRows);
@@ -108,6 +82,9 @@ function postAllAwardsDisplayOrder(awards) {
 
             <div class="flex w-full items-center justify-between mt-3 mb-6">
                 <div class="flex items-center gap-x-1">
+                    <div class="ml-auto mr-4">
+                         <button onclick='reorderSiteAwards.handleResetOrder()' class="btn text-3xs py-0.6">Reset Order</button>
+                    </div>
                     <label class="flex items-center gap-x-1">
                         <input
                             type="checkbox"
