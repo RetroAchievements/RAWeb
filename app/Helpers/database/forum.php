@@ -109,11 +109,16 @@ function getUnauthorisedForumLinks(): ?array
     return null;
 }
 
+/**
+ * @param User $user the user account that will appear as the topic author (may be a team account)
+ * @param User|null $sentByUser the actual user creating the topic (when posting on behalf of a team account)
+ */
 function submitNewTopic(
     User $user,
     int $forumID,
     string $topicTitle,
     string $topicPayload,
+    ?User $sentByUser = null,
 ): ForumTopicComment {
     // First, create the topic.
     $newTopic = ForumTopic::create([
@@ -125,7 +130,7 @@ function submitNewTopic(
     ]);
 
     // Finally, submit the first comment of the new topic.
-    return submitTopicComment($user, $newTopic->id, $topicTitle, $topicPayload);
+    return submitTopicComment($user, $newTopic->id, $topicTitle, $topicPayload, $sentByUser);
 }
 
 function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
@@ -168,11 +173,16 @@ function editTopicComment(int $commentId, string $newPayload): void
 }
 
 // TODO convert to action
+/**
+ * @param User $user the user account that will appear as the comment author (may be a team account)
+ * @param User|null $sentByUser the actual user posting the comment (when posting on behalf of a team account)
+ */
 function submitTopicComment(
     User $user,
     int $topicId,
     ?string $topicTitle,
     string $commentPayload,
+    ?User $sentByUser = null,
 ): ForumTopicComment {
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
@@ -196,6 +206,7 @@ function submitTopicComment(
         'forum_topic_id' => $topicId,
         'body' => $commentPayload,
         'author_id' => $user->id,
+        'sent_by_id' => $sentByUser?->id,
         'is_authorized' => $user->ManuallyVerified ?? false,
     ]);
     $newComment->save();

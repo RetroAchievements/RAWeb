@@ -19,8 +19,15 @@ import { QuickReplyForm } from '../QuickReplyForm';
 import { TopicOptions } from '../TopicOptions';
 
 export const ShowForumTopicMainRoot: FC = () => {
-  const { auth, can, forumTopic, isSubscribed, paginatedForumTopicComments, ziggy } =
-    usePageProps<App.Data.ShowForumTopicPageProps>();
+  const {
+    accessibleTeamAccounts,
+    auth,
+    can,
+    forumTopic,
+    isSubscribed,
+    paginatedForumTopicComments,
+    ziggy,
+  } = usePageProps<App.Data.ShowForumTopicPageProps>();
 
   const { t } = useTranslation();
 
@@ -72,7 +79,8 @@ export const ShowForumTopicMainRoot: FC = () => {
             body={comment.body}
             canManage={can.manageForumTopicComments}
             canUpdate={
-              can.manageForumTopicComments || getCanUpdatePost(forumTopic, comment, auth?.user)
+              can.manageForumTopicComments ||
+              getCanUpdatePost(forumTopic, comment, auth?.user, accessibleTeamAccounts)
             }
             comment={comment}
             isHighlighted={ziggy.query.comment === String(comment.id)}
@@ -133,10 +141,21 @@ function getCanUpdatePost(
   topic: App.Data.ForumTopic,
   post: App.Data.ForumTopicComment,
   user?: App.Data.User | null,
+  accessibleTeamAccounts?: App.Data.User[] | null,
 ): boolean {
   if (!user || user.isMuted || topic.lockedAt) {
     return false;
   }
 
-  return user.displayName === post.user?.displayName;
+  // Users can edit their own posts.
+  if (user.displayName === post.user?.displayName) {
+    return true;
+  }
+
+  // Users can edit posts made by team accounts they have access to.
+  if (accessibleTeamAccounts && post.user) {
+    return accessibleTeamAccounts.some((ta) => ta.displayName === post.user?.displayName);
+  }
+
+  return false;
 }

@@ -9,6 +9,7 @@ use App\Http\Controller;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\User;
+use App\Policies\ForumTopicCommentPolicy;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Http\JsonResponse;
 
@@ -18,13 +19,34 @@ class ForumTopicCommentApiController extends Controller
         UpsertForumTopicCommentRequest $request,
         ForumTopic $topic
     ): JsonResponse {
-        $this->authorize('create', [ForumTopicComment::class, $topic]);
+        // The actual user making this API request.
+        $requestingUser = $request->user();
+        $sentByUser = null; // we'll keep this null unless it differs from $authorUser (someone posting as a team account)
 
-        /** @var User $user */
-        $user = $request->user();
+        // The user that will publicly appear to everyone as the author.
+        $authorUser = $requestingUser;
+
+        if ($request->input('postAsUserId')) {
+            $teamAccount = User::find($request->input('postAsUserId'));
+            if ($teamAccount) {
+                // Authorize posting as the team account.
+                $this->authorize('create', [ForumTopicComment::class, $topic, $teamAccount]);
+
+                $authorUser = $teamAccount;
+                $sentByUser = $requestingUser; // track who actually sent it
+            }
+        } else {
+            $this->authorize('create', [ForumTopicComment::class, $topic]);
+        }
 
         // TODO use action
-        $newComment = submitTopicComment($user, $topic->id, $topic->title, $request->input('body'));
+        $newComment = submitTopicComment(
+            $authorUser,
+            $topic->id,
+            $topic->title,
+            $request->input('body'),
+            $sentByUser,
+        );
 
         return response()->json(['success' => true, 'commentId' => $newComment->id]);
     }
@@ -34,6 +56,9 @@ class ForumTopicCommentApiController extends Controller
         ForumTopicComment $comment
     ): JsonResponse {
         $this->authorize('update', $comment);
+
+        // The actual user making this API request.
+        $requestingUser = $request->user();
 
         // Take any RA links and convert them to relevant shortcodes.
         // eg: "https://retroachievements.org/game/1" --> "[game=1]"
@@ -46,6 +71,14 @@ class ForumTopicCommentApiController extends Controller
         $newPayload = Shortcode::convertLegacyGameHubShortcodesToHubShortcodes($newPayload);
 
         $comment->body = $newPayload;
+
+        // If this is a team account post being edited by a team member,
+        // update edited_by_id to track who made the edit.
+        $accessibleTeamIds = (new ForumTopicCommentPolicy())->getAccessibleTeamIds($requestingUser);
+        if (in_array($comment->author_id, $accessibleTeamIds, true)) {
+            $comment->edited_by_id = $requestingUser->id;
+        }
+
         $comment->save();
 
         return response()->json(['success' => true]);

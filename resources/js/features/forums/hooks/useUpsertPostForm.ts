@@ -13,6 +13,7 @@ import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcess
 
 const formSchema = z.object({
   body: z.string().min(1).max(60_000),
+  postAsUserId: z.string().optional(),
 });
 type FormValues = z.infer<typeof formSchema>;
 
@@ -31,9 +32,9 @@ export function useUpsertPostForm(
 
   const mutation = useMutation({
     mutationFn: (payload: FormValues) => {
-      const normalizedPayload: FormValues = {
-        ...payload,
+      const normalizedPayload = {
         body: preProcessShortcodesInBody(payload.body),
+        postAsUserId: payload.postAsUserId === 'self' ? null : Number(payload.postAsUserId),
       };
 
       if (targetComment) {

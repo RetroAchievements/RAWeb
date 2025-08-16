@@ -316,7 +316,6 @@
     "Started": "Started",
     "Statistics": "Statistics",
     "Submit": "Submit",
-    "Submit (as {{username}})": "Submit (as {{username}})",
     "Submitted!": "Submitted!",
     "Submitting a Play This Set, Wish This Set, or RAdvantage entry.": "Submitting a Play This Set, Wish This Set, or RAdvantage entry.",
     "Submitting a retrogaming article.": "Submitting a retrogaming article.",
@@ -915,6 +914,8 @@
     "Cancel": "Cancel",
     "Confirm": "Confirm",
     "Sent by <1>{{username}}</1>": "Sent by <1>{{username}}</1>",
+    "Posted by <1>{{username}}</1>": "Posted by <1>{{username}}</1>",
+    "Edited by <1>{{username}}</1>": "Edited by <1>{{username}}</1>",
     "Base Set": "Base Set",
     "There aren't any achievements for this game yet.": "There aren't any achievements for this game yet.",
     "Subset {{subsetNumber, number}}": "Subset {{subsetNumber, number}}",
@@ -1081,5 +1082,7 @@
     "Toggle all players": "Toggle all players",
     "allPlayers": "All",
     "Not enough data": "Not enough data",
-    "Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available.": "Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available."
+    "Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available.": "Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available.",
+    "Post as": "Post as",
+    "Submit as {{displayName}}": "Submit as {{displayName}}"
 }

@@ -78,18 +78,26 @@ class BuildMessageThreadShowPagePropsAction
             hubIds: $entities['hubIds'],
         );
 
+        $accessibleTeamIds = (new MessageThreadPolicy())->getAccessibleTeamIds($user);
+
         // Finally, update the message bodies sent to the UI with the converted user shortcodes.
-        $messages = $paginatedMessages->getCollection()->map(function ($message, $index) use ($updatedBodies, $user) {
+        $messages = $paginatedMessages->getCollection()->map(function ($message, $index) use ($updatedBodies, $accessibleTeamIds) {
             $message->body = $updatedBodies[$index];
 
-            // If the user is a team account participant, include sentBy information.
-            // We need to be careful not to leak this to the other user.
-            if ($this->shouldIncludeSentByValue($message, $user)) {
+            /**
+             * Only include the sentBy value if the user is viewing as a team
+             * account the user has access to. If we always naively include it,
+             * Inertia will leak the value into the DOM as part of the hydration
+             * process.
+             */
+            if ($message->sent_by_id !== null && in_array($message->author_id, $accessibleTeamIds, true)) {
                 return MessageData::fromMessage($message)->include('author', 'sentBy');
             }
 
             return MessageData::fromMessage($message)->include('author');
         })->all();
+
+        $senderUser = $this->getSenderUser($messageThread, $user);
 
         $props = new MessageThreadShowPagePropsData(
             messageThread: MessageThreadData::fromMessageThread($messageThread),
@@ -100,7 +108,8 @@ class BuildMessageThreadShowPagePropsAction
             ),
             dynamicEntities: $dynamicEntities,
             canReply: $this->getCanReply($messageThread, $user),
-            senderUserDisplayName: $this->getSenderUserDisplayName($messageThread, $user),
+            senderUserAvatarUrl: $senderUser->avatar_url,
+            senderUserDisplayName: $senderUser->display_name,
         );
 
         return ['props' => $props, 'redirectToPage' => null];
@@ -120,7 +129,7 @@ class BuildMessageThreadShowPagePropsAction
         return $canReply;
     }
 
-    private function getSenderUserDisplayName(MessageThread $thread, User $user): string
+    private function getSenderUser(MessageThread $thread, User $user): User
     {
         $isUserParticipant = $thread->participants->contains('ID', $user->id);
         if (!$isUserParticipant) {
@@ -139,28 +148,9 @@ class BuildMessageThreadShowPagePropsAction
                 return $user->display_name;
             }
 
-            return User::firstWhere('ID', $foundTeamParticipant->id)->display_name;
+            return User::firstWhere('ID', $foundTeamParticipant->id);
         }
 
-        return $user->display_name;
-    }
-
-    /**
-     * Only include the sentBy value if the user is viewing as a team
-     * account the user has access to. If we always naively include it,
-     * Inertia will leak the value into the DOM as part of the hydration
-     * process.
-     */
-    private function shouldIncludeSentByValue(Message $message, User $user): bool
-    {
-        if ($message->sent_by_id === null) {
-            return false;
-        }
-
-        $policy = new MessageThreadPolicy();
-        $accessibleTeamIds = $policy->getAccessibleTeamIds($user);
-
-        // Include sentBy if the message author is a team account the user has access to.
-        return in_array($message->author_id, $accessibleTeamIds, true);
+        return $user;
     }
 }
