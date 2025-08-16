@@ -2,16 +2,19 @@
 
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\ClaimSpecial;
+use App\Models\AchievementSetClaim;
+
 ?>
 
 @props([
     'developerStats' => [],
+    'user' => null, // ?User
     'userClaims' => null, // ?array
     'userMassData' => [],
 ])
 
 <?php
-$numAllowedClaims = permissionsToClaim($userMassData['Permissions']);
+$numAllowedClaims = AchievementSetClaim::getMaxClaimsForUser($user);
 
 $primaryClaims = collect($userClaims)->filter(function ($entity) {
     return $entity['ClaimType'] !== ClaimType::Collaboration && $entity['Special'] === ClaimSpecial::None;

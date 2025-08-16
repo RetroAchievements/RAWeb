@@ -27,6 +27,7 @@ class GameShowPagePropsData extends Data
         public AggregateAchievementSetCreditsData $aggregateCredits,
         public GameData $backingGame,
         public UserPermissionsData $can,
+        public ?GamePageClaimData $claimData,
         public GameData $game,
         public Collection $achievementSetClaims,
         public bool $hasMatureContent,

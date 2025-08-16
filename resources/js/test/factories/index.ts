@@ -22,6 +22,7 @@ export * from './createGameClaimant';
 export * from './createGameHash';
 export * from './createGameHashLabel';
 export * from './createGameListEntry';
+export * from './createGamePageClaimData';
 export * from './createGameRecentPlayer';
 export * from './createGameRelease';
 export * from './createGameSet';

@@ -99,6 +99,7 @@ $isUserStatsDefaultExpanded = request()->cookie('prefers_hidden_user_profile_sta
             @if (!empty($developerStats))
                 <x-user.profile.developer-stats
                     :developerStats="$developerStats"
+                    :user="$user"
                     :userClaims="$userClaims"
                     :userMassData="$userMassData"
                 />

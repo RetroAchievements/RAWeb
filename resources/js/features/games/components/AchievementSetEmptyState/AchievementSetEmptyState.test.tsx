@@ -106,6 +106,7 @@ describe('Component: AchievementSetEmptyState', () => {
       pageProps: {
         auth: { user },
         backingGame: createGame(),
+        can: {},
         setRequestData,
       },
     });
