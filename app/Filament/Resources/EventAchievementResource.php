@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
-use App\Filament\Actions\ProcessUploadedImageAction;
+use App\Filament\Actions\ApplyUploadedImageToDataAction;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\EventAchievementResource\Pages;
@@ -213,11 +213,7 @@ class EventAchievementResource extends Resource
                             ->previewable(true),
                     ])
                     ->mutateRelationshipDataBeforeSaveUsing(function (array $data): array {
-                        if (isset($data['BadgeName'])) {
-                            $data['BadgeName'] = (new ProcessUploadedImageAction())->execute($data['BadgeName'], ImageUploadType::AchievementBadge);
-                        } else {
-                            unset($data['BadgeName']); // prevent clearing out existing value
-                        }
+                        (new ApplyUploadedImageToDataAction())->execute($data, 'BadgeName', ImageUploadType::AchievementBadge);
 
                         return $data;
                     })

@@ -129,9 +129,11 @@ function performSearch(
         $articleTypes[] = ArticleType::Leaderboard;
     }
 
+    $includeTicketComments = false;
     if (in_array(SearchType::TicketComment, $searchType)) {
         if (canSearch(SearchType::GameHashComment, $permissions)) {
             $articleTypes[] = ArticleType::AchievementTicket;
+            $includeTicketComments = true;
         }
     }
 
@@ -158,13 +160,31 @@ function performSearch(
     }
 
     if ($articleTypes !== []) {
-        $counts[] = "SELECT COUNT(*) AS Count FROM Comment AS c
+        // Count regular comments.
+        $countsQuery = "SELECT COUNT(*) AS Count FROM Comment AS c
             LEFT JOIN UserAccounts AS cua ON cua.ID=c.user_id
             LEFT JOIN UserAccounts AS ua ON ua.ID=c.ArticleID AND c.articletype=" . ArticleType::User . "
             WHERE c.Payload LIKE '%$searchQuery%'
             AND cua.User != 'Server' AND c.articletype IN (" . implode(',', $articleTypes) . ")
             AND ua.Deleted IS NULL AND (ua.UserWallActive OR ua.UserWallActive IS NULL)";
-        $parts[] = "
+
+        // If searching ticket comments, also count ReportNotes from tickets.
+        if ($includeTicketComments) {
+            $countsQuery = "SELECT SUM(Count) AS Count FROM (
+                $countsQuery
+                UNION ALL
+                SELECT COUNT(*) AS Count FROM Ticket AS t
+                LEFT JOIN UserAccounts AS reporter ON reporter.ID=t.reporter_id
+                WHERE t.ReportNotes LIKE '%$searchQuery%'
+                AND reporter.User != 'Server'
+                AND t.deleted_at IS NULL
+            ) AS combined_counts";
+        }
+
+        $counts[] = $countsQuery;
+
+        // Build the query for regular comments.
+        $partsQuery = "
             SELECT CASE
                 WHEN c.articletype=" . ArticleType::Game . " THEN " . SearchType::GameComment . "
                 WHEN c.articletype=" . ArticleType::Achievement . " THEN " . SearchType::AchievementComment . "
@@ -191,14 +211,41 @@ function performSearch(
             CASE
                 WHEN CHAR_LENGTH(c.Payload) <= 64 THEN c.Payload
                 ELSE CONCAT( '...', MID( c.Payload, GREATEST( LOCATE('$searchQuery', c.Payload)-25, 1), 60 ), '...' )
-            END AS Title
+            END AS Title,
+            c.Submitted AS SortDate
             FROM Comment AS c
             LEFT JOIN UserAccounts AS cua ON cua.ID=c.user_id
             LEFT JOIN UserAccounts AS ua ON ua.ID=c.ArticleID AND c.articletype in (" . ArticleType::User . "," . ArticleType::UserModeration . ")
             WHERE c.Payload LIKE '%$searchQuery%'
             AND cua.User != 'Server' AND c.articletype IN (" . implode(',', $articleTypes) . ")
-            AND ua.Deleted IS NULL AND (ua.UserWallActive OR ua.UserWallActive IS NULL)
-            ORDER BY c.articletype, c.Submitted DESC";
+            AND ua.Deleted IS NULL AND (ua.UserWallActive OR ua.UserWallActive IS NULL)";
+
+        // If searching ticket comments, also include ReportNotes from tickets via a UNION.
+        if ($includeTicketComments) {
+            $partsQuery = "
+                SELECT Type, ID, Target, Title, SortDate FROM (
+                    $partsQuery
+                    UNION ALL
+                    SELECT " . SearchType::TicketComment . " AS Type,
+                        reporter.User AS ID,
+                        CONCAT('/ticket/', t.ID) AS Target,
+                        CASE
+                            WHEN CHAR_LENGTH(t.ReportNotes) <= 64 THEN t.ReportNotes
+                            ELSE CONCAT( '...', MID( t.ReportNotes, GREATEST( LOCATE('$searchQuery', t.ReportNotes)-25, 1), 60 ), '...' )
+                        END AS Title,
+                        t.ReportedAt AS SortDate
+                    FROM Ticket AS t
+                    LEFT JOIN UserAccounts AS reporter ON reporter.ID=t.reporter_id
+                    WHERE t.ReportNotes LIKE '%$searchQuery%'
+                    AND reporter.User != 'Server'
+                    AND t.deleted_at IS NULL
+                ) AS combined_results
+                ORDER BY Type, SortDate DESC";
+        } else {
+            $partsQuery .= " ORDER BY c.articletype, c.Submitted DESC";
+        }
+
+        $parts[] = $partsQuery;
     }
 
     $resultCount = 0;

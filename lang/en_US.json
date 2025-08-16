@@ -1081,5 +1081,6 @@
     "Toggle all players": "Toggle all players",
     "allPlayers": "All",
     "Not enough data": "Not enough data",
-    "Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available.": "Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available."
+    "Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available.": "Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available.",
+    "Developers may not be able to easily resolve tickets for issues encountered while using this emulator.": "Developers may not be able to easily resolve tickets for issues encountered while using this emulator."
 }
