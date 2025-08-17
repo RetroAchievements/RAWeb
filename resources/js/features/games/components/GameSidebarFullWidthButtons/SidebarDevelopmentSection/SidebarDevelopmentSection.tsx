@@ -32,7 +32,7 @@ export const SidebarDevelopmentSection: FC = () => {
 
   // Build the query parameters for toggling between published and unpublished achievements.
   const buildToggleHref = () => {
-    const queryParams: Record<string, any> = { ...route().queryParams };
+    const queryParams: Record<string, string> = { ...route().queryParams };
 
     if (isViewingPublishedAchievements) {
       // Currently viewing published, switch to unpublished.
