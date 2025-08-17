@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api;
 
+use App\Api\Internal\Controllers\AchievementController;
 use App\Api\Internal\Controllers\HealthController;
 use App\Api\Middleware\AddContentLengthHeader;
 use App\Api\Middleware\LogApiRequest;
@@ -31,7 +32,7 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapApiRoutes(): void
     {
         $this->apiRoutes();
-        /*
+        /**
          * legacy comes last to prevent it from being served on other subdomains
          */
         $this->legacyCompatRoutes();
@@ -39,10 +40,9 @@ class RouteServiceProvider extends ServiceProvider
 
     private function apiRoutes(): void
     {
-        /*
+        /**
          * JSON-API (REST)
          * Served from api subdomain in production to be replaceable eventually
-         * TODO: move to gRPC? JSON-RPC in gRPC envelopes?
          */
         Route::domain($this->apiDomain())
             ->prefix($this->apiPrefix())
@@ -55,13 +55,14 @@ class RouteServiceProvider extends ServiceProvider
                     });
                 });
 
+                // TODO JSON:API
                 Route::prefix('v2')->group(function () {
-                    /*
+                    /**
                      * list the available connect servers for clients
                      */
                     Route::get('connect', [WebApiController::class, 'connectServers']);
 
-                    /*
+                    /**
                      * Passport guarded
                      * Note: To have connected clients have access to the web api, too, the client has to send
                      * auth to both. This is not granted inherently here.
@@ -71,7 +72,7 @@ class RouteServiceProvider extends ServiceProvider
                     });
                 });
 
-                /*
+                /**
                  * Internal API routes for service-to-service communication
                  * Restricted to specific service accounts (eg: RABot).
                  * This is not intended for regular users to access.
@@ -86,22 +87,26 @@ class RouteServiceProvider extends ServiceProvider
                         AddContentLengthHeader::class,
                         'throttle:' . $rateLimit,
                     ])->group(function () {
+                        Route::post('achievements/demote', [AchievementController::class, 'demote'])
+                            ->name('api.internal.achievements.demote');
+
                         Route::get('health', [HealthController::class, 'check'])->name('api.internal.health');
 
                         // Add more internal service routes here as needed.
                     });
                 });
 
-                /*
+                /**
                  * Make sure to register a catch-all, too, to prevent the web app from ever responding
                  */
                 Route::any('/{path?}', [WebApiController::class, 'noop'])->where('path', '(.*)');
+
             });
     }
 
     private function legacyCompatRoutes(): void
     {
-        /*
+        /**
          * Backwards compatibility for "web" api clients.
          * Only a subset of endpoints that the JSON-API (REST) has.
          * Prefix is always set for those as that's how it used to be.
@@ -109,13 +114,13 @@ class RouteServiceProvider extends ServiceProvider
          * Always has to be authenticated with an api token.
          */
         Route::middleware(['api', 'auth:api-token', LogLegacyApiUsage::class])->prefix('API')->group(function () {
-            /*
+            /**
              * Usually called via GET, should allow POST, too though
              */
             Route::any('{method}.php', fn (string $method) => $this->handleRequest('API/' . $method))->where('path', '(.*)');
             // Route::any('{method}.php', [WebApiV1Controller::class, 'request']);
             // Route::any('{method}', [WebApiV1Controller::class, 'request']);
-            /*
+            /**
              * Nothing to do on root level
              */
             Route::any('/', [WebApiController::class, 'noop']);
