@@ -7,8 +7,12 @@ import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useGameBacklogState } from '@/features/game-list/components/GameListItems/useGameBacklogState';
 
+import { SidebarClaimButtons } from './SidebarClaimButtons';
+import { SidebarToggleInReviewButton } from './SidebarToggleInReviewButton';
+
 export const SidebarDevelopmentSection: FC = () => {
   const {
+    auth,
     backingGame,
     game,
     isViewingPublishedAchievements,
@@ -24,7 +28,7 @@ export const SidebarDevelopmentSection: FC = () => {
       userGameListType: 'develop',
     });
 
-  // TODO const isDeveloper = auth?.user.roles.includes('developer');
+  const isDeveloper = auth?.user.roles.includes('developer');
 
   // Build the query parameters for toggling between published and unpublished achievements.
   const buildToggleHref = () => {
@@ -43,15 +47,19 @@ export const SidebarDevelopmentSection: FC = () => {
 
   return (
     <>
-      {/* TODO hide this to jr devs when more buttons are added to this section */}
-      <PlayableSidebarButton
-        aria-pressed={isOnWantToDevList}
-        IconComponent={isOnWantToDevList ? LuCheck : LuPlus}
-        onClick={() => toggleWantToDevelop()}
-        showSubsetIndicator={game.id !== backingGame.id}
-      >
-        {backingGame.achievementsPublished ? t('Want to Revise') : t('Want to Develop')}
-      </PlayableSidebarButton>
+      <SidebarClaimButtons />
+      <SidebarToggleInReviewButton />
+
+      {isDeveloper ? (
+        <PlayableSidebarButton
+          aria-pressed={isOnWantToDevList}
+          IconComponent={isOnWantToDevList ? LuCheck : LuPlus}
+          onClick={() => toggleWantToDevelop()}
+          showSubsetIndicator={game.id !== backingGame.id}
+        >
+          {backingGame.achievementsPublished ? t('Want to Revise') : t('Want to Develop')}
+        </PlayableSidebarButton>
+      ) : null}
 
       {!isViewingPublishedAchievements || backingGame.achievementsUnpublished ? (
         <PlayableSidebarButton

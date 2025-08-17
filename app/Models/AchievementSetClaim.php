@@ -19,6 +19,9 @@ class AchievementSetClaim extends BaseModel
     /** @use HasFactory<AchievementSetClaimFactory> */
     use HasFactory;
 
+    public const MAX_CLAIMS_JUNIOR_DEVELOPER = 1;
+    public const MAX_CLAIMS_DEVELOPER = 4;
+
     // TODO rename SetClaim to achievement_set_claims
     // TODO rename ClaimType to claim_type, remove getClaimTypeAttribute()
     // TODO rename SetType to set_type, remove getSetTypeAttribute()
@@ -249,5 +252,20 @@ class AchievementSetClaim extends BaseModel
     public function scopeActiveOrInReview(Builder $query): Builder
     {
         return $query->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview]);
+    }
+
+    // == helpers
+
+    public static function getMaxClaimsForUser(User $user): int
+    {
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR)) {
+            return self::MAX_CLAIMS_JUNIOR_DEVELOPER;
+        }
+
+        if ($user->hasRole(Role::DEVELOPER)) {
+            return self::MAX_CLAIMS_DEVELOPER;
+        }
+
+        return 0;
     }
 }

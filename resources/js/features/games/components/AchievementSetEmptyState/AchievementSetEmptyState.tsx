@@ -6,6 +6,7 @@ import { route } from 'ziggy-js';
 import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { ClaimActionButton } from './ClaimActionButton';
 import { RequestSetToggleButton } from './RequestSetToggleButton';
 
 export const AchievementSetEmptyState: FC = () => {
@@ -28,7 +29,8 @@ export const AchievementSetEmptyState: FC = () => {
           <p>{t('Set requests help developers decide what games to work on next.')}</p>
         </div>
 
-        <div className="mt-2">
+        <div className="mt-2 flex items-center gap-2">
+          <ClaimActionButton />
           <RequestSetToggleButton />
         </div>
 
@@ -50,7 +52,7 @@ export const AchievementSetEmptyState: FC = () => {
           {auth?.user ? (
             <p>
               <Trans
-                i18nKey="myRemainingRequests"
+                i18nKey="myRemainingRequests2"
                 values={{
                   count: setRequestData.userRequestsRemaining,
                   val: setRequestData.userRequestsRemaining,
