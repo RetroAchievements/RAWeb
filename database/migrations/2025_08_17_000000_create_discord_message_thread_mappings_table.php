@@ -13,7 +13,7 @@ return new class() extends Migration {
             $table->id();
             $table->unsignedBigInteger('message_thread_id');
             $table->unsignedBigInteger('recipient_id');
-            $table->string('discord_thread_id', 100);
+            $table->string('discord_thread_id', 20); // Discord snowflakes are 64-bit integers (max 20 digits)
             $table->timestamps();
 
             $table->index('discord_thread_id');
