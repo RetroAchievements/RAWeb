@@ -75,7 +75,6 @@ return [
                     env('DISCORD_ROLE_ADMIN'),
                     env('DISCORD_ROLE_MODERATOR'),
                 ],
-                'manual_unlock_url' => env('DISCORD_WEBHOOK_MOD_MANUAL_UNLOCK'),
                 'verify_url' => env('DISCORD_WEBHOOK_MOD_VERIFY'),
             ],
             'RAEvents' => [
