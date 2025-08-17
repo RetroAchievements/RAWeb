@@ -45,6 +45,7 @@ describe('Component: GameShowMainRoot', () => {
         backingGame: game,
         can: {},
         hubs: [createGameSet()],
+        isViewingPublishedAchievements: true,
         recentPlayers: [],
         recentVisibleComments: [],
       },
@@ -72,6 +73,7 @@ describe('Component: GameShowMainRoot', () => {
         backingGame: game,
         can: {},
         hubs: [],
+        isViewingPublishedAchievements: true,
         recentPlayers: [],
         recentVisibleComments: [],
       },
@@ -106,6 +108,7 @@ describe('Component: GameShowMainRoot', () => {
         backingGame: game,
         can: {},
         hubs: [],
+        isViewingPublishedAchievements: true,
         recentPlayers: [],
         recentVisibleComments: [],
       },
@@ -135,6 +138,7 @@ describe('Component: GameShowMainRoot', () => {
         backingGame: game,
         can: {},
         hubs: [],
+        isViewingPublishedAchievements: true,
         recentPlayers: [],
         recentVisibleComments: [],
       },
@@ -169,6 +173,7 @@ describe('Component: GameShowMainRoot', () => {
         can: {},
         hasMatureContent: true, // !!
         hubs: [],
+        isViewingPublishedAchievements: true,
         recentVisibleComments: [],
       },
     });
@@ -199,6 +204,7 @@ describe('Component: GameShowMainRoot', () => {
         can: {},
         hasMatureContent: false, // !!
         hubs: [],
+        isViewingPublishedAchievements: true,
         recentVisibleComments: [],
       },
     });
@@ -231,6 +237,7 @@ describe('Component: GameShowMainRoot', () => {
         backingGame: game,
         can: {},
         hubs: [],
+        isViewingPublishedAchievements: true,
         recentPlayers: [],
         recentVisibleComments: [],
         setRequestData: {
@@ -271,6 +278,7 @@ describe('Component: GameShowMainRoot', () => {
         backingGame: game,
         can: {},
         hubs: [],
+        isViewingPublishedAchievements: true,
         recentPlayers: [],
         recentVisibleComments: [],
         setRequestData: {
@@ -283,5 +291,47 @@ describe('Component: GameShowMainRoot', () => {
 
     // ASSERT
     expect(screen.queryByText(/no achievements yet/i)).not.toBeInTheDocument();
+  });
+
+  it('given the user is viewing unpublished achievements, does not show recent players or comments', () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ achievements: [createAchievement()] }),
+        }),
+      ],
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+      title: 'Test Game',
+    });
+
+    render(<GameShowMainRoot />, {
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        isViewingPublishedAchievements: false, // !!
+        recentPlayers: [],
+        recentVisibleComments: [],
+        setRequestData: {
+          hasUserRequestedSet: false,
+          totalRequests: 0,
+          userRequestsRemaining: 0,
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/recent players/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/comments/i)).not.toBeInTheDocument();
   });
 });

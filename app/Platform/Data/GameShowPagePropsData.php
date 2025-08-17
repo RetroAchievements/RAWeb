@@ -38,6 +38,7 @@ class GameShowPagePropsData extends Data
         public bool $isOnWantToDevList,
         public bool $isOnWantToPlayList,
         public bool $isSubscribedToComments,
+        public bool $isViewingPublishedAchievements,
         public Collection $followedPlayerCompletions,
         public Collection $playerAchievementChartBuckets,
         public int $numBeaten,

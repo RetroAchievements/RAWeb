@@ -213,6 +213,118 @@ describe('Component: SidebarDevelopmentSection', () => {
     render(<SidebarDevelopmentSection />, { pageProps });
 
     // ASSERT
-    expect(screen.getByRole('img', { name: /subset/i })).toBeVisible();
+    expect(screen.getAllByRole('img', { name: /subset/i })[0]).toBeVisible();
+  });
+
+  it('given the user is viewing unpublished achievements, shows a link to view published achievements', () => {
+    // ARRANGE
+    const game = createGame({ id: 1 });
+    const backingGame = createGame({ id: 2 });
+    const pageProps = {
+      backingGame,
+      game,
+      isOnWantToDevList: false,
+      isViewingPublishedAchievements: false, // !!
+      ziggy: createZiggyProps(),
+    };
+
+    render(<SidebarDevelopmentSection />, { pageProps });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /view published achievements/i })).toBeVisible();
+  });
+
+  it('given the user is viewing published achievements and there are unpublished achievements, shows the count of unpublished achievements', () => {
+    // ARRANGE
+    const game = createGame({ id: 1 });
+    const backingGame = createGame({
+      id: 2,
+      achievementsPublished: 50,
+      achievementsUnpublished: 12, // !!
+    });
+    const pageProps = {
+      backingGame,
+      game,
+      isOnWantToDevList: false,
+      isViewingPublishedAchievements: true, // !!
+      ziggy: createZiggyProps(),
+    };
+
+    render(<SidebarDevelopmentSection />, { pageProps });
+
+    // ASSERT
+    const link = screen.getByRole('link', { name: /view unpublished achievements/i });
+    expect(link).toBeVisible();
+    expect(link).toHaveTextContent('12');
+  });
+
+  it('given the user is viewing unpublished achievements, shows the count of published achievements', () => {
+    // ARRANGE
+    const game = createGame({ id: 1 });
+    const backingGame = createGame({
+      id: 2,
+      achievementsPublished: 75, // !!
+      achievementsUnpublished: 8,
+    });
+    const pageProps = {
+      backingGame,
+      game,
+      isOnWantToDevList: false,
+      isViewingPublishedAchievements: false, // !!
+      ziggy: createZiggyProps(),
+    };
+
+    render(<SidebarDevelopmentSection />, { pageProps });
+
+    // ASSERT
+    const link = screen.getByRole('link', { name: /view published achievements/i });
+    expect(link).toBeVisible();
+    expect(link).toHaveTextContent('75');
+  });
+
+  it('given the user is viewing published achievements and there are no unpublished achievements, hides the link button to view unpublished achievements', () => {
+    // ARRANGE
+    const game = createGame({ id: 1 });
+    const backingGame = createGame({
+      id: 2,
+      achievementsPublished: 50,
+      achievementsUnpublished: 0, // !!
+    });
+    const pageProps = {
+      backingGame,
+      game,
+      isOnWantToDevList: false,
+      isViewingPublishedAchievements: true, // !!
+      ziggy: createZiggyProps(),
+    };
+
+    render(<SidebarDevelopmentSection />, { pageProps });
+
+    // ASSERT
+    expect(
+      screen.queryByRole('link', { name: /view unpublished achievements/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('given the user is viewing published achievements and there are unpublished achievements, shows the link button to view unpublished achievements', () => {
+    // ARRANGE
+    const game = createGame({ id: 1 });
+    const backingGame = createGame({
+      id: 2,
+      achievementsPublished: 50,
+      achievementsUnpublished: 5, // !!
+    });
+    const pageProps = {
+      backingGame,
+      game,
+      isOnWantToDevList: false,
+      isViewingPublishedAchievements: true, // !!
+      ziggy: createZiggyProps(),
+    };
+
+    render(<SidebarDevelopmentSection />, { pageProps });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /view unpublished achievements/i })).toBeVisible();
   });
 });

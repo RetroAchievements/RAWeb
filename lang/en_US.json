@@ -1128,5 +1128,11 @@
     "This will create a new collaboration claim for <1>{{gameTitle}}</1>.": "This will create a new collaboration claim for <1>{{gameTitle}}</1>.",
     "This will create a new primary claim for <1>{{gameTitle}}</1>.": "This will create a new primary claim for <1>{{gameTitle}}</1>.",
     "Claim History": "Claim History",
+    "<1>{{achievementsCount, number}}</1> unpublished achievements_one": "<1>{{achievementsCount, number}}</1> unpublished achievement",
+    "<1>{{achievementsCount, number}}</1> unpublished achievements_other": "<1>{{achievementsCount, number}}</1> unpublished achievements",
+    "There are currently no unpublished achievements for this set.": "There are currently no unpublished achievements for this set.",
+    "Author: <1>{{displayName}}</1>": "Author: <1>{{displayName}}</1>",
+    "View Published Achievements": "View Published Achievements",
+    "View Unpublished Achievements": "View Unpublished Achievements",
     "Developers may not be able to easily resolve tickets for issues encountered while using this emulator.": "Developers may not be able to easily resolve tickets for issues encountered while using this emulator."
 }
