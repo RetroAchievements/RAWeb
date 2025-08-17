@@ -418,15 +418,15 @@ function handleAllAchievementsCase(int $numAchievements, array $softcoreUnlocks,
 
     // Add a bucket for the users who have earned all achievements.
     $buckets[] = [
-        'hardcore' => $hardcoreUnlocks[$numAchievements],
-        'softcore' => $softcoreUnlocks[$numAchievements],
+        'hardcore' => $hardcoreUnlocks[$numAchievements] ?? 0,
+        'softcore' => $softcoreUnlocks[$numAchievements] ?? 0,
     ];
 
     // Calculate the total count of users who have earned all achievements.
     // This will later be used for chart configuration in determining the
     // number of gridlines to show on one of the axes.
     $allAchievementsCount = (
-        $hardcoreUnlocks[$numAchievements] + $softcoreUnlocks[$numAchievements]
+        ($hardcoreUnlocks[$numAchievements] ?? 0) + ($softcoreUnlocks[$numAchievements] ?? 0)
     );
 
     return $allAchievementsCount;
