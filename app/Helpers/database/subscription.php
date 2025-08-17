@@ -180,7 +180,7 @@ function getSubscribersOfArticle(
         SELECT _ua.*
         FROM UserAccounts as _ua
         WHERE (_ua.User = :subjectAuthor OR _ua.display_name = :subjectAuthor)
-              AND (_ua.websitePrefs & :websitePrefs) != 0
+              $websitePrefsFilter
     ");
 
     $qry = "
