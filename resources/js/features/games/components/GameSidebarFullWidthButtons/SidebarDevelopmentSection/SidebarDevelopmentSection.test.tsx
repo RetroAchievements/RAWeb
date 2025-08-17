@@ -218,11 +218,13 @@ describe('Component: SidebarDevelopmentSection', () => {
 
   it('given the user is viewing unpublished achievements, shows a link to view published achievements', () => {
     // ARRANGE
-    const game = createGame({ id: 1 });
+    const game = createGame({ id: 1, gameAchievementSets: [] });
     const backingGame = createGame({ id: 2 });
     const pageProps = {
       backingGame,
       game,
+      achievementSetClaims: [],
+      can: {},
       isOnWantToDevList: false,
       isViewingPublishedAchievements: false, // !!
       ziggy: createZiggyProps(),
@@ -236,7 +238,7 @@ describe('Component: SidebarDevelopmentSection', () => {
 
   it('given the user is viewing published achievements and there are unpublished achievements, shows the count of unpublished achievements', () => {
     // ARRANGE
-    const game = createGame({ id: 1 });
+    const game = createGame({ id: 1, gameAchievementSets: [] });
     const backingGame = createGame({
       id: 2,
       achievementsPublished: 50,
@@ -245,6 +247,8 @@ describe('Component: SidebarDevelopmentSection', () => {
     const pageProps = {
       backingGame,
       game,
+      achievementSetClaims: [],
+      can: {},
       isOnWantToDevList: false,
       isViewingPublishedAchievements: true, // !!
       ziggy: createZiggyProps(),
@@ -260,7 +264,7 @@ describe('Component: SidebarDevelopmentSection', () => {
 
   it('given the user is viewing unpublished achievements, shows the count of published achievements', () => {
     // ARRANGE
-    const game = createGame({ id: 1 });
+    const game = createGame({ id: 1, gameAchievementSets: [] });
     const backingGame = createGame({
       id: 2,
       achievementsPublished: 75, // !!
@@ -269,6 +273,8 @@ describe('Component: SidebarDevelopmentSection', () => {
     const pageProps = {
       backingGame,
       game,
+      achievementSetClaims: [],
+      can: {},
       isOnWantToDevList: false,
       isViewingPublishedAchievements: false, // !!
       ziggy: createZiggyProps(),
@@ -284,7 +290,7 @@ describe('Component: SidebarDevelopmentSection', () => {
 
   it('given the user is viewing published achievements and there are no unpublished achievements, hides the link button to view unpublished achievements', () => {
     // ARRANGE
-    const game = createGame({ id: 1 });
+    const game = createGame({ id: 1, gameAchievementSets: [] });
     const backingGame = createGame({
       id: 2,
       achievementsPublished: 50,
@@ -293,6 +299,8 @@ describe('Component: SidebarDevelopmentSection', () => {
     const pageProps = {
       backingGame,
       game,
+      achievementSetClaims: [],
+      can: {},
       isOnWantToDevList: false,
       isViewingPublishedAchievements: true, // !!
       ziggy: createZiggyProps(),
@@ -308,7 +316,7 @@ describe('Component: SidebarDevelopmentSection', () => {
 
   it('given the user is viewing published achievements and there are unpublished achievements, shows the link button to view unpublished achievements', () => {
     // ARRANGE
-    const game = createGame({ id: 1 });
+    const game = createGame({ id: 1, gameAchievementSets: [] });
     const backingGame = createGame({
       id: 2,
       achievementsPublished: 50,
@@ -317,6 +325,8 @@ describe('Component: SidebarDevelopmentSection', () => {
     const pageProps = {
       backingGame,
       game,
+      achievementSetClaims: [],
+      can: {},
       isOnWantToDevList: false,
       isViewingPublishedAchievements: true, // !!
       ziggy: createZiggyProps(),
