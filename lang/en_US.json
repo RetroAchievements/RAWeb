@@ -1082,5 +1082,11 @@
     "allPlayers": "All",
     "Not enough data": "Not enough data",
     "Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available.": "Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available.",
-    "Developers may not be able to easily resolve tickets for issues encountered while using this emulator.": "Developers may not be able to easily resolve tickets for issues encountered while using this emulator."
+    "Developers may not be able to easily resolve tickets for issues encountered while using this emulator.": "Developers may not be able to easily resolve tickets for issues encountered while using this emulator.",
+    "Thank you to all our amazing Patreon supporters": "Thank you to all our amazing Patreon supporters",
+    "This is a passion project. Donating is appreciated, but <1>never</1> required.": "This is a passion project. Donating is appreciated, but <1>never</1> required.",
+    "Your contribution goes directly towards helping keep the servers alive.": "Your contribution goes directly towards helping keep the servers alive.",
+    "All supporters ({{val, number}})": "All supporters ({{val, number}})",
+    "Our Newest Patreon Supporters": "Our Newest Patreon Supporters",
+    "Patreon Supporters": "Patreon Supporters"
 }

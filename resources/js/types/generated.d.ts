@@ -105,6 +105,12 @@ declare namespace App.Community.Data {
     canReply: boolean;
     senderUserDisplayName: string;
   };
+  export type PatreonSupportersPageProps = {
+    recentSupporters: Array<App.Data.User>;
+    initialSupporters: Array<App.Data.User>;
+    deferredSupporters: any | any;
+    totalCount: number;
+  };
   export type RecentLeaderboardEntry = {
     leaderboard: App.Platform.Data.Leaderboard;
     leaderboardEntry: App.Platform.Data.LeaderboardEntry;
