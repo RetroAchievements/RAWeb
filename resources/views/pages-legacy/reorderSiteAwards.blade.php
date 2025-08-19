@@ -81,10 +81,7 @@ function postAllAwardsDisplayOrder(awards) {
             </div>
 
             <div class="flex w-full items-center justify-between mt-3 mb-6">
-                <div class="flex items-center gap-x-1">
-                    <div class="ml-auto mr-4">
-                         <button onclick='reorderSiteAwards.handleResetOrder()' class="btn text-3xs py-0.6">Reset Order</button>
-                    </div>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4">      
                     <label class="flex items-center gap-x-1">
                         <input
                             type="checkbox"
@@ -94,9 +91,9 @@ function postAllAwardsDisplayOrder(awards) {
                             Show previously hidden badges
                         </input>
                     </label>
+                    <button onclick='reorderSiteAwards.handleResetOrder()' class="btn btn-danger self-start w-fit">Reset Order</button>
                 </div>
-
-                <button onclick='handleSaveAllClick()' class='btn text-base'>Save All Changes</button>
+                <button onclick='handleSaveAllClick()' class="btn">Save All Changes</button>
             </div>
         HTML;
     } else {

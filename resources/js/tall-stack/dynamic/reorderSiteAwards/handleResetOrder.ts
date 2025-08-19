@@ -1,15 +1,9 @@
-import { collectMappedTableRows } from './collectMappedTableRows';
-import type { MappedTableRow } from './index';
-import { computeDisplayOrderValues } from './index';
-
-declare global {
-  interface Window {
-    postAllAwardsDisplayOrder: (awards: Partial<MappedTableRow>[]) => void;
-  }
-}
-
 export function handleResetOrder(): void {
-  if (!confirm('This will reset the order of all awards. Are you sure?')) {
+  if (
+    !confirm(
+      'This will resort all your awards by the date they were earned (oldest first). You can preview the changes before saving.',
+    )
+  ) {
     return;
   }
 
@@ -25,27 +19,15 @@ export function handleResetOrder(): void {
       ?.querySelector('tbody')
       ?.appendChild(row);
   }
-
-  const mappedTableRows = collectMappedTableRows();
-
-  window.postAllAwardsDisplayOrder(computeDisplayOrderValues(mappedTableRows));
 }
 
 const sortAwardsByAwardDate = (awards: Array<HTMLTableRowElement>): void => {
   awards.sort((a, b) => {
-    const dateA = a.getAttribute('data-award-date') ?? '';
-    const dateB = b.getAttribute('data-award-date') ?? '';
+    const dateA = a.getAttribute('data-award-date') ?? '0';
+    const dateB = b.getAttribute('data-award-date') ?? '0';
 
-    let numA: number;
-    let numB: number;
-
-    if (!isNaN(Number(dateA)) && !isNaN(Number(dateB))) {
-      numA = parseInt(dateA, 10);
-      numB = parseInt(dateB, 10);
-    } else {
-      numA = Date.parse(dateA) || 0;
-      numB = Date.parse(dateB) || 0;
-    }
+    const numA = parseInt(dateA, 10);
+    const numB = parseInt(dateB, 10);
 
     return numA - numB;
   });
