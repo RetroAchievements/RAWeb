@@ -20,6 +20,8 @@ abstract class TicketAction
 
     public const UnableToReproduce = 'unable-to-reproduce';
 
+    public const UnableToDebug = 'unable-to-debug';
+
     public const ClosedOther = 'closed-other';
 
     public const Request = 'request';
@@ -36,6 +38,7 @@ abstract class TicketAction
             self::WrongRom,
             self::Network,
             self::UnableToReproduce,
+            self::UnableToDebug,
             self::ClosedOther,
             self::Request,
             self::Reopen,

@@ -4,6 +4,7 @@ import * as motion from 'motion/react-m';
 import { type FC, useMemo } from 'react';
 
 import { AchievementsListItem } from '@/common/components/AchievementsListItem';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { sortAchievements } from '@/common/utils/sortAchievements';
 import {
@@ -27,6 +28,8 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   achievements,
   gameAchievementSet,
 }) => {
+  const { isViewingPublishedAchievements } = usePageProps<App.Platform.Data.GameShowPageProps>();
+
   const currentAchievementSort = useAtomValue(currentAchievementSortAtom);
   const isLockedOnlyFilterEnabled = useAtomValue(isLockedOnlyFilterEnabledAtom);
   const isMissableOnlyFilterEnabled = useAtomValue(isMissableOnlyFilterEnabledAtom);
@@ -99,6 +102,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
                 beatenDialogContent={<BeatenCreditDialog />}
                 index={index}
                 isLargeList={isLargeList}
+                shouldShowAuthor={!isViewingPublishedAchievements}
                 playersTotal={gameAchievementSet.achievementSet.playersTotal}
               />
             ))}

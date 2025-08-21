@@ -2,7 +2,6 @@ import type { FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { IconType } from 'react-icons/lib';
 import { LuLayers } from 'react-icons/lu';
-import type { RequireAtLeastOne } from 'type-fest';
 
 import { cn } from '@/common/utils/cn';
 
@@ -11,26 +10,23 @@ import { BaseChip } from '../+vendor/BaseChip';
 import { InertiaLink } from '../InertiaLink';
 
 interface BasePlayableSidebarButtonProps {
-  href: string;
-  onClick: () => void;
   IconComponent: IconType;
 
   'aria-pressed'?: boolean;
   children?: ReactNode;
   className?: string;
   count?: number;
+  href?: string;
   isInertiaLink?: boolean;
+  onClick?: () => void;
   target?: string;
 }
 
-type PlayableSidebarButtonProps = RequireAtLeastOne<
-  BasePlayableSidebarButtonProps & {
-    href?: string;
-    onClick?: () => void;
-    showSubsetIndicator?: boolean;
-  },
-  'href' | 'onClick'
->;
+type PlayableSidebarButtonProps = BasePlayableSidebarButtonProps & {
+  href?: string;
+  onClick?: () => void;
+  showSubsetIndicator?: boolean;
+};
 
 export const PlayableSidebarButton: FC<PlayableSidebarButtonProps> = ({
   children,
