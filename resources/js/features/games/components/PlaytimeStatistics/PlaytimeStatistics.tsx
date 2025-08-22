@@ -115,7 +115,7 @@ export const PlaytimeStatistics: FC = () => {
         />
 
         {achievementSet.achievementsFirstPublishedAt ? (
-          <p className="py-1 text-center text-xs text-neutral-500">
+          <p className="py-1 text-center text-xs text-neutral-500 light:text-neutral-700">
             {t('Achievements available since {{date}}', {
               date: formatDate(achievementSet.achievementsFirstPublishedAt, 'll'),
             })}
