@@ -94,4 +94,16 @@ describe('Component: LeaderboardsListItem', () => {
     // ASSERT
     expect(container).toBeTruthy();
   });
+
+  it('given isLargeList is true, does not crash', () => {
+    // ARRANGE
+    const leaderboard = createLeaderboard();
+
+    const { container } = render(
+      <LeaderboardsListItem index={10} isLargeList={true} leaderboard={leaderboard} />,
+    );
+
+    // ASSERT
+    expect(container).toBeTruthy();
+  });
 });
