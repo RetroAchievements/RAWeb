@@ -515,6 +515,7 @@ declare namespace App.Platform.Data {
   };
   export type AchievementSet = {
     id: number;
+    achievementsFirstPublishedAt?: string;
     achievementsPublished: number;
     achievementsUnpublished: number;
     imageAssetPathUrl: string;

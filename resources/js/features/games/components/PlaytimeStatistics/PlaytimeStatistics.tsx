@@ -6,6 +6,7 @@ import { LuAward, LuCheck, LuCircleDot } from 'react-icons/lu';
 import { BaseToggleGroup, BaseToggleGroupItem } from '@/common/components/+vendor/BaseToggleGroup';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import type { PlayMode } from '@/common/models';
+import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { PlaytimeRow } from './PlaytimeRow';
 
@@ -112,6 +113,14 @@ export const PlaytimeStatistics: FC = () => {
               : achievementSet.timesCompleted
           }
         />
+
+        {achievementSet.achievementsFirstPublishedAt ? (
+          <p className="py-1 text-center text-xs text-neutral-500">
+            {t('Achievements available since {{date}}', {
+              date: formatDate(achievementSet.achievementsFirstPublishedAt, 'll'),
+            })}
+          </p>
+        ) : null}
       </motion.div>
     </div>
   );
