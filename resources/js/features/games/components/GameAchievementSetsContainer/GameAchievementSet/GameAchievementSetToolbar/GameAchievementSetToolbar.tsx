@@ -69,7 +69,7 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
       data-testid="game-achievement-set-toolbar"
       className="-mt-1.5 flex w-full flex-col items-center justify-between gap-2 rounded bg-embed px-2 py-1.5 sm:flex-row"
     >
-      <div className="flex gap-2">
+      <div className="flex w-full gap-2 sm:w-auto">
         <AchievementSortButton
           value={currentAchievementSort}
           onChange={(newValue) => setCurrentAchievementSort(newValue)}
