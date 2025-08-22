@@ -21,11 +21,13 @@ interface AchievementSortButtonProps {
   value: AchievementSortOrder;
 
   buttonClassName?: string;
+  disabled?: boolean;
 }
 
 export const AchievementSortButton: FC<AchievementSortButtonProps> = ({
   availableSortOrders,
   buttonClassName,
+  disabled,
   onChange,
   value,
 }) => {
@@ -62,6 +64,7 @@ export const AchievementSortButton: FC<AchievementSortButtonProps> = ({
             'gap-1 transition-none lg:active:translate-y-0 lg:active:scale-100',
             buttonClassName,
           )}
+          disabled={disabled}
         >
           {value.startsWith('-') ? (
             <LuArrowDown data-testid="sort-descending-icon" className="size-4" />

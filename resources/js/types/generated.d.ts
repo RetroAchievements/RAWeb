@@ -777,11 +777,13 @@ declare namespace App.Platform.Data {
     isViewingPublishedAchievements: boolean;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
+    leaderboards?: Array<App.Platform.Data.Leaderboard>;
     numBeaten: number;
     numBeatenSoftcore: number;
     numComments: number;
     numCompatibleHashes: number;
     numCompletions: number;
+    numLeaderboards: number;
     numMasters: number;
     numOpenTickets: number;
     recentPlayers: Array<App.Platform.Data.GameRecentPlayer>;
@@ -841,12 +843,15 @@ declare namespace App.Platform.Data {
     title: string;
     description?: string;
     game?: App.Platform.Data.Game;
+    topEntry?: App.Platform.Data.LeaderboardEntry | null;
+    format?: string | null;
   };
   export type LeaderboardEntry = {
     id: number;
     score?: number;
     formattedScore?: string;
     createdAt?: string;
+    user?: App.Data.User | null;
   };
   export type ParsedUserAgent = {
     client: string;

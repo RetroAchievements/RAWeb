@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IoAlert } from 'react-icons/io5';
@@ -13,9 +13,12 @@ import { cn } from '@/common/utils/cn';
 import { usePersistedGameIdsCookie } from '@/features/games/hooks/usePersistedGameIdsCookie';
 import {
   currentAchievementSortAtom,
+  currentListViewAtom,
   isLockedOnlyFilterEnabledAtom,
   isMissableOnlyFilterEnabledAtom,
 } from '@/features/games/state/games.atoms';
+
+import { GameListViewSelectButton } from './GameListViewSelectButton';
 
 interface GameAchievementSetToolbarProps {
   lockedAchievementsCount: number;
@@ -28,7 +31,7 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
   missableAchievementsCount,
   unlockedAchievementsCount,
 }) => {
-  const { backingGame } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { backingGame, numLeaderboards } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { t } = useTranslation();
   const { formatNumber } = useFormatNumber();
@@ -42,6 +45,7 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
     backingGame.id,
   );
 
+  const currentListView = useAtomValue(currentListViewAtom);
   const [currentAchievementSort, setCurrentAchievementSort] = useAtom(currentAchievementSortAtom);
   const [isLockedOnlyFilterEnabled, setIsLockedOnlyFilterEnabled] = useAtom(
     isLockedOnlyFilterEnabledAtom,
@@ -65,23 +69,28 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
       data-testid="game-achievement-set-toolbar"
       className="-mt-1.5 flex w-full flex-col items-center justify-between gap-2 rounded bg-embed px-2 py-1.5 sm:flex-row"
     >
-      <AchievementSortButton
-        value={currentAchievementSort}
-        onChange={(newValue) => setCurrentAchievementSort(newValue)}
-        availableSortOrders={[
-          'normal',
-          '-normal',
-          'wonBy',
-          '-wonBy',
-          'points',
-          '-points',
-          'title',
-          '-title',
-          'type',
-          '-type',
-        ]}
-        buttonClassName="w-full sm:w-auto"
-      />
+      <div className="flex gap-2">
+        <AchievementSortButton
+          value={currentAchievementSort}
+          onChange={(newValue) => setCurrentAchievementSort(newValue)}
+          availableSortOrders={[
+            'normal',
+            '-normal',
+            'wonBy',
+            '-wonBy',
+            'points',
+            '-points',
+            'title',
+            '-title',
+            'type',
+            '-type',
+          ]}
+          buttonClassName="w-full sm:w-auto"
+          disabled={currentListView !== 'achievements'}
+        />
+
+        {numLeaderboards > 0 ? <GameListViewSelectButton /> : null}
+      </div>
 
       {missableAchievementsCount || (lockedAchievementsCount && unlockedAchievementsCount) ? (
         <div className="flex w-full gap-2 sm:w-auto">
@@ -96,6 +105,7 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
               variant="outline"
               pressed={isMissableOnlyFilterEnabled}
               onPressedChange={handleToggleMissableOnlyFilter}
+              disabled={currentListView !== 'achievements'}
             >
               <IoAlert className="-mt-0.5 size-4" />
               <span>{t('Missable Only')}</span>
@@ -125,6 +135,7 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
               variant="outline"
               pressed={isLockedOnlyFilterEnabled}
               onPressedChange={handleToggleLockedOnlyFilter}
+              disabled={currentListView !== 'achievements'}
             >
               <LuEyeOff className="-mt-0.5" />
               <span>{t('Locked Only')}</span>
