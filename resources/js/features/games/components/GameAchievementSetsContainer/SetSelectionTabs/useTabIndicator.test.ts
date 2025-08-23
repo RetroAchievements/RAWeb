@@ -99,7 +99,7 @@ describe('Hook: useTabIndicator', () => {
 
     const mockElements = [
       { offsetLeft: 0, offsetWidth: 60 } as HTMLDivElement,
-      { offsetLeft: 60, offsetWidth: 80 } as HTMLDivElement,
+      { offsetLeft: 60, offsetWidth: 80 } as HTMLDivElement, // !!
       { offsetLeft: 140, offsetWidth: 100 } as HTMLDivElement,
     ];
 
@@ -110,6 +110,10 @@ describe('Hook: useTabIndicator', () => {
     // ACT
     act(() => {
       result.current.setActiveIndex(1);
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(50);
     });
 
     // ASSERT

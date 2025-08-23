@@ -10,8 +10,15 @@ import { SetSelectionTabs } from './SetSelectionTabs';
 
 vi.mock('@/common/components/InertiaLink', () => ({
   // InertiaLink doesn't play nicely with onClick in tests.
-  InertiaLink: ({ children, onClick, ...props }: any) => (
-    <a {...props} onClick={onClick}>
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- preserveScroll is an intentional pick
+  InertiaLink: ({ children, onClick, preserveScroll, ...props }: any) => (
+    <a
+      {...props}
+      onClick={(e: any) => {
+        e.preventDefault(); // prevent navigation errors
+        onClick?.();
+      }}
+    >
       {children}
     </a>
   ),
