@@ -55,6 +55,8 @@ module.exports = {
         'fade-in': 'fade-in 100ms ease',
         'collapse-open': 'collapse-open 200ms ease-in-out',
         tilt: 'tilt 10s infinite linear !important',
+        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+        shimmer: 'shimmer 3s ease-in-out infinite',
       },
       keyframes: {
         'accordion-down': {
@@ -81,6 +83,23 @@ module.exports = {
           '0%, 50%, 100%': { transform: 'rotate(0deg)' },
           '25%': { transform: 'rotate(1.5deg)' },
           '75%': { transform: 'rotate(-1.5deg)' },
+        },
+
+        'pulse-glow': {
+          '0%, 100%': {
+            textShadow: '0 0 8px rgb(251 191 36 / 0.8), 0 0 16px rgb(251 191 36 / 0.6)',
+            transform: 'scale(1)',
+          },
+          '50%': {
+            textShadow:
+              '0 0 12px rgb(251 191 36 / 1), 0 0 24px rgb(251 191 36 / 0.8), 0 0 36px rgb(251 191 36 / 0.6)',
+            transform: 'scale(1.05)',
+          },
+        },
+
+        shimmer: {
+          '0%': { backgroundPosition: '200% 0' },
+          '100%': { backgroundPosition: '-200% 0' },
         },
       },
     },
