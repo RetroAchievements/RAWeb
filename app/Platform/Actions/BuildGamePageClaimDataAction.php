@@ -82,7 +82,7 @@ class BuildGamePageClaimDataAction
 
     private function calculateNumClaimsRemaining(User $user, int $maxClaims): int
     {
-        $activeClaimCount = once(fn () => getActiveClaimCount($user, true, false));
+        $activeClaimCount = once(fn () => getActiveClaimCount($user, false, false));
         $remaining = $maxClaims - $activeClaimCount;
 
         return max(0, $remaining);
