@@ -13,7 +13,6 @@ class DiscordMessageThreadMapping extends BaseModel
 
     protected $fillable = [
         'message_thread_id',
-        'recipient_id',
         'discord_thread_id',
     ];
 
@@ -31,23 +30,14 @@ class DiscordMessageThreadMapping extends BaseModel
         return $this->belongsTo(MessageThread::class, 'message_thread_id');
     }
 
-    /**
-     * @return BelongsTo<User, DiscordMessageThreadMapping>
-     */
-    public function recipient(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'recipient_id', 'ID');
-    }
-
     // == scopes
 
     /**
-     * Find an existing Discord thread mapping for a message thread and recipient.
+     * Find an existing Discord thread mapping for a message thread.
      */
-    public static function findMapping(int $messageThreadId, int $recipientId): ?self
+    public static function findMapping(int $messageThreadId): ?self
     {
         return self::where('message_thread_id', $messageThreadId)
-            ->where('recipient_id', $recipientId)
             ->first();
     }
 
@@ -56,12 +46,11 @@ class DiscordMessageThreadMapping extends BaseModel
     /**
      * Store a new Discord thread mapping.
      */
-    public static function storeMapping(int $messageThreadId, int $recipientId, string $discordThreadId): self
+    public static function storeMapping(int $messageThreadId, string $discordThreadId): self
     {
         return self::updateOrCreate(
             [
                 'message_thread_id' => $messageThreadId,
-                'recipient_id' => $recipientId,
             ],
             [
                 'discord_thread_id' => $discordThreadId,

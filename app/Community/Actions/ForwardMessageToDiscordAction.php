@@ -61,7 +61,8 @@ class ForwardMessageToDiscordAction
         $color = self::COLOR_DEFAULT;
         $isForum = $inboxConfig['is_forum'] ?? false;
 
-        $isNewThread = $isForum ? !$this->getExistingDiscordThreadId($messageThread, $userTo) : true;
+        $existingThreadId = $isForum ? $this->getExistingDiscordThreadId($messageThread) : null;
+        $isNewThread = $isForum ? !$existingThreadId : true;
 
         $processedData = $this->processSpecialMessageTypes(
             $messageThread,
@@ -82,7 +83,8 @@ class ForwardMessageToDiscordAction
             $messageThread,
             $processedData->messageBody,
             $processedData->color,
-            $processedData->isForum
+            $processedData->isForum,
+            $existingThreadId
         );
     }
 
@@ -167,10 +169,10 @@ class ForwardMessageToDiscordAction
         MessageThread $messageThread,
         string $messageBody,
         int $color,
-        bool $isForum
+        bool $isForum,
+        ?string $existingThreadId = null
     ): void {
         if ($isForum) {
-            $existingThreadId = $this->getExistingDiscordThreadId($messageThread, $userTo);
             $isNewThread = !$existingThreadId;
 
             $discordThreadId = $existingThreadId ?? $this->createDiscordThread(
@@ -210,9 +212,9 @@ class ForwardMessageToDiscordAction
      * Check if we have an existing Discord thread for this message thread.
      * If we do, we'll attach replies to the existing thread rather than making new threads.
      */
-    private function getExistingDiscordThreadId(MessageThread $messageThread, User $userTo): ?string
+    private function getExistingDiscordThreadId(MessageThread $messageThread): ?string
     {
-        $mapping = DiscordMessageThreadMapping::findMapping($messageThread->id, $userTo->ID);
+        $mapping = DiscordMessageThreadMapping::findMapping($messageThread->id);
 
         return $mapping?->discord_thread_id;
     }
@@ -257,7 +259,6 @@ class ForwardMessageToDiscordAction
         if ($threadId) {
             DiscordMessageThreadMapping::storeMapping(
                 $messageThread->id,
-                $userTo->ID,
                 $threadId
             );
         }
@@ -395,8 +396,7 @@ class ForwardMessageToDiscordAction
         if ($includeAuthor) {
             $embed['author'] = [
                 'name' => $userFrom->display_name,
-                // TODO 'url' => route('user.show', $userFrom), -- we've lost context on why this TODO was ever added.
-                'url' => url('user/' . $userFrom->display_name),
+                'url' => route('user.show', ['user' => $userFrom]),
                 'icon_url' => $userFrom->avatar_url,
             ];
             $embed['title'] = mb_substr($messageThread->title, 0, self::DISCORD_THREAD_NAME_LIMIT);

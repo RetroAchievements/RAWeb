@@ -12,15 +12,12 @@ return new class() extends Migration {
         Schema::create('discord_message_thread_mappings', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('message_thread_id');
-            $table->unsignedBigInteger('recipient_id');
             $table->string('discord_thread_id', 20); // Discord snowflakes are 64-bit integers (max 20 digits)
             $table->timestamps();
 
             $table->index('discord_thread_id');
-            $table->unique(['message_thread_id', 'recipient_id'], 'unique_discord_mapping'); // default name is too long
 
             $table->foreign('message_thread_id')->references('id')->on('message_threads')->onDelete('cascade');
-            $table->foreign('recipient_id')->references('ID')->on('UserAccounts')->onDelete('cascade');
         });
     }
 

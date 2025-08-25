@@ -232,11 +232,10 @@ class ForwardMessageToDiscordActionTest extends TestCase
         $this->action->execute($this->sender, $this->recipient, $this->thread, $message);
 
         // Assert
-        $mapping = DiscordMessageThreadMapping::findMapping($this->thread->id, $this->recipient->id);
+        $mapping = DiscordMessageThreadMapping::findMapping($this->thread->id);
         $this->assertNotNull($mapping);
         $this->assertEquals('discord_thread_123', $mapping->discord_thread_id);
         $this->assertEquals($this->thread->id, $mapping->message_thread_id);
-        $this->assertEquals($this->recipient->ID, $mapping->recipient_id);
     }
 
     public function testItUsesExistingThreadsForReplies(): void
@@ -247,7 +246,6 @@ class ForwardMessageToDiscordActionTest extends TestCase
         // ... store an existing thread mapping ...
         DiscordMessageThreadMapping::storeMapping(
             $this->thread->id,
-            $this->recipient->ID,
             'existing_thread_456'
         );
 
@@ -361,7 +359,6 @@ class ForwardMessageToDiscordActionTest extends TestCase
         // ... store an existing thread mapping for to handle a reply scenario ...
         DiscordMessageThreadMapping::storeMapping(
             $this->thread->id,
-            $this->recipient->ID,
             'existing_issue_thread'
         );
 
@@ -477,7 +474,7 @@ class ForwardMessageToDiscordActionTest extends TestCase
         $this->action->execute($this->sender, $this->recipient, $this->thread, $message);
 
         // Assert
-        $mapping = DiscordMessageThreadMapping::findMapping($this->thread->id, $this->recipient->id);
+        $mapping = DiscordMessageThreadMapping::findMapping($this->thread->id);
         $this->assertNull($mapping); // !! no mapping is stored when thread ID is null, but at least we don't crash
     }
 
@@ -489,7 +486,6 @@ class ForwardMessageToDiscordActionTest extends TestCase
         // ... store an existing thread mapping ...
         DiscordMessageThreadMapping::storeMapping(
             $this->thread->id,
-            $this->recipient->ID,
             'existing_thread_multi'
         );
 
