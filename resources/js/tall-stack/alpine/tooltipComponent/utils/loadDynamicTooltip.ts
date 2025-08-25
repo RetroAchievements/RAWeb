@@ -43,6 +43,12 @@ export async function loadDynamicTooltip(
     return;
   }
 
+  // Only show the loading spinner if the anchor element is still connected to the DOM.
+  // This prevents orphaned spinners when navigation occurs during tooltip loading.
+  if (!anchorEl.isConnected) {
+    return;
+  }
+
   // Temporarily show a loading spinner while we're fetching the content.
   const genericLoadingTemplate = /** @html */ `
     <div>
@@ -65,8 +71,14 @@ export async function loadDynamicTooltip(
 
       // We don't want to continue on with displaying this dynamic tooltip
       // if a static tooltip is opened while we're fetching data.
+      // Also check that the anchor element is still connected to the DOM.
       const wasTimeoutCleared = !store.dynamicTimeoutId;
-      if (anchorEl === store.activeAnchorEl && !wasTimeoutCleared && store.isHoveringOverAnchorEl) {
+      if (
+        anchorEl === store.activeAnchorEl &&
+        !wasTimeoutCleared &&
+        store.isHoveringOverAnchorEl &&
+        anchorEl.isConnected
+      ) {
         renderTooltip(anchorEl, fetchedDynamicContent, offsetX, offsetY);
         pinTooltipToCursorPosition(
           anchorEl,
