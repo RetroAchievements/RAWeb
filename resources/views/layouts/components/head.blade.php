@@ -48,13 +48,21 @@
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css">
 
     @viteReactRefresh
-    @vite(['resources/js/tall-stack/app.ts', 'resources/css/app.css'], config('vite.build_path'))
     @if (!empty($page))
         @inertiaHead
-        @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"], config('vite.build_path'))
+        @vite([
+            'resources/js/tall-stack/app.ts',
+            'resources/css/app.css',
+            'resources/js/app.tsx',
+            "resources/js/pages/{$page['component']}.tsx"
+        ], config('vite.build_path'))
     @else
         {{-- Load global search standalone for non-Inertia pages --}}
-        @vite(['resources/js/global-search-standalone.tsx'], config('vite.build_path'))
+        @vite([
+            'resources/js/tall-stack/app.ts',
+            'resources/css/app.css',
+            'resources/js/global-search-standalone.tsx'
+        ], config('vite.build_path'))
     @endif
 
     <livewire:styles />
