@@ -21,11 +21,6 @@ export const MilestonePointsBox: FC<MilestonePointsBoxProps> = ({ totalPoints })
   const { t } = useTranslation();
   const { formatNumber } = useFormatNumber();
 
-  const formattedPoints = formatNumber(totalPoints);
-
-  const firstChar = formattedPoints.charAt(0);
-  const remainingChars = formattedPoints.slice(1);
-
   return (
     <BaseTooltip>
       <BaseTooltipTrigger asChild>
@@ -37,7 +32,7 @@ export const MilestonePointsBox: FC<MilestonePointsBoxProps> = ({ totalPoints })
             'border border-amber-400/30 bg-gradient-to-br from-embed to-amber-950/10',
             'before:absolute before:inset-0 before:bg-gradient-to-r',
             'before:from-transparent before:via-amber-400/10 before:to-transparent',
-            'before:bg-[length:200%_100%] before:motion-safe:animate-shimmer',
+            'before:motion-safe:animate-shimmer before:bg-[length:200%_100%]',
             'light:border-amber-500/30 light:to-amber-100/10 light:before:via-amber-500/10',
           )}
         >
@@ -48,18 +43,7 @@ export const MilestonePointsBox: FC<MilestonePointsBoxProps> = ({ totalPoints })
           </p>
 
           <div className="!text-[20px] leading-7 text-neutral-300 light:text-neutral-950">
-            <span>
-              <span
-                className={cn(
-                  'inline-block text-amber-400 motion-safe:animate-pulse-glow',
-                  'light:text-amber-500',
-                )}
-              >
-                {firstChar}
-              </span>
-
-              <span>{remainingChars}</span>
-            </span>
+            <span className="text-amber-400 light:text-amber-600">{formatNumber(totalPoints)}</span>
           </div>
         </div>
       </BaseTooltipTrigger>
