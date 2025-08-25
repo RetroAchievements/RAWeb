@@ -1,5 +1,6 @@
 import type { ColumnSort } from '@tanstack/react-table';
 import { type FC, useState } from 'react';
+import type { RouteName } from 'ziggy-js';
 
 import { BaseDrawer } from '@/common/components/+vendor/BaseDrawer';
 
@@ -8,6 +9,7 @@ import { GameListItemContent } from './GameListItemContent';
 import { GameListItemDrawerContent } from './GameListItemDrawerContent';
 
 interface GameListItemElementProps {
+  apiRouteName: RouteName;
   gameListEntry: App.Platform.Data.GameListEntry;
 
   defaultChipOfInterest?: App.Platform.Enums.GameListSortField;
@@ -28,6 +30,7 @@ interface GameListItemElementProps {
 }
 
 export const GameListItemElement: FC<GameListItemElementProps> = ({
+  apiRouteName,
   defaultChipOfInterest,
   defaultColumnSort,
   gameListEntry,
@@ -63,6 +66,7 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
   return (
     <BaseDrawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen} shouldScaleBackground={false}>
       <GameListItemContent
+        apiRouteName={apiRouteName}
         backlogState={backlogState}
         defaultChipOfInterest={defaultChipOfInterest}
         defaultColumnSort={defaultColumnSort}

@@ -31,7 +31,9 @@ describe('Component: GameListItemElement', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<GameListItemElement gameListEntry={createGameListEntry()} />);
+    const { container } = render(
+      <GameListItemElement apiRouteName="api.game.index" gameListEntry={createGameListEntry()} />,
+    );
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -42,7 +44,12 @@ describe('Component: GameListItemElement', () => {
     const system = createSystem({ id: 1, nameShort: 'MD' });
     const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
 
-    render(<GameListItemElement gameListEntry={createGameListEntry({ game })} />);
+    render(
+      <GameListItemElement
+        apiRouteName="api.game.index"
+        gameListEntry={createGameListEntry({ game })}
+      />,
+    );
 
     // ASSERT
     expect(screen.getByRole('img', { name: /sonic the hedgehog/i })).toBeVisible();
@@ -55,7 +62,12 @@ describe('Component: GameListItemElement', () => {
     const system = createSystem({ id: 1, nameShort: 'MD' });
     const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
 
-    render(<GameListItemElement gameListEntry={createGameListEntry({ game })} />);
+    render(
+      <GameListItemElement
+        apiRouteName="api.game.index"
+        gameListEntry={createGameListEntry({ game })}
+      />,
+    );
 
     // ASSERT
     const linkEls = screen.getAllByRole('link', { name: /sonic the hedgehog/i });
@@ -70,7 +82,12 @@ describe('Component: GameListItemElement', () => {
     const system = createSystem({ id: 1, nameShort: 'MD' });
     const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
 
-    render(<GameListItemElement gameListEntry={createGameListEntry({ game })} />);
+    render(
+      <GameListItemElement
+        apiRouteName="api.game.index"
+        gameListEntry={createGameListEntry({ game })}
+      />,
+    );
 
     // ASSERT
     expect(screen.getByText(/md/i)).toBeVisible();
@@ -81,7 +98,10 @@ describe('Component: GameListItemElement', () => {
     const game = createGame({ system: undefined, id: 1, title: 'Sonic the Hedgehog' });
 
     const { container } = render(
-      <GameListItemElement gameListEntry={createGameListEntry({ game })} />,
+      <GameListItemElement
+        apiRouteName="api.game.index"
+        gameListEntry={createGameListEntry({ game })}
+      />,
     );
 
     // ASSERT
@@ -102,6 +122,7 @@ describe('Component: GameListItemElement', () => {
 
     render(
       <GameListItemElement
+        apiRouteName="api.game.index"
         gameListEntry={createGameListEntry({ game, playerGame })}
         isLastItem={true}
       />,
@@ -124,6 +145,7 @@ describe('Component: GameListItemElement', () => {
 
     render(
       <GameListItemElement
+        apiRouteName="api.game.index"
         gameListEntry={createGameListEntry({
           game,
           playerGame: null, // !!
@@ -141,7 +163,13 @@ describe('Component: GameListItemElement', () => {
     const system = createSystem({ id: 1, nameShort: 'MD' });
     const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
 
-    render(<GameListItemElement gameListEntry={createGameListEntry({ game })} isLastItem={true} />);
+    render(
+      <GameListItemElement
+        apiRouteName="api.game.index"
+        gameListEntry={createGameListEntry({ game })}
+        isLastItem={true}
+      />,
+    );
 
     // ASSERT
     expect(screen.queryByRole('separator')).not.toBeInTheDocument();
@@ -152,7 +180,12 @@ describe('Component: GameListItemElement', () => {
     const system = createSystem({ id: 1, nameShort: 'MD' });
     const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
 
-    render(<GameListItemElement gameListEntry={createGameListEntry({ game })} />);
+    render(
+      <GameListItemElement
+        apiRouteName="api.game.index"
+        gameListEntry={createGameListEntry({ game })}
+      />,
+    );
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /open game details/i }));
@@ -166,7 +199,12 @@ describe('Component: GameListItemElement', () => {
     const system = createSystem({ id: 1, nameShort: 'MD' });
     const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
 
-    render(<GameListItemElement gameListEntry={createGameListEntry({ game })} />);
+    render(
+      <GameListItemElement
+        apiRouteName="api.game.index"
+        gameListEntry={createGameListEntry({ game })}
+      />,
+    );
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /open game details/i }));
@@ -183,6 +221,7 @@ describe('Component: GameListItemElement', () => {
 
     render(
       <GameListItemElement
+        apiRouteName="api.game.index"
         gameListEntry={createGameListEntry({ game })}
         sortFieldId="pointsTotal"
       />,
@@ -199,6 +238,7 @@ describe('Component: GameListItemElement', () => {
 
     render(
       <GameListItemElement
+        apiRouteName="api.game.index"
         gameListEntry={createGameListEntry({
           game,
           isInBacklog: null, // !!
@@ -218,7 +258,10 @@ describe('Component: GameListItemElement', () => {
     const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
 
     render(
-      <GameListItemElement gameListEntry={createGameListEntry({ game, isInBacklog: false })} />,
+      <GameListItemElement
+        apiRouteName="api.game.index"
+        gameListEntry={createGameListEntry({ game, isInBacklog: false })}
+      />,
       {
         pageProps: { auth: null },
       },
@@ -239,7 +282,10 @@ describe('Component: GameListItemElement', () => {
     const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
 
     render(
-      <GameListItemElement gameListEntry={createGameListEntry({ game, isInBacklog: false })} />,
+      <GameListItemElement
+        apiRouteName="api.game.index"
+        gameListEntry={createGameListEntry({ game, isInBacklog: false })}
+      />,
       {
         pageProps: { auth: { user: createAuthenticatedUser() } },
       },
@@ -263,7 +309,10 @@ describe('Component: GameListItemElement', () => {
     const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
 
     render(
-      <GameListItemElement gameListEntry={createGameListEntry({ game, isInBacklog: true })} />,
+      <GameListItemElement
+        apiRouteName="api.game.index"
+        gameListEntry={createGameListEntry({ game, isInBacklog: true })}
+      />,
       {
         pageProps: { auth: { user: createAuthenticatedUser() } },
       },
@@ -286,6 +335,7 @@ describe('Component: GameListItemElement', () => {
 
     render(
       <GameListItemElement
+        apiRouteName="api.game.index"
         gameListEntry={createGameListEntry({ game, isInBacklog: false })}
         shouldHideItemIfNotInBacklog={true}
       />,
@@ -317,7 +367,10 @@ describe('Component: GameListItemElement', () => {
     const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
 
     render(
-      <GameListItemElement gameListEntry={createGameListEntry({ game, isInBacklog: false })} />,
+      <GameListItemElement
+        apiRouteName="api.game.index"
+        gameListEntry={createGameListEntry({ game, isInBacklog: false })}
+      />,
       {
         pageProps: { auth: { user: createAuthenticatedUser() } },
       },
@@ -366,6 +419,7 @@ describe('Component: GameListItemElement', () => {
 
     render(
       <GameListItemElement
+        apiRouteName="api.game.index"
         gameListEntry={createGameListEntry({ game, isInBacklog: true })}
         shouldHideItemIfNotInBacklog={true}
       />,

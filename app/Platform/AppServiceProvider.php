@@ -25,7 +25,6 @@ use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Platform\Commands\BackfillGameRecentPlayers;
-use App\Platform\Commands\BackfillPlaytimeTotal;
 use App\Platform\Commands\CrawlPlayerWeightedPoints;
 use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
@@ -105,7 +104,6 @@ class AppServiceProvider extends ServiceProvider
                 UpdateLeaderboardMetrics::class,
 
                 // Players
-                BackfillPlaytimeTotal::class,
                 CrawlPlayerWeightedPoints::class,
                 ResetPlayerAchievement::class,
                 RevertManualUnlocks::class,
@@ -164,7 +162,6 @@ class AppServiceProvider extends ServiceProvider
             if (app()->environment() === 'production') {
                 $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
                 $schedule->command(CrawlPlayerWeightedPoints::class)->everyFiveMinutes();
-                $schedule->command(BackfillPlaytimeTotal::class)->everyFiveMinutes();
                 $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
                 $schedule->command(ProcessExpiringClaims::class)->hourly();
                 $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC

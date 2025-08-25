@@ -64,7 +64,7 @@ class AchievementSetClaimPolicy
         // Determine max claims based on role.
         $maxClaims = AchievementSetClaim::getMaxClaimsForUser($user);
 
-        $activeClaimCount = once(fn () => getActiveClaimCount($user, true, false));
+        $activeClaimCount = once(fn () => getActiveClaimCount($user, false, false));
         $isSoleAuthor = once(fn () => checkIfSoleDeveloper($user, $game->id));
 
         // The user can create a claim if they have claims remaining OR they're the sole author.

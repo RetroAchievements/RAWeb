@@ -1114,7 +1114,6 @@
     "Marking the claim for review...": "Marking the claim for review...",
     "Completed the review!": "Completed the review!",
     "Marked the claim for review!": "Marked the claim for review!",
-    "Complete Complain Review": "Complete Claim Review",
     "Mark Claim for Review": "Mark Claim for Review",
     "This will complete the review for <1>{{gameTitle}}</1>. The Junior Developer will be able to complete or drop their claim.": "This will complete the review for <1>{{gameTitle}}</1>. The Junior Developer will be able to complete or drop their claim.",
     "This will mark the active claim for <1>{{gameTitle}}</1> as In Review. The Junior Developer will not be able to complete or drop their claim while it's being reviewed.": "This will mark the active claim for <1>{{gameTitle}}</1> as In Review. The Junior Developer will not be able to complete or drop their claim while it's being reviewed.",
