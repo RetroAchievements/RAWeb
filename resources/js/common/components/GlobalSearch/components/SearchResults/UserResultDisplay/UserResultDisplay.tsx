@@ -21,7 +21,7 @@ export const UserResultDisplay: FC<UserResultDisplayProps> = ({ user }) => {
         {isActive ? (
           <div
             data-testid="active-indicator"
-            className="absolute -right-1 -top-1 size-3 rounded-full bg-green-500"
+            className="absolute -right-1 -top-1 size-3 rounded-full border-2 border-embed bg-green-500"
           />
         ) : null}
       </div>

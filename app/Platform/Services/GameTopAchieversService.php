@@ -120,7 +120,21 @@ class GameTopAchieversService
             $query = $query->orderByDesc('points_hardcore');
         }
 
-        return $query->with('user')->orderBy('last_unlock_hardcore_at');
+        // For users who have mastered the game, sort by completed_hardcore_at.
+        // For others, sort by last_unlock_hardcore_at.
+        if ($this->masteryAchievements > 0) {
+            $query = $query->orderByRaw("
+                CASE 
+                    WHEN achievements_unlocked_hardcore = ? THEN completed_hardcore_at
+                    ELSE last_unlock_hardcore_at
+                END ASC
+            ", [$this->masteryAchievements]);
+        } else {
+            // Just sort by last unlock as a fallback if there's no mastery target.
+            $query = $query->orderBy('last_unlock_hardcore_at');
+        }
+
+        return $query->with('user');
     }
 
     /**
@@ -157,13 +171,13 @@ class GameTopAchieversService
 
     public static function expireTopAchieversComponentData(int $gameId): void
     {
-        $cacheKey = "game:{$gameId}:top-achievers:v3";
+        $cacheKey = "game:{$gameId}:top-achievers:v4";
         Cache::forget($cacheKey);
     }
 
     public function getTopAchieversComponentData(): array
     {
-        $cacheKey = "game:{$this->gameId}:top-achievers:v3";
+        $cacheKey = "game:{$this->gameId}:top-achievers:v4";
         $retval = Cache::get($cacheKey);
         if ($retval !== null) {
             $userIds = array_column($retval[1], 'user_id');

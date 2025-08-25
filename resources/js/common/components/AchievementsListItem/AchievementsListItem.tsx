@@ -7,6 +7,7 @@ import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 
+import { UserAvatar } from '../UserAvatar';
 import { AchievementDateMeta } from './AchievementDateMeta';
 import { AchievementGameTitle } from './AchievementGameTitle';
 import { AchievementPoints } from './AchievementPoints';
@@ -27,6 +28,14 @@ interface AchievementsListItemProps {
    * Only pick unique fields from this prop, such as `activeThrough`.
    */
   eventAchievement?: App.Platform.Data.EventAchievement;
+
+  /**
+   * When truthy, shows who created this achievement.
+   * This is mainly intended for internal use, such as when the user is viewing
+   * a list of unofficial achievements. The general public should see achievement
+   * authors via the AchievementSetCredits component.
+   */
+  shouldShowAuthor?: boolean;
 }
 
 export const AchievementsListItem: FC<AchievementsListItemProps> = ({
@@ -36,6 +45,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
   index,
   isLargeList,
   playersTotal,
+  shouldShowAuthor = false,
 }) => {
   const { t } = useTranslation();
 
@@ -114,6 +124,25 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
             {decorator ? `${decorator}: ` : null}
             {description}
           </p>
+
+          {/* Internal Use Author Label (for game unofficial achievement lists) */}
+          {shouldShowAuthor && achievement.developer ? (
+            <p className="mt-2 text-[0.6rem]">
+              <Trans
+                i18nKey="Author: <1>{{displayName}}</1>"
+                components={{
+                  1: (
+                    <UserAvatar
+                      {...achievement.developer}
+                      showImage={false}
+                      wrapperClassName="inline"
+                      labelClassName="text-[0.6rem]"
+                    />
+                  ),
+                }}
+              />
+            </p>
+          ) : null}
 
           {/* Dates */}
           <AchievementDateMeta

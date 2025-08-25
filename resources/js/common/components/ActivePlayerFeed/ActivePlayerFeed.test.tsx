@@ -68,6 +68,9 @@ describe('Component: ActivePlayerFeed', () => {
     expect(screen.getByRole('img', { name: /sonic the hedgehog/i })).toBeVisible();
     expect(screen.getByRole('img', { name: /scott/i })).toBeVisible();
     expect(screen.getByText(/playing sonic the hedgehog/i)).toBeVisible();
+
+    expect(screen.getByText(/players in-game/i)).toBeVisible();
+    expect(screen.queryByText(/player in-game/i)).not.toBeInTheDocument();
   });
 
   it('supports displaying a search bar by default', async () => {

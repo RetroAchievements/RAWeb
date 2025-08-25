@@ -87,6 +87,9 @@ class AchievementSetClaimControllerTest extends TestCase
             ->exists()
         );
 
+        // add official achievements so the claim can be completed
+        $this->seedAchievements(amount: 6, game: $game);
+
         // complete claim
         $completeDate = $claimDate->clone()->addDays(41);
         Carbon::setTestNow($completeDate);
@@ -498,6 +501,9 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertEquals($collabDate, $collabClaim->Updated);
         $this->assertEquals(0, $collabClaim->Extension);
 
+        // add official achievements so the claim can be completed
+        $this->seedAchievements(amount: 6, game: $game);
+
         // complete primary claim
         $completeDate = $collabDate->clone()->addDays(23);
         Carbon::setTestNow($completeDate);
@@ -641,8 +647,7 @@ class AchievementSetClaimControllerTest extends TestCase
 
         /** @var Game $game */
         $game = $this->seedGame(withHash: false);
-        $game->achievements_published = 40;
-        $game->save();
+        $this->seedAchievements(amount: 40, game: $game);
 
         Forum::factory()->create(['id' => 10, 'title' => 'Default']);
 
@@ -831,20 +836,27 @@ class AchievementSetClaimControllerTest extends TestCase
     {
         $this->seed(RolesTableSeeder::class);
 
-        /** @var User $user */
-        $user = User::factory()->create();
-        $user->assignRole(Role::DEVELOPER);
+        /** @var User $codeReviewer */
+        $codeReviewer = User::factory()->create();
+        $codeReviewer->assignRole(Role::CODE_REVIEWER);
+
+        /** @var User $juniorDeveloper */
+        $juniorDeveloper = User::factory()->create();
+        $juniorDeveloper->assignRole(Role::DEVELOPER_JUNIOR);
 
         /** @var Game $game */
         $game = $this->seedGame(withHash: false);
 
         Forum::factory()->create(['id' => 10, 'title' => 'Default']);
 
+        // create a forum topic for the game (required for junior devs on new sets)
+        generateGameForumTopic($codeReviewer, $game->ID);
+
         // initial claim
         $claimDate = Carbon::now()->startOfSecond();
         Carbon::setTestNow($claimDate);
 
-        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.create', $game->id));
+        $response = $this->actingAs($juniorDeveloper)->postJson(route('achievement-set-claim.create', $game->id));
 
         $response->assertStatus(302); // redirect
         $response->assertRedirect('/'); // back() redirects to home when no source is provided
@@ -852,7 +864,7 @@ class AchievementSetClaimControllerTest extends TestCase
 
         $claim = $game->achievementSetClaims()->first();
         $this->assertNotNull($claim);
-        $this->assertEquals($user->id, $claim->user_id);
+        $this->assertEquals($juniorDeveloper->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
         $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
         $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
@@ -867,7 +879,8 @@ class AchievementSetClaimControllerTest extends TestCase
         $reviewDate = $claimDate->clone()->addWeeks(11);
         Carbon::setTestNow($reviewDate);
 
-        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.update', $claim->ID), [
+        Session::flush();
+        $response = $this->actingAs($codeReviewer)->postJson(route('achievement-set-claim.update', $claim->ID), [
             'status' => ClaimStatus::InReview,
         ]);
 
@@ -876,7 +889,7 @@ class AchievementSetClaimControllerTest extends TestCase
         $response->assertSessionHas('success', 'Claim updated successfully');
 
         $claim->refresh();
-        $this->assertEquals($user->id, $claim->user_id);
+        $this->assertEquals($juniorDeveloper->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
         $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
         $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
@@ -891,7 +904,8 @@ class AchievementSetClaimControllerTest extends TestCase
         $dropDate = $reviewDate->clone()->addDays(2);
         Carbon::setTestNow($dropDate);
 
-        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.delete', $game->id));
+        Session::flush();
+        $response = $this->actingAs($juniorDeveloper)->postJson(route('achievement-set-claim.delete', $game->id));
 
         $response->assertStatus(302); // redirect
         $response->assertRedirect('/'); // back() redirects to home when no source is provided
@@ -902,14 +916,14 @@ class AchievementSetClaimControllerTest extends TestCase
         $extendDate = $claimDate->clone()->addDays(30 + 30 + 27);
         Carbon::setTestNow($extendDate);
 
-        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.create', $game->id));
+        $response = $this->actingAs($juniorDeveloper)->postJson(route('achievement-set-claim.create', $game->id));
 
         $response->assertStatus(302); // redirect
         $response->assertRedirect('/'); // back() redirects to home when no source is provided
         $response->assertSessionHas('success', 'Claim updated successfully');
 
         $claim->refresh();
-        $this->assertEquals($user->id, $claim->user_id);
+        $this->assertEquals($juniorDeveloper->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
         $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
         $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
@@ -924,12 +938,13 @@ class AchievementSetClaimControllerTest extends TestCase
         $reviewDate = $extendDate->clone()->addWeeks(1);
         Carbon::setTestNow($reviewDate);
 
-        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.update', $claim->ID), [
+        Session::flush();
+        $response = $this->actingAs($codeReviewer)->postJson(route('achievement-set-claim.update', $claim->ID), [
             'status' => ClaimStatus::Active,
         ]);
 
         $claim->refresh();
-        $this->assertEquals($user->id, $claim->user_id);
+        $this->assertEquals($juniorDeveloper->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
         $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
         $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);

@@ -24,6 +24,7 @@ export const GameShowSidebarRoot: FC = () => {
     game,
     hasMatureContent,
     hubs,
+    isViewingPublishedAchievements,
     numMasters,
     playerAchievementChartBuckets,
     playerGame,
@@ -48,7 +49,9 @@ export const GameShowSidebarRoot: FC = () => {
 
       <BaseSeparator className="mb-4" />
 
-      {game.playersTotal && achievements.length ? <PlaytimeStatistics /> : null}
+      {isViewingPublishedAchievements && game.playersTotal && achievements.length ? (
+        <PlaytimeStatistics />
+      ) : null}
 
       {seriesHub ? <SeriesHubDisplay seriesHub={seriesHub} /> : null}
 
@@ -58,7 +61,7 @@ export const GameShowSidebarRoot: FC = () => {
         excludeHubIds={getSidebarExcludedHubIds(hubs, seriesHub, allMetaRowElements.allUsedHubIds)}
       />
 
-      {achievements.length ? (
+      {isViewingPublishedAchievements && achievements.length ? (
         <PlayableCompareProgress
           followedPlayerCompletions={followedPlayerCompletions}
           game={game}
@@ -66,18 +69,23 @@ export const GameShowSidebarRoot: FC = () => {
         />
       ) : null}
 
-      <PlayableAchievementDistribution
-        buckets={playerAchievementChartBuckets}
-        playerGame={playerGame}
-        variant="game"
-      />
-      <PlayableTopPlayers
-        achievements={achievements}
-        game={game}
-        numMasters={numMasters}
-        players={topAchievers}
-        variant="game"
-      />
+      {isViewingPublishedAchievements ? (
+        <PlayableAchievementDistribution
+          buckets={playerAchievementChartBuckets}
+          playerGame={playerGame}
+          variant="game"
+        />
+      ) : null}
+
+      {isViewingPublishedAchievements ? (
+        <PlayableTopPlayers
+          achievements={achievements}
+          game={game}
+          numMasters={numMasters}
+          players={topAchievers}
+          variant="game"
+        />
+      ) : null}
     </div>
   );
 };

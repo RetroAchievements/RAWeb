@@ -23,6 +23,13 @@ const baseButtonVariants = cva(
           'disabled:hover:bg-embed disabled:hover:text-link disabled:hover:border-neutral-700',
           'disabled:light:hover:bg-white disabled:light:hover:text-link disabled:light:hover:border-link',
         ),
+        defaultDisabled: cn(
+          'opacity-50 lg:active:!scale-100 lg:active:!translate-y-0 lg:!transition-none',
+          'bg-embed text-link border border-neutral-700',
+          'light:bg-white light:border-link light:text-link',
+          'hover:bg-embed hover:text-link hover:border-neutral-700',
+          'light:hover:bg-white light:hover:text-link light:hover:border-link',
+        ),
         destructive: 'bg-embed border btn-danger hover:text-link-hover hover:border-menu-link',
         outline: cn(
           'border light:border-neutral-200 light:bg-white light:hover:bg-neutral-100 light:hover:text-neutral-900',
