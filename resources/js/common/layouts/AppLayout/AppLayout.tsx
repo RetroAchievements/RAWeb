@@ -1,5 +1,7 @@
 import { type FC, type ReactNode } from 'react';
 
+import { cn } from '@/common/utils/cn';
+
 interface AppLayoutBaseProps {
   children: ReactNode;
   withSidebar: boolean;
@@ -17,10 +19,12 @@ const AppLayoutBase: FC<AppLayoutBaseProps> = ({ children, withSidebar }) => {
 
 interface AppLayoutMainProps {
   children: ReactNode;
+
+  className?: string;
 }
 
-const AppLayoutMain: FC<AppLayoutMainProps> = ({ children }) => {
-  return <article className="!px-2.5 sm:!px-4 md:!px-5">{children}</article>;
+const AppLayoutMain: FC<AppLayoutMainProps> = ({ children, className }) => {
+  return <article className={cn('!px-2.5 sm:!px-4 md:!px-5', className)}>{children}</article>;
 };
 
 interface AppLayoutSidebarProps {
