@@ -48,7 +48,7 @@ export const ActivePlayerFeed: FC<ActivePlayerFeedProps> = ({
         <p data-testid="players-label">
           <Trans
             i18nKey="playersInGameLabel"
-            count={initialActivePlayers.total}
+            count={initialActivePlayers.unfilteredTotal ?? initialActivePlayers.total}
             components={{ 1: <span className="font-bold" />, 2: <span className="font-bold" /> }}
             values={{ visible: players.length, total: initialActivePlayers.unfilteredTotal }}
           />
