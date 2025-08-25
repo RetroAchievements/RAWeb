@@ -576,4 +576,26 @@ describe('Component: MobileCreditDialogTrigger', () => {
     expect(screen.getByText(/1 author/i)).toBeVisible();
     expect(screen.queryByText(/contributor/i)).not.toBeInTheDocument();
   });
+
+  it('given a user is both an author and a contributor, does not count them twice', () => {
+    // ARRANGE
+    const sharedUser = createUserCredits({ displayName: 'AuthorAndContributor' });
+    const aggregateCredits = createAggregateAchievementSetCredits({
+      achievementsAuthors: [sharedUser], // !! same user is an author
+    });
+
+    render(
+      <MobileCreditDialogTrigger
+        achievementSetClaims={[]}
+        aggregateCredits={aggregateCredits}
+        artCreditUsers={[sharedUser]} // !! and also an art contributor
+        codingCreditUsers={[]}
+        designCreditUsers={[]}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/1 author/i)).toBeVisible();
+    expect(screen.queryByText(/contributor/i)).not.toBeInTheDocument(); // !! should not be counted as contributor
+  });
 });
