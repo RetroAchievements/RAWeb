@@ -34,6 +34,7 @@ class LoadThinActivePlayersListAction
                 $activePlayers = GameRecentPlayer::with(['game'])
                     ->where('rich_presence_updated_at', '>', $timestampCutoff)
                     ->join('UserAccounts', 'UserAccounts.ID', '=', 'game_recent_players.user_id')
+                    ->whereColumn('game_recent_players.game_id', '=', 'UserAccounts.LastGameID')
                     ->where('UserAccounts.Permissions', '>=', $minimumPermissions)
                     ->whereNull('UserAccounts.banned_at')
                     ->orderBy('UserAccounts.Untracked', 'asc')

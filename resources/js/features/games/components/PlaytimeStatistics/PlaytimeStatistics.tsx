@@ -16,6 +16,7 @@ export const PlaytimeStatistics: FC = () => {
   const { t } = useTranslation();
 
   const [currentMode, setCurrentMode] = useState<PlayMode>('hardcore');
+  const [hasUserToggled, setHasUserToggled] = useState(false);
 
   // These calculations don't account for the edge case of when there are
   // multiple sets selected on one page. Bail.
@@ -38,7 +39,10 @@ export const PlaytimeStatistics: FC = () => {
           type="single"
           className="mb-px gap-px"
           value={currentMode}
-          onValueChange={(val: PlayMode) => setCurrentMode(val)}
+          onValueChange={(val: PlayMode) => {
+            setCurrentMode(val);
+            setHasUserToggled(true);
+          }}
         >
           <BaseToggleGroupItem
             size="sm"
@@ -62,7 +66,7 @@ export const PlaytimeStatistics: FC = () => {
 
       <motion.div
         className="flex flex-col gap-1 rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white"
-        animate={{ opacity: [0.7, 1] }}
+        animate={hasUserToggled ? { opacity: [0.7, 1] } : undefined}
         transition={{ duration: 0.3 }}
         key={currentMode}
       >

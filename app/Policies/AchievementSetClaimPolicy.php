@@ -46,6 +46,11 @@ class AchievementSetClaimPolicy
             return true;
         }
 
+        // Junior developers can only create claims for games with forum topics.
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && !$game->ForumTopicID) {
+            return false;
+        }
+
         // If the user already has a claim on this game, allow it (for extensions).
         $existingClaim = $game->achievementSetClaims()
             ->activeOrInReview()
@@ -59,7 +64,7 @@ class AchievementSetClaimPolicy
         // Determine max claims based on role.
         $maxClaims = AchievementSetClaim::getMaxClaimsForUser($user);
 
-        $activeClaimCount = once(fn () => getActiveClaimCount($user, true, false));
+        $activeClaimCount = once(fn () => getActiveClaimCount($user, false, false));
         $isSoleAuthor = once(fn () => checkIfSoleDeveloper($user, $game->id));
 
         // The user can create a claim if they have claims remaining OR they're the sole author.
