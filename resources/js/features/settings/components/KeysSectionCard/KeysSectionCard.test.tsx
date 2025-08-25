@@ -4,18 +4,9 @@ import * as ReactUseModule from 'react-use';
 import { route } from 'ziggy-js';
 
 import { render, screen } from '@/test';
-import { createUser } from '@/test/factories';
+import { createUser, createZiggyProps } from '@/test/factories';
 
 import { KeysSectionCard } from './KeysSectionCard';
-
-vi.mock('react-use', async (importOriginal) => {
-  const original: object = await importOriginal();
-
-  return {
-    ...original,
-    useMedia: vi.fn(),
-  };
-});
 
 describe('Component: KeysSectionCard', () => {
   it('renders without crashing', () => {
@@ -51,6 +42,7 @@ describe('Component: KeysSectionCard', () => {
       pageProps: {
         can: { manipulateApiKeys: true },
         userSettings: createUser(),
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -69,6 +61,7 @@ describe('Component: KeysSectionCard', () => {
       pageProps: {
         can: { manipulateApiKeys: true },
         userSettings: createUser({ apiKey: mockApiKey }),
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -91,6 +84,7 @@ describe('Component: KeysSectionCard', () => {
       pageProps: {
         can: { manipulateApiKeys: true },
         userSettings: createUser({ apiKey: mockApiKey }),
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -110,6 +104,7 @@ describe('Component: KeysSectionCard', () => {
       pageProps: {
         can: { manipulateApiKeys: true },
         userSettings: createUser({ apiKey: mockApiKey }),
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -120,7 +115,7 @@ describe('Component: KeysSectionCard', () => {
     expect(await screen.findByRole('tooltip', { name: /copy to clipboard/i })).toBeVisible();
   });
 
-  it('given the user is on the XS breakpoint and hovers over the web API key button, does not show a descriptive tooltip', async () => {
+  it('given the user is using a mobile device, does not show a descriptive tooltip', async () => {
     // ARRANGE
     console.error = vi.fn(); // Ignore act() errors.
 
@@ -132,6 +127,7 @@ describe('Component: KeysSectionCard', () => {
       pageProps: {
         can: { manipulateApiKeys: true },
         userSettings: createUser({ apiKey: mockApiKey }),
+        ziggy: createZiggyProps({ device: 'mobile' }),
       },
     });
 
@@ -152,6 +148,7 @@ describe('Component: KeysSectionCard', () => {
       pageProps: {
         can: { manipulateApiKeys: true },
         userSettings: createUser(),
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -171,6 +168,7 @@ describe('Component: KeysSectionCard', () => {
       pageProps: {
         can: { manipulateApiKeys: true },
         userSettings: createUser(),
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -191,6 +189,7 @@ describe('Component: KeysSectionCard', () => {
       pageProps: {
         can: { manipulateApiKeys: true },
         userSettings: createUser({ apiKey: mockApiKey }),
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -210,6 +209,7 @@ describe('Component: KeysSectionCard', () => {
       pageProps: {
         can: { manipulateApiKeys: true },
         userSettings: createUser(),
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -229,6 +229,7 @@ describe('Component: KeysSectionCard', () => {
       pageProps: {
         can: { manipulateApiKeys: true },
         userSettings: createUser(),
+        ziggy: createZiggyProps(),
       },
     });
 

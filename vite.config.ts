@@ -19,9 +19,22 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     throw Error('APP_URL not set');
   }
 
+  /**
+   * This ensures all assets use the same domain to prevent duplicate asset loading.
+   * Without this, assets get loaded twice - once from ASSET_URL (eg: static.retroachievements.org)
+   * and once from APP_URL (eg: retroachievements.org) due to how Vite and Inertia handle
+   * dynamic imports.
+   *
+   * SSR builds always use relative paths since they run server-side.
+   * Client builds use the full ASSET_URL.
+   */
+  const assetUrl = env.ASSET_URL || env.APP_URL;
+  const base = assetUrl
+    ? new URL(`/${env.VITE_BUILD_PATH}`, assetUrl).href
+    : `/${env.VITE_BUILD_PATH}`;
+
   return {
-    // Required for SSR assets to load properly
-    base: '/assets/build',
+    base: isSsrBuild ? `/${env.VITE_BUILD_PATH}` : base,
 
     // https://vitejs.dev/config/#build-options
     build: {

@@ -25,20 +25,15 @@ class UpdateGamePlayerCountAction
 
         if (!$parentGame) {
             $game->players_total = $game->playerGames()
+                ->leftJoin('unranked_users', 'player_games.user_id', '=', 'unranked_users.user_id')
+                ->whereNull('unranked_users.id')
                 ->where('achievements_unlocked', '>', 0)
-                ->whereNotExists(function ($query) {
-                    $query->select('user_id')
-                        ->from('unranked_users')
-                        ->whereColumn('unranked_users.user_id', 'player_games.user_id');
-                })
                 ->count();
+
             $game->players_hardcore = $game->playerGames()
+                ->leftJoin('unranked_users', 'player_games.user_id', '=', 'unranked_users.user_id')
+                ->whereNull('unranked_users.id')
                 ->where('achievements_unlocked_hardcore', '>', 0)
-                ->whereNotExists(function ($query) {
-                    $query->select('user_id')
-                        ->from('unranked_users')
-                        ->whereColumn('unranked_users.user_id', 'player_games.user_id');
-                })
                 ->count();
         }
 

@@ -36,6 +36,7 @@ export function renderTooltip(
 
   store.currentTooltipId = Math.random();
   store.tooltipEl = document.createElement('div');
+  store.tooltipEl.setAttribute('data-alpine-tooltip', 'true');
 
   store.tooltipEl.classList.add(
     'animate-fade-in',
