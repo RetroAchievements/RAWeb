@@ -9,7 +9,6 @@ use App\Http\Controller;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\User;
-use App\Policies\ForumTopicCommentPolicy;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Http\JsonResponse;
 
@@ -72,10 +71,9 @@ class ForumTopicCommentApiController extends Controller
 
         $comment->body = $newPayload;
 
-        // If this is a team account post being edited by a team member,
-        // update edited_by_id to track who made the edit.
-        $accessibleTeamIds = (new ForumTopicCommentPolicy())->getAccessibleTeamIds($requestingUser);
-        if (in_array($comment->author_id, $accessibleTeamIds, true)) {
+        // If this post is being edited by someone other than
+        // the author, track who made the edit.
+        if (!$requestingUser->is($comment->user)) {
             $comment->edited_by_id = $requestingUser->id;
         }
 

@@ -79,11 +79,17 @@ class BuildShowForumTopicPagePropsAction
                 $includes = ['user.createdAt', 'user.deletedAt', 'user.visibleRole'];
 
                 /**
-                 * Only include the sentBy and editedBy values if the user is viewing as
-                 * a team account the user has access to. If we always naively include it,
-                 * Inertia will leak the value into the DOM as part of the hydration process.
+                 * Include the sentBy and editedBy values if:
+                 * A. The user is viewing a team account post they have access to, OR
+                 * B. The user can manage forum posts (they can moderate the forum).
+                 * If we always naively include it, Inertia will leak the value into the DOM.
                  */
-                if ($user && $comment->sent_by_id !== null && in_array($comment->author_id, $accessibleTeamIds, true)) {
+                $shouldIncludeSentByEditedBy = $user && (
+                    ($comment->sent_by_id !== null && in_array($comment->author_id, $accessibleTeamIds, true))
+                    || ($comment->edited_by_id !== null && (new ForumTopicCommentPolicy())->manage($user))
+                );
+
+                if ($shouldIncludeSentByEditedBy) {
                     $includes[] = 'sentBy';
                     $includes[] = 'editedBy';
                 }
