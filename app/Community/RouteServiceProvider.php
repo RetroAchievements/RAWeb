@@ -32,6 +32,7 @@ use App\Community\Controllers\GameHashesCommentController;
 use App\Community\Controllers\GameModificationsCommentController;
 use App\Community\Controllers\LeaderboardCommentController;
 use App\Community\Controllers\MessageThreadController;
+use App\Community\Controllers\PatreonSupportersController;
 use App\Community\Controllers\UserAchievementChecklistController;
 use App\Community\Controllers\UserCommentController;
 use App\Community\Controllers\UserForumTopicCommentController;
@@ -137,6 +138,8 @@ class RouteServiceProvider extends ServiceProvider
 
                 Route::middleware(['inertia'])->group(function () {
                     Route::get('achievement/{achievement}/comments', [AchievementCommentController::class, 'index'])->name('achievement.comment.index');
+
+                    Route::get('community/patreon-supporters', [PatreonSupportersController::class, 'index'])->name('patreon-supporter.index');
 
                     Route::get('forums/topic/{topic}', [ForumTopicController::class, 'show'])->name('forum-topic.show');
 
