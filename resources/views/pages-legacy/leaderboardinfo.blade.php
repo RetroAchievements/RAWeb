@@ -252,7 +252,7 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
             echo "<td class='lb_rank'>$injectFmt1$nextRank$injectFmt2</td>";
 
             echo "<td class='lb_user'>";
-            echo userAvatar($nextUser);
+            echo userAvatar($nextEntry->user);
             echo "</td>";
 
             echo "<td class='lb_result text-right'>$injectFmt1$nextScoreFormatted$injectFmt2</td>";

@@ -16,6 +16,7 @@ class DeveloperGameStatsTable extends Component
     private int $numGamesWithRichPresence = 0;
     private int $numTotalLeaderboards = 0;
     private string $statsKind = 'any'; // 'any' | 'majority' | 'sole'
+    private string $targetDeveloperDisplayName = '';
     private string $targetDeveloperUsername = '';
 
     public function __construct(
@@ -26,6 +27,7 @@ class DeveloperGameStatsTable extends Component
         int $numGamesWithRichPresence,
         int $numTotalLeaderboards,
         string $statsKind,
+        string $targetDeveloperDisplayName,
         string $targetDeveloperUsername,
     ) {
         $this->easiestGame = $easiestGame;
@@ -34,6 +36,7 @@ class DeveloperGameStatsTable extends Component
         $this->numGamesWithRichPresence = $numGamesWithRichPresence;
         $this->numTotalLeaderboards = $numTotalLeaderboards;
         $this->statsKind = $statsKind;
+        $this->targetDeveloperDisplayName = $targetDeveloperDisplayName;
         $this->targetDeveloperUsername = $targetDeveloperUsername;
         $this->targetGameIds = $targetGameIds;
     }
@@ -50,6 +53,7 @@ class DeveloperGameStatsTable extends Component
                 'numGamesWithRichPresence' => $this->numGamesWithRichPresence,
                 'numTotalLeaderboards' => $this->numTotalLeaderboards,
                 'statsKind' => $this->statsKind,
+                'targetDeveloperDisplayName' => $this->targetDeveloperDisplayName,
                 'targetDeveloperUsername' => $this->targetDeveloperUsername,
                 'targetGameIds' => $this->targetGameIds,
             ],
