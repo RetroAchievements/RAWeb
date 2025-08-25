@@ -26,7 +26,11 @@
  *     string     [value]          RetroAchievements hash associated to the game
  */
 
+use App\Models\Achievement;
+use App\Models\Game;
 use App\Models\GameHash;
+use App\Models\Leaderboard;
+use Illuminate\Support\Facades\DB;
 
 $consoleID = (int) request()->query('i');
 if ($consoleID <= 0) {
@@ -38,16 +42,38 @@ $withHashes = (bool) request()->query('h');
 $offset = (int) request()->query('o');
 $count = (int) request()->query('c');
 
+// Build subqueries for aggregated data to avoid an expensive GROUP BY on joined data.
+$gameIdsSubquery = Game::query()
+    ->select('ID')
+    ->where('ConsoleID', $consoleID)
+    ->when($withAchievements, function ($query) {
+        return $query->where('achievements_published', '>', 0);
+    });
+
+$achievementsSubquery = Achievement::query()
+    ->selectRaw('GameID, MAX(DateModified) as DateModified')
+    ->whereIn('GameID', $gameIdsSubquery)
+    ->groupBy('GameID');
+
+$leaderboardsSubquery = Leaderboard::query()
+    ->selectRaw('GameID, COUNT(*) as NumLBs')
+    ->whereIn('GameID', $gameIdsSubquery)
+    ->groupBy('GameID');
+
 $query = DB::table('GameData')
-    ->leftjoin('Console AS c', 'c.ID', '=', 'GameData.ConsoleID')
-    ->leftjoin('Achievements AS ach', 'ach.GameID', '=', 'GameData.ID')
-    ->leftjoin('LeaderboardDef AS ld', 'ld.GameID', '=', 'GameData.ID')
+    ->leftJoin('Console AS c', 'c.ID', '=', 'GameData.ConsoleID')
+    ->leftJoinSub($achievementsSubquery, 'ach_data', function ($join) {
+        $join->on('ach_data.GameID', '=', 'GameData.ID');
+    })
+    ->leftJoinSub($leaderboardsSubquery, 'lb_data', function ($join) {
+        $join->on('lb_data.GameID', '=', 'GameData.ID');
+    })
     ->select(
         'GameData.*',
         'c.Name as ConsoleName',
-        DB::raw('MAX(ach.DateModified) as DateModified'),
-        DB::raw('COALESCE(GameData.achievements_published,0) AS NumAchievements'),
-        DB::raw('COUNT(DISTINCT ld.ID) AS NumLBs')
+        DB::raw('COALESCE(GameData.achievements_published, 0) AS NumAchievements'),
+        DB::raw('COALESCE(ach_data.DateModified, NULL) AS DateModified'),
+        DB::raw('COALESCE(lb_data.NumLBs, 0) AS NumLBs')
     )
     ->where('GameData.ConsoleID', $consoleID)
     ->when($withAchievements, function ($query) {
@@ -62,7 +88,6 @@ $query = DB::table('GameData')
     ->when($count == 0, function ($query) {
         return $query->limit(9999999);
     })
-    ->groupBy('GameData.ID')
     ->orderBy('GameData.Title', 'asc');
 
 $queryResponse = $query->get();
@@ -91,16 +116,18 @@ foreach ($queryResponse as $game) {
 }
 
 if ($withHashes) {
+    $responseIndex = [];
+    foreach ($response as $index => $entry) {
+        $responseIndex[$entry['ID']] = $index;
+    }
+
     $hashes = GameHash::compatible()
         ->select('game_id', 'md5')
-        ->whereIn('game_id', array_column($response, 'ID'));
+        ->whereIn('game_id', array_keys($responseIndex))
+        ->orderBy('game_id');
+
     foreach ($hashes->get() as $hash) {
-        foreach ($response as &$entry) {
-            if ($entry['ID'] == $hash->game_id) {
-                $entry['Hashes'][] = $hash->md5;
-                break;
-            }
-        }
+        $response[$responseIndex[$hash->game_id]]['Hashes'][] = $hash->md5;
     }
 }
 
