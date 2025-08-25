@@ -52,15 +52,11 @@ class ForwardMessageToDiscordAction
 
         $webhookUrl = $inboxConfig['url']; // each inbox has its own dedicated webhook url
 
+        $fullBody = Shortcode::stripAndClamp($message->body, self::MESSAGE_BODY_MAX_LENGTH, preserveWhitespace: true);
+
         if (empty($messageThread->title) || empty($fullBody)) {
             return;
         }
-
-        $fullBody = Shortcode::stripAndClamp(
-            $message->body,
-            self::MESSAGE_BODY_MAX_LENGTH,
-            preserveWhitespace: true
-        );
 
         $color = self::COLOR_DEFAULT;
         $isForum = $inboxConfig['is_forum'] ?? false;
