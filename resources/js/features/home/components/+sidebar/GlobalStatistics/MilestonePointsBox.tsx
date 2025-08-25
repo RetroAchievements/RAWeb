@@ -32,7 +32,7 @@ export const MilestonePointsBox: FC<MilestonePointsBoxProps> = ({ totalPoints })
             'border border-amber-400/30 bg-gradient-to-br from-embed to-amber-950/10',
             'before:absolute before:inset-0 before:bg-gradient-to-r',
             'before:from-transparent before:via-amber-400/10 before:to-transparent',
-            'before:motion-safe:animate-shimmer before:bg-[length:200%_100%]',
+            'before:bg-[length:200%_100%] before:motion-safe:animate-shimmer',
             'light:border-amber-500/30 light:to-amber-100/10 light:before:via-amber-500/10',
           )}
         >
