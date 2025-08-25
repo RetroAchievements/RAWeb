@@ -14,7 +14,7 @@ class AchievementSetData extends Data
 {
     public function __construct(
         public int $id,
-        public Lazy|Carbon $achievementsFirstPublishedAt,
+        public Lazy|Carbon|null $achievementsFirstPublishedAt,
         public int $achievementsPublished,
         public int $achievementsUnpublished,
         public string $imageAssetPathUrl,
