@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ImTrophy } from 'react-icons/im';
 import { LuUsers } from 'react-icons/lu';
+import { PiMedalFill } from 'react-icons/pi';
 
 import { GameTitle } from '@/common/components/GameTitle';
 import { formatNumber } from '@/common/utils/l10n/formatNumber';
@@ -32,6 +33,11 @@ export const GameResultDisplay: FC<GameResultDisplayProps> = ({ game }) => {
           <div className="flex items-center gap-1 light:text-neutral-600">
             <ImTrophy className="!size-3" />
             {formatNumber(game.achievementsPublished ?? 0, { locale: i18n.language })}
+          </div>
+
+          <div className="flex items-center gap-1 light:text-neutral-600">
+            <PiMedalFill className="!size-3" />
+            {formatNumber(game.pointsTotal ?? 0, { locale: i18n.language })}
           </div>
 
           <div className="flex items-center gap-1 light:text-neutral-600">

@@ -73,6 +73,16 @@ describe('Component: GameResultDisplay', () => {
     expect(screen.getByText('1,234')).toBeVisible();
   });
 
+  it('displays the points count with formatted number', () => {
+    // ARRANGE
+    const game = createGame({ pointsTotal: 1000 });
+
+    render(<GameResultDisplay game={game} />);
+
+    // ASSERT
+    expect(screen.getByText('1,000')).toBeVisible();
+  });
+
   it('displays the player count with formatted number', () => {
     // ARRANGE
     const game = createGame({ playersTotal: 5678 });
