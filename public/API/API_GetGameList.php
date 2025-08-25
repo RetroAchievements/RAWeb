@@ -123,13 +123,11 @@ if ($withHashes) {
 
     $hashes = GameHash::compatible()
         ->select('game_id', 'md5')
-        ->whereIn('game_id', array_column($response, 'ID'))
+        ->whereIn('game_id', array_keys($responseIndex))
         ->orderBy('game_id');
 
     foreach ($hashes->get() as $hash) {
-        if (isset($responseIndex[$hash->game_id])) {
-            $response[$responseIndex[$hash->game_id]]['Hashes'][] = $hash->md5;
-        }
+        $response[$responseIndex[$hash->game_id]]['Hashes'][] = $hash->md5;
     }
 }
 
