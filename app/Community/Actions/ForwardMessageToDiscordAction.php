@@ -45,8 +45,6 @@ class ForwardMessageToDiscordAction
         MessageThread $messageThread,
         Message $message
     ): void {
-        $fullBody = Shortcode::stripAndClamp($message->body, self::MESSAGE_BODY_MAX_LENGTH, preserveWhitespace: true);
-
         $inboxConfig = config('services.discord.inbox_webhook.' . $userTo->username);
         if ($inboxConfig === null || empty($inboxConfig['url'] ?? null)) {
             return;
@@ -57,6 +55,12 @@ class ForwardMessageToDiscordAction
         if (empty($messageThread->title) || empty($fullBody)) {
             return;
         }
+
+        $fullBody = Shortcode::stripAndClamp(
+            $message->body,
+            self::MESSAGE_BODY_MAX_LENGTH,
+            preserveWhitespace: true
+        );
 
         $color = self::COLOR_DEFAULT;
         $isForum = $inboxConfig['is_forum'] ?? false;
