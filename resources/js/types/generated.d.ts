@@ -358,6 +358,7 @@ declare namespace App.Data {
   };
   export type UserPermissions = {
     authorizeForumTopicComments?: boolean;
+    createAchievementSetClaims?: boolean;
     createForumTopicComments?: boolean;
     createGameComments?: boolean;
     createGameForumTopic?: boolean;
@@ -374,6 +375,7 @@ declare namespace App.Data {
     manageGames?: boolean;
     manageGameSets?: boolean;
     manipulateApiKeys?: boolean;
+    reviewAchievementSetClaims?: boolean;
     updateAvatar?: boolean;
     updateForumTopic?: boolean;
     updateMotto?: boolean;
@@ -504,6 +506,12 @@ declare namespace App.Platform.Data {
     createdAt?: string;
     finishedAt?: string;
     userLastPlayedAt?: string | null;
+    extensionsCount?: number;
+    minutesActive?: number;
+    minutesLeft?: number;
+    isCompletable?: boolean;
+    isDroppable?: boolean;
+    isExtendable?: boolean;
   };
   export type AchievementSet = {
     id: number;
@@ -641,6 +649,7 @@ declare namespace App.Platform.Data {
     lastUpdated?: string;
     releasedAt?: string | null;
     achievementsPublished?: number;
+    achievementsUnpublished?: number;
     forumTopicId?: number;
     medianTimeToBeat?: number;
     medianTimeToBeatHardcore?: number;
@@ -702,6 +711,16 @@ declare namespace App.Platform.Data {
     targetUser: App.Data.User | null;
     userRequestInfo: App.Platform.Data.UserSetRequestInfo | null;
   };
+  export type GamePageClaimData = {
+    doesPrimaryClaimExist: boolean;
+    maxClaimCount: number;
+    numClaimsRemaining: number | null;
+    numUnresolvedTickets: number;
+    userClaim: App.Platform.Data.AchievementSetClaim | null;
+    isSoleAuthor: boolean;
+    wouldBeCollaboration: boolean;
+    wouldBeRevision: boolean;
+  };
   export type GameRecentPlayer = {
     isActive: boolean;
     user: App.Data.User;
@@ -745,6 +764,7 @@ declare namespace App.Platform.Data {
     aggregateCredits: App.Platform.Data.AggregateAchievementSetCredits;
     backingGame: App.Platform.Data.Game;
     can: App.Data.UserPermissions;
+    claimData: App.Platform.Data.GamePageClaimData | null;
     game: App.Platform.Data.Game;
     achievementSetClaims: Array<App.Platform.Data.AchievementSetClaim>;
     hasMatureContent: boolean;
@@ -754,6 +774,7 @@ declare namespace App.Platform.Data {
     isOnWantToDevList: boolean;
     isOnWantToPlayList: boolean;
     isSubscribedToComments: boolean;
+    isViewingPublishedAchievements: boolean;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
     numBeaten: number;

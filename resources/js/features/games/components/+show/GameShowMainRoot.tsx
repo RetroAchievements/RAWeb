@@ -15,7 +15,7 @@ import { GameHeaderSlotContent } from '../GameHeaderSlotContent';
 import { GameRecentPlayers } from '../GameRecentPlayers';
 
 export const GameShowMainRoot: FC = () => {
-  const { game, hasMatureContent, targetAchievementSetId } =
+  const { game, hasMatureContent, isViewingPublishedAchievements, targetAchievementSetId } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
   if (!game.badgeUrl || !game.system?.iconUrl) {
@@ -65,8 +65,8 @@ export const GameShowMainRoot: FC = () => {
           {!allPageAchievements.length ? <AchievementSetEmptyState /> : null}
         </div>
 
-        <GameRecentPlayers />
-        <GameCommentList />
+        {isViewingPublishedAchievements ? <GameRecentPlayers /> : null}
+        {isViewingPublishedAchievements ? <GameCommentList /> : null}
       </div>
     </div>
   );

@@ -42,6 +42,7 @@ describe('Util: loadDayjsLocale', () => {
     ${'es_ES'} | ${'es'}
     ${'fr_FR'} | ${'fr'}
     ${'it_IT'} | ${'it'}
+    ${'nl_BE'} | ${'nl-be'}
     ${'ru_RU'} | ${'ru'}
     ${'sv_SE'} | ${'sv'}
     ${'pl_PL'} | ${'pl'}

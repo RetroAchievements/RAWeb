@@ -195,7 +195,7 @@ return [
      * for a CCX53 server upgrade which doubled the CPU and RAM. The architecture isolates
      * high-volume and slow queues to prevent them from monopolizing shared workers.
      *
-     * Total Workers: 37 (16+10+1+6+4)
+     * Total Workers: 42 (19+10+1+8+4)
      * - supervisor-1: General queues (fast, medium volume)
      * - supervisor-2: Batch processing (slower, larger timeout)
      * - supervisor-3: Search indexing (very fast, isolated)
@@ -223,7 +223,7 @@ return [
             ],
             'balance' => 'auto',
             'autoScalingStrategy' => 'size',
-            'maxProcesses' => 16, // Optimized for high-volume queues with auto-scaling
+            'maxProcesses' => 19, // Optimized for high-volume queues with auto-scaling
             'balanceMaxShift' => 1,
             'balanceCooldown' => 3,
             'maxTime' => 0,
@@ -288,7 +288,7 @@ return [
                 'player-sessions',
             ],
             'balance' => 'simple',
-            'processes' => 6, // Pinned at 6 - 38ms avg job time
+            'processes' => 8, // Pinned at 8 - 38ms avg job time
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 128,
