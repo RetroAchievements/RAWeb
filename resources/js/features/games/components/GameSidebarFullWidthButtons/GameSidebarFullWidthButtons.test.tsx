@@ -182,9 +182,10 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     // ARRANGE
     render(<GameSidebarFullWidthButtons game={createGame({ forumTopicId: undefined })} />, {
       pageProps: {
+        achievementSetClaims: [],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
-        game: createGame(),
+        game: createGame({ gameAchievementSets: [] }),
         can: { manageGames: true, createGameForumTopic: false },
       },
     });

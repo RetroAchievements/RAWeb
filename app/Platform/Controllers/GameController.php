@@ -8,6 +8,7 @@ use App\Actions\GetUserDeviceKindAction;
 use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\BuildGameInterestedDevelopersDataAction;
@@ -21,6 +22,7 @@ use App\Platform\Data\GameListPagePropsData;
 use App\Platform\Data\GameSuggestPagePropsData;
 use App\Platform\Data\SystemData;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameListSetTypeFilterValue;
 use App\Platform\Enums\GameListSortField;
 use App\Platform\Enums\GameListType;
@@ -93,8 +95,32 @@ class GameController extends Controller
         /** @var ?User $user */
         $user = $request->user();
 
-        // Get the target achievement set ID from query parameter.
+        // Redirect the legacy ?f=5 parameter to ?unpublished=true.
+        if ($request->query('f') === '5') {
+            $queryParams = $request->query();
+            unset($queryParams['f']);
+            $queryParams['unpublished'] = 'true';
+
+            return redirect()->route('game2.show', array_merge(['game' => $game], $queryParams));
+        }
+
+        // Get the target achievement set ID from query params.
         $targetAchievementSetId = $request->query('set') ? (int) $request->query('set') : null;
+
+        // Check if this is a subset game that should redirect to its backing game.
+        // eg: "/game/24186" -> "/game/668?set=8659"
+        if (!$targetAchievementSetId) {
+            $redirectResponse = $this->checkSubsetGameRedirect($request, $game);
+            if ($redirectResponse) {
+                return $redirectResponse;
+            }
+        }
+
+        // Get whether to show published or unpublished achievements from query params.
+        $targetAchievementFlag =
+            $request->query('unpublished') === 'true'
+                ? AchievementFlag::Unofficial
+                : AchievementFlag::OfficialCore;
 
         // Load the target achievement set if requested.
         $targetAchievementSet = null;
@@ -110,8 +136,8 @@ class GameController extends Controller
             }
         }
 
-        $game = $loadGameWithRelationsAction->execute($game, AchievementFlag::OfficialCore, $targetAchievementSet);
-        $props = $buildGameShowPagePropsAction->execute($game, $user, $targetAchievementSet);
+        $game = $loadGameWithRelationsAction->execute($game, $targetAchievementFlag, $targetAchievementSet);
+        $props = $buildGameShowPagePropsAction->execute($game, $user, $targetAchievementFlag, $targetAchievementSet);
 
         return Inertia::render('game/[game]', $props);
     }
@@ -189,5 +215,37 @@ class GameController extends Controller
         );
 
         return Inertia::render('game/[game]/suggestions', $props);
+    }
+
+    /**
+     * Check if a game is a subset that should redirect to its backing game.
+     */
+    private function checkSubsetGameRedirect(Request $request, Game $game): ?RedirectResponse
+    {
+        // Find this game's core achievement set.
+        $coreSet = $game->gameAchievementSets()
+            ->where('type', AchievementSetType::Core)
+            ->select('achievement_set_id')
+            ->first();
+
+        if (!$coreSet) {
+            return null;
+        }
+
+        // Check if this achievement set exists in another game as non-core.
+        $backingGameSet = GameAchievementSet::where('achievement_set_id', $coreSet->achievement_set_id)
+            ->whereNotIn('type', [AchievementSetType::Core])
+            ->select('game_id')
+            ->first();
+
+        if (!$backingGameSet || $backingGameSet->game_id === $game->id) {
+            return null;
+        }
+
+        // Redirect to the backing game with the set parameter.
+        $queryParams = $request->query();
+        $queryParams['set'] = $coreSet->achievement_set_id;
+
+        return redirect()->route('game2.show', array_merge(['game' => $backingGameSet->game_id], $queryParams));
     }
 }
