@@ -166,6 +166,7 @@ const GameListItems: FC<GameListItemsProps> = ({
               return (
                 <GameListItemElement
                   key={`mobile-${item.game.id}`}
+                  apiRouteName={apiRouteName}
                   defaultChipOfInterest={defaultChipOfInterest}
                   defaultColumnSort={defaultColumnSort}
                   gameListEntry={item}
