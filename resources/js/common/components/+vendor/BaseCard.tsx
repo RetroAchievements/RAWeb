@@ -10,6 +10,7 @@ const BaseCard = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
       ref={ref}
       className={cn(
         'text-card-foreground rounded-lg border border-embed-highlight bg-embed shadow-sm',
+        'light:border-neutral-300 light:bg-white',
         className,
       )}
       {...props}

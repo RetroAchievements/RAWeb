@@ -242,4 +242,64 @@ describe('Component: SidebarClaimButtons', () => {
     expect(screen.getByRole('button', { name: /drop claim/i })).toBeVisible();
     expect(screen.queryByRole('button', { name: /create new claim/i })).not.toBeInTheDocument();
   });
+
+  it('given the user is a junior developer and the game has no forum topic, does not show create claim button', () => {
+    // ARRANGE
+    render(<SidebarClaimButtons />, {
+      pageProps: {
+        achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer-junior'] }) }, // !!
+        backingGame: createGame({ forumTopicId: undefined }), // !!
+        claimData: createGamePageClaimData({
+          numClaimsRemaining: 1,
+          userClaim: null,
+        }),
+        game: createGame({ gameAchievementSets: [] }),
+        targetAchievementSetId: null,
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /create new claim/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user is a junior developer and the game has a forum topic, shows create claim button', () => {
+    // ARRANGE
+    render(<SidebarClaimButtons />, {
+      pageProps: {
+        achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer-junior'] }) }, // !!
+        backingGame: createGame({ forumTopicId: 123 }), // !!
+        claimData: createGamePageClaimData({
+          numClaimsRemaining: 1,
+          userClaim: null,
+        }),
+        game: createGame({ gameAchievementSets: [] }),
+        targetAchievementSetId: null,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /create new claim/i })).toBeVisible();
+  });
+
+  it('given the user is a regular developer and the game has no forum topic, still shows create claim button', () => {
+    // ARRANGE
+    render(<SidebarClaimButtons />, {
+      pageProps: {
+        achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) }, // !!
+        backingGame: createGame({ forumTopicId: undefined }), // !!
+        claimData: createGamePageClaimData({
+          numClaimsRemaining: 1,
+          userClaim: null,
+        }),
+        game: createGame({ gameAchievementSets: [] }),
+        targetAchievementSetId: null,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /create new claim/i })).toBeVisible();
+  });
 });

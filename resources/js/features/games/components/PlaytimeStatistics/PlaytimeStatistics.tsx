@@ -6,6 +6,7 @@ import { LuAward, LuCheck, LuCircleDot } from 'react-icons/lu';
 import { BaseToggleGroup, BaseToggleGroupItem } from '@/common/components/+vendor/BaseToggleGroup';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import type { PlayMode } from '@/common/models';
+import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { PlaytimeRow } from './PlaytimeRow';
 
@@ -15,6 +16,7 @@ export const PlaytimeStatistics: FC = () => {
   const { t } = useTranslation();
 
   const [currentMode, setCurrentMode] = useState<PlayMode>('hardcore');
+  const [hasUserToggled, setHasUserToggled] = useState(false);
 
   // These calculations don't account for the edge case of when there are
   // multiple sets selected on one page. Bail.
@@ -37,7 +39,10 @@ export const PlaytimeStatistics: FC = () => {
           type="single"
           className="mb-px gap-px"
           value={currentMode}
-          onValueChange={(val: PlayMode) => setCurrentMode(val)}
+          onValueChange={(val: PlayMode) => {
+            setCurrentMode(val);
+            setHasUserToggled(true);
+          }}
         >
           <BaseToggleGroupItem
             size="sm"
@@ -61,7 +66,7 @@ export const PlaytimeStatistics: FC = () => {
 
       <motion.div
         className="flex flex-col gap-1 rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white"
-        animate={{ opacity: [0.7, 1] }}
+        animate={hasUserToggled ? { opacity: [0.7, 1] } : undefined}
         transition={{ duration: 0.3 }}
         key={currentMode}
       >
@@ -112,6 +117,14 @@ export const PlaytimeStatistics: FC = () => {
               : achievementSet.timesCompleted
           }
         />
+
+        {achievementSet.achievementsFirstPublishedAt ? (
+          <p className="py-1 text-center text-xs text-neutral-500 light:text-neutral-700">
+            {t('Achievements available since {{date}}', {
+              date: formatDate(achievementSet.achievementsFirstPublishedAt, 'll'),
+            })}
+          </p>
+        ) : null}
       </motion.div>
     </div>
   );
