@@ -3,7 +3,7 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdClose } from 'react-icons/md';
 import { RxDotsVertical } from 'react-icons/rx';
-import { route } from 'ziggy-js';
+import { route, type RouteName } from 'ziggy-js';
 
 import { BaseDrawerTrigger } from '@/common/components/+vendor/BaseDrawer';
 import { GameAvatar } from '@/common/components/GameAvatar';
@@ -22,6 +22,7 @@ import { ChipOfInterest } from './ChipofInterest';
  */
 
 interface GameListItemContentProps {
+  apiRouteName: RouteName;
   backlogState: ReturnType<typeof useGameBacklogState>;
   isLastItem: boolean;
   gameListEntry: App.Platform.Data.GameListEntry;
@@ -32,6 +33,7 @@ interface GameListItemContentProps {
 }
 
 export const GameListItemContent: FC<GameListItemContentProps> = ({
+  apiRouteName,
   backlogState,
   defaultChipOfInterest,
   defaultColumnSort,
@@ -60,7 +62,7 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
             </a>
 
             <div className="flex flex-wrap items-center gap-1">
-              {route().current() !== 'system.game.index' && game.system ? (
+              {apiRouteName !== 'api.system.game.index' && game.system ? (
                 <SystemChip
                   {...game.system}
                   className="light:bg-neutral-200/70"
