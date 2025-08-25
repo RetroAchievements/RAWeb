@@ -107,6 +107,12 @@ declare namespace App.Community.Data {
     senderUserAvatarUrl: string | null;
     senderUserDisplayName: string;
   };
+  export type PatreonSupportersPageProps = {
+    recentSupporters: Array<App.Data.User>;
+    initialSupporters: Array<App.Data.User>;
+    deferredSupporters: any | any;
+    totalCount: number;
+  };
   export type RecentLeaderboardEntry = {
     leaderboard: App.Platform.Data.Leaderboard;
     leaderboardEntry: App.Platform.Data.LeaderboardEntry;
@@ -521,7 +527,7 @@ declare namespace App.Platform.Data {
   };
   export type AchievementSet = {
     id: number;
-    achievementsFirstPublishedAt?: string;
+    achievementsFirstPublishedAt?: string | null;
     achievementsPublished: number;
     achievementsUnpublished: number;
     imageAssetPathUrl: string;

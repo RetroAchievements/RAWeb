@@ -577,6 +577,7 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "patreon-supporter.index": [],
     "forum-topic.show": [
         {
             "name": "topic",

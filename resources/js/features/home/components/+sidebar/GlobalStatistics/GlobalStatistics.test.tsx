@@ -153,4 +153,16 @@ describe('Component: GlobalStatistics', () => {
     expect(pointsEarnedEl).toBeVisible();
     expect(pointsEarnedEl).toHaveTextContent('1,234,567,890');
   });
+
+  it('given the billion point milestone, displays the milestone points box', () => {
+    // ARRANGE
+    render(<GlobalStatistics />, {
+      pageProps: createHomePageProps({
+        staticData: createStaticData({ totalPointsEarned: 1_000_000_000 }),
+      }),
+    });
+
+    // ASSERT
+    expect(screen.getByTestId(/milestone/i)).toBeVisible();
+  });
 });
