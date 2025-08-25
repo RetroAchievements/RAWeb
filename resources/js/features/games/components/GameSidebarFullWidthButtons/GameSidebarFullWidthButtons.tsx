@@ -103,7 +103,7 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
           </PlayableSidebarButton>
 
           {!backingGame?.forumTopicId && can.createGameForumTopic ? (
-            <GameCreateForumTopicButton />
+            <GameCreateForumTopicButton game={backingGame} />
           ) : null}
         </PlayableSidebarButtonsSection>
       ) : null}

@@ -14,8 +14,10 @@ describe('Component: GameCreateForumTopicButton', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<GameCreateForumTopicButton />, {
-      pageProps: { backingGame: createGame({ id: 1 }), can: {} },
+    const game = createGame({ id: 1 });
+
+    const { container } = render(<GameCreateForumTopicButton game={game} />, {
+      pageProps: { can: {} },
     });
 
     // ASSERT
@@ -24,9 +26,10 @@ describe('Component: GameCreateForumTopicButton', () => {
 
   it('given the user cannot create game official forum topics, renders nothing', () => {
     // ARRANGE
-    render(<GameCreateForumTopicButton />, {
+    const game = createGame({ id: 1, forumTopicId: undefined });
+
+    render(<GameCreateForumTopicButton game={game} />, {
       pageProps: {
-        backingGame: createGame({ id: 1, forumTopicId: undefined }),
         can: {
           createGameForumTopic: false, // !!
         },
@@ -39,9 +42,10 @@ describe('Component: GameCreateForumTopicButton', () => {
 
   it('given the game already has a forum topic, renders nothing', () => {
     // ARRANGE
-    render(<GameCreateForumTopicButton />, {
+    const game = createGame({ id: 1, forumTopicId: 123 });
+
+    render(<GameCreateForumTopicButton game={game} />, {
       pageProps: {
-        backingGame: createGame({ id: 1, forumTopicId: 123 }),
         can: {
           createGameForumTopic: true,
         },
@@ -54,11 +58,10 @@ describe('Component: GameCreateForumTopicButton', () => {
 
   it('given the game has no forum topic and the user can create forum topics, shows the button', () => {
     // ARRANGE
-    render(<GameCreateForumTopicButton />, {
-      pageProps: {
-        backingGame: createGame({ id: 1, forumTopicId: undefined }),
-        can: { createGameForumTopic: true },
-      },
+    const game = createGame({ id: 1, forumTopicId: undefined });
+
+    render(<GameCreateForumTopicButton game={game} />, {
+      pageProps: { can: { createGameForumTopic: true } },
     });
 
     // ASSERT
@@ -70,11 +73,10 @@ describe('Component: GameCreateForumTopicButton', () => {
     vi.spyOn(window, 'confirm').mockImplementation(() => false);
     const postSpy = vi.spyOn(axios, 'post');
 
-    render(<GameCreateForumTopicButton />, {
-      pageProps: {
-        backingGame: createGame({ id: 1, forumTopicId: undefined }),
-        can: { createGameForumTopic: true },
-      },
+    const game = createGame({ id: 1, forumTopicId: undefined });
+
+    render(<GameCreateForumTopicButton game={game} />, {
+      pageProps: { can: { createGameForumTopic: true } },
     });
 
     // ACT
@@ -90,11 +92,10 @@ describe('Component: GameCreateForumTopicButton', () => {
     vi.spyOn(window, 'confirm').mockImplementation(() => true);
     vi.spyOn(axios, 'post').mockResolvedValue({ data: { success: true, topicId: 456 } });
 
-    render(<GameCreateForumTopicButton />, {
-      pageProps: {
-        backingGame: createGame({ id: 1, forumTopicId: undefined }),
-        can: { createGameForumTopic: true },
-      },
+    const game = createGame({ id: 1, forumTopicId: undefined });
+
+    render(<GameCreateForumTopicButton game={game} />, {
+      pageProps: { can: { createGameForumTopic: true } },
     });
 
     // ACT

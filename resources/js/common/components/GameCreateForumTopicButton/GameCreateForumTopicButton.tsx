@@ -8,14 +8,18 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { BaseButton } from '../+vendor/BaseButton';
 import { toastMessage } from '../+vendor/BaseToaster';
 
-export const GameCreateForumTopicButton: FC = () => {
-  const { backingGame, can } = usePageProps<App.Platform.Data.GameShowPageProps>();
+interface GameCreateForumTopicButtonProps {
+  game: App.Platform.Data.Game;
+}
+
+export const GameCreateForumTopicButton: FC<GameCreateForumTopicButtonProps> = ({ game }) => {
+  const { can } = usePageProps<{ can: App.Data.UserPermissions }>();
 
   const { t } = useTranslation();
 
   const mutation = useCreateOfficialForumTopicMutation();
 
-  if (!can?.createGameForumTopic || backingGame?.forumTopicId) {
+  if (!can?.createGameForumTopic || game.forumTopicId) {
     return null;
   }
 
@@ -24,7 +28,7 @@ export const GameCreateForumTopicButton: FC = () => {
       return false;
     }
 
-    await toastMessage.promise(mutation.mutateAsync({ gameId: backingGame.id }), {
+    await toastMessage.promise(mutation.mutateAsync({ gameId: game.id }), {
       loading: t('Creating...'),
       success: t('Created!'),
       error: t('Something went wrong.'),
