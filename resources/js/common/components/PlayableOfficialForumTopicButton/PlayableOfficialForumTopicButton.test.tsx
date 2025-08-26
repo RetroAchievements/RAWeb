@@ -34,11 +34,16 @@ describe('Component: OfficialForumTopicButton', () => {
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 
-  it('given the game has a forum topic, shows a link to it', () => {
+  it('given the backing game has a forum topic, shows a link to it', () => {
     // ARRANGE
     const game = createGame({ id: 1, forumTopicId: 123 });
 
-    render(<PlayableOfficialForumTopicButton game={game} />);
+    render(
+      <PlayableOfficialForumTopicButton
+        game={game}
+        backingGame={createGame({ id: 1, forumTopicId: 456 })}
+      />,
+    );
 
     // ASSERT
     const link = screen.getByRole('link', { name: /official forum topic/i });
