@@ -26,7 +26,8 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
   const canShowManagement = can.manageGames;
 
   const userRoles = auth?.user.roles ?? [];
-  const canShowDevelopment = userRoles.includes('developer'); // TODO || userRoles.includes('developer-junior')
+  const canShowDevelopment =
+    userRoles.includes('developer') || userRoles.includes('developer-junior');
 
   const showSubsetIndicator = backingGame.id !== game.id;
 

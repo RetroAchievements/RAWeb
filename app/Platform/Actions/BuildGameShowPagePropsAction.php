@@ -310,6 +310,7 @@ class BuildGameShowPagePropsAction
                         'title',
                         'achievementSet.id',
                         'achievementSet.imageAssetPathUrl',
+                        'achievementSet.achievementsFirstPublishedAt',
                         'achievementSet.achievementsPublished',
                         'achievementSet.pointsTotal',
                         'achievementSet.pointsWeighted',

@@ -116,13 +116,22 @@ function mergeSubscribers(array $subscribersA, array $subscribersB): array
 
 function getSubscribersOfGameWall(int $gameID): array
 {
-    return getSubscribersOfArticle(ArticleType::Game, $gameID, 1 << UserPreference::EmailOn_AchievementComment);
+    return getSubscribersOfArticle(
+        ArticleType::Game,
+        $gameID,
+        1 << UserPreference::EmailOn_AchievementComment
+    );
 }
 
 function getSubscribersOfAchievement(int $achievementID, int $gameID, string $achievementAuthor): array
 {
     // users directly subscribed to the achievement
-    $achievementSubs = getSubscribersOfArticle(ArticleType::Achievement, $achievementID, 1 << UserPreference::EmailOn_AchievementComment, $achievementAuthor);
+    $achievementSubs = getSubscribersOfArticle(
+        ArticleType::Achievement,
+        $achievementID,
+        1 << UserPreference::EmailOn_AchievementComment,
+        $achievementAuthor
+    );
 
     // devs subscribed to the achievement through the game
     $gameAchievementsSubs = getSubscribersOf(SubscriptionSubjectType::GameAchievements, $gameID, 1 << UserPreference::EmailOn_ActivityComment);
@@ -132,13 +141,24 @@ function getSubscribersOfAchievement(int $achievementID, int $gameID, string $ac
 
 function getSubscribersOfUserWall(int $userID, string $userName): array
 {
-    return getSubscribersOfArticle(ArticleType::User, $userID, 1 << UserPreference::EmailOn_UserWallComment, $userName);
+    return getSubscribersOfArticle(
+        ArticleType::User,
+        $userID,
+        1 << UserPreference::EmailOn_UserWallComment,
+        $userName
+    );
 }
 
 function getSubscribersOfTicket(int $ticketID, string $ticketAuthor, int $gameID): array
 {
     // users directly subscribed to the ticket
-    $ticketSubs = getSubscribersOfArticle(ArticleType::AchievementTicket, $ticketID, 1 << UserPreference::EmailOn_TicketActivity, $ticketAuthor, true);
+    $ticketSubs = getSubscribersOfArticle(
+        ArticleType::AchievementTicket,
+        $ticketID,
+        1 << UserPreference::EmailOn_TicketActivity,
+        $ticketAuthor,
+        true
+    );
 
     // devs subscribed to the ticket through the game
     $gameTicketsSubs = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, 1 << UserPreference::EmailOn_TicketActivity);
@@ -213,7 +233,7 @@ function getSubscribersOfArticle(
     return getSubscribersOf(
         $subjectType,
         $articleID,
-        1 << UserPreference::EmailOn_ActivityComment,  // code suggests the value of $reqWebsitePrefs should be used, but the feature is disabled for now
+        $reqWebsitePrefs,
         $preparedQry,
     );
 }
