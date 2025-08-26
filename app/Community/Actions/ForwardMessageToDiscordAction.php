@@ -27,6 +27,7 @@ class ForwardMessageToDiscordAction
     /** Embed colors */
     private const COLOR_DEFAULT = 0x0066CC;
     private const COLOR_VERIFICATION = 0x00CC66;
+    private const COLOR_MANUAL_UNLOCK = 0xCC0066;
 
     private Client $client;
 
@@ -107,6 +108,13 @@ class ForwardMessageToDiscordAction
         if (isset($inboxConfig['verify_url']) && $this->isVerificationMessage($messageTitle)) {
             $webhookUrl = $inboxConfig['verify_url'];
             $color = self::COLOR_VERIFICATION;
+            $isForum = false;
+        }
+
+        // Detect manual unlock messages and route them to a special channel.
+        if (isset($inboxConfig['manual_unlock_url']) && mb_strpos($messageTitle, 'manual') !== false) {
+            $webhookUrl = $inboxConfig['manual_unlock_url'];
+            $color = self::COLOR_MANUAL_UNLOCK;
             $isForum = false;
         }
 

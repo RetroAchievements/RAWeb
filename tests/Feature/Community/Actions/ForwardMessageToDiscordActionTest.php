@@ -72,7 +72,8 @@ class ForwardMessageToDiscordActionTest extends TestCase
         string $webhookUrl = 'https://discord.com/api/webhooks/123/abc',
         bool $isForum = false,
         ?string $verifyUrl = null,
-        ?string $achievementIssuesUrl = null
+        ?string $achievementIssuesUrl = null,
+        ?string $manualUnlockUrl = null
     ): void {
         config([
             'services.discord.inbox_webhook.' . $user->username => [
@@ -80,6 +81,7 @@ class ForwardMessageToDiscordActionTest extends TestCase
                 'is_forum' => $isForum,
                 'verify_url' => $verifyUrl,
                 'achievement_issues_url' => $achievementIssuesUrl,
+                'manual_unlock_url' => $manualUnlockUrl,
             ],
         ]);
     }
@@ -317,6 +319,31 @@ class ForwardMessageToDiscordActionTest extends TestCase
 
         $payload = $this->getLastWebhookPayload();
         $this->assertEquals(hexdec('0x00CC66'), $payload['embeds'][0]['color']);
+    }
+
+    public function testItRoutesManualUnlockMessagesToTheManualUnlockUrl(): void
+    {
+        // Arrange
+        $this->setDiscordConfig(
+            $this->recipient,
+            manualUnlockUrl: 'https://discord.com/api/webhooks/manual/abc'
+        );
+        $this->thread->title = "Manual Unlock: Full Course in the Snowman's Land [48653] (Super Mario 64)";
+        $this->thread->save();
+        $message = $this->createMessage('Please manually unlock this achievement for me');
+        $this->queueDiscordResponses(1);
+
+        // Act
+        $this->action->execute($this->sender, $this->recipient, $this->thread, $message);
+
+        // Assert
+        $this->assertCount(1, $this->webhookHistory);
+
+        $request = $this->webhookHistory[0]['request'];
+        $this->assertEquals('https://discord.com/api/webhooks/manual/abc', (string) $request->getUri());
+
+        $payload = $this->getLastWebhookPayload();
+        $this->assertEquals(hexdec('0xCC0066'), $payload['embeds'][0]['color']);
     }
 
     public function testItHandlesAchievementIssueMessagesWithStructuredTitle(): void
