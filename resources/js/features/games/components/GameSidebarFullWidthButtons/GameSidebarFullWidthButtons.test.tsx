@@ -81,12 +81,12 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     expect(screen.getByRole('link', { name: /game details/i })).toBeVisible();
   });
 
-  it('given the user can manage games and create game forum topics and the game has no forum topic, shows a create new forum topic button', () => {
+  it('given the user can manage games and create game forum topics and the backing game has no forum topic, shows a create new forum topic button', () => {
     // ARRANGE
     render(<GameSidebarFullWidthButtons game={createGame({ forumTopicId: undefined })} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
+        backingGame: createGame({ forumTopicId: undefined }),
         can: { manageGames: true, createGameForumTopic: true },
       },
     });

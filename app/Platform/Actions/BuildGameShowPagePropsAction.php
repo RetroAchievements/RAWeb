@@ -191,7 +191,7 @@ class BuildGameShowPagePropsAction
         return new GameShowPagePropsData(
             achievementSetClaims: $achievementSetClaims,
 
-            can: UserPermissionsData::fromUser($user, game: $game, claim: $primaryClaim)->include(
+            can: UserPermissionsData::fromUser($user, game: $backingGame, claim: $primaryClaim)->include(
                 'createAchievementSetClaims',
                 'createGameComments',
                 'createGameForumTopic',

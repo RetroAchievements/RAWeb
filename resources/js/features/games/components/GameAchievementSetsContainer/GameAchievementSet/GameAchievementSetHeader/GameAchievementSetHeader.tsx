@@ -27,7 +27,7 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
       <div className="flex items-center gap-3">
         <img
           src={imageAssetPathUrl}
-          alt={gameAchievementSet.title ?? 'Base Set'} // intentionally untranslated
+          alt={gameAchievementSet.title ?? t('Base Set')}
           width={52}
           height={52}
           className="rounded-sm"
