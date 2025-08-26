@@ -61,7 +61,7 @@ export const ForumPostCardMeta: FC<ForumPostCardMetaProps> = ({ comment, topic }
         <>
           <span className="text-neutral-400/80 light:text-neutral-700">{'·'}</span>
 
-          <span className="flex items-center gap-1.5 text-[x-small] text-neutral-400/80 light:text-neutral-700">
+          <span className="mt-px flex items-center gap-1.5 text-[x-small] text-neutral-400/80 light:text-neutral-700">
             <Trans
               i18nKey="Posted by <1>{{username}}</1>"
               values={{ username: comment.sentBy.displayName }}
@@ -75,7 +75,7 @@ export const ForumPostCardMeta: FC<ForumPostCardMetaProps> = ({ comment, topic }
         <>
           <span className="ml-0.5 text-neutral-400/80 light:text-neutral-700">{'·'}</span>
 
-          <span className="flex items-center gap-1.5 text-[x-small] text-neutral-400/80 light:text-neutral-700">
+          <span className="mt-px flex items-center gap-1.5 text-[x-small] text-neutral-400/80 light:text-neutral-700">
             <Trans
               i18nKey="Last edited by <1>{{username}}</1>"
               values={{ username: comment.editedBy.displayName }}
