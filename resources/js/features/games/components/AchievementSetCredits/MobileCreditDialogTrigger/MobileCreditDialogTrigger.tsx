@@ -38,10 +38,21 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
   const { t } = useTranslation();
 
   const nonAuthorUniqueContributors = useMemo(() => {
-    return [...artCreditUsers, ...codingCreditUsers, ...designCreditUsers].filter(
-      (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
+    return (
+      [...artCreditUsers, ...codingCreditUsers, ...designCreditUsers]
+        .filter(
+          (user, index, self) =>
+            index === self.findIndex((u) => u.displayName === user.displayName),
+        )
+        // Don't double-count authors as contributors.
+        .filter(
+          (user) =>
+            !aggregateCredits.achievementsAuthors.some(
+              (author) => author.displayName === user.displayName,
+            ),
+        )
     );
-  }, [artCreditUsers, codingCreditUsers, designCreditUsers]);
+  }, [artCreditUsers, codingCreditUsers, designCreditUsers, aggregateCredits.achievementsAuthors]);
 
   // Dedupe logic credits with authors - it's a bit redundant.
   // TODO do this on the server to reduce initial props size

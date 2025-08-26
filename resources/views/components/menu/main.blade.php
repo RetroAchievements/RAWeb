@@ -112,6 +112,7 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
     <x-dropdown-item :href="route('forum.recent-posts')">Recent Forum Posts</x-dropdown-item>
     <div class="dropdown-divider"></div>
     <x-dropdown-item :href="url('userList.php')">{{ __res('user') }}</x-dropdown-item>
+    <x-dropdown-item :href="route('patreon-supporter.index')">Patreon Supporters</x-dropdown-item>
     <x-dropdown-item :href="url('globalRanking.php')">Global Points Ranking</x-dropdown-item>
     <x-dropdown-item :href="route('ranking.beaten-games')">Global Beaten Games Ranking</x-dropdown-item>
     <x-dropdown-item :href="url('recentMastery.php')">Recent Game Awards</x-dropdown-item>
