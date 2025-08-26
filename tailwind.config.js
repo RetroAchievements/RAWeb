@@ -55,6 +55,7 @@ module.exports = {
         'fade-in': 'fade-in 100ms ease',
         'collapse-open': 'collapse-open 200ms ease-in-out',
         tilt: 'tilt 10s infinite linear !important',
+        shimmer: 'shimmer 3s ease-in-out infinite',
       },
       keyframes: {
         'accordion-down': {
@@ -81,6 +82,11 @@ module.exports = {
           '0%, 50%, 100%': { transform: 'rotate(0deg)' },
           '25%': { transform: 'rotate(1.5deg)' },
           '75%': { transform: 'rotate(-1.5deg)' },
+        },
+
+        shimmer: {
+          '0%': { backgroundPosition: '200% 0' },
+          '100%': { backgroundPosition: '-200% 0' },
         },
       },
     },
