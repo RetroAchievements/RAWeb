@@ -39,9 +39,9 @@ export const LeaderboardsListItem: FC<LeaderboardsListItemProps> = ({
       </div>
 
       <div className="grid w-full gap-x-5 gap-y-1.5 pb-2.5 leading-4 md:grid-cols-6">
-        <div className="md:col-span-4">
+        <div className="md:col-span-4 md:mt-1">
           {/* Title */}
-          <div className="-mt-1 mb-0.5 md:mt-0">
+          <div className="mb-0.5 md:mt-0">
             <span className="mr-2">
               <a href={`/leaderboardinfo.php?i=${leaderboard.id}`} className="font-medium">
                 {leaderboard.title}
@@ -57,11 +57,12 @@ export const LeaderboardsListItem: FC<LeaderboardsListItemProps> = ({
             {leaderboard.topEntry?.user ? (
               <div className="flex items-center gap-3">
                 <LuCrown className="size-4 text-yellow-400 light:text-amber-600" />
-                <UserAvatar {...leaderboard.topEntry.user} size={16} labelClassName="-ml-0.5" />
 
                 <span className="text-neutral-300 light:text-neutral-700">
                   {leaderboard.topEntry.formattedScore}
                 </span>
+
+                <UserAvatar {...leaderboard.topEntry.user} size={16} labelClassName="-ml-0.5" />
               </div>
             ) : null}
           </div>
