@@ -3,8 +3,9 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { route } from 'ziggy-js';
 
-import { render, screen, waitFor } from '@/test';
-import { createForum, createForumCategory } from '@/test/factories';
+import { createAuthenticatedUser } from '@/common/models';
+import { render, screen, waitFor, within } from '@/test';
+import { createForum, createForumCategory, createUser } from '@/test/factories';
 
 import { CreateTopicForm } from './CreateTopicForm';
 
@@ -111,6 +112,7 @@ describe('Component: CreateTopicForm', () => {
         {
           title: 'Test Title',
           body: 'Test Body',
+          postAsUserId: null,
         },
       );
     });
@@ -189,8 +191,285 @@ describe('Component: CreateTopicForm', () => {
         {
           title: 'Test Title',
           body: 'Test Body',
+          postAsUserId: null,
         },
       );
     });
+  });
+
+  it("given the user has accessible team accounts, shows the 'Post as' select control", () => {
+    // ARRANGE
+    const teamAccount1 = createUser({
+      id: 1001,
+      displayName: 'RAdmin',
+      avatarUrl: 'https://example.com/radmin-avatar.png',
+    });
+
+    const teamAccount2 = createUser({
+      id: 1002,
+      displayName: 'DevCompliance',
+      avatarUrl: 'https://example.com/dev-avatar.png',
+    });
+
+    render(<CreateTopicForm onPreview={vi.fn()} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        forum: createForum(),
+        accessibleTeamAccounts: [teamAccount1, teamAccount2], // !!
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByLabelText(/post as/i)).toBeVisible();
+    expect(screen.getByRole('combobox', { name: /post as/i })).toBeVisible();
+  });
+
+  it("given the user has no accessible team accounts, does not show the 'Post as' select control", () => {
+    // ARRANGE
+    render(<CreateTopicForm onPreview={vi.fn()} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        forum: createForum(),
+        accessibleTeamAccounts: null, // !!
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByLabelText(/post as/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox', { name: /post as/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user selects a team account, shows the team avatar in the submit button', async () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({ displayName: 'Scott' });
+    const teamAccount = createUser({
+      id: 1001,
+      displayName: 'RAdmin',
+      avatarUrl: 'https://example.com/radmin-avatar.png',
+    });
+
+    render(<CreateTopicForm onPreview={vi.fn()} />, {
+      pageProps: {
+        auth: { user },
+        forum: createForum(),
+        accessibleTeamAccounts: [teamAccount], // !!
+      },
+    });
+
+    // ... fill in required fields to make the form valid ...
+    await userEvent.type(
+      screen.getByPlaceholderText(/enter your new topic's title/i),
+      'Test Title',
+    );
+    await userEvent.type(screen.getByPlaceholderText(/don't ask for links/i), 'Test Body');
+
+    // ACT
+    const postAsSelector = screen.getByRole('combobox', { name: /post as/i });
+    await userEvent.selectOptions(postAsSelector, '1001');
+
+    // ASSERT
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+    const avatarImage = within(submitButton).getByRole('img', { hidden: true });
+    expect(avatarImage).toHaveAttribute('src', 'https://example.com/radmin-avatar.png');
+    expect(avatarImage).toHaveAttribute('alt', 'RAdmin');
+  });
+
+  it('given the user has team accounts but posts as self, does not show an avatar', async () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({
+      displayName: 'Scott',
+      avatarUrl: 'https://example.com/scott-avatar.png',
+    });
+    const teamAccount = createUser({
+      id: 1001,
+      displayName: 'RAdmin',
+      avatarUrl: 'https://example.com/radmin-avatar.png',
+    });
+
+    render(<CreateTopicForm onPreview={vi.fn()} />, {
+      pageProps: {
+        auth: { user },
+        forum: createForum(),
+        accessibleTeamAccounts: [teamAccount], // !!
+      },
+    });
+
+    // ... fill in required fields to make the form valid ...
+    await userEvent.type(
+      screen.getByPlaceholderText(/enter your new topic's title/i),
+      'Test Title',
+    );
+    await userEvent.type(screen.getByPlaceholderText(/don't ask for links/i), 'Test Body');
+
+    // ASSERT
+    const postAsSelector = screen.getByRole('combobox', { name: /post as/i });
+    expect(postAsSelector).toHaveValue('self'); // !! default is 'self'
+
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+    const avatarImage = within(submitButton).queryByRole('img', { hidden: true });
+    expect(avatarImage).not.toBeInTheDocument(); // !! no avatar when posting as self
+  });
+
+  it('given the user selects a team account, shows the correct submit button text', async () => {
+    // ARRANGE
+    const user = createAuthenticatedUser({ displayName: 'Scott' });
+    const teamAccount = createUser({
+      id: 1001,
+      displayName: 'RAdmin',
+      avatarUrl: 'https://example.com/radmin-avatar.png',
+    });
+
+    render(<CreateTopicForm onPreview={vi.fn()} />, {
+      pageProps: {
+        auth: { user },
+        forum: createForum(),
+        accessibleTeamAccounts: [teamAccount], // !!
+      },
+    });
+
+    // ... fill in required fields to make form valid ...
+    await userEvent.type(
+      screen.getByPlaceholderText(/enter your new topic's title/i),
+      'Test Title',
+    );
+    await userEvent.type(screen.getByPlaceholderText(/don't ask for links/i), 'Test Body');
+
+    // ACT
+    const postAsSelector = screen.getByRole('combobox', { name: /post as/i });
+    await userEvent.selectOptions(postAsSelector, '1001');
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /submit as radmin/i })).toBeVisible();
+  });
+
+  it('given the user submits as a team account, sends the correct postAsUserId to the back-end', async () => {
+    // ARRANGE
+    vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({
+      data: { success: true, newTopicId: 789 },
+    });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+    const teamAccount = createUser({
+      id: 1001,
+      displayName: 'RAdmin',
+      avatarUrl: 'https://example.com/radmin-avatar.png',
+    });
+
+    render(<CreateTopicForm onPreview={vi.fn()} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        forum,
+        accessibleTeamAccounts: [teamAccount], // !!
+      },
+    });
+
+    // ACT
+    const postAsSelector = screen.getByRole('combobox', { name: /post as/i });
+    await userEvent.selectOptions(postAsSelector, '1001');
+
+    await userEvent.type(
+      screen.getByPlaceholderText(/enter your new topic's title/i),
+      'Test Title',
+    );
+    await userEvent.type(screen.getByPlaceholderText(/don't ask for links/i), 'Test Body');
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledWith(
+        route('api.forum-topic.store', { category: category.id, forum: forum.id }),
+        {
+          title: 'Test Title',
+          body: 'Test Body',
+          postAsUserId: 1001, // !!
+        },
+      );
+    });
+  });
+
+  it('given the user submits as self when team accounts are available, sends null postAsUserId to the back-end', async () => {
+    // ARRANGE
+    vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({
+      data: { success: true, newTopicId: 789 },
+    });
+
+    const category = createForumCategory();
+    const forum = createForum({ category });
+    const teamAccount = createUser({
+      id: 1001,
+      displayName: 'RAdmin',
+      avatarUrl: 'https://example.com/radmin-avatar.png',
+    });
+
+    render(<CreateTopicForm onPreview={vi.fn()} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        forum,
+        accessibleTeamAccounts: [teamAccount], // !!
+      },
+    });
+
+    // ACT
+    // ... don't change the select control value, keep it as 'self' ...
+    await userEvent.type(
+      screen.getByPlaceholderText(/enter your new topic's title/i),
+      'Test Title',
+    );
+    await userEvent.type(screen.getByPlaceholderText(/don't ask for links/i), 'Test Body');
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledWith(
+        route('api.forum-topic.store', { category: category.id, forum: forum.id }),
+        {
+          title: 'Test Title',
+          body: 'Test Body',
+          postAsUserId: null, // !!
+        },
+      );
+    });
+  });
+
+  it('given there are selectable team accounts, sorts them alphabetically in the select control options', () => {
+    // ARRANGE
+    const teamAccount1 = createUser({
+      id: 1001,
+      displayName: 'ZetaTeam',
+      avatarUrl: 'https://example.com/zeta-avatar.png',
+    });
+
+    const teamAccount2 = createUser({
+      id: 1002,
+      displayName: 'AlphaTeam',
+      avatarUrl: 'https://example.com/alpha-avatar.png',
+    });
+
+    const teamAccount3 = createUser({
+      id: 1003,
+      displayName: 'BetaTeam',
+      avatarUrl: 'https://example.com/beta-avatar.png',
+    });
+
+    render(<CreateTopicForm onPreview={vi.fn()} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
+        forum: createForum(),
+        accessibleTeamAccounts: [teamAccount1, teamAccount2, teamAccount3], // !! unsorted
+      },
+    });
+
+    // ASSERT
+    const postAsSelector = screen.getByRole('combobox', { name: /post as/i });
+    const options = within(postAsSelector).getAllByRole('option');
+
+    expect(options[0]).toHaveTextContent('Scott'); // !! the user's own account is always first
+
+    expect(options[1]).toHaveTextContent('AlphaTeam');
+    expect(options[2]).toHaveTextContent('BetaTeam');
+    expect(options[3]).toHaveTextContent('ZetaTeam');
   });
 });

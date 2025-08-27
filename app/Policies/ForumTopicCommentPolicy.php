@@ -8,11 +8,13 @@ use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Role;
 use App\Models\User;
+use App\Policies\Concerns\HandlesTeamAccounts;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ForumTopicCommentPolicy
 {
     use HandlesAuthorization;
+    use HandlesTeamAccounts;
 
     public function manage(User $user): bool
     {
@@ -47,8 +49,14 @@ class ForumTopicCommentPolicy
         return false;
     }
 
-    public function create(User $user, ForumTopic $topic): bool
+    public function create(User $user, ForumTopic $topic, ?User $teamAccount = null): bool
     {
+        // Users are able to create forum topic replies on behalf of team accounts,
+        // assuming the correct role is attached to the user.
+        if ($teamAccount) {
+            return $this->canActAsTeamAccount($user, $teamAccount);
+        }
+
         /*
          * verified and unverified users may comment
          * muted, suspended, banned may not comment
@@ -86,10 +94,23 @@ class ForumTopicCommentPolicy
             return false;
         }
 
-        // Otherwise, users are allowed to edit their own comments.
         // If the user is allowed to manage ForumTopicComment entities,
-        // they can also edit the comment.
-        return $this->manage($user) || $user->is($comment->user);
+        // they can edit any comment.
+        if ($this->manage($user)) {
+            return true;
+        }
+
+        // Users are allowed to edit their own comments.
+        if ($user->is($comment->user)) {
+            return true;
+        }
+
+        // Users can edit posts made by team accounts they have access to.
+        if ($this->canActAsTeamAccount($user, $comment->user)) {
+            return true;
+        }
+
+        return false;
     }
 
     public function delete(User $user, ForumTopicComment $comment): bool

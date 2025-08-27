@@ -36,7 +36,9 @@ export const ForumPostCard: FC<ForumPostCardProps> = ({
       <div className="relative">
         <div
           className={cn(
-            'relative -mx-2 w-[calc(100%+16px)] rounded-lg bg-embed-highlight px-1 py-2 even:bg-embed sm:mx-0 sm:w-full lg:flex',
+            'relative -mx-2 w-[calc(100%+16px)] rounded-lg bg-embed-highlight px-1 py-2 even:bg-embed',
+            'light:border light:border-neutral-300 light:bg-white',
+            'sm:mx-0 sm:w-full lg:flex',
             isHighlighted ? 'outline outline-2' : null,
           )}
         >
