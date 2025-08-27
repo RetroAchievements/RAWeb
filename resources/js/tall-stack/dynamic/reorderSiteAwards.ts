@@ -1,3 +1,5 @@
+export * from './reorderSiteAwards/collectMappedTableRows';
+export * from './reorderSiteAwards/handleResetOrder';
 export * from './reorderSiteAwards/handleRowDragOver';
 export * from './reorderSiteAwards/handleShowSavedHiddenRowsChange';
 export * from './reorderSiteAwards/index';
