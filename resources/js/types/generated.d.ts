@@ -776,6 +776,7 @@ declare namespace App.Platform.Data {
     achievementSetClaims: Array<App.Platform.Data.AchievementSetClaim>;
     hasMatureContent: boolean;
     hubs: Array<App.Platform.Data.GameSet>;
+    initialView: App.Platform.Enums.GamePageListView;
     isLockedOnlyFilterEnabled: boolean;
     isMissableOnlyFilterEnabled: boolean;
     isOnWantToDevList: boolean;
@@ -852,6 +853,7 @@ declare namespace App.Platform.Data {
     game?: App.Platform.Data.Game;
     topEntry?: App.Platform.Data.LeaderboardEntry | null;
     format?: string | null;
+    orderColumn?: number;
   };
   export type LeaderboardEntry = {
     id: number;
@@ -1062,6 +1064,7 @@ declare namespace App.Platform.Enums {
     | 'retroRatio'
     | 'system'
     | 'title';
+  export type GamePageListView = 'achievements' | 'leaderboards';
   export type GameReleaseRegion =
     | 'as'
     | 'au'

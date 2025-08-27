@@ -1,12 +1,12 @@
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
-import type { AchievementSortOrder } from '@/common/models';
+import type { PlayableListSortOrder } from '@/common/models';
 import { render, screen } from '@/test';
 
-import { AchievementSortButton } from './AchievementSortButton';
+import { PlayableListSortButton } from './PlayableListSortButton';
 
-const defaultSortOrders: AchievementSortOrder[] = [
+const defaultSortOrders: PlayableListSortOrder[] = [
   'active',
   '-normal',
   'normal',
@@ -22,11 +22,11 @@ const defaultSortOrders: AchievementSortOrder[] = [
   'wonBy',
 ];
 
-describe('Component: AchievementSortButton', () => {
+describe('Component: PlayableListSortButton', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <AchievementSortButton
+      <PlayableListSortButton
         value="displayOrder"
         onChange={vi.fn()}
         availableSortOrders={defaultSortOrders}
@@ -42,7 +42,7 @@ describe('Component: AchievementSortButton', () => {
     const onChange = vi.fn();
 
     render(
-      <AchievementSortButton
+      <PlayableListSortButton
         value="displayOrder"
         onChange={onChange}
         availableSortOrders={defaultSortOrders}
@@ -59,7 +59,7 @@ describe('Component: AchievementSortButton', () => {
     const onChange = vi.fn();
 
     render(
-      <AchievementSortButton
+      <PlayableListSortButton
         value="-displayOrder"
         onChange={onChange}
         availableSortOrders={defaultSortOrders}
@@ -76,7 +76,7 @@ describe('Component: AchievementSortButton', () => {
     const onChange = vi.fn();
 
     render(
-      <AchievementSortButton
+      <PlayableListSortButton
         value="wonBy"
         onChange={onChange}
         availableSortOrders={defaultSortOrders}
@@ -93,7 +93,7 @@ describe('Component: AchievementSortButton', () => {
     const onChange = vi.fn();
 
     render(
-      <AchievementSortButton
+      <PlayableListSortButton
         value="-wonBy"
         onChange={onChange}
         availableSortOrders={defaultSortOrders}
@@ -110,7 +110,7 @@ describe('Component: AchievementSortButton', () => {
     const onChange = vi.fn();
 
     render(
-      <AchievementSortButton
+      <PlayableListSortButton
         value="active"
         onChange={onChange}
         availableSortOrders={defaultSortOrders}
@@ -127,7 +127,7 @@ describe('Component: AchievementSortButton', () => {
     const onChange = vi.fn();
 
     render(
-      <AchievementSortButton
+      <PlayableListSortButton
         value="displayOrder"
         onChange={onChange}
         availableSortOrders={['displayOrder']}
@@ -146,7 +146,7 @@ describe('Component: AchievementSortButton', () => {
     const onChange = vi.fn();
 
     render(
-      <AchievementSortButton
+      <PlayableListSortButton
         value="displayOrder"
         onChange={onChange}
         availableSortOrders={defaultSortOrders}
@@ -166,7 +166,7 @@ describe('Component: AchievementSortButton', () => {
     const onChange = vi.fn();
 
     render(
-      <AchievementSortButton
+      <PlayableListSortButton
         value="wonBy"
         onChange={onChange}
         availableSortOrders={['displayOrder', '-displayOrder']}
@@ -188,7 +188,7 @@ describe('Component: AchievementSortButton', () => {
     const onChange = vi.fn();
 
     render(
-      <AchievementSortButton
+      <PlayableListSortButton
         value="wonBy"
         onChange={onChange}
         availableSortOrders={['displayOrder', '-displayOrder']}
@@ -210,7 +210,7 @@ describe('Component: AchievementSortButton', () => {
     const onChange = vi.fn();
 
     render(
-      <AchievementSortButton
+      <PlayableListSortButton
         value="displayOrder"
         onChange={onChange}
         availableSortOrders={['wonBy', '-wonBy']}
@@ -230,7 +230,7 @@ describe('Component: AchievementSortButton', () => {
     const onChange = vi.fn();
 
     render(
-      <AchievementSortButton
+      <PlayableListSortButton
         value="displayOrder"
         onChange={onChange}
         availableSortOrders={['wonBy', '-wonBy']}

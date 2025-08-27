@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { usePersistedGameIdsCookie } from '@/features/games/hooks/usePersistedGameIdsCookie';
 import {
   currentListViewAtom,
+  currentPlayableListSortAtom,
   isLockedOnlyFilterEnabledAtom,
   isMissableOnlyFilterEnabledAtom,
 } from '@/features/games/state/games.atoms';
@@ -371,7 +372,6 @@ describe('Component: GameAchievementSetToolbar', () => {
     // ASSERT
     expect(screen.getByRole('button', { name: /locked only/i })).toBeDisabled();
     expect(screen.getByRole('button', { name: /missable only/i })).toBeDisabled();
-    expect(screen.getByRole('button', { name: /display order/i })).toBeDisabled();
   });
 
   it('given the current display mode is leaderboards and the user selects achievements, switches to the achievements view', async () => {
@@ -407,5 +407,71 @@ describe('Component: GameAchievementSetToolbar', () => {
     expect(screen.getByRole('button', { name: /locked only/i })).toBeEnabled();
     expect(screen.getByRole('button', { name: /missable only/i })).toBeEnabled();
     expect(screen.getByRole('button', { name: /display order/i })).toBeEnabled();
+  });
+
+  it('given the current view is leaderboards but there are no leaderboards, automatically switches to achievements view', () => {
+    // ARRANGE
+    const mockGame = createGame({ id: 123 });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    const initialAtomValues: [any, any][] = [
+      [currentListViewAtom, 'leaderboards'], // !! viewing leaderboards
+      //
+    ];
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={1}
+      />,
+      {
+        pageProps: { backingGame: mockGame, numLeaderboards: 0 }, // !! no leaderboards
+        jotaiAtoms: initialAtomValues,
+      },
+    );
+
+    expect(screen.queryByRole('button', { name: /display mode/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user changes the sort order, correctly calls the onChange handler', async () => {
+    // ARRANGE
+    const mockGame = createGame({ id: 123 });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    const initialAtomValues: [any, any][] = [
+      [currentPlayableListSortAtom, 'normal'], // !! starting sort
+      //
+    ];
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={1}
+      />,
+      {
+        pageProps: { backingGame: mockGame, numLeaderboards: 10 },
+        jotaiAtoms: initialAtomValues,
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /display order/i }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /won by \(most\)/i }));
+
+    // ASSERT
+    // ... the sort button should now show the new sort order ...
+    expect(screen.getByRole('button', { name: /won by/i })).toBeVisible();
   });
 });

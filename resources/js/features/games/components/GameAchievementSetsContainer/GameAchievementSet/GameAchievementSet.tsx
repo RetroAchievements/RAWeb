@@ -7,9 +7,10 @@ import { AchievementsListItem } from '@/common/components/AchievementsListItem';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { sortAchievements } from '@/common/utils/sortAchievements';
+import { sortLeaderboards } from '@/common/utils/sortLeaderboards';
 import {
-  currentAchievementSortAtom,
   currentListViewAtom,
+  currentPlayableListSortAtom,
   isLockedOnlyFilterEnabledAtom,
   isMissableOnlyFilterEnabledAtom,
 } from '@/features/games/state/games.atoms';
@@ -33,7 +34,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   const { isViewingPublishedAchievements, leaderboards, numLeaderboards } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
-  const currentAchievementSort = useAtomValue(currentAchievementSortAtom);
+  const currentAchievementSort = useAtomValue(currentPlayableListSortAtom);
   const currentListView = useAtomValue(currentListViewAtom);
   const isLockedOnlyFilterEnabled = useAtomValue(isLockedOnlyFilterEnabledAtom);
   const isMissableOnlyFilterEnabled = useAtomValue(isMissableOnlyFilterEnabledAtom);
@@ -62,6 +63,11 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
       sortedAchievements,
       unlockedAchievements.length,
     ],
+  );
+
+  const sortedLeaderboards = useMemo(
+    () => (leaderboards ? sortLeaderboards(leaderboards, currentAchievementSort) : []),
+    [leaderboards, currentAchievementSort],
   );
 
   const isLargeAchievementsList = sortedAchievements.length > 50;
@@ -118,7 +124,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
 
             {currentListView === 'leaderboards' ? (
               <>
-                {leaderboards?.map((leaderboard, index) => (
+                {sortedLeaderboards.map((leaderboard, index) => (
                   <LeaderboardsListItem
                     key={`lbd-${leaderboard.id}`}
                     index={index}

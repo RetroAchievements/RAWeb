@@ -33,6 +33,7 @@ use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetAuthorTask;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\GamePageListView;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Spatie\LaravelData\Lazy;
@@ -55,7 +56,8 @@ class BuildGameShowPagePropsAction
         Game $game,
         ?User $user,
         AchievementFlag $targetAchievementFlag = AchievementFlag::OfficialCore,
-        ?GameAchievementSet $targetAchievementSet = null
+        ?GameAchievementSet $targetAchievementSet = null,
+        GamePageListView $initialView = GamePageListView::Achievements
     ): GameShowPagePropsData {
         // The backing game is the legacy game that backs the target achievement set.
         // For core sets, this will be $game->id. For subsets, it'll be a different ID.
@@ -78,6 +80,11 @@ class BuildGameShowPagePropsAction
                 'achievementSetClaims' => function ($query) {
                     $query->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
                         ->with('user');
+                },
+                'leaderboards' => function ($query) {
+                    $query->where('DisplayOrder', '>=', 0) // only show visible leaderboards on the page
+                        ->orderBy('DisplayOrder')
+                        ->with(['topEntry.user']);
                 },
                 'visibleComments' => function ($query) {
                     $query->latest('Submitted')
@@ -202,6 +209,8 @@ class BuildGameShowPagePropsAction
                 'reviewAchievementSetClaims',
             ),
 
+            initialView: $initialView,
+
             game: GameData::fromGame($game)->include(
                 'achievementsPublished',
                 'badgeUrl',
@@ -273,7 +282,10 @@ class BuildGameShowPagePropsAction
             isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
             isViewingPublishedAchievements: $targetAchievementFlag === AchievementFlag::OfficialCore,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
-            leaderboards: Lazy::inertiaDeferred(fn () => $this->buildLeaderboards($game)),
+
+            leaderboards: request()->inertia()
+                ? $this->buildLeaderboards($backingGame)
+                : Lazy::inertiaDeferred(fn () => $this->buildLeaderboards($backingGame)),
 
             playerAchievementChartBuckets: $targetAchievementFlag === AchievementFlag::OfficialCore
                 ? $this->buildGameAchievementDistributionAction->execute($backingGame, $user)
@@ -284,7 +296,7 @@ class BuildGameShowPagePropsAction
             numCompletions: $numCompletions,
             numBeaten: $numBeaten,
             numBeatenSoftcore: $numBeatenSoftcore,
-            numLeaderboards: $this->getLeaderboardsCount($game),
+            numLeaderboards: $this->getLeaderboardsCount($backingGame),
             numMasters: $numMasters,
             numOpenTickets: Ticket::forGame($backingGame)->unresolved()->count(),
             recentPlayers: $this->loadGameRecentPlayersAction->execute($game),

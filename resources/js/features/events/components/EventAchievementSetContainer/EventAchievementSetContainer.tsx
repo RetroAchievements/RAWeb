@@ -1,9 +1,9 @@
 import { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { AchievementSortButton } from '@/common/components/AchievementSortButton';
 import { EmptyState } from '@/common/components/EmptyState';
-import type { AchievementSortOrder } from '@/common/models';
+import { PlayableListSortButton } from '@/common/components/PlayableListSortButton';
+import type { PlayableListSortOrder } from '@/common/models';
 
 import { EventAchievementSet } from './EventAchievementSet';
 
@@ -18,7 +18,7 @@ interface EventAchievementSetContainerProps {
 export const EventAchievementSetContainer: FC<EventAchievementSetContainerProps> = ({ event }) => {
   const { t } = useTranslation();
 
-  const [currentSort, setCurrentSort] = useState<AchievementSortOrder>(
+  const [currentSort, setCurrentSort] = useState<PlayableListSortOrder>(
     event.state! === 'evergreen' ? 'displayOrder' : 'active',
   );
 
@@ -37,7 +37,7 @@ export const EventAchievementSetContainer: FC<EventAchievementSetContainerProps>
   return (
     <div data-testid="event-achievement-sets" className="flex flex-col gap-2">
       <div className="flex w-full justify-between">
-        <AchievementSortButton
+        <PlayableListSortButton
           value={currentSort}
           onChange={(newValue) => setCurrentSort(newValue)}
           availableSortOrders={getAvailableSortOrders(event)}
@@ -54,8 +54,8 @@ export const EventAchievementSetContainer: FC<EventAchievementSetContainerProps>
   );
 };
 
-function getAvailableSortOrders(event: App.Platform.Data.Event): AchievementSortOrder[] {
-  const orders: AchievementSortOrder[] = [];
+function getAvailableSortOrders(event: App.Platform.Data.Event): PlayableListSortOrder[] {
+  const orders: PlayableListSortOrder[] = [];
 
   if (event.state !== 'evergreen') {
     orders.push('active');

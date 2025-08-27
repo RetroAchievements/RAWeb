@@ -19,6 +19,7 @@ class LeaderboardData extends Data
         public Lazy|GameData $game,
         public Lazy|LeaderboardEntryData|null $topEntry,
         public Lazy|string|null $format,
+        public Lazy|int $orderColumn,
     ) {
     }
 
@@ -34,6 +35,7 @@ class LeaderboardData extends Data
                 : null
             ),
             format: Lazy::create(fn () => $leaderboard->format),
+            orderColumn: Lazy::create(fn () => $leaderboard->DisplayOrder),
         );
     }
 }

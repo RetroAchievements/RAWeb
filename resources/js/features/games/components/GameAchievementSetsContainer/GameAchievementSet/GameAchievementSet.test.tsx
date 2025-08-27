@@ -1,6 +1,6 @@
 import {
-  currentAchievementSortAtom,
   currentListViewAtom,
+  currentPlayableListSortAtom,
   isLockedOnlyFilterEnabledAtom,
   isMissableOnlyFilterEnabledAtom,
 } from '@/features/games/state/games.atoms';
@@ -25,7 +25,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={[]} gameAchievementSet={createGameAchievementSet()} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           //
         ],
         pageProps: {
@@ -49,7 +49,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={[]} gameAchievementSet={createGameAchievementSet()} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           //
         ],
         pageProps: {
@@ -86,7 +86,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           //
         ],
         pageProps: {
@@ -117,7 +117,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={[achievement]} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           //
         ],
         pageProps: {
@@ -151,7 +151,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           //
         ],
         pageProps: {
@@ -197,7 +197,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           [isMissableOnlyFilterEnabledAtom, true], // !!
         ],
         pageProps: {
@@ -233,7 +233,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           [isMissableOnlyFilterEnabledAtom, false], // !!
         ],
         pageProps: {
@@ -269,7 +269,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           [isLockedOnlyFilterEnabledAtom, true], // !!
         ],
         pageProps: {
@@ -307,7 +307,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           [isMissableOnlyFilterEnabledAtom, true], // !!
         ],
         pageProps: {
@@ -341,7 +341,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           [isMissableOnlyFilterEnabledAtom, true], // !!
         ],
         pageProps: {
@@ -379,7 +379,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           [currentListViewAtom, 'leaderboards'], // !!
         ],
         pageProps: {

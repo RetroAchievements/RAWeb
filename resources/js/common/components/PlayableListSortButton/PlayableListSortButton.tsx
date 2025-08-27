@@ -11,20 +11,20 @@ import {
   BaseDropdownMenuSeparator,
   BaseDropdownMenuTrigger,
 } from '@/common/components/+vendor/BaseDropdownMenu';
-import type { AchievementSortOrder } from '@/common/models';
+import type { PlayableListSortOrder } from '@/common/models';
 import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
-interface AchievementSortButtonProps {
-  availableSortOrders: AchievementSortOrder[];
-  onChange: (newValue: AchievementSortOrder) => void;
-  value: AchievementSortOrder;
+interface PlayableListSortButtonProps {
+  availableSortOrders: PlayableListSortOrder[];
+  onChange: (newValue: PlayableListSortOrder) => void;
+  value: PlayableListSortOrder;
 
   buttonClassName?: string;
   disabled?: boolean;
 }
 
-export const AchievementSortButton: FC<AchievementSortButtonProps> = ({
+export const PlayableListSortButton: FC<PlayableListSortButtonProps> = ({
   availableSortOrders,
   buttonClassName,
   disabled,
@@ -33,7 +33,7 @@ export const AchievementSortButton: FC<AchievementSortButtonProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const sortOptionsLabelMap: Record<AchievementSortOrder, TranslatedString> = {
+  const sortOptionsLabelMap: Record<PlayableListSortOrder, TranslatedString> = {
     active: t('Status'),
 
     '-normal': t('Display order (last)'),
