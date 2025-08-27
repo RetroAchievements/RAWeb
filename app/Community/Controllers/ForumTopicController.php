@@ -11,12 +11,14 @@ use App\Community\Requests\ForumTopicRequest;
 use App\Community\Requests\ShowForumTopicRequest;
 use App\Data\CreateForumTopicPagePropsData;
 use App\Data\ForumData;
+use App\Data\UserData;
 use App\Enums\Permissions;
 use App\Http\Controller;
 use App\Models\Forum;
 use App\Models\ForumCategory;
 use App\Models\ForumTopic;
 use App\Models\User;
+use App\Policies\ForumTopicPolicy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,10 +36,21 @@ class ForumTopicController extends Controller
     {
         $this->authorize('create', [ForumTopic::class, $forum]);
 
+        /** @var User $user */
+        $user = $request->user();
+
+        // Get accessible team accounts for the current user.
+        $accessibleTeamUsernames = (new ForumTopicPolicy())->getAccessibleTeamUsernames($user);
+
+        $accessibleTeamAccounts = null;
+        if (!empty($accessibleTeamUsernames)) {
+            $teamUsers = User::whereIn('User', $accessibleTeamUsernames)->get();
+            $accessibleTeamAccounts = $teamUsers->map(fn ($teamUser) => UserData::fromUser($teamUser)->include('id'));
+        }
+
         $props = new CreateForumTopicPagePropsData(
-            forum: ForumData::from($forum)->include(
-                'category'
-            ),
+            accessibleTeamAccounts: $accessibleTeamAccounts,
+            forum: ForumData::from($forum)->include('category'),
         );
 
         return Inertia::render('forums/[category]/[forum]/create', $props);

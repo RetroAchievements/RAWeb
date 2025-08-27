@@ -8,11 +8,13 @@ use App\Models\Forum;
 use App\Models\ForumTopic;
 use App\Models\Role;
 use App\Models\User;
+use App\Policies\Concerns\HandlesTeamAccounts;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ForumTopicPolicy
 {
     use HandlesAuthorization;
+    use HandlesTeamAccounts;
 
     public function manage(User $user): bool
     {
@@ -44,8 +46,15 @@ class ForumTopicPolicy
         return true;
     }
 
-    public function create(User $user, Forum $forum): bool
+    public function create(User $user, Forum $forum, ?User $teamAccount = null): bool
     {
+        // Users are able to create topics on behalf of team accounts,
+        // assuming the correct role is attached to the user.
+        if ($teamAccount) {
+            return $this->canActAsTeamAccount($user, $teamAccount);
+        }
+
+        // Otherwise check standard user permissions.
         if ($user->isMuted() || $user->isBanned()) {
             return false;
         }

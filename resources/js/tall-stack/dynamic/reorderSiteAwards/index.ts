@@ -209,7 +209,7 @@ export function buildSectionsOrderList(): string[] {
   return sectionsOrderList;
 }
 
-type MappedTableRow = {
+export type MappedTableRow = {
   isHidden: boolean;
   type: string;
   data: string;

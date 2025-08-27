@@ -25,7 +25,10 @@ export const EventSidebarFullWidthButtons: FC<EventSidebarFullWidthButtonsProps>
     <div className="flex flex-col gap-4">
       {event.legacyGame?.forumTopicId ? (
         <PlayableSidebarButtonsSection headingLabel={t('Essential Resources')}>
-          <PlayableOfficialForumTopicButton game={event.legacyGame!} />
+          <PlayableOfficialForumTopicButton
+            game={event.legacyGame!}
+            backingGame={event.legacyGame!}
+          />
         </PlayableSidebarButtonsSection>
       ) : null}
 

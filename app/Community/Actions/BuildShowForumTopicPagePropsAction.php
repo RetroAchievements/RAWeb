@@ -8,9 +8,11 @@ use App\Data\ForumTopicCommentData;
 use App\Data\ForumTopicData;
 use App\Data\PaginatedData;
 use App\Data\ShowForumTopicPagePropsData;
+use App\Data\UserData;
 use App\Data\UserPermissionsData;
 use App\Models\ForumTopic;
 use App\Models\User;
+use App\Policies\ForumTopicCommentPolicy;
 use App\Support\Shortcode\Shortcode;
 
 class BuildShowForumTopicPagePropsAction
@@ -25,6 +27,7 @@ class BuildShowForumTopicPagePropsAction
         int $perPage = 15,
     ): array {
         $paginatedForumTopicComments = $topic->visibleComments()
+            ->with(['sentBy', 'editedBy'])
             ->orderBy('created_at')
             ->paginate($perPage, ['*'], 'page', $currentPage);
 
@@ -57,18 +60,46 @@ class BuildShowForumTopicPagePropsAction
             hubIds: $entities['hubIds'],
         );
 
-        // Finally, update the message bodies sent to the UI with the converted user shortcodes.
-        $forumTopicComments = $paginatedForumTopicComments->getCollection()->map(function ($comment, $index) use ($updatedBodies) {
-            $comment->body = $updatedBodies[$index];
+        // Get accessible team accounts for the current user.
+        $accessibleTeamAccounts = null;
+        $accessibleTeamIds = [];
+        if ($user) {
+            $accessibleTeamIds = (new ForumTopicCommentPolicy())->getAccessibleTeamIds($user);
+            if (!empty($accessibleTeamIds)) {
+                $teamUsers = User::whereIn('ID', $accessibleTeamIds)->get();
+                $accessibleTeamAccounts = $teamUsers->map(fn ($teamUser) => UserData::fromUser($teamUser)->include('id'));
+            }
+        }
 
-            return ForumTopicCommentData::from($comment)->include(
-                'user.createdAt',
-                'user.deletedAt',
-                'user.visibleRole',
-            );
-        })->all();
+        // Finally, update the message bodies sent to the UI with the converted user shortcodes.
+        $forumTopicComments = $paginatedForumTopicComments->getCollection()->map(
+            function ($comment, $index) use ($updatedBodies, $user, $accessibleTeamIds) {
+                $comment->body = $updatedBodies[$index];
+
+                $includes = ['user.createdAt', 'user.deletedAt', 'user.visibleRole'];
+
+                /**
+                 * Include the sentBy and editedBy values if:
+                 * A. The user is viewing a team account post they have access to, OR
+                 * B. The user can manage forum posts (they can moderate the forum).
+                 * If we always naively include it, Inertia will leak the value into the DOM.
+                 */
+                $shouldIncludeSentByEditedBy = $user && (
+                    ($comment->sent_by_id !== null && in_array($comment->author_id, $accessibleTeamIds, true))
+                    || ($comment->edited_by_id !== null && (new ForumTopicCommentPolicy())->manage($user))
+                );
+
+                if ($shouldIncludeSentByEditedBy) {
+                    $includes[] = 'sentBy';
+                    $includes[] = 'editedBy';
+                }
+
+                return ForumTopicCommentData::from($comment)->include(...$includes);
+            }
+        )->all();
 
         $props = new ShowForumTopicPagePropsData(
+            accessibleTeamAccounts: $accessibleTeamAccounts,
             can: UserPermissionsData::fromUser($user, forumTopic: $topic)->include(
                 'authorizeForumTopicComments',
                 'createForumTopicComments',
