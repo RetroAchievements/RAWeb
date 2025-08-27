@@ -47,7 +47,10 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
           <BaseTooltip key={gas.id}>
             <BaseTooltipTrigger>
               <InertiaLink
-                href={route('game2.show', { game: game.id, set: gas.achievementSet.id })}
+                href={route('game2.show', {
+                  game: game.id,
+                  set: gas.type === 'core' ? undefined : gas.achievementSet.id,
+                })}
                 prefetch="desktop-hover-only"
                 preserveScroll={true}
                 onClick={() => {
