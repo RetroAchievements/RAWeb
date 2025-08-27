@@ -1,3 +1,4 @@
+import { useAtomValue } from 'jotai';
 import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
@@ -6,6 +7,7 @@ import { BaseTooltip, BaseTooltipTrigger } from '@/common/components/+vendor/Bas
 import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
+import { currentListViewAtom } from '@/features/games/state/games.atoms';
 
 import { GameAchievementSetTooltipContent } from '../../GameAchievementSetTooltipContent';
 import { useTabIndicator } from './useTabIndicator';
@@ -18,6 +20,8 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
   const { game, selectableGameAchievementSets } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
+
+  const currentListView = useAtomValue(currentListViewAtom);
 
   const initialActiveIndex = activeTab
     ? selectableGameAchievementSets.findIndex((gas) => gas.achievementSet.id === activeTab)
@@ -47,7 +51,11 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
           <BaseTooltip key={gas.id}>
             <BaseTooltipTrigger>
               <InertiaLink
-                href={route('game2.show', { game: game.id, set: gas.achievementSet.id })}
+                href={route('game2.show', {
+                  game: game.id,
+                  set: gas.type === 'core' ? undefined : gas.achievementSet.id,
+                  view: currentListView === 'leaderboards' ? 'leaderboards' : undefined,
+                })}
                 prefetch="desktop-hover-only"
                 preserveScroll={true}
                 onClick={() => {
