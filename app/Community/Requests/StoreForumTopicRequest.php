@@ -26,6 +26,12 @@ class StoreForumTopicRequest extends FormRequest
                 'max:60000',
                 new ContainsRegularCharacter(),
             ],
+
+            'postAsUserId' => [
+                'nullable',
+                'integer',
+                'exists:UserAccounts,ID',
+            ],
         ];
     }
 }

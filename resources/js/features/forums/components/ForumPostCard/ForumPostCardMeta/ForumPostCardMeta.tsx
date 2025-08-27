@@ -1,11 +1,12 @@
 import type { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import {
   BaseTooltip,
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
+import { UserAvatar } from '@/common/components/UserAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { CommentMetaChip } from '../CommentMetaChip';
@@ -18,7 +19,6 @@ interface ForumPostCardMetaProps {
 
 export const ForumPostCardMeta: FC<ForumPostCardMetaProps> = ({ comment, topic }) => {
   const { auth, can } = usePageProps<App.Data.ShowForumTopicPageProps>();
-
   const { t } = useTranslation();
 
   const canShowUnverifiedChip =
@@ -56,6 +56,34 @@ export const ForumPostCardMeta: FC<ForumPostCardMetaProps> = ({ comment, topic }
       ) : null}
 
       <ForumPostCardTimestamps comment={comment} />
+
+      {comment.sentBy ? (
+        <>
+          <span className="text-neutral-400/80 light:text-neutral-700">{'·'}</span>
+
+          <span className="mt-px flex items-center gap-1.5 text-[x-small] text-neutral-400/80 light:text-neutral-700">
+            <Trans
+              i18nKey="Posted by <1>{{username}}</1>"
+              values={{ username: comment.sentBy.displayName }}
+              components={{ 1: <UserAvatar {...comment.sentBy} showLabel={false} size={16} /> }}
+            />
+          </span>
+        </>
+      ) : null}
+
+      {comment.editedBy && comment.editedBy.displayName !== comment.sentBy?.displayName ? (
+        <>
+          <span className="ml-0.5 text-neutral-400/80 light:text-neutral-700">{'·'}</span>
+
+          <span className="mt-px flex items-center gap-1.5 text-[x-small] text-neutral-400/80 light:text-neutral-700">
+            <Trans
+              i18nKey="Last edited by <1>{{username}}</1>"
+              values={{ username: comment.editedBy.displayName }}
+              components={{ 1: <UserAvatar {...comment.editedBy} showLabel={false} size={16} /> }}
+            />
+          </span>
+        </>
+      ) : null}
     </div>
   );
 };

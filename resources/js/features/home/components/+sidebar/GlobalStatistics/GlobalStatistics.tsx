@@ -9,6 +9,7 @@ import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames'
 import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { HomeHeading } from '../../HomeHeading';
+import { MilestonePointsBox } from './MilestonePointsBox';
 import { StatBox } from './StatBox';
 
 export const GlobalStatistics: FC = () => {
@@ -17,6 +18,9 @@ export const GlobalStatistics: FC = () => {
   const { t } = useTranslation();
 
   const { formatNumber } = useFormatNumber();
+
+  const isBillionPointMilestone =
+    staticData.totalPointsEarned >= 1_000_000_000 && staticData.totalPointsEarned <= 1_002_000_000;
 
   return (
     <div>
@@ -74,14 +78,18 @@ export const GlobalStatistics: FC = () => {
           </StatBox>
         </div>
 
-        <div className="group flex h-full flex-col rounded bg-embed px-2 py-2.5">
-          <p className="text-xs leading-4 text-neutral-400/90 light:text-neutral-950 lg:text-2xs">
-            {t('Points Earned Since {{date}}', { date: formatDate(dayjs('2013-03-02'), 'LL') })}
-          </p>
-          <p className="!text-[20px] leading-7 text-neutral-300 light:text-neutral-950">
-            {formatNumber(staticData?.totalPointsEarned)}
-          </p>
-        </div>
+        {isBillionPointMilestone ? (
+          <MilestonePointsBox totalPoints={staticData.totalPointsEarned} />
+        ) : (
+          <div className="group flex h-full flex-col rounded bg-embed px-2 py-2.5">
+            <p className="text-xs leading-4 text-neutral-400/90 light:text-neutral-950 lg:text-2xs">
+              {t('Points Earned Since {{date}}', { date: formatDate(dayjs('2013-03-02'), 'LL') })}
+            </p>
+            <p className="!text-[20px] leading-7 text-neutral-300 light:text-neutral-950">
+              {formatNumber(staticData?.totalPointsEarned)}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

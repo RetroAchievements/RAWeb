@@ -22,6 +22,8 @@ class ForumTopicCommentData extends Data
         public bool $isAuthorized, // TODO migrate to $authorizedAt
         public ?int $forumTopicId = null, // TODO remove and use $forumTopic instead
         public Lazy|ForumTopicData|null $forumTopic = null,
+        public Lazy|UserData|null $sentBy = null,
+        public Lazy|UserData|null $editedBy = null,
     ) {
     }
 
@@ -35,6 +37,8 @@ class ForumTopicCommentData extends Data
             user: UserData::from($comment->user),
             isAuthorized: $comment->is_authorized,
             forumTopic: Lazy::create(fn () => ForumTopicData::from($comment->forumTopic)),
+            sentBy: Lazy::create(fn () => $comment->sent_by_id ? UserData::from($comment->sentBy) : null),
+            editedBy: Lazy::create(fn () => $comment->edited_by_id ? UserData::from($comment->editedBy) : null),
         );
     }
 }

@@ -15,7 +15,7 @@ export const ForumPostAuthorBox: FC<ForumPostAuthorBoxProps> = ({ comment }) => 
   const author = comment?.user as App.Data.User;
 
   return (
-    <div className="border-b border-neutral-700 px-0.5 pb-2 lg:border-b-0 lg:border-r lg:py-2">
+    <div className="border-b border-neutral-700 px-0.5 pb-2 light:border-neutral-300 lg:border-b-0 lg:border-r lg:py-2">
       {author ? (
         <div className="flex w-full items-center lg:w-44 lg:flex-col lg:text-center">
           <UserAvatar {...author} showLabel={false} size={72} />

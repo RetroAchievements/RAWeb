@@ -279,4 +279,33 @@ describe('Component: PlaytimeStatistics', () => {
     expect(screen.getByText(/75 players/i)).toBeVisible(); // !! numBeatenSoftcore
     expect(screen.getByText(/80 players/i)).toBeVisible(); // !! numCompletions
   });
+
+  it('given there is an achievementsFirstPublishedAt date, displays it', () => {
+    // ARRANGE
+    const game = createGame({
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({
+            achievementsFirstPublishedAt: new Date().toISOString(),
+          }),
+        }),
+      ],
+      playersHardcore: 100,
+      playersTotal: 200,
+    });
+
+    render(<PlaytimeStatistics />, {
+      pageProps: {
+        backingGame: game,
+        game,
+        numBeaten: 50,
+        numBeatenSoftcore: 75,
+        numCompletions: 80,
+        numMasters: 40,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/achievements available since/i)).toBeVisible();
+  });
 });
