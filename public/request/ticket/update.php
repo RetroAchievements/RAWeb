@@ -93,12 +93,11 @@ switch ($input['action']) {
         break;
 }
 
-if (
-    $ticketState !== null && $ticketState !== (int) $ticketData['ReportState']
-    && ($permissions >= Permissions::Developer || $username == $ticketData['ReportedBy'])
-) {
+if ($ticketState !== null && $ticketState !== (int) $ticketData['ReportState']) {
     $userModel = User::whereName($username)->first();
-    if ($userModel) {
+    if ($userModel
+        && ($permissions >= Permissions::Developer || $userModel->display_name == $ticketData['ReportedBy'])
+    ) {
         updateTicket($userModel, $ticketId, $ticketState, $reason);
 
         return back()->with('success', __('legacy.success.update'));

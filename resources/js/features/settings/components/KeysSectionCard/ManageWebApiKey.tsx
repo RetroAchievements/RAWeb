@@ -4,7 +4,7 @@ import axios from 'axios';
 import { type FC, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { LuCircleAlert, LuCopy } from 'react-icons/lu';
-import { useCopyToClipboard, useMedia } from 'react-use';
+import { useCopyToClipboard } from 'react-use';
 import { route } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -18,14 +18,11 @@ import {
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 export const ManageWebApiKey: FC = () => {
-  const { userSettings } = usePageProps<App.Community.Data.UserSettingsPageProps>();
+  const { userSettings, ziggy } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   const { t } = useTranslation();
 
   const [, copyToClipboard] = useCopyToClipboard();
-
-  // Hide the copy button's tooltip on mobile.
-  const isXs = useMedia('(max-width: 640px)', true);
 
   const [currentWebApiKey, setCurrentWebApiKey] = useState(userSettings.apiKey ?? '');
 
@@ -63,7 +60,7 @@ export const ManageWebApiKey: FC = () => {
         <p className="w-48 text-menu-link">{t('Web API Key')}</p>
 
         <div className="col-span-3 flex w-full flex-col gap-2">
-          <BaseTooltip open={isXs ? false : undefined}>
+          <BaseTooltip open={ziggy.device === 'mobile' ? false : undefined}>
             <BaseTooltipTrigger asChild>
               <BaseButton
                 className="flex gap-2 md:max-w-fit md:px-12"

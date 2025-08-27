@@ -26,7 +26,8 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
   const canShowManagement = can.manageGames;
 
   const userRoles = auth?.user.roles ?? [];
-  const canShowDevelopment = userRoles.includes('developer'); // TODO || userRoles.includes('developer-junior')
+  const canShowDevelopment =
+    userRoles.includes('developer') || userRoles.includes('developer-junior');
 
   const showSubsetIndicator = backingGame.id !== game.id;
 
@@ -101,8 +102,8 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
             {t('Game Details')}
           </PlayableSidebarButton>
 
-          {!game?.forumTopicId && can.createGameForumTopic ? (
-            <GameCreateForumTopicButton game={game} />
+          {!backingGame?.forumTopicId && can.createGameForumTopic ? (
+            <GameCreateForumTopicButton game={backingGame} />
           ) : null}
         </PlayableSidebarButtonsSection>
       ) : null}

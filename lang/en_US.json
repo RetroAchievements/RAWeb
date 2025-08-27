@@ -1082,6 +1082,12 @@
     "allPlayers": "All",
     "Not enough data": "Not enough data",
     "Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available.": "Not enough players have completed this milestone with time tracking enabled yet. Check back later as more data becomes available.",
+    "Thank you to all our amazing Patreon supporters": "Thank you to all our amazing Patreon supporters",
+    "This is a passion project. Donating is appreciated, but <1>never</1> required.": "This is a passion project. Donating is appreciated, but <1>never</1> required.",
+    "Your contribution goes directly towards helping keep the servers alive.": "Your contribution goes directly towards helping keep the servers alive.",
+    "All supporters ({{val, number}})": "All supporters ({{val, number}})",
+    "Our Newest Patreon Supporters": "Our Newest Patreon Supporters",
+    "Patreon Supporters": "Patreon Supporters",
     "Claim": "Claim",
     "Yes, create the claim": "Yes, create the claim",
     "You need to resolve your tickets before making any new claims.": "You need to resolve your tickets before making any new claims.",
@@ -1133,5 +1139,12 @@
     "Author: <1>{{displayName}}</1>": "Author: <1>{{displayName}}</1>",
     "View Published Achievements": "View Published Achievements",
     "View Unpublished Achievements": "View Unpublished Achievements",
-    "Developers may not be able to easily resolve tickets for issues encountered while using this emulator.": "Developers may not be able to easily resolve tickets for issues encountered while using this emulator."
+    "Developers may not be able to easily resolve tickets for issues encountered while using this emulator.": "Developers may not be able to easily resolve tickets for issues encountered while using this emulator.",
+    "{{val}} Rarity": "{{val}} Rarity",
+    "None yet": "None yet",
+    "Achievements:": "Achievements:",
+    "Points:": "Points:",
+    "RetroPoints:": "RetroPoints:",
+    "First Published:": "First Published:",
+    "Achievements available since {{date}}": "Achievements available since {{date}}"
 }
