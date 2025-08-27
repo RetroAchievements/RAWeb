@@ -18,7 +18,7 @@ export const PlayableOfficialForumTopicButton: FC<PlayableOfficialForumTopicButt
 }) => {
   const { t } = useTranslation();
 
-  if (!game?.forumTopicId) {
+  if (!backingGame?.forumTopicId) {
     return null;
   }
 

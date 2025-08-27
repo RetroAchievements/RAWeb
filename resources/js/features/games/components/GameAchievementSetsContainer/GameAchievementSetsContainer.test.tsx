@@ -48,6 +48,7 @@ describe('Component: GameAchievementSetsContainer', () => {
         achievementSetClaims: [],
         aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
+        selectableGameAchievementSets: [],
         targetAchievementSetId: 123,
       },
     });
@@ -71,6 +72,7 @@ describe('Component: GameAchievementSetsContainer', () => {
         achievementSetClaims: [],
         aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
+        selectableGameAchievementSets: [],
       },
     });
 
@@ -96,6 +98,7 @@ describe('Component: GameAchievementSetsContainer', () => {
         aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         targetAchievementSetId: 123,
+        selectableGameAchievementSets: [],
       },
     });
 
@@ -107,5 +110,33 @@ describe('Component: GameAchievementSetsContainer', () => {
     // ASSERT
     const container = screen.getByTestId('game-achievement-sets');
     expect(container).toBeVisible();
+  });
+
+  it('given there are selectable game achievement sets, displays tab buttons for them', () => {
+    // ARRANGE
+    const game = createGame({
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ id: 123, achievements: [createAchievement()] }),
+        }),
+      ],
+    });
+
+    render(<GameAchievementSetsContainer game={game} />, {
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        selectableGameAchievementSets: [
+          createGameAchievementSet(),
+          createGameAchievementSet({ title: 'Bonus Set' }),
+        ],
+        targetAchievementSetId: 123,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('img', { name: /bonus set/i })).toBeVisible();
   });
 });

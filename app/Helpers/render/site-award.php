@@ -344,6 +344,7 @@ function RenderAwardOrderTable(
         $awardType = $award['AwardType'];
         $awardData = $award['AwardData'];
         $awardDataExtra = $award['AwardDataExtra'];
+        $awardDate = $award['AwardedAt'];
         $awardTitle = $award['Title'];
         $awardDisplayOrder = $award['DisplayOrder'];
 
@@ -380,6 +381,7 @@ function RenderAwardOrderTable(
             <tr
                 data-row-index='$awardCounter'
                 data-award-kind='$humanReadableAwardKind'
+                data-award-date='$awardDate'
                 draggable='$isDraggable'
                 class='$rowClassNames'
                 ondragstart='reorderSiteAwards.handleRowDragStart(event)'
