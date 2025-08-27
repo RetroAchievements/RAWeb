@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\StaticData;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @deprecated
@@ -75,6 +77,14 @@ function static_addnewhardcoregamebeaten(int $gameId, string $username): void
  */
 function static_setlastearnedachievement(int $id, string $user, int $points): void
 {
+    // TODO rip this out after Aug 28 2025
+    $currentTotal = StaticData::first()->TotalPointsEarned ?? 0;
+    $newTotal = $currentTotal + $points;
+    if ($currentTotal < 1_000_000_000 && $newTotal >= 1_000_000_000) {
+        Log::info("Billionth point unlocked! User: {$user}, Achievement ID: {$id}");
+    }
+    // ENDTODO
+
     $query = "UPDATE StaticData
               SET NumAwarded = NumAwarded+1,
                   LastAchievementEarnedID = $id,
