@@ -6,6 +6,7 @@ import type { AppPage } from '@/common/models';
 import { GameShowMainRoot } from '@/features/games/components/+show';
 import { GameShowSidebarRoot } from '@/features/games/components/+show-sidebar';
 import {
+  currentListViewAtom,
   isLockedOnlyFilterEnabledAtom,
   isMissableOnlyFilterEnabledAtom,
 } from '@/features/games/state/games.atoms';
@@ -14,11 +15,12 @@ import type { TranslatedString } from '@/types/i18next';
 
 const GameShow: AppPage<App.Platform.Data.GameShowPageProps> = ({
   game,
+  initialView,
   isLockedOnlyFilterEnabled,
   isMissableOnlyFilterEnabled,
 }) => {
-  // Set initial filter states from page props.
   useHydrateAtoms([
+    [currentListViewAtom, initialView],
     [isLockedOnlyFilterEnabledAtom, isLockedOnlyFilterEnabled],
     [isMissableOnlyFilterEnabledAtom, isMissableOnlyFilterEnabled],
     //

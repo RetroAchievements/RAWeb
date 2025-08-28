@@ -25,10 +25,10 @@ export const AchievementAuthorsDisplay: FC<AchievementAuthorsDisplayProps> = ({
   authors,
   shouldAlwaysUseAvatarStack,
 }) => {
-  const { game } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { backingGame } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
-  const totalAchievements = game.achievementsPublished!;
+  const totalAchievements = backingGame.achievementsPublished!;
 
   const containerClassNames = cn(
     'flex items-center rounded-md bg-neutral-800/70 py-1 pr-2',

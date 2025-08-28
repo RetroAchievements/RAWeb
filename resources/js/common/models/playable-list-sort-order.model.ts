@@ -1,4 +1,4 @@
-export type AchievementSortOrder =
+export type PlayableListSortOrder =
   | '-displayOrder'
   | '-normal'
   | '-points'

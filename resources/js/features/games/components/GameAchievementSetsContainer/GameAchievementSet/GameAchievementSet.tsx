@@ -7,8 +7,10 @@ import { AchievementsListItem } from '@/common/components/AchievementsListItem';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { sortAchievements } from '@/common/utils/sortAchievements';
+import { sortLeaderboards } from '@/common/utils/sortLeaderboards';
 import {
-  currentAchievementSortAtom,
+  currentListViewAtom,
+  currentPlayableListSortAtom,
   isLockedOnlyFilterEnabledAtom,
   isMissableOnlyFilterEnabledAtom,
 } from '@/features/games/state/games.atoms';
@@ -16,6 +18,7 @@ import { filterAchievements } from '@/features/games/utils/filterAchievements';
 
 import { AchievementSetCredits } from '../../AchievementSetCredits';
 import { BeatenCreditDialog } from '../../BeatenCreditDialog';
+import { LeaderboardsListItem } from '../../LeaderboardsListItem';
 import { GameAchievementSetHeader } from './GameAchievementSetHeader';
 import { GameAchievementSetToolbar } from './GameAchievementSetToolbar';
 
@@ -28,9 +31,11 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   achievements,
   gameAchievementSet,
 }) => {
-  const { isViewingPublishedAchievements } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { isViewingPublishedAchievements, leaderboards, numLeaderboards } =
+    usePageProps<App.Platform.Data.GameShowPageProps>();
 
-  const currentAchievementSort = useAtomValue(currentAchievementSortAtom);
+  const currentAchievementSort = useAtomValue(currentPlayableListSortAtom);
+  const currentListView = useAtomValue(currentListViewAtom);
   const isLockedOnlyFilterEnabled = useAtomValue(isLockedOnlyFilterEnabledAtom);
   const isMissableOnlyFilterEnabled = useAtomValue(isMissableOnlyFilterEnabledAtom);
 
@@ -60,7 +65,13 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
     ],
   );
 
-  const isLargeList = sortedAchievements.length > 50;
+  const sortedLeaderboards = useMemo(
+    () => (leaderboards ? sortLeaderboards(leaderboards, currentAchievementSort) : []),
+    [leaderboards, currentAchievementSort],
+  );
+
+  const isLargeAchievementsList = sortedAchievements.length > 50;
+  const isLargeLeaderboardsList = numLeaderboards > 50;
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -77,7 +88,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
         <AchievementSetCredits />
       </div>
 
-      {achievements.length ? (
+      {achievements.length || numLeaderboards > 0 ? (
         <GameAchievementSetToolbar
           lockedAchievementsCount={lockedAchievements.length}
           missableAchievementsCount={missableAchievements.length}
@@ -95,17 +106,34 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
           >
-            {filteredAndSortedAchievements.map((achievement, index) => (
-              <AchievementsListItem
-                key={`ach-${achievement.id}`}
-                achievement={achievement}
-                beatenDialogContent={<BeatenCreditDialog />}
-                index={index}
-                isLargeList={isLargeList}
-                shouldShowAuthor={!isViewingPublishedAchievements}
-                playersTotal={gameAchievementSet.achievementSet.playersTotal}
-              />
-            ))}
+            {currentListView === 'achievements' ? (
+              <>
+                {filteredAndSortedAchievements.map((achievement, index) => (
+                  <AchievementsListItem
+                    key={`ach-${achievement.id}`}
+                    achievement={achievement}
+                    beatenDialogContent={<BeatenCreditDialog />}
+                    index={index}
+                    isLargeList={isLargeAchievementsList}
+                    shouldShowAuthor={!isViewingPublishedAchievements}
+                    playersTotal={gameAchievementSet.achievementSet.playersTotal}
+                  />
+                ))}
+              </>
+            ) : null}
+
+            {currentListView === 'leaderboards' ? (
+              <>
+                {sortedLeaderboards.map((leaderboard, index) => (
+                  <LeaderboardsListItem
+                    key={`lbd-${leaderboard.id}`}
+                    index={index}
+                    isLargeList={isLargeLeaderboardsList}
+                    leaderboard={leaderboard}
+                  />
+                ))}
+              </>
+            ) : null}
           </motion.ul>
         </AnimatePresence>
       </div>

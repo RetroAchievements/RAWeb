@@ -12,7 +12,7 @@ describe('Component: AchievementAuthorsDisplay', () => {
     // ARRANGE
     const { container } = render(<AchievementAuthorsDisplay authors={[]} />, {
       pageProps: {
-        game: createGame({ achievementsPublished: 100 }),
+        backingGame: createGame({ achievementsPublished: 100 }),
       },
     });
 
@@ -30,7 +30,7 @@ describe('Component: AchievementAuthorsDisplay', () => {
 
     render(<AchievementAuthorsDisplay authors={authors} />, {
       pageProps: {
-        game: createGame({ achievementsPublished: 100 }),
+        backingGame: createGame({ achievementsPublished: 100 }),
       },
     });
 
@@ -63,7 +63,7 @@ describe('Component: AchievementAuthorsDisplay', () => {
 
     render(<AchievementAuthorsDisplay authors={authors} />, {
       pageProps: {
-        game: createGame({ achievementsPublished: 100 }),
+        backingGame: createGame({ achievementsPublished: 100 }),
       },
     });
 
@@ -93,7 +93,7 @@ describe('Component: AchievementAuthorsDisplay', () => {
 
     render(<AchievementAuthorsDisplay authors={authors} />, {
       pageProps: {
-        game: createGame({ achievementsPublished: 100 }),
+        backingGame: createGame({ achievementsPublished: 100 }),
       },
     });
 
@@ -115,7 +115,7 @@ describe('Component: AchievementAuthorsDisplay', () => {
 
     render(<AchievementAuthorsDisplay authors={authors} />, {
       pageProps: {
-        game: createGame({ achievementsPublished: 100 }),
+        backingGame: createGame({ achievementsPublished: 100 }),
       },
     });
 
@@ -140,7 +140,7 @@ describe('Component: AchievementAuthorsDisplay', () => {
 
     render(<AchievementAuthorsDisplay authors={authors} />, {
       pageProps: {
-        game: createGame({ achievementsPublished: 100 }),
+        backingGame: createGame({ achievementsPublished: 100 }),
       },
     });
 
@@ -158,7 +158,7 @@ describe('Component: AchievementAuthorsDisplay', () => {
 
     const { container } = render(<AchievementAuthorsDisplay authors={authors} />, {
       pageProps: {
-        game: createGame({ achievementsPublished: 0 }), // !!
+        backingGame: createGame({ achievementsPublished: 0 }), // !!
       },
     });
 
@@ -184,7 +184,7 @@ describe('Component: AchievementAuthorsDisplay', () => {
 
     render(<AchievementAuthorsDisplay authors={authors} />, {
       pageProps: {
-        game: createGame({ achievementsPublished: 100 }),
+        backingGame: createGame({ achievementsPublished: 100 }),
       },
     });
 
@@ -207,7 +207,7 @@ describe('Component: AchievementAuthorsDisplay', () => {
 
     render(<AchievementAuthorsDisplay authors={authors} />, {
       pageProps: {
-        game: createGame({ achievementsPublished: 100 }),
+        backingGame: createGame({ achievementsPublished: 100 }),
       },
     });
 
@@ -241,7 +241,7 @@ describe('Component: AchievementAuthorsDisplay', () => {
 
     render(<AchievementAuthorsDisplay authors={authors} shouldAlwaysUseAvatarStack={true} />, {
       pageProps: {
-        game: createGame({ achievementsPublished: 100 }),
+        backingGame: createGame({ achievementsPublished: 100 }),
       },
     });
 

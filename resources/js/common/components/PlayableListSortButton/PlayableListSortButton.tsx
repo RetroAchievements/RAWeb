@@ -11,27 +11,29 @@ import {
   BaseDropdownMenuSeparator,
   BaseDropdownMenuTrigger,
 } from '@/common/components/+vendor/BaseDropdownMenu';
-import type { AchievementSortOrder } from '@/common/models';
+import type { PlayableListSortOrder } from '@/common/models';
 import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
-interface AchievementSortButtonProps {
-  availableSortOrders: AchievementSortOrder[];
-  onChange: (newValue: AchievementSortOrder) => void;
-  value: AchievementSortOrder;
+interface PlayableListSortButtonProps {
+  availableSortOrders: PlayableListSortOrder[];
+  onChange: (newValue: PlayableListSortOrder) => void;
+  value: PlayableListSortOrder;
 
   buttonClassName?: string;
+  disabled?: boolean;
 }
 
-export const AchievementSortButton: FC<AchievementSortButtonProps> = ({
+export const PlayableListSortButton: FC<PlayableListSortButtonProps> = ({
   availableSortOrders,
   buttonClassName,
+  disabled,
   onChange,
   value,
 }) => {
   const { t } = useTranslation();
 
-  const sortOptionsLabelMap: Record<AchievementSortOrder, TranslatedString> = {
+  const sortOptionsLabelMap: Record<PlayableListSortOrder, TranslatedString> = {
     active: t('Status'),
 
     '-normal': t('Display order (last)'),
@@ -62,6 +64,7 @@ export const AchievementSortButton: FC<AchievementSortButtonProps> = ({
             'gap-1 transition-none lg:active:translate-y-0 lg:active:scale-100',
             buttonClassName,
           )}
+          disabled={disabled}
         >
           {value.startsWith('-') ? (
             <LuArrowDown data-testid="sort-descending-icon" className="size-4" />

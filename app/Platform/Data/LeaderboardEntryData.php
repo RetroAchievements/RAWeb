@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Data;
 
+use App\Data\UserData;
 use App\Models\LeaderboardEntry;
 use App\Platform\Enums\ValueFormat;
 use Carbon\Carbon;
@@ -19,16 +20,18 @@ class LeaderboardEntryData extends Data
         public Lazy|int $score,
         public Lazy|string $formattedScore,
         public Lazy|Carbon $createdAt,
+        public Lazy|UserData|null $user,
     ) {
     }
 
-    public static function fromLeaderboardEntry(LeaderboardEntry $leaderboardEntry): self
+    public static function fromLeaderboardEntry(LeaderboardEntry $leaderboardEntry, ?string $format = null): self
     {
         return new self(
             id: $leaderboardEntry->id,
             score: Lazy::create(fn () => $leaderboardEntry->score),
-            formattedScore: Lazy::create(fn () => ValueFormat::format($leaderboardEntry->score, $leaderboardEntry->leaderboard->format)),
+            formattedScore: Lazy::create(fn () => ValueFormat::format($leaderboardEntry->score, $format)),
             createdAt: Lazy::create(fn () => $leaderboardEntry->created_at),
+            user: Lazy::create(fn () => $leaderboardEntry->user ? UserData::fromUser($leaderboardEntry->user) : null),
         );
     }
 }

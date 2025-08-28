@@ -4,7 +4,7 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AchievementsListItem } from '@/common/components/AchievementsListItem';
-import type { AchievementSortOrder } from '@/common/models';
+import type { PlayableListSortOrder } from '@/common/models';
 import { eventAchievementTimeStatus } from '@/common/utils/eventAchievementTimeStatus';
 import { getEventAchievementTimeStatus } from '@/common/utils/getEventAchievementTimeStatus';
 import { sortAchievements } from '@/common/utils/sortAchievements';
@@ -13,7 +13,7 @@ import { EventAchievementSection } from './EventAchievementSection';
 
 interface EventAchievementSetProps {
   achievements: App.Platform.Data.Achievement[];
-  currentSort: AchievementSortOrder;
+  currentSort: PlayableListSortOrder;
   playersTotal: number;
 
   /**
