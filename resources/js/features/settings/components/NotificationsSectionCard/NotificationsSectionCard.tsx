@@ -86,7 +86,7 @@ function useNotificationSettings() {
       siteFieldName: StringifiedUserPreference.SiteMsgOn_ActivityComment,
     },
     {
-      t_label: t('Comments on an achievement I created'),
+      t_label: t("Comments on achievements or games I've been active with"),
       emailFieldName: StringifiedUserPreference.EmailOn_AchievementComment,
       siteFieldName: StringifiedUserPreference.SiteMsgOn_AchievementComment,
     },
