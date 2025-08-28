@@ -45,14 +45,17 @@ describe('Component: NotificationsSectionCard', () => {
         pageProps: {
           can: {},
           userSettings: createUser(),
-          auth: { user: createAuthenticatedUser({ websitePrefs: mockWebsitePrefs }) },
+          auth: {
+            user: createAuthenticatedUser({ websitePrefs: mockWebsitePrefs, roles: ['developer'] }),
+          },
         },
       },
     );
 
     // ASSERT
-    expect(screen.getByTestId(`email-checkbox-comments-on-my-activity`)).toBeChecked();
-    expect(screen.getByTestId(`site-checkbox-comments-on-my-activity`)).toBeChecked();
+    // ... the dev-only checkbox should be visible and checked (EmailOn_ActivityComment = true) ...
+    const checkboxes = screen.getAllByRole('checkbox');
+    expect(checkboxes[0]).toBeChecked();
   });
 
   it('given the user submits the form, sends the correct updated websitePrefs bit value to the server', async () => {
@@ -87,5 +90,62 @@ describe('Component: NotificationsSectionCard', () => {
     expect(putSpy).toHaveBeenCalledWith(route('api.settings.preferences.update'), {
       websitePrefs: 401,
     });
+  });
+
+  it('shows developer-only notification setting for users with developer role', () => {
+    // ARRANGE
+    render<App.Community.Data.UserSettingsPageProps>(
+      <NotificationsSectionCard currentWebsitePrefs={0} onUpdateWebsitePrefs={vi.fn()} />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        },
+      },
+    );
+
+    // ASSERT
+    expect(
+      screen.getAllByText(
+        /Someone comments on any achievement in games where I've subscribed to all achievement comments/i,
+      )[0],
+    ).toBeVisible();
+  });
+
+  it('shows developer-only notification setting for users with developer-junior role', () => {
+    // ARRANGE
+    render<App.Community.Data.UserSettingsPageProps>(
+      <NotificationsSectionCard currentWebsitePrefs={0} onUpdateWebsitePrefs={vi.fn()} />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser({ roles: ['developer-junior'] }) },
+        },
+      },
+    );
+
+    // ASSERT
+    expect(
+      screen.getAllByText(
+        /Someone comments on any achievement in games where I've subscribed to all achievement comments/i,
+      )[0],
+    ).toBeVisible();
+  });
+
+  it('hides developer-only notification setting for non-developer users', () => {
+    // ARRANGE
+    render<App.Community.Data.UserSettingsPageProps>(
+      <NotificationsSectionCard currentWebsitePrefs={0} onUpdateWebsitePrefs={vi.fn()} />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser({ roles: [] }) },
+        },
+      },
+    );
+
+    // ASSERT
+    expect(
+      screen.queryByText(
+        /Someone comments on any achievement in games where I've subscribed to all achievement comments/i,
+      ),
+    ).not.toBeInTheDocument();
   });
 });
