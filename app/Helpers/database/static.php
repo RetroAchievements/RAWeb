@@ -1,9 +1,7 @@
 <?php
 
-use App\Models\StaticData;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 
 /**
  * @deprecated
