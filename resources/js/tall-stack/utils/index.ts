@@ -1,6 +1,7 @@
 export * from './autoExpandTextInput';
 export * from './cookie';
 export * from './copyToClipboard';
+export * from './enforceAutoScrollRestoration';
 export * from './fetcher';
 export * from './handleLeaderboardTabClick';
 export * from './helpers';
