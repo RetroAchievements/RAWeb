@@ -70,7 +70,6 @@ if ($action === 'alt_identifier') {
 $staticData = StaticData::first();
 ?>
 <x-app-layout pageTitle="Admin Tools">
-<script src="/vendor/jquery.datetimepicker.full.min.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -104,7 +103,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<link rel="stylesheet" href="/vendor/jquery.datetimepicker.min.css">
 <?php if ($message): ?>
     <div class="w-full mb-6">
         <?= $message ?>

@@ -24,32 +24,20 @@ use App\Models\PlayerBadge;
 use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
-use App\Platform\Commands\BackfillGameRecentPlayers;
 use App\Platform\Commands\CrawlPlayerWeightedPoints;
 use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
-use App\Platform\Commands\MigrateMissableAchievementsToType;
 use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ProcessExpiringClaims;
 use App\Platform\Commands\PruneGameRecentPlayers;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\RevertManualUnlocks;
-use App\Platform\Commands\SyncAchievementAuthors;
 use App\Platform\Commands\SyncAchievements;
-use App\Platform\Commands\SyncAchievementSetImageAssetPaths;
 use App\Platform\Commands\SyncEvents;
-use App\Platform\Commands\SyncGameAchievementSets;
-use App\Platform\Commands\SyncGameHashes;
-use App\Platform\Commands\SyncGameReleases;
 use App\Platform\Commands\SyncGames;
-use App\Platform\Commands\SyncLeaderboards;
-use App\Platform\Commands\SyncLeaderboardTopEntries;
-use App\Platform\Commands\SyncLegacyGameTags;
-use App\Platform\Commands\SyncMemoryNotes;
 use App\Platform\Commands\SyncPlayerBadges;
 use App\Platform\Commands\SyncPlayerRichPresence;
 use App\Platform\Commands\SyncPlayerSession;
-use App\Platform\Commands\SyncTriggers;
 use App\Platform\Commands\TrimGameMetadata;
 use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAwardsStaticData;
@@ -83,7 +71,6 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 // Games
-                BackfillGameRecentPlayers::class,
                 PruneGameRecentPlayers::class,
                 TrimGameMetadata::class,
                 UpdateGameAchievementsMetrics::class,
@@ -96,9 +83,6 @@ class AppServiceProvider extends ServiceProvider
 
                 // Game Hashes
                 NoIntroImport::class,
-
-                // Achievements
-                MigrateMissableAchievementsToType::class,
 
                 // Leaderboards
                 UpdateLeaderboardMetrics::class,
@@ -132,22 +116,12 @@ class AppServiceProvider extends ServiceProvider
                 CreateAchievementOfTheWeek::class,
 
                 // Sync
-                SyncAchievementAuthors::class,
                 SyncAchievements::class,
-                SyncAchievementSetImageAssetPaths::class,
                 SyncEvents::class,
-                SyncGameAchievementSets::class,
-                SyncGameHashes::class,
                 SyncGames::class,
-                SyncGameReleases::class,
-                SyncLeaderboards::class,
-                SyncLeaderboardTopEntries::class,
-                SyncLegacyGameTags::class,
-                SyncMemoryNotes::class,
                 SyncPlayerBadges::class,
                 SyncPlayerRichPresence::class,
                 SyncPlayerSession::class,
-                SyncTriggers::class,
             ]);
         }
 
@@ -167,8 +141,6 @@ class AppServiceProvider extends ServiceProvider
                 $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC
             }
         });
-
-        $this->loadMigrationsFrom([database_path('migrations/platform')]);
 
         Relation::morphMap([
             'achievement' => Achievement::class,
@@ -193,22 +165,8 @@ class AppServiceProvider extends ServiceProvider
             'system' => System::class,
         ]);
 
+        // TODO remove in favor of Inertia+React components
         Blade::component('game-card', GameCard::class);
         Blade::component('game-title', GameTitle::class);
-
-        // Livewire::component('achievement-grid', AchievementGrid::class);
-        // Livewire::component('achievement-player-grid', AchievementPlayerGrid::class);
-        // Livewire::component('badge-grid', BadgeGrid::class);
-        // Livewire::component('game-grid', GameGrid::class);
-        // Livewire::component('game-player-grid', GamePlayerGrid::class);
-        // Livewire::component('leaderboard-grid', LeaderboardGrid::class);
-        // Livewire::component('game-hash-grid', GameHashGrid::class);
-        // Livewire::component('system-grid', SystemGrid::class);
-        //
-        // Livewire::component('players-active', PlayersActive::class);
-        //
-        // Livewire::component('emulator-grid', EmulatorGrid::class);
-        // Livewire::component('emulator-release-grid', EmulatorReleaseGrid::class);
-        // Livewire::component('integration-release-grid', IntegrationReleaseGrid::class);
     }
 }

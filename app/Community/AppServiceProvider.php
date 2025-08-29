@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Community;
 
-use App\Community\Commands\ConvertGameShortcodesToHubs;
 use App\Community\Commands\DeleteOldUserActivities;
 use App\Community\Commands\GenerateAnnualRecap;
 use App\Community\Commands\MigrateTicketCommentMetadata;
@@ -13,7 +12,6 @@ use App\Community\Commands\SyncForumCategories;
 use App\Community\Commands\SyncForums;
 use App\Community\Commands\SyncTickets;
 use App\Community\Commands\SyncUserRelations;
-use App\Community\Commands\SyncUserUlids;
 use App\Community\Components\DeveloperGameStatsTable;
 use App\Community\Components\ForumRecentActivity;
 use App\Community\Components\MessageIcon;
@@ -52,7 +50,6 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                ConvertGameShortcodesToHubs::class,
                 DeleteOldUserActivities::class,
 
                 MigrateTicketCommentMetadata::class,
@@ -62,7 +59,6 @@ class AppServiceProvider extends ServiceProvider
                 SyncForums::class,
                 SyncTickets::class,
                 SyncUserRelations::class,
-                SyncUserUlids::class,
 
                 GenerateAnnualRecap::class,
             ]);
@@ -74,8 +70,6 @@ class AppServiceProvider extends ServiceProvider
 
             $schedule->command(DeleteOldUserActivities::class)->daily();
         });
-
-        $this->loadMigrationsFrom([database_path('migrations/community')]);
 
         Relation::morphMap([
             'achievement.comment' => AchievementComment::class,
@@ -99,6 +93,7 @@ class AppServiceProvider extends ServiceProvider
             'user-relation' => UserRelation::class,
         ]);
 
+        // TODO remove in favor of Inertia+React components
         Blade::component('developer-game-stats-table', DeveloperGameStatsTable::class);
         Blade::component('forum-recent-activity', ForumRecentActivity::class);
         Blade::component('user-card', UserCard::class);
@@ -106,6 +101,7 @@ class AppServiceProvider extends ServiceProvider
         Blade::component('user-progression-status', UserProgressionStatus::class);
         Blade::component('user-recently-played', UserRecentlyPlayed::class);
 
+        // TODO remove in favor of Inertia+React components
         Livewire::component('message-icon', MessageIcon::class);
     }
 }
