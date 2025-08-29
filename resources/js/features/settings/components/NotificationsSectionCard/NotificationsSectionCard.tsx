@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { StringifiedUserPreference } from '@/common/utils/generatedAppConstants';
 import type { TranslatedString } from '@/types/i18next';
 
@@ -28,6 +29,8 @@ export const NotificationsSectionCard: FC<NotificationsSectionCardProps> = ({
 
   const notificationSettings = useNotificationSettings();
 
+  const visibleSettings = notificationSettings.filter((setting) => setting.canShow !== false);
+
   return (
     <SectionFormCard
       t_headingLabel={t('Notifications')}
@@ -35,82 +38,83 @@ export const NotificationsSectionCard: FC<NotificationsSectionCardProps> = ({
       onSubmit={onSubmit}
       isSubmitting={mutation.isPending}
     >
-      <div className="@container">
-        <div className="flex flex-col gap-5 @xl:hidden">
-          {notificationSettings.map((setting) => (
-            <NotificationsSmallRow
-              key={setting.t_label}
-              t_label={setting.t_label}
-              emailFieldName={setting.emailFieldName}
-              siteFieldName={setting.siteFieldName}
-            />
-          ))}
-        </div>
+      <div className="flex flex-col gap-4">
+        <p>{t('Commenting on any wall or forum topic will automatically subscribe you to it.')}</p>
 
-        <table className="hidden @xl:table">
-          <thead className="sr-only">
-            <tr>
-              <th scope="col">{t('Notification type')}</th>
-              <th scope="col">{t('Email notifications')}</th>
-              <th scope="col">{t('Site notifications')}</th>
-            </tr>
-          </thead>
-
-          <tbody className="[&>tr>td]:!px-0 [&>tr>td]:py-2 [&>tr>th]:!px-0 [&>tr]:!bg-embed">
-            {notificationSettings.map((setting) => (
-              <NotificationsTableRow
+        <div className="@container">
+          <div className="flex flex-col gap-5 @xl:hidden">
+            {visibleSettings.map((setting) => (
+              <NotificationsSmallRow
                 key={setting.t_label}
                 t_label={setting.t_label}
                 emailFieldName={setting.emailFieldName}
-                siteFieldName={setting.siteFieldName}
               />
             ))}
-          </tbody>
-        </table>
+          </div>
+
+          <table className="hidden @xl:table">
+            <thead className="sr-only">
+              <tr>
+                <th scope="col">{t('Notification type')}</th>
+                <th scope="col">{t('Email notifications')}</th>
+              </tr>
+            </thead>
+
+            <tbody className="[&>tr>td]:!px-0 [&>tr>td]:py-2 [&>tr>th]:!px-0 [&>tr]:!bg-embed">
+              {visibleSettings.map((setting) => (
+                <NotificationsTableRow
+                  key={setting.t_label}
+                  t_label={setting.t_label}
+                  emailFieldName={setting.emailFieldName}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </SectionFormCard>
   );
 };
 
 function useNotificationSettings() {
+  const { auth } = usePageProps();
   const { t } = useTranslation();
 
   const notificationSettings: Array<{
     t_label: TranslatedString;
     emailFieldName?: UserPreferenceValue;
-    siteFieldName?: UserPreferenceValue;
+    canShow?: boolean;
   }> = [
     {
-      t_label: t('Comments on my activity'),
+      t_label: t(
+        "Someone comments on any achievement in games where I've subscribed to all achievement comments",
+      ),
       emailFieldName: StringifiedUserPreference.EmailOn_ActivityComment,
-      siteFieldName: StringifiedUserPreference.SiteMsgOn_ActivityComment,
+      canShow:
+        auth?.user.roles.includes('developer') || auth?.user.roles.includes('developer-junior'),
     },
     {
-      t_label: t('Comments on an achievement I created'),
+      t_label: t("Someone comments on game or achievement walls I'm subscribed to"),
       emailFieldName: StringifiedUserPreference.EmailOn_AchievementComment,
-      siteFieldName: StringifiedUserPreference.SiteMsgOn_AchievementComment,
     },
     {
-      t_label: t('Comments on my user wall'),
+      t_label: t("Someone comments on user walls I'm subscribed to"),
       emailFieldName: StringifiedUserPreference.EmailOn_UserWallComment,
-      siteFieldName: StringifiedUserPreference.SiteMsgOn_UserWallComment,
     },
     {
-      t_label: t("Comments on a forum topic I'm involved in"),
+      t_label: t("Someone posts in forum topics I'm subscribed to"),
       emailFieldName: StringifiedUserPreference.EmailOn_ForumReply,
-      siteFieldName: StringifiedUserPreference.SiteMsgOn_ForumReply,
     },
     {
       t_label: t('Someone follows me'),
       emailFieldName: StringifiedUserPreference.EmailOn_Followed,
-      siteFieldName: StringifiedUserPreference.SiteMsgOn_Followed,
     },
     {
       t_label: t('I receive a private message'),
       emailFieldName: StringifiedUserPreference.EmailOn_PrivateMessage,
     },
     {
-      t_label: t('Ticket activity'),
+      t_label: t("There's activity on a ticket I'm associated with"),
       emailFieldName: StringifiedUserPreference.EmailOn_TicketActivity,
     },
   ];

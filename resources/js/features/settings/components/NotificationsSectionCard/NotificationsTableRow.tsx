@@ -14,75 +14,43 @@ interface NotificationsTableRowProps {
   t_label: TranslatedString;
 
   emailFieldName?: UserPreferenceValue;
-  siteFieldName?: UserPreferenceValue;
 }
 
 export const NotificationsTableRow: FC<NotificationsTableRowProps> = ({
   t_label,
   emailFieldName,
-  siteFieldName,
 }) => {
   const { t } = useTranslation();
 
   const { control } = useFormContext<NotificationsSectionFormValues>();
 
   const emailId = useId();
-  const siteId = useId();
 
   return (
     <tr>
-      <th scope="row" className="w-[40%]">
-        {t_label}
-      </th>
+      <th scope="row">{t_label}</th>
 
-      <td>
-        <div className="flex items-center gap-2">
-          {emailFieldName ? (
-            <BaseFormField
-              control={control}
-              name={emailFieldName}
-              render={({ field }) => (
-                <>
-                  <BaseFormControl>
-                    <BaseCheckbox
-                      id={emailId}
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      data-testid={`email-checkbox-${t_label.replace(/\s+/g, '-').toLowerCase()}`}
-                    />
-                  </BaseFormControl>
+      <td className="flex items-center justify-end gap-2">
+        {emailFieldName ? (
+          <BaseFormField
+            control={control}
+            name={emailFieldName}
+            render={({ field }) => (
+              <>
+                <BaseFormControl>
+                  <BaseCheckbox
+                    id={emailId}
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    data-testid={`email-checkbox-${t_label.replace(/\s+/g, '-').toLowerCase()}`}
+                  />
+                </BaseFormControl>
 
-                  <BaseLabel htmlFor={emailId}>{t('Email me')}</BaseLabel>
-                </>
-              )}
-            />
-          ) : null}
-        </div>
-      </td>
-
-      <td>
-        <div className="flex items-center gap-2">
-          {siteFieldName ? (
-            <BaseFormField
-              control={control}
-              name={siteFieldName}
-              render={({ field }) => (
-                <>
-                  <BaseFormControl>
-                    <BaseCheckbox
-                      id={siteId}
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      data-testid={`site-checkbox-${t_label.replace(/\s+/g, '-').toLowerCase()}`}
-                    />
-                  </BaseFormControl>
-
-                  <BaseLabel htmlFor={siteId}>{t('Notify me on the site')}</BaseLabel>
-                </>
-              )}
-            />
-          ) : null}
-        </div>
+                <BaseLabel htmlFor={emailId}>{t('Email me')}</BaseLabel>
+              </>
+            )}
+          />
+        ) : null}
       </td>
     </tr>
   );

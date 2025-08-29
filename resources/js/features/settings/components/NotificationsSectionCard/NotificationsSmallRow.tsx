@@ -17,20 +17,17 @@ interface NotificationsTableRowProps {
   t_label: TranslatedString;
 
   emailFieldName?: UserPreferenceValue;
-  siteFieldName?: UserPreferenceValue;
 }
 
 export const NotificationsSmallRow: FC<NotificationsTableRowProps> = ({
   t_label,
   emailFieldName,
-  siteFieldName,
 }) => {
   const { t } = useTranslation();
 
   const { control } = useFormContext<NotificationsSectionFormValues>();
 
   const emailId = useId();
-  const siteId = useId();
 
   return (
     <div className="flex flex-col gap-1">
@@ -52,26 +49,6 @@ export const NotificationsSmallRow: FC<NotificationsTableRowProps> = ({
                 </BaseFormControl>
 
                 <BaseLabel htmlFor={emailId}>{t('Email me')}</BaseLabel>
-              </div>
-            )}
-          />
-        ) : null}
-
-        {siteFieldName ? (
-          <BaseFormField
-            control={control}
-            name={siteFieldName}
-            render={({ field }) => (
-              <div className="flex items-center gap-2">
-                <BaseFormControl>
-                  <BaseCheckbox
-                    id={siteId}
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </BaseFormControl>
-
-                <BaseLabel htmlFor={siteId}>{t('Notify me on the site')}</BaseLabel>
               </div>
             )}
           />

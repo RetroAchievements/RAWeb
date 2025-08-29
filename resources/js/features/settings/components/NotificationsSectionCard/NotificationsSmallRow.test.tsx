@@ -17,11 +17,7 @@ describe('Component: NotificationsSmallRow', () => {
     // ARRANGE
     const { container } = render(
       <Wrapper>
-        <NotificationsSmallRow
-          t_label={i18n.t('Achievements')}
-          emailFieldName="0"
-          siteFieldName="1"
-        />
+        <NotificationsSmallRow t_label={i18n.t('Achievements')} emailFieldName="0" />
       </Wrapper>,
     );
 
@@ -33,16 +29,15 @@ describe('Component: NotificationsSmallRow', () => {
     // ARRANGE
     render(
       <Wrapper>
-        <NotificationsSmallRow t_label={i18n.t('Achievements')} siteFieldName="1" />
+        <NotificationsSmallRow t_label={i18n.t('Achievements')} />
       </Wrapper>,
     );
 
     // ASSERT
-    expect(screen.getByText(/notify me on the site/i)).toBeVisible();
     expect(screen.queryByText(/email me/i)).not.toBeInTheDocument();
   });
 
-  it('given there is no site field name, does not render a notify me on the site checkbox', () => {
+  it('given there is an email field name, renders an email me checkbox', () => {
     // ARRANGE
     render(
       <Wrapper>
@@ -52,6 +47,5 @@ describe('Component: NotificationsSmallRow', () => {
 
     // ASSERT
     expect(screen.getByText(/email me/i)).toBeVisible();
-    expect(screen.queryByText(/notify me on the site/i)).not.toBeInTheDocument();
   });
 });
