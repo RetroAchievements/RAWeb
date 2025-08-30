@@ -16,14 +16,21 @@ class ResolveRootGameIdFromGameIdAction
 {
     public function execute(int $gameId): int
     {
-        // Get the game's achievement sets.
-        $sets = GameAchievementSet::whereGameId($gameId)->get();
-        if ($sets->isEmpty()) {
+        // Get ONLY the game's CORE achievement sets.
+        // We only check core sets to determine parent relationships.
+        // This prevents sibling games that share bonus sets from being
+        // incorrectly identified as parent/child relationships.
+        $coreSets = GameAchievementSet::whereGameId($gameId)
+            ->where('type', AchievementSetType::Core)
+            ->get();
+
+        if ($coreSets->isEmpty()) {
             return $gameId;
         }
 
-        // For each achievement set, look for other games that reference this set.
-        foreach ($sets as $set) {
+        // Check if another game uses this game's core set as a non-core type.
+        // If so, that other game is the parent.
+        foreach ($coreSets as $set) {
             // Find all games that reference this achievement set.
             $linkedSets = GameAchievementSet::whereAchievementSetId($set->achievement_set_id)
                 ->where('game_id', '!=', $gameId)
