@@ -15,7 +15,12 @@
     }
 @endphp
 
-<x-mail::message>
+<x-mail::message
+    :granularUrl="$granularUrl"
+    :granularText="$granularText"
+    :categoryUrl="$categoryUrl"
+    :categoryText="$categoryText"
+>
 Hello {{ $toUserDisplayName }}!
 
 {{ $activityCommenterDisplayName }} has commented on {{ $activityDescription }}.

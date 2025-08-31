@@ -20,6 +20,7 @@ use App\Community\Controllers\Api\MessageApiController;
 use App\Community\Controllers\Api\MessageThreadApiController;
 use App\Community\Controllers\Api\ShortcodeApiController;
 use App\Community\Controllers\Api\SubscriptionApiController;
+use App\Community\Controllers\Api\UnsubscribeApiController;
 use App\Community\Controllers\Api\UserCommentApiController;
 use App\Community\Controllers\Api\UserGameListApiController;
 use App\Community\Controllers\Api\UserModerationCommentApiController;
@@ -33,6 +34,7 @@ use App\Community\Controllers\GameModificationsCommentController;
 use App\Community\Controllers\LeaderboardCommentController;
 use App\Community\Controllers\MessageThreadController;
 use App\Community\Controllers\PatreonSupportersController;
+use App\Community\Controllers\UnsubscribeController;
 use App\Community\Controllers\UserAchievementChecklistController;
 use App\Community\Controllers\UserCommentController;
 use App\Community\Controllers\UserForumTopicCommentController;
@@ -161,6 +163,12 @@ class RouteServiceProvider extends ServiceProvider
 
                     Route::get('user/{user}/posts', [UserForumTopicCommentController::class, 'index'])->name('user.posts.index');
                     Route::get('user/{user}/achievement-checklist', [UserAchievementChecklistController::class, 'index'])->name('user.achievement-checklist');
+
+                    /**
+                     * @see Middleware\ValidateSignature::class
+                     * This is a deliberately unauthenticated route.
+                     */
+                    Route::get('unsubscribe/{token}', [UnsubscribeController::class, 'show'])->name('unsubscribe.show')->middleware('signed');
                 });
 
                 /*
@@ -403,6 +411,7 @@ class RouteServiceProvider extends ServiceProvider
                  */
                 Route::group(['prefix' => 'internal-api'], function () {
                     Route::get('active-players', [ActivePlayersApiController::class, 'index'])->name('api.active-player.index');
+                    Route::post('unsubscribe/undo/{token}', [UnsubscribeApiController::class, 'undo'])->name('api.unsubscribe.undo');
                 });
             });
     }

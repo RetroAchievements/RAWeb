@@ -2,7 +2,12 @@
     $ticketableType = $ticketable instanceof \App\Models\Achievement ? 'achievement' : 'leaderboard';
 @endphp
 
-<x-mail::message>
+<x-mail::message
+    :granularUrl="$granularUrl"
+    :granularText="$granularText"
+    :categoryUrl="$categoryUrl"
+    :categoryText="$categoryText"
+>
 Hello {{ $user->display_name }}!
 
 @if ($isMaintainer)

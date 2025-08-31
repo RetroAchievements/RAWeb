@@ -246,15 +246,34 @@ function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, User $a
         "
     );
 
+    if (empty($subscribers)) {
+        return;
+    }
+
     $payload = null;
     $comment = ForumTopicComment::find($commentID);
     if ($comment) {
         $payload = nl2br(Shortcode::stripAndClamp($comment->body, previewLength: 1000, preserveWhitespace: true));
     }
 
+    $subscriberNames = array_column($subscribers, 'User');
+    $users = User::query()
+        ->where(function ($query) use ($subscriberNames) {
+            foreach ($subscriberNames as $name) {
+                $query->orWhere(function ($q) use ($name) {
+                    $q->where('display_name', $name)->orWhere('User', $name);
+                });
+            }
+        })
+        ->get()
+        ->keyBy('display_name');
+
     $urlTarget = route('forum-topic.show', ['topic' => $topicID, 'comment' => $commentID]) . '#' . $commentID;
     foreach ($subscribers as $sub) {
-        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author->display_name, ArticleType::Forum, $topicTitle, $urlTarget, payload: $payload);
+        $user = $users->get($sub['User']);
+        if ($user) {
+            sendActivityEmail($user, $sub['EmailAddress'], $topicID, $author->display_name, ArticleType::Forum, $topicTitle, $urlTarget, payload: $payload);
+        }
     }
 }
 

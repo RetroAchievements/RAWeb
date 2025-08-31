@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
+use App\Enums\UserPreference;
+use App\Mail\Services\UnsubscribeService;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -15,6 +17,8 @@ class CommunityFriendMail extends Mailable
 {
     use Queueable; use SerializesModels;
 
+    public string $categoryUrl;
+
     /**
      * Create a new message instance.
      */
@@ -22,6 +26,12 @@ class CommunityFriendMail extends Mailable
         public User $toUser,
         public User $fromUser,
     ) {
+        $unsubscribeService = app(UnsubscribeService::class);
+
+        $this->categoryUrl = $unsubscribeService->generateCategoryUrl(
+            $this->toUser,
+            UserPreference::EmailOn_Followed
+        );
     }
 
     /**
@@ -41,6 +51,10 @@ class CommunityFriendMail extends Mailable
     {
         return new Content(
             markdown: 'mail.community.friend',
+            with: [
+                'categoryUrl' => $this->categoryUrl,
+                'categoryText' => 'Unsubscribe from follower notification emails',
+            ],
         );
     }
 

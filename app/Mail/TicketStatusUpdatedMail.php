@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
+use App\Enums\UserPreference;
+use App\Mail\Services\UnsubscribeService;
 use App\Models\Achievement;
 use App\Models\Leaderboard;
 use App\Models\Ticket;
@@ -19,6 +21,7 @@ class TicketStatusUpdatedMail extends Mailable
     use Queueable; use SerializesModels;
 
     public Achievement|Leaderboard|null $ticketable;
+    public string $categoryUrl;
 
     /**
      * Create a new message instance.
@@ -34,6 +37,12 @@ class TicketStatusUpdatedMail extends Mailable
          * When leaderboard tickets are implemented, this will need to be updated.
          */
         $this->ticketable = $this->ticket->achievement;
+
+        $unsubscribeService = app(UnsubscribeService::class);
+        $this->categoryUrl = $unsubscribeService->generateCategoryUrl(
+            $this->ticket->reporter,
+            UserPreference::EmailOn_TicketActivity
+        );
     }
 
     /**
@@ -57,6 +66,8 @@ class TicketStatusUpdatedMail extends Mailable
                 'ticketUrl' => route('ticket.show', ['ticket' => $this->ticket->id]),
                 'ticketable' => $this->ticketable,
                 'game' => $this->ticketable->game,
+                'categoryUrl' => $this->categoryUrl,
+                'categoryText' => 'Unsubscribe from all ticket emails',
             ],
         );
     }

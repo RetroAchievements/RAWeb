@@ -241,23 +241,26 @@ function informAllSubscribersAboutActivity(
         $isThirdParty = ($subscriber['User'] != $activityAuthor && ($subjectAuthor === null || $subscriber['User'] != $subjectAuthor));
 
         if (isset($subscriber['EmailAddress'])) {
-            sendActivityEmail(
-                isset($subscriber['display_name']) ? $subscriber['display_name'] : $subscriber['User'],
-                $subscriber['EmailAddress'],
-                $articleID,
-                $activityAuthor,
-                $articleType,
-                $articleTitle,
-                $urlTarget,
-                $isThirdParty,
-                $payload,
-            );
+            $userModel = User::whereName($subscriber['User'])->first();
+            if ($userModel) {
+                sendActivityEmail(
+                    $userModel,
+                    $subscriber['EmailAddress'],
+                    $articleID,
+                    $activityAuthor,
+                    $articleType,
+                    $articleTitle,
+                    $urlTarget,
+                    $isThirdParty,
+                    $payload,
+                );
+            }
         }
     }
 }
 
 function sendActivityEmail(
-    string $user,
+    User $user,
     string $email,
     int $actID,
     string $activityCommenter,
@@ -268,8 +271,8 @@ function sendActivityEmail(
     ?string $payload = null,
 ): bool {
     if (
-        $user === $activityCommenter
-        || getUserPermissions($user) < Permissions::Unregistered
+        $user->display_name === $activityCommenter
+        || (int) $user->getAttribute('Permissions') < Permissions::Unregistered
         || empty(trim($email))
     ) {
         return false;

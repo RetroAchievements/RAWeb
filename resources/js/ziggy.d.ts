@@ -664,6 +664,12 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "unsubscribe.show": [
+        {
+            "name": "token",
+            "required": true
+        }
+    ],
     "user.comment.destroyAll": [
         {
             "name": "user",
@@ -702,6 +708,12 @@ declare module 'ziggy-js' {
     "api.settings.keys.web.destroy": [],
     "api.settings.keys.connect.destroy": [],
     "api.active-player.index": [],
+    "api.unsubscribe.undo": [
+        {
+            "name": "token",
+            "required": true
+        }
+    ],
     "login": [],
     "logout": [],
     "password.confirmation": [],

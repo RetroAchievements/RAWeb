@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
+use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketType;
+use App\Enums\UserPreference;
+use App\Mail\Services\UnsubscribeService;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\Leaderboard;
@@ -20,6 +23,9 @@ class TicketCreatedMail extends Mailable
 {
     use Queueable; use SerializesModels;
 
+    public string $granularUrl;
+    public string $categoryUrl;
+
     /**
      * Create a new message instance.
      */
@@ -30,6 +36,18 @@ class TicketCreatedMail extends Mailable
         public Achievement|Leaderboard $ticketable,
         public bool $isMaintainer = false,
     ) {
+        $unsubscribeService = app(UnsubscribeService::class);
+
+        $this->granularUrl = $unsubscribeService->generateGranularUrl(
+            $this->user,
+            SubscriptionSubjectType::GameTickets,
+            $this->game->id
+        );
+
+        $this->categoryUrl = $unsubscribeService->generateCategoryUrl(
+            $this->user,
+            UserPreference::EmailOn_TicketActivity
+        );
     }
 
     /**
@@ -54,6 +72,10 @@ class TicketCreatedMail extends Mailable
             with: [
                 'problemType' => TicketType::toString($this->ticket->ReportType),
                 'ticketUrl' => route('ticket.show', ['ticket' => $this->ticket->id]),
+                'granularUrl' => $this->granularUrl,
+                'granularText' => 'Unsubscribe from tickets for this game',
+                'categoryUrl' => $this->categoryUrl,
+                'categoryText' => 'Unsubscribe from all ticket emails',
             ],
         );
     }

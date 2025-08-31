@@ -1,4 +1,7 @@
-<x-mail::message>
+<x-mail::message
+    :categoryUrl="$categoryUrl"
+    :categoryText="$categoryText"
+>
 Hello {{ $toUser->display_name }},
 
 {{ $fromUser->display_name }} has started following you!

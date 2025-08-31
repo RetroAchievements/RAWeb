@@ -12,7 +12,10 @@
     }
 @endphp
 
-<x-mail::message>
+<x-mail::message
+    :categoryUrl="$categoryUrl"
+    :categoryText="$categoryText"
+>
 Hello {{ $userTo->display_name }},
 
 You have received a new private message from {{ $userFrom->display_name }}.

@@ -2,7 +2,10 @@
     $ticketableType = $ticketable instanceof \App\Models\Achievement ? 'achievement' : 'leaderboard';
 @endphp
 
-<x-mail::message>
+<x-mail::message
+    :categoryUrl="$categoryUrl"
+    :categoryText="$categoryText"
+>
 Hello {{ $ticket->reporter->display_name }}!
 
 @if ($ticket->reporter->is($updatedBy))
