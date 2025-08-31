@@ -15,11 +15,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Mime\Email;
 
-function sendRAEmail(string $to, string $subject, string $body): bool
-{
-    return mail_utf8($to, $subject, stripslashes(nl2br($body)));
-}
-
 function mail_utf8(string $to, string $subject = '(No subject)', string $message = ''): bool
 {
     if (empty($to)) {
