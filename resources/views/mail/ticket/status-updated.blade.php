@@ -7,15 +7,16 @@ Hello {{ $ticket->reporter->display_name }}!
 
 The ticket for the following {{ $ticketableType }} has been updated.
 
-<x-mail::panel>
 **{{ ucfirst($ticketableType) }}:** {{ $ticketable->title }}  
 **Game:** {{ $game->title }}  
-**System:** {{ $game->system->name }}  
-**Update:** {{ $comment }}
+**System:** {{ $game->system->name }}
+
+<x-mail::panel>
+{{ $comment }}
 </x-mail::panel>
 
 <x-mail::button :url="$ticketUrl">
-View Ticket
+View ticket
 </x-mail::button>
 
 — Your friends at RetroAchievements.org

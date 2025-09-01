@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace App\Mail;
 
 use App\Community\Enums\ArticleType;
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\Leaderboard;
+use App\Models\Ticket;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -14,6 +18,9 @@ use Illuminate\Queue\SerializesModels;
 class CommunityActivityMail extends Mailable
 {
     use Queueable; use SerializesModels;
+
+    public Achievement|Leaderboard|null $ticketable = null;
+    public ?Game $game = null;
 
     /**
      * Create a new message instance.
@@ -28,6 +35,14 @@ class CommunityActivityMail extends Mailable
         public bool $isThreadInvolved = false,
         public ?string $payload = null,
     ) {
+        // If this is a ticket comment, fetch the ticket data.
+        if ($this->articleType === ArticleType::AchievementTicket) {
+            $ticket = Ticket::with(['achievement.game.system'])->find($this->activityId);
+            if ($ticket) {
+                $this->ticketable = $ticket->achievement;
+                $this->game = $ticket->achievement?->game;
+            }
+        }
     }
 
     /**
@@ -57,6 +72,8 @@ class CommunityActivityMail extends Mailable
                     $this->toUserDisplayName,
                     $this->isThreadInvolved,
                 ),
+                'ticketable' => $this->ticketable,
+                'game' => $this->game,
             ],
         );
     }
@@ -104,9 +121,9 @@ class CommunityActivityMail extends Mailable
                 break;
 
             case ArticleType::AchievementTicket:
-                $activityDescription = "the ticket you reported for {$articleTitle}";
+                $activityDescription = "the ticket you reported";
                 if ($isThreadInvolved) {
-                    $activityDescription = "a ticket for {$articleTitle}";
+                    $activityDescription = "a ticket you're subscribed to";
                 }
                 break;
 
