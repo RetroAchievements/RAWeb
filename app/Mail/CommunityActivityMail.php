@@ -8,6 +8,10 @@ use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\UserPreference;
 use App\Mail\Services\UnsubscribeService;
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\Leaderboard;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -23,6 +27,8 @@ class CommunityActivityMail extends Mailable
     public ?string $granularText = null;
     public string $categoryUrl;
     public string $categoryText;
+    public Achievement|Leaderboard|null $ticketable = null;
+    public ?Game $game = null;
 
     /**
      * Create a new message instance.
@@ -38,6 +44,15 @@ class CommunityActivityMail extends Mailable
         public ?string $payload = null,
     ) {
         $this->setupUnsubscribeLinks();
+
+        // If this is a ticket comment, fetch the ticket data.
+        if ($this->articleType === ArticleType::AchievementTicket) {
+            $ticket = Ticket::with(['achievement.game.system'])->find($this->activityId);
+            if ($ticket) {
+                $this->ticketable = $ticket->achievement;
+                $this->game = $ticket->achievement?->game;
+            }
+        }
     }
 
     /**
@@ -72,6 +87,8 @@ class CommunityActivityMail extends Mailable
                 'granularText' => $this->granularText,
                 'categoryUrl' => $this->categoryUrl,
                 'categoryText' => $this->categoryText,
+                'ticketable' => $this->ticketable,
+                'game' => $this->game,
             ],
         );
     }
@@ -119,9 +136,9 @@ class CommunityActivityMail extends Mailable
                 break;
 
             case ArticleType::AchievementTicket:
-                $activityDescription = "the ticket you reported for {$articleTitle}";
+                $activityDescription = "the ticket you reported";
                 if ($isThreadInvolved) {
-                    $activityDescription = "a ticket for {$articleTitle}";
+                    $activityDescription = "a ticket you're subscribed to";
                 }
                 break;
 

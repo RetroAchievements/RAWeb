@@ -25,6 +25,16 @@ Hello {{ $toUserDisplayName }}!
 
 {{ $activityCommenterDisplayName }} has commented on {{ $activityDescription }}.
 
+@if ($articleType === \App\Community\Enums\ArticleType::AchievementTicket && isset($ticketable) && isset($game))
+@php
+    $ticketableType = $ticketable instanceof \App\Models\Achievement ? 'achievement' : 'leaderboard';
+@endphp
+
+**{{ ucfirst($ticketableType) }}:** {{ $ticketable->title }}  
+**Game:** {{ $game->title }}  
+**System:** {{ $game->system->name }}
+@endif
+
 @if (!empty($body))
 <x-mail::panel>
 {!! $body !!}
@@ -32,7 +42,11 @@ Hello {{ $toUserDisplayName }}!
 @endif
 
 <x-mail::button :url="$url">
+@if ($articleType === \App\Community\Enums\ArticleType::Forum)
 View post
+@else
+View comment
+@endif
 </x-mail::button>
 
 — Your friends at RetroAchievements.org
