@@ -13,8 +13,10 @@ use App\Api\Middleware\ServiceAccountOnly;
 use App\Api\V1\Controllers\WebApiV1Controller;
 use App\Api\V2\Controllers\WebApiController;
 use App\Http\Concerns\HandlesPublicFileRequests;
+use App\Models\Achievement;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use LaravelJsonApi\Core\Exceptions\JsonApiException;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -22,6 +24,20 @@ class RouteServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Route::bind('achievement', function ($value) {
+            $achievement = Achievement::find($value);
+
+            if (!$achievement) {
+                throw JsonApiException::error([
+                    'status' => '404',
+                    'code' => 'not_found',
+                    'title' => 'Not Found',
+                    'detail' => "No achievement found with ID {$value}.",
+                ]);
+            }
+
+            return $achievement;
+        });
     }
 
     public function map(): void
@@ -87,8 +103,8 @@ class RouteServiceProvider extends ServiceProvider
                         AddContentLengthHeader::class,
                         'throttle:' . $rateLimit,
                     ])->group(function () {
-                        Route::post('achievements/demote', [AchievementController::class, 'demote'])
-                            ->name('api.internal.achievements.demote');
+                        Route::patch('achievements/{achievement}', [AchievementController::class, 'update'])
+                            ->name('api.internal.achievements.update');
 
                         Route::get('health', [HealthController::class, 'check'])->name('api.internal.health');
 

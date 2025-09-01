@@ -6,8 +6,10 @@ namespace Tests\Feature\Api\Internal\Controllers;
 
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
@@ -22,12 +24,15 @@ class AchievementControllerTest extends TestCase
         $achievement = Achievement::factory()->create();
 
         // Act
-        $response = $this->postJson('/api/internal/achievements/demote', [
+        $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement-demotion',
+                'type' => 'achievement',
+                'id' => $achievement->id,
                 'attributes' => [
-                    'achievementId' => $achievement->id,
-                    'username' => 'DevCompliance',
+                    'published' => false,
+                ],
+                'meta' => [
+                    'actingUser' => 'DevCompliance',
                 ],
             ],
         ]);
@@ -40,19 +45,27 @@ class AchievementControllerTest extends TestCase
     public function testItReturnsForbiddenWhenUserIsNotServiceAccount(): void
     {
         // Arrange
+        $this->seed(RolesTableSeeder::class);
+
         User::factory()->create(['APIKey' => 'regular-user-api-key']);
         $achievement = Achievement::factory()->create();
+
+        $demotingUser = User::factory()->create(['User' => 'DevCompliance']);
+        $demotingUser->assignRole(Role::TEAM_ACCOUNT);
 
         // ... this user is not in the allowed service accounts list ...
         config(['internal-api.allowed_user_ids' => '99999']);
 
         // Act
-        $response = $this->postJson('/api/internal/achievements/demote', [
+        $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement-demotion',
+                'type' => 'achievement',
+                'id' => $achievement->id,
                 'attributes' => [
-                    'achievementId' => $achievement->id,
-                    'username' => 'DevCompliance',
+                    'published' => false,
+                ],
+                'meta' => [
+                    'actingUser' => 'DevCompliance',
                 ],
             ],
         ], [
@@ -76,6 +89,8 @@ class AchievementControllerTest extends TestCase
     public function testItSuccessfullyDemotesAnAchievement(): void
     {
         // Arrange
+        $this->seed(RolesTableSeeder::class);
+
         $serviceAccount = User::factory()->create([
             'User' => 'RABot',
             'APIKey' => 'rabot-api-key',
@@ -88,6 +103,7 @@ class AchievementControllerTest extends TestCase
             'User' => 'DevCompliance',
             'display_name' => 'DevCompliance',
         ]);
+        $demotingUser->assignRole(Role::TEAM_ACCOUNT);
 
         $game = Game::factory()->create();
         $achievement = Achievement::factory()->create([
@@ -96,12 +112,15 @@ class AchievementControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->postJson('/api/internal/achievements/demote', [
+        $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement-demotion',
+                'type' => 'achievement',
+                'id' => $achievement->id,
                 'attributes' => [
-                    'achievementId' => $achievement->id,
-                    'username' => $demotingUser->username,
+                    'published' => false,
+                ],
+                'meta' => [
+                    'actingUser' => $demotingUser->username,
                 ],
             ],
         ], [
@@ -115,17 +134,24 @@ class AchievementControllerTest extends TestCase
                 'type',
                 'id',
                 'attributes' => [
-                    'achievementId',
-                    'status',
-                    'demotedAt',
-                    'demotedBy',
-                    'wasTitleUpdated',
+                    'title',
+                    'description',
+                    'points',
+                    'published',
+                    'gameId',
+                ],
+                'meta' => [
+                    'updatedAt',
+                    'updatedBy',
+                    'updatedFields',
                 ],
             ],
         ]);
-        $response->assertJsonPath('data.attributes.status', 'demoted');
-        $response->assertJsonPath('data.attributes.demotedBy', 'DevCompliance');
-        $response->assertJsonPath('data.attributes.wasTitleUpdated', false);
+        $response->assertJsonPath('data.type', 'achievement');
+        $response->assertJsonPath('data.id', (string) $achievement->id);
+        $response->assertJsonPath('data.attributes.published', false);
+        $response->assertJsonPath('data.meta.updatedBy', 'DevCompliance');
+        $response->assertJsonPath('data.meta.updatedFields', ['published']);
 
         $achievement->refresh();
         $this->assertEquals(AchievementFlag::Unofficial->value, $achievement->Flags); // !! demoted
@@ -134,6 +160,8 @@ class AchievementControllerTest extends TestCase
     public function testItSuccessfullyDemotesAnAchievementWithTitleChange(): void
     {
         // Arrange
+        $this->seed(RolesTableSeeder::class);
+
         $serviceAccount = User::factory()->create([
             'User' => 'RABot',
             'APIKey' => 'rabot-api-key',
@@ -144,6 +172,7 @@ class AchievementControllerTest extends TestCase
             'User' => 'DevCompliance',
             'display_name' => 'DevCompliance',
         ]);
+        $demotingUser->assignRole(Role::TEAM_ACCOUNT);
 
         $game = Game::factory()->create();
         $achievement = Achievement::factory()->create([
@@ -153,13 +182,16 @@ class AchievementControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->postJson('/api/internal/achievements/demote', [
+        $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement-demotion',
+                'type' => 'achievement',
+                'id' => $achievement->id,
                 'attributes' => [
-                    'achievementId' => $achievement->id,
-                    'username' => $demotingUser->username,
+                    'published' => false,
                     'title' => 'DEMOTED AS UNWELCOME CONCEPT - Original Title', // !! new title
+                ],
+                'meta' => [
+                    'actingUser' => $demotingUser->username,
                 ],
             ],
         ], [
@@ -168,29 +200,40 @@ class AchievementControllerTest extends TestCase
 
         // Assert
         $response->assertOk();
-        $response->assertJsonPath('data.attributes.wasTitleUpdated', true);
+        $response->assertJsonPath('data.attributes.title', 'DEMOTED AS UNWELCOME CONCEPT - Original Title');
+        $response->assertJsonPath('data.meta.updatedFields', ['published', 'title']);
 
         $achievement->refresh();
         $this->assertEquals(AchievementFlag::Unofficial->value, $achievement->Flags);
         $this->assertEquals('DEMOTED AS UNWELCOME CONCEPT - Original Title', $achievement->title); // !!
     }
 
-    public function testItReturnsValidationErrorForMissingAchievementId(): void
+    public function testItReturnsValidationErrorForMissingId(): void
     {
         // Arrange
+        $this->seed(RolesTableSeeder::class);
+
         $serviceAccount = User::factory()->create([
             'User' => 'RABot',
             'APIKey' => 'rabot-api-key',
         ]);
         config(['internal-api.allowed_user_ids' => (string) $serviceAccount->id]);
 
+        $achievement = Achievement::factory()->create();
+
+        $demotingUser = User::factory()->create(['User' => 'DevCompliance']);
+        $demotingUser->assignRole(Role::TEAM_ACCOUNT);
+
         // Act
-        $response = $this->postJson('/api/internal/achievements/demote', [
+        $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement-demotion',
+                'type' => 'achievement',
+                // ... no id ...
                 'attributes' => [
-                    'username' => 'DevCompliance',
-                    // ... no achievementId ...
+                    'published' => false,
+                ],
+                'meta' => [
+                    'actingUser' => 'DevCompliance',
                 ],
             ],
         ], [
@@ -202,10 +245,10 @@ class AchievementControllerTest extends TestCase
         $response->assertJsonPath('errors.0.status', '422');
         $response->assertJsonPath('errors.0.code', 'validation_error');
         $response->assertJsonPath('errors.0.title', 'The given data was invalid');
-        $response->assertJsonPath('errors.0.detail', 'The data.attributes.achievementId field is required.');
+        $response->assertJsonPath('errors.0.detail', 'The achievement ID is required.');
     }
 
-    public function testItReturnsValidationErrorForMissingUsername(): void
+    public function testItReturnsValidationErrorForMissingActingUser(): void
     {
         // Arrange
         $serviceAccount = User::factory()->create([
@@ -217,12 +260,15 @@ class AchievementControllerTest extends TestCase
         $achievement = Achievement::factory()->create();
 
         // Act
-        $response = $this->postJson('/api/internal/achievements/demote', [
+        $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement-demotion',
+                'type' => 'achievement',
+                'id' => $achievement->id,
                 'attributes' => [
-                    'achievementId' => $achievement->id,
-                    // ... no username ...
+                    'published' => false,
+                ],
+                'meta' => [
+                    // ... no actingUser ...
                 ],
             ],
         ], [
@@ -231,12 +277,14 @@ class AchievementControllerTest extends TestCase
 
         // Assert
         $response->assertStatus(422);
-        $response->assertJsonPath('errors.0.detail', 'The data.attributes.username field is required.');
+        $response->assertJsonPath('errors.0.detail', 'The data.meta field is required.');
     }
 
     public function testItReturnsErrorForNonExistentAchievement(): void
     {
         // Arrange
+        $this->seed(RolesTableSeeder::class);
+
         $serviceAccount = User::factory()->create([
             'User' => 'RABot',
             'APIKey' => 'rabot-api-key',
@@ -244,14 +292,18 @@ class AchievementControllerTest extends TestCase
         config(['internal-api.allowed_user_ids' => (string) $serviceAccount->id]);
 
         $demotingUser = User::factory()->create(['User' => 'DevCompliance']);
+        $demotingUser->assignRole(Role::TEAM_ACCOUNT);
 
         // Act
-        $response = $this->postJson('/api/internal/achievements/demote', [
+        $response = $this->patchJson('/api/internal/achievements/999999', [ // !!
             'data' => [
-                'type' => 'achievement-demotion',
+                'type' => 'achievement',
+                'id' => 999999,
                 'attributes' => [
-                    'achievementId' => 999999, // !!
-                    'username' => $demotingUser->username,
+                    'published' => false,
+                ],
+                'meta' => [
+                    'actingUser' => $demotingUser->username,
                 ],
             ],
         ], [
@@ -259,11 +311,20 @@ class AchievementControllerTest extends TestCase
         ]);
 
         // Assert
-        $response->assertStatus(422);
-        $response->assertJsonPath('errors.0.status', '422');
-        $response->assertJsonPath('errors.0.code', 'validation_error');
-        $response->assertJsonPath('errors.0.title', 'The given data was invalid');
-        $response->assertJsonPath('errors.0.detail', 'The specified achievement does not exist.');
+        $response->assertNotFound();
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                [
+                    'status',
+                    'code',
+                    'title',
+                    'detail',
+                ],
+            ],
+        ]);
+        $response->assertJsonPath('errors.0.code', 'not_found');
+        $response->assertJsonPath('errors.0.detail', 'No achievement found with ID 999999.');
     }
 
     public function testItReturnsErrorForNonExistentUsername(): void
@@ -278,12 +339,16 @@ class AchievementControllerTest extends TestCase
         $achievement = Achievement::factory()->create();
 
         // Act
-        $response = $this->postJson('/api/internal/achievements/demote', [
+        $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement-demotion',
+                'type' => 'achievement',
+                'id' => $achievement->id,
                 'attributes' => [
-                    'achievementId' => $achievement->id,
-                    'username' => 'NonExistentUser', // !!
+                    'published' => false,
+                ],
+                'meta' => [
+                    'actingUser' => 'NonExistentUser', // !!
+                    'action' => 'demote',
                 ],
             ],
         ], [
@@ -297,9 +362,11 @@ class AchievementControllerTest extends TestCase
         $response->assertJsonPath('errors.0.detail', 'The specified username does not exist.');
     }
 
-    public function testItIsIdempotentWhenDemotingAlreadyDemotedAchievement(): void
+    public function testItReturnsErrorWhenDemotingAlreadyDemotedAchievement(): void
     {
         // Arrange
+        $this->seed(RolesTableSeeder::class);
+
         $serviceAccount = User::factory()->create([
             'User' => 'RABot',
             'APIKey' => 'rabot-api-key',
@@ -310,6 +377,7 @@ class AchievementControllerTest extends TestCase
             'User' => 'DevCompliance',
             'display_name' => 'DevCompliance',
         ]);
+        $demotingUser->assignRole(Role::TEAM_ACCOUNT);
 
         $game = Game::factory()->create();
         $achievement = Achievement::factory()->create([
@@ -318,12 +386,15 @@ class AchievementControllerTest extends TestCase
         ]);
 
         // Act
-        $response = $this->postJson('/api/internal/achievements/demote', [
+        $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement-demotion',
+                'type' => 'achievement',
+                'id' => $achievement->id,
                 'attributes' => [
-                    'achievementId' => $achievement->id,
-                    'username' => $demotingUser->username,
+                    'published' => false,
+                ],
+                'meta' => [
+                    'actingUser' => $demotingUser->username,
                 ],
             ],
         ], [
@@ -331,8 +402,9 @@ class AchievementControllerTest extends TestCase
         ]);
 
         // Assert
-        $response->assertOk(); // we didn't crash
-        $response->assertJsonPath('data.attributes.status', 'demoted');
+        $response->assertStatus(422);
+        $response->assertJsonPath('errors.0.code', 'no_changes');
+        $response->assertJsonPath('errors.0.detail', 'No changes to apply.');
 
         $achievement->refresh();
         $this->assertEquals(AchievementFlag::Unofficial->value, $achievement->Flags); // still unofficial
@@ -341,6 +413,8 @@ class AchievementControllerTest extends TestCase
     public function testItExpiresGameTopAchieversCache(): void
     {
         // Arrange
+        $this->seed(RolesTableSeeder::class);
+
         $serviceAccount = User::factory()->create([
             'User' => 'RABot',
             'APIKey' => 'rabot-api-key',
@@ -348,6 +422,7 @@ class AchievementControllerTest extends TestCase
         config(['internal-api.allowed_user_ids' => (string) $serviceAccount->id]);
 
         $demotingUser = User::factory()->create(['User' => 'DevCompliance']);
+        $demotingUser->assignRole(Role::TEAM_ACCOUNT);
 
         $game = Game::factory()->create();
         $achievement = Achievement::factory()->create([
@@ -360,12 +435,15 @@ class AchievementControllerTest extends TestCase
         Cache::put($cacheKey, ['test' => 'data'], 60);
 
         // Act
-        $response = $this->postJson('/api/internal/achievements/demote', [
+        $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement-demotion',
+                'type' => 'achievement',
+                'id' => $achievement->id,
                 'attributes' => [
-                    'achievementId' => $achievement->id,
-                    'username' => $demotingUser->username,
+                    'published' => false,
+                ],
+                'meta' => [
+                    'actingUser' => $demotingUser->username,
                 ],
             ],
         ], [
@@ -380,6 +458,8 @@ class AchievementControllerTest extends TestCase
     public function testItRejectsInvalidJsonApiType(): void
     {
         // Arrange
+        $this->seed(RolesTableSeeder::class);
+
         $serviceAccount = User::factory()->create([
             'User' => 'RABot',
             'APIKey' => 'rabot-api-key',
@@ -388,13 +468,19 @@ class AchievementControllerTest extends TestCase
 
         $achievement = Achievement::factory()->create();
 
+        $demotingUser = User::factory()->create(['User' => 'DevCompliance']);
+        $demotingUser->assignRole(Role::TEAM_ACCOUNT);
+
         // Act
-        $response = $this->postJson('/api/internal/achievements/demote', [
+        $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
                 'type' => 'wrong-type', // !!
+                'id' => $achievement->id,
                 'attributes' => [
-                    'achievementId' => $achievement->id,
-                    'username' => 'DevCompliance',
+                    'published' => false,
+                ],
+                'meta' => [
+                    'actingUser' => 'DevCompliance',
                 ],
             ],
         ], [
