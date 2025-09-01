@@ -140,9 +140,9 @@ class AchievementController extends Controller
                     $user->display_name,
                 );
             }
-
-            GameTopAchieversService::expireTopAchieversComponentData($achievement->GameID);
         });
+
+        GameTopAchieversService::expireTopAchieversComponentData($achievement->GameID);
 
         $achievement->refresh();
 
