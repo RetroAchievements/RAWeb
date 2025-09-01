@@ -11,7 +11,6 @@ use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 class AchievementControllerTest extends TestCase
