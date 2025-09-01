@@ -179,7 +179,6 @@ class BuildGameShowPagePropsAction
             ->all();
 
         $initialUserGameListState = $this->getInitialUserGameListState($backingGame, $user);
-        $initialUserGameListState = $this->getInitialUserGameListState($game, $user);
         $achievementSetClaims = $this->buildAchievementSetClaims($backingGame, $user);
         $claimData = $this->buildGamePageClaimDataAction->execute($backingGame, $user, $backingGame->achievementSetClaims);
 
