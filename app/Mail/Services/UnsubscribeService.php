@@ -98,6 +98,20 @@ class UnsubscribeService
             return ['success' => false, 'errorCode' => 'user_not_found'];
         }
 
+        if ($data instanceof GranularUnsubscribeData) {
+            // Check if there's an existing subscription record to capture its state.
+            $existingSubscription = Subscription::where('user_id', $user->id)
+                ->where('subject_type', $data->subjectType)
+                ->where('subject_id', $data->subjectId)
+                ->first();
+
+            // Store the previous state in the undo data.
+            // null means no explicit subscription existed.
+            // true means they were explicitly subscribed.
+            // false means they were explicitly unsubscribed.
+            $data->previousState = $existingSubscription?->state;
+        }
+
         $undoToken = $this->generateUndoToken($data);
 
         if ($data instanceof GranularUnsubscribeData) {
@@ -181,13 +195,22 @@ class UnsubscribeService
         }
 
         if ($data instanceof GranularUnsubscribeData) {
-            // Remove the explicit unsubscribe record to restore the subscription.
-            // This will revert to implicit subscription if the user has commented,
-            // or no subscription if they haven't.
-            Subscription::where('user_id', $user->id)
-                ->where('subject_type', $data->subjectType)
-                ->where('subject_id', $data->subjectId)
-                ->delete();
+            // Restore the subscription to its previous state.
+            if ($data->previousState === null) {
+                // No explicit subscription existed before, so remove the record entirely.
+                // This will revert to implicit subscription if the user has commented,
+                // or no subscription if they haven't.
+                Subscription::where('user_id', $user->id)
+                    ->where('subject_type', $data->subjectType)
+                    ->where('subject_id', $data->subjectId)
+                    ->delete();
+            } else {
+                // An explicit subscription existed before, so restore its state.
+                Subscription::where('user_id', $user->id)
+                    ->where('subject_type', $data->subjectType)
+                    ->where('subject_id', $data->subjectId)
+                    ->update(['state' => $data->previousState]);
+            }
         } elseif ($data instanceof CategoryUnsubscribeData) {
             $currentPrefs = $user->websitePrefs;
             $newPrefs = $currentPrefs | (1 << $data->preference);

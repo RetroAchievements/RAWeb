@@ -727,4 +727,49 @@ class UnsubscribeServiceTest extends TestCase
             $forumTopic->id
         );
     }
+
+    public function testUndoRestoresExplicitSubscriptionAfterUnsubscribe(): void
+    {
+        // Arrange
+        $forumTopic = ForumTopic::factory()->create();
+
+        // ... create an explicit subscription for the user ...
+        Subscription::create([
+            'user_id' => $this->user->id,
+            'subject_type' => SubscriptionSubjectType::ForumTopic,
+            'subject_id' => $forumTopic->id,
+            'state' => true, // !! explicitly subscribed
+        ]);
+
+        // Act
+        // ... unsubscribe ...
+        $unsubscribeToken = $this->generateValidGranularToken(
+            $this->user->id,
+            SubscriptionSubjectType::ForumTopic,
+            $forumTopic->id
+        );
+        $unsubscribeResult = $this->service->processUnsubscribe($unsubscribeToken);
+
+        // ... verify the unsubscribe worked ...
+        $this->assertTrue($unsubscribeResult['success']);
+        $this->assertSubscriptionExists(
+            $this->user->id,
+            SubscriptionSubjectType::ForumTopic,
+            $forumTopic->id,
+            false // !! now unsubscribed
+        );
+
+        // ... undo ...
+        $undoToken = $unsubscribeResult['undoToken'];
+        $undoResult = $this->service->processUndo($undoToken);
+
+        // Assert
+        $this->assertTrue($undoResult['success']);
+        $this->assertSubscriptionExists(
+            $this->user->id,
+            SubscriptionSubjectType::ForumTopic,
+            $forumTopic->id,
+            true // !! explicitly subscribed again
+        );
+    }
 }

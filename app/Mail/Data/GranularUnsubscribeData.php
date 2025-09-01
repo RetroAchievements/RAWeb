@@ -10,6 +10,7 @@ class GranularUnsubscribeData extends UnsubscribeData
         int $userId,
         public string $subjectType,
         public int $subjectId,
+        public ?bool $previousState = null,
     ) {
         parent::__construct($userId, 'granular');
     }
