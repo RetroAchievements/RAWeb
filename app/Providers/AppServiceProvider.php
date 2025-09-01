@@ -13,7 +13,6 @@ use App\Console\Commands\DeleteExpiredEmailVerificationTokens;
 use App\Console\Commands\DeleteOverdueUserAccounts;
 use App\Console\Commands\GenerateTypeScript;
 use App\Console\Commands\LogUsersOnlineCount;
-use App\Console\Commands\MakeJsComponent;
 use App\Console\Commands\PruneApiLogs;
 use App\Console\Commands\SquashMigrations;
 use App\Console\Commands\SyncUsers;
@@ -67,9 +66,6 @@ class AppServiceProvider extends ServiceProvider
 
                 // Settings
                 SystemAlert::class,
-
-                // Generators
-                MakeJsComponent::class,
             ]);
         }
 
@@ -95,6 +91,7 @@ class AppServiceProvider extends ServiceProvider
             }
         });
 
+        // TODO remove in favor of Inertia+React components
         Blade::if('hasfeature', function ($feature) {
             return config("feature.$feature", false);
         });
@@ -110,15 +107,9 @@ class AppServiceProvider extends ServiceProvider
         /*
          * Register Support Livewire components
          */
-        // Livewire::component('grid', Grid::class);
-
-        /*
-         * Register Livewire components
-         */
+        // TODO remove in favor of Inertia+React components
         Livewire::component('general-notifications-icon', GeneralNotificationsIcon::class);
         Livewire::component('ticket-notifications-icon', TicketNotificationsIcon::class);
-        // Livewire::component('supersearch', Supersearch::class);
-        // Livewire::component('user-grid', UserGrid::class);
 
         /*
          * Apply domain namespaces to tests' class name resolvers

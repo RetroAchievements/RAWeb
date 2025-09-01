@@ -58,9 +58,22 @@ use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Platform\Enums\AchievementFlag;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
-$gameId = (int) request()->query('i');
-$flag = AchievementFlag::tryFrom((int) request()->query('f', (string) AchievementFlag::OfficialCore->value));
+$input = Validator::validate(Arr::wrap(request()->query()), [
+    'i' => ['required', 'integer', 'min:1'],
+    'f' => [
+        'nullable',
+        Rule::in(['3', '5']),
+    ],
+], [
+    'f.in' => 'Invalid flag parameter. Valid values are 3 (published) or 5 (unpublished).',
+]);
+
+$gameId = (int) $input['i'];
+$flag = AchievementFlag::tryFrom((int) ($input['f'] ?? '3'));
 
 $game = Game::with('system')->find($gameId);
 

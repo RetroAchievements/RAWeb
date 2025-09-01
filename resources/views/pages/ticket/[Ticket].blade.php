@@ -329,7 +329,7 @@ $permissions = $user->getAttribute('Permissions');
                         <option value="{{ TicketAction::NotEnoughInfo }}">Close - Not enough information</option>
                         <option value="{{ TicketAction::WrongRom }}">Close - Wrong ROM</option>
                         <option value="{{ TicketAction::UnableToReproduce }}">Close - Unable to reproduce</option>
-                        @if (!$ticket->emulator->can_debug_triggers)
+                        @if (!$ticket->emulator?->can_debug_triggers)
                             <option value="{{ TicketAction::UnableToDebug }}">Close - Unable to debug due to no toolkit support</option>
                         @endif
                         <option value="{{ TicketAction::ClosedMistaken }}">Close - Mistaken report</option>
