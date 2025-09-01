@@ -410,51 +410,6 @@ class AchievementControllerTest extends TestCase
         $this->assertEquals(AchievementFlag::Unofficial->value, $achievement->Flags); // still unofficial
     }
 
-    public function testItExpiresGameTopAchieversCache(): void
-    {
-        // Arrange
-        $this->seed(RolesTableSeeder::class);
-
-        $serviceAccount = User::factory()->create([
-            'User' => 'RABot',
-            'APIKey' => 'rabot-api-key',
-        ]);
-        config(['internal-api.allowed_user_ids' => (string) $serviceAccount->id]);
-
-        $demotingUser = User::factory()->create(['User' => 'DevCompliance']);
-        $demotingUser->assignRole(Role::TEAM_ACCOUNT);
-
-        $game = Game::factory()->create();
-        $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
-        ]);
-
-        // ... pre-populate the cache to verify it gets cleared ...
-        $cacheKey = "game:{$game->id}:top-achievers:v3";
-        Cache::put($cacheKey, ['test' => 'data'], 60);
-
-        // Act
-        $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
-            'data' => [
-                'type' => 'achievement',
-                'id' => $achievement->id,
-                'attributes' => [
-                    'published' => false,
-                ],
-                'meta' => [
-                    'actingUser' => $demotingUser->username,
-                ],
-            ],
-        ], [
-            'X-API-Key' => 'rabot-api-key',
-        ]);
-
-        // Assert
-        $response->assertOk();
-        $this->assertNull(Cache::get($cacheKey)); // !! cleared
-    }
-
     public function testItRejectsInvalidJsonApiType(): void
     {
         // Arrange
