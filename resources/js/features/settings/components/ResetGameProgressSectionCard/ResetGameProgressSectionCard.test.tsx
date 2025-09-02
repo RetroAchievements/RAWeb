@@ -1,6 +1,5 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
-import nock from 'nock';
 import {
   mockAllIsIntersecting,
   resetIntersectionMocking,
@@ -48,9 +47,9 @@ describe('Component: ResetGameProgressSectionCard', () => {
 
   it("given the component is visible, fetches the player's resettable games", async () => {
     // ARRANGE
-    nock('http://localhost:3000')
-      .get('/player.games.resettable')
-      .reply(200, { results: [createPlayerResettableGame({ title: 'Sonic the Hedgehog' })] });
+    vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: { results: [createPlayerResettableGame({ title: 'Sonic the Hedgehog' })] },
+    });
 
     render(<ResetGameProgressSectionCard />);
 
@@ -67,15 +66,14 @@ describe('Component: ResetGameProgressSectionCard', () => {
 
   it('given the user selects a resettable game, fetches resettable achievements', async () => {
     // ARRANGE
-    nock('http://localhost:3000')
-      .get('/player.games.resettable')
-      .reply(200, {
+    const getSpy = vi.spyOn(axios, 'get');
+    getSpy.mockResolvedValueOnce({
+      data: {
         results: [createPlayerResettableGame({ id: 1, title: 'Sonic the Hedgehog' })],
-      });
-
-    nock('http://localhost:3000')
-      .get('/player.game.achievements.resettable,1')
-      .reply(200, {
+      },
+    });
+    getSpy.mockResolvedValueOnce({
+      data: {
         results: [
           createPlayerResettableGameAchievement({
             title: 'That Was Easy!',
@@ -83,7 +81,8 @@ describe('Component: ResetGameProgressSectionCard', () => {
             isHardcore: true,
           }),
         ],
-      });
+      },
+    });
 
     render(<ResetGameProgressSectionCard />);
 
@@ -105,15 +104,14 @@ describe('Component: ResetGameProgressSectionCard', () => {
     // ARRANGE
     vi.spyOn(window, 'confirm').mockReturnValueOnce(true);
 
-    nock('http://localhost:3000')
-      .get('/player.games.resettable')
-      .reply(200, {
+    const getSpy = vi.spyOn(axios, 'get');
+    getSpy.mockResolvedValueOnce({
+      data: {
         results: [createPlayerResettableGame({ id: 1, title: 'Sonic the Hedgehog' })],
-      });
-
-    nock('http://localhost:3000')
-      .get('/player.game.achievements.resettable,1')
-      .reply(200, {
+      },
+    });
+    getSpy.mockResolvedValueOnce({
+      data: {
         results: [
           createPlayerResettableGameAchievement({
             title: 'That Was Easy!',
@@ -121,9 +119,10 @@ describe('Component: ResetGameProgressSectionCard', () => {
             isHardcore: true,
           }),
         ],
-      });
+      },
+    });
 
-    nock('http://localhost:3000').delete('/api.user.game.destroy,1').reply(200);
+    vi.spyOn(axios, 'delete').mockResolvedValueOnce({ data: {} });
 
     render(<ResetGameProgressSectionCard />);
 
@@ -153,15 +152,14 @@ describe('Component: ResetGameProgressSectionCard', () => {
     // ARRANGE
     vi.spyOn(window, 'confirm').mockReturnValueOnce(true);
 
-    nock('http://localhost:3000')
-      .get('/player.games.resettable')
-      .reply(200, {
+    const getSpy = vi.spyOn(axios, 'get');
+    getSpy.mockResolvedValueOnce({
+      data: {
         results: [createPlayerResettableGame({ id: 1, title: 'Sonic the Hedgehog' })],
-      });
-
-    nock('http://localhost:3000')
-      .get('/player.game.achievements.resettable,1')
-      .reply(200, {
+      },
+    });
+    getSpy.mockResolvedValueOnce({
+      data: {
         results: [
           createPlayerResettableGameAchievement({
             id: 9,
@@ -170,9 +168,10 @@ describe('Component: ResetGameProgressSectionCard', () => {
             isHardcore: true,
           }),
         ],
-      });
+      },
+    });
 
-    nock('http://localhost:3000').delete('/api.user.achievement.destroy,9').reply(200);
+    vi.spyOn(axios, 'delete').mockResolvedValueOnce({ data: {} });
 
     render(<ResetGameProgressSectionCard />);
 
@@ -204,15 +203,14 @@ describe('Component: ResetGameProgressSectionCard', () => {
 
     vi.spyOn(window, 'confirm').mockReturnValueOnce(false);
 
-    nock('http://localhost:3000')
-      .get('/player.games.resettable')
-      .reply(200, {
+    const getSpy = vi.spyOn(axios, 'get');
+    getSpy.mockResolvedValueOnce({
+      data: {
         results: [createPlayerResettableGame({ id: 1, title: 'Sonic the Hedgehog' })],
-      });
-
-    nock('http://localhost:3000')
-      .get('/player.game.achievements.resettable,1')
-      .reply(200, {
+      },
+    });
+    getSpy.mockResolvedValueOnce({
+      data: {
         results: [
           createPlayerResettableGameAchievement({
             id: 9,
@@ -221,7 +219,8 @@ describe('Component: ResetGameProgressSectionCard', () => {
             isHardcore: false,
           }),
         ],
-      });
+      },
+    });
 
     render(<ResetGameProgressSectionCard />);
 
