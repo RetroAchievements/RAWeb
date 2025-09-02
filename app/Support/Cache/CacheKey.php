@@ -53,6 +53,11 @@ class CacheKey
         return self::buildNormalizedUserCacheKey($username, "expiring-claims");
     }
 
+    public static function buildUnsubscribeUndoTokenCacheKey(string $token): string
+    {
+        return self::buildNormalizedCacheKey("unsubscribe", "undo", $token);
+    }
+
     /**
      * Constructs a normalized cache key.
      *

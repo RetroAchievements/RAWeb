@@ -155,6 +155,13 @@ declare namespace App.Community.Data {
     game: App.Platform.Data.Game;
     playerCount: number;
   };
+  export type UnsubscribeShowPageProps = {
+    success: boolean;
+    error: string | null;
+    descriptionKey: string | null;
+    descriptionParams: Record<string, string> | null;
+    undoToken: string | null;
+  };
   export type UserCommentsPageProps<TItems = App.Community.Data.Comment> = {
     targetUser: App.Data.User;
     paginatedComments: App.Data.PaginatedData<TItems>;

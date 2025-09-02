@@ -12,7 +12,6 @@ use App\Connect\Actions\GetHashLibraryAction;
 use App\Connect\Actions\GetLeaderboardEntriesAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\ResolveRootGameFromGameAndGameHashAction;
-use App\Connect\Actions\ResolveRootGameIdFromGameIdAction;
 use App\Connect\Actions\SubmitCodeNoteAction;
 use App\Connect\Actions\SubmitGameTitleAction;
 use App\Enums\ClientSupportLevel;
@@ -628,7 +627,7 @@ switch ($requestType) {
 
         $response['Success'] = true;
         $userModel = User::whereName($username)->first();
-        $userUnlocks = getUserAchievementUnlocksForGame($userModel, (new ResolveRootGameIdFromGameIdAction())->execute($gameID));
+        $userUnlocks = getUserAchievementUnlocksForGame($userModel, $game->parentGameId ?? $game->id);
         $userUnlocks = reactivateUserEventAchievements($userModel, $userUnlocks);
         foreach ($userUnlocks as $achId => $unlock) {
             if (array_key_exists('DateEarnedHardcore', $unlock)) {
@@ -732,7 +731,8 @@ switch ($requestType) {
 
         $hardcoreMode = (int) request()->input('h', 0) === UnlockMode::Hardcore;
         $userModel = User::whereName($username)->first();
-        $userUnlocks = getUserAchievementUnlocksForGame($userModel, (new ResolveRootGameIdFromGameIdAction())->execute($gameID));
+        $game = Game::find($gameID);
+        $userUnlocks = getUserAchievementUnlocksForGame($userModel, $game ? ($game->parentGameId ?? $game->id) : $gameID);
         if ($hardcoreMode) {
             $userUnlocks = reactivateUserEventAchievements($userModel, $userUnlocks);
             $response['UserUnlocks'] = collect($userUnlocks)

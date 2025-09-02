@@ -6,6 +6,9 @@ namespace App\Mail;
 
 use App\Enums\UserPreference;
 use App\Mail\Services\UnsubscribeService;
+use App\Models\Achievement;
+use App\Models\Leaderboard;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -13,24 +16,32 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class CommunityFriendMail extends Mailable
+class TicketStatusUpdatedMail extends Mailable
 {
     use Queueable; use SerializesModels;
 
+    public Achievement|Leaderboard|null $ticketable;
     public string $categoryUrl;
 
     /**
      * Create a new message instance.
      */
     public function __construct(
-        public User $toUser,
-        public User $fromUser,
+        public Ticket $ticket,
+        public User $updatedBy,
+        public string $newStatus,
+        public string $comment,
     ) {
-        $unsubscribeService = app(UnsubscribeService::class);
+        /**
+         * TODO For now, we only support achievement tickets.
+         * When leaderboard tickets are implemented, this will need to be updated.
+         */
+        $this->ticketable = $this->ticket->achievement;
 
+        $unsubscribeService = app(UnsubscribeService::class);
         $this->categoryUrl = $unsubscribeService->generateCategoryUrl(
-            $this->toUser,
-            UserPreference::EmailOn_Followed
+            $this->ticket->reporter,
+            UserPreference::EmailOn_TicketActivity
         );
     }
 
@@ -40,7 +51,7 @@ class CommunityFriendMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "{$this->fromUser->display_name} is now following you",
+            subject: 'Ticket status changed',
         );
     }
 
@@ -50,10 +61,13 @@ class CommunityFriendMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'mail.community.friend',
+            markdown: 'mail.ticket.status-updated',
             with: [
+                'ticketUrl' => route('ticket.show', ['ticket' => $this->ticket->id]),
+                'ticketable' => $this->ticketable,
+                'game' => $this->ticketable->game,
                 'categoryUrl' => $this->categoryUrl,
-                'categoryText' => 'Unsubscribe from follower notification emails',
+                'categoryText' => 'Unsubscribe from all ticket emails',
             ],
         );
     }
