@@ -3,12 +3,14 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketState;
-use App\Community\Enums\TicketType;
 use App\Enums\UserPreference;
+use App\Mail\TicketCreatedMail;
+use App\Mail\TicketStatusUpdatedMail;
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Game;
 use App\Models\GameHash;
+use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
@@ -16,6 +18,7 @@ use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 function submitNewTicketsJSON(
     string $userSubmitter,
@@ -99,65 +102,33 @@ function submitNewTicket(User $user, int $achID, int $reportType, int $hardcore,
     return _createTicket($user, $achID, $reportType, $hardcore, $note);
 }
 
-function constructAchievementTicketBugReportDetails(
-    Ticket $ticket,
-    Game $game,
-    Achievement $achievement
-): string {
-    $problemTypeStr = TicketType::toString($ticket->ReportType);
-    $ticketUrl = route('ticket.show', ['ticket' => $ticket]);
-
-    $bugReportDetails = "
-Achievement: {$achievement->title}
-Game: {$game->title}
-Problem: {$problemTypeStr}
-Comment: {$ticket->body}
-
-This ticket will be raised and will be available for all developers to inspect and manage at the following URL:
-<a href='{$ticketUrl}'>{$ticketUrl}</a>
-
-Thanks!";
-
-    return $bugReportDetails;
-}
-
 function sendInitialTicketEmailToAssignee(Ticket $ticket, Game $game, Achievement $achievement): void
 {
-    $emailHeader = "Bug Report ({$game->title})";
-    $bugReportDetails = constructAchievementTicketBugReportDetails(
-        $ticket,
-        $game,
-        $achievement,
-    );
-
     $maintainer = $achievement->getMaintainerAt(now());
 
-    if ($maintainer && BitSet($maintainer->websitePrefs, UserPreference::EmailOn_TicketActivity)) {
-        $emailBody = "Hi, {$maintainer->display_name}!
-
-{$ticket->reporter->display_name} would like to report a bug with an achievement you've created:
-$bugReportDetails";
-        sendRAEmail($maintainer->EmailAddress, $emailHeader, $emailBody);
+    if (
+        $maintainer
+        && $maintainer->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])
+        && BitSet($maintainer->websitePrefs, UserPreference::EmailOn_TicketActivity)
+    ) {
+        Mail::to($maintainer->EmailAddress)->queue(
+            new TicketCreatedMail($maintainer, $ticket, $game, $achievement, isMaintainer: true)
+        );
     }
 }
 
 function sendInitialTicketEmailsToSubscribers(Ticket $ticket, Game $game, Achievement $achievement): void
 {
-    $emailHeader = "Bug Report ({$game->title})";
-    $bugReportDetails = constructAchievementTicketBugReportDetails(
-        $ticket,
-        $game,
-        $achievement,
-    );
-
     $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $game->id, 1 << UserPreference::EmailOn_TicketActivity);
     foreach ($subscribers as $sub) {
         if ($sub['User'] !== $achievement->developer->User && $sub['User'] != $ticket->reporter->username) {
-            $emailBody = "Hi, " . $sub['User'] . "!
-
-{$ticket->reporter->display_name} would like to report a bug with an achievement you're subscribed to:
-$bugReportDetails";
-            sendRAEmail($sub['EmailAddress'], $emailHeader, $emailBody);
+            // Find the user model for the subscriber.
+            $subscriberUser = User::whereName($sub['User'])->first();
+            if ($subscriberUser) {
+                Mail::to($sub['EmailAddress'])->queue(
+                    new TicketCreatedMail($subscriberUser, $ticket, $game, $achievement, isMaintainer: false)
+                );
+            }
         }
     }
 }
@@ -175,7 +146,7 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
     $newTicket = Ticket::create([
         'AchievementID' => $achievement->id,
         'reporter_id' => $user->id,
-        'ticketable_author_id' => $maintainer->id,
+        'ticketable_author_id' => $maintainer?->id,
         'ReportType' => $reportType,
         'Hardcore' => $hardcoreValue,
         'ReportNotes' => $note,
@@ -221,47 +192,40 @@ function getTicket(int $ticketID): ?array
 
 function updateTicket(User $userModel, int $ticketID, int $ticketVal, ?string $reason = null): bool
 {
-    // get the ticket data before updating so we know what the previous state was
-    $ticketData = getTicket($ticketID);
+    $ticket = Ticket::with(['reporter', 'author', 'achievement.game.system'])->find($ticketID);
 
-    $resolvedFields = "";
-    if ($ticketVal == TicketState::Resolved || $ticketVal == TicketState::Closed) {
-        $resolvedFields = ", ResolvedAt=NOW(), resolver_id={$userModel->id} ";
-    } elseif ($ticketData['ReportState'] == TicketState::Resolved || $ticketData['ReportState'] == TicketState::Closed) {
-        $resolvedFields = ", ResolvedAt=NULL, resolver_id=NULL ";
-    }
-
-    $query = "UPDATE Ticket
-              SET ReportState=$ticketVal $resolvedFields
-              WHERE ID=$ticketID";
-
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-
+    if (!$ticket) {
         return false;
     }
 
-    $userReporter = $ticketData['ReportedBy'];
-    $achID = $ticketData['AchievementID'];
-    $achTitle = $ticketData['AchievementTitle'];
-    $gameTitle = $ticketData['GameTitle'];
-    $consoleName = $ticketData['ConsoleName'];
+    $previousState = $ticket->ReportState;
+    $ticket->ReportState = $ticketVal;
+
+    if ($ticketVal == TicketState::Resolved || $ticketVal == TicketState::Closed) {
+        $ticket->ResolvedAt = now();
+        $ticket->resolver_id = $userModel->id;
+    } elseif (in_array($previousState, [TicketState::Resolved, TicketState::Closed])) {
+        // Clear any resolver info when reopening a previously resolved ticket.
+        $ticket->ResolvedAt = null;
+        $ticket->resolver_id = null;
+    }
+
+    $ticket->save();
 
     $status = TicketState::toString($ticketVal);
     $comment = null;
 
     switch ($ticketVal) {
         case TicketState::Closed:
-            if ($reason == TicketState::REASON_DEMOTED) {
-                updateAchievementFlag($achID, AchievementFlag::Unofficial);
-                addArticleComment("Server", ArticleType::Achievement, $achID, "{$userModel->display_name} demoted this achievement to Unofficial.", $userModel->display_name);
+            if ($reason == TicketState::REASON_DEMOTED && $ticket->achievement) {
+                updateAchievementFlag($ticket->achievement->id, AchievementFlag::Unofficial);
+                addArticleComment("Server", ArticleType::Achievement, $ticket->achievement->id, "{$userModel->display_name} demoted this achievement to Unofficial.", $userModel->display_name);
             }
             $comment = "Ticket closed by {$userModel->display_name}. Reason: \"$reason\".";
             break;
 
         case TicketState::Open:
-            if ($ticketData['ReportState'] == TicketState::Request) {
+            if ($previousState == TicketState::Request) {
                 $comment = "Ticket reassigned to author by {$userModel->display_name}.";
             } else {
                 $comment = "Ticket reopened by {$userModel->display_name}.";
@@ -288,33 +252,22 @@ function updateTicket(User $userModel, int $ticketID, int $ticketVal, ?string $r
         ]);
     }
 
-    expireUserTicketCounts(User::whereName($ticketData['AchievementAuthor'])->first());
-
-    $reporter = User::whereName($userReporter)->first();
-    if (!$reporter) {
-        return true;
+    if ($ticket->author) {
+        expireUserTicketCounts($ticket->author);
     }
 
-    expireUserTicketCounts($reporter);
+    if ($ticket->reporter) {
+        expireUserTicketCounts($ticket->reporter);
 
-    $email = $reporter->EmailAddress;
+        // Only send email if the reporter has email notifications enabled for ticket activity.
+        if (BitSet($ticket->reporter->websitePrefs, UserPreference::EmailOn_TicketActivity)) {
+            Mail::to($ticket->reporter->EmailAddress)->queue(
+                new TicketStatusUpdatedMail($ticket, $userModel, $status, $comment)
+            );
+        }
+    }
 
-    $emailTitle = "Ticket status changed";
-
-    $msg = "Hello {$reporter->display_name}!<br>" .
-        "<br>" .
-        "$achTitle - $gameTitle ($consoleName)<br>" .
-        "<br>" .
-        "The ticket you opened for the above achievement had its status changed to \"$status\" by \"{$userModel->display_name}\".<br>" .
-        "<br>Comment: $comment" .
-        "<br>" .
-        "Click <a href='" . route('ticket.show', ['ticket' => $ticketID]) . "'>here</a> to view the ticket" .
-        "<br>" .
-        "Thank-you again for your help in improving the quality of the achievements on RA!<br>" .
-        "<br>" .
-        "-- Your friends at RetroAchievements.org<br>";
-
-    return mail_utf8($email, $emailTitle, $msg);
+    return true;
 }
 
 function countRequestTicketsByUser(?User $user = null): int
