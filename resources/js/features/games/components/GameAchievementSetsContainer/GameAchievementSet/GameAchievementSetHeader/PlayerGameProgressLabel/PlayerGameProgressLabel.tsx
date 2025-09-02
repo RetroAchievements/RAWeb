@@ -61,7 +61,6 @@ export const PlayerGameProgressLabel: FC<PlayerGameProgressLabelProps> = ({ achi
             }}
             components={{
               1: <span className="font-semibold" />,
-              2: <span className="text-neutral-400" />,
             }}
           />
         </p>
