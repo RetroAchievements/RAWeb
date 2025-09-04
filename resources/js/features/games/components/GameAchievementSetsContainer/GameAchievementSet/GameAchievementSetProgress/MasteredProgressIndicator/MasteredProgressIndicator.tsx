@@ -21,7 +21,7 @@ interface MasteredProgressIndicatorProps {
 }
 
 export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ achievements }) => {
-  const { auth, playerGameProgressionAwards, ziggy } =
+  const { auth, backingGame, game, playerGameProgressionAwards, ziggy } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
@@ -29,13 +29,14 @@ export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ 
     return null;
   }
 
-  const unlockedHardcoreCount = achievements.filter((ach) => ach.unlockedHardcoreAt).length;
   const unlockedSoftcoreCount = achievements.filter(
     (ach) => ach.unlockedAt && !ach.unlockedHardcoreAt,
   ).length;
 
   const isMastered = playerGameProgressionAwards?.mastered;
   const isCompleted = playerGameProgressionAwards?.completed;
+
+  const isSubsetPage = backingGame.id !== game.id;
 
   const indicatorColorClassName = getIndicatorColorClassName(!!isMastered, !!isCompleted);
 
@@ -45,13 +46,14 @@ export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ 
         <BasePopoverTrigger>
           <div
             className={cn(
-              'flex items-center gap-0.5 border-r border-neutral-700 pr-4',
+              'flex items-center gap-0.5 pr-4',
+              !isSubsetPage ? 'border-r border-neutral-700' : null,
               indicatorColorClassName,
             )}
           >
             <LuAward className="size-5" />
             <p className="font-medium">
-              {unlockedSoftcoreCount <= unlockedHardcoreCount ? t('Mastered') : t('Completed')}
+              {unlockedSoftcoreCount === 0 ? t('Mastered') : t('Completed')}
             </p>
           </div>
         </BasePopoverTrigger>
@@ -77,7 +79,7 @@ export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ 
         >
           <LuAward className="size-5" />
           <p className="font-medium">
-            {unlockedSoftcoreCount <= unlockedHardcoreCount ? t('Mastered') : t('Completed')}
+            {unlockedSoftcoreCount === 0 ? t('Mastered') : t('Completed')}
           </p>
         </div>
       </BaseTooltipTrigger>

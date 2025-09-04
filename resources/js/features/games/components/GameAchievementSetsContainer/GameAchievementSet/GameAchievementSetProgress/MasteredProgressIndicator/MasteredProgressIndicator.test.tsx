@@ -4,7 +4,12 @@ import userEvent from '@testing-library/user-event';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
-import { createAchievement, createPlayerBadge, createZiggyProps } from '@/test/factories';
+import {
+  createAchievement,
+  createGame,
+  createPlayerBadge,
+  createZiggyProps,
+} from '@/test/factories';
 
 import { MasteredProgressIndicator } from './MasteredProgressIndicator';
 
@@ -14,6 +19,8 @@ describe('Component: MasteredProgressIndicator', () => {
     const { container } = render(<MasteredProgressIndicator achievements={[]} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame({ id: 1 }),
+        game: createGame({ id: 1 }),
         playerGameProgressionAwards: {},
         ziggy: createZiggyProps(),
       },
@@ -26,7 +33,12 @@ describe('Component: MasteredProgressIndicator', () => {
   it('given the user is not authenticated, renders nothing', () => {
     // ARRANGE
     render(<MasteredProgressIndicator achievements={[]} />, {
-      pageProps: { auth: null, ziggy: createZiggyProps() },
+      pageProps: {
+        auth: null,
+        backingGame: createGame(),
+        game: createGame(),
+        ziggy: createZiggyProps(),
+      },
     });
 
     // ASSERT
@@ -34,17 +46,18 @@ describe('Component: MasteredProgressIndicator', () => {
     expect(screen.queryByText(/completed/i)).not.toBeInTheDocument();
   });
 
-  it('given the user has more hardcore unlocks than softcore, shows the "Mastered" label', () => {
+  it('given the user has no softcore unlocks, shows the "Mastered" label', () => {
     // ARRANGE
     const achievements = [
       createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
       createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
-      createAchievement({ unlockedAt: '2024-01-01T00:00:00Z', unlockedHardcoreAt: undefined }),
     ];
 
     render(<MasteredProgressIndicator achievements={achievements} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        game: createGame(),
         playerGameProgressionAwards: {},
         ziggy: createZiggyProps(),
       },
@@ -55,7 +68,7 @@ describe('Component: MasteredProgressIndicator', () => {
     expect(screen.queryByText(/completed/i)).not.toBeInTheDocument();
   });
 
-  it('given the user has more softcore unlocks than hardcore, shows the "Completed" label', () => {
+  it('given the user has any softcore unlocks, shows the "Completed" label', () => {
     // ARRANGE
     const achievements = [
       createAchievement({ unlockedAt: '2024-01-01T00:00:00Z', unlockedHardcoreAt: undefined }),
@@ -66,6 +79,8 @@ describe('Component: MasteredProgressIndicator', () => {
     render(<MasteredProgressIndicator achievements={achievements} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        game: createGame(),
         playerGameProgressionAwards: {},
         ziggy: createZiggyProps(),
       },
@@ -74,25 +89,6 @@ describe('Component: MasteredProgressIndicator', () => {
     // ASSERT
     expect(screen.getByText(/completed/i)).toBeVisible();
     expect(screen.queryByText(/mastered/i)).not.toBeInTheDocument();
-  });
-
-  it('given the user has equal hardcore and softcore unlocks, shows the "Mastered" label', () => {
-    // ARRANGE
-    const achievements = [
-      createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
-      createAchievement({ unlockedAt: '2024-01-01T00:00:00Z', unlockedHardcoreAt: undefined }),
-    ];
-
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        playerGameProgressionAwards: {},
-        ziggy: createZiggyProps(),
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByText(/mastered/i)).toBeVisible();
   });
 
   it('given the device is desktop, hovering shows the tooltip with progress information', async () => {
@@ -106,13 +102,15 @@ describe('Component: MasteredProgressIndicator', () => {
     render(<MasteredProgressIndicator achievements={achievements} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        game: createGame(),
         playerGameProgressionAwards: {},
         ziggy: createZiggyProps({ device: 'desktop' }),
       },
     });
 
     // ACT
-    await userEvent.hover(screen.getByText(/mastered/i));
+    await userEvent.hover(screen.getByText(/completed/i));
 
     // ASSERT
     await waitFor(() => {
@@ -132,13 +130,15 @@ describe('Component: MasteredProgressIndicator', () => {
     render(<MasteredProgressIndicator achievements={achievements} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        game: createGame(),
         playerGameProgressionAwards: {},
         ziggy: createZiggyProps({ device: 'mobile' }),
       },
     });
 
     // ACT
-    await userEvent.click(screen.getByText(/mastered/i));
+    await userEvent.click(screen.getByText(/completed/i));
 
     // ASSERT
     await waitFor(() => {
@@ -158,6 +158,8 @@ describe('Component: MasteredProgressIndicator', () => {
     render(<MasteredProgressIndicator achievements={achievements} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        game: createGame(),
         playerGameProgressionAwards: {},
         ziggy: createZiggyProps(),
       },
@@ -188,6 +190,8 @@ describe('Component: MasteredProgressIndicator', () => {
     render(<MasteredProgressIndicator achievements={achievements} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        game: createGame(),
         playerGameProgressionAwards: {},
         ziggy: createZiggyProps(),
       },
@@ -219,13 +223,15 @@ describe('Component: MasteredProgressIndicator', () => {
     render(<MasteredProgressIndicator achievements={achievements} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        game: createGame(),
         playerGameProgressionAwards: {},
         ziggy: createZiggyProps(),
       },
     });
 
     // ACT
-    await userEvent.hover(screen.getByText(/mastered/i));
+    await userEvent.hover(screen.getByText(/completed/i));
 
     // ASSERT
     await waitFor(() => {
@@ -250,6 +256,8 @@ describe('Component: MasteredProgressIndicator', () => {
     render(<MasteredProgressIndicator achievements={achievements} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        game: createGame(),
         playerGameProgressionAwards: {},
         ziggy: createZiggyProps(),
       },
@@ -276,13 +284,15 @@ describe('Component: MasteredProgressIndicator', () => {
     render(<MasteredProgressIndicator achievements={achievements} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        game: createGame(),
         playerGameProgressionAwards: {},
         ziggy: createZiggyProps(),
       },
     });
 
     // ACT
-    await userEvent.hover(screen.getByText(/mastered/i));
+    await userEvent.hover(screen.getByText(/completed/i));
 
     // ASSERT
     await waitFor(() => {
@@ -302,6 +312,8 @@ describe('Component: MasteredProgressIndicator', () => {
     render(<MasteredProgressIndicator achievements={achievements} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        game: createGame(),
         playerGameProgressionAwards: {
           mastered: createPlayerBadge(), // !!
           completed: null,
@@ -327,6 +339,8 @@ describe('Component: MasteredProgressIndicator', () => {
     render(<MasteredProgressIndicator achievements={achievements} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        game: createGame(),
         playerGameProgressionAwards: {
           mastered: null,
           completed: createPlayerBadge(), // !!
@@ -352,6 +366,8 @@ describe('Component: MasteredProgressIndicator', () => {
     render(<MasteredProgressIndicator achievements={achievements} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        game: createGame(),
         playerGameProgressionAwards: {
           mastered: null, // !!
           completed: null, // !!
@@ -367,7 +383,7 @@ describe('Component: MasteredProgressIndicator', () => {
     expect(labelElement).toHaveClass('text-neutral-300/30');
   });
 
-  it('given the user is on mobile and has majority softcore unlocks, shows the "Completed" label', () => {
+  it('given the user is on mobile and has any softcore unlocks, shows the "Completed" label', () => {
     // ARRANGE
     const achievements = [
       createAchievement({ unlockedAt: '2024-01-01T00:00:00Z', unlockedHardcoreAt: undefined }),
@@ -378,6 +394,8 @@ describe('Component: MasteredProgressIndicator', () => {
     render(<MasteredProgressIndicator achievements={achievements} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        game: createGame(),
         playerGameProgressionAwards: {},
         ziggy: createZiggyProps({ device: 'mobile' }), // !!
       },
@@ -388,17 +406,18 @@ describe('Component: MasteredProgressIndicator', () => {
     expect(screen.queryByText(/mastered/i)).not.toBeInTheDocument();
   });
 
-  it('given the user is on mobile and has majority hardcore unlocks, shows the "Mastered" label', () => {
+  it('given the user is on mobile and only hardcore unlocks, shows the "Mastered" label', () => {
     // ARRANGE
     const achievements = [
       createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
       createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
-      createAchievement({ unlockedAt: '2024-01-01T00:00:00Z', unlockedHardcoreAt: undefined }),
     ];
 
     render(<MasteredProgressIndicator achievements={achievements} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        backingGame: createGame({ id: 1 }),
+        game: createGame({ id: 1 }),
         playerGameProgressionAwards: {},
         ziggy: createZiggyProps({ device: 'mobile' }), // !!
       },
