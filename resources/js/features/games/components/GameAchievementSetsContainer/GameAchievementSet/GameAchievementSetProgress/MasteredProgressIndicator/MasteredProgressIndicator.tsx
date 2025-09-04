@@ -46,8 +46,8 @@ export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ 
         <BasePopoverTrigger>
           <div
             className={cn(
-              'flex items-center gap-0.5 pr-4',
-              !isSubsetPage ? 'border-r border-neutral-700' : null,
+              'flex items-center gap-0.5',
+              !isSubsetPage ? 'border-r border-neutral-700 pr-4' : null,
               indicatorColorClassName,
             )}
           >
@@ -73,7 +73,8 @@ export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ 
       <BaseTooltipTrigger>
         <div
           className={cn(
-            'flex items-center gap-0.5 border-r border-neutral-700 pr-4',
+            'flex items-center gap-0.5',
+            !isSubsetPage ? 'border-r border-neutral-700 pr-4' : null,
             indicatorColorClassName,
           )}
         >
