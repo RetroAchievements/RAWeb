@@ -88,14 +88,34 @@ foreach ($achievementIds as $achievementId) {
 // if the set has more than 500 players, only look at players who have earned at least half the achievements.
 // if the set has between 200 and 500 players, only look at players who have earned at least 25% of the achievements.
 // otherwise, only look at players who have earned at least two achievements.
-$unlockThreshold = ($game->players_total > 500) ? (int) floor($game->achievements_published / 2) :
-    (($game->players_total > 200) ? (int) floor($game->achievements_published / 4) : 2);
-$recentPlayerIds = PlayerGame::query()
-    ->where('game_id', $game->ID)
-    ->where($preferHardcore ? 'achievements_unlocked_hardcore' : 'achievements_unlocked', '>=', $unlockThreshold)
-    ->orderByDesc('last_unlock_at')
-    ->limit(100)
-    ->pluck('user_id');
+$unlockThresholds = [
+    (int) floor($game->achievements_published / 2),
+    (int) floor($game->achievements_published / 4),
+    2,
+];
+
+$recentPlayerIds = [];
+
+$unlockThreshold = ($game->players_total > 500) ? 0 : (($game->players_total > 200) ? 1 : 2);
+while (true) {
+    $playerIds = PlayerGame::query()
+        ->where('game_id', $game->ID)
+        ->where($preferHardcore ? 'achievements_unlocked_hardcore' : 'achievements_unlocked', '>=', $unlockThresholds[$unlockThreshold])
+        ->orderByDesc('last_unlock_at')
+        ->limit(100)
+        ->pluck('user_id')
+        ->toArray();
+
+    // previous thresholds contain more interesting data, merge in new results.
+    $recentPlayerIds = array_unique(array_merge($recentPlayerIds, $playerIds));
+
+    if ($unlockThreshold === 2 || count($recentPlayerIds) > 60) {
+        break;
+    }
+
+    // threshold eliminated too many results. try again at next threshold.
+    $unlockThreshold++;
+}
 
 $resets = PlayerProgressReset::query()
     ->where('type', PlayerProgressResetType::Game)
