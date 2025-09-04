@@ -16,7 +16,7 @@ export const WeightedPointsContainer: FC<WeightedPointsContainerProps> = ({
 
   return (
     <BaseTooltip delayDuration={700} open={isTooltipEnabled ? undefined : false}>
-      <BaseTooltipTrigger className="cursor-default" asChild>
+      <BaseTooltipTrigger asChild>
         <span className="TrueRatio light:text-neutral-400">{children}</span>
       </BaseTooltipTrigger>
 
