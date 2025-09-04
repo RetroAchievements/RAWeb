@@ -35,12 +35,11 @@ class SubscriptionService
         $implicitSubscriptionsQuery = $this->getImplicitSubscriptionsQuery($subjectType, $subjectId, ignoreUserIds: $explicitSubcriberIds);
 
         // discard explicitly unsubscribed
-        $subscriberIds = $subscribers->filter(fn ($s) => $s->state === true)->pluck('user_id');
+        $subscriberIds = $subscribers->filter(fn ($s) => $s->state === true)->pluck('user_id')->toArray();
 
         // merge in implicit subscriptions
-        foreach ($implicitSubscriptionsQuery->get() as $implicitSubscription) {
-            $subscriberIds[] = $implicitSubscription->user_id;
-        }
+        $implicitSubscriberIds = $implicitSubscriptionsQuery->get()->pluck('user_id')->toArray();
+        $subscriberIds = array_merge($subscriberIds, $implicitSubscriberIds);
 
         return User::whereIn('ID', $subscriberIds)->get();
     }
@@ -219,7 +218,7 @@ class SubscriptionService
                     /** @var Builder<Model> $query4 */
                     $query4 = Ticket::query()
                         ->select([
-                            DB::raw(strval($maintainer->id) . ' as user_id'),
+                            DB::raw($maintainer->id . ' as user_id'),
                             DB::raw('ID as subject_id'),
                         ])
                         ->where('ID', $ticket->ID);
