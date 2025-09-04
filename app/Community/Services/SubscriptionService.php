@@ -9,6 +9,7 @@ use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\ForumTopicComment;
+use App\Models\Role;
 use App\Models\Subscription;
 use App\Models\Ticket;
 use App\Models\User;
@@ -33,7 +34,7 @@ class SubscriptionService
 
         $implicitSubscriptionsQuery = $this->getImplicitSubscriptionsQuery($subjectType, $subjectId, ignoreUserIds: $explicitSubcriberIds);
 
-        // only keep explicitly subscribed
+        // discard explicitly unsubscribed
         $subscriberIds = $subscribers->filter(fn ($s) => $s->state === true)->pluck('user_id');
 
         // merge in implicit subscriptions
@@ -53,6 +54,7 @@ class SubscriptionService
             ->first();
 
         if ($subscription) {
+            // found explicit subscription for user
             return $subscription->state;
         }
 
@@ -72,6 +74,8 @@ class SubscriptionService
     }
 
     /**
+     * @param  int $forUserId         if not null, we're trying to decide if the specified user has an implicit subscription
+     * @param  array $ignoreUserIds   if not null, we don't want implicit subscription information for the specified users
      * @return Builder<Model>
      */
     private function getImplicitSubscriptionsQuery(SubscriptionSubjectType $subjectType, ?int $subjectId, ?int $forUserId = null, ?array $ignoreUserIds = null): Builder
@@ -95,6 +99,7 @@ class SubscriptionService
     {
         /** @var Builder<Model> $query */
         $query = Subscription::whereRaw('1 = 0');
+
         return $query;
     }
 
@@ -162,9 +167,9 @@ class SubscriptionService
         $query = $this->getImplicitCommentSubscriptionQuery(ArticleType::AchievementTicket, $articleId, $forUserId, $ignoreUserIds);
 
         if ($articleId !== null) {
-            // find any users subscribed to GameTickets for the game owning the ticketed achievement
             $ticket = Ticket::with('achievement')->find($articleId);
             if ($ticket) {
+                // find any users subscribed to GameTickets for the game owning the ticketed achievement
                 /** @var Builder<Model> $query2 */
                 $query2 = Subscription::query()
                     ->where('subject_type', SubscriptionSubjectType::GameTickets)
@@ -197,6 +202,29 @@ class SubscriptionService
                         ->where('ID', $ticket->ID);
 
                     $query->union($query3);
+                }
+
+                // achievement maintainer should also be implicitly subscribed if they still have a development role
+                $includeMaintainer = false;
+                $maintainer = $ticket->achievement->getMaintainerAt(now());
+                if ($maintainer && $maintainer->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])) {
+                    if ($forUserId !== null) {
+                        $includeMaintainer = $maintainer->id === $forUserId;
+                    } else {
+                        $includeMaintainer = !$ignoreUserIds || !in_array($maintainer->id, $ignoreUserIds);
+                    }
+                }
+
+                if ($includeMaintainer) {
+                    /** @var Builder<Model> $query4 */
+                    $query4 = Ticket::query()
+                        ->select([
+                            DB::raw(strval($maintainer->id) . ' as user_id'),
+                            DB::raw('ID as subject_id'),
+                        ])
+                        ->where('ID', $ticket->ID);
+
+                    $query->union($query4);
                 }
             }
         }

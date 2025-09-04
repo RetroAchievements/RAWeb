@@ -11,9 +11,11 @@ use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
+use App\Models\Role;
 use App\Models\Subscription;
 use App\Models\Ticket;
 use App\Models\User;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -210,6 +212,8 @@ class SubscriptionServiceTest extends TestCase
 
     public function testTicketSubcriptionIncludesGameTicketsSubscribers(): void
     {
+        $this->seed(RolesTableSeeder::class);
+
         /** @var User $user1 */
         $user1 = User::factory()->create();
         /** @var User $user2 */
@@ -224,9 +228,14 @@ class SubscriptionServiceTest extends TestCase
         $user6 = User::factory()->create();
         /** @var User $user7 */
         $user7 = User::factory()->create();
+        /** @var User $user8 */
+        $user8 = User::factory()->create();
+        $user8->assignRole(Role::DEVELOPER);
 
         /** @var Achievement $achievement */
         $achievement = $this->seedAchievement();
+        $achievement->user_id = $user8->id;
+        $achievement->save();
         /** @var Ticket $ticket */
         $ticket = Ticket::factory()->create(['AchievementID' => $achievement->ID, 'reporter_id' => $user7->id]);
 
@@ -268,6 +277,8 @@ class SubscriptionServiceTest extends TestCase
 
         // user7 implicitly subscribed to ticket via being the reporter
 
+        // user8 implicitly subscribed to ticket via being the achievement author
+
         $service = new SubscriptionService();
 
         $this->assertTrue($service->isSubscribed($user1, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
@@ -277,10 +288,11 @@ class SubscriptionServiceTest extends TestCase
         $this->assertTrue($service->isSubscribed($user5, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
         $this->assertFalse($service->isSubscribed($user6, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
         $this->assertTrue($service->isSubscribed($user7, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
+        $this->assertTrue($service->isSubscribed($user8, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
 
         $subscribers = $service->getSubscribers(SubscriptionSubjectType::AchievementTicket, $ticket->ID);
         $subscribedUserIds = $subscribers->pluck('id')->toArray();
-        $this->assertEqualsCanonicalizing([1, 2, 4, 5, 7], $subscribedUserIds);
+        $this->assertEqualsCanonicalizing([1, 2, 4, 5, 7, 8], $subscribedUserIds);
     }
 
     public function testImplicitlySubscribedForumTopic(): void

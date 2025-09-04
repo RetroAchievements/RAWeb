@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Community\Data\CommentData;
+use App\Community\Enums\ClaimStatus;
+use App\Community\Enums\ClaimType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
 use App\Community\Services\SubscriptionService;

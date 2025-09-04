@@ -50,7 +50,7 @@ class UnsubscribeServiceTest extends TestCase
      */
     private function assertSubscriptionExists(
         int $userId,
-        string $subjectType,
+        SubscriptionSubjectType $subjectType,
         int $subjectId,
         bool $state
     ): void {
@@ -68,7 +68,7 @@ class UnsubscribeServiceTest extends TestCase
      */
     private function assertSubscriptionDoesNotExist(
         int $userId,
-        string $subjectType,
+        SubscriptionSubjectType $subjectType,
         int $subjectId
     ): void {
         $exists = Subscription::where('user_id', $userId)
@@ -92,7 +92,7 @@ class UnsubscribeServiceTest extends TestCase
     /**
      * Helper method to generate a valid base64 encoded token.
      */
-    private function generateValidGranularToken(int $userId, string $subjectType, int $subjectId): string
+    private function generateValidGranularToken(int $userId, SubscriptionSubjectType $subjectType, int $subjectId): string
     {
         $data = new GranularUnsubscribeData($userId, $subjectType, $subjectId);
 
@@ -135,7 +135,7 @@ class UnsubscribeServiceTest extends TestCase
 
         $this->assertEquals('granular', $tokenData['type']);
         $this->assertEquals($this->user->id, $tokenData['userId']);
-        $this->assertEquals(SubscriptionSubjectType::ForumTopic, $tokenData['subjectType']);
+        $this->assertEquals(SubscriptionSubjectType::ForumTopic->value, $tokenData['subjectType']);
         $this->assertEquals($forumTopic->id, $tokenData['subjectId']);
     }
 

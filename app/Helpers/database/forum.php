@@ -235,7 +235,7 @@ function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTop
                 $topic->id,
                 $author,
                 ArticleType::Forum,
-                $topic->Title ?? '',
+                $topic->title ?? '',
                 $urlTarget,
                 payload: $payload
             );

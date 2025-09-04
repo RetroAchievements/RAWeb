@@ -3,7 +3,6 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketState;
-use App\Community\Enums\TicketType;
 use App\Community\Services\SubscriptionService;
 use App\Enums\UserPreference;
 use App\Mail\TicketCreatedMail;
@@ -121,15 +120,21 @@ function sendInitialTicketEmailToAssignee(Ticket $ticket, Game $game, Achievemen
 
 function sendInitialTicketEmailsToSubscribers(Ticket $ticket, Game $game, Achievement $achievement): void
 {
+    $maintainer = $achievement->getMaintainerAt(now());
+
     $subscriptionService = new SubscriptionService();
     $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::GameTickets, $game->id)
         ->filter(fn ($s) => isset($s->EmailAddress) && BitSet($s->websitePrefs, UserPreference::EmailOn_TicketActivity));
 
-    $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $game->id, 1 << UserPreference::EmailOn_TicketActivity);
-    foreach ($subscribers as $sub) {
-        if (!$sub->is($achievement->developer) && !$sub->is($ticket->reporter)) {
-            Mail::to($sub->EmailAddress)->queue(
-                new TicketCreatedMail($sub, $ticket, $game, $achievement, isMaintainer: false)
+    foreach ($subscribers as $subscriber) {
+        if ($subscriber->is($maintainer)) {
+            // maintainer explicitly notified regardless of subscription state via
+            // sendInitialTicketEmailToAssignee. don't notify them again.
+        } elseif ($subscriber->is($ticket->reporter)) {
+            // reporter doesn't need to be notified of the new ticket. they just created it!
+        } else {
+            Mail::to($subscriber->EmailAddress)->queue(
+                new TicketCreatedMail($subscriber, $ticket, $game, $achievement, isMaintainer: false)
             );
         }
     }
@@ -156,6 +161,7 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
 
     expireUserTicketCounts($maintainer);
 
+    // achievement maintainer should be notified regardless of their subscription state
     sendInitialTicketEmailToAssignee($newTicket, $achievement->game, $achievement);
 
     // notify subscribers other than the achievement's author

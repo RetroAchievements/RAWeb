@@ -166,7 +166,7 @@ function sendValidationEmail(User $user, string $email): bool
 function informAllSubscribersAboutActivity(
     int $articleType,
     int $articleID,
-    string $activityAuthor,
+    User $activityAuthor,
     int $commentID,
     ?string $onBehalfOfUser = null
 ): void {
@@ -308,7 +308,7 @@ function sendActivityEmail(
     }
 
     Mail::to($user->EmailAddress)->queue(new CommunityActivityMail(
-        $user->display_name ?? $user->User,
+        $user,
         $actID,
         $activityCommenter->display_name ?? $activityCommenter->User,
         $articleType,
