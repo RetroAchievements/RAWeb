@@ -1,3 +1,4 @@
+import { createAuthenticatedUser } from '@/common/models';
 import {
   currentListViewAtom,
   currentPlayableListSortAtom,
@@ -12,6 +13,7 @@ import {
   createGame,
   createGameAchievementSet,
   createLeaderboard,
+  createZiggyProps,
 } from '@/test/factories';
 
 import { GameAchievementSet } from './GameAchievementSet';
@@ -399,5 +401,44 @@ describe('Component: GameAchievementSet', () => {
 
     expect(screen.getByText('High Score')).toBeVisible();
     expect(screen.getByText('Speed Run')).toBeVisible();
+  });
+
+  it('given the user is authenticated and there are achievements, shows progress indicators', () => {
+    // ARRANGE
+    const game = createGame();
+
+    const achievements = Array.from({ length: 51 }, (_, i) =>
+      createAchievement({
+        id: i + 1,
+        title: `Achievement ${i + 1}`,
+      }),
+    );
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+      }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game,
+          achievementSetClaims: [],
+          auth: { user: createAuthenticatedUser() },
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByText(/mastered/i)).toBeVisible();
   });
 });

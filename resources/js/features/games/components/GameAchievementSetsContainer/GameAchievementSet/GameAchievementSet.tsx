@@ -20,6 +20,7 @@ import { AchievementSetCredits } from '../../AchievementSetCredits';
 import { BeatenCreditDialog } from '../../BeatenCreditDialog';
 import { LeaderboardsListItem } from '../../LeaderboardsListItem';
 import { GameAchievementSetHeader } from './GameAchievementSetHeader';
+import { GameAchievementSetProgress } from './GameAchievementSetProgress';
 import { GameAchievementSetToolbar } from './GameAchievementSetToolbar';
 
 interface GameAchievementSetProps {
@@ -31,7 +32,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   achievements,
   gameAchievementSet,
 }) => {
-  const { isViewingPublishedAchievements, leaderboards, numLeaderboards } =
+  const { auth, isViewingPublishedAchievements, leaderboards, numLeaderboards } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const currentAchievementSort = useAtomValue(currentPlayableListSortAtom);
@@ -84,6 +85,12 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
         <div className="flex items-center justify-between">
           <GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />
         </div>
+
+        {auth?.user && achievements.length ? (
+          <div className="my-2 flex justify-center sm:hidden">
+            <GameAchievementSetProgress achievements={achievements} />
+          </div>
+        ) : null}
 
         <AchievementSetCredits />
       </div>

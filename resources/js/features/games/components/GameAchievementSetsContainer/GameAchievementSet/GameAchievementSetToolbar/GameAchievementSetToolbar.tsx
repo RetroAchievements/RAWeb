@@ -117,7 +117,7 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
               disabled={currentListView !== 'achievements'}
             >
               <IoAlert className="-mt-0.5 size-4" />
-              <span>{t('Missable Only')}</span>
+              <span className="whitespace-nowrap">{t('Missable Only')}</span>
 
               <BaseChip
                 className={cn([
