@@ -67,7 +67,7 @@ export const PlayableTopPlayersRow: FC<PlayableTopPlayersRowProps> = ({
         <BaseTableCell>
           <span className="flex items-center justify-end gap-1.5">
             {awardKind ? <AwardIndicator awardKind={awardKind} /> : null}
-            {player.pointsHardcore}
+            {formatNumber(player.pointsHardcore)}
           </span>
         </BaseTableCell>
       )}
