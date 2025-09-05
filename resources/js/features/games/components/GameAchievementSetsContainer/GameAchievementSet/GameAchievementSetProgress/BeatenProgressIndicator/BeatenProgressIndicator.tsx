@@ -40,10 +40,10 @@ export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achi
           <BaseDialogTrigger asChild>
             <button
               className={cn(
-                'flex items-center gap-1 pl-3.5 text-neutral-300 light:text-neutral-500',
+                'flex items-center gap-1 pl-3.5 text-neutral-300',
                 playerGame?.beatenAt || playerGame?.beatenHardcoreAt
-                  ? 'text-opacity-100'
-                  : 'text-opacity-30 light:text-opacity-50',
+                  ? 'text-opacity-100 light:text-neutral-600'
+                  : 'text-opacity-30 light:text-neutral-500 light:text-opacity-40',
               )}
             >
               <LuCircleDot className="size-5" />

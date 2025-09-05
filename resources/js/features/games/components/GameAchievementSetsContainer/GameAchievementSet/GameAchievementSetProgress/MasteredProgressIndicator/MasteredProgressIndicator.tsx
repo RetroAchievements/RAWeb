@@ -60,7 +60,7 @@ export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ 
           <div
             className={cn(
               'flex items-center gap-0.5',
-              !isSubsetPage ? 'border-r border-neutral-700 pr-4' : null,
+              !isSubsetPage ? 'border-r border-neutral-700 pr-4 light:border-neutral-300' : null,
               indicatorColorClassName,
             )}
           >
@@ -85,7 +85,7 @@ export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ 
         <div
           className={cn(
             'flex items-center gap-0.5',
-            !isSubsetPage ? 'border-r border-neutral-700 pr-4' : null,
+            !isSubsetPage ? 'border-r border-neutral-700 pr-4 light:border-neutral-300' : null,
             indicatorColorClassName,
           )}
         >
@@ -107,10 +107,10 @@ function getIndicatorColorClassName(isMastered: boolean, isCompleted: boolean): 
   }
 
   if (isCompleted) {
-    return 'text-neutral-200 light:text-neutral-500';
+    return 'text-neutral-200 light:text-neutral-600';
   }
 
-  return 'text-neutral-300/30 light:text-neutral-500/50';
+  return 'text-neutral-300/30 light:text-neutral-500/40';
 }
 
 interface FloatableContentProps {

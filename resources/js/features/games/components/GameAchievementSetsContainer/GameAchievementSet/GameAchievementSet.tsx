@@ -78,8 +78,8 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
     <div className="flex flex-col gap-2.5">
       <div
         className={cn(
-          'flex w-full flex-col gap-2 rounded bg-embed p-2',
-          'light:border light:border-embed-highlight light:bg-neutral-50',
+          'flex w-full flex-col gap-2 rounded bg-embed p-2 light:bg-white',
+          'light:border light:border-neutral-200',
         )}
       >
         <div className="flex items-center justify-between">
