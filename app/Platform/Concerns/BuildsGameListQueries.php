@@ -426,25 +426,19 @@ trait BuildsGameListQueries
         $query
             ->selectRaw(<<<SQL
                 GameData.*,
-                CASE
-                    WHEN GameData.released_at_granularity = 'year' THEN
-                        DATE(CONCAT(SUBSTR(GameData.released_at, 1, 4), '-12-31'))
-                    WHEN GameData.released_at_granularity = 'month' THEN
-                        -- Append '-32' to push month dates after all possible days.
-                        CONCAT(SUBSTR(GameData.released_at, 1, 7), '-32')
-                    ELSE
-                        COALESCE(GameData.released_at, '9999-12-31')
-                END AS normalized_released_at,
                 CASE GameData.released_at_granularity
-                    WHEN 'year' THEN 1
-                    WHEN 'month' THEN 2
-                    WHEN 'day' THEN 3
-                    ELSE 4
-                END AS granularity_order
+                    WHEN 'year' THEN 
+                        CONCAT(SUBSTR(GameData.released_at, 1, 4), '-12-31-3')
+                    WHEN 'month' THEN 
+                        CONCAT(SUBSTR(GameData.released_at, 1, 7), '-31-2')
+                    WHEN 'day' THEN 
+                        CONCAT(GameData.released_at, '-1')
+                    ELSE 
+                        CONCAT(COALESCE(GameData.released_at, '9999-12-31'), '-4')
+                END AS release_sort_key
             SQL)
             ->orderByRaw('released_at IS NULL') // Ensure NULL release dates always sort to the end, regardless of sort direction.
-            ->orderBy('normalized_released_at', $sortDirection)
-            ->orderBy('granularity_order', $sortDirection);
+            ->orderBy('release_sort_key', $sortDirection);
     }
 
     /**
