@@ -73,7 +73,10 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
   return (
     <div
       data-testid="game-achievement-set-toolbar"
-      className="-mt-1.5 flex w-full flex-col items-center justify-between gap-2 rounded bg-embed px-2 py-1.5 sm:flex-row"
+      className={cn(
+        '-mt-1.5 flex w-full flex-col items-center justify-between gap-2 rounded bg-embed px-2 py-1.5 sm:flex-row',
+        'light:border light:border-neutral-200 light:bg-white',
+      )}
     >
       <div className="flex w-full gap-2 sm:w-auto">
         <PlayableListSortButton
@@ -117,7 +120,7 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
               disabled={currentListView !== 'achievements'}
             >
               <IoAlert className="-mt-0.5 size-4" />
-              <span>{t('Missable Only')}</span>
+              <span className="whitespace-nowrap">{t('Missable Only')}</span>
 
               <BaseChip
                 className={cn([
