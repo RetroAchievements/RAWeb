@@ -3,7 +3,6 @@
 namespace App\Community\Controllers\Api;
 
 use App\Community\Data\StoreCommentData;
-use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Requests\StoreCommentRequest;
 use App\Http\Controller;
 use App\Models\Achievement;
@@ -26,16 +25,6 @@ class AchievementCommentApiController extends Controller
 
         /** @var User $user */
         $user = Auth::user();
-
-        // Automatically subscribe the user to the achievement wall if they've never previously
-        // been subscribed to it and then later unsubscribed.
-        $doesSubscriptionExist = $user->subscriptions()
-            ->whereSubjectType(SubscriptionSubjectType::Achievement)
-            ->whereSubjectId($achievement->id)
-            ->exists();
-        if (!$doesSubscriptionExist) {
-            updateSubscription(SubscriptionSubjectType::Achievement, $achievement->id, $user->id, true);
-        }
 
         addArticleComment($user->username, $data->commentableType, $data->commentableId, $data->body);
 

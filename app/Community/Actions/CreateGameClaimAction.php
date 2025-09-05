@@ -10,6 +10,7 @@ use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Services\SubscriptionService;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\User;
@@ -70,14 +71,16 @@ class CreateGameClaimAction
             ClaimType::toString($claimType) . " " . ($setType == ClaimSetType::Revision ? "revision" : "") . " claim made by " . $currentUser->display_name);
 
         if ($claimType == ClaimType::Primary) {
+            $subscriptionService = new SubscriptionService();
+
             // automatically subscribe the user to game wall comments when they make a claim on the game
-            updateSubscription(SubscriptionSubjectType::GameWall, $game->ID, $currentUser->id, true);
+            $subscriptionService->updateSubscription($currentUser, SubscriptionSubjectType::GameWall, $game->ID, true);
 
             // also automatically subscribe the user to the game's official forum topic (if one exists -
             // the "Make Primary Forum Topic and Claim" functionality makes the claim first, but as the
             // author of the primary forum topic they'll be implicitly subscribed).
-            if ($game->ForumTopicID && !isUserSubscribedToForumTopic($game->ForumTopicID, $currentUser->id)) {
-                updateSubscription(SubscriptionSubjectType::ForumTopic, $game->ForumTopicID, $currentUser->id, true);
+            if ($game->ForumTopicID && !$subscriptionService->isSubscribed($currentUser, SubscriptionSubjectType::ForumTopic, $game->ForumTopicID)) {
+                $subscriptionService->updateSubscription($currentUser, SubscriptionSubjectType::ForumTopic, $game->ForumTopicID, true);
             }
         }
 

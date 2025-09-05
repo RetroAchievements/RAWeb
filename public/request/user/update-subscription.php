@@ -1,7 +1,9 @@
 <?php
 
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Services\SubscriptionService;
 use App\Enums\Permissions;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -23,8 +25,11 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, $requiredPermissi
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-if (!updateSubscription($subjectType, $subjectID, $userDetails['ID'], $input['operation'] === "subscribe")) {
-    return back()->withErrors(__('legacy.error.subscription_update'));
-}
+$service = new SubscriptionService();
+$service->updateSubscription(
+    User::find($userDetails['ID']),
+    SubscriptionSubjectType::from($subjectType),
+    $subjectID,
+    $input['operation'] === "subscribe");
 
 return back()->with('success', __('legacy.success.' . $input['operation']));
