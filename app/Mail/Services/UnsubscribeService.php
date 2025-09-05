@@ -41,7 +41,7 @@ use Illuminate\Support\Facades\URL;
  */
 class UnsubscribeService
 {
-    public function generateGranularUrl(User $user, string $subjectType, int $subjectId): string
+    public function generateGranularUrl(User $user, SubscriptionSubjectType $subjectType, int $subjectId): string
     {
         $data = new GranularUnsubscribeData(
             userId: $user->id,
@@ -224,7 +224,7 @@ class UnsubscribeService
         return ['success' => true];
     }
 
-    private function getGranularDescription(string $subjectType, int $subjectId): array
+    private function getGranularDescription(SubscriptionSubjectType $subjectType, int $subjectId): array
     {
         switch ($subjectType) {
             case SubscriptionSubjectType::ForumTopic:

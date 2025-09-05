@@ -57,7 +57,7 @@ function addArticleComment(
             'Payload' => $commentPayload,
         ]);
 
-        informAllSubscribersAboutActivity($articleType, $id, $user->display_name, $comment->ID, $onBehalfOfUser);
+        informAllSubscribersAboutActivity($articleType, $id, $user, $comment->ID, $onBehalfOfUser);
     }
 
     return true;

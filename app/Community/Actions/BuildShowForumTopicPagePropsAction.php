@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
+use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Services\SubscriptionService;
 use App\Data\ForumTopicCommentData;
 use App\Data\ForumTopicData;
 use App\Data\PaginatedData;
@@ -116,7 +118,7 @@ class BuildShowForumTopicPagePropsAction
                 'lockedAt',
                 'requiredPermissions',
             ),
-            isSubscribed: $user ? isUserSubscribedToForumTopic($topic->id, $user->id) : false,
+            isSubscribed: $user ? (new SubscriptionService())->isSubscribed($user, SubscriptionSubjectType::ForumTopic, $topic->id) : false,
             paginatedForumTopicComments: PaginatedData::fromLengthAwarePaginator(
                 $paginatedForumTopicComments,
                 total: $paginatedForumTopicComments->total(),

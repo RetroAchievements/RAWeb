@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Community\Data\CommentData;
-use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
+use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
+use App\Community\Services\SubscriptionService;
 use App\Data\UserPermissionsData;
 use App\Enums\GameHashCompatibility;
 use App\Models\Game;
@@ -276,7 +277,7 @@ class BuildGameShowPagePropsAction
             hubs: $relatedHubs,
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
             isOnWantToPlayList: $initialUserGameListState['isOnWantToPlayList'],
-            isSubscribedToComments: $user ? isUserSubscribedToArticleComments(ArticleType::Game, $backingGame->id, $user->id) : false,
+            isSubscribedToComments: $user ? (new SubscriptionService())->isSubscribed($user, SubscriptionSubjectType::GameWall, $backingGame->id) : false,
             isLockedOnlyFilterEnabled: $isLockedOnlyFilterEnabled,
             isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
             isViewingPublishedAchievements: $targetAchievementFlag === AchievementFlag::OfficialCore,
