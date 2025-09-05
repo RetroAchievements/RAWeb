@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuCircleDot } from 'react-icons/lu';
+import { LuCircleDot, LuCircleDotDashed } from 'react-icons/lu';
 
 import { BaseDialog, BaseDialogTrigger } from '@/common/components/+vendor/BaseDialog';
 import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
@@ -33,6 +33,9 @@ export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achi
     isSoftcorePlayer,
   } = useMemo(() => getBeatenProgressData(achievements, auth?.user), [achievements, auth]);
 
+  const Icon =
+    playerGame?.beatenAt || playerGame?.beatenHardcoreAt ? LuCircleDot : LuCircleDotDashed;
+
   return (
     <BaseDialog>
       <BaseTooltip>
@@ -46,7 +49,7 @@ export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achi
                   : 'text-opacity-30 light:text-neutral-500 light:text-opacity-40',
               )}
             >
-              <LuCircleDot className="size-5" />
+              <Icon className="size-5" />
               <p className="font-medium">{t('Beaten')}</p>
             </button>
           </BaseDialogTrigger>
