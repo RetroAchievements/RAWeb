@@ -65,7 +65,7 @@ describe('Component: PlayableTopPlayersRow', () => {
     );
 
     // ASSERT
-    expect(screen.getByText('1000')).toBeVisible();
+    expect(screen.getByText('1,000')).toBeVisible();
     expect(screen.queryByText(/jan 1, 2024/i)).not.toBeInTheDocument();
   });
 

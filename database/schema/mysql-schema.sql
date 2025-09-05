@@ -25,7 +25,6 @@ CREATE TABLE `Achievements` (
   `unlocks_hardcore_total` int(10) unsigned DEFAULT NULL,
   `unlock_percentage` decimal(10,9) DEFAULT NULL,
   `unlock_hardcore_percentage` decimal(10,9) DEFAULT NULL,
-  `visible_user_comments_total` int(10) unsigned NOT NULL DEFAULT 0,
   `DateCreated` timestamp NULL DEFAULT NULL,
   `DateModified` timestamp NULL DEFAULT current_timestamp(),
   `VotesPos` smallint(5) unsigned NOT NULL DEFAULT 0,
