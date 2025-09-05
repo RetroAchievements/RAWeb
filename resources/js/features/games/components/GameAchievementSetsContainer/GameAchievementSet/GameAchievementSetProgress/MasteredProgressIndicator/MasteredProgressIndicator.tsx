@@ -13,6 +13,7 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
+import { useFormatPercentage } from '@/common/hooks/useFormatPercentage';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
@@ -21,17 +22,29 @@ interface MasteredProgressIndicatorProps {
 }
 
 export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ achievements }) => {
-  const { auth, backingGame, game, playerGameProgressionAwards, ziggy } =
+  const { auth, backingGame, game, playerGame, playerGameProgressionAwards, ziggy } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
-  const { t } = useTranslation();
+
+  const { formatPercentage } = useFormatPercentage();
 
   if (!auth?.user) {
     return null;
   }
 
-  const unlockedSoftcoreCount = achievements.filter(
-    (ach) => ach.unlockedAt && !ach.unlockedHardcoreAt,
-  ).length;
+  const totalUnlockedCount = playerGame?.achievementsUnlocked;
+
+  // Calculate completion percentage with special rounding rules.
+  const rawPercentage =
+    achievements.length > 0 ? ((totalUnlockedCount ?? 0) / achievements.length) * 100 : 0;
+  const completionPercentage =
+    rawPercentage >= 99 && rawPercentage < 100
+      ? Math.floor(rawPercentage)
+      : Math.ceil(rawPercentage);
+
+  const formattedPercentage = formatPercentage(completionPercentage / 100, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
 
   const isMastered = playerGameProgressionAwards?.mastered;
   const isCompleted = playerGameProgressionAwards?.completed;
@@ -52,9 +65,7 @@ export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ 
             )}
           >
             <LuAward className="size-5" />
-            <p className="font-medium">
-              {unlockedSoftcoreCount === 0 ? t('Mastered') : t('Completed')}
-            </p>
+            <p className="font-medium">{formattedPercentage}</p>
           </div>
         </BasePopoverTrigger>
 
@@ -79,9 +90,7 @@ export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ 
           )}
         >
           <LuAward className="size-5" />
-          <p className="font-medium">
-            {unlockedSoftcoreCount === 0 ? t('Mastered') : t('Completed')}
-          </p>
+          <p className="font-medium">{formattedPercentage}</p>
         </div>
       </BaseTooltipTrigger>
 

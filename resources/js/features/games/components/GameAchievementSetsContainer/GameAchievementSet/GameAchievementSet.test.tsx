@@ -439,6 +439,6 @@ describe('Component: GameAchievementSet', () => {
     );
 
     // ASSERT
-    expect(screen.getByText(/mastered/i)).toBeVisible();
+    expect(screen.getAllByText(/0%/i)[0]).toBeVisible();
   });
 });
