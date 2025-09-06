@@ -149,6 +149,7 @@ class MemoryNotesRelationManager extends RelationManager
 
                             $memoryNote->user_id = $user->id;
                             $memoryNote->forceFill(['body' => '']);
+                            $memoryNote->deleted_at = now();
                             $memoryNote->save();
                         })
                         ->visible(function (MemoryNote $memoryNote): bool {
