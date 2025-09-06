@@ -26,7 +26,7 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
   );
 
   return (
-    <div className="flex w-full items-center justify-between text-neutral-300 light:text-neutral-700">
+    <div className="relative flex w-full items-center justify-between text-neutral-300 light:text-neutral-700">
       <div className="flex w-full items-center gap-3">
         <img
           src={imageAssetPathUrl}
@@ -83,14 +83,14 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
               </span>
             )}
           </div>
-
-          {isViewingPublishedAchievements && achievements.length ? (
-            <div className="hidden sm:mt-1.5 sm:block sm:self-start sm:pr-2">
-              <GameAchievementSetProgress achievements={achievements} />
-            </div>
-          ) : null}
         </div>
       </div>
+
+      {isViewingPublishedAchievements && achievements.length ? (
+        <div className="absolute right-2 top-2 hidden sm:block">
+          <GameAchievementSetProgress achievements={achievements} />
+        </div>
+      ) : null}
     </div>
   );
 };
