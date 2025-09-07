@@ -25,7 +25,7 @@ class AchievementControllerTest extends TestCase
         // Act
         $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement',
+                'type' => 'achievements',
                 'id' => $achievement->id,
                 'attributes' => [
                     'published' => false,
@@ -58,7 +58,7 @@ class AchievementControllerTest extends TestCase
         // Act
         $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement',
+                'type' => 'achievements',
                 'id' => $achievement->id,
                 'attributes' => [
                     'published' => false,
@@ -113,7 +113,7 @@ class AchievementControllerTest extends TestCase
         // Act
         $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement',
+                'type' => 'achievements',
                 'id' => $achievement->id,
                 'attributes' => [
                     'published' => false,
@@ -146,7 +146,7 @@ class AchievementControllerTest extends TestCase
                 ],
             ],
         ]);
-        $response->assertJsonPath('data.type', 'achievement');
+        $response->assertJsonPath('data.type', 'achievements');
         $response->assertJsonPath('data.id', (string) $achievement->id);
         $response->assertJsonPath('data.attributes.published', false);
         $response->assertJsonPath('data.meta.updatedBy', 'DevCompliance');
@@ -183,7 +183,7 @@ class AchievementControllerTest extends TestCase
         // Act
         $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement',
+                'type' => 'achievements',
                 'id' => $achievement->id,
                 'attributes' => [
                     'published' => false,
@@ -226,7 +226,7 @@ class AchievementControllerTest extends TestCase
         // Act
         $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement',
+                'type' => 'achievements',
                 // ... no id ...
                 'attributes' => [
                     'published' => false,
@@ -261,7 +261,7 @@ class AchievementControllerTest extends TestCase
         // Act
         $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement',
+                'type' => 'achievements',
                 'id' => $achievement->id,
                 'attributes' => [
                     'published' => false,
@@ -296,7 +296,7 @@ class AchievementControllerTest extends TestCase
         // Act
         $response = $this->patchJson('/api/internal/achievements/999999', [ // !!
             'data' => [
-                'type' => 'achievement',
+                'type' => 'achievements',
                 'id' => 999999,
                 'attributes' => [
                     'published' => false,
@@ -340,7 +340,7 @@ class AchievementControllerTest extends TestCase
         // Act
         $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement',
+                'type' => 'achievements',
                 'id' => $achievement->id,
                 'attributes' => [
                     'published' => false,
@@ -387,7 +387,7 @@ class AchievementControllerTest extends TestCase
         // Act
         $response = $this->patchJson('/api/internal/achievements/' . $achievement->id, [
             'data' => [
-                'type' => 'achievement',
+                'type' => 'achievements',
                 'id' => $achievement->id,
                 'attributes' => [
                     'published' => false,

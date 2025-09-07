@@ -10,7 +10,7 @@ class UpdateAchievementRequest extends BaseJsonApiRequest
     {
         return [
             'data' => 'required|array',
-            'data.type' => 'required|in:achievement',
+            'data.type' => 'required|in:achievements',
             'data.id' => 'required|integer',
             'data.attributes' => 'nullable|array',
             'data.attributes.published' => 'nullable|boolean',

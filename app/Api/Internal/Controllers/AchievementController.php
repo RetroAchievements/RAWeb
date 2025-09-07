@@ -26,7 +26,7 @@ class AchievementController extends Controller
      * ```json
      * {
      *   "data": {
-     *     "type": "achievement",
+     *     "type": "achievements",
      *     "id": "123",
      *     "attributes": {
      *       "published": false,
@@ -43,7 +43,7 @@ class AchievementController extends Controller
      * ```json
      * {
      *   "data": {
-     *     "type": "achievement",
+     *     "type": "achievements",
      *     "id": "123",
      *     "attributes": {
      *       "title": "DEMOTED AS UNWELCOME CONCEPT - Original Title",
@@ -148,7 +148,7 @@ class AchievementController extends Controller
 
         return response()->json([
             'data' => [
-                'type' => 'achievement',
+                'type' => 'achievements',
                 'id' => (string) $achievement->ID,
                 'attributes' => [
                     'title' => $achievement->title,
