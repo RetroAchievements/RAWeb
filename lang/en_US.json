@@ -1184,5 +1184,7 @@
     "Go to Settings": "Go to Settings",
     "Beaten Progress": "Beaten Progress",
     "Beaten Progress (Softcore)": "Beaten Progress (Softcore)",
-    "Overall Set Progress": "Overall Set Progress"
+    "Overall Set Progress": "Overall Set Progress",
+    "Reset all progress": "Reset all progress",
+    "This will remove all your unlocked achievements for the game. This cannot be reversed.": "This will remove all your unlocked achievements for the game. This cannot be reversed."
 }
