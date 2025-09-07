@@ -12,6 +12,11 @@ export async function loadDayjsLocale(userLocale: string) {
       case 'en_US':
         break;
 
+      case 'ca_ES':
+        await import('dayjs/locale/ca.js');
+        dayjs.locale('ca');
+        break;
+
       case 'cy_GB':
         await import('dayjs/locale/cy.js');
         dayjs.locale('cy');
