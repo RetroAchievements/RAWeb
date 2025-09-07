@@ -9,7 +9,6 @@ use App\Connect\Concerns\AuthRequests;
 use App\Connect\Concerns\BootstrapRequests;
 use App\Connect\Concerns\DevelopmentRequests;
 use App\Connect\Concerns\GameRequests;
-use App\Connect\Concerns\HeartbeatRequests;
 use App\Connect\Concerns\LeaderboardRequests;
 use App\Connect\Concerns\LegacyCompatProxyRequests;
 use App\Connect\Concerns\TicketRequests;
@@ -44,7 +43,6 @@ class ConnectApiController extends Controller
     use AuthRequests;
     use BootstrapRequests;
     use DevelopmentRequests;
-    use HeartbeatRequests;
     use AchievementRequests;
     use GameRequests;
     use LeaderboardRequests;
