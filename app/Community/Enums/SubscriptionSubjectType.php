@@ -7,44 +7,25 @@ namespace App\Community\Enums;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
-abstract class SubscriptionSubjectType
+enum SubscriptionSubjectType: string
 {
-    public const ForumTopic = "ForumTopic";
+    case ForumTopic = "ForumTopic";
+    case UserWall = "UserWall";
+    case GameWall = "GameWall";
+    case Achievement = "Achievement";
+    case Leaderboard = "Leaderboard";
+    case GameTickets = "GameTickets";
+    case GameAchievements = "GameAchievements";
+    case AchievementTicket = "AchievementTicket";
 
-    public const UserWall = "UserWall";
-
-    public const GameWall = "GameWall";
-
-    public const Achievement = "Achievement";
-
-    public const GameTickets = "GameTickets";
-
-    public const GameAchievements = "GameAchievements";
-
-    public static function fromArticleType(int $articleType): ?string
+    public static function fromArticleType(int $articleType): ?SubscriptionSubjectType
     {
         return match ($articleType) {
             ArticleType::Game => SubscriptionSubjectType::GameWall,
             ArticleType::Achievement => SubscriptionSubjectType::Achievement,
             ArticleType::User => SubscriptionSubjectType::UserWall,
+            ArticleType::AchievementTicket => SubscriptionSubjectType::AchievementTicket,
             default => null,
         };
-    }
-
-    public static function cases(): array
-    {
-        return [
-            self::ForumTopic,
-            self::UserWall,
-            self::GameWall,
-            self::Achievement,
-            self::GameTickets,
-            self::GameAchievements,
-        ];
-    }
-
-    public static function isValid(string $subjectType): bool
-    {
-        return in_array($subjectType, self::cases());
     }
 }

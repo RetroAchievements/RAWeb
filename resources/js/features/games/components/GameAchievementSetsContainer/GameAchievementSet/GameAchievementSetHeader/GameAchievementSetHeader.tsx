@@ -4,6 +4,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { WeightedPointsContainer } from '@/common/components/WeightedPointsContainer';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { GameAchievementSetProgress } from '../GameAchievementSetProgress';
 import { PlayerGameProgressLabel } from './PlayerGameProgressLabel';
 
 interface GameAchievementSetHeaderProps {
@@ -82,6 +83,12 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
               </span>
             )}
           </div>
+
+          {isViewingPublishedAchievements && achievements.length ? (
+            <div className="hidden sm:mt-1.5 sm:block sm:self-start sm:pr-2">
+              <GameAchievementSetProgress achievements={achievements} />
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ namespace App\Community\Controllers\Api;
 
 use App\Community\Data\SubscriptionData;
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Services\SubscriptionService;
 use App\Http\Controller;
 use App\Models\Subscription;
 use App\Models\User;
@@ -24,18 +25,12 @@ class SubscriptionApiController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        if (!SubscriptionSubjectType::isValid($subjectType)) {
+        $convertedSubjectType = SubscriptionSubjectType::tryFrom($subjectType);
+        if (!$convertedSubjectType) {
             return response()->json(['success' => false], 400);
         }
 
-        $subscription = Subscription::updateOrCreate(
-            [
-                'subject_type' => $subjectType,
-                'subject_id' => $subjectId,
-                'user_id' => $user->id,
-            ],
-            ['state' => true]
-        );
+        $subscription = (new SubscriptionService())->updateSubscription($user, $convertedSubjectType, $subjectId, true);
 
         $statusCode = $subscription->wasRecentlyCreated ? 201 : 200;
 
@@ -58,6 +53,11 @@ class SubscriptionApiController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
+        $convertedSubjectType = SubscriptionSubjectType::tryFrom($subjectType);
+        if (!$convertedSubjectType) {
+            return response()->json(['success' => false], 400);
+        }
+
         $subscription = Subscription::whereUserId($user->id)
             ->whereSubjectType($subjectType)
             ->whereSubjectId($subjectId)
@@ -66,14 +66,7 @@ class SubscriptionApiController extends Controller
         // It may be an implicit subscription. We'll store a new subscription
         // record with a state explicitly set to `false`.
         if (!$subscription) {
-            $subscription = Subscription::updateOrCreate(
-                [
-                    'subject_type' => $subjectType,
-                    'subject_id' => $subjectId,
-                    'user_id' => $user->id,
-                ],
-                ['state' => false]
-            );
+            (new SubscriptionService())->updateSubscription($user, $convertedSubjectType, $subjectId, false);
 
             return response()->noContent();
         }

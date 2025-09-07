@@ -9,6 +9,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Services\SubscriptionService;
 use App\Models\Comment;
 use App\Models\User;
 
@@ -48,7 +49,8 @@ if ($user) {
     $subjectType = SubscriptionSubjectType::fromArticleType($articleType);
     if ($subjectType !== null) {
         $canSubscribe = true;
-        $isSubscribed = isUserSubscribedToArticleComments($articleType, $articleId, $user->id);
+        $service = new SubscriptionService();
+        $isSubscribed = $service->isSubscribed($user, $subjectType, $articleId);
     }
 }
 

@@ -28,7 +28,7 @@ class SubscriptionData extends Data
     {
         return new self(
             id: $subscription->id,
-            subjectType: $subscription->subject_type,
+            subjectType: $subscription->subject_type->value,
             subjectId: $subscription->subject_id,
             state: $subscription->state,
             user: Lazy::create(fn () => $subscription->user),
