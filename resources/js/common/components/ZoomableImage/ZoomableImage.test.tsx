@@ -34,4 +34,44 @@ describe('Component: ZoomableImage', () => {
     expect(fullSizeImage).toBeVisible();
     expect(fullSizeImage.getAttribute('src')).toEqual('test-image.jpg');
   });
+
+  it('given isPixelated is true, applies the pixelated image rendering style', async () => {
+    // ARRANGE
+    render(
+      <ZoomableImage
+        src="test-image.jpg"
+        alt={'test alt text' as TranslatedString}
+        isPixelated={true}
+      >
+        <span>Click me</span>
+      </ZoomableImage>,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByText(/click me/i));
+
+    // ASSERT
+    const fullSizeImage = screen.getByAltText(/test alt text/i);
+    expect(fullSizeImage).toHaveStyle({ imageRendering: 'pixelated' });
+  });
+
+  it('given isPixelated is false, does not apply the pixelated image rendering style', async () => {
+    // ARRANGE
+    render(
+      <ZoomableImage
+        src="test-image.jpg"
+        alt={'test alt text' as TranslatedString}
+        isPixelated={false}
+      >
+        <span>Click me</span>
+      </ZoomableImage>,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByText(/click me/i));
+
+    // ASSERT
+    const fullSizeImage = screen.getByAltText(/test alt text/i);
+    expect(fullSizeImage).not.toHaveStyle({ imageRendering: 'pixelated' });
+  });
 });
