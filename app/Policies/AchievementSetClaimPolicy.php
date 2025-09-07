@@ -19,8 +19,9 @@ class AchievementSetClaimPolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
+            Role::DEVELOPER,
+            Role::MODERATOR,
         ]);
     }
 
@@ -73,6 +74,11 @@ class AchievementSetClaimPolicy
 
     public function update(User $user, AchievementSetClaim $achievementSetClaim): bool
     {
+        // Admins and moderators need the ability to fully modify the various fields of a claim.
+        if ($user->hasAnyRole([Role::ADMINISTRATOR, Role::MODERATOR])) {
+            return true;
+        }
+
         // Users can only complete their own claims (extensions use the `create` policy).
         // User can't update their own claim if the claim is in review status.
         return

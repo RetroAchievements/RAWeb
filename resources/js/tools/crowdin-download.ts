@@ -35,6 +35,7 @@ import { join } from 'path';
  * ADD NEW LANGUAGES HERE!
  */
 const LANGUAGES = {
+  ca_ES: 'ca',
   cy_GB: 'cy',
   de_DE: 'de',
   en_GB: 'en-GB',
