@@ -37,7 +37,7 @@ class SubscriptionService
         $explicitSubcriberIds = $subscribers->pluck('user_id')->toArray();
 
         $handler = $this->getHandler($subjectType);
-        $implicitSubscriptionsQuery = $handler->getImplicitSubscriptionQuery($subjectId, null, $explicitSubcriberIds);
+        $implicitSubscriptionsQuery = $handler->getImplicitSubscriptionQuery($subjectId, null, null, $explicitSubcriberIds);
 
         // discard explicitly unsubscribed
         $subscriberIds = $subscribers->filter(fn ($s) => $s->state === true)->pluck('user_id')->toArray();
@@ -64,7 +64,7 @@ class SubscriptionService
 
         $handler = $this->getHandler($subjectType);
 
-        return $handler->getImplicitSubscriptionQuery($subjectId, $user->id, null)->exists();
+        return $handler->getImplicitSubscriptionQuery($subjectId, $user->id, null, null)->exists();
     }
 
     public function updateSubscription(User $user, SubscriptionSubjectType $subjectType, int $subjectId, bool $isSubscribed): Subscription
@@ -186,11 +186,9 @@ class SubscriptionService
                 ->get();
 
             $explicitSubscriptionIds = $subscriptions->filter(fn ($s) => $s->state === true)->pluck('subject_id')->toArray();
+            $allSubscriptionIds = $subscriptions->pluck('subject_id')->toArray();
 
-            $implicitSubscriptionIds = $handler->getImplicitSubscriptionQuery(null, $user->id, null)
-                ->when(!empty($subscriptions), function ($query) use ($subscriptions) {
-                    $query->whereNotIn('subject_id', $subscriptions->pluck('subject_id'));
-                })
+            $implicitSubscriptionIds = $handler->getImplicitSubscriptionQuery(null, $user->id, $allSubscriptionIds, null)
                 ->get()
                 ->pluck('subject_id')
                 ->toArray();
@@ -226,12 +224,13 @@ abstract class BaseSubscriptionHandler
     /**
      * Builds a query that returns the 'user_id' and 'subject_id' for implicilty subscribed-to records matching the requested filters
      *
-     * @param  ?int $subjectId         if not null, we're trying to decide who is implicitly subscribed to the item
-     * @param  ?int $forUserId         if not null, we're trying to decide if the specified user has an implicit subscription
-     * @param  ?array $ignoreUserIds   if not null, we don't want implicit subscription information for the specified users
+     * @param  ?int $subjectId            if not null, we're trying to decide who is implicitly subscribed to the item
+     * @param  ?int $forUserId            if not null, we're trying to decide if the specified user has an implicit subscription
+     * @param  ?array $ignoreSubjectIds   if not null, we don't want implicit subscription information for the specified subjects
+     * @param  ?array $ignoreUserIds      if not null, we don't want implicit subscription information for the specified users
      * @return Builder<Model>
      */
-    public function getImplicitSubscriptionQuery(?int $subjectId, ?int $forUserId, ?array $ignoreUserIds): Builder
+    public function getImplicitSubscriptionQuery(?int $subjectId, ?int $forUserId, ?array $ignoreSubjectIds, ?array $ignoreUserIds): Builder
     {
         /** @var Builder<Model> $query */
         $query = Subscription::whereRaw('1 = 0');
@@ -257,20 +256,25 @@ abstract class CommentSubscriptionHandler extends BaseSubscriptionHandler
     /**
      * @return Builder<Model>
      */
-    public function getImplicitSubscriptionQuery(?int $articleId, ?int $forUserId, ?array $ignoreUserIds): Builder
+    public function getImplicitSubscriptionQuery(?int $subjectId, ?int $forUserId, ?array $ignoreSubjectIds, ?array $ignoreUserIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = Comment::where('ArticleType', $this->getArticleType())
-            ->where('user_id', '!=', Comment::SYSTEM_USER_ID);
+        $query = Comment::where('ArticleType', $this->getArticleType());
 
-        if ($articleId !== null) {
-            $query->where('ArticleId', $articleId);
+        if ($subjectId !== null) {
+            $query->where('ArticleId', $subjectId);
+        } elseif (!empty($ignoreSubjectIds)) {
+            $query->whereNotIn('ArticleId', $ignoreSubjectIds);
         }
 
         if ($forUserId !== null) {
             $query->where('user_id', $forUserId);
-        } elseif ($ignoreUserIds !== null) {
-            $query->whereNotIn('user_id', $ignoreUserIds);
+        } else {
+            $query->where('user_id', '!=', Comment::SYSTEM_USER_ID);
+
+            if ($ignoreUserIds !== null) {
+                $query->whereNotIn('user_id', $ignoreUserIds);
+            }
         }
 
         $query->select(['user_id', DB::raw('ArticleId as subject_id')])->distinct();
@@ -305,14 +309,14 @@ class AchievementWallSubscriptionHandler extends CommentSubscriptionHandler
     /**
      * @return Builder<Model>
      */
-    public function getImplicitSubscriptionQuery(?int $articleId, ?int $forUserId, ?array $ignoreUserIds): Builder
+    public function getImplicitSubscriptionQuery(?int $subjectId, ?int $forUserId, ?array $ignoreSubjectIds, ?array $ignoreUserIds): Builder
     {
         // find any users who have commented on the achievement
-        $query = parent::getImplicitSubscriptionQuery($articleId, $forUserId, $ignoreUserIds);
+        $query = parent::getImplicitSubscriptionQuery($subjectId, $forUserId, $ignoreSubjectIds, $ignoreUserIds);
 
-        if ($articleId !== null) {
+        if ($subjectId !== null) {
             // find any users subscribed to GameAchievements for the game owning the achievement
-            $achievement = Achievement::find($articleId);
+            $achievement = Achievement::find($subjectId);
             if ($achievement) {
                 /** @var Builder<Model> $query2 */
                 $query2 = Subscription::query()
@@ -328,6 +332,9 @@ class AchievementWallSubscriptionHandler extends CommentSubscriptionHandler
 
                 $query->union($query2);
             }
+        } elseif ($forUserId !== null) {
+            // If a user is subscribed to GameAchievements for a game, they're implicitly subscribed to all achievements in the game.
+            // Don't return those achievements individually. Make the user manage the subscription at the game level.
         }
 
         return $query;
@@ -361,13 +368,13 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
     /**
      * @return Builder<Model>
      */
-    public function getImplicitSubscriptionQuery(?int $articleId, ?int $forUserId, ?array $ignoreUserIds): Builder
+    public function getImplicitSubscriptionQuery(?int $subjectId, ?int $forUserId, ?array $ignoreSubjectIds, ?array $ignoreUserIds): Builder
     {
         // find any users who have commented on the ticket
-        $query = parent::getImplicitSubscriptionQuery($articleId, $forUserId, $ignoreUserIds);
+        $query = parent::getImplicitSubscriptionQuery($subjectId, $forUserId, $ignoreSubjectIds, $ignoreUserIds);
 
-        if ($articleId !== null) {
-            $ticket = Ticket::with('achievement')->find($articleId);
+        if ($subjectId !== null) {
+            $ticket = Ticket::with('achievement')->find($subjectId);
             if ($ticket) {
                 // find any users subscribed to GameTickets for the game owning the ticketed achievement
                 /** @var Builder<Model> $query2 */
@@ -395,11 +402,11 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
                 if ($includeReporter) {
                     /** @var Builder<Model> $query3 */
                     $query3 = Ticket::query()
+                        ->where('ID', $ticket->ID)
                         ->select([
                             DB::raw('reporter_id as user_id'),
                             DB::raw('ID as subject_id'),
-                        ])
-                        ->where('ID', $ticket->ID);
+                        ]);
 
                     $query->union($query3);
                 }
@@ -418,15 +425,31 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
                 if ($includeMaintainer) {
                     /** @var Builder<Model> $query4 */
                     $query4 = Ticket::query()
+                        ->where('ID', $ticket->ID)
                         ->select([
                             DB::raw($maintainer->id . ' as user_id'),
                             DB::raw('ID as subject_id'),
-                        ])
-                        ->where('ID', $ticket->ID);
+                        ]);
 
                     $query->union($query4);
                 }
             }
+        } elseif ($forUserId !== null) {
+            // If a user is subscribed to GameTickets for a game, they're implicitly subscribed to all tickets for the game.
+            // Don't return those tickets individually. Make the user manage the subscription at the game level.
+
+            // find any tickets created by the user
+            /** @var Builder<Model> $query3 */
+            $query3 = Ticket::query()
+                ->where('reporter_id', $forUserId)
+                ->select([
+                    DB::raw('reporter_id as user_id'),
+                    DB::raw('ID as subject_id'),
+                ]);
+            if (!empty($ignoreSubjectIds)) {
+                $query3->whereNotIn('ID', $ignoreSubjectIds);
+            }
+            $query->union($query3);
         }
 
         return $query;
@@ -454,13 +477,15 @@ class ForumTopicSubscriptionHandler extends BaseSubscriptionHandler
     /**
      * @return Builder<Model>
      */
-    public function getImplicitSubscriptionQuery(?int $forumTopicId, ?int $forUserId, ?array $ignoreUserIds): Builder
+    public function getImplicitSubscriptionQuery(?int $subjectId, ?int $forUserId, ?array $ignoreSubjectIds, ?array $ignoreUserIds): Builder
     {
         /** @var Builder<Model> $query */
         $query = ForumTopicComment::query();
 
-        if ($forumTopicId !== null) {
-            $query->where('forum_topic_id', $forumTopicId);
+        if ($subjectId !== null) {
+            $query->where('forum_topic_id', $subjectId);
+        } elseif (!empty($ignoreSubjectIds)) {
+            $query->whereNotIn('forum_topic_id', $ignoreSubjectIds);
         }
 
         if ($forUserId !== null) {
