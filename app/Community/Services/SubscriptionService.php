@@ -11,6 +11,7 @@ use App\Models\Comment;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
+use App\Models\Leaderboard;
 use App\Models\Role;
 use App\Models\Subscription;
 use App\Models\Ticket;
@@ -146,7 +147,7 @@ class SubscriptionService
             if ($explicitSubscriptions->has($row->subject_id)) {
                 $result = $explicitSubscriptions[$row->subject_id];
             } else {
-                $result = Subscription::make([
+                $result = new Subscription([
                     'user_id' => $user->id,
                     'subject_type' => $subjectType,
                     'subject_id' => $row->subject_id,
@@ -173,8 +174,8 @@ class SubscriptionService
                     ->where('user_id', $user->id)
                     ->where('subject_type', $subjectType)
                     ->where('state', true)
+                    ->select('subject_id')
                     ->get()
-                    ->pluck('subject_id')
                     ->toArray();
             }
 
