@@ -58,10 +58,20 @@ $userAwards = getUsersSiteAwards($userPageModel);
 
 // Identify subset game IDs. We'll exclude these from the user's average completion %.
 $gameIds = collect($userCompletedGamesList)->pluck('GameID')->filter()->unique();
-$subsetGameIds = GameAchievementSet::whereIn('game_id', $gameIds)
-    ->where('type', '!=', AchievementSetType::Core)
-    ->pluck('game_id')
-    ->toArray();
+$subsetGameIds = [];
+if ($gameIds->isNotEmpty()) {
+    $subsetGameIds = GameAchievementSet::whereIn('game_id', $gameIds)
+        ->where('type', AchievementSetType::Core)
+        ->whereExists(function($query) {
+            $query->select('*')
+                ->from('game_achievement_sets as gas2')
+                ->whereColumn('gas2.achievement_set_id', 'game_achievement_sets.achievement_set_id')
+                ->whereColumn('gas2.game_id', '!=', 'game_achievement_sets.game_id')
+                ->where('gas2.type', '!=', AchievementSetType::Core);
+        })
+        ->pluck('game_id')
+        ->toArray();
+}
 
 $playerProgressionService = new PlayerProgressionService();
 $userJoinedGamesAndAwards = $playerProgressionService->filterAndJoinGames(
