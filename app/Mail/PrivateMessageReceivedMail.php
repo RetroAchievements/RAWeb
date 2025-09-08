@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
+use App\Enums\UserPreference;
+use App\Mail\Services\UnsubscribeService;
 use App\Models\Message;
 use App\Models\MessageThread;
 use App\Models\User;
@@ -17,6 +19,8 @@ class PrivateMessageReceivedMail extends Mailable
 {
     use Queueable; use SerializesModels;
 
+    public string $categoryUrl;
+
     /**
      * Create a new message instance.
      */
@@ -26,6 +30,12 @@ class PrivateMessageReceivedMail extends Mailable
         public MessageThread $messageThread,
         public Message $message,
     ) {
+        $unsubscribeService = app(UnsubscribeService::class);
+
+        $this->categoryUrl = $unsubscribeService->generateCategoryUrl(
+            $this->userTo,
+            UserPreference::EmailOn_PrivateMessage
+        );
     }
 
     /**
@@ -45,6 +55,10 @@ class PrivateMessageReceivedMail extends Mailable
     {
         return new Content(
             markdown: 'mail.community.private-message',
+            with: [
+                'categoryUrl' => $this->categoryUrl,
+                'categoryText' => 'Unsubscribe from private message emails',
+            ],
         );
     }
 

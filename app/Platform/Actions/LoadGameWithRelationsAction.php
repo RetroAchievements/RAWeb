@@ -22,6 +22,7 @@ class LoadGameWithRelationsAction
      */
     public function execute(Game $game, AchievementFlag $flag, ?GameAchievementSet $targetAchievementSet = null): Game
     {
+        // First, load all the missing relations.
         $game->loadMissing([
             'achievementSetClaims' => function ($query) {
                 $query->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])
@@ -42,6 +43,11 @@ class LoadGameWithRelationsAction
             'hubs' => function ($query) {
                 $query->with(['children', 'viewRoles']);
             },
+            'leaderboards' => function ($query) {
+                $query->where('DisplayOrder', '>=', 0) // only show visible leaderboards on the page
+                    ->orderBy('DisplayOrder')
+                    ->with(['topEntry.user']);
+            },
             'releases',
             'visibleComments' => function ($query) {
                 $query->latest('Submitted')
@@ -52,7 +58,7 @@ class LoadGameWithRelationsAction
             },
         ]);
 
-        // Then load the related achievements for the filtered sets.
+        // Then, load the related achievements for the filtered sets.
         $game->gameAchievementSets->load([
             'achievementSet.achievements' => function ($query) use ($flag) {
                 $query->where('Flags', $flag->value);

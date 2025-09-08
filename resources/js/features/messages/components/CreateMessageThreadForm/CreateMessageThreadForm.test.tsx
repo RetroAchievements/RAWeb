@@ -5,7 +5,7 @@ import axios from 'axios';
 import { route } from 'ziggy-js';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen, waitFor } from '@/test';
+import { render, screen, waitFor, within } from '@/test';
 import { createUser } from '@/test/factories';
 
 import { CreateMessageThreadForm } from './CreateMessageThreadForm';
@@ -58,11 +58,18 @@ describe('Component: CreateMessageThreadForm', () => {
         templateKind: null,
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) }, // !!
         senderUserDisplayName: 'RAdmin', // !!
+        senderUserAvatarUrl: 'https://example.com/avatar.png',
       },
     });
 
     // ASSERT
-    expect(screen.getByRole('button', { name: 'Submit (as RAdmin)' })).toBeVisible();
+    const submitButton = screen.getByRole('button', { name: 'Submit as RAdmin' });
+    expect(submitButton).toBeVisible();
+
+    const avatarImage = within(submitButton).getByRole('img', { hidden: true });
+    expect(avatarImage).toHaveAttribute('src', 'https://example.com/avatar.png');
+    expect(avatarImage).toHaveAttribute('alt', 'RAdmin');
+    expect(avatarImage).toHaveClass('size-6', 'rounded-full');
   });
 
   it('given the form is submitted with valid data, posts to the API and redirects on success', async () => {

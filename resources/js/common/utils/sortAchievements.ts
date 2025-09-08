@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import utc from 'dayjs/plugin/utc';
 
-import type { AchievementSortOrder } from '../models';
+import type { PlayableListSortOrder } from '../models';
 import { getEventAchievementTimeStatus } from './getEventAchievementTimeStatus';
 
 dayjs.extend(utc);
@@ -10,7 +10,7 @@ dayjs.extend(isSameOrBefore);
 
 export function sortAchievements(
   achievements: App.Platform.Data.Achievement[],
-  sortOrder: AchievementSortOrder,
+  sortOrder: PlayableListSortOrder,
   eventAchievements?: App.Platform.Data.EventAchievement[],
 ): App.Platform.Data.Achievement[] {
   // Create a copy to avoid mutating the original array.

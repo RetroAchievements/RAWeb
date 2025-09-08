@@ -14,7 +14,7 @@
     'numTotalLeaderboards',
     'ownAwards',
     'statsKind',
-    'targetDeveloperUsername',
+    'targetDeveloperDisplayName',
     'targetGameIds',
     'userMostBeatenHardcore',
     'userMostBeatenSoftcore',
@@ -39,11 +39,11 @@
         <tr class="do-not-highlight">
             <td colspan="2" align="center" class="pb-4">
                 @if ($statsKind === 'any')
-                    Stats below are for games that {{ $targetDeveloperUsername }} has published at least one achievement for.
+                    Stats below are for games that {{ $targetDeveloperDisplayName }} has published at least one achievement for.
                 @elseif ($statsKind === 'majority')
-                    Stats below are for games that {{ $targetDeveloperUsername }} has published at least half the achievements for.
+                    Stats below are for games that {{ $targetDeveloperDisplayName }} has published at least half the achievements for.
                 @elseif ($statsKind === 'sole')
-                    Stats below are for games that {{ $targetDeveloperUsername }} has published all the achievements for.
+                    Stats below are for games that {{ $targetDeveloperDisplayName }} has published all the achievements for.
                 @endif
             </td>
         </tr>

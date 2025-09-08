@@ -1,10 +1,15 @@
 <?php
 
 use App\Community\Enums\ArticleType;
-use App\Enums\Permissions;
+use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Services\SubscriptionService;
+use App\Enums\UserPreference;
 use App\Mail\CommunityActivityMail;
 use App\Mail\ValidateUserEmailMail;
+use App\Models\Achievement;
 use App\Models\Comment;
+use App\Models\Game;
+use App\Models\Ticket;
 use App\Models\User;
 use Aws\CommandPool;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
@@ -14,11 +19,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Mime\Email;
-
-function sendRAEmail(string $to, string $subject, string $body): bool
-{
-    return mail_utf8($to, $subject, stripslashes(nl2br($body)));
-}
 
 function mail_utf8(string $to, string $subject = '(No subject)', string $message = ''): bool
 {
@@ -166,7 +166,7 @@ function sendValidationEmail(User $user, string $email): bool
 function informAllSubscribersAboutActivity(
     int $articleType,
     int $articleID,
-    string $activityAuthor,
+    User $activityAuthor,
     int $commentID,
     ?string $onBehalfOfUser = null
 ): void {
@@ -174,29 +174,50 @@ function informAllSubscribersAboutActivity(
     $subjectAuthor = null;
     $urlTarget = null;
     $articleTitle = '';
+    $articleEmailPreference = UserPreference::EmailOn_ActivityComment;
+
+    $subscriptionService = new SubscriptionService();
 
     switch ($articleType) {
         case ArticleType::Game:
-            $gameData = getGameData($articleID);
-            $subscribers = getSubscribersOfGameWall($articleID);
-            $articleTitle = $gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')';
-            $urlTarget = "game/$articleID";
+            $game = Game::with('system')->find($articleID);
+            if (!$game) {
+                return;
+            }
+
+            $articleTitle = "{$game->Title} ({$game->system->Name})";
+            $urlTarget = route('game.show', $game);
+            $articleEmailPreference = UserPreference::EmailOn_AchievementComment;
+
+            $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::GameWall, $game->ID);
             break;
 
         case ArticleType::Achievement:
-            $achievementData = GetAchievementData($articleID);
-            $subscribers = getSubscribersOfAchievement($articleID, $achievementData['GameID'], $achievementData['Author']);
-            $subjectAuthor = $achievementData['Author'];
-            $articleTitle = $achievementData['Title'] . ' (' . $achievementData['GameTitle'] . ')';
-            $urlTarget = "achievement/$articleID";
+            $achievement = Achievement::with(['game', 'developer'])->find($articleID);
+            if (!$achievement) {
+                return;
+            }
+
+            $articleTitle = "{$achievement->Title} ({$achievement->game->Title})";
+            $urlTarget = route('achievement.show', $achievement);
+            $subjectAuthor = $achievement->developer;
+            $articleEmailPreference = UserPreference::EmailOn_AchievementComment;
+
+            $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::Achievement, $achievement->ID);
             break;
 
         case ArticleType::User:  // User wall
-            $wallUserData = User::find($articleID);
-            $subscribers = getSubscribersOfUserWall($articleID, $wallUserData['User']);
-            $subjectAuthor = $wallUserData->display_name;
-            $articleTitle = $wallUserData->display_name;
-            $urlTarget = "user/" . $wallUserData->display_name;
+            $wallUser = User::find($articleID);
+            if (!$wallUser) {
+                return;
+            }
+
+            $articleTitle = $wallUser->display_name;
+            $urlTarget = route('user.show', $wallUser);
+            $subjectAuthor = $wallUser;
+            $articleEmailPreference = UserPreference::EmailOn_UserWallComment;
+
+            $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::UserWall, $wallUser->ID);
             break;
 
         case ArticleType::News:  // News
@@ -208,11 +229,17 @@ function informAllSubscribersAboutActivity(
             break;
 
         case ArticleType::AchievementTicket:  // Ticket
-            $ticketData = getTicket($articleID);
-            $subscribers = getSubscribersOfTicket($articleID, $ticketData['ReportedBy'], $ticketData['GameID']);
-            $subjectAuthor = $ticketData['ReportedBy'];
-            $articleTitle = $ticketData['AchievementTitle'] . ' (' . $ticketData['GameTitle'] . ')';
-            $urlTarget = route('ticket.show', ['ticket' => $articleID]);
+            $ticket = Ticket::with(['achievement.game', 'reporter'])->find($articleID);
+            if (!$ticket) {
+                return;
+            }
+
+            $articleTitle = "{$ticket->achievement->Title} ({$ticket->achievement->game->Title})";
+            $urlTarget = route('ticket.show', ['ticket' => $ticket->ID]);
+            $subjectAuthor = $ticket->reporter;
+            $articleEmailPreference = UserPreference::EmailOn_TicketActivity;
+
+            $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::AchievementTicket, $ticket->ID);
             break;
 
         default:
@@ -221,7 +248,7 @@ function informAllSubscribersAboutActivity(
 
     // some comments are generated by the user "Server" on behalf of other users whom we don't want to notify
     if ($onBehalfOfUser !== null) {
-        $activityAuthor = $onBehalfOfUser;
+        $activityAuthor = User::where('User', $onBehalfOfUser)->first();
     }
 
     $payload = null;
@@ -243,12 +270,13 @@ function informAllSubscribersAboutActivity(
     }
 
     foreach ($subscribers as $subscriber) {
-        $isThirdParty = ($subscriber['User'] != $activityAuthor && ($subjectAuthor === null || $subscriber['User'] != $subjectAuthor));
+        if (isset($subscriber->EmailAddress) && BitSet($subscriber->websitePrefs, $articleEmailPreference)) {
+            $isThirdParty =
+                ($activityAuthor === null || !$activityAuthor->is($subscriber))
+                && ($subjectAuthor === null || !$subjectAuthor->is($subscriber));
 
-        if (isset($subscriber['EmailAddress'])) {
             sendActivityEmail(
-                isset($subscriber['display_name']) ? $subscriber['display_name'] : $subscriber['User'],
-                $subscriber['EmailAddress'],
+                $subscriber,
                 $articleID,
                 $activityAuthor,
                 $articleType,
@@ -262,10 +290,9 @@ function informAllSubscribersAboutActivity(
 }
 
 function sendActivityEmail(
-    string $user,
-    string $email,
+    User $user,
     int $actID,
-    string $activityCommenter,
+    ?User $activityCommenter,
     int $articleType,
     string $articleTitle,
     string $urlTarget,
@@ -273,17 +300,17 @@ function sendActivityEmail(
     ?string $payload = null,
 ): bool {
     if (
-        $user === $activityCommenter
-        || getUserPermissions($user) < Permissions::Unregistered
-        || empty(trim($email))
+        $user->is($activityCommenter)
+        || $user->isGone()
+        || empty($user->EmailAddress)
     ) {
         return false;
     }
 
-    Mail::to($email)->queue(new CommunityActivityMail(
+    Mail::to($user->EmailAddress)->queue(new CommunityActivityMail(
         $user,
         $actID,
-        $activityCommenter,
+        $activityCommenter->display_name ?? $activityCommenter->User,
         $articleType,
         $articleTitle,
         $urlTarget,

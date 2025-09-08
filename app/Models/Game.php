@@ -412,16 +412,18 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     public function getParentGameIdAttribute(): ?int
     {
         return once(function () {
-            // Get all achievement sets associated with this game.
-            $achievementSets = GameAchievementSet::where('game_id', $this->id)
+            // Get this game's core achievement set(s).
+            $coreAchievementSets = GameAchievementSet::where('game_id', $this->id)
+                ->where('type', AchievementSetType::Core)
                 ->pluck('achievement_set_id');
 
-            if ($achievementSets->isEmpty()) {
+            if ($coreAchievementSets->isEmpty()) {
                 return null;
             }
 
-            // Check if any of these achievement sets are used in other games with non-core types.
-            $nonCoreUsage = GameAchievementSet::whereIn('achievement_set_id', $achievementSets)
+            // Check if another game uses any of this game's core achievement sets as a non-core type.
+            // This would indicate that the other game is the parent.
+            $nonCoreUsage = GameAchievementSet::whereIn('achievement_set_id', $coreAchievementSets)
                 ->where('game_id', '!=', $this->id)
                 ->where('type', '!=', AchievementSetType::Core)
                 ->orderBy('created_at') // if more than one parent exists, take the first associated
@@ -783,11 +785,6 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     public function selectableGameAchievementSets(): HasMany
     {
         return $this->gameAchievementSets()
-            ->whereNotIn('type', [
-                AchievementSetType::WillBeBonus,
-                AchievementSetType::WillBeSpecialty,
-                AchievementSetType::WillBeExclusive,
-            ])
             ->orderBy('order_column')
             ->with('achievementSet');
     }

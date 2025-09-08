@@ -19,8 +19,9 @@ class AchievementSetClaimPolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
+            Role::DEVELOPER,
+            Role::MODERATOR,
         ]);
     }
 
@@ -46,6 +47,11 @@ class AchievementSetClaimPolicy
             return true;
         }
 
+        // Junior developers can only create claims for games with forum topics.
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && !$game->ForumTopicID) {
+            return false;
+        }
+
         // If the user already has a claim on this game, allow it (for extensions).
         $existingClaim = $game->achievementSetClaims()
             ->activeOrInReview()
@@ -59,7 +65,7 @@ class AchievementSetClaimPolicy
         // Determine max claims based on role.
         $maxClaims = AchievementSetClaim::getMaxClaimsForUser($user);
 
-        $activeClaimCount = once(fn () => getActiveClaimCount($user, true, false));
+        $activeClaimCount = once(fn () => getActiveClaimCount($user, false, false));
         $isSoleAuthor = once(fn () => checkIfSoleDeveloper($user, $game->id));
 
         // The user can create a claim if they have claims remaining OR they're the sole author.
@@ -68,6 +74,11 @@ class AchievementSetClaimPolicy
 
     public function update(User $user, AchievementSetClaim $achievementSetClaim): bool
     {
+        // Admins and moderators need the ability to fully modify the various fields of a claim.
+        if ($user->hasAnyRole([Role::ADMINISTRATOR, Role::MODERATOR])) {
+            return true;
+        }
+
         // Users can only complete their own claims (extensions use the `create` policy).
         // User can't update their own claim if the claim is in review status.
         return

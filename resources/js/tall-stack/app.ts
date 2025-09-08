@@ -7,6 +7,7 @@ import { getStringByteCount } from '@/common/utils/getStringByteCount';
 
 import { Alpine, Livewire } from '../../../vendor/livewire/livewire/dist/livewire.esm';
 import {
+  initializeTooltipCleanup,
   linkifyDirective,
   modalComponent,
   toggleAchievementRowsComponent,
@@ -17,6 +18,7 @@ import {
   autoExpandTextInput,
   copyToClipboard,
   deleteCookie,
+  enforceAutoScrollRestoration,
   fetcher,
   getCookie,
   handleLeaderboardTabClick,
@@ -57,6 +59,12 @@ window.tooltipComponent = tooltipComponent;
 Alpine.directive('linkify', linkifyDirective);
 
 Livewire.start();
+
+// Automatically clean up any orphaned tooltips during Inertia router transitions.
+initializeTooltipCleanup();
+
+// Enforce the browser's native scroll restoration (override Inertia's manual mode).
+enforceAutoScrollRestoration();
 
 // TODO if you add another one of these, move them to a module
 // Livewire

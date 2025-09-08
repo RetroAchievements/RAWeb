@@ -15,9 +15,16 @@ interface ZoomableImageProps {
   children: ReactNode;
   src: string;
   alt: TranslatedString;
+
+  isPixelated?: boolean;
 }
 
-export const ZoomableImage: FC<ZoomableImageProps> = ({ alt, children, src }) => {
+export const ZoomableImage: FC<ZoomableImageProps> = ({
+  alt,
+  children,
+  src,
+  isPixelated = true,
+}) => {
   const { t } = useTranslation();
 
   return (
@@ -41,7 +48,7 @@ export const ZoomableImage: FC<ZoomableImageProps> = ({ alt, children, src }) =>
               src={src}
               alt={alt}
               className="h-full w-full object-contain"
-              style={{ imageRendering: 'pixelated' }}
+              style={isPixelated ? { imageRendering: 'pixelated' } : undefined}
             />
           </div>
         </BaseDialogClose>

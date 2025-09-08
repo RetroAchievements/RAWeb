@@ -3,7 +3,6 @@
 namespace App\Community\Controllers\Api;
 
 use App\Community\Data\StoreCommentData;
-use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Requests\StoreCommentRequest;
 use App\Http\Controller;
 use App\Models\Game;
@@ -26,16 +25,6 @@ class GameCommentApiController extends Controller
 
         /** @var User $user */
         $user = Auth::user();
-
-        // Automatically subscribe the user to the game wall if they've never previously
-        // been subscribed to it and then later unsubscribed.
-        $doesSubscriptionExist = $user->subscriptions()
-            ->whereSubjectType(SubscriptionSubjectType::GameWall)
-            ->whereSubjectId($game->id)
-            ->exists();
-        if (!$doesSubscriptionExist) {
-            updateSubscription(SubscriptionSubjectType::GameWall, $game->id, $user->id, true);
-        }
 
         addArticleComment($user->username, $data->commentableType, $data->commentableId, $data->body);
 

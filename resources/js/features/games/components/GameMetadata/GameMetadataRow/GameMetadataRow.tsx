@@ -68,11 +68,7 @@ const HubLink: FC<HubLinkProps> = ({ hubId, label }) => {
   const { cardTooltipProps } = useCardTooltip({ dynamicId: hubId, dynamicType: 'hub' });
 
   return (
-    <InertiaLink
-      href={route('hub.show', { gameSet: hubId })}
-      prefetch="desktop-hover-only"
-      {...cardTooltipProps}
-    >
+    <InertiaLink href={route('hub.show', { gameSet: hubId })} {...cardTooltipProps}>
       {label}
     </InertiaLink>
   );

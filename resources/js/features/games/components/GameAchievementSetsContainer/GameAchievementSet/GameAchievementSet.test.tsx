@@ -1,5 +1,7 @@
+import { createAuthenticatedUser } from '@/common/models';
 import {
-  currentAchievementSortAtom,
+  currentListViewAtom,
+  currentPlayableListSortAtom,
   isLockedOnlyFilterEnabledAtom,
   isMissableOnlyFilterEnabledAtom,
 } from '@/features/games/state/games.atoms';
@@ -10,6 +12,8 @@ import {
   createAggregateAchievementSetCredits,
   createGame,
   createGameAchievementSet,
+  createLeaderboard,
+  createZiggyProps,
 } from '@/test/factories';
 
 import { GameAchievementSet } from './GameAchievementSet';
@@ -23,7 +27,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={[]} gameAchievementSet={createGameAchievementSet()} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           //
         ],
         pageProps: {
@@ -47,7 +51,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={[]} gameAchievementSet={createGameAchievementSet()} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           //
         ],
         pageProps: {
@@ -84,7 +88,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           //
         ],
         pageProps: {
@@ -115,7 +119,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={[achievement]} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           //
         ],
         pageProps: {
@@ -149,7 +153,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           //
         ],
         pageProps: {
@@ -195,7 +199,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           [isMissableOnlyFilterEnabledAtom, true], // !!
         ],
         pageProps: {
@@ -231,7 +235,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           [isMissableOnlyFilterEnabledAtom, false], // !!
         ],
         pageProps: {
@@ -267,7 +271,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           [isLockedOnlyFilterEnabledAtom, true], // !!
         ],
         pageProps: {
@@ -305,7 +309,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           [isMissableOnlyFilterEnabledAtom, true], // !!
         ],
         pageProps: {
@@ -339,7 +343,7 @@ describe('Component: GameAchievementSet', () => {
       <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
       {
         jotaiAtoms: [
-          [currentAchievementSortAtom, 'normal'],
+          [currentPlayableListSortAtom, 'normal'],
           [isMissableOnlyFilterEnabledAtom, true], // !!
         ],
         pageProps: {
@@ -353,5 +357,88 @@ describe('Component: GameAchievementSet', () => {
 
     // ASSERT
     expect(screen.queryByTestId('game-achievement-set-toolbar')).not.toBeInTheDocument();
+  });
+
+  it('given the current view is leaderboards, shows leaderboards instead of achievements', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements = [
+      createAchievement({ title: 'Test Achievement 1' }),
+      createAchievement({ title: 'Test Achievement 2' }),
+    ];
+    const leaderboards = [
+      createLeaderboard({ title: 'High Score' }),
+      createLeaderboard({ title: 'Speed Run' }),
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+      }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          [currentListViewAtom, 'leaderboards'], // !!
+        ],
+        pageProps: {
+          game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          leaderboards,
+          numLeaderboards: 2,
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.queryByText('Test Achievement 1')).not.toBeInTheDocument();
+    expect(screen.queryByText('Test Achievement 2')).not.toBeInTheDocument();
+
+    expect(screen.getByText('High Score')).toBeVisible();
+    expect(screen.getByText('Speed Run')).toBeVisible();
+  });
+
+  it('given the user is authenticated and there are achievements, shows progress indicators', () => {
+    // ARRANGE
+    const game = createGame();
+
+    const achievements = Array.from({ length: 51 }, (_, i) =>
+      createAchievement({
+        id: i + 1,
+        title: `Achievement ${i + 1}`,
+      }),
+    );
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+      }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game,
+          achievementSetClaims: [],
+          auth: { user: createAuthenticatedUser() },
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getAllByText(/0%/i)[0]).toBeVisible();
   });
 });

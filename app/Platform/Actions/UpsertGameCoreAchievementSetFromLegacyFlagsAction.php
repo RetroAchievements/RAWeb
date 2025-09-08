@@ -119,6 +119,9 @@ class UpsertGameCoreAchievementSetFromLegacyFlagsAction
     private function syncAchievementSetAchievements(AchievementSet $coreSet, Collection $syncData): void
     {
         if ($syncData->isEmpty()) {
+            // Delete achievements that are no longer in the set.
+            AchievementSetAchievement::where('achievement_set_id', $coreSet->id)->delete();
+
             return;
         }
 

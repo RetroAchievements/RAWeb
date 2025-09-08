@@ -81,6 +81,7 @@ declare namespace App.Community.Data {
     message: string | null;
     subject: string | null;
     templateKind: App.Community.Enums.MessageThreadTemplateKind | null;
+    senderUserAvatarUrl: string | null;
     senderUserDisplayName: string;
   };
   export type MessageThread = {
@@ -103,7 +104,14 @@ declare namespace App.Community.Data {
     paginatedMessages: App.Data.PaginatedData<TItems>;
     dynamicEntities: App.Community.Data.ShortcodeDynamicEntities;
     canReply: boolean;
+    senderUserAvatarUrl: string | null;
     senderUserDisplayName: string;
+  };
+  export type PatreonSupportersPageProps = {
+    recentSupporters: Array<App.Data.User>;
+    initialSupporters: Array<App.Data.User>;
+    deferredSupporters: any | any;
+    totalCount: number;
   };
   export type RecentLeaderboardEntry = {
     leaderboard: App.Platform.Data.Leaderboard;
@@ -146,6 +154,13 @@ declare namespace App.Community.Data {
   export type TrendingGame = {
     game: App.Platform.Data.Game;
     playerCount: number;
+  };
+  export type UnsubscribeShowPageProps = {
+    success: boolean;
+    error: string | null;
+    descriptionKey: string | null;
+    descriptionParams: Record<string, string> | null;
+    undoToken: string | null;
   };
   export type UserCommentsPageProps<TItems = App.Community.Data.Comment> = {
     targetUser: App.Data.User;
@@ -222,6 +237,7 @@ declare namespace App.Data {
   };
   export type CreateForumTopicPageProps = {
     forum: App.Data.Forum;
+    accessibleTeamAccounts: Array<App.Data.User> | null;
   };
   export type CurrentlyOnline = {
     logEntries: Array<number>;
@@ -254,6 +270,8 @@ declare namespace App.Data {
     isAuthorized: boolean;
     forumTopicId: number | null;
     forumTopic?: App.Data.ForumTopic | null;
+    sentBy?: App.Data.User | null;
+    editedBy?: App.Data.User | null;
   };
   export type ForumTopic = {
     id: number;
@@ -309,6 +327,7 @@ declare namespace App.Data {
     isSubscribed: boolean;
     paginatedForumTopicComments: App.Data.PaginatedData<TItems>;
     metaDescription: string;
+    accessibleTeamAccounts: Array<App.Data.User> | null;
   };
   export type StaticData = {
     numGames: number;
@@ -515,6 +534,7 @@ declare namespace App.Platform.Data {
   };
   export type AchievementSet = {
     id: number;
+    achievementsFirstPublishedAt?: string | null;
     achievementsPublished: number;
     achievementsUnpublished: number;
     imageAssetPathUrl: string;
@@ -769,6 +789,7 @@ declare namespace App.Platform.Data {
     achievementSetClaims: Array<App.Platform.Data.AchievementSetClaim>;
     hasMatureContent: boolean;
     hubs: Array<App.Platform.Data.GameSet>;
+    initialView: App.Platform.Enums.GamePageListView;
     isLockedOnlyFilterEnabled: boolean;
     isMissableOnlyFilterEnabled: boolean;
     isOnWantToDevList: boolean;
@@ -777,11 +798,13 @@ declare namespace App.Platform.Data {
     isViewingPublishedAchievements: boolean;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
+    leaderboards?: Array<App.Platform.Data.Leaderboard>;
     numBeaten: number;
     numBeatenSoftcore: number;
     numComments: number;
     numCompatibleHashes: number;
     numCompletions: number;
+    numLeaderboards: number;
     numMasters: number;
     numOpenTickets: number;
     recentPlayers: Array<App.Platform.Data.GameRecentPlayer>;
@@ -841,12 +864,16 @@ declare namespace App.Platform.Data {
     title: string;
     description?: string;
     game?: App.Platform.Data.Game;
+    topEntry?: App.Platform.Data.LeaderboardEntry | null;
+    format?: string | null;
+    orderColumn?: number;
   };
   export type LeaderboardEntry = {
     id: number;
     score?: number;
     formattedScore?: string;
     createdAt?: string;
+    user?: App.Data.User | null;
   };
   export type ParsedUserAgent = {
     client: string;
@@ -1050,6 +1077,7 @@ declare namespace App.Platform.Enums {
     | 'retroRatio'
     | 'system'
     | 'title';
+  export type GamePageListView = 'achievements' | 'leaderboards';
   export type GameReleaseRegion =
     | 'as'
     | 'au'

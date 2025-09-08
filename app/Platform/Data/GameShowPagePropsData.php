@@ -6,8 +6,11 @@ namespace App\Platform\Data;
 
 use App\Community\Data\CommentData;
 use App\Data\UserPermissionsData;
+use App\Platform\Enums\GamePageListView;
 use Illuminate\Support\Collection;
+use Spatie\LaravelData\Attributes\AutoInertiaDeferred;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript('GameShowPageProps')]
@@ -22,6 +25,7 @@ class GameShowPagePropsData extends Data
      * @param Collection<int, FollowedPlayerCompletionData> $followedPlayerCompletions
      * @param Collection<int, GameTopAchieverData> $topAchievers
      * @param Collection<int, PlayerAchievementChartBucketData> $playerAchievementChartBuckets
+     * @param Collection<int, LeaderboardData> $leaderboards
      */
     public function __construct(
         public AggregateAchievementSetCreditsData $aggregateCredits,
@@ -33,6 +37,7 @@ class GameShowPagePropsData extends Data
         public bool $hasMatureContent,
         /** @var GameSetData[] */
         public array $hubs,
+        public GamePageListView $initialView,
         public bool $isLockedOnlyFilterEnabled,
         public bool $isMissableOnlyFilterEnabled,
         public bool $isOnWantToDevList,
@@ -41,11 +46,14 @@ class GameShowPagePropsData extends Data
         public bool $isViewingPublishedAchievements,
         public Collection $followedPlayerCompletions,
         public Collection $playerAchievementChartBuckets,
+        #[AutoInertiaDeferred]
+        public Lazy|Collection $leaderboards,
         public int $numBeaten,
         public int $numBeatenSoftcore,
         public int $numComments,
         public int $numCompatibleHashes,
         public int $numCompletions,
+        public int $numLeaderboards,
         public int $numMasters,
         public int $numOpenTickets,
         public Collection $recentPlayers,

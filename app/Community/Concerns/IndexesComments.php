@@ -2,7 +2,8 @@
 
 namespace App\Community\Concerns;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Services\SubscriptionService;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\Leaderboard;
@@ -61,13 +62,13 @@ trait IndexesComments
         $user = Auth::user();
         $isSubscribed = false;
         if ($user) {
-            $articleType = match (true) {
-                $commentable instanceof User => ArticleType::User,
-                $commentable instanceof Game => ArticleType::Game,
-                $commentable instanceof Achievement => ArticleType::Achievement,
-                $commentable instanceof Leaderboard => ArticleType::Leaderboard,
+            $subjectType = match (true) {
+                $commentable instanceof User => SubscriptionSubjectType::UserWall,
+                $commentable instanceof Game => SubscriptionSubjectType::GameWall,
+                $commentable instanceof Achievement => SubscriptionSubjectType::Achievement,
+                $commentable instanceof Leaderboard => SubscriptionSubjectType::Leaderboard,
             };
-            $isSubscribed = isUserSubscribedToArticleComments($articleType, $commentable->id, $user->id);
+            $isSubscribed = (new SubscriptionService())->isSubscribed($user, $subjectType, $commentable->id);
         }
 
         $props = $createPropsData(

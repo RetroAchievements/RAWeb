@@ -28,11 +28,20 @@ export const SidebarClaimButtons: FC = () => {
   const hasClaimRole =
     auth?.user.roles.includes('developer-junior') || auth?.user.roles.includes('developer');
 
+  const isJuniorDev = auth?.user.roles.includes('developer-junior');
+
+  // Junior developers can only create claims on games with forum topics.
+  const isBlockedByMissingForumTopic = isJuniorDev && !backingGame.forumTopicId;
+
+  // `claimData?.isSoleAuthor` means devs can reclaim their own sets to fix something.
+  const hasClaimsRemaining = claimData?.numClaimsRemaining || claimData?.isSoleAuthor;
+
+  const canShowCreateClaimButton =
+    hasClaimRole && hasClaimsRemaining && !claimData.userClaim && !isBlockedByMissingForumTopic;
+
   return (
     <>
-      {hasClaimRole &&
-      (claimData?.numClaimsRemaining || claimData?.isSoleAuthor) &&
-      !claimData.userClaim ? (
+      {canShowCreateClaimButton ? (
         <ClaimConfirmationDialog
           action="create"
           trigger={

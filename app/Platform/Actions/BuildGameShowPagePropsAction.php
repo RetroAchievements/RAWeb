@@ -5,15 +5,17 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Community\Data\CommentData;
-use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
+use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
+use App\Community\Services\SubscriptionService;
 use App\Data\UserPermissionsData;
 use App\Enums\GameHashCompatibility;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\Role;
+use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserGameListEntry;
@@ -24,6 +26,7 @@ use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
 use App\Platform\Data\GameSetRequestData;
 use App\Platform\Data\GameShowPagePropsData;
+use App\Platform\Data\LeaderboardData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
 use App\Platform\Data\UserCreditsData;
@@ -31,8 +34,10 @@ use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetAuthorTask;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\GamePageListView;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
+use Spatie\LaravelData\Lazy;
 
 class BuildGameShowPagePropsAction
 {
@@ -52,7 +57,8 @@ class BuildGameShowPagePropsAction
         Game $game,
         ?User $user,
         AchievementFlag $targetAchievementFlag = AchievementFlag::OfficialCore,
-        ?GameAchievementSet $targetAchievementSet = null
+        ?GameAchievementSet $targetAchievementSet = null,
+        GamePageListView $initialView = GamePageListView::Achievements
     ): GameShowPagePropsData {
         // The backing game is the legacy game that backs the target achievement set.
         // For core sets, this will be $game->id. For subsets, it'll be a different ID.
@@ -75,6 +81,11 @@ class BuildGameShowPagePropsAction
                 'achievementSetClaims' => function ($query) {
                     $query->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
                         ->with('user');
+                },
+                'leaderboards' => function ($query) {
+                    $query->where('DisplayOrder', '>=', 0) // only show visible leaderboards on the page
+                        ->orderBy('DisplayOrder')
+                        ->with(['topEntry.user']);
                 },
                 'visibleComments' => function ($query) {
                     $query->latest('Submitted')
@@ -169,7 +180,6 @@ class BuildGameShowPagePropsAction
             ->all();
 
         $initialUserGameListState = $this->getInitialUserGameListState($backingGame, $user);
-        $initialUserGameListState = $this->getInitialUserGameListState($game, $user);
         $achievementSetClaims = $this->buildAchievementSetClaims($backingGame, $user);
         $claimData = $this->buildGamePageClaimDataAction->execute($backingGame, $user, $backingGame->achievementSetClaims);
 
@@ -191,13 +201,15 @@ class BuildGameShowPagePropsAction
         return new GameShowPagePropsData(
             achievementSetClaims: $achievementSetClaims,
 
-            can: UserPermissionsData::fromUser($user, game: $game, claim: $primaryClaim)->include(
+            can: UserPermissionsData::fromUser($user, game: $backingGame, claim: $primaryClaim)->include(
                 'createAchievementSetClaims',
                 'createGameComments',
                 'createGameForumTopic',
                 'manageGames',
                 'reviewAchievementSetClaims',
             ),
+
+            initialView: $initialView,
 
             game: GameData::fromGame($game)->include(
                 'achievementsPublished',
@@ -265,11 +277,15 @@ class BuildGameShowPagePropsAction
             hubs: $relatedHubs,
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
             isOnWantToPlayList: $initialUserGameListState['isOnWantToPlayList'],
-            isSubscribedToComments: $user ? isUserSubscribedToArticleComments(ArticleType::Game, $backingGame->id, $user->id) : false,
+            isSubscribedToComments: $user ? (new SubscriptionService())->isSubscribed($user, SubscriptionSubjectType::GameWall, $backingGame->id) : false,
             isLockedOnlyFilterEnabled: $isLockedOnlyFilterEnabled,
             isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
             isViewingPublishedAchievements: $targetAchievementFlag === AchievementFlag::OfficialCore,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
+
+            leaderboards: request()->inertia()
+                ? $this->buildLeaderboards($backingGame)
+                : Lazy::inertiaDeferred(fn () => $this->buildLeaderboards($backingGame)),
 
             playerAchievementChartBuckets: $targetAchievementFlag === AchievementFlag::OfficialCore
                 ? $this->buildGameAchievementDistributionAction->execute($backingGame, $user)
@@ -277,10 +293,11 @@ class BuildGameShowPagePropsAction
 
             numComments: $backingGame->visibleComments($user)->count(),
             numCompatibleHashes: $this->getCompatibleHashesCount($game, $backingGame, $targetAchievementSet),
-            numMasters: $numMasters,
             numCompletions: $numCompletions,
             numBeaten: $numBeaten,
             numBeatenSoftcore: $numBeatenSoftcore,
+            numLeaderboards: $this->getLeaderboardsCount($backingGame),
+            numMasters: $numMasters,
             numOpenTickets: Ticket::forGame($backingGame)->unresolved()->count(),
             recentPlayers: $this->loadGameRecentPlayersAction->execute($game),
             recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($backingGame->visibleComments))),
@@ -305,6 +322,7 @@ class BuildGameShowPagePropsAction
                         'title',
                         'achievementSet.id',
                         'achievementSet.imageAssetPathUrl',
+                        'achievementSet.achievementsFirstPublishedAt',
                         'achievementSet.achievementsPublished',
                         'achievementSet.pointsTotal',
                         'achievementSet.pointsWeighted',
@@ -566,5 +584,35 @@ class BuildGameShowPagePropsAction
             totalRequests: $totalRequests,
             userRequestsRemaining: $userRequestInfo['remaining'],
         );
+    }
+
+    /**
+     * @return Collection<int, LeaderboardData>
+     */
+    private function buildLeaderboards(Game $game): Collection
+    {
+        // Only show leaderboards if the system is active and it's not an event game.
+        if (!$game->system->active || $game->system->id === System::Events) {
+            return collect();
+        }
+
+        return $game->leaderboards->map(fn ($leaderboard) => LeaderboardData::fromLeaderboard($leaderboard)->include(
+            'title',
+            'description',
+            'topEntry.formattedScore',
+            'topEntry.user.displayName',
+            'topEntry.user.avatarUrl',
+            'format',
+        ));
+    }
+
+    private function getLeaderboardsCount(Game $game): int
+    {
+        // Only count leaderboards if the system is active and it's not an event game.
+        if (!$game->system->active || $game->system->id === System::Events) {
+            return 0;
+        }
+
+        return $game->leaderboards->count();
     }
 }

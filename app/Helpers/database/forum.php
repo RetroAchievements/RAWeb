@@ -2,12 +2,13 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Services\SubscriptionService;
 use App\Enums\Permissions;
+use App\Enums\UserPreference;
 use App\Models\Forum;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
-use App\Models\Subscription;
 use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Collection;
@@ -109,11 +110,16 @@ function getUnauthorisedForumLinks(): ?array
     return null;
 }
 
+/**
+ * @param User $user the user account that will appear as the topic author (may be a team account)
+ * @param User|null $sentByUser the actual user creating the topic (when posting on behalf of a team account)
+ */
 function submitNewTopic(
     User $user,
     int $forumID,
     string $topicTitle,
     string $topicPayload,
+    ?User $sentByUser = null,
 ): ForumTopicComment {
     // First, create the topic.
     $newTopic = ForumTopic::create([
@@ -125,17 +131,12 @@ function submitNewTopic(
     ]);
 
     // Finally, submit the first comment of the new topic.
-    return submitTopicComment($user, $newTopic->id, $topicTitle, $topicPayload);
+    return submitTopicComment($user, $newTopic->id, $topicTitle, $topicPayload, $sentByUser);
 }
 
-function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
+function setLatestCommentInForumTopic(ForumTopic $forumTopic, int $commentID): bool
 {
     // Update ForumTopic table
-    $forumTopic = ForumTopic::find($topicID);
-    if (!$forumTopic) {
-        return false;
-    }
-
     $forumTopic->latest_comment_id = $commentID;
     $forumTopic->timestamps = false;
     $forumTopic->save();
@@ -168,11 +169,16 @@ function editTopicComment(int $commentId, string $newPayload): void
 }
 
 // TODO convert to action
+/**
+ * @param User $user the user account that will appear as the comment author (may be a team account)
+ * @param User|null $sentByUser the actual user posting the comment (when posting on behalf of a team account)
+ */
 function submitTopicComment(
     User $user,
     int $topicId,
     ?string $topicTitle,
     string $commentPayload,
+    ?User $sentByUser = null,
 ): ForumTopicComment {
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
@@ -196,54 +202,44 @@ function submitTopicComment(
         'forum_topic_id' => $topicId,
         'body' => $commentPayload,
         'author_id' => $user->id,
+        'sent_by_id' => $sentByUser?->id,
         'is_authorized' => $user->ManuallyVerified ?? false,
     ]);
     $newComment->save();
 
-    setLatestCommentInForumTopic($topicId, $newComment->id);
+    $topic = ForumTopic::find($topicId);
 
-    if (!$topicTitle) {
-        $topic = ForumTopic::find($topicId);
-        $topicTitle = $topic?->title ?? '';
-    }
+    setLatestCommentInForumTopic($topic, $newComment->id);
 
     if ($user->ManuallyVerified ?? false) {
-        notifyUsersAboutForumActivity($topicId, $topicTitle, $user, $newComment->id);
+        notifyUsersAboutForumActivity($topic, $user, $newComment);
     }
 
     return $newComment;
 }
 
-function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, User $author, int $commentID): void
+function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTopicComment $newComment): void
 {
-    // $author has made a post in the topic $topicID
-    // Find all people involved in this forum topic, and if they are not the author and prefer to
-    // hear about comments, let them know! Also notify users that have explicitly subscribed to
-    // the topic.
+    $subscriptionService = new SubscriptionService();
+    $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::ForumTopic, $topic->id)
+        ->filter(fn ($s) => isset($s->EmailAddress) && BitSet($s->websitePrefs, UserPreference::EmailOn_ForumReply));
 
-    $subscribers = getSubscribersOf(
-        SubscriptionSubjectType::ForumTopic,
-        $topicID,
-        1 << 3,
-        "
-            SELECT DISTINCT ua.*
-            FROM
-                forum_topic_comments as ftc
-                INNER JOIN UserAccounts AS ua ON ua.ID = ftc.author_id
-            WHERE
-                ftc.forum_topic_id = $topicID
-        "
-    );
+    if (!$subscribers->isEmpty()) {
+        $payload = nl2br(Shortcode::stripAndClamp($newComment->body, previewLength: 1000, preserveWhitespace: true));
 
-    $payload = null;
-    $comment = ForumTopicComment::find($commentID);
-    if ($comment) {
-        $payload = nl2br(Shortcode::stripAndClamp($comment->body, previewLength: 1000, preserveWhitespace: true));
-    }
+        $urlTarget = route('forum-topic.show', ['topic' => $topic->id, 'comment' => $newComment->id]) . '#' . $newComment->id;
 
-    $urlTarget = route('forum-topic.show', ['topic' => $topicID, 'comment' => $commentID]) . '#' . $commentID;
-    foreach ($subscribers as $sub) {
-        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author->display_name, ArticleType::Forum, $topicTitle, $urlTarget, payload: $payload);
+        foreach ($subscribers as $subscriber) {
+            sendActivityEmail(
+                $subscriber,
+                $topic->id,
+                $author,
+                ArticleType::Forum,
+                $topic->title ?? '',
+                $urlTarget,
+                payload: $payload
+            );
+        }
     }
 }
 
@@ -400,10 +396,9 @@ function authorizeAllForumPostsForUser(User $user): bool
     foreach ($userUnauthorizedPosts as $unauthorizedPost) {
         if ($unauthorizedPost->forumTopic) {
             notifyUsersAboutForumActivity(
-                $unauthorizedPost->forumTopic->id,
-                $unauthorizedPost->forumTopic->title,
+                $unauthorizedPost->forumTopic,
                 $user,
-                $unauthorizedPost->id,
+                $unauthorizedPost,
             );
         }
     }
@@ -415,21 +410,4 @@ function authorizeAllForumPostsForUser(User $user): bool
     ]);
 
     return true;
-}
-
-function isUserSubscribedToForumTopic(int $topicID, int $userID): bool
-{
-    $explicitSubscription = Subscription::where('subject_type', SubscriptionSubjectType::ForumTopic)
-        ->where('subject_id', $topicID)
-        ->where('user_id', $userID)
-        ->first();
-
-    if ($explicitSubscription) {
-        return $explicitSubscription->state;
-    }
-
-    // a user is implicitly subscribed if they've authored at least one post in the topic
-    return ForumTopicComment::where('forum_topic_id', $topicID)
-        ->where('author_id', $userID)
-        ->exists();
 }

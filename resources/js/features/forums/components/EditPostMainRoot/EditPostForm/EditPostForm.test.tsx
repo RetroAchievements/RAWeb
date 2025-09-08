@@ -90,7 +90,7 @@ describe('Component: EditPostForm', () => {
     await waitFor(() => {
       expect(patchSpy).toHaveBeenCalledWith(
         route('api.forum-topic-comment.update', { comment: comment.id }),
-        { body: 'Updated text' },
+        { body: 'Updated text', postAsUserId: null },
       );
     });
   });
@@ -185,7 +185,7 @@ describe('Component: EditPostForm', () => {
     await waitFor(() => {
       expect(patchSpy).toHaveBeenCalledWith(
         route('api.forum-topic-comment.update', { comment: comment.id }),
-        { body: 'Updated text' },
+        { body: 'Updated text', postAsUserId: null },
       );
     });
   });

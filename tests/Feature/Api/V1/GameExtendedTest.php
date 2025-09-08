@@ -253,4 +253,23 @@ class GameExtendedTest extends TestCase
                 ],
             ]);
     }
+
+    public function testItValidatesTheFlagParameter(): void
+    {
+        // Arrange
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+
+        // Assert
+        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->id, 'f' => 2]))
+            ->assertStatus(422)
+            ->assertJson([
+                'message' => 'Invalid flag parameter. Valid values are 3 (published) or 5 (unpublished).',
+                'errors' => [
+                    'f' => [
+                        'Invalid flag parameter. Valid values are 3 (published) or 5 (unpublished).',
+                    ],
+                ],
+            ]);
+    }
 }
