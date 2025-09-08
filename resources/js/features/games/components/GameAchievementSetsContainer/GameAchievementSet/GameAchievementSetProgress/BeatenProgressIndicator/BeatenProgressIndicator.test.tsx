@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
-import { createAchievement, createPlayerGame } from '@/test/factories';
+import { createAchievement } from '@/test/factories';
 
 import { BeatenProgressIndicator } from './BeatenProgressIndicator';
 
@@ -22,14 +22,20 @@ describe('Component: BeatenProgressIndicator', () => {
 
   it('given the player has not beaten the game, renders the indicator button with low opacity', () => {
     // ARRANGE
-    const playerGame = createPlayerGame({
-      beatenAt: null,
-      beatenHardcoreAt: null,
-    });
+    const achievements = [
+      createAchievement({
+        type: 'progression',
+        unlockedAt: undefined, // !!
+        unlockedHardcoreAt: undefined, // !!
+      }),
+      createAchievement({
+        type: 'progression',
+        unlockedAt: '2024-01-01T00:00:00Z',
+        unlockedHardcoreAt: undefined,
+      }),
+    ];
 
-    render(<BeatenProgressIndicator achievements={[]} />, {
-      pageProps: { playerGame },
-    });
+    render(<BeatenProgressIndicator achievements={achievements} />);
 
     // ASSERT
     const button = screen.getByRole('button', { name: /beaten/i });
@@ -38,14 +44,20 @@ describe('Component: BeatenProgressIndicator', () => {
 
   it('given the player has beaten the game in softcore, renders the indicator button with full opacity', () => {
     // ARRANGE
-    const playerGame = createPlayerGame({
-      beatenAt: '2024-01-01T00:00:00Z',
-      beatenHardcoreAt: null,
-    });
+    const achievements = [
+      createAchievement({
+        type: 'progression',
+        unlockedAt: '2024-01-01T00:00:00Z', // !!
+        unlockedHardcoreAt: undefined,
+      }),
+      createAchievement({
+        type: 'progression',
+        unlockedAt: '2024-01-01T00:00:00Z', // !!
+        unlockedHardcoreAt: undefined,
+      }),
+    ];
 
-    render(<BeatenProgressIndicator achievements={[]} />, {
-      pageProps: { playerGame },
-    });
+    render(<BeatenProgressIndicator achievements={achievements} />);
 
     // ASSERT
     const button = screen.getByRole('button', { name: /beaten/i });
@@ -54,14 +66,18 @@ describe('Component: BeatenProgressIndicator', () => {
 
   it('given the player has beaten the game in hardcore, renders the indicator button with full opacity', () => {
     // ARRANGE
-    const playerGame = createPlayerGame({
-      beatenAt: null,
-      beatenHardcoreAt: '2024-01-01T00:00:00Z',
-    });
+    const achievements = [
+      createAchievement({
+        type: 'progression',
+        unlockedHardcoreAt: '2024-01-01T00:00:00Z', // !!
+      }),
+      createAchievement({
+        type: 'progression',
+        unlockedHardcoreAt: '2024-01-01T00:00:00Z', // !!
+      }),
+    ];
 
-    render(<BeatenProgressIndicator achievements={[]} />, {
-      pageProps: { playerGame },
-    });
+    render(<BeatenProgressIndicator achievements={achievements} />);
 
     // ASSERT
     const button = screen.getByRole('button', { name: /beaten/i });

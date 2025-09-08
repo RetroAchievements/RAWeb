@@ -56,7 +56,11 @@ export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ 
 
   const isSubsetPage = backingGame.id !== game.id;
 
-  const indicatorColorClassName = getIndicatorColorClassName(!!isMastered, !!isCompleted);
+  const indicatorColorClassName = getIndicatorColorClassName(
+    !!isMastered,
+    !!isCompleted,
+    completionPercentage,
+  );
 
   if (ziggy.device === 'mobile') {
     return (
@@ -106,12 +110,16 @@ export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ 
   );
 };
 
-function getIndicatorColorClassName(isMastered: boolean, isCompleted: boolean): string {
-  if (isMastered) {
+function getIndicatorColorClassName(
+  isMastered: boolean,
+  isCompleted: boolean,
+  completionPercentage: number,
+): string {
+  if (isMastered && completionPercentage > 0) {
     return 'text-amber-400 light:text-amber-500';
   }
 
-  if (isCompleted) {
+  if (isCompleted && completionPercentage > 0) {
     return 'text-neutral-200 light:text-neutral-600';
   }
 
