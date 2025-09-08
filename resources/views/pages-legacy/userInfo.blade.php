@@ -7,7 +7,9 @@ use App\Community\Enums\ClaimFilters;
 use App\Community\Enums\ClaimSorting;
 use App\Community\Enums\UserAction;
 use App\Enums\Permissions;
+use App\Models\GameAchievementSet;
 use App\Models\User;
+use App\Platform\Enums\AchievementSetType;
 use App\Platform\Services\PlayerProgressionService;
 
 $userPage = request('user');
@@ -54,6 +56,23 @@ $totalSoftcoreAchievements = 0;
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
 $userAwards = getUsersSiteAwards($userPageModel);
 
+// Identify subset game IDs. We'll exclude these from the user's average completion %.
+$gameIds = collect($userCompletedGamesList)->pluck('GameID')->filter()->unique();
+$subsetGameIds = [];
+if ($gameIds->isNotEmpty()) {
+    $subsetGameIds = GameAchievementSet::whereIn('game_id', $gameIds)
+        ->where('type', AchievementSetType::Core)
+        ->whereExists(function($query) {
+            $query->select('*')
+                ->from('game_achievement_sets as gas2')
+                ->whereColumn('gas2.achievement_set_id', 'game_achievement_sets.achievement_set_id')
+                ->whereColumn('gas2.game_id', '!=', 'game_achievement_sets.game_id')
+                ->where('gas2.type', '!=', AchievementSetType::Core);
+        })
+        ->pluck('game_id')
+        ->toArray();
+}
+
 $playerProgressionService = new PlayerProgressionService();
 $userJoinedGamesAndAwards = $playerProgressionService->filterAndJoinGames(
     $userCompletedGamesList,
@@ -66,6 +85,11 @@ $excludedConsoles = ["Hubs", "Events"];
 foreach ($userCompletedGamesList as $nextGame) {
     if ($nextGame['PctWon'] > 0) {
         if (!in_array($nextGame['ConsoleName'], $excludedConsoles)) {
+            // Skip subset game IDs.
+            if (in_array($nextGame['GameID'], $subsetGameIds)) {
+                continue;
+            }
+
             $totalPctWon += $nextGame['PctWon'];
             $numGamesFound++;
             $totalHardcoreAchievements += $nextGame['NumAwardedHC'];
