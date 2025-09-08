@@ -10,10 +10,19 @@ use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Http\Request;
 
-// NOTE: This function originally allowed posting activity directly to the global feed. That
-//       was removed in 2019. This function is still used to start sessions on older clients.
-// DEPRECATED: clients should be using startsession instead [added 2023 Jul 11], which serves
-//             as a combined request for postactivity and unlocks.
+/**
+ * This action provides support for the legacy API function used to initialize client sessions.
+ * New clients should use ?r=startsession instead (available since rcheevos 11.0) which
+ * serves as a combined request for ?r=postactivity and ?r=unlocks.
+ *
+ * This originally supported posting activity directly to the global feed (removed in 2019).
+ * Now it only processes StartedPlaying (activity type 3) to start sessions for older clients.
+ *
+ * This endpoint must be maintained indefinitely for backwards compatibility with:
+ * - RetroArch versions prior to 1.17.0.
+ * - DLL integrations older than 1.3.
+ * - Other legacy clients that haven't migrated to rc_client.
+ */
 class PostActivityAction extends BaseAuthenticatedApiAction
 {
     protected int $gameId;
