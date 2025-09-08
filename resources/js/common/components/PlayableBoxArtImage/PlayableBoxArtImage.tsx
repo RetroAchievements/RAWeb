@@ -16,7 +16,7 @@ export const PlayableBoxArtImage: FC<PlayableBoxArtImageProps> = ({ src }) => {
 
   return (
     <div className="overflow-hidden text-center">
-      <ZoomableImage src={src} alt={t('boxart')}>
+      <ZoomableImage src={src} alt={t('boxart')} isPixelated={false}>
         <img className="max-w-full rounded-sm" src={src} alt={t('boxart')} />
       </ZoomableImage>
     </div>
