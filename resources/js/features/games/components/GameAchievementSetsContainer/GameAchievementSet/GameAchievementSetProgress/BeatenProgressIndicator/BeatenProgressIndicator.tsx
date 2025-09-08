@@ -20,21 +20,21 @@ interface BeatenProgressIndicatorProps {
 }
 
 export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achievements }) => {
-  const { auth, playerGame } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { auth } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
   const {
+    isBeaten,
+    isSoftcorePlayer,
+    neededAchievementCount,
     progressionAchievements,
-    winConditionAchievements,
+    unlockedAchievementCount,
     unlockedProgression,
     unlockedWin,
-    neededAchievementCount,
-    unlockedAchievementCount,
-    isSoftcorePlayer,
+    winConditionAchievements,
   } = useMemo(() => getBeatenProgressData(achievements, auth?.user), [achievements, auth]);
 
-  const Icon =
-    playerGame?.beatenAt || playerGame?.beatenHardcoreAt ? LuCircleDot : LuCircleDotDashed;
+  const Icon = isBeaten ? LuCircleDot : LuCircleDotDashed;
 
   return (
     <BaseDialog>
@@ -44,7 +44,7 @@ export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achi
             <button
               className={cn(
                 'flex items-center gap-1 pl-3.5 text-neutral-300',
-                playerGame?.beatenAt || playerGame?.beatenHardcoreAt
+                isBeaten
                   ? 'text-opacity-100 light:text-neutral-600'
                   : 'text-opacity-30 light:text-neutral-500 light:text-opacity-40',
               )}
@@ -178,17 +178,27 @@ function getBeatenProgressData(
     progressionAchievements.length + (winConditionAchievements.length ? 1 : 0);
   const unlockedAchievementCount = unlockedProgression.length + (unlockedWin.length ? 1 : 0);
 
+  // Determine if the game is beaten based on achievements (freshest data).
+  // The game is beaten when all progression achievements are unlocked AND
+  // a win condition achievement (if any) is unlocked.
+  const isBeaten =
+    progressionAchievements.length > 0
+      ? unlockedProgression.length === progressionAchievements.length &&
+        (winConditionAchievements.length === 0 || unlockedWin.length > 0)
+      : winConditionAchievements.length > 0 && unlockedWin.length > 0;
+
   return {
+    isBeaten,
+    isSoftcorePlayer,
+    neededAchievementCount,
     progressionAchievements,
-    winConditionAchievements,
+    unlockedAchievementCount,
     unlockedProgression,
-    unlockedWin,
     unlockedProgressionHardcore,
     unlockedProgressionSoftcore,
+    unlockedWin,
     unlockedWinHardcore,
     unlockedWinSoftcore,
-    neededAchievementCount,
-    unlockedAchievementCount,
-    isSoftcorePlayer,
+    winConditionAchievements,
   };
 }
