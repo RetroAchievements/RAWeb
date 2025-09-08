@@ -4,6 +4,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { WeightedPointsContainer } from '@/common/components/WeightedPointsContainer';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { GameAchievementSetProgress } from '../GameAchievementSetProgress';
 import { PlayerGameProgressLabel } from './PlayerGameProgressLabel';
 
 interface GameAchievementSetHeaderProps {
@@ -25,7 +26,7 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
   );
 
   return (
-    <div className="flex w-full items-center justify-between text-neutral-300 light:text-neutral-700">
+    <div className="relative flex w-full items-center justify-between text-neutral-300 light:text-neutral-700">
       <div className="flex w-full items-center gap-3">
         <img
           src={imageAssetPathUrl}
@@ -84,6 +85,12 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
           </div>
         </div>
       </div>
+
+      {isViewingPublishedAchievements && achievements.length ? (
+        <div className="absolute right-2 top-2 hidden sm:block">
+          <GameAchievementSetProgress achievements={achievements} />
+        </div>
+      ) : null}
     </div>
   );
 };
