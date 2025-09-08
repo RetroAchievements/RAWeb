@@ -130,7 +130,7 @@ class MemoryNotesRelationManager extends RelationManager
                             return $data;
                         }),
 
-                    Tables\Actions\Action::make('delete')
+                    Tables\Actions\DeleteAction::make('delete')
                         ->label('Delete')
                         ->icon('heroicon-s-trash')
                         ->color('danger')
@@ -139,18 +139,6 @@ class MemoryNotesRelationManager extends RelationManager
                             return "Delete Note at {$memoryNote->address_hex}";
                         })
                         ->modalDescription('Are you sure you want to delete this note? It will be irreversibly lost.')
-                        ->action(function (MemoryNote $memoryNote): void {
-                            /** @var User $user */
-                            $user = Auth::user();
-
-                            if (!$user->can('delete', $memoryNote)) {
-                                return;
-                            }
-
-                            $memoryNote->user_id = $user->id;
-                            $memoryNote->forceFill(['body' => '']);
-                            $memoryNote->save();
-                        })
                         ->visible(function (MemoryNote $memoryNote): bool {
                             /** @var User $user */
                             $user = Auth::user();
