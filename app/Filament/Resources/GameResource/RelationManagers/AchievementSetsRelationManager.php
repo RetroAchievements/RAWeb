@@ -151,7 +151,6 @@ class AchievementSetsRelationManager extends RelationManager
                                 Select::make('game')
                                     ->label('Subset game')
                                     ->helperText('Find the current subset game in the database. For example: "Mega Man 2 [Subset - Bonus]".')
-                                    ->searchable()
                                     ->options(
                                         Game::where('Title', 'like', "%[Subset -%")
                                             ->where('ConsoleID', $game->ConsoleID)
