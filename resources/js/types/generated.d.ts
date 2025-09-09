@@ -194,6 +194,12 @@ declare namespace App.Community.Data {
   };
 }
 declare namespace App.Community.Enums {
+  export type MessageThreadTemplateKind =
+    | 'achievement-issue'
+    | 'manual-unlock'
+    | 'misclassification'
+    | 'unwelcome-concept'
+    | 'writing-error';
   export type NewsCategory =
     | 'achievement-set'
     | 'community'
@@ -202,25 +208,21 @@ declare namespace App.Community.Enums {
     | 'media'
     | 'site-release-notes'
     | 'technical';
-  export type ClaimSetType = 0 | 1;
-  export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
-  export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
-  export type MessageThreadTemplateKind =
-    | 'achievement-issue'
-    | 'manual-unlock'
-    | 'misclassification'
-    | 'unwelcome-concept'
-    | 'writing-error';
-  export type AwardType = 1 | 2 | 3 | 6 | 7 | 8 | 9;
-  export type ClaimStatus = 0 | 1 | 2 | 3;
-  export type ClaimType = 0 | 1;
   export type SubscriptionSubjectType =
     | 'ForumTopic'
     | 'UserWall'
     | 'GameWall'
     | 'Achievement'
+    | 'Leaderboard'
     | 'GameTickets'
-    | 'GameAchievements';
+    | 'GameAchievements'
+    | 'AchievementTicket';
+  export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
+  export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+  export type AwardType = 1 | 2 | 3 | 6 | 7 | 8 | 9;
+  export type ClaimSetType = 0 | 1;
+  export type ClaimStatus = 0 | 1 | 2 | 3;
+  export type ClaimType = 0 | 1;
   export type TicketState = 0 | 1 | 2 | 3 | 'Demoted';
   export type TicketType = 1 | 2;
 }
