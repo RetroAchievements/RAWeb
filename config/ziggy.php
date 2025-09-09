@@ -9,6 +9,9 @@ return [
         'path' => 'resources/js',
     ],
     'except' => [
+        'api.internal.*',
+        'api.v1.*',
+        'api.v2.*',
         'demo.*',
         'debugbar.*',
         'filament.*',

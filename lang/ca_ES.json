@@ -1094,6 +1094,8 @@
     "Beaten Progress": "Progrés superat",
     "Beaten Progress (Softcore)": "Progrés superat (Softcore)",
     "Overall Set Progress": "Progrés general del set",
+    "Reset all progress": "Restablir tot el progrés",
+    "This will remove all your unlocked achievements for the game. This cannot be reversed.": "Això eliminarà tots els teus assoliments desbloquejats per a aquest joc. Aquesta acció no es pot desfer.",
     "supportedGameFilesCountLabel_one": "Actualment <1>{{count, number}}</1> registre de hash d'arxiu suportat registrat per a aquest joc.",
     "supportedGameFilesCountLabel_other": "Actualment hi ha registrats <1>{{count, number}}</1> hashes d'arxius suportats registrats per a aquest joc.",
     "userCount_one": "Hi ha <1>{{userCount, number}}</1> usuari en línia.",

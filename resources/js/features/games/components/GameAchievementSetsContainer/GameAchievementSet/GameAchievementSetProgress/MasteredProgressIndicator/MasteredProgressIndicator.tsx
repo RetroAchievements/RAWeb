@@ -1,7 +1,9 @@
+import { useSetAtom } from 'jotai';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuAward } from 'react-icons/lu';
 
+import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
   BasePopover,
   BasePopoverContent,
@@ -16,13 +18,14 @@ import {
 import { useFormatPercentage } from '@/common/hooks/useFormatPercentage';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
+import { isResetAllProgressDialogOpenAtom } from '@/features/games/state/games.atoms';
 
 interface MasteredProgressIndicatorProps {
   achievements: App.Platform.Data.Achievement[];
 }
 
 export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ achievements }) => {
-  const { auth, backingGame, game, playerGame, playerGameProgressionAwards, ziggy } =
+  const { auth, backingGame, game, playerGameProgressionAwards, ziggy } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { formatPercentage } = useFormatPercentage();
@@ -31,11 +34,13 @@ export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ 
     return null;
   }
 
-  const totalUnlockedCount = playerGame?.achievementsUnlocked;
+  const totalUnlockedCount = achievements.filter(
+    (ach) => ach.unlockedAt || ach.unlockedHardcoreAt,
+  ).length;
 
   // Calculate completion percentage with special rounding rules.
   const rawPercentage =
-    achievements.length > 0 ? ((totalUnlockedCount ?? 0) / achievements.length) * 100 : 0;
+    achievements.length > 0 ? (totalUnlockedCount / achievements.length) * 100 : 0;
   const completionPercentage =
     rawPercentage >= 99 && rawPercentage < 100
       ? Math.floor(rawPercentage)
@@ -51,7 +56,11 @@ export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ 
 
   const isSubsetPage = backingGame.id !== game.id;
 
-  const indicatorColorClassName = getIndicatorColorClassName(!!isMastered, !!isCompleted);
+  const indicatorColorClassName = getIndicatorColorClassName(
+    !!isMastered,
+    !!isCompleted,
+    completionPercentage,
+  );
 
   if (ziggy.device === 'mobile') {
     return (
@@ -101,12 +110,16 @@ export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ 
   );
 };
 
-function getIndicatorColorClassName(isMastered: boolean, isCompleted: boolean): string {
-  if (isMastered) {
+function getIndicatorColorClassName(
+  isMastered: boolean,
+  isCompleted: boolean,
+  completionPercentage: number,
+): string {
+  if (isMastered && completionPercentage > 0) {
     return 'text-amber-400 light:text-amber-500';
   }
 
-  if (isCompleted) {
+  if (isCompleted && completionPercentage > 0) {
     return 'text-neutral-200 light:text-neutral-600';
   }
 
@@ -119,6 +132,10 @@ interface FloatableContentProps {
 
 const FloatableContent: FC<FloatableContentProps> = ({ achievements }) => {
   const { t } = useTranslation();
+
+  // The dialog is mounted way higher than the tooltip.
+  // This prevents the dialog from unmounting when the tooltip closes.
+  const setIsResetAllProgressDialogOpen = useSetAtom(isResetAllProgressDialogOpenAtom);
 
   const unlockedHardcoreCount = achievements.filter((ach) => ach.unlockedHardcoreAt).length;
   const unlockedSoftcoreCount = achievements.filter(
@@ -175,6 +192,17 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements }) => {
             {t('Softcore')}
           </p>
         </div>
+      ) : null}
+
+      {unlockedHardcoreCount || unlockedSoftcoreCount ? (
+        <BaseButton
+          size="sm"
+          variant="destructive"
+          className="mt-3 h-fit py-0.5"
+          onClick={() => setIsResetAllProgressDialogOpen(true)}
+        >
+          {t('Reset all progress')}
+        </BaseButton>
       ) : null}
     </div>
   );

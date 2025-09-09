@@ -86,7 +86,10 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
             {/* Title */}
             <div className="-mt-1 mb-0.5 md:mt-0">
               <span className="mr-2">
-                <a href={route('achievement.show', { achievement })} className="font-medium">
+                <a
+                  href={route('achievement.show', { achievementId: achievement.id })}
+                  className="font-medium"
+                >
                   {title}
                   {game?.title ? ' ' : null}
                 </a>

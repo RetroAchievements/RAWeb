@@ -47,7 +47,7 @@ export const AchievementAvatar: FC<AchievementAvatarProps> = ({
 
   const achievementLink = (children: React.ReactNode) => (
     <a
-      href={route('achievement.show', { achievement: id })}
+      href={route('achievement.show', { achievementId: id })}
       className="max-w-fit"
       {...(hasTooltip ? cardTooltipProps : undefined)}
     >

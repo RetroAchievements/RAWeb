@@ -23,7 +23,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
 
 $userModel = User::whereName($user)->first();
 
-$achievementID = (int) request('achievement');
+$achievementID = (int) request('achievementId');
 if (empty($achievementID)) {
     abort(404);
 }
