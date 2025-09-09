@@ -1067,6 +1067,8 @@
     "RetroPoints:": "RetroPoints:",
     "First Published:": "Zuerst veröffentlicht:",
     "Achievements available since {{date}}": "Errungenschaften seit {{date}} verfügbar",
+    "playerGameProgressHardcore": "<1>{{achievementsCount}}</1>  freigeschaltet $t(playerGameProgressHardcoreAchievements, {\"count\": {{achievementsCount}} }) im Wert von <2>{{pointsCount, number}}</2> <3>({{weightedPoints, number}})</3> $t(playerGameProgressPoints, {\"count\": {{pointsCount}} })",
+    "playerGameProgressSoftcore": "<1>{{achievementsCount}}</1> freigeschaltet $t(playerGameProgressSoftcoreAchievements, {\"count\": {{achievementsCount}} }) im wert von {{pointsCount, number}} $t(playerGameProgressPoints, {\"count\": {{pointsCount}} })",
     "Your subscription has been restored.": "Dein Abonnement wurde wiederhergestellt.",
     "unsubscribeSuccess-forumThread": "Du wurdest von den Benachrichtigungen dieses Forenthemas abgemeldet.",
     "unsubscribeSuccess-gameWall": "Du wurdest von den Wall-Kommentaren für {{gameTitle}} abgemeldet.",
@@ -1089,6 +1091,11 @@
     "Manage All Email Preferences": "Alle E-Mail-Einstellungen verwalten",
     "Unable to Unsubscribe": "Abmelden nicht möglich",
     "Go to Settings": "Zu den Einstellungen",
+    "Beaten Progress": "Abgeschlossen-Fortschritt",
+    "Beaten Progress (Softcore)": "Abgeschlossenen-Fortschritt (Softcore)",
+    "Overall Set Progress": "Gesamter Set-Fortschritt",
+    "Reset all progress": "Reset all progress",
+    "This will remove all your unlocked achievements for the game. This cannot be reversed.": "This will remove all your unlocked achievements for the game. This cannot be reversed.",
     "supportedGameFilesCountLabel_one": "Aktuell gibt es <1>{{count, number}}</1> registrierten Spieldatei-Hash, welcher für dieses Spiel unterstützt wird.",
     "supportedGameFilesCountLabel_other": "Aktuell gibt es <1>{{count, number}}</1> registrierte Spieldatei-Hashes, welche für dieses Spiel unterstützt werden.",
     "userCount_one": "<1>{{userCount, number}}</1> Benutzer ist gerade online.",
@@ -1172,5 +1179,11 @@
     "{{val, number}} players ({{playersPercentage}})_one": "{{val, number}} Spieler ({{playersPercentage}})",
     "{{val, number}} players ({{playersPercentage}})_other": "{{val, number}} Spieler ({{playersPercentage}})",
     "<1>{{achievementsCount, number}}</1> unpublished achievements_one": "<1>{{achievementsCount, number}}</1> unveröffentlichte Errungenschaft",
-    "<1>{{achievementsCount, number}}</1> unpublished achievements_other": "<1>{{achievementsCount, number}}</1> unveröffentlichte Errungenschaften"
+    "<1>{{achievementsCount, number}}</1> unpublished achievements_other": "<1>{{achievementsCount, number}}</1> unveröffentlichte Errungenschaften",
+    "playerGameProgressHardcoreAchievements_one": "Errungenschaft",
+    "playerGameProgressHardcoreAchievements_other": "Errungenschaften",
+    "playerGameProgressPoints_one": "Punkt",
+    "playerGameProgressPoints_other": "Punkte",
+    "playerGameProgressSoftcoreAchievements_one": "Softcore-Errungenschaft",
+    "playerGameProgressSoftcoreAchievements_other": "Softcore-Errungenschaften"
 }
