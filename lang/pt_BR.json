@@ -1067,6 +1067,8 @@
     "RetroPoints:": "RetroPoints:",
     "First Published:": "Publicado pela primeira vez:",
     "Achievements available since {{date}}": "Conquistas disponíveis desde {{date}}",
+    "playerGameProgressHardcore": "Desbloqueado(s) <1>{{achievementsCount}}</1> $t(playerGameProgressHardcoreAchievements, {\"count\": {{achievementsCount}} }) vale(m) <2>{{pointsCount, number}}</2> <3>({{weightedPoints, number}})</3> $t(playerGameProgressPoints, {\"count\": {{pointsCount}} })",
+    "playerGameProgressSoftcore": "Desbloqueado(s) <1>{{achievementsCount}}</1> $t(playerGameProgressSoftcoreAchievements, {\"count\": {{achievementsCount}} }) vale(m) {{pointsCount, number}} $t(playerGameProgressPoints, {\"count\": {{pointsCount}} })",
     "Your subscription has been restored.": "Sua inscrição foi restaurada.",
     "unsubscribeSuccess-forumThread": "Você não receberá mais notificações deste tópico no fórum.",
     "unsubscribeSuccess-gameWall": "Você não receberá mais notificações de comentários de {{gameTitle}}.",
@@ -1089,6 +1091,11 @@
     "Manage All Email Preferences": "Gerenciar Preferências de E-Mail",
     "Unable to Unsubscribe": "Não foi possível cancelar a Inscrição",
     "Go to Settings": "Ir às configurações",
+    "Beaten Progress": "Progresso de Zeramento",
+    "Beaten Progress (Softcore)": "Progresso de Zeramento (Softcore)",
+    "Overall Set Progress": "Progresso Geral do Set",
+    "Reset all progress": "Redefinir todo o progresso",
+    "This will remove all your unlocked achievements for the game. This cannot be reversed.": "Isso irá remover todas as suas conquistas desbloqueadas para o jogo. Isso não poderá ser revertido.",
     "supportedGameFilesCountLabel_one": "Atualmente existe <1>{{count, number}}</1> hash de arquivo de jogo suportado registrado para este jogo.",
     "supportedGameFilesCountLabel_other": "Atualmente existem <1>{{count, number}}</1> hashes de arquivos de jogo suportados registrados para este jogo.",
     "userCount_one": "<1>{{userCount, number}}</1> usuário está atualmente online.",
@@ -1172,5 +1179,11 @@
     "{{val, number}} players ({{playersPercentage}})_one": "{{val, number}} jogador ({{playersPercentage}})",
     "{{val, number}} players ({{playersPercentage}})_other": "{{val, number}} jogadores ({{playersPercentage}})",
     "<1>{{achievementsCount, number}}</1> unpublished achievements_one": "<1>{{achievementsCount, number}}</1> conquista não publicada",
-    "<1>{{achievementsCount, number}}</1> unpublished achievements_other": "<1>{{achievementsCount, number}}</1> conquistas não publicadas"
+    "<1>{{achievementsCount, number}}</1> unpublished achievements_other": "<1>{{achievementsCount, number}}</1> conquistas não publicadas",
+    "playerGameProgressHardcoreAchievements_one": "conquista",
+    "playerGameProgressHardcoreAchievements_other": "conquistas",
+    "playerGameProgressPoints_one": "ponto",
+    "playerGameProgressPoints_other": "pontos",
+    "playerGameProgressSoftcoreAchievements_one": "conquista softcore",
+    "playerGameProgressSoftcoreAchievements_other": "conquistas softcore"
 }
