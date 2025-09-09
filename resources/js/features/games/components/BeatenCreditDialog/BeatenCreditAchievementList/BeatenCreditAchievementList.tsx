@@ -58,7 +58,7 @@ export const BeatenCreditAchievementList: FC<BeatenCreditAchievementListProps> =
             />
 
             <div className="flex flex-col">
-              <a href={route('achievement.show', { achievement: achievement.id })}>
+              <a href={route('achievement.show', { achievementId: achievement.id })}>
                 {achievement.title}
               </a>
               <p className={cn(achievement.unlockedAt ? 'text-text' : 'text-neutral-500')}>
