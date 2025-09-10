@@ -85,13 +85,12 @@ $excludedConsoles = ["Hubs", "Events"];
 foreach ($userCompletedGamesList as $nextGame) {
     if ($nextGame['PctWon'] > 0) {
         if (!in_array($nextGame['ConsoleName'], $excludedConsoles)) {
-            // Skip subset game IDs.
-            if (in_array($nextGame['GameID'], $subsetGameIds)) {
-                continue;
+            // Only include non-subset games in the average completion percentage calculation.
+            if (!in_array($nextGame['GameID'], $subsetGameIds)) {
+                $totalPctWon += $nextGame['PctWon'];
+                $numGamesFound++;
             }
 
-            $totalPctWon += $nextGame['PctWon'];
-            $numGamesFound++;
             $totalHardcoreAchievements += $nextGame['NumAwardedHC'];
             $totalSoftcoreAchievements += ($nextGame['NumAwarded'] - $nextGame['NumAwardedHC']);
         }
