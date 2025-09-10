@@ -1,6 +1,5 @@
 import { useAtomValue } from 'jotai';
 import { type FC } from 'react';
-import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
 import { BaseTooltip, BaseTooltipTrigger } from '@/common/components/+vendor/BaseTooltip';
@@ -20,7 +19,6 @@ interface SetSelectionTabsProps {
 export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
   const { game, selectableGameAchievementSets } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
-  const { t } = useTranslation();
 
   const currentListView = useAtomValue(currentListViewAtom);
 
