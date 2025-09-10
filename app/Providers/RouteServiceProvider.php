@@ -11,8 +11,13 @@ use App\Http\Controllers\DownloadsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\UserController;
+use App\Models\Game;
 use App\Models\User;
+use App\Platform\Actions\BuildGameShowPagePropsAction;
+use App\Platform\Actions\LoadGameWithRelationsAction;
+use App\Platform\Controllers\GameController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Octane\Facades\Octane;
@@ -56,8 +61,33 @@ class RouteServiceProvider extends ServiceProvider
             Route::get('{path}.php', fn (string $path) => $this->handlePageRequest($path))->where('path', '(.*)');
             Route::get('user/{user}', fn (string $user) => $this->handlePageRequest('userInfo', $user))->name('user.show');
             Route::get('achievement/{achievementId}{slug?}', fn ($achievementId) => $this->handlePageRequest('achievementInfo', $achievementId))->name('achievement.show');
-            Route::get('game/{game}{slug?}', fn ($game) => $this->handlePageRequest('gameInfo', $game))->name('game.show');
             Route::get('leaderboard/{leaderboard}{slug?}', fn ($leaderboard) => $this->handlePageRequest('leaderboardinfo', $leaderboard))->name('leaderboard.show');
+        });
+
+        // Intelligently serves different pages based whether the user has enabled beta features.
+        Route::middleware(['web', 'csp', 'inertia'])->group(function () {
+            Route::get('game/{game}{slug?}', function ($game) {
+                /** @var User $user */
+                $user = Auth::user();
+
+                if ($user->enable_beta_features) {
+                    $gameModel = Game::findOrFail($game);
+                    $controller = app(GameController::class);
+
+                    return $controller->show(
+                        request(),
+                        $gameModel,
+                        app(LoadGameWithRelationsAction::class),
+                        app(BuildGameShowPagePropsAction::class)
+                    );
+                }
+
+                // For non-beta users, we need to bypass Inertia and serve the legacy page.
+                request()->merge(['game' => $game]);
+
+                // Return a non-Inertia response that will bypass Inertia middleware.
+                return response()->view('pages-legacy.gameInfo');
+            })->name('game.show');
         });
 
         Route::middleware(['web', 'csp'])->group(function () {

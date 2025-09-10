@@ -355,6 +355,7 @@ declare namespace App.Data {
     deletedAt?: string | null;
     displayableRoles?: Array<App.Data.Role> | null;
     emailAddress?: string | null;
+    enableBetaFeatures?: boolean | null;
     id?: number;
     isEmailVerified?: boolean;
     isGone?: boolean;
@@ -490,7 +491,6 @@ declare namespace App.Models {
     | 'architect'
     | 'engineer'
     | 'team-account'
-    | 'beta'
     | 'community-manager'
     | 'developer-retired';
 }

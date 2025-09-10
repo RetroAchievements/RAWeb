@@ -18,7 +18,7 @@ type UserPreferenceValue =
 
 interface PreferencesTableRowProps {
   t_label: TranslatedString;
-  fieldName: UserPreferenceValue;
+  fieldName: UserPreferenceValue | 'hasBetaFeatures';
   control: Control<PreferencesSectionFormValues>;
 
   /**

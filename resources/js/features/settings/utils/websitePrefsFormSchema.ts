@@ -22,4 +22,6 @@ export const websitePrefsFormSchema = z.object({
   [StringifiedUserPreference.Game_HideMissableIndicators]: z.boolean(),
   [StringifiedUserPreference.User_OnlyContactFromFollowing]: z.boolean(),
   [StringifiedUserPreference.Game_OptOutOfAllSubsets]: z.boolean(),
+
+  hasBetaFeatures: z.boolean().optional(),
 });

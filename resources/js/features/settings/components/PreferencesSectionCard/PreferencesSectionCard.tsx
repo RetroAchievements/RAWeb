@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { StringifiedUserPreference } from '@/common/utils/generatedAppConstants';
 
 import { SectionFormCard } from '../SectionFormCard';
@@ -16,11 +17,15 @@ export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
   currentWebsitePrefs,
   onUpdateWebsitePrefs,
 }) => {
+  const { auth } = usePageProps();
   const { t } = useTranslation();
+
+  const hasBetaFeatures = !!auth?.user.enableBetaFeatures;
 
   const { form, mutation, onSubmit } = usePreferencesSectionForm(
     currentWebsitePrefs,
     onUpdateWebsitePrefs,
+    hasBetaFeatures,
   );
 
   return (
@@ -52,6 +57,12 @@ export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
         <PreferencesSwitchField
           t_label={t('Only people I follow can message me or post on my wall')}
           fieldName={StringifiedUserPreference.User_OnlyContactFromFollowing}
+          control={form.control}
+        />
+
+        <PreferencesSwitchField
+          t_label={t('Enable beta features')}
+          fieldName="hasBetaFeatures"
           control={form.control}
         />
 

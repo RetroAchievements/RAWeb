@@ -706,6 +706,7 @@ declare module 'ziggy-js' {
     "api.settings.name-change-request.store": [],
     "api.settings.keys.web.destroy": [],
     "api.settings.keys.connect.destroy": [],
+    "api.settings.beta-features.toggle": [],
     "api.active-player.index": [],
     "api.unsubscribe.undo": [
         {
@@ -733,9 +734,9 @@ declare module 'ziggy-js' {
             "required": false
         }
     ],
-    "game.show": [
+    "leaderboard.show": [
         {
-            "name": "game",
+            "name": "leaderboard",
             "required": true
         },
         {
@@ -743,9 +744,9 @@ declare module 'ziggy-js' {
             "required": false
         }
     ],
-    "leaderboard.show": [
+    "game.show": [
         {
-            "name": "leaderboard",
+            "name": "game",
             "required": true
         },
         {

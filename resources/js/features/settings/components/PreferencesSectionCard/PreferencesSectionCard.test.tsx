@@ -2,6 +2,7 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { route } from 'ziggy-js';
 
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 
 import { PreferencesSectionCard } from './PreferencesSectionCard';
@@ -89,5 +90,97 @@ describe('Component: PreferencesSectionCard', () => {
 
     // ASSERT
     expect(screen.queryByRole('switch', { name: /automatically opt in/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user has beta features enabled, shows the beta features toggle as checked', () => {
+    // ARRANGE
+    render(<PreferencesSectionCard currentWebsitePrefs={0} onUpdateWebsitePrefs={vi.fn()} />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({
+            enableBetaFeatures: true,
+            roles: [],
+          }),
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('switch', { name: /enable beta features/i })).toBeChecked();
+  });
+
+  it('given the user does not have beta features enabled, shows the beta features toggle as unchecked', () => {
+    // ARRANGE
+    render(<PreferencesSectionCard currentWebsitePrefs={0} onUpdateWebsitePrefs={vi.fn()} />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({
+            enableBetaFeatures: false,
+            roles: [],
+          }),
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('switch', { name: /enable beta features/i })).not.toBeChecked();
+  });
+
+  it('given the user toggles beta features, makes the correct requests to the server', async () => {
+    // ARRANGE
+    const putSpy = vi
+      .spyOn(axios, 'put')
+      .mockResolvedValueOnce({ success: true }) // !! preferences update
+      .mockResolvedValueOnce({ success: true, hasBetaFeatures: true }); // !! beta features toggle
+
+    render(<PreferencesSectionCard currentWebsitePrefs={0} onUpdateWebsitePrefs={vi.fn()} />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({
+            enableBetaFeatures: false,
+            roles: [],
+          }),
+        },
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('switch', { name: /enable beta features/i }));
+    await userEvent.click(screen.getByRole('button', { name: /update/i }));
+
+    // ASSERT
+    expect(putSpy).toHaveBeenCalledTimes(2);
+    expect(putSpy).toHaveBeenNthCalledWith(1, route('api.settings.preferences.update'), {
+      websitePrefs: 0,
+    });
+    expect(putSpy).toHaveBeenNthCalledWith(2, route('api.settings.beta-features.toggle'));
+  });
+
+  it('given the user only changes preferences without toggling beta features, only updates preferences', async () => {
+    // ARRANGE
+    const putSpy = vi.spyOn(axios, 'put').mockResolvedValueOnce({ success: true });
+
+    render(<PreferencesSectionCard currentWebsitePrefs={0} onUpdateWebsitePrefs={vi.fn()} />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({
+            enableBetaFeatures: false,
+            roles: [],
+          }),
+        },
+      },
+    });
+
+    // ACT
+    await userEvent.click(
+      screen.getByRole('switch', { name: /suppress mature content warnings/i }),
+    );
+    await userEvent.click(screen.getByRole('button', { name: /update/i }));
+
+    // ASSERT
+    expect(putSpy).toHaveBeenCalledTimes(1);
+    expect(putSpy).toHaveBeenCalledWith(route('api.settings.preferences.update'), {
+      websitePrefs: 128, // !! only the preference bit changed
+    });
   });
 });
