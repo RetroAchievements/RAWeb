@@ -3,6 +3,7 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { WeightedPointsContainer } from '@/common/components/WeightedPointsContainer';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { BASE_SET_LABEL } from '@/features/games/utils/baseSetLabel';
 
 import { GameAchievementSetProgress } from '../GameAchievementSetProgress';
 import { PlayerGameProgressLabel } from './PlayerGameProgressLabel';
@@ -30,7 +31,7 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
       <div className="flex w-full items-center gap-3">
         <img
           src={imageAssetPathUrl}
-          alt={gameAchievementSet.title ?? t('Base Set')}
+          alt={gameAchievementSet.title ?? BASE_SET_LABEL}
           width={52}
           height={52}
           className="mt-0.5 self-start rounded-sm"
@@ -38,8 +39,7 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
 
         <div className="flex w-full items-center justify-between">
           <div className="flex flex-col items-start gap-0">
-            {/* Intentionally left untranslated. It would be weird if this title were translated and subset titles weren't. */}
-            <span>{title ?? 'Base Set'}</span>
+            <span>{title ?? BASE_SET_LABEL}</span>
 
             {isViewingPublishedAchievements ? (
               <>

@@ -8,6 +8,7 @@ import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { currentListViewAtom } from '@/features/games/state/games.atoms';
+import { BASE_SET_LABEL } from '@/features/games/utils/baseSetLabel';
 
 import { GameAchievementSetTooltipContent } from '../../GameAchievementSetTooltipContent';
 import { useTabIndicator } from './useTabIndicator';
@@ -76,7 +77,7 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
                 >
                   <img
                     src={gas.achievementSet.imageAssetPathUrl}
-                    alt={gas.title ?? t('Base Set')}
+                    alt={gas.title ?? BASE_SET_LABEL}
                     className="size-8 select-none rounded-sm"
                   />
                 </div>
