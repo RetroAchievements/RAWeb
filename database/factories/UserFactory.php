@@ -34,6 +34,7 @@ class UserFactory extends Factory
             'display_name' => null,
             'EmailAddress' => fake()->unique()->safeEmail,
             'email_verified_at' => now(),
+            'enable_beta_features' => false,
             'Permissions' => Permissions::Registered,
             'Password' => Hash::make('password'),
             'SaltedPass' => '',
