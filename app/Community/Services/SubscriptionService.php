@@ -650,7 +650,7 @@ class UserWallSubscriptionHandler extends CommentSubscriptionHandler
      */
     public function getImplicitSubscriptionQuery(?int $subjectId, ?int $forUserId, ?array $ignoreSubjectIds, ?array $ignoreUserIds): Builder
     {
-        // find any users who have commented on the ticket
+        // find any users who have commented on the user wall
         $query = parent::getImplicitSubscriptionQuery($subjectId, $forUserId, $ignoreSubjectIds, $ignoreUserIds);
 
         if ($subjectId !== null) {
