@@ -189,7 +189,7 @@ class BuildDeveloperFeedDataAction
             ->reject(fn ($entry) => $entry->user->Untracked)
             ->map(fn ($entry) => new RecentLeaderboardEntryData(
                 leaderboard: LeaderboardData::fromLeaderboard($entry->leaderboard),
-                leaderboardEntry: LeaderboardEntryData::fromLeaderboardEntry($entry)->include('formattedScore'),
+                leaderboardEntry: LeaderboardEntryData::fromLeaderboardEntry($entry, $entry->leaderboard->format)->include('formattedScore'),
                 game: GameData::fromGame($entry->leaderboard->game)->include('badgeUrl', 'system.iconUrl', 'system.nameShort'),
                 user: UserData::fromUser($entry->user),
                 submittedAt: $entry->updated_at,

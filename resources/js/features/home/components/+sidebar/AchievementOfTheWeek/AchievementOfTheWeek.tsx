@@ -54,7 +54,7 @@ export const AchievementOfTheWeek: FC = () => {
               <div className="flex flex-col gap-0.5 self-start">
                 <a
                   href={route('achievement.show', {
-                    achievement: currentEventAchievement.achievement.id,
+                    achievementId: currentEventAchievement.achievement.id,
                   })}
                 >
                   {currentEventAchievement.achievement.title}

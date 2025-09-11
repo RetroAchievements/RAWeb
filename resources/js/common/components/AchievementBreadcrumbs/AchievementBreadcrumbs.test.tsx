@@ -83,7 +83,7 @@ describe('Component: AchievementBreadcrumbs', () => {
     expect(achievementLinkEl).toBeVisible();
     expect(achievementLinkEl).toHaveAttribute(
       'href',
-      `achievement.show,${{ achievement: achievement.id }}`,
+      `achievement.show,${{ achievementId: achievement.id }}`,
     );
   });
 
