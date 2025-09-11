@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Connect\Actions;
 
+use App\Community\Enums\ArticleType;
 use App\Connect\Support\BaseAuthenticatedApiAction;
 use App\Models\Game;
 use App\Models\User;
-use App\Platform\Services\VirtualGameIdService;
+use App\Platform\Actions\UpsertTriggerVersionAction;
 use Illuminate\Http\Request;
 
 class SubmitRichPresenceAction extends BaseAuthenticatedApiAction
@@ -39,29 +40,38 @@ class SubmitRichPresenceAction extends BaseAuthenticatedApiAction
 
     protected function process(): array
     {
-        if (VirtualGameIdService::isVirtualGameId($this->gameId)) {
-            [$this->gameId, $compatibility] = VirtualGameIdService::decodeVirtualGameId($this->gameId);
-        }
-
         $game = Game::find($this->gameId);
         if (!$game) {
             return $this->gameNotFound();
         }
 
         // Check if user has permission to update this game.
-        if (!$this->user->can('update', $game)) {
+        if (!$this->user->can('updateField', [$game, 'RichPresencePatch'])) {
             return $this->accessDenied();
         }
 
-        // modifyGameRichPresence handles versioning automatically.
-        $success = modifyGameRichPresence($this->user, $this->gameId, $this->richPresence);
-
-        if (!$success) {
+        if ($game->RichPresencePatch === $this->richPresence) {
             return [
-                'Success' => false,
-                'Error' => 'Failed to update rich presence.',
+                'Success' => true,
             ];
         }
+
+        $game->RichPresencePatch = $this->richPresence;
+        $game->save();
+
+        (new UpsertTriggerVersionAction())->execute(
+            $game,
+            $this->richPresence,
+            versioned: true, // rich presence is always published
+            user: $this->user,
+        );
+
+        addArticleComment(
+            'Server',
+            ArticleType::GameModification,
+            $game->id,
+            "{$this->user->display_name} changed the rich presence script"
+        );
 
         return [
             'Success' => true,

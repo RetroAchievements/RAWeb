@@ -42,8 +42,8 @@ class SubmitRichPresenceTest extends TestCase
 
         // Act
         $this->post(
-            $this->apiUrl('submitrichpresence', ['g' => $game->id]),
-            ['d' => 'Display:\nNew RP']
+            $this->apiUrl('submitrichpresence'),
+            ['g' => $game->id, 'd' => 'Display:\nNew RP']
         )
             ->assertExactJson(['Success' => true]);
 
@@ -73,8 +73,8 @@ class SubmitRichPresenceTest extends TestCase
 
         // Act
         $this->post(
-            $this->apiUrl('submitrichpresence', ['g' => $game->id]),
-            ['d' => 'Display:\nJunior RP']
+            $this->apiUrl('submitrichpresence'),
+            ['g' => $game->id, 'd' => 'Display:\nJunior RP']
         )
             ->assertExactJson(['Success' => true]);
 
@@ -104,8 +104,8 @@ class SubmitRichPresenceTest extends TestCase
 
         // Act
         $this->post(
-            $this->apiUrl('submitrichpresence', ['g' => $game->id]),
-            ['d' => 'Display:\nSole Author RP']
+            $this->apiUrl('submitrichpresence'),
+            ['g' => $game->id, 'd' => 'Display:\nSole Author RP']
         )
             ->assertExactJson(['Success' => true]);
 
@@ -131,8 +131,52 @@ class SubmitRichPresenceTest extends TestCase
 
         // Act
         $this->post(
-            $this->apiUrl('submitrichpresence', ['g' => $game->id]),
-            ['d' => 'Display:\nUnauthorized RP']
+            $this->apiUrl('submitrichpresence'),
+            ['g' => $game->id, 'd' => 'Display:\nUnauthorized RP']
+        )
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Error' => 'Access denied.',
+            ]);
+
+        // Assert
+        $game->refresh();
+        $this->assertEquals('Display:\nOriginal RP', $game->RichPresencePatch); // !! unchanged
+    }
+
+    public function testJuniorDeveloperWithMixedAuthorshipCannotSubmitRichPresence(): void
+    {
+        // Arrange
+        $juniorDev = User::factory()->create(['appToken' => Str::random(16)]);
+        $juniorDev->assignRole(Role::DEVELOPER_JUNIOR);
+        $this->user = $juniorDev;
+
+        $otherDev = User::factory()->create();
+        $otherDev->assignRole(Role::DEVELOPER);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create([
+            'ConsoleID' => $system->id,
+            'RichPresencePatch' => 'Display:\nOriginal RP',
+        ]);
+
+        // ... create achievements with mixed authorship ...
+        Achievement::factory()->count(3)->create([
+            'GameID' => $game->id,
+            'user_id' => $juniorDev->id, // !! junior dev authored some achievements
+        ]);
+        Achievement::factory()->count(3)->create([
+            'GameID' => $game->id,
+            'user_id' => $otherDev->id, // !! but another dev also authored achievements
+        ]);
+
+        // Act
+        $this->post(
+            $this->apiUrl('submitrichpresence'),
+            ['g' => $game->id, 'd' => 'Display:\nMixed Authorship RP']
         )
             ->assertStatus(403)
             ->assertExactJson([
@@ -163,8 +207,8 @@ class SubmitRichPresenceTest extends TestCase
 
         // Act
         $this->post(
-            $this->apiUrl('submitrichpresence', ['g' => $game->id]),
-            ['d' => 'Display:\nRegular User RP']
+            $this->apiUrl('submitrichpresence'),
+            ['g' => $game->id, 'd' => 'Display:\nRegular User RP']
         )
             ->assertStatus(403)
             ->assertExactJson([
@@ -194,8 +238,8 @@ class SubmitRichPresenceTest extends TestCase
 
         // Act
         $this->post(
-            'dorequest.php?r=submitrichpresence&g=' . $game->id . '&u=' . $user->username . '&t=InvalidToken',
-            ['d' => 'Display:\nInvalid RP']
+            'dorequest.php?r=submitrichpresence',
+            ['g' => $game->id, 'u' => $user->username, 't' => 'InvalidToken', 'd' => 'Display:\nInvalid RP']
         )
             ->assertStatus(403)
             ->assertExactJson([
@@ -204,6 +248,31 @@ class SubmitRichPresenceTest extends TestCase
                 'Code' => 'access_denied',
                 'Error' => 'Access denied.',
             ]);
+
+        // Assert
+        $game->refresh();
+        $this->assertEquals('Display:\nOriginal RP', $game->RichPresencePatch); // !! unchanged
+    }
+
+    public function testSubmitUnchangedRichPresenceReturnsSuccessWithoutModifying(): void
+    {
+        // Arrange
+        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user->assignRole(Role::DEVELOPER);
+        $this->user = $user;
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create([
+            'ConsoleID' => $system->id,
+            'RichPresencePatch' => 'Display:\nOriginal RP',
+        ]);
+
+        // Act
+        $this->post(
+            $this->apiUrl('submitrichpresence'),
+            ['g' => $game->id, 'd' => 'Display:\nOriginal RP'] // !! submitting the exact same rich presence
+        )
+            ->assertExactJson(['Success' => true]);
 
         // Assert
         $game->refresh();
@@ -225,8 +294,8 @@ class SubmitRichPresenceTest extends TestCase
 
         // Act
         $this->post(
-            $this->apiUrl('submitrichpresence', ['g' => $game->id]),
-            ['d' => '']
+            $this->apiUrl('submitrichpresence'),
+            ['g' => $game->id, 'd' => '']
         )
             ->assertExactJson(['Success' => true]);
 
@@ -251,7 +320,8 @@ class SubmitRichPresenceTest extends TestCase
         // Act
         // ... don't send the 'd' parameter at all ...
         $this->post(
-            $this->apiUrl('submitrichpresence', ['g' => $game->id])
+            $this->apiUrl('submitrichpresence'),
+            ['g' => $game->id]
         )
             ->assertStatus(400)
             ->assertExactJson([
@@ -275,8 +345,8 @@ class SubmitRichPresenceTest extends TestCase
 
         // Assert
         $this->post(
-            $this->apiUrl('submitrichpresence', ['g' => 99999]),
-            ['d' => 'Display:\nNonexistent RP']
+            $this->apiUrl('submitrichpresence'),
+            ['g' => 99999, 'd' => 'Display:\nNonexistent RP']
         )
             ->assertStatus(404)
             ->assertExactJson([
@@ -297,7 +367,7 @@ class SubmitRichPresenceTest extends TestCase
 
         // Assert
         $this->post(
-            $this->apiUrl('submitrichpresence', []),
+            $this->apiUrl('submitrichpresence'),
             ['d' => 'Display:\nMissing Game ID']
         )
             ->assertStatus(400)
