@@ -75,7 +75,7 @@ export const AchievementBreadcrumbs: FC<AchievementBreadcrumbsProps> = ({
               <BaseBreadcrumbSeparator />
               <BaseBreadcrumbItem aria-label={achievement.title}>
                 <BaseBreadcrumbLink
-                  href={route('achievement.show', { achievement: achievement.id })}
+                  href={route('achievement.show', { achievementId: achievement.id })}
                 >
                   {achievement.title}
                 </BaseBreadcrumbLink>

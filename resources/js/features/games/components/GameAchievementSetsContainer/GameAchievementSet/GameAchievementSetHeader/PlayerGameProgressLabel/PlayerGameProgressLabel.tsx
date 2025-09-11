@@ -2,16 +2,14 @@ import { type FC, useMemo } from 'react';
 import { Trans } from 'react-i18next';
 
 import { WeightedPointsContainer } from '@/common/components/WeightedPointsContainer';
-import { usePageProps } from '@/common/hooks/usePageProps';
 
 interface PlayerGameProgressLabelProps {
   achievements: App.Platform.Data.Achievement[];
 }
 
 export const PlayerGameProgressLabel: FC<PlayerGameProgressLabelProps> = ({ achievements }) => {
-  const { playerGame } = usePageProps<App.Platform.Data.GameShowPageProps>();
-
   const {
+    unlockedAchievementsCount,
     unlockedHardcoreAchievements,
     unlockedPointsHardcore,
     unlockedPointsSoftcore,
@@ -19,7 +17,7 @@ export const PlayerGameProgressLabel: FC<PlayerGameProgressLabelProps> = ({ achi
     unlockedSoftcoreAchievements,
   } = useMemo(() => getProgressStats(achievements), [achievements]);
 
-  if (!playerGame?.achievementsUnlocked) {
+  if (!unlockedAchievementsCount) {
     return null;
   }
 
@@ -33,12 +31,12 @@ export const PlayerGameProgressLabel: FC<PlayerGameProgressLabelProps> = ({ achi
 
   return (
     <div className="flex flex-col text-xs text-text">
-      {playerGame.achievementsUnlockedHardcore ? (
+      {unlockedHardcoreAchievements.length ? (
         <p>
           <Trans
             i18nKey="playerGameProgressHardcore"
             values={{
-              achievementsCount: playerGame.achievementsUnlockedHardcore,
+              achievementsCount: unlockedHardcoreAchievements.length,
               pointsCount: unlockedPointsHardcore,
               weightedPoints: unlockedPointsWeighted,
             }}
@@ -51,12 +49,12 @@ export const PlayerGameProgressLabel: FC<PlayerGameProgressLabelProps> = ({ achi
         </p>
       ) : null}
 
-      {playerGame.achievementsUnlockedSoftcore ? (
+      {unlockedSoftcoreAchievements.length ? (
         <p>
           <Trans
             i18nKey="playerGameProgressSoftcore"
             values={{
-              achievementsCount: playerGame.achievementsUnlockedSoftcore,
+              achievementsCount: unlockedSoftcoreAchievements.length,
               pointsCount: unlockedPointsSoftcore,
             }}
             components={{
@@ -70,12 +68,17 @@ export const PlayerGameProgressLabel: FC<PlayerGameProgressLabelProps> = ({ achi
 };
 
 function getProgressStats(achievements: App.Platform.Data.Achievement[]): {
+  unlockedAchievementsCount: number;
   unlockedHardcoreAchievements: App.Platform.Data.Achievement[];
   unlockedPointsHardcore: number;
   unlockedPointsSoftcore: number;
   unlockedPointsWeighted: number;
   unlockedSoftcoreAchievements: App.Platform.Data.Achievement[];
 } {
+  const unlockedAchievementsCount = achievements.filter(
+    (ach) => ach.unlockedAt || ach.unlockedHardcoreAt,
+  ).length;
+
   const unlockedSoftcoreAchievements = achievements.filter(
     (a) => a.unlockedAt && !a.unlockedHardcoreAt,
   );
@@ -93,6 +96,7 @@ function getProgressStats(achievements: App.Platform.Data.Achievement[]): {
   }
 
   return {
+    unlockedAchievementsCount,
     unlockedHardcoreAchievements,
     unlockedPointsHardcore,
     unlockedPointsSoftcore,

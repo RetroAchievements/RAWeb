@@ -180,16 +180,6 @@ export const StringifiedTicketType = {
 } as const;
 
 
-export const SubscriptionSubjectType = {
-    ForumTopic: 'ForumTopic',
-    UserWall: 'UserWall',
-    GameWall: 'GameWall',
-    Achievement: 'Achievement',
-    GameTickets: 'GameTickets',
-    GameAchievements: 'GameAchievements',
-} as const;
-
-
 export const TicketState = {
     Closed: 0,
     Open: 1,
