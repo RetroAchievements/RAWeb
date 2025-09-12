@@ -18,7 +18,6 @@ export const SidebarDevelopmentSection: FC = () => {
     isViewingPublishedAchievements,
     isOnWantToDevList: isInitiallyOnWantToDevList,
   } = usePageProps<App.Platform.Data.GameShowPageProps>();
-
   const { t } = useTranslation();
 
   const { toggleBacklog: toggleWantToDevelop, isInBacklogMaybeOptimistic: isOnWantToDevList } =
@@ -36,13 +35,18 @@ export const SidebarDevelopmentSection: FC = () => {
 
     if (isViewingPublishedAchievements) {
       // Currently viewing published, switch to unpublished.
-      queryParams['unpublished'] = 'true';
+      if (auth?.user.enableBetaFeatures) {
+        queryParams['unpublished'] = 'true';
+      } else {
+        queryParams['f'] = '5';
+      }
     } else {
       // Currently viewing unpublished, remove the filter to view published.
       delete queryParams['unpublished'];
+      delete queryParams['f']; // TODO remove this after deleting PHP game pages
     }
 
-    return route('game2.show', { game: game.id, _query: queryParams });
+    return route('game.show', { game: game.id, _query: queryParams });
   };
 
   return (
@@ -65,6 +69,7 @@ export const SidebarDevelopmentSection: FC = () => {
         <PlayableSidebarButton
           IconComponent={isViewingPublishedAchievements ? LuFolderLock : LuFolder}
           href={buildToggleHref()}
+          isInertiaLink={!!auth?.user.enableBetaFeatures}
           showSubsetIndicator={game.id !== backingGame.id}
           count={
             isViewingPublishedAchievements

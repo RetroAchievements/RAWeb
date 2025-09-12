@@ -130,4 +130,23 @@ describe('Component: SimilarGamesListItem', () => {
     expect(imageElement).toHaveAttribute('loading', 'lazy');
     expect(imageElement).toHaveAttribute('decoding', 'async');
   });
+
+  it('given the user has enabled beta features, renders an inertia link', () => {
+    // ARRANGE
+    const game = createGame({
+      title: 'Elden Ring',
+      badgeUrl: 'https://example.com/elden-ring.png',
+    });
+
+    render(<SimilarGamesListItem game={game} />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({ enableBetaFeatures: true }),
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByTestId('link')).toBeVisible();
+  });
 });

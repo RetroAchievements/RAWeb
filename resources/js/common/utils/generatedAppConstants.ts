@@ -32,6 +32,7 @@ export const UserPreference = {
     Game_HideMissableIndicators: 16,
     User_OnlyContactFromFollowing: 17,
     Game_OptOutOfAllSubsets: 18,
+    User_EnableBetaFeatures: 19,
 } as const;
 
 
@@ -55,6 +56,7 @@ export const StringifiedUserPreference = {
     Game_HideMissableIndicators: '16',
     User_OnlyContactFromFollowing: '17',
     Game_OptOutOfAllSubsets: '18',
+    User_EnableBetaFeatures: '19',
 } as const;
 
 

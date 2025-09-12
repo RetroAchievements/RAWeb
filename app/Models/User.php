@@ -449,6 +449,11 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         return $this->attributes['Permissions'];
     }
 
+    public function getEnableBetaFeaturesAttribute(): bool
+    {
+        return BitSet($this->getAttribute('websitePrefs'), UserPreference::User_EnableBetaFeatures);
+    }
+
     public function getShouldAlwaysBypassContentWarningsAttribute(): bool
     {
         return BitSet($this->getAttribute('websitePrefs'), UserPreference::Site_SuppressMatureContentWarning);

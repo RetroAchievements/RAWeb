@@ -1,7 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { usePageProps } from '@/common/hooks/usePageProps';
 import { StringifiedUserPreference } from '@/common/utils/generatedAppConstants';
 
 import { SectionFormCard } from '../SectionFormCard';
@@ -10,23 +9,14 @@ import { usePreferencesSectionForm } from './usePreferencesSectionForm';
 
 interface PreferencesSectionCardProps {
   currentWebsitePrefs: number;
-  onUpdateWebsitePrefs: (newWebsitePrefs: number) => unknown;
 }
 
 export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
   currentWebsitePrefs,
-  onUpdateWebsitePrefs,
 }) => {
-  const { auth } = usePageProps();
   const { t } = useTranslation();
 
-  const hasBetaFeatures = !!auth?.user.enableBetaFeatures;
-
-  const { form, mutation, onSubmit } = usePreferencesSectionForm(
-    currentWebsitePrefs,
-    onUpdateWebsitePrefs,
-    hasBetaFeatures,
-  );
+  const { form, mutation, onSubmit } = usePreferencesSectionForm(currentWebsitePrefs);
 
   return (
     <SectionFormCard
@@ -62,7 +52,7 @@ export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
 
         <PreferencesSwitchField
           t_label={t('Enable beta features')}
-          fieldName="hasBetaFeatures"
+          fieldName={StringifiedUserPreference.User_EnableBetaFeatures}
           control={form.control}
         />
 

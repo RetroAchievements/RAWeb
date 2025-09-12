@@ -432,7 +432,8 @@ declare namespace App.Enums {
     | 15
     | 16
     | 17
-    | 18;
+    | 18
+    | 19;
 }
 declare namespace App.Http.Data {
   export type AchievementOfTheWeekProps = {

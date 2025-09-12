@@ -2,26 +2,13 @@ import { z } from 'zod';
 
 import { StringifiedUserPreference } from '@/common/utils/generatedAppConstants';
 
-export const websitePrefsFormSchema = z.object({
-  [StringifiedUserPreference.EmailOn_ActivityComment]: z.boolean(),
-  [StringifiedUserPreference.EmailOn_AchievementComment]: z.boolean(),
-  [StringifiedUserPreference.EmailOn_UserWallComment]: z.boolean(),
-  [StringifiedUserPreference.EmailOn_ForumReply]: z.boolean(),
-  [StringifiedUserPreference.EmailOn_Followed]: z.boolean(),
-  [StringifiedUserPreference.EmailOn_PrivateMessage]: z.boolean(),
-  [StringifiedUserPreference.EmailOn_TicketActivity]: z.boolean(),
-  [StringifiedUserPreference.Site_SuppressMatureContentWarning]: z.boolean(),
-  [StringifiedUserPreference.SiteMsgOn_ActivityComment]: z.boolean(),
-  [StringifiedUserPreference.SiteMsgOn_AchievementComment]: z.boolean(),
-  [StringifiedUserPreference.SiteMsgOn_UserWallComment]: z.boolean(),
-  [StringifiedUserPreference.SiteMsgOn_ForumReply]: z.boolean(),
-  [StringifiedUserPreference.SiteMsgOn_Followed]: z.boolean(),
-  [StringifiedUserPreference.SiteMsgOn_PrivateMessage]: z.boolean(),
-  [StringifiedUserPreference.SiteMsgOn_Newsletter]: z.boolean(),
-  [StringifiedUserPreference.Forum_ShowAbsoluteDates]: z.boolean(),
-  [StringifiedUserPreference.Game_HideMissableIndicators]: z.boolean(),
-  [StringifiedUserPreference.User_OnlyContactFromFollowing]: z.boolean(),
-  [StringifiedUserPreference.Game_OptOutOfAllSubsets]: z.boolean(),
+// Auto-generate the form schema from the StringifiedUserPreference enum.
+// It's really tedious to manually update this any time we add a preference.
 
-  hasBetaFeatures: z.boolean().optional(),
-});
+const schemaFields: Record<string, z.ZodBoolean> = {};
+for (const key of Object.keys(StringifiedUserPreference)) {
+  const value = StringifiedUserPreference[key as keyof typeof StringifiedUserPreference];
+  schemaFields[value] = z.boolean();
+}
+
+export const websitePrefsFormSchema = z.object(schemaFields);
