@@ -74,7 +74,7 @@ class RouteServiceProvider extends ServiceProvider
                 /** @var User $user */
                 $user = Auth::user();
 
-                if ($user->enable_beta_features) {
+                if ($user && $user->enable_beta_features) {
                     $gameModel = Game::findOrFail($game);
                     $controller = app(GameController::class);
 
