@@ -698,6 +698,7 @@ declare module 'ziggy-js' {
         }
     ],
     "api.settings.preferences.suppress-mature-content-warning": [],
+    "api.settings.beta-features.toggle": [],
     "api.settings.profile.update": [],
     "api.settings.locale.update": [],
     "api.settings.preferences.update": [],
@@ -706,7 +707,6 @@ declare module 'ziggy-js' {
     "api.settings.name-change-request.store": [],
     "api.settings.keys.web.destroy": [],
     "api.settings.keys.connect.destroy": [],
-    "api.settings.beta-features.toggle": [],
     "api.active-player.index": [],
     "api.unsubscribe.undo": [
         {
@@ -737,6 +737,16 @@ declare module 'ziggy-js' {
     "leaderboard.show": [
         {
             "name": "leaderboard",
+            "required": true
+        },
+        {
+            "name": "slug",
+            "required": false
+        }
+    ],
+    "game1.show": [
+        {
+            "name": "game",
             "required": true
         },
         {
