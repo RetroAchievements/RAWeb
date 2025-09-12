@@ -136,7 +136,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         'display_name',
         'EmailAddress', // fillable for registration
         'email_verified_at',
-        'enable_beta_features',
         'appToken',
         'appTokenExpiry',
         'LastLogin',

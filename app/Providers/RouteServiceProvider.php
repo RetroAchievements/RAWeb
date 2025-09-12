@@ -71,10 +71,10 @@ class RouteServiceProvider extends ServiceProvider
         // Intelligently serves different pages based whether the user has enabled beta features.
         Route::middleware(['web', 'csp', 'inertia'])->group(function () {
             Route::get('game/{game}{slug?}', function ($game) {
-                /** @var User $user */
+                /** @var ?User $user */
                 $user = Auth::user();
 
-                if ($user && $user->enable_beta_features) {
+                if ($user?->enable_beta_features) {
                     $gameModel = Game::findOrFail($game);
                     $controller = app(GameController::class);
 
