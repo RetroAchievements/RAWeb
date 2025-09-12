@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\Pages;
 
+use App\Connect\Actions\SubmitRichPresenceAction;
 use App\Filament\Actions\ApplyUploadedImageToDataAction;
 use App\Filament\Concerns\HasFieldLevelAuthorization;
 use App\Filament\Enums\ImageUploadType;
@@ -38,7 +39,7 @@ class Edit extends EditRecord
             $game = $this->record;
 
             if ($user && $user->can('updateField', [$game, 'RichPresencePatch'])) {
-                modifyGameRichPresence($user, $game->id, $data['RichPresencePatch'] ?? '');
+                (new SubmitRichPresenceAction())->execute($game->id, $data['RichPresencePatch'] ?? '', $user);
             }
 
             // Remove from data array so it doesn't get saved directly by Filament.
