@@ -220,4 +220,18 @@ class UserSettingsController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function toggleBetaFeatures(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $user->enable_beta_features = !$user->enable_beta_features;
+        $user->saveQuietly();
+
+        return response()->json([
+            'success' => true,
+            'hasBetaFeatures' => $user->enable_beta_features,
+        ]);
+    }
 }

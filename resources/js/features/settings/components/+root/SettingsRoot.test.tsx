@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { resetIntersectionMocking } from 'react-intersection-observer/test-utils';
@@ -9,10 +10,12 @@ import { createUser } from '@/test/factories';
 
 import { SettingsRoot } from './SettingsRoot';
 
-// Suppress setState() warnings that only happen in JSDOM.
-console.error = vi.fn();
-
 describe('Component: SettingsRoot', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(router, 'reload').mockImplementation(vi.fn());
+  });
+
   afterEach(() => {
     resetIntersectionMocking();
   });

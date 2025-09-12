@@ -9,19 +9,14 @@ import { usePreferencesSectionForm } from './usePreferencesSectionForm';
 
 interface PreferencesSectionCardProps {
   currentWebsitePrefs: number;
-  onUpdateWebsitePrefs: (newWebsitePrefs: number) => unknown;
 }
 
 export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
   currentWebsitePrefs,
-  onUpdateWebsitePrefs,
 }) => {
   const { t } = useTranslation();
 
-  const { form, mutation, onSubmit } = usePreferencesSectionForm(
-    currentWebsitePrefs,
-    onUpdateWebsitePrefs,
-  );
+  const { form, mutation, onSubmit } = usePreferencesSectionForm(currentWebsitePrefs);
 
   return (
     <SectionFormCard
@@ -52,6 +47,12 @@ export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
         <PreferencesSwitchField
           t_label={t('Only people I follow can message me or post on my wall')}
           fieldName={StringifiedUserPreference.User_OnlyContactFromFollowing}
+          control={form.control}
+        />
+
+        <PreferencesSwitchField
+          t_label={t('Enable beta features')}
+          fieldName={StringifiedUserPreference.User_EnableBetaFeatures}
           control={form.control}
         />
 

@@ -32,6 +32,7 @@ export const UserPreference = {
     Game_HideMissableIndicators: 16,
     User_OnlyContactFromFollowing: 17,
     Game_OptOutOfAllSubsets: 18,
+    User_EnableBetaFeatures: 19,
 } as const;
 
 
@@ -55,6 +56,7 @@ export const StringifiedUserPreference = {
     Game_HideMissableIndicators: '16',
     User_OnlyContactFromFollowing: '17',
     Game_OptOutOfAllSubsets: '18',
+    User_EnableBetaFeatures: '19',
 } as const;
 
 
@@ -82,7 +84,6 @@ export const UserRole = {
     ARCHITECT: 'architect',
     ENGINEER: 'engineer',
     TEAM_ACCOUNT: 'team-account',
-    BETA: 'beta',
     COMMUNITY_MANAGER: 'community-manager',
     DEVELOPER_RETIRED: 'developer-retired',
 } as const;

@@ -82,6 +82,7 @@ class HandleInertiaRequests extends Middleware
                     'isEmailVerified',
                     'isMuted',
                     'isNew',
+                    'enableBetaFeatures',
                     'legacyPermissions',
                     'locale',
                     'mutedUntil',
