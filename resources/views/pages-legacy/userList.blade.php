@@ -12,9 +12,11 @@ $perms = (int) request()->query('p', '1');
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
-$showUntracked = false;
+// Automatically show untracked users when viewing junior devs, full devs, and moderators.
+$showUntracked = ($perms >= Permissions::JuniorDeveloper && $perms <= Permissions::Moderator);
 if (isset($user) && $permissions >= Permissions::Moderator) {
-    $showUntracked = requestInputSanitized('u', null, 'boolean');
+    // Moderators can override the default behavior.
+    $showUntracked = requestInputSanitized('u', $showUntracked, 'boolean');
 } elseif ($perms < Permissions::Unregistered || $perms > Permissions::Moderator) {
     $perms = 1;
 }
