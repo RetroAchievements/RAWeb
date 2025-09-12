@@ -35,24 +35,6 @@ class SubmitCodeNoteTest extends TestCase
         $game = $this->seedGame();
 
         // ----------------------------
-        // invalid credentials
-        $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            't' => 'IvalidToken',
-            'g' => $game->ID,
-            'm' => 0x1234,
-            'n' => 'This is a note',
-        ]))
-            ->assertExactJson([
-                'Success' => false,
-                'Status' => 403,
-                'Code' => 'access_denied',
-                'Error' => 'Access denied.',
-            ]);
-
-        $note = $game->memoryNotes->where('address', 0x1234)->first();
-        $this->assertNull($note);
-
-        // ----------------------------
         // new note for valid game
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
             'g' => $game->ID,
@@ -273,5 +255,115 @@ class SubmitCodeNoteTest extends TestCase
         $note->refresh();
         $this->assertEquals('This is an overwritten note', $note->body);
         $this->assertNull($note->deleted_at);
+    }
+
+    public function testSubmitCodeNoteNonDeveloper(): void
+    {
+        $game = $this->seedGame();
+
+        // capture the developer user created by setup()
+        $developer = $this->user;
+
+        // ----------------------------
+        // unknown token (handled by BaseAuthenticatedApiAction)
+        $this->post('dorequest.php', $this->apiParams('submitcodenote', [
+            't' => 'IvalidToken',
+            'g' => $game->ID,
+            'm' => 0x1234,
+            'n' => 'This is a note',
+        ]))
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid user/token combination.',
+            ]);
+
+        $note = $game->memoryNotes->where('address', 0x1234)->first();
+        $this->assertNull($note);
+
+        // ----------------------------
+        // registered user (handled by the MemoryNotePolicy)
+        $this->user = User::factory()->create(['appToken' => Str::random(16), 'Permissions' => Permissions::Registered]);
+        $this->post('dorequest.php', $this->apiParams('submitcodenote', [
+            'g' => $game->ID,
+            'm' => 0x1234,
+            'n' => 'This is a note',
+        ]))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Error' => 'Access denied.',
+            ]);
+
+        $note = $game->memoryNotes->where('address', 0x1234)->first();
+        $this->assertNull($note);
+
+        // ----------------------------
+        // unregistered user (handled by BaseAuthenticatedApiAction)
+        $this->user->setAttribute('Permissions', Permissions::Unregistered);
+        $this->user->save();
+
+        $this->post('dorequest.php', $this->apiParams('submitcodenote', [
+            'g' => $game->ID,
+            'm' => 0x1234,
+            'n' => 'This is a note',
+        ]))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Error' => 'Access denied. Please verify your email address.',
+            ]);
+
+        $game->refresh();
+        $note = $game->memoryNotes->where('address', 0x1234)->first();
+        $this->assertNull($note);
+
+        // ----------------------------
+        // banned user (handled by BaseAuthenticatedApiAction)
+        $this->user->setAttribute('Permissions', Permissions::Banned);
+        $this->user->save();
+
+        $this->post('dorequest.php', $this->apiParams('submitcodenote', [
+            'g' => $game->ID,
+            'm' => 0x1234,
+            'n' => 'This is a note',
+        ]))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Error' => 'Access denied.',
+            ]);
+
+        $note = $game->memoryNotes->where('address', 0x1234)->first();
+        $this->assertNull($note);
+
+        // ----------------------------
+        // registered user with developer token (handled by BaseAuthenticatedApiAction)
+        $this->user->setAttribute('Permissions', Permissions::Registered);
+        $this->user->save();
+
+        $this->post('dorequest.php', $this->apiParams('submitcodenote', [
+            't' => $developer->appToken,
+            'g' => $game->ID,
+            'm' => 0x1234,
+            'n' => 'This is a note',
+        ]))
+            ->assertStatus(401)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid user/token combination.',
+            ]);
+
+        $note = $game->memoryNotes->where('address', 0x1234)->first();
+        $this->assertNull($note);
     }
 }

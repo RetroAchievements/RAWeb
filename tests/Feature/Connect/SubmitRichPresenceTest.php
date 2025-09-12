@@ -241,12 +241,12 @@ class SubmitRichPresenceTest extends TestCase
             'dorequest.php?r=submitrichpresence',
             ['g' => $game->id, 'u' => $user->username, 't' => 'InvalidToken', 'd' => 'Display:\nInvalid RP']
         )
-            ->assertStatus(403)
+            ->assertStatus(401)
             ->assertExactJson([
                 'Success' => false,
-                'Status' => 403,
-                'Code' => 'access_denied',
-                'Error' => 'Access denied.',
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid user/token combination.',
             ]);
 
         // Assert
