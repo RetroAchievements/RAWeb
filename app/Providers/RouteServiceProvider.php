@@ -62,7 +62,7 @@ class RouteServiceProvider extends ServiceProvider
             Route::get('user/{user}', fn (string $user) => $this->handlePageRequest('userInfo', $user))->name('user.show');
             Route::get('achievement/{achievementId}{slug?}', fn ($achievementId) => $this->handlePageRequest('achievementInfo', $achievementId))->name('achievement.show');
             Route::get('leaderboard/{leaderboard}{slug?}', fn ($leaderboard) => $this->handlePageRequest('leaderboardinfo', $leaderboard))->name('leaderboard.show');
-            
+
             // Alias to always serve the legacy game page for comparison purposes.
             // TODO remove after React game pages are live
             Route::get('game1/{game}{slug?}', fn ($game) => $this->handlePageRequest('gameInfo', $game))->name('game1.show');
