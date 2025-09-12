@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connect\Support;
 
+use App\Enums\Permissions;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,8 +25,9 @@ abstract class BaseAuthenticatedApiAction extends BaseApiAction
 
     public function handleRequest(Request $request): JsonResponse
     {
-        if (!$this->authenticateFromRequest($request)) {
-            return $this->buildResponse($this->accessDenied());
+        $result = $this->authenticateFromRequest($request);
+        if ($result !== null) {
+            return $this->buildResponse($result);
         }
 
         // without this, audit log entries created by the request
@@ -35,12 +37,17 @@ abstract class BaseAuthenticatedApiAction extends BaseApiAction
         return parent::handleRequest($request);
     }
 
-    private function authenticateFromRequest(Request $request): bool
+    private function authenticateFromRequest(Request $request): ?array
     {
         $username = request()->input('u');
         if (!$username) {
             // no user specified
-            return false;
+            return [
+                'Success' => false,
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid user/token combination.',
+            ];
         }
 
         // this pulls the user associated to the 't' parameter
@@ -48,20 +55,32 @@ abstract class BaseAuthenticatedApiAction extends BaseApiAction
 
         if (!$this->user) {
             // no user found for provided token
-            return false;
+            return [
+                'Success' => false,
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid user/token combination.',
+            ];
         }
 
         if (strcasecmp($this->user->User, $username) === 0) {
             // matched user name
-            return true;
-        }
-
-        if (strcasecmp($this->user->display_name, $username) === 0) {
+        } elseif (strcasecmp($this->user->display_name, $username) === 0) {
             // matched display name
-            return true;
+        } else {
+            // user associated to token doesn't match the username parameter provided
+            return null;
         }
 
-        // user associated to token doesn't match the username parameter provided
-        return false;
+        $permissions = (int) $this->user->getAttribute('Permissions');
+        if ($permissions < Permissions::Registered) {
+            return $this->accessDenied(
+                ($permissions === Permissions::Unregistered) ?
+                    'Access denied. Please verify your email address.' :
+                    'Access denied.'
+                );
+        }
+
+        return null;
     }
 }
