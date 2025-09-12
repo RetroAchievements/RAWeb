@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Community\Enums\ActivityType;
 use App\Models\Game;
 use App\Models\PlayerSession;
 use App\Models\User;
@@ -27,7 +26,8 @@ class PostActivityTest extends TestCase
         $game = $this->seedGame();
 
         // this is the legacy start_session API call
-        $this->get($this->apiUrl('postactivity', ['a' => ActivityType::StartedPlaying, 'm' => $game->ID]))
+        $this->get($this->apiUrl('postactivity', ['a' => 3, 'm' => $game->ID]))
+            ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
             ]);
@@ -47,12 +47,23 @@ class PostActivityTest extends TestCase
         $this->assertEquals("Playing " . $game->Title, $user1->RichPresenceMsg);
 
         // disallow anything other than StartedPlaying messages
-        $this->get($this->apiUrl('postactivity', ['a' => ActivityType::StartedPlaying + 1, 'm' => $game->ID]))
+        $this->get($this->apiUrl('postactivity', ['a' => 4, 'm' => $game->ID]))
+            ->assertStatus(403)
             ->assertExactJson([
                 "Success" => false,
-                "Error" => "You do not have permission to do that.",
+                "Error" => "Access denied.",
                 "Code" => "access_denied",
                 "Status" => 403,
+            ]);
+
+        // unknown game
+        $this->get($this->apiUrl('postactivity', ['a' => 3, 'm' => 999999]))
+            ->assertStatus(404)
+            ->assertExactJson([
+                "Success" => false,
+                "Error" => "Unknown game.",
+                "Code" => "not_found",
+                "Status" => 404,
             ]);
     }
 }

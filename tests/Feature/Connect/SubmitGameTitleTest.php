@@ -165,11 +165,11 @@ class SubmitGameTitleTest extends TestCase
             'i' => 'A',
             'c' => $system2->id,
         ]))
-            ->assertStatus(400)
+            ->assertStatus(422)
             ->assertExactJson([
                 'Code' => 'invalid_parameter',
                 'Error' => 'Title must be at least two characters long.',
-                'Status' => 400,
+                'Status' => 422,
                 'Success' => false,
             ]);
 
@@ -179,11 +179,11 @@ class SubmitGameTitleTest extends TestCase
             'i' => 'A',
             'c' => $system2->id,
         ]))
-            ->assertStatus(400)
+            ->assertStatus(422)
             ->assertExactJson([
                 'Code' => 'invalid_parameter',
                 'Error' => 'Hash must be 32 characters long.',
-                'Status' => 400,
+                'Status' => 422,
                 'Success' => false,
             ]);
     }

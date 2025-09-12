@@ -1,7 +1,6 @@
 <?php
 
 use App\Actions\FindUserByIdentifierAction;
-use App\Community\Enums\ActivityType;
 use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\BuildClientPatchDataV2Action;
 use App\Connect\Actions\GetAchievementUnlocksAction;
@@ -11,6 +10,7 @@ use App\Connect\Actions\GetFriendListAction;
 use App\Connect\Actions\GetHashLibraryAction;
 use App\Connect\Actions\GetLeaderboardEntriesAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
+use App\Connect\Actions\PostActivityAction;
 use App\Connect\Actions\ResolveRootGameFromGameAndGameHashAction;
 use App\Connect\Actions\SubmitCodeNoteAction;
 use App\Connect\Actions\SubmitGameTitleAction;
@@ -41,6 +41,7 @@ $handler = match ($requestType) {
     'getfriendlist' => new GetFriendListAction(),
     'hashlibrary' => new GetHashLibraryAction(),
     'lbinfo' => new GetLeaderboardEntriesAction(),
+    'postactivity' => new PostActivityAction(),
     'submitcodenote' => new SubmitCodeNoteAction(),
     'submitgametitle' => new SubmitGameTitleAction(),
     'submitrichpresence' => new SubmitRichPresenceAction(),
@@ -123,7 +124,6 @@ $credentialsOK = match ($requestType) {
     "awardachievements",
     "patch",
     "ping",
-    "postactivity",
     "richpresencepatch",
     "startsession",
     "submitgametitle",
@@ -585,22 +585,6 @@ switch ($requestType) {
         } catch (InvalidArgumentException $e) {
             return DoRequestError('Unknown game', 404, 'not_found');
         }
-        break;
-
-    case "postactivity":
-        $activityType = (int) request()->input('a');
-        if ($activityType != ActivityType::StartedPlaying) {
-            return DoRequestError("You do not have permission to do that.", 403, 'access_denied');
-        }
-
-        $gameID = (int) request()->input('m');
-        $game = Game::find($gameID);
-        if (!$game) {
-            return DoRequestError("Unknown game");
-        }
-
-        PlayerSessionHeartbeat::dispatch($user, $game);
-        $response['Success'] = true;
         break;
 
     case "richpresencepatch":

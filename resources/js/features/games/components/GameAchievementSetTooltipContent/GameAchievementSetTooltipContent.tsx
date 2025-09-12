@@ -7,6 +7,8 @@ import { buildGameRarityLabel } from '@/common/utils/buildGameRarityLabel';
 import { cn } from '@/common/utils/cn';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 
+import { BASE_SET_LABEL } from '../../utils/baseSetLabel';
+
 interface GameAchievementSetTooltipContentProps {
   gameAchievementSet: App.Platform.Data.GameAchievementSet;
 }
@@ -30,7 +32,7 @@ export const GameAchievementSetTooltipContent: FC<GameAchievementSetTooltipConte
   return (
     <BaseTooltipContent className="w-[400px] max-w-[400px] border border-embed-highlight bg-box-bg p-2">
       <div className="flex gap-2">
-        <img src={imageAssetPathUrl} alt={title ?? t('Base Set')} className="size-24 rounded-sm" />
+        <img src={imageAssetPathUrl} alt={title ?? BASE_SET_LABEL} className="size-24 rounded-sm" />
 
         <div className="flex flex-col">
           <p
@@ -39,7 +41,7 @@ export const GameAchievementSetTooltipContent: FC<GameAchievementSetTooltipConte
               title && title.length > 24 ? 'mb-1 text-sm leading-4' : '-mt-0.5 text-lg leading-6',
             )}
           >
-            {title ?? t('Base Set')}
+            {title ?? BASE_SET_LABEL}
           </p>
 
           <p className="flex gap-1">
