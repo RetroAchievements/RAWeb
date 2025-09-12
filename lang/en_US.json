@@ -917,7 +917,6 @@
     "Sent by <1>{{username}}</1>": "Sent by <1>{{username}}</1>",
     "Posted by <1>{{username}}</1>": "Posted by <1>{{username}}</1>",
     "Last edited by <1>{{username}}</1>": "Last edited by <1>{{username}}</1>",
-    "Base Set": "Base Set",
     "There aren't any achievements for this game yet.": "There aren't any achievements for this game yet.",
     "Subset {{subsetNumber, number}}": "Subset {{subsetNumber, number}}",
     "<1>{{achievementsCount, number}}</1> achievements worth <2>{{pointsCount, number}}</2> <3>({{retroPointsCount, number}})</3> points": "<1>{{achievementsCount, number}}</1> achievements worth <2>{{pointsCount, number}}</2> <3>({{retroPointsCount, number}})</3> points",
@@ -1184,5 +1183,7 @@
     "Go to Settings": "Go to Settings",
     "Beaten Progress": "Beaten Progress",
     "Beaten Progress (Softcore)": "Beaten Progress (Softcore)",
-    "Overall Set Progress": "Overall Set Progress"
+    "Overall Set Progress": "Overall Set Progress",
+    "Reset all progress": "Reset all progress",
+    "This will remove all your unlocked achievements for the game. This cannot be reversed.": "This will remove all your unlocked achievements for the game. This cannot be reversed."
 }

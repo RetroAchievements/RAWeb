@@ -48,4 +48,16 @@ describe('Component: EndDateChip', () => {
     // ASSERT
     expect(screen.getByText(/ended/i)).toBeVisible();
   });
+
+  it('given the event ends today, shows it will end (not ended)', () => {
+    // ARRANGE
+    const today = dayjs.utc().startOf('day').toISOString();
+    const event = createRaEvent({ activeThrough: today });
+
+    render(<EndDateChip event={event} />);
+
+    // ASSERT
+    expect(screen.getByText(/ends/i)).toBeVisible();
+    expect(screen.queryByText(/ended/i)).not.toBeInTheDocument();
+  });
 });

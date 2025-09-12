@@ -2606,20 +2606,20 @@
         },
         {
             "name": "fico7489/laravel-pivot",
-            "version": "3.0.12",
+            "version": "3.0.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fico7489/laravel-pivot.git",
-                "reference": "65362de1a3f97fbbf79c92da56bf79ed17400634"
+                "reference": "d36bbebb108b7b6828251c4b001b255084061a2f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fico7489/laravel-pivot/zipball/65362de1a3f97fbbf79c92da56bf79ed17400634",
-                "reference": "65362de1a3f97fbbf79c92da56bf79ed17400634",
+                "url": "https://api.github.com/repos/fico7489/laravel-pivot/zipball/d36bbebb108b7b6828251c4b001b255084061a2f",
+                "reference": "d36bbebb108b7b6828251c4b001b255084061a2f",
                 "shasum": ""
             },
             "require": {
-                "illuminate/database": "5.5.*|6.*|7.*|8.*|9.*|10.*|11.*"
+                "illuminate/database": "5.5.*|6.*|7.*|8.*|9.*|10.*|11.*|12.*"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "*",
@@ -2656,7 +2656,7 @@
                 "issues": "https://github.com/fico7489/laravel-pivot/issues",
                 "source": "https://github.com/fico7489/laravel-pivot"
             },
-            "time": "2024-05-02T06:22:26+00:00"
+            "time": "2025-05-05T10:34:41+00:00"
         },
         {
             "name": "filament/actions",

@@ -1067,6 +1067,8 @@
     "RetroPoints:": "RetroPoints:",
     "First Published:": "First Published:",
     "Achievements available since {{date}}": "Achievements available since {{date}}",
+    "playerGameProgressHardcore": "Unlocked <1>{{achievementsCount}}</1> $t(playerGameProgressHardcoreAchievements, {\"count\": {{achievementsCount}} }) worth <2>{{pointsCount, number}}</2> <3>({{weightedPoints, number}})</3> $t(playerGameProgressPoints, {\"count\": {{pointsCount}} })",
+    "playerGameProgressSoftcore": "Unlocked <1>{{achievementsCount}}</1> $t(playerGameProgressSoftcoreAchievements, {\"count\": {{achievementsCount}} }) worth {{pointsCount, number}} $t(playerGameProgressPoints, {\"count\": {{pointsCount}} })",
     "Your subscription has been restored.": "Your subscription has been restored.",
     "unsubscribeSuccess-forumThread": "You've been unsubscribed from this forum thread's notifications.",
     "unsubscribeSuccess-gameWall": "You've been unsubscribed from wall comments for {{gameTitle}}.",
@@ -1089,6 +1091,11 @@
     "Manage All Email Preferences": "Manage All Email Preferences",
     "Unable to Unsubscribe": "Unable to Unsubscribe",
     "Go to Settings": "Go to Settings",
+    "Beaten Progress": "Beaten Progress",
+    "Beaten Progress (Softcore)": "Beaten Progress (Softcore)",
+    "Overall Set Progress": "Overall Set Progress",
+    "Reset all progress": "Reset all progress",
+    "This will remove all your unlocked achievements for the game. This cannot be reversed.": "This will remove all your unlocked achievements for the game. This cannot be reversed.",
     "supportedGameFilesCountLabel_one": "There is currently <1>{{count, number}}</1> supported game file hash registered for this game.",
     "supportedGameFilesCountLabel_other": "There are currently <1>{{count, number}}</1> supported game file hashes registered for this game.",
     "userCount_one": "<1>{{userCount, number}}</1> user is currently online.",
@@ -1172,5 +1179,11 @@
     "{{val, number}} players ({{playersPercentage}})_one": "{{val, number}} player ({{playersPercentage}})",
     "{{val, number}} players ({{playersPercentage}})_other": "{{val, number}} players ({{playersPercentage}})",
     "<1>{{achievementsCount, number}}</1> unpublished achievements_one": "<1>{{achievementsCount, number}}</1> unpublished achievement",
-    "<1>{{achievementsCount, number}}</1> unpublished achievements_other": "<1>{{achievementsCount, number}}</1> unpublished achievements"
+    "<1>{{achievementsCount, number}}</1> unpublished achievements_other": "<1>{{achievementsCount, number}}</1> unpublished achievements",
+    "playerGameProgressHardcoreAchievements_one": "achievement",
+    "playerGameProgressHardcoreAchievements_other": "achievements",
+    "playerGameProgressPoints_one": "point",
+    "playerGameProgressPoints_other": "points",
+    "playerGameProgressSoftcoreAchievements_one": "softcore achievement",
+    "playerGameProgressSoftcoreAchievements_other": "softcore achievements"
 }

@@ -611,7 +611,7 @@ switch ($requestType) {
 
         $response['Success'] = true;
         $userModel = User::whereName($username)->first();
-        $userUnlocks = getUserAchievementUnlocksForGame($userModel, $game->parentGameId ?? $game->id);
+        $userUnlocks = getUserAchievementUnlocksForGame($userModel, $game->id);
         $userUnlocks = reactivateUserEventAchievements($userModel, $userUnlocks);
         foreach ($userUnlocks as $achId => $unlock) {
             if (array_key_exists('DateEarnedHardcore', $unlock)) {
@@ -716,7 +716,7 @@ switch ($requestType) {
         $hardcoreMode = (int) request()->input('h', 0) === UnlockMode::Hardcore;
         $userModel = User::whereName($username)->first();
         $game = Game::find($gameID);
-        $userUnlocks = getUserAchievementUnlocksForGame($userModel, $game ? ($game->parentGameId ?? $game->id) : $gameID);
+        $userUnlocks = getUserAchievementUnlocksForGame($userModel, $game ? $game->id : $gameID);
         if ($hardcoreMode) {
             $userUnlocks = reactivateUserEventAchievements($userModel, $userUnlocks);
             $response['UserUnlocks'] = collect($userUnlocks)

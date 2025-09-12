@@ -308,6 +308,38 @@ describe('Component: MasteredProgressIndicator', () => {
     expect(screen.getAllByRole('progressbar')[0]).toBeVisible();
   });
 
+  it('given the user has progress, displays a Reset all progress button', async () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
+      createAchievement({ unlockedAt: '2024-01-01T00:00:00Z', unlockedHardcoreAt: undefined }),
+      createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined }),
+    ];
+
+    const { container } = render(<MasteredProgressIndicator achievements={achievements} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        game: createGame(),
+        playerGame: { achievementsUnlocked: 2 }, // !!
+        playerGameProgressionAwards: {},
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByText('67%'));
+
+    await waitFor(() => {
+      expect(screen.getAllByText(/overall set progress/i)[0]).toBeVisible();
+    });
+
+    await userEvent.click(screen.getAllByRole('button', { name: /reset all progress/i })[0]);
+
+    // ASSERT
+    expect(container).toBeTruthy();
+  });
+
   it('given the user has a mastery award, shows amber color styling', () => {
     // ARRANGE
     const achievements = [
@@ -435,5 +467,53 @@ describe('Component: MasteredProgressIndicator', () => {
 
     // ASSERT
     expect(screen.getByText('100%')).toBeVisible();
+  });
+
+  it('given rawPercentage is 99.5%, shows 99% (Math.floor)', () => {
+    // ARRANGE
+    const achievements = Array.from({ length: 200 }, () =>
+      createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined }),
+    );
+    // ... unlock 199 out of 200 achievements for exactly 99.5% ...
+    for (let i = 0; i < 199; i++) {
+      achievements[i] = createAchievement({ unlockedAt: '2024-01-01T00:00:00Z' });
+    }
+
+    render(<MasteredProgressIndicator achievements={achievements} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        game: createGame(),
+        playerGameProgressionAwards: {},
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText('99%')).toBeVisible();
+  });
+
+  it('given rawPercentage is 98.5%, shows 99% (Math.ceil)', () => {
+    // ARRANGE
+    const achievements = Array.from({ length: 200 }, () =>
+      createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined }),
+    );
+    // ... unlock 197 out of 200 achievements for exactly 98.5% ...
+    for (let i = 0; i < 197; i++) {
+      achievements[i] = createAchievement({ unlockedAt: '2024-01-01T00:00:00Z' });
+    }
+
+    render(<MasteredProgressIndicator achievements={achievements} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        backingGame: createGame(),
+        game: createGame(),
+        playerGameProgressionAwards: {},
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText('99%')).toBeVisible();
   });
 });

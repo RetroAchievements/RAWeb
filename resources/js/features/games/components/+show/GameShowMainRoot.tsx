@@ -13,6 +13,7 @@ import { GameAchievementSetsContainer } from '../GameAchievementSetsContainer';
 import { GameCommentList } from '../GameCommentList';
 import { GameHeaderSlotContent } from '../GameHeaderSlotContent';
 import { GameRecentPlayers } from '../GameRecentPlayers';
+import { ResetAllProgressAlertDialog } from '../ResetAllProgressAlertDialog';
 
 export const GameShowMainRoot: FC = () => {
   const { game, hasMatureContent, isViewingPublishedAchievements, targetAchievementSetId } =
@@ -67,6 +68,8 @@ export const GameShowMainRoot: FC = () => {
 
         {isViewingPublishedAchievements ? <GameRecentPlayers /> : null}
         {isViewingPublishedAchievements ? <GameCommentList /> : null}
+
+        {allPageAchievements.length ? <ResetAllProgressAlertDialog /> : null}
       </div>
     </div>
   );
