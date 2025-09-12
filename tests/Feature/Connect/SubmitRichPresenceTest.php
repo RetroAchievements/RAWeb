@@ -323,10 +323,10 @@ class SubmitRichPresenceTest extends TestCase
             $this->apiUrl('submitrichpresence'),
             ['g' => $game->id]
         )
-            ->assertStatus(400)
+            ->assertStatus(422)
             ->assertExactJson([
                 'Success' => false,
-                'Status' => 400,
+                'Status' => 422,
                 'Code' => 'missing_parameter',
                 'Error' => 'One or more required parameters is missing.',
             ]);
@@ -370,10 +370,10 @@ class SubmitRichPresenceTest extends TestCase
             $this->apiUrl('submitrichpresence'),
             ['d' => 'Display:\nMissing Game ID']
         )
-            ->assertStatus(400)
+            ->assertStatus(422)
             ->assertExactJson([
                 'Success' => false,
-                'Status' => 400,
+                'Status' => 422,
                 'Code' => 'missing_parameter',
                 'Error' => 'One or more required parameters is missing.',
             ]);
