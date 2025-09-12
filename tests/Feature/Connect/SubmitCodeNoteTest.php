@@ -279,6 +279,9 @@ class SubmitCodeNoteTest extends TestCase
     {
         $game = $this->seedGame();
 
+        // capture the developer user created by setup()
+        $developer = $this->user;
+
         // ----------------------------
         // registered user
         $this->user = User::factory()->create(['appToken' => Str::random(16), 'Permissions' => Permissions::Registered]);
@@ -336,6 +339,28 @@ class SubmitCodeNoteTest extends TestCase
                 'Status' => 403,
                 'Code' => 'access_denied',
                 'Error' => 'Access denied.',
+            ]);
+
+        $note = $game->memoryNotes->where('address', 0x1234)->first();
+        $this->assertNull($note);
+
+        // ----------------------------
+        // registered user with developer token
+        $this->user->setAttribute('Permissions', Permissions::Registered);
+        $this->user->save();
+
+        $this->post('dorequest.php', $this->apiParams('submitcodenote', [
+            't' => $developer->appToken,
+            'g' => $game->ID,
+            'm' => 0x1234,
+            'n' => 'This is a note',
+        ]))
+            ->assertStatus(401)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid user/token combination.',
             ]);
 
         $note = $game->memoryNotes->where('address', 0x1234)->first();

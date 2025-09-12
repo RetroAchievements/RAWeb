@@ -42,12 +42,7 @@ abstract class BaseAuthenticatedApiAction extends BaseApiAction
         $username = request()->input('u');
         if (!$username) {
             // no user specified
-            return [
-                'Success' => false,
-                'Status' => 401,
-                'Code' => 'invalid_credentials',
-                'Error' => 'Invalid user/token combination.',
-            ];
+            return $this->invalidCredentials();
         }
 
         // this pulls the user associated to the 't' parameter
@@ -55,12 +50,7 @@ abstract class BaseAuthenticatedApiAction extends BaseApiAction
 
         if (!$this->user) {
             // no user found for provided token
-            return [
-                'Success' => false,
-                'Status' => 401,
-                'Code' => 'invalid_credentials',
-                'Error' => 'Invalid user/token combination.',
-            ];
+            return $this->invalidCredentials();
         }
 
         if (strcasecmp($this->user->User, $username) === 0) {
@@ -69,7 +59,7 @@ abstract class BaseAuthenticatedApiAction extends BaseApiAction
             // matched display name
         } else {
             // user associated to token doesn't match the username parameter provided
-            return null;
+            return $this->invalidCredentials();
         }
 
         $permissions = (int) $this->user->getAttribute('Permissions');
@@ -82,5 +72,15 @@ abstract class BaseAuthenticatedApiAction extends BaseApiAction
         }
 
         return null;
+    }
+
+    private function invalidCredentials(): array
+    {
+        return [
+            'Success' => false,
+            'Status' => 401,
+            'Code' => 'invalid_credentials',
+            'Error' => 'Invalid user/token combination.',
+        ];
     }
 }
