@@ -78,42 +78,42 @@ class EmulatorResource extends Resource
                                     Infolists\Components\TextEntry::make('original_name')
                                         ->label('Original name')
                                         ->placeholder('none')
-                                        ->helperText("If this emulator is forked from another emulator, put the original emulator's name here. eg: 'Snes9x' is the original name for 'RASnes9x'."),
+                                        ->helperText("The name of the emulator that was forked to create this emulator. eg: 'Snes9x' is the original name for 'RASnes9x'."),
 
                                     Infolists\Components\TextEntry::make('description')
                                         ->label('Description')
                                         ->placeholder('none')
-                                        ->helperText("This text used to be displayed on the Downloads page, but isn't anymore. You can add notes about the emulator here."),
+                                        ->helperText("Private notes about the emulator."),
 
                                     Infolists\Components\TextEntry::make('documentation_url')
                                         ->label('Documentation URL')
                                         ->url(fn ($record) => $record->documentation_url)
                                         ->placeholder('none')
-                                        ->helperText('This appears on the Downloads page.'),
+                                        ->helperText('A link to the documentation for the emulator.'),
 
                                     Infolists\Components\TextEntry::make('website_url')
                                         ->label('Website URL')
                                         ->url(fn ($record) => $record->website_url)
                                         ->placeholder('none')
-                                        ->helperText('This appears on the Downloads page.'),
+                                        ->helperText('A link to the website for the emulator.'),
 
                                     Infolists\Components\TextEntry::make('source_url')
                                         ->label('Source code URL')
                                         ->url(fn ($record) => $record->source_url)
                                         ->placeholder('none')
-                                        ->helperText('This appears on the Downloads page.'),
+                                        ->helperText('A link to the source code for the emulator.'),
 
                                     Infolists\Components\TextEntry::make('download_url')
                                         ->label('Download URL')
                                         ->url(fn ($record) => $record->download_url)
                                         ->placeholder('none')
-                                        ->helperText('Link to download the emulator.'),
+                                        ->helperText('A link to download or the downloads page of the emulator.'),
 
                                     Infolists\Components\TextEntry::make('download_x64_url')
                                         ->label('x64 Download URL')
                                         ->url(fn ($record) => $record->download_x64_url)
                                         ->placeholder('none')
-                                        ->helperText('Link to download the Windows x64 version of the emulator.'),
+                                        ->helperText('A link to download the Windows x64 version of the emulator.'),
                                 ]),
                         ]),
 
@@ -137,7 +137,10 @@ class EmulatorResource extends Resource
 
                         Infolists\Components\IconEntry::make('can_debug_triggers')
                             ->label('Is toolkit available')
-                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'If not enabled, warnings appear on the Downloads page and ticket create page')
+                            ->hintIcon(
+                                'heroicon-m-question-mark-circle',
+                                tooltip: 'If not enabled, warnings appear on the Downloads page and ticket creation page'
+                            )
                             ->boolean(),
                     ])->grow(false),
                 ])->from('md'),
@@ -158,7 +161,7 @@ class EmulatorResource extends Resource
                                 ->required()
                                 ->maxLength(255)
                                 ->placeholder('RASnes9x')
-                                ->helperText('This is the name that will appear on the website.'),
+                                ->helperText('The name that will appear on the website.'),
 
                             Forms\Components\TextInput::make('original_name')
                                 ->label('Original name')
@@ -176,39 +179,45 @@ class EmulatorResource extends Resource
                                 ->label('Documentation URL')
                                 ->url()
                                 ->placeholder('https://pcsx2.net/docs/')
-                                ->helperText('This appears on the Downloads page.'),
+                                ->helperText('A link to the documentation for the emulator.'),
 
                             Forms\Components\TextInput::make('website_url')
                                 ->label('Website URL')
                                 ->url()
                                 ->placeholder('https://pcsx2.net/')
-                                ->helperText('This appears on the Downloads page.'),
+                                ->helperText('A link to the website for the emulator.'),
 
                             Forms\Components\TextInput::make('source_url')
                                 ->label('Source code URL')
                                 ->url()
                                 ->placeholder('https://github.com/RetroAchievements/RALibretro')
-                                ->helperText('This appears on the Downloads page.'),
+                                ->helperText('A link to the source code for the emulator.'),
 
                             Forms\Components\TextInput::make('download_url')
                                 ->label('Download URL')
                                 ->url()
                                 ->required()
                                 ->placeholder('https://pcsx2.net/downloads')
-                                ->helperText('Link to download the emulator.'),
+                                ->helperText('A link to download or the downloads page of the emulator.'),
 
                             Forms\Components\TextInput::make('download_x64_url')
                                 ->label('x64 Download URL')
                                 ->url()
-                                ->helperText('Link to download the Windows x64 version of the emulator.'),
+                                ->helperText('A link to download the Windows x64 version of the emulator.'),
                         ]),
 
                     Forms\Components\Section::make()
                         ->grow(false)
                         ->schema([
-                            Forms\Components\Toggle::make('active'),
+                            Forms\Components\Toggle::make('active')
+                                ->label('Show on Downloads page'),
 
-                            Forms\Components\Toggle::make('can_debug_triggers'),
+                            Forms\Components\Toggle::make('can_debug_triggers')
+                                ->label('Is toolkit available')
+                                ->hintIcon(
+                                    'heroicon-m-question-mark-circle',
+                                    tooltip: 'If not enabled, warnings appear on the Downloads page and ticket creation page'
+                                ),
                         ]),
                 ])->from('md'),
             ]);
