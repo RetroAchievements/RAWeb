@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Enums\ClaimSetType;
+use App\Connect\Actions\SubmitRichPresenceAction;
 use App\Enums\Permissions;
 use App\Models\User;
 use Illuminate\Support\Arr;
@@ -27,7 +28,7 @@ if (
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-if (modifyGameRichPresence($userModel, $gameId, (string) $input['rich_presence'])) {
+if ((new SubmitRichPresenceAction())->execute($gameId, (string) $input['rich_presence'], $userModel)) {
     return back()->with('success', __('legacy.success.ok'));
 }
 

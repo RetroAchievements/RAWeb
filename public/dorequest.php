@@ -14,6 +14,7 @@ use App\Connect\Actions\PostActivityAction;
 use App\Connect\Actions\ResolveRootGameFromGameAndGameHashAction;
 use App\Connect\Actions\SubmitCodeNoteAction;
 use App\Connect\Actions\SubmitGameTitleAction;
+use App\Connect\Actions\SubmitRichPresenceAction;
 use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
 use App\Models\Achievement;
@@ -43,6 +44,7 @@ $handler = match ($requestType) {
     'postactivity' => new PostActivityAction(),
     'submitcodenote' => new SubmitCodeNoteAction(),
     'submitgametitle' => new SubmitGameTitleAction(),
+    'submitrichpresence' => new SubmitRichPresenceAction(),
     default => null,
 };
 if ($handler) {
@@ -126,6 +128,7 @@ $credentialsOK = match ($requestType) {
     "startsession",
     "submitgametitle",
     "submitlbentry",
+    "submitrichpresence",
     "unlocks",
     "uploadachievement",
     "uploadleaderboard" => $validLogin && ($permissions >= Permissions::Registered),
