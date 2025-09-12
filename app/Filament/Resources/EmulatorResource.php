@@ -73,7 +73,7 @@ class EmulatorResource extends Resource
                                 ->schema([
                                     Infolists\Components\TextEntry::make('name')
                                         ->label('Name')
-                                        ->helperText('This is the name that will appear on the website.'),
+                                        ->helperText('The name that will appear on the website.'),
 
                                     Infolists\Components\TextEntry::make('original_name')
                                         ->label('Original name')
@@ -107,7 +107,7 @@ class EmulatorResource extends Resource
                                         ->label('Download URL')
                                         ->url(fn ($record) => $record->download_url)
                                         ->placeholder('none')
-                                        ->helperText('A link to download or the downloads page of the emulator.'),
+                                        ->helperText('A link to download the emulator or to the downloads page for the emulator.'),
 
                                     Infolists\Components\TextEntry::make('download_x64_url')
                                         ->label('x64 Download URL')
@@ -198,7 +198,7 @@ class EmulatorResource extends Resource
                                 ->url()
                                 ->required()
                                 ->placeholder('https://pcsx2.net/downloads')
-                                ->helperText('A link to download or the downloads page of the emulator.'),
+                                ->helperText('A link to download the emulator or to the downloads page for the emulator.'),
 
                             Forms\Components\TextInput::make('download_x64_url')
                                 ->label('x64 Download URL')
