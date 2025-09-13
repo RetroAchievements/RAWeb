@@ -173,7 +173,7 @@ describe('Hook: useAddOrRemoveFromUserGameList', () => {
 
     // ACT
     await result.current.removeFromGameList(1, 'Sonic the Hedgehog');
-    
+
     const lastCall = vi.mocked(toastMessage.promise).mock.calls[0];
     const undoAction = (lastCall[1]!.action! as any).onClick!;
     await undoAction();
