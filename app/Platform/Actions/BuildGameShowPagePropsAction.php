@@ -14,6 +14,7 @@ use App\Data\UserPermissionsData;
 use App\Enums\GameHashCompatibility;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
+use App\Models\LeaderboardEntry;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
@@ -27,6 +28,7 @@ use App\Platform\Data\GameSetData;
 use App\Platform\Data\GameSetRequestData;
 use App\Platform\Data\GameShowPagePropsData;
 use App\Platform\Data\LeaderboardData;
+use App\Platform\Data\LeaderboardEntryData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
 use App\Platform\Data\UserCreditsData;
@@ -284,8 +286,8 @@ class BuildGameShowPagePropsAction
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
 
             leaderboards: request()->inertia()
-                ? $this->buildLeaderboards($backingGame)
-                : Lazy::inertiaDeferred(fn () => $this->buildLeaderboards($backingGame)),
+                ? $this->buildLeaderboards($backingGame, $user)
+                : Lazy::inertiaDeferred(fn () => $this->buildLeaderboards($backingGame, $user)),
 
             playerAchievementChartBuckets: $targetAchievementFlag === AchievementFlag::OfficialCore
                 ? $this->buildGameAchievementDistributionAction->execute($backingGame, $user)
@@ -589,21 +591,59 @@ class BuildGameShowPagePropsAction
     /**
      * @return Collection<int, LeaderboardData>
      */
-    private function buildLeaderboards(Game $game): Collection
+    private function buildLeaderboards(Game $game, ?User $user = null): Collection
     {
         // Only show leaderboards if the system is active and it's not an event game.
         if (!$game->system->active || $game->system->id === System::Events) {
             return collect();
         }
 
-        return $game->leaderboards->map(fn ($leaderboard) => LeaderboardData::fromLeaderboard($leaderboard)->include(
-            'title',
-            'description',
-            'topEntry.formattedScore',
-            'topEntry.user.displayName',
-            'topEntry.user.avatarUrl',
-            'format',
-        ));
+        // If the user is authenticated, fetch all their leaderboard entries for the game.
+        $userEntriesByLeaderboardId = collect();
+        if ($user) {
+            $leaderboardIds = $game->leaderboards->pluck('ID');
+            $userEntries = LeaderboardEntry::whereIn('leaderboard_id', $leaderboardIds)
+                ->where('user_id', $user->id)
+                ->get();
+            $userEntriesByLeaderboardId = $userEntries->keyBy('leaderboard_id');
+        }
+
+        return $game->leaderboards->map(function ($leaderboard) use ($userEntriesByLeaderboardId, $user) {
+            // Build the user entry if it exists.
+            $userEntryData = null;
+            if ($user && $userEntriesByLeaderboardId->has($leaderboard->id)) {
+                $userEntry = $userEntriesByLeaderboardId->get($leaderboard->id);
+                $rank = $leaderboard->getRank($userEntry->score);
+
+                // If the user has an entry and isn't rank #1, calculate how close they are to rank #1.
+                $percentageOfTopScore = null;
+                if ($rank > 1 && $leaderboard->topEntry) {
+                    $percentageOfTopScore = $this->calculatePercentageOfLeaderboardTopScore(
+                        $userEntry->score,
+                        $leaderboard->topEntry->score,
+                        $leaderboard->rank_asc
+                    );
+                }
+
+                $userEntryData = LeaderboardEntryData::fromLeaderboardEntry(
+                    $userEntry,
+                    $leaderboard->format,
+                    $rank,
+                    $percentageOfTopScore
+                )->include('formattedScore', 'rank', 'percentageOfTopScore');
+            }
+
+            return LeaderboardData::fromLeaderboard($leaderboard, $userEntryData)->include(
+                'description',
+                'format',
+                'rankAsc',
+                'title',
+                'topEntry.formattedScore',
+                'topEntry.user.avatarUrl',
+                'topEntry.user.displayName',
+                'userEntry',
+            );
+        });
     }
 
     private function getLeaderboardsCount(Game $game): int
@@ -614,5 +654,32 @@ class BuildGameShowPagePropsAction
         }
 
         return $game->leaderboards->count();
+    }
+
+    private function calculatePercentageOfLeaderboardTopScore(int $userScore, int $topScore, bool $rankAsc): ?float
+    {
+        if ($userScore === 0 && $topScore === 0) {
+            return 100.0;
+        }
+
+        if ($rankAsc) {
+            // Lower is better (eg: speedrun leaderboards).
+
+            if ($userScore === 0) {
+                return null;
+            }
+
+            $percentage = ($topScore / $userScore) * 100;
+        } else {
+            // Higher is better (eg: high score leaderboards).
+
+            if ($topScore === 0) {
+                return null;
+            }
+
+            $percentage = ($userScore / $topScore) * 100;
+        }
+
+        return round(min($percentage, 100.0), 1);
     }
 }

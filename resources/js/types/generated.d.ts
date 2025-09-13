@@ -862,13 +862,15 @@ declare namespace App.Platform.Data {
     defaultDesktopPageSize: number;
   };
   export type Leaderboard = {
-    id: number;
-    title: string;
     description?: string;
-    game?: App.Platform.Data.Game;
-    topEntry?: App.Platform.Data.LeaderboardEntry | null;
     format?: string | null;
+    game?: App.Platform.Data.Game;
+    id: number;
     orderColumn?: number;
+    title: string;
+    topEntry?: App.Platform.Data.LeaderboardEntry | null;
+    userEntry?: App.Platform.Data.LeaderboardEntry | null;
+    rankAsc?: boolean | null;
   };
   export type LeaderboardEntry = {
     id: number;
@@ -876,6 +878,8 @@ declare namespace App.Platform.Data {
     formattedScore?: string;
     createdAt?: string;
     user?: App.Data.User | null;
+    rank?: number | null;
+    percentageOfTopScore?: number | null;
   };
   export type ParsedUserAgent = {
     client: string;

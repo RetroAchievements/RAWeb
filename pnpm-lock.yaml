@@ -198,6 +198,9 @@ importers:
       '@types/ua-parser-js':
         specifier: ^0.7.36
         version: 0.7.39
+      '@typescript-eslint/types':
+        specifier: ^8.43.0
+        version: 8.43.0
       '@vitejs/plugin-react':
         specifier: ^4.3.4
         version: 4.3.4(vite@6.3.5(@types/node@22.8.4)(jiti@1.21.6)(tsx@4.19.3)(yaml@2.6.0))
@@ -2199,6 +2202,10 @@ packages:
 
   '@typescript-eslint/types@8.36.0':
     resolution: {integrity: sha512-xGms6l5cTJKQPZOKM75Dl9yBfNdGeLRsIyufewnxT4vZTrjC0ImQT4fj8QmtJK84F58uSh5HVBSANwcfiXxABQ==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@typescript-eslint/types@8.43.0':
+    resolution: {integrity: sha512-vQ2FZaxJpydjSZJKiSW/LJsabFFvV7KgLC5DiLhkBcykhQj8iK9BOaDmQt74nnKdLvceM5xmhaTF+pLekrxEkw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@typescript-eslint/typescript-estree@8.24.0':
@@ -7214,7 +7221,7 @@ snapshots:
   '@typescript-eslint/project-service@8.36.0(typescript@5.7.3)':
     dependencies:
       '@typescript-eslint/tsconfig-utils': 8.36.0(typescript@5.7.3)
-      '@typescript-eslint/types': 8.36.0
+      '@typescript-eslint/types': 8.43.0
       debug: 4.4.1
       typescript: 5.7.3
     transitivePeerDependencies:
@@ -7248,6 +7255,8 @@ snapshots:
   '@typescript-eslint/types@8.24.0': {}
 
   '@typescript-eslint/types@8.36.0': {}
+
+  '@typescript-eslint/types@8.43.0': {}
 
   '@typescript-eslint/typescript-estree@8.24.0(typescript@5.7.3)':
     dependencies:
