@@ -38,7 +38,6 @@ class AuthorshipCreditsRelationManager extends RelationManager
         $dummyModel->achievement_id = $this->ownerRecord->id;
 
         $canCreate = $user->can('create', $dummyModel);
-        $canDelete = $user->can('delete', $dummyModel);
         $canUpdate = $user->can('update', $dummyModel);
 
         $earliestLogicCredit = AchievementAuthor::where('achievement_id', $this->ownerRecord->id)
@@ -156,13 +155,11 @@ class AuthorshipCreditsRelationManager extends RelationManager
                     ->visible(fn () => $canUpdate),
 
                 Tables\Actions\DeleteAction::make()
-                    ->modalHeading('Delete contribution credit')
-                    ->hidden(fn (AchievementAuthor $record) => !$canDelete || ($earliestLogicCredit && $earliestLogicCredit->id === $record->id)),
+                    ->modalHeading('Delete contribution credit'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->visible(fn () => $canDelete),
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

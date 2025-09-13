@@ -51,6 +51,11 @@ class AchievementAuthorPolicy
 
     public function delete(User $user, AchievementAuthor $achievementAuthor): bool
     {
+        // Users can delete their own credit.
+        if ($user->is($achievementAuthor->user)) {
+            return true;
+        }
+
         return $user->hasAnyRole([
             Role::MODERATOR,
             Role::TEAM_ACCOUNT,
