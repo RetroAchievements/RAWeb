@@ -120,14 +120,12 @@ describe('Component: BetaFeedbackForm', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(postSpy).toHaveBeenCalledWith(
-        route('api.beta-feedback.store', {
-          betaName: 'new-game-page',
-          negativeFeedback: 'Missing filters',
-          positiveFeedback: 'Clean interface',
-          rating: 4,
-        }),
-      );
+      expect(postSpy).toHaveBeenCalledWith(route('api.beta-feedback.store'), {
+        betaName: 'new-game-page',
+        negativeFeedback: 'Missing filters',
+        positiveFeedback: 'Clean interface',
+        rating: 4,
+      });
     });
   });
 
