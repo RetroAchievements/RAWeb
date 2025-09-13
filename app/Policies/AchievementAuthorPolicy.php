@@ -19,7 +19,6 @@ class AchievementAuthorPolicy
         return $user->hasAnyRole([
             Role::DEVELOPER,
             Role::MODERATOR,
-            Role::TEAM_ACCOUNT,
             Role::ARTIST,
         ]);
     }
@@ -57,7 +56,11 @@ class AchievementAuthorPolicy
         }
 
         return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::DEV_COMPLIANCE,
+            Role::GAME_EDITOR,
             Role::MODERATOR,
+            Role::QUALITY_ASSURANCE,
             Role::TEAM_ACCOUNT,
         ]);
     }
@@ -65,7 +68,11 @@ class AchievementAuthorPolicy
     public function restore(User $user, AchievementAuthor $achievementAuthor): bool
     {
         return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::DEV_COMPLIANCE,
+            Role::GAME_EDITOR,
             Role::MODERATOR,
+            Role::QUALITY_ASSURANCE,
             Role::TEAM_ACCOUNT,
         ]);
     }
