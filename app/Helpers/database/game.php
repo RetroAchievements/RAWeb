@@ -5,7 +5,6 @@ use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\User;
 use App\Platform\Actions\TrimGameMetadataAction;
-use App\Platform\Actions\UpsertTriggerVersionAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\AchievementFlag;
 
@@ -640,33 +639,6 @@ function modifyGameForumTopic(string $username, int $gameId, int $newForumTopicI
     $game->save();
 
     addArticleComment('Server', ArticleType::GameModification, $gameId, "{$user->display_name} changed the forum topic");
-
-    return true;
-}
-
-function modifyGameRichPresence(User $user, int $gameId, string $dataIn): bool
-{
-    getRichPresencePatch($gameId, $existingData);
-    if ($existingData == $dataIn) {
-        return true;
-    }
-
-    $game = Game::find($gameId);
-    if (!$game) {
-        return false;
-    }
-
-    $game->RichPresencePatch = $dataIn;
-    $game->save();
-
-    (new UpsertTriggerVersionAction())->execute(
-        $game,
-        $dataIn,
-        versioned: true, // rich presence is always published
-        user: $user
-    );
-
-    addArticleComment('Server', ArticleType::GameModification, $gameId, "{$user->display_name} changed the rich presence script");
 
     return true;
 }

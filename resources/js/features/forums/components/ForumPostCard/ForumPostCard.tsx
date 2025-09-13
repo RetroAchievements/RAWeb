@@ -45,7 +45,7 @@ export const ForumPostCard: FC<ForumPostCardProps> = ({
           <ForumPostAuthorBox comment={comment} />
 
           <div className="w-full py-2 lg:px-6 lg:py-2" style={{ wordBreak: 'break-word' }}>
-            <div className="mb-4 flex w-full items-start justify-between gap-x-2 gap-y-2 lg:mb-3">
+            <div className="mb-4 flex w-full items-center justify-between gap-x-2 gap-y-2 sm:items-start lg:mb-3">
               {comment && topic ? (
                 <ForumPostCardMeta comment={comment} topic={topic} />
               ) : (
