@@ -155,11 +155,26 @@ class AuthorshipCreditsRelationManager extends RelationManager
                     ->visible(fn () => $canUpdate),
 
                 Tables\Actions\DeleteAction::make()
-                    ->modalHeading('Delete contribution credit'),
+                    ->modalHeading('Delete contribution credit')
+                    ->visible(fn (AchievementAuthor $record) => $user->can('delete', $record)
+                        && !($earliestLogicCredit && $earliestLogicCredit->id === $record->id)
+                    ),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->before(function (Tables\Actions\DeleteBulkAction $action, $records) use ($earliestLogicCredit) {
+                            // Filter out the earliest logic credit from deletion.
+                            if ($earliestLogicCredit) {
+                                $records = $records->filter(fn ($record) => $record->id !== $earliestLogicCredit->id);
+                            }
+
+                            if ($records->isEmpty()) {
+                                $action->cancel();
+                            }
+
+                            return $records;
+                        }),
                 ]),
             ]);
     }
