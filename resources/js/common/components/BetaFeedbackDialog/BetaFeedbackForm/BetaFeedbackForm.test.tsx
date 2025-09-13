@@ -186,7 +186,7 @@ describe('Component: BetaFeedbackForm', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByText(/submitted!/i)).toBeVisible();
+      expect(screen.getAllByText(/submitted!/i)[0]).toBeVisible();
     });
   });
 
