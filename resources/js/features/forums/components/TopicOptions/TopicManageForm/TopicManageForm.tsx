@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
+  BaseForm,
   BaseFormControl,
   BaseFormField,
   BaseFormItem,
   BaseFormLabel,
-  BaseFormProvider,
 } from '@/common/components/+vendor/BaseForm';
 import {
   BaseSelect,
@@ -28,7 +28,7 @@ export const TopicManageForm: FC = () => {
   const { form, mutation, onSubmit } = useTopicManageForm(forumTopic);
 
   return (
-    <BaseFormProvider {...form}>
+    <BaseForm {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-2"
@@ -65,6 +65,6 @@ export const TopicManageForm: FC = () => {
           </BaseButton>
         </div>
       </form>
-    </BaseFormProvider>
+    </BaseForm>
   );
 };

@@ -3,12 +3,12 @@ import { useTranslation } from 'react-i18next';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
+  BaseForm,
   BaseFormControl,
   BaseFormField,
   BaseFormItem,
   BaseFormLabel,
   BaseFormMessage,
-  BaseFormProvider,
 } from '@/common/components/+vendor/BaseForm';
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -23,7 +23,7 @@ export const TopicOptionsForm: FC = () => {
   const { form, mutation, onSubmit } = useTopicOptionsForm(forumTopic);
 
   return (
-    <BaseFormProvider {...form}>
+    <BaseForm {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-2">
         <BaseFormField
           control={form.control}
@@ -46,6 +46,6 @@ export const TopicOptionsForm: FC = () => {
           </BaseButton>
         </div>
       </form>
-    </BaseFormProvider>
+    </BaseForm>
   );
 };

@@ -5,12 +5,12 @@ import { useTranslation } from 'react-i18next';
 import { BaseAutosizeTextarea } from '@/common/components/+vendor/BaseAutosizeTextarea';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
+  BaseForm,
   BaseFormControl,
   BaseFormField,
   BaseFormItem,
   BaseFormLabel,
   BaseFormMessage,
-  BaseFormProvider,
 } from '@/common/components/+vendor/BaseForm';
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
 import { BaseSelectNative } from '@/common/components/+vendor/BaseSelectNative';
@@ -51,7 +51,7 @@ export const CreateTopicForm: FC<CreateTopicFormProps> = ({ onPreview }) => {
     : null;
 
   return (
-    <BaseFormProvider {...form}>
+    <BaseForm {...form}>
       <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-5">
           <div className="flex w-full flex-col gap-3 md:flex-row md:gap-5">
@@ -164,6 +164,6 @@ export const CreateTopicForm: FC<CreateTopicFormProps> = ({ onPreview }) => {
           </div>
         </div>
       </form>
-    </BaseFormProvider>
+    </BaseForm>
   );
 };

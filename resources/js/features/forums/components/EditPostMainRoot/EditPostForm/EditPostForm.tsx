@@ -5,12 +5,12 @@ import { useTranslation } from 'react-i18next';
 import { BaseAutosizeTextarea } from '@/common/components/+vendor/BaseAutosizeTextarea';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
+  BaseForm,
   BaseFormControl,
   BaseFormField,
   BaseFormItem,
   BaseFormLabel,
   BaseFormMessage,
-  BaseFormProvider,
 } from '@/common/components/+vendor/BaseForm';
 import { ShortcodePanel } from '@/common/components/ShortcodePanel';
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -42,7 +42,7 @@ export const EditPostForm: FC<EditPostFormProps> = ({ onPreview }) => {
   });
 
   return (
-    <BaseFormProvider {...form}>
+    <BaseForm {...form}>
       <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3">
           <ShortcodePanel />
@@ -94,6 +94,6 @@ export const EditPostForm: FC<EditPostFormProps> = ({ onPreview }) => {
           </div>
         </div>
       </form>
-    </BaseFormProvider>
+    </BaseForm>
   );
 };

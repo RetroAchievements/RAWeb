@@ -18,6 +18,7 @@ use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Models\UserBetaFeedbackSubmission;
 use App\Models\UserGameListEntry;
 use App\Platform\Data\AchievementSetClaimData;
 use App\Platform\Data\AggregateAchievementSetCreditsData;
@@ -35,7 +36,10 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetAuthorTask;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GamePageListView;
+use App\Support\Cache\CacheKey;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Cookie;
 use Spatie\LaravelData\Lazy;
 
@@ -192,6 +196,9 @@ class BuildGameShowPagePropsAction
         $isLockedOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_unlocked_achievements_games', $game->id);
         $isMissableOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_nonmissable_achievements_games', $game->id);
 
+        // Track the beta visit for authenticated users.
+        $this->trackBetaVisit($user, 'react-game-page');
+
         // Get the primary claim from the already-loaded claims for permission checking.
         $primaryClaim = $backingGame->achievementSetClaims
             ->where('ClaimType', ClaimType::Primary)
@@ -209,6 +216,7 @@ class BuildGameShowPagePropsAction
                 'reviewAchievementSetClaims',
             ),
 
+            canSubmitBetaFeedback: $this->getCanSubmitBetaFeedback($user, 'react-game-page'),
             initialView: $initialView,
 
             game: GameData::fromGame($game)->include(
@@ -614,5 +622,59 @@ class BuildGameShowPagePropsAction
         }
 
         return $game->leaderboards->count();
+    }
+
+    /**
+     * @deprecated remove after the beta has ended
+     */
+    private function trackBetaVisit(?User $user, string $betaName): void
+    {
+        if (!$user) {
+            return;
+        }
+
+        $cacheKey = CacheKey::buildUserBetaVisitsCacheKey($user->username, $betaName);
+
+        // Get existing data, or initialize with new data.
+        $data = Cache::get($cacheKey, [
+            'visit_count' => 0,
+            'first_visited_at' => null,
+            'last_visited_at' => null,
+        ]);
+
+        // Update visit data.
+        $data['visit_count']++;
+        $data['first_visited_at'] = $data['first_visited_at'] ?? now()->timestamp;
+        $data['last_visited_at'] = now()->timestamp;
+
+        // Store for 30 days from now (the TTL resets on each visit).
+        Cache::put($cacheKey, $data, Carbon::now()->addDays(30));
+    }
+
+    /**
+     * @deprecated remove after the beta has ended
+     */
+    private function getCanSubmitBetaFeedback(?User $user, string $betaName): bool
+    {
+        if (!$user || !$user->can('create', UserBetaFeedbackSubmission::class)) {
+            return false;
+        }
+
+        $cacheKey = CacheKey::buildUserBetaVisitsCacheKey($user->username, $betaName);
+        $data = Cache::get($cacheKey);
+
+        if (!$data) {
+            return false;
+        }
+
+        // Check if user meets the requirements: 10+ visits over 2+ days.
+        $requiredVisits = 10;
+        $requiredDays = 2;
+
+        $daysSinceFirst = $data['first_visited_at']
+            ? Carbon::createFromTimestamp($data['first_visited_at'])->diffInDays(now())
+            : 0;
+
+        return $data['visit_count'] >= $requiredVisits && $daysSinceFirst >= $requiredDays;
     }
 }
