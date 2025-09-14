@@ -54,6 +54,9 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
     isMissableOnlyFilterEnabledAtom,
   );
 
+  const canShowUnlockStatusSortOrders =
+    unlockedAchievementsCount > 0 && unlockedAchievementsCount < backingGame.achievementsPublished!;
+
   useEffect(() => {
     if (currentListView === 'leaderboards' && numLeaderboards === 0) {
       setCurrentListView('achievements');
@@ -85,8 +88,11 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
           availableSortOrders={
             currentListView === 'achievements'
               ? [
-                  'normal',
-                  '-normal',
+                  // Only show the "Unlocked first/last" options when the user has unlocked some (but not all) achievements.
+                  ...(canShowUnlockStatusSortOrders ? ['normal' as const, '-normal' as const] : []),
+
+                  'displayOrder',
+                  '-displayOrder',
                   'wonBy',
                   '-wonBy',
                   'points',

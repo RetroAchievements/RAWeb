@@ -6,6 +6,7 @@ namespace App\Platform\Data;
 
 use App\Community\Data\CommentData;
 use App\Data\UserPermissionsData;
+use App\Platform\Enums\GamePageListSort;
 use App\Platform\Enums\GamePageListView;
 use Illuminate\Support\Collection;
 use Spatie\LaravelData\Attributes\AutoInertiaDeferred;
@@ -37,6 +38,7 @@ class GameShowPagePropsData extends Data
         public bool $hasMatureContent,
         /** @var GameSetData[] */
         public array $hubs,
+        public GamePageListSort $initialSort,
         public GamePageListView $initialView,
         public bool $isLockedOnlyFilterEnabled,
         public bool $isMissableOnlyFilterEnabled,
