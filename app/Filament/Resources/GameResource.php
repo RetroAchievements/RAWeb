@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 
 class GameResource extends Resource
 {
@@ -195,6 +196,15 @@ class GameResource extends Resource
                             ->columns(2)
                             ->columnSpan(['md' => 2, 'xl' => 1, '2xl' => 1]),
                     ]),
+
+                Infolists\Components\Section::make('Rich Presence')
+                    ->icon('heroicon-s-chat-bubble-left-right')
+                    ->description('Rich Presence scripts display dynamic game information to players.')
+                    ->schema([
+                        Infolists\Components\ViewEntry::make('RichPresencePatch')
+                            ->label('Rich Presence Script')
+                            ->view('filament.components.rich-presence-script'),
+                    ]),
             ]);
     }
 
@@ -304,6 +314,19 @@ class GameResource extends Resource
                             ->previewable(true),
                     ])
                     ->columns(2),
+
+                Forms\Components\Section::make('Rich Presence')
+                    ->icon('heroicon-s-chat-bubble-left-right')
+                    ->schema([
+                        Forms\Components\Textarea::make('RichPresencePatch')
+                            ->label('Rich Presence Script')
+                            ->maxLength(60000)
+                            ->rows(10)
+                            ->helperText(new HtmlString('<a href="https://docs.retroachievements.org/developer-docs/rich-presence.html" target="_blank" class="underline">Learn more about Rich Presence</a>'))
+                            ->placeholder("Format:Number\nFormatType=VALUE")
+                            ->extraInputAttributes(['class' => 'font-mono'])
+                            ->disabled(!$user->can('updateField', [$form->model, 'RichPresencePatch'])),
+                    ]),
             ]);
     }
 
