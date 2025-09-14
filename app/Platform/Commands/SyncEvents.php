@@ -17,7 +17,6 @@ use App\Models\User;
 use App\Platform\Actions\AttachPlayerGameAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Jobs\UpdateGameAchievementsMetricsJob;
-use App\Platform\Jobs\UpdateGameMetricsJob;
 use App\Platform\Jobs\UpdateGamePlayerCountJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use Carbon\Carbon;
