@@ -73,35 +73,47 @@ class EmulatorResource extends Resource
                                 ->schema([
                                     Infolists\Components\TextEntry::make('name')
                                         ->label('Name')
-                                        ->helperText('Name of emulator'),
+                                        ->helperText('The name that will appear on the website.'),
 
                                     Infolists\Components\TextEntry::make('original_name')
                                         ->label('Original name')
-                                        ->helperText('Original name of emulator.'),
+                                        ->placeholder('none')
+                                        ->helperText("The name of the emulator that was forked to create this emulator. eg: 'Snes9x' is the original name for 'RASnes9x'."),
 
                                     Infolists\Components\TextEntry::make('description')
                                         ->label('Description')
-                                        ->helperText('Additional text to display on the download page.'),
+                                        ->placeholder('none')
+                                        ->helperText("Private notes about the emulator."),
 
                                     Infolists\Components\TextEntry::make('documentation_url')
-                                        ->label('Documentation link')
-                                        ->helperText('Link to emulator documentation.'),
+                                        ->label('Documentation URL')
+                                        ->url(fn ($record) => $record->documentation_url)
+                                        ->placeholder('none')
+                                        ->helperText('A link to the documentation for the emulator.'),
 
                                     Infolists\Components\TextEntry::make('website_url')
-                                        ->label('Website link')
-                                        ->helperText('Link to emulator homepage.'),
+                                        ->label('Website URL')
+                                        ->url(fn ($record) => $record->website_url)
+                                        ->placeholder('none')
+                                        ->helperText('A link to the website for the emulator.'),
 
                                     Infolists\Components\TextEntry::make('source_url')
-                                        ->label('Source code link')
-                                        ->helperText('Link to emulator source code.'),
+                                        ->label('Source code URL')
+                                        ->url(fn ($record) => $record->source_url)
+                                        ->placeholder('none')
+                                        ->helperText('A link to the source code for the emulator.'),
 
                                     Infolists\Components\TextEntry::make('download_url')
-                                        ->label('Download link')
-                                        ->helperText('Link to download the emulator.'),
+                                        ->label('Download URL')
+                                        ->url(fn ($record) => $record->download_url)
+                                        ->placeholder('none')
+                                        ->helperText('A link to download the emulator or to the downloads page for the emulator.'),
 
                                     Infolists\Components\TextEntry::make('download_x64_url')
-                                        ->label('x64 Download link')
-                                        ->helperText('Link to download the Windows x64 version of the emulator.'),
+                                        ->label('x64 Download URL')
+                                        ->url(fn ($record) => $record->download_x64_url)
+                                        ->placeholder('none')
+                                        ->helperText('A link to download the Windows x64 version of the emulator.'),
                                 ]),
                         ]),
 
@@ -120,9 +132,15 @@ class EmulatorResource extends Resource
                             ->hidden(fn ($state) => !$state),
 
                         Infolists\Components\IconEntry::make('active')
+                            ->label('Show on Downloads page')
                             ->boolean(),
 
                         Infolists\Components\IconEntry::make('can_debug_triggers')
+                            ->label('Is toolkit available')
+                            ->hintIcon(
+                                'heroicon-m-question-mark-circle',
+                                tooltip: 'If not enabled, warnings appear on the Downloads page and ticket creation page'
+                            )
                             ->boolean(),
                     ])->grow(false),
                 ])->from('md'),
@@ -142,52 +160,64 @@ class EmulatorResource extends Resource
                                 ->label('Name')
                                 ->required()
                                 ->maxLength(255)
-                                ->helperText('Name of emulator'),
+                                ->placeholder('RASnes9x')
+                                ->helperText('The name that will appear on the website.'),
 
                             Forms\Components\TextInput::make('original_name')
                                 ->label('Original name')
-                                ->required()
                                 ->maxLength(255)
-                                ->helperText('Original name of emulator.'),
+                                ->placeholder('Snes9x')
+                                ->helperText("If this emulator is forked from another emulator, put the original emulator's name here. eg: 'Snes9x' is the original name for 'RASnes9x'."),
 
                             Forms\Components\Textarea::make('description')
                                 ->label('Description')
                                 ->rules([new DisallowHtml()])
                                 ->rows(5)
-                                ->helperText('Additional text to display on the download page.'),
+                                ->helperText("This text used to be displayed on the Downloads page, but isn't anymore. You can add notes about the emulator here."),
 
                             Forms\Components\TextInput::make('documentation_url')
-                                ->label('Documentation link')
+                                ->label('Documentation URL')
                                 ->url()
-                                ->helperText('Link to emulator documentation.'),
+                                ->placeholder('https://pcsx2.net/docs/')
+                                ->helperText('A link to the documentation for the emulator.'),
 
                             Forms\Components\TextInput::make('website_url')
-                                ->label('Website link')
+                                ->label('Website URL')
                                 ->url()
-                                ->helperText('Link to emulator homepage.'),
+                                ->placeholder('https://pcsx2.net/')
+                                ->helperText('A link to the website for the emulator.'),
 
                             Forms\Components\TextInput::make('source_url')
-                                ->label('Source code link')
+                                ->label('Source code URL')
                                 ->url()
-                                ->helperText('Link to emulator source code.'),
+                                ->placeholder('https://github.com/RetroAchievements/RALibretro')
+                                ->helperText('A link to the source code for the emulator.'),
 
                             Forms\Components\TextInput::make('download_url')
-                                ->label('Download link')
+                                ->label('Download URL')
                                 ->url()
-                                ->helperText('Link to download the emulator.'),
+                                ->required()
+                                ->placeholder('https://pcsx2.net/downloads')
+                                ->helperText('A link to download the emulator or to the downloads page for the emulator.'),
 
                             Forms\Components\TextInput::make('download_x64_url')
-                                ->label('x64 Download link')
+                                ->label('x64 Download URL')
                                 ->url()
-                                ->helperText('Link to download the Windows x64 version of the emulator.'),
+                                ->helperText('A link to download the Windows x64 version of the emulator.'),
                         ]),
 
                     Forms\Components\Section::make()
                         ->grow(false)
                         ->schema([
-                            Forms\Components\Toggle::make('active'),
+                            Forms\Components\Toggle::make('active')
+                                ->label('Show on Downloads page'),
 
-                            Forms\Components\Toggle::make('can_debug_triggers'),
+                            Forms\Components\Toggle::make('can_debug_triggers')
+                                ->label('Is toolkit available')
+                                ->hintIcon(
+                                    'heroicon-m-question-mark-circle',
+                                    tooltip: 'If not enabled, warnings appear on the Downloads page and ticket creation page'
+                                ),
                         ]),
                 ])->from('md'),
             ]);
