@@ -615,22 +615,12 @@ class BuildGameShowPagePropsAction
                 $userEntry = $userEntriesByLeaderboardId->get($leaderboard->id);
                 $rank = $leaderboard->getRank($userEntry->score);
 
-                // If the user has an entry and isn't rank #1, calculate how close they are to rank #1.
-                $percentageOfTopScore = null;
-                if ($rank > 1 && $leaderboard->topEntry) {
-                    $percentageOfTopScore = $this->calculatePercentageOfLeaderboardTopScore(
-                        $userEntry->score,
-                        $leaderboard->topEntry->score,
-                        $leaderboard->rank_asc
-                    );
-                }
 
                 $userEntryData = LeaderboardEntryData::fromLeaderboardEntry(
                     $userEntry,
                     $leaderboard->format,
                     $rank,
-                    $percentageOfTopScore
-                )->include('formattedScore', 'rank', 'percentageOfTopScore');
+                )->include('formattedScore', 'rank');
             }
 
             return LeaderboardData::fromLeaderboard($leaderboard, $userEntryData)->include(

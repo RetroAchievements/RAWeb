@@ -1186,7 +1186,6 @@
     "Overall Set Progress": "Overall Set Progress",
     "Reset all progress": "Reset all progress",
     "This will remove all your unlocked achievements for the game. This cannot be reversed.": "This will remove all your unlocked achievements for the game. This cannot be reversed.",
-    "Your Position": "Your Position",
     "#{{rank, number}}": "#{{rank, number}}",
     "{{percentage}} of #1": "{{percentage}} of #1"
 }

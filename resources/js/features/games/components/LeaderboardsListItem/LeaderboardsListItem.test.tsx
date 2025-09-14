@@ -127,25 +127,4 @@ describe('Component: LeaderboardsListItem', () => {
     });
     expect(screen.getByText(/200/i)).toBeVisible();
   });
-
-  it('given the user entry has a percentageOfTopScore value, displays it', async () => {
-    // ARRANGE
-    const leaderboard = createLeaderboard({
-      rankAsc: false,
-      userEntry: createLeaderboardEntry({
-        rank: 2,
-        score: 200,
-        formattedScore: '200',
-        percentageOfTopScore: 50,
-      }),
-      topEntry: createLeaderboardEntry({ score: 400 }),
-    });
-
-    render(<LeaderboardsListItem index={10} isLargeList={true} leaderboard={leaderboard} />);
-
-    // ASSERT
-    await waitFor(() => {
-      expect(screen.getByText('50% of #1')).toBeVisible();
-    });
-  });
 });

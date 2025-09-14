@@ -22,7 +22,6 @@ class LeaderboardEntryData extends Data
         public Lazy|Carbon $createdAt,
         public Lazy|UserData|null $user,
         public Lazy|int|null $rank = null,
-        public Lazy|float|null $percentageOfTopScore = null,
     ) {
     }
 
@@ -30,7 +29,6 @@ class LeaderboardEntryData extends Data
         LeaderboardEntry $leaderboardEntry,
         ?string $format = null,
         ?int $rank = null,
-        ?float $percentageOfTopScore = null
     ): self {
         return new self(
             id: $leaderboardEntry->id,
@@ -39,7 +37,6 @@ class LeaderboardEntryData extends Data
             createdAt: Lazy::create(fn () => $leaderboardEntry->created_at),
             user: Lazy::create(fn () => $leaderboardEntry->user ? UserData::fromUser($leaderboardEntry->user) : null),
             rank: Lazy::create(fn () => $rank),
-            percentageOfTopScore: Lazy::create(fn () => $percentageOfTopScore),
         );
     }
 }

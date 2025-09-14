@@ -879,7 +879,6 @@ declare namespace App.Platform.Data {
     createdAt?: string;
     user?: App.Data.User | null;
     rank?: number | null;
-    percentageOfTopScore?: number | null;
   };
   export type ParsedUserAgent = {
     client: string;
