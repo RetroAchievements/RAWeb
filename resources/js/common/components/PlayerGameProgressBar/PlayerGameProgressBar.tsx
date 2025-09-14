@@ -115,7 +115,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
   const isTooltipDisabled = achievementsUnlocked === 0 || !isTooltipEnabled;
 
   return (
-    <BaseTooltip>
+    <BaseTooltip open={!achievementsUnlocked ? false : undefined}>
       <BaseTooltipTrigger
         className={cn(
           'group',
