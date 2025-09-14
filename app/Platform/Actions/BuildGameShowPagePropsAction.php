@@ -615,7 +615,6 @@ class BuildGameShowPagePropsAction
                 $userEntry = $userEntriesByLeaderboardId->get($leaderboard->id);
                 $rank = $leaderboard->getRank($userEntry->score);
 
-
                 $userEntryData = LeaderboardEntryData::fromLeaderboardEntry(
                     $userEntry,
                     $leaderboard->format,
@@ -644,32 +643,5 @@ class BuildGameShowPagePropsAction
         }
 
         return $game->leaderboards->count();
-    }
-
-    private function calculatePercentageOfLeaderboardTopScore(int $userScore, int $topScore, bool $rankAsc): ?float
-    {
-        if ($userScore === 0 && $topScore === 0) {
-            return 100.0;
-        }
-
-        if ($rankAsc) {
-            // Lower is better (eg: speedrun leaderboards).
-
-            if ($userScore === 0) {
-                return null;
-            }
-
-            $percentage = ($topScore / $userScore) * 100;
-        } else {
-            // Higher is better (eg: high score leaderboards).
-
-            if ($topScore === 0) {
-                return null;
-            }
-
-            $percentage = ($userScore / $topScore) * 100;
-        }
-
-        return round(min($percentage, 100.0), 1);
     }
 }
