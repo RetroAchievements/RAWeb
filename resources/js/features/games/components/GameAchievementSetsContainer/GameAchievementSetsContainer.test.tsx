@@ -54,7 +54,7 @@ describe('Component: GameAchievementSetsContainer', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('button', { name: /unlocked first/i })).toBeVisible();
+    expect(screen.getByRole('button', { name: /display order/i })).toBeVisible();
   });
 
   it('given the game has achievement sets and there is no target achievement set ID, renders each set component', () => {
@@ -103,7 +103,7 @@ describe('Component: GameAchievementSetsContainer', () => {
     });
 
     // ACT
-    const sortButton = screen.getByRole('button', { name: /unlocked first/i });
+    const sortButton = screen.getByRole('button', { name: /display order/i });
     await userEvent.click(sortButton);
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: 'Display order (last)' }));
 

@@ -477,7 +477,7 @@ describe('Component: GameAchievementSetToolbar', () => {
 
   it('given the user has unlocked some (but not all) achievements, shows the Unlocked first/Locked first sort options', async () => {
     // ARRANGE
-    const mockGame = createGame({ id: 123 });
+    const mockGame = createGame({ id: 123, achievementsPublished: 5 });
     const mockToggleGameId = vi.fn();
 
     vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
@@ -497,7 +497,7 @@ describe('Component: GameAchievementSetToolbar', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /unlocked first/i }));
+    await userEvent.click(screen.getByRole('button', { name: /display order/i }));
 
     // ASSERT
     expect(screen.getByRole('menuitemcheckbox', { name: 'Unlocked first' })).toBeInTheDocument();
@@ -526,7 +526,7 @@ describe('Component: GameAchievementSetToolbar', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /unlocked first/i }));
+    await userEvent.click(screen.getByRole('button', { name: /display order/i }));
 
     // ASSERT
     expect(
@@ -539,7 +539,7 @@ describe('Component: GameAchievementSetToolbar', () => {
 
   it('given the user has unlocked all achievements, does not show the Unlocked first/Locked first sort options', async () => {
     // ARRANGE
-    const mockGame = createGame({ id: 123 });
+    const mockGame = createGame({ id: 123, achievementsPublished: 10 });
     const mockToggleGameId = vi.fn();
 
     vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
@@ -559,7 +559,7 @@ describe('Component: GameAchievementSetToolbar', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /unlocked first/i }));
+    await userEvent.click(screen.getByRole('button', { name: /display order/i }));
 
     // ASSERT
     expect(
