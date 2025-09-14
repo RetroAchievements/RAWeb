@@ -25,13 +25,11 @@ export const SimilarGamesListItem: FC<SimilarGamesListItemProps> = ({ game }) =>
     dynamicContext: auth?.user.displayName,
   });
 
-  const LinkComponent = auth?.user.enableBetaFeatures ? InertiaLink : 'a';
-
   return (
     <div className="flex w-full items-center justify-between gap-2">
       <div className="relative flex items-center gap-x-2">
         {/* Keep the image and game title in a single tooltipped container. Do not tooltip the system name. */}
-        <LinkComponent href={route('game.show', { game: game.id })} {...cardTooltipProps}>
+        <InertiaLink href={route('game2.show', { game: game.id })} {...cardTooltipProps}>
           <img
             src={game.badgeUrl}
             alt={game.title}
@@ -45,7 +43,7 @@ export const SimilarGamesListItem: FC<SimilarGamesListItemProps> = ({ game }) =>
           <p className="absolute left-7 top-0 mb-0.5 line-clamp-1 pl-4 text-xs font-medium">
             <GameTitle title={game.title} />
           </p>
-        </LinkComponent>
+        </InertiaLink>
 
         <div>
           {/* Provide invisible space to slide the system underneath. */}
