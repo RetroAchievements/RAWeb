@@ -456,32 +456,16 @@ class ForwardMessageToDiscordAction
             return;
         }
 
-        // Post the reply to the existing Discord thread.
-        $threadWebhookUrl = $webhookUrl . '?thread_id=' . $discordThreadId;
-
-        if (mb_strlen($fullBody) > self::DISCORD_EMBED_DESCRIPTION_LIMIT) {
-            // Handle long messages by chunking them.
-            $this->sendChunkedMessages(
-                $threadWebhookUrl,
-                $userFrom,
-                $userFrom, // Pass the team account (sender) as both from and to so the webhook shows "[Team] Inbox"
-                $messageThread,
-                $fullBody,
-                self::COLOR_DEFAULT,
-                false // not a new thread, this is a reply
-            );
-        } else {
-            $payload = $this->buildDiscordPayload(
-                $userFrom,
-                $userFrom, // Pass the team account (sender) as both from and to so the webhook shows "[Team] Inbox"
-                $messageThread,
-                $fullBody,
-                self::COLOR_DEFAULT,
-                true
-            );
-
-            $this->client->post($threadWebhookUrl, ['json' => $payload]);
-        }
+        $this->sendMessagesToDiscordThread(
+            $webhookUrl,
+            $discordThreadId,
+            $userFrom,
+            $userFrom, // Pass the team account (sender) as both from and to so the webhook shows "[Team] Inbox"
+            $messageThread,
+            $fullBody,
+            self::COLOR_DEFAULT,
+            false
+        );
     }
 
     /**
