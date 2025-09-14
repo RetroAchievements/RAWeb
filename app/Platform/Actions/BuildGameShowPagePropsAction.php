@@ -222,6 +222,7 @@ class BuildGameShowPagePropsAction
                 'forumTopicId',
                 'gameAchievementSets.achievementSet.achievements.description',
                 'gameAchievementSets.achievementSet.achievements.developer',
+                'gameAchievementSets.achievementSet.achievements.orderColumn',
                 'gameAchievementSets.achievementSet.achievements.points',
                 'gameAchievementSets.achievementSet.achievements.pointsWeighted',
                 'gameAchievementSets.achievementSet.achievements.type',
