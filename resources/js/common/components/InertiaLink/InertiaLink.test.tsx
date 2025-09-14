@@ -159,7 +159,7 @@ describe('Component: InertiaLink', () => {
     });
   });
 
-  it('given href is null or undefined, converts it to an empty string', () => {
+  it('given href is null or undefined, converts it to an empty path', () => {
     // ARRANGE
     render(<InertiaLink href={null as any}>Link Text</InertiaLink>, {
       pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
@@ -167,6 +167,6 @@ describe('Component: InertiaLink', () => {
 
     // ASSERT
     const linkEl = screen.getByText('Link Text');
-    expect(linkEl).toHaveAttribute('href', '');
+    expect(linkEl).toHaveAttribute('href', '/');
   });
 });
