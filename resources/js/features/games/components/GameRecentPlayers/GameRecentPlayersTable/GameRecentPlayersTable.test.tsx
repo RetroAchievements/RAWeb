@@ -8,6 +8,7 @@ describe('Component: GameRecentPlayersTable', () => {
     // ARRANGE
     const { container } = render(<GameRecentPlayersTable />, {
       pageProps: {
+        backingGame: createGame(),
         game: createGame(),
         recentPlayers: [],
       },
@@ -27,6 +28,7 @@ describe('Component: GameRecentPlayersTable', () => {
 
     render(<GameRecentPlayersTable />, {
       pageProps: {
+        backingGame: createGame(),
         game: createGame(),
         recentPlayers,
       },
@@ -46,6 +48,7 @@ describe('Component: GameRecentPlayersTable', () => {
 
     render(<GameRecentPlayersTable />, {
       pageProps: {
+        backingGame: createGame(),
         game: createGame(),
         recentPlayers: [activePlayer],
       },
@@ -66,6 +69,7 @@ describe('Component: GameRecentPlayersTable', () => {
 
     render(<GameRecentPlayersTable />, {
       pageProps: {
+        backingGame: createGame(),
         game: createGame(),
         recentPlayers: [inactivePlayer],
       },
@@ -86,6 +90,7 @@ describe('Component: GameRecentPlayersTable', () => {
 
     render(<GameRecentPlayersTable />, {
       pageProps: {
+        backingGame: createGame(),
         game: createGame({ title: 'Super Mario World' }),
         recentPlayers: [player],
       },
@@ -102,6 +107,7 @@ describe('Component: GameRecentPlayersTable', () => {
     // ARRANGE
     render(<GameRecentPlayersTable />, {
       pageProps: {
+        backingGame: createGame(),
         game: createGame(),
         recentPlayers: [createGameRecentPlayer()],
       },
