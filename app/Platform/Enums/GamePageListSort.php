@@ -10,7 +10,6 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 enum GamePageListSort: string
 {
     case Normal = 'normal';
-    case NormalReverse = '-normal';
     case DisplayOrder = 'displayOrder';
     case DisplayOrderReverse = '-displayOrder';
     case WonBy = 'wonBy';

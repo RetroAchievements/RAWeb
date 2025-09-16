@@ -9,7 +9,6 @@ import {
   LuArrowDownZA,
   LuArrowUp,
   LuClock,
-  LuLock,
   LuLockOpen,
   LuTag,
   LuUsers,
@@ -53,7 +52,6 @@ export const PlayableListSortButton: FC<PlayableListSortButtonProps> = ({
   > = {
     active: { label: t('Status'), icon: LuClock },
 
-    '-normal': { label: t('Locked first'), icon: LuLock },
     normal: { label: t('Unlocked first'), icon: LuLockOpen },
 
     '-displayOrder': { label: t('Display order (last)'), icon: LuArrowDown10 },

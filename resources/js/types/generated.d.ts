@@ -1086,7 +1086,6 @@ declare namespace App.Platform.Enums {
     | 'title';
   export type GamePageListSort =
     | 'normal'
-    | '-normal'
     | 'displayOrder'
     | '-displayOrder'
     | 'wonBy'
