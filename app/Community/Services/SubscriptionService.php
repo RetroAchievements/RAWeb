@@ -322,6 +322,7 @@ class AchievementWallSubscriptionHandler extends CommentSubscriptionHandler
                 $query2 = Subscription::query()
                     ->where('subject_type', SubscriptionSubjectType::GameAchievements)
                     ->where('subject_id', $achievement->GameID)
+                    ->where('state', true)
                     ->select(['user_id', 'subject_id']);
 
                 if ($forUserId !== null) {
@@ -404,6 +405,7 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
                 $query2 = Subscription::query()
                     ->where('subject_type', SubscriptionSubjectType::GameTickets)
                     ->where('subject_id', $ticket->achievement->GameID)
+                    ->where('state', true)
                     ->select(['user_id', 'subject_id']);
 
                 if ($forUserId !== null) {
