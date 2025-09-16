@@ -12,11 +12,11 @@ use Illuminate\Support\Facades\Cache;
 class EventHubIdCacheService
 {
     /**
-     * @return Collection<int, int>
+     * @return array<int, int>
      */
-    public static function getEventHubIds(): Collection
+    public static function getEventHubIds(): array
     {
-        return Cache::flexible('event_hub_ids', [
+        return Cache::flexible('event_hub_ids:v2', [
             86_400,  // Fresh for 24 hours.
             604_800, // We can serve it stale indefinitely, it doesn't really matter.
         ], function () {
@@ -30,7 +30,7 @@ class EventHubIdCacheService
             $titleEventHubIds = GameSet::where('title', 'like', '%Events -%')
                 ->pluck('id');
 
-            return $childEventHubIds->merge($titleEventHubIds)->unique();
+            return $childEventHubIds->merge($titleEventHubIds)->unique()->values()->all();
         });
     }
 

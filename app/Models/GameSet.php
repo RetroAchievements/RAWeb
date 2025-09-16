@@ -309,7 +309,7 @@ class GameSet extends BaseModel
 
     public function getIsEventHubAttribute(): bool
     {
-        return EventHubIdCacheService::getEventHubIds()->contains($this->id);
+        return in_array($this->id, EventHubIdCacheService::getEventHubIds());
     }
 
     public function getPermalinkAttribute(): string
