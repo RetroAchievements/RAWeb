@@ -64,9 +64,7 @@ class LoadGameWithRelationsAction
                 $query->where('Flags', $flag->value);
             },
 
-            'achievementSet.achievements.authorshipCredits.user',
             'achievementSet.achievements.developer',
-            'achievementSet.achievements.activeMaintainer.user',
             'achievementSet.achievementSetAuthors.user',
         ]);
 
