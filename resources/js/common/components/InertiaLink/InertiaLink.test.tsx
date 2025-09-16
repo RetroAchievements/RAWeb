@@ -134,6 +134,42 @@ describe('Component: InertiaLink', () => {
     expect(prefetchSpy).toHaveBeenCalled();
   });
 
+  it('given navigation options are provided, includes them in the prefetch call', async () => {
+    // ARRANGE
+    const prefetchSpy = vi.spyOn(router, 'prefetch');
+
+    const navigationOptions = {
+      data: { foo: 'bar' },
+      preserveScroll: true,
+      preserveState: true,
+      only: ['users'],
+      except: ['posts'],
+      headers: { 'X-Custom': 'header' },
+      replace: true,
+    };
+
+    render(
+      <InertiaLink href="/test" prefetch="desktop-hover-only" {...navigationOptions}>
+        Link Text
+      </InertiaLink>,
+      {
+        pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
+      },
+    );
+
+    // ACT
+    await userEvent.hover(screen.getByRole('link', { name: /link text/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(prefetchSpy).toHaveBeenCalledWith(
+        '/test',
+        { method: 'get', ...navigationOptions },
+        { cacheFor: '30s' },
+      );
+    });
+  });
+
   it('given the user stops hovering over a link before the prefetch delay, cancels the prefetch', async () => {
     // ARRANGE
     const prefetchSpy = vi.spyOn(router, 'prefetch');
@@ -159,7 +195,7 @@ describe('Component: InertiaLink', () => {
     });
   });
 
-  it('given href is null or undefined, converts it to an empty string', () => {
+  it('given href is null or undefined, converts it to an empty path', () => {
     // ARRANGE
     render(<InertiaLink href={null as any}>Link Text</InertiaLink>, {
       pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
@@ -167,6 +203,6 @@ describe('Component: InertiaLink', () => {
 
     // ASSERT
     const linkEl = screen.getByText('Link Text');
-    expect(linkEl).toHaveAttribute('href', '');
+    expect(linkEl).toHaveAttribute('href', '/');
   });
 });

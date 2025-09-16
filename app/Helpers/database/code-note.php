@@ -45,7 +45,8 @@ function getCodeNoteCounts(User $user): array
               LEFT JOIN GameData AS gd ON gd.ID = mn.game_id
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE LENGTH(body) > 0
-              AND gd.ID IN (SELECT game_id from memory_notes WHERE user_id = $userId GROUP BY game_id)
+              AND mn.deleted_at IS NULL
+              AND gd.ID IN (SELECT DISTINCT game_id from memory_notes WHERE user_id = $userId AND deleted_at IS NULL)
               AND gd.Title IS NOT NULL
               GROUP BY GameID, GameTitle
               HAVING NoteCount > 0
