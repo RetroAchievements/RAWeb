@@ -200,8 +200,10 @@ class SubscriptionServiceTest extends TestCase
         $this->assertEquals(0, count($subscriptions));
     }
 
-    public function testAchievementSubcriptionIncludesGameAchievementsSubscribers(): void
+    public function testAchievementWallSubcribers(): void
     {
+        $this->seed(RolesTableSeeder::class);
+
         /** @var User $user1 */
         $user1 = User::factory()->create();
         /** @var User $user2 */
@@ -214,9 +216,16 @@ class SubscriptionServiceTest extends TestCase
         $user5 = User::factory()->create();
         /** @var User $user6 */
         $user6 = User::factory()->create();
+        /** @var User $user7 */
+        $user7 = User::factory()->create();
+        $user7->assignRole(Role::DEVELOPER);
+        /** @var User $user8 */
+        $user8 = User::factory()->create();
 
         /** @var Achievement $achievement */
         $achievement = $this->seedAchievement();
+        $achievement->user_id = $user7->id;
+        $achievement->save();
 
         // user1 implicitly subscribed to achievement via comment
         Comment::create([
@@ -254,6 +263,11 @@ class SubscriptionServiceTest extends TestCase
         $this->updateSubscription($user6, SubscriptionSubjectType::GameAchievements, $achievement->game->ID, true);
         $this->updateSubscription($user6, SubscriptionSubjectType::Achievement, $achievement->ID, false);
 
+        // user7 implicitly subscribed to achievement as author
+
+        // user8 has explicit unsubscription to GameAchievements
+        $this->updateSubscription($user8, SubscriptionSubjectType::GameAchievements, $achievement->game->ID, false);
+
         $service = new SubscriptionService();
 
         $this->assertTrue($service->isSubscribed($user1, SubscriptionSubjectType::Achievement, $achievement->ID));
@@ -262,13 +276,15 @@ class SubscriptionServiceTest extends TestCase
         $this->assertTrue($service->isSubscribed($user4, SubscriptionSubjectType::Achievement, $achievement->ID));
         $this->assertTrue($service->isSubscribed($user5, SubscriptionSubjectType::Achievement, $achievement->ID));
         $this->assertFalse($service->isSubscribed($user6, SubscriptionSubjectType::Achievement, $achievement->ID));
+        $this->assertTrue($service->isSubscribed($user7, SubscriptionSubjectType::Achievement, $achievement->ID));
+        $this->assertFalse($service->isSubscribed($user8, SubscriptionSubjectType::Achievement, $achievement->ID));
 
         $subscribers = $service->getSubscribers(SubscriptionSubjectType::Achievement, $achievement->ID);
         $subscribedUserIds = $subscribers->pluck('id')->toArray();
-        $this->assertEqualsCanonicalizing([1, 2, 4, 5], $subscribedUserIds);
+        $this->assertEqualsCanonicalizing([1, 2, 4, 5, 7], $subscribedUserIds);
     }
 
-    public function testTicketSubcriptionIncludesGameTicketsSubscribers(): void
+    public function testTicketSubscribers(): void
     {
         $this->seed(RolesTableSeeder::class);
 
@@ -289,6 +305,8 @@ class SubscriptionServiceTest extends TestCase
         /** @var User $user8 */
         $user8 = User::factory()->create();
         $user8->assignRole(Role::DEVELOPER);
+        /** @var User $user9 */
+        $user9 = User::factory()->create();
 
         /** @var Achievement $achievement */
         $achievement = $this->seedAchievement();
@@ -337,6 +355,9 @@ class SubscriptionServiceTest extends TestCase
 
         // user8 implicitly subscribed to ticket via being the achievement author
 
+        // user9 has explicit unsubscription to GameTickets
+        $this->updateSubscription($user9, SubscriptionSubjectType::GameTickets, $achievement->game->ID, false);
+
         $service = new SubscriptionService();
 
         $this->assertTrue($service->isSubscribed($user1, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
@@ -347,13 +368,14 @@ class SubscriptionServiceTest extends TestCase
         $this->assertFalse($service->isSubscribed($user6, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
         $this->assertTrue($service->isSubscribed($user7, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
         $this->assertTrue($service->isSubscribed($user8, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
+        $this->assertFalse($service->isSubscribed($user9, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
 
         $subscribers = $service->getSubscribers(SubscriptionSubjectType::AchievementTicket, $ticket->ID);
         $subscribedUserIds = $subscribers->pluck('id')->toArray();
         $this->assertEqualsCanonicalizing([1, 2, 4, 5, 7, 8], $subscribedUserIds);
     }
 
-    public function testImplicitlySubscribedForumTopic(): void
+    public function testForumTopicSubscribers(): void
     {
         /** @var User $user */
         $user = User::factory()->create();
@@ -369,6 +391,52 @@ class SubscriptionServiceTest extends TestCase
         $subscribers = $service->getSubscribers(SubscriptionSubjectType::ForumTopic, $topic->id);
         $this->assertEquals(1, $subscribers->count());
         $this->assertEquals($user->id, $subscribers->first()->id);
+    }
+
+    public function testUserWallSubscribers(): void
+    {
+        /** @var User $user1 */
+        $user1 = User::factory()->create();
+        /** @var User $user2 */
+        $user2 = User::factory()->create();
+        /** @var User $user3 */
+        $user3 = User::factory()->create();
+        /** @var User $user4 */
+        $user4 = User::factory()->create();
+        /** @var User $user5 */
+        $user5 = User::factory()->create();
+
+        // user2 implicitly subscribed to wall via comment
+        Comment::create([
+            'ArticleType' => ArticleType::User,
+            'ArticleID' => $user1->ID,
+            'user_id' => $user2->id,
+            'Payload' => 'Test',
+        ]);
+
+        // user4 explicitly subscribed to wall
+        $this->updateSubscription($user4, SubscriptionSubjectType::UserWall, $user1->ID, true);
+
+        // user5 implicitly subscribed to achievement via comment, but explicitly unsubscribed
+        Comment::create([
+            'ArticleType' => ArticleType::User,
+            'ArticleID' => $user1->ID,
+            'user_id' => $user5->id,
+            'Payload' => 'Test',
+        ]);
+        $this->updateSubscription($user5, SubscriptionSubjectType::UserWall, $user1->ID, false);
+
+        $service = new SubscriptionService();
+
+        $this->assertTrue($service->isSubscribed($user1, SubscriptionSubjectType::UserWall, $user1->ID));
+        $this->assertTrue($service->isSubscribed($user2, SubscriptionSubjectType::UserWall, $user1->ID));
+        $this->assertFalse($service->isSubscribed($user3, SubscriptionSubjectType::UserWall, $user1->ID));
+        $this->assertTrue($service->isSubscribed($user4, SubscriptionSubjectType::UserWall, $user1->ID));
+        $this->assertFalse($service->isSubscribed($user5, SubscriptionSubjectType::UserWall, $user1->ID));
+
+        $subscribers = $service->getSubscribers(SubscriptionSubjectType::UserWall, $user1->ID);
+        $subscribedUserIds = $subscribers->pluck('id')->toArray();
+        $this->assertEqualsCanonicalizing([1, 2, 4], $subscribedUserIds);
     }
 
     public function testGetSubscriptions(): void

@@ -22,7 +22,7 @@ export const EndDateChip: FC<EndDateChipProps> = ({ event }) => {
   }
 
   const now = dayjs.utc();
-  const hasEnded = dayjs.utc(event.activeThrough).isBefore(now);
+  const hasEnded = dayjs.utc(event.activeThrough).endOf('day').isBefore(now);
 
   const eventEndDate = formatDate(event.activeThrough, 'll');
 

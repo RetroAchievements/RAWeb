@@ -1,6 +1,5 @@
 import { useAtomValue } from 'jotai';
 import { type FC } from 'react';
-import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
 import { BaseTooltip, BaseTooltipTrigger } from '@/common/components/+vendor/BaseTooltip';
@@ -8,6 +7,7 @@ import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { currentListViewAtom } from '@/features/games/state/games.atoms';
+import { BASE_SET_LABEL } from '@/features/games/utils/baseSetLabel';
 
 import { GameAchievementSetTooltipContent } from '../../GameAchievementSetTooltipContent';
 import { useTabIndicator } from './useTabIndicator';
@@ -19,7 +19,6 @@ interface SetSelectionTabsProps {
 export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
   const { game, selectableGameAchievementSets } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
-  const { t } = useTranslation();
 
   const currentListView = useAtomValue(currentListViewAtom);
 
@@ -76,7 +75,7 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
                 >
                   <img
                     src={gas.achievementSet.imageAssetPathUrl}
-                    alt={gas.title ?? t('Base Set')}
+                    alt={gas.title ?? BASE_SET_LABEL}
                     className="size-8 select-none rounded-sm"
                   />
                 </div>

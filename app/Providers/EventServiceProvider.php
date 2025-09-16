@@ -10,10 +10,12 @@ use App\Models\EventAchievement;
 use App\Models\GameSet;
 use App\Models\GameSetLink;
 use App\Models\LeaderboardEntry;
+use App\Models\User;
 use App\Observers\EventAchievementObserver;
 use App\Observers\GameSetLinkObserver;
 use App\Observers\GameSetObserver;
 use App\Observers\LeaderboardEntryObserver;
+use App\Observers\UserObserver;
 use App\Platform\Events\SiteBadgeAwarded;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Registered;
@@ -72,7 +74,7 @@ class EventServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // User::observe(UserObserver::class);
+        User::observe(UserObserver::class);
 
         EventAchievement::observe(EventAchievementObserver::class);
 

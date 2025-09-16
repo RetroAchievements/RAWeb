@@ -46,20 +46,6 @@ export const SidebarDevelopmentSection: FC = () => {
 
   return (
     <>
-      <SidebarClaimButtons />
-      <SidebarToggleInReviewButton />
-
-      {isDeveloper ? (
-        <PlayableSidebarButton
-          aria-pressed={isOnWantToDevList}
-          IconComponent={isOnWantToDevList ? LuCheck : LuPlus}
-          onClick={() => toggleWantToDevelop()}
-          showSubsetIndicator={game.id !== backingGame.id}
-        >
-          {backingGame.achievementsPublished ? t('Want to Revise') : t('Want to Develop')}
-        </PlayableSidebarButton>
-      ) : null}
-
       {!isViewingPublishedAchievements || backingGame.achievementsUnpublished ? (
         <PlayableSidebarButton
           IconComponent={isViewingPublishedAchievements ? LuFolderLock : LuFolder}
@@ -75,6 +61,20 @@ export const SidebarDevelopmentSection: FC = () => {
           {isViewingPublishedAchievements
             ? t('View Unpublished Achievements')
             : t('View Published Achievements')}
+        </PlayableSidebarButton>
+      ) : null}
+
+      <SidebarClaimButtons />
+      <SidebarToggleInReviewButton />
+
+      {isDeveloper ? (
+        <PlayableSidebarButton
+          aria-pressed={isOnWantToDevList}
+          IconComponent={isOnWantToDevList ? LuCheck : LuPlus}
+          onClick={() => toggleWantToDevelop()}
+          showSubsetIndicator={game.id !== backingGame.id}
+        >
+          {backingGame.achievementsPublished ? t('Want to Revise') : t('Want to Develop')}
         </PlayableSidebarButton>
       ) : null}
     </>

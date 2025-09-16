@@ -1,5 +1,6 @@
 import * as motion from 'motion/react-m';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuChartBar, LuCrown } from 'react-icons/lu';
 
 import { UserAvatar } from '@/common/components/UserAvatar';
@@ -15,6 +16,8 @@ export const LeaderboardsListItem: FC<LeaderboardsListItemProps> = ({
   isLargeList,
   leaderboard,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <motion.li
       className="flex w-full gap-x-3.5 px-2 py-3 odd:bg-[rgba(50,50,50,0.4)] light:odd:bg-neutral-100 md:gap-x-3 md:py-1"
@@ -38,8 +41,8 @@ export const LeaderboardsListItem: FC<LeaderboardsListItemProps> = ({
         </a>
       </div>
 
-      <div className="grid w-full gap-x-5 gap-y-1.5 pb-2.5 leading-4 md:grid-cols-6">
-        <div className="md:col-span-4 md:mt-1">
+      <div className="grid w-full gap-x-5 gap-y-1.5 pb-2.5 leading-4 sm:grid-cols-6">
+        <div className="sm:col-span-4 md:mt-1">
           {/* Title */}
           <div className="mb-0.5 md:mt-0">
             <span className="mr-2">
@@ -53,7 +56,7 @@ export const LeaderboardsListItem: FC<LeaderboardsListItemProps> = ({
           <p className="leading-4">{leaderboard.description}</p>
 
           {/* Top entry */}
-          <div className="mt-3">
+          <div className="mt-2.5">
             {leaderboard.topEntry?.user ? (
               <div className="flex items-center gap-3">
                 <LuCrown className="size-4 text-yellow-400 light:text-amber-600" />
@@ -67,6 +70,21 @@ export const LeaderboardsListItem: FC<LeaderboardsListItemProps> = ({
             ) : null}
           </div>
         </div>
+
+        {/* User entry */}
+        {leaderboard.userEntry ? (
+          <div className="flex flex-col gap-1 sm:col-span-2 sm:mt-1 sm:items-end sm:justify-center">
+            <div className="flex items-center justify-between sm:flex-col sm:items-end sm:justify-normal sm:gap-0.5">
+              <p className="sm:text-lg">
+                <span className="text-neutral-300 light:text-neutral-700">
+                  {t('#{{rank, number}}', { rank: leaderboard.userEntry.rank })}
+                </span>
+                {' · '}
+                {leaderboard.userEntry.formattedScore}
+              </p>
+            </div>
+          </div>
+        ) : null}
       </div>
     </motion.li>
   );

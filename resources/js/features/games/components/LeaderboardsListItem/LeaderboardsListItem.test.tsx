@@ -106,4 +106,25 @@ describe('Component: LeaderboardsListItem', () => {
     // ASSERT
     expect(container).toBeTruthy();
   });
+
+  it('given there is a user entry for the leaderboard, displays it', async () => {
+    // ARRANGE
+    const leaderboard = createLeaderboard({
+      rankAsc: false,
+      userEntry: createLeaderboardEntry({
+        rank: 2,
+        score: 200,
+        formattedScore: '200',
+      }),
+      topEntry: createLeaderboardEntry({ score: 200 }),
+    });
+
+    render(<LeaderboardsListItem index={10} isLargeList={true} leaderboard={leaderboard} />);
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText('#2')).toBeVisible();
+    });
+    expect(screen.getByText(/200/i)).toBeVisible();
+  });
 });

@@ -42,7 +42,7 @@ abstract class BaseApiAction
     {
         return [
             'Success' => false,
-            'Status' => 400,
+            'Status' => 422,
             'Code' => 'missing_parameter',
             'Error' => 'One or more required parameters is missing.',
         ];
@@ -52,7 +52,7 @@ abstract class BaseApiAction
     {
         return [
             'Success' => false,
-            'Status' => 400,
+            'Status' => 422,
             'Code' => 'invalid_parameter',
             'Error' => $message,
         ];

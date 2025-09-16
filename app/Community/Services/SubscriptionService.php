@@ -322,6 +322,7 @@ class AchievementWallSubscriptionHandler extends CommentSubscriptionHandler
                 $query2 = Subscription::query()
                     ->where('subject_type', SubscriptionSubjectType::GameAchievements)
                     ->where('subject_id', $achievement->GameID)
+                    ->where('state', true)
                     ->select(['user_id', 'subject_id']);
 
                 if ($forUserId !== null) {
@@ -331,6 +332,29 @@ class AchievementWallSubscriptionHandler extends CommentSubscriptionHandler
                 }
 
                 $query->union($query2);
+
+                // achievement maintainer should also be implicitly subscribed if they still have a development role
+                $includeMaintainer = false;
+                $maintainer = $achievement->getMaintainerAt(now());
+                if ($maintainer && $maintainer->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])) {
+                    if ($forUserId !== null) {
+                        $includeMaintainer = $maintainer->id === $forUserId;
+                    } else {
+                        $includeMaintainer = !$ignoreUserIds || !in_array($maintainer->id, $ignoreUserIds);
+                    }
+                }
+
+                if ($includeMaintainer) {
+                    /** @var Builder<Model> $query3 */
+                    $query3 = Achievement::query()
+                        ->where('ID', $achievement->ID)
+                        ->select([
+                            DB::raw($maintainer->id . ' as user_id'),
+                            DB::raw('ID as subject_id'),
+                        ]);
+
+                    $query->union($query3);
+                }
             }
         } elseif ($forUserId !== null) {
             // If a user is subscribed to GameAchievements for a game, they're implicitly subscribed to all achievements in the game.
@@ -381,6 +405,7 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
                 $query2 = Subscription::query()
                     ->where('subject_type', SubscriptionSubjectType::GameTickets)
                     ->where('subject_id', $ticket->achievement->GameID)
+                    ->where('state', true)
                     ->select(['user_id', 'subject_id']);
 
                 if ($forUserId !== null) {
@@ -618,6 +643,39 @@ class UserWallSubscriptionHandler extends CommentSubscriptionHandler
                 DB::raw('IFNULL(display_name, User) as title'),
             ])
             ->orderBy('title');
+
+        return $query;
+    }
+
+    /**
+     * @return Builder<Model>
+     */
+    public function getImplicitSubscriptionQuery(?int $subjectId, ?int $forUserId, ?array $ignoreSubjectIds, ?array $ignoreUserIds): Builder
+    {
+        // find any users who have commented on the user wall
+        $query = parent::getImplicitSubscriptionQuery($subjectId, $forUserId, $ignoreSubjectIds, $ignoreUserIds);
+
+        if ($subjectId !== null) {
+            // wall owner is always implicitly subscribed
+            $includeWallOwner = false;
+            if ($forUserId !== null) {
+                $includeWallOwner = $subjectId === $forUserId;
+            } else {
+                $includeWallOwner = !$ignoreUserIds || !in_array($subjectId, $ignoreUserIds);
+            }
+
+            if ($includeWallOwner) {
+                /** @var Builder<Model> $query2 */
+                $query2 = User::query()
+                    ->where('ID', $subjectId)
+                    ->select([
+                        DB::raw('ID as user_id'),
+                        DB::raw('ID as subject_id'),
+                    ]);
+
+                $query->union($query2);
+            }
+        }
 
         return $query;
     }
