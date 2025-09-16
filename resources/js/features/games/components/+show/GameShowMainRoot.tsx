@@ -4,7 +4,6 @@ import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
 import { MatureContentWarningDialog } from '@/common/components/MatureContentWarningDialog';
 import { PlayableHeader } from '@/common/components/PlayableHeader';
 import { PlayableMainMedia } from '@/common/components/PlayableMainMedia';
-import { PlayableMobileMediaCarousel } from '@/common/components/PlayableMobileMediaCarousel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
@@ -12,11 +11,12 @@ import { AchievementSetEmptyState } from '../AchievementSetEmptyState';
 import { GameAchievementSetsContainer } from '../GameAchievementSetsContainer';
 import { GameCommentList } from '../GameCommentList';
 import { GameHeaderSlotContent } from '../GameHeaderSlotContent';
+import { GameMobileHeader } from '../GameMobileHeader';
 import { GameRecentPlayers } from '../GameRecentPlayers';
 import { ResetAllProgressAlertDialog } from '../ResetAllProgressAlertDialog';
 
 export const GameShowMainRoot: FC = () => {
-  const { game, hasMatureContent, isViewingPublishedAchievements, targetAchievementSetId } =
+  const { game, hasMatureContent, isViewingPublishedAchievements, targetAchievementSetId, ziggy } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
   if (!game.badgeUrl || !game.system?.iconUrl) {
@@ -37,24 +37,22 @@ export const GameShowMainRoot: FC = () => {
         gameAchievementSet={game.gameAchievementSets?.[0]}
         system={game.system}
       />
-      <PlayableHeader
-        badgeUrl={game.badgeUrl}
-        systemIconUrl={game.system.iconUrl}
-        systemLabel={game.system.name}
-        title={game.title}
-      >
-        <GameHeaderSlotContent />
-      </PlayableHeader>
+
+      {ziggy.device === 'mobile' ? (
+        <GameMobileHeader />
+      ) : (
+        <PlayableHeader
+          badgeUrl={game.badgeUrl}
+          systemIconUrl={game.system.iconUrl}
+          systemLabel={game.system.name}
+          title={game.title}
+        >
+          <GameHeaderSlotContent />
+        </PlayableHeader>
+      )}
 
       <div className="mt-2 hidden sm:block">
         <PlayableMainMedia
-          imageIngameUrl={game.imageIngameUrl!}
-          imageTitleUrl={game.imageTitleUrl!}
-        />
-      </div>
-
-      <div className="-mx-3 sm:hidden">
-        <PlayableMobileMediaCarousel
           imageIngameUrl={game.imageIngameUrl!}
           imageTitleUrl={game.imageTitleUrl!}
         />

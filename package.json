@@ -38,7 +38,6 @@
         "clsx": "^2.1.1",
         "cmdk": "1.1.1",
         "dayjs": "^1.11.11",
-        "embla-carousel-react": "^8.6.0",
         "i18next": "^23.16.4",
         "i18next-resources-to-backend": "^1.2.1",
         "jotai": "^2.12.2",
