@@ -1,4 +1,3 @@
-/* eslint-disable testing-library/no-node-access -- required for some drawer tests */
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 

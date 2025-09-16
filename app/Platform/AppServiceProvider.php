@@ -32,13 +32,7 @@ use App\Platform\Commands\ProcessExpiringClaims;
 use App\Platform\Commands\PruneGameRecentPlayers;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\RevertManualUnlocks;
-use App\Platform\Commands\SyncAchievements;
 use App\Platform\Commands\SyncEvents;
-use App\Platform\Commands\SyncGames;
-use App\Platform\Commands\SyncPlayerBadges;
-use App\Platform\Commands\SyncPlayerRichPresence;
-use App\Platform\Commands\SyncPlayerSession;
-use App\Platform\Commands\TrimGameMetadata;
 use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
@@ -72,7 +66,6 @@ class AppServiceProvider extends ServiceProvider
             $this->commands([
                 // Games
                 PruneGameRecentPlayers::class,
-                TrimGameMetadata::class,
                 UpdateGameAchievementsMetrics::class,
                 UpdateGameBeatenMetrics::class,
                 UpdateGameMetrics::class,
@@ -116,12 +109,7 @@ class AppServiceProvider extends ServiceProvider
                 CreateAchievementOfTheWeek::class,
 
                 // Sync
-                SyncAchievements::class,
                 SyncEvents::class,
-                SyncGames::class,
-                SyncPlayerBadges::class,
-                SyncPlayerRichPresence::class,
-                SyncPlayerSession::class,
             ]);
         }
 
