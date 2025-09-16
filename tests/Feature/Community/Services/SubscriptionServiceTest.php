@@ -219,6 +219,8 @@ class SubscriptionServiceTest extends TestCase
         /** @var User $user7 */
         $user7 = User::factory()->create();
         $user7->assignRole(Role::DEVELOPER);
+        /** @var User $user8 */
+        $user8 = User::factory()->create();
 
         /** @var Achievement $achievement */
         $achievement = $this->seedAchievement();
@@ -263,6 +265,9 @@ class SubscriptionServiceTest extends TestCase
 
         // user7 implicitly subscribed to achievement as author
 
+        // user8 has explicit unsubscription to GameAchievements
+        $this->updateSubscription($user8, SubscriptionSubjectType::GameAchievements, $achievement->game->ID, false);
+
         $service = new SubscriptionService();
 
         $this->assertTrue($service->isSubscribed($user1, SubscriptionSubjectType::Achievement, $achievement->ID));
@@ -272,6 +277,7 @@ class SubscriptionServiceTest extends TestCase
         $this->assertTrue($service->isSubscribed($user5, SubscriptionSubjectType::Achievement, $achievement->ID));
         $this->assertFalse($service->isSubscribed($user6, SubscriptionSubjectType::Achievement, $achievement->ID));
         $this->assertTrue($service->isSubscribed($user7, SubscriptionSubjectType::Achievement, $achievement->ID));
+        $this->assertFalse($service->isSubscribed($user8, SubscriptionSubjectType::Achievement, $achievement->ID));
 
         $subscribers = $service->getSubscribers(SubscriptionSubjectType::Achievement, $achievement->ID);
         $subscribedUserIds = $subscribers->pluck('id')->toArray();
@@ -299,6 +305,8 @@ class SubscriptionServiceTest extends TestCase
         /** @var User $user8 */
         $user8 = User::factory()->create();
         $user8->assignRole(Role::DEVELOPER);
+        /** @var User $user9 */
+        $user9 = User::factory()->create();
 
         /** @var Achievement $achievement */
         $achievement = $this->seedAchievement();
@@ -347,6 +355,9 @@ class SubscriptionServiceTest extends TestCase
 
         // user8 implicitly subscribed to ticket via being the achievement author
 
+        // user9 has explicit unsubscription to GameTickets
+        $this->updateSubscription($user9, SubscriptionSubjectType::GameTickets, $achievement->game->ID, false);
+
         $service = new SubscriptionService();
 
         $this->assertTrue($service->isSubscribed($user1, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
@@ -357,6 +368,7 @@ class SubscriptionServiceTest extends TestCase
         $this->assertFalse($service->isSubscribed($user6, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
         $this->assertTrue($service->isSubscribed($user7, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
         $this->assertTrue($service->isSubscribed($user8, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
+        $this->assertFalse($service->isSubscribed($user9, SubscriptionSubjectType::AchievementTicket, $ticket->ID));
 
         $subscribers = $service->getSubscribers(SubscriptionSubjectType::AchievementTicket, $ticket->ID);
         $subscribedUserIds = $subscribers->pluck('id')->toArray();
