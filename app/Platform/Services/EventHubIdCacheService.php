@@ -6,7 +6,6 @@ namespace App\Platform\Services;
 
 use App\Models\GameSet;
 use App\Models\GameSetLink;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class EventHubIdCacheService
