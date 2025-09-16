@@ -70,7 +70,7 @@ describe('Component: AchievementSetEmptyState', () => {
 
     render(<AchievementSetEmptyState />, {
       pageProps: {
-        auth: null,
+        auth: { user: createAuthenticatedUser() }, // !!
         backingGame: createGame({ id: 456 }),
         setRequestData,
       },
@@ -81,6 +81,24 @@ describe('Component: AchievementSetEmptyState', () => {
       'href',
       '/setRequestors.php?g=456',
     );
+  });
+
+  it('given the user is not logged in, the total requests count is not a link', () => {
+    // ARRANGE
+    const setRequestData = createGameSetRequestData({ totalRequests: 123 }); // !!
+
+    render(<AchievementSetEmptyState />, {
+      pageProps: {
+        auth: null, // !!
+        backingGame: createGame({ id: 456 }),
+        setRequestData,
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    expect(screen.getByText(/123 requests/i)).toBeVisible();
+    expect(screen.getByText(/from players/i)).toBeVisible();
   });
 
   it('given the user is not authenticated, does not display remaining requests', () => {

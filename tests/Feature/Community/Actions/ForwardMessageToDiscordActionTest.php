@@ -537,4 +537,85 @@ class ForwardMessageToDiscordActionTest extends TestCase
         $this->assertEquals('[Part 2 of 3]', $payloads[1]['content']);
         $this->assertEquals('[Part 3 of 3]', $payloads[2]['content']);
     }
+
+    public function testItForwardsTeamAccountRepliesToExistingDiscordThread(): void
+    {
+        // Arrange
+        $teamAccount = User::factory()->create(['User' => 'QATeam']);
+        $regularUser = User::factory()->create(['User' => 'JohnDoe']);
+
+        $this->setDiscordConfig($teamAccount, isForum: true);
+
+        // ... create an existing thread mapping (simulating that JohnDoe already sent a message to QATeam) ...
+        DiscordMessageThreadMapping::storeMapping(
+            $this->thread->id,
+            'team_thread_123'
+        );
+
+        // ... create a reply message from the team account ...
+        $message = Message::factory()->create([
+            'thread_id' => $this->thread->id,
+            'author_id' => $teamAccount->id, // !! team account is the sender
+            'body' => 'This is the team reply',
+        ]);
+
+        $this->queueDiscordResponses(1);
+
+        // Act
+        $this->action->execute($teamAccount, $regularUser, $this->thread, $message);
+
+        // Assert
+        $this->assertCount(1, $this->webhookHistory);
+
+        $request = $this->webhookHistory[0]['request'];
+        $this->assertStringContainsString('thread_id=team_thread_123', $request->getUri()->getQuery());
+
+        $payload = $this->getLastWebhookPayload();
+        $this->assertEquals('QATeam Inbox', $payload['username']);
+        $this->assertEquals('This is the team reply', $payload['embeds'][0]['description']);
+        $this->assertEquals($teamAccount->display_name, $payload['embeds'][0]['author']['name']);
+    }
+
+    public function testItHandlesLongTeamAccountReplies(): void
+    {
+        // Arrange
+        $teamAccount = User::factory()->create(['User' => 'QATeam']);
+        $regularUser = User::factory()->create(['User' => 'JohnDoe']);
+
+        $this->setDiscordConfig($teamAccount, isForum: true);
+
+        DiscordMessageThreadMapping::storeMapping(
+            $this->thread->id,
+            'team_thread_456'
+        );
+
+        $longReply = str_repeat('T', 4500); // !! 3 chunks
+        $message = Message::factory()->create([
+            'thread_id' => $this->thread->id,
+            'author_id' => $teamAccount->id,
+            'body' => $longReply,
+        ]);
+
+        $this->queueDiscordResponses(3);
+
+        // Act
+        $this->action->execute($teamAccount, $regularUser, $this->thread, $message);
+
+        // Assert
+        $this->assertCount(3, $this->webhookHistory);
+
+        foreach ($this->webhookHistory as $transaction) {
+            $request = $transaction['request'];
+            $this->assertStringContainsString('thread_id=team_thread_456', $request->getUri()->getQuery());
+        }
+
+        $payloads = $this->getAllWebhookPayloads();
+        $this->assertEquals('[Part 1 of 3]', $payloads[0]['content']);
+        $this->assertEquals('[Part 2 of 3]', $payloads[1]['content']);
+        $this->assertEquals('[Part 3 of 3]', $payloads[2]['content']);
+
+        foreach ($payloads as $payload) {
+            $this->assertEquals('QATeam Inbox', $payload['username']);
+        }
+    }
 }
