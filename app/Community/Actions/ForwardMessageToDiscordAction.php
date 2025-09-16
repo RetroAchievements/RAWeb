@@ -47,7 +47,28 @@ class ForwardMessageToDiscordAction
         Message $message
     ): void {
         $inboxConfig = config('services.discord.inbox_webhook.' . $userTo->username);
+
+        // Check if this is a reply from a team account to an existing Discord thread.
+        // If it is, we'll also put the reply in the Discord thread just for the sake
+        // of continuity.
         if ($inboxConfig === null || empty($inboxConfig['url'] ?? null)) {
+            $existingMapping = DiscordMessageThreadMapping::findMapping($messageThread->id);
+            if ($existingMapping) {
+                // This thread is already being tracked in Discord.
+                // Check if the sender (team account) has a webhook config.
+                $senderInboxConfig = config('services.discord.inbox_webhook.' . $userFrom->username);
+                if ($senderInboxConfig !== null && !empty($senderInboxConfig['url'] ?? null)) {
+                    // Forward the team's reply to the existing Discord thread.
+                    $this->forwardTeamReplyToDiscord(
+                        $senderInboxConfig,
+                        $existingMapping->discord_thread_id,
+                        $userFrom,
+                        $messageThread,
+                        $message
+                    );
+                }
+            }
+
             return;
         }
 
@@ -416,6 +437,35 @@ class ForwardMessageToDiscordAction
             'avatar_url' => $userTo->avatar_url,
             'embeds' => [$embed],
         ];
+    }
+
+    /**
+     * Forward a team account's reply to an existing Discord thread.
+     */
+    private function forwardTeamReplyToDiscord(
+        array $senderInboxConfig,
+        string $discordThreadId,
+        User $userFrom,
+        MessageThread $messageThread,
+        Message $message
+    ): void {
+        $webhookUrl = $senderInboxConfig['url'];
+        $fullBody = Shortcode::stripAndClamp($message->body, self::MESSAGE_BODY_MAX_LENGTH, preserveWhitespace: true);
+
+        if (empty($fullBody)) {
+            return;
+        }
+
+        $this->sendMessagesToDiscordThread(
+            $webhookUrl,
+            $discordThreadId,
+            $userFrom,
+            $userFrom, // Pass the team account (sender) as both from and to so the webhook shows "[Team] Inbox"
+            $messageThread,
+            $fullBody,
+            self::COLOR_DEFAULT,
+            false
+        );
     }
 
     /**

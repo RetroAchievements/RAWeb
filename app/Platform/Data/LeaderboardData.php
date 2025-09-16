@@ -13,29 +13,33 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class LeaderboardData extends Data
 {
     public function __construct(
-        public int $id,
-        public string $title,
         public Lazy|string $description,
-        public Lazy|GameData $game,
-        public Lazy|LeaderboardEntryData|null $topEntry,
         public Lazy|string|null $format,
+        public Lazy|GameData $game,
+        public int $id,
         public Lazy|int $orderColumn,
+        public string $title,
+        public Lazy|LeaderboardEntryData|null $topEntry,
+        public Lazy|LeaderboardEntryData|null $userEntry = null,
+        public Lazy|bool|null $rankAsc = null,
     ) {
     }
 
-    public static function fromLeaderboard(Leaderboard $leaderboard): self
+    public static function fromLeaderboard(Leaderboard $leaderboard, ?LeaderboardEntryData $userEntry = null): self
     {
         return new self(
-            id: $leaderboard->id,
-            title: $leaderboard->title,
             description: Lazy::create(fn () => $leaderboard->description),
+            format: Lazy::create(fn () => $leaderboard->format),
             game: Lazy::create(fn () => GameData::fromGame($leaderboard->game)),
+            id: $leaderboard->id,
+            orderColumn: Lazy::create(fn () => $leaderboard->DisplayOrder),
+            title: $leaderboard->title,
             topEntry: Lazy::create(fn () => $leaderboard->topEntry
                 ? LeaderboardEntryData::fromLeaderboardEntry($leaderboard->topEntry, $leaderboard->format)
                 : null
             ),
-            format: Lazy::create(fn () => $leaderboard->format),
-            orderColumn: Lazy::create(fn () => $leaderboard->DisplayOrder),
+            userEntry: $userEntry,
+            rankAsc: Lazy::create(fn () => $leaderboard->rank_asc),
         );
     }
 }
