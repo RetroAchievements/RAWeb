@@ -88,7 +88,7 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
           availableSortOrders={
             currentListView === 'achievements'
               ? [
-                  // Only show the "Unlocked first/last" options when the user has unlocked some (but not all) achievements.
+                  // Only show the "Unlocked first" option when the user has unlocked some (but not all) achievements.
                   ...(canShowUnlockStatusSortOrders ? ['normal' as const] : []),
 
                   'displayOrder',

@@ -475,7 +475,7 @@ describe('Component: GameAchievementSetToolbar', () => {
     expect(screen.getByRole('button', { name: /won by/i })).toBeVisible();
   });
 
-  it('given the user has unlocked some (but not all) achievements, shows the Unlocked first/Locked first sort options', async () => {
+  it('given the user has unlocked some (but not all) achievements, shows the Unlocked first sort option', async () => {
     // ARRANGE
     const mockGame = createGame({ id: 123, achievementsPublished: 5 });
     const mockToggleGameId = vi.fn();
@@ -501,10 +501,9 @@ describe('Component: GameAchievementSetToolbar', () => {
 
     // ASSERT
     expect(screen.getByRole('menuitemcheckbox', { name: 'Unlocked first' })).toBeInTheDocument();
-    expect(screen.getByRole('menuitemcheckbox', { name: 'Locked first' })).toBeInTheDocument();
   });
 
-  it('given the user has unlocked no achievements, does not show the Unlocked first/Locked first sort options', async () => {
+  it('given the user has unlocked no achievements, does not show the Unlocked first sort option', async () => {
     // ARRANGE
     const mockGame = createGame({ id: 123 });
     const mockToggleGameId = vi.fn();
@@ -532,12 +531,9 @@ describe('Component: GameAchievementSetToolbar', () => {
     expect(
       screen.queryByRole('menuitemcheckbox', { name: 'Unlocked first' }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('menuitemcheckbox', { name: 'Locked first' }),
-    ).not.toBeInTheDocument();
   });
 
-  it('given the user has unlocked all achievements, does not show the Unlocked first/Locked first sort options', async () => {
+  it('given the user has unlocked all achievements, does not show the Unlocked first sort option', async () => {
     // ARRANGE
     const mockGame = createGame({ id: 123, achievementsPublished: 10 });
     const mockToggleGameId = vi.fn();
@@ -564,9 +560,6 @@ describe('Component: GameAchievementSetToolbar', () => {
     // ASSERT
     expect(
       screen.queryByRole('menuitemcheckbox', { name: 'Unlocked first' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('menuitemcheckbox', { name: 'Locked first' }),
     ).not.toBeInTheDocument();
   });
 });
