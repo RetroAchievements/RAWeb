@@ -38,7 +38,6 @@ class AuthorshipCreditsRelationManager extends RelationManager
         $dummyModel->achievement_id = $this->ownerRecord->id;
 
         $canCreate = $user->can('create', $dummyModel);
-        $canDelete = $user->can('delete', $dummyModel);
         $canUpdate = $user->can('update', $dummyModel);
 
         $earliestLogicCredit = AchievementAuthor::where('achievement_id', $this->ownerRecord->id)
@@ -157,12 +156,25 @@ class AuthorshipCreditsRelationManager extends RelationManager
 
                 Tables\Actions\DeleteAction::make()
                     ->modalHeading('Delete contribution credit')
-                    ->hidden(fn (AchievementAuthor $record) => !$canDelete || ($earliestLogicCredit && $earliestLogicCredit->id === $record->id)),
+                    ->visible(fn (AchievementAuthor $record) => $user->can('delete', $record)
+                        && !($earliestLogicCredit && $earliestLogicCredit->id === $record->id)
+                    ),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->visible(fn () => $canDelete),
+                        ->before(function (Tables\Actions\DeleteBulkAction $action, $records) use ($earliestLogicCredit) {
+                            // Filter out the earliest logic credit from deletion.
+                            if ($earliestLogicCredit) {
+                                $records = $records->filter(fn ($record) => $record->id !== $earliestLogicCredit->id);
+                            }
+
+                            if ($records->isEmpty()) {
+                                $action->cancel();
+                            }
+
+                            return $records;
+                        }),
                 ]),
             ]);
     }
