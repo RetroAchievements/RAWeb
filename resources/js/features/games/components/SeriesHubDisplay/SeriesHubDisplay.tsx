@@ -84,7 +84,7 @@ export const SeriesHubDisplay: FC<SeriesHubDisplayProps> = ({ seriesHub }) => {
               <span>
                 <Trans
                   i18nKey="<1>{{val, number}}</1> points"
-                  val={seriesHub.pointsTotal}
+                  count={seriesHub.pointsTotal}
                   values={{ val: seriesHub.pointsTotal }}
                   components={{ 1: <span className="font-semibold" /> }}
                 />

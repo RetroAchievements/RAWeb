@@ -1187,5 +1187,7 @@
     "Reset all progress": "Reset all progress",
     "This will remove all your unlocked achievements for the game. This cannot be reversed.": "This will remove all your unlocked achievements for the game. This cannot be reversed.",
     "Unlocked first": "Unlocked first",
-    "Locked first": "Locked first"
+    "Locked first": "Locked first",
+    "#{{rank, number}}": "#{{rank, number}}",
+    "{{percentage}} of #1": "{{percentage}} of #1"
 }
