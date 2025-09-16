@@ -41,6 +41,11 @@ interface PlayerGameProgressBarProps {
   progressClassName?: string;
 
   /**
+   * If truthy, the anchor tag will always be rendered.
+   */
+  shouldAlwaysLink?: boolean;
+
+  /**
    * Defaults to false. When truthy, show a percentage underneath the progress bar.
    * This is best reserved for mobile-only UI, where tooltips are cumbersome.
    */
@@ -64,6 +69,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
   playerGame,
   progressClassName,
   isTooltipEnabled = true,
+  shouldAlwaysLink = false,
   showProgressPercentage = false,
   variant = 'base',
   width = 120,
@@ -107,10 +113,11 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
   }
 
   const canLink = href && achievementsUnlocked;
+  const shouldLink = canLink || shouldAlwaysLink;
   const canShowTooltipPoints =
     (variant === 'minimal' && achievementsPublished !== pointsTotal) || variant !== 'minimal';
 
-  const Wrapper = canLink && achievementsUnlocked ? 'a' : 'div';
+  const Wrapper = shouldLink ? 'a' : 'div';
 
   const isTooltipDisabled = achievementsUnlocked === 0 || !isTooltipEnabled;
 
@@ -129,8 +136,8 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
         <Wrapper
           className="flex flex-col gap-0.5"
           style={{ maxWidth: width }}
-          href={canLink ? (href as string) : undefined}
-          aria-label={canLink ? ariaLabel : undefined}
+          href={shouldLink ? (href as string) : undefined}
+          aria-label={shouldLink ? ariaLabel : undefined}
         >
           <BaseProgress
             className={progressClassName}

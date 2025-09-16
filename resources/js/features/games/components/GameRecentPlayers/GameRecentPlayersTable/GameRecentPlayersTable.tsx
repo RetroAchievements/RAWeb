@@ -18,7 +18,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 export const GameRecentPlayersTable: FC = () => {
-  const { backingGame, game, recentPlayers } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { backingGame, recentPlayers } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
   return (
@@ -68,6 +68,7 @@ export const GameRecentPlayersTable: FC = () => {
                   points: recentPlayer.points,
                   pointsHardcore: recentPlayer.pointsHardcore,
                 }}
+                shouldAlwaysLink={true}
                 href={route('game.compare-unlocks', {
                   game: backingGame.id,
                   user: recentPlayer.user.displayName,
@@ -84,7 +85,10 @@ export const GameRecentPlayersTable: FC = () => {
                 )}
                 title={recentPlayer.richPresence}
               >
-                <RichPresenceMessage gameTitle={game.title} message={recentPlayer.richPresence} />
+                <RichPresenceMessage
+                  gameTitle={backingGame.title}
+                  message={recentPlayer.richPresence}
+                />
               </span>
             </BaseTableCell>
           </BaseTableRow>
