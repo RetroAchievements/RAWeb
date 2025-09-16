@@ -41,7 +41,7 @@ class LoadGameWithRelationsAction
             },
             'hashes',
             'hubs' => function ($query) {
-                $query->with(['children', 'viewRoles']);
+                $query->with(['viewRoles']);
             },
             'leaderboards' => function ($query) {
                 $query->where('DisplayOrder', '>=', 0) // only show visible leaderboards on the page
