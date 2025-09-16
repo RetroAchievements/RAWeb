@@ -13,13 +13,14 @@ class UserObserver
     public function updating(User $user): void
     {
         // Bail as soon as we can if it's not an update we care to observe.
-        if (!$user->isDirty('muted_until') && !$user->isDirty('banned_at')) {
-            return;
+
+        if ($user->isDirty('muted_until') || $user->isDirty('banned_at')) {
+            if ($this->isBeingMuted($user) || $this->isBeingBanned($user)) {
+                (new RemoveDiscordRolesAction())->execute($user);
+            }
         }
 
-        if ($this->isBeingMuted($user) || $this->isBeingBanned($user)) {
-            (new RemoveDiscordRolesAction())->execute($user);
-        }
+        // TODO handle other fields here
     }
 
     /**
