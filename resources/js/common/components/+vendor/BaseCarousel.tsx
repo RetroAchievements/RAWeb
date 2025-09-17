@@ -1,3 +1,4 @@
+import useEmblaCarousel, { type UseEmblaCarouselType } from 'embla-carousel-react';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuArrowLeft, LuArrowRight } from 'react-icons/lu';
