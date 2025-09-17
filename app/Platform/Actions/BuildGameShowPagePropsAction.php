@@ -64,7 +64,7 @@ class BuildGameShowPagePropsAction
         ?User $user,
         AchievementFlag $targetAchievementFlag = AchievementFlag::OfficialCore,
         ?GameAchievementSet $targetAchievementSet = null,
-        GamePageListView $initialView = GamePageListView::Achievements
+        GamePageListView $initialView = GamePageListView::Achievements,
     ): GameShowPagePropsData {
         // The backing game is the legacy game that backs the target achievement set.
         // For core sets, this will be $game->id. For subsets, it'll be a different ID.

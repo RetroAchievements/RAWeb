@@ -26,7 +26,7 @@ class ComputeGameSearchTitlesAction
         string $gameTitle,
         string $systemName,
         string $systemNameShort,
-        array $altTitles = []
+        array $altTitles = [],
     ): array {
         $searchTitles = [];
 
@@ -254,7 +254,7 @@ class ComputeGameSearchTitlesAction
         string $gameTitle,
         array $altTitles,
         string $systemName,
-        string $systemNameShort
+        string $systemNameShort,
     ): array {
         $variations = [];
 
@@ -283,7 +283,7 @@ class ComputeGameSearchTitlesAction
     private function handleNumericSuffixAbbreviations(
         string $title,
         array $seriesAbbreviationMap,
-        array &$abbreviations
+        array &$abbreviations,
     ): void {
         if (!preg_match('/^(.+?)\s+(\d+)$/', $title, $matches)) {
             return;

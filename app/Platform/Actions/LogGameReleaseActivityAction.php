@@ -16,7 +16,7 @@ class LogGameReleaseActivityAction
         string $operation,
         GameRelease $gameRelease,
         array $original = [],
-        array $changes = []
+        array $changes = [],
     ): void {
         match ($operation) {
             'create' => $this->logCreate($gameRelease),

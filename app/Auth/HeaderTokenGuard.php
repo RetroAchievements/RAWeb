@@ -19,7 +19,7 @@ class HeaderTokenGuard extends TokenGuard
         string $inputKey = 'api_key',
         string $storageKey = 'api_token',
         bool $hash = false,
-        string $headerName = 'X-API-Key'
+        string $headerName = 'X-API-Key',
     ) {
         parent::__construct($provider, $request, $inputKey, $storageKey, $hash);
 

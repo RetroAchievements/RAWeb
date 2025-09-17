@@ -133,7 +133,7 @@ class ResolveAchievementSetsAction
         GameHash $gameHash,
         User $user,
         Collection $userSetPreferences,
-        GameAchievementSet $initialSet
+        GameAchievementSet $initialSet,
     ): Collection {
         // Determine if the initial set is a subset's "core" set.
         $isSubsetGame = $this->isSubsetGame($initialSet);

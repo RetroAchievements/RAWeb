@@ -44,7 +44,7 @@ class ForwardMessageToDiscordAction
         User $userFrom,
         User $userTo,
         MessageThread $messageThread,
-        Message $message
+        Message $message,
     ): void {
         $inboxConfig = config('services.discord.inbox_webhook.' . $userTo->username);
 
@@ -120,7 +120,7 @@ class ForwardMessageToDiscordAction
         string $webhookUrl,
         int $color,
         bool $isForum,
-        bool $isNewThread
+        bool $isNewThread,
     ): ProcessedDiscordMessageData {
         $messageTitle = mb_strtolower($messageThread->title);
         $threadTitle = $messageThread->title;
@@ -199,7 +199,7 @@ class ForwardMessageToDiscordAction
         string $messageBody,
         int $color,
         bool $isForum,
-        ?string $existingThreadId = null
+        ?string $existingThreadId = null,
     ): void {
         if ($isForum) {
             $isNewThread = !$existingThreadId;
@@ -258,7 +258,7 @@ class ForwardMessageToDiscordAction
         User $userTo,
         MessageThread $messageThread,
         string $messageBody,
-        int $color
+        int $color,
     ): ?string {
         $isLongMessage = mb_strlen($messageBody) > self::DISCORD_EMBED_DESCRIPTION_LIMIT;
         $firstChunk = $isLongMessage
@@ -307,7 +307,7 @@ class ForwardMessageToDiscordAction
         MessageThread $messageThread,
         string $messageBody,
         int $color,
-        bool $isNewThread = false
+        bool $isNewThread = false,
     ): void {
         $threadWebhookUrl = $webhookUrl . '?thread_id=' . $discordThreadId;
 
@@ -351,7 +351,7 @@ class ForwardMessageToDiscordAction
         MessageThread $messageThread,
         string $messageBody,
         int $color,
-        bool $skipFirstChunk = false
+        bool $skipFirstChunk = false,
     ): void {
         $chunks = mb_str_split($messageBody, self::DISCORD_EMBED_DESCRIPTION_LIMIT);
         $totalParts = count($chunks);
@@ -391,7 +391,7 @@ class ForwardMessageToDiscordAction
         User $userTo,
         MessageThread $messageThread,
         string $messageBody,
-        int $color
+        int $color,
     ): void {
         $payload = $this->buildDiscordPayload(
             $userFrom,
@@ -415,7 +415,7 @@ class ForwardMessageToDiscordAction
         MessageThread $messageThread,
         string $description,
         int $color,
-        bool $includeAuthor = true
+        bool $includeAuthor = true,
     ): array {
         $embed = [
             'description' => $description,
@@ -447,7 +447,7 @@ class ForwardMessageToDiscordAction
         string $discordThreadId,
         User $userFrom,
         MessageThread $messageThread,
-        Message $message
+        Message $message,
     ): void {
         $webhookUrl = $senderInboxConfig['url'];
         $fullBody = Shortcode::stripAndClamp($message->body, self::MESSAGE_BODY_MAX_LENGTH, preserveWhitespace: true);
