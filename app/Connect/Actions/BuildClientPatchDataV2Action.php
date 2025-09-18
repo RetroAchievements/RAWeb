@@ -135,11 +135,11 @@ class BuildClientPatchDataV2Action
                 : [];
 
             $sets[] = [
-                'Title' => $coreAchievementSet?->title ?? $game->title,
-                'Type' => $coreAchievementSet?->type->value ?? AchievementSetType::Core->value,
-                'AchievementSetId' => $coreAchievementSet?->achievementSet->id ?? 0,
-                'GameId' => $coreAchievementSet?->game_id ?? $game->id,
-                'ImageIconUrl' => media_asset($coreAchievementSet?->game->ImageIcon ?? $game->ImageIcon),
+                'Title' => $coreAchievementSet->title ?? $game->title,
+                'Type' => $coreAchievementSet->type->value ?? AchievementSetType::Core->value,
+                'AchievementSetId' => $coreAchievementSet->achievementSet->id ?? 0,
+                'GameId' => $coreAchievementSet->game_id ?? $game->id,
+                'ImageIconUrl' => media_asset($coreAchievementSet->game->ImageIcon ?? $game->ImageIcon),
                 'Achievements' => $achievements,
                 'Leaderboards' => $leaderboards,
             ];

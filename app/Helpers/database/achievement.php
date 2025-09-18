@@ -32,7 +32,7 @@ function getAchievementsList(
     $bindings = [
         'offset' => $offset,
         'limit' => $limit,
-        'achievementFlag' => $achievementFlag?->value ?? AchievementFlag::OfficialCore->value,
+        'achievementFlag' => $achievementFlag->value ?? AchievementFlag::OfficialCore->value,
     ];
 
     $selectAwardedDate = ", NULL AS AwardedDate";

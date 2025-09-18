@@ -310,7 +310,7 @@ function sendActivityEmail(
     Mail::to($user->EmailAddress)->queue(new CommunityActivityMail(
         $user,
         $actID,
-        $activityCommenter?->display_name ?? $activityCommenter?->User,
+        $activityCommenter?->display_name ?? $activityCommenter->User,
         $articleType,
         $articleTitle,
         $urlTarget,

@@ -127,7 +127,7 @@ class MigrateTicketCommentMetadata extends Command
 
         $userAgentService = new UserAgentService();
         $userAgents = PlayerSession::where('user_id', $ticket->reporter_id)
-            ->where('game_id', $ticket->achievement?->game?->id ?? 0)
+            ->where('game_id', $ticket->achievement?->game->id ?? 0)
             ->where('duration', '>', 5)
             ->whereNotNull('user_agent')
             ->distinct('user_agent')

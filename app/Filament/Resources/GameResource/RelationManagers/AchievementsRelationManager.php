@@ -124,7 +124,7 @@ class AchievementsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('activeMaintainer')
                     ->label('Maintainer')
                     ->formatStateUsing(function (Achievement $record) {
-                        return $record->activeMaintainer?->user?->display_name ?? $record->developer?->display_name;
+                        return $record->activeMaintainer?->user->display_name ?? $record->developer->display_name;
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

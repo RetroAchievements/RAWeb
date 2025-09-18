@@ -107,7 +107,7 @@ if ($recentGamesPlayed > 100) {
 }
 
 $userModel = (new FindUserByIdentifierAction())->execute($input['u']);
-$retVal = getUserPageInfo($userModel?->display_name ?? "", $recentGamesPlayed, $recentAchievementsEarned);
+$retVal = getUserPageInfo($userModel->display_name ?? "", $recentGamesPlayed, $recentAchievementsEarned);
 
 if (empty($retVal)) {
     return response()->json([

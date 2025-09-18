@@ -201,7 +201,7 @@ trait ActsAsCommunityMember
 
     public function isMuted(): bool
     {
-        return $this->muted_until?->isFuture() ?? false;
+        return $this->muted_until->isFuture() ?? false;
     }
 
     public function isNotMuted(): bool

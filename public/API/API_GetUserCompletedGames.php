@@ -31,7 +31,7 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
 $user = (new FindUserByIdentifierAction())->execute($input['u']);
 
 $result = [];
-$completedGames = getUsersCompletedGamesAndMax($user?->username ?? "");
+$completedGames = getUsersCompletedGamesAndMax($user->username ?? "");
 foreach ($completedGames as $completedGame) {
     if ($completedGame['NumAwarded'] > 0) {
         $result[] = [

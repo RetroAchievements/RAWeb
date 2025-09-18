@@ -24,7 +24,7 @@ class PlayerBadgeFactory extends Factory
         $user = User::inRandomOrder()->first();
 
         return [
-            'user_id' => $user?->id ?? 1,
+            'user_id' => $user->id ?? 1,
             'AwardType' => AwardType::Mastery,
             'AwardData' => fake()->numberBetween(0, 9999) * 10,
             'AwardDataExtra' => 0,

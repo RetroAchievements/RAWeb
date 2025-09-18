@@ -31,7 +31,7 @@ class AchievementSetClaimFactory extends Factory
         $user = User::inRandomOrder()->first();
 
         return [
-            'user_id' => $user?->id ?? 1,
+            'user_id' => $user->id ?? 1,
             'game_id' => 0,
             'ClaimType' => ClaimType::Primary,
             'SetType' => ClaimSetType::NewSet,

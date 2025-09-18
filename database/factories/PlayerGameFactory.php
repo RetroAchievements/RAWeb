@@ -25,8 +25,8 @@ class PlayerGameFactory extends Factory
         $game = Game::inRandomOrder()->first();
 
         return [
-            'user_id' => $user?->id ?? 1,
-            'game_id' => $game?->id ?? 1,
+            'user_id' => $user->id ?? 1,
+            'game_id' => $game->id ?? 1,
         ];
     }
 }

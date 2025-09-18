@@ -50,7 +50,7 @@ $id = $id ?: 'input_' . Str::random();
         maxlength="{{ $maxlength }}"
         name="{{ $name }}"
         type="{{ $type }}"
-        value="{{ $name ? old($name, $model?->getAttribute($name) ?? $value) : $value }}"
+        value="{{ $name ? old($name, $model->getAttribute($name) ?? $value) : $value }}"
         aria-describedby="{{ $name && $errors && $errors->has($name) ? 'error-' . $id : ($help ? 'help-' . $id : '') }}"
         @if($placeholder)placeholder="{{ $placeholder === true ? __('validation.attributes.' . strtolower($name)) : $placeholder }}"@endif
         {{ $disabled ? 'disabled' : '' }}

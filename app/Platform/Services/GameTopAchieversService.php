@@ -235,8 +235,8 @@ class GameTopAchieversService
                 'user_ulid' => $playerGame->user->ulid,
                 'achievements_unlocked_hardcore' => $playerGame->achievements_unlocked_hardcore,
                 'points_hardcore' => $playerGame->points_hardcore,
-                'last_unlock_hardcore_at' => $playerGame->last_unlock_hardcore_at?->unix() ?? 0,
-                'beaten_hardcore_at' => $playerGame->beaten_hardcore_at?->unix() ?? 0,
+                'last_unlock_hardcore_at' => $playerGame->last_unlock_hardcore_at->unix() ?? 0,
+                'beaten_hardcore_at' => $playerGame->beaten_hardcore_at->unix() ?? 0,
             ];
         }
 

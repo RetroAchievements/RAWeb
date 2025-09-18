@@ -39,7 +39,7 @@ $userClaimCount = 0;
 $userHasClaimSlot = false;
 $openTickets = null;
 
-$userPermissions = $user?->getAttribute('Permissions') ?? Permissions::Unregistered;
+$userPermissions = $user->getAttribute('Permissions') ?? Permissions::Unregistered;
 
 // Get user claim data.
 if (isset($user) && $userPermissions >= Permissions::JuniorDeveloper) {

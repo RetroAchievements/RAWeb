@@ -72,7 +72,7 @@ class UserPermissionsData extends Data
             ),
             createTriggerTicket: Lazy::create(fn () => $user && $triggerable
                 ? $user->can('createFor', [\App\Models\TriggerTicket::class, $triggerable])
-                : $user?->can('create', \App\Models\TriggerTicket::class) ?? false
+                : $user->can('create', \App\Models\TriggerTicket::class) ?? false
             ),
             createUsernameChangeRequest: Lazy::create(fn () => $user ? $user->can('create', \App\Models\UserUsername::class) : false),
             deleteForumTopic: Lazy::create(fn () => $user && $forumTopic ? $user->can('delete', $forumTopic) : false),

@@ -203,7 +203,7 @@ class LeaderboardResource extends Resource
 
                 Tables\Columns\TextColumn::make('developer')
                     ->label('Developer')
-                    ->formatStateUsing(fn (User $state) => $state?->display_name ?? 'Unknown')
+                    ->formatStateUsing(fn (User $state) => $state->display_name ?? 'Unknown')
                     ->toggleable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->orWhereHas('developer', function (Builder $subQuery) use ($search) {

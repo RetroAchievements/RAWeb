@@ -44,7 +44,7 @@
 
         <div>
             @php
-                $currentLocale = Auth::user()?->locale ?? app()->getLocale();
+                $currentLocale = Auth::user()->locale ?? app()->getLocale();
                 if ($currentLocale === 'en') {
                     $currentLocale = 'en_US';
                 }

@@ -28,13 +28,13 @@ class ForumRecentActivity extends Component
     {
         $recentForumPosts = $this->prepareRecentForumPosts(
             $this->numToFetch,
-            $this->user?->Permissions ?? Permissions::Unregistered,
-            $this->user?->websitePrefs ?? 0,
+            $this->user->Permissions ?? Permissions::Unregistered,
+            $this->user->websitePrefs ?? 0,
         );
 
         return view('components.forum.recent-activity', [
             'recentForumPosts' => $recentForumPosts,
-            'userPreferences' => $this->user?->websitePrefs ?? 0,
+            'userPreferences' => $this->user->websitePrefs ?? 0,
         ]);
     }
 

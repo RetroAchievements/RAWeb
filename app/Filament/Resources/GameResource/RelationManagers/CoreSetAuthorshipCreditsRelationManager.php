@@ -65,7 +65,7 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
                             ->pluck('display_name', 'id')
                             ->toArray();
                     })
-                    ->getOptionLabelUsing(fn (int $value): string => User::withTrashed()->find($value)?->display_name ?? 'Deleted User')
+                    ->getOptionLabelUsing(fn (int $value): string => User::withTrashed()->find($value)->display_name ?? 'Deleted User')
                     ->required(),
 
                 Forms\Components\DatePicker::make('created_at')
@@ -89,7 +89,7 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('task')
                     ->label('Task')
-                    ->formatStateUsing(fn ($state) => $state?->label() ?? ucfirst($state)),
+                    ->formatStateUsing(fn ($state) => $state->label() ?? ucfirst($state)),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Date Credited')

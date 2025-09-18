@@ -492,7 +492,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
 
     public function hasVerifiedEmail(): bool
     {
-        return $this->email_verified_at?->isPast() ?? false;
+        return $this->email_verified_at->isPast() ?? false;
     }
 
     public function markEmailAsVerified(): bool

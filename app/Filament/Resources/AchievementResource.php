@@ -114,7 +114,7 @@ class AchievementResource extends Resource
                                         ->label('Current Maintainer')
                                         ->placeholder(fn (Achievement $record) => $record->developer->display_name . ' (original developer)')
                                         ->formatStateUsing(fn ($state, Achievement $record) => $state . ' (since ' .
-                                            ($record->activeMaintainer?->effective_from?->format('Y-m-d') ?? 'N/A') . ')')
+                                            ($record->activeMaintainer?->effective_from->format('Y-m-d') ?? 'N/A') . ')')
                                         ->extraAttributes(['class' => 'font-medium']),
 
                                     Infolists\Components\Actions::make([

@@ -39,12 +39,12 @@ class GameRecentPlayerData extends Data
         ?PlayerGame $playerGame = null,
         ?PlayerBadge $highestAward = null
     ): self {
-        $achievementsUnlocked = $playerGame?->achievements_unlocked ?? 0;
-        $achievementsUnlockedHardcore = $playerGame?->achievements_unlocked_hardcore ?? 0;
+        $achievementsUnlocked = $playerGame->achievements_unlocked ?? 0;
+        $achievementsUnlockedHardcore = $playerGame->achievements_unlocked_hardcore ?? 0;
         $achievementsUnlockedSoftcore = $achievementsUnlocked - $achievementsUnlockedHardcore;
 
-        $points = $playerGame?->points ?? 0;
-        $pointsHardcore = $playerGame?->points_hardcore ?? 0;
+        $points = $playerGame->points ?? 0;
+        $pointsHardcore = $playerGame->points_hardcore ?? 0;
 
         return new self(
             user: UserData::fromUser($gameRecentPlayer->user)->include('displayName'),

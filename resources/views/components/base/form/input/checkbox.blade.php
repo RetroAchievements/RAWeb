@@ -43,7 +43,7 @@ $id = $id ?: 'input_' . Str::random();
                 name="{{ $name }}"
                 type="checkbox"
                 value="1"
-                {{ $name ? (old($name, $model?->getAttribute($name) ?? $checked) ? 'checked' : '') : ($checked ? 'checked' : '') }}
+                {{ $name ? (old($name, $model->getAttribute($name) ?? $checked) ? 'checked' : '') : ($checked ? 'checked' : '') }}
                 aria-describedby="{{ $name && $errors && $errors->has($name) ? 'error-' . $id : ($help ? 'help-' . $id : '') }}"
                 {{ $disabled ? 'disabled' : '' }}
                 {{ ($required || $requiredSilent) ? 'required' : '' }}

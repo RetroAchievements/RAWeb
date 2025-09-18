@@ -40,7 +40,7 @@ class BuildMessageThreadShowPagePropsAction
             return [
                 'props' => null,
                 'redirectToPage' => $lastPage,
-                'redirectToMessage' => $newestMessage?->id ?? null,
+                'redirectToMessage' => $newestMessage->id ?? null,
             ];
         }
 

@@ -46,7 +46,7 @@ class AchievementAuthorshipCreditFormSchema
                         ->pluck('display_name', 'id')
                         ->toArray();
                 })
-                ->getOptionLabelUsing(fn (int $value): string => User::withTrashed()->find($value)?->display_name ?? 'Deleted User')
+                ->getOptionLabelUsing(fn (int $value): string => User::withTrashed()->find($value)->display_name ?? 'Deleted User')
                 ->required(),
 
             Forms\Components\DateTimePicker::make('created_at')

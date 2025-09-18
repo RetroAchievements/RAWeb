@@ -288,7 +288,7 @@ switch ($requestType) {
         $format_url = function (?string $url): ?string {
             return (!$url || str_starts_with($url, 'http')) ? $url : config('app.url') . '/' . $url;
         };
-        $response['MinimumVersion'] = $emulator->minimumSupportedRelease?->version ?? $emulator->latestRelease->version;
+        $response['MinimumVersion'] = $emulator->minimumSupportedRelease->version ?? $emulator->latestRelease->version;
         $response['LatestVersion'] = $emulator->latestRelease->version;
         $response['LatestVersionUrl'] = $format_url($emulator->download_url);
         $response['LatestVersionUrlX64'] = $format_url($emulator->download_x64_url);

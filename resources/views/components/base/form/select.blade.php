@@ -65,7 +65,7 @@ $id = $id ?: 'input_' . Str::random();
             @endif
             @foreach($options as $optionValue => $optionLabel)
                 <option
-                    value="{{ $optionValue }}" {{ (string) ($name ? old($name, $model?->getAttribute($name) ?? $value) : $value) === (string) $optionValue ? 'selected' : '' }}>
+                    value="{{ $optionValue }}" {{ (string) ($name ? old($name, $model->getAttribute($name) ?? $value) : $value) === (string) $optionValue ? 'selected' : '' }}>
                     {{ $optionLabel }}
                 </option>
             @endforeach
