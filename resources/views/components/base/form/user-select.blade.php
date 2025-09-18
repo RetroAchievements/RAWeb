@@ -29,7 +29,7 @@ if ($model && !$model instanceof Model) {
 
 $id = $id ?: 'input_' . Str::random();
 
-$value = $name ? old($name, $model->getAttribute($name) ?? $value) : $value;
+$value = $name ? old($name, $model?->getAttribute($name) ?? $value) : $value;
 $username = $initialStableUsername ?? $value ?: '_User';
 $imageSource = media_asset("/UserPic/$username.png");
 ?>
@@ -106,7 +106,7 @@ $(function () {
             name="{{ $name }}"
             onblur="onUserChange('{{ $id }}', 'select-user-avatar-{{ $id }}'); return false;"
             type="text"
-            value="{{ $name ? old($name, $model->getAttribute($name) ?? $value) : $value }}"
+            value="{{ $name ? old($name, $model?->getAttribute($name) ?? $value) : $value }}"
             aria-describedby="{{ $name && $errors && $errors->has($name) ? 'error-' . $id : ($help ? 'help-' . $id : '') }}"
             @if($placeholder)placeholder="{{ $placeholder === true ? __('validation.attributes.' . strtolower($name)) : $placeholder }}"@endif
             {{ $disabled ? 'disabled' : '' }}
