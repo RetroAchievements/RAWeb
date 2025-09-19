@@ -11,6 +11,8 @@ class UserBetaFeedbackSubmission extends BaseModel
 {
     protected $table = 'user_beta_feedback_submissions';
 
+    public const UPDATED_AT = null;
+
     protected $fillable = [
         'user_id',
         'beta_name',

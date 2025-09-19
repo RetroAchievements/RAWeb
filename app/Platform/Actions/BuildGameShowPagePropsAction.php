@@ -695,13 +695,12 @@ class BuildGameShowPagePropsAction
         // Get existing data, or initialize with new data.
         $data = Cache::get($cacheKey, [
             'visit_count' => 0,
-            'first_visited_at' => null,
+            'first_visited_at' => now()->timestamp,
             'last_visited_at' => null,
         ]);
 
         // Update visit data.
         $data['visit_count']++;
-        $data['first_visited_at'] = $data['first_visited_at'] ?? now()->timestamp;
         $data['last_visited_at'] = now()->timestamp;
 
         // Store for 30 days from now (the TTL resets on each visit).

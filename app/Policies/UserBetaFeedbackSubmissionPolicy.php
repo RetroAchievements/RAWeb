@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\Role;
 use App\Models\User;
 use App\Models\UserBetaFeedbackSubmission;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -15,10 +14,7 @@ class UserBetaFeedbackSubmissionPolicy
 
     public function manage(User $user): bool
     {
-        return $user->hasAnyRole([
-            Role::ROOT,
-            Role::ADMINISTRATOR,
-        ]);
+        return false;
     }
 
     public function viewAny(?User $user): bool
