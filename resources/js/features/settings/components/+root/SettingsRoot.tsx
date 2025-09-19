@@ -1,4 +1,4 @@
-import { type FC, memo, useState } from 'react';
+import { type FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -19,15 +19,6 @@ export const SettingsRoot: FC = memo(() => {
 
   const { t } = useTranslation();
 
-  // Make sure the shared websitePrefs values used between NotificationsSectionCard
-  // and PreferencesSectionCard don't override each other.
-  // TODO can we just have Inertia reload the page data on save?
-  const [currentWebsitePrefs, setCurrentWebsitePrefs] = useState(auth?.user.websitePrefs as number);
-
-  const handleUpdateWebsitePrefs = (newWebsitePrefs: number) => {
-    setCurrentWebsitePrefs(newWebsitePrefs);
-  };
-
   return (
     <div className="flex flex-col">
       <h1>{t('Settings')}</h1>
@@ -35,23 +26,22 @@ export const SettingsRoot: FC = memo(() => {
       <div className="flex flex-col gap-4">
         <ProfileSectionCard />
 
-        <NotificationsSectionCard
-          currentWebsitePrefs={currentWebsitePrefs}
-          onUpdateWebsitePrefs={handleUpdateWebsitePrefs}
-        />
+        <NotificationsSectionCard currentWebsitePrefs={auth?.user.websitePrefs as number} />
 
         <LocaleSectionCard />
 
-        <PreferencesSectionCard
-          currentWebsitePrefs={currentWebsitePrefs}
-          onUpdateWebsitePrefs={handleUpdateWebsitePrefs}
-        />
+        <PreferencesSectionCard currentWebsitePrefs={auth?.user.websitePrefs as number} />
 
         <KeysSectionCard />
+
         {!auth?.user.isMuted && auth?.user.isEmailVerified ? <ChangeUsernameSectionCard /> : null}
+
         <ChangePasswordSectionCard />
+
         <ChangeEmailAddressSectionCard />
+
         <ResetGameProgressSectionCard />
+
         <DeleteAccountSectionCard />
       </div>
     </div>

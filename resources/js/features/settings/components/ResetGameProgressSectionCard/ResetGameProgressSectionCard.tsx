@@ -34,6 +34,7 @@ export const ResetGameProgressSectionCard: FC = () => {
   } = useResetGameProgressForm();
 
   // Only fetch the list of resettable games when the control is visible.
+  // TODO use Inertia deferred props
   const { ref: inViewRef } = useInView({
     triggerOnce: true,
     initialInView: false,

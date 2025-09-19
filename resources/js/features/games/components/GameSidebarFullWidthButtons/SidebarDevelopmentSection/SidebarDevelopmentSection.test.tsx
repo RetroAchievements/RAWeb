@@ -17,6 +17,14 @@ vi.mock('@/common/hooks/useAddOrRemoveFromUserGameList', () => ({
   }),
 }));
 
+vi.mock('@/common/components/InertiaLink', () => ({
+  InertiaLink: ({ children, href, ...props }: any) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
+}));
+
 Object.defineProperty(window, 'location', {
   value: { href: '' },
   writable: true,

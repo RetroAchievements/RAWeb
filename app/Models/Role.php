@@ -73,8 +73,6 @@ class Role extends SpatieRole
 
     public const TEAM_ACCOUNT = 'team-account';
 
-    public const BETA = 'beta';
-
     // public const SUPPORTER = 'supporter';
 
     // public const CONTRIBUTOR = 'contributor';
@@ -123,7 +121,6 @@ class Role extends SpatieRole
             Role::ARCHITECT => 'primary',
             Role::ENGINEER => 'primary',
             Role::TEAM_ACCOUNT => 'primary',
-            Role::BETA => 'primary',
 
             // vanity roles assigned by admin
 

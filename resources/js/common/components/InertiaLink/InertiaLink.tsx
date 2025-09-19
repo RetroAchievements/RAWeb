@@ -90,6 +90,7 @@ export const InertiaLink: FC<InertiaLinkProps> = ({ href, prefetch = 'never', ..
           clearTimeout(hoverTimeoutRef.current);
         }
       }}
+      data-testid="link"
       {...rest}
     />
   );

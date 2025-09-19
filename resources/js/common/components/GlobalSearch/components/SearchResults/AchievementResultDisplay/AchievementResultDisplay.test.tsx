@@ -43,7 +43,7 @@ describe('Component: AchievementResultDisplay', () => {
 
   it('displays the achievement points in parentheses', () => {
     // ARRANGE
-    const achievement = createAchievement({ points: 50 });
+    const achievement = createAchievement({ points: 50, pointsWeighted: 25 });
     render(<AchievementResultDisplay achievement={achievement} />);
 
     // ASSERT

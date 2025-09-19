@@ -6,7 +6,6 @@ use App\Models\Role;
 $rootAssignable = [
     Role::ADMINISTRATOR,
     Role::ARCHITECT,
-    Role::BETA,
     Role::ENGINEER,
     Role::FOUNDER,
     Role::RELEASE_MANAGER,
@@ -70,7 +69,7 @@ return [
     ],
     [
         'name' => Role::RELEASE_MANAGER,
-        'display' => 0,
+        'display' => 3,
         'staff' => true,
         'legacy_role' => Permissions::Moderator,
     ],
@@ -195,11 +194,6 @@ return [
     [
         'name' => Role::TEAM_ACCOUNT,
         'display' => 1,
-        'legacy_role' => Permissions::Registered,
-    ],
-    [
-        'name' => Role::BETA,
-        'display' => 0,
         'legacy_role' => Permissions::Registered,
     ],
 

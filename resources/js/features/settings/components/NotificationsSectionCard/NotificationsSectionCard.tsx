@@ -13,19 +13,14 @@ import { useNotificationsSectionForm } from './useNotificationsSectionForm';
 
 interface NotificationsSectionCardProps {
   currentWebsitePrefs: number;
-  onUpdateWebsitePrefs: (newWebsitePrefs: number) => unknown;
 }
 
 export const NotificationsSectionCard: FC<NotificationsSectionCardProps> = ({
   currentWebsitePrefs,
-  onUpdateWebsitePrefs,
 }) => {
   const { t } = useTranslation();
 
-  const { form, mutation, onSubmit } = useNotificationsSectionForm(
-    currentWebsitePrefs,
-    onUpdateWebsitePrefs,
-  );
+  const { form, mutation, onSubmit } = useNotificationsSectionForm(currentWebsitePrefs);
 
   const notificationSettings = useNotificationSettings();
 
