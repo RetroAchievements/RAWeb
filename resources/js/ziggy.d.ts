@@ -698,7 +698,6 @@ declare module 'ziggy-js' {
         }
     ],
     "api.settings.preferences.suppress-mature-content-warning": [],
-    "api.settings.beta-features.toggle": [],
     "api.settings.profile.update": [],
     "api.settings.locale.update": [],
     "api.settings.preferences.update": [],
