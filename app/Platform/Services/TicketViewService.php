@@ -22,7 +22,7 @@ class TicketViewService
     public string $ticketNotes = '';
 
     public function __construct(
-        protected PlayerGameActivityService $activity = new PlayerGameActivityService()
+        protected PlayerGameActivityService $activity = new PlayerGameActivityService(),
     ) {
 
     }

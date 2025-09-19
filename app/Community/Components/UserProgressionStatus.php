@@ -118,7 +118,7 @@ class UserProgressionStatus extends Component
         array $consoleProgress,
         array $userRecentlyPlayed,
         array $userCompletionProgress,
-        array $userSiteAwards
+        array $userSiteAwards,
     ): array {
         $validConsoleIds = getValidConsoleIds();
 

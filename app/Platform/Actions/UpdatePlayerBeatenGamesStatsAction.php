@@ -203,7 +203,7 @@ class UpdatePlayerBeatenGamesStatsAction
         int $value,
         ?int $systemId,
         ?int $lastGameId,
-        ?string $statUpdatedAt
+        ?string $statUpdatedAt,
     ): void {
         PlayerStat::updateOrCreate(
             [

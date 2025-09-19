@@ -17,7 +17,7 @@ class AchievementUnpublished
     use SerializesModels;
 
     public function __construct(
-        public Achievement $achievement
+        public Achievement $achievement,
     ) {
     }
 

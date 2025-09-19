@@ -227,7 +227,7 @@ class BuildGameListAction
         GameListType $listType,
         ?User $user,
         Collection $playerGames,
-        Collection $backlogGames
+        Collection $backlogGames,
     ): array {
         return $entries->map(function (Game $game) use ($listType, $user, $playerGames, $backlogGames): GameListEntryData {
             $playerGame = $playerGames->get($game->id);

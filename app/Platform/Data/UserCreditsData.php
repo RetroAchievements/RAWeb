@@ -26,7 +26,7 @@ class UserCreditsData extends Data
     public static function fromUserWithCount(
         User $user,
         int $count,
-        ?Carbon $dateCredited = null
+        ?Carbon $dateCredited = null,
     ): self {
         $userData = UserData::fromUser($user)->include('displayName', 'avatarUrl');
 

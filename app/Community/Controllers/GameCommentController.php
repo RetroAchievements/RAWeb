@@ -67,7 +67,7 @@ class GameCommentController extends CommentController
     protected function update(
         StoreCommentRequest $request,
         GameComment $comment,
-        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction
+        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction,
     ): RedirectResponse {
         $this->authorize('update', $comment);
 

@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 import {
   BaseTable,
@@ -17,8 +18,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 export const GameRecentPlayersTable: FC = () => {
-  const { game, recentPlayers } = usePageProps<App.Platform.Data.GameShowPageProps>();
-
+  const { backingGame, recentPlayers } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
   return (
@@ -55,7 +55,7 @@ export const GameRecentPlayersTable: FC = () => {
 
             <BaseTableCell>
               <PlayerGameProgressBar
-                game={game}
+                game={backingGame}
                 playerGame={{
                   achievementsUnlocked: recentPlayer.achievementsUnlocked,
                   achievementsUnlockedHardcore: recentPlayer.achievementsUnlockedHardcore,
@@ -68,6 +68,11 @@ export const GameRecentPlayersTable: FC = () => {
                   points: recentPlayer.points,
                   pointsHardcore: recentPlayer.pointsHardcore,
                 }}
+                shouldAlwaysLink={true}
+                href={route('game.compare-unlocks', {
+                  game: backingGame.id,
+                  user: recentPlayer.user.displayName,
+                })}
                 variant="minimal"
               />
             </BaseTableCell>
@@ -80,7 +85,10 @@ export const GameRecentPlayersTable: FC = () => {
                 )}
                 title={recentPlayer.richPresence}
               >
-                <RichPresenceMessage gameTitle={game.title} message={recentPlayer.richPresence} />
+                <RichPresenceMessage
+                  gameTitle={backingGame.title}
+                  message={recentPlayer.richPresence}
+                />
               </span>
             </BaseTableCell>
           </BaseTableRow>

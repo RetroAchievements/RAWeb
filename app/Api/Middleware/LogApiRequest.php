@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 class LogApiRequest
 {
     public function __construct(
-        private readonly string $apiVersion = 'v2'
+        private readonly string $apiVersion = 'v2',
     ) {
     }
 

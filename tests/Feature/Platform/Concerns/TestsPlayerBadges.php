@@ -18,7 +18,7 @@ trait TestsPlayerBadges
         int $type,
         int $id,
         int $extra = 0,
-        ?Carbon $awardTime = null
+        ?Carbon $awardTime = null,
     ): void {
         if ($awardTime === null) {
             $awardTime = Carbon::now();
@@ -45,7 +45,7 @@ trait TestsPlayerBadges
         User $user,
         Game $game,
         int $mode = UnlockMode::Hardcore,
-        ?Carbon $awardTime = null
+        ?Carbon $awardTime = null,
     ): void {
         $this->addPlayerBadge($user, AwardType::GameBeaten, $game->ID, $mode, $awardTime);
     }
@@ -83,7 +83,7 @@ trait TestsPlayerBadges
         User $user,
         Game $game,
         int $mode = UnlockMode::Hardcore,
-        ?Carbon $awardTime = null
+        ?Carbon $awardTime = null,
     ): void {
         $this->addPlayerBadge($user, AwardType::Mastery, $game->ID, $mode, $awardTime);
     }

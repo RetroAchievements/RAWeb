@@ -248,7 +248,7 @@ class PlayerGameActivityService
         Carbon $when,
         PlayerGameActivitySessionType $sessionType,
         string $description,
-        string $header = ''
+        string $header = '',
     ): void {
         $event = [
             'type' => PlayerGameActivityEventType::Custom,

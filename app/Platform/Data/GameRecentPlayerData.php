@@ -37,7 +37,7 @@ class GameRecentPlayerData extends Data
     public static function fromGameRecentPlayer(
         GameRecentPlayer $gameRecentPlayer,
         ?PlayerGame $playerGame = null,
-        ?PlayerBadge $highestAward = null
+        ?PlayerBadge $highestAward = null,
     ): self {
         $achievementsUnlocked = $playerGame?->achievements_unlocked ?? 0;
         $achievementsUnlockedHardcore = $playerGame?->achievements_unlocked_hardcore ?? 0;
