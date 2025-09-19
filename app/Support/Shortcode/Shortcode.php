@@ -131,7 +131,7 @@ final class Shortcode
     public static function stripAndClamp(
         string $input,
         int $previewLength = 100,
-        bool $preserveWhitespace = false
+        bool $preserveWhitespace = false,
     ): string {
         // Inject game and achievement data for shortcodes.
         // This is more desirable than showing "Game 123" or "Achievement 123".

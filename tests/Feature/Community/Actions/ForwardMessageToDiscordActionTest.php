@@ -73,7 +73,7 @@ class ForwardMessageToDiscordActionTest extends TestCase
         bool $isForum = false,
         ?string $verifyUrl = null,
         ?string $achievementIssuesUrl = null,
-        ?string $manualUnlockUrl = null
+        ?string $manualUnlockUrl = null,
     ): void {
         config([
             'services.discord.inbox_webhook.' . $user->username => [

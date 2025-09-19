@@ -23,7 +23,7 @@ class IncrementDeveloperContributionYieldAction
         Achievement $achievement,
         PlayerAchievement $playerAchievement,
         bool $isUnlock = true,
-        bool $isHardcore = false
+        bool $isHardcore = false,
     ): void {
         // If we somehow made it here for an unofficial achievement, bail.
         if (!$achievement->is_published) {

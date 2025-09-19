@@ -52,7 +52,7 @@ function createImageFromExtension(array $file): GdImage
         'png' => imagecreatefrompng($file['tmp_name']),
         'jpg', 'jpeg' => imagecreatefromjpeg($file['tmp_name']),
         'gif' => imagecreatefromgif($file['tmp_name']),
-        default => null
+        default => null,
     };
     if (!$image) {
         throw new Exception('Cannot create image');

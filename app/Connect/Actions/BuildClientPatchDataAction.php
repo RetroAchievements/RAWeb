@@ -74,7 +74,7 @@ class BuildClientPatchDataAction
     private function buildPatchData(
         Game $game,
         ?User $user,
-        ?AchievementFlag $flag
+        ?AchievementFlag $flag,
     ): array {
         $gamePlayerCount = $this->calculateGamePlayerCount($game, $user);
 

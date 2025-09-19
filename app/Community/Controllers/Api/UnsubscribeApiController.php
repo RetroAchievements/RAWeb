@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 class UnsubscribeApiController extends Controller
 {
     public function __construct(
-        private UnsubscribeService $unsubscribeService
+        private UnsubscribeService $unsubscribeService,
     ) {
     }
 

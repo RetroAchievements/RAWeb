@@ -49,7 +49,7 @@ class ResolveAchievementSetsActionTest extends TestCase
         System $system,
         string $title,
         int $publishedCount,
-        int $unpublishedCount = 0
+        int $unpublishedCount = 0,
     ): Game {
         $game = Game::factory()->create(['Title' => $title, 'ConsoleID' => $system->id]);
         Achievement::factory()->published()->count($publishedCount)->create(['GameID' => $game->id]);
@@ -66,7 +66,7 @@ class ResolveAchievementSetsActionTest extends TestCase
         AchievementSetType $type,
         int $gameId,
         int $publishedAchievementCount,
-        int $unpublishedAchievementCount
+        int $unpublishedAchievementCount,
     ): void {
         $this->assertEquals($type, $set->type);
         $this->assertEquals($gameId, $set->game_id);
@@ -89,7 +89,7 @@ class ResolveAchievementSetsActionTest extends TestCase
      */
     private function assertContainsAchievementSetType(
         Collection $sets,
-        AchievementSetType $type
+        AchievementSetType $type,
     ): void {
         $contains = $sets->contains(fn ($set) => $set->type === $type);
         $this->assertTrue($contains);
@@ -102,7 +102,7 @@ class ResolveAchievementSetsActionTest extends TestCase
      */
     private function assertNotContainsAchievementSetType(
         Collection $sets,
-        AchievementSetType $type
+        AchievementSetType $type,
     ): void {
         $contains = $sets->contains(fn ($set) => $set->type === $type);
         $this->assertFalse($contains);

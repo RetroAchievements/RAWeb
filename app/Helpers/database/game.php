@@ -169,7 +169,7 @@ function getGamesListByDev(
     ?int $filter = 0,
     int $offset = 0,
     int $count = 0,
-    ?string $listType = null
+    ?string $listType = null,
 ): int {
     $dataOut = [];
     $numGamesFound = 0;

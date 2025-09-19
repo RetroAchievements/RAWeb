@@ -38,7 +38,7 @@ class AchievementSetClaimData extends Data
     public static function fromAchievementSetClaim(
         AchievementSetClaim $claim,
         bool $isValidConsole = false,
-        bool $hasOfficialAchievements = false
+        bool $hasOfficialAchievements = false,
     ): self {
         $now = Carbon::now();
         $minutesLeft = (int) $now->diffInMinutes($claim->Finished, false);
