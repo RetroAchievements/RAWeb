@@ -2,9 +2,16 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events -- doesn't matter in a test suite */
 
 import userEvent from '@testing-library/user-event';
+import { route } from 'ziggy-js';
 
+import { currentListViewAtom } from '@/features/games/state/games.atoms';
 import { render, screen } from '@/test';
-import { createAchievementSet, createGame, createGameAchievementSet } from '@/test/factories';
+import {
+  createAchievementSet,
+  createGame,
+  createGameAchievementSet,
+  createZiggyProps,
+} from '@/test/factories';
 
 import { SetSelectionTabs } from './SetSelectionTabs';
 
@@ -34,6 +41,7 @@ describe('Component: SetSelectionTabs', () => {
       pageProps: {
         game,
         selectableGameAchievementSets,
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -49,6 +57,7 @@ describe('Component: SetSelectionTabs', () => {
       pageProps: {
         game,
         selectableGameAchievementSets: [],
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -72,11 +81,11 @@ describe('Component: SetSelectionTabs', () => {
       createGameAchievementSet({ title: 'Bonus Set', achievementSet: achievementSet2 }),
     ];
 
-    // ACT
     render(<SetSelectionTabs activeTab={null} />, {
       pageProps: {
         game,
         selectableGameAchievementSets,
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -94,11 +103,11 @@ describe('Component: SetSelectionTabs', () => {
     const game = createGame();
     const selectableGameAchievementSets = [createGameAchievementSet({ title: null })];
 
-    // ACT
     render(<SetSelectionTabs activeTab={null} />, {
       pageProps: {
         game,
         selectableGameAchievementSets,
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -119,12 +128,12 @@ describe('Component: SetSelectionTabs', () => {
       createGameAchievementSet({ achievementSet: achievementSet3, title: 'Set 3' }),
     ];
 
-    // ACT
     render(<SetSelectionTabs activeTab={200} />, {
       // !! activeTab matches second achievement set's ID
       pageProps: {
         game,
         selectableGameAchievementSets,
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -149,6 +158,7 @@ describe('Component: SetSelectionTabs', () => {
       pageProps: {
         game,
         selectableGameAchievementSets,
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -167,6 +177,7 @@ describe('Component: SetSelectionTabs', () => {
       pageProps: {
         game,
         selectableGameAchievementSets,
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -188,6 +199,7 @@ describe('Component: SetSelectionTabs', () => {
       pageProps: {
         game,
         selectableGameAchievementSets,
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -197,5 +209,61 @@ describe('Component: SetSelectionTabs', () => {
 
     // ASSERT
     expect(container).toBeTruthy();
+  });
+
+  it('given the device is mobile, does not display any tooltips', async () => {
+    // ARRANGE
+    const game = createGame();
+    const achievementSet1 = createAchievementSet({ id: 10 });
+    const achievementSet2 = createAchievementSet({ id: 20 });
+    const selectableGameAchievementSets = [
+      createGameAchievementSet({ achievementSet: achievementSet1, title: 'Set 1' }),
+      createGameAchievementSet({ achievementSet: achievementSet2, title: 'Set 2' }),
+    ];
+
+    render(<SetSelectionTabs activeTab={10} />, {
+      pageProps: {
+        game,
+        selectableGameAchievementSets,
+        ziggy: createZiggyProps({ device: 'mobile' }),
+      },
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByRole('link', { name: /set 1/i }));
+
+    // ASSERT
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
+  it('given the user is viewing leaderboards, respects that in the hrefs', async () => {
+    // ARRANGE
+    const game = createGame({ id: 123 });
+    const achievementSet1 = createAchievementSet({ id: 10 });
+    const achievementSet2 = createAchievementSet({ id: 20 });
+    const selectableGameAchievementSets = [
+      createGameAchievementSet({ achievementSet: achievementSet1, title: 'Set 1', type: 'core' }),
+      createGameAchievementSet({ achievementSet: achievementSet2, title: 'Set 2', type: 'bonus' }),
+    ];
+
+    render(<SetSelectionTabs activeTab={10} />, {
+      pageProps: {
+        game,
+        selectableGameAchievementSets,
+        ziggy: createZiggyProps(),
+      },
+      jotaiAtoms: [
+        [currentListViewAtom, 'leaderboards'], // !!
+        //
+      ],
+    });
+
+    // ASSERT
+    expect(route).toHaveBeenCalledWith(
+      'game2.show',
+      expect.objectContaining({
+        view: 'leaderboards',
+      }),
+    );
   });
 });
