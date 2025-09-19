@@ -17,6 +17,7 @@ use App\Models\AchievementMaintainer;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\LeaderboardEntry;
+use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
@@ -38,6 +39,7 @@ use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetAuthorTask;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\GamePageListSort;
 use App\Platform\Enums\GamePageListView;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -215,6 +217,7 @@ class BuildGameShowPagePropsAction
                 'reviewAchievementSetClaims',
             ),
 
+            initialSort: $this->getInitialSort($backingGame, $playerGame),
             initialView: $initialView,
 
             game: GameData::fromGame($game)->include(
@@ -224,14 +227,12 @@ class BuildGameShowPagePropsAction
                 'forumTopicId',
                 'gameAchievementSets.achievementSet.achievements.description',
                 'gameAchievementSets.achievementSet.achievements.developer',
-                'gameAchievementSets.achievementSet.achievements.flags',
                 'gameAchievementSets.achievementSet.achievements.orderColumn',
                 'gameAchievementSets.achievementSet.achievements.points',
                 'gameAchievementSets.achievementSet.achievements.pointsWeighted',
                 'gameAchievementSets.achievementSet.achievements.type',
                 'gameAchievementSets.achievementSet.achievements.unlockedAt',
                 'gameAchievementSets.achievementSet.achievements.unlockedHardcoreAt',
-                'gameAchievementSets.achievementSet.achievements.unlockHardcorePercentage',
                 'gameAchievementSets.achievementSet.achievements.unlockPercentage',
                 'gameAchievementSets.achievementSet.achievements.unlocksHardcoreTotal',
                 'gameAchievementSets.achievementSet.achievements.unlocksTotal',
@@ -250,10 +251,7 @@ class BuildGameShowPagePropsAction
                 'playersTotal',
                 'pointsTotal',
                 'publisher',
-                'releasedAt',
-                'releasedAtGranularity',
                 'releases',
-                'system.active',
                 'system.iconUrl',
                 'system.nameShort',
                 'system',
@@ -672,5 +670,22 @@ class BuildGameShowPagePropsAction
         }
 
         return $game->leaderboards->count();
+    }
+
+    private function getInitialSort(Game $backingGame, ?PlayerGame $playerGame): GamePageListSort
+    {
+        // Calculate the initial sort based on user's unlock progress.
+        // If the user has unlocked some (but not all) achievements, we can use the 'normal' sort order.
+        // Otherwise, default to 'displayOrder' which is always available.
+        if ($playerGame) {
+            $unlockedCount = $playerGame->achievements_unlocked ?? 0;
+            $totalCount = $backingGame->achievements_published ?? 0;
+
+            if ($unlockedCount > 0 && $unlockedCount < $totalCount) {
+                return GamePageListSort::Normal;
+            }
+        }
+
+        return GamePageListSort::DisplayOrder;
     }
 }

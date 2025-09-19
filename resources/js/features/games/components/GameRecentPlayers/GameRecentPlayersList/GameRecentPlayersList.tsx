@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useState } from 'react';
+import { route } from 'ziggy-js';
 
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { PlayerGameProgressBar } from '@/common/components/PlayerGameProgressBar';
@@ -9,7 +10,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 export const GameRecentPlayersList: FC = () => {
-  const { game, recentPlayers } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { backingGame, recentPlayers } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
@@ -50,7 +51,7 @@ export const GameRecentPlayersList: FC = () => {
                 />
 
                 <PlayerGameProgressBar
-                  game={game}
+                  game={backingGame}
                   playerGame={{
                     achievementsUnlocked: recentPlayer.achievementsUnlocked,
                     achievementsUnlockedHardcore: recentPlayer.achievementsUnlockedHardcore,
@@ -63,6 +64,11 @@ export const GameRecentPlayersList: FC = () => {
                     points: recentPlayer.points,
                     pointsHardcore: recentPlayer.pointsHardcore,
                   }}
+                  shouldAlwaysLink={true}
+                  href={route('game.compare-unlocks', {
+                    game: backingGame.id,
+                    user: recentPlayer.user.displayName,
+                  })}
                   className="!py-0"
                   variant="minimal"
                 />
@@ -81,7 +87,10 @@ export const GameRecentPlayersList: FC = () => {
               aria-expanded={isExpanded}
               aria-label={`Toggle rich presence details for ${recentPlayer.user.displayName}`}
             >
-              <RichPresenceMessage gameTitle={game.title} message={recentPlayer.richPresence} />
+              <RichPresenceMessage
+                gameTitle={backingGame.title}
+                message={recentPlayer.richPresence}
+              />
             </button>
           </li>
         );

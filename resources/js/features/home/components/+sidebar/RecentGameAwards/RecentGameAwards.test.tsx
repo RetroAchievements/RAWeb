@@ -61,7 +61,7 @@ describe('Component: RecentGameAwards', () => {
   it('given there is a most recent mastered award, displays the award metadata', () => {
     // ARRANGE
     const game = createGame({ title: 'Sonic the Hedgehog' });
-    const user = createUser({ displayName: 'Scott' });
+    const user = createUser({ displayName: 'meleu' });
 
     render(<RecentGameAwards />, {
       pageProps: createHomePageProps({
@@ -72,6 +72,6 @@ describe('Component: RecentGameAwards', () => {
     // ASSERT
     expect(screen.getByText(/most recent set mastered/i)).toBeVisible();
     expect(screen.getByText(/sonic the hedgehog/i)).toBeVisible();
-    expect(screen.getByText(/scott/i)).toBeVisible();
+    expect(screen.getByText(/meleu/i)).toBeVisible();
   });
 });
