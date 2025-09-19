@@ -45,7 +45,7 @@ parameters:
 
     excludePaths:
         # unrelated directories
-        - public/storage
+        - public/storage (?)
         - public/tmp (?)
         # disabled features
         - public/API/API_GetFeed.php
