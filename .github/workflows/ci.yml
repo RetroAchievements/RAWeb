@@ -113,6 +113,7 @@ jobs:
       - name: Run ${{ matrix.check }}
         if: ${{ needs.changes.outputs.php == 'true' }}
         run: ${{ matrix.command }}
+        env: ${{ matrix.env || fromJSON('{}') }}
 
       - name: Save PHPStan result cache
         if: ${{ needs.changes.outputs.php == 'true' && matrix.check == 'analyse' }}
