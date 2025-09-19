@@ -110,6 +110,9 @@ jobs:
       - name: Run ${{ matrix.check }}
         if: ${{ needs.changes.outputs.php == 'true' }}
         run: ${{ matrix.command }}
+        env:
+          # PHPStan explodes if we're missing an APP_KEY. This is a value pulled from the Laravel docs.
+          APP_KEY: ${{ matrix.check == 'analyse' && 'base64:J63qRTDLub5NuZvP+kb8YIorGS6qFYHKVo6u7179stY=' || '' }}
 
       - name: Save PHPStan result cache
         if: ${{ needs.changes.outputs.php == 'true' && matrix.check == 'analyse' }}
