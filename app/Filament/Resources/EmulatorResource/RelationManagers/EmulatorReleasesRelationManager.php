@@ -85,7 +85,7 @@ class EmulatorReleasesRelationManager extends RelationManager
                     ->alignCenter()
                     ->tooltip(fn ($record): ?string => $record->minimum ? 'This version is reported as the recommended minimum via API (does not block connections)' : null)
                     ->boolean()
-                    ->getStateUsing(fn ($record): ?string => $record->minimum ? 'true' : '')
+                    ->getStateUsing(fn ($record): string => $record->minimum ? 'true' : '')
                     ->trueIcon('heroicon-o-information-circle')
                     ->falseIcon(null)
                     ->trueColor('info'),
