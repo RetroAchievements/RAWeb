@@ -1,9 +1,6 @@
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCircleAlert } from 'react-icons/lu';
-import { route } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
@@ -17,6 +14,7 @@ import { BaseInput } from '@/common/components/+vendor/BaseInput';
 import { BaseSwitch } from '@/common/components/+vendor/BaseSwitch';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useDeleteAllUserCommentsMutation } from '@/features/settings/hooks/mutations/useDeleteAllUserCommentsMutation';
 
 import { SectionFormCard } from '../SectionFormCard';
 import { useProfileSectionForm } from './useProfileSectionForm';
@@ -24,7 +22,6 @@ import { VisibleRoleField } from './VisibleRoleField';
 
 export const ProfileSectionCard: FC = () => {
   const { auth, can, userSettings } = usePageProps<App.Community.Data.UserSettingsPageProps>();
-
   const { t } = useTranslation();
 
   const {
@@ -37,18 +34,14 @@ export const ProfileSectionCard: FC = () => {
     visibleRoleId: auth?.user.visibleRole ? auth.user.visibleRole.id : null,
   });
 
-  const deleteAllCommentsMutation = useMutation({
-    mutationFn: async () => {
-      return axios.delete(route('user.comment.destroyAll', auth!.user.id));
-    },
-  });
+  const deleteAllCommentsMutation = useDeleteAllUserCommentsMutation();
 
   const handleDeleteAllCommentsClick = () => {
     if (!confirm(t('Are you sure you want to permanently delete all comments on your wall?'))) {
       return;
     }
 
-    toastMessage.promise(deleteAllCommentsMutation.mutateAsync(), {
+    toastMessage.promise(deleteAllCommentsMutation.mutateAsync({ userId: auth!.user.id }), {
       loading: t('Deleting...'),
       success: t('Successfully deleted all comments on your wall.'),
       error: t('Something went wrong.'),

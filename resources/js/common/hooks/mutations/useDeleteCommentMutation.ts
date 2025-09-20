@@ -4,11 +4,13 @@ import { route } from 'ziggy-js';
 
 import { ArticleType } from '@/common/utils/generatedAppConstants';
 
-type MutationFnProps = App.Community.Data.Comment & { targetUserDisplayName?: string };
+interface Variables {
+  comment: App.Community.Data.Comment & { targetUserDisplayName?: string };
+}
 
 export function useDeleteCommentMutation() {
   return useMutation({
-    mutationFn: (comment: MutationFnProps) => {
+    mutationFn: ({ comment }: Variables) => {
       return axios.delete(buildDeleteRoute(comment));
     },
   });
@@ -19,7 +21,7 @@ function buildDeleteRoute({
   commentableType,
   id,
   targetUserDisplayName = '',
-}: MutationFnProps): string {
+}: Variables['comment']): string {
   const commentableTypeRouteMap: Record<number, string> = {
     [ArticleType.Achievement]: route('api.achievement.comment.destroy', {
       achievement: commentableId,

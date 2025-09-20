@@ -1,21 +1,15 @@
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCircleAlert } from 'react-icons/lu';
-import { route } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
+import { useResetConnectApiKeyMutation } from '@/features/settings/hooks/mutations/useResetConnectApiKeyMutation';
 
 export const ManageConnectApiKey: FC = () => {
   const { t } = useTranslation();
 
-  const mutation = useMutation({
-    mutationFn: () => {
-      return axios.delete(route('api.settings.keys.connect.destroy'));
-    },
-  });
+  const mutation = useResetConnectApiKeyMutation();
 
   const handleResetApiKeyClick = () => {
     if (!confirm(t('Are you sure you want to sign out of all emulators?'))) {

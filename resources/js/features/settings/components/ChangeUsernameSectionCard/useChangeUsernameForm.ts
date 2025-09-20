@@ -1,22 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import { useAtom } from 'jotai';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import type { LaravelValidationError } from '@/common/models';
+import { useCreateNameChangeRequestMutation } from '@/features/settings/hooks/mutations/useCreateNameChangeRequestMutation';
 
 import { requestedUsernameAtom } from '../../state/settings.atoms';
 
 export function useChangeUsernameForm() {
   const { auth } = usePageProps();
-
   const { t } = useTranslation();
 
   const [requestedUsername, setRequestedUsername] = useAtom(requestedUsernameAtom);
@@ -58,26 +55,13 @@ export function useChangeUsernameForm() {
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: (formValues: FormValues) => {
-      return axios.post(route('api.settings.name-change-request.store'), {
-        newDisplayName: formValues.newUsername,
-      });
-    },
-    onSuccess: (_, { newUsername }) => {
-      const wasAutoApproved = auth!.user.displayName.toLowerCase() === newUsername.toLowerCase();
-
-      if (wasAutoApproved) {
-        window.location.reload();
-
-        return;
-      }
-
-      setRequestedUsername(newUsername);
-    },
-  });
+  const mutation = useCreateNameChangeRequestMutation();
 
   const onSubmit = async (formValues: FormValues) => {
+    const payload = {
+      newDisplayName: formValues.newUsername,
+    };
+
     const confirmationMessage = t(
       'You can only request a new username once every 30 days, even if your new username is not approved. Are you sure you want to do this?',
     );
@@ -91,9 +75,22 @@ export function useChangeUsernameForm() {
       return;
     }
 
-    await toastMessage.promise(mutation.mutateAsync(formValues), {
+    await toastMessage.promise(mutation.mutateAsync({ payload }), {
       loading: t('Submitting username change request...'),
-      success: t('Submitted username change request!'),
+      success: () => {
+        const wasAutoApproved =
+          auth!.user.displayName.toLowerCase() === formValues.newUsername.toLowerCase();
+
+        if (wasAutoApproved) {
+          window.location.reload();
+
+          return t('Updated.');
+        }
+
+        setRequestedUsername(formValues.newUsername);
+
+        return t('Submitted username change request!');
+      },
       error: ({ response }: LaravelValidationError) => {
         if (response.data.message.includes('already been taken')) {
           return t('This username is already taken.');

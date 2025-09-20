@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from '@inertiajs/react';
-import { useMutation } from '@tanstack/react-query';
-import axios, { type AxiosError } from 'axios';
+import { type AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
@@ -9,6 +8,7 @@ import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
+import { useCreateMessageThreadMutation } from '@/features/messages/hooks/mutations/useCreateMessageThreadMutation';
 
 const formSchema = z.object({
   recipient: z.string().min(3).max(20),
@@ -33,20 +33,16 @@ export function useCreateMessageThreadForm(
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: (formValues: FormValues) => {
-      const normalizedPayload = {
-        ...formValues,
-        senderUserDisplayName,
-        body: preProcessShortcodesInBody(formValues.body),
-      };
-
-      return axios.post<{ threadId: number }>(route('api.message.store'), normalizedPayload);
-    },
-  });
+  const mutation = useCreateMessageThreadMutation();
 
   const onSubmit = async (formValues: FormValues) => {
-    await toastMessage.promise(mutation.mutateAsync(formValues), {
+    const normalizedPayload = {
+      ...formValues,
+      senderUserDisplayName,
+      body: preProcessShortcodesInBody(formValues.body),
+    };
+
+    await toastMessage.promise(mutation.mutateAsync({ payload: normalizedPayload }), {
       loading: t('Submitting...'),
       success: ({ data }) => {
         router.visit(route('message-thread.show', { messageThread: data.threadId }));

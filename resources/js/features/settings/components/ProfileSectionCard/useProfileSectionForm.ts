@@ -1,12 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
+import { useUpdateProfileMutation } from '@/features/settings/hooks/mutations/useUpdateProfileMutation';
 
 const profileFormSchema = z.object({
   motto: z.string().max(50),
@@ -28,19 +26,15 @@ export function useProfileSectionForm(initialValues: FormValues) {
     defaultValues: initialValues,
   });
 
-  const mutation = useMutation({
-    mutationFn: (formValues: FormValues) => {
-      const payload = { ...formValues };
-      if (!payload.visibleRoleId) {
-        delete payload.visibleRoleId;
-      }
-
-      return axios.put(route('api.settings.profile.update'), payload);
-    },
-  });
+  const mutation = useUpdateProfileMutation();
 
   const onSubmit = (formValues: FormValues) => {
-    toastMessage.promise(mutation.mutateAsync(formValues), {
+    const payload = { ...formValues };
+    if (!payload.visibleRoleId) {
+      delete payload.visibleRoleId;
+    }
+
+    toastMessage.promise(mutation.mutateAsync({ payload }), {
       loading: t('Updating...'),
       success: t('Updated.'),
       error: t('Something went wrong.'),

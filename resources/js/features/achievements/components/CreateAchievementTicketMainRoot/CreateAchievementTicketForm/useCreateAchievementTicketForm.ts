@@ -1,6 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
@@ -9,6 +7,7 @@ import { z } from 'zod';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { TicketType } from '@/common/utils/generatedAppConstants';
+import { useCreateTicketMutation } from '@/features/achievements/hooks/mutations/useCreateTicketMutation';
 
 const createAchievementTicketFormSchema = z.object({
   /** @see TicketType.php */
@@ -30,7 +29,6 @@ export function useCreateAchievementTicketForm(
     achievement,
     ziggy: { query },
   } = usePageProps<App.Platform.Data.CreateAchievementTicketPageProps>();
-
   const { t } = useTranslation();
 
   const form = useForm<CreateAchievementTicketFormValues>({
@@ -38,38 +36,39 @@ export function useCreateAchievementTicketForm(
     defaultValues: initialValues,
   });
 
-  const mutation = useMutation({
-    mutationFn: (formValues: CreateAchievementTicketFormValues) => {
-      return axios.post<{ message: string; ticketId: string }>(route('api.ticket.store'), {
-        ticketableModel: 'achievement',
-        ticketableId: achievement.id,
-        mode: formValues.mode,
-        issue: getTicketTypeFromIssue(formValues.issue),
-        description: formValues.description,
-        emulator: formValues.emulator,
-        emulatorVersion: formValues.emulatorVersion?.trim() ? formValues.emulatorVersion : null,
-        core: formValues.core,
-        gameHashId: Number(formValues.hash),
-        extra: query.extra ?? null,
-      });
-    },
-  });
+  const mutation = useCreateTicketMutation();
 
   const onSubmit = async (formValues: CreateAchievementTicketFormValues) => {
-    toastMessage.promise(mutation.mutateAsync(formValues), {
-      loading: t('Submitting...'),
-      success: (submitResponse) => {
-        setTimeout(() => {
-          const { ticketId } = submitResponse.data;
+    toastMessage.promise(
+      mutation.mutateAsync({
+        payload: {
+          ticketableModel: 'achievement',
+          ticketableId: achievement.id,
+          mode: formValues.mode,
+          issue: getTicketTypeFromIssue(formValues.issue),
+          description: formValues.description,
+          emulator: formValues.emulator,
+          emulatorVersion: formValues.emulatorVersion?.trim() ? formValues.emulatorVersion : null,
+          core: formValues.core,
+          gameHashId: Number(formValues.hash),
+          extra: query.extra ?? null,
+        },
+      }),
+      {
+        loading: t('Submitting...'),
+        success: (submitResponse) => {
+          setTimeout(() => {
+            const { ticketId } = submitResponse.data;
 
-          // TODO use router.visit after migrating this page to React
-          window.location.href = route('ticket.show', { ticket: ticketId });
-        }, 1000);
+            // TODO use router.visit after migrating this page to React
+            window.location.href = route('ticket.show', { ticket: ticketId });
+          }, 1000);
 
-        return t('Submitted!');
+          return t('Submitted!');
+        },
+        error: t('Something went wrong.'),
       },
-      error: t('Something went wrong.'),
-    });
+    );
   };
 
   return { form, mutation, onSubmit };

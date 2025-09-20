@@ -2,11 +2,11 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuX } from 'react-icons/lu';
 
+import { useDeleteCommentMutation } from '../../hooks/mutations/useDeleteCommentMutation';
 import { BaseButton } from '../+vendor/BaseButton';
 import { toastMessage } from '../+vendor/BaseToaster';
 import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';
 import { useCommentListContext } from './CommentListContext';
-import { useDeleteCommentMutation } from './useDeleteCommentMutation';
 
 type DeleteCommentButtonProps = App.Community.Data.Comment & { onDeleteSuccess?: () => void };
 
@@ -25,7 +25,7 @@ export const DeleteCommentButton: FC<DeleteCommentButtonProps> = ({
       return;
     }
 
-    toastMessage.promise(mutation.mutateAsync({ ...comment, targetUserDisplayName }), {
+    toastMessage.promise(mutation.mutateAsync({ comment: { ...comment, targetUserDisplayName } }), {
       loading: t('Deleting...'),
       success: () => {
         onDeleteSuccess?.();

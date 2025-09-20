@@ -1,8 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from '@inertiajs/react';
-import { useMutation } from '@tanstack/react-query';
 import type { AxiosResponse } from 'axios';
-import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
@@ -10,6 +8,8 @@ import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
+import { useCreateForumTopicCommentMutation } from '@/features/forums/hooks/mutations/useCreateForumTopicCommentMutation';
+import { useUpdateForumTopicCommentMutation } from '@/features/forums/hooks/mutations/useUpdateForumTopicCommentMutation';
 
 const formSchema = z.object({
   body: z.string().min(1).max(60_000),
@@ -30,29 +30,20 @@ export function useUpsertPostForm(
     defaultValues: initialValues,
   });
 
-  const mutation = useMutation({
-    mutationFn: (payload: FormValues) => {
-      const normalizedPayload = {
-        body: preProcessShortcodesInBody(payload.body),
-        postAsUserId: payload.postAsUserId === 'self' ? null : Number(payload.postAsUserId),
-      };
-
-      if (targetComment) {
-        return axios.patch(
-          route('api.forum-topic-comment.update', { comment: targetComment.id }),
-          normalizedPayload,
-        );
-      }
-
-      return axios.post(
-        route('api.forum-topic-comment.create', { topic: targetTopic!.id }),
-        normalizedPayload,
-      );
-    },
-  });
+  const updateMutation = useUpdateForumTopicCommentMutation();
+  const createMutation = useCreateForumTopicCommentMutation();
 
   const onSubmit = (formValues: FormValues) => {
-    toastMessage.promise(mutation.mutateAsync(formValues), {
+    const normalizedPayload = {
+      body: preProcessShortcodesInBody(formValues.body),
+      postAsUserId: formValues.postAsUserId === 'self' ? null : Number(formValues.postAsUserId),
+    };
+
+    const mutationPromise = targetComment
+      ? updateMutation.mutateAsync({ comment: targetComment.id, payload: normalizedPayload })
+      : createMutation.mutateAsync({ topic: targetTopic!.id, payload: normalizedPayload });
+
+    toastMessage.promise(mutationPromise, {
       loading: targetComment ? t('Updating...') : t('Submitting...'),
       success: ({ data }: AxiosResponse<{ commentId: number }>) => {
         if (targetComment) {
@@ -81,5 +72,5 @@ export function useUpsertPostForm(
     });
   };
 
-  return { form, mutation, onSubmit };
+  return { form, onSubmit, mutation: targetComment ? updateMutation : createMutation };
 }

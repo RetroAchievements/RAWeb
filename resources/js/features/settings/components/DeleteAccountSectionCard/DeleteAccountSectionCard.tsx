@@ -11,9 +11,10 @@ import {
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useCancelAccountDeletionMutation } from '@/features/settings/hooks/mutations/useCancelAccountDeletionMutation';
+import { useRequestAccountDeletionMutation } from '@/features/settings/hooks/mutations/useRequestAccountDeletionMutation';
 
 import { SectionStandardCard } from '../SectionStandardCard';
-import { useManageAccountDeletion } from './useManageAccountDeletion';
 
 export const DeleteAccountSectionCard: FC = () => {
   const { userSettings } = usePageProps<App.Community.Data.UserSettingsPageProps>();
@@ -24,7 +25,8 @@ export const DeleteAccountSectionCard: FC = () => {
     !!userSettings.deleteRequested,
   );
 
-  const { cancelDeleteMutation, requestDeleteMutation } = useManageAccountDeletion();
+  const cancelDeleteMutation = useCancelAccountDeletionMutation();
+  const requestDeleteMutation = useRequestAccountDeletionMutation();
 
   const handleClick = () => {
     const toggleMessage = isDeleteAlreadyRequested

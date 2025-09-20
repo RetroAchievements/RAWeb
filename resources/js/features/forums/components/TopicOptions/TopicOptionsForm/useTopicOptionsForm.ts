@@ -1,13 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from '@inertiajs/react';
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
+import { useUpdateForumTopicMutation } from '@/features/forums/hooks/mutations/useUpdateForumTopicMutation';
 
 const formSchema = z.object({
   title: z.string().min(2).max(255),
@@ -24,20 +22,16 @@ export function useTopicOptionsForm(topic: App.Data.ForumTopic) {
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: (payload: FormValues) => {
-      return axios.put(route('api.forum-topic.update', { topic: topic.id }), payload);
-    },
-
-    onSuccess: () => {
-      router.reload();
-    },
-  });
+  const mutation = useUpdateForumTopicMutation();
 
   const onSubmit = (formValues: FormValues) => {
-    toastMessage.promise(mutation.mutateAsync(formValues), {
+    toastMessage.promise(mutation.mutateAsync({ topic: topic.id, payload: formValues }), {
       loading: t('Submitting...'),
-      success: t('Submitted!'),
+      success: () => {
+        router.reload();
+
+        return t('Submitted!');
+      },
       error: t('Something went wrong.'),
     });
   };

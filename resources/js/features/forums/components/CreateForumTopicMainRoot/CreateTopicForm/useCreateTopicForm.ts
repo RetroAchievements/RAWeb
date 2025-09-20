@@ -1,7 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from '@inertiajs/react';
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
@@ -10,6 +8,7 @@ import { z } from 'zod';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
+import { useCreateForumTopicMutation } from '@/features/forums/hooks/mutations/useCreateForumTopicMutation';
 
 const formSchema = z.object({
   title: z.string().min(2).max(255),
@@ -31,31 +30,29 @@ export function useCreateTopicForm() {
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: (payload: FormValues) => {
-      const normalizedPayload = {
-        title: payload.title,
-        body: preProcessShortcodesInBody(payload.body),
-        postAsUserId: payload.postAsUserId === 'self' ? null : Number(payload.postAsUserId),
-      };
-
-      return axios.post<{ success: boolean; newTopicId: number }>(
-        route('api.forum-topic.store', { category: forum.category!.id, forum: forum.id }),
-        normalizedPayload,
-      );
-    },
-  });
+  const mutation = useCreateForumTopicMutation();
 
   const onSubmit = (formValues: FormValues) => {
-    toastMessage.promise(mutation.mutateAsync(formValues), {
-      loading: t('Submitting...'),
-      success: ({ data }) => {
-        router.visit(route('forum-topic.show', { topic: data.newTopicId }));
+    toastMessage.promise(
+      mutation.mutateAsync({
+        category: forum.category!.id,
+        forum: forum.id,
+        payload: {
+          title: formValues.title,
+          body: preProcessShortcodesInBody(formValues.body),
+          postAsUserId: formValues.postAsUserId === 'self' ? null : Number(formValues.postAsUserId),
+        },
+      }),
+      {
+        loading: t('Submitting...'),
+        success: ({ data }) => {
+          router.visit(route('forum-topic.show', { topic: data.newTopicId }));
 
-        return t('Submitted!');
+          return t('Submitted!');
+        },
+        error: t('Something went wrong.'),
       },
-      error: t('Something went wrong.'),
-    });
+    );
   };
 
   return { form, mutation, onSubmit };

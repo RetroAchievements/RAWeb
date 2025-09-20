@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from '@inertiajs/react';
-import { useMutation } from '@tanstack/react-query';
-import axios, { type AxiosError } from 'axios';
+import { type AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
@@ -10,6 +9,7 @@ import { z } from 'zod';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
+import { useCreateMessageReplyMutation } from '@/features/messages/hooks/mutations/useCreateMessageReplyMutation';
 
 const formSchema = z.object({
   body: z.string().min(1).max(2000),
@@ -19,7 +19,6 @@ type FormValues = z.infer<typeof formSchema>;
 export function useCreateMessageReplyForm() {
   const { messageThread, paginatedMessages } =
     usePageProps<App.Community.Data.MessageThreadShowPageProps>();
-
   const { t } = useTranslation();
 
   const form = useForm<FormValues>({
@@ -27,20 +26,16 @@ export function useCreateMessageReplyForm() {
     defaultValues: { body: '' },
   });
 
-  const mutation = useMutation({
-    mutationFn: (formValues: FormValues) => {
-      const normalizedPayload = {
-        // TODO "thread_id" -> "threadId"
-        thread_id: messageThread.id,
-        body: preProcessShortcodesInBody(formValues.body),
-      };
-
-      return axios.post(route('api.message.store'), normalizedPayload);
-    },
-  });
+  const mutation = useCreateMessageReplyMutation();
 
   const onSubmit = async (formValues: FormValues) => {
-    await toastMessage.promise(mutation.mutateAsync(formValues), {
+    const normalizedPayload = {
+      // TODO "thread_id" -> "threadId"
+      thread_id: messageThread.id,
+      body: preProcessShortcodesInBody(formValues.body),
+    };
+
+    await toastMessage.promise(mutation.mutateAsync({ payload: normalizedPayload }), {
       loading: t('Submitting...'),
       success: () => {
         router.visit(

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
-import { useUpdateUserForumPermissionsMutation } from '@/features/forums/hooks/useUpdateUserForumPermissionsMutation';
+import { useUpdateUserForumPermissionsMutation } from '@/features/forums/hooks/mutations/useUpdateUserForumPermissionsMutation';
 
 interface ForumPostManageProps {
   comment: App.Data.ForumTopicComment;

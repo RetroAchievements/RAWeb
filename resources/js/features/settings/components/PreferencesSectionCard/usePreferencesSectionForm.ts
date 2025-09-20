@@ -1,15 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { route } from 'ziggy-js';
 import type { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { convertObjectToWebsitePrefs } from '@/common/utils/convertObjectToWebsitePrefs';
 import { convertWebsitePrefsToObject } from '@/common/utils/convertWebsitePrefsToObject';
+import { useUpdatePreferencesMutation } from '@/features/settings/hooks/mutations/useUpdatePreferencesMutation';
 
 import { websitePrefsFormSchema } from '../../utils/websitePrefsFormSchema';
 
@@ -33,16 +31,12 @@ export function usePreferencesSectionForm(
     }
   }, [form, websitePrefs]);
 
-  const mutation = useMutation({
-    mutationFn: (websitePrefs: number) => {
-      return axios.put(route('api.settings.preferences.update'), { websitePrefs });
-    },
-  });
+  const mutation = useUpdatePreferencesMutation();
 
   const onSubmit = (formValues: FormValues) => {
     const newWebsitePrefs = convertObjectToWebsitePrefs(formValues);
 
-    toastMessage.promise(mutation.mutateAsync(newWebsitePrefs), {
+    toastMessage.promise(mutation.mutateAsync({ payload: { websitePrefs: newWebsitePrefs } }), {
       loading: t('Updating...'),
       success: () => {
         onUpdateWebsitePrefs(newWebsitePrefs);

@@ -1,12 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
+import { useSubmitCommentMutation } from '@/common/hooks/mutations/useSubmitCommentMutation';
 import { ArticleType } from '@/common/utils/generatedAppConstants';
 
 import { useCommentListContext } from './CommentListContext';
@@ -33,7 +32,6 @@ export function useSubmitCommentForm({
       .min(3, { message: t('Comment must be at least 3 characters.') })
       .max(2000, { message: t('Comment must not be longer than 2,000 characters.') }),
   });
-
   type FormValues = z.infer<typeof addCommentFormSchema>;
 
   const form = useForm<FormValues>({
@@ -41,27 +39,29 @@ export function useSubmitCommentForm({
     defaultValues: { body: '' },
   });
 
-  const mutation = useMutation({
-    mutationFn: (formValues: FormValues) => {
-      return axios.post(buildPostRoute({ commentableId, commentableType, targetUserDisplayName }), {
-        commentableId,
-        commentableType: ArticleType[commentableType],
-        body: formValues.body,
-      });
-    },
-  });
+  const mutation = useSubmitCommentMutation();
 
   const onSubmit = (formValues: FormValues) => {
-    toastMessage.promise(mutation.mutateAsync(formValues), {
-      loading: t('Submitting...'),
-      success: () => {
-        onSubmitSuccess?.();
-        form.reset();
+    toastMessage.promise(
+      mutation.mutateAsync({
+        route: buildPostRoute({ commentableId, commentableType, targetUserDisplayName }),
+        payload: {
+          commentableId,
+          commentableType: ArticleType[commentableType],
+          body: formValues.body,
+        },
+      }),
+      {
+        loading: t('Submitting...'),
+        success: () => {
+          onSubmitSuccess?.();
+          form.reset();
 
-        return t('Submitted!');
+          return t('Submitted!');
+        },
+        error: t('Something went wrong.'),
       },
-      error: t('Something went wrong.'),
-    });
+    );
   };
 
   return { form, mutation, onSubmit };

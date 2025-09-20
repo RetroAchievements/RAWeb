@@ -1,20 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { route } from 'ziggy-js';
 import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useChangeEmailAddressMutation } from '@/features/settings/hooks/mutations/useChangeEmailAddressMutation';
 
 export function useChangeEmailAddressForm(props: {
   setCurrentEmailAddress: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
-
   const { t } = useTranslation();
 
   const changeEmailAddressFormSchema = useMemo(
@@ -41,14 +38,7 @@ export function useChangeEmailAddressForm(props: {
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: (formValues: FormValues) => {
-      return axios.put(route('api.settings.email.update'), formValues);
-    },
-    onSuccess: () => {
-      props.setCurrentEmailAddress(form.getValues().newEmail);
-    },
-  });
+  const mutation = useChangeEmailAddressMutation();
 
   const onSubmit = (formValues: FormValues) => {
     const confirmationMessage = auth?.user.roles.length
@@ -61,9 +51,13 @@ export function useChangeEmailAddressForm(props: {
       return;
     }
 
-    toastMessage.promise(mutation.mutateAsync(formValues), {
+    toastMessage.promise(mutation.mutateAsync({ payload: formValues }), {
       loading: t('Changing email address...'),
-      success: t('Changed email address!'),
+      success: () => {
+        props.setCurrentEmailAddress(form.getValues().newEmail);
+
+        return t('Changed email address!');
+      },
       error: t('Something went wrong.'),
     });
   };

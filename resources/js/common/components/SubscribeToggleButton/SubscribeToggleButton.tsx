@@ -2,9 +2,10 @@ import { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuBell, LuBellOff } from 'react-icons/lu';
 
+import { useToggleSubscriptionMutation } from '@/common/hooks/mutations/useToggleSubscriptionMutation';
+
 import { BaseButton } from '../+vendor/BaseButton';
 import { toastMessage } from '../+vendor/BaseToaster';
-import { useToggleSubscriptionMutation } from './useToggleSubscriptionMutation';
 
 /**
  * An `existingSubscription` might contain duplicative

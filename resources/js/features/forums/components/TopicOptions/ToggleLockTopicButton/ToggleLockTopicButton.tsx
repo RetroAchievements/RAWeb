@@ -1,30 +1,21 @@
 import { router } from '@inertiajs/react';
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuLock, LuLockOpen } from 'react-icons/lu';
-import { route } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useToggleLockForumTopicMutation } from '@/features/forums/hooks/mutations/useToggleLockForumTopicMutation';
 
 export const ToggleLockTopicButton: FC = () => {
   const { forumTopic } = usePageProps<App.Data.ShowForumTopicPageProps>();
-
   const { t } = useTranslation();
 
   const isLocked = !!forumTopic.lockedAt;
   const Icon = isLocked ? LuLockOpen : LuLock;
 
-  const mutation = useMutation({
-    mutationFn: () => axios.post(route('api.forum-topic.toggle-lock', { topic: forumTopic.id })),
-
-    onSuccess: () => {
-      router.reload();
-    },
-  });
+  const mutation = useToggleLockForumTopicMutation();
 
   const handleClick = () => {
     const confirmMessage = isLocked
@@ -38,9 +29,13 @@ export const ToggleLockTopicButton: FC = () => {
       return;
     }
 
-    toastMessage.promise(mutation.mutateAsync(), {
+    toastMessage.promise(mutation.mutateAsync({ topic: forumTopic.id }), {
       loading: loadingMessage,
-      success: successMessage,
+      success: () => {
+        router.reload();
+
+        return successMessage;
+      },
       error: 'Something went wrong.',
     });
   };
