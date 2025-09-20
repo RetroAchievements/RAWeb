@@ -7,13 +7,13 @@ import { useSubmitOnMetaEnter } from '@/common/hooks/useSubmitOnMetaEnter';
 
 import { BaseButton } from '../+vendor/BaseButton';
 import {
+  BaseForm,
   BaseFormControl,
   BaseFormDescription,
   BaseFormField,
   BaseFormItem,
   BaseFormLabel,
   BaseFormMessage,
-  BaseFormProvider,
 } from '../+vendor/BaseForm';
 import { baseTextareaClassNames } from '../+vendor/BaseTextarea';
 import { UserAvatar } from '../UserAvatar';
@@ -50,7 +50,7 @@ export const CommentInput: FC = () => {
         <UserAvatar {...auth.user} showLabel={false} />
       </div>
 
-      <BaseFormProvider {...form}>
+      <BaseForm {...form}>
         <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)} className="w-full">
           <div className="flex flex-col">
             <BaseFormField
@@ -92,7 +92,7 @@ export const CommentInput: FC = () => {
             </div>
           </div>
         </form>
-      </BaseFormProvider>
+      </BaseForm>
     </div>
   );
 };

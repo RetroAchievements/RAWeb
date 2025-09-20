@@ -5,11 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { BaseAutosizeTextarea } from '@/common/components/+vendor/BaseAutosizeTextarea';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
+  BaseForm,
   BaseFormControl,
   BaseFormField,
   BaseFormItem,
   BaseFormLabel,
-  BaseFormProvider,
 } from '@/common/components/+vendor/BaseForm';
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
 import { BaseSelectAsync } from '@/common/components/+vendor/BaseSelectAsync';
@@ -59,7 +59,7 @@ export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPr
   });
 
   return (
-    <BaseFormProvider {...form}>
+    <BaseForm {...form}>
       <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-5 md:w-full md:flex-row">
@@ -188,6 +188,6 @@ export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPr
           </div>
         </div>
       </form>
-    </BaseFormProvider>
+    </BaseForm>
   );
 };

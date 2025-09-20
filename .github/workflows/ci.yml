@@ -50,7 +50,7 @@ jobs:
         if: ${{ needs.changes.outputs.node == 'true' }}
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 10.17
 
       - name: Use Node 20
         if: ${{ needs.changes.outputs.node == 'true' }}
@@ -151,7 +151,7 @@ jobs:
         if: ${{ needs.changes.outputs.node == 'true' }}
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 10.17
 
       - name: Use Node 20
         if: ${{ needs.changes.outputs.node == 'true' }}
@@ -193,7 +193,7 @@ jobs:
         if: ${{ needs.changes.outputs.node == 'true' }}
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 10.17
 
       - name: Use Node 20
         if: ${{ needs.changes.outputs.node == 'true' }}
@@ -237,7 +237,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 10.17
 
       - name: Use Node 20
         uses: actions/setup-node@v4

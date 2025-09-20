@@ -7,7 +7,7 @@ import {
   BaseAlertTitle,
 } from '@/common/components/+vendor/BaseAlert';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
-import { BaseFormProvider } from '@/common/components/+vendor/BaseForm';
+import { BaseForm } from '@/common/components/+vendor/BaseForm';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { DescriptionField } from './DescriptionField';
@@ -52,7 +52,7 @@ export const CreateAchievementTicketForm: FC = () => {
   const descriptionFieldState = form.getFieldState('description');
 
   return (
-    <BaseFormProvider {...form}>
+    <BaseForm {...form}>
       {auth?.user.locale && !auth.user.locale.startsWith('en_') ? (
         <div className="mb-5">
           <BaseAlert variant="destructive">
@@ -91,7 +91,7 @@ export const CreateAchievementTicketForm: FC = () => {
           </BaseButton>
         </div>
       </form>
-    </BaseFormProvider>
+    </BaseForm>
   );
 };
 
