@@ -1201,5 +1201,6 @@
     "Unlocked first": "Unlocked first",
     "Locked first": "Locked first",
     "#{{rank, number}}": "#{{rank, number}}",
-    "{{percentage}} of #1": "{{percentage}} of #1"
+    "{{percentage}} of #1": "{{percentage}} of #1",
+    "Give Feedback": "Give Feedback"
 }
