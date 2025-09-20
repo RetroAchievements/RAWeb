@@ -52,7 +52,7 @@ class MessageThread extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<Message, MessageThread>
+     * @return BelongsTo<Message, $this>
      */
     public function lastMessage(): BelongsTo
     {

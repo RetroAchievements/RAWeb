@@ -386,7 +386,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return BelongsTo<User, Achievement>
+     * @return BelongsTo<User, $this>
      *
      * @deprecated make this multiple developers
      */
@@ -396,7 +396,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return BelongsTo<Game, Achievement>
+     * @return BelongsTo<Game, $this>
      */
     public function game(): BelongsTo
     {
@@ -497,7 +497,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return BelongsTo<Trigger, Achievement>
+     * @return BelongsTo<Trigger, $this>
      */
     public function currentTrigger(): BelongsTo
     {

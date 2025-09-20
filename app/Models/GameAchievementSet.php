@@ -42,7 +42,7 @@ class GameAchievementSet extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<AchievementSet, GameAchievementSet>
+     * @return BelongsTo<AchievementSet, $this>
      */
     public function achievementSet(): BelongsTo
     {
@@ -50,7 +50,7 @@ class GameAchievementSet extends BaseModel
     }
 
     /**
-     * @return BelongsTo<Game, GameAchievementSet>
+     * @return BelongsTo<Game, $this>
      */
     public function game(): BelongsTo
     {

@@ -28,7 +28,7 @@ class EmailConfirmation extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<User, EmailConfirmation>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

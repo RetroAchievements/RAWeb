@@ -192,7 +192,7 @@ class Event extends BaseModel
     }
 
     /**
-     * @return BelongsTo<Game, Event>
+     * @return BelongsTo<Game, $this>
      */
     public function legacyGame(): BelongsTo
     {

@@ -97,7 +97,7 @@ class EmulatorRelease extends BaseModel implements HasMedia
     // == relations
 
     /**
-     * @return BelongsTo<Emulator, EmulatorRelease>
+     * @return BelongsTo<Emulator, $this>
      */
     public function emulator(): BelongsTo
     {

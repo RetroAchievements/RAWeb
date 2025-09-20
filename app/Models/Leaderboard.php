@@ -179,7 +179,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
     // == relations
 
     /**
-     * @return BelongsTo<User, Leaderboard>
+     * @return BelongsTo<User, $this>
      */
     public function developer(): BelongsTo
     {
@@ -221,7 +221,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return BelongsTo<Game, Leaderboard>
+     * @return BelongsTo<Game, $this>
      */
     public function game(): BelongsTo
     {
@@ -229,7 +229,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return BelongsTo<LeaderboardEntry, Leaderboard>
+     * @return BelongsTo<LeaderboardEntry, $this>
      */
     public function topEntry(): BelongsTo
     {
@@ -260,7 +260,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return BelongsTo<Trigger, Leaderboard>
+     * @return BelongsTo<Trigger, $this>
      */
     public function currentTrigger(): BelongsTo
     {

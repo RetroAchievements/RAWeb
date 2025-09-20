@@ -61,7 +61,7 @@ class MemoryNote extends BaseModel
     /**
      * TODO will need to be modified if GameID is migrated to game_hash_set_id
      *
-     * @return BelongsTo<Game, MemoryNote>
+     * @return BelongsTo<Game, $this>
      */
     public function game(): BelongsTo
     {
@@ -69,7 +69,7 @@ class MemoryNote extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, MemoryNote>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

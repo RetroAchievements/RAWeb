@@ -39,7 +39,7 @@ class ApiLogEntry extends Model
     // == relations
 
     /**
-     * @return BelongsTo<User, ApiLogEntry>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

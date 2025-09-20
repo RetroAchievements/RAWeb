@@ -42,7 +42,7 @@ class Message extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<User, Message>
+     * @return BelongsTo<User, $this>
      */
     public function author(): BelongsTo
     {
@@ -50,7 +50,7 @@ class Message extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, Message>
+     * @return BelongsTo<User, $this>
      */
     public function sentBy(): BelongsTo
     {

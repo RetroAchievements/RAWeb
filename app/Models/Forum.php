@@ -51,7 +51,7 @@ class Forum extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<ForumCategory, Forum>
+     * @return BelongsTo<ForumCategory, $this>
      */
     public function category(): BelongsTo
     {

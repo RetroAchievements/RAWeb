@@ -151,7 +151,7 @@ class GameHash extends BaseModel
     }
 
     /**
-     * @return BelongsTo<Game, GameHash>
+     * @return BelongsTo<Game, $this>
      */
     public function game(): BelongsTo
     {
@@ -169,7 +169,7 @@ class GameHash extends BaseModel
     }
 
     /**
-     * @return BelongsTo<System, GameHash>
+     * @return BelongsTo<System, $this>
      */
     public function system(): BelongsTo
     {
@@ -177,7 +177,7 @@ class GameHash extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, GameHash>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -185,7 +185,7 @@ class GameHash extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, GameHash>
+     * @return BelongsTo<User, $this>
      */
     public function compatibilityTester(): BelongsTo
     {

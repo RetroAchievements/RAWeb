@@ -18,7 +18,7 @@ class UnrankedUser extends BaseModel
     ];
 
     /**
-     * @return BelongsTo<User, UnrankedUser>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

@@ -114,7 +114,7 @@ class News extends BaseModel implements HasComments, HasMedia
     }
 
     /**
-     * @return BelongsTo<User, News>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

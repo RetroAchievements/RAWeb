@@ -38,7 +38,7 @@ class GameSetGame extends BasePivot
     // == relations
 
     /**
-     * @return BelongsTo<GameSet, GameSetGame>
+     * @return BelongsTo<GameSet, $this>
      */
     public function gameSet(): BelongsTo
     {
@@ -46,7 +46,7 @@ class GameSetGame extends BasePivot
     }
 
     /**
-     * @return BelongsTo<Game, GameSetGame>
+     * @return BelongsTo<Game, $this>
      */
     public function game(): BelongsTo
     {

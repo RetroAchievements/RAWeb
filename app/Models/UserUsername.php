@@ -71,7 +71,7 @@ class UserUsername extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<User, UserUsername>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

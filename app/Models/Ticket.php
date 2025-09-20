@@ -85,7 +85,7 @@ class Ticket extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<Achievement, Ticket>
+     * @return BelongsTo<Achievement, $this>
      */
     public function achievement(): BelongsTo
     {
@@ -93,7 +93,7 @@ class Ticket extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, Ticket>
+     * @return BelongsTo<User, $this>
      */
     public function author(): BelongsTo
     {
@@ -101,7 +101,7 @@ class Ticket extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, Ticket>
+     * @return BelongsTo<User, $this>
      */
     public function reporter(): BelongsTo
     {
@@ -109,7 +109,7 @@ class Ticket extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, Ticket>
+     * @return BelongsTo<User, $this>
      */
     public function resolver(): BelongsTo
     {
@@ -117,7 +117,7 @@ class Ticket extends BaseModel
     }
 
     /**
-     * @return BelongsTo<Emulator, Ticket>
+     * @return BelongsTo<Emulator, $this>
      */
     public function emulator(): BelongsTo
     {
@@ -125,7 +125,7 @@ class Ticket extends BaseModel
     }
 
     /**
-     * @return BelongsTo<GameHash, Ticket>
+     * @return BelongsTo<GameHash, $this>
      */
     public function gameHash(): BelongsTo
     {

@@ -168,7 +168,7 @@ class AchievementSet extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, AchievementSet>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

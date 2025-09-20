@@ -108,7 +108,7 @@ trait ActsAsPlayer
     }
 
     /**
-     * @return BelongsTo<Game, User>
+     * @return BelongsTo<Game, $this>
      */
     public function lastGame(): BelongsTo
     {

@@ -36,7 +36,7 @@ class StaticData extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, StaticData>
+     * @return BelongsTo<User, $this>
      */
     public function lastRegisteredUser(): BelongsTo
     {

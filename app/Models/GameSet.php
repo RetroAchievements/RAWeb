@@ -336,7 +336,7 @@ class GameSet extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<User, GameSet>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -374,7 +374,7 @@ class GameSet extends BaseModel
     }
 
     /**
-     * @return BelongsTo<ForumTopic, GameSet>
+     * @return BelongsTo<ForumTopic, $this>
      */
     public function forumTopic(): BelongsTo
     {

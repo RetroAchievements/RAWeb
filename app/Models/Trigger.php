@@ -67,7 +67,7 @@ class Trigger extends BaseModel
     }
 
     /**
-     * @return BelongsTo<Trigger, Trigger>
+     * @return BelongsTo<Trigger, $this>
      */
     public function previousVersion(): BelongsTo
     {
