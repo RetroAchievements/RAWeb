@@ -1198,6 +1198,8 @@
     "What's better than before?": "What's better than before?",
     "What still needs work?": "What still needs work?",
     "Maybe later": "Maybe later",
+    "Unlocked first": "Unlocked first",
+    "Locked first": "Locked first",
     "#{{rank, number}}": "#{{rank, number}}",
     "{{percentage}} of #1": "{{percentage}} of #1"
 }

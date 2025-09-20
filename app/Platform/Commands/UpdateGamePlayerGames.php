@@ -15,7 +15,7 @@ class UpdateGamePlayerGames extends Command
     protected $description = "Update game(s) outdated player game metrics";
 
     public function __construct(
-        private readonly UpdateGamePlayerGamesAction $updateGamePlayerGames
+        private readonly UpdateGamePlayerGamesAction $updateGamePlayerGames,
     ) {
         parent::__construct();
     }

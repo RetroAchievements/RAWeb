@@ -20,7 +20,7 @@ class SubscriptionData extends Data
         public string $subjectType,
         public int $subjectId,
         public bool $state,
-        public Lazy|UserData $user
+        public Lazy|UserData $user,
     ) {
     }
 

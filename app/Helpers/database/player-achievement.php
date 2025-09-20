@@ -126,7 +126,7 @@ function getAchievementUnlocksData(
     ?int &$numWinnersHardcore,
     ?int &$numPossibleWinners,
     int $offset = 0,
-    int $limit = 50
+    int $limit = 50,
 ): Collection {
 
     $achievement = Achievement::firstWhere('ID', $achievementId);
@@ -231,7 +231,7 @@ function getAchievementDistribution(
     int $isHardcore,
     ?string $requestedBy = null,
     AchievementFlag $flag = AchievementFlag::OfficialCore,
-    int $numPlayers = 0
+    int $numPlayers = 0,
 ): array {
     /** @var Game $game */
     $game = Game::withCount(['achievements' => fn ($query) => $query->flag($flag)])->find($gameID);

@@ -142,7 +142,7 @@ function getFilteredClaims(
     bool $getExpiringOnly = false,
     ?string $username = null,
     ?int $offset = null,
-    ?int $limit = null
+    ?int $limit = null,
 ): Collection {
     $primaryClaim = ($claimFilter & ClaimFilters::PrimaryClaim);
     $collaborationClaim = ($claimFilter & ClaimFilters::CollaborationClaim);

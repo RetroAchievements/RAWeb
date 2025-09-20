@@ -16,7 +16,7 @@ class CleanupAvatars extends Command
     protected $description = 'Delete rejected avatars';
 
     public function __construct(
-        private DeleteAvatarAction $deleteAvatarAction
+        private DeleteAvatarAction $deleteAvatarAction,
     ) {
         parent::__construct();
     }

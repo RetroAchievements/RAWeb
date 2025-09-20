@@ -7,6 +7,7 @@ import {
   createAggregateAchievementSetCredits,
   createGame,
   createGameAchievementSet,
+  createZiggyProps,
 } from '@/test/factories';
 
 import { GameAchievementSetsContainer } from './GameAchievementSetsContainer';
@@ -14,7 +15,11 @@ import { GameAchievementSetsContainer } from './GameAchievementSetsContainer';
 describe('Component: GameAchievementSetsContainer', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<GameAchievementSetsContainer game={createGame()} />);
+    const { container } = render(<GameAchievementSetsContainer game={createGame()} />, {
+      pageProps: {
+        ziggy: createZiggyProps(),
+      },
+    });
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -26,7 +31,11 @@ describe('Component: GameAchievementSetsContainer', () => {
       gameAchievementSets: [],
     });
 
-    render(<GameAchievementSetsContainer game={game} />);
+    render(<GameAchievementSetsContainer game={game} />, {
+      pageProps: {
+        ziggy: createZiggyProps(),
+      },
+    });
 
     // ASSERT
     expect(screen.getByText(/aren't any achievements/i)).toBeVisible();
@@ -50,6 +59,7 @@ describe('Component: GameAchievementSetsContainer', () => {
         backingGame: game,
         selectableGameAchievementSets: [],
         targetAchievementSetId: 123,
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -73,6 +83,7 @@ describe('Component: GameAchievementSetsContainer', () => {
         aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         selectableGameAchievementSets: [],
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -99,6 +110,7 @@ describe('Component: GameAchievementSetsContainer', () => {
         backingGame: game,
         targetAchievementSetId: 123,
         selectableGameAchievementSets: [],
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -133,6 +145,7 @@ describe('Component: GameAchievementSetsContainer', () => {
           createGameAchievementSet({ title: 'Bonus Set' }),
         ],
         targetAchievementSetId: 123,
+        ziggy: createZiggyProps(),
       },
     });
 

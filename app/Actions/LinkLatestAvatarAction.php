@@ -11,7 +11,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class LinkLatestAvatarAction
 {
     public function __construct(
-        private Filesystem $filesystem
+        private Filesystem $filesystem,
     ) {
     }
 

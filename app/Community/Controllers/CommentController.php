@@ -13,7 +13,7 @@ class CommentController extends Controller
 {
     public function show(
         Comment $comment,
-        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction
+        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction,
     ): RedirectResponse {
         $this->authorize('view', $comment);
 

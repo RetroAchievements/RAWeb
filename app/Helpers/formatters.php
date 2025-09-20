@@ -10,7 +10,7 @@ if (!function_exists('localized_date')) {
         ?string $locale = null,
         int $dateType = IntlDateFormatter::SHORT,
         int $timeType = IntlDateFormatter::SHORT,
-        ?string $timezone = 'UTC'
+        ?string $timezone = 'UTC',
     ): string {
         $dateTime ??= Carbon::now();
         $locale ??= session('date_locale');
@@ -31,7 +31,7 @@ if (!function_exists('localized_number')) {
         ?string $locale = null,
         int $format = NumberFormatter::DECIMAL,
         int $fractionDigits = 0,
-        ?string $pattern = null
+        ?string $pattern = null,
     ): string {
         $locale = $locale ?? session('number_locale', 'en_US');
 

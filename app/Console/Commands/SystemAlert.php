@@ -13,7 +13,7 @@ class SystemAlert extends Command
     protected $description = 'Set system alert message';
 
     public function __construct(
-        private Settings $settings
+        private Settings $settings,
     ) {
         parent::__construct();
     }

@@ -64,7 +64,7 @@ class ApiLogEntry extends Model
         string $ipAddress,
         ?string $userAgent,
         ?array $requestData = null,
-        ?string $errorMessage = null
+        ?string $errorMessage = null,
     ): self {
         return self::create([
             'api_version' => $apiVersion,
