@@ -1,0 +1,6 @@
+packages: []
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  - react
+  - react-dom
+  - vite

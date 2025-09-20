@@ -157,7 +157,7 @@ function submitLBData(
     string $lbDescription,
     string $lbFormat,
     bool $lbLowerIsBetter,
-    int $lbDisplayOrder
+    int $lbDisplayOrder,
 ): bool {
     sanitize_sql_inputs($user, $lbMem, $lbTitle, $lbDescription, $lbFormat);
 
@@ -214,7 +214,7 @@ function UploadNewLeaderboard(
     string $mem,
     ?int &$idInOut,
     ?string &$errorOut,
-    ?int $gameAchievementSetID
+    ?int $gameAchievementSetID,
 ): bool {
     if (!$gameAchievementSetID && !$gameID) {
         $errorOut = "You must provide a game ID or a game achievement set ID.";

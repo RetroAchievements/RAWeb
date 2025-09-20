@@ -17,6 +17,7 @@ use App\Models\AchievementMaintainer;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\LeaderboardEntry;
+use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
@@ -39,6 +40,7 @@ use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetAuthorTask;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\GamePageListSort;
 use App\Platform\Enums\GamePageListView;
 use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
@@ -67,7 +69,7 @@ class BuildGameShowPagePropsAction
         ?User $user,
         AchievementFlag $targetAchievementFlag = AchievementFlag::OfficialCore,
         ?GameAchievementSet $targetAchievementSet = null,
-        GamePageListView $initialView = GamePageListView::Achievements
+        GamePageListView $initialView = GamePageListView::Achievements,
     ): GameShowPagePropsData {
         // The backing game is the legacy game that backs the target achievement set.
         // For core sets, this will be $game->id. For subsets, it'll be a different ID.
@@ -222,6 +224,7 @@ class BuildGameShowPagePropsAction
             ),
 
             canSubmitBetaFeedback: $this->getCanSubmitBetaFeedback($user, 'react-game-page'),
+            initialSort: $this->getInitialSort($backingGame, $playerGame),
             initialView: $initialView,
 
             game: GameData::fromGame($game)->include(
@@ -231,14 +234,12 @@ class BuildGameShowPagePropsAction
                 'forumTopicId',
                 'gameAchievementSets.achievementSet.achievements.description',
                 'gameAchievementSets.achievementSet.achievements.developer',
-                'gameAchievementSets.achievementSet.achievements.flags',
                 'gameAchievementSets.achievementSet.achievements.orderColumn',
                 'gameAchievementSets.achievementSet.achievements.points',
                 'gameAchievementSets.achievementSet.achievements.pointsWeighted',
                 'gameAchievementSets.achievementSet.achievements.type',
                 'gameAchievementSets.achievementSet.achievements.unlockedAt',
                 'gameAchievementSets.achievementSet.achievements.unlockedHardcoreAt',
-                'gameAchievementSets.achievementSet.achievements.unlockHardcorePercentage',
                 'gameAchievementSets.achievementSet.achievements.unlockPercentage',
                 'gameAchievementSets.achievementSet.achievements.unlocksHardcoreTotal',
                 'gameAchievementSets.achievementSet.achievements.unlocksTotal',
@@ -257,10 +258,7 @@ class BuildGameShowPagePropsAction
                 'playersTotal',
                 'pointsTotal',
                 'publisher',
-                'releasedAt',
-                'releasedAtGranularity',
                 'releases',
-                'system.active',
                 'system.iconUrl',
                 'system.nameShort',
                 'system',
@@ -695,13 +693,12 @@ class BuildGameShowPagePropsAction
         // Get existing data, or initialize with new data.
         $data = Cache::get($cacheKey, [
             'visit_count' => 0,
-            'first_visited_at' => null,
+            'first_visited_at' => now()->timestamp,
             'last_visited_at' => null,
         ]);
 
         // Update visit data.
         $data['visit_count']++;
-        $data['first_visited_at'] = $data['first_visited_at'] ?? now()->timestamp;
         $data['last_visited_at'] = now()->timestamp;
 
         // Store for 30 days from now (the TTL resets on each visit).
@@ -733,5 +730,22 @@ class BuildGameShowPagePropsAction
             : 0;
 
         return $data['visit_count'] >= $requiredVisits && $daysSinceFirst >= $requiredDays;
+    }
+
+    private function getInitialSort(Game $backingGame, ?PlayerGame $playerGame): GamePageListSort
+    {
+        // Calculate the initial sort based on user's unlock progress.
+        // If the user has unlocked some (but not all) achievements, we can use the 'normal' sort order.
+        // Otherwise, default to 'displayOrder' which is always available.
+        if ($playerGame) {
+            $unlockedCount = $playerGame->achievements_unlocked ?? 0;
+            $totalCount = $backingGame->achievements_published ?? 0;
+
+            if ($unlockedCount > 0 && $unlockedCount < $totalCount) {
+                return GamePageListSort::Normal;
+            }
+        }
+
+        return GamePageListSort::DisplayOrder;
     }
 }

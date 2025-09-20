@@ -249,7 +249,7 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         int $gameId,
         ?int $systemId,
         Carbon $expectedDate,
-        bool $isOverall = false
+        bool $isOverall = false,
     ): void {
         $query = $playerStats->where('last_game_id', $gameId);
         $query = $isOverall ? $query->whereNull('system_id') : $query->where('system_id', $systemId);

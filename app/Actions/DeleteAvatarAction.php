@@ -9,7 +9,7 @@ use App\Models\User;
 class DeleteAvatarAction
 {
     public function __construct(
-        private LinkLatestAvatarAction $linkLatestAvatarAction
+        private LinkLatestAvatarAction $linkLatestAvatarAction,
     ) {
     }
 

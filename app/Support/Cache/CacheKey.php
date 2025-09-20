@@ -77,7 +77,7 @@ class CacheKey
         string $entityKind,
         string|int $identifier,
         string $keyKind,
-        array $params = []
+        array $params = [],
     ): string {
         $cacheKey = "$entityKind:$identifier:$keyKind";
         if (count($params) > 0) {

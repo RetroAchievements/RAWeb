@@ -109,7 +109,7 @@ class PlayerGameController extends Controller
     public function activity(
         User $user,
         Game $game,
-        BuildPlayerGameActivityDataAction $buildPlayerGameActivityData
+        BuildPlayerGameActivityDataAction $buildPlayerGameActivityData,
     ): InertiaResponse {
         $playerGame = $user->playerGames()->whereGameId($game->id)->first();
         // TODO rename to viewSessionHistory

@@ -22,7 +22,7 @@ function SetAccountPermissionsJSON(
     string $actingUsername,
     int $actingUserPermissions,
     string $targetUsername,
-    int $targetUserNewPermissions
+    int $targetUserNewPermissions,
 ): array {
     $retVal = [];
 

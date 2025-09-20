@@ -107,7 +107,7 @@ class CommunityActivityMail extends Mailable
         int $articleType,
         string $articleTitle,
         string $toUserDisplayName,
-        bool $isThreadInvolved
+        bool $isThreadInvolved,
     ): string {
         $activityDescription = $isThreadInvolved ? "a thread you've commented in" : "your latest activity";
 
