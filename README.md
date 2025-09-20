@@ -6,11 +6,11 @@ It is a Laravel application ([TALL stack](https://tallstack.dev/)).
 ## Requirements
 
 - Local web server
-- [PHP 8.2](http://php.net/manual/en/)
+- [PHP 8.3](http://php.net/manual/en/)
 - [Composer](https://getcomposer.org/) PHP dependency manager
 - [MariaDB 10](https://mariadb.com/docs/server/)
 - [Node.js 20](https://nodejs.org/)
-- [pnpm 9](https://pnpm.io/)
+- [pnpm 10](https://pnpm.io/)
  
 Validated to run on Windows, macOS, and Linux with any of the setup options below (Docker via Laravel Sail, VM with either nginx or Apache, Laravel Valet on macOS).
 
@@ -20,7 +20,7 @@ See [Laravel Sail documentation](https://laravel.com/docs/sail).
 
 ### **[XAMPP](https://www.apachefriends.org/download.html)** (Windows, Linux, macOS)
 
-Install the XAMPP version packaged with PHP 8.2 to run an Apache web server, MySQL/MariaDB, and PHP on your system.
+Install the XAMPP version packaged with PHP 8.3 to run an Apache web server, MySQL/MariaDB, and PHP on your system.
 
 You might have to enable some extensions in `php.ini` (see the `ext-*` requirements in [composer.json](composer.json)):
 ```
