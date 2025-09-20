@@ -319,7 +319,7 @@ class UserAgentService
         if ($emulatorUserAgent->minimum_allowed_version
             && UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_allowed_version) < 0) {
 
-            // TODO allow Filament to support these special cases
+            // TODO allow Filament to support this special case
             /**
              * special case: Dolphin/e5d32f273f must still be allowed as it's the most stable development build
              */
@@ -327,6 +327,11 @@ class UserAgentService
                 return ClientSupportLevel::Outdated;
             }
 
+            return ClientSupportLevel::Blocked;
+        }
+
+        if ($emulatorUserAgent->minimum_hardcore_version) {
+            // TODO allow Filament to support this special case
             /**
              * special case: PCSX2 v2.4 does not have a known save state regression
              * @see https://github.com/PCSX2/pcsx2/pull/13271
@@ -335,10 +340,6 @@ class UserAgentService
                 return ClientSupportLevel::Full;
             }
 
-            return ClientSupportLevel::Blocked;
-        }
-
-        if ($emulatorUserAgent->minimum_hardcore_version) {
             if (UserAgentService::versionCompare($data['clientVersion'], $emulatorUserAgent->minimum_hardcore_version) < 0) {
                 return ClientSupportLevel::Outdated;
             }
