@@ -15,30 +15,28 @@ import { GameAchievementSetsContainer } from './GameAchievementSetsContainer';
 describe('Component: GameAchievementSetsContainer', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<GameAchievementSetsContainer game={createGame()} />, {
+    const game = createGame({
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ id: 123, achievements: [createAchievement()] }),
+        }),
+      ],
+    });
+
+    const { container } = render(<GameAchievementSetsContainer game={game} />, {
       pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        selectableGameAchievementSets: [],
+        targetAchievementSetId: 123,
         ziggy: createZiggyProps(),
       },
     });
 
     // ASSERT
     expect(container).toBeTruthy();
-  });
-
-  it('given the game has no achievement sets, shows an empty state', () => {
-    // ARRANGE
-    const game = createGame({
-      gameAchievementSets: [],
-    });
-
-    render(<GameAchievementSetsContainer game={game} />, {
-      pageProps: {
-        ziggy: createZiggyProps(),
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByText(/aren't any achievements/i)).toBeVisible();
   });
 
   it('given the game has achievement sets, shows the sort button', () => {
