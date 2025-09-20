@@ -40,7 +40,7 @@ class UserBetaFeedbackSubmission extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<User, UserBetaFeedbackSubmission>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
