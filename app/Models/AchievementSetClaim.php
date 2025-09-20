@@ -120,7 +120,7 @@ class AchievementSetClaim extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<Game, AchievementSetClaim>
+     * @return BelongsTo<Game, $this>
      */
     public function game(): BelongsTo
     {
@@ -128,7 +128,7 @@ class AchievementSetClaim extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, AchievementSetClaim>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

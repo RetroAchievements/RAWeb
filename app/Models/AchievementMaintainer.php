@@ -32,7 +32,7 @@ class AchievementMaintainer extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<Achievement, AchievementMaintainer>
+     * @return BelongsTo<Achievement, $this>
      */
     public function achievement(): BelongsTo
     {
@@ -40,7 +40,7 @@ class AchievementMaintainer extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, AchievementMaintainer>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
