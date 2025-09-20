@@ -58,6 +58,11 @@ class CacheKey
         return self::buildNormalizedCacheKey("unsubscribe", "undo", $token);
     }
 
+    public static function buildUserBetaVisitsCacheKey(string $username, string $betaName): string
+    {
+        return self::buildNormalizedUserCacheKey($username, "beta-visits", [$betaName]);
+    }
+
     /**
      * Constructs a normalized cache key.
      *

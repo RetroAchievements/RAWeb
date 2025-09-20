@@ -5,12 +5,12 @@ import { useTranslation } from 'react-i18next';
 import { BaseAutosizeTextarea } from '@/common/components/+vendor/BaseAutosizeTextarea';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
+  BaseForm,
   BaseFormControl,
   BaseFormField,
   BaseFormItem,
   BaseFormLabel,
   BaseFormMessage,
-  BaseFormProvider,
 } from '@/common/components/+vendor/BaseForm';
 import { BaseSelectNative } from '@/common/components/+vendor/BaseSelectNative';
 import { ShortcodePanel } from '@/common/components/ShortcodePanel';
@@ -58,7 +58,7 @@ export const QuickReplyForm: FC<QuickReplyFormProps> = ({ onPreview }) => {
   }
 
   return (
-    <BaseFormProvider {...form}>
+    <BaseForm {...form}>
       <form
         ref={formRef}
         onSubmit={form.handleSubmit(onSubmit)}
@@ -165,6 +165,6 @@ export const QuickReplyForm: FC<QuickReplyFormProps> = ({ onPreview }) => {
           </div>
         </div>
       </form>
-    </BaseFormProvider>
+    </BaseForm>
   );
 };
