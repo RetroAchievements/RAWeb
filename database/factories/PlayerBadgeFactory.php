@@ -16,9 +16,6 @@ class PlayerBadgeFactory extends Factory
 {
     protected $model = PlayerBadge::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $user = User::inRandomOrder()->first();

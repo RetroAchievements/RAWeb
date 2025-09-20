@@ -23,9 +23,6 @@ class AchievementSetClaimFactory extends Factory
 
     protected $model = AchievementSetClaim::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $user = User::inRandomOrder()->first();

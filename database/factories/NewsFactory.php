@@ -18,9 +18,6 @@ class NewsFactory extends Factory
 
     protected $model = News::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $author = User::inRandomOrder()->first();
