@@ -2,8 +2,11 @@ import { atom } from 'jotai';
 
 import type { PlayableListSortOrder } from '@/common/models';
 
-export const currentPlayableListSortAtom = atom<PlayableListSortOrder>('displayOrder');
+import type { GameShowTab } from '../models';
+
 export const currentListViewAtom = atom<'achievements' | 'leaderboards'>('achievements');
+export const currentPlayableListSortAtom = atom<PlayableListSortOrder>('displayOrder');
+export const currentTabAtom = atom<GameShowTab>('achievements');
 export const isLockedOnlyFilterEnabledAtom = atom(false);
 export const isMissableOnlyFilterEnabledAtom = atom(false);
 

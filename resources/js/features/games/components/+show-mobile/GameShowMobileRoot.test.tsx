@@ -8,13 +8,15 @@ import {
   createGame,
   createGameAchievementSet,
   createGameSet,
+  createSeriesHub,
   createSystem,
   createZiggyProps,
 } from '@/test/factories';
 
-import { GameShowMainRoot } from './GameShowMainRoot';
+import { currentTabAtom } from '../../state/games.atoms';
+import { GameShowMobileRoot } from './GameShowMobileRoot';
 
-describe('Component: GameShowMainRoot', () => {
+describe('Component: GameShowMobileRoot', () => {
   beforeEach(() => {
     const mockIntersectionObserver = vi.fn();
     mockIntersectionObserver.mockReturnValue({
@@ -38,7 +40,7 @@ describe('Component: GameShowMainRoot', () => {
       }),
     });
 
-    const { container } = render(<GameShowMainRoot />, {
+    const { container } = render(<GameShowMobileRoot />, {
       pageProps: {
         game,
         achievementSetClaims: [],
@@ -48,8 +50,10 @@ describe('Component: GameShowMainRoot', () => {
         hubs: [createGameSet()],
         selectableGameAchievementSets: [],
         isViewingPublishedAchievements: true,
+        playerAchievementChartBuckets: [],
         recentPlayers: [],
         recentVisibleComments: [],
+        topAchievers: [],
         ziggy: createZiggyProps(),
       },
     });
@@ -58,17 +62,17 @@ describe('Component: GameShowMainRoot', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given the game is missing required media, does not render', () => {
+  it('given the game is missing required fields, renders nothing', () => {
     // ARRANGE
     const game = createGame({
-      badgeUrl: undefined,
+      badgeUrl: undefined, // !!
       gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
       system: createSystem({
         iconUrl: 'icon.jpg',
       }),
     });
 
-    render(<GameShowMainRoot />, {
+    render(<GameShowMobileRoot />, {
       pageProps: {
         game,
         achievementSetClaims: [],
@@ -78,34 +82,32 @@ describe('Component: GameShowMainRoot', () => {
         hubs: [],
         selectableGameAchievementSets: [],
         isViewingPublishedAchievements: true,
+        playerAchievementChartBuckets: [],
         recentPlayers: [],
         recentVisibleComments: [],
+        topAchievers: [],
         ziggy: createZiggyProps(),
       },
     });
 
     // ASSERT
-    expect(screen.queryByTestId('game-show')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('game-mobile')).not.toBeInTheDocument();
   });
 
-  it('given the game has all required media, shows an accessible heading', () => {
+  it('given the game has all required fields, renders the view', () => {
     // ARRANGE
     const game = createGame({
-      badgeUrl: 'badge.jpg',
+      badgeUrl: 'badge.jpg', // !!
       gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
       imageBoxArtUrl: faker.internet.url(),
       imageTitleUrl: faker.internet.url(),
       imageIngameUrl: faker.internet.url(),
-
       system: createSystem({
-        iconUrl: 'icon.jpg',
-        name: 'Nintendo Switch',
+        iconUrl: 'icon.jpg', // !!
       }),
-
-      title: 'Super Mario Odyssey',
     });
 
-    render(<GameShowMainRoot />, {
+    render(<GameShowMobileRoot />, {
       pageProps: {
         game,
         achievementSetClaims: [],
@@ -115,49 +117,16 @@ describe('Component: GameShowMainRoot', () => {
         hubs: [],
         selectableGameAchievementSets: [],
         isViewingPublishedAchievements: true,
+        playerAchievementChartBuckets: [],
         recentPlayers: [],
         recentVisibleComments: [],
+        topAchievers: [],
         ziggy: createZiggyProps(),
       },
     });
 
     // ASSERT
-    expect(screen.getByRole('heading', { name: 'Super Mario Odyssey' })).toBeVisible();
-  });
-
-  it('given the game has media URLs, shows them in the desktop media viewer', () => {
-    // ARRANGE
-    const game = createGame({
-      badgeUrl: 'badge.jpg',
-      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
-      system: createSystem({
-        iconUrl: 'icon.jpg',
-      }),
-      imageIngameUrl: 'ingame.jpg',
-      imageTitleUrl: 'title.jpg',
-    });
-
-    render(<GameShowMainRoot />, {
-      pageProps: {
-        game,
-        achievementSetClaims: [],
-        aggregateCredits: createAggregateAchievementSetCredits(),
-        backingGame: game,
-        can: {},
-        hubs: [],
-        selectableGameAchievementSets: [],
-        isViewingPublishedAchievements: true,
-        recentPlayers: [],
-        recentVisibleComments: [],
-        ziggy: createZiggyProps(),
-      },
-    });
-
-    // ASSERT
-    const mediaImages = screen.getAllByRole('img');
-    const imageUrls = mediaImages.map((img) => img.getAttribute('src'));
-    expect(imageUrls).toContain('ingame.jpg');
-    expect(imageUrls).toContain('title.jpg');
+    expect(screen.getByTestId('game-mobile')).toBeVisible();
   });
 
   it('given the game page has a content warning, displays the content warning dialog', () => {
@@ -173,7 +142,7 @@ describe('Component: GameShowMainRoot', () => {
       }),
     });
 
-    render(<GameShowMainRoot />, {
+    render(<GameShowMobileRoot />, {
       pageProps: {
         game,
         achievementSetClaims: [],
@@ -184,46 +153,15 @@ describe('Component: GameShowMainRoot', () => {
         hubs: [],
         selectableGameAchievementSets: [],
         isViewingPublishedAchievements: true,
+        recentPlayers: [],
         recentVisibleComments: [],
+        topAchievers: [],
         ziggy: createZiggyProps(),
       },
     });
 
     // ASSERT
     expect(screen.getByRole('alertdialog', { name: /content warning/i })).toBeVisible();
-  });
-
-  it('given the game does not have a content warning, does not display the content warning dialog', () => {
-    // ARRANGE
-    const game = createGame({
-      badgeUrl: 'badge.jpg',
-      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
-      imageBoxArtUrl: faker.internet.url(),
-      imageTitleUrl: faker.internet.url(),
-      imageIngameUrl: faker.internet.url(),
-      system: createSystem({
-        iconUrl: 'icon.jpg',
-      }),
-    });
-
-    render(<GameShowMainRoot />, {
-      pageProps: {
-        game,
-        achievementSetClaims: [],
-        aggregateCredits: createAggregateAchievementSetCredits(),
-        backingGame: game,
-        can: {},
-        hasMatureContent: false, // !!
-        hubs: [],
-        selectableGameAchievementSets: [],
-        isViewingPublishedAchievements: true,
-        recentVisibleComments: [],
-        ziggy: createZiggyProps(),
-      },
-    });
-
-    // ASSERT
-    expect(screen.queryByRole('alertdialog', { name: /content warning/i })).not.toBeInTheDocument();
   });
 
   it('given the game has no achievements, renders an empty state', () => {
@@ -239,10 +177,13 @@ describe('Component: GameShowMainRoot', () => {
       system: createSystem({
         iconUrl: 'icon.jpg',
       }),
-      title: 'Test Game',
     });
 
-    render(<GameShowMainRoot />, {
+    render(<GameShowMobileRoot />, {
+      jotaiAtoms: [
+        [currentTabAtom, 'achievements'],
+        //
+      ],
       pageProps: {
         game,
         achievementSetClaims: [],
@@ -252,6 +193,7 @@ describe('Component: GameShowMainRoot', () => {
         hubs: [],
         selectableGameAchievementSets: [],
         isViewingPublishedAchievements: true,
+        playerAchievementChartBuckets: [],
         recentPlayers: [],
         recentVisibleComments: [],
         setRequestData: {
@@ -259,6 +201,7 @@ describe('Component: GameShowMainRoot', () => {
           totalRequests: 0,
           userRequestsRemaining: 0,
         },
+        topAchievers: [],
         ziggy: createZiggyProps(),
       },
     });
@@ -282,10 +225,14 @@ describe('Component: GameShowMainRoot', () => {
       system: createSystem({
         iconUrl: 'icon.jpg',
       }),
-      title: 'Test Game',
+      playersTotal: 100,
     });
 
-    render(<GameShowMainRoot />, {
+    render(<GameShowMobileRoot />, {
+      jotaiAtoms: [
+        [currentTabAtom, 'achievements'],
+        //
+      ],
       pageProps: {
         game,
         achievementSetClaims: [],
@@ -295,6 +242,7 @@ describe('Component: GameShowMainRoot', () => {
         hubs: [],
         selectableGameAchievementSets: [],
         isViewingPublishedAchievements: true,
+        playerAchievementChartBuckets: [],
         recentPlayers: [],
         recentVisibleComments: [],
         setRequestData: {
@@ -302,6 +250,7 @@ describe('Component: GameShowMainRoot', () => {
           totalRequests: 0,
           userRequestsRemaining: 0,
         },
+        topAchievers: [],
         ziggy: createZiggyProps(),
       },
     });
@@ -310,13 +259,13 @@ describe('Component: GameShowMainRoot', () => {
     expect(screen.queryByText(/no achievements yet/i)).not.toBeInTheDocument();
   });
 
-  it('given the user is viewing unpublished achievements, does not show recent players or comments', () => {
+  it('given the game has a series hub, shows the series hub display in the info tab', () => {
     // ARRANGE
     const game = createGame({
       badgeUrl: 'badge.jpg',
       gameAchievementSets: [
         createGameAchievementSet({
-          achievementSet: createAchievementSet({ achievements: [createAchievement()] }),
+          achievementSet: createAchievementSet({ achievements: [] }),
         }),
       ],
       imageBoxArtUrl: faker.internet.url(),
@@ -325,10 +274,14 @@ describe('Component: GameShowMainRoot', () => {
       system: createSystem({
         iconUrl: 'icon.jpg',
       }),
-      title: 'Test Game',
     });
+    const seriesHub = createSeriesHub();
 
-    render(<GameShowMainRoot />, {
+    render(<GameShowMobileRoot />, {
+      jotaiAtoms: [
+        [currentTabAtom, 'info'],
+        //
+      ],
       pageProps: {
         game,
         achievementSetClaims: [],
@@ -336,21 +289,138 @@ describe('Component: GameShowMainRoot', () => {
         backingGame: game,
         can: {},
         hubs: [],
+        seriesHub, // !!
         selectableGameAchievementSets: [],
-        isViewingPublishedAchievements: false, // !!
+        isViewingPublishedAchievements: true,
+        playerAchievementChartBuckets: [],
         recentPlayers: [],
         recentVisibleComments: [],
-        setRequestData: {
-          hasUserRequestedSet: false,
-          totalRequests: 0,
-          userRequestsRemaining: 0,
-        },
+        topAchievers: [],
         ziggy: createZiggyProps(),
       },
     });
 
     // ASSERT
-    expect(screen.queryByText(/recent players/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/comments/i)).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /series/i })).toBeVisible();
+  });
+
+  it('given the game does not have a series hub, does not show the series hub display', () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ achievements: [] }),
+        }),
+      ],
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+    });
+
+    render(<GameShowMobileRoot />, {
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        seriesHub: null, // !!
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: true,
+        playerAchievementChartBuckets: [],
+        recentPlayers: [],
+        recentVisibleComments: [],
+        topAchievers: [],
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('heading', { name: /series/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user is viewing published achievements, shows the community tab', () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ achievements: [] }),
+        }),
+      ],
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+    });
+
+    render(<GameShowMobileRoot />, {
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        seriesHub: null,
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: true, // !!
+        playerAchievementChartBuckets: [],
+        recentPlayers: [],
+        recentVisibleComments: [],
+        topAchievers: [],
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('tab', { name: /community/i })).toBeVisible();
+  });
+
+  it('given the user is not viewing published achievements, the community tab does not display', () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ achievements: [] }),
+        }),
+      ],
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+    });
+
+    render(<GameShowMobileRoot />, {
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        seriesHub: null,
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: false, // !!
+        playerAchievementChartBuckets: [],
+        recentPlayers: [],
+        recentVisibleComments: [],
+        topAchievers: [],
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('tab', { name: /community/i })).not.toBeInTheDocument();
   });
 });

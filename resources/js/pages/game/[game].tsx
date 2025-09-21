@@ -1,29 +1,37 @@
 import { useHydrateAtoms } from 'jotai/utils';
 
 import { SEO } from '@/common/components/SEO';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { GameShowMainRoot } from '@/features/games/components/+show';
+import { GameShowMobileRoot } from '@/features/games/components/+show-mobile';
 import { GameShowSidebarRoot } from '@/features/games/components/+show-sidebar';
 import {
   currentListViewAtom,
   currentPlayableListSortAtom,
+  currentTabAtom,
   isLockedOnlyFilterEnabledAtom,
   isMissableOnlyFilterEnabledAtom,
 } from '@/features/games/state/games.atoms';
 import { buildGameMetaDescription } from '@/features/games/utils/buildGameMetaDescription';
+import { getInitialMobileTab } from '@/features/games/utils/getInitialMobileTab';
 import type { TranslatedString } from '@/types/i18next';
 
-const GameShow: AppPage<App.Platform.Data.GameShowPageProps> = ({
-  game,
-  initialSort,
-  initialView,
-  isLockedOnlyFilterEnabled,
-  isMissableOnlyFilterEnabled,
-}) => {
+const GameShow: AppPage = () => {
+  const {
+    game,
+    initialSort,
+    initialView,
+    isLockedOnlyFilterEnabled,
+    isMissableOnlyFilterEnabled,
+    ziggy,
+  } = usePageProps<App.Platform.Data.GameShowPageProps>();
+
   useHydrateAtoms([
     [currentListViewAtom, initialView],
     [currentPlayableListSortAtom, initialSort],
+    [currentTabAtom, getInitialMobileTab(ziggy.query?.['tab'] as string | undefined)],
     [isLockedOnlyFilterEnabledAtom, isLockedOnlyFilterEnabled],
     [isMissableOnlyFilterEnabledAtom, isMissableOnlyFilterEnabled],
     //
@@ -39,13 +47,21 @@ const GameShow: AppPage<App.Platform.Data.GameShowPageProps> = ({
         ogImage={game!.badgeUrl}
       />
 
-      <AppLayout.Main>
-        <GameShowMainRoot />
-      </AppLayout.Main>
+      {ziggy.device === 'mobile' ? (
+        <AppLayout.Main>
+          <GameShowMobileRoot />
+        </AppLayout.Main>
+      ) : (
+        <>
+          <AppLayout.Main>
+            <GameShowMainRoot />
+          </AppLayout.Main>
 
-      <AppLayout.Sidebar>
-        <GameShowSidebarRoot />
-      </AppLayout.Sidebar>
+          <AppLayout.Sidebar>
+            <GameShowSidebarRoot />
+          </AppLayout.Sidebar>
+        </>
+      )}
     </>
   );
 };

@@ -1203,5 +1203,8 @@
     "Locked first": "Locked first",
     "#{{rank, number}}": "#{{rank, number}}",
     "{{percentage}} of #1": "{{percentage}} of #1",
-    "Give Feedback": "Give Feedback"
+    "Give Feedback": "Give Feedback",
+    "Info": "Info",
+    "Stats": "Stats",
+    "Community": "Community"
 }
