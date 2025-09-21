@@ -75,7 +75,7 @@ export const GameShowMobileRoot: FC = () => {
       <BaseTabs value={currentTab} onValueChange={setCurrentTab}>
         {/* Tabs list */}
         <BaseScrollArea className="-mx-2.5 -mt-3">
-          <BaseTabsList className="mb-3 flex justify-around rounded-none border-b border-neutral-600 bg-embed py-0">
+          <BaseTabsList className="mb-3 flex justify-around rounded-none border-b border-neutral-600 bg-embed py-0 light:bg-white light:pt-1">
             <BaseTabsTrigger value="achievements" variant="underlined">
               {t('Achievements')}
             </BaseTabsTrigger>

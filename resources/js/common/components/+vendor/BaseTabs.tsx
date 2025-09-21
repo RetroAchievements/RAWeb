@@ -33,8 +33,8 @@ const baseTabsTriggerVariants = cva([], {
         'disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-neutral-950 data-[state=active]:shadow-sm',
       ),
       underlined: cn(
-        'text-center h-full px-1 font-medium text-xs text-neutral-500 border-b-2 border-transparent min-w-16',
-        'data-[state=active]:text-link data-[state=active]:border-link',
+        'text-center h-full px-1 font-medium text-xs text-neutral-500 light:text-neutral-700 border-b-2 light:border-b-4 border-transparent min-w-16',
+        'data-[state=active]:text-link data-[state=active]:border-link data-[state=active]:light:border-neutral-900',
         'transition-all duration-200',
       ),
     },
