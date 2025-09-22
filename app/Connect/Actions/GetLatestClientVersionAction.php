@@ -37,17 +37,25 @@ class GetLatestClientVersionAction extends BaseApiAction
             return $this->resourceNotFound('client');
         }
 
-        // turn relative URLs into full URLs
-        $format_url = function (?string $url): ?string {
-            return (!$url || str_starts_with($url, 'http')) ? $url : config('app.url') . '/' . $url;
-        };
-
         return [
             'Success' => true,
             'MinimumVersion' => $emulator->minimumSupportedRelease?->version ?? $emulator->latestRelease->version,
             'LatestVersion' => $emulator->latestRelease->version,
-            'LatestVersionUrl' => $format_url($emulator->download_url),
-            'LatestVersionUrlX64' => $format_url($emulator->download_x64_url),
+            'LatestVersionUrl' => $this->ensureFullUrl($emulator->download_url),
+            'LatestVersionUrlX64' => $this->ensureFullUrl($emulator->download_x64_url),
         ];
+    }
+
+    private function ensureFullUrl(?string $url): ?string
+    {
+        if (!$url) {
+            return null;
+        }
+
+        if (str_starts_with($url, 'http')) {
+            return $url;
+        }
+
+        return config('app.url') . '/' . $url;
     }
 }
