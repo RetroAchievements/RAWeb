@@ -44,19 +44,23 @@ class LatestClientTest extends TestCase
 
         // unknown client ID
         $this->get($this->apiUrl('latestclient', ['e' => 99]))
-            ->assertStatus(200)
+            ->assertStatus(404)
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'Unknown client',
+                'Code' => 'not_found',
+                'Error' => 'Unknown client.',
+                'Status' => 404,
             ]);
 
         // pre-release not returned
         $emulator1_beta = EmulatorRelease::create(['emulator_id' => $emulator1->id, 'version' => '0.9', 'stable' => 0]);
         $this->get($this->apiUrl('latestclient', ['e' => $emulator1->id]))
-            ->assertStatus(200)
+            ->assertStatus(404)
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'Unknown client',
+                'Code' => 'not_found',
+                'Error' => 'Unknown client.',
+                'Status' => 404,
             ]);
 
         // initial release. x86 only. no minimum specified. will return latest as minimum
@@ -118,10 +122,12 @@ class LatestClientTest extends TestCase
         $emulator1->active = false;
         $emulator1->save();
         $this->get($this->apiUrl('latestclient', ['e' => $emulator1->id]))
-            ->assertStatus(200)
+            ->assertStatus(404)
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'Unknown client',
+                'Code' => 'not_found',
+                'Error' => 'Unknown client.',
+                'Status' => 404,
             ]);
 
         // alternate emulator
