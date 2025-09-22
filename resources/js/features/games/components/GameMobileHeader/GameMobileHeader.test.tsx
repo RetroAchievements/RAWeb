@@ -218,10 +218,10 @@ describe('Component: GameMobileHeader', () => {
     });
   });
 
-  it('given the game title is longer than 22 characters, uses smaller font size', () => {
+  it('given the game title is longer than 22 characters, uses XL font size', () => {
     // ARRANGE
     const game = createGame({
-      title: 'Super Long Game Title That Exceeds Twenty Two Characters',
+      title: '12345678901234567890123',
     });
 
     render(<GameMobileHeader />, {
@@ -234,8 +234,45 @@ describe('Component: GameMobileHeader', () => {
 
     // ASSERT
     const titleElement = screen.getByRole('heading', { level: 1 });
-    expect(titleElement).toHaveClass('text-xl');
-    expect(titleElement).not.toHaveClass('text-2xl');
+    expect(titleElement).toHaveClass('!text-xl');
+  });
+
+  it('given the game title is longer than 40 characters, uses base font size', () => {
+    // ARRANGE
+    const game = createGame({
+      title: '12345678901234567890123456789012345678901',
+    });
+
+    render(<GameMobileHeader />, {
+      pageProps: {
+        game,
+        backingGame: game,
+        isOnWantToPlayList: false,
+      },
+    });
+
+    // ASSERT
+    const titleElement = screen.getByRole('heading', { level: 1 });
+    expect(titleElement).toHaveClass('!text-base');
+  });
+
+  it('given the game title is longer than 60 characters, uses SM font size', () => {
+    // ARRANGE
+    const game = createGame({
+      title: '1234567890123456789012345678901234567890123456789012345678901234567890',
+    });
+
+    render(<GameMobileHeader />, {
+      pageProps: {
+        game,
+        backingGame: game,
+        isOnWantToPlayList: false,
+      },
+    });
+
+    // ASSERT
+    const titleElement = screen.getByRole('heading', { level: 1 });
+    expect(titleElement).toHaveClass('!text-sm');
   });
 
   it('given the game title is 22 characters or less, uses larger font size', () => {

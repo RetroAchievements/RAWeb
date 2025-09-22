@@ -110,7 +110,7 @@ describe('Hook: useGameShowTabs', () => {
 
     // ASSERT
     expect(result.current.currentTab).toEqual('achievements');
-    expect(window.history.replaceState).toHaveBeenCalledWith(null, '', '/game/123?');
+    expect(window.history.replaceState).toHaveBeenCalledWith(null, '', '/game/123');
   });
 
   it('given there are existing query params and the user sets a non-achievements tab, preserves those existing params', () => {

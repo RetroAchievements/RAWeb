@@ -1,7 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { BaseScrollArea } from '@/common/components/+vendor/BaseScrollArea';
 import {
   BaseTabs,
   BaseTabsContent,
@@ -74,8 +73,8 @@ export const GameShowMobileRoot: FC = () => {
 
       <BaseTabs value={currentTab} onValueChange={setCurrentTab}>
         {/* Tabs list */}
-        <BaseScrollArea className="-mx-2.5 -mt-3">
-          <BaseTabsList className="mb-3 flex justify-around rounded-none border-b border-neutral-600 bg-embed py-0 light:bg-white light:pt-1">
+        <div className="-mx-2.5 -mt-3 overflow-x-auto">
+          <BaseTabsList className="mb-3 flex w-max min-w-full justify-between rounded-none border-b border-neutral-600 bg-embed py-0 light:bg-white light:pt-1">
             <BaseTabsTrigger value="achievements" variant="underlined">
               {t('Achievements')}
             </BaseTabsTrigger>
@@ -84,9 +83,11 @@ export const GameShowMobileRoot: FC = () => {
               {t('Info')}
             </BaseTabsTrigger>
 
-            <BaseTabsTrigger value="stats" variant="underlined">
-              {t('Stats')}
-            </BaseTabsTrigger>
+            {isViewingPublishedAchievements && game.playersTotal ? (
+              <BaseTabsTrigger value="stats" variant="underlined">
+                {t('Stats')}
+              </BaseTabsTrigger>
+            ) : null}
 
             {isViewingPublishedAchievements ? (
               <BaseTabsTrigger value="community" variant="underlined">
@@ -94,7 +95,7 @@ export const GameShowMobileRoot: FC = () => {
               </BaseTabsTrigger>
             ) : null}
           </BaseTabsList>
-        </BaseScrollArea>
+        </div>
 
         {/* Tabs content */}
         <BaseTabsContent
@@ -126,9 +127,9 @@ export const GameShowMobileRoot: FC = () => {
           />
         </BaseTabsContent>
 
-        {isViewingPublishedAchievements ? (
+        {isViewingPublishedAchievements && game.playersTotal ? (
           <BaseTabsContent value="stats" className="flex flex-col gap-8">
-            {game.playersTotal && allPageAchievements.length ? <PlaytimeStatistics /> : null}
+            {allPageAchievements.length ? <PlaytimeStatistics /> : null}
 
             {allPageAchievements.length ? (
               <PlayableCompareProgress

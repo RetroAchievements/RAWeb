@@ -423,4 +423,91 @@ describe('Component: GameShowMobileRoot', () => {
     // ASSERT
     expect(screen.queryByRole('tab', { name: /community/i })).not.toBeInTheDocument();
   });
+
+  it('given the game has players but no achievements and the user is on the stats tab, does not render PlaytimeStatistics', () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ achievements: [] }), // !! No achievements.
+        }),
+      ],
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+      playersTotal: 100, // !! Has players.
+    });
+
+    render(<GameShowMobileRoot />, {
+      jotaiAtoms: [
+        [currentTabAtom, 'stats'], // !! On stats tab.
+      ],
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: true, // !! Viewing published achievements.
+        playerAchievementChartBuckets: [],
+        recentPlayers: [],
+        recentVisibleComments: [],
+        topAchievers: [],
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByTestId('playtime-statistics')).not.toBeInTheDocument();
+  });
+
+  it('given the game has players but no achievements and the user is on the stats tab, does not render the compare progress component', () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ achievements: [] }), // !! No achievements.
+        }),
+      ],
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+      playersTotal: 100, // !!
+    });
+
+    render(<GameShowMobileRoot />, {
+      jotaiAtoms: [
+        [currentTabAtom, 'stats'], // !!
+      ],
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        followedPlayerCompletions: [],
+        hubs: [],
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: true, // !!
+        playerAchievementChartBuckets: [],
+        recentPlayers: [],
+        recentVisibleComments: [],
+        topAchievers: [],
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByTestId('playable-compare-progress')).not.toBeInTheDocument();
+  });
 });

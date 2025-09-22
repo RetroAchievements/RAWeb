@@ -17,7 +17,10 @@ export function useGameShowTabs() {
       searchParams.delete('tab');
     }
 
-    const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
+    const queryString = searchParams.toString();
+    const newUrl = queryString
+      ? `${window.location.pathname}?${queryString}`
+      : window.location.pathname;
 
     window.history.replaceState(null, '', newUrl);
   };

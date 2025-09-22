@@ -63,7 +63,7 @@ export const GameMobileHeader: FC = () => {
           decoding="sync"
           width="80"
           height="80"
-          src={game.badgeUrl}
+          src={backingGame.badgeUrl}
           alt={game.title}
           style={{
             aspectRatio: '1/1',
@@ -78,7 +78,11 @@ export const GameMobileHeader: FC = () => {
               className={cn(
                 'font-bold leading-tight text-white [text-shadow:_0_1px_0_rgb(0_0_0),_0_0_12px_rgb(0_0_0)]',
                 'light:border-b-0',
-                game.title.length > 22 ? 'text-xl' : 'text-2xl',
+
+                'text-2xl',
+                game.title.length > 22 ? '!text-xl' : null,
+                game.title.length > 40 ? '!text-base' : null,
+                game.title.length > 60 ? 'line-clamp-2 !text-sm' : null,
               )}
             >
               {game.title}
@@ -108,7 +112,7 @@ export const GameMobileHeader: FC = () => {
               <button
                 onClick={() => toggleWantToPlay()}
                 className={cn(
-                  'flex items-center gap-1 rounded-full',
+                  'flex items-center gap-1 whitespace-nowrap rounded-full',
                   'border border-white/30 bg-black/70 px-2.5 py-1 shadow-md backdrop-blur-sm transition-all hover:bg-black/80',
                   'light:border-neutral-300 light:bg-white/80 light:backdrop-blur-md light:hover:bg-white/90',
                 )}
@@ -134,6 +138,7 @@ export const GameMobileHeader: FC = () => {
                     )}
                   />
                 </div>
+
                 <span className="text-xs font-medium text-link light:text-neutral-700">
                   {t('game_wantToPlayToggle')}
                 </span>
@@ -144,7 +149,7 @@ export const GameMobileHeader: FC = () => {
                 <BetaFeedbackDialog betaName="react-game-page">
                   <button
                     className={cn(
-                      'text-link light:text-neutral-700',
+                      'whitespace-nowrap text-link light:text-neutral-700',
                       'flex items-center gap-1 rounded-full',
                       'border border-white/30 bg-black/70 px-2.5 py-1 shadow-md backdrop-blur-sm transition-all hover:bg-black/80',
                       'light:border-neutral-300 light:bg-white/80 light:backdrop-blur-md light:hover:bg-white/90',
