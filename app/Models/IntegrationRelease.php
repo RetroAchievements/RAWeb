@@ -7,6 +7,8 @@ namespace App\Models;
 use App\Platform\Concerns\HasStabilityFlags;
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -16,6 +18,10 @@ class IntegrationRelease extends BaseModel implements HasMedia
     use InteractsWithMedia;
     use HasStabilityFlags;
 
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
+
     protected $table = 'integration_releases';
 
     protected $fillable = [
@@ -23,11 +29,40 @@ class IntegrationRelease extends BaseModel implements HasMedia
         'notes',
         'stable',
         'version',
+        'created_at',
     ];
 
     protected $with = [
         'media',
     ];
+
+    protected static function booted()
+    {
+        static::saving(function (IntegrationRelease $release) {
+            if ($release->minimum) {
+                // Set all other integration releases to not be the minimum.
+                // There can only be one minimum.
+                static::where('id', '!=', $release->id)
+                    ->update(['minimum' => false]);
+            }
+        });
+    }
+
+    // audit activity log
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'version',
+                'created_at',
+                'stable',
+                'minimum',
+                'notes',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     // == media
 
