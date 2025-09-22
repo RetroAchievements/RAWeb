@@ -184,7 +184,7 @@ class Event extends BaseModel
     // == relations
 
     /**
-     * @return HasMany<EventAward>
+     * @return HasMany<EventAward, $this>
      */
     public function awards(): HasMany
     {
@@ -200,7 +200,7 @@ class Event extends BaseModel
     }
 
     /**
-     * @return HasManyThrough<EventAchievement>
+     * @return HasManyThrough<EventAchievement, Achievement, $this>
      */
     public function achievements(): HasManyThrough
     {
@@ -215,7 +215,7 @@ class Event extends BaseModel
     }
 
     /**
-     * @return HasManyThrough<EventAchievement>
+     * @return HasManyThrough<EventAchievement, Achievement, $this>
      */
     public function publishedAchievements(): HasManyThrough
     {
@@ -223,7 +223,7 @@ class Event extends BaseModel
     }
 
     /**
-     * @return BelongsToMany<GameSet>
+     * @return BelongsToMany<GameSet, $this>
      */
     public function hubs(): BelongsToMany
     {

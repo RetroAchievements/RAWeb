@@ -48,7 +48,7 @@ class PlayerSession extends BasePivot
     // == relations
 
     /**
-     * @return HasMany<Achievement>
+     * @return HasMany<Achievement, $this>
      */
     public function achievements(): HasMany
     {
@@ -56,7 +56,7 @@ class PlayerSession extends BasePivot
     }
 
     /**
-     * @return HasMany<PlayerAchievement>
+     * @return HasMany<PlayerAchievement, $this>
      */
     public function playerAchievements(): HasMany
     {

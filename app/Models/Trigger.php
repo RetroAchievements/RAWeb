@@ -59,7 +59,7 @@ class Trigger extends BaseModel
     // == relations
 
     /**
-     * @return HasOne<Trigger>
+     * @return HasOne<Trigger, $this>
      */
     public function nextVersion(): HasOne
     {

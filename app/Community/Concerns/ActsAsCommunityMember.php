@@ -61,7 +61,7 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return HasMany<UserActivity>
+     * @return HasMany<UserActivity, $this>
      */
     public function activities(): HasMany
     {
@@ -69,7 +69,7 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return HasMany<UserGameListEntry>
+     * @return HasMany<UserGameListEntry, $this>
      */
     public function gameListEntries(?UserGameListType $type = null): HasMany
     {
@@ -83,7 +83,7 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return BelongsToMany<SpatieRole>
+     * @return BelongsToMany<SpatieRole, $this>
      */
     public function displayableRoles(): BelongsToMany
     {
@@ -92,7 +92,7 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return BelongsToMany<User>
+     * @return BelongsToMany<User, $this>
      */
     public function relatedUsers(): BelongsToMany
     {
@@ -101,7 +101,7 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return BelongsToMany<User>
+     * @return BelongsToMany<User, $this>
      */
     public function inverseRelatedUsers(): BelongsToMany
     {
@@ -110,7 +110,7 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return BelongsToMany<User>
+     * @return BelongsToMany<User, $this>
      */
     public function followedUsers(): BelongsToMany
     {
@@ -118,7 +118,7 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return BelongsToMany<User>
+     * @return BelongsToMany<User, $this>
      */
     public function followerUsers(): BelongsToMany
     {
@@ -237,7 +237,7 @@ trait ActsAsCommunityMember
     /**
      * TODO use HasComments / polymorphic relationship
      *
-     * @return HasMany<UserComment>
+     * @return HasMany<UserComment, $this>
      */
     public function comments(): HasMany
     {
@@ -247,7 +247,7 @@ trait ActsAsCommunityMember
     /**
      * TODO use HasComments / polymorphic relationship
      *
-     * @return HasMany<UserComment>
+     * @return HasMany<UserComment, $this>
      */
     public function visibleComments(?User $user = null): HasMany
     {
@@ -260,7 +260,7 @@ trait ActsAsCommunityMember
     /**
      * TODO use HasComments / polymorphic relationship
      *
-     * @return HasMany<Comment>
+     * @return HasMany<Comment, $this>
      */
     public function moderationComments(): HasMany
     {
@@ -268,7 +268,7 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return HasMany<EmailConfirmation>
+     * @return HasMany<EmailConfirmation, $this>
      */
     public function emailConfirmations(): HasMany
     {
@@ -276,7 +276,7 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return HasMany<MessageThreadParticipant>
+     * @return HasMany<MessageThreadParticipant, $this>
      */
     public function messageThreadParticipations(): HasMany
     {
@@ -289,7 +289,7 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return HasMany<ForumTopicComment>
+     * @return HasMany<ForumTopicComment, $this>
      */
     public function forumPosts(): HasMany
     {
@@ -297,7 +297,7 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return HasMany<Subscription>
+     * @return HasMany<Subscription, $this>
      */
     public function subscriptions(): HasMany
     {
@@ -305,7 +305,7 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return HasMany<UserUsername>
+     * @return HasMany<UserUsername, $this>
      */
     public function usernameRequests(): HasMany
     {

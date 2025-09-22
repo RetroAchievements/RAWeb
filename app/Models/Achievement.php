@@ -369,7 +369,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     // == relations
 
     /**
-     * @return HasMany<AchievementAuthor>
+     * @return HasMany<AchievementAuthor, $this>
      */
     public function authorshipCredits(): HasMany
     {
@@ -377,7 +377,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return BelongsToMany<AchievementSet>
+     * @return BelongsToMany<AchievementSet, $this>
      */
     public function achievementSets(): BelongsToMany
     {
@@ -405,7 +405,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
 
     /**
      * @deprecated use comments()
-     * @return HasMany<Comment>
+     * @return HasMany<Comment, $this>
      *
      * TODO use ->comments() after commentable_type and commentable_id are synced in Comments table
      */
@@ -416,7 +416,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<AchievementMaintainer>
+     * @return HasMany<AchievementMaintainer, $this>
      */
     public function maintainers(): HasMany
     {
@@ -424,7 +424,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return HasOne<AchievementMaintainer>
+     * @return HasOne<AchievementMaintainer, $this>
      */
     public function activeMaintainer(): HasOne
     {
@@ -433,7 +433,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return BelongsToMany<User>
+     * @return BelongsToMany<User, $this>
      */
     public function playerUsers(): BelongsToMany
     {
@@ -442,7 +442,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<PlayerAchievement>
+     * @return HasMany<PlayerAchievement, $this>
      */
     public function playerAchievements(): HasMany
     {
@@ -450,7 +450,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<EventAchievement>
+     * @return HasMany<EventAchievement, $this>
      */
     public function eventAchievements(): HasMany
     {
@@ -458,7 +458,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return HasOne<EventAchievement>
+     * @return HasOne<EventAchievement, $this>
      */
     public function eventData(): HasOne
     {
@@ -468,7 +468,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     /**
      * TODO use HasComments / polymorphic relationship
      *
-     * @return HasMany<Comment>
+     * @return HasMany<Comment, $this>
      */
     public function comments(): HasMany
     {
@@ -478,7 +478,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     /**
      * TODO use HasComments / polymorphic relationship
      *
-     * @return HasMany<Comment>
+     * @return HasMany<Comment, $this>
      */
     public function visibleComments(?User $user = null): HasMany
     {
@@ -489,7 +489,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<Ticket>
+     * @return HasMany<Ticket, $this>
      */
     public function tickets()
     {

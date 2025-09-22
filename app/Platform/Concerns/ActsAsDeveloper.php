@@ -34,7 +34,7 @@ trait ActsAsDeveloper
     // == relations
 
     /**
-     * @return HasMany<AchievementSetClaim>
+     * @return HasMany<AchievementSetClaim, $this>
      */
     public function achievementSetClaims(): HasMany
     {
@@ -42,7 +42,7 @@ trait ActsAsDeveloper
     }
 
     /**
-     * @return HasMany<Achievement>
+     * @return HasMany<Achievement, $this>
      */
     public function authoredAchievements(): HasMany
     {
@@ -50,7 +50,7 @@ trait ActsAsDeveloper
     }
 
     /**
-     * @return HasMany<MemoryNote>
+     * @return HasMany<MemoryNote, $this>
      */
     public function authoredCodeNotes(): HasMany
     {
@@ -58,7 +58,7 @@ trait ActsAsDeveloper
     }
 
     /**
-     * @return HasMany<Leaderboard>
+     * @return HasMany<Leaderboard, $this>
      */
     public function authoredLeaderboards(): HasMany
     {
@@ -67,7 +67,7 @@ trait ActsAsDeveloper
 
     /**
      * NOTE: this is the tickets the user has resolved (including ones not associated to their achievements).
-     * @return HasMany<Ticket>
+     * @return HasMany<Ticket, $this>
      */
     public function resolvedTickets(): HasMany
     {
@@ -75,7 +75,7 @@ trait ActsAsDeveloper
     }
 
     /**
-     * @return HasMany<AchievementAuthor>
+     * @return HasMany<AchievementAuthor, $this>
      */
     public function achievementCredits(): HasMany
     {

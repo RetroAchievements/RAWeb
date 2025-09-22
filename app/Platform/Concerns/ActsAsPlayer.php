@@ -89,7 +89,7 @@ trait ActsAsPlayer
     // == relations
 
     /**
-     * @return BelongsToMany<Achievement>
+     * @return BelongsToMany<Achievement, $this>
      */
     public function achievements(): BelongsToMany
     {
@@ -98,7 +98,7 @@ trait ActsAsPlayer
     }
 
     /**
-     * @return BelongsToMany<Game>
+     * @return BelongsToMany<Game, $this>
      */
     public function games(): BelongsToMany
     {
@@ -116,7 +116,7 @@ trait ActsAsPlayer
     }
 
     /**
-     * @return HasMany<LeaderboardEntry>
+     * @return HasMany<LeaderboardEntry, $this>
      */
     public function leaderboardEntries(): HasMany
     {
@@ -124,7 +124,7 @@ trait ActsAsPlayer
     }
 
     /**
-     * @return HasMany<PlayerAchievement>
+     * @return HasMany<PlayerAchievement, $this>
      */
     public function playerAchievements(): HasMany
     {
@@ -134,7 +134,7 @@ trait ActsAsPlayer
     /**
      * Return badges earned by the user
      *
-     * @return HasMany<PlayerBadge>
+     * @return HasMany<PlayerBadge, $this>
      */
     public function playerBadges(): HasMany
     {
@@ -142,7 +142,7 @@ trait ActsAsPlayer
     }
 
     /**
-     * @return HasMany<PlayerGame>
+     * @return HasMany<PlayerGame, $this>
      */
     public function playerGames(): HasMany
     {
@@ -150,7 +150,7 @@ trait ActsAsPlayer
     }
 
     /**
-     * @return HasMany<PlayerAchievementSet>
+     * @return HasMany<PlayerAchievementSet, $this>
      */
     public function playerAchievementSets(): HasMany
     {
@@ -158,7 +158,7 @@ trait ActsAsPlayer
     }
 
     /**
-     * @return HasMany<PlayerSession>
+     * @return HasMany<PlayerSession, $this>
      */
     public function playerSessions(): HasMany
     {
@@ -166,7 +166,7 @@ trait ActsAsPlayer
     }
 
     /**
-     * @return HasMany<PlayerStat>
+     * @return HasMany<PlayerStat, $this>
      */
     public function playerStats(): HasMany
     {
@@ -174,7 +174,7 @@ trait ActsAsPlayer
     }
 
     /**
-     * @return HasMany<Ticket>
+     * @return HasMany<Ticket, $this>
      */
     public function reportedTickets(): HasMany
     {
