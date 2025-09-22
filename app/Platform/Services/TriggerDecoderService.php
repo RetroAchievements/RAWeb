@@ -359,7 +359,10 @@ class TriggerDecoderService
         }
 
         $codeNotes = MemoryNote::where('game_id', $gameId)
-            ->whereIn('address', $memoryReferences)
+            ->where(function ($q) use ($memoryReferences) {
+                $q->whereIn('address', $memoryReferences);
+                $q->orWhere('body', 'like', '%bytes%');
+            })
             ->get()
             ->mapWithKeys(function ($row, $key) {
                 return [$row['address'] => $row['body']];
@@ -427,6 +430,17 @@ class TriggerDecoderService
                     }
                 }
                 $groupNotes[$address] = $note;
+            } else {
+                $noteAddress = $this->findArrayNote($address, $codeNotes);
+                if ($noteAddress !== null) {
+                    $note = $codeNotes[$noteAddress] ?? '';
+                    if (!empty($note)) {
+                        $formattedNoteAddress = '0x' . str_pad(dechex($noteAddress), 6, '0', STR_PAD_LEFT);
+                        $offset = $address - $noteAddress;
+                        $condition[$type . 'Tooltip'] = "[$formattedNoteAddress + $offset]\n" . $note;
+                    }
+                    $groupNotes[$noteAddress] = $note;
+                }
             }
         }
     }
@@ -494,6 +508,41 @@ class TriggerDecoderService
         }
 
         return '';
+    }
+
+    private function findArrayNote(int $address, array $codeNotes): ?int
+    {
+        $lastAddress = null;
+        foreach ($codeNotes as $noteAddress => $note) {
+            if ($noteAddress > $address) {
+                break;
+            }
+
+            $index = stripos($note, 'bytes');
+            if ($index === false || stripos($note, 'pointer') !== false) {
+                continue;
+            }
+
+            while ($index > 0 && (ctype_space($note[$index - 1]) || $note[$index - 1] === '-')) {
+                $index--;
+            }
+
+            $size = 0;
+            $multiplier = 1;
+            while ($index > 0 && ctype_digit($note[$index - 1])) {
+                $index--;
+                $size += ((int) $note[$index]) * $multiplier;
+                $multiplier *= 10;
+            }
+
+            if ($address < $noteAddress + $size) {
+                return $noteAddress;
+            }
+
+            $lastAddress = $noteAddress;
+        }
+
+        return null;
     }
 
     public function decodeValue(string $serializedValue): array
