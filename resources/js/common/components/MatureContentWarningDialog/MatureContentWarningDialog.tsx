@@ -2,6 +2,7 @@ import { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
+import { useSuppressMatureContentWarningMutation } from '@/common/hooks/mutations/useSuppressMatureContentWarningMutation';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import {
@@ -14,7 +15,6 @@ import {
   BaseAlertDialogTitle,
 } from '../+vendor/BaseAlertDialog';
 import { BaseButton } from '../+vendor/BaseButton';
-import { useSuppressMatureContentWarningMutation } from './useSuppressMatureContentWarningMutation';
 
 interface MatureContentWarningDialogProps {
   /** On clicking "No", the user will be redirected to this URL. Defaults to the home page. */
@@ -25,7 +25,6 @@ export const MatureContentWarningDialog: FC<MatureContentWarningDialogProps> = (
   noHref = route('home'),
 }) => {
   const { auth, ziggy } = usePageProps();
-
   const { t } = useTranslation();
 
   const [isOpen, setIsOpen] = useState(() => {

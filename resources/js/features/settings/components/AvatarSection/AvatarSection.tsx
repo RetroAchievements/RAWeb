@@ -16,9 +16,9 @@ import { BaseInput } from '@/common/components/+vendor/BaseInput';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { useResetAvatarMutation } from '../../hooks/mutations/useResetAvatarMutation';
 import { useResetNavbarUserPic } from '../../hooks/useResetNavbarUserPic';
 import { useAvatarSectionForm } from './useAvatarSectionForm';
-import { useResetAvatarMutation } from './useResetAvatarMutation';
 
 export const AvatarSection: FC = () => {
   const { can } = usePageProps<App.Community.Data.UserSettingsPageProps>();
