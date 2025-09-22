@@ -41,7 +41,7 @@ class GameHashSet extends BaseModel
     }
 
     /**
-     * @return BelongsTo<Game, GameHashSet>
+     * @return BelongsTo<Game, $this>
      */
     public function game(): BelongsTo
     {

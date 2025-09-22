@@ -17,9 +17,6 @@ class MessageFactory extends Factory
 {
     protected $model = Message::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
