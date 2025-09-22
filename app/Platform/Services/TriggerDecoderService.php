@@ -512,7 +512,6 @@ class TriggerDecoderService
 
     private function findArrayNote(int $address, array $codeNotes): ?int
     {
-        $lastAddress = null;
         foreach ($codeNotes as $noteAddress => $note) {
             if ($noteAddress > $address) {
                 break;
@@ -538,8 +537,6 @@ class TriggerDecoderService
             if ($address < $noteAddress + $size) {
                 return $noteAddress;
             }
-
-            $lastAddress = $noteAddress;
         }
 
         return null;
