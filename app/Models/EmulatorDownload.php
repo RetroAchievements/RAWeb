@@ -23,7 +23,7 @@ class EmulatorDownload extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<Emulator, EmulatorDownload>
+     * @return BelongsTo<Emulator, $this>
      */
     public function emulator(): BelongsTo
     {
@@ -31,7 +31,7 @@ class EmulatorDownload extends BaseModel
     }
 
     /**
-     * @return BelongsTo<Platform, EmulatorDownload>
+     * @return BelongsTo<Platform, $this>
      */
     public function platform(): BelongsTo
     {
