@@ -180,7 +180,7 @@ class PlayerBadge extends BaseModel
      * Warning: not all awards are associated with games!
      * see: PlayerBadge::getGameAttribute()
      *
-     * @return BelongsTo<Game, PlayerBadge>
+     * @return BelongsTo<Game, $this>
      */
     public function gameIfApplicable(): BelongsTo
     {
@@ -188,7 +188,7 @@ class PlayerBadge extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, PlayerBadge>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

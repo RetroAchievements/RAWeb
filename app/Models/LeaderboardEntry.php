@@ -41,7 +41,7 @@ class LeaderboardEntry extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<Leaderboard, LeaderboardEntry>
+     * @return BelongsTo<Leaderboard, $this>
      */
     public function leaderboard(): BelongsTo
     {
@@ -49,7 +49,7 @@ class LeaderboardEntry extends BaseModel
     }
 
     /**
-     * @return BelongsTo<PlayerSession, LeaderboardEntry>
+     * @return BelongsTo<PlayerSession, $this>
      */
     public function playerSession(): BelongsTo
     {
@@ -57,7 +57,7 @@ class LeaderboardEntry extends BaseModel
     }
 
     /**
-     * @return BelongsTo<Trigger, LeaderboardEntry>
+     * @return BelongsTo<Trigger, $this>
      */
     public function trigger(): BelongsTo
     {
@@ -65,7 +65,7 @@ class LeaderboardEntry extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, LeaderboardEntry>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

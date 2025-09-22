@@ -16,9 +16,6 @@ class GameRecentPlayerFactory extends Factory
 {
     protected $model = GameRecentPlayer::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [

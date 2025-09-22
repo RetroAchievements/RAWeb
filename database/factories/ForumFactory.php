@@ -15,9 +15,6 @@ class ForumFactory extends Factory
 {
     protected $model = Forum::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [

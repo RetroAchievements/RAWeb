@@ -86,8 +86,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     // use CausesModerationIncidents;
     use CollectsBadges;
 
-    // TODO use UsesWebApi;
-
     // TODO rename UserAccounts table to users
     // TODO drop cookie, fbUser, fbPrefs, LastActivityID, LastGameID, PasswordResetToken, UnreadMessageCount
     // TODO drop RichPresenceMsg, RichPresenceMsgDate -> player_sessions

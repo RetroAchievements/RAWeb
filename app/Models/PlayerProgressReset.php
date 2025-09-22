@@ -33,7 +33,7 @@ class PlayerProgressReset extends BaseModel
     /**
      * Get the achievement if this is an achievement reset.
      *
-     * @return BelongsTo<Achievement, PlayerProgressReset>
+     * @return BelongsTo<Achievement, $this>
      */
     public function achievement(): BelongsTo
     {
@@ -43,7 +43,7 @@ class PlayerProgressReset extends BaseModel
     /**
      * Get the achievement set if this is an achievement set reset.
      *
-     * @return BelongsTo<AchievementSet, PlayerProgressReset>
+     * @return BelongsTo<AchievementSet, $this>
      */
     public function achievementSet(): BelongsTo
     {
@@ -53,7 +53,7 @@ class PlayerProgressReset extends BaseModel
     /**
      * Get the game if this is a game reset.
      *
-     * @return BelongsTo<Game, PlayerProgressReset>
+     * @return BelongsTo<Game, $this>
      */
     public function game(): BelongsTo
     {
@@ -63,7 +63,7 @@ class PlayerProgressReset extends BaseModel
     /**
      * Get the user who initiated this reset.
      *
-     * @return BelongsTo<User, PlayerProgressReset>
+     * @return BelongsTo<User, $this>
      */
     public function initiatedByUser(): BelongsTo
     {
@@ -71,7 +71,7 @@ class PlayerProgressReset extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, PlayerProgressReset>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

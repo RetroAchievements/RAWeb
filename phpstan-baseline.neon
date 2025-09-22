@@ -397,18 +397,6 @@ parameters:
 			path: app/Models/Achievement.php
 
 		-
-			message: '#^Method App\\Models\\Achievement\:\:currentTrigger\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, App\\Models\\Achievement\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, \$this\(App\\Models\\Achievement\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Achievement.php
-
-		-
-			message: '#^Method App\\Models\\Achievement\:\:developer\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\Achievement\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\Achievement\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Achievement.php
-
-		-
 			message: '#^Method App\\Models\\Achievement\:\:eventAchievements\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\EventAchievement\> but returns Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\EventAchievement, \$this\(App\\Models\\Achievement\)\>\.$#'
 			identifier: return.type
 			count: 1
@@ -416,12 +404,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\Achievement\:\:eventData\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasOne\<App\\Models\\EventAchievement\> but returns Illuminate\\Database\\Eloquent\\Relations\\HasOne\<App\\Models\\EventAchievement, \$this\(App\\Models\\Achievement\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Achievement.php
-
-		-
-			message: '#^Method App\\Models\\Achievement\:\:game\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\Achievement\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\Achievement\)\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Models/Achievement.php
@@ -475,6 +457,12 @@ parameters:
 			path: app/Models/Achievement.php
 
 		-
+			message: '#^Return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, \$this\(App\\Models\\Achievement\)\>\) of method App\\Models\\Achievement\:\:currentTrigger\(\) should be compatible with return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, App\\Models\\Achievement\>\) of method App\\Platform\\Contracts\\HasVersionedTrigger\<App\\Models\\Achievement\>\:\:currentTrigger\(\)$#'
+			identifier: method.childReturnType
+			count: 1
+			path: app/Models/Achievement.php
+
+		-
 			message: '#^Type string in generic type Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\AchievementSet, Illuminate\\Database\\Eloquent\\Relations\\Pivot, string\> in PHPDoc tag @return is not subtype of template type TPivotModel of Illuminate\\Database\\Eloquent\\Relations\\Pivot \= Illuminate\\Database\\Eloquent\\Relations\\Pivot of class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\.$#'
 			identifier: generics.notSubtype
 			count: 1
@@ -491,48 +479,6 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: app/Models/Achievement.php
-
-		-
-			message: '#^Method App\\Models\\AchievementAuthor\:\:achievement\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, App\\Models\\AchievementAuthor\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, \$this\(App\\Models\\AchievementAuthor\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/AchievementAuthor.php
-
-		-
-			message: '#^Method App\\Models\\AchievementAuthor\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\AchievementAuthor\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\AchievementAuthor\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/AchievementAuthor.php
-
-		-
-			message: '#^Method App\\Models\\AchievementMaintainer\:\:achievement\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, App\\Models\\AchievementMaintainer\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, \$this\(App\\Models\\AchievementMaintainer\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/AchievementMaintainer.php
-
-		-
-			message: '#^Method App\\Models\\AchievementMaintainer\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\AchievementMaintainer\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\AchievementMaintainer\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/AchievementMaintainer.php
-
-		-
-			message: '#^Method App\\Models\\AchievementMaintainerUnlock\:\:achievement\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, App\\Models\\AchievementMaintainerUnlock\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, \$this\(App\\Models\\AchievementMaintainerUnlock\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/AchievementMaintainerUnlock.php
-
-		-
-			message: '#^Method App\\Models\\AchievementMaintainerUnlock\:\:maintainer\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\AchievementMaintainerUnlock\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\AchievementMaintainerUnlock\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/AchievementMaintainerUnlock.php
-
-		-
-			message: '#^Method App\\Models\\AchievementMaintainerUnlock\:\:playerAchievement\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\PlayerAchievement, App\\Models\\AchievementMaintainerUnlock\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\PlayerAchievement, \$this\(App\\Models\\AchievementMaintainerUnlock\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/AchievementMaintainerUnlock.php
 
 		-
 			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\AchievementSetAuthor\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
@@ -577,12 +523,6 @@ parameters:
 			path: app/Models/AchievementSet.php
 
 		-
-			message: '#^Method App\\Models\\AchievementSet\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\AchievementSet\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\AchievementSet\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/AchievementSet.php
-
-		-
 			message: '#^Type string in generic type Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Achievement, Illuminate\\Database\\Eloquent\\Relations\\Pivot, string\> in PHPDoc tag @return is not subtype of template type TPivotModel of Illuminate\\Database\\Eloquent\\Relations\\Pivot \= Illuminate\\Database\\Eloquent\\Relations\\Pivot of class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\.$#'
 			identifier: generics.notSubtype
 			count: 1
@@ -601,36 +541,6 @@ parameters:
 			path: app/Models/AchievementSet.php
 
 		-
-			message: '#^Method App\\Models\\AchievementSetAuthor\:\:achievementSet\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\AchievementSet, App\\Models\\AchievementSetAuthor\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\AchievementSet, \$this\(App\\Models\\AchievementSetAuthor\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/AchievementSetAuthor.php
-
-		-
-			message: '#^Method App\\Models\\AchievementSetAuthor\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\AchievementSetAuthor\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\AchievementSetAuthor\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/AchievementSetAuthor.php
-
-		-
-			message: '#^Method App\\Models\\AchievementSetClaim\:\:game\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\AchievementSetClaim\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\AchievementSetClaim\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/AchievementSetClaim.php
-
-		-
-			message: '#^Method App\\Models\\AchievementSetClaim\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\AchievementSetClaim\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\AchievementSetClaim\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/AchievementSetClaim.php
-
-		-
-			message: '#^Method App\\Models\\ApiLogEntry\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\ApiLogEntry\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\ApiLogEntry\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/ApiLogEntry.php
-
-		-
 			message: '#^Method App\\Models\\Badge\:\:badgeable\(\) should return Illuminate\\Database\\Eloquent\\Relations\\MorphTo\<Illuminate\\Database\\Eloquent\\Model, App\\Models\\Badge\> but returns Illuminate\\Database\\Eloquent\\Relations\\MorphTo\<Illuminate\\Database\\Eloquent\\Model, \$this\(App\\Models\\Badge\)\>\.$#'
 			identifier: return.type
 			count: 1
@@ -641,30 +551,6 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: app/Models/Comment.php
-
-		-
-			message: '#^Method App\\Models\\Comment\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\Comment\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\Comment\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Comment.php
-
-		-
-			message: '#^Method App\\Models\\Comment\:\:userWithTrashed\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\Comment\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\Comment\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Comment.php
-
-		-
-			message: '#^Method App\\Models\\DiscordMessageThreadMapping\:\:messageThread\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\MessageThread, App\\Models\\DiscordMessageThreadMapping\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\MessageThread, \$this\(App\\Models\\DiscordMessageThreadMapping\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/DiscordMessageThreadMapping.php
-
-		-
-			message: '#^Method App\\Models\\EmailConfirmation\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\EmailConfirmation\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\EmailConfirmation\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/EmailConfirmation.php
 
 		-
 			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\EmulatorDownload\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
@@ -775,30 +661,6 @@ parameters:
 			path: app/Models/Emulator.php
 
 		-
-			message: '#^Method App\\Models\\EmulatorDownload\:\:emulator\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Emulator, App\\Models\\EmulatorDownload\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Emulator, \$this\(App\\Models\\EmulatorDownload\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/EmulatorDownload.php
-
-		-
-			message: '#^Method App\\Models\\EmulatorDownload\:\:platform\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Platform, App\\Models\\EmulatorDownload\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Platform, \$this\(App\\Models\\EmulatorDownload\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/EmulatorDownload.php
-
-		-
-			message: '#^Method App\\Models\\EmulatorRelease\:\:emulator\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Emulator, App\\Models\\EmulatorRelease\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Emulator, \$this\(App\\Models\\EmulatorRelease\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/EmulatorRelease.php
-
-		-
-			message: '#^Method App\\Models\\EmulatorUserAgent\:\:emulator\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Emulator, App\\Models\\EmulatorUserAgent\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Emulator, \$this\(App\\Models\\EmulatorUserAgent\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/EmulatorUserAgent.php
-
-		-
 			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\EventAward\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
 			identifier: generics.lessTypes
 			count: 1
@@ -823,12 +685,6 @@ parameters:
 			path: app/Models/Event.php
 
 		-
-			message: '#^Method App\\Models\\Event\:\:legacyGame\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\Event\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\Event\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Event.php
-
-		-
 			message: '#^Type string in generic type Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\GameSet, Illuminate\\Database\\Eloquent\\Relations\\Pivot, string\> in PHPDoc tag @return is not subtype of template type TPivotModel of Illuminate\\Database\\Eloquent\\Relations\\Pivot \= Illuminate\\Database\\Eloquent\\Relations\\Pivot of class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\.$#'
 			identifier: generics.notSubtype
 			count: 1
@@ -847,19 +703,7 @@ parameters:
 			path: app/Models/EventAchievement.php
 
 		-
-			message: '#^Method App\\Models\\EventAchievement\:\:achievement\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, App\\Models\\EventAchievement\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, \$this\(App\\Models\\EventAchievement\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/EventAchievement.php
-
-		-
 			message: '#^Method App\\Models\\EventAchievement\:\:event\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasOneThrough\<App\\Models\\Event\> but returns Illuminate\\Database\\Eloquent\\Relations\\HasOneThrough\<App\\Models\\Event, App\\Models\\Achievement, \$this\(App\\Models\\EventAchievement\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/EventAchievement.php
-
-		-
-			message: '#^Method App\\Models\\EventAchievement\:\:sourceAchievement\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, App\\Models\\EventAchievement\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, \$this\(App\\Models\\EventAchievement\)\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Models/EventAchievement.php
@@ -878,12 +722,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\EventAward\:\:awardedUsers\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\User, Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\User, \$this\(App\\Models\\EventAward\), Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/EventAward.php
-
-		-
-			message: '#^Method App\\Models\\EventAward\:\:event\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Event, App\\Models\\EventAward\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Event, \$this\(App\\Models\\EventAward\)\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Models/EventAward.php
@@ -921,12 +759,6 @@ parameters:
 		-
 			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasManyThrough\<App\\Models\\ForumTopicComment\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasManyThrough\: TRelatedModel, TIntermediateModel, TDeclaringModel$#'
 			identifier: generics.lessTypes
-			count: 1
-			path: app/Models/Forum.php
-
-		-
-			message: '#^Method App\\Models\\Forum\:\:category\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\ForumCategory, App\\Models\\Forum\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\ForumCategory, \$this\(App\\Models\\Forum\)\>\.$#'
-			identifier: return.type
 			count: 1
 			path: app/Models/Forum.php
 
@@ -973,46 +805,10 @@ parameters:
 			path: app/Models/ForumTopic.php
 
 		-
-			message: '#^Method App\\Models\\ForumTopic\:\:forum\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Forum, App\\Models\\ForumTopic\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Forum, \$this\(App\\Models\\ForumTopic\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/ForumTopic.php
-
-		-
 			message: '#^Method App\\Models\\ForumTopic\:\:latestComment\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasOne\<App\\Models\\ForumTopicComment\> but returns Illuminate\\Database\\Eloquent\\Relations\\HasOne\<App\\Models\\ForumTopicComment, \$this\(App\\Models\\ForumTopic\)\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Models/ForumTopic.php
-
-		-
-			message: '#^Method App\\Models\\ForumTopic\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\ForumTopic\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\ForumTopic\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/ForumTopic.php
-
-		-
-			message: '#^Method App\\Models\\ForumTopicComment\:\:editedBy\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\ForumTopicComment\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\ForumTopicComment\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/ForumTopicComment.php
-
-		-
-			message: '#^Method App\\Models\\ForumTopicComment\:\:forumTopic\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\ForumTopic, App\\Models\\ForumTopicComment\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\ForumTopic, \$this\(App\\Models\\ForumTopicComment\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/ForumTopicComment.php
-
-		-
-			message: '#^Method App\\Models\\ForumTopicComment\:\:sentBy\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\ForumTopicComment\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\ForumTopicComment\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/ForumTopicComment.php
-
-		-
-			message: '#^Method App\\Models\\ForumTopicComment\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\ForumTopicComment\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\ForumTopicComment\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/ForumTopicComment.php
 
 		-
 			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\Achievement\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
@@ -1153,12 +949,6 @@ parameters:
 			path: app/Models/Game.php
 
 		-
-			message: '#^Method App\\Models\\Game\:\:currentTrigger\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, App\\Models\\Game\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, \$this\(App\\Models\\Game\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Game.php
-
-		-
 			message: '#^Method App\\Models\\Game\:\:event\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasOne\<App\\Models\\Event\> but returns Illuminate\\Database\\Eloquent\\Relations\\HasOne\<App\\Models\\Event, \$this\(App\\Models\\Game\)\>\.$#'
 			identifier: return.type
 			count: 1
@@ -1261,12 +1051,6 @@ parameters:
 			path: app/Models/Game.php
 
 		-
-			message: '#^Method App\\Models\\Game\:\:system\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\System, App\\Models\\Game\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\System, \$this\(App\\Models\\Game\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Game.php
-
-		-
 			message: '#^Method App\\Models\\Game\:\:tickets\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasManyThrough\<App\\Models\\Ticket\> but returns Illuminate\\Database\\Eloquent\\Relations\\HasManyThrough\<App\\Models\\Ticket, App\\Models\\Achievement, \$this\(App\\Models\\Game\)\>\.$#'
 			identifier: return.type
 			count: 1
@@ -1287,6 +1071,12 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\User,\$this\(App\\Models\\Game\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Relations\\Pivot\>, string given\.$#'
 			identifier: argument.type
+			count: 1
+			path: app/Models/Game.php
+
+		-
+			message: '#^Return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, \$this\(App\\Models\\Game\)\>\) of method App\\Models\\Game\:\:currentTrigger\(\) should be compatible with return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, App\\Models\\Game\>\) of method App\\Platform\\Contracts\\HasVersionedTrigger\<App\\Models\\Game\>\:\:currentTrigger\(\)$#'
+			identifier: method.childReturnType
 			count: 1
 			path: app/Models/Game.php
 
@@ -1321,30 +1111,6 @@ parameters:
 			path: app/Models/Game.php
 
 		-
-			message: '#^Method App\\Models\\GameAchievementSet\:\:achievementSet\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\AchievementSet, App\\Models\\GameAchievementSet\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\AchievementSet, \$this\(App\\Models\\GameAchievementSet\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/GameAchievementSet.php
-
-		-
-			message: '#^Method App\\Models\\GameAchievementSet\:\:game\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\GameAchievementSet\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\GameAchievementSet\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/GameAchievementSet.php
-
-		-
-			message: '#^Method App\\Models\\GameHash\:\:compatibilityTester\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\GameHash\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\GameHash\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/GameHash.php
-
-		-
-			message: '#^Method App\\Models\\GameHash\:\:game\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\GameHash\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\GameHash\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/GameHash.php
-
-		-
 			message: '#^Method App\\Models\\GameHash\:\:gameHashSets\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\GameHashSet, Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\GameHashSet, \$this\(App\\Models\\GameHash\), Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\>\.$#'
 			identifier: return.type
 			count: 1
@@ -1352,18 +1118,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\GameHash\:\:incompatibleAchievementSets\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\AchievementSet, Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\AchievementSet, \$this\(App\\Models\\GameHash\), Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/GameHash.php
-
-		-
-			message: '#^Method App\\Models\\GameHash\:\:system\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\System, App\\Models\\GameHash\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\System, \$this\(App\\Models\\GameHash\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/GameHash.php
-
-		-
-			message: '#^Method App\\Models\\GameHash\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\GameHash\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\GameHash\)\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Models/GameHash.php
@@ -1399,12 +1153,6 @@ parameters:
 			path: app/Models/GameHashSet.php
 
 		-
-			message: '#^Method App\\Models\\GameHashSet\:\:game\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\GameHashSet\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\GameHashSet\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/GameHashSet.php
-
-		-
 			message: '#^Method App\\Models\\GameHashSet\:\:hashes\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\GameHash, Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\GameHash, \$this\(App\\Models\\GameHashSet\), Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\>\.$#'
 			identifier: return.type
 			count: 1
@@ -1435,31 +1183,7 @@ parameters:
 			path: app/Models/GameHashSet.php
 
 		-
-			message: '#^Method App\\Models\\GameRecentPlayer\:\:game\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\GameRecentPlayer\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\GameRecentPlayer\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/GameRecentPlayer.php
-
-		-
-			message: '#^Method App\\Models\\GameRecentPlayer\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\GameRecentPlayer\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\GameRecentPlayer\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/GameRecentPlayer.php
-
-		-
-			message: '#^Method App\\Models\\GameRelease\:\:game\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\GameRelease\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\GameRelease\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/GameRelease.php
-
-		-
 			message: '#^Method App\\Models\\GameSet\:\:children\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\GameSet, Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\GameSet, \$this\(App\\Models\\GameSet\), Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/GameSet.php
-
-		-
-			message: '#^Method App\\Models\\GameSet\:\:forumTopic\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\ForumTopic, App\\Models\\GameSet\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\ForumTopic, \$this\(App\\Models\\GameSet\)\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Models/GameSet.php
@@ -1478,12 +1202,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\GameSet\:\:updateRoles\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Role, Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Role, \$this\(App\\Models\\GameSet\), Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/GameSet.php
-
-		-
-			message: '#^Method App\\Models\\GameSet\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\GameSet\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\GameSet\)\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Models/GameSet.php
@@ -1513,30 +1231,6 @@ parameters:
 			path: app/Models/GameSet.php
 
 		-
-			message: '#^Method App\\Models\\GameSetGame\:\:game\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\GameSetGame\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\GameSetGame\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/GameSetGame.php
-
-		-
-			message: '#^Method App\\Models\\GameSetGame\:\:gameSet\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\GameSet, App\\Models\\GameSetGame\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\GameSet, \$this\(App\\Models\\GameSetGame\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/GameSetGame.php
-
-		-
-			message: '#^Method App\\Models\\GameSetLink\:\:childGameSet\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\GameSet, App\\Models\\GameSetLink\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\GameSet, \$this\(App\\Models\\GameSetLink\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/GameSetLink.php
-
-		-
-			message: '#^Method App\\Models\\GameSetLink\:\:parentGameSet\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\GameSet, App\\Models\\GameSetLink\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\GameSet, \$this\(App\\Models\\GameSetLink\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/GameSetLink.php
-
-		-
 			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\Comment\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
 			identifier: generics.lessTypes
 			count: 2
@@ -1555,31 +1249,7 @@ parameters:
 			path: app/Models/Leaderboard.php
 
 		-
-			message: '#^Method App\\Models\\Leaderboard\:\:currentTrigger\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, App\\Models\\Leaderboard\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, \$this\(App\\Models\\Leaderboard\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Leaderboard.php
-
-		-
-			message: '#^Method App\\Models\\Leaderboard\:\:developer\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\Leaderboard\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\Leaderboard\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Leaderboard.php
-
-		-
 			message: '#^Method App\\Models\\Leaderboard\:\:entries\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\LeaderboardEntry\> but returns Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\LeaderboardEntry, \$this\(App\\Models\\Leaderboard\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Leaderboard.php
-
-		-
-			message: '#^Method App\\Models\\Leaderboard\:\:game\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\Leaderboard\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\Leaderboard\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Leaderboard.php
-
-		-
-			message: '#^Method App\\Models\\Leaderboard\:\:topEntry\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\LeaderboardEntry, App\\Models\\Leaderboard\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\LeaderboardEntry, \$this\(App\\Models\\Leaderboard\)\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Models/Leaderboard.php
@@ -1597,52 +1267,10 @@ parameters:
 			path: app/Models/Leaderboard.php
 
 		-
-			message: '#^Method App\\Models\\LeaderboardEntry\:\:leaderboard\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Leaderboard, App\\Models\\LeaderboardEntry\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Leaderboard, \$this\(App\\Models\\LeaderboardEntry\)\>\.$#'
-			identifier: return.type
+			message: '#^Return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, \$this\(App\\Models\\Leaderboard\)\>\) of method App\\Models\\Leaderboard\:\:currentTrigger\(\) should be compatible with return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, App\\Models\\Leaderboard\>\) of method App\\Platform\\Contracts\\HasVersionedTrigger\<App\\Models\\Leaderboard\>\:\:currentTrigger\(\)$#'
+			identifier: method.childReturnType
 			count: 1
-			path: app/Models/LeaderboardEntry.php
-
-		-
-			message: '#^Method App\\Models\\LeaderboardEntry\:\:playerSession\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\PlayerSession, App\\Models\\LeaderboardEntry\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\PlayerSession, \$this\(App\\Models\\LeaderboardEntry\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/LeaderboardEntry.php
-
-		-
-			message: '#^Method App\\Models\\LeaderboardEntry\:\:trigger\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, App\\Models\\LeaderboardEntry\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, \$this\(App\\Models\\LeaderboardEntry\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/LeaderboardEntry.php
-
-		-
-			message: '#^Method App\\Models\\LeaderboardEntry\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\LeaderboardEntry\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\LeaderboardEntry\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/LeaderboardEntry.php
-
-		-
-			message: '#^Method App\\Models\\MemoryNote\:\:game\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\MemoryNote\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\MemoryNote\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/MemoryNote.php
-
-		-
-			message: '#^Method App\\Models\\MemoryNote\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\MemoryNote\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\MemoryNote\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/MemoryNote.php
-
-		-
-			message: '#^Method App\\Models\\Message\:\:author\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\Message\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\Message\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Message.php
-
-		-
-			message: '#^Method App\\Models\\Message\:\:sentBy\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\Message\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\Message\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Message.php
+			path: app/Models/Leaderboard.php
 
 		-
 			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\Message\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
@@ -1653,12 +1281,6 @@ parameters:
 		-
 			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasManyThrough\<App\\Models\\User\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasManyThrough\: TRelatedModel, TIntermediateModel, TDeclaringModel$#'
 			identifier: generics.lessTypes
-			count: 1
-			path: app/Models/MessageThread.php
-
-		-
-			message: '#^Method App\\Models\\MessageThread\:\:lastMessage\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Message, App\\Models\\MessageThread\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Message, \$this\(App\\Models\\MessageThread\)\>\.$#'
-			identifier: return.type
 			count: 1
 			path: app/Models/MessageThread.php
 
@@ -1687,18 +1309,6 @@ parameters:
 			path: app/Models/MessageThread.php
 
 		-
-			message: '#^Method App\\Models\\MessageThreadParticipant\:\:thread\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\MessageThread, App\\Models\\MessageThreadParticipant\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\MessageThread, \$this\(App\\Models\\MessageThreadParticipant\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/MessageThreadParticipant.php
-
-		-
-			message: '#^Method App\\Models\\MessageThreadParticipant\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\MessageThreadParticipant\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\MessageThreadParticipant\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/MessageThreadParticipant.php
-
-		-
 			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\MorphMany\<App\\Models\\NewsComment\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\MorphMany\: TRelatedModel, TDeclaringModel$#'
 			identifier: generics.lessTypes
 			count: 1
@@ -1706,12 +1316,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\News\:\:comments\(\) should return Illuminate\\Database\\Eloquent\\Relations\\MorphMany\<App\\Models\\NewsComment\> but returns Illuminate\\Database\\Eloquent\\Relations\\MorphMany\<App\\Models\\NewsComment, \$this\(App\\Models\\News\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/News.php
-
-		-
-			message: '#^Method App\\Models\\News\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\News\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\News\)\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Models/News.php
@@ -1753,26 +1357,8 @@ parameters:
 			path: app/Models/Platform.php
 
 		-
-			message: '#^Method App\\Models\\PlayerAchievement\:\:achievement\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, App\\Models\\PlayerAchievement\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, \$this\(App\\Models\\PlayerAchievement\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerAchievement.php
-
-		-
-			message: '#^Method App\\Models\\PlayerAchievement\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\PlayerAchievement\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\PlayerAchievement\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerAchievement.php
-
-		-
 			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\PlayerAchievement\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
 			identifier: generics.lessTypes
-			count: 1
-			path: app/Models/PlayerAchievementSet.php
-
-		-
-			message: '#^Method App\\Models\\PlayerAchievementSet\:\:achievementSet\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\AchievementSet, App\\Models\\PlayerAchievementSet\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\AchievementSet, \$this\(App\\Models\\PlayerAchievementSet\)\>\.$#'
-			identifier: return.type
 			count: 1
 			path: app/Models/PlayerAchievementSet.php
 
@@ -1781,24 +1367,6 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: app/Models/PlayerAchievementSet.php
-
-		-
-			message: '#^Method App\\Models\\PlayerAchievementSet\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\PlayerAchievementSet\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\PlayerAchievementSet\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerAchievementSet.php
-
-		-
-			message: '#^Method App\\Models\\PlayerBadge\:\:gameIfApplicable\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\PlayerBadge\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\PlayerBadge\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerBadge.php
-
-		-
-			message: '#^Method App\\Models\\PlayerBadge\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\PlayerBadge\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\PlayerBadge\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerBadge.php
 
 		-
 			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\Achievement\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
@@ -1825,48 +1393,6 @@ parameters:
 			path: app/Models/PlayerGame.php
 
 		-
-			message: '#^Method App\\Models\\PlayerGame\:\:game\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\PlayerGame\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\PlayerGame\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerGame.php
-
-		-
-			message: '#^Method App\\Models\\PlayerGame\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\PlayerGame\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\PlayerGame\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerGame.php
-
-		-
-			message: '#^Method App\\Models\\PlayerProgressReset\:\:achievement\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, App\\Models\\PlayerProgressReset\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, \$this\(App\\Models\\PlayerProgressReset\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerProgressReset.php
-
-		-
-			message: '#^Method App\\Models\\PlayerProgressReset\:\:achievementSet\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\AchievementSet, App\\Models\\PlayerProgressReset\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\AchievementSet, \$this\(App\\Models\\PlayerProgressReset\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerProgressReset.php
-
-		-
-			message: '#^Method App\\Models\\PlayerProgressReset\:\:game\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\PlayerProgressReset\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\PlayerProgressReset\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerProgressReset.php
-
-		-
-			message: '#^Method App\\Models\\PlayerProgressReset\:\:initiatedByUser\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\PlayerProgressReset\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\PlayerProgressReset\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerProgressReset.php
-
-		-
-			message: '#^Method App\\Models\\PlayerProgressReset\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\PlayerProgressReset\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\PlayerProgressReset\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerProgressReset.php
-
-		-
 			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\Achievement\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
 			identifier: generics.lessTypes
 			count: 1
@@ -1885,52 +1411,10 @@ parameters:
 			path: app/Models/PlayerSession.php
 
 		-
-			message: '#^Method App\\Models\\PlayerSession\:\:game\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\PlayerSession\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\PlayerSession\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerSession.php
-
-		-
-			message: '#^Method App\\Models\\PlayerSession\:\:gameHash\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\GameHash, App\\Models\\PlayerSession\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\GameHash, \$this\(App\\Models\\PlayerSession\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerSession.php
-
-		-
 			message: '#^Method App\\Models\\PlayerSession\:\:playerAchievements\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\PlayerAchievement\> but returns Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\PlayerAchievement, \$this\(App\\Models\\PlayerSession\)\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Models/PlayerSession.php
-
-		-
-			message: '#^Method App\\Models\\PlayerSession\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\PlayerSession\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\PlayerSession\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerSession.php
-
-		-
-			message: '#^Method App\\Models\\PlayerStat\:\:system\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\System, App\\Models\\PlayerStat\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\System, \$this\(App\\Models\\PlayerStat\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerStat.php
-
-		-
-			message: '#^Method App\\Models\\PlayerStat\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\PlayerStat\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\PlayerStat\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/PlayerStat.php
-
-		-
-			message: '#^Method App\\Models\\StaticData\:\:lastRegisteredUser\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\StaticData\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\StaticData\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/StaticData.php
-
-		-
-			message: '#^Method App\\Models\\Subscription\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\Subscription\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\Subscription\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Subscription.php
 
 		-
 			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\Game\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
@@ -1987,42 +1471,6 @@ parameters:
 			path: app/Models/System.php
 
 		-
-			message: '#^Method App\\Models\\Ticket\:\:achievement\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, App\\Models\\Ticket\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, \$this\(App\\Models\\Ticket\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Ticket.php
-
-		-
-			message: '#^Method App\\Models\\Ticket\:\:author\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\Ticket\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\Ticket\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Ticket.php
-
-		-
-			message: '#^Method App\\Models\\Ticket\:\:emulator\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Emulator, App\\Models\\Ticket\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Emulator, \$this\(App\\Models\\Ticket\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Ticket.php
-
-		-
-			message: '#^Method App\\Models\\Ticket\:\:gameHash\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\GameHash, App\\Models\\Ticket\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\GameHash, \$this\(App\\Models\\Ticket\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Ticket.php
-
-		-
-			message: '#^Method App\\Models\\Ticket\:\:reporter\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\Ticket\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\Ticket\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Ticket.php
-
-		-
-			message: '#^Method App\\Models\\Ticket\:\:resolver\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\Ticket\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\Ticket\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Ticket.php
-
-		-
 			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasOne\<App\\Models\\Trigger\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasOne\: TRelatedModel, TDeclaringModel$#'
 			identifier: generics.lessTypes
 			count: 1
@@ -2035,22 +1483,10 @@ parameters:
 			path: app/Models/Trigger.php
 
 		-
-			message: '#^Method App\\Models\\Trigger\:\:previousVersion\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, App\\Models\\Trigger\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, \$this\(App\\Models\\Trigger\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/Trigger.php
-
-		-
 			message: '#^Method App\\Models\\Trigger\:\:triggerable\(\) should return Illuminate\\Database\\Eloquent\\Relations\\MorphTo\<Illuminate\\Database\\Eloquent\\Model, App\\Models\\Trigger\> but returns Illuminate\\Database\\Eloquent\\Relations\\MorphTo\<Illuminate\\Database\\Eloquent\\Model, \$this\(App\\Models\\Trigger\)\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Models/Trigger.php
-
-		-
-			message: '#^Method App\\Models\\UnrankedUser\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\UnrankedUser\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\UnrankedUser\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/UnrankedUser.php
 
 		-
 			message: '#^Cannot access property \$Friendship on string\.$#'
@@ -2281,12 +1717,6 @@ parameters:
 			path: app/Models/User.php
 
 		-
-			message: '#^Method App\\Models\\User\:\:lastGame\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\User\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\User\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/User.php
-
-		-
 			message: '#^Method App\\Models\\User\:\:leaderboardEntries\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\LeaderboardEntry\> but returns Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\LeaderboardEntry, \$this\(App\\Models\\User\)\>\.$#'
 			identifier: return.type
 			count: 1
@@ -2437,30 +1867,6 @@ parameters:
 			path: app/Models/User.php
 
 		-
-			message: '#^Method App\\Models\\UserActivity\:\:achievement\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, App\\Models\\UserActivity\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Achievement, \$this\(App\\Models\\UserActivity\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/UserActivity.php
-
-		-
-			message: '#^Method App\\Models\\UserActivity\:\:game\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\UserActivity\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\UserActivity\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/UserActivity.php
-
-		-
-			message: '#^Method App\\Models\\UserActivity\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\UserActivity\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\UserActivity\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/UserActivity.php
-
-		-
-			message: '#^Method App\\Models\\UserConnection\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\UserConnection\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\UserConnection\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/UserConnection.php
-
-		-
 			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasOne\<App\\Models\\GameAchievementSet\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasOne\: TRelatedModel, TDeclaringModel$#'
 			identifier: generics.lessTypes
 			count: 1
@@ -2483,24 +1889,6 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: app/Models/UserGameAchievementSetPreference.php
-
-		-
-			message: '#^Method App\\Models\\UserGameListEntry\:\:game\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, App\\Models\\UserGameListEntry\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Game, \$this\(App\\Models\\UserGameListEntry\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/UserGameListEntry.php
-
-		-
-			message: '#^Method App\\Models\\UserGameListEntry\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\UserGameListEntry\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\UserGameListEntry\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/UserGameListEntry.php
-
-		-
-			message: '#^Method App\\Models\\UserUsername\:\:user\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, App\\Models\\UserUsername\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\User, \$this\(App\\Models\\UserUsername\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/UserUsername.php
 
 		-
 			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserRelation\>\:\:where\(\) expects array\<int\|model property of App\\Models\\UserRelation, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserRelation\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserRelation\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserRelation\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\UserRelation, ''Friends\.Friendship'' given\.$#'
@@ -2659,12 +2047,6 @@ parameters:
 			path: app/Platform/Components/PlayersActive.php
 
 		-
-			message: '#^Trait App\\Platform\\Concerns\\UsesWebApi is used zero times and is not analysed\.$#'
-			identifier: trait.unused
-			count: 1
-			path: app/Platform/Concerns/UsesWebApi.php
-
-		-
 			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\MorphMany\<App\\Models\\Trigger\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\MorphMany\: TRelatedModel, TDeclaringModel$#'
 			identifier: generics.lessTypes
 			count: 1
@@ -2707,210 +2089,6 @@ parameters:
 			path: app/Support/Shortcode/Shortcode.php
 
 		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\AchievementFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\Achievement, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\Achievement\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/AchievementFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\AchievementSetClaimFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\AchievementSetClaim, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\AchievementSetClaim\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/AchievementSetClaimFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\EmulatorFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\Emulator, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\Emulator\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/EmulatorFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\EventAchievementFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\EventAchievement, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\EventAchievement\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/EventAchievementFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\EventFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\Event, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\Event\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/EventFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\ForumCategoryFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\ForumCategory, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\ForumCategory\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/ForumCategoryFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\ForumFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\Forum, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\Forum\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/ForumFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\ForumTopicCommentFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\ForumTopicComment, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\ForumTopicComment\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/ForumTopicCommentFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\ForumTopicFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\ForumTopic, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\ForumTopic\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/ForumTopicFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\GameFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\Game, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\Game\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/GameFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\GameHashFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\GameHash, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\GameHash\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/GameHashFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\GameRecentPlayerFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\GameRecentPlayer, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\GameRecentPlayer\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/GameRecentPlayerFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\GameReleaseFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\GameRelease, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\GameRelease\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/GameReleaseFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\GameSetFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\GameSet, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\GameSet\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/GameSetFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\GameSetGameFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\GameSetGame, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\GameSetGame\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/GameSetGameFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\LeaderboardEntryFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\LeaderboardEntry, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\LeaderboardEntry\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/LeaderboardEntryFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\LeaderboardFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\Leaderboard, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\Leaderboard\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/LeaderboardFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\MessageFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\Message, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\Message\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/MessageFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\MessageThreadFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\MessageThread, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\MessageThread\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/MessageThreadFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\MessageThreadParticipantFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\MessageThreadParticipant, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\MessageThreadParticipant\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/MessageThreadParticipantFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\NewsFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\News, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\News\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/NewsFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\PlatformFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\Platform, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\Platform\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/PlatformFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\PlayerAchievementFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\PlayerAchievement, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\PlayerAchievement\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/PlayerAchievementFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\PlayerBadgeFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\PlayerBadge, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\PlayerBadge\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/PlayerBadgeFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\PlayerGameFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\PlayerGame, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\PlayerGame\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/PlayerGameFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\PlayerSessionFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\PlayerSession, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\PlayerSession\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/PlayerSessionFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\PlayerStatFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\PlayerStat, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\PlayerStat\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/PlayerStatFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\StaticDataFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\StaticData, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\StaticData\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/StaticDataFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\SystemFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\System, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\System\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/SystemFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\TicketFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\Ticket, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\Ticket\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/TicketFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\TriggerFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\Trigger, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\Trigger\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/TriggerFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\UserActivityFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\UserActivity, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\UserActivity\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/UserActivityFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\UserFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\User, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\User\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/UserFactory.php
-
-		-
-			message: '#^Return type \(array\<string, mixed\>\) of method Database\\Factories\\UserRelationFactory\:\:definition\(\) should be compatible with return type \(array\<model property of App\\Models\\UserRelation, mixed\>\) of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\UserRelation\>\:\:definition\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: database/factories/UserRelationFactory.php
-
-		-
 			message: '#^Strict comparison using \!\=\= between array and null will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
@@ -2951,12 +2129,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: public/API/API_GetUserSetRequests.php
-
-		-
-			message: '#^Trait Tests\\Feature\\Concerns\\TestsMail is used zero times and is not analysed\.$#'
-			identifier: trait.unused
-			count: 1
-			path: tests/Feature/Concerns/TestsMail.php
 
 		-
 			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertEmpty\(\) with Illuminate\\Support\\Collection will always evaluate to false\.$#'

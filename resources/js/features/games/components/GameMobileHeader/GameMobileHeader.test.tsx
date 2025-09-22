@@ -1,5 +1,6 @@
 /* eslint-disable testing-library/no-node-access */
 /* eslint-disable testing-library/no-container */
+
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 
@@ -188,7 +189,7 @@ describe('Component: GameMobileHeader', () => {
     // ASSERT
     const backgroundDiv = container.querySelector('[style*="background-image"]');
     expect(backgroundDiv).toHaveStyle({
-      backgroundSize: '93% auto',
+      backgroundSize: '100% auto',
       backgroundPosition: 'center 0%',
     });
   });
