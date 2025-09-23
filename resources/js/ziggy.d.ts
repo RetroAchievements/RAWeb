@@ -734,7 +734,17 @@ declare module 'ziggy-js' {
             "required": false
         }
     ],
-    "game.show": [
+    "leaderboard.show": [
+        {
+            "name": "leaderboard",
+            "required": true
+        },
+        {
+            "name": "slug",
+            "required": false
+        }
+    ],
+    "game1.show": [
         {
             "name": "game",
             "required": true
@@ -744,9 +754,9 @@ declare module 'ziggy-js' {
             "required": false
         }
     ],
-    "leaderboard.show": [
+    "game.show": [
         {
-            "name": "leaderboard",
+            "name": "game",
             "required": true
         },
         {

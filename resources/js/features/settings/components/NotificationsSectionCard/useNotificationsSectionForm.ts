@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { router } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -13,10 +14,7 @@ import { websitePrefsFormSchema } from '../../utils/websitePrefsFormSchema';
 
 export type FormValues = z.infer<typeof websitePrefsFormSchema>;
 
-export function useNotificationsSectionForm(
-  websitePrefs: number,
-  onUpdateWebsitePrefs: (newWebsitePrefs: number) => unknown,
-) {
+export function useNotificationsSectionForm(websitePrefs: number) {
   const { t } = useTranslation();
 
   const form = useForm<FormValues>({
@@ -39,7 +37,7 @@ export function useNotificationsSectionForm(
     toastMessage.promise(mutation.mutateAsync({ payload: { websitePrefs: newWebsitePrefs } }), {
       loading: t('Updating...'),
       success: () => {
-        onUpdateWebsitePrefs(newWebsitePrefs);
+        router.reload();
 
         return t('Updated.');
       },
