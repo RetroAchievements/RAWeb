@@ -34,7 +34,7 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
           alt={gameAchievementSet.title ?? BASE_SET_LABEL}
           width={52}
           height={52}
-          className="mt-0.5 self-start rounded-sm"
+          className="mt-0.5 hidden self-start rounded-sm sm:block"
         />
 
         <div className="flex w-full items-center justify-between">

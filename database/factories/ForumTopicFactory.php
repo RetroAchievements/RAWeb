@@ -16,9 +16,6 @@ class ForumTopicFactory extends Factory
 {
     protected $model = ForumTopic::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $user = User::inRandomOrder()->first();

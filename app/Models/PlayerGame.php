@@ -48,7 +48,7 @@ class PlayerGame extends BasePivot
     // == relations
 
     /**
-     * @return HasMany<Achievement>
+     * @return HasMany<Achievement, $this>
      */
     public function achievements(): HasMany
     {
@@ -56,7 +56,7 @@ class PlayerGame extends BasePivot
     }
 
     /**
-     * @return HasMany<PlayerBadge>
+     * @return HasMany<PlayerBadge, $this>
      */
     public function badges(): HasMany
     {
@@ -65,7 +65,7 @@ class PlayerGame extends BasePivot
     }
 
     /**
-     * @return BelongsTo<Game, PlayerGame>
+     * @return BelongsTo<Game, $this>
      */
     public function game(): BelongsTo
     {
@@ -73,7 +73,7 @@ class PlayerGame extends BasePivot
     }
 
     /**
-     * @return BelongsTo<User, PlayerGame>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -81,7 +81,7 @@ class PlayerGame extends BasePivot
     }
 
     /**
-     * @return BelongsTo<User, PlayerGame>
+     * @return BelongsTo<User, $this>
      */
     public function player(): BelongsTo
     {

@@ -8,7 +8,6 @@ import { PlayableListSortButton } from './PlayableListSortButton';
 
 const defaultSortOrders: PlayableListSortOrder[] = [
   'active',
-  '-normal',
   'normal',
   '-displayOrder',
   'displayOrder',

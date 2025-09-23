@@ -17,10 +17,12 @@ use App\Models\AchievementMaintainer;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\LeaderboardEntry;
+use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Models\UserBetaFeedbackSubmission;
 use App\Models\UserGameListEntry;
 use App\Platform\Data\AchievementSetClaimData;
 use App\Platform\Data\AggregateAchievementSetCreditsData;
@@ -38,9 +40,12 @@ use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetAuthorTask;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\GamePageListSort;
 use App\Platform\Enums\GamePageListView;
+use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
 use Spatie\LaravelData\Lazy;
@@ -64,7 +69,7 @@ class BuildGameShowPagePropsAction
         ?User $user,
         AchievementFlag $targetAchievementFlag = AchievementFlag::OfficialCore,
         ?GameAchievementSet $targetAchievementSet = null,
-        GamePageListView $initialView = GamePageListView::Achievements
+        GamePageListView $initialView = GamePageListView::Achievements,
     ): GameShowPagePropsData {
         // The backing game is the legacy game that backs the target achievement set.
         // For core sets, this will be $game->id. For subsets, it'll be a different ID.
@@ -198,6 +203,9 @@ class BuildGameShowPagePropsAction
         $isLockedOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_unlocked_achievements_games', $game->id);
         $isMissableOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_nonmissable_achievements_games', $game->id);
 
+        // Track the beta visit for authenticated users.
+        $this->trackBetaVisit($user, 'react-game-page');
+
         // Get the primary claim from the already-loaded claims for permission checking.
         $primaryClaim = $backingGame->achievementSetClaims
             ->where('ClaimType', ClaimType::Primary)
@@ -215,6 +223,8 @@ class BuildGameShowPagePropsAction
                 'reviewAchievementSetClaims',
             ),
 
+            canSubmitBetaFeedback: $this->getCanSubmitBetaFeedback($user, 'react-game-page'),
+            initialSort: $this->getInitialSort($backingGame, $playerGame),
             initialView: $initialView,
 
             game: GameData::fromGame($game)->include(
@@ -224,14 +234,12 @@ class BuildGameShowPagePropsAction
                 'forumTopicId',
                 'gameAchievementSets.achievementSet.achievements.description',
                 'gameAchievementSets.achievementSet.achievements.developer',
-                'gameAchievementSets.achievementSet.achievements.flags',
                 'gameAchievementSets.achievementSet.achievements.orderColumn',
                 'gameAchievementSets.achievementSet.achievements.points',
                 'gameAchievementSets.achievementSet.achievements.pointsWeighted',
                 'gameAchievementSets.achievementSet.achievements.type',
                 'gameAchievementSets.achievementSet.achievements.unlockedAt',
                 'gameAchievementSets.achievementSet.achievements.unlockedHardcoreAt',
-                'gameAchievementSets.achievementSet.achievements.unlockHardcorePercentage',
                 'gameAchievementSets.achievementSet.achievements.unlockPercentage',
                 'gameAchievementSets.achievementSet.achievements.unlocksHardcoreTotal',
                 'gameAchievementSets.achievementSet.achievements.unlocksTotal',
@@ -250,10 +258,7 @@ class BuildGameShowPagePropsAction
                 'playersTotal',
                 'pointsTotal',
                 'publisher',
-                'releasedAt',
-                'releasedAtGranularity',
                 'releases',
-                'system.active',
                 'system.iconUrl',
                 'system.nameShort',
                 'system',
@@ -275,6 +280,7 @@ class BuildGameShowPagePropsAction
             backingGame: GameData::fromGame($backingGame)->include(
                 'achievementsPublished',
                 'achievementsUnpublished',
+                'badgeUrl',
                 'forumTopicId'
             ),
 
@@ -672,5 +678,75 @@ class BuildGameShowPagePropsAction
         }
 
         return $game->leaderboards->count();
+    }
+
+    /**
+     * @deprecated remove after the beta has ended
+     */
+    private function trackBetaVisit(?User $user, string $betaName): void
+    {
+        if (!$user) {
+            return;
+        }
+
+        $cacheKey = CacheKey::buildUserBetaVisitsCacheKey($user->username, $betaName);
+
+        // Get existing data, or initialize with new data.
+        $data = Cache::get($cacheKey, [
+            'visit_count' => 0,
+            'first_visited_at' => now()->timestamp,
+            'last_visited_at' => null,
+        ]);
+
+        // Update visit data.
+        $data['visit_count']++;
+        $data['last_visited_at'] = now()->timestamp;
+
+        // Store for 30 days from now (the TTL resets on each visit).
+        Cache::put($cacheKey, $data, Carbon::now()->addDays(30));
+    }
+
+    /**
+     * @deprecated remove after the beta has ended
+     */
+    private function getCanSubmitBetaFeedback(?User $user, string $betaName): bool
+    {
+        if (!$user || !$user->can('create', UserBetaFeedbackSubmission::class)) {
+            return false;
+        }
+
+        $cacheKey = CacheKey::buildUserBetaVisitsCacheKey($user->username, $betaName);
+        $data = Cache::get($cacheKey);
+
+        if (!$data) {
+            return false;
+        }
+
+        // Check if user meets the requirements: 10+ visits over 2+ days.
+        $requiredVisits = 10;
+        $requiredDays = 2;
+
+        $daysSinceFirst = $data['first_visited_at']
+            ? Carbon::createFromTimestamp($data['first_visited_at'])->diffInDays(now())
+            : 0;
+
+        return $data['visit_count'] >= $requiredVisits && $daysSinceFirst >= $requiredDays;
+    }
+
+    private function getInitialSort(Game $backingGame, ?PlayerGame $playerGame): GamePageListSort
+    {
+        // Calculate the initial sort based on user's unlock progress.
+        // If the user has unlocked some (but not all) achievements, we can use the 'normal' sort order.
+        // Otherwise, default to 'displayOrder' which is always available.
+        if ($playerGame) {
+            $unlockedCount = $playerGame->achievements_unlocked ?? 0;
+            $totalCount = $backingGame->achievements_published ?? 0;
+
+            if ($unlockedCount > 0 && $unlockedCount < $totalCount) {
+                return GamePageListSort::Normal;
+            }
+        }
+
+        return GamePageListSort::DisplayOrder;
     }
 }

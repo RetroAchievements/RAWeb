@@ -278,6 +278,7 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.beta-feedback.store": [],
     "api.shortcode-body.preview": [],
     "api.forum-topic.store": [
         {

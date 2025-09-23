@@ -45,7 +45,7 @@ class AssociateAchievementSetToGameAction
         Game $game,
         AchievementSet $achievementSet,
         AchievementSetType $type,
-        string $title
+        string $title,
     ): void {
         $game->achievementSets()->attach($achievementSet->id, [
             'type' => $type->value,

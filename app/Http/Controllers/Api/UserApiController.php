@@ -12,7 +12,7 @@ use Illuminate\Http\JsonResponse;
 class UserApiController extends Controller
 {
     public function updateForumPostPermissions(
-        UpdateForumPostPermissionsRequest $request
+        UpdateForumPostPermissionsRequest $request,
     ): JsonResponse {
         $this->authorize('manage', User::class);
 

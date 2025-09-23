@@ -30,7 +30,7 @@ trait HasAccount
     // == relations
 
     /**
-     * @return HasMany<UserConnection>
+     * @return HasMany<UserConnection, $this>
      */
     public function connections(): HasMany
     {
@@ -38,7 +38,7 @@ trait HasAccount
     }
 
     /**
-     * @return HasMany<UserConnection>
+     * @return HasMany<UserConnection, $this>
      */
     public function connection(string $provider): HasMany
     {

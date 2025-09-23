@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from '@inertiajs/react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import type { z } from 'zod';
@@ -7,8 +8,8 @@ import type { z } from 'zod';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { convertObjectToWebsitePrefs } from '@/common/utils/convertObjectToWebsitePrefs';
 import { convertWebsitePrefsToObject } from '@/common/utils/convertWebsitePrefsToObject';
+import { useUpdatePreferencesMutation } from '@/features/settings/hooks/mutations/useUpdatePreferencesMutation';
 
-import { useUpdateUserPreferencesMutation } from '../../hooks/mutations/useUpdateUserPreferencesMutation';
 import { websitePrefsFormSchema } from '../../utils/websitePrefsFormSchema';
 
 export type FormValues = z.infer<typeof websitePrefsFormSchema>;
@@ -21,12 +22,19 @@ export function usePreferencesSectionForm(websitePrefs: number) {
     defaultValues: convertWebsitePrefsToObject(websitePrefs),
   });
 
-  const mutation = useUpdateUserPreferencesMutation();
+  useEffect(() => {
+    const prefsAsObject = convertWebsitePrefsToObject(websitePrefs);
+    for (const [key, value] of Object.entries(prefsAsObject)) {
+      form.setValue(key as keyof FormValues, value);
+    }
+  }, [form, websitePrefs]);
+
+  const mutation = useUpdatePreferencesMutation();
 
   const onSubmit = (formValues: FormValues) => {
     const newWebsitePrefs = convertObjectToWebsitePrefs(formValues);
 
-    toastMessage.promise(mutation.mutateAsync(newWebsitePrefs), {
+    toastMessage.promise(mutation.mutateAsync({ payload: { websitePrefs: newWebsitePrefs } }), {
       loading: t('Updating...'),
       success: () => {
         router.reload();

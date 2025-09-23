@@ -51,7 +51,7 @@ class Forum extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<ForumCategory, Forum>
+     * @return BelongsTo<ForumCategory, $this>
      */
     public function category(): BelongsTo
     {
@@ -59,7 +59,7 @@ class Forum extends BaseModel
     }
 
     /**
-     * @return HasMany<ForumTopic>
+     * @return HasMany<ForumTopic, $this>
      */
     public function topics(): HasMany
     {
@@ -67,7 +67,7 @@ class Forum extends BaseModel
     }
 
     /**
-     * @return HasManyThrough<ForumTopicComment>
+     * @return HasManyThrough<ForumTopicComment, ForumTopic, $this>
      */
     public function comments(): HasManyThrough
     {

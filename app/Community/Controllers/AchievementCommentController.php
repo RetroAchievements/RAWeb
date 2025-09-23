@@ -67,7 +67,7 @@ class AchievementCommentController extends CommentController
     protected function update(
         StoreCommentRequest $request,
         AchievementComment $comment,
-        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction
+        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction,
     ): RedirectResponse {
         $this->authorize('update', $comment);
 

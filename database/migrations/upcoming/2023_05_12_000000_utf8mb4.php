@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 
-return new class() extends Migration {
+return new class extends Migration {
     public function up(): void
     {
         $this->migrateCharsetTo('utf8mb4', 'utf8mb4_unicode_ci');

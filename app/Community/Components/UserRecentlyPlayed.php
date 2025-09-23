@@ -257,7 +257,7 @@ class UserRecentlyPlayed extends Component
         array $recentlyPlayedEntity = [],
         array $achievementEntities = [],
         array $awardedEntity = [],
-        array $userAwards = []
+        array $userAwards = [],
     ): array {
         $gameInformation = $this->extractGameInformation($recentlyPlayedEntity);
         $achievementsData = $this->processAchievements($achievementEntities, $awardedEntity);

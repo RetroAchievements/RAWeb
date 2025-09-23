@@ -383,4 +383,25 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertConditionTargetTooltip($condition, '16');
         $this->assertConditionHitTarget($condition, '0');
     }
+
+    public function testMergeCodeNotesInRange(): void
+    {
+        $service = new TriggerDecoderService();
+        $groups = $service->decode("0xH1240=6");
+        $service->mergeCodeNotes($groups, [
+            0x001234 => "[128 bytes] Inventory",
+        ]);
+
+        $this->assertEquals(1, count($groups));
+        $this->assertEquals(1, count($groups[0]['Conditions']));
+
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionFlag($condition, '');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x001240');
+        $this->assertConditionSourceTooltip($condition, "[0x001234 + 12]\n[128 bytes] Inventory");
+        $this->assertConditionOperator($condition, '=');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000006');
+        $this->assertConditionTargetTooltip($condition, '6');
+        $this->assertConditionHitTarget($condition, '0');
+    }
 }

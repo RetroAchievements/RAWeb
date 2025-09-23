@@ -90,7 +90,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         array $achievementData,
         Achievement $achievement,
         float $expectedRarity,
-        float $expectedRarityHardcore
+        float $expectedRarityHardcore,
     ): void {
         $this->assertEquals($achievement->id, $achievementData['ID']);
         $this->assertEquals($achievement->title, $achievementData['Title']);

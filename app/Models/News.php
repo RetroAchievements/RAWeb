@@ -106,7 +106,7 @@ class News extends BaseModel implements HasComments, HasMedia
     // == relations
 
     /**
-     * @return MorphMany<NewsComment>
+     * @return MorphMany<NewsComment, $this>
      */
     public function comments(): MorphMany
     {
@@ -114,7 +114,7 @@ class News extends BaseModel implements HasComments, HasMedia
     }
 
     /**
-     * @return BelongsTo<User, News>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

@@ -35,7 +35,7 @@ class GameSetLink extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<GameSet, GameSetLink>
+     * @return BelongsTo<GameSet, $this>
      */
     public function parentGameSet(): BelongsTo
     {
@@ -43,7 +43,7 @@ class GameSetLink extends BaseModel
     }
 
     /**
-     * @return BelongsTo<GameSet, GameSetLink>
+     * @return BelongsTo<GameSet, $this>
      */
     public function childGameSet(): BelongsTo
     {

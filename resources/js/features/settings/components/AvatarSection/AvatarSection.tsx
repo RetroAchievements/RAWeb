@@ -5,20 +5,20 @@ import { LuCircleAlert } from 'react-icons/lu';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { baseCardTitleClassNames } from '@/common/components/+vendor/BaseCard';
 import {
+  BaseForm,
   BaseFormControl,
   BaseFormField,
   BaseFormItem,
   BaseFormLabel,
   BaseFormMessage,
-  BaseFormProvider,
 } from '@/common/components/+vendor/BaseForm';
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { useResetAvatarMutation } from '../../hooks/mutations/useResetAvatarMutation';
 import { useResetNavbarUserPic } from '../../hooks/useResetNavbarUserPic';
 import { useAvatarSectionForm } from './useAvatarSectionForm';
-import { useResetAvatarMutation } from './useResetAvatarMutation';
 
 export const AvatarSection: FC = () => {
   const { can } = usePageProps<App.Community.Data.UserSettingsPageProps>();
@@ -61,7 +61,7 @@ export const AvatarSection: FC = () => {
         <>
           <p>{t('Only png, jpeg, and gif files are supported.')}</p>
 
-          <BaseFormProvider {...form}>
+          <BaseForm {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-1">
               <div>
                 <BaseFormField
@@ -97,7 +97,7 @@ export const AvatarSection: FC = () => {
                 </BaseButton>
               </div>
             </form>
-          </BaseFormProvider>
+          </BaseForm>
 
           <p>
             {t(

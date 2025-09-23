@@ -36,6 +36,7 @@ describe('Component: GameRecentPlayers', () => {
 
     render(<GameRecentPlayers />, {
       pageProps: {
+        backingGame: createGame(),
         game: createGame(),
         recentPlayers,
       },
@@ -50,10 +51,7 @@ describe('Component: GameRecentPlayers', () => {
     const recentPlayers = [createGameRecentPlayer(), createGameRecentPlayer()];
 
     render(<GameRecentPlayers />, {
-      pageProps: {
-        game: createGame(),
-        recentPlayers,
-      },
+      pageProps: { backingGame: createGame(), game: createGame(), recentPlayers },
     });
 
     // ASSERT

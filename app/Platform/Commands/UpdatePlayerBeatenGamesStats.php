@@ -18,7 +18,7 @@ class UpdatePlayerBeatenGamesStats extends Command
     protected $description = 'Update player beaten games stats';
 
     public function __construct(
-        private readonly UpdatePlayerBeatenGamesStatsAction $updatePlayerBeatenGamesStats
+        private readonly UpdatePlayerBeatenGamesStatsAction $updatePlayerBeatenGamesStats,
     ) {
         parent::__construct();
     }

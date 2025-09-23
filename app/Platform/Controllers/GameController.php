@@ -89,7 +89,7 @@ class GameController extends Controller
         Request $request,
         Game $game,
         LoadGameWithRelationsAction $loadGameWithRelationsAction,
-        BuildGameShowPagePropsAction $buildGameShowPagePropsAction
+        BuildGameShowPagePropsAction $buildGameShowPagePropsAction,
     ): InertiaResponse|RedirectResponse {
         $this->authorize('view', $game);
 

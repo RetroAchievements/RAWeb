@@ -104,7 +104,7 @@ trait CalculatesPlayerPointsStats
         int $userId,
         array $hardcorePoints,
         array $softcorePoints,
-        string $period
+        string $period,
     ): array {
         $stats = [];
         $statTypes = static::PERIOD_MAP[$period];

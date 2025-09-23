@@ -1,35 +1,30 @@
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuTrash } from 'react-icons/lu';
-import { route } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useDeleteForumTopicMutation } from '@/features/forums/hooks/mutations/useDeleteForumTopicMutation';
 
 export const DeleteTopicButton: FC = () => {
   const { forumTopic } = usePageProps<App.Data.ShowForumTopicPageProps>();
-
   const { t } = useTranslation();
 
-  const mutation = useMutation({
-    mutationFn: () => axios.delete(route('api.forum-topic.destroy', { topic: forumTopic.id })),
-
-    onSuccess: () => {
-      window.location.assign(`/viewforum.php?f=${forumTopic.forum!.id}`);
-    },
-  });
+  const mutation = useDeleteForumTopicMutation();
 
   const handleClick = () => {
     if (!confirm(t('Are you sure you want to permanently delete this topic?'))) {
       return;
     }
 
-    toastMessage.promise(mutation.mutateAsync(), {
+    toastMessage.promise(mutation.mutateAsync({ topic: forumTopic.id }), {
       loading: 'Deleting...',
-      success: 'Deleted!',
+      success: () => {
+        window.location.assign(`/viewforum.php?f=${forumTopic.forum!.id}`);
+
+        return 'Deleted!';
+      },
       error: 'Something went wrong.',
     });
   };
