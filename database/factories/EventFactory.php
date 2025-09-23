@@ -16,9 +16,6 @@ class EventFactory extends Factory
 {
     protected $model = Event::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $activeFrom = Carbon::instance($this->faker->dateTimeBetween('-1 year', '+1 year'));

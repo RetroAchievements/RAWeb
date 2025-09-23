@@ -112,7 +112,7 @@ function getArticleComments(
     int $offset,
     int $count,
     ?array &$dataOut,
-    bool $recent = false
+    bool $recent = false,
 ): int {
     $dataOut = [];
     $numArticleComments = 0;
@@ -152,7 +152,7 @@ function getRecentArticleComments(
     int $articleTypeID,
     int $articleID,
     ?array &$dataOut,
-    int $count = 20
+    int $count = 20,
 ): int {
     $numArticleComments = getArticleComments($articleTypeID, $articleID, 0, $count, $dataOut, true);
 

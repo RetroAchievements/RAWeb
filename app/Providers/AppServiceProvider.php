@@ -15,7 +15,6 @@ use App\Console\Commands\GenerateTypeScript;
 use App\Console\Commands\LogUsersOnlineCount;
 use App\Console\Commands\PruneApiLogs;
 use App\Console\Commands\SquashMigrations;
-use App\Console\Commands\SyncUsers;
 use App\Console\Commands\SystemAlert;
 use App\Http\InertiaResponseFactory;
 use App\Models\Role;
@@ -62,7 +61,6 @@ class AppServiceProvider extends ServiceProvider
 
                 // User Accounts
                 CleanupAvatars::class,
-                SyncUsers::class,
 
                 // Settings
                 SystemAlert::class,

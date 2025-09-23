@@ -10,7 +10,7 @@ describe('Component: GameRecentPlayersList', () => {
     // ARRANGE
     const { container } = render(<GameRecentPlayersList />, {
       pageProps: {
-        game: createGame(),
+        backingGame: createGame(),
         recentPlayers: [],
       },
     });
@@ -29,7 +29,7 @@ describe('Component: GameRecentPlayersList', () => {
 
     render(<GameRecentPlayersList />, {
       pageProps: {
-        game: createGame(),
+        backingGame: createGame(),
         recentPlayers,
       },
     });
@@ -48,7 +48,7 @@ describe('Component: GameRecentPlayersList', () => {
 
     render(<GameRecentPlayersList />, {
       pageProps: {
-        game: createGame(),
+        backingGame: createGame(),
         recentPlayers: [activePlayer],
       },
     });
@@ -68,7 +68,7 @@ describe('Component: GameRecentPlayersList', () => {
 
     render(<GameRecentPlayersList />, {
       pageProps: {
-        game: createGame(),
+        backingGame: createGame(),
         recentPlayers: [inactivePlayer],
       },
     });
@@ -88,7 +88,7 @@ describe('Component: GameRecentPlayersList', () => {
 
     render(<GameRecentPlayersList />, {
       pageProps: {
-        game: createGame({ title: 'Super Mario World' }),
+        backingGame: createGame({ title: 'Super Mario World' }),
         recentPlayers: [player],
       },
     });
@@ -109,7 +109,7 @@ describe('Component: GameRecentPlayersList', () => {
 
     render(<GameRecentPlayersList />, {
       pageProps: {
-        game: createGame({ title: 'Super Mario World' }),
+        backingGame: createGame({ title: 'Super Mario World' }),
         recentPlayers: [player],
       },
     });
@@ -136,7 +136,7 @@ describe('Component: GameRecentPlayersList', () => {
 
     render(<GameRecentPlayersList />, {
       pageProps: {
-        game: createGame({ title: 'Super Mario World' }),
+        backingGame: createGame({ title: 'Super Mario World' }),
         recentPlayers: [player],
       },
     });
@@ -164,7 +164,7 @@ describe('Component: GameRecentPlayersList', () => {
 
     render(<GameRecentPlayersList />, {
       pageProps: {
-        game: createGame({ title: 'Super Mario World' }),
+        backingGame: createGame({ title: 'Super Mario World' }),
         recentPlayers: [player],
       },
     });
@@ -192,7 +192,7 @@ describe('Component: GameRecentPlayersList', () => {
 
     render(<GameRecentPlayersList />, {
       pageProps: {
-        game: createGame({ title: 'Super Mario World' }),
+        backingGame: createGame({ title: 'Super Mario World' }),
         recentPlayers: [player],
       },
     });
@@ -219,7 +219,7 @@ describe('Component: GameRecentPlayersList', () => {
 
     render(<GameRecentPlayersList />, {
       pageProps: {
-        game: createGame({ title: 'Super Mario World' }),
+        backingGame: createGame({ title: 'Super Mario World' }),
         recentPlayers: [player],
       },
     });
@@ -247,7 +247,7 @@ describe('Component: GameRecentPlayersList', () => {
 
     render(<GameRecentPlayersList />, {
       pageProps: {
-        game: createGame({ title: 'Super Mario World' }),
+        backingGame: createGame({ title: 'Super Mario World' }),
         recentPlayers: [player],
       },
     });

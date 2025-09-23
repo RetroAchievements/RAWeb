@@ -406,7 +406,7 @@ describe('Component: GameAchievementSetToolbar', () => {
     // ASSERT
     expect(screen.getByRole('button', { name: /locked only/i })).toBeEnabled();
     expect(screen.getByRole('button', { name: /missable only/i })).toBeEnabled();
-    expect(screen.getByRole('button', { name: /display order/i })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /unlocked first/i })).toBeEnabled();
   });
 
   it('given the current view is leaderboards but there are no leaderboards, automatically switches to achievements view', () => {
@@ -467,11 +467,99 @@ describe('Component: GameAchievementSetToolbar', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /display order/i }));
+    await userEvent.click(screen.getByRole('button', { name: /unlocked first/i }));
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /won by \(most\)/i }));
 
     // ASSERT
     // ... the sort button should now show the new sort order ...
     expect(screen.getByRole('button', { name: /won by/i })).toBeVisible();
+  });
+
+  it('given the user has unlocked some (but not all) achievements, shows the Unlocked first sort option', async () => {
+    // ARRANGE
+    const mockGame = createGame({ id: 123, achievementsPublished: 5 });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5} // !! some locked
+        missableAchievementsCount={0}
+        unlockedAchievementsCount={3} // !! some unlocked
+      />,
+      {
+        pageProps: { backingGame: mockGame },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /display order/i }));
+
+    // ASSERT
+    expect(screen.getByRole('menuitemcheckbox', { name: 'Unlocked first' })).toBeInTheDocument();
+  });
+
+  it('given the user has unlocked no achievements, does not show the Unlocked first sort option', async () => {
+    // ARRANGE
+    const mockGame = createGame({ id: 123 });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={10} // !! all locked
+        missableAchievementsCount={0}
+        unlockedAchievementsCount={0} // !! none unlocked
+      />,
+      {
+        pageProps: { backingGame: mockGame },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /display order/i }));
+
+    // ASSERT
+    expect(
+      screen.queryByRole('menuitemcheckbox', { name: 'Unlocked first' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('given the user has unlocked all achievements, does not show the Unlocked first sort option', async () => {
+    // ARRANGE
+    const mockGame = createGame({ id: 123, achievementsPublished: 10 });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={0} // !! none locked
+        missableAchievementsCount={0}
+        unlockedAchievementsCount={10} // !! all unlocked
+      />,
+      {
+        pageProps: { backingGame: mockGame },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /display order/i }));
+
+    // ASSERT
+    expect(
+      screen.queryByRole('menuitemcheckbox', { name: 'Unlocked first' }),
+    ).not.toBeInTheDocument();
   });
 });

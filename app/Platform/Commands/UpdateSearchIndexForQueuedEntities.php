@@ -15,7 +15,7 @@ class UpdateSearchIndexForQueuedEntities extends Command
     protected $description = 'Update Scout search index for queued entities';
 
     public function __construct(
-        protected readonly SearchIndexingService $searchIndexingService
+        protected readonly SearchIndexingService $searchIndexingService,
     ) {
         parent::__construct();
     }

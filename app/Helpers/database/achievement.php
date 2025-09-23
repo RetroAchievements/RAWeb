@@ -27,7 +27,7 @@ function getAchievementsList(
     int $limit,
     int $offset,
     ?AchievementFlag $achievementFlag = null,
-    ?User $developer = null
+    ?User $developer = null,
 ): Collection {
     $bindings = [
         'offset' => $offset,
@@ -217,7 +217,7 @@ function UploadNewAchievement(
     ?int &$idInOut,
     string $badge,
     ?string &$errorOut,
-    ?int $gameAchievementSetID
+    ?int $gameAchievementSetID,
 ): bool {
     if (!$gameAchievementSetID && !$gameID) {
         $errorOut = "You must provide a game ID or a game achievement set ID.";

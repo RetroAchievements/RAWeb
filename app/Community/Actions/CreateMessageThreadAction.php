@@ -17,7 +17,7 @@ class CreateMessageThreadAction
         User $trueSenderUser,
         string $title,
         string $body,
-        bool $isProxied = false
+        bool $isProxied = false,
     ): MessageThread {
         $thread = new MessageThread([
             'title' => $title,

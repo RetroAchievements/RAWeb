@@ -41,7 +41,7 @@ class GameRecentPlayer extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<Game, GameRecentPlayer>
+     * @return BelongsTo<Game, $this>
      */
     public function game(): BelongsTo
     {
@@ -49,7 +49,7 @@ class GameRecentPlayer extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, GameRecentPlayer>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

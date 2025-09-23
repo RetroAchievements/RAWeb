@@ -58,6 +58,11 @@ class CacheKey
         return self::buildNormalizedCacheKey("unsubscribe", "undo", $token);
     }
 
+    public static function buildUserBetaVisitsCacheKey(string $username, string $betaName): string
+    {
+        return self::buildNormalizedUserCacheKey($username, "beta-visits", [$betaName]);
+    }
+
     /**
      * Constructs a normalized cache key.
      *
@@ -72,7 +77,7 @@ class CacheKey
         string $entityKind,
         string|int $identifier,
         string $keyKind,
-        array $params = []
+        array $params = [],
     ): string {
         $cacheKey = "$entityKind:$identifier:$keyKind";
         if (count($params) > 0) {

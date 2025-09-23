@@ -18,9 +18,6 @@ class ForumTopicCommentFactory extends Factory
 {
     protected $model = ForumTopicComment::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $user = User::inRandomOrder()->first();

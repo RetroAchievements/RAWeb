@@ -26,7 +26,7 @@ function submitNewTicketsJSON(
     string $idsCSV,
     int $reportType,
     string $noteIn,
-    string $RAHash
+    string $RAHash,
 ): array {
     sanitize_sql_inputs($userSubmitter, $reportType, $noteIn, $RAHash);
 

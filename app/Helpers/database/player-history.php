@@ -109,7 +109,7 @@ function getAwardedList(
     ?int $offset = null,
     ?int $limit = null,
     ?string $dateFrom = null,
-    ?string $dateTo = null
+    ?string $dateTo = null,
 ): array {
     $retVal = [];
 

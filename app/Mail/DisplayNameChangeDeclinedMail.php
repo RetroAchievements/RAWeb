@@ -20,7 +20,7 @@ class DisplayNameChangeDeclinedMail extends Mailable
      */
     public function __construct(
         public User $user,
-        public string $desiredDisplayName
+        public string $desiredDisplayName,
     ) {
     }
 

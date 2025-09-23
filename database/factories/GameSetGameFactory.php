@@ -16,9 +16,6 @@ class GameSetGameFactory extends Factory
 {
     protected $model = GameSetGame::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [

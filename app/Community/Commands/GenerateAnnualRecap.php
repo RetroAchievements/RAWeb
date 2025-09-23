@@ -18,7 +18,7 @@ class GenerateAnnualRecap extends Command
     protected $description = 'Generates an annual summary email for the provided user';
 
     public function __construct(
-        private readonly GenerateAnnualRecapAction $generateAnnualRecapAction
+        private readonly GenerateAnnualRecapAction $generateAnnualRecapAction,
     ) {
         parent::__construct();
     }

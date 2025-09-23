@@ -91,9 +91,9 @@ describe('Component: PlayerGameProgressLabel', () => {
     // ASSERT
     // "Unlocked 2 achievements worth 30 (40) points".
     expect(screen.getByText(/unlocked/i)).toBeVisible();
-    expect(screen.getByText('2')).toBeVisible();
-    expect(screen.getByText('30')).toBeVisible();
-    expect(screen.getByText(/40/)).toBeVisible();
+    expect(screen.getAllByText('2')[0]).toBeVisible();
+    expect(screen.getAllByText('30')[0]).toBeVisible();
+    expect(screen.getAllByText(/40/)[0]).toBeVisible();
 
     expect(screen.queryByText(/softcore/i)).not.toBeInTheDocument();
   });
@@ -116,9 +116,9 @@ describe('Component: PlayerGameProgressLabel', () => {
     // ASSERT
     // "Unlocked 2 softcore achievements worth 30 points".
     expect(screen.getByText(/unlocked/i)).toBeVisible();
-    expect(screen.getByText('2')).toBeVisible();
-    expect(screen.getByText(/30/i)).toBeVisible();
-    expect(screen.getByText(/softcore/i)).toBeVisible();
+    expect(screen.getAllByText('2')[0]).toBeVisible();
+    expect(screen.getAllByText(/30/i)[0]).toBeVisible();
+    expect(screen.getAllByText(/softcore/i)[0]).toBeVisible();
 
     expect(screen.queryByText(/\(/)).not.toBeInTheDocument(); // no weighted points for softcore mode
   });
@@ -144,12 +144,12 @@ describe('Component: PlayerGameProgressLabel', () => {
 
     // "Unlocked 1 achievement worth 10 (15) points"
     expect(screen.getAllByText('1')[0]).toBeVisible();
-    expect(screen.getByText('10')).toBeVisible();
-    expect(screen.getByText(/15/)).toBeVisible();
+    expect(screen.getAllByText('10')[0]).toBeVisible();
+    expect(screen.getAllByText(/15/)[0]).toBeVisible();
 
     // "Unlocked 1 softcore achievement worth 20 points"
-    expect(screen.getByText(/softcore/i)).toBeVisible();
-    expect(screen.getByText(/20/i)).toBeVisible();
+    expect(screen.getAllByText(/softcore/i)[0]).toBeVisible();
+    expect(screen.getAllByText(/20/i)[0]).toBeVisible();
   });
 
   it('given the player has zero points but some achievements unlocked, still displays the label', () => {
@@ -168,8 +168,8 @@ describe('Component: PlayerGameProgressLabel', () => {
 
     // ASSERT
     expect(screen.getByText(/unlocked/i)).toBeVisible();
-    expect(screen.getByText('1')).toBeVisible();
-    expect(screen.getByText('0')).toBeVisible();
+    expect(screen.getAllByText('1')[0]).toBeVisible();
+    expect(screen.getAllByText('0')[0]).toBeVisible();
   });
 
   it('given the achievements have mixed unlock states, correctly calculates stats', () => {
@@ -192,11 +192,11 @@ describe('Component: PlayerGameProgressLabel', () => {
     // ASSERT
     // Hardcore: 2 achievements, 15 points (5+10), 20 weighted (8+12).
     expect(screen.getAllByText('2')[0]).toBeVisible();
-    expect(screen.getByText('15')).toBeVisible();
-    expect(screen.getByText(/20/)).toBeVisible();
+    expect(screen.getAllByText('15')[0]).toBeVisible();
+    expect(screen.getAllByText(/20/)[0]).toBeVisible();
 
     // Softcore: 2 achievements, 35 points (15+20).
-    expect(screen.getByText(/softcore/i)).toBeVisible();
-    expect(screen.getByText(/35/i)).toBeVisible();
+    expect(screen.getAllByText(/softcore/i)[0]).toBeVisible();
+    expect(screen.getAllByText(/35/i)[0]).toBeVisible();
   });
 });

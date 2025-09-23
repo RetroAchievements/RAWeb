@@ -1,6 +1,5 @@
 export type PlayableListSortOrder =
   | '-displayOrder'
-  | '-normal'
   | '-points'
   | '-title'
   | '-type'

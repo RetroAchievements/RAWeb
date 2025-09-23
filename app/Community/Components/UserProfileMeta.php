@@ -206,7 +206,7 @@ class UserProfileMeta extends Component
         array $userMassData,
         array $hardcoreRankMeta,
         array $softcoreRankMeta,
-        array $userJoinedGamesAndAwards
+        array $userJoinedGamesAndAwards,
     ): array {
         $hardcorePoints = $userMassData['TotalPoints'] ?? 0;
         $softcorePoints = $userMassData['TotalSoftcorePoints'] ?? 0;
@@ -303,7 +303,7 @@ class UserProfileMeta extends Component
     private function buildRankMetadata(
         User $user,
         int $rankType = RankType::Hardcore,
-        ?int $predefinedRank = null
+        ?int $predefinedRank = null,
     ): array {
         $rank = $predefinedRank ?? getUserRank($user->User, $rankType);
         $numRankedUsers = countRankedUsers($rankType);
