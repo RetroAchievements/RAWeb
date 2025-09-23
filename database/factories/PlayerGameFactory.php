@@ -16,9 +16,6 @@ class PlayerGameFactory extends Factory
 {
     protected $model = PlayerGame::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $user = User::inRandomOrder()->first();

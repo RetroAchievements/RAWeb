@@ -108,7 +108,7 @@ class EventAchievement extends BaseModel
     }
 
     /**
-     * @return BelongsTo<Achievement, EventAchievement>
+     * @return BelongsTo<Achievement, $this>
      */
     public function achievement(): BelongsTo
     {
@@ -116,7 +116,7 @@ class EventAchievement extends BaseModel
     }
 
     /**
-     * @return BelongsTo<Achievement, EventAchievement>
+     * @return BelongsTo<Achievement, $this>
      */
     public function sourceAchievement(): BelongsTo
     {

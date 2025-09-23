@@ -47,7 +47,7 @@ class IntegrationReleaseController extends Controller
     public function store(
         IntegrationReleaseRequest $request,
         AddMediaAction $addMediaAction,
-        LinkLatestIntegrationReleaseAction $linkLatestReleaseAction
+        LinkLatestIntegrationReleaseAction $linkLatestReleaseAction,
     ): RedirectResponse {
         $this->authorize('create', $this->resourceClass());
 
@@ -82,7 +82,7 @@ class IntegrationReleaseController extends Controller
         IntegrationReleaseRequest $request,
         IntegrationRelease $release,
         AddMediaAction $addMediaAction,
-        LinkLatestIntegrationReleaseAction $linkLatestReleaseAction
+        LinkLatestIntegrationReleaseAction $linkLatestReleaseAction,
     ): RedirectResponse {
         $this->authorize('update', $release);
 
@@ -100,7 +100,7 @@ class IntegrationReleaseController extends Controller
 
     public function destroy(
         IntegrationRelease $release,
-        LinkLatestIntegrationReleaseAction $linkLatestReleaseAction
+        LinkLatestIntegrationReleaseAction $linkLatestReleaseAction,
     ): RedirectResponse {
         $this->authorize('delete', $release);
 

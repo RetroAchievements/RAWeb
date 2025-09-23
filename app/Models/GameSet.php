@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Platform\Enums\GameSetRolePermission;
 use App\Platform\Enums\GameSetType;
+use App\Platform\Services\EventHubIdCacheService;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\GameSetFactory;
 use Fico7489\Laravel\Pivot\Traits\PivotEventTrait;
@@ -60,6 +61,24 @@ class GameSet extends BaseModel
     public static function boot()
     {
         parent::boot();
+
+        static::created(function ($gameSet) {
+            if (str_contains($gameSet->title ?? '', 'Events -')) {
+                EventHubIdCacheService::clearCache();
+            }
+        });
+
+        static::updated(function ($gameSet) {
+            if ($gameSet->isDirty('title')) {
+                $oldTitle = $gameSet->getOriginal('title');
+                $newTitle = $gameSet->title;
+
+                // Clear the event hub ID cache if either the old or new title contains "Events -".
+                if (str_contains($oldTitle ?? '', 'Events -') || str_contains($newTitle ?? '', 'Events -')) {
+                    EventHubIdCacheService::clearCache();
+                }
+            }
+        });
 
         static::pivotAttached(function ($model, $relationName, $pivotIds, $pivotIdsAttributes) {
             if ($relationName === 'viewRoles' || $relationName === 'updateRoles') {
@@ -140,6 +159,12 @@ class GameSet extends BaseModel
                     ])
                     ->event('pivotAttached')
                     ->log('pivotAttached');
+
+                // Clear the event hub ID cache if we're attaching this hub to event hub parents.
+                $eventHubParentIds = [self::CommunityEventsHubId, self::DeveloperEventsHubId];
+                if (!empty(array_intersect($pivotIds, $eventHubParentIds))) {
+                    EventHubIdCacheService::clearCache();
+                }
             }
         });
 
@@ -222,6 +247,12 @@ class GameSet extends BaseModel
                     ->withProperty('attributes', [$relationName => null])
                     ->event('pivotDetached')
                     ->log('pivotDetached');
+
+                // Clear the event hub ID cache if we're detaching this hub from event hub parents.
+                $eventHubParentIds = [self::CommunityEventsHubId, self::DeveloperEventsHubId];
+                if (!empty(array_intersect($pivotIds, $eventHubParentIds))) {
+                    EventHubIdCacheService::clearCache();
+                }
             }
         });
     }
@@ -278,11 +309,7 @@ class GameSet extends BaseModel
 
     public function getIsEventHubAttribute(): bool
     {
-        $eventHubIds = [self::CommunityEventsHubId, self::DeveloperEventsHubId];
-
-        return $this->children->contains(function ($child) use ($eventHubIds) {
-            return in_array($child->id, $eventHubIds) || str_contains($child->title, 'Events -');
-        });
+        return in_array($this->id, EventHubIdCacheService::getEventHubIds());
     }
 
     public function getPermalinkAttribute(): string
@@ -309,7 +336,7 @@ class GameSet extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<User, GameSet>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -347,7 +374,7 @@ class GameSet extends BaseModel
     }
 
     /**
-     * @return BelongsTo<ForumTopic, GameSet>
+     * @return BelongsTo<ForumTopic, $this>
      */
     public function forumTopic(): BelongsTo
     {

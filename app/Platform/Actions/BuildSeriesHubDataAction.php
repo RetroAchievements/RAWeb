@@ -6,6 +6,7 @@ namespace App\Platform\Actions;
 
 use App\Models\Game;
 use App\Models\GameSet;
+use App\Models\GameSetGame;
 use App\Platform\Data\GameSetData;
 use App\Platform\Data\SeriesHubData;
 use Illuminate\Support\Facades\DB;
@@ -46,15 +47,25 @@ class BuildSeriesHubDataAction
 
     private function findSeriesHub(Game $game): ?GameSet
     {
-        // Get all hubs for this game, with game counts, ordered by largest hub first.
-        $hubs = $game->hubs()
-            ->withCount('games')
-            ->orderByDesc('games_count')
-            ->get();
+        // Use already loaded hubs instead of querying again.
+        // The hubs are already loaded in LoadGameWithRelationsAction.
+        $hubs = $game->hubs;
 
         if ($hubs->isEmpty()) {
             return null;
         }
+
+        // Load games count only for these hubs.
+        $hubIds = $hubs->pluck('id');
+        $gameCounts = GameSetGame::query()
+            ->selectRaw('game_set_id, COUNT(DISTINCT game_id) as count')
+            ->whereIn('game_set_id', $hubIds)
+            ->groupBy('game_set_id')
+            ->pluck('count', 'game_set_id');
+
+        // Attach counts and sort by largest hub.
+        $hubs->each(fn ($hub) => $hub->setAttribute('games_count', $gameCounts[$hub->id] ?? 0));
+        $hubs = $hubs->sortByDesc('games_count');
 
         // First, check for a subseries hub (these are more specific).
         $subseriesHub = $hubs->first(fn ($hub) => str_contains($hub->title, 'Subseries -'));

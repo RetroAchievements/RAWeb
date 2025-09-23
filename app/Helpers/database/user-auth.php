@@ -166,7 +166,7 @@ function authenticateFromCookie(
     ?string &$userOut,
     ?int &$permissionsOut,
     ?array &$userDetailsOut = null,
-    ?int $minPermissions = null
+    ?int $minPermissions = null,
 ): bool {
     $userOut = null;
     $permissionsOut = Permissions::Unregistered;
@@ -211,7 +211,7 @@ function authenticateFromCookie(
 function authenticateFromAppToken(
     ?string &$userOut,
     string $token,
-    ?int &$permissionOut
+    ?int &$permissionOut,
 ): bool {
     if (empty($userOut)) {
         return false;

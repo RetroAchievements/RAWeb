@@ -118,7 +118,7 @@ function applyFoundRows(Builder $query): Builder
     return match (DB::getDriverName()) {
         'sqlite' => $query,
         // mysql
-        default => $query->selectRaw('SQL_CALC_FOUND_ROWS *')
+        default => $query->selectRaw('SQL_CALC_FOUND_ROWS *'),
     };
 }
 
@@ -136,7 +136,7 @@ function ifStatement(string $condition, mixed $trueValue, mixed $falseValue): st
     return match (DB::getDriverName()) {
         'sqlite' => "IIF($condition, $trueValue, $falseValue)",
         // mysql
-        default => "IF($condition, $trueValue, $falseValue)"
+        default => "IF($condition, $trueValue, $falseValue)",
     };
 }
 

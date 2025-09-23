@@ -36,7 +36,9 @@ export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({
         <BaseBreadcrumbList>
           <BaseBreadcrumbItem aria-label={t('All Games')}>
             <BaseBreadcrumbLink asChild>
-              <InertiaLink href={route('game.index')}>{t('All Games')}</InertiaLink>
+              <InertiaLink href={route('game.index')} prefetch="desktop-hover-only">
+                {t('All Games')}
+              </InertiaLink>
             </BaseBreadcrumbLink>
           </BaseBreadcrumbItem>
 
@@ -46,7 +48,10 @@ export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({
 
               <BaseBreadcrumbItem aria-label={system.name}>
                 <BaseBreadcrumbLink asChild>
-                  <InertiaLink href={route('system.game.index', system.id)}>
+                  <InertiaLink
+                    href={route('system.game.index', system.id)}
+                    prefetch="desktop-hover-only"
+                  >
                     {system.name}
                   </InertiaLink>
                 </BaseBreadcrumbLink>

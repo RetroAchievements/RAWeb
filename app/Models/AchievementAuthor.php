@@ -49,7 +49,7 @@ class AchievementAuthor extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<Achievement, AchievementAuthor>
+     * @return BelongsTo<Achievement, $this>
      */
     public function achievement(): BelongsTo
     {
@@ -57,7 +57,7 @@ class AchievementAuthor extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, AchievementAuthor>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

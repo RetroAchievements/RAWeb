@@ -15,9 +15,6 @@ class LeaderboardFactory extends Factory
 {
     protected $model = Leaderboard::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $author = User::inRandomOrder()->first();

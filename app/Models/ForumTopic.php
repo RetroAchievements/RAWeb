@@ -101,7 +101,7 @@ class ForumTopic extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<User, ForumTopic>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -109,7 +109,7 @@ class ForumTopic extends BaseModel
     }
 
     /**
-     * @return BelongsTo<Forum, ForumTopic>
+     * @return BelongsTo<Forum, $this>
      */
     public function forum(): BelongsTo
     {

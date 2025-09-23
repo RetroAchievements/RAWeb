@@ -16,7 +16,7 @@ class AddToMessageThreadAction
         MessageThread $thread,
         User $userFrom,
         User $trueSenderUser,
-        string $body
+        string $body,
     ): void {
         $message = new Message([
             'thread_id' => $thread->id,

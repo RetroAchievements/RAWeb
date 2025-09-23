@@ -37,8 +37,7 @@ export function sortAchievements(
   };
 
   switch (sortOrder) {
-    case 'normal':
-    case '-normal': {
+    case 'normal': {
       const multiplier = sortOrder === 'normal' ? 1 : -1;
 
       return sortedAchievements.sort((a, b) => {

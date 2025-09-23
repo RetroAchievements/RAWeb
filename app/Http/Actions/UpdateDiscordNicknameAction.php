@@ -28,7 +28,7 @@ class UpdateDiscordNicknameAction
         }
 
         try {
-            $member = $this->findMemberByNickname($oldUsername);
+            $member = (new FindDiscordMemberAction())->execute($oldUsername);
             if (!$member) {
                 return;
             }
@@ -37,31 +37,6 @@ class UpdateDiscordNicknameAction
         } catch (Throwable $e) {
             Log::error("Failed to update Discord nickname: " . $e->getMessage());
         }
-    }
-
-    private function findMemberByNickname(string $nickname): ?array
-    {
-        $response = $this->client->get(
-            "https://discord.com/api/v10/guilds/{$this->guildId}/members/search",
-            [
-                'headers' => [
-                    'Authorization' => "Bot {$this->botToken}",
-                ],
-                'query' => ['query' => $nickname],
-            ]
-        );
-
-        $members = json_decode($response->getBody()->getContents(), true);
-
-        // Find a case-insensitive match.
-        foreach ($members as $member) {
-            $memberNick = $member['nick'] ?? $member['user']['username'];
-            if (strcasecmp($memberNick, $nickname) === 0) {
-                return $member;
-            }
-        }
-
-        return null;
     }
 
     private function updateUserNickname(string $userId, string $newNickname): void

@@ -12,7 +12,7 @@ class UpdateAvatarAction
 {
     public function __construct(
         private AddMediaAction $addMediaAction,
-        private LinkLatestAvatarAction $linkLatestAvatarAction
+        private LinkLatestAvatarAction $linkLatestAvatarAction,
     ) {
     }
 

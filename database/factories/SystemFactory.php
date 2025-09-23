@@ -14,9 +14,6 @@ class SystemFactory extends Factory
 {
     protected $model = System::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $name = ucwords(fake()->word());

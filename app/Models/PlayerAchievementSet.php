@@ -37,7 +37,7 @@ class PlayerAchievementSet extends BasePivot
     }
 
     /**
-     * @return BelongsTo<AchievementSet, PlayerAchievementSet>
+     * @return BelongsTo<AchievementSet, $this>
      */
     public function achievementSet(): BelongsTo
     {
@@ -45,7 +45,7 @@ class PlayerAchievementSet extends BasePivot
     }
 
     /**
-     * @return BelongsTo<User, PlayerAchievementSet>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -53,7 +53,7 @@ class PlayerAchievementSet extends BasePivot
     }
 
     /**
-     * @return BelongsTo<User, PlayerAchievementSet>
+     * @return BelongsTo<User, $this>
      */
     public function player(): BelongsTo
     {

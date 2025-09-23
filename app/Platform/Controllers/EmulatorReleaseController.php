@@ -57,7 +57,7 @@ class EmulatorReleaseController extends Controller
         EmulatorReleaseRequest $request,
         Emulator $emulator,
         AddMediaAction $addFileToCollectionAction,
-        LinkLatestEmulatorReleaseAction $linkLatestReleaseAction
+        LinkLatestEmulatorReleaseAction $linkLatestReleaseAction,
     ): RedirectResponse {
         $this->authorize('create', $this->resourceClass());
 
@@ -95,7 +95,7 @@ class EmulatorReleaseController extends Controller
         EmulatorReleaseRequest $request,
         EmulatorRelease $release,
         AddMediaAction $addFileToCollectionAction,
-        LinkLatestEmulatorReleaseAction $linkLatestReleaseAction
+        LinkLatestEmulatorReleaseAction $linkLatestReleaseAction,
     ): RedirectResponse {
         $this->authorize('update', $release);
 
@@ -115,7 +115,7 @@ class EmulatorReleaseController extends Controller
 
     public function destroy(
         EmulatorRelease $release,
-        LinkLatestEmulatorReleaseAction $linkLatestReleaseAction
+        LinkLatestEmulatorReleaseAction $linkLatestReleaseAction,
     ): RedirectResponse {
         $this->authorize('delete', $release);
 

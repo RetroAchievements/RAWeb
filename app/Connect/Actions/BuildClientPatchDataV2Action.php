@@ -343,7 +343,7 @@ class BuildClientPatchDataV2Action
      */
     private function determineLoadedHashSetType(
         GameHash $gameHash,
-        Collection $resolvedAchievementSets
+        Collection $resolvedAchievementSets,
     ): AchievementSetType {
         $loadedHashId = $gameHash->game->id;
         $loadedAchievementSetId = null;

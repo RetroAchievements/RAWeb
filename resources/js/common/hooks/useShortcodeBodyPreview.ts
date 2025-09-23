@@ -12,10 +12,8 @@ import {
 import { extractDynamicEntitiesFromBody } from '@/common/utils/shortcodes/extractDynamicEntitiesFromBody';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 
-import {
-  type ShortcodeBodyPreviewMutationResponse,
-  useShortcodeBodyPreviewMutation,
-} from './useShortcodeBodyPreviewMutation';
+import type { ShortcodeBodyPreviewMutationResponse } from '../models';
+import { useShortcodeBodyPreviewMutation } from './mutations/useShortcodeBodyPreviewMutation';
 
 export function useShortcodeBodyPreview() {
   const [previewContent, setPreviewContent] = useState<string | null>(null);

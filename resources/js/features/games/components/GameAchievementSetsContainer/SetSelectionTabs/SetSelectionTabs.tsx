@@ -17,7 +17,7 @@ interface SetSelectionTabsProps {
 }
 
 export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
-  const { game, selectableGameAchievementSets } =
+  const { game, selectableGameAchievementSets, ziggy } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const currentListView = useAtomValue(currentListViewAtom);
@@ -47,7 +47,7 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
       {/* Tabs */}
       <div className="relative flex items-center space-x-[6px]">
         {selectableGameAchievementSets.map((gas, index) => (
-          <BaseTooltip key={gas.id}>
+          <BaseTooltip key={gas.id} open={ziggy.device === 'mobile' ? false : undefined}>
             <BaseTooltipTrigger>
               <InertiaLink
                 href={route('game2.show', {

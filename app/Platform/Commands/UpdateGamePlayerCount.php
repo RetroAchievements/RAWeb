@@ -15,7 +15,7 @@ class UpdateGamePlayerCount extends Command
     protected $description = "Update player count metrics for all games or a comma-separated list of game IDs";
 
     public function __construct(
-        private readonly UpdateGamePlayerCountAction $updateGamePlayerCount
+        private readonly UpdateGamePlayerCountAction $updateGamePlayerCount,
     ) {
         parent::__construct();
     }
