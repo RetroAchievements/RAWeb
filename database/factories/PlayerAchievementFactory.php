@@ -15,9 +15,6 @@ class PlayerAchievementFactory extends Factory
 {
     protected $model = PlayerAchievement::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [

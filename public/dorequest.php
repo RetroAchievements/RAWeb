@@ -8,6 +8,7 @@ use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\GetCodeNotesAction;
 use App\Connect\Actions\GetFriendListAction;
 use App\Connect\Actions\GetHashLibraryAction;
+use App\Connect\Actions\GetLatestClientVersionAction;
 use App\Connect\Actions\GetLeaderboardEntriesAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\PostActivityAction;
@@ -18,7 +19,6 @@ use App\Connect\Actions\SubmitRichPresenceAction;
 use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
 use App\Models\Achievement;
-use App\Models\Emulator;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
@@ -40,6 +40,7 @@ $handler = match ($requestType) {
     'codenotes2' => new GetCodeNotesAction(),
     'getfriendlist' => new GetFriendListAction(),
     'hashlibrary' => new GetHashLibraryAction(),
+    'latestclient' => new GetLatestClientVersionAction(),
     'lbinfo' => new GetLeaderboardEntriesAction(),
     'postactivity' => new PostActivityAction(),
     'submitcodenote' => new SubmitCodeNoteAction(),
@@ -270,28 +271,6 @@ switch ($requestType) {
         }
         $response['Response'] = Game::whereIn('ID', explode(',', $gamesCSV, 100))
             ->select('Title', 'ID', 'ImageIcon')->get()->toArray();
-        break;
-
-    case "latestclient":
-        $emulatorId = (int) request()->input('e');
-        $consoleId = (int) request()->input('c');
-
-        if (empty($emulatorId) && !empty($consoleId)) {
-            return DoRequestError("Lookup by Console ID has been deprecated");
-        }
-
-        $emulator = Emulator::find($emulatorId);
-        if ($emulator === null || !$emulator->active || !$emulator->latestRelease) {
-            return DoRequestError("Unknown client");
-        }
-
-        $format_url = function (?string $url): ?string {
-            return (!$url || str_starts_with($url, 'http')) ? $url : config('app.url') . '/' . $url;
-        };
-        $response['MinimumVersion'] = $emulator->minimumSupportedRelease?->version ?? $emulator->latestRelease->version;
-        $response['LatestVersion'] = $emulator->latestRelease->version;
-        $response['LatestVersionUrl'] = $format_url($emulator->download_url);
-        $response['LatestVersionUrlX64'] = $format_url($emulator->download_x64_url);
         break;
 
     case "latestintegration":

@@ -17,9 +17,6 @@ class TriggerFactory extends Factory
 {
     protected $model = Trigger::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [

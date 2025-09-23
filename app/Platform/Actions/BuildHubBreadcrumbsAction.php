@@ -307,7 +307,7 @@ class BuildHubBreadcrumbsAction
         string $currentType,
         string $mappedType,
         array &$visited,
-        array &$remainingPath
+        array &$remainingPath,
     ): void {
         // Detect if this is a nested Misc. hub by counting title parts.
         $titleParts = explode(' - ', trim($currentGameSet->title, '[]'));
@@ -364,7 +364,7 @@ class BuildHubBreadcrumbsAction
         string $currentType,
         string $mappedType,
         array &$visited,
-        array &$remainingPath
+        array &$remainingPath,
     ): void {
         while (isset(self::HUB_HIERARCHY[$currentType])) {
             $parentType = self::HUB_HIERARCHY[$currentType];
@@ -515,7 +515,7 @@ class BuildHubBreadcrumbsAction
         string $currentType,
         string $parentType,
         array $visited,
-        string $mappedType
+        string $mappedType,
     ): ?GameSet {
         if ($parentType === 'Central') {
             $parent = $gameSet->parents()

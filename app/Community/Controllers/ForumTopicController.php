@@ -87,7 +87,7 @@ class ForumTopicController extends Controller
 
     public function recentPosts(
         Request $request,
-        BuildAggregateRecentForumPostsDataAction $buildAggregateRecentPostsData
+        BuildAggregateRecentForumPostsDataAction $buildAggregateRecentPostsData,
     ): InertiaResponse {
         /** @var ?User $user */
         $user = Auth::user();

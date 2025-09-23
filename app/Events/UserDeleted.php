@@ -15,7 +15,7 @@ class UserDeleted
     use SerializesModels;
 
     public function __construct(
-        public User $user
+        public User $user,
     ) {
     }
 

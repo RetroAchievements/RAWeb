@@ -15,7 +15,7 @@ class PlayerCompletionProgressPageService
     private int $pageSize = 100;
 
     public function __construct(
-        protected PlayerProgressionService $playerProgressionService
+        protected PlayerProgressionService $playerProgressionService,
     ) {
     }
 

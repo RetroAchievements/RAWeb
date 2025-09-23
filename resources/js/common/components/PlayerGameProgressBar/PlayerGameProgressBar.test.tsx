@@ -49,6 +49,29 @@ describe('Component: PlayerGameProgressBar', () => {
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 
+  it('given the user has no progress on the game and shouldAlwaysLink is true, still renders as a hyperlink', () => {
+    // ARRANGE
+    const game = createGame({ achievementsPublished: 33 });
+
+    render(<PlayerGameProgressBar game={game} playerGame={null} shouldAlwaysLink={true} />);
+
+    // ASSERT
+    expect(screen.getByRole('link')).toBeInTheDocument();
+  });
+
+  it('given the user has no progress on the game, does not show a tooltip on hover', async () => {
+    // ARRANGE
+    const game = createGame({ achievementsPublished: 33 });
+
+    render(<PlayerGameProgressBar game={game} playerGame={null} />);
+
+    // ACT
+    await userEvent.hover(screen.getByRole('progressbar'));
+
+    // ASSERT
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
   it('given the user has progress on the game, renders a progress bar containing progress', () => {
     // ARRANGE
     const system = createSystem({ id: 1 });

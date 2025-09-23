@@ -16,9 +16,6 @@ class GameReleaseFactory extends Factory
 {
     protected $model = GameRelease::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $game = Game::inRandomOrder()->first();

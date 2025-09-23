@@ -137,7 +137,7 @@ class Comment extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, Comment>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -145,7 +145,7 @@ class Comment extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, Comment>
+     * @return BelongsTo<User, $this>
      */
     public function userWithTrashed(): BelongsTo
     {

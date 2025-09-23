@@ -36,7 +36,7 @@ class MessageThreadParticipant extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<User, MessageThreadParticipant>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -44,7 +44,7 @@ class MessageThreadParticipant extends BaseModel
     }
 
     /**
-     * @return BelongsTo<MessageThread, MessageThreadParticipant>
+     * @return BelongsTo<MessageThread, $this>
      */
     public function thread(): BelongsTo
     {

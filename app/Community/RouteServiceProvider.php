@@ -9,6 +9,7 @@ use App\Community\Controllers\AchievementCommentController;
 use App\Community\Controllers\AchievementSetClaimController;
 use App\Community\Controllers\Api\AchievementCommentApiController;
 use App\Community\Controllers\Api\ActivePlayersApiController;
+use App\Community\Controllers\Api\BetaFeedbackApiController;
 use App\Community\Controllers\Api\ForumTopicApiController;
 use App\Community\Controllers\Api\ForumTopicCommentApiController;
 use App\Community\Controllers\Api\GameClaimsCommentApiController;
@@ -77,6 +78,8 @@ class RouteServiceProvider extends ServiceProvider
                 Route::middleware(['auth'])->group(function () {
                     Route::group(['prefix' => 'internal-api'], function () {
                         Route::post('achievement/{achievement}/comment', [AchievementCommentApiController::class, 'store'])->name('api.achievement.comment.store');
+
+                        Route::post('beta-feedback', [BetaFeedbackApiController::class, 'store'])->name('api.beta-feedback.store');
 
                         Route::post('shortcode-body/preview', [ShortcodeApiController::class, 'preview'])->name('api.shortcode-body.preview');
 

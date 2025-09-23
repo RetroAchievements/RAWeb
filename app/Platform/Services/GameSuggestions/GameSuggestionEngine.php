@@ -17,7 +17,7 @@ use Illuminate\Support\Collection;
 
 class GameSuggestionEngine
 {
-    /** @var array<array{0: Strategies\GameSuggestionStrategy, 1: int}> */
+    /** @var array<array{0: GameSuggestionStrategy, 1: int}> */
     private array $strategies;
 
     public function __construct(

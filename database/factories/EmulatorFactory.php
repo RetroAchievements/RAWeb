@@ -14,9 +14,6 @@ class EmulatorFactory extends Factory
 {
     protected $model = Emulator::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [

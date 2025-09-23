@@ -15,7 +15,7 @@ class UpdatePlayerMetrics extends Command
     protected $description = 'Update player metrics';
 
     public function __construct(
-        private readonly UpdatePlayerMetricsAction $updatePlayerMetrics
+        private readonly UpdatePlayerMetricsAction $updatePlayerMetrics,
     ) {
         parent::__construct();
     }

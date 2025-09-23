@@ -26,7 +26,7 @@ class AchievementMaintainerUnlock extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<Achievement, AchievementMaintainerUnlock>
+     * @return BelongsTo<Achievement, $this>
      */
     public function achievement(): BelongsTo
     {
@@ -34,7 +34,7 @@ class AchievementMaintainerUnlock extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, AchievementMaintainerUnlock>
+     * @return BelongsTo<User, $this>
      */
     public function maintainer(): BelongsTo
     {
@@ -42,7 +42,7 @@ class AchievementMaintainerUnlock extends BaseModel
     }
 
     /**
-     * @return BelongsTo<PlayerAchievement, AchievementMaintainerUnlock>
+     * @return BelongsTo<PlayerAchievement, $this>
      */
     public function playerAchievement(): BelongsTo
     {

@@ -313,7 +313,7 @@ function getRecentForumPosts(
     int $limit,
     int $numMessageChars,
     ?int $permissions = Permissions::Unregistered,
-    ?int $fromAuthorId = null
+    ?int $fromAuthorId = null,
 ): Collection {
     $bindings = [
         'fromOffset' => $offset,

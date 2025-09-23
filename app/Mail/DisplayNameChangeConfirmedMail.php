@@ -20,7 +20,7 @@ class DisplayNameChangeConfirmedMail extends Mailable
      */
     public function __construct(
         public User $user,
-        public string $newDisplayName
+        public string $newDisplayName,
     ) {
     }
 

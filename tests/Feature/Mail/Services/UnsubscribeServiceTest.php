@@ -52,7 +52,7 @@ class UnsubscribeServiceTest extends TestCase
         int $userId,
         SubscriptionSubjectType $subjectType,
         int $subjectId,
-        bool $state
+        bool $state,
     ): void {
         $subscription = Subscription::where('user_id', $userId)
             ->where('subject_type', $subjectType)
@@ -69,7 +69,7 @@ class UnsubscribeServiceTest extends TestCase
     private function assertSubscriptionDoesNotExist(
         int $userId,
         SubscriptionSubjectType $subjectType,
-        int $subjectId
+        int $subjectId,
     ): void {
         $exists = Subscription::where('user_id', $userId)
             ->where('subject_type', $subjectType)

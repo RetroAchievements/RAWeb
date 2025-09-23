@@ -7,6 +7,7 @@ import { GameShowMainRoot } from '@/features/games/components/+show';
 import { GameShowSidebarRoot } from '@/features/games/components/+show-sidebar';
 import {
   currentListViewAtom,
+  currentPlayableListSortAtom,
   isLockedOnlyFilterEnabledAtom,
   isMissableOnlyFilterEnabledAtom,
 } from '@/features/games/state/games.atoms';
@@ -15,12 +16,14 @@ import type { TranslatedString } from '@/types/i18next';
 
 const GameShow: AppPage<App.Platform.Data.GameShowPageProps> = ({
   game,
+  initialSort,
   initialView,
   isLockedOnlyFilterEnabled,
   isMissableOnlyFilterEnabled,
 }) => {
   useHydrateAtoms([
     [currentListViewAtom, initialView],
+    [currentPlayableListSortAtom, initialSort],
     [isLockedOnlyFilterEnabledAtom, isLockedOnlyFilterEnabled],
     [isMissableOnlyFilterEnabledAtom, isMissableOnlyFilterEnabled],
     //

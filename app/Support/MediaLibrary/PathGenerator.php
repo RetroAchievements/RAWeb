@@ -10,7 +10,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class PathGenerator implements \Spatie\MediaLibrary\Support\PathGenerator\PathGenerator
 {
     public function __construct(
-        private Optimus $optimus
+        private Optimus $optimus,
     ) {
     }
 

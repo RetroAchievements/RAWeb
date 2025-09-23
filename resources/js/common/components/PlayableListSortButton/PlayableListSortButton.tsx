@@ -1,6 +1,19 @@
 import { type FC, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuArrowDown, LuArrowUp } from 'react-icons/lu';
+import type { IconType } from 'react-icons/lib';
+import {
+  LuArrowDown,
+  LuArrowDown01,
+  LuArrowDown10,
+  LuArrowDownAZ,
+  LuArrowDownZA,
+  LuArrowUp,
+  LuClock,
+  LuLockOpen,
+  LuTag,
+  LuUsers,
+} from 'react-icons/lu';
+import { PiMedalFill } from 'react-icons/pi';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
@@ -33,26 +46,28 @@ export const PlayableListSortButton: FC<PlayableListSortButtonProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const sortOptionsLabelMap: Record<PlayableListSortOrder, TranslatedString> = {
-    active: t('Status'),
+  const sortOptionsLabelMap: Record<
+    PlayableListSortOrder,
+    { label: TranslatedString; icon: IconType }
+  > = {
+    active: { label: t('Status'), icon: LuClock },
 
-    '-normal': t('Display order (last)'),
-    normal: t('Display order (first)'),
+    normal: { label: t('Unlocked first'), icon: LuLockOpen },
 
-    '-displayOrder': t('Display order (last)'),
-    displayOrder: t('Display order (first)'),
+    '-displayOrder': { label: t('Display order (last)'), icon: LuArrowDown10 },
+    displayOrder: { label: t('Display order (first)'), icon: LuArrowDown01 },
 
-    '-points': t('Points (least)'),
-    points: t('Points (most)'),
+    '-points': { label: t('Points (least)'), icon: PiMedalFill },
+    points: { label: t('Points (most)'), icon: PiMedalFill },
 
-    '-title': t('Title (Z - A)'),
-    title: t('Title (A - Z)'),
+    '-title': { label: t('Title (Z - A)'), icon: LuArrowDownZA },
+    title: { label: t('Title (A - Z)'), icon: LuArrowDownAZ },
 
-    '-type': t('Type (desc)'),
-    type: t('Type (asc)'),
+    '-type': { label: t('Type (desc)'), icon: LuTag },
+    type: { label: t('Type (asc)'), icon: LuTag },
 
-    '-wonBy': t('Won by (least)'),
-    wonBy: t('Won by (most)'),
+    '-wonBy': { label: t('Won by (least)'), icon: LuUsers },
+    wonBy: { label: t('Won by (most)'), icon: LuUsers },
   };
 
   return (
@@ -71,7 +86,7 @@ export const PlayableListSortButton: FC<PlayableListSortButtonProps> = ({
           ) : (
             <LuArrowUp data-testid="sort-ascending-icon" className="size-4" />
           )}
-          {sortOptionsLabelMap[value]}
+          {sortOptionsLabelMap[value].label}
         </BaseButton>
       </BaseDropdownMenuTrigger>
 
@@ -79,16 +94,22 @@ export const PlayableListSortButton: FC<PlayableListSortButtonProps> = ({
         <BaseDropdownMenuLabel>{t('Sort order')}</BaseDropdownMenuLabel>
         <BaseDropdownMenuSeparator />
 
-        {availableSortOrders.map((sortOrder) => (
-          <Fragment key={`option-item-${sortOrder}`}>
-            <BaseDropdownMenuCheckboxItem
-              checked={value === sortOrder}
-              onCheckedChange={() => onChange(sortOrder)}
-            >
-              {sortOptionsLabelMap[sortOrder]}
-            </BaseDropdownMenuCheckboxItem>
-          </Fragment>
-        ))}
+        {availableSortOrders.map((sortOrder) => {
+          const SortIcon = sortOptionsLabelMap[sortOrder].icon;
+
+          return (
+            <Fragment key={`option-item-${sortOrder}`}>
+              <BaseDropdownMenuCheckboxItem
+                checked={value === sortOrder}
+                onCheckedChange={() => onChange(sortOrder)}
+                className="gap-2"
+              >
+                <SortIcon className="size-5" />
+                {sortOptionsLabelMap[sortOrder].label}
+              </BaseDropdownMenuCheckboxItem>
+            </Fragment>
+          );
+        })}
       </BaseDropdownMenuContent>
     </BaseDropdownMenu>
   );

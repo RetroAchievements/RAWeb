@@ -59,7 +59,7 @@ class EventAward extends BaseModel
     }
 
     /**
-     * @return BelongsTo<Event, EventAward>
+     * @return BelongsTo<Event, $this>
      */
     public function event(): BelongsTo
     {

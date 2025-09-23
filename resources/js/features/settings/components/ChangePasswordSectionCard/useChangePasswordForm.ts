@@ -1,6 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +7,7 @@ import { z } from 'zod';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import type { LaravelValidationError } from '@/common/models';
+import { useChangePasswordMutation } from '@/features/settings/hooks/mutations/useChangePasswordMutation';
 
 export function useChangePasswordForm() {
   const { t } = useTranslation();
@@ -39,14 +38,10 @@ export function useChangePasswordForm() {
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: (formValues: FormValues) => {
-      return axios.put(route('api.settings.password.update'), formValues);
-    },
-  });
+  const mutation = useChangePasswordMutation();
 
   const onSubmit = (formValues: FormValues) => {
-    toastMessage.promise(mutation.mutateAsync(formValues), {
+    toastMessage.promise(mutation.mutateAsync({ payload: formValues }), {
       loading: t('Changing password...'),
       success: () => {
         window.location.href = route('login');
