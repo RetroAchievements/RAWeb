@@ -280,6 +280,7 @@ class BuildGameShowPagePropsAction
             backingGame: GameData::fromGame($backingGame)->include(
                 'achievementsPublished',
                 'achievementsUnpublished',
+                'badgeUrl',
                 'forumTopicId'
             ),
 
