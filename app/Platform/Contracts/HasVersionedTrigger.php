@@ -29,14 +29,14 @@ interface HasVersionedTrigger
     /**
      * Get the latest trigger version.
      *
-     * @return MorphOne<Trigger>
+     * @return MorphOne<Trigger, TModel>
      */
     public function trigger(): MorphOne;
 
     /**
      * Get all trigger versions
      *
-     * @return MorphMany<Trigger>
+     * @return MorphMany<Trigger, TModel>
      */
     public function triggers(): MorphMany;
 }

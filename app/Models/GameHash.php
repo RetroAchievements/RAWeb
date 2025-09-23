@@ -142,7 +142,7 @@ class GameHash extends BaseModel
     // == relations
 
     /**
-     * @return BelongsToMany<AchievementSet>
+     * @return BelongsToMany<AchievementSet, $this>
      */
     public function incompatibleAchievementSets(): BelongsToMany
     {
@@ -159,7 +159,7 @@ class GameHash extends BaseModel
     }
 
     /**
-     * @return BelongsToMany<GameHashSet>
+     * @return BelongsToMany<GameHashSet, $this>
      */
     public function gameHashSets(): BelongsToMany
     {

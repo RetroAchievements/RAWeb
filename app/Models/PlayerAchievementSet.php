@@ -28,7 +28,7 @@ class PlayerAchievementSet extends BasePivot
     // == relations
 
     /**
-     * @return HasMany<PlayerAchievement>
+     * @return HasMany<PlayerAchievement, $this>
      */
     public function playerAchievements(): HasMany
     {
