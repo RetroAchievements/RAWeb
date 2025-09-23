@@ -1,10 +1,8 @@
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { route } from 'ziggy-js';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
+import { useUpdateAvatarMutation } from '@/features/settings/hooks/mutations/useUpdateAvatarMutation';
 
 import { useResetNavbarUserPic } from '../../hooks/useResetNavbarUserPic';
 
@@ -17,38 +15,35 @@ export function useAvatarSectionForm() {
 
   const form = useForm<FormValues>();
 
-  const mutation = useMutation({
-    mutationFn: async (formValues: FormValues) => {
-      const base64ImageData = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (error) => reject(error);
-        reader.readAsDataURL(formValues.imageData);
-      });
-
-      const formData = new FormData();
-      formData.append('imageData', base64ImageData);
-
-      return axios.post(route('api.user.avatar.store'), formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-    },
-  });
+  const mutation = useUpdateAvatarMutation();
 
   const { resetNavbarUserPic } = useResetNavbarUserPic();
 
   const onSubmit = (formValues: FormValues) => {
-    toastMessage.promise(mutation.mutateAsync(formValues), {
-      loading: t('Uploading new avatar...'),
-      success: () => {
-        resetNavbarUserPic();
-
-        return t('Uploaded!');
-      },
-      error: t('Something went wrong.'),
+    const fileReaderPromise = new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(formValues.imageData);
     });
+
+    toastMessage.promise(
+      fileReaderPromise.then((base64ImageData) => {
+        const formData = new FormData();
+        formData.append('imageData', base64ImageData);
+
+        return mutation.mutateAsync({ formData });
+      }),
+      {
+        loading: t('Uploading new avatar...'),
+        success: () => {
+          resetNavbarUserPic();
+
+          return t('Uploaded!');
+        },
+        error: t('Something went wrong.'),
+      },
+    );
   };
 
   return { form, mutation, onSubmit };

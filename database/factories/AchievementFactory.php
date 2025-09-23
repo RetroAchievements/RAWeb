@@ -21,9 +21,6 @@ class AchievementFactory extends Factory
 
     protected $model = Achievement::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $user = User::inRandomOrder()->first();

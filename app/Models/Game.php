@@ -687,7 +687,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return BelongsTo<System, Game>
+     * @return BelongsTo<System, $this>
      */
     public function system(): BelongsTo
     {
@@ -695,7 +695,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return BelongsTo<System, Game>
+     * @return BelongsTo<System, $this>
      *
      * @deprecated use `->system`
      */
@@ -891,7 +891,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return BelongsTo<Trigger, Game>
+     * @return BelongsTo<Trigger, $this>
      */
     public function currentTrigger(): BelongsTo
     {

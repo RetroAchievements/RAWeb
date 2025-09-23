@@ -99,7 +99,7 @@ class ForumTopicComment extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<ForumTopic, ForumTopicComment>
+     * @return BelongsTo<ForumTopic, $this>
      */
     public function forumTopic(): BelongsTo
     {
@@ -107,7 +107,7 @@ class ForumTopicComment extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, ForumTopicComment>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -115,7 +115,7 @@ class ForumTopicComment extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, ForumTopicComment>
+     * @return BelongsTo<User, $this>
      */
     public function sentBy(): BelongsTo
     {
@@ -123,7 +123,7 @@ class ForumTopicComment extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, ForumTopicComment>
+     * @return BelongsTo<User, $this>
      */
     public function editedBy(): BelongsTo
     {

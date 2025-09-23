@@ -23,7 +23,7 @@ class DiscordMessageThreadMapping extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<MessageThread, DiscordMessageThreadMapping>
+     * @return BelongsTo<MessageThread, $this>
      */
     public function messageThread(): BelongsTo
     {

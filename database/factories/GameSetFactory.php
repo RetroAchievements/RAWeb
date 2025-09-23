@@ -17,9 +17,6 @@ class GameSetFactory extends Factory
 
     private static int $sequence = 1;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         // Use a sequence to ensure unique titles and stave off test flake.

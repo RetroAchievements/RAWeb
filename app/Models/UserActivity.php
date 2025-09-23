@@ -89,7 +89,7 @@ class UserActivity extends BaseModel
 
     // TODO: morph those
     /**
-     * @return BelongsTo<Achievement, UserActivity>
+     * @return BelongsTo<Achievement, $this>
      */
     public function achievement(): BelongsTo
     {
@@ -97,7 +97,7 @@ class UserActivity extends BaseModel
     }
 
     /**
-     * @return BelongsTo<Game, UserActivity>
+     * @return BelongsTo<Game, $this>
      */
     public function game(): BelongsTo
     {
@@ -105,7 +105,7 @@ class UserActivity extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, UserActivity>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

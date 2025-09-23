@@ -15,9 +15,6 @@ class StaticDataFactory extends Factory
 {
     protected $model = StaticData::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [

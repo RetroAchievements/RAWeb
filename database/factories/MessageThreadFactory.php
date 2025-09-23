@@ -15,9 +15,6 @@ class MessageThreadFactory extends Factory
 {
     protected $model = MessageThread::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
