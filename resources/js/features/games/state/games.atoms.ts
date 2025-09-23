@@ -11,6 +11,11 @@ export const isLockedOnlyFilterEnabledAtom = atom(false);
 export const isMissableOnlyFilterEnabledAtom = atom(false);
 
 /**
+ * Increments on user-initiated achievement list changes to trigger animations.
+ */
+export const userAchievementListChangeCounterAtom = atom(0);
+
+/**
  * This atom is detached from the dialog because we mount the dialog
  * in a different place than its trigger. At the time of writing, its
  * trigger lives in a tooltip, so when the dialog opens, the tooltip
