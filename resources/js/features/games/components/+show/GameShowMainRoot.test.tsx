@@ -353,41 +353,4 @@ describe('Component: GameShowMainRoot', () => {
     expect(screen.queryByText(/recent players/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/comments/i)).not.toBeInTheDocument();
   });
-
-  it('given the user is using a mobile device, shows the mobile header', () => {
-    // ARRANGE
-    const game = createGame({
-      badgeUrl: 'badge.jpg',
-      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
-      imageBoxArtUrl: faker.internet.url(),
-      imageTitleUrl: faker.internet.url(),
-      imageIngameUrl: faker.internet.url(),
-
-      system: createSystem({
-        iconUrl: 'icon.jpg',
-        name: 'Nintendo Switch',
-      }),
-
-      title: 'Super Mario Odyssey',
-    });
-
-    render(<GameShowMainRoot />, {
-      pageProps: {
-        game,
-        achievementSetClaims: [],
-        aggregateCredits: createAggregateAchievementSetCredits(),
-        backingGame: game,
-        can: {},
-        hubs: [],
-        selectableGameAchievementSets: [],
-        isViewingPublishedAchievements: true,
-        recentPlayers: [],
-        recentVisibleComments: [],
-        ziggy: createZiggyProps({ device: 'mobile' }), // !!
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByTestId('mobile-header')).toBeVisible();
-  });
 });

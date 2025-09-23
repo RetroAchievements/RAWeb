@@ -11,12 +11,11 @@ import { AchievementSetEmptyState } from '../AchievementSetEmptyState';
 import { GameAchievementSetsContainer } from '../GameAchievementSetsContainer';
 import { GameCommentList } from '../GameCommentList';
 import { GameHeaderSlotContent } from '../GameHeaderSlotContent';
-import { GameMobileHeader } from '../GameMobileHeader';
 import { GameRecentPlayers } from '../GameRecentPlayers';
 import { ResetAllProgressAlertDialog } from '../ResetAllProgressAlertDialog';
 
 export const GameShowMainRoot: FC = () => {
-  const { game, hasMatureContent, isViewingPublishedAchievements, targetAchievementSetId, ziggy } =
+  const { game, hasMatureContent, isViewingPublishedAchievements, targetAchievementSetId } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
   if (!game.badgeUrl || !game.system?.iconUrl) {
@@ -31,6 +30,7 @@ export const GameShowMainRoot: FC = () => {
   return (
     <div data-testid="game-show" className="flex flex-col gap-3">
       {hasMatureContent ? <MatureContentWarningDialog /> : null}
+      {allPageAchievements.length ? <ResetAllProgressAlertDialog /> : null}
 
       <GameBreadcrumbs
         game={game}
@@ -38,20 +38,16 @@ export const GameShowMainRoot: FC = () => {
         system={game.system}
       />
 
-      {ziggy.device === 'mobile' ? (
-        <GameMobileHeader />
-      ) : (
-        <PlayableHeader
-          badgeUrl={game.badgeUrl}
-          systemIconUrl={game.system.iconUrl}
-          systemLabel={game.system.name}
-          title={game.title}
-        >
-          <GameHeaderSlotContent />
-        </PlayableHeader>
-      )}
+      <PlayableHeader
+        badgeUrl={game.badgeUrl}
+        systemIconUrl={game.system.iconUrl}
+        systemLabel={game.system.name}
+        title={game.title}
+      >
+        <GameHeaderSlotContent />
+      </PlayableHeader>
 
-      <div className="mt-2 hidden sm:block">
+      <div className="mt-2">
         <PlayableMainMedia
           imageIngameUrl={game.imageIngameUrl!}
           imageTitleUrl={game.imageTitleUrl!}
@@ -66,8 +62,6 @@ export const GameShowMainRoot: FC = () => {
 
         {isViewingPublishedAchievements ? <GameRecentPlayers /> : null}
         {isViewingPublishedAchievements ? <GameCommentList /> : null}
-
-        {allPageAchievements.length ? <ResetAllProgressAlertDialog /> : null}
       </div>
     </div>
   );
