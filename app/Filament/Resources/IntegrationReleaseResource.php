@@ -149,7 +149,7 @@ class IntegrationReleaseResource extends Resource
                     ])->dropdown(false),
 
                     Tables\Actions\Action::make('audit-log')
-                        ->url(fn ($record) => EmulatorResource::getUrl('audit-log', ['record' => $record]))
+                        ->url(fn ($record) => IntegrationReleaseResource::getUrl('audit-log', ['record' => $record]))
                         ->icon('fas-clock-rotate-left'),
                 ]),
             ]);
