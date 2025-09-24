@@ -34,6 +34,7 @@ import { SimilarGamesList } from '../SimilarGamesList';
 
 export const GameShowMobileRoot: FC = () => {
   const {
+    backingGame,
     followedPlayerCompletions,
     game,
     hasMatureContent,
@@ -147,6 +148,7 @@ export const GameShowMobileRoot: FC = () => {
 
             <PlayableTopPlayers
               achievements={allPageAchievements}
+              backingGame={backingGame}
               game={game}
               numMasters={numMasters}
               players={topAchievers}
