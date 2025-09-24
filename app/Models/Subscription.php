@@ -31,7 +31,7 @@ class Subscription extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<User, Subscription>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

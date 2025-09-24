@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-imports -- this component wraps Inertia's <Link /> */
 
+import type { Visit, VisitCallbacks } from '@inertiajs/core';
 import type { InertiaLinkProps as OriginalInertiaLinkProps } from '@inertiajs/react';
 import { Link, router } from '@inertiajs/react';
 import { type FC, useRef } from 'react';
@@ -36,7 +37,34 @@ export const InertiaLink: FC<InertiaLinkProps> = ({ href, prefetch = 'never', ..
   });
 
   const handlePrefetch = () => {
-    router.prefetch(safeHref, { method: 'get' }, { cacheFor: '30s' });
+    // Inertia uses navigation options to generate cache keys for prefetched requests.
+    // If we don't pass the same options during prefetch that the Link will use during
+    // actual navigation, the cache keys won't match and the prefetched data won't be used.
+    // This defeats the purpose of prefetching. To fix this, we extract all navigation
+    // options from the Link props and pass them to the prefetch call.
+    const {
+      data,
+      preserveScroll,
+      preserveState,
+      only,
+      except,
+      headers,
+      replace,
+      method = 'get',
+    } = rest;
+    const options: Partial<Visit & VisitCallbacks> = { method };
+
+    // Only include defined navigation options to avoid passing undefined values
+    // which could cause issues with Inertia's comparison logic.
+    if (data !== undefined) options.data = data;
+    if (except !== undefined) options.except = except;
+    if (headers !== undefined) options.headers = headers;
+    if (only !== undefined) options.only = only;
+    if (preserveScroll !== undefined) options.preserveScroll = preserveScroll;
+    if (preserveState !== undefined) options.preserveState = preserveState;
+    if (replace !== undefined) options.replace = replace;
+
+    router.prefetch(safeHref, options, { cacheFor: '30s' });
   };
 
   /**
@@ -62,6 +90,7 @@ export const InertiaLink: FC<InertiaLinkProps> = ({ href, prefetch = 'never', ..
           clearTimeout(hoverTimeoutRef.current);
         }
       }}
+      data-testid="link"
       {...rest}
     />
   );

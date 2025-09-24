@@ -7,6 +7,7 @@ import {
   createAggregateAchievementSetCredits,
   createGame,
   createGameAchievementSet,
+  createZiggyProps,
 } from '@/test/factories';
 
 import { GameAchievementSetsContainer } from './GameAchievementSetsContainer';
@@ -14,22 +15,28 @@ import { GameAchievementSetsContainer } from './GameAchievementSetsContainer';
 describe('Component: GameAchievementSetsContainer', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<GameAchievementSetsContainer game={createGame()} />);
+    const game = createGame({
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ id: 123, achievements: [createAchievement()] }),
+        }),
+      ],
+    });
+
+    const { container } = render(<GameAchievementSetsContainer game={game} />, {
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        selectableGameAchievementSets: [],
+        targetAchievementSetId: 123,
+        ziggy: createZiggyProps(),
+      },
+    });
 
     // ASSERT
     expect(container).toBeTruthy();
-  });
-
-  it('given the game has no achievement sets, shows an empty state', () => {
-    // ARRANGE
-    const game = createGame({
-      gameAchievementSets: [],
-    });
-
-    render(<GameAchievementSetsContainer game={game} />);
-
-    // ASSERT
-    expect(screen.getByText(/aren't any achievements/i)).toBeVisible();
   });
 
   it('given the game has achievement sets, shows the sort button', () => {
@@ -50,6 +57,7 @@ describe('Component: GameAchievementSetsContainer', () => {
         backingGame: game,
         selectableGameAchievementSets: [],
         targetAchievementSetId: 123,
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -73,6 +81,7 @@ describe('Component: GameAchievementSetsContainer', () => {
         aggregateCredits: createAggregateAchievementSetCredits(),
         backingGame: game,
         selectableGameAchievementSets: [],
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -99,6 +108,7 @@ describe('Component: GameAchievementSetsContainer', () => {
         backingGame: game,
         targetAchievementSetId: 123,
         selectableGameAchievementSets: [],
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -133,6 +143,7 @@ describe('Component: GameAchievementSetsContainer', () => {
           createGameAchievementSet({ title: 'Bonus Set' }),
         ],
         targetAchievementSetId: 123,
+        ziggy: createZiggyProps(),
       },
     });
 

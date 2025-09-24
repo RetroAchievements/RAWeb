@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { type FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IoAlert } from 'react-icons/io5';
@@ -16,6 +16,7 @@ import {
   currentPlayableListSortAtom,
   isLockedOnlyFilterEnabledAtom,
   isMissableOnlyFilterEnabledAtom,
+  userAchievementListChangeCounterAtom,
 } from '@/features/games/state/games.atoms';
 
 import { GameListViewSelectButton } from './GameListViewSelectButton';
@@ -53,6 +54,10 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
   const [isMissableOnlyFilterEnabled, setIsMissableOnlyFilterEnabled] = useAtom(
     isMissableOnlyFilterEnabledAtom,
   );
+  const setUserAchievementListChangeCounter = useSetAtom(userAchievementListChangeCounterAtom);
+
+  const canShowUnlockStatusSortOrders =
+    unlockedAchievementsCount > 0 && unlockedAchievementsCount < backingGame.achievementsPublished!;
 
   useEffect(() => {
     if (currentListView === 'leaderboards' && numLeaderboards === 0) {
@@ -63,11 +68,15 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
   const handleToggleLockedOnlyFilter = (pressed: boolean) => {
     setIsLockedOnlyFilterEnabled(pressed);
     lockedOnlyCookie.toggleGameId(pressed);
+
+    setUserAchievementListChangeCounter((prev) => prev + 1);
   };
 
   const handleToggleMissableOnlyFilter = (pressed: boolean) => {
     setIsMissableOnlyFilterEnabled(pressed);
     missableOnlyCookie.toggleGameId(pressed);
+
+    setUserAchievementListChangeCounter((prev) => prev + 1);
   };
 
   return (
@@ -81,12 +90,19 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
       <div className="flex w-full gap-2 sm:w-auto">
         <PlayableListSortButton
           value={currentAchievementSort}
-          onChange={(newValue) => setCurrentAchievementSort(newValue)}
+          onChange={(newValue) => {
+            setCurrentAchievementSort(newValue);
+
+            setUserAchievementListChangeCounter((prev) => prev + 1);
+          }}
           availableSortOrders={
             currentListView === 'achievements'
               ? [
-                  'normal',
-                  '-normal',
+                  // Only show the "Unlocked first" option when the user has unlocked some (but not all) achievements.
+                  ...(canShowUnlockStatusSortOrders ? ['normal' as const] : []),
+
+                  'displayOrder',
+                  '-displayOrder',
                   'wonBy',
                   '-wonBy',
                   'points',

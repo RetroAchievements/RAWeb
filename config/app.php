@@ -248,7 +248,6 @@ return [
          */
         App\Support\Filesystem\FilesystemServiceProvider::class,
         App\Support\Settings\SettingsServiceProvider::class,
-        App\Support\Sync\SyncServiceProvider::class,
 
         /*
          * Site Providers

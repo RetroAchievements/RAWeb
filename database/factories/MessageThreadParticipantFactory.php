@@ -17,9 +17,6 @@ class MessageThreadParticipantFactory extends Factory
 {
     protected $model = MessageThreadParticipant::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [

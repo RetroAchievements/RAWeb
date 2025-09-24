@@ -50,7 +50,7 @@ function getGlobalRankingData(
     int $untracked = 0,
     int $offset = 0,
     int $count = 50,
-    int $info = 0
+    int $info = 0,
 ): array {
     $pointRequirement = "";
 

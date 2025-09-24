@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 class ViewRedirect extends HttpException
 {
     public function __construct(
-        public RedirectResponse $redirect
+        public RedirectResponse $redirect,
     ) {
     }
 }

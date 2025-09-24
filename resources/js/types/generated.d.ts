@@ -355,6 +355,7 @@ declare namespace App.Data {
     deletedAt?: string | null;
     displayableRoles?: Array<App.Data.Role> | null;
     emailAddress?: string | null;
+    enableBetaFeatures?: boolean | null;
     id?: number;
     isEmailVerified?: boolean;
     isGone?: boolean;
@@ -384,6 +385,7 @@ declare namespace App.Data {
     createGameComments?: boolean;
     createGameForumTopic?: boolean;
     createTriggerTicket?: boolean;
+    createUserBetaFeedbackSubmission?: boolean;
     createUsernameChangeRequest?: boolean;
     deleteForumTopic?: boolean;
     develop?: boolean;
@@ -431,7 +433,8 @@ declare namespace App.Enums {
     | 15
     | 16
     | 17
-    | 18;
+    | 18
+    | 19;
 }
 declare namespace App.Http.Data {
   export type AchievementOfTheWeekProps = {
@@ -490,7 +493,6 @@ declare namespace App.Models {
     | 'architect'
     | 'engineer'
     | 'team-account'
-    | 'beta'
     | 'community-manager'
     | 'developer-retired';
 }
@@ -786,11 +788,13 @@ declare namespace App.Platform.Data {
     aggregateCredits: App.Platform.Data.AggregateAchievementSetCredits;
     backingGame: App.Platform.Data.Game;
     can: App.Data.UserPermissions;
+    canSubmitBetaFeedback: boolean;
     claimData: App.Platform.Data.GamePageClaimData | null;
     game: App.Platform.Data.Game;
     achievementSetClaims: Array<App.Platform.Data.AchievementSetClaim>;
     hasMatureContent: boolean;
     hubs: Array<App.Platform.Data.GameSet>;
+    initialSort: App.Platform.Enums.GamePageListSort;
     initialView: App.Platform.Enums.GamePageListView;
     isLockedOnlyFilterEnabled: boolean;
     isMissableOnlyFilterEnabled: boolean;
@@ -862,13 +866,15 @@ declare namespace App.Platform.Data {
     defaultDesktopPageSize: number;
   };
   export type Leaderboard = {
-    id: number;
-    title: string;
     description?: string;
-    game?: App.Platform.Data.Game;
-    topEntry?: App.Platform.Data.LeaderboardEntry | null;
     format?: string | null;
+    game?: App.Platform.Data.Game;
+    id: number;
     orderColumn?: number;
+    title: string;
+    topEntry?: App.Platform.Data.LeaderboardEntry | null;
+    userEntry?: App.Platform.Data.LeaderboardEntry | null;
+    rankAsc?: boolean | null;
   };
   export type LeaderboardEntry = {
     id: number;
@@ -876,6 +882,7 @@ declare namespace App.Platform.Data {
     formattedScore?: string;
     createdAt?: string;
     user?: App.Data.User | null;
+    rank?: number | null;
   };
   export type ParsedUserAgent = {
     client: string;
@@ -1052,6 +1059,7 @@ declare namespace App.Platform.Enums {
     | 'will_be_specialty'
     | 'will_be_exclusive';
   export type EventState = 'active' | 'concluded' | 'evergreen';
+  export type UnlockMode = 0 | 1;
   export type GameListProgressFilterValue =
     | 'unstarted'
     | 'unfinished'
@@ -1079,6 +1087,18 @@ declare namespace App.Platform.Enums {
     | 'retroRatio'
     | 'system'
     | 'title';
+  export type GamePageListSort =
+    | 'normal'
+    | 'displayOrder'
+    | '-displayOrder'
+    | 'wonBy'
+    | '-wonBy'
+    | 'points'
+    | '-points'
+    | 'title'
+    | '-title'
+    | 'type'
+    | '-type';
   export type GamePageListView = 'achievements' | 'leaderboards';
   export type GameReleaseRegion =
     | 'as'
@@ -1112,9 +1132,8 @@ declare namespace App.Platform.Enums {
     | 'web';
   export type PlayerPreferredMode = 'softcore' | 'hardcore' | 'mixed';
   export type PlayerProgressResetType = 'account' | 'achievement' | 'achievement_set' | 'game';
-  export type TicketableType = 'achievement' | 'leaderboard' | 'rich-presence';
-  export type UnlockMode = 0 | 1;
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
+  export type TicketableType = 'achievement' | 'leaderboard' | 'rich-presence';
   export type TriggerableType = 'achievement' | 'leaderboard' | 'game';
 }
 declare namespace App.Platform.Services.GameSuggestions.Enums {

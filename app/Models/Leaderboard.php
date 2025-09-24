@@ -179,7 +179,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
     // == relations
 
     /**
-     * @return BelongsTo<User, Leaderboard>
+     * @return BelongsTo<User, $this>
      */
     public function developer(): BelongsTo
     {
@@ -187,7 +187,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<LeaderboardEntry>
+     * @return HasMany<LeaderboardEntry, $this>
      */
     public function entries(bool $includeUnrankedUsers = false): HasMany
     {
@@ -201,7 +201,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<LeaderboardEntry>
+     * @return HasMany<LeaderboardEntry, $this>
      */
     public function sortedEntries(): HasMany
     {
@@ -221,7 +221,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return BelongsTo<Game, Leaderboard>
+     * @return BelongsTo<Game, $this>
      */
     public function game(): BelongsTo
     {
@@ -229,7 +229,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return BelongsTo<LeaderboardEntry, Leaderboard>
+     * @return BelongsTo<LeaderboardEntry, $this>
      */
     public function topEntry(): BelongsTo
     {
@@ -239,7 +239,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
     /**
      * TODO use HasComments / polymorphic relationship
      *
-     * @return HasMany<Comment>
+     * @return HasMany<Comment, $this>
      */
     public function comments(): HasMany
     {
@@ -249,7 +249,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
     /**
      * TODO use HasComments / polymorphic relationship
      *
-     * @return HasMany<Comment>
+     * @return HasMany<Comment, $this>
      */
     public function visibleComments(?User $user = null): HasMany
     {
@@ -260,7 +260,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return BelongsTo<Trigger, Leaderboard>
+     * @return BelongsTo<Trigger, $this>
      */
     public function currentTrigger(): BelongsTo
     {

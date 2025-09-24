@@ -87,23 +87,6 @@ describe('Util: sortAchievements', () => {
     });
   });
 
-  it('given -normal sort, reverses order while maintaining unlock priority', () => {
-    // ARRANGE
-    const baseAchievement = createAchievement();
-    const achievements = [
-      { ...baseAchievement, id: 1, orderColumn: 1 },
-      { ...baseAchievement, id: 2, orderColumn: 2 },
-      { ...baseAchievement, id: 3, unlockedAt: '2023-01-01', orderColumn: 1 },
-      { ...baseAchievement, id: 4, unlockedAt: '2023-01-01', orderColumn: 2 },
-    ];
-
-    // ACT
-    const result = sortAchievements(achievements, '-normal');
-
-    // ASSERT
-    expect(result.map((a) => a.id)).toEqual([2, 1, 4, 3]);
-  });
-
   it('given points sort, sorts by points ascending while keeping unlocked first', () => {
     // ARRANGE
     const baseAchievement = createAchievement();

@@ -13,7 +13,7 @@ class ShortcodeApiController extends Controller
 {
     public function preview(
         PreviewShortcodeBodyRequest $request,
-        FetchDynamicShortcodeContentAction $action
+        FetchDynamicShortcodeContentAction $action,
     ): JsonResponse {
         $entities = $action->execute(
             usernames: $request->input('usernames'),

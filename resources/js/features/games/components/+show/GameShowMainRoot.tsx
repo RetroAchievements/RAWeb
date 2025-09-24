@@ -4,7 +4,6 @@ import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
 import { MatureContentWarningDialog } from '@/common/components/MatureContentWarningDialog';
 import { PlayableHeader } from '@/common/components/PlayableHeader';
 import { PlayableMainMedia } from '@/common/components/PlayableMainMedia';
-import { PlayableMobileMediaCarousel } from '@/common/components/PlayableMobileMediaCarousel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
@@ -31,12 +30,14 @@ export const GameShowMainRoot: FC = () => {
   return (
     <div data-testid="game-show" className="flex flex-col gap-3">
       {hasMatureContent ? <MatureContentWarningDialog /> : null}
+      {allPageAchievements.length ? <ResetAllProgressAlertDialog /> : null}
 
       <GameBreadcrumbs
         game={game}
         gameAchievementSet={game.gameAchievementSets?.[0]}
         system={game.system}
       />
+
       <PlayableHeader
         badgeUrl={game.badgeUrl}
         systemIconUrl={game.system.iconUrl}
@@ -46,15 +47,8 @@ export const GameShowMainRoot: FC = () => {
         <GameHeaderSlotContent />
       </PlayableHeader>
 
-      <div className="mt-2 hidden sm:block">
+      <div className="mt-2">
         <PlayableMainMedia
-          imageIngameUrl={game.imageIngameUrl!}
-          imageTitleUrl={game.imageTitleUrl!}
-        />
-      </div>
-
-      <div className="-mx-3 sm:hidden">
-        <PlayableMobileMediaCarousel
           imageIngameUrl={game.imageIngameUrl!}
           imageTitleUrl={game.imageTitleUrl!}
         />
@@ -68,8 +62,6 @@ export const GameShowMainRoot: FC = () => {
 
         {isViewingPublishedAchievements ? <GameRecentPlayers /> : null}
         {isViewingPublishedAchievements ? <GameCommentList /> : null}
-
-        {allPageAchievements.length ? <ResetAllProgressAlertDialog /> : null}
       </div>
     </div>
   );

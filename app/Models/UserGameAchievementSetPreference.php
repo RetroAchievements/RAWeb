@@ -38,7 +38,7 @@ class UserGameAchievementSetPreference extends BaseModel
     // == relations
 
     /**
-     * @return HasOne<GameAchievementSet>
+     * @return HasOne<GameAchievementSet, $this>
      */
     public function gameAchievementSet(): HasOne
     {
@@ -46,7 +46,7 @@ class UserGameAchievementSetPreference extends BaseModel
     }
 
     /**
-     * @return HasOne<User>
+     * @return HasOne<User, $this>
      */
     public function user(): HasOne
     {

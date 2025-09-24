@@ -44,7 +44,7 @@ export const AchievementSetEmptyState: FC = () => {
               }}
               components={{
                 // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer
-                1: <a href={`/setRequestors.php?g=${backingGame.id}`} />,
+                1: auth?.user ? <a href={`/setRequestors.php?g=${backingGame.id}`} /> : <span />,
               }}
             />
           </p>

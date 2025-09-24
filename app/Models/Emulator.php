@@ -163,7 +163,7 @@ class Emulator extends BaseModel implements HasMedia
     // == relations
 
     /**
-     * @return BelongsToMany<Platform>
+     * @return BelongsToMany<Platform, $this>
      */
     public function platforms(): BelongsToMany
     {
@@ -173,7 +173,7 @@ class Emulator extends BaseModel implements HasMedia
     }
 
     /**
-     * @return BelongsToMany<System>
+     * @return BelongsToMany<System, $this>
      */
     public function systems(): BelongsToMany
     {
@@ -183,7 +183,7 @@ class Emulator extends BaseModel implements HasMedia
     }
 
     /**
-     * @return HasMany<EmulatorDownload>
+     * @return HasMany<EmulatorDownload, $this>
      */
     public function downloads(): HasMany
     {
@@ -191,7 +191,7 @@ class Emulator extends BaseModel implements HasMedia
     }
 
     /**
-     * @return HasOne<EmulatorRelease>
+     * @return HasOne<EmulatorRelease, $this>
      */
     public function latestRelease(): HasOne
     {
@@ -201,7 +201,7 @@ class Emulator extends BaseModel implements HasMedia
     }
 
     /**
-     * @return HasOne<EmulatorRelease>
+     * @return HasOne<EmulatorRelease, $this>
      */
     public function minimumSupportedRelease(): HasOne
     {
@@ -211,7 +211,7 @@ class Emulator extends BaseModel implements HasMedia
     }
 
     /**
-     * @return HasOne<EmulatorRelease>
+     * @return HasOne<EmulatorRelease, $this>
      */
     public function latestBetaRelease(): HasOne
     {
@@ -221,7 +221,7 @@ class Emulator extends BaseModel implements HasMedia
     }
 
     /**
-     * @return HasMany<EmulatorRelease>
+     * @return HasMany<EmulatorRelease, $this>
      */
     public function releases(): HasMany
     {
@@ -229,7 +229,7 @@ class Emulator extends BaseModel implements HasMedia
     }
 
     /**
-     * @return HasMany<EmulatorUserAgent>
+     * @return HasMany<EmulatorUserAgent, $this>
      */
     public function userAgents(): HasMany
     {

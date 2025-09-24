@@ -35,7 +35,7 @@ class Platform extends BaseModel
     // == accessors
 
     /**
-     * @return BelongsToMany<Emulator>
+     * @return BelongsToMany<Emulator, $this>
      */
     public function emulators(): BelongsToMany
     {
@@ -45,7 +45,7 @@ class Platform extends BaseModel
     }
 
     /**
-     * @return HasMany<EmulatorDownload>
+     * @return HasMany<EmulatorDownload, $this>
      */
     public function emulatorDownloads(): HasMany
     {

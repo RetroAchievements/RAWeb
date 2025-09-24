@@ -21,7 +21,7 @@ class HasSelfHealingUrlsTest extends TestCase
         parent::setUp();
 
         // Create a test model that uses the trait.
-        $this->testModel = new class() extends Model {
+        $this->testModel = new class extends Model {
             use HasSelfHealingUrls;
 
             protected $table = 'test_models';
@@ -65,7 +65,7 @@ class HasSelfHealingUrlsTest extends TestCase
     public function testItGeneratesSlugFromCustomField(): void
     {
         // Arrange
-        $model = new class() extends Model {
+        $model = new class extends Model {
             use HasSelfHealingUrls;
 
             protected $table = 'test_models';

@@ -48,7 +48,7 @@ class ForumCategory extends BaseModel
     // == relations
 
     /**
-     * @return HasMany<Forum>
+     * @return HasMany<Forum, $this>
      */
     public function forums(): HasMany
     {

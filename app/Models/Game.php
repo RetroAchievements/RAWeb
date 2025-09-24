@@ -547,7 +547,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     // == relations
 
     /**
-     * @return HasMany<Achievement>
+     * @return HasMany<Achievement, $this>
      */
     public function achievements(): HasMany
     {
@@ -555,7 +555,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return BelongsToMany<AchievementSet>
+     * @return BelongsToMany<AchievementSet, $this>
      */
     public function achievementSets(): BelongsToMany
     {
@@ -565,7 +565,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<AchievementSetClaim>
+     * @return HasMany<AchievementSetClaim, $this>
      */
     public function achievementSetClaims(): HasMany
     {
@@ -580,7 +580,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasManyThrough<AchievementSetAuthor>
+     * @return HasManyThrough<AchievementSetAuthor, GameAchievementSet, $this>
      */
     public function coreSetAuthorshipCredits(): HasManyThrough
     {
@@ -597,7 +597,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     /**
      * TODO use HasComments / polymorphic relationship
      *
-     * @return HasMany<Comment>
+     * @return HasMany<Comment, $this>
      */
     public function comments(): HasMany
     {
@@ -607,7 +607,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     /**
      * TODO use HasComments / polymorphic relationship
      *
-     * @return HasMany<Comment>
+     * @return HasMany<Comment, $this>
      */
     public function visibleComments(?User $user = null): HasMany
     {
@@ -620,7 +620,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     /**
      * TODO use HasComments / polymorphic relationship
      *
-     * @return HasMany<Comment>
+     * @return HasMany<Comment, $this>
      */
     public function claimsComments(): HasMany
     {
@@ -630,7 +630,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     /**
      * TODO use HasComments / polymorphic relationship
      *
-     * @return HasMany<Comment>
+     * @return HasMany<Comment, $this>
      */
     public function visibleClaimsComments(?User $user = null): HasMany
     {
@@ -643,7 +643,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     /**
      * TODO use HasComments / polymorphic relationship
      *
-     * @return HasMany<Comment>
+     * @return HasMany<Comment, $this>
      */
     public function hashesComments(): HasMany
     {
@@ -653,7 +653,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     /**
      * TODO use HasComments / polymorphic relationship
      *
-     * @return HasMany<Comment>
+     * @return HasMany<Comment, $this>
      */
     public function visibleHashesComments(?User $user = null): HasMany
     {
@@ -666,7 +666,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     /**
      * TODO use HasComments / polymorphic relationship
      *
-     * @return HasMany<Comment>
+     * @return HasMany<Comment, $this>
      */
     public function modificationsComments(): HasMany
     {
@@ -676,7 +676,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     /**
      * TODO use HasComments / polymorphic relationship
      *
-     * @return HasMany<Comment>
+     * @return HasMany<Comment, $this>
      */
     public function visibleModificationsComments(?User $user = null): HasMany
     {
@@ -687,7 +687,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return BelongsTo<System, Game>
+     * @return BelongsTo<System, $this>
      */
     public function system(): BelongsTo
     {
@@ -695,7 +695,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return BelongsTo<System, Game>
+     * @return BelongsTo<System, $this>
      *
      * @deprecated use `->system`
      */
@@ -705,7 +705,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasOne<Achievement>
+     * @return HasOne<Achievement, $this>
      */
     public function lastAchievementUpdate(): HasOne
     {
@@ -713,7 +713,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<Leaderboard>
+     * @return HasMany<Leaderboard, $this>
      */
     public function leaderboards(): HasMany
     {
@@ -723,7 +723,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     /**
      * TODO will need to be modified if game_id is migrated to game_hash_set_id
      *
-     * @return HasMany<MemoryNote>
+     * @return HasMany<MemoryNote, $this>
      */
     public function memoryNotes(): HasMany
     {
@@ -731,7 +731,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<PlayerBadge>
+     * @return HasMany<PlayerBadge, $this>
      */
     public function playerBadges(): HasMany
     {
@@ -739,7 +739,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return BelongsToMany<User>
+     * @return BelongsToMany<User, $this>
      */
     public function playerUsers(): BelongsToMany
     {
@@ -748,7 +748,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<PlayerGame>
+     * @return HasMany<PlayerGame, $this>
      */
     public function playerGames(): HasMany
     {
@@ -756,7 +756,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<PlayerSession>
+     * @return HasMany<PlayerSession, $this>
      */
     public function playerSessions(): HasMany
     {
@@ -764,7 +764,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<GameRelease>
+     * @return HasMany<GameRelease, $this>
      */
     public function releases(): HasMany
     {
@@ -772,7 +772,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<GameAchievementSet>
+     * @return HasMany<GameAchievementSet, $this>
      */
     public function gameAchievementSets(): HasMany
     {
@@ -780,7 +780,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<GameAchievementSet>
+     * @return HasMany<GameAchievementSet, $this>
      */
     public function selectableGameAchievementSets(): HasMany
     {
@@ -790,7 +790,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return BelongsToMany<GameSet>
+     * @return BelongsToMany<GameSet, $this>
      */
     public function gameSets(): BelongsToMany
     {
@@ -800,7 +800,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return BelongsToMany<GameSet>
+     * @return BelongsToMany<GameSet, $this>
      */
     public function hubs(): BelongsToMany
     {
@@ -808,7 +808,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return BelongsToMany<GameSet>
+     * @return BelongsToMany<GameSet, $this>
      */
     public function similarGames(): BelongsToMany
     {
@@ -816,7 +816,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return BelongsToMany<Game>
+     * @return BelongsToMany<Game, $this>
      */
     public function similarGamesList(): BelongsToMany
     {
@@ -835,7 +835,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<GameHashSet>
+     * @return HasMany<GameHashSet, $this>
      */
     public function gameHashSets(): HasMany
     {
@@ -843,7 +843,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<UserGameListEntry>
+     * @return HasMany<UserGameListEntry, $this>
      */
     public function gameListEntries(): HasMany
     {
@@ -851,7 +851,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<GameHash>
+     * @return HasMany<GameHash, $this>
      */
     public function hashes(): HasMany
     {
@@ -859,7 +859,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<GameHash>
+     * @return HasMany<GameHash, $this>
      */
     public function compatibleHashes(): HasMany
     {
@@ -867,7 +867,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<Leaderboard>
+     * @return HasMany<Leaderboard, $this>
      */
     public function visibleLeaderboards(): HasMany
     {
@@ -875,7 +875,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasManyThrough<Ticket>
+     * @return HasManyThrough<Ticket, Achievement, $this>
      */
     public function tickets(): HasManyThrough
     {
@@ -883,7 +883,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasManyThrough<Ticket>
+     * @return HasManyThrough<Ticket, Achievement, $this>
      */
     public function unresolvedTickets(): HasManyThrough
     {
@@ -891,7 +891,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return BelongsTo<Trigger, Game>
+     * @return BelongsTo<Trigger, $this>
      */
     public function currentTrigger(): BelongsTo
     {
@@ -911,7 +911,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasOne<Event>
+     * @return HasOne<Event, $this>
      */
     public function event(): HasOne
     {

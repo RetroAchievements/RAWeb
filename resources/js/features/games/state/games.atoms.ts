@@ -2,10 +2,18 @@ import { atom } from 'jotai';
 
 import type { PlayableListSortOrder } from '@/common/models';
 
-export const currentPlayableListSortAtom = atom<PlayableListSortOrder>('normal');
+import type { GameShowTab } from '../models';
+
 export const currentListViewAtom = atom<'achievements' | 'leaderboards'>('achievements');
+export const currentPlayableListSortAtom = atom<PlayableListSortOrder>('displayOrder');
+export const currentTabAtom = atom<GameShowTab>('achievements');
 export const isLockedOnlyFilterEnabledAtom = atom(false);
 export const isMissableOnlyFilterEnabledAtom = atom(false);
+
+/**
+ * Increments on user-initiated achievement list changes to trigger animations.
+ */
+export const userAchievementListChangeCounterAtom = atom(0);
 
 /**
  * This atom is detached from the dialog because we mount the dialog

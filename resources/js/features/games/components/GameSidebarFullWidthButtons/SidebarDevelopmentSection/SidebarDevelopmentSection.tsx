@@ -18,7 +18,6 @@ export const SidebarDevelopmentSection: FC = () => {
     isViewingPublishedAchievements,
     isOnWantToDevList: isInitiallyOnWantToDevList,
   } = usePageProps<App.Platform.Data.GameShowPageProps>();
-
   const { t } = useTranslation();
 
   const { toggleBacklog: toggleWantToDevelop, isInBacklogMaybeOptimistic: isOnWantToDevList } =
@@ -47,6 +46,24 @@ export const SidebarDevelopmentSection: FC = () => {
 
   return (
     <>
+      {!isViewingPublishedAchievements || backingGame.achievementsUnpublished ? (
+        <PlayableSidebarButton
+          IconComponent={isViewingPublishedAchievements ? LuFolderLock : LuFolder}
+          href={buildToggleHref()}
+          isInertiaLink={true}
+          showSubsetIndicator={game.id !== backingGame.id}
+          count={
+            isViewingPublishedAchievements
+              ? backingGame.achievementsUnpublished
+              : backingGame.achievementsPublished
+          }
+        >
+          {isViewingPublishedAchievements
+            ? t('View Unpublished Achievements')
+            : t('View Published Achievements')}
+        </PlayableSidebarButton>
+      ) : null}
+
       <SidebarClaimButtons />
       <SidebarToggleInReviewButton />
 
@@ -58,23 +75,6 @@ export const SidebarDevelopmentSection: FC = () => {
           showSubsetIndicator={game.id !== backingGame.id}
         >
           {backingGame.achievementsPublished ? t('Want to Revise') : t('Want to Develop')}
-        </PlayableSidebarButton>
-      ) : null}
-
-      {!isViewingPublishedAchievements || backingGame.achievementsUnpublished ? (
-        <PlayableSidebarButton
-          IconComponent={isViewingPublishedAchievements ? LuFolderLock : LuFolder}
-          href={buildToggleHref()}
-          showSubsetIndicator={game.id !== backingGame.id}
-          count={
-            isViewingPublishedAchievements
-              ? backingGame.achievementsUnpublished
-              : backingGame.achievementsPublished
-          }
-        >
-          {isViewingPublishedAchievements
-            ? t('View Unpublished Achievements')
-            : t('View Published Achievements')}
         </PlayableSidebarButton>
       ) : null}
     </>

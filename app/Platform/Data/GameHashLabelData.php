@@ -13,7 +13,7 @@ class GameHashLabelData extends Data
 {
     public function __construct(
         public string $label,
-        public ?string $imgSrc
+        public ?string $imgSrc,
     ) {
     }
 

@@ -33,7 +33,7 @@ class ForumTopicCommentController extends CommentController
         ForumTopicCommentRequest $request,
         ForumTopic $topic,
         AddCommentAction $addCommentAction,
-        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction
+        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction,
     ): RedirectResponse {
         $this->authorize('create', [ForumTopicComment::class, $topic]);
 
@@ -69,7 +69,7 @@ class ForumTopicCommentController extends CommentController
     protected function update(
         ForumTopicCommentRequest $request,
         ForumTopicComment $comment,
-        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction
+        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction,
     ): RedirectResponse {
         $this->authorize('update', $comment);
 

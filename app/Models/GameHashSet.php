@@ -31,7 +31,7 @@ class GameHashSet extends BaseModel
     // == relations
 
     /**
-     * @return BelongsToMany<GameHash>
+     * @return BelongsToMany<GameHash, $this>
      */
     public function hashes(): BelongsToMany
     {
@@ -41,7 +41,7 @@ class GameHashSet extends BaseModel
     }
 
     /**
-     * @return BelongsTo<Game, GameHashSet>
+     * @return BelongsTo<Game, $this>
      */
     public function game(): BelongsTo
     {
@@ -49,7 +49,7 @@ class GameHashSet extends BaseModel
     }
 
     /**
-     * @return HasMany<MemoryNote>
+     * @return HasMany<MemoryNote, $this>
      */
     public function memoryNotes(): HasMany
     {

@@ -15,9 +15,6 @@ class GameHashFactory extends Factory
 {
     protected $model = GameHash::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [

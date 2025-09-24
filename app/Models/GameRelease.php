@@ -93,7 +93,7 @@ class GameRelease extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<Game, GameRelease>
+     * @return BelongsTo<Game, $this>
      */
     public function game(): BelongsTo
     {
