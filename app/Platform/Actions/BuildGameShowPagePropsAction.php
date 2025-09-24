@@ -248,7 +248,6 @@ class BuildGameShowPagePropsAction
                 'gameAchievementSets.achievementSet.timesCompleted',
                 'gameAchievementSets.achievementSet.timesCompletedHardcore',
                 'genre',
-                'guideUrl',
                 'imageBoxArtUrl',
                 'imageIngameUrl',
                 'imageTitleUrl',
@@ -282,6 +281,7 @@ class BuildGameShowPagePropsAction
                 'achievementsPublished',
                 'achievementsUnpublished',
                 'badgeUrl',
+                'guideUrl',
                 'forumTopicId'
             ),
 

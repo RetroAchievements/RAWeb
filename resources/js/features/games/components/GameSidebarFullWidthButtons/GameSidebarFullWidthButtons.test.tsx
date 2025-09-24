@@ -52,12 +52,12 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     expect(screen.getByRole('link', { name: /tickets/i })).toBeVisible();
   });
 
-  it('given the user is authenticated and the game has a guide, renders the Guide link', () => {
+  it('given the user is authenticated and the backing game has a guide, renders the Guide link', () => {
     // ARRANGE
-    render(<GameSidebarFullWidthButtons game={createGame({ guideUrl: 'google.com' })} />, {
+    render(<GameSidebarFullWidthButtons game={createGame()} />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
+        backingGame: createGame({ guideUrl: 'google.com' }),
         can: {},
       },
     });
