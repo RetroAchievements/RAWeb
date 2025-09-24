@@ -9,6 +9,7 @@
   line-height: 1.1em;
   font-size: .8em;
   overflow: hidden;
+  text-shadow: none;
 }
 
 .tag > * {
