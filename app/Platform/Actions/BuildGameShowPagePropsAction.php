@@ -286,7 +286,8 @@ class BuildGameShowPagePropsAction
                 'achievementsPublished',
                 'achievementsUnpublished',
                 'badgeUrl',
-                'forumTopicId'
+                'forumTopicId',
+                'pointsTotal',
             ),
 
             claimData: $claimData,
