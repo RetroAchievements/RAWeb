@@ -312,7 +312,7 @@ class BuildGameShowPagePropsAction
             numLeaderboards: $this->getLeaderboardsCount($backingGame),
             numMasters: $numMasters,
             numOpenTickets: Ticket::forGame($backingGame)->unresolved()->count(),
-            recentPlayers: $this->loadGameRecentPlayersAction->execute($game),
+            recentPlayers: $this->loadGameRecentPlayersAction->execute($backingGame),
             recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($backingGame->visibleComments))),
             topAchievers: $topAchievers,
             playerGame: $playerGame ? PlayerGameData::fromPlayerGame($playerGame) : null,
