@@ -11,9 +11,9 @@ describe('Component: ProgressBarMetaText', () => {
         achievement={createAchievement({
           unlocksTotal: 100,
           unlocksHardcoreTotal: 50,
-          unlockHardcorePercentage: '0.5',
         })}
         playersTotal={200}
+        unlockPercentage={0.5}
       />,
     );
 
@@ -28,9 +28,9 @@ describe('Component: ProgressBarMetaText', () => {
         achievement={createAchievement({
           unlocksTotal: 100,
           unlocksHardcoreTotal: 50,
-          unlockHardcorePercentage: '0.5',
         })}
         playersTotal={200}
+        unlockPercentage={0.5}
       />,
     );
 
@@ -48,9 +48,9 @@ describe('Component: ProgressBarMetaText', () => {
         achievement={createAchievement({
           unlocksTotal: 75,
           unlocksHardcoreTotal: 75,
-          unlockHardcorePercentage: '0.375',
         })}
         playersTotal={200}
+        unlockPercentage={0.375}
       />,
     );
 
@@ -66,9 +66,9 @@ describe('Component: ProgressBarMetaText', () => {
         achievement={createAchievement({
           unlocksTotal: 75,
           unlocksHardcoreTotal: 75,
-          unlockHardcorePercentage: '0.375',
         })}
         playersTotal={200}
+        unlockPercentage={0.375}
       />,
     );
 
@@ -84,9 +84,9 @@ describe('Component: ProgressBarMetaText', () => {
         achievement={createAchievement({
           unlocksTotal: 100,
           unlocksHardcoreTotal: 50,
-          unlockHardcorePercentage: '0.5',
         })}
         playersTotal={200}
+        unlockPercentage={0.5}
       />,
     );
 
@@ -102,9 +102,9 @@ describe('Component: ProgressBarMetaText', () => {
         achievement={createAchievement({
           unlocksTotal: 0,
           unlocksHardcoreTotal: 0,
-          unlockHardcorePercentage: '0.0',
         })}
         playersTotal={0}
+        unlockPercentage={0}
       />,
     );
 
@@ -121,9 +121,9 @@ describe('Component: ProgressBarMetaText', () => {
         achievement={createAchievement({
           unlocksTotal: undefined,
           unlocksHardcoreTotal: undefined,
-          unlockHardcorePercentage: undefined,
         })}
         playersTotal={200}
+        unlockPercentage={0}
       />,
     );
 
@@ -131,5 +131,6 @@ describe('Component: ProgressBarMetaText', () => {
     expect(screen.getByText('0')).toBeVisible();
     expect(screen.getByText('(0)')).toBeVisible();
     expect(screen.getByText('200')).toBeVisible();
+    expect(screen.getByText('- 0.00%')).toBeVisible();
   });
 });
