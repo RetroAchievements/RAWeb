@@ -4,6 +4,7 @@ import { LuCheck, LuMegaphone, LuPlus } from 'react-icons/lu';
 import { route } from 'ziggy-js';
 
 import { BetaFeedbackDialog } from '@/common/components/BetaFeedbackDialog';
+import { GameTitle } from '@/common/components/GameTitle';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { useGameBacklogState } from '@/features/game-list/components/GameListItems/useGameBacklogState';
@@ -85,7 +86,7 @@ export const GameMobileHeader: FC = () => {
                 game.title.length > 60 ? 'line-clamp-2 !text-sm' : null,
               )}
             >
-              {game.title}
+              <GameTitle title={game.title} />
             </h1>
 
             {/* Chip buttons */}
