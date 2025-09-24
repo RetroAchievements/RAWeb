@@ -28,6 +28,7 @@ class UserData extends Data
         /** @var RoleData[] */
         public Lazy|array|null $displayableRoles = null,
         public Lazy|string|null $emailAddress = null,
+        public Lazy|bool|null $enableBetaFeatures = null,
         public Lazy|int $id = 0,
         public Lazy|bool $isEmailVerified = false,
         public Lazy|bool $isGone = false,
@@ -82,6 +83,7 @@ class UserData extends Data
             deleteRequested: Lazy::create(fn () => $user->DeleteRequested),
             displayableRoles: Lazy::create(fn () => $user->displayableRoles),
             emailAddress: Lazy::create(fn () => $user->EmailAddress),
+            enableBetaFeatures: Lazy::create(fn () => $user->enable_beta_features),
             mutedUntil: Lazy::create(fn () => $user->muted_until),
             id: Lazy::create(fn () => $user->id),
             isEmailVerified: Lazy::create(fn () => $user->isEmailVerified()),

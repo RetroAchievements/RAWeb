@@ -355,6 +355,7 @@ declare namespace App.Data {
     deletedAt?: string | null;
     displayableRoles?: Array<App.Data.Role> | null;
     emailAddress?: string | null;
+    enableBetaFeatures?: boolean | null;
     id?: number;
     isEmailVerified?: boolean;
     isGone?: boolean;
@@ -432,7 +433,8 @@ declare namespace App.Enums {
     | 15
     | 16
     | 17
-    | 18;
+    | 18
+    | 19;
 }
 declare namespace App.Http.Data {
   export type AchievementOfTheWeekProps = {
@@ -491,7 +493,6 @@ declare namespace App.Models {
     | 'architect'
     | 'engineer'
     | 'team-account'
-    | 'beta'
     | 'community-manager'
     | 'developer-retired';
 }
