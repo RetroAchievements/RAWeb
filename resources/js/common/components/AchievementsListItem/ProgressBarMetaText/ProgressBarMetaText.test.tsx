@@ -11,7 +11,7 @@ describe('Component: ProgressBarMetaText', () => {
         achievement={createAchievement({
           unlocksTotal: 100,
           unlocksHardcoreTotal: 50,
-          unlockHardcorePercentage: '0.5',
+          unlockPercentage: '0.5',
         })}
         playersTotal={200}
       />,
@@ -28,7 +28,7 @@ describe('Component: ProgressBarMetaText', () => {
         achievement={createAchievement({
           unlocksTotal: 100,
           unlocksHardcoreTotal: 50,
-          unlockHardcorePercentage: '0.5',
+          unlockPercentage: '0.5',
         })}
         playersTotal={200}
       />,
@@ -48,7 +48,7 @@ describe('Component: ProgressBarMetaText', () => {
         achievement={createAchievement({
           unlocksTotal: 75,
           unlocksHardcoreTotal: 75,
-          unlockHardcorePercentage: '0.375',
+          unlockPercentage: '0.375',
         })}
         playersTotal={200}
       />,
@@ -66,7 +66,7 @@ describe('Component: ProgressBarMetaText', () => {
         achievement={createAchievement({
           unlocksTotal: 75,
           unlocksHardcoreTotal: 75,
-          unlockHardcorePercentage: '0.375',
+          unlockPercentage: '0.375',
         })}
         playersTotal={200}
       />,
@@ -84,7 +84,7 @@ describe('Component: ProgressBarMetaText', () => {
         achievement={createAchievement({
           unlocksTotal: 100,
           unlocksHardcoreTotal: 50,
-          unlockHardcorePercentage: '0.5',
+          unlockPercentage: '0.5',
         })}
         playersTotal={200}
       />,
@@ -102,7 +102,7 @@ describe('Component: ProgressBarMetaText', () => {
         achievement={createAchievement({
           unlocksTotal: 0,
           unlocksHardcoreTotal: 0,
-          unlockHardcorePercentage: '0.0',
+          unlockPercentage: '0.0',
         })}
         playersTotal={0}
       />,
@@ -121,7 +121,7 @@ describe('Component: ProgressBarMetaText', () => {
         achievement={createAchievement({
           unlocksTotal: undefined,
           unlocksHardcoreTotal: undefined,
-          unlockHardcorePercentage: undefined,
+          unlockPercentage: undefined,
         })}
         playersTotal={200}
       />,
