@@ -259,6 +259,7 @@ class BuildGameShowPagePropsAction
                 'pointsTotal',
                 'publisher',
                 'releases',
+                'system.active',
                 'system.iconUrl',
                 'system.nameShort',
                 'system',
