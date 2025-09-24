@@ -21,9 +21,9 @@ export const ProgressBarMetaText: FC<ProgressBarMetaTextProps> = ({
 
   return (
     <Trans
-      i18nKey="<1>{{totalUnlocks, number}}</1> <2>({{totalHardcoreUnlocks, number}})</2> of <3>{{totalPlayers, number}}</3> <4>- {{unlockHardcorePercentage}}</4> <5>unlock rate</5>"
+      i18nKey="<1>{{totalUnlocks, number}}</1> <2>({{totalHardcoreUnlocks, number}})</2> of <3>{{totalPlayers, number}}</3> <4>- {{unlockPercentage}}</4> <5>unlock rate</5>"
       values={{
-        unlockHardcorePercentage: formatPercentage(unlockPercentage, {
+        unlockPercentage: formatPercentage(unlockPercentage, {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         }),
