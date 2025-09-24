@@ -7,18 +7,17 @@ import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 interface ProgressBarMetaTextProps {
   achievement: App.Platform.Data.Achievement;
   playersTotal: number;
-  unlockPercentage: number;
 }
 
 export const ProgressBarMetaText: FC<ProgressBarMetaTextProps> = ({
   achievement,
   playersTotal,
-  unlockPercentage,
 }) => {
   const { t } = useTranslation();
 
   const unlocksHardcoreTotal = achievement.unlocksHardcoreTotal ?? 0;
   const unlocksTotal = achievement.unlocksTotal ?? 0;
+  const unlockPercentage = achievement.unlockPercentage ? Number(achievement.unlockPercentage) : 0;
 
   return (
     <Trans
