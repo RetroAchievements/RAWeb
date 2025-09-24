@@ -16,17 +16,21 @@ use App\Models\AchievementSetClaim;
 <?php
 $numAllowedClaims = AchievementSetClaim::getMaxClaimsForUser($user);
 
-$primaryClaims = collect($userClaims)->filter(function ($entity) {
-    return $entity['ClaimType'] !== ClaimType::Collaboration && $entity['Special'] === ClaimSpecial::None;
-})->toArray();
+$primaryClaims = [];
+$specialClaims = [];
+$collabClaims = [];
 
-$collabClaims = collect($userClaims)->filter(function ($entity) {
-    return $entity['ClaimType'] === ClaimType::Collaboration;
-})->toArray();
-
-$specialClaims = collect($userClaims)->filter(function ($entity) {
-    return $entity['Special'] !== ClaimSpecial::None;
-})->toArray();
+if (!empty($userClaims)) {
+    foreach ($userClaims as $claim) {
+        if ($claim['ClaimType'] === ClaimType::Collaboration) {
+            $collabClaims[] = $claim;
+        } elseif ($claim['Special'] !== ClaimSpecial::None) {
+            $specialClaims[] = $claim;
+        } else {
+            $primaryClaims[] = $claim;
+        }
+    }
+}
 ?>
 
 <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Developer Stats</p>
