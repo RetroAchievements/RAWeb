@@ -180,8 +180,12 @@ class BuildGameShowPagePropsAction
                     $data = $data->except('isEventHub');
                 }
 
-                // Remove fields from hubs that don't have "Series" or "Meta|" in the title.
-                if (!str_contains($hub->title, 'Series') && !str_contains($hub->title, 'Meta|')) {
+                // Remove fields from hubs that don't have "Series", "Subseries", or "Meta|" in the title.
+                if (
+                    !str_contains($hub->title, 'Series')
+                    && !str_contains($hub->title, 'Subseries')
+                    && !str_contains($hub->title, 'Meta|')
+                ) {
                     $data = $data->except('badgeUrl', 'gameCount', 'linkCount', 'type');
                 }
 
@@ -282,7 +286,8 @@ class BuildGameShowPagePropsAction
                 'achievementsPublished',
                 'achievementsUnpublished',
                 'badgeUrl',
-                'forumTopicId'
+                'forumTopicId',
+                'pointsTotal',
             ),
 
             claimData: $claimData,
@@ -312,7 +317,7 @@ class BuildGameShowPagePropsAction
             numLeaderboards: $this->getLeaderboardsCount($backingGame),
             numMasters: $numMasters,
             numOpenTickets: Ticket::forGame($backingGame)->unresolved()->count(),
-            recentPlayers: $this->loadGameRecentPlayersAction->execute($game),
+            recentPlayers: $this->loadGameRecentPlayersAction->execute($backingGame),
             recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($backingGame->visibleComments))),
             topAchievers: $topAchievers,
             playerGame: $playerGame ? PlayerGameData::fromPlayerGame($playerGame) : null,
