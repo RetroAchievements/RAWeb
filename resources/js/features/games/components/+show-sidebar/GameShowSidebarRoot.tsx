@@ -65,7 +65,7 @@ export const GameShowSidebarRoot: FC = () => {
       {isViewingPublishedAchievements && achievements.length ? (
         <PlayableCompareProgress
           followedPlayerCompletions={followedPlayerCompletions}
-          game={game}
+          game={backingGame} // the prop is named `game` because this component is reusable in multiple contexts (ie: Events)
           variant="game"
         />
       ) : null}
