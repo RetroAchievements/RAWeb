@@ -8,7 +8,7 @@ describe('Component: PlayableSidebarButtonsSection', () => {
     // ARRANGE
     const { container } = render(
       <PlayableSidebarButtonsSection headingLabel={'Test Heading' as TranslatedString}>
-        <div>Test Child</div>
+        <button onClick={vi.fn()}>Click me</button>
       </PlayableSidebarButtonsSection>,
     );
 
@@ -20,7 +20,7 @@ describe('Component: PlayableSidebarButtonsSection', () => {
     // ARRANGE
     render(
       <PlayableSidebarButtonsSection headingLabel={'My Section Title' as TranslatedString}>
-        <div>Test Child</div>
+        <button onClick={vi.fn()}>Click me</button>
       </PlayableSidebarButtonsSection>,
     );
 
@@ -32,8 +32,8 @@ describe('Component: PlayableSidebarButtonsSection', () => {
     // ARRANGE
     render(
       <PlayableSidebarButtonsSection headingLabel={'Test Heading' as TranslatedString}>
-        <button>Click me</button>
-        <button>Another button</button>
+        <button onClick={vi.fn()}>Click me</button>
+        <button onClick={vi.fn()}>Another button</button>
       </PlayableSidebarButtonsSection>,
     );
 
@@ -72,7 +72,7 @@ describe('Component: PlayableSidebarButtonsSection', () => {
     render(
       <PlayableSidebarButtonsSection headingLabel={'Test Heading' as TranslatedString}>
         {null}
-        <button>Visible button</button>
+        <button onClick={vi.fn()}>Visible button</button>
       </PlayableSidebarButtonsSection>,
     );
 
@@ -80,5 +80,17 @@ describe('Component: PlayableSidebarButtonsSection', () => {
     expect(screen.getByText(/test heading/i)).toBeVisible();
     expect(screen.getByRole('button', { name: /visible button/i })).toBeVisible();
     expect(screen.queryByRole('button', { name: /hidden/i })).not.toBeInTheDocument();
+  });
+
+  it('given children is a fragment, returns null', () => {
+    // ARRANGE
+    render(
+      <PlayableSidebarButtonsSection headingLabel={'Test Heading' as TranslatedString}>
+        <></>
+      </PlayableSidebarButtonsSection>,
+    );
+
+    // ASSERT
+    expect(screen.queryByText(/test heading/i)).not.toBeInTheDocument();
   });
 });
