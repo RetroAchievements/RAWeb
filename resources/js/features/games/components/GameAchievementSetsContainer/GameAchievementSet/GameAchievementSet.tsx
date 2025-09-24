@@ -13,6 +13,7 @@ import {
   currentPlayableListSortAtom,
   isLockedOnlyFilterEnabledAtom,
   isMissableOnlyFilterEnabledAtom,
+  userAchievementListChangeCounterAtom,
 } from '@/features/games/state/games.atoms';
 import { filterAchievements } from '@/features/games/utils/filterAchievements';
 
@@ -39,6 +40,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   const currentListView = useAtomValue(currentListViewAtom);
   const isLockedOnlyFilterEnabled = useAtomValue(isLockedOnlyFilterEnabledAtom);
   const isMissableOnlyFilterEnabled = useAtomValue(isMissableOnlyFilterEnabledAtom);
+  const userAchievementListChangeCounter = useAtomValue(userAchievementListChangeCounterAtom);
 
   const lockedAchievements = achievements.filter((a) => !a.unlockedAt);
   const missableAchievements = achievements.filter((a) => a.type === 'missable');
@@ -106,7 +108,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
       <div className="relative">
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.ul
-            key={`${currentAchievementSort}-${isLockedOnlyFilterEnabled}-${isMissableOnlyFilterEnabled}`}
+            key={userAchievementListChangeCounter}
             className="flex flex-col gap-2.5"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

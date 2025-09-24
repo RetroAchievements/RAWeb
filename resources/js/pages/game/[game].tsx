@@ -1,4 +1,6 @@
+import { useSetAtom } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
+import { useEffect } from 'react';
 
 import { SEO } from '@/common/components/SEO';
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -25,8 +27,11 @@ const GameShow: AppPage = () => {
     initialView,
     isLockedOnlyFilterEnabled,
     isMissableOnlyFilterEnabled,
+    targetAchievementSetId,
     ziggy,
   } = usePageProps<App.Platform.Data.GameShowPageProps>();
+
+  const setCurrentPlayableListSort = useSetAtom(currentPlayableListSortAtom);
 
   useHydrateAtoms([
     [currentListViewAtom, initialView],
@@ -36,6 +41,11 @@ const GameShow: AppPage = () => {
     [isMissableOnlyFilterEnabledAtom, isMissableOnlyFilterEnabled],
     //
   ]);
+
+  // Reset the sort order when switching between achievement sets.
+  useEffect(() => {
+    setCurrentPlayableListSort(initialSort);
+  }, [targetAchievementSetId, initialSort, setCurrentPlayableListSort]);
 
   const title = `${game.title} (${game.system!.name})`;
 
