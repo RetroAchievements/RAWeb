@@ -73,8 +73,6 @@ class AuthServiceProvider extends ServiceProvider
             return $able;
         });
 
-        Gate::define('viewBeta', fn (User $user) => $user->hasAnyRole([Role::BETA]));
-
         Gate::define('root', fn (User $user) => $user->hasAnyRole([Role::ROOT]));
 
         Gate::define('tool', function (User $user) {

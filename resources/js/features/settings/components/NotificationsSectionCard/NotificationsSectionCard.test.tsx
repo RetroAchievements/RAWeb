@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { route } from 'ziggy-js';
@@ -11,15 +12,17 @@ import { createUser } from '@/test/factories';
 import { NotificationsSectionCard } from './NotificationsSectionCard';
 
 describe('Component: NotificationsSectionCard', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(router, 'reload').mockImplementation(vi.fn());
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const userSettings = createUser();
 
     const { container } = render<App.Community.Data.UserSettingsPageProps>(
-      <NotificationsSectionCard
-        currentWebsitePrefs={userSettings.websitePrefs ?? 0}
-        onUpdateWebsitePrefs={vi.fn()}
-      />,
+      <NotificationsSectionCard currentWebsitePrefs={userSettings.websitePrefs ?? 0} />,
     );
 
     // ASSERT
@@ -37,10 +40,7 @@ describe('Component: NotificationsSectionCard', () => {
     const mockWebsitePrefs = convertObjectToWebsitePrefs(mappedPreferences);
 
     render<App.Community.Data.UserSettingsPageProps>(
-      <NotificationsSectionCard
-        currentWebsitePrefs={mockWebsitePrefs}
-        onUpdateWebsitePrefs={vi.fn()}
-      />,
+      <NotificationsSectionCard currentWebsitePrefs={mockWebsitePrefs} />,
       {
         pageProps: {
           can: {},
@@ -71,10 +71,7 @@ describe('Component: NotificationsSectionCard', () => {
     const mockWebsitePrefs = convertObjectToWebsitePrefs(mappedPreferences);
 
     render<App.Community.Data.UserSettingsPageProps>(
-      <NotificationsSectionCard
-        currentWebsitePrefs={mockWebsitePrefs}
-        onUpdateWebsitePrefs={vi.fn()}
-      />,
+      <NotificationsSectionCard currentWebsitePrefs={mockWebsitePrefs} />,
       {
         pageProps: {
           auth: { user: createAuthenticatedUser({ websitePrefs: mockWebsitePrefs }) },
@@ -95,7 +92,7 @@ describe('Component: NotificationsSectionCard', () => {
   it('shows developer-only notification setting for users with developer role', () => {
     // ARRANGE
     render<App.Community.Data.UserSettingsPageProps>(
-      <NotificationsSectionCard currentWebsitePrefs={0} onUpdateWebsitePrefs={vi.fn()} />,
+      <NotificationsSectionCard currentWebsitePrefs={0} />,
       {
         pageProps: {
           auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
@@ -114,7 +111,7 @@ describe('Component: NotificationsSectionCard', () => {
   it('shows developer-only notification setting for users with developer-junior role', () => {
     // ARRANGE
     render<App.Community.Data.UserSettingsPageProps>(
-      <NotificationsSectionCard currentWebsitePrefs={0} onUpdateWebsitePrefs={vi.fn()} />,
+      <NotificationsSectionCard currentWebsitePrefs={0} />,
       {
         pageProps: {
           auth: { user: createAuthenticatedUser({ roles: ['developer-junior'] }) },
@@ -133,7 +130,7 @@ describe('Component: NotificationsSectionCard', () => {
   it('hides developer-only notification setting for non-developer users', () => {
     // ARRANGE
     render<App.Community.Data.UserSettingsPageProps>(
-      <NotificationsSectionCard currentWebsitePrefs={0} onUpdateWebsitePrefs={vi.fn()} />,
+      <NotificationsSectionCard currentWebsitePrefs={0} />,
       {
         pageProps: {
           auth: { user: createAuthenticatedUser({ roles: [] }) },
