@@ -20,6 +20,7 @@ import { SimilarGamesList } from '../SimilarGamesList';
 
 export const GameShowSidebarRoot: FC = () => {
   const {
+    backingGame,
     followedPlayerCompletions,
     game,
     hasMatureContent,
@@ -80,6 +81,7 @@ export const GameShowSidebarRoot: FC = () => {
       {isViewingPublishedAchievements ? (
         <PlayableTopPlayers
           achievements={achievements}
+          backingGame={backingGame}
           game={game}
           numMasters={numMasters}
           players={topAchievers}

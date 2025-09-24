@@ -20,10 +20,13 @@ interface PlayableTopPlayersProps {
   numMasters: number;
   players: App.Platform.Data.GameTopAchiever[];
   variant: 'game' | 'event';
+
+  backingGame?: App.Platform.Data.Game;
 }
 
 export const PlayableTopPlayers: FC<PlayableTopPlayersProps> = ({
   achievements,
+  backingGame,
   game,
   numMasters,
   players,
@@ -86,9 +89,10 @@ export const PlayableTopPlayers: FC<PlayableTopPlayersProps> = ({
         {(game?.playersHardcore ?? 0) > 10 ? (
           <div className="flex w-full justify-end">
             <InertiaLink
-              href={route('game.top-achievers.index', { game: game.id })}
+              href={route('game.top-achievers.index', { game: backingGame?.id ?? game.id })}
               className="text-2xs"
               prefetch="desktop-hover-only"
+              data-testid={`top-achievers-${backingGame?.id ?? game.id}`}
             >
               {t('See more')}
             </InertiaLink>

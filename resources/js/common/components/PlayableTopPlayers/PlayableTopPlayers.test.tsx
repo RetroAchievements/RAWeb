@@ -109,6 +109,28 @@ describe('Component: PlayableTopPlayers', () => {
 
     // ASSERT
     expect(screen.getByRole('link', { name: /see more/i })).toBeVisible();
+    expect(screen.getByTestId(`top-achievers-${game.id}`)).toBeVisible();
+  });
+
+  it('given there are more than 10 players and a backing game, shows the See more link with the correct URL', () => {
+    // ARRANGE
+    const backingGame = createGame({ id: 456, playersHardcore: 11 });
+    const game = createGame({ id: 123, playersHardcore: 11 });
+
+    render(
+      <PlayableTopPlayers
+        achievements={[]}
+        backingGame={backingGame}
+        game={game}
+        numMasters={5}
+        players={[createGameTopAchiever()]}
+        variant="event"
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /see more/i })).toBeVisible();
+    expect(screen.getByTestId('top-achievers-456')).toBeVisible();
   });
 
   it('given there are 10 or fewer players, does not show the See more link', () => {
