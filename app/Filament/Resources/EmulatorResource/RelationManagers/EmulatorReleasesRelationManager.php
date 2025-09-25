@@ -46,15 +46,15 @@ class EmulatorReleasesRelationManager extends RelationManager
                     ->label('Release Type')
                     ->options([
                         '1' => 'Stable',
-                        '0' => 'Beta',
+                        '0' => 'Pre-release',
                     ])
                     ->default('1')
                     ->required()
-                    ->helperText('Stable releases can be set as minimum and are reported via the Connect API. Beta releases are experimental.'),
+                    ->helperText('Stable releases can be set as minimum and are reported via the Connect API. Pre-release releases are experimental.'),
 
                 Forms\Components\Toggle::make('minimum')
                     ->label('Set as recommended minimum version')
-                    ->helperText('Sets the minimum version reported via the Connect API. Note: This does NOT block connections - use the User Agents tab for actual blocking.'),
+                    ->helperText('Sets the minimum version for hardcore mode (enforced by the toolkit DLL). Users with older versions can still connect but cannot use hardcore. To block connections entirely, use the User Agents tab.'),
             ]);
     }
 
@@ -62,7 +62,7 @@ class EmulatorReleasesRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('title')
-            ->description('Manage emulator version information reported to clients. The minimum version setting here is informational only and does NOT block connections. To actually block old versions, use the User Agents tab.')
+            ->description('Manage emulator version information reported to clients. The minimum version blocks hardcore mode for DLL-based clients only (purely informational for other clients). To block connections entirely, use the User Agents tab.')
             ->columns([
                 Tables\Columns\TextColumn::make('version')
                     ->label('Version')
@@ -76,14 +76,14 @@ class EmulatorReleasesRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('stable')
                     ->label('Type')
-                    ->formatStateUsing(fn (bool $state): string => $state ? 'Stable' : 'Beta')
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'Stable' : 'Pre-release')
                     ->badge()
                     ->color(fn (bool $state): string => $state ? 'success' : 'warning'),
 
                 Tables\Columns\IconColumn::make('minimum')
                     ->label('Recommended Minimum')
                     ->alignCenter()
-                    ->tooltip(fn ($record): ?string => $record->minimum ? 'This version is reported as the recommended minimum via API (does not block connections)' : null)
+                    ->tooltip(fn ($record): ?string => $record->minimum ? 'This version is the minimum for hardcore mode (DLL-enforced). Does not block connections.' : null)
                     ->boolean()
                     ->getStateUsing(fn ($record): string => $record->minimum ? 'true' : '')
                     ->trueIcon('heroicon-o-information-circle')
