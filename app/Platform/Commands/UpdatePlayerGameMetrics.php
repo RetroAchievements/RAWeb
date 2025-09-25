@@ -19,7 +19,7 @@ class UpdatePlayerGameMetrics extends Command
 
     public function __construct(
         private readonly UpdatePlayerGameMetricsAction $updatePlayerGameMetrics,
-        private readonly UpdatePlayerMetricsAction $updatePlayerMetrics
+        private readonly UpdatePlayerMetricsAction $updatePlayerMetrics,
     ) {
         parent::__construct();
     }

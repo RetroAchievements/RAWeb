@@ -16,7 +16,7 @@ class ForumTopicCommentApiController extends Controller
 {
     public function store(
         UpsertForumTopicCommentRequest $request,
-        ForumTopic $topic
+        ForumTopic $topic,
     ): JsonResponse {
         // The actual user making this API request.
         $requestingUser = $request->user();
@@ -52,7 +52,7 @@ class ForumTopicCommentApiController extends Controller
 
     public function update(
         UpsertForumTopicCommentRequest $request,
-        ForumTopicComment $comment
+        ForumTopicComment $comment,
     ): JsonResponse {
         $this->authorize('update', $comment);
 

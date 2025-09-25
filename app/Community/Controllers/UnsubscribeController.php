@@ -14,7 +14,7 @@ use Inertia\Response as InertiaResponse;
 class UnsubscribeController extends Controller
 {
     public function __construct(
-        private UnsubscribeService $unsubscribeService
+        private UnsubscribeService $unsubscribeService,
     ) {
     }
 

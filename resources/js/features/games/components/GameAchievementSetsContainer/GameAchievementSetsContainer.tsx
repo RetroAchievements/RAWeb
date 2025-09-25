@@ -1,7 +1,5 @@
 import { type FC } from 'react';
-import { useTranslation } from 'react-i18next';
 
-import { EmptyState } from '@/common/components/EmptyState';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
@@ -16,22 +14,9 @@ export const GameAchievementSetsContainer: FC<GameAchievementSetsContainerProps>
   const { selectableGameAchievementSets, targetAchievementSetId } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
-  const { t } = useTranslation();
-
-  // TODO can this case still actually happen? we may be able to remove this
-  if (!game.gameAchievementSets?.length) {
-    return (
-      <div className="rounded bg-embed">
-        <EmptyState shouldShowImage={false}>
-          {t("There aren't any achievements for this game yet.")}
-        </EmptyState>
-      </div>
-    );
-  }
-
   const setsToShowContent = targetAchievementSetId
-    ? game.gameAchievementSets.filter((gas) => gas.achievementSet.id === targetAchievementSetId)
-    : game.gameAchievementSets;
+    ? game.gameAchievementSets!.filter((gas) => gas.achievementSet.id === targetAchievementSetId)
+    : game.gameAchievementSets!;
 
   return (
     <div data-testid="game-achievement-sets" className="flex flex-col gap-4">

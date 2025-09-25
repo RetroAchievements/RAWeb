@@ -1,11 +1,7 @@
-import { useMutation } from '@tanstack/react-query';
-import type { AxiosResponse } from 'axios';
-import axios from 'axios';
 import { type FC, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { LuCircleAlert, LuCopy } from 'react-icons/lu';
 import { useCopyToClipboard } from 'react-use';
-import { route } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
@@ -16,6 +12,7 @@ import {
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { useResetWebApiKeyMutation } from '@/features/settings/hooks/mutations/useResetWebApiKeyMutation';
 
 export const ManageWebApiKey: FC = () => {
   const { userSettings, ziggy } = usePageProps<App.Community.Data.UserSettingsPageProps>();
@@ -26,16 +23,7 @@ export const ManageWebApiKey: FC = () => {
 
   const [currentWebApiKey, setCurrentWebApiKey] = useState(userSettings.apiKey ?? '');
 
-  const mutation = useMutation({
-    mutationFn: () => {
-      return axios.delete<unknown, AxiosResponse<{ newKey: string }>>(
-        route('api.settings.keys.web.destroy'),
-      );
-    },
-    onSuccess: ({ data }) => {
-      setCurrentWebApiKey(data.newKey);
-    },
-  });
+  const mutation = useResetWebApiKeyMutation();
 
   const handleCopyApiKeyClick = () => {
     copyToClipboard(currentWebApiKey);
@@ -49,7 +37,11 @@ export const ManageWebApiKey: FC = () => {
 
     toastMessage.promise(mutation.mutateAsync(), {
       loading: t('Resetting...'),
-      success: t('Your web API key has been reset.'),
+      success: ({ data }) => {
+        setCurrentWebApiKey(data.newKey);
+
+        return t('Your web API key has been reset.');
+      },
       error: t('Something went wrong.'),
     });
   };

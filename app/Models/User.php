@@ -86,8 +86,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     // use CausesModerationIncidents;
     use CollectsBadges;
 
-    // TODO use UsesWebApi;
-
     // TODO rename UserAccounts table to users
     // TODO drop cookie, fbUser, fbPrefs, LastActivityID, LastGameID, PasswordResetToken, UnreadMessageCount
     // TODO drop RichPresenceMsg, RichPresenceMsgDate -> player_sessions
@@ -446,6 +444,11 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     public function getPermissionsAttribute(): int
     {
         return $this->attributes['Permissions'];
+    }
+
+    public function getEnableBetaFeaturesAttribute(): bool
+    {
+        return BitSet($this->getAttribute('websitePrefs'), UserPreference::User_EnableBetaFeatures);
     }
 
     public function getShouldAlwaysBypassContentWarningsAttribute(): bool

@@ -46,7 +46,7 @@ class EventAward extends BaseModel
     // == relations
 
     /**
-     * @return BelongsToMany<User>
+     * @return BelongsToMany<User, $this>
      */
     public function awardedUsers(): BelongsToMany
     {
@@ -59,7 +59,7 @@ class EventAward extends BaseModel
     }
 
     /**
-     * @return BelongsTo<Event, EventAward>
+     * @return BelongsTo<Event, $this>
      */
     public function event(): BelongsTo
     {
@@ -73,7 +73,7 @@ class EventAward extends BaseModel
      * the model attributes are not available during relationship build time. This ensures
      * we get the correct `event_id` for both counting badges and eager loading a user's badges.
      *
-     * @return HasMany<PlayerBadge>
+     * @return HasMany<PlayerBadge, $this>
      */
     public function playerBadges(): HasMany
     {

@@ -10,7 +10,7 @@ use Spatie\LaravelData\Data;
 class StoreUsernameChangeData extends Data
 {
     public function __construct(
-        public string $newDisplayName
+        public string $newDisplayName,
     ) {
     }
 

@@ -17,7 +17,7 @@ class MessageCreated
     use SerializesModels;
 
     public function __construct(
-        public Message $message
+        public Message $message,
     ) {
     }
 

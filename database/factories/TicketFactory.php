@@ -17,9 +17,6 @@ class TicketFactory extends Factory
 {
     protected $model = Ticket::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [

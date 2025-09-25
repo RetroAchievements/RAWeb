@@ -16,7 +16,7 @@ class UpdateGameBeatenMetrics extends Command
     protected $description = "Update beaten metrics for all games or a comma-separated list of game IDs";
 
     public function __construct(
-        private readonly UpdateGameBeatenMetricsAction $updateGameBeatenMetrics
+        private readonly UpdateGameBeatenMetricsAction $updateGameBeatenMetrics,
     ) {
         parent::__construct();
     }

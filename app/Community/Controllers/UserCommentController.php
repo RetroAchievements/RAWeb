@@ -77,7 +77,7 @@ class UserCommentController extends CommentController
     protected function update(
         StoreCommentRequest $request,
         UserComment $comment,
-        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction
+        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction,
     ): RedirectResponse {
         $this->authorize('update', $comment);
 

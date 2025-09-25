@@ -263,7 +263,7 @@ class BeatenGamesLeaderboardService
     private function getUserRankingData(
         int $userId,
         array $gameKindFilterOptions,
-        ?int $targetSystemId = null
+        ?int $targetSystemId = null,
     ): ?array {
         $query = $this->buildAggregatedLeaderboardQuery($gameKindFilterOptions, $targetSystemId);
 

@@ -10,8 +10,8 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { useShortcodeBodyPreview } from '@/common/hooks/useShortcodeBodyPreview';
 import type { TranslatedString } from '@/types/i18next';
 
+import { useDeleteMessageThreadMutation } from '../../hooks/mutations/useDeleteMessageThreadMutation';
 import { useAutoScrollToMessage } from '../../hooks/useAutoScrollToMessage';
-import { useDeleteMessageThreadMutation } from '../../hooks/useDeleteMessageThreadMutation';
 import { CreateMessageReplyForm } from '../CreateMessageReplyForm';
 import { MessagePreviewContent } from '../MessagePreviewContent';
 import { MessagesBreadcrumbs } from '../MessagesBreadcrumbs';

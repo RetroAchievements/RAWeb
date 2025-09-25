@@ -20,6 +20,7 @@ import { SimilarGamesList } from '../SimilarGamesList';
 
 export const GameShowSidebarRoot: FC = () => {
   const {
+    backingGame,
     followedPlayerCompletions,
     game,
     hasMatureContent,
@@ -64,7 +65,7 @@ export const GameShowSidebarRoot: FC = () => {
       {isViewingPublishedAchievements && achievements.length ? (
         <PlayableCompareProgress
           followedPlayerCompletions={followedPlayerCompletions}
-          game={game}
+          game={backingGame} // the prop is named `game` because this component is reusable in multiple contexts (ie: Events)
           variant="game"
         />
       ) : null}
@@ -80,6 +81,7 @@ export const GameShowSidebarRoot: FC = () => {
       {isViewingPublishedAchievements ? (
         <PlayableTopPlayers
           achievements={achievements}
+          backingGame={backingGame}
           game={game}
           numMasters={numMasters}
           players={topAchievers}

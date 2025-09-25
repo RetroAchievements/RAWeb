@@ -278,6 +278,7 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.beta-feedback.store": [],
     "api.shortcode-body.preview": [],
     "api.forum-topic.store": [
         {
@@ -733,7 +734,17 @@ declare module 'ziggy-js' {
             "required": false
         }
     ],
-    "game.show": [
+    "leaderboard.show": [
+        {
+            "name": "leaderboard",
+            "required": true
+        },
+        {
+            "name": "slug",
+            "required": false
+        }
+    ],
+    "game1.show": [
         {
             "name": "game",
             "required": true
@@ -743,9 +754,9 @@ declare module 'ziggy-js' {
             "required": false
         }
     ],
-    "leaderboard.show": [
+    "game.show": [
         {
-            "name": "leaderboard",
+            "name": "game",
             "required": true
         },
         {

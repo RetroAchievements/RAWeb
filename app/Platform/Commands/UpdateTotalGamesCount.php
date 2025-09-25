@@ -13,7 +13,7 @@ class UpdateTotalGamesCount extends Command
     protected $description = 'Update the tracked count of total unique games';
 
     public function __construct(
-        private readonly UpdateTotalGamesCountAction $updateTotalGamesCount
+        private readonly UpdateTotalGamesCountAction $updateTotalGamesCount,
     ) {
         parent::__construct();
     }

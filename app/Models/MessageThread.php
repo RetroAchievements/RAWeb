@@ -52,7 +52,7 @@ class MessageThread extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<Message, MessageThread>
+     * @return BelongsTo<Message, $this>
      */
     public function lastMessage(): BelongsTo
     {
@@ -60,7 +60,7 @@ class MessageThread extends BaseModel
     }
 
     /**
-     * @return HasMany<Message>
+     * @return HasMany<Message, $this>
      */
     public function messages(): HasMany
     {
@@ -68,7 +68,7 @@ class MessageThread extends BaseModel
     }
 
     /**
-     * @return BelongsToMany<User>
+     * @return BelongsToMany<User, $this>
      */
     public function participants(): BelongsToMany
     {
@@ -92,7 +92,7 @@ class MessageThread extends BaseModel
     }
 
     /**
-     * @return HasManyThrough<User>
+     * @return HasManyThrough<User, MessageThreadParticipant, $this>
      */
     public function users(): HasManyThrough
     {

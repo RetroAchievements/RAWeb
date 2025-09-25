@@ -11,7 +11,7 @@ import {
   BaseCardHeader,
   BaseCardTitle,
 } from '@/common/components/+vendor/BaseCard';
-import { BaseFormProvider } from '@/common/components/+vendor/BaseForm';
+import { BaseForm } from '@/common/components/+vendor/BaseForm';
 import type { TranslatedString } from '@/types/i18next';
 
 export interface SectionFormCardProps {
@@ -44,7 +44,7 @@ export const SectionFormCard: FC<SectionFormCardProps> = ({
         <BaseCardTitle>{t_headingLabel}</BaseCardTitle>
       </BaseCardHeader>
 
-      <BaseFormProvider {...formMethods}>
+      <BaseForm {...formMethods}>
         <form onSubmit={formMethods.handleSubmit(onSubmit)}>
           <BaseCardContent>{children}</BaseCardContent>
 
@@ -63,7 +63,7 @@ export const SectionFormCard: FC<SectionFormCardProps> = ({
             </BaseCardFooter>
           ) : null}
         </form>
-      </BaseFormProvider>
+      </BaseForm>
     </BaseCard>
   );
 };

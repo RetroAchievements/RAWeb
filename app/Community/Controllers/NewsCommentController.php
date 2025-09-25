@@ -32,7 +32,7 @@ class NewsCommentController extends CommentController
         StoreCommentRequest $request,
         News $news,
         AddCommentAction $addCommentAction,
-        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction
+        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction,
     ): RedirectResponse {
         $this->authorize('create', [NewsComment::class, $news]);
 
@@ -58,7 +58,7 @@ class NewsCommentController extends CommentController
     protected function update(
         StoreCommentRequest $request,
         NewsComment $comment,
-        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction
+        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction,
     ): RedirectResponse {
         $this->authorize('update', $comment);
 

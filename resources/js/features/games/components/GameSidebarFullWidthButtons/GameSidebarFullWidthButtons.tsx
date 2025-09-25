@@ -88,8 +88,12 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
             </div>
           ) : null}
 
-          {game.guideUrl ? (
-            <PlayableSidebarButton href={game.guideUrl} IconComponent={LuBookText} target="_blank">
+          {backingGame.guideUrl ? (
+            <PlayableSidebarButton
+              href={backingGame.guideUrl}
+              IconComponent={LuBookText}
+              target="_blank"
+            >
               {t('Guide')}
             </PlayableSidebarButton>
           ) : null}

@@ -16,9 +16,6 @@ class PlayerStatFactory extends Factory
 {
     protected $model = PlayerStat::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $user = User::inRandomOrder()->first();

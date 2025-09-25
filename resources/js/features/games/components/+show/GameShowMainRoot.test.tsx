@@ -9,6 +9,7 @@ import {
   createGameAchievementSet,
   createGameSet,
   createSystem,
+  createZiggyProps,
 } from '@/test/factories';
 
 import { GameShowMainRoot } from './GameShowMainRoot';
@@ -49,6 +50,7 @@ describe('Component: GameShowMainRoot', () => {
         isViewingPublishedAchievements: true,
         recentPlayers: [],
         recentVisibleComments: [],
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -78,6 +80,7 @@ describe('Component: GameShowMainRoot', () => {
         isViewingPublishedAchievements: true,
         recentPlayers: [],
         recentVisibleComments: [],
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -114,6 +117,7 @@ describe('Component: GameShowMainRoot', () => {
         isViewingPublishedAchievements: true,
         recentPlayers: [],
         recentVisibleComments: [],
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -145,6 +149,7 @@ describe('Component: GameShowMainRoot', () => {
         isViewingPublishedAchievements: true,
         recentPlayers: [],
         recentVisibleComments: [],
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -180,6 +185,7 @@ describe('Component: GameShowMainRoot', () => {
         selectableGameAchievementSets: [],
         isViewingPublishedAchievements: true,
         recentVisibleComments: [],
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -212,6 +218,7 @@ describe('Component: GameShowMainRoot', () => {
         selectableGameAchievementSets: [],
         isViewingPublishedAchievements: true,
         recentVisibleComments: [],
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -252,6 +259,7 @@ describe('Component: GameShowMainRoot', () => {
           totalRequests: 0,
           userRequestsRemaining: 0,
         },
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -294,6 +302,7 @@ describe('Component: GameShowMainRoot', () => {
           totalRequests: 0,
           userRequestsRemaining: 0,
         },
+        ziggy: createZiggyProps(),
       },
     });
 
@@ -336,6 +345,7 @@ describe('Component: GameShowMainRoot', () => {
           totalRequests: 0,
           userRequestsRemaining: 0,
         },
+        ziggy: createZiggyProps(),
       },
     });
 

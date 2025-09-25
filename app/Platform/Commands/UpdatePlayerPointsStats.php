@@ -22,7 +22,7 @@ class UpdatePlayerPointsStats extends Command
     protected $description = 'Update player points stats';
 
     public function __construct(
-        private readonly UpdatePlayerPointsStatsAction $updatePlayerPointsStats
+        private readonly UpdatePlayerPointsStatsAction $updatePlayerPointsStats,
     ) {
         parent::__construct();
     }

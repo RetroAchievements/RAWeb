@@ -204,7 +204,7 @@ class System extends BaseModel implements HasMedia
     // == relations
 
     /**
-     * @return BelongsToMany<Emulator>
+     * @return BelongsToMany<Emulator, $this>
      */
     public function emulators(): BelongsToMany
     {
@@ -214,7 +214,7 @@ class System extends BaseModel implements HasMedia
     }
 
     /**
-     * @return HasMany<Game>
+     * @return HasMany<Game, $this>
      */
     public function games(): HasMany
     {
@@ -224,7 +224,7 @@ class System extends BaseModel implements HasMedia
     /**
      * TODO: store achievements_published and achievements_total on games to be easily filterable
      *
-     * @return HasMany<Game>
+     * @return HasMany<Game, $this>
      */
     public function achievementGames(): HasMany
     {
@@ -232,7 +232,7 @@ class System extends BaseModel implements HasMedia
     }
 
     /**
-     * @return HasManyThrough<Achievement>
+     * @return HasManyThrough<Achievement, Game, $this>
      */
     public function achievements(): HasManyThrough
     {

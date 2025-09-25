@@ -39,7 +39,7 @@ class ApiLogEntry extends Model
     // == relations
 
     /**
-     * @return BelongsTo<User, ApiLogEntry>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -64,7 +64,7 @@ class ApiLogEntry extends Model
         string $ipAddress,
         ?string $userAgent,
         ?array $requestData = null,
-        ?string $errorMessage = null
+        ?string $errorMessage = null,
     ): self {
         return self::create([
             'api_version' => $apiVersion,

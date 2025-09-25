@@ -1,0 +1,853 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\:\:where\(\) expects array\<int\|model property of App\\Models\\LeaderboardEntry, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\LeaderboardEntry, ''ld\.author_id'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Community/Actions/BuildDeveloperFeedDataAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\:\:where\(\) expects array\<int\|model property of App\\Models\\PlayerAchievement, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\PlayerAchievement, ''Achievements\.Flags'' given\.$#'
+			identifier: argument.type
+			count: 4
+			path: app/Community/Actions/GenerateAnnualRecapAction.php
+
+		-
+			message: '#^Parameter \#1 \$array \(array\{highlight\: non\-falsy\-string\}\) to function array_filter does not contain falsy values, the array will always stay the same\.$#'
+			identifier: arrayFilter.same
+			count: 1
+			path: app/Community/Actions/GetUrlToCommentDestinationAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\GameRecentPlayer\>\:\:where\(\) expects array\<int\|model property of App\\Models\\GameRecentPlayer, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\GameRecentPlayer\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\GameRecentPlayer\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\GameRecentPlayer\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\GameRecentPlayer, ''UserAccounts…'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Community/Actions/LoadThinActivePlayersListAction.php
+
+		-
+			message: '#^Offset 1 on array\{list\<string\>, list\<numeric\-string\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Community/Actions/ReplaceUserShortcodesWithUsernamesAction.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Community/Components/UserProfileMeta.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\:\:pluck\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\UserGameListEntry, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Community/Controllers/UserGameListController.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\:\:pluck\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\UserGameListEntry, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Community/Controllers/UserSetRequestListController.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\User\>\:\:pluck\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\User, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Community/Services/MessageThreadService.php
+
+		-
+			message: '#^Parameter \#1 \$columns of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\MessageThreadParticipant\>\:\:get\(\) expects array\<int, Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\MessageThreadParticipant\>\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\MessageThreadParticipant, array\<int, string\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Community/Services/MessageThreadService.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\User\>\:\:where\(\) expects array\<int\|model property of App\\Models\\User, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\User\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\User\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\User\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\User, ''UserAccounts…'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Connect/Actions/GetFriendListAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\GameHash\>\:\:where\(\) expects array\<int\|model property of App\\Models\\GameHash, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\GameHash\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\GameHash\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\GameHash\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\GameHash, ''gd\.ConsoleID'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Connect/Actions/GetHashLibraryAction.php
+
+		-
+			message: '#^Parameter \#1 \$relations of static method Illuminate\\Database\\Eloquent\\Model\:\:with\(\) expects array\<int\|string, array\<int\|string, string\>\|Closure\|string\>\|string, array\{achievementSet\: array\{achievements\: Closure\(mixed\)\: mixed, 0\: ''incompatibleGameHas…''\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Connect/Actions/ResolveAchievementSetsAction.php
+
+		-
+			message: '#^Method App\\Data\\PaginatedData\:\:fromLengthAwarePaginator\(\) has parameter \$paginator with generic class Illuminate\\Pagination\\LengthAwarePaginator but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Data/PaginatedData.php
+
+		-
+			message: '#^Method App\\Filament\\Pages\\ResourceAuditLog\:\:getAuditLog\(\) return type with generic class Illuminate\\Pagination\\LengthAwarePaginator does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/Pages/ResourceAuditLog.php
+
+		-
+			message: '#^Method App\\Filament\\Pages\\ResourceAuditLog\:\:getAuditLog\(\) should return Illuminate\\Pagination\\LengthAwarePaginator&iterable\<Illuminate\\Database\\Eloquent\\Model\> but returns Illuminate\\Contracts\\Pagination\\CursorPaginator\|Illuminate\\Contracts\\Pagination\\Paginator\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Filament/Pages/ResourceAuditLog.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:orWhere\(\) expects array\<int\|model property of Illuminate\\Database\\Eloquent\\Model, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\)\: Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of Illuminate\\Database\\Eloquent\\Model, ''GameData\.Title'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Resources/AchievementSetResource.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:where\(\) expects array\<int\|model property of Illuminate\\Database\\Eloquent\\Model, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\)\: Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of Illuminate\\Database\\Eloquent\\Model, ''GameData\.ID'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Resources/AchievementSetResource.php
+
+		-
+			message: '#^Non\-static access to static property Filament\\Resources\\RelationManagers\\RelationManager\:\:\$badge\.$#'
+			identifier: staticProperty.nonStaticAccess
+			count: 1
+			path: app/Filament/Resources/AchievementSetResource/RelationManagers/GameHashesRelationManager.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:where\(\) expects array\<int\|model property of Illuminate\\Database\\Eloquent\\Model, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\)\: Illuminate\\Database\\Eloquent\\Builder\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of Illuminate\\Database\\Eloquent\\Model, ''Console\.ID'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Resources/EmulatorResource/RelationManagers/SystemsRelationManager.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:where\(\) expects array\<int\|model property of Illuminate\\Database\\Eloquent\\Model, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\)\: Illuminate\\Database\\Eloquent\\Builder\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of Illuminate\\Database\\Eloquent\\Model, ''Console\.name_full'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Resources/EmulatorResource/RelationManagers/SystemsRelationManager.php
+
+		-
+			message: '#^Method App\\Filament\\Resources\\GameResource\:\:getGlobalSearchResultDetails\(\) should return array\<string, string\> but returns array\<string, int\|string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Filament/Resources/GameResource.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:where\(\) expects array\<int\|model property of Illuminate\\Database\\Eloquent\\Model, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\)\: Illuminate\\Database\\Eloquent\\Builder\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of Illuminate\\Database\\Eloquent\\Model, ''GameData\.ID'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Resources/GameResource/Pages/SimilarGames.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:where\(\) expects array\<int\|model property of Illuminate\\Database\\Eloquent\\Model, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\)\: Illuminate\\Database\\Eloquent\\Builder\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of Illuminate\\Database\\Eloquent\\Model, ''GameData\.Title'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Resources/GameResource/Pages/SimilarGames.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:core\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Filament/Resources/GameResource/RelationManagers/AchievementSetsRelationManager.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Game, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Game, ''GameData\.id'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Resources/GameResource/RelationManagers/AchievementSetsRelationManager.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:where\(\) expects array\<int\|model property of Illuminate\\Database\\Eloquent\\Model, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\)\: Illuminate\\Database\\Eloquent\\Builder\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of Illuminate\\Database\\Eloquent\\Model, ''GameData\.ID'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Resources/HubResource/RelationManagers/GamesRelationManager.php
+
+		-
+			message: '#^Function getCodeNotes\(\) never assigns null to &\$codeNotesOut so it can be removed from the by\-ref type\.$#'
+			identifier: parameterByRef.unusedType
+			count: 1
+			path: app/Helpers/database/code-note.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between array and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Helpers/database/code-note.php
+
+		-
+			message: '#^Function getGameMetadata\(\) never assigns null to &\$achievementDataOut so it can be removed from the by\-ref type\.$#'
+			identifier: parameterByRef.unusedType
+			count: 1
+			path: app/Helpers/database/game.php
+
+		-
+			message: '#^Function getGamesList\(\) never assigns null to &\$dataOut so it can be removed from the by\-ref type\.$#'
+			identifier: parameterByRef.unusedType
+			count: 1
+			path: app/Helpers/database/game.php
+
+		-
+			message: '#^Function getGamesListByDev\(\) never assigns null to &\$dataOut so it can be removed from the by\-ref type\.$#'
+			identifier: parameterByRef.unusedType
+			count: 1
+			path: app/Helpers/database/game.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\:\:pluck\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Game, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Helpers/database/game.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Game, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Game, ''GameData\.ConsoleID'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Helpers/database/game.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Game, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Game, ''GameData…'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Helpers/database/game.php
+
+		-
+			message: '#^Parameter &\$lbIDOut by\-ref type of function SubmitNewLeaderboard\(\) expects int\|null, int\|string given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: app/Helpers/database/leaderboard.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\:\:orWhere\(\) expects array\<int\|model property of App\\Models\\PlayerAchievement, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\PlayerAchievement, ''UserAccounts\.User'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Helpers/database/player-achievement.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\:\:where\(\) expects array\<int\|model property of App\\Models\\PlayerAchievement, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\PlayerAchievement, ''Achievements\.Flags'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Helpers/database/player-achievement.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\:\:where\(\) expects array\<int\|model property of App\\Models\\PlayerAchievement, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\PlayerAchievement, ''Achievements\.GameID'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Helpers/database/player-achievement.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\:\:where\(\) expects array\<int\|model property of App\\Models\\PlayerAchievement, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\PlayerAchievement, ''UserAccounts…'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Helpers/database/player-achievement.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\:\:where\(\) expects array\<int\|model property of App\\Models\\PlayerAchievement, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\PlayerAchievement, ''sub\.hardcore_unlocks''\|''sub\.softcore_unlocks'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Helpers/database/player-achievement.php
+
+		-
+			message: '#^Function getArticleComments\(\) never assigns null to &\$dataOut so it can be removed from the by\-ref type\.$#'
+			identifier: parameterByRef.unusedType
+			count: 1
+			path: app/Helpers/database/user-activity.php
+
+		-
+			message: '#^Function getRecentlyPlayedGames\(\) never assigns null to &\$dataOut so it can be removed from the by\-ref type\.$#'
+			identifier: parameterByRef.unusedType
+			count: 1
+			path: app/Helpers/database/user-activity.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between Illuminate\\Support\\Collection and false will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Helpers/database/user-activity.php
+
+		-
+			message: '#^Parameter &\$permissionOut by\-ref type of function authenticateFromAppToken\(\) expects int\|null, Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: app/Helpers/database/user-auth.php
+
+		-
+			message: '#^Parameter &\$user by\-ref type of function validateEmailVerificationToken\(\) expects string\|null, App\\Models\\User\|null given\.$#'
+			identifier: parameterByRef.type
+			count: 2
+			path: app/Helpers/database/user-email-verify.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 3
+			path: app/Helpers/render/site-award.php
+
+		-
+			message: '#^Function sanitize_sql_inputs\(\) never assigns int to &\$inputs so it can be removed from the by\-ref type\.$#'
+			identifier: parameterByRef.unusedType
+			count: 1
+			path: app/Helpers/util/database.php
+
+		-
+			message: '#^Function sanitize_sql_inputs\(\) never assigns null to &\$inputs so it can be removed from the by\-ref type\.$#'
+			identifier: parameterByRef.unusedType
+			count: 1
+			path: app/Helpers/util/database.php
+
+		-
+			message: '#^Function sanitize_sql_inputs\(\) never assigns string to &\$inputs so it can be removed from the by\-ref type\.$#'
+			identifier: parameterByRef.unusedType
+			count: 1
+			path: app/Helpers/util/database.php
+
+		-
+			message: '#^Function sanitize_outputs\(\) never assigns int to &\$outputs so it can be removed from the by\-ref type\.$#'
+			identifier: parameterByRef.unusedType
+			count: 1
+			path: app/Helpers/util/string.php
+
+		-
+			message: '#^Function sanitize_outputs\(\) never assigns null to &\$outputs so it can be removed from the by\-ref type\.$#'
+			identifier: parameterByRef.unusedType
+			count: 1
+			path: app/Helpers/util/string.php
+
+		-
+			message: '#^Function sanitize_outputs\(\) never assigns string to &\$outputs so it can be removed from the by\-ref type\.$#'
+			identifier: parameterByRef.unusedType
+			count: 1
+			path: app/Helpers/util/string.php
+
+		-
+			message: '#^Unable to resolve the template type TMapWithKeysKey in call to method Illuminate\\Support\\Collection\:\:mapWithKeys\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Http/Controllers/DownloadsController.php
+
+		-
+			message: '#^Method App\\Models\\Achievement\:\:trigger\(\) should return Illuminate\\Database\\Eloquent\\Relations\\MorphOne\<App\\Models\\Trigger, App\\Models\\Achievement\> but returns Illuminate\\Database\\Eloquent\\Relations\\MorphOne\<App\\Models\\Trigger, \$this\(App\\Models\\Achievement\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Achievement.php
+
+		-
+			message: '#^Method App\\Models\\Achievement\:\:triggers\(\) should return Illuminate\\Database\\Eloquent\\Relations\\MorphMany\<App\\Models\\Trigger, App\\Models\\Achievement\> but returns Illuminate\\Database\\Eloquent\\Relations\\MorphMany\<App\\Models\\Trigger, \$this\(App\\Models\\Achievement\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Achievement.php
+
+		-
+			message: '#^Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\User,\$this\(App\\Models\\Achievement\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Relations\\Pivot\>, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/Achievement.php
+
+		-
+			message: '#^Return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, \$this\(App\\Models\\Achievement\)\>\) of method App\\Models\\Achievement\:\:currentTrigger\(\) should be compatible with return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, App\\Models\\Achievement\>\) of method App\\Platform\\Contracts\\HasVersionedTrigger\<App\\Models\\Achievement\>\:\:currentTrigger\(\)$#'
+			identifier: method.childReturnType
+			count: 1
+			path: app/Models/Achievement.php
+
+		-
+			message: '#^Unable to resolve the template type TNewPivotModel in call to method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\User,\$this\(App\\Models\\Achievement\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Models/Achievement.php
+
+		-
+			message: '#^Method App\\Models\\Badge\:\:badgeable\(\) should return Illuminate\\Database\\Eloquent\\Relations\\MorphTo\<Illuminate\\Database\\Eloquent\\Model, App\\Models\\Badge\> but returns Illuminate\\Database\\Eloquent\\Relations\\MorphTo\<Illuminate\\Database\\Eloquent\\Model, \$this\(App\\Models\\Badge\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Badge.php
+
+		-
+			message: '#^Method App\\Models\\Comment\:\:commentable\(\) should return Illuminate\\Database\\Eloquent\\Relations\\MorphTo\<Illuminate\\Database\\Eloquent\\Model, App\\Models\\Comment\> but returns Illuminate\\Database\\Eloquent\\Relations\\MorphTo\<Illuminate\\Database\\Eloquent\\Model, \$this\(App\\Models\\Comment\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Comment.php
+
+		-
+			message: '#^Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Platform,\$this\(App\\Models\\Emulator\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Relations\\Pivot\>, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/Emulator.php
+
+		-
+			message: '#^Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\System,\$this\(App\\Models\\Emulator\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Relations\\Pivot\>, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/Emulator.php
+
+		-
+			message: '#^Unable to resolve the template type TNewPivotModel in call to method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Platform,\$this\(App\\Models\\Emulator\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Models/Emulator.php
+
+		-
+			message: '#^Unable to resolve the template type TNewPivotModel in call to method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\System,\$this\(App\\Models\\Emulator\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Models/Emulator.php
+
+		-
+			message: '#^Method App\\Models\\Event\:\:hubs\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\GameSet, \$this\(App\\Models\\Event\), Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\GameSet, App\\Models\\Game, Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Event.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:published\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Models/EventAchievement.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:tracked\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Models/EventAward.php
+
+		-
+			message: '#^Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\User,\$this\(App\\Models\\EventAward\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Relations\\Pivot\>, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/EventAward.php
+
+		-
+			message: '#^Unable to resolve the template type TNewPivotModel in call to method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\User,\$this\(App\\Models\\EventAward\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Models/EventAward.php
+
+		-
+			message: '#^Method App\\Models\\Game\:\:similarGamesList\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Game, \$this\(App\\Models\\Game\), Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Game, App\\Models\\GameSet, Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Game.php
+
+		-
+			message: '#^Method App\\Models\\Game\:\:trigger\(\) should return Illuminate\\Database\\Eloquent\\Relations\\MorphOne\<App\\Models\\Trigger, App\\Models\\Game\> but returns Illuminate\\Database\\Eloquent\\Relations\\MorphOne\<App\\Models\\Trigger, \$this\(App\\Models\\Game\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Game.php
+
+		-
+			message: '#^Method App\\Models\\Game\:\:triggers\(\) should return Illuminate\\Database\\Eloquent\\Relations\\MorphMany\<App\\Models\\Trigger, App\\Models\\Game\> but returns Illuminate\\Database\\Eloquent\\Relations\\MorphMany\<App\\Models\\Trigger, \$this\(App\\Models\\Game\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Game.php
+
+		-
+			message: '#^Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\User,\$this\(App\\Models\\Game\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Relations\\Pivot\>, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/Game.php
+
+		-
+			message: '#^Return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, \$this\(App\\Models\\Game\)\>\) of method App\\Models\\Game\:\:currentTrigger\(\) should be compatible with return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, App\\Models\\Game\>\) of method App\\Platform\\Contracts\\HasVersionedTrigger\<App\\Models\\Game\>\:\:currentTrigger\(\)$#'
+			identifier: method.childReturnType
+			count: 1
+			path: app/Models/Game.php
+
+		-
+			message: '#^Unable to resolve the template type TNewPivotModel in call to method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\User,\$this\(App\\Models\\Game\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Models/Game.php
+
+		-
+			message: '#^Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\GameHashSet,\$this\(App\\Models\\GameHash\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Relations\\Pivot\>, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/GameHash.php
+
+		-
+			message: '#^Unable to resolve the template type TNewPivotModel in call to method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\GameHashSet,\$this\(App\\Models\\GameHash\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Models/GameHash.php
+
+		-
+			message: '#^Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\GameHash,\$this\(App\\Models\\GameHashSet\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Relations\\Pivot\>, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/GameHashSet.php
+
+		-
+			message: '#^Unable to resolve the template type TNewPivotModel in call to method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\GameHash,\$this\(App\\Models\\GameHashSet\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Models/GameHashSet.php
+
+		-
+			message: '#^Method App\\Models\\Leaderboard\:\:trigger\(\) should return Illuminate\\Database\\Eloquent\\Relations\\MorphOne\<App\\Models\\Trigger, App\\Models\\Leaderboard\> but returns Illuminate\\Database\\Eloquent\\Relations\\MorphOne\<App\\Models\\Trigger, \$this\(App\\Models\\Leaderboard\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Leaderboard.php
+
+		-
+			message: '#^Method App\\Models\\Leaderboard\:\:triggers\(\) should return Illuminate\\Database\\Eloquent\\Relations\\MorphMany\<App\\Models\\Trigger, App\\Models\\Leaderboard\> but returns Illuminate\\Database\\Eloquent\\Relations\\MorphMany\<App\\Models\\Trigger, \$this\(App\\Models\\Leaderboard\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Leaderboard.php
+
+		-
+			message: '#^Return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, \$this\(App\\Models\\Leaderboard\)\>\) of method App\\Models\\Leaderboard\:\:currentTrigger\(\) should be compatible with return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, App\\Models\\Leaderboard\>\) of method App\\Platform\\Contracts\\HasVersionedTrigger\<App\\Models\\Leaderboard\>\:\:currentTrigger\(\)$#'
+			identifier: method.childReturnType
+			count: 1
+			path: app/Models/Leaderboard.php
+
+		-
+			message: '#^Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Emulator,\$this\(App\\Models\\Platform\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Relations\\Pivot\>, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/Platform.php
+
+		-
+			message: '#^Unable to resolve the template type TNewPivotModel in call to method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Emulator,\$this\(App\\Models\\Platform\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Models/Platform.php
+
+		-
+			message: '#^Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Emulator,\$this\(App\\Models\\System\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Relations\\Pivot\>, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/System.php
+
+		-
+			message: '#^Unable to resolve the template type TNewPivotModel in call to method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Emulator,\$this\(App\\Models\\System\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Models/System.php
+
+		-
+			message: '#^Method App\\Models\\Trigger\:\:triggerable\(\) should return Illuminate\\Database\\Eloquent\\Relations\\MorphTo\<Illuminate\\Database\\Eloquent\\Model, App\\Models\\Trigger\> but returns Illuminate\\Database\\Eloquent\\Relations\\MorphTo\<Illuminate\\Database\\Eloquent\\Model, \$this\(App\\Models\\Trigger\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Trigger.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:displayableRoles\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<Spatie\\Permission\\Models\\Role, \$this\(App\\Models\\User\), Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<Spatie\\Permission\\Models\\Role, Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:whereName\(\) should return Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\User\> but returns Illuminate\\Database\\Eloquent\\Builder\<static\(App\\Models\\User\)\>\.$#'
+			identifier: return.type
+			count: 2
+			path: app/Models/User.php
+
+		-
+			message: '#^Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Achievement,\$this\(App\\Models\\User\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Relations\\Pivot\>, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Game,\$this\(App\\Models\\User\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Relations\\Pivot\>, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\:\:where\(\) expects array\<int\|model property of App\\Models\\UserGameListEntry, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\UserGameListEntry, ''SetRequest\.type'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Type string in generic type Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<Spatie\\Permission\\Models\\Role, Illuminate\\Database\\Eloquent\\Relations\\Pivot, string\> in PHPDoc tag @var is not subtype of template type TPivotModel of Illuminate\\Database\\Eloquent\\Relations\\Pivot \= Illuminate\\Database\\Eloquent\\Relations\\Pivot of class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Unable to resolve the template type TNewPivotModel in call to method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Achievement,\$this\(App\\Models\\User\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Unable to resolve the template type TNewPivotModel in call to method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Game,\$this\(App\\Models\\User\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserRelation\>\:\:where\(\) expects array\<int\|model property of App\\Models\\UserRelation, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserRelation\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserRelation\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserRelation\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\UserRelation, ''Friends\.Friendship'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Platform/Actions/BuildFollowedPlayerCompletionAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserRelation\>\:\:where\(\) expects array\<int\|model property of App\\Models\\UserRelation, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserRelation\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserRelation\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserRelation\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\UserRelation, ''Friends\.user_id'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Platform/Actions/BuildFollowedPlayerCompletionAction.php
+
+		-
+			message: '#^PHPDoc tag @var for variable \$entries contains generic class Illuminate\\Pagination\\LengthAwarePaginator but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Platform/Actions/BuildGameListAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Game, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Game, ''GameData\.ConsoleID'' given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Platform/Actions/BuildGameListAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Game, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Game, ''GameData\.Title'' given\.$#'
+			identifier: argument.type
+			count: 3
+			path: app/Platform/Actions/BuildGameListAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Game, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Game, ''GameData…'' given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Platform/Actions/BuildGameListAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Leaderboard\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Leaderboard, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Leaderboard\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Leaderboard\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Leaderboard\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Leaderboard, ''LeaderboardDef…'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Platform/Actions/BuildGameListAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Ticket\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Ticket, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Ticket\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Ticket\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Ticket\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Ticket, ''Achievements\.Flags'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Platform/Actions/BuildGameListAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\:\:where\(\) expects array\<int\|model property of App\\Models\\UserGameListEntry, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\UserGameListEntry, ''SetRequest\.type'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Platform/Actions/BuildGameListAction.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<int, array\{achievement\?\: array\}\> is not subtype of native type array\<int, array\{achievement\?\: array\{ID\: int, Title\: string, Description\: string, Points\: int, TrueRatio\: float, BadgeName\: string, Flags\: int\}\}\>\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: app/Platform/Actions/BuildPlayerGameActivityDataAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Game, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Game, ''GameData\.Title'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Platform/Actions/BuildSeriesHubDataAction.php
+
+		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 1
+			path: app/Platform/Actions/ComputeGameSortTitleAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Game, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Game, ''GameData\.ConsoleID'' given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Platform/Actions/GetRandomGameAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Game, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Game, ''GameData\.Title'' given\.$#'
+			identifier: argument.type
+			count: 3
+			path: app/Platform/Actions/GetRandomGameAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Game, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Game, ''GameData…'' given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Platform/Actions/GetRandomGameAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Leaderboard\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Leaderboard, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Leaderboard\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Leaderboard\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Leaderboard\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Leaderboard, ''LeaderboardDef…'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Platform/Actions/GetRandomGameAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Ticket\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Ticket, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Ticket\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Ticket\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Ticket\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Ticket, ''Achievements\.Flags'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Platform/Actions/GetRandomGameAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\:\:where\(\) expects array\<int\|model property of App\\Models\\UserGameListEntry, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\UserGameListEntry, ''SetRequest\.type'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Platform/Actions/GetRandomGameAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\:\:where\(\) expects array\<int\|model property of App\\Models\\PlayerAchievement, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\PlayerAchievement, ''Achievements\.Flags'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Platform/Actions/ResetPlayerProgressAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\:\:where\(\) expects array\<int\|model property of App\\Models\\PlayerAchievement, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\PlayerAchievement, ''Achievements\.GameID'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Platform/Actions/ResetPlayerProgressAction.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:tracked\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Platform/Actions/UpdateAchievementMetricsAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerBadge\>\:\:where\(\) expects array\<int\|model property of App\\Models\\PlayerBadge, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerBadge\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerBadge\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerBadge\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\PlayerBadge, ''GameData\.Title'' given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Platform/Actions/UpdatePlayerBeatenGamesStatsAction.php
+
+		-
+			message: '#^Parameter \#2 \$syncData of method App\\Platform\\Actions\\UpsertGameCoreAchievementSetFromLegacyFlagsAction\:\:syncAchievementSetAchievements\(\) expects Illuminate\\Support\\Collection\<int, array\{created_at\: Carbon\\Carbon\|string, updated_at\: Carbon\\Carbon\|string, order_column\: int\}\>, Illuminate\\Support\\Collection\<int, array\{created_at\: mixed, updated_at\: mixed, order_column\: mixed\}\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Platform/Actions/UpsertGameCoreAchievementSetFromLegacyFlagsAction.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Achievement\>\:\:pluck\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Achievement, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Platform/Commands/VerifyAchievementSetIntegrity.php
+
+		-
+			message: '#^Generic type Illuminate\\Contracts\\Pagination\\LengthAwarePaginator\<Illuminate\\Database\\Eloquent\\Model\> in PHPDoc tag @return does not specify all template types of interface Illuminate\\Contracts\\Pagination\\LengthAwarePaginator\: TKey, TValue$#'
+			identifier: generics.lessTypes
+			count: 1
+			path: app/Platform/Components/PlayersActive.php
+
+		-
+			message: '#^Type Illuminate\\Database\\Eloquent\\Model in generic type Illuminate\\Contracts\\Pagination\\LengthAwarePaginator\<Illuminate\\Database\\Eloquent\\Model\> in PHPDoc tag @return is not subtype of template type TKey of \(int\|string\) of interface Illuminate\\Contracts\\Pagination\\LengthAwarePaginator\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Platform/Components/PlayersActive.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\:\:pluck\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Game, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Platform/Controllers/HubController.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Ticket\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Ticket, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Ticket\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Ticket\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Ticket\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Ticket, ''Achievements\.user_id'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Platform/Services/DeveloperSetsService.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Ticket\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Ticket, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Ticket\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Ticket\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Ticket\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Ticket, ''Achievements\.Flags'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Platform/Services/GameListService.php
+
+		-
+			message: '#^Instanceof between App\\Models\\Leaderboard and App\\Models\\Leaderboard will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: app/Policies/TriggerTicketPolicy.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\:\:where\(\) expects array\<int\|model property of App\\Models\\Game, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Game\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\Game, ''GameData\.ConsoleID'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Support/Shortcode/Shortcode.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between array and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: public/API/API_GetRecentGameAwards.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\:\:where\(\) expects array\<int\|model property of App\\Models\\LeaderboardEntry, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\LeaderboardEntry, ''LeaderboardDef…'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: public/API/API_GetUserGameLeaderboards.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\:\:where\(\) expects array\<int\|model property of App\\Models\\LeaderboardEntry, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\LeaderboardEntry, ''UserAccounts…'' given\.$#'
+			identifier: argument.type
+			count: 3
+			path: public/API/API_GetUserGameLeaderboards.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\:\:where\(\) expects array\<int\|model property of App\\Models\\LeaderboardEntry, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\LeaderboardEntry, ''entries_rank_calc…'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: public/API/API_GetUserGameLeaderboards.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\:\:where\(\) expects array\<int\|model property of App\\Models\\LeaderboardEntry, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\LeaderboardEntry\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\LeaderboardEntry, ''leaderboard_rank…'' given\.$#'
+			identifier: argument.type
+			count: 3
+			path: public/API/API_GetUserGameLeaderboards.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\:\:where\(\) expects array\<int\|model property of App\\Models\\UserGameListEntry, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\UserGameListEntry, ''GameData…'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: public/API/API_GetUserSetRequests.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\:\:where\(\) expects array\<int\|model property of App\\Models\\UserGameListEntry, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\UserGameListEntry\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\UserGameListEntry, ''SetRequest\.user_id'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: public/API/API_GetUserSetRequests.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertEmpty\(\) with Illuminate\\Support\\Collection will always evaluate to false\.$#'
+			identifier: method.impossibleType
+			count: 1
+			path: tests/Feature/Legacy/DatabaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsIterable\(\) with Illuminate\\Support\\Collection will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 2
+			path: tests/Feature/Legacy/DatabaseTest.php
+
+		-
+			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
+			identifier: larastan.noEnvCallsOutsideOfConfig
+			count: 1
+			path: tests/Feature/Platform/Actions/BuildGameListActionTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 2
+			path: tests/Feature/Platform/Actions/BuildPlayerGameActivityDataActionTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with App\\Platform\\Data\\PlayerGameActivitySummaryData will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Feature/Platform/Actions/BuildPlayerGameActivityDataActionTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Feature/Platform/Actions/ProcessGameReleasesForViewActionTest.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\:\:where\(\) expects array\<int\|model property of App\\Models\\PlayerAchievement, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\PlayerAchievement, ''Achievements\.Flags'' given\.$#'
+			identifier: argument.type
+			count: 3
+			path: tests/Feature/Platform/Actions/ResetPlayerProgressActionTest.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\:\:where\(\) expects array\<int\|model property of App\\Models\\PlayerAchievement, mixed\>\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\|\(Closure\(Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\PlayerAchievement\>\)\: void\)\|Illuminate\\Contracts\\Database\\Query\\Expression\|model property of App\\Models\\PlayerAchievement, ''Achievements\.GameID'' given\.$#'
+			identifier: argument.type
+			count: 3
+			path: tests/Feature/Platform/Actions/ResetPlayerProgressActionTest.php

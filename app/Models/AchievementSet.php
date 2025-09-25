@@ -125,7 +125,7 @@ class AchievementSet extends BaseModel
     // == relations
 
     /**
-     * @return HasMany<GameAchievementSet>
+     * @return HasMany<GameAchievementSet, $this>
      */
     public function gameAchievementSets(): HasMany
     {
@@ -133,7 +133,7 @@ class AchievementSet extends BaseModel
     }
 
     /**
-     * @return BelongsToMany<GameHash>
+     * @return BelongsToMany<GameHash, $this>
      */
     public function incompatibleGameHashes(): BelongsToMany
     {
@@ -142,7 +142,7 @@ class AchievementSet extends BaseModel
     }
 
     /**
-     * @return BelongsToMany<Achievement>
+     * @return BelongsToMany<Achievement, $this>
      */
     public function achievements(): BelongsToMany
     {
@@ -152,7 +152,7 @@ class AchievementSet extends BaseModel
     }
 
     /**
-     * @return HasMany<AchievementSetAuthor>
+     * @return HasMany<AchievementSetAuthor, $this>
      */
     public function achievementSetAuthors(): HasMany
     {
@@ -160,7 +160,7 @@ class AchievementSet extends BaseModel
     }
 
     /**
-     * @return BelongsToMany<Game>
+     * @return BelongsToMany<Game, $this>
      */
     public function games(): BelongsToMany
     {
@@ -168,7 +168,7 @@ class AchievementSet extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, AchievementSet>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

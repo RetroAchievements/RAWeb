@@ -22,7 +22,6 @@ class UserFactory extends Factory
     protected $model = User::class;
 
     /**
-     * @return array<string, mixed>
      * @throws Exception
      */
     public function definition(): array

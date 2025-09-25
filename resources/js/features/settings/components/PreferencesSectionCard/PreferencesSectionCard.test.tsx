@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { route } from 'ziggy-js';
@@ -11,14 +12,15 @@ describe('Component: PreferencesSectionCard', () => {
   const originalMultisetFlag = import.meta.env.VITE_FEATURE_MULTISET;
 
   beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(router, 'reload').mockImplementation(vi.fn());
+
     import.meta.env.VITE_FEATURE_MULTISET = originalMultisetFlag;
   });
 
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(
-      <PreferencesSectionCard currentWebsitePrefs={131200} onUpdateWebsitePrefs={vi.fn()} />,
-    );
+    const { container } = render(<PreferencesSectionCard currentWebsitePrefs={131200} />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -26,7 +28,7 @@ describe('Component: PreferencesSectionCard', () => {
 
   it('correctly sets the initial form values', () => {
     // ARRANGE
-    render(<PreferencesSectionCard currentWebsitePrefs={131200} onUpdateWebsitePrefs={vi.fn()} />);
+    render(<PreferencesSectionCard currentWebsitePrefs={131200} />);
 
     // ASSERT
     expect(screen.getByRole('switch', { name: /suppress mature content warnings/i })).toBeChecked();
@@ -39,7 +41,7 @@ describe('Component: PreferencesSectionCard', () => {
     // ARRANGE
     const putSpy = vi.spyOn(axios, 'put').mockResolvedValueOnce({ success: true });
 
-    render(<PreferencesSectionCard currentWebsitePrefs={139471} onUpdateWebsitePrefs={vi.fn()} />);
+    render(<PreferencesSectionCard currentWebsitePrefs={139471} />);
 
     // ACT
     await userEvent.click(screen.getByRole('switch', { name: /only people i follow/i }));
@@ -55,7 +57,7 @@ describe('Component: PreferencesSectionCard', () => {
     // ARRANGE
     import.meta.env.VITE_FEATURE_MULTISET = 'true';
 
-    render(<PreferencesSectionCard currentWebsitePrefs={127} onUpdateWebsitePrefs={vi.fn()} />);
+    render(<PreferencesSectionCard currentWebsitePrefs={127} />);
 
     // ASSERT
     const switchEl = screen.getByRole('switch', { name: /automatically opt in/i });
@@ -69,7 +71,7 @@ describe('Component: PreferencesSectionCard', () => {
 
     const putSpy = vi.spyOn(axios, 'put').mockResolvedValueOnce({ success: true });
 
-    render(<PreferencesSectionCard currentWebsitePrefs={127} onUpdateWebsitePrefs={vi.fn()} />);
+    render(<PreferencesSectionCard currentWebsitePrefs={127} />);
 
     // ACT
     await userEvent.click(screen.getByRole('switch', { name: /automatically opt in/i }));
@@ -85,9 +87,25 @@ describe('Component: PreferencesSectionCard', () => {
     // ARRANGE
     vi.stubEnv('VITE_FEATURE_MULTISET', '');
 
-    render(<PreferencesSectionCard currentWebsitePrefs={127} onUpdateWebsitePrefs={vi.fn()} />);
+    render(<PreferencesSectionCard currentWebsitePrefs={127} />);
 
     // ASSERT
     expect(screen.queryByRole('switch', { name: /automatically opt in/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user has beta features enabled, shows the beta features toggle as checked', () => {
+    // ARRANGE
+    render(<PreferencesSectionCard currentWebsitePrefs={532725} />);
+
+    // ASSERT
+    expect(screen.getByRole('switch', { name: /enable beta features/i })).toBeChecked();
+  });
+
+  it('given the user does not have beta features enabled, shows the beta features toggle as unchecked', () => {
+    // ARRANGE
+    render(<PreferencesSectionCard currentWebsitePrefs={0} />);
+
+    // ASSERT
+    expect(screen.getByRole('switch', { name: /enable beta features/i })).not.toBeChecked();
   });
 });

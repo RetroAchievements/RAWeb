@@ -336,7 +336,7 @@ class GameSet extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<User, GameSet>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -344,7 +344,7 @@ class GameSet extends BaseModel
     }
 
     /**
-     * @return BelongsToMany<Game>
+     * @return BelongsToMany<Game, $this>
      */
     public function games(): BelongsToMany
     {
@@ -354,7 +354,7 @@ class GameSet extends BaseModel
     }
 
     /**
-     * @return BelongsToMany<GameSet>
+     * @return BelongsToMany<GameSet, $this>
      */
     public function parents(): BelongsToMany
     {
@@ -364,7 +364,7 @@ class GameSet extends BaseModel
     }
 
     /**
-     * @return BelongsToMany<GameSet>
+     * @return BelongsToMany<GameSet, $this>
      */
     public function children(): BelongsToMany
     {
@@ -374,7 +374,7 @@ class GameSet extends BaseModel
     }
 
     /**
-     * @return BelongsTo<ForumTopic, GameSet>
+     * @return BelongsTo<ForumTopic, $this>
      */
     public function forumTopic(): BelongsTo
     {
@@ -382,7 +382,7 @@ class GameSet extends BaseModel
     }
 
     /**
-     * @return BelongsToMany<Role>
+     * @return BelongsToMany<Role, $this>
      */
     public function viewRoles(): BelongsToMany
     {
@@ -392,7 +392,7 @@ class GameSet extends BaseModel
     }
 
     /**
-     * @return BelongsToMany<Role>
+     * @return BelongsToMany<Role, $this>
      */
     public function updateRoles(): BelongsToMany
     {

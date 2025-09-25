@@ -15,9 +15,6 @@ class EventAchievementFactory extends Factory
 {
     protected $model = EventAchievement::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [

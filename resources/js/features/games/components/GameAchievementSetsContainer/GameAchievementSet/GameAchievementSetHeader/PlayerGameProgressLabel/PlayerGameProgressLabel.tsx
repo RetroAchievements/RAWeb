@@ -1,5 +1,6 @@
 import { type FC, useMemo } from 'react';
 import { Trans } from 'react-i18next';
+import { LuLockOpen } from 'react-icons/lu';
 
 import { WeightedPointsContainer } from '@/common/components/WeightedPointsContainer';
 
@@ -32,36 +33,71 @@ export const PlayerGameProgressLabel: FC<PlayerGameProgressLabelProps> = ({ achi
   return (
     <div className="flex flex-col text-xs text-text">
       {unlockedHardcoreAchievements.length ? (
-        <p>
-          <Trans
-            i18nKey="playerGameProgressHardcore"
-            values={{
-              achievementsCount: unlockedHardcoreAchievements.length,
-              pointsCount: unlockedPointsHardcore,
-              weightedPoints: unlockedPointsWeighted,
-            }}
-            components={{
-              1: <span className="font-semibold" />,
-              2: <span className="font-semibold" />,
-              3: <WeightedPointsContainer />,
-            }}
-          />
-        </p>
+        <>
+          <p className="flex items-center gap-1 sm:hidden">
+            <LuLockOpen className="size-3.5 text-neutral-300" />
+            <Trans
+              i18nKey="playerGameProgressHardcoreMobile"
+              values={{
+                achievementsCount: unlockedHardcoreAchievements.length,
+                pointsCount: unlockedPointsHardcore,
+                weightedPoints: unlockedPointsWeighted,
+              }}
+              components={{
+                1: <span className="font-semibold" />,
+                2: <span className="font-semibold" />,
+                3: <WeightedPointsContainer />,
+              }}
+            />
+          </p>
+
+          <p className="hidden sm:block">
+            <Trans
+              i18nKey="playerGameProgressHardcore"
+              values={{
+                achievementsCount: unlockedHardcoreAchievements.length,
+                pointsCount: unlockedPointsHardcore,
+                weightedPoints: unlockedPointsWeighted,
+              }}
+              components={{
+                1: <span className="font-semibold" />,
+                2: <span className="font-semibold" />,
+                3: <WeightedPointsContainer />,
+              }}
+            />
+          </p>
+        </>
       ) : null}
 
       {unlockedSoftcoreAchievements.length ? (
-        <p>
-          <Trans
-            i18nKey="playerGameProgressSoftcore"
-            values={{
-              achievementsCount: unlockedSoftcoreAchievements.length,
-              pointsCount: unlockedPointsSoftcore,
-            }}
-            components={{
-              1: <span className="font-semibold" />,
-            }}
-          />
-        </p>
+        <>
+          <p className="flex items-center gap-1 sm:hidden">
+            <LuLockOpen className="size-3.5 text-neutral-500" />
+            <Trans
+              i18nKey="playerGameProgressSoftcoreMobile"
+              values={{
+                achievementsCount: unlockedSoftcoreAchievements.length,
+                pointsCount: unlockedPointsSoftcore,
+              }}
+              components={{
+                1: <span className="font-semibold" />,
+              }}
+            />
+          </p>
+
+          <p className="hidden sm:block">
+            <Trans
+              i18nKey="playerGameProgressSoftcore"
+              values={{
+                achievementsCount: unlockedSoftcoreAchievements.length,
+                pointsCount: unlockedPointsSoftcore,
+              }}
+              components={{
+                1: <span className="font-semibold" />,
+              }}
+            />
+          </p>
+        </>
       ) : null}
     </div>
   );

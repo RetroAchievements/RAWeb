@@ -16,9 +16,6 @@ class UserRelationFactory extends Factory
 {
     protected $model = UserRelation::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
