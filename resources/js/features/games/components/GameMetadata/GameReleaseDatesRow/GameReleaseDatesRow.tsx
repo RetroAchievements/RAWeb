@@ -8,6 +8,7 @@ import {
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
 import { formatGameReleasedAt } from '@/common/utils/formatGameReleasedAt';
+import { useDeduplicatedReleases } from '@/features/games/hooks/useDeduplicatedReleases';
 
 interface GameReleaseDatesRowProps {
   releases: App.Platform.Data.GameRelease[];
@@ -16,15 +17,17 @@ interface GameReleaseDatesRowProps {
 export const GameReleaseDatesRow: FC<GameReleaseDatesRowProps> = ({ releases }) => {
   const { t } = useTranslation();
 
+  const uniqueReleases = useDeduplicatedReleases(releases);
+
   return (
     <BaseTableRow className="first:rounded-t-lg last:rounded-b-lg">
       <BaseTableHead scope="row" className="h-auto text-right align-top text-text">
-        {t('metaRelease', { count: releases.length })}
+        {t('metaRelease', { count: uniqueReleases.length })}
       </BaseTableHead>
 
       <BaseTableCell>
         <span className="flex flex-col">
-          {releases.map((release) => {
+          {uniqueReleases.map((release) => {
             // Treat "other" and null as "Worldwide" for now.
             const displayRegion =
               !release.region || release.region === 'other' || release.region === 'worldwide'
@@ -32,7 +35,7 @@ export const GameReleaseDatesRow: FC<GameReleaseDatesRowProps> = ({ releases }) 
                 : release.region;
 
             // Hide the region if there's only one release and it's worldwide.
-            const shouldShowRegion = !(releases.length === 1 && displayRegion === 'WW');
+            const shouldShowRegion = !(uniqueReleases.length === 1 && displayRegion === 'WW');
 
             return (
               <span key={release.id}>
