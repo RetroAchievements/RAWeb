@@ -63,7 +63,7 @@ describe('Component: BeatenCreditAchievementList', () => {
     render(<BeatenCreditAchievementList achievements={[unlockedAchievement]} type="progression" />);
 
     // ASSERT
-    const unlockedContainer = screen.getByText(/unlocked achievement/i).closest('div.rounded-lg');
+    const unlockedContainer = screen.getByText(/unlocked achievement/i).closest('div.rounded');
     expect(unlockedContainer).toHaveClass('border-green-700/30', 'bg-green-900/20');
   });
 
@@ -80,7 +80,7 @@ describe('Component: BeatenCreditAchievementList', () => {
     );
 
     // ASSERT
-    const unlockedContainer = screen.getByText(/unlocked achievement/i).closest('div.rounded-lg');
+    const unlockedContainer = screen.getByText(/unlocked achievement/i).closest('div.rounded');
     expect(unlockedContainer).toHaveClass('border-amber-700/30', 'bg-amber-900/20');
   });
 
