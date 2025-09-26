@@ -1,5 +1,4 @@
 import type { FC, ReactNode } from 'react';
-import { Children } from 'react';
 
 import type { TranslatedString } from '@/types/i18next';
 
@@ -12,10 +11,10 @@ export const PlayableSidebarButtonsSection: FC<PlayableSidebarButtonsSectionProp
   children,
   headingLabel,
 }) => {
-  // If there aren't any buttons to render (due to children returning null),
-  // then don't render headingLabel either.
-  const hasVisibleChildren = Children.toArray(children).some((child) => child);
-  if (!hasVisibleChildren) {
+  // If there aren't any buttons or anchors in the children tree,
+  // then don't render the section.
+  const hasButtonOrAnchor = containsButtonOrAnchor(children);
+  if (!hasButtonOrAnchor) {
     return null;
   }
 
@@ -27,3 +26,27 @@ export const PlayableSidebarButtonsSection: FC<PlayableSidebarButtonsSectionProp
     </div>
   );
 };
+
+/**
+ * Recursively checks if a React element tree contains any buttons or anchors.
+ */
+function containsButtonOrAnchor(node: ReactNode): boolean {
+  if (!node) {
+    return false;
+  }
+
+  if (Array.isArray(node)) {
+    return node.some(containsButtonOrAnchor);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- this is fully dynamic
+  const dynamicProps = (node as any).props as any;
+
+  // Check for interactive elements by their props.
+  if (dynamicProps?.href || dynamicProps?.onClick) {
+    return true;
+  }
+
+  // Recursively check children.
+  return containsButtonOrAnchor(dynamicProps?.children);
+}
