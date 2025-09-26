@@ -180,4 +180,21 @@ describe('Component: PlaytimeRow', () => {
     // ASSERT
     expect(screen.queryByText(/median time/i)).not.toBeInTheDocument();
   });
+
+  it('given totalSamples is undefined, shows the "Not enough data" message', () => {
+    // ARRANGE
+    render(
+      <PlaytimeRow
+        headingLabel={'Test Heading' as TranslatedString}
+        Icon={LuStar}
+        iconContainerClassName="bg-blue-500"
+        iconClassName="text-white"
+        totalSamples={undefined}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/not enough data/i)).toBeVisible();
+    expect(screen.queryByText(/median time/i)).not.toBeInTheDocument();
+  });
 });
