@@ -172,7 +172,11 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
             </p>
 
             <p className="mb-0.5 flex gap-x-1 text-2xs md:mb-0 md:justify-center md:text-center">
-              <ProgressBarMetaText achievement={achievement} playersTotal={playersTotal} />
+              <ProgressBarMetaText
+                achievement={achievement}
+                playersTotal={playersTotal}
+                variant={eventAchievement ? 'event' : 'game'}
+              />
             </p>
 
             <BaseProgress
