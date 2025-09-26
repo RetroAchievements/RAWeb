@@ -17,7 +17,7 @@ export const JumboTypeMetric: FC<JumboTypeMetricProps> = ({ current, total, type
   const Icon = type === 'progression' ? RaProgression : RaWinCondition;
 
   return (
-    <div className="rounded-lg border border-neutral-700 bg-neutral-800 p-4">
+    <div className="rounded border border-neutral-700 bg-neutral-800 p-4">
       <div className="flex flex-col gap-2">
         <p className="flex items-center justify-between text-neutral-400">
           <span>

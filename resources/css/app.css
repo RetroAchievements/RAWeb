@@ -24,12 +24,12 @@
 @import "embed.css";
 @import "footer.css";
 @import "form.css";
+@import "game-set.css";
 @import "icon.css";
 @import "nav.css";
 @import "progress.css";
 @import "progression-status.css";
-@import "search.css";
-@import "statistics.css";
+@import "shadcn.css";
 @import "status-message.css";
 @import "tab.css";
 @import "tag.css";
