@@ -71,13 +71,18 @@ export const BeatenCreditDialog: FC = () => {
         ) : null}
       </div>
 
-      {progressionAchievements?.length ? (
-        <BeatenCreditAchievementList type="progression" achievements={progressionAchievements} />
-      ) : null}
+      <div className="flex flex-col gap-8">
+        {progressionAchievements?.length ? (
+          <BeatenCreditAchievementList type="progression" achievements={progressionAchievements} />
+        ) : null}
 
-      {winConditionAchievements?.length ? (
-        <BeatenCreditAchievementList type="win_condition" achievements={winConditionAchievements} />
-      ) : null}
+        {winConditionAchievements?.length ? (
+          <BeatenCreditAchievementList
+            type="win_condition"
+            achievements={winConditionAchievements}
+          />
+        ) : null}
+      </div>
     </BaseDialogContent>
   );
 };

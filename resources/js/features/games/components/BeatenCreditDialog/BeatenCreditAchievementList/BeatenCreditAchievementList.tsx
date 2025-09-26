@@ -6,6 +6,7 @@ import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { RaProgression } from '@/common/components/RaProgression';
 import { RaWinCondition } from '@/common/components/RaWinCondition';
 import { cn } from '@/common/utils/cn';
+import { sortAchievements } from '@/common/utils/sortAchievements';
 
 interface BeatenCreditAchievementListProps {
   achievements: App.Platform.Data.Achievement[];
@@ -19,6 +20,9 @@ export const BeatenCreditAchievementList: FC<BeatenCreditAchievementListProps> =
   const { t } = useTranslation();
 
   const Icon = type === 'progression' ? RaProgression : RaWinCondition;
+
+  // Show unlocked achievements at the top of the list.
+  const sortedAchievements = sortAchievements(achievements, 'normal');
 
   return (
     <div className="flex flex-col gap-2">
@@ -43,8 +47,8 @@ export const BeatenCreditAchievementList: FC<BeatenCreditAchievementListProps> =
         </p>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-2">
-        {achievements.map((achievement) => (
+      <div className="flex flex-col gap-2">
+        {sortedAchievements.map((achievement) => (
           <div
             key={`${type}-${achievement.id}`}
             className={getAchievementCardClassName(type, !!achievement.unlockedAt)}
@@ -76,7 +80,7 @@ function getAchievementCardClassName(
   type: 'progression' | 'win_condition',
   isUnlocked: boolean,
 ): string {
-  const baseClasses = 'flex items-center gap-4 rounded-lg border p-3';
+  const baseClasses = 'flex items-center gap-4 rounded border p-3';
 
   if (type === 'progression') {
     return cn(
