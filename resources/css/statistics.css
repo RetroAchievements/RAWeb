@@ -1,9 +1,0 @@
-.stat-box {
-  @apply w-full h-20 border border-embed-highlight;
-  @apply flex flex-col justify-center items-center;
-  @apply cursor-pointer;
-  @apply text-link bg-embed;
-  @apply hover:text-white hover:border-menu-link hover:bg-embed-highlight;
-  @apply select-none;
-  @apply rounded;
-}
