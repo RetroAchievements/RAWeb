@@ -5,7 +5,12 @@ import { LuCheck, LuPlus } from 'react-icons/lu';
 import { route } from 'ziggy-js';
 
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
-import { BaseToggle } from '@/common/components/+vendor/BaseToggle';
+import { BaseToggle, baseToggleVariants } from '@/common/components/+vendor/BaseToggle';
+import {
+  BaseTooltip,
+  BaseTooltipContent,
+  BaseTooltipTrigger,
+} from '@/common/components/+vendor/BaseTooltip';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { useDestroySetRequestMutation } from '@/features/games/hooks/mutations/useDestroySetRequestMutation';
@@ -68,6 +73,30 @@ export const RequestSetToggleButton: FC = () => {
     }
   };
 
+  const hasNoRequestsLeft = setRequestData.userRequestsRemaining < 1 && !isPressed;
+
+  if (hasNoRequestsLeft) {
+    return (
+      <BaseTooltip>
+        <BaseTooltipTrigger>
+          <span
+            data-testid="disabled"
+            className={cn(baseToggleVariants(), [
+              'cursor-not-allowed opacity-50 hover:bg-embed hover:text-neutral-500',
+              'hover:light:bg-embed hover:light:text-neutral-500',
+              'relative gap-1.5 border border-embed-highlight',
+            ])}
+          >
+            <LuPlus className="size-4" />
+            <span>{t('Request Set')}</span>
+          </span>
+        </BaseTooltipTrigger>
+
+        <BaseTooltipContent>{t("You've used all your set requests.")}</BaseTooltipContent>
+      </BaseTooltip>
+    );
+  }
+
   return (
     <BaseToggle
       className={cn(
@@ -75,8 +104,7 @@ export const RequestSetToggleButton: FC = () => {
         'data-[state=on]:hover:border-embed-highlight',
         'disabled:pointer-events-auto disabled:opacity-100',
       )}
-      // could be negative in some bizarre scenarios
-      disabled={mutation.isPending || setRequestData.userRequestsRemaining < 1 || isDebounced}
+      disabled={mutation.isPending || isDebounced}
       pressed={isPressed}
       onPressedChange={handlePressedChange}
     >
@@ -92,7 +120,7 @@ export const RequestSetToggleButton: FC = () => {
           }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
         >
-          <LuCheck className="size-4" />
+          <LuCheck className="size-4 text-green-400 light:text-green-700" />
         </motion.div>
         <motion.div
           className="absolute inset-0 flex items-center justify-center"
