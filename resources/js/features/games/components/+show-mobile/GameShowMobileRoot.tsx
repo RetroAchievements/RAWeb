@@ -9,8 +9,10 @@ import {
 } from '@/common/components/+vendor/BaseTabs';
 import { MatureContentWarningDialog } from '@/common/components/MatureContentWarningDialog';
 import { PlayableAchievementDistribution } from '@/common/components/PlayableAchievementDistribution';
+import { PlayableBoxArtImage } from '@/common/components/PlayableBoxArtImage';
 import { PlayableCompareProgress } from '@/common/components/PlayableCompareProgress';
 import { PlayableHubsList } from '@/common/components/PlayableHubsList';
+import { PlayableMainMedia } from '@/common/components/PlayableMainMedia';
 import { PlayableTopPlayers } from '@/common/components/PlayableTopPlayers';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
@@ -109,6 +111,15 @@ export const GameShowMobileRoot: FC = () => {
         </BaseTabsContent>
 
         <BaseTabsContent value="info" className="flex flex-col gap-8">
+          <div className="-mx-2.5 flex flex-col gap-6 bg-embed p-4">
+            <PlayableBoxArtImage src={game.imageBoxArtUrl} />
+
+            <PlayableMainMedia
+              imageIngameUrl={game.imageIngameUrl!}
+              imageTitleUrl={game.imageTitleUrl!}
+            />
+          </div>
+
           {hasMatureContent ? <MatureContentIndicator /> : null}
 
           <GameMetadata allMetaRowElements={allMetaRowElements} game={game} hubs={hubs} />
