@@ -3,9 +3,10 @@ import { Trans, useTranslation } from 'react-i18next';
 import { FaGamepad } from 'react-icons/fa';
 import { ImTrophy } from 'react-icons/im';
 import { PiMedalFill } from 'react-icons/pi';
-import { route } from 'ziggy-js';
 
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
+
+import { useSeriesHubHref } from '../../hooks/useSeriesHubHref';
 
 /**
  * Hub links are intentionally not using <InertiaLink />.
@@ -20,11 +21,7 @@ interface SeriesHubDisplayProps {
 export const SeriesHubDisplay: FC<SeriesHubDisplayProps> = ({ seriesHub }) => {
   const { t } = useTranslation();
 
-  const hubHref = route('hub.show', {
-    gameSet: seriesHub.hub.id,
-    sort: '-playersTotal',
-    'filter[subsets]': 'only-games',
-  });
+  const { href } = useSeriesHubHref(seriesHub.hub.id);
 
   return (
     <div data-testid="series-hub">
@@ -33,7 +30,7 @@ export const SeriesHubDisplay: FC<SeriesHubDisplayProps> = ({ seriesHub }) => {
       <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
         <div className="flex flex-col gap-3 rounded-lg bg-[rgba(50,50,50,0.3)] p-2 light:bg-neutral-50">
           <div className="flex items-center gap-3">
-            <a href={hubHref}>
+            <a href={href}>
               <img
                 src={seriesHub.hub.badgeUrl!}
                 alt={seriesHub.hub.title!}
@@ -42,7 +39,7 @@ export const SeriesHubDisplay: FC<SeriesHubDisplayProps> = ({ seriesHub }) => {
             </a>
 
             <div className="flex-1">
-              <a href={hubHref}>{cleanHubTitle(seriesHub.hub.title!, true)}</a>
+              <a href={href}>{cleanHubTitle(seriesHub.hub.title!, true)}</a>
 
               <div className="flex items-center gap-1.5 text-xs">
                 <FaGamepad className="size-4 text-neutral-400" />

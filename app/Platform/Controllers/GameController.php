@@ -9,6 +9,7 @@ use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
+use App\Models\GameSet;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\BuildGameInterestedDevelopersDataAction;
@@ -27,6 +28,7 @@ use App\Platform\Enums\GameListSetTypeFilterValue;
 use App\Platform\Enums\GameListSortField;
 use App\Platform\Enums\GameListType;
 use App\Platform\Enums\GamePageListView;
+use App\Platform\Enums\GameSetType;
 use App\Platform\Requests\GameListRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -95,6 +97,24 @@ class GameController extends Controller
 
         /** @var ?User $user */
         $user = $request->user();
+
+        // Redirect hubs to the dedicated hub page.
+        if ($game->ConsoleID === System::Hubs) {
+            $gameSet = GameSet::whereType(GameSetType::Hub)
+                ->whereGameId($game->id)
+                ->first();
+
+            if ($gameSet) {
+                return redirect()->route('hub.show', ['gameSet' => $gameSet]);
+            }
+
+            abort(404);
+        }
+
+        // Redirect events to the dedicated event page.
+        if ($game->ConsoleID === System::Events && $game->event) {
+            return redirect()->route('event.show', ['event' => $game->event]);
+        }
 
         // Redirect the legacy ?f=5 parameter to ?unpublished=true.
         if ($request->query('f') === '5') {
