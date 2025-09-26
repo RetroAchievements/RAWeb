@@ -14,6 +14,7 @@ describe('Component: ProgressBarMetaText', () => {
           unlockPercentage: '0.5',
         })}
         playersTotal={200}
+        variant="event"
       />,
     );
 
@@ -31,6 +32,7 @@ describe('Component: ProgressBarMetaText', () => {
           unlockPercentage: '0.5',
         })}
         playersTotal={200}
+        variant="event"
       />,
     );
 
@@ -41,22 +43,43 @@ describe('Component: ProgressBarMetaText', () => {
     expect(screen.getByText('- 50.00%')).toBeVisible();
   });
 
-  it('given hardcore unlocks equal total unlocks, hides the hardcore count with sr-only', () => {
+  it('given hardcore unlocks equal total unlocks and variant is event, hides the hardcore count with sr-only', () => {
     // ARRANGE
     render(
       <ProgressBarMetaText
         achievement={createAchievement({
           unlocksTotal: 75,
-          unlocksHardcoreTotal: 75,
+          unlocksHardcoreTotal: 75, // !! equal counts
           unlockPercentage: '0.375',
         })}
         playersTotal={200}
+        variant="event" // !!
       />,
     );
 
     // ASSERT
     const hardcoreElement = screen.getByText('(75)');
     expect(hardcoreElement).toHaveClass('sr-only');
+  });
+
+  it('given hardcore unlocks equal total unlocks and variant is game, shows the hardcore count without sr-only', () => {
+    // ARRANGE
+    render(
+      <ProgressBarMetaText
+        achievement={createAchievement({
+          unlocksTotal: 75,
+          unlocksHardcoreTotal: 75, // !! equal counts
+          unlockPercentage: '0.375',
+        })}
+        playersTotal={200}
+        variant="game" // !!
+      />,
+    );
+
+    // ASSERT
+    const hardcoreElement = screen.getByText('(75)');
+    expect(hardcoreElement).not.toHaveClass('sr-only');
+    expect(hardcoreElement).toHaveClass('font-bold');
   });
 
   it('given hardcore unlocks equal total unlocks and are greater than zero, makes the total count bold', () => {
@@ -69,6 +92,7 @@ describe('Component: ProgressBarMetaText', () => {
           unlockPercentage: '0.375',
         })}
         playersTotal={200}
+        variant="event"
       />,
     );
 
@@ -87,6 +111,7 @@ describe('Component: ProgressBarMetaText', () => {
           unlockPercentage: '0.5',
         })}
         playersTotal={200}
+        variant="event"
       />,
     );
 
@@ -105,6 +130,7 @@ describe('Component: ProgressBarMetaText', () => {
           unlockPercentage: '0.0',
         })}
         playersTotal={0}
+        variant="event"
       />,
     );
 
@@ -124,6 +150,7 @@ describe('Component: ProgressBarMetaText', () => {
           unlockPercentage: undefined,
         })}
         playersTotal={200}
+        variant="event"
       />,
     );
 
