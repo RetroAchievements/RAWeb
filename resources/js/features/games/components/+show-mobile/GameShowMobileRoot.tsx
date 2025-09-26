@@ -111,7 +111,7 @@ export const GameShowMobileRoot: FC = () => {
         </BaseTabsContent>
 
         <BaseTabsContent value="info" className="flex flex-col gap-8">
-          <div className="-mx-2.5 flex flex-col gap-6 bg-embed p-4">
+          <div className="-mx-2.5 -my-4 flex flex-col gap-6 p-4">
             <PlayableBoxArtImage src={game.imageBoxArtUrl} />
 
             <PlayableMainMedia
