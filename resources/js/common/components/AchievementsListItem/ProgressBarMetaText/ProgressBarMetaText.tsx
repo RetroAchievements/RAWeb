@@ -7,11 +7,13 @@ import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 interface ProgressBarMetaTextProps {
   achievement: App.Platform.Data.Achievement;
   playersTotal: number;
+  variant: 'game' | 'event';
 }
 
 export const ProgressBarMetaText: FC<ProgressBarMetaTextProps> = ({
   achievement,
   playersTotal,
+  variant,
 }) => {
   const { t } = useTranslation();
 
@@ -23,13 +25,13 @@ export const ProgressBarMetaText: FC<ProgressBarMetaTextProps> = ({
     <Trans
       i18nKey="<1>{{totalUnlocks, number}}</1> <2>({{totalHardcoreUnlocks, number}})</2> of <3>{{totalPlayers, number}}</3> <4>- {{unlockHardcorePercentage}}</4> <5>unlock rate</5>"
       values={{
+        totalUnlocks: unlocksTotal,
+        totalHardcoreUnlocks: unlocksHardcoreTotal,
+        totalPlayers: playersTotal,
         unlockHardcorePercentage: formatPercentage(unlockPercentage, {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         }),
-        totalUnlocks: unlocksTotal,
-        totalHardcoreUnlocks: unlocksHardcoreTotal,
-        totalPlayers: playersTotal,
       }}
       components={{
         1: (
@@ -39,6 +41,7 @@ export const ProgressBarMetaText: FC<ProgressBarMetaTextProps> = ({
               unlocksTotal === unlocksHardcoreTotal && unlocksHardcoreTotal > 0
                 ? 'font-bold'
                 : null,
+
               'cursor-help',
             )}
           />
@@ -47,7 +50,7 @@ export const ProgressBarMetaText: FC<ProgressBarMetaTextProps> = ({
         2: (
           <span
             className={cn(
-              unlocksTotal === unlocksHardcoreTotal ? 'sr-only' : null,
+              unlocksTotal === unlocksHardcoreTotal && variant !== 'game' ? 'sr-only' : null,
               'cursor-help font-bold',
             )}
             title={t('Hardcore unlocks')}
