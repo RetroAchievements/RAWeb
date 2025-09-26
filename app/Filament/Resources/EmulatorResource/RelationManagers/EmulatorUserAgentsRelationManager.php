@@ -29,11 +29,21 @@ class EmulatorUserAgentsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('client'),
+                Forms\Components\TextInput::make('client')
+                    ->label('Client Identifier')
+                    ->required()
+                    ->placeholder('PCSX2')
+                    ->helperText('The client string to match (eg: "RALibRetro", "Dolphin", "PCSX2")'),
 
-                Forms\Components\TextInput::make('minimum_allowed_version'),
+                Forms\Components\TextInput::make('minimum_hardcore_version')
+                    ->label('Minimum Hardcore Version')
+                    ->placeholder('2.9.0')
+                    ->helperText('⚠️ Versions older than this only support softcore mode. This is the minimum version required for hardcore to be enabled.'),
 
-                Forms\Components\TextInput::make('minimum_hardcore_version'),
+                Forms\Components\TextInput::make('minimum_allowed_version')
+                    ->label('Minimum Allowed Version')
+                    ->placeholder('2.7.0')
+                    ->helperText('🔴 Versions older than this will be COMPLETELY BLOCKED from the server, even for softcore. Use this very sparingly, such as if a version of the emulator is DDoSing the server. Leave empty to allow all versions.'),
             ]);
     }
 
@@ -41,6 +51,7 @@ class EmulatorUserAgentsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('title')
+            ->description('Control which versions can connect to the server based on their user agent. Most emulators only need one entry.')
             ->columns([
                 Tables\Columns\TextColumn::make('client')
                     ->label('Client Identifier')
@@ -48,13 +59,21 @@ class EmulatorUserAgentsRelationManager extends RelationManager
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('minimum_allowed_version')
-                    ->label('Minimum Allowed Version'),
+                    ->label('Minimum Allowed Version')
+                    ->placeholder('—')
+                    ->tooltip('Versions older than this cannot connect to the server at all, even for softcore mode.')
+                    ->formatStateUsing(fn ($state) => $state ?: 'No blocking'),
 
                 Tables\Columns\TextColumn::make('minimum_hardcore_version')
-                    ->label('Minimum Hardcore Version'),
+                    ->label('Minimum Hardcore Version')
+                    ->placeholder('—')
+                    ->tooltip('Versions older than this can only play in softcore mode.')
+                    ->formatStateUsing(fn ($state) => $state ?: 'No restriction'),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->label('Add user agent')
+                    ->modalHeading('Add user agent'),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
