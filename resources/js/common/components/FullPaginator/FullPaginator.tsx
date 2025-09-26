@@ -68,6 +68,7 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
             href={firstPageUrl ?? '#'}
             aria-disabled={currentPage === 1 ? true : undefined}
             role={currentPage === 1 ? 'link' : undefined}
+            size="sm"
           >
             <LuChevronFirst className="size-4" aria-hidden="true" />
           </BasePaginationLink>
@@ -80,6 +81,7 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
             href={previousPageUrl ?? '#'}
             aria-disabled={currentPage === 1 ? true : undefined}
             role={currentPage !== 1 ? 'link' : undefined}
+            size="sm"
           >
             <LuChevronLeft className="size-4" aria-hidden="true" />
           </BasePaginationLink>
@@ -117,6 +119,7 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
             href={nextPageUrl ?? '#'}
             aria-disabled={currentPage === lastPage ? true : undefined}
             role={currentPage !== lastPage ? 'link' : undefined}
+            size="sm"
           >
             <LuChevronRight className="size-4" aria-hidden="true" />
           </BasePaginationLink>
@@ -129,6 +132,7 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
             href={lastPageUrl ?? '#'}
             aria-disabled={currentPage === lastPage ? true : undefined}
             role={currentPage !== lastPage ? 'link' : undefined}
+            size="sm"
           >
             <LuChevronLast className="size-4" aria-hidden="true" />
           </BasePaginationLink>
