@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
 import {
@@ -509,5 +510,43 @@ describe('Component: GameShowMobileRoot', () => {
 
     // ASSERT
     expect(screen.queryByTestId('playable-compare-progress')).not.toBeInTheDocument();
+  });
+
+  it('given the user changes tabs, does not crash', async () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg', // !!
+      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      system: createSystem({
+        iconUrl: 'icon.jpg', // !!
+      }),
+    });
+
+    const { container } = render(<GameShowMobileRoot />, {
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: true,
+        playerAchievementChartBuckets: [],
+        recentPlayers: [],
+        recentVisibleComments: [],
+        topAchievers: [],
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('tab', { name: /info/i }));
+
+    // ASSERT
+    expect(container).toBeTruthy();
   });
 });
