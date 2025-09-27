@@ -515,13 +515,13 @@ describe('Component: GameShowMobileRoot', () => {
   it('given the user changes tabs, does not crash', async () => {
     // ARRANGE
     const game = createGame({
-      badgeUrl: 'badge.jpg', // !!
+      badgeUrl: 'badge.jpg',
       gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
       imageBoxArtUrl: faker.internet.url(),
       imageTitleUrl: faker.internet.url(),
       imageIngameUrl: faker.internet.url(),
       system: createSystem({
-        iconUrl: 'icon.jpg', // !!
+        iconUrl: 'icon.jpg',
       }),
     });
 
