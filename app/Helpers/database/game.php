@@ -26,7 +26,7 @@ function getGameData(int $gameID): ?array
 function getGameMetadata(
     int $gameID,
     ?User $user,
-    array &$achievementDataOut,
+    ?array &$achievementDataOut,
     ?array &$gameDataOut,
     int $sortBy = 1,
     ?User $user2 = null,
