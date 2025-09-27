@@ -301,7 +301,7 @@ class BuildGameShowPagePropsAction
             isViewingPublishedAchievements: $targetAchievementFlag === AchievementFlag::OfficialCore,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
 
-            leaderboards: request()->inertia()
+            leaderboards: request()->inertia() || $initialView === GamePageListView::Leaderboards
                 ? $this->buildLeaderboards($backingGame, $user)
                 : Lazy::inertiaDeferred(fn () => $this->buildLeaderboards($backingGame, $user)),
 
