@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import utc from 'dayjs/plugin/utc';
 import type { FC } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
@@ -80,6 +81,8 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
 
   const { formatPercentage } = useFormatPercentage();
 
+  const [isTooltipOpen, setIsTooltipOpen] = useState(false);
+
   const achievementsPublished = game?.achievementsPublished ?? 0;
   const pointsTotal = game.pointsTotal ?? 0;
   const achievementsUnlocked = playerGame?.achievementsUnlocked ?? 0;
@@ -122,7 +125,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
   const isTooltipDisabled = achievementsUnlocked === 0 || !isTooltipEnabled;
 
   return (
-    <BaseTooltip open={!achievementsUnlocked ? false : undefined}>
+    <BaseTooltip open={isTooltipDisabled ? false : isTooltipOpen} onOpenChange={setIsTooltipOpen}>
       <BaseTooltipTrigger
         className={cn(
           'group',
