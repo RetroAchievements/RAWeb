@@ -16,7 +16,10 @@ export const CommentListItem: FC<CommentListItemProps> = ({ ...comment }) => {
   const { onDeleteSuccess } = useCommentListContext();
 
   return (
-    <li className="flex w-full items-start gap-4 p-2">
+    <li
+      id={`comment_${comment.id}`}
+      className="flex w-full scroll-mt-20 items-start gap-4 p-2 target:outline target:outline-2 target:outline-text"
+    >
       <div className="mt-1">
         {comment.isAutomated ? (
           <div className="size-8" />
