@@ -70,8 +70,17 @@ export const PlayableListSortButton: FC<PlayableListSortButtonProps> = ({
     wonBy: { label: t('Won by (most)'), icon: LuUsers },
   };
 
+  const handleCheckedChange = (sortOrder: PlayableListSortOrder) => {
+    // If we didn't actually change the option, don't re-sort the list. Just close the dropdown.
+    if (value === sortOrder) {
+      return;
+    }
+
+    onChange(sortOrder);
+  };
+
   return (
-    <BaseDropdownMenu>
+    <BaseDropdownMenu modal={false}>
       <BaseDropdownMenuTrigger asChild>
         <BaseButton
           size="sm"
@@ -101,7 +110,7 @@ export const PlayableListSortButton: FC<PlayableListSortButtonProps> = ({
             <Fragment key={`option-item-${sortOrder}`}>
               <BaseDropdownMenuCheckboxItem
                 checked={value === sortOrder}
-                onCheckedChange={() => onChange(sortOrder)}
+                onCheckedChange={() => handleCheckedChange(sortOrder)}
                 className="gap-2"
               >
                 <SortIcon className="size-5" />

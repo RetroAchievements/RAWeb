@@ -243,4 +243,26 @@ describe('Component: PlayableListSortButton', () => {
     // ASSERT
     expect(onChange).toHaveBeenCalledWith('-wonBy');
   });
+
+  it('given the user selects the already-selected option, does not call onChange', async () => {
+    // ARRANGE
+    const onChange = vi.fn();
+
+    render(
+      <PlayableListSortButton
+        value="displayOrder"
+        onChange={onChange}
+        availableSortOrders={['displayOrder', 'wonBy', '-wonBy']}
+      />,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button'));
+    await userEvent.click(
+      screen.getByRole('menuitemcheckbox', { name: /display order \(first\)/i }),
+    );
+
+    // ASSERT
+    expect(onChange).not.toHaveBeenCalled();
+  });
 });

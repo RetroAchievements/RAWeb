@@ -51,7 +51,7 @@ export const GameListViewSelectButton: FC = () => {
   };
 
   return (
-    <BaseDropdownMenu>
+    <BaseDropdownMenu modal={false}>
       <BaseDropdownMenuTrigger asChild>
         <BaseButton size="sm" aria-label={t('Display mode')}>
           <Icon className="size-4" />
