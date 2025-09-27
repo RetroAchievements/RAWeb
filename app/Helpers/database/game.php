@@ -23,6 +23,9 @@ function getGameData(int $gameID): ?array
     ]);
 }
 
+/**
+ * @param-out array $achievementDataOut
+ */
 function getGameMetadata(
     int $gameID,
     ?User $user,
