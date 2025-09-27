@@ -23,12 +23,15 @@ export const ScrollToTopButton: FC = () => {
           transition={{ duration: 0.1 }}
           onClick={handleClick}
           className={cn(
-            'fixed left-1/2 top-12 z-50 mx-[-18px] flex size-10 -translate-x-1/2',
-            'items-center justify-center rounded-full bg-neutral-950 shadow-xl transition-colors hover:bg-black/80',
+            'fixed bottom-8 right-8 z-50 mx-[-18px] flex size-12',
+            'sm:bottom-6 sm:right-6',
+            'items-center justify-center rounded-full bg-neutral-700 shadow-xl',
+            'light:border light:border-neutral-400 light:bg-neutral-300',
+            'transition-colors hover:bg-black/80',
           )}
           aria-label="scroll to top"
         >
-          <LuArrowUp className="size-5 text-white" />
+          <LuArrowUp className="size-5 text-white light:text-neutral-600" />
         </motion.button>
       ) : null}
     </AnimatePresence>
