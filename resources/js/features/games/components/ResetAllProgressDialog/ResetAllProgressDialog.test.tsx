@@ -7,9 +7,9 @@ import { isResetAllProgressDialogOpenAtom } from '@/features/games/state/games.a
 import { render, screen, waitFor } from '@/test';
 import { createGame } from '@/test/factories';
 
-import { ResetAllProgressAlertDialog } from './ResetAllProgressAlertDialog';
+import { ResetAllProgressDialog } from './ResetAllProgressDialog';
 
-describe('Component: ResetAllProgressAlertDialog', () => {
+describe('Component: ResetAllProgressDialog', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(router, 'reload').mockImplementation(vi.fn());
@@ -17,7 +17,7 @@ describe('Component: ResetAllProgressAlertDialog', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<ResetAllProgressAlertDialog />, {
+    const { container } = render(<ResetAllProgressDialog />, {
       pageProps: { backingGame: createGame() },
     });
 
@@ -27,7 +27,7 @@ describe('Component: ResetAllProgressAlertDialog', () => {
 
   it('given the dialog is closed, does not show dialog content', () => {
     // ARRANGE
-    render(<ResetAllProgressAlertDialog />, {
+    render(<ResetAllProgressDialog />, {
       pageProps: { backingGame: createGame() },
       jotaiAtoms: [
         [isResetAllProgressDialogOpenAtom, false],
@@ -44,7 +44,7 @@ describe('Component: ResetAllProgressAlertDialog', () => {
 
   it('given the dialog is open, shows the confirmation dialog content', () => {
     // ARRANGE
-    render(<ResetAllProgressAlertDialog />, {
+    render(<ResetAllProgressDialog />, {
       pageProps: { backingGame: createGame() },
       jotaiAtoms: [
         [isResetAllProgressDialogOpenAtom, true],
@@ -53,15 +53,16 @@ describe('Component: ResetAllProgressAlertDialog', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/are you sure/i)).toBeVisible();
-    expect(screen.getByText(/this will remove all your unlocked achievements/i)).toBeVisible();
-    expect(screen.getByRole('button', { name: /nevermind/i })).toBeVisible();
-    expect(screen.getByRole('button', { name: /continue/i })).toBeVisible();
+    expect(screen.getByText(/manage progress/i)).toBeVisible();
+    expect(screen.getByText(/this cannot be reversed/i)).toBeVisible();
+    expect(screen.getByRole('checkbox', { name: /i understand/i })).toBeVisible();
+    expect(screen.getByRole('button', { name: /cancel/i })).toBeVisible();
+    expect(screen.getByRole('button', { name: /reset progress/i })).toBeDisabled();
   });
 
   it('given the user clicks the cancel button, closes the dialog', async () => {
     // ARRANGE
-    render(<ResetAllProgressAlertDialog />, {
+    render(<ResetAllProgressDialog />, {
       pageProps: { backingGame: createGame() },
       jotaiAtoms: [
         [isResetAllProgressDialogOpenAtom, true],
@@ -70,20 +71,20 @@ describe('Component: ResetAllProgressAlertDialog', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /nevermind/i }));
+    await userEvent.click(screen.getByRole('button', { name: /cancel/i }));
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.queryByText(/are you sure/i)).not.toBeInTheDocument();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
 
-  it('given the user clicks continue, makes the API call and shows success toast', async () => {
+  it('given the user ticks the checkbox and presses the continue button, makes the API call and shows success toast', async () => {
     // ARRANGE
     const mockGame = createGame({ id: 12345 });
     const deleteSpy = vi.spyOn(axios, 'delete').mockResolvedValueOnce({ data: { success: true } });
 
-    render(<ResetAllProgressAlertDialog />, {
+    render(<ResetAllProgressDialog />, {
       pageProps: { backingGame: mockGame },
       jotaiAtoms: [
         [isResetAllProgressDialogOpenAtom, true],
@@ -92,7 +93,8 @@ describe('Component: ResetAllProgressAlertDialog', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /continue/i }));
+    await userEvent.click(screen.getByRole('checkbox'));
+    await userEvent.click(screen.getByRole('button', { name: /reset progress/i }));
 
     // ASSERT
     expect(deleteSpy).toHaveBeenCalledWith(route('api.user.game.destroy', { game: 12345 }));
@@ -109,13 +111,14 @@ describe('Component: ResetAllProgressAlertDialog', () => {
     const mockGame = createGame({ id: 12345 });
     const deleteSpy = vi.spyOn(axios, 'delete').mockRejectedValueOnce(new Error('Network error'));
 
-    render(<ResetAllProgressAlertDialog />, {
+    render(<ResetAllProgressDialog />, {
       pageProps: { backingGame: mockGame },
       jotaiAtoms: [[isResetAllProgressDialogOpenAtom, true]],
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /continue/i }));
+    await userEvent.click(screen.getByRole('checkbox'));
+    await userEvent.click(screen.getByRole('button', { name: /reset progress/i }));
 
     // ASSERT
     expect(deleteSpy).toHaveBeenCalledWith(route('api.user.game.destroy', { game: 12345 }));
