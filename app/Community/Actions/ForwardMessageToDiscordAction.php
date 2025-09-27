@@ -11,8 +11,6 @@ use App\Models\MessageThread;
 use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use Illuminate\Support\Facades\Log;
 
 class ForwardMessageToDiscordAction
 {
@@ -314,27 +312,15 @@ class ForwardMessageToDiscordAction
         $threadWebhookUrl = $webhookUrl . '?thread_id=' . $discordThreadId;
 
         if (mb_strlen($messageBody) > self::DISCORD_EMBED_DESCRIPTION_LIMIT) {
-            try {
-                $this->sendChunkedMessages(
-                    $threadWebhookUrl,
-                    $userFrom,
-                    $userTo,
-                    $messageThread,
-                    $messageBody,
-                    $color,
-                    $isNewThread
-                );
-            } catch (ClientException $e) {
-                Log::warning('Failed to send chunked Discord messages to thread', [
-                    'thread_id' => $messageThread->id,
-                    'discord_thread_url' => $threadWebhookUrl,
-                    'user_from' => $userFrom->username,
-                    'user_to' => $userTo->username,
-                    'message_length' => mb_strlen($messageBody),
-                    'status_code' => $e->getResponse()?->getStatusCode(),
-                    'error_message' => $e->getMessage(),
-                ]);
-            }
+            $this->sendChunkedMessages(
+                $threadWebhookUrl,
+                $userFrom,
+                $userTo,
+                $messageThread,
+                $messageBody,
+                $color,
+                $isNewThread
+            );
         } else {
             // Skip sending for new threads since the first message was already sent during thread creation.
             if (!$isNewThread) {
@@ -347,18 +333,7 @@ class ForwardMessageToDiscordAction
                     true
                 );
 
-                try {
-                    $this->client->post($threadWebhookUrl, ['json' => $payload]);
-                } catch (ClientException $e) {
-                    Log::warning('Failed to send Discord message to thread', [
-                        'thread_id' => $messageThread->id,
-                        'discord_thread_url' => $threadWebhookUrl,
-                        'user_from' => $userFrom->username,
-                        'user_to' => $userTo->username,
-                        'status_code' => $e->getResponse()?->getStatusCode(),
-                        'error_message' => $e->getMessage(),
-                    ]);
-                }
+                $this->client->post($threadWebhookUrl, ['json' => $payload]);
             }
         }
     }
@@ -398,19 +373,7 @@ class ForwardMessageToDiscordAction
                 $payload['content'] = "[Part {$partNumber} of {$totalParts}]";
             }
 
-            try {
-                $this->client->post($threadWebhookUrl, ['json' => $payload]);
-            } catch (ClientException $e) {
-                Log::warning('Failed to send Discord message chunk', [
-                    'thread_id' => $messageThread->id,
-                    'part_number' => $partNumber,
-                    'total_parts' => $totalParts,
-                    'user_from' => $userFrom->username,
-                    'user_to' => $userTo->username,
-                    'status_code' => $e->getResponse()?->getStatusCode(),
-                    'error_message' => $e->getMessage(),
-                ]);
-            }
+            $this->client->post($threadWebhookUrl, ['json' => $payload]);
 
             // Use a naive delay to prevent Discord from deciding to randomly reorder messages.
             if ($i < $totalParts - 1) {
@@ -439,18 +402,7 @@ class ForwardMessageToDiscordAction
             true
         );
 
-        try {
-            $this->client->post($webhookUrl, ['json' => $payload]);
-        } catch (ClientException $e) {
-            Log::warning('Failed to send single Discord message', [
-                'thread_id' => $messageThread->id,
-                'webhook_url' => $webhookUrl,
-                'user_from' => $userFrom->username,
-                'user_to' => $userTo->username,
-                'status_code' => $e->getResponse()?->getStatusCode(),
-                'error_message' => $e->getMessage(),
-            ]);
-        }
+        $this->client->post($webhookUrl, ['json' => $payload]);
     }
 
     /**
