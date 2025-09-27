@@ -38,6 +38,10 @@ describe('Component: SidebarDevelopmentSection', () => {
     mockRemoveFromGameList.mockResolvedValue(undefined);
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const game = createGame({ gameAchievementSets: [] });
@@ -344,5 +348,38 @@ describe('Component: SidebarDevelopmentSection', () => {
 
     // ASSERT
     expect(screen.getByRole('link', { name: /view unpublished achievements/i })).toBeVisible();
+  });
+
+  it('given the user taps the link to view unpublished achievements, scrolls to the top of the screen', async () => {
+    // ARRANGE
+    const game = createGame({ id: 1, gameAchievementSets: [] });
+    const backingGame = createGame({
+      id: 2,
+      achievementsPublished: 50,
+      achievementsUnpublished: 10,
+    });
+    const pageProps = {
+      backingGame,
+      game,
+      achievementSetClaims: [],
+      can: {},
+      isOnWantToDevList: false,
+      isViewingPublishedAchievements: true,
+      ziggy: createZiggyProps(),
+    };
+
+    const scrollToSpy = vi.spyOn(window, 'scrollTo');
+
+    render(<SidebarDevelopmentSection />, { pageProps });
+
+    // ACT
+    await userEvent.click(screen.getByRole('link', { name: /view unpublished achievements/i }));
+
+    // ASSERT
+    expect(scrollToSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        top: 0,
+      }),
+    );
   });
 });

@@ -6,12 +6,11 @@ import { currentTabAtom } from '../state/games.atoms';
 export function useGameShowTabs() {
   const [currentTab, internal_setCurrentTab] = useAtom(currentTabAtom);
 
-  const setCurrentTab = (value: string) => {
-    const safeValue = value as GameShowTab;
-    internal_setCurrentTab(safeValue);
+  const setCurrentTab = (value: GameShowTab) => {
+    internal_setCurrentTab(value);
 
     const searchParams = new URLSearchParams(window.location.search);
-    if (safeValue !== 'achievements') {
+    if (value !== 'achievements') {
       searchParams.set('tab', value);
     } else {
       searchParams.delete('tab');
