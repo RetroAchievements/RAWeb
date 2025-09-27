@@ -108,7 +108,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
       <div className="relative">
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.ul
-            key={userAchievementListChangeCounter}
+            key={`${currentListView}-${userAchievementListChangeCounter}`}
             className="flex flex-col gap-2.5"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
