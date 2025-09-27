@@ -59,9 +59,9 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
   return (
     <motion.li
       className="game-set-item"
-      initial={{ opacity: 0, transform: 'translateY(10px)' }}
-      animate={{ opacity: 1, transform: 'translateY(0px)' }}
-      exit={{ opacity: 0, transform: 'translateY(10px)' }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 10 }}
       transition={{
         duration: 0.12,
         delay: isLargeList
