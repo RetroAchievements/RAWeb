@@ -46,15 +46,13 @@ class DatabaseTest extends TestCase
     public function testLegacyDbFetchAllReturnsEmptyCollectionIfNothingWasFound(): void
     {
         $result = legacyDbFetchAll('SELECT * FROM UserAccounts');
-        $this->assertIsIterable($result);
-        $this->assertEmpty($result);
+        $this->assertTrue($result->isEmpty());
     }
 
     public function testLegacyDbFetchAll(): void
     {
         User::factory()->count(3)->create();
         $result = legacyDbFetchAll('SELECT * FROM UserAccounts');
-        $this->assertIsIterable($result);
         $this->assertCount(3, $result);
         $this->assertIsIterable($result[0]);
         $this->assertArrayHasKey('ID', $result[0]);

@@ -100,7 +100,7 @@ class ComputeGameSortTitleAction
                     $numericValue = sprintf('%05d', $romanNumerals[$roman]);
 
                     // If there's a hyphen and number after the Roman numeral, pad that number too.
-                    if ($matches[0] && preg_match('/-(\d+)$/', $matches[0], $suffixMatch)) {
+                    if (preg_match('/-(\d+)$/', $matches[0], $suffixMatch)) {
                         $numericValue .= '-' . sprintf('%05d', $suffixMatch[1]);
                     }
 

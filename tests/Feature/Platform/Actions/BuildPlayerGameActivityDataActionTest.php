@@ -45,9 +45,6 @@ class BuildPlayerGameActivityDataActionTest extends TestCase
 
         // Assert
         $this->assertInstanceOf(PlayerGameActivityData::class, $result);
-        $this->assertIsArray($result->sessions);
-        $this->assertIsArray($result->clientBreakdown);
-        $this->assertNotNull($result->summarizedActivity);
     }
 
     public function testExecuteIncludesAchievementData(): void

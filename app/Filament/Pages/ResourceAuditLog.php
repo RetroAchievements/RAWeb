@@ -39,7 +39,7 @@ abstract class ResourceAuditLog extends Page implements HasForms
     }
 
     /**
-     * @return LengthAwarePaginator<Model>
+     * @return LengthAwarePaginator<int, Model>
      */
     public function getAuditLog(): LengthAwarePaginator
     {

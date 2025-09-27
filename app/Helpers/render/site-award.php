@@ -60,7 +60,7 @@ function SeparateAwards(array $userAwards): array
         }
     }
 
-    return [array_values($gameAwards), array_values($eventAwards), array_values($siteAwards)];
+    return [$gameAwards, $eventAwards, $siteAwards];
 }
 
 function RenderSiteAwards(array $userAwards, string $awardsOwnerUsername): void

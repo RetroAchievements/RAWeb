@@ -29,7 +29,7 @@ function generateEmailVerificationToken(User $user): string
 /**
  * @deprecated will be replaced by Fortify and default framework features
  */
-function validateEmailVerificationToken(string $emailCookie, ?string &$user): bool
+function validateEmailVerificationToken(string $emailCookie, ?User &$user): bool
 {
     $emailConfirmation = EmailConfirmation::firstWhere('EmailCookie', $emailCookie);
 

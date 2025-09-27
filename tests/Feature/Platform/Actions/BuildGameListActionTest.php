@@ -352,7 +352,7 @@ class BuildGameListActionTest extends TestCase
 
     public function testItCanSortByReleasedAt(): void
     {
-        if (env('CI')) {
+        if (getenv('CI')) {
             $this->markTestSkipped('Skipping test in GitHub Actions due to SQLite limitations.');
         }
 

@@ -47,13 +47,11 @@ class TriggerTicketPolicy
             return false;
         }
 
-        if ($triggerable instanceof Achievement) {
-            return $this->createAchievementTicket($user, $triggerable);
-        }
-
         if ($triggerable instanceof Leaderboard) {
             return $this->createLeaderboardTicket($user, $triggerable);
         }
+
+        return $this->createAchievementTicket($user, $triggerable);
     }
 
     public function update(User $user, TriggerTicket $achievementTicket): bool

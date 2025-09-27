@@ -60,7 +60,7 @@ class GameResource extends Resource
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
-            'ID' => $record->id,
+            'ID' => (string) $record->id,
             'System' => $record->system->name,
         ];
     }

@@ -421,7 +421,7 @@ class UserProfileMeta extends Component
 
             $totalGames++;
 
-            if (isset($game['HighestAwardKind']) && $game['HighestAwardKind'] !== null) {
+            if (isset($game['HighestAwardKind'])) {
                 $finishedGames++;
             }
         }

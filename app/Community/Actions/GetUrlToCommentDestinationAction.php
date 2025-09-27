@@ -16,7 +16,7 @@ class GetUrlToCommentDestinationAction
          */
         $comment->loadMissing('commentable');
 
-        $query = '?' . http_build_query(array_filter(['highlight' => 'comment-' . $comment->id])) . '#comments';
+        $query = '?' . http_build_query(['highlight' => 'comment-' . $comment->id]) . '#comments';
 
         if (Route::has(resource_type($comment->commentable) . '.comment.index')) {
             return route(resource_type($comment->commentable) . '.comment.index', $comment->commentable) . $query;

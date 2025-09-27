@@ -125,6 +125,6 @@ class GameHashesRelationManager extends RelationManager
 
     protected function refreshBadgeCount(Model $ownerRecord): void
     {
-        $this->badge = $ownerRecord->incompatibleGameHashes->count();
+        static::$badge = (string) $ownerRecord->incompatibleGameHashes->count();
     }
 }

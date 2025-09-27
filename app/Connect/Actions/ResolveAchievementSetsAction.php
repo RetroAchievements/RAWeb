@@ -94,10 +94,8 @@ class ResolveAchievementSetsAction
     private function getAllAchievementSets(int $gameId, ?array $types): Collection
     {
         $query = GameAchievementSet::with([
-            'achievementSet' => [
-                'achievements' => fn ($q) => $q->orderBy('DisplayOrder'),
-                'incompatibleGameHashes',
-            ],
+            'achievementSet.achievements' => fn ($q) => $q->orderBy('DisplayOrder'),
+            'achievementSet.incompatibleGameHashes',
         ])->where('game_id', $gameId);
 
         if ($types !== null) {
