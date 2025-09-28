@@ -52,7 +52,7 @@ export function buildNumRequestsColumnDef<TEntry extends App.Platform.Data.GameL
       }
 
       return (
-        <a href={`/setRequestors.php?g=${gameId}`} className="transition hover:text-link">
+        <a href={`/game/${gameId}/requests`} className="transition hover:text-link">
           {formatNumber(numRequests)}
         </a>
       );

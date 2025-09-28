@@ -1060,6 +1060,8 @@
     "There are no achievements for this set yet.": "There are no achievements for this set yet.",
     "No achievements yet": "No achievements yet",
     "Set requests help developers decide what games to work on next.": "Set requests help developers decide what games to work on next.",
+    "All requestors ({{val, number}})": "All requestors ({{val, number}})",
+    "List of Set Requests": "List of Set Requests",
     "requestsFromPlayers_one": "<1>{{val, number}} request</1> from players",
     "requestsFromPlayers_other": "<1>{{val, number}} requests</1> from players",
     "myRemainingRequests2_one": "You have <1>{{val, number}} request</1> remaining",

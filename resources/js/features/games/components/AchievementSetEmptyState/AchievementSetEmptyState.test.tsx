@@ -79,7 +79,7 @@ describe('Component: AchievementSetEmptyState', () => {
     // ASSERT
     expect(screen.getByRole('link', { name: /123/ })).toHaveAttribute(
       'href',
-      '/setRequestors.php?g=456',
+      '/game/456/requests',
     );
   });
 
