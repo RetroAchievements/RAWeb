@@ -31,7 +31,7 @@ export const BeatenCreditAchievementList: FC<BeatenCreditAchievementListProps> =
           <Icon
             className={cn(
               '-mb-0.5 size-5',
-              type === 'progression' ? 'text-green-500' : 'text-amber-500',
+              type === 'progression' ? 'text-green-500 light:text-green-700' : 'text-amber-500',
             )}
           />
 
@@ -86,13 +86,15 @@ function getAchievementCardClassName(
     return cn(
       baseClasses,
       isUnlocked
-        ? 'border-green-700/30 bg-green-900/20'
-        : 'border-neutral-700/30 bg-neutral-800/50',
+        ? 'border-green-700/30 bg-green-900/20 light:bg-green-100/70'
+        : 'border-neutral-700/30 bg-neutral-800/50 light:bg-white',
     );
   }
 
   return cn(
     baseClasses,
-    isUnlocked ? 'border-amber-700/30 bg-amber-900/20' : 'border-neutral-700/30 bg-neutral-800/50',
+    isUnlocked
+      ? 'border-amber-700/30 bg-amber-900/20 light:bg-amber-100/70'
+      : 'border-neutral-700/30 bg-neutral-800/50 light:bg-white',
   );
 }
