@@ -61,7 +61,10 @@ export const GameListViewSelectToggleGroup: FC = () => {
           value="leaderboards"
           aria-label={t('Leaderboards')}
           variant="outline"
-          className="game-set__toggle group w-full rounded-l-none sm:w-auto sm:rounded-r-none"
+          className={cn(
+            'game-set__toggle group w-full rounded-l-none',
+            'sm:w-auto sm:rounded-l-md sm:rounded-r-none',
+          )}
         >
           <BaseTooltipTrigger asChild>
             <div className="flex cursor-pointer items-center py-1">
@@ -88,7 +91,10 @@ export const GameListViewSelectToggleGroup: FC = () => {
           value="achievements"
           aria-label={t('Achievements')}
           variant="outline"
-          className="game-set__toggle w-full rounded-r-none border-r-0 sm:w-auto sm:rounded-l-none sm:border-l-0"
+          className={cn(
+            'game-set__toggle w-full rounded-r-none border-r-0',
+            'sm:w-auto sm:rounded-l-none sm:rounded-r-md sm:border-l-0 sm:border-r',
+          )}
         >
           <BaseTooltipTrigger asChild>
             <div className="flex cursor-pointer items-center py-1">
