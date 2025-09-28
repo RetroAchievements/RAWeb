@@ -8,7 +8,7 @@ import {
   isMissableOnlyFilterEnabledAtom,
 } from '@/features/games/state/games.atoms';
 import { render, screen } from '@/test';
-import { createGame } from '@/test/factories';
+import { createGame, createZiggyProps } from '@/test/factories';
 
 import { GameAchievementSetToolbar } from '../GameAchievementSetToolbar';
 
@@ -168,15 +168,19 @@ describe('Component: GameAchievementSetToolbar', () => {
       toggleGameId: mockToggleGameId,
     });
 
-    const initialAtomValues: [any, any][] = [[isLockedOnlyFilterEnabledAtom, false]];
-
     render(
       <GameAchievementSetToolbar
         lockedAchievementsCount={5}
         missableAchievementsCount={3}
         unlockedAchievementsCount={1}
       />,
-      { pageProps: { backingGame: mockGame }, jotaiAtoms: initialAtomValues },
+      {
+        pageProps: { backingGame: mockGame },
+        jotaiAtoms: [
+          [isLockedOnlyFilterEnabledAtom, false],
+          //
+        ],
+      },
     );
 
     // ACT
@@ -196,15 +200,19 @@ describe('Component: GameAchievementSetToolbar', () => {
       toggleGameId: mockToggleGameId,
     });
 
-    const initialAtomValues: [any, any][] = [[isLockedOnlyFilterEnabledAtom, true]];
-
     render(
       <GameAchievementSetToolbar
         lockedAchievementsCount={5}
         missableAchievementsCount={3}
         unlockedAchievementsCount={1}
       />,
-      { pageProps: { backingGame: mockGame }, jotaiAtoms: initialAtomValues },
+      {
+        pageProps: { backingGame: mockGame },
+        jotaiAtoms: [
+          [isLockedOnlyFilterEnabledAtom, true],
+          //
+        ],
+      },
     );
 
     // ACT
@@ -224,15 +232,19 @@ describe('Component: GameAchievementSetToolbar', () => {
       toggleGameId: mockToggleGameId,
     });
 
-    const initialAtomValues: [any, any][] = [[isMissableOnlyFilterEnabledAtom, false]];
-
     render(
       <GameAchievementSetToolbar
         lockedAchievementsCount={5}
         missableAchievementsCount={3}
         unlockedAchievementsCount={1}
       />,
-      { pageProps: { backingGame: mockGame }, jotaiAtoms: initialAtomValues },
+      {
+        pageProps: { backingGame: mockGame },
+        jotaiAtoms: [
+          [isMissableOnlyFilterEnabledAtom, false],
+          //
+        ],
+      },
     );
 
     // ACT
@@ -252,15 +264,19 @@ describe('Component: GameAchievementSetToolbar', () => {
       toggleGameId: mockToggleGameId,
     });
 
-    const initialAtomValues: [any, any][] = [[isMissableOnlyFilterEnabledAtom, true]];
-
     render(
       <GameAchievementSetToolbar
         lockedAchievementsCount={5}
         missableAchievementsCount={3}
         unlockedAchievementsCount={0}
       />,
-      { pageProps: { backingGame: mockGame }, jotaiAtoms: initialAtomValues },
+      {
+        pageProps: { backingGame: mockGame },
+        jotaiAtoms: [
+          [isMissableOnlyFilterEnabledAtom, true],
+          //
+        ],
+      },
     );
 
     // ACT
@@ -294,53 +310,7 @@ describe('Component: GameAchievementSetToolbar', () => {
     expect(screen.getByText(/missable only/i)).toBeVisible();
   });
 
-  it('given there are leaderboards, shows the display mode button', () => {
-    // ARRANGE
-    const mockGame = createGame({ id: 123 });
-    const mockToggleGameId = vi.fn();
-
-    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
-      isGameIdInCookie: vi.fn().mockReturnValue(false),
-      toggleGameId: mockToggleGameId,
-    });
-
-    render(
-      <GameAchievementSetToolbar
-        lockedAchievementsCount={5}
-        missableAchievementsCount={3}
-        unlockedAchievementsCount={1}
-      />,
-      { pageProps: { backingGame: mockGame, numLeaderboards: 10 } }, // !!
-    );
-
-    // ASSERT
-    expect(screen.getByRole('button', { name: /display mode/i })).toBeVisible();
-  });
-
-  it('given there are no leaderboards, does not show the display mode button', () => {
-    // ARRANGE
-    const mockGame = createGame({ id: 123 });
-    const mockToggleGameId = vi.fn();
-
-    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
-      isGameIdInCookie: vi.fn().mockReturnValue(false),
-      toggleGameId: mockToggleGameId,
-    });
-
-    render(
-      <GameAchievementSetToolbar
-        lockedAchievementsCount={5}
-        missableAchievementsCount={3}
-        unlockedAchievementsCount={1}
-      />,
-      { pageProps: { backingGame: mockGame, numLeaderboards: 0 } }, // !!
-    );
-
-    // ASSERT
-    expect(screen.queryByRole('button', { name: /display mode/i })).not.toBeInTheDocument();
-  });
-
-  it('given the user clicks the display mode button and selects Leaderboards, switches to the leaderboards view', async () => {
+  it('given there are leaderboards, shows the display mode toggle group', () => {
     // ARRANGE
     const mockGame = createGame({ id: 123 });
     const mockToggleGameId = vi.fn();
@@ -357,7 +327,67 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={1}
       />,
       {
-        pageProps: { backingGame: mockGame, numLeaderboards: 10 },
+        pageProps: {
+          backingGame: mockGame,
+          numLeaderboards: 10, // !!
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByRole('radio', { name: /achievements/i })).toBeVisible();
+    expect(screen.getByRole('radio', { name: /leaderboards/i })).toBeVisible();
+  });
+
+  it('given there are no leaderboards, does not show the display mode toggle group', () => {
+    // ARRANGE
+    const mockGame = createGame({ id: 123 });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={1}
+      />,
+      {
+        pageProps: {
+          backingGame: mockGame,
+          numLeaderboards: 0, // !!
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.queryByRole('radio', { name: /achievements/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('radio', { name: /leaderboards/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user clicks the leaderboards toggle button, switches to the leaderboards view', async () => {
+    // ARRANGE
+    const mockGame = createGame({ id: 123 });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={1}
+      />,
+      {
+        pageProps: { backingGame: mockGame, numLeaderboards: 10, ziggy: createZiggyProps() },
         jotaiAtoms: [
           [currentListViewAtom, 'achievements'],
           //
@@ -366,15 +396,14 @@ describe('Component: GameAchievementSetToolbar', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /display mode/i }));
-    await userEvent.click(screen.getByText(/leaderboards/i));
+    await userEvent.click(screen.getByRole('radio', { name: /leaderboards/i }));
 
     // ASSERT
     expect(screen.getByRole('button', { name: /locked only/i })).toBeDisabled();
     expect(screen.getByRole('button', { name: /missable only/i })).toBeDisabled();
   });
 
-  it('given the current display mode is leaderboards and the user selects achievements, switches to the achievements view', async () => {
+  it('given the current display mode is leaderboards and the user clicks the achievements toggle button, switches to the achievements view', async () => {
     // ARRANGE
     const mockGame = createGame({ id: 123 });
     const mockToggleGameId = vi.fn();
@@ -391,7 +420,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={1}
       />,
       {
-        pageProps: { backingGame: mockGame, numLeaderboards: 10 },
+        pageProps: { backingGame: mockGame, numLeaderboards: 10, ziggy: createZiggyProps() },
         jotaiAtoms: [
           [currentListViewAtom, 'leaderboards'],
           //
@@ -400,8 +429,7 @@ describe('Component: GameAchievementSetToolbar', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /display mode/i }));
-    await userEvent.click(screen.getByText(/achievements/i));
+    await userEvent.click(screen.getByRole('radio', { name: /achievements/i }));
 
     // ASSERT
     expect(screen.getByRole('button', { name: /locked only/i })).toBeEnabled();
@@ -419,11 +447,6 @@ describe('Component: GameAchievementSetToolbar', () => {
       toggleGameId: mockToggleGameId,
     });
 
-    const initialAtomValues: [any, any][] = [
-      [currentListViewAtom, 'leaderboards'], // !! viewing leaderboards
-      //
-    ];
-
     render(
       <GameAchievementSetToolbar
         lockedAchievementsCount={5}
@@ -432,7 +455,10 @@ describe('Component: GameAchievementSetToolbar', () => {
       />,
       {
         pageProps: { backingGame: mockGame, numLeaderboards: 0 }, // !! no leaderboards
-        jotaiAtoms: initialAtomValues,
+        jotaiAtoms: [
+          [currentListViewAtom, 'leaderboards'],
+          //
+        ],
       },
     );
 
@@ -449,11 +475,6 @@ describe('Component: GameAchievementSetToolbar', () => {
       toggleGameId: mockToggleGameId,
     });
 
-    const initialAtomValues: [any, any][] = [
-      [currentPlayableListSortAtom, 'normal'], // !! starting sort
-      //
-    ];
-
     render(
       <GameAchievementSetToolbar
         lockedAchievementsCount={5}
@@ -461,8 +482,11 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={1}
       />,
       {
-        pageProps: { backingGame: mockGame, numLeaderboards: 10 },
-        jotaiAtoms: initialAtomValues,
+        pageProps: { backingGame: mockGame, numLeaderboards: 10, ziggy: createZiggyProps() },
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          //
+        ],
       },
     );
 

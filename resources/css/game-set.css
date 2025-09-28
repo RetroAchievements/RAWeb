@@ -8,4 +8,16 @@
     @apply flex items-center rounded-full border bg-embed p-1;
     @apply text-neutral-200 light:border-neutral-300 light:bg-neutral-50 light:text-neutral-500;
   }
+
+  .game-set__toggle {
+    @apply flex h-[30px] items-center gap-1 whitespace-nowrap !text-[13px] lg:active:translate-y-[1px] lg:active:scale-[0.98];
+    @apply light:bg-white light:hover:bg-neutral-50 light:hover:text-neutral-700;
+    @apply data-[state=on]:light:border-neutral-700 data-[state=on]:light:bg-neutral-50 data-[state=on]:light:text-neutral-900;
+  }
+
+  .game-set__toggle-chip {
+    @apply ml-1.5 bg-neutral-950 px-2 text-neutral-300 opacity-50 transition;
+    @apply group-hover:opacity-100 light:border-neutral-500 light:text-neutral-800;
+    @apply w-full sm:w-auto;
+  }
 }
