@@ -77,10 +77,7 @@ describe('Component: AchievementSetEmptyState', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('link', { name: /123/ })).toHaveAttribute(
-      'href',
-      '/game/456/requests',
-    );
+    expect(screen.getByRole('link', { name: /123/ })).toHaveAttribute('href', '/game/456/requests');
   });
 
   it('given the user is not logged in, the total requests count is not a link', () => {
