@@ -403,6 +403,38 @@ describe('Component: GameAchievementSetToolbar', () => {
     expect(screen.getByRole('button', { name: /missable only/i })).toBeDisabled();
   });
 
+  it('given the user clicks on the current toggle option, does not unset the value', async () => {
+    // ARRANGE
+    const mockGame = createGame({ id: 123 });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={1}
+      />,
+      {
+        pageProps: { backingGame: mockGame, numLeaderboards: 10, ziggy: createZiggyProps() },
+        jotaiAtoms: [
+          [currentListViewAtom, 'achievements'],
+          //
+        ],
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: /achievements/i }));
+
+    // ASSERT
+    expect(screen.getByRole('radio', { name: /achievements/i })).toBeChecked();
+  });
+
   it('given the current display mode is leaderboards and the user clicks the achievements toggle button, switches to the achievements view', async () => {
     // ARRANGE
     const mockGame = createGame({ id: 123 });

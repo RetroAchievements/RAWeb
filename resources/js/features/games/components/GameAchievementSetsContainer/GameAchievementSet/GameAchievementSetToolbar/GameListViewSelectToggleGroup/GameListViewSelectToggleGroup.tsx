@@ -27,7 +27,11 @@ export const GameListViewSelectToggleGroup: FC = () => {
   const [currentListView, setCurrentListView] = useAtom(currentListViewAtom);
   const setCurrentSort = useSetAtom(currentPlayableListSortAtom);
 
-  const handleViewChange = (view: 'achievements' | 'leaderboards') => {
+  const handleViewChange = (view?: 'achievements' | 'leaderboards') => {
+    if (!view) {
+      return;
+    }
+
     setCurrentListView(view);
 
     // Set the appropriate default sort when switching views.
@@ -53,7 +57,9 @@ export const GameListViewSelectToggleGroup: FC = () => {
       type="single"
       className="flex-row-reverse gap-0 sm:flex-row"
       value={currentListView}
-      onValueChange={handleViewChange}
+      onValueChange={(value) =>
+        handleViewChange(value as 'achievements' | 'leaderboards' | undefined)
+      }
     >
       <BaseTooltip>
         <BaseToggleGroupItem
