@@ -30,6 +30,15 @@ export const PlaytimeStatistics: FC = () => {
   const totalPlayers =
     currentMode === 'hardcore' ? playersHardcore : game.playersTotal! - playersHardcore;
 
+  const handleValueChange = (val?: PlayMode) => {
+    if (!val) {
+      return;
+    }
+
+    setCurrentMode(val);
+    setHasUserToggled(true);
+  };
+
   return (
     <div data-testid="playtime-statistics">
       <div className="flex w-full items-center justify-between">
@@ -39,10 +48,7 @@ export const PlaytimeStatistics: FC = () => {
           type="single"
           className="mb-px gap-px"
           value={currentMode}
-          onValueChange={(val: PlayMode) => {
-            setCurrentMode(val);
-            setHasUserToggled(true);
-          }}
+          onValueChange={(val: string) => handleValueChange(val as PlayMode | undefined)}
         >
           <BaseToggleGroupItem
             size="sm"
