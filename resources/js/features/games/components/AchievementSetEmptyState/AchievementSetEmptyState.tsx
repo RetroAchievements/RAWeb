@@ -44,7 +44,7 @@ export const AchievementSetEmptyState: FC = () => {
               }}
               components={{
                 1: auth?.user ? (
-                  <InertiaLink href={route('game.requests.index', { gameId: backingGame.id })} />
+                  <InertiaLink href={route('game.requests.index', { game: backingGame.id })} />
                 ) : (
                   <span />
                 ),

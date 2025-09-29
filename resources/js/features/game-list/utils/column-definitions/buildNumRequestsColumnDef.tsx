@@ -55,7 +55,7 @@ export function buildNumRequestsColumnDef<TEntry extends App.Platform.Data.GameL
 
       return (
         <InertiaLink
-          href={route('game.requests.index', { gameId })}
+          href={route('game.requests.index', { game: gameId })}
           className="transition hover:text-link"
         >
           {formatNumber(numRequests)}
