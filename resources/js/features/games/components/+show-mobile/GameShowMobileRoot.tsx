@@ -80,7 +80,7 @@ export const GameShowMobileRoot: FC = () => {
         <div className="-mx-2.5 -mt-3 overflow-x-auto">
           <BaseTabsList className="mb-3 flex w-max min-w-full justify-between rounded-none border-b border-neutral-600 bg-embed py-0 light:bg-white light:pt-1">
             <BaseTabsTrigger value="achievements" variant="underlined">
-              {t('Achievements')}
+              {t('Achievement Set')}
             </BaseTabsTrigger>
 
             <BaseTabsTrigger value="info" variant="underlined">
