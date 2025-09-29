@@ -53,7 +53,7 @@ describe('Component: ResetAllProgressDialog', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/manage progress/i)).toBeVisible();
+    expect(screen.getByRole('heading', { name: /reset progress/i })).toBeVisible();
     expect(screen.getByText(/this cannot be reversed/i)).toBeVisible();
     expect(screen.getByRole('checkbox', { name: /i understand/i })).toBeVisible();
     expect(screen.getByRole('button', { name: /cancel/i })).toBeVisible();

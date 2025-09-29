@@ -47,15 +47,20 @@ export const ResetAllProgressDialog: FC = () => {
     });
   };
 
+  const handleOpenChange = () => {
+    setIsChecked(false);
+    setIsResetAllProgressDialogOpen(false);
+  };
+
   return (
-    <BaseDialog open={isResetAllProgressDialogOpen} onOpenChange={setIsResetAllProgressDialogOpen}>
+    <BaseDialog open={isResetAllProgressDialogOpen} onOpenChange={handleOpenChange}>
       <BaseDialogContent>
         <BaseDialogHeader>
-          <BaseDialogTitle>{t('Manage Progress')}</BaseDialogTitle>
+          <BaseDialogTitle>{t('Reset Progress')}</BaseDialogTitle>
 
           <BaseDialogDescription className="text-left">
             <Trans
-              i18nKey="Proceeding with this action will permanently delete all your unlocks for this achievement set. <1>This cannot be reversed.</1>"
+              i18nKey="You are about to permanently delete all your unlocks for this achievement set. <1>This cannot be reversed.</1>"
               components={{
                 1: <span className="font-bold" />,
               }}
