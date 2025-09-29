@@ -60,6 +60,8 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
   const canShowUnlockStatusSortOrders =
     unlockedAchievementsCount > 0 && unlockedAchievementsCount < backingGame.achievementsPublished!;
 
+  const canShowDesktopViewToggle = numLeaderboards > 0 && ziggy.device !== 'mobile';
+
   useEffect(() => {
     if (currentListView === 'leaderboards' && numLeaderboards === 0) {
       setCurrentListView('achievements');
@@ -123,7 +125,9 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
         ) : null}
       </div>
 
-      {missableAchievementsCount || (lockedAchievementsCount && unlockedAchievementsCount) ? (
+      {missableAchievementsCount ||
+      (lockedAchievementsCount && unlockedAchievementsCount) ||
+      canShowDesktopViewToggle ? (
         <div className="flex w-full gap-2 sm:w-auto">
           {missableAchievementsCount ? (
             <BaseToggle
