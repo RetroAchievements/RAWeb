@@ -186,7 +186,7 @@ function informAllSubscribersAboutActivity(
             }
 
             $articleTitle = "{$game->Title} ({$game->system->Name})";
-            $urlTarget = route('game.show', $game);
+            $urlTarget = route('game.show', ['game' => $game, 'tab' => 'community']);
             $articleEmailPreference = UserPreference::EmailOn_AchievementComment;
 
             $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::GameWall, $game->ID);
