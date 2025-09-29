@@ -252,6 +252,39 @@ class GameController extends Controller
     }
 
     /**
+     * Shows the set requestors for a given game
+     */
+    public function setRequests(Request $request, Game $game): InertiaResponse
+    {
+        $allRequestors = UserGameListEntry::where('GameID', $game->id)
+            ->where('type', UserGameListType::AchievementSetRequest)
+            ->with('user')
+            ->get();
+
+        // Split the requestors into initial and deferred groups.
+        $initialRequestors = $allRequestors->take(100);
+        $deferredRequestors = $allRequestors->skip(100);
+
+        // Map the results to minimal data objects with only the needed fields for the UI.
+        $initialRequestorsData = $initialRequestors
+            ->map(fn ($badge) => UserData::fromUser($badge->user)->include('displayName', 'avatarUrl', 'id'))
+            ->values();
+
+        $deferredRequestorsData = $deferredRequestors
+            ->map(fn ($badge) => UserData::fromUser($badge->user)->include('displayName', 'avatarUrl', 'id'))
+            ->values();
+
+        $props = new GameSetRequestsPagePropsData(
+            game: GameData::fromGame($game)->include('badgeUrl'),
+            initialRequestors: $initialRequestorsData,
+            deferredRequestors: Inertia::defer(fn () => $deferredRequestorsData),
+            totalCount: $allRequestors->count(),
+        );
+
+        return Inertia::render('game/[game]/requests', $props);
+    }
+
+    /**
      * Check if a game is a subset that should redirect to its backing game.
      */
     private function checkSubsetGameRedirect(Request $request, Game $game): ?RedirectResponse
@@ -281,37 +314,5 @@ class GameController extends Controller
         $queryParams['set'] = $coreSet->achievement_set_id;
 
         return redirect()->route('game2.show', array_merge(['game' => $backingGameSet->game_id], $queryParams));
-    }
-
-    /**
-     * Shows the set requestors for a given game
-     */
-    public function setRequests(Request $request, Game $game): InertiaResponse
-    {
-        $allRequestors = UserGameListEntry::where('GameID', $game->id)
-            ->where('type', UserGameListType::AchievementSetRequest)
-            ->with('user')->get();
-
-        // Split the requestors into initial and deferred groups.
-        $initialRequestors = $allRequestors->take(100);
-        $deferredRequestors = $allRequestors->skip(100);
-
-        // Map the results to minimal data objects with only the needed fields for the UI.
-        $initialRequestorsData = $initialRequestors
-            ->map(fn ($badge) => UserData::fromUser($badge->user)->include('displayName', 'avatarUrl', 'id'))
-            ->values();
-
-        $deferredRequestorsData = $deferredRequestors
-            ->map(fn ($badge) => UserData::fromUser($badge->user)->include('displayName', 'avatarUrl', 'id'))
-            ->values();
-
-        $props = new GameSetRequestsPagePropsData(
-            game: GameData::fromGame($game)->include('badgeUrl'),
-            initialRequestors: $initialRequestorsData,
-            deferredRequestors: Inertia::defer(fn () => $deferredRequestorsData),
-            totalCount: $allRequestors->count(),
-        );
-
-        return Inertia::render('game/[game]/requests', $props);
     }
 }

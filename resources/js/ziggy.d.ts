@@ -257,6 +257,13 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "game.requests.index": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "achievement.report-issue.index": [
         {
             "name": "achievement",

@@ -2,11 +2,12 @@ import type { FC } from 'react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { GameAvatar } from '@/common/components/GameAvatar';
+import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
+import { GameHeading } from '@/common/components/GameHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { PatreonSupporterItem } from '@/features/patreon-supporters/components/PatreonSupporterItem';
 
-export const GameSetRequests: FC = () => {
+export const GameSetRequestsRoot: FC = () => {
   const { game, deferredRequestors, initialRequestors, totalCount } =
     usePageProps<App.Community.Data.GameSetRequestsPageProps>();
   const { t } = useTranslation();
@@ -23,11 +24,10 @@ export const GameSetRequests: FC = () => {
 
   return (
     <div className="flex flex-col gap-5">
-      <h1>{'List of Set Requests'}</h1>
-
-      <div>
-        <GameAvatar {...game} size={96} />
-      </div>
+      <GameBreadcrumbs game={game} system={game.system} t_currentPageLabel={t('Set Requests')} />
+      <GameHeading game={game} wrapperClassName="!mb-1">
+        {t('Set Requests')}
+      </GameHeading>
 
       <div>{'A set for this game has been requested by the following users:'}</div>
 

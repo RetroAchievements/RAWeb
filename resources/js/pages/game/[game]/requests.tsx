@@ -3,18 +3,21 @@ import { useTranslation } from 'react-i18next';
 import { SEO } from '@/common/components/SEO';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
-import { GameSetRequests } from '@/features/games/components/GameSetRequests';
+import { GameSetRequestsRoot } from '@/features/games/components/GameSetRequests';
 
-const SetRequestorsPage: AppPage = () => {
+const SetRequestorsPage: AppPage<App.Community.Data.GameClaimsCommentsPageProps> = ({ game }) => {
   const { t } = useTranslation();
 
   return (
     <>
-      <SEO title={t('List of Set Requests')} description="A list of set requests for this game." />
+      <SEO
+        title={t('List of Set Requests - {{gameTitle}}', { gameTitle: game.title })}
+        description={t('A list of set requests for {{gameTitle}}.', { gameTitle: game.title })}
+      />
 
       <div className="container">
         <AppLayout.Main className="min-h-[400px]">
-          <GameSetRequests />
+          <GameSetRequestsRoot />
         </AppLayout.Main>
       </div>
     </>

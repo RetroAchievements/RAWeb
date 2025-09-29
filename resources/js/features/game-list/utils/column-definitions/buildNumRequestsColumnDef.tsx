@@ -1,6 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import type { RouteName } from 'ziggy-js';
 
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import type { TranslatedString } from '@/types/i18next';
 
@@ -52,9 +53,9 @@ export function buildNumRequestsColumnDef<TEntry extends App.Platform.Data.GameL
       }
 
       return (
-        <a href={`/game/${gameId}/requests`} className="transition hover:text-link">
+        <InertiaLink href={`/game/${gameId}/requests`} className="transition hover:text-link">
           {formatNumber(numRequests)}
-        </a>
+        </InertiaLink>
       );
     },
 

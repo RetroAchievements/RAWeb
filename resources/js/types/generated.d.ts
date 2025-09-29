@@ -68,7 +68,7 @@ declare namespace App.Community.Data {
     initialRequestors: Array<App.Data.User>;
     deferredRequestors: any | any;
     totalCount: number;
-  }
+  };
   export type LeaderboardCommentsPageProps<TItems = App.Community.Data.Comment> = {
     leaderboard: App.Platform.Data.Leaderboard;
     paginatedComments: App.Data.PaginatedData<TItems>;
