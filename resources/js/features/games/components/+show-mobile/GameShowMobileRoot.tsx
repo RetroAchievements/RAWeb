@@ -18,6 +18,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
 import { useGameShowTabs } from '../../hooks/useGameShowTabs';
+import type { GameShowTab } from '../../models';
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
 import { getSidebarExcludedHubIds } from '../../utils/getSidebarExcludedHubIds';
 import { AchievementSetEmptyState } from '../AchievementSetEmptyState';
@@ -74,12 +75,12 @@ export const GameShowMobileRoot: FC = () => {
 
       <GameMobileHeader />
 
-      <BaseTabs value={currentTab} onValueChange={setCurrentTab}>
+      <BaseTabs value={currentTab} onValueChange={(value) => setCurrentTab(value as GameShowTab)}>
         {/* Tabs list */}
         <div className="-mx-2.5 -mt-3 overflow-x-auto">
           <BaseTabsList className="mb-3 flex w-max min-w-full justify-between rounded-none border-b border-neutral-600 bg-embed py-0 light:bg-white light:pt-1">
             <BaseTabsTrigger value="achievements" variant="underlined">
-              {t('Achievements')}
+              {t('Achievement Set')}
             </BaseTabsTrigger>
 
             <BaseTabsTrigger value="info" variant="underlined">

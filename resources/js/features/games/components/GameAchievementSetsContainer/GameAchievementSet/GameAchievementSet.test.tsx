@@ -386,11 +386,12 @@ describe('Component: GameAchievementSet', () => {
         ],
         pageProps: {
           game,
+          leaderboards,
           achievementSetClaims: [],
           aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
-          leaderboards,
           numLeaderboards: 2,
+          ziggy: createZiggyProps(),
         },
       },
     );

@@ -12,7 +12,9 @@ use App\Mail\PrivateMessageReceivedMail;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class NotifyMessageThreadParticipants
@@ -70,7 +72,17 @@ class NotifyMessageThreadParticipants
                 }
             }
 
-            (new ForwardMessageToDiscordAction())->execute($userFrom, $userTo, $thread, $message);
+            try {
+                (new ForwardMessageToDiscordAction())->execute($userFrom, $userTo, $thread, $message);
+            } catch (Exception $e) {
+                Log::warning('Discord notification failed', [
+                    'thread_id' => $thread->id,
+                    'user_from' => $userFrom->username,
+                    'user_to' => $userTo->username,
+                    'error_message' => $e->getMessage(),
+                    'error_class' => get_class($e),
+                ]);
+            }
         }
     }
 }
