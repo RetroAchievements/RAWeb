@@ -316,7 +316,11 @@ class BuildGameShowPagePropsAction
             numBeatenSoftcore: $numBeatenSoftcore,
             numLeaderboards: $this->getLeaderboardsCount($backingGame),
             numMasters: $numMasters,
-            numOpenTickets: Ticket::forGame($backingGame)->unresolved()->count(),
+
+            numOpenTickets: $targetAchievementFlag === AchievementFlag::OfficialCore
+                ? Ticket::forGame($backingGame)->unresolved()->officialCore()->count()
+                : Ticket::forGame($backingGame)->unresolved()->unofficial()->count(),
+
             recentPlayers: $this->loadGameRecentPlayersAction->execute($backingGame),
             recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($backingGame->visibleComments))),
             topAchievers: $topAchievers,
