@@ -72,8 +72,33 @@ describe('Component: PlaytimeStatistics', () => {
     });
 
     // ASSERT
-    const hardcoreButton = screen.getByRole('radio', { name: /toggle hardcore/i });
-    expect(hardcoreButton).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByRole('radio', { name: /toggle hardcore/i })).toBeChecked();
+  });
+
+  it('given hardcore mode is selected and the user clicks the Hardcore toggle button, does not unselect hardcore mode', async () => {
+    // ARRANGE
+    const game = createGame({
+      gameAchievementSets: [createGameAchievementSet()],
+      playersHardcore: 100,
+      playersTotal: 200,
+    });
+
+    render(<PlaytimeStatistics />, {
+      pageProps: {
+        backingGame: game,
+        game,
+        numBeaten: 50,
+        numBeatenSoftcore: 75,
+        numCompletions: 80,
+        numMasters: 40,
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: /toggle hardcore/i }));
+
+    // ASSERT
+    expect(screen.getByRole('radio', { name: /toggle hardcore/i })).toBeChecked();
   });
 
   it('given the user clicks the softcore toggle, switches to softcore mode', async () => {
@@ -99,8 +124,7 @@ describe('Component: PlaytimeStatistics', () => {
     await userEvent.click(screen.getByRole('radio', { name: /toggle softcore/i }));
 
     // ASSERT
-    const softcoreButton = screen.getByRole('radio', { name: /toggle softcore/i });
-    expect(softcoreButton).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByRole('radio', { name: /toggle softcore/i })).toBeChecked();
   });
 
   it('displays all three playtime rows when the backing game matches the current game', () => {
