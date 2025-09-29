@@ -275,7 +275,7 @@ class GameController extends Controller
             ->values();
 
         $props = new GameSetRequestsPagePropsData(
-            game: GameData::fromGame($game)->include('badgeUrl'),
+            game: GameData::fromGame($game)->include('badgeUrl', 'system'),
             initialRequestors: $initialRequestorsData,
             deferredRequestors: Inertia::defer(fn () => $deferredRequestorsData),
             totalCount: $allRequestors->count(),

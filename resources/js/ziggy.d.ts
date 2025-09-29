@@ -176,6 +176,13 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "game.requests.index": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "game.index": [],
     "game.suggestions.personalized": [],
     "hub.show": [
@@ -251,13 +258,6 @@ declare module 'ziggy-js' {
     "api.ticket.store": [],
     "player.games.resettable": [],
     "player.game.achievements.resettable": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
-    "game.requests.index": [
         {
             "name": "game",
             "required": true,

@@ -11,7 +11,7 @@ use Inertia\DeferProp;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript('GameSetRequestsPagePropsData')]
+#[TypeScript('GameSetRequestsPageProps')]
 class GameSetRequestsPagePropsData extends Data
 {
     /**

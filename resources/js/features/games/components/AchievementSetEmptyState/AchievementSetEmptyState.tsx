@@ -43,7 +43,11 @@ export const AchievementSetEmptyState: FC = () => {
                 val: setRequestData.totalRequests,
               }}
               components={{
-                1: auth?.user ? <InertiaLink href={route('game.request.index')} /> : <span />,
+                1: auth?.user ? (
+                  <InertiaLink href={route('game.requests.index', { gameId: backingGame.id })} />
+                ) : (
+                  <span />
+                ),
               }}
             />
           </p>

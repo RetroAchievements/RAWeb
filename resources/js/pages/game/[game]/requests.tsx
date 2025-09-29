@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { SEO } from '@/common/components/SEO';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
-import { GameSetRequestsRoot } from '@/features/games/components/GameSetRequests';
+import { GameSetRequestsRoot } from '@/features/games/components/+requests';
 
 const SetRequestorsPage: AppPage<App.Community.Data.GameClaimsCommentsPageProps> = ({ game }) => {
   const { t } = useTranslation();
@@ -11,7 +11,7 @@ const SetRequestorsPage: AppPage<App.Community.Data.GameClaimsCommentsPageProps>
   return (
     <>
       <SEO
-        title={t('List of Set Requests - {{gameTitle}}', { gameTitle: game.title })}
+        title={t('Set Requests - {{gameTitle}}', { gameTitle: game.title })}
         description={t('A list of set requests for {{gameTitle}}.', { gameTitle: game.title })}
       />
 

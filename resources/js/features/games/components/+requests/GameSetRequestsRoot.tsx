@@ -29,7 +29,7 @@ export const GameSetRequestsRoot: FC = () => {
         {t('Set Requests')}
       </GameHeading>
 
-      <div>{'A set for this game has been requested by the following users:'}</div>
+      <div>{'This achievement set has been requested by the following users:'}</div>
 
       <div>
         <h2 className="border-b-0 text-center text-sm font-semibold sm:text-left sm:text-xl">
