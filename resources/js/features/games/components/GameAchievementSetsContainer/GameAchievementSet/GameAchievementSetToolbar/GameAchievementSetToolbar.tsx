@@ -166,9 +166,7 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
             </BaseToggle>
           ) : null}
 
-          {numLeaderboards > 0 && ziggy.device !== 'mobile' ? (
-            <GameListViewSelectToggleGroup />
-          ) : null}
+          {canShowDesktopViewToggle ? <GameListViewSelectToggleGroup /> : null}
         </div>
       ) : null}
     </div>
