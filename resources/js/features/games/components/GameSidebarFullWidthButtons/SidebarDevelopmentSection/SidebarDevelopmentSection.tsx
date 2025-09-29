@@ -6,6 +6,7 @@ import { route } from 'ziggy-js';
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useGameBacklogState } from '@/features/game-list/components/GameListItems/useGameBacklogState';
+import { useGameShowTabs } from '@/features/games/hooks/useGameShowTabs';
 
 import { SidebarClaimButtons } from './SidebarClaimButtons';
 import { SidebarToggleInReviewButton } from './SidebarToggleInReviewButton';
@@ -27,6 +28,8 @@ export const SidebarDevelopmentSection: FC = () => {
       userGameListType: 'develop',
     });
 
+  const { setCurrentTab } = useGameShowTabs();
+
   const isDeveloper = auth?.user.roles.includes('developer');
 
   // Build the query parameters for toggling between published and unpublished achievements.
@@ -44,12 +47,21 @@ export const SidebarDevelopmentSection: FC = () => {
     return route('game2.show', { game: game.id, _query: queryParams });
   };
 
+  const handleTogglePublishedAchievementsClick = () => {
+    setCurrentTab('achievements');
+    window.scrollTo({
+      top: 0,
+      behavior: 'instant',
+    });
+  };
+
   return (
     <>
       {!isViewingPublishedAchievements || backingGame.achievementsUnpublished ? (
         <PlayableSidebarButton
           IconComponent={isViewingPublishedAchievements ? LuFolderLock : LuFolder}
           href={buildToggleHref()}
+          onClick={handleTogglePublishedAchievementsClick}
           isInertiaLink={true}
           showSubsetIndicator={game.id !== backingGame.id}
           count={

@@ -44,7 +44,7 @@ export const PlayableSidebarButton: FC<PlayableSidebarButtonProps> = ({
     className: cn('items-center justify-between gap-2 relative overflow-hidden', className),
   });
 
-  if (onClick) {
+  if (onClick && !href) {
     return (
       <button onClick={onClick} className={finalClassName} {...rest}>
         <ButtonContent
@@ -63,6 +63,7 @@ export const PlayableSidebarButton: FC<PlayableSidebarButtonProps> = ({
   return (
     <Comp
       href={href as string}
+      onClick={onClick}
       className={finalClassName}
       prefetch={isInertiaLink ? 'desktop-hover-only' : undefined}
       target={target}
