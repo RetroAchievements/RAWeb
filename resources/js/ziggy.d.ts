@@ -176,13 +176,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "game.requests.index": [
-        {
-            "name": "game",
-            "required": true,
-            "binding": "ID"
-        }
-    ],
     "game.index": [],
     "game.suggestions.personalized": [],
     "hub.show": [
@@ -551,6 +544,13 @@ declare module 'ziggy-js' {
             "name": "comment",
             "required": true,
             "binding": "id"
+        }
+    ],
+    "game.requests.index": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
         }
     ],
     "message-thread.show": [
