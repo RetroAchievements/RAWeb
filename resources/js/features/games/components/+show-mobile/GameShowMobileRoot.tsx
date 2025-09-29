@@ -9,13 +9,16 @@ import {
 } from '@/common/components/+vendor/BaseTabs';
 import { MatureContentWarningDialog } from '@/common/components/MatureContentWarningDialog';
 import { PlayableAchievementDistribution } from '@/common/components/PlayableAchievementDistribution';
+import { PlayableBoxArtImage } from '@/common/components/PlayableBoxArtImage';
 import { PlayableCompareProgress } from '@/common/components/PlayableCompareProgress';
 import { PlayableHubsList } from '@/common/components/PlayableHubsList';
+import { PlayableMainMedia } from '@/common/components/PlayableMainMedia';
 import { PlayableTopPlayers } from '@/common/components/PlayableTopPlayers';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
 import { useGameShowTabs } from '../../hooks/useGameShowTabs';
+import type { GameShowTab } from '../../models';
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
 import { getSidebarExcludedHubIds } from '../../utils/getSidebarExcludedHubIds';
 import { AchievementSetEmptyState } from '../AchievementSetEmptyState';
@@ -72,7 +75,7 @@ export const GameShowMobileRoot: FC = () => {
 
       <GameMobileHeader />
 
-      <BaseTabs value={currentTab} onValueChange={setCurrentTab}>
+      <BaseTabs value={currentTab} onValueChange={(value) => setCurrentTab(value as GameShowTab)}>
         {/* Tabs list */}
         <div className="-mx-2.5 -mt-3 overflow-x-auto">
           <BaseTabsList className="mb-3 flex w-max min-w-full justify-between rounded-none border-b border-neutral-600 bg-embed py-0 light:bg-white light:pt-1">
@@ -109,6 +112,15 @@ export const GameShowMobileRoot: FC = () => {
         </BaseTabsContent>
 
         <BaseTabsContent value="info" className="flex flex-col gap-8">
+          <div className="-mx-2.5 -my-4 flex flex-col gap-6 p-4">
+            <PlayableBoxArtImage src={game.imageBoxArtUrl} />
+
+            <PlayableMainMedia
+              imageIngameUrl={game.imageIngameUrl!}
+              imageTitleUrl={game.imageTitleUrl!}
+            />
+          </div>
+
           {hasMatureContent ? <MatureContentIndicator /> : null}
 
           <GameMetadata allMetaRowElements={allMetaRowElements} game={game} hubs={hubs} />

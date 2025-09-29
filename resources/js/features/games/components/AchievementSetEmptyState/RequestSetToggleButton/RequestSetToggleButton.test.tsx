@@ -195,6 +195,8 @@ describe('Component: RequestSetToggleButton', () => {
     await userEvent.click(screen.getByRole('button'));
 
     // ASSERT
+    expect(screen.queryByTestId('disabled')).not.toBeInTheDocument();
+
     const button = screen.getByRole('button');
     await waitFor(() => {
       expect(button).toHaveAttribute('aria-pressed', 'false');
@@ -202,32 +204,66 @@ describe('Component: RequestSetToggleButton', () => {
     expect(button).toHaveTextContent('Request Set');
   });
 
-  it('given the user has no requests remaining, disables the button', () => {
+  it('given the user has no requests remaining and has not requested this game, shows disabled tooltip', () => {
     // ARRANGE
     render(<RequestSetToggleButton />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         backingGame: createGame(),
-        setRequestData: createGameSetRequestData({ userRequestsRemaining: 0 }), // !!
+        setRequestData: createGameSetRequestData({
+          userRequestsRemaining: 0, // !!
+          hasUserRequestedSet: false, // !!
+        }),
       },
     });
 
     // ASSERT
-    expect(screen.getByRole('button')).toBeDisabled();
+    expect(screen.getByTestId('disabled')).toBeVisible();
   });
 
-  it('given the user has negative requests remaining, disables the button', () => {
+  it('given the user has negative requests remaining and has not requested, shows disabled tooltip', () => {
     // ARRANGE
     render(<RequestSetToggleButton />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
         backingGame: createGame(),
-        setRequestData: createGameSetRequestData({ userRequestsRemaining: -1 }), // !!
+        setRequestData: createGameSetRequestData({
+          userRequestsRemaining: -1, // !!
+          hasUserRequestedSet: false, // !!
+        }),
       },
     });
 
     // ASSERT
-    expect(screen.getByRole('button')).toBeDisabled();
+    expect(screen.getByTestId('disabled')).toBeVisible();
+  });
+
+  it('given the user has no requests remaining but has already requested, allows unrequesting', async () => {
+    // ARRANGE
+    const deleteSpy = vi.spyOn(axios, 'delete').mockResolvedValueOnce({ data: {} });
+    const user = createAuthenticatedUser();
+    const game = createGame({ id: 789 });
+
+    render(<RequestSetToggleButton />, {
+      pageProps: {
+        auth: { user },
+        backingGame: game,
+        setRequestData: createGameSetRequestData({
+          userRequestsRemaining: 0, // !!
+          hasUserRequestedSet: true, // !!
+        }),
+      },
+    });
+
+    // ACT
+    const button = screen.getByRole('button', { name: /requested/i });
+    expect(button).not.toBeDisabled();
+    await userEvent.click(button);
+
+    // ASSERT
+    await waitFor(() => {
+      expect(deleteSpy).toHaveBeenCalledWith(route('api.game.set-request.destroy', { game: 789 }));
+    });
   });
 
   it('given the button is clicked, the button remains disabled for 2 seconds', async () => {
