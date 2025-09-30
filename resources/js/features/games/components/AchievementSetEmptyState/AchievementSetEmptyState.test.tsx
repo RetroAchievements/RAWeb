@@ -1,9 +1,10 @@
+import { expect } from 'vitest';
+
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createGame, createGameSetRequestData } from '@/test/factories';
 
 import { AchievementSetEmptyState } from './AchievementSetEmptyState';
-import { expect } from 'vitest';
 
 describe('Component: AchievementSetEmptyState', () => {
   it('renders without crashing', () => {
