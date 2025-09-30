@@ -1,6 +1,7 @@
-import { GameSetRequestsRoot } from '@/features/games/components/+requests/GameSetRequestsRoot';
 import { render } from '@/test';
 import { createGame, createSystem } from '@/test/factories';
+
+import { GameSetRequestsRoot } from './GameSetRequestsRoot';
 
 describe('Component: GameSetRequestsRoot', () => {
   it('renders without crashing', () => {
