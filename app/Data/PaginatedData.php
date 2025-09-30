@@ -34,7 +34,7 @@ class PaginatedData extends Data
 
     /**
      * @template TItems
-     * @param LengthAwarePaginator<TItems> $paginator
+     * @param LengthAwarePaginator<int, TItems> $paginator
      */
     public static function fromLengthAwarePaginator(
         LengthAwarePaginator $paginator,
