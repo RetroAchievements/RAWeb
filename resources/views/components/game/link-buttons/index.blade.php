@@ -104,7 +104,7 @@ if ($canSeeOpenTickets) {
         @can('viewAny', App\Models\Game::class)
             <x-game.link-buttons.game-link-button
                 icon="📜"
-                href="route('game.requests.index', ['game' => $game])"
+                href="{{ route('game.requests.index', ['game' => $game]) }}"
             >
                 Set Requestors
             </x-game.link-buttons.game-link-button>

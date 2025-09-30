@@ -39,7 +39,7 @@ function getSetRequestInformation(user, gameID) {
             var gameTotal = parseInt(results.gameRequests);
             var thisGame = results.requestedThisGame;
 
-            $('.gameRequestsLabel').html('Set Requests: <a href=\'/game/' + gameID + '/requests\'>' + gameTotal + '</a>');
+            $('.gameRequestsLabel').html('Set Requests: {{ route("game.requests.index", ["game" => $gameId]) }}' + gameTotal + '</a>');
             // loosely-typed route, but this whole component will be deleted very soon
             $('.userRequestsLabel').html('User Requests Remaining: <a href=\'/games/requests/' + user + '\'>' + remaining + '</a>');
 
