@@ -72,7 +72,7 @@ describe('Util: buildNumRequestsColumnDef', () => {
     // ASSERT
     const link = screen.getByRole('link', { name: /42/i });
     expect(link).toBeVisible();
-    expect(link).toHaveAttribute('href', `/game/${gameId}/requests`);
+    expect(link).toHaveAttribute('href', expect.stringContaining('game.requests.index,'));
   });
 
   it('given the game data is missing, treats the request count as zero', () => {
