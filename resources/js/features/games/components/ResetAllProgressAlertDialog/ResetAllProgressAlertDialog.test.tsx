@@ -111,7 +111,10 @@ describe('Component: ResetAllProgressAlertDialog', () => {
 
     render(<ResetAllProgressAlertDialog />, {
       pageProps: { backingGame: mockGame },
-      jotaiAtoms: [[isResetAllProgressDialogOpenAtom, true]],
+      jotaiAtoms: [
+        [isResetAllProgressDialogOpenAtom, true],
+        //
+      ],
     });
 
     // ACT
