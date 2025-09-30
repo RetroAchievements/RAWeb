@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 
 import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
 import { GameHeading } from '@/common/components/GameHeading';
+import { UserGridLinkItem } from '@/common/components/UserGridLinkItem';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { PatreonSupporterItem } from '@/features/patreon-supporters/components/PatreonSupporterItem';
 
 export const GameSetRequestsRoot: FC = () => {
   const { game, deferredRequestors, initialRequestors, totalCount } =
@@ -37,7 +37,7 @@ export const GameSetRequestsRoot: FC = () => {
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
           {allRequestors.map((supporter) => (
-            <PatreonSupporterItem key={supporter.id} supporter={supporter} />
+            <UserGridLinkItem key={supporter.id} user={supporter} />
           ))}
         </div>
 
