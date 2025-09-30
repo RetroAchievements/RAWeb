@@ -2,11 +2,11 @@ import type { FC } from 'react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { EmptyState } from '@/common/components/EmptyState';
 import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
 import { GameHeading } from '@/common/components/GameHeading';
 import { UserGridLinkItem } from '@/common/components/UserGridLinkItem';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { EmptyState } from '@/common/components/EmptyState';
 
 export const GameSetRequestsRoot: FC = () => {
   const { game, deferredRequestors, initialRequestors, totalCount } =
