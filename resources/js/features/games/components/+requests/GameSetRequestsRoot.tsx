@@ -6,6 +6,7 @@ import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
 import { GameHeading } from '@/common/components/GameHeading';
 import { UserGridLinkItem } from '@/common/components/UserGridLinkItem';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { EmptyState } from '@/common/components/EmptyState';
 
 export const GameSetRequestsRoot: FC = () => {
   const { game, deferredRequestors, initialRequestors, totalCount } =
@@ -29,12 +30,17 @@ export const GameSetRequestsRoot: FC = () => {
         {t('Set Requests')}
       </GameHeading>
 
-      <div>{'This achievement set has been requested by the following users:'}</div>
+      <div>
+        {allRequestors.length > 0 ? (
+          t('This achievement set has been requested by the following {{val, number}} users:', {
+            val: totalCount,
+          })
+        ) : (
+          <EmptyState>{t('There are currently no active requests.')}</EmptyState>
+        )}
+      </div>
 
       <div>
-        <h2 className="border-b-0 text-center text-sm font-semibold sm:text-left sm:text-xl">
-          {t('All requestors ({{val, number}})', { val: totalCount })}
-        </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
           {allRequestors.map((supporter) => (
             <UserGridLinkItem key={supporter.id} user={supporter} />

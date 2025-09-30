@@ -1063,6 +1063,8 @@
     "All requestors ({{val, number}})": "All requestors ({{val, number}})",
     "Set Requests - {{gameTitle}}": "Set Requests - {{gameTitle}}",
     "A list of set requests for {{gameTitle}}.": "A list of set requests for {{gameTitle}}.",
+    "There are currently no active requests.": "There are currently no active requests.",
+    "This achievement set has been requested by the following {{val, number}} users:": "This achievement set has been requested by the following {{val, number}} users:",
     "requestsFromPlayers_one": "<1>{{val, number}} request</1> from players",
     "requestsFromPlayers_other": "<1>{{val, number}} requests</1> from players",
     "myRemainingRequests2_one": "You have <1>{{val, number}} request</1> remaining",
