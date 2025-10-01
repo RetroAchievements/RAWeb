@@ -9,17 +9,13 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
-const MATURE_THEME_HUB_ID = 7869;
-const PHOTOSENSITIVE_HUB_ID = 25577;
+import { hubIds } from '../../utils/hubIds';
 
 export const GameContentWarnings: FC = () => {
   const { hasMatureContent, hubs } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
-  const photosensitiveWarningHub = hubs.find(
-    (hub) =>
-      hub.id === PHOTOSENSITIVE_HUB_ID && hub.title?.toLowerCase().includes('photosensitive'),
-  );
+  const photosensitiveWarningHub = hubs.find((hub) => hub.id === hubIds.epilepsyWarning);
 
   if (!hasMatureContent && !photosensitiveWarningHub) {
     return null;
@@ -33,7 +29,7 @@ export const GameContentWarnings: FC = () => {
       <div className="flex flex-col gap-0.5 rounded-lg bg-[rgba(50,50,50,0.3)] light:bg-neutral-50">
         {hasMatureContent ? (
           <ContentWarning
-            href={route('hub.show', { gameSet: MATURE_THEME_HUB_ID })}
+            href={route('hub.show', { gameSet: hubIds.mature })}
             Icon={LuShield}
             label={t('Mature Content')}
           />
@@ -41,7 +37,7 @@ export const GameContentWarnings: FC = () => {
 
         {photosensitiveWarningHub ? (
           <ContentWarning
-            href={route('hub.show', { gameSet: PHOTOSENSITIVE_HUB_ID })}
+            href={route('hub.show', { gameSet: hubIds.epilepsyWarning })}
             Icon={LuView}
             label={t('Photosensitive Epilepsy Warning')}
           />
