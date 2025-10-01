@@ -21,6 +21,7 @@ class UserBetaFeedbackSubmission extends BaseModel
         'negative_feedback',
         'page_url',
         'user_agent',
+        'app_version',
         'visit_count',
         'first_visited_at',
         'last_visited_at',
