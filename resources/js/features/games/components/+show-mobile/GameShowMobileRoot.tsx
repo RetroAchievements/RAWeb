@@ -24,11 +24,11 @@ import { getSidebarExcludedHubIds } from '../../utils/getSidebarExcludedHubIds';
 import { AchievementSetEmptyState } from '../AchievementSetEmptyState';
 import { GameAchievementSetsContainer } from '../GameAchievementSetsContainer';
 import { GameCommentList } from '../GameCommentList';
+import { GameContentWarnings } from '../GameContentWarnings';
 import { GameMetadata } from '../GameMetadata';
 import { GameMobileHeader } from '../GameMobileHeader';
 import { GameRecentPlayers } from '../GameRecentPlayers';
 import { GameSidebarFullWidthButtons } from '../GameSidebarFullWidthButtons';
-import { MatureContentIndicator } from '../MatureContentIndicator';
 import { PlaytimeStatistics } from '../PlaytimeStatistics';
 import { ResetAllProgressAlertDialog } from '../ResetAllProgressAlertDialog';
 import { ScrollToTopButton } from '../ScrollToTopButton';
@@ -101,7 +101,7 @@ export const GameShowMobileRoot: FC = () => {
           </BaseTabsList>
         </div>
 
-        {/* Tabs content */}
+        {/* Achievement set tab content */}
         <BaseTabsContent
           value="achievements"
           forceMount={true} // takes too long to unmount and remount on tab change
@@ -111,6 +111,7 @@ export const GameShowMobileRoot: FC = () => {
           {!allPageAchievements.length ? <AchievementSetEmptyState /> : null}
         </BaseTabsContent>
 
+        {/* Info tab content */}
         <BaseTabsContent value="info" className="flex flex-col gap-8">
           <div className="-mx-2.5 -my-4 flex flex-col gap-6 p-4">
             <PlayableBoxArtImage src={game.imageBoxArtUrl} />
@@ -121,9 +122,10 @@ export const GameShowMobileRoot: FC = () => {
             />
           </div>
 
-          {hasMatureContent ? <MatureContentIndicator /> : null}
-
-          <GameMetadata allMetaRowElements={allMetaRowElements} game={game} hubs={hubs} />
+          <div className="flex flex-col gap-3">
+            <GameContentWarnings />
+            <GameMetadata allMetaRowElements={allMetaRowElements} game={game} hubs={hubs} />
+          </div>
 
           <GameSidebarFullWidthButtons game={game} />
 
@@ -140,6 +142,7 @@ export const GameShowMobileRoot: FC = () => {
           />
         </BaseTabsContent>
 
+        {/* Stats tab content */}
         {isViewingPublishedAchievements && game.playersTotal ? (
           <BaseTabsContent value="stats" className="flex flex-col gap-8">
             {allPageAchievements.length ? <PlaytimeStatistics /> : null}
@@ -169,6 +172,7 @@ export const GameShowMobileRoot: FC = () => {
           </BaseTabsContent>
         ) : null}
 
+        {/* Community tab content */}
         {isViewingPublishedAchievements ? (
           <BaseTabsContent value="community" className="mt-0 flex flex-col gap-8">
             <GameRecentPlayers />

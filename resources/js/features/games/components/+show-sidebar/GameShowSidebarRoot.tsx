@@ -11,9 +11,9 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
 import { getSidebarExcludedHubIds } from '../../utils/getSidebarExcludedHubIds';
+import { GameContentWarnings } from '../GameContentWarnings';
 import { GameMetadata } from '../GameMetadata';
 import { GameSidebarFullWidthButtons } from '../GameSidebarFullWidthButtons';
-import { MatureContentIndicator } from '../MatureContentIndicator';
 import { PlaytimeStatistics } from '../PlaytimeStatistics';
 import { SeriesHubDisplay } from '../SeriesHubDisplay';
 import { SimilarGamesList } from '../SimilarGamesList';
@@ -23,7 +23,6 @@ export const GameShowSidebarRoot: FC = () => {
     backingGame,
     followedPlayerCompletions,
     game,
-    hasMatureContent,
     hubs,
     isViewingPublishedAchievements,
     numMasters,
@@ -43,9 +42,11 @@ export const GameShowSidebarRoot: FC = () => {
     <div data-testid="sidebar" className="flex flex-col gap-6">
       <PlayableBoxArtImage src={game.imageBoxArtUrl} />
 
-      {hasMatureContent ? <MatureContentIndicator /> : null}
+      <div className="flex flex-col gap-3">
+        <GameContentWarnings />
+        <GameMetadata allMetaRowElements={allMetaRowElements} game={game} hubs={hubs} />
+      </div>
 
-      <GameMetadata allMetaRowElements={allMetaRowElements} game={game} hubs={hubs} />
       <GameSidebarFullWidthButtons game={game} />
 
       <BaseSeparator className="mb-4" />
