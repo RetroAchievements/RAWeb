@@ -78,7 +78,7 @@ $kindMapping = [
     'completed' => ['AwardType' => AwardType::Mastery, 'AwardDataExtra' => false],
     'mastered' => ['AwardType' => AwardType::Mastery, 'AwardDataExtra' => true],
 ];
-if ($awardKinds !== null) {
+if (!empty($awardKinds)) {
     $baseQuery->where(function ($query) use ($awardKinds, $kindMapping) {
         foreach ($awardKinds as $awardKind) {
             if (isset($kindMapping[$awardKind])) {
