@@ -10,8 +10,6 @@ use Illuminate\Http\Request;
 
 class GetLatestIntegrationVersionAction extends BaseApiAction
 {
-    protected int $emulatorId;
-
     public function execute(): array
     {
         return $this->process();
