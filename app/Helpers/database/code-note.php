@@ -24,11 +24,11 @@ function loadCodeNotes(int $gameId): array
     return empty($codeNotes) ? [] : $codeNotes;
 }
 
-function getCodeNotes(int $gameId, ?array &$codeNotesOut): bool
+function getCodeNotes(int $gameId, array &$codeNotesOut): bool
 {
     $codeNotesOut = loadCodeNotes($gameId);
 
-    return $codeNotesOut !== null;
+    return true;
 }
 
 /**

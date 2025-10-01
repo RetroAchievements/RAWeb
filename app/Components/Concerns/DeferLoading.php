@@ -20,7 +20,7 @@ trait DeferLoading
     }
 
     /**
-     * @return array|LengthAwarePaginator<Model>|Collection<int, Model>|null
+     * @return array|LengthAwarePaginator<int, Model>|Collection<int, Model>|null
      */
     protected function loadDeferred(): array|LengthAwarePaginator|Collection|null
     {
