@@ -469,4 +469,35 @@ describe('Hook: useAllMetaRowElements', () => {
       { label: 'Something', hubId: 789, href: ['hub.show', 789] },
     ]);
   });
+
+  it('excludes content warning hubs from all metadata categories', () => {
+    // ARRANGE
+    const game = createGame();
+    const matureHub = createGameSet({
+      id: 7869, // !! mature content hub ID
+      title: '[Theme - Mature]',
+      type: 'hub',
+    });
+    const epilepsyWarningHub = createGameSet({
+      id: 25577, // !! epilepsy warning hub ID
+      title: 'Photosensitive Warning',
+      type: 'hub',
+    });
+    const regularThemeHub = createGameSet({
+      id: 999,
+      title: '[Theme - Fantasy]',
+      type: 'hub',
+    });
+    const allGameHubs = [matureHub, epilepsyWarningHub, regularThemeHub];
+
+    // ACT
+    const { result } = renderHook(() => useAllMetaRowElements(game, allGameHubs));
+
+    // ASSERT
+    expect(result.current.themeRowElements).toEqual([
+      { label: 'Fantasy', hubId: 999, href: ['hub.show', 999] },
+    ]);
+    expect(result.current.miscRowElements).toEqual([]);
+    expect(result.current.allUsedHubIds).toEqual([999]);
+  });
 });
