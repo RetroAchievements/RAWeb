@@ -46,6 +46,7 @@ class BetaFeedbackApiController extends Controller
             'negative_feedback' => $data['negativeFeedback'],
             'page_url' => $pageUrl,
             'user_agent' => $userAgent,
+            'app_version' => config('app.version'),
             'visit_count' => $visitCount,
             'first_visited_at' => $firstVisitedAt,
             'last_visited_at' => $lastVisitedAt,

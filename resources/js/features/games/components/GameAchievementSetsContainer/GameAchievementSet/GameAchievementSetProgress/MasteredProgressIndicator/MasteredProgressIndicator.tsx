@@ -197,11 +197,10 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements }) => {
       {unlockedHardcoreCount || unlockedSoftcoreCount ? (
         <BaseButton
           size="sm"
-          variant="destructive"
-          className="mt-3 h-fit py-0.5"
+          className="mb-1 mt-3 h-fit py-0.5"
           onClick={() => setIsResetAllProgressDialogOpen(true)}
         >
-          {t('Reset all progress')}
+          {t('Manage progress')}
         </BaseButton>
       ) : null}
     </div>
