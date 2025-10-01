@@ -1,6 +1,7 @@
 import { renderHook } from '@/test';
 import { createGame, createGameSet } from '@/test/factories';
 
+import { hubIds } from '../utils/hubIds';
 import { useAllMetaRowElements } from './useAllMetaRowElements';
 
 describe('Hook: useAllMetaRowElements', () => {
@@ -474,17 +475,17 @@ describe('Hook: useAllMetaRowElements', () => {
     // ARRANGE
     const game = createGame();
     const matureHub = createGameSet({
-      id: 7869, // !! mature content hub ID
+      id: hubIds.mature,
       title: '[Theme - Mature]',
       type: 'hub',
     });
     const epilepsyWarningHub = createGameSet({
-      id: 25577, // !! epilepsy warning hub ID
+      id: hubIds.epilepsyWarning,
       title: 'Photosensitive Warning',
       type: 'hub',
     });
     const regularThemeHub = createGameSet({
-      id: 999,
+      id: 12345,
       title: '[Theme - Fantasy]',
       type: 'hub',
     });
@@ -495,9 +496,9 @@ describe('Hook: useAllMetaRowElements', () => {
 
     // ASSERT
     expect(result.current.themeRowElements).toEqual([
-      { label: 'Fantasy', hubId: 999, href: ['hub.show', 999] },
+      { label: 'Fantasy', hubId: 12345, href: ['hub.show', 12345] },
     ]);
     expect(result.current.miscRowElements).toEqual([]);
-    expect(result.current.allUsedHubIds).toEqual([999]);
+    expect(result.current.allUsedHubIds).toEqual([12345]);
   });
 });
