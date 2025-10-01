@@ -47,7 +47,10 @@ export const FeaturedLeaderboardsList: FC<FeaturedLeaderboardsListProps> = ({
       <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
         <ul className="zebra-list overflow-hidden rounded-lg">
           {featuredLeaderboards.map((leaderboard) => (
-            <li key={`featured-lb-${leaderboard.id}`} className="game-set-item">
+            <li
+              key={`featured-lb-${leaderboard.id}`}
+              className="game-set-item first:rounded-t-lg last:rounded-b-lg"
+            >
               <div className="w-full gap-x-5 gap-y-1.5 pb-2.5 leading-4">
                 <div className="sm:col-span-4 md:mt-1">
                   {/* Title */}
