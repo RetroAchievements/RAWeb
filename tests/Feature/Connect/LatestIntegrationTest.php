@@ -65,7 +65,7 @@ class LatestIntegrationTest extends TestCase
             ]);
 
         // minimum updated
-        $integration_latest->minimum = true;
+        $integration_latest->minimum = 1;
         $integration_latest->save();
 
         // IntegrationRelease should automatically clear minimum on previous minimum
