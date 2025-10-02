@@ -8,6 +8,8 @@ import { createGame } from '@/test/factories';
 
 import { GameListItemDrawerBacklogToggleButton } from './GameListItemDrawerBacklogToggleButton';
 
+vi.mock('@/common/hooks/useGameBacklogState');
+
 interface TestHarnessProps {
   game: App.Platform.Data.Game;
   isInitiallyInBacklog: boolean;
@@ -37,6 +39,12 @@ describe('Component: GameListItemDrawerBacklogToggleButton', () => {
       writable: true,
       value: { href: 'http://localhost?param1=oldValue1&param2=oldValue2' },
     });
+
+    vi.mocked(useGameBacklogState).mockImplementation(({ isInitiallyInBacklog }) => ({
+      isPending: false,
+      toggleBacklog: vi.fn(),
+      isInBacklogMaybeOptimistic: isInitiallyInBacklog ?? false,
+    }));
   });
 
   afterEach(() => {
