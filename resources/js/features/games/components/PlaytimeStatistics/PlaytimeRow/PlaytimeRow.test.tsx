@@ -114,7 +114,7 @@ describe('Component: PlaytimeRow', () => {
         Icon={LuStar}
         iconContainerClassName="bg-blue-500"
         iconClassName="text-white"
-        totalSamples={3}
+        totalSamples={3} // !! not enough samples
       />,
     );
 
@@ -131,7 +131,7 @@ describe('Component: PlaytimeRow', () => {
         Icon={LuStar}
         iconContainerClassName="bg-blue-500"
         iconClassName="text-white"
-        totalSamples={2}
+        totalSamples={2} // !! not enough samples
       />,
     );
 
@@ -181,7 +181,7 @@ describe('Component: PlaytimeRow', () => {
     expect(screen.queryByText(/median time/i)).not.toBeInTheDocument();
   });
 
-  it('given totalSamples is undefined, shows the "Not enough data" message', () => {
+  it('given totalSamples is undefined, does not show the "Not enough data" message', () => {
     // ARRANGE
     render(
       <PlaytimeRow
@@ -189,7 +189,24 @@ describe('Component: PlaytimeRow', () => {
         Icon={LuStar}
         iconContainerClassName="bg-blue-500"
         iconClassName="text-white"
-        totalSamples={undefined}
+        totalSamples={undefined} // !! milestone not tracked for playtime
+      />,
+    );
+
+    // ASSERT
+    expect(screen.queryByText(/not enough data/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/median time/i)).not.toBeInTheDocument();
+  });
+
+  it('given totalSamples is 0, shows the "Not enough data" message', () => {
+    // ARRANGE
+    render(
+      <PlaytimeRow
+        headingLabel={'Test Heading' as TranslatedString}
+        Icon={LuStar}
+        iconContainerClassName="bg-blue-500"
+        iconClassName="text-white"
+        totalSamples={0} // !! no one has achieved this milestone yet
       />,
     );
 

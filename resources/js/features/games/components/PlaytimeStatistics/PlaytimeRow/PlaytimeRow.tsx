@@ -91,7 +91,7 @@ export const PlaytimeRow: FC<PlaytimeRowProps> = ({
         </div>
       ) : null}
 
-      {totalSamples === undefined || totalSamples < MIN_SAMPLES_FOR_MEDIAN ? (
+      {totalSamples !== undefined && totalSamples < MIN_SAMPLES_FOR_MEDIAN ? (
         <BaseTooltip>
           <BaseTooltipTrigger>
             <div className="flex items-center justify-end gap-1 text-right text-xs text-neutral-600">
