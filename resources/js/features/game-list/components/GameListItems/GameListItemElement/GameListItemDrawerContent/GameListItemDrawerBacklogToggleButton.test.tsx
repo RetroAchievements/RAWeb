@@ -1,11 +1,11 @@
 import userEvent from '@testing-library/user-event';
 import type { FC } from 'react';
 
+import { useGameBacklogState } from '@/common/hooks/useGameBacklogState';
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createGame } from '@/test/factories';
 
-import { useGameBacklogState } from '../../useGameBacklogState';
 import { GameListItemDrawerBacklogToggleButton } from './GameListItemDrawerBacklogToggleButton';
 
 interface TestHarnessProps {
