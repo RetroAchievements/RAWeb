@@ -6,6 +6,7 @@ import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { RaProgression } from '@/common/components/RaProgression';
 import { RaWinCondition } from '@/common/components/RaWinCondition';
 import { cn } from '@/common/utils/cn';
+import { sortAchievements } from '@/common/utils/sortAchievements';
 
 interface BeatenCreditAchievementListProps {
   achievements: App.Platform.Data.Achievement[];
@@ -20,6 +21,9 @@ export const BeatenCreditAchievementList: FC<BeatenCreditAchievementListProps> =
 
   const Icon = type === 'progression' ? RaProgression : RaWinCondition;
 
+  // Show unlocked achievements at the top of the list.
+  const sortedAchievements = sortAchievements(achievements, 'normal');
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
@@ -27,7 +31,7 @@ export const BeatenCreditAchievementList: FC<BeatenCreditAchievementListProps> =
           <Icon
             className={cn(
               '-mb-0.5 size-5',
-              type === 'progression' ? 'text-green-500' : 'text-amber-500',
+              type === 'progression' ? 'text-green-500 light:text-green-700' : 'text-amber-500',
             )}
           />
 
@@ -43,8 +47,8 @@ export const BeatenCreditAchievementList: FC<BeatenCreditAchievementListProps> =
         </p>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-2">
-        {achievements.map((achievement) => (
+      <div className="flex flex-col gap-2">
+        {sortedAchievements.map((achievement) => (
           <div
             key={`${type}-${achievement.id}`}
             className={getAchievementCardClassName(type, !!achievement.unlockedAt)}
@@ -76,19 +80,21 @@ function getAchievementCardClassName(
   type: 'progression' | 'win_condition',
   isUnlocked: boolean,
 ): string {
-  const baseClasses = 'flex items-center gap-4 rounded-lg border p-3';
+  const baseClasses = 'flex items-center gap-4 rounded border p-3';
 
   if (type === 'progression') {
     return cn(
       baseClasses,
       isUnlocked
-        ? 'border-green-700/30 bg-green-900/20'
-        : 'border-neutral-700/30 bg-neutral-800/50',
+        ? 'border-green-700/30 bg-green-900/20 light:bg-green-100/70'
+        : 'border-neutral-700/30 bg-neutral-800/50 light:bg-white',
     );
   }
 
   return cn(
     baseClasses,
-    isUnlocked ? 'border-amber-700/30 bg-amber-900/20' : 'border-neutral-700/30 bg-neutral-800/50',
+    isUnlocked
+      ? 'border-amber-700/30 bg-amber-900/20 light:bg-amber-100/70'
+      : 'border-neutral-700/30 bg-neutral-800/50 light:bg-white',
   );
 }

@@ -62,8 +62,7 @@ const Indicator: FC<IndicatorProps> = ({ type, icon, label }) => {
         <div
           data-testid={`type-${type}`}
           className={cn(
-            'group flex items-center rounded-full border bg-embed p-1',
-            'text-neutral-200 light:border-neutral-300 light:bg-neutral-50 light:text-neutral-500',
+            'type-ind group',
 
             type === 'progression' || type === 'win_condition' ? 'cursor-pointer' : null,
             type === 'missable' ? 'border-dashed border-stone-500' : 'border-transparent',

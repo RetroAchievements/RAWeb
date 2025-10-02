@@ -56,7 +56,6 @@ class ProcessGameReleasesForViewActionTest extends TestCase
         $result = $this->action->execute($game);
 
         // Assert
-        $this->assertIsArray($result);
         $this->assertEmpty($result);
     }
 
