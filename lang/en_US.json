@@ -1210,5 +1210,6 @@
     "Stats": "Stats",
     "Community": "Community",
     "You've used all your set requests.": "You've used all your set requests.",
-    "Achievement Set": "Achievement Set"
+    "Achievement Set": "Achievement Set",
+    "View all {{val, number}} leaderboards": "View all {{val, number}} leaderboards"
 }

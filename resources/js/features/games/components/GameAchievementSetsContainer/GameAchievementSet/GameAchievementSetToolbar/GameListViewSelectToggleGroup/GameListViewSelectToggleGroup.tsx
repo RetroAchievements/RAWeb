@@ -1,4 +1,3 @@
-import { useAtom, useSetAtom } from 'jotai';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChartBar, LuTrophy } from 'react-icons/lu';
@@ -13,10 +12,7 @@ import {
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
-import {
-  currentListViewAtom,
-  currentPlayableListSortAtom,
-} from '@/features/games/state/games.atoms';
+import { useCurrentListView } from '@/features/games/hooks/useCurrentListView';
 
 export const GameListViewSelectToggleGroup: FC = () => {
   const { backingGame, numLeaderboards } = usePageProps<App.Platform.Data.GameShowPageProps>();
@@ -24,33 +20,7 @@ export const GameListViewSelectToggleGroup: FC = () => {
 
   const { formatNumber } = useFormatNumber();
 
-  const [currentListView, setCurrentListView] = useAtom(currentListViewAtom);
-  const setCurrentSort = useSetAtom(currentPlayableListSortAtom);
-
-  const handleViewChange = (view?: 'achievements' | 'leaderboards') => {
-    if (!view) {
-      return;
-    }
-
-    setCurrentListView(view);
-
-    // Set the appropriate default sort when switching views.
-    if (view === 'leaderboards') {
-      setCurrentSort('displayOrder');
-    } else {
-      setCurrentSort('normal');
-    }
-
-    const url = new URL(window.location.href);
-
-    if (view === 'leaderboards') {
-      url.searchParams.set('view', 'leaderboards');
-    } else {
-      url.searchParams.delete('view');
-    }
-
-    window.history.replaceState({}, '', url.toString());
-  };
+  const { currentListView, setCurrentListView } = useCurrentListView();
 
   return (
     <BaseToggleGroup
@@ -58,7 +28,7 @@ export const GameListViewSelectToggleGroup: FC = () => {
       className="flex-row-reverse gap-0 sm:flex-row"
       value={currentListView}
       onValueChange={(value) =>
-        handleViewChange(value as 'achievements' | 'leaderboards' | undefined)
+        setCurrentListView(value as 'achievements' | 'leaderboards' | undefined)
       }
     >
       <BaseTooltip>

@@ -11,6 +11,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
 import { getSidebarExcludedHubIds } from '../../utils/getSidebarExcludedHubIds';
+import { FeaturedLeaderboardsList } from '../FeaturedLeaderboardsList';
 import { GameMetadata } from '../GameMetadata';
 import { GameSidebarFullWidthButtons } from '../GameSidebarFullWidthButtons';
 import { MatureContentIndicator } from '../MatureContentIndicator';
@@ -21,6 +22,7 @@ import { SimilarGamesList } from '../SimilarGamesList';
 export const GameShowSidebarRoot: FC = () => {
   const {
     backingGame,
+    featuredLeaderboards,
     followedPlayerCompletions,
     game,
     hasMatureContent,
@@ -87,6 +89,10 @@ export const GameShowSidebarRoot: FC = () => {
           players={topAchievers}
           variant="game"
         />
+      ) : null}
+
+      {featuredLeaderboards?.length ? (
+        <FeaturedLeaderboardsList featuredLeaderboards={featuredLeaderboards} />
       ) : null}
     </div>
   );

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Actions\GetUserDeviceKindAction;
 use App\Community\Data\CommentData;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
@@ -216,8 +217,15 @@ class BuildGameShowPagePropsAction
             ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
             ->first();
 
-        return new GameShowPagePropsData(
+        // Detect if the user is on mobile to conditionally include some props.
+        $isMobile = (new GetUserDeviceKindAction())->execute() === 'mobile';
+
+        $propsData = new GameShowPagePropsData(
             achievementSetClaims: $achievementSetClaims,
+
+            allLeaderboards: request()->inertia() || $initialView === GamePageListView::Leaderboards
+                ? $this->buildLeaderboards($backingGame, $user)
+                : Lazy::inertiaDeferred(fn () => $this->buildLeaderboards($backingGame, $user)),
 
             can: UserPermissionsData::fromUser($user, game: $backingGame, claim: $primaryClaim)->include(
                 'createAchievementSetClaims',
@@ -291,6 +299,7 @@ class BuildGameShowPagePropsAction
             ),
 
             claimData: $claimData,
+            featuredLeaderboards: Lazy::create(fn () => $this->buildLeaderboards($backingGame, $user, 5)),
             hasMatureContent: $backingGame->hasMatureContent,
             hubs: $relatedHubs,
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
@@ -300,10 +309,6 @@ class BuildGameShowPagePropsAction
             isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
             isViewingPublishedAchievements: $targetAchievementFlag === AchievementFlag::OfficialCore,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
-
-            leaderboards: request()->inertia() || $initialView === GamePageListView::Leaderboards
-                ? $this->buildLeaderboards($backingGame, $user)
-                : Lazy::inertiaDeferred(fn () => $this->buildLeaderboards($backingGame, $user)),
 
             playerAchievementChartBuckets: $targetAchievementFlag === AchievementFlag::OfficialCore
                 ? $this->buildGameAchievementDistributionAction->execute($backingGame, $user)
@@ -356,6 +361,13 @@ class BuildGameShowPagePropsAction
                 ->values()
                 ->all(),
         );
+
+        // Only include featured leaderboards for non-mobile devices.
+        if (!$isMobile) {
+            $propsData = $propsData->include('featuredLeaderboards');
+        }
+
+        return $propsData;
     }
 
     /**
@@ -638,7 +650,7 @@ class BuildGameShowPagePropsAction
     /**
      * @return Collection<int, LeaderboardData>
      */
-    private function buildLeaderboards(Game $game, ?User $user = null): Collection
+    private function buildLeaderboards(Game $game, ?User $user = null, ?int $limit = null): Collection
     {
         // Only show leaderboards if the system is active and it's not an event game.
         if (!$game->system->active || $game->system->id === System::Events) {
@@ -655,7 +667,12 @@ class BuildGameShowPagePropsAction
             $userEntriesByLeaderboardId = $userEntries->keyBy('leaderboard_id');
         }
 
-        return $game->leaderboards->map(function ($leaderboard) use ($userEntriesByLeaderboardId, $user) {
+        $leaderboards = $game->leaderboards;
+        if ($limit !== null) {
+            $leaderboards = $leaderboards->take($limit);
+        }
+
+        return $leaderboards->map(function ($leaderboard) use ($userEntriesByLeaderboardId, $user) {
             // Build the user entry if it exists.
             $userEntryData = null;
             if ($user && $userEntriesByLeaderboardId->has($leaderboard->id)) {
