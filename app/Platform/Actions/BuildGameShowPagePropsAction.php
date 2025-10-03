@@ -336,8 +336,10 @@ class BuildGameShowPagePropsAction
                 ->map(function ($gas) {
                     $gas->achievementSet->setRelation('achievements', collect());
 
-                    $gas->achievementSet->median_time_to_complete = $gas->achievementSet->median_time_to_complete ?? 0;
-                    $gas->achievementSet->median_time_to_complete_hardcore = $gas->achievementSet->median_time_to_complete_hardcore ?? 0;
+                    $gas->achievementSet->median_time_to_complete ??= 0;
+                    $gas->achievementSet->median_time_to_complete_hardcore ??= 0;
+                    $gas->achievementSet->players_hardcore ??= 0;
+                    $gas->achievementSet->players_total ??= 0;
 
                     return GameAchievementSetData::from($gas)->include(
                         'type',
