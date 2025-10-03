@@ -132,6 +132,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
           'resources/js/common/components/+vendor', // shadcn/ui lib code
           'resources/js/common/components/GlobalSearchProvider', // has to pierce the global window context
           'resources/js/common/utils/+vendor', // 3rd party utils
+          'resources/js/tools/eslint-rules', // custom ESLint rules
           '**/index.ts',
           '**/*.model.ts',
           '**/*.test.ts',

@@ -1,12 +1,12 @@
 import type { Mock } from 'vitest';
 
-import { useAddOrRemoveFromUserGameList } from '@/common/hooks/useAddOrRemoveFromUserGameList';
-import { usePageProps } from '@/common/hooks/usePageProps';
-import { createAuthenticatedUser } from '@/common/models';
 import { act, renderHook, waitFor } from '@/test';
 import { createGame } from '@/test/factories';
 
+import { createAuthenticatedUser } from '../models';
+import { useAddOrRemoveFromUserGameList } from './useAddOrRemoveFromUserGameList';
 import { useGameBacklogState } from './useGameBacklogState';
+import { usePageProps } from './usePageProps';
 
 vi.mock('@/common/hooks/useAddOrRemoveFromUserGameList', () => ({
   useAddOrRemoveFromUserGameList: vi.fn(),
