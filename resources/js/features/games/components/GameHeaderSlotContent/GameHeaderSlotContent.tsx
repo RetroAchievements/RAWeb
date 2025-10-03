@@ -4,8 +4,8 @@ import { LuCheck, LuMegaphone, LuPlus } from 'react-icons/lu';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { BetaFeedbackDialog } from '@/common/components/BetaFeedbackDialog';
+import { useGameBacklogState } from '@/common/hooks/useGameBacklogState';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { useGameBacklogState } from '@/features/game-list/components/GameListItems/useGameBacklogState';
 
 import { SubsetButtonChip } from '../SubsetButtonChip';
 

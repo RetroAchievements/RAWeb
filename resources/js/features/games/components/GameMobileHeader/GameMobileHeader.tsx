@@ -5,9 +5,9 @@ import { route } from 'ziggy-js';
 
 import { BetaFeedbackDialog } from '@/common/components/BetaFeedbackDialog';
 import { GameTitle } from '@/common/components/GameTitle';
+import { useGameBacklogState } from '@/common/hooks/useGameBacklogState';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
-import { useGameBacklogState } from '@/features/game-list/components/GameListItems/useGameBacklogState';
 
 export const GameMobileHeader: FC = () => {
   const {

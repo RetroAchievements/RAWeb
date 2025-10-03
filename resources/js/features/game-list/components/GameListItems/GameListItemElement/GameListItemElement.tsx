@@ -3,8 +3,8 @@ import { type FC, useState } from 'react';
 import type { RouteName } from 'ziggy-js';
 
 import { BaseDrawer } from '@/common/components/+vendor/BaseDrawer';
+import { useGameBacklogState } from '@/common/hooks/useGameBacklogState';
 
-import { useGameBacklogState } from '../useGameBacklogState';
 import { GameListItemContent } from './GameListItemContent';
 import { GameListItemDrawerContent } from './GameListItemDrawerContent';
 

@@ -1,10 +1,10 @@
+import { useGameBacklogState } from '@/common/hooks/useGameBacklogState';
 import { render, screen } from '@/test';
 import { createGame } from '@/test/factories';
 
-import { useGameBacklogState } from '../GameListItems/useGameBacklogState';
 import { DataTableRowActions } from './DataTableRowActions';
 
-vi.mock('../GameListItems/useGameBacklogState');
+vi.mock('@/common/hooks/useGameBacklogState');
 
 describe('Component: DataTableRowActions', () => {
   beforeEach(() => {

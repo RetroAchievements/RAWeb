@@ -9,6 +9,7 @@ use App\Connect\Actions\GetCodeNotesAction;
 use App\Connect\Actions\GetFriendListAction;
 use App\Connect\Actions\GetHashLibraryAction;
 use App\Connect\Actions\GetLatestClientVersionAction;
+use App\Connect\Actions\GetLatestIntegrationVersionAction;
 use App\Connect\Actions\GetLeaderboardEntriesAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\PostActivityAction;
@@ -41,6 +42,7 @@ $handler = match ($requestType) {
     'getfriendlist' => new GetFriendListAction(),
     'hashlibrary' => new GetHashLibraryAction(),
     'latestclient' => new GetLatestClientVersionAction(),
+    'latestintegration' => new GetLatestIntegrationVersionAction(),
     'lbinfo' => new GetLeaderboardEntriesAction(),
     'postactivity' => new PostActivityAction(),
     'submitcodenote' => new SubmitCodeNoteAction(),
@@ -271,22 +273,6 @@ switch ($requestType) {
         }
         $response['Response'] = Game::whereIn('ID', explode(',', $gamesCSV, 100))
             ->select('Title', 'ID', 'ImageIcon')->get()->toArray();
-        break;
-
-    case "latestintegration":
-        $integration = getIntegrationRelease();
-        if (!$integration) {
-            return DoRequestError("Unknown client");
-        }
-        $baseDownloadUrl = str_replace('https', 'http', config('app.url')) . '/';
-        $response['MinimumVersion'] = $integration['minimum_version'] ?? null;
-        $response['LatestVersion'] = $integration['latest_version'] ?? null;
-        $response['LatestVersionUrl'] = ($integration['latest_version_url'] ?? null)
-            ? $baseDownloadUrl . $integration['latest_version_url']
-            : 'http://retroachievements.org/bin/RA_Integration.dll';
-        $response['LatestVersionUrlX64'] = ($integration['latest_version_url_x64'] ?? null)
-            ? $baseDownloadUrl . $integration['latest_version_url_x64']
-            : 'http://retroachievements.org/bin/RA_Integration-x64.dll';
         break;
 
     /*

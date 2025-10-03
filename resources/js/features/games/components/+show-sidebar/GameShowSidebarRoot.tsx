@@ -12,6 +12,7 @@ import { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
 import { getSidebarExcludedHubIds } from '../../utils/getSidebarExcludedHubIds';
 import { GameContentWarnings } from '../GameContentWarnings';
+import { FeaturedLeaderboardsList } from '../FeaturedLeaderboardsList';
 import { GameMetadata } from '../GameMetadata';
 import { GameSidebarFullWidthButtons } from '../GameSidebarFullWidthButtons';
 import { PlaytimeStatistics } from '../PlaytimeStatistics';
@@ -21,6 +22,7 @@ import { SimilarGamesList } from '../SimilarGamesList';
 export const GameShowSidebarRoot: FC = () => {
   const {
     backingGame,
+    featuredLeaderboards,
     followedPlayerCompletions,
     game,
     hubs,
@@ -88,6 +90,10 @@ export const GameShowSidebarRoot: FC = () => {
           players={topAchievers}
           variant="game"
         />
+      ) : null}
+
+      {featuredLeaderboards?.length ? (
+        <FeaturedLeaderboardsList featuredLeaderboards={featuredLeaderboards} />
       ) : null}
     </div>
   );
