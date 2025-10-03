@@ -6,6 +6,7 @@ namespace App\Observers;
 
 use App\Models\GameSet;
 use App\Platform\Enums\GameSetType;
+use App\Support\Cache\CacheKey;
 use Illuminate\Support\Facades\Cache;
 
 class GameSetObserver
@@ -30,13 +31,13 @@ class GameSetObserver
         }
 
         // Clear the cache for this hub.
-        Cache::forget("hub_breadcrumbs:{$gameSet->id}");
+        Cache::forget(CacheKey::buildGameSetBreadcrumbsCacheKey($gameSet->id));
 
         // Clear caches for all child hubs (they include this hub in their breadcrumbs).
         $gameSet->children()
             ->whereType(GameSetType::Hub)
             ->each(function (GameSet $child) {
-                Cache::forget("hub_breadcrumbs:{$child->id}");
+                Cache::forget(CacheKey::buildGameSetBreadcrumbsCacheKey($child->id));
             });
     }
 }

@@ -520,4 +520,44 @@ class BuildHubBreadcrumbsActionTest extends TestCase
         $this->assertBreadcrumb($breadcrumbs[2], $devQuestHub->id, '[Dev Events - DevQuest]');
         $this->assertBreadcrumb($breadcrumbs[3], $devQuestSetHub->id, '[DevQuest 018 Sets] Subset Station');
     }
+
+    public function testItHandlesInconsistentEventNaming(): void
+    {
+        // Arrange
+        /**
+         * This tests the fallback logic where a child hub's name prefix doesn't
+         * necessarily match the parent event hub's suffix.
+         * eg: "RA Roulette (RAWR) > "RA Roulette 2025 - Developed Sets"
+         */
+        $centralHub = $this->createHub('[Central]');
+        $centralHub->id = GameSet::CentralHubId;
+        $centralHub->save();
+
+        $centralEventsHub = $this->createHub('[Central - Community Events]');
+        $eventHub = $this->createHub('[Events - RA Roulette (RAWR)]'); // !!
+        $subHub = $this->createHub('[RA Roulette 2022 - Developed Sets]'); // !!
+
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $centralHub->id,
+            'child_game_set_id' => $centralEventsHub->id,
+        ]);
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $centralEventsHub->id,
+            'child_game_set_id' => $eventHub->id,
+        ]);
+        GameSetLink::factory()->create([
+            'parent_game_set_id' => $eventHub->id, // !! the naming is inconsistent, but the relationship exists.
+            'child_game_set_id' => $subHub->id,
+        ]);
+
+        // Act
+        $breadcrumbs = $this->action->execute($subHub);
+
+        // Assert
+        $this->assertCount(4, $breadcrumbs);
+        $this->assertBreadcrumb($breadcrumbs[0], GameSet::CentralHubId, '[Central]');
+        $this->assertBreadcrumb($breadcrumbs[1], $centralEventsHub->id, '[Central - Community Events]');
+        $this->assertBreadcrumb($breadcrumbs[2], $eventHub->id, '[Events - RA Roulette (RAWR)]');
+        $this->assertBreadcrumb($breadcrumbs[3], $subHub->id, '[RA Roulette 2022 - Developed Sets]');
+    }
 }
