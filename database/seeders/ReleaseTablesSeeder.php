@@ -6,7 +6,6 @@ namespace Database\Seeders;
 
 use App\Models\Emulator;
 use App\Models\EmulatorRelease;
-use App\Models\IntegrationRelease;
 use Illuminate\Database\Seeder;
 
 class ReleaseTablesSeeder extends Seeder
@@ -15,21 +14,8 @@ class ReleaseTablesSeeder extends Seeder
     {
         $releasesData = getReleasesFromFile() ?? [];
 
-        if (array_key_exists('integration', $releasesData) && !empty($releasesData['integration']) && IntegrationRelease::count() === 0) {
-            $this->seedIntegrationReleases($releasesData['integration']);
-        }
-
         if (array_key_exists('emulators', $releasesData) && !empty($releasesData['emulators']) && EmulatorRelease::count() === 0) {
             $this->seedEmulatorReleases($releasesData['emulators']);
-        }
-    }
-
-    private function seedIntegrationReleases(array $data): void
-    {
-        $releases = $this->extractReleases($data);
-
-        foreach ($releases as $release) {
-            IntegrationRelease::create($release);
         }
     }
 

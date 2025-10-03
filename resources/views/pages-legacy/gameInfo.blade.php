@@ -323,10 +323,7 @@ if ($isEventGame) {
 }
 
 sanitize_outputs(
-    $gameTitle,
-    $consoleName,
     $richPresenceData,
-    $user,
 );
 
 $pageType = $isFullyFeaturedGame ? 'retroachievements:game' : 'retroachievements:hub';
