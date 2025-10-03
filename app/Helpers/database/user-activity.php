@@ -69,7 +69,7 @@ function expireRecentlyPlayedGames(string $user): void
     Cache::forget($userRecentGamesCacheKey);
 }
 
-function getRecentlyPlayedGames(User $user, int $offset, int $count, ?array &$dataOut): int
+function getRecentlyPlayedGames(User $user, int $offset, int $count, array &$dataOut): int
 {
     $dataOut = [];
 
@@ -111,7 +111,7 @@ function getArticleComments(
     int $articleID,
     int $offset,
     int $count,
-    ?array &$dataOut,
+    array &$dataOut,
     bool $recent = false,
 ): int {
     $dataOut = [];
@@ -151,7 +151,7 @@ function getArticleComments(
 function getRecentArticleComments(
     int $articleTypeID,
     int $articleID,
-    ?array &$dataOut,
+    array &$dataOut,
     int $count = 20,
 ): int {
     $numArticleComments = getArticleComments($articleTypeID, $articleID, 0, $count, $dataOut, true);
@@ -185,13 +185,11 @@ function getLatestRichPresenceUpdates(): array
 
     $dbResult = legacyDbFetchAll($query);
 
-    if ($dbResult !== false) {
-        foreach ($dbResult as $dbEntry) {
-            $dbEntry['GameID'] = (int) $dbEntry['GameID'];
-            $dbEntry['RAPoints'] = (int) $dbEntry['RAPoints'];
-            $dbEntry['RASoftcorePoints'] = (int) $dbEntry['RASoftcorePoints'];
-            $playersFound[] = $dbEntry;
-        }
+    foreach ($dbResult as $dbEntry) {
+        $dbEntry['GameID'] = (int) $dbEntry['GameID'];
+        $dbEntry['RAPoints'] = (int) $dbEntry['RAPoints'];
+        $dbEntry['RASoftcorePoints'] = (int) $dbEntry['RASoftcorePoints'];
+        $playersFound[] = $dbEntry;
     }
 
     return $playersFound;
