@@ -26,7 +26,8 @@ class GameShowPagePropsData extends Data
      * @param Collection<int, FollowedPlayerCompletionData> $followedPlayerCompletions
      * @param Collection<int, GameTopAchieverData> $topAchievers
      * @param Collection<int, PlayerAchievementChartBucketData> $playerAchievementChartBuckets
-     * @param Collection<int, LeaderboardData> $leaderboards
+     * @param Collection<int, LeaderboardData> $featuredLeaderboards
+     * @param Collection<int, LeaderboardData> $allLeaderboards
      */
     public function __construct(
         public AggregateAchievementSetCreditsData $aggregateCredits,
@@ -49,8 +50,9 @@ class GameShowPagePropsData extends Data
         public bool $isViewingPublishedAchievements,
         public Collection $followedPlayerCompletions,
         public Collection $playerAchievementChartBuckets,
+        public Lazy|Collection $featuredLeaderboards,
         #[AutoInertiaDeferred]
-        public Lazy|Collection $leaderboards,
+        public Lazy|Collection $allLeaderboards,
         public int $numBeaten,
         public int $numBeatenSoftcore,
         public int $numComments,

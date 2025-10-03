@@ -4,8 +4,8 @@ import { LuCheck, LuFolder, LuFolderLock, LuPlus } from 'react-icons/lu';
 import { route } from 'ziggy-js';
 
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
+import { useGameBacklogState } from '@/common/hooks/useGameBacklogState';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { useGameBacklogState } from '@/features/game-list/components/GameListItems/useGameBacklogState';
 import { useGameShowTabs } from '@/features/games/hooks/useGameShowTabs';
 
 import { SidebarClaimButtons } from './SidebarClaimButtons';

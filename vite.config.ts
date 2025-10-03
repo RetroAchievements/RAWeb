@@ -90,13 +90,28 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     },
 
     test: {
-      environment: 'jsdom',
+      environment: 'happy-dom',
       setupFiles: ['resources/js/setupTests.ts'],
       include: ['resources/js/**/*.{test,spec}.{ts,tsx}'],
       globals: true,
 
       /** @see https://vitest.dev/guide/improving-performance.html#pool */
       pool: 'threads',
+
+      // Filter out harmless happy-dom iframe fetch abort errors from stderr.
+      onConsoleLog(log, type) {
+        if (
+          type === 'stderr' &&
+          log.includes('DOMException') &&
+          (log.includes('AbortError') || log.includes('NetworkError')) &&
+          (log.includes('Fetch') ||
+            log.includes('iframe') ||
+            log.includes('youtube') ||
+            log.includes('twitch'))
+        ) {
+          return false;
+        }
+      },
 
       coverage: {
         provider: 'v8',
@@ -117,6 +132,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
           'resources/js/common/components/+vendor', // shadcn/ui lib code
           'resources/js/common/components/GlobalSearchProvider', // has to pierce the global window context
           'resources/js/common/utils/+vendor', // 3rd party utils
+          'resources/js/tools/eslint-rules', // custom ESLint rules
           '**/index.ts',
           '**/*.model.ts',
           '**/*.test.ts',
@@ -138,7 +154,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
   };
 });
 
-function detectServerConfig(env) {
+function detectServerConfig(env: Record<string, string>) {
   const watch = {
     // Explicitly ignore large volume directories to prevent running into system-level limits
     // See https://vitejs.dev/config/server-options.html#server-watch
