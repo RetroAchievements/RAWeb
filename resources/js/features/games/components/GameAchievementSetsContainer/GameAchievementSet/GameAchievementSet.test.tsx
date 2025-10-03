@@ -366,7 +366,7 @@ describe('Component: GameAchievementSet', () => {
       createAchievement({ title: 'Test Achievement 1' }),
       createAchievement({ title: 'Test Achievement 2' }),
     ];
-    const leaderboards = [
+    const allLeaderboards = [
       createLeaderboard({ title: 'High Score' }),
       createLeaderboard({ title: 'Speed Run' }),
     ];
@@ -385,8 +385,8 @@ describe('Component: GameAchievementSet', () => {
           [currentListViewAtom, 'leaderboards'], // !!
         ],
         pageProps: {
+          allLeaderboards,
           game,
-          leaderboards,
           achievementSetClaims: [],
           aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
