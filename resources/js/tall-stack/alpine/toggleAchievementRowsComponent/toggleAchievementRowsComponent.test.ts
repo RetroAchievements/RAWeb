@@ -11,15 +11,16 @@ import {
 import { toggleAchievementRowsComponent } from './toggleAchievementRowsComponent';
 
 function render() {
-  (document as any).updateRowsVisibility = toggleAchievementRowsComponent().updateRowsVisibility;
-  (document as any).toggleUnlockedRows = toggleAchievementRowsComponent().toggleUnlockedRows;
-  (document as any).toggleNonMissableRows = toggleAchievementRowsComponent().toggleNonMissableRows;
-  (document as any).toggleInactiveRows = toggleAchievementRowsComponent().toggleInactiveRows;
+  const component = toggleAchievementRowsComponent();
+  (window as any).updateRowsVisibility = component.updateRowsVisibility.bind(component);
+  (window as any).toggleUnlockedRows = component.toggleUnlockedRows.bind(component);
+  (window as any).toggleNonMissableRows = component.toggleNonMissableRows.bind(component);
+  (window as any).toggleInactiveRows = component.toggleInactiveRows.bind(component);
 
   document.body.innerHTML = /** @html */ `
     <div>
       <label class="flex items-center gap-x-1">
-        <input 
+        <input
           type="checkbox"
           name="toggleUnlocked"
           onchange="toggleUnlockedRows()"
@@ -29,7 +30,7 @@ function render() {
       </label>
 
       <label class="flex items-center gap-x-1">
-        <input 
+        <input
           type="checkbox"
           name="toggleMissables"
           onchange="toggleNonMissableRows()"
@@ -39,7 +40,7 @@ function render() {
       </label>
 
       <label class="flex items-center gap-x-1">
-        <input 
+        <input
           type="checkbox"
           name="toggleInactive"
           onchange="toggleInactiveRows()"
@@ -97,6 +98,7 @@ describe('Component: toggleAchievementRowsComponent', () => {
     it('given the checkbox is unchecked, makes unlocked achievements visible again', async () => {
       // ACT
       await userEvent.click(screen.getByRole('checkbox', { name: /unlocked/i }));
+      await userEvent.click(screen.getByRole('checkbox', { name: /unlocked/i }));
 
       // ASSERT
       const allRows = screen.getAllByRole('listitem');
@@ -119,6 +121,7 @@ describe('Component: toggleAchievementRowsComponent', () => {
     it('given the checkbox is unchecked, makes non-missable achievements visible again', async () => {
       // ACT
       await userEvent.click(screen.getByRole('checkbox', { name: /missable/i }));
+      await userEvent.click(screen.getByRole('checkbox', { name: /missable/i }));
 
       // ASSERT
       const allRows = screen.getAllByRole('listitem');
@@ -140,6 +143,7 @@ describe('Component: toggleAchievementRowsComponent', () => {
 
     it('given the checkbox is unchecked, makes inactive achievements visible again', async () => {
       // ACT
+      await userEvent.click(screen.getByRole('checkbox', { name: /inactive/i }));
       await userEvent.click(screen.getByRole('checkbox', { name: /inactive/i }));
 
       // ASSERT

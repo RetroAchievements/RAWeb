@@ -270,9 +270,9 @@ importers:
       globals:
         specifier: ^15.14.0
         version: 15.15.0
-      jsdom:
-        specifier: ^27.0.0
-        version: 27.0.0(postcss@8.5.4)
+      happy-dom:
+        specifier: ^19.0.2
+        version: 19.0.2
       laravel-echo:
         specifier: ^1.15.1
         version: 1.16.1
@@ -317,7 +317,7 @@ importers:
         version: 7.1.5(@types/node@22.8.4)(jiti@2.6.1)(tsx@4.20.5)(yaml@2.6.0)
       vitest:
         specifier: ^3.2.4
-        version: 3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0)
+        version: 3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(happy-dom@19.0.2)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0)
 
 packages:
 
@@ -2211,6 +2211,9 @@ packages:
   '@types/mysql@2.15.27':
     resolution: {integrity: sha512-YfWiV16IY0OeBfBCk8+hXKmdTKrKlwKN1MNKAPBu5JYxLwBEZl7QzeEpGnlZb3VMGJrrGmB84gXiH+ofs/TezA==}
 
+  '@types/node@20.19.19':
+    resolution: {integrity: sha512-pb1Uqj5WJP7wrcbLU7Ru4QtA0+3kAXrkutGiD26wUKzSMgNNaPARTUDQmElUXp64kh3cWdou3Q0C7qwwxqSFmg==}
+
   '@types/node@22.8.4':
     resolution: {integrity: sha512-SpNNxkftTJOPk0oN+y2bIqurEXHTA2AOZ3EJDDKeJ5VzkvvORSvmQXGQarcOzWV1ac7DCaPBEdMDxBsM+d8jWw==}
 
@@ -2239,6 +2242,9 @@ packages:
 
   '@types/ua-parser-js@0.7.39':
     resolution: {integrity: sha512-P/oDfpofrdtF5xw433SPALpdSchtJmY7nsJItf8h3KXqOslkbySh8zq4dSWXH2oTjRvJ5PczVEoCZPow6GicLg==}
+
+  '@types/whatwg-mimetype@3.0.2':
+    resolution: {integrity: sha512-c2AKvDT8ToxLIOUlN51gTiHXflsfIFisS4pO7pDPoKouJCESkhZnEy623gwP9laCy5lnLDAw1vAzu2vM2YLOrA==}
 
   '@typescript-eslint/eslint-plugin@8.36.0':
     resolution: {integrity: sha512-lZNihHUVB6ZZiPBNgOQGSxUASI7UJWhT8nHyUGCnaQ28XFCw98IfrMCG3rUl1uwUWoAvodJQby2KTs79UTcrAg==}
@@ -3526,6 +3532,10 @@ packages:
 
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
+
+  happy-dom@19.0.2:
+    resolution: {integrity: sha512-831CLbgDyjRbd2lApHZFsBDe56onuFcjsCBPodzWpzedTpeDr8CGZjs7iEIdNW1DVwSFRecfwzLpVyGBPamwGA==}
+    engines: {node: '>=20.0.0'}
 
   has-bigints@1.0.2:
     resolution: {integrity: sha512-tSvCKtBr9lkF0Ex0aQiP9N+OpV4zi2r/Nee5VkRDbaqv35RLYMzbwQfFSZZH0kR+Rd6302UJZ2p/bJCEoR3VoQ==}
@@ -5100,6 +5110,9 @@ packages:
   undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
+  undici-types@6.21.0:
+    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+
   unplugin@1.0.1:
     resolution: {integrity: sha512-aqrHaVBWW1JVKBHmGo33T5TxeL0qWzfvjWokObHA9bYmN7eNDkwOxmLjhioHl9878qDFMAaT51XNroRyuz7WxA==}
 
@@ -5283,6 +5296,10 @@ packages:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
 
+  whatwg-mimetype@3.0.0:
+    resolution: {integrity: sha512-nt+N2dzIutVRxARx1nghPKGv1xHikU7HKdfafKkLNLindmPU/ch3U31NOCGGA/dmPcmb1VlofO0vnKAcsm0o/Q==}
+    engines: {node: '>=12'}
+
   whatwg-mimetype@4.0.0:
     resolution: {integrity: sha512-QaKxh0eNIi2mE9p2vEdzfagOKHCcj1pJ56EEHGQOVxp8r9/iszLUUV7v89x9O1p/T+NlTM5W7jW6+cz4Fq1YVg==}
     engines: {node: '>=18'}
@@ -5402,6 +5419,7 @@ snapshots:
       '@csstools/css-parser-algorithms': 3.0.5(@csstools/css-tokenizer@3.0.4)
       '@csstools/css-tokenizer': 3.0.4
       lru-cache: 11.2.1
+    optional: true
 
   '@asamuzakjp/dom-selector@6.5.4':
     dependencies:
@@ -5409,8 +5427,10 @@ snapshots:
       bidi-js: 1.0.3
       css-tree: 3.1.0
       is-potential-custom-element-name: 1.0.1
+    optional: true
 
-  '@asamuzakjp/nwsapi@2.3.9': {}
+  '@asamuzakjp/nwsapi@2.3.9':
+    optional: true
 
   '@babel/code-frame@7.26.2':
     dependencies:
@@ -5584,12 +5604,14 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@csstools/color-helpers@5.1.0': {}
+  '@csstools/color-helpers@5.1.0':
+    optional: true
 
   '@csstools/css-calc@2.1.4(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)':
     dependencies:
       '@csstools/css-parser-algorithms': 3.0.5(@csstools/css-tokenizer@3.0.4)
       '@csstools/css-tokenizer': 3.0.4
+    optional: true
 
   '@csstools/css-color-parser@3.1.0(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)':
     dependencies:
@@ -5597,16 +5619,20 @@ snapshots:
       '@csstools/css-calc': 2.1.4(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)
       '@csstools/css-parser-algorithms': 3.0.5(@csstools/css-tokenizer@3.0.4)
       '@csstools/css-tokenizer': 3.0.4
+    optional: true
 
   '@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4)':
     dependencies:
       '@csstools/css-tokenizer': 3.0.4
+    optional: true
 
   '@csstools/css-syntax-patches-for-csstree@1.0.14(postcss@8.5.4)':
     dependencies:
       postcss: 8.5.4
+    optional: true
 
-  '@csstools/css-tokenizer@3.0.4': {}
+  '@csstools/css-tokenizer@3.0.4':
+    optional: true
 
   '@csstools/selector-resolve-nested@1.1.0(postcss-selector-parser@6.1.2)':
     dependencies:
@@ -7360,6 +7386,10 @@ snapshots:
     dependencies:
       '@types/node': 22.8.4
 
+  '@types/node@20.19.19':
+    dependencies:
+      undici-types: 6.21.0
+
   '@types/node@22.8.4':
     dependencies:
       undici-types: 6.19.8
@@ -7391,6 +7421,8 @@ snapshots:
       '@types/node': 22.8.4
 
   '@types/ua-parser-js@0.7.39': {}
+
+  '@types/whatwg-mimetype@3.0.2': {}
 
   '@typescript-eslint/eslint-plugin@8.36.0(@typescript-eslint/parser@8.36.0(eslint@9.35.0(jiti@2.6.1))(typescript@5.7.3))(eslint@9.35.0(jiti@2.6.1))(typescript@5.7.3)':
     dependencies:
@@ -7659,7 +7691,7 @@ snapshots:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0)
+      vitest: 3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(happy-dom@19.0.2)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -7670,7 +7702,7 @@ snapshots:
       eslint: 9.35.0(jiti@2.6.1)
     optionalDependencies:
       typescript: 5.7.3
-      vitest: 3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0)
+      vitest: 3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(happy-dom@19.0.2)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -7719,7 +7751,7 @@ snapshots:
       sirv: 3.0.1
       tinyglobby: 0.2.15
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0)
+      vitest: 3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(happy-dom@19.0.2)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0)
 
   '@vitest/utils@3.2.4':
     dependencies:
@@ -7753,7 +7785,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  agent-base@7.1.3: {}
+  agent-base@7.1.3:
+    optional: true
 
   ajv@6.12.6:
     dependencies:
@@ -7941,6 +7974,7 @@ snapshots:
   bidi-js@1.0.3:
     dependencies:
       require-from-string: 2.0.2
+    optional: true
 
   binary-extensions@2.3.0: {}
 
@@ -8116,6 +8150,7 @@ snapshots:
     dependencies:
       mdn-data: 2.12.2
       source-map-js: 1.2.1
+    optional: true
 
   css.escape@1.5.1: {}
 
@@ -8128,6 +8163,7 @@ snapshots:
       css-tree: 3.1.0
     transitivePeerDependencies:
       - postcss
+    optional: true
 
   csstype@3.1.3: {}
 
@@ -8175,6 +8211,7 @@ snapshots:
     dependencies:
       whatwg-mimetype: 4.0.0
       whatwg-url: 15.0.0
+    optional: true
 
   data-view-buffer@1.0.1:
     dependencies:
@@ -8228,7 +8265,8 @@ snapshots:
 
   decimal.js-light@2.5.1: {}
 
-  decimal.js@10.6.0: {}
+  decimal.js@10.6.0:
+    optional: true
 
   deep-eql@5.0.2: {}
 
@@ -8299,7 +8337,8 @@ snapshots:
 
   emoji-regex@9.2.2: {}
 
-  entities@6.0.1: {}
+  entities@6.0.1:
+    optional: true
 
   error-stack-parser@2.1.4:
     dependencies:
@@ -8970,6 +9009,12 @@ snapshots:
 
   graphemer@1.4.0: {}
 
+  happy-dom@19.0.2:
+    dependencies:
+      '@types/node': 20.19.19
+      '@types/whatwg-mimetype': 3.0.2
+      whatwg-mimetype: 3.0.0
+
   has-bigints@1.0.2: {}
 
   has-flag@4.0.0: {}
@@ -9003,6 +9048,7 @@ snapshots:
   html-encoding-sniffer@4.0.0:
     dependencies:
       whatwg-encoding: 3.1.1
+    optional: true
 
   html-escaper@2.0.2: {}
 
@@ -9016,6 +9062,7 @@ snapshots:
       debug: 4.4.1
     transitivePeerDependencies:
       - supports-color
+    optional: true
 
   https-proxy-agent@5.0.1:
     dependencies:
@@ -9030,6 +9077,7 @@ snapshots:
       debug: 4.4.1
     transitivePeerDependencies:
       - supports-color
+    optional: true
 
   hyphenate-style-name@1.1.0: {}
 
@@ -9044,6 +9092,7 @@ snapshots:
   iconv-lite@0.6.3:
     dependencies:
       safer-buffer: 2.1.2
+    optional: true
 
   ignore@5.3.2: {}
 
@@ -9194,7 +9243,8 @@ snapshots:
 
   is-number@7.0.0: {}
 
-  is-potential-custom-element-name@1.0.1: {}
+  is-potential-custom-element-name@1.0.1:
+    optional: true
 
   is-regex@1.1.4:
     dependencies:
@@ -9349,6 +9399,7 @@ snapshots:
       - postcss
       - supports-color
       - utf-8-validate
+    optional: true
 
   jsesc@3.0.2: {}
 
@@ -9432,7 +9483,8 @@ snapshots:
 
   lru-cache@10.4.3: {}
 
-  lru-cache@11.2.1: {}
+  lru-cache@11.2.1:
+    optional: true
 
   lru-cache@5.1.1:
     dependencies:
@@ -9462,7 +9514,8 @@ snapshots:
 
   mdn-data@2.0.14: {}
 
-  mdn-data@2.12.2: {}
+  mdn-data@2.12.2:
+    optional: true
 
   merge2@1.4.1: {}
 
@@ -9647,6 +9700,7 @@ snapshots:
   parse5@7.3.0:
     dependencies:
       entities: 6.0.1
+    optional: true
 
   path-exists@4.0.0: {}
 
@@ -10053,7 +10107,8 @@ snapshots:
     dependencies:
       jsesc: 3.0.2
 
-  require-from-string@2.0.2: {}
+  require-from-string@2.0.2:
+    optional: true
 
   require-in-the-middle@7.5.2:
     dependencies:
@@ -10110,7 +10165,8 @@ snapshots:
       '@rollup/rollup-win32-x64-msvc': 4.50.1
       fsevents: 2.3.3
 
-  rrweb-cssom@0.8.0: {}
+  rrweb-cssom@0.8.0:
+    optional: true
 
   rtl-css-js@1.16.1:
     dependencies:
@@ -10152,11 +10208,13 @@ snapshots:
       es-errors: 1.3.0
       is-regex: 1.2.1
 
-  safer-buffer@2.1.2: {}
+  safer-buffer@2.1.2:
+    optional: true
 
   saxes@6.0.0:
     dependencies:
       xmlchars: 2.2.0
+    optional: true
 
   scheduler@0.26.0: {}
 
@@ -10401,7 +10459,8 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  symbol-tree@3.2.4: {}
+  symbol-tree@3.2.4:
+    optional: true
 
   synckit@0.11.8:
     dependencies:
@@ -10478,11 +10537,13 @@ snapshots:
 
   tinyspy@4.0.3: {}
 
-  tldts-core@7.0.14: {}
+  tldts-core@7.0.14:
+    optional: true
 
   tldts@7.0.14:
     dependencies:
       tldts-core: 7.0.14
+    optional: true
 
   to-regex-range@5.0.1:
     dependencies:
@@ -10495,12 +10556,14 @@ snapshots:
   tough-cookie@6.0.0:
     dependencies:
       tldts: 7.0.14
+    optional: true
 
   tr46@0.0.3: {}
 
   tr46@5.1.1:
     dependencies:
       punycode: 2.3.1
+    optional: true
 
   ts-api-utils@2.1.0(typescript@5.7.3):
     dependencies:
@@ -10628,6 +10691,8 @@ snapshots:
       which-boxed-primitive: 1.1.1
 
   undici-types@6.19.8: {}
+
+  undici-types@6.21.0: {}
 
   unplugin@1.0.1:
     dependencies:
@@ -10781,7 +10846,7 @@ snapshots:
       tsx: 4.20.5
       yaml: 2.6.0
 
-  vitest@3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0):
+  vitest@3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(happy-dom@19.0.2)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0):
     dependencies:
       '@types/chai': 5.2.2
       '@vitest/expect': 3.2.4
@@ -10809,6 +10874,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.8.4
       '@vitest/ui': 3.2.4(vitest@3.2.4)
+      happy-dom: 19.0.2
       jsdom: 27.0.0(postcss@8.5.4)
     transitivePeerDependencies:
       - jiti
@@ -10829,10 +10895,12 @@ snapshots:
   w3c-xmlserializer@5.0.0:
     dependencies:
       xml-name-validator: 5.0.0
+    optional: true
 
   webidl-conversions@3.0.1: {}
 
-  webidl-conversions@8.0.0: {}
+  webidl-conversions@8.0.0:
+    optional: true
 
   webpack-sources@3.2.3: {}
 
@@ -10841,13 +10909,18 @@ snapshots:
   whatwg-encoding@3.1.1:
     dependencies:
       iconv-lite: 0.6.3
+    optional: true
 
-  whatwg-mimetype@4.0.0: {}
+  whatwg-mimetype@3.0.0: {}
+
+  whatwg-mimetype@4.0.0:
+    optional: true
 
   whatwg-url@15.0.0:
     dependencies:
       tr46: 5.1.1
       webidl-conversions: 8.0.0
+    optional: true
 
   whatwg-url@5.0.0:
     dependencies:
@@ -10949,11 +11022,14 @@ snapshots:
       string-width: 5.1.2
       strip-ansi: 7.1.0
 
-  ws@8.18.3: {}
+  ws@8.18.3:
+    optional: true
 
-  xml-name-validator@5.0.0: {}
+  xml-name-validator@5.0.0:
+    optional: true
 
-  xmlchars@2.2.0: {}
+  xmlchars@2.2.0:
+    optional: true
 
   xtend@4.0.2: {}
 

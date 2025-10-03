@@ -90,13 +90,28 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     },
 
     test: {
-      environment: 'jsdom',
+      environment: 'happy-dom',
       setupFiles: ['resources/js/setupTests.ts'],
       include: ['resources/js/**/*.{test,spec}.{ts,tsx}'],
       globals: true,
 
       /** @see https://vitest.dev/guide/improving-performance.html#pool */
       pool: 'threads',
+
+      // Filter out harmless happy-dom iframe fetch abort errors from stderr.
+      onConsoleLog(log, type) {
+        if (
+          type === 'stderr' &&
+          log.includes('DOMException') &&
+          (log.includes('AbortError') || log.includes('NetworkError')) &&
+          (log.includes('Fetch') ||
+            log.includes('iframe') ||
+            log.includes('youtube') ||
+            log.includes('twitch'))
+        ) {
+          return false;
+        }
+      },
 
       coverage: {
         provider: 'v8',

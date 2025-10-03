@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { autoExpandTextInput } from './autoExpandTextInput';
 
 function render() {
-  (document as any).autoExpandTextInput = autoExpandTextInput;
+  (window as any).autoExpandTextInput = autoExpandTextInput;
 
   document.body.innerHTML = /** @html */ `
     <textarea
