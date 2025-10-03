@@ -19,7 +19,7 @@ import {
   userAchievementListChangeCounterAtom,
 } from '@/features/games/state/games.atoms';
 
-import { GameListViewSelectButton } from './GameListViewSelectButton';
+import { GameListViewSelectToggleGroup } from './GameListViewSelectToggleGroup';
 
 interface GameAchievementSetToolbarProps {
   lockedAchievementsCount: number;
@@ -32,7 +32,8 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
   missableAchievementsCount,
   unlockedAchievementsCount,
 }) => {
-  const { backingGame, numLeaderboards } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { backingGame, numLeaderboards, ziggy } =
+    usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { t } = useTranslation();
   const { formatNumber } = useFormatNumber();
@@ -58,6 +59,8 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
 
   const canShowUnlockStatusSortOrders =
     unlockedAchievementsCount > 0 && unlockedAchievementsCount < backingGame.achievementsPublished!;
+
+  const canShowDesktopViewToggle = numLeaderboards > 0 && ziggy.device !== 'mobile';
 
   useEffect(() => {
     if (currentListView === 'leaderboards' && numLeaderboards === 0) {
@@ -117,19 +120,19 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
           buttonClassName="w-full sm:w-auto"
         />
 
-        {numLeaderboards > 0 ? <GameListViewSelectButton /> : null}
+        {numLeaderboards > 0 && ziggy.device === 'mobile' ? (
+          <GameListViewSelectToggleGroup />
+        ) : null}
       </div>
 
-      {missableAchievementsCount || (lockedAchievementsCount && unlockedAchievementsCount) ? (
+      {missableAchievementsCount ||
+      (lockedAchievementsCount && unlockedAchievementsCount) ||
+      canShowDesktopViewToggle ? (
         <div className="flex w-full gap-2 sm:w-auto">
           {missableAchievementsCount ? (
             <BaseToggle
               size="sm"
-              className={cn([
-                'group flex h-[30px] w-full items-center gap-1 !text-[13px] sm:w-auto lg:active:translate-y-[1px] lg:active:scale-[0.98]',
-                'light:bg-white light:hover:bg-neutral-50 light:hover:text-neutral-700',
-                'data-[state=on]:light:border-neutral-700 data-[state=on]:light:bg-neutral-50 data-[state=on]:light:text-neutral-900',
-              ])}
+              className="game-set__toggle"
               variant="outline"
               pressed={isMissableOnlyFilterEnabled}
               onPressedChange={handleToggleMissableOnlyFilter}
@@ -140,9 +143,7 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
 
               <BaseChip
                 className={cn([
-                  'ml-1.5 bg-neutral-950 px-2 text-neutral-300 opacity-50 transition',
-                  'group-hover:opacity-100 light:border-neutral-500 light:text-neutral-800',
-                  'w-full sm:w-auto',
+                  'game-set__toggle-chip',
                   isMissableOnlyFilterEnabled ? 'opacity-100' : null,
                 ])}
               >
@@ -154,12 +155,7 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
           {lockedAchievementsCount && unlockedAchievementsCount ? (
             <BaseToggle
               size="sm"
-              className={cn([
-                'flex h-[30px] items-center gap-1 whitespace-nowrap !text-[13px] lg:active:translate-y-[1px] lg:active:scale-[0.98]',
-                'light:bg-white light:hover:bg-neutral-50 light:hover:text-neutral-700',
-                'data-[state=on]:light:border-neutral-700 data-[state=on]:light:bg-neutral-50 data-[state=on]:light:text-neutral-900',
-                'w-full sm:w-auto',
-              ])}
+              className="game-set__toggle w-full sm:w-auto"
               variant="outline"
               pressed={isLockedOnlyFilterEnabled}
               onPressedChange={handleToggleLockedOnlyFilter}
@@ -169,6 +165,8 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
               <span>{t('Locked Only')}</span>
             </BaseToggle>
           ) : null}
+
+          {canShowDesktopViewToggle ? <GameListViewSelectToggleGroup /> : null}
         </div>
       ) : null}
     </div>

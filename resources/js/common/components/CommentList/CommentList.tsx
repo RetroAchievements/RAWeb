@@ -36,6 +36,7 @@ export const CommentList: FC<CommentListProps> = ({
   const { t } = useTranslation();
 
   return (
+    // TODO atoms would probably be better here
     <CommentListProvider
       canComment={canComment}
       commentableId={commentableId}

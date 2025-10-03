@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
         $this->call(SystemsTableSeeder::class);
         $this->call(EmulatorsTableSeeder::class);
         $this->call(ReleaseTablesSeeder::class);
+        $this->call(IntegrationReleaseTableSeeder::class);
         $this->call(ForumTableSeeder::class);
 
         // local seeds

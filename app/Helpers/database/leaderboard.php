@@ -196,7 +196,7 @@ function SubmitNewLeaderboard(int $gameID, ?int &$lbIDOut, User $user): bool
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $db = getMysqliConnection();
-        $lbIDOut = mysqli_insert_id($db);
+        $lbIDOut = (int) mysqli_insert_id($db);
 
         return true;
     }

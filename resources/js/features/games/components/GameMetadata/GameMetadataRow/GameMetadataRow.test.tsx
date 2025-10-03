@@ -123,4 +123,47 @@ describe('Component: GameMetadataRow', () => {
     expect(screen.getByText(/first/i)).toBeVisible();
     expect(screen.getByText(/second/i)).toBeVisible();
   });
+
+  it('given areListSeparatorsEnabled is false, does not render list separators', () => {
+    // ARRANGE
+    render(
+      <BaseTable>
+        <BaseTableBody>
+          <GameMetadataRow
+            rowHeading="Test"
+            elements={[{ label: 'First' }, { label: 'Second' }, { label: 'Third' }]}
+            areListSeparatorsEnabled={false} // !!
+          />
+        </BaseTableBody>
+      </BaseTable>,
+    );
+
+    // ASSERT
+    expect(screen.queryByText(',')).not.toBeInTheDocument();
+    expect(screen.getByText(/first/i)).toBeVisible();
+    expect(screen.getByText(/second/i)).toBeVisible();
+    expect(screen.getByText(/third/i)).toBeVisible();
+  });
+
+  it('given areListSeparatorsEnabled is true, renders elements with locale-formatted separators', () => {
+    // ARRANGE
+    render(
+      <BaseTable>
+        <BaseTableBody>
+          <GameMetadataRow
+            rowHeading="Test"
+            elements={[{ label: 'First' }, { label: 'Second' }, { label: 'Third' }]}
+            areListSeparatorsEnabled={true} // !!
+          />
+        </BaseTableBody>
+      </BaseTable>,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/first/i)).toBeVisible();
+    expect(screen.getByText(/second/i)).toBeVisible();
+    expect(screen.getByText(/third/i)).toBeVisible();
+
+    expect(screen.getAllByText(',')).toHaveLength(2);
+  });
 });

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
 import { RaProgression } from '@/common/components/RaProgression';
 import { RaWinCondition } from '@/common/components/RaWinCondition';
+import { cn } from '@/common/utils/cn';
 
 interface JumboTypeMetricProps {
   current: number;
@@ -17,9 +18,9 @@ export const JumboTypeMetric: FC<JumboTypeMetricProps> = ({ current, total, type
   const Icon = type === 'progression' ? RaProgression : RaWinCondition;
 
   return (
-    <div className="rounded-lg border border-neutral-700 bg-neutral-800 p-4">
+    <div className="rounded border border-neutral-700 bg-neutral-800 p-4 light:border-neutral-200 light:bg-white">
       <div className="flex flex-col gap-2">
-        <p className="flex items-center justify-between text-neutral-400">
+        <p className="flex items-center justify-between text-neutral-400 light:text-neutral-700">
           <span>
             {type === 'progression' ? t('Progression') : null}
             {type === 'win_condition' ? t('Win Condition') : null}
@@ -28,7 +29,14 @@ export const JumboTypeMetric: FC<JumboTypeMetricProps> = ({ current, total, type
           <Icon className="size-5" />
         </p>
 
-        <p className="text-2xl font-bold text-neutral-300">
+        <p
+          className={cn(
+            'text-2xl font-bold',
+            current > 0
+              ? 'text-neutral-300 light:text-neutral-700'
+              : 'text-neutral-300/30 light:text-neutral-400',
+          )}
+        >
           {current}
           {'/'}
           {total}

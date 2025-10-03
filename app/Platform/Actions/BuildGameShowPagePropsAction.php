@@ -252,7 +252,6 @@ class BuildGameShowPagePropsAction
                 'gameAchievementSets.achievementSet.timesCompleted',
                 'gameAchievementSets.achievementSet.timesCompletedHardcore',
                 'genre',
-                'guideUrl',
                 'imageBoxArtUrl',
                 'imageIngameUrl',
                 'imageTitleUrl',
@@ -287,6 +286,7 @@ class BuildGameShowPagePropsAction
                 'achievementsUnpublished',
                 'badgeUrl',
                 'forumTopicId',
+                'guideUrl',
                 'pointsTotal',
             ),
 
@@ -301,7 +301,7 @@ class BuildGameShowPagePropsAction
             isViewingPublishedAchievements: $targetAchievementFlag === AchievementFlag::OfficialCore,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
 
-            leaderboards: request()->inertia()
+            leaderboards: request()->inertia() || $initialView === GamePageListView::Leaderboards
                 ? $this->buildLeaderboards($backingGame, $user)
                 : Lazy::inertiaDeferred(fn () => $this->buildLeaderboards($backingGame, $user)),
 
@@ -316,7 +316,11 @@ class BuildGameShowPagePropsAction
             numBeatenSoftcore: $numBeatenSoftcore,
             numLeaderboards: $this->getLeaderboardsCount($backingGame),
             numMasters: $numMasters,
-            numOpenTickets: Ticket::forGame($backingGame)->unresolved()->count(),
+
+            numOpenTickets: $targetAchievementFlag === AchievementFlag::OfficialCore
+                ? Ticket::forGame($backingGame)->unresolved()->officialCore()->count()
+                : Ticket::forGame($backingGame)->unresolved()->unofficial()->count(),
+
             recentPlayers: $this->loadGameRecentPlayersAction->execute($backingGame),
             recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($backingGame->visibleComments))),
             topAchievers: $topAchievers,
@@ -332,8 +336,10 @@ class BuildGameShowPagePropsAction
                 ->map(function ($gas) {
                     $gas->achievementSet->setRelation('achievements', collect());
 
-                    $gas->achievementSet->median_time_to_complete = $gas->achievementSet->median_time_to_complete ?? 0;
-                    $gas->achievementSet->median_time_to_complete_hardcore = $gas->achievementSet->median_time_to_complete_hardcore ?? 0;
+                    $gas->achievementSet->median_time_to_complete ??= 0;
+                    $gas->achievementSet->median_time_to_complete_hardcore ??= 0;
+                    $gas->achievementSet->players_hardcore ??= 0;
+                    $gas->achievementSet->players_total ??= 0;
 
                     return GameAchievementSetData::from($gas)->include(
                         'type',

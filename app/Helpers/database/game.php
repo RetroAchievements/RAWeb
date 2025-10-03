@@ -23,6 +23,9 @@ function getGameData(int $gameID): ?array
     ]);
 }
 
+/**
+ * @param-out array $achievementDataOut
+ */
 function getGameMetadata(
     int $gameID,
     ?User $user,
@@ -163,7 +166,7 @@ function getGameMetadata(
 function getGamesListByDev(
     ?User $dev,
     int $consoleID,
-    ?array &$dataOut,
+    array &$dataOut,
     int $sortBy,
     bool $ticketsFlag = false,
     ?int $filter = 0,
@@ -482,7 +485,7 @@ function getGamesListData(?int $consoleID = null, bool $officialFlag = false): a
     return $retVal;
 }
 
-function getGamesList(?int $consoleID, ?array &$dataOut, bool $officialFlag = false): int
+function getGamesList(?int $consoleID, array &$dataOut, bool $officialFlag = false): int
 {
     $dataOut = getGamesListData($consoleID, $officialFlag);
 

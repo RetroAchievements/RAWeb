@@ -23,9 +23,7 @@ use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
-// TODO mature hub needs to be age gated
 // TODO on rename hub, make sure it's always wrapped in square brackets
-// TODO play around on mobile
 
 class HubController extends Controller
 {

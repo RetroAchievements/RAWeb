@@ -84,7 +84,7 @@ $isRecentPrimaryClaim = $primaryClaimMinutesActive <= 1440;
 
 <script>
 function makeClaim() {
-    const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
+    const gameTitle = "{!! addslashes($gameTitle) !!}";
     const hasRevisionFlag = {{ (int) $revisionDialogFlag }};
     const hasTicketFlag = {{ (int) $ticketDialogFlag}};
 
@@ -103,35 +103,35 @@ function makeClaim() {
 }
 
 function dropClaim() {
-    const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
+    const gameTitle = "{!! addslashes($gameTitle) !!}";
 
     const message = 'Are you sure you want to drop the claim for ' + gameTitle + '?';
     return confirm(message);
 }
 
 function reviewClaim() {
-    const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
+    const gameTitle = "{!! addslashes($gameTitle) !!}";
 
     const message = 'Are you sure you want to change the claim status for ' + gameTitle + ' to In Review?';
     return confirm(message);
 }
 
 function activateClaim() {
-    const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
+    const gameTitle = "{!! addslashes($gameTitle) !!}";
 
     const message = 'Are you sure you want to change the claim status for ' + gameTitle + ' to Active?';
     return confirm(message);
 }
 
 function extendClaim() {
-    const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
+    const gameTitle = "{!! addslashes($gameTitle) !!}";
 
     const message = 'Are you sure you want to extend the claim for ' + gameTitle + '?';
     return confirm(message);
 }
 
 function completeClaim() {
-    const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
+    const gameTitle = "{!! addslashes($gameTitle) !!}";
     const showEarlyReleaseWarning = {{ (int) $isRecentPrimaryClaim }};
 
     let earlyReleaseMessage = '';
