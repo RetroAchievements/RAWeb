@@ -14,6 +14,8 @@ import unicorn from 'eslint-plugin-unicorn';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
+import localRules from './resources/js/tools/eslint-rules/index.js';
+
 export default tseslint.config(
   {
     ignores: [
@@ -60,6 +62,7 @@ export default tseslint.config(
       vitest,
       '@tanstack/query': tanstackQuery,
       'sort-keys-shorthand': sortKeysShorthand,
+      '@retroachievements': localRules,
     },
 
     settings: {
@@ -191,6 +194,9 @@ export default tseslint.config(
           ],
         },
       ],
+
+      '@retroachievements/enforce-typescript-in-app-code': 'error',
+      '@retroachievements/no-cross-boundary-imports': 'error',
     },
   },
 

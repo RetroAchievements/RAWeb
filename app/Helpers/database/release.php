@@ -27,13 +27,6 @@ function isValidConsoleId(int $consoleId): bool
     return in_array($consoleId, getValidConsoleIds());
 }
 
-function getIntegrationRelease(): ?array
-{
-    $releases = getReleasesFromFile();
-
-    return $releases['integration'] ?? null;
-}
-
 function getReleasesFromFile(): ?array
 {
     try {

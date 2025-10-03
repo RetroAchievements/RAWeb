@@ -1,12 +1,14 @@
 import userEvent from '@testing-library/user-event';
 import type { FC } from 'react';
 
+import { useGameBacklogState } from '@/common/hooks/useGameBacklogState';
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createGame } from '@/test/factories';
 
-import { useGameBacklogState } from '../../useGameBacklogState';
 import { GameListItemDrawerBacklogToggleButton } from './GameListItemDrawerBacklogToggleButton';
+
+vi.mock('@/common/hooks/useGameBacklogState');
 
 interface TestHarnessProps {
   game: App.Platform.Data.Game;
@@ -37,6 +39,12 @@ describe('Component: GameListItemDrawerBacklogToggleButton', () => {
       writable: true,
       value: { href: 'http://localhost?param1=oldValue1&param2=oldValue2' },
     });
+
+    vi.mocked(useGameBacklogState).mockImplementation(({ isInitiallyInBacklog }) => ({
+      isPending: false,
+      toggleBacklog: vi.fn(),
+      isInBacklogMaybeOptimistic: isInitiallyInBacklog ?? false,
+    }));
   });
 
   afterEach(() => {
