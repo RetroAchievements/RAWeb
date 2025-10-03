@@ -30,7 +30,7 @@ import { GameRecentPlayers } from '../GameRecentPlayers';
 import { GameSidebarFullWidthButtons } from '../GameSidebarFullWidthButtons';
 import { MatureContentIndicator } from '../MatureContentIndicator';
 import { PlaytimeStatistics } from '../PlaytimeStatistics';
-import { ResetAllProgressAlertDialog } from '../ResetAllProgressAlertDialog';
+import { ResetAllProgressDialog } from '../ResetAllProgressDialog';
 import { ScrollToTopButton } from '../ScrollToTopButton';
 import { SeriesHubDisplay } from '../SeriesHubDisplay';
 import { SimilarGamesList } from '../SimilarGamesList';
@@ -71,7 +71,7 @@ export const GameShowMobileRoot: FC = () => {
       {currentTab === 'achievements' ? <ScrollToTopButton /> : null}
 
       {hasMatureContent ? <MatureContentWarningDialog /> : null}
-      {allPageAchievements.length ? <ResetAllProgressAlertDialog /> : null}
+      {allPageAchievements.length ? <ResetAllProgressDialog /> : null}
 
       <GameMobileHeader />
 
