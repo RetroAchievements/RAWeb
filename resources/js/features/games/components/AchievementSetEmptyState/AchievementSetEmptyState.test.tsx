@@ -1,3 +1,5 @@
+import { expect } from 'vitest';
+
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createGame, createGameSetRequestData } from '@/test/factories';
@@ -77,9 +79,9 @@ describe('Component: AchievementSetEmptyState', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('link', { name: /123/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /123/i })).toHaveAttribute(
       'href',
-      '/setRequestors.php?g=456',
+      expect.stringContaining('game.requests.index,'),
     );
   });
 

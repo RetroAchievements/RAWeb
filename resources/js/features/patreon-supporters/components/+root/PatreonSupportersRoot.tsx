@@ -1,10 +1,10 @@
 import { type FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { UserGridLinkItem } from '@/common/components/UserGridLinkItem';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { BecomePatronCard } from '../BecomePatronCard';
-import { PatreonSupporterItem } from '../PatreonSupporterItem';
 
 export const PatreonSupportersRoot: FC = () => {
   const { config, deferredSupporters, initialSupporters, recentSupporters, totalCount } =
@@ -38,7 +38,7 @@ export const PatreonSupportersRoot: FC = () => {
           </h2>
           <div className="grid grid-cols-1 gap-3 rounded-lg border-2 border-embed-highlight bg-embed-highlight p-2 light:bg-white sm:grid-cols-2 lg:grid-cols-4">
             {recentSupporters.map((supporter) => (
-              <PatreonSupporterItem key={supporter.id} supporter={supporter} />
+              <UserGridLinkItem key={supporter.id} user={supporter} />
             ))}
           </div>
         </div>
@@ -50,7 +50,7 @@ export const PatreonSupportersRoot: FC = () => {
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
           {allSupporters.map((supporter) => (
-            <PatreonSupporterItem key={supporter.id} supporter={supporter} />
+            <UserGridLinkItem key={supporter.id} user={supporter} />
           ))}
         </div>
 
