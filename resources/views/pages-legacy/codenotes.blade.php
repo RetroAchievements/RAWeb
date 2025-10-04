@@ -16,6 +16,7 @@ if ($user) {
     $userModel = User::find($userDetails['ID']);
 }
 
+$codeNotes = [];
 getCodeNotes($gameID, $codeNotes);
 $codeNoteCount = count(array_filter($codeNotes, function ($x) { return $x['Note'] !== "" && $x['Note'] !== "''"; }));
 
