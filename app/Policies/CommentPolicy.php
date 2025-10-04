@@ -6,6 +6,8 @@ namespace App\Policies;
 
 use App\Community\Enums\ArticleType;
 use App\Models\Comment;
+use App\Models\Game;
+use App\Models\GameComment;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserComment;
@@ -52,6 +54,10 @@ class CommentPolicy
 
         if ($user && $user->isFreshAccount()) {
             return false;
+        }
+
+        if ($commentable !== null && $commentable instanceof Game) {
+            return $user?->can('create', [GameComment::class, $commentable]) ?? false;
         }
 
         if (

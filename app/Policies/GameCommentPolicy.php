@@ -62,6 +62,15 @@ class GameCommentPolicy
             return false;
         }
 
+        // Handle if comments are locked for this game.
+        if ($commentable && $commentable->comments_locked_at) {
+            // Only moderators, admins, and the RAdmin account can comment when locked.
+            return $user->username === "RAdmin" || $user->hasAnyRole([
+                Role::MODERATOR,
+                Role::ADMINISTRATOR,
+            ]);
+        }
+
         return true;
     }
 
@@ -75,6 +84,15 @@ class GameCommentPolicy
 
     public function delete(User $user, GameComment $comment): bool
     {
+        // Handle if comments are locked for this game.
+        if ($comment->commentable && $comment->commentable->comments_locked_at) {
+            // Only moderators and admins can delete when locked.
+            return $user->hasAnyRole([
+                Role::MODERATOR,
+                Role::ADMINISTRATOR,
+            ]);
+        }
+
         if ($user->hasAnyRole([
             Role::MODERATOR,
         ])) {
