@@ -7,6 +7,7 @@ namespace App\Observers;
 use App\Models\GameSet;
 use App\Models\GameSetLink;
 use App\Platform\Enums\GameSetType;
+use App\Support\Cache\CacheKey;
 use Illuminate\Support\Facades\Cache;
 
 class GameSetLinkObserver
@@ -40,14 +41,14 @@ class GameSetLinkObserver
         }
 
         // Clear the cache for both hubs.
-        Cache::forget("hub_breadcrumbs:{$parent->id}");
-        Cache::forget("hub_breadcrumbs:{$child->id}");
+        Cache::forget(CacheKey::buildGameSetBreadcrumbsCacheKey($parent->id));
+        Cache::forget(CacheKey::buildGameSetBreadcrumbsCacheKey($child->id));
 
         // Clear the caches for all child hubs of the child hub (they're affected too).
         $child->children()
             ->whereType(GameSetType::Hub)
             ->each(function (GameSet $grandchild) {
-                Cache::forget("hub_breadcrumbs:{$grandchild->id}");
+                Cache::forget(CacheKey::buildGameSetBreadcrumbsCacheKey($grandchild->id));
             });
     }
 }
