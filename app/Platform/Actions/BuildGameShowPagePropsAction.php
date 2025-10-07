@@ -17,6 +17,7 @@ use App\Models\AchievementAuthor;
 use App\Models\AchievementMaintainer;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
+use App\Models\GameSet;
 use App\Models\LeaderboardEntry;
 use App\Models\PlayerGame;
 use App\Models\Role;
@@ -62,6 +63,7 @@ class BuildGameShowPagePropsAction
         protected LoadGameRecentPlayersAction $loadGameRecentPlayersAction,
         protected ProcessGameReleasesForViewAction $processGameReleasesForViewAction,
         protected BuildGamePageClaimDataAction $buildGamePageClaimDataAction,
+        protected BuildHubBreadcrumbsAction $buildHubBreadcrumbsAction,
     ) {
     }
 
@@ -171,13 +173,29 @@ class BuildGameShowPagePropsAction
                 return $user->can('view', $hub);
             })
             ->map(function ($hub) {
+                // Check if the hub is an event hub or has an event hub ancestor.
+                $isEventHub = $hub->is_event_hub;
+
+                if (!$isEventHub) {
+                    // Use breadcrumbs to check if any ancestor is an event hub.
+                    $breadcrumbs = $this->buildHubBreadcrumbsAction->execute($hub);
+                    foreach ($breadcrumbs as $ancestor) {
+                        if ($ancestor->id !== GameSet::CentralHubId && ($ancestor->isEventHub ?? false)) {
+                            $isEventHub = true;
+                            break;
+                        }
+                    }
+                }
+
                 $data = GameSetData::from($hub)->include('isEventHub');
 
                 // Always remove updatedAt.
                 $data = $data->except('updatedAt');
 
-                // Remove isEventHub if it isn't true.
-                if (!$hub->is_event_hub) {
+                // Override isEventHub if needed.
+                if ($isEventHub && !$hub->is_event_hub) {
+                    $data->isEventHub = true;
+                } elseif (!$isEventHub) {
                     $data = $data->except('isEventHub');
                 }
 
