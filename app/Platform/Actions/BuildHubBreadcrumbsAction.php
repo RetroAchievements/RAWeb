@@ -171,7 +171,7 @@ class BuildHubBreadcrumbsAction
                 gameId: 0,
                 game: Lazy::create(fn () => null),
                 hasMatureContent: false, // doesn't matter, this is just a breadcrumb
-                isEventHub: false, // doesn't matter, this is just a breadcrumb
+                isEventHub: $data['is_event_hub'] ?? false,
             ),
             $cachedData ?? [],
         );
@@ -191,6 +191,7 @@ class BuildHubBreadcrumbsAction
             'type' => $gameSet->type instanceof GameSetType ? $gameSet->type->value : $gameSet->type,
             'image_asset_path' => $gameSet->image_asset_path,
             'updated_at' => $gameSet->updated_at->toDateTimeString(),
+            'is_event_hub' => $gameSet->is_event_hub,
         ];
     }
 
