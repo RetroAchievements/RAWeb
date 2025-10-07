@@ -968,8 +968,8 @@ if ($isFullyFeaturedGame) {
                 echo "</div>";
             }
 
-            echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
-                ['articleType' => ArticleType::Game, 'articleId' => $gameID]
+            echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" :article=\"\$article\" />",
+                ['articleType' => ArticleType::Game, 'articleId' => $gameID, 'article' => $gameModel]
             );
         }
         ?>

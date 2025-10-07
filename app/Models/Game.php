@@ -104,6 +104,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
         'released_at_granularity',
         'trigger_id',
         'GuideURL',
+        'comments_locked_at',
         'ImageIcon',
         'ImageTitle',
         'ImageIngame',
@@ -111,9 +112,10 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     ];
 
     protected $casts = [
-        'released_at' => 'datetime',
-        'released_at_granularity' => ReleasedAtGranularity::class,
+        'comments_locked_at' => 'datetime',
         'last_achievement_update' => 'datetime',
+        'released_at_granularity' => ReleasedAtGranularity::class,
+        'released_at' => 'datetime',
     ];
 
     protected $visible = [
