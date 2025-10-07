@@ -60,6 +60,7 @@ use Illuminate\Support\Carbon;
 
 $user = Auth::user();
 $permissions = $user->getAttribute('Permissions');
+$commentData = [];
 
 @endphp
 

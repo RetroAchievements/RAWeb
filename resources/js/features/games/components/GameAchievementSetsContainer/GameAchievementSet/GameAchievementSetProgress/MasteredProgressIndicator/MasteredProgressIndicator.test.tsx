@@ -308,7 +308,7 @@ describe('Component: MasteredProgressIndicator', () => {
     expect(screen.getAllByRole('progressbar')[0]).toBeVisible();
   });
 
-  it('given the user has progress, displays a Reset all progress button', async () => {
+  it('given the user has progress, displays a Manage progress button', async () => {
     // ARRANGE
     const achievements = [
       createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
@@ -334,7 +334,7 @@ describe('Component: MasteredProgressIndicator', () => {
       expect(screen.getAllByText(/overall set progress/i)[0]).toBeVisible();
     });
 
-    await userEvent.click(screen.getAllByRole('button', { name: /reset all progress/i })[0]);
+    await userEvent.click(screen.getAllByRole('button', { name: /manage progress/i })[0]);
 
     // ASSERT
     expect(container).toBeTruthy();

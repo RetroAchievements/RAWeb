@@ -19,7 +19,11 @@ export const GameAchievementSetsContainer: FC<GameAchievementSetsContainerProps>
     : game.gameAchievementSets!;
 
   return (
-    <div data-testid="game-achievement-sets" className="flex flex-col gap-4">
+    <div
+      id="game-achievement-sets-container"
+      data-testid="game-achievement-sets"
+      className="flex flex-col gap-4"
+    >
       {selectableGameAchievementSets.length > 1 ? (
         <div
           className={cn(

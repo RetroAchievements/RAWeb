@@ -1,6 +1,7 @@
 import { renderHook } from '@/test';
 import { createGame, createGameSet } from '@/test/factories';
 
+import { hubIds } from '../utils/hubIds';
 import { useAllMetaRowElements } from './useAllMetaRowElements';
 
 describe('Hook: useAllMetaRowElements', () => {
@@ -468,5 +469,36 @@ describe('Hook: useAllMetaRowElements', () => {
       { label: 'Fangames - Pokemon', hubId: 123, href: ['hub.show', 123] },
       { label: 'Something', hubId: 789, href: ['hub.show', 789] },
     ]);
+  });
+
+  it('excludes content warning hubs from all metadata categories', () => {
+    // ARRANGE
+    const game = createGame();
+    const matureHub = createGameSet({
+      id: hubIds.mature,
+      title: '[Theme - Mature]',
+      type: 'hub',
+    });
+    const epilepsyWarningHub = createGameSet({
+      id: hubIds.epilepsyWarning,
+      title: 'Photosensitive Warning',
+      type: 'hub',
+    });
+    const regularThemeHub = createGameSet({
+      id: 12345,
+      title: '[Theme - Fantasy]',
+      type: 'hub',
+    });
+    const allGameHubs = [matureHub, epilepsyWarningHub, regularThemeHub];
+
+    // ACT
+    const { result } = renderHook(() => useAllMetaRowElements(game, allGameHubs));
+
+    // ASSERT
+    expect(result.current.themeRowElements).toEqual([
+      { label: 'Fantasy', hubId: 12345, href: ['hub.show', 12345] },
+    ]);
+    expect(result.current.miscRowElements).toEqual([]);
+    expect(result.current.allUsedHubIds).toEqual([12345]);
   });
 });

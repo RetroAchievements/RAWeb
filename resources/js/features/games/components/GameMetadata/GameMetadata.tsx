@@ -13,6 +13,7 @@ import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
 import { cn } from '@/common/utils/cn';
 
 import type { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
+import type { MetadataExpandableRowConfig } from '../../models';
 import { getNonCanonicalTitles } from '../../utils/getNonCanonicalTitles';
 import { GameMetadataRow } from './GameMetadataRow';
 import { GameOtherNamesRow } from './GameOtherNamesRow';
@@ -59,16 +60,21 @@ export const GameMetadata: FC<GameMetadataProps> = ({ allMetaRowElements, game, 
   }));
 
   // These rows are buried under a "See more" button.
-  const seeMoreRows = [
-    { key: 'protagonist', elements: protagonistRowElements, countInHeading: true },
+  const seeMoreRows: MetadataExpandableRowConfig[] = [
+    {
+      key: 'protagonist',
+      elements: protagonistRowElements,
+      countInHeading: true,
+      useListSeparators: true,
+    },
     { key: 'theme', elements: themeRowElements, countInHeading: true },
     { key: 'setting', elements: settingRowElements, countInHeading: true },
-    { key: 'format', elements: formatRowElements, countInHeading: false },
-    { key: 'technical', elements: technicalRowElements, countInHeading: false },
-    { key: 'regional', elements: regionalRowElements, countInHeading: false },
-    { key: 'misc', elements: miscRowElements, countInHeading: false },
-    { key: 'raFeature', elements: raFeatureRowElements, countInHeading: false },
-    { key: 'events', elements: eventRowElements, countInHeading: false },
+    { key: 'format', elements: formatRowElements },
+    { key: 'technical', elements: technicalRowElements },
+    { key: 'regional', elements: regionalRowElements },
+    { key: 'misc', elements: miscRowElements, useListSeparators: false },
+    { key: 'raFeature', elements: raFeatureRowElements, useListSeparators: false },
+    { key: 'events', elements: eventRowElements, useListSeparators: false },
   ];
 
   const seeMoreRowsCount = seeMoreRows.filter((row) => row.elements?.length > 0).length;
@@ -162,6 +168,7 @@ export const GameMetadata: FC<GameMetadataProps> = ({ allMetaRowElements, game, 
                       row.countInHeading ? { count: row.elements.length } : undefined,
                     )}
                     elements={row.elements}
+                    areListSeparatorsEnabled={row.useListSeparators}
                   />
                 ) : null,
               )}
