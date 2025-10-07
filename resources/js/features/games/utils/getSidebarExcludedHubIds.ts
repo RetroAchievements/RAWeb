@@ -22,5 +22,5 @@ export function getSidebarExcludedHubIds(
     .map((hub) => hub.id);
 
   // Combine with meta hub IDs that are already used.
-  return [...metaUsedHubIds, ...filteredHubIds, hubIds.epilepsyWarning, hubIds.mature];
+  return [...metaUsedHubIds, ...filteredHubIds, ...Object.values(hubIds)];
 }
