@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
-import { useAddOrRemoveFromUserGameList } from '@/common/hooks/useAddOrRemoveFromUserGameList';
-import { usePageProps } from '@/common/hooks/usePageProps';
+import { useAddOrRemoveFromUserGameList } from './useAddOrRemoveFromUserGameList';
+import { usePageProps } from './usePageProps';
 
 interface UseGameBacklogStateProps {
   game: App.Platform.Data.Game;

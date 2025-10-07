@@ -6,7 +6,7 @@ import * as CookieModule from './cookie';
 import { cookieName, toggleUserCompletedSetsVisibility } from './toggleUserCompletedSetsVisibility';
 
 function render() {
-  (document as any).toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
+  (window as any).toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
 
   document.body.innerHTML = /** @html */ `
     <div>

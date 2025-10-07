@@ -4,14 +4,14 @@
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 
-import { useGameBacklogState } from '@/features/game-list/components/GameListItems/useGameBacklogState';
+import { useGameBacklogState } from '@/common/hooks/useGameBacklogState';
 import { render, screen } from '@/test';
 import { createGame, createSystem } from '@/test/factories';
 
 import { GameMobileHeader } from './GameMobileHeader';
 
 const mockToggleBacklog = vi.fn();
-vi.mock('@/features/game-list/components/GameListItems/useGameBacklogState', () => ({
+vi.mock('@/common/hooks/useGameBacklogState', () => ({
   useGameBacklogState: vi.fn(() => ({
     toggleBacklog: mockToggleBacklog,
     isInBacklogMaybeOptimistic: false,

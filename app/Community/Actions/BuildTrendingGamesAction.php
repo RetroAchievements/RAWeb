@@ -40,8 +40,23 @@ class BuildTrendingGamesAction
         // Sort by count in descending order.
         arsort($gameCounts);
 
-        // Take the top 4 game IDs.
-        $trendingGameIds = array_slice(array_keys($gameCounts), 0, 4);
+        // Take the top 12 game IDs as candidates.
+        $candidateGameIds = array_slice(array_keys($gameCounts), 0, 12);
+
+        // Find games that belong to hubs with mature content.
+        $matureGameIds = Game::whereIn('ID', $candidateGameIds)
+            ->whereHas('hubs', function ($query) {
+                $query->where('has_mature_content', true);
+            })
+            ->pluck('ID')
+            ->toArray();
+
+        // Filter out mature content games and take the top 4.
+        $trendingGameIds = array_slice(
+            array_filter($candidateGameIds, fn ($id) => !in_array($id, $matureGameIds)),
+            0,
+            4
+        );
 
         // Convert to TrendingGameData objects.
         return Game::with('system')->whereIn('ID', $trendingGameIds)

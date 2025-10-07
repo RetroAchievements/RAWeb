@@ -12,7 +12,7 @@ import { GameAchievementSetsContainer } from '../GameAchievementSetsContainer';
 import { GameCommentList } from '../GameCommentList';
 import { GameHeaderSlotContent } from '../GameHeaderSlotContent';
 import { GameRecentPlayers } from '../GameRecentPlayers';
-import { ResetAllProgressAlertDialog } from '../ResetAllProgressAlertDialog';
+import { ResetAllProgressDialog } from '../ResetAllProgressDialog';
 
 export const GameShowMainRoot: FC = () => {
   const { game, hasMatureContent, isViewingPublishedAchievements, targetAchievementSetId } =
@@ -30,7 +30,7 @@ export const GameShowMainRoot: FC = () => {
   return (
     <div data-testid="game-show" className="flex flex-col gap-3">
       {hasMatureContent ? <MatureContentWarningDialog /> : null}
-      {allPageAchievements.length ? <ResetAllProgressAlertDialog /> : null}
+      {allPageAchievements.length ? <ResetAllProgressDialog /> : null}
 
       <GameBreadcrumbs
         game={game}
