@@ -6,9 +6,57 @@ import { LuCheck, LuChevronRight, LuCircle } from 'react-icons/lu';
 
 import { cn } from '@/common/utils/cn';
 
-const BaseDropdownMenu = DropdownMenuPrimitive.Root;
+// Context to share open state between root and trigger for touch devices.
+const BaseDropdownMenuContext = React.createContext<{
+  open: boolean;
+  setOpen: (open: boolean) => void;
+} | null>(null);
 
-const BaseDropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
+const BaseDropdownMenu: React.FC<
+  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Root>
+> = (props) => {
+  const [open, setOpen] = React.useState(false);
+  const isTouchDevice = typeof window !== 'undefined' && 'ontouchstart' in window;
+
+  if (isTouchDevice) {
+    return (
+      <BaseDropdownMenuContext.Provider value={{ open, setOpen }}>
+        <DropdownMenuPrimitive.Root
+          {...props}
+          open={props.open ?? open}
+          onOpenChange={(newOpen) => {
+            setOpen(newOpen);
+            props.onOpenChange?.(newOpen);
+          }}
+        />
+      </BaseDropdownMenuContext.Provider>
+    );
+  }
+
+  return <DropdownMenuPrimitive.Root {...props} />;
+};
+
+const BaseDropdownMenuTrigger = React.forwardRef<
+  React.ElementRef<typeof DropdownMenuPrimitive.Trigger>,
+  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Trigger>
+>((props, ref) => {
+  const context = React.useContext(BaseDropdownMenuContext);
+  const isTouchDevice = typeof window !== 'undefined' && 'ontouchstart' in window;
+
+  if (isTouchDevice && context) {
+    return (
+      <DropdownMenuPrimitive.Trigger
+        ref={ref}
+        {...props}
+        onPointerDown={(e) => e.preventDefault()}
+        onClick={() => context.setOpen(!context.open)}
+      />
+    );
+  }
+
+  return <DropdownMenuPrimitive.Trigger ref={ref} {...props} />;
+});
+BaseDropdownMenuTrigger.displayName = 'BaseDropdownMenuTrigger';
 
 const BaseDropdownMenuGroup = DropdownMenuPrimitive.Group;
 

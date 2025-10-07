@@ -3,171 +3,178 @@ import { route } from 'ziggy-js';
 
 import { buildMiscRowElements } from '../utils/buildMiscRowElements';
 import { extractAndProcessHubMetadata } from '../utils/extractAndProcessHubMetadata';
+import { hubIds } from '../utils/hubIds';
 
 export function useAllMetaRowElements(
   game: App.Platform.Data.Game,
   allGameHubs: App.Platform.Data.GameSet[],
 ) {
+  const filteredHubs = useMemo(
+    () =>
+      allGameHubs.filter((hub) => hub.id !== hubIds.mature && hub.id !== hubIds.epilepsyWarning),
+    [allGameHubs],
+  );
+
   const developerRowElements = useMemo(
     () =>
       buildMetaRowElements({
-        hubs: allGameHubs,
+        hubs: filteredHubs,
         hubTitleIncludes: ['Developer -', 'Hacker -'],
         primaryLabel: 'Developer',
         altLabels: ['Hacker'],
         fallbackValue: game.developer,
       }),
-    [allGameHubs, game.developer],
+    [filteredHubs, game.developer],
   );
 
   const publisherRowElements = useMemo(
     () =>
       buildMetaRowElements({
-        hubs: allGameHubs,
+        hubs: filteredHubs,
         hubTitleIncludes: ['Publisher - '],
         primaryLabel: 'Publisher',
         fallbackValue: game.publisher,
       }),
-    [allGameHubs, game.publisher],
+    [filteredHubs, game.publisher],
   );
 
   const hackOfRowElements = useMemo(
     () =>
       buildMetaRowElements({
-        hubs: allGameHubs,
+        hubs: filteredHubs,
         hubTitleIncludes: ['Hacks - '],
         primaryLabel: 'Hacks',
       }),
-    [allGameHubs],
+    [filteredHubs],
   );
 
   const genreRowElements = useMemo(
     () =>
       buildMetaRowElements({
-        hubs: allGameHubs,
+        hubs: filteredHubs,
         hubTitleIncludes: ['Genre -', 'Subgenre -'],
         primaryLabel: 'Genre',
         altLabels: ['Subgenre'],
         fallbackValue: game.genre,
       }),
-    [allGameHubs, game.genre],
+    [filteredHubs, game.genre],
   );
 
   const languageRowElements = useMemo(
     () =>
       buildMetaRowElements({
-        hubs: allGameHubs,
+        hubs: filteredHubs,
         hubTitleIncludes: ['Meta - Language -', 'Meta - Language Patch -'],
         primaryLabel: 'Meta - Language',
         altLabels: ['Meta - Language Patch'],
         altLabelsLast: true,
         markAltLabels: true,
       }),
-    [allGameHubs],
+    [filteredHubs],
   );
 
   const themeRowElements = useMemo(
     () =>
       buildMetaRowElements({
-        hubs: allGameHubs,
+        hubs: filteredHubs,
         hubTitleIncludes: ['Theme -'],
         primaryLabel: 'Theme',
       }),
-    [allGameHubs],
+    [filteredHubs],
   );
 
   const perspectiveRowElements = useMemo(
     () =>
       buildMetaRowElements({
-        hubs: allGameHubs,
+        hubs: filteredHubs,
         hubTitleIncludes: ['Perspective -'],
         primaryLabel: 'Perspective',
       }),
-    [allGameHubs],
+    [filteredHubs],
   );
 
   const featureRowElements = useMemo(
     () =>
       buildMetaRowElements({
-        hubs: allGameHubs,
+        hubs: filteredHubs,
         hubTitleIncludes: ['Feature -', 'Game Mechanic -'],
         primaryLabel: 'Feature',
         altLabels: ['Game Mechanic'],
         altLabelsLast: false,
       }),
-    [allGameHubs],
+    [filteredHubs],
   );
 
   const creditRowElements = useMemo(
     () =>
       buildMetaRowElements({
-        hubs: allGameHubs,
+        hubs: filteredHubs,
         hubTitleIncludes: ['Credits -'],
         primaryLabel: 'Credits',
       }),
-    [allGameHubs],
+    [filteredHubs],
   );
 
   const technicalRowElements = useMemo(
     () =>
       buildMetaRowElements({
-        hubs: allGameHubs,
+        hubs: filteredHubs,
         hubTitleIncludes: ['Technical -'],
         primaryLabel: 'Technical',
       }),
-    [allGameHubs],
+    [filteredHubs],
   );
 
   const protagonistRowElements = useMemo(
     () =>
       buildMetaRowElements({
-        hubs: allGameHubs,
+        hubs: filteredHubs,
         hubTitleIncludes: ['Protagonist -'],
         primaryLabel: 'Protagonist',
       }),
-    [allGameHubs],
+    [filteredHubs],
   );
 
   const settingRowElements = useMemo(
     () =>
       buildMetaRowElements({
-        hubs: allGameHubs,
+        hubs: filteredHubs,
         hubTitleIncludes: ['Setting -'],
         primaryLabel: 'Setting',
       }),
-    [allGameHubs],
+    [filteredHubs],
   );
 
   const regionalRowElements = useMemo(
     () =>
       buildMetaRowElements({
-        hubs: allGameHubs,
+        hubs: filteredHubs,
         hubTitleIncludes: ['Regional -'],
         primaryLabel: 'Regional',
       }),
-    [allGameHubs],
+    [filteredHubs],
   );
 
   const raFeatureRowElements = useMemo(
     () =>
       buildMetaRowElements({
-        hubs: allGameHubs,
+        hubs: filteredHubs,
         hubTitleIncludes: ['Meta -', 'RANews -', 'Custom Awards -'],
         hubTitleExcludes: ['Meta - Language'],
         primaryLabel: 'Meta',
         altLabels: ['RANews', 'Custom Awards'],
       }),
-    [allGameHubs],
+    [filteredHubs],
   );
 
   const formatRowElements = useMemo(
     () =>
       buildMetaRowElements({
-        hubs: allGameHubs,
+        hubs: filteredHubs,
         hubTitleIncludes: ['Format -'],
         primaryLabel: 'Format',
       }),
-    [allGameHubs],
+    [filteredHubs],
   );
 
   // Calculate used hub IDs from all other categories (excluding misc).
@@ -211,10 +218,10 @@ export function useAllMetaRowElements(
 
   const miscRowElements = useMemo(
     () =>
-      buildMiscRowElements(allGameHubs, usedHubIdsFromOtherCategories, {
+      buildMiscRowElements(filteredHubs, usedHubIdsFromOtherCategories, {
         keepPrefixFor: ['Clones', 'Fangames', 'Rollout Sets'],
       }),
-    [allGameHubs, usedHubIdsFromOtherCategories],
+    [filteredHubs, usedHubIdsFromOtherCategories],
   );
 
   const allUsedHubIds = useMemo(() => {

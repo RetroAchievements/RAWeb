@@ -38,7 +38,10 @@ describe('Component: ChangeUsernameSectionCard', () => {
         auth: { user: createAuthenticatedUser({ displayName: 'test-user' }) },
         can: { createUsernameChangeRequest: true },
       },
-      jotaiAtoms: [[requestedUsernameAtom, 'new-username']],
+      jotaiAtoms: [
+        [requestedUsernameAtom, 'new-username'],
+        //
+      ],
     });
 
     // ASSERT

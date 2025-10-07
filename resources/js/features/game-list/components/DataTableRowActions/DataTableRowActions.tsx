@@ -9,9 +9,8 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
+import { useGameBacklogState } from '@/common/hooks/useGameBacklogState';
 import { cn } from '@/common/utils/cn';
-
-import { useGameBacklogState } from '../GameListItems/useGameBacklogState';
 
 /**
  * If the table row needs to have more than one action, it should go into a menu.

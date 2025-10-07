@@ -725,6 +725,11 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
         'Something is very wrong with this achievement. I tried many things and it just wont unlock. Help.',
       );
 
+      // ... wait for the submit button to become enabled before clicking ...
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /submit/i })).toBeEnabled();
+      });
+
       await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
       // ASSERT

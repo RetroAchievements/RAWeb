@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Actions\GetUserDeviceKindAction;
 use App\Community\Data\CommentData;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
@@ -16,6 +17,7 @@ use App\Models\AchievementAuthor;
 use App\Models\AchievementMaintainer;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
+use App\Models\GameSet;
 use App\Models\LeaderboardEntry;
 use App\Models\PlayerGame;
 use App\Models\Role;
@@ -61,6 +63,7 @@ class BuildGameShowPagePropsAction
         protected LoadGameRecentPlayersAction $loadGameRecentPlayersAction,
         protected ProcessGameReleasesForViewAction $processGameReleasesForViewAction,
         protected BuildGamePageClaimDataAction $buildGamePageClaimDataAction,
+        protected BuildHubBreadcrumbsAction $buildHubBreadcrumbsAction,
     ) {
     }
 
@@ -170,13 +173,29 @@ class BuildGameShowPagePropsAction
                 return $user->can('view', $hub);
             })
             ->map(function ($hub) {
+                // Check if the hub is an event hub or has an event hub ancestor.
+                $isEventHub = $hub->is_event_hub;
+
+                if (!$isEventHub) {
+                    // Use breadcrumbs to check if any ancestor is an event hub.
+                    $breadcrumbs = $this->buildHubBreadcrumbsAction->execute($hub);
+                    foreach ($breadcrumbs as $ancestor) {
+                        if ($ancestor->id !== GameSet::CentralHubId && ($ancestor->isEventHub ?? false)) {
+                            $isEventHub = true;
+                            break;
+                        }
+                    }
+                }
+
                 $data = GameSetData::from($hub)->include('isEventHub');
 
                 // Always remove updatedAt.
                 $data = $data->except('updatedAt');
 
-                // Remove isEventHub if it isn't true.
-                if (!$hub->is_event_hub) {
+                // Override isEventHub if needed.
+                if ($isEventHub && !$hub->is_event_hub) {
+                    $data->isEventHub = true;
+                } elseif (!$isEventHub) {
                     $data = $data->except('isEventHub');
                 }
 
@@ -216,8 +235,15 @@ class BuildGameShowPagePropsAction
             ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
             ->first();
 
-        return new GameShowPagePropsData(
+        // Detect if the user is on mobile to conditionally include some props.
+        $isMobile = (new GetUserDeviceKindAction())->execute() === 'mobile';
+
+        $propsData = new GameShowPagePropsData(
             achievementSetClaims: $achievementSetClaims,
+
+            allLeaderboards: request()->inertia() || $initialView === GamePageListView::Leaderboards
+                ? $this->buildLeaderboards($backingGame, $user)
+                : Lazy::inertiaDeferred(fn () => $this->buildLeaderboards($backingGame, $user)),
 
             can: UserPermissionsData::fromUser($user, game: $backingGame, claim: $primaryClaim)->include(
                 'createAchievementSetClaims',
@@ -291,6 +317,7 @@ class BuildGameShowPagePropsAction
             ),
 
             claimData: $claimData,
+            featuredLeaderboards: Lazy::create(fn () => $this->buildLeaderboards($backingGame, $user, 5)),
             hasMatureContent: $backingGame->hasMatureContent,
             hubs: $relatedHubs,
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
@@ -300,10 +327,6 @@ class BuildGameShowPagePropsAction
             isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
             isViewingPublishedAchievements: $targetAchievementFlag === AchievementFlag::OfficialCore,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
-
-            leaderboards: request()->inertia()
-                ? $this->buildLeaderboards($backingGame, $user)
-                : Lazy::inertiaDeferred(fn () => $this->buildLeaderboards($backingGame, $user)),
 
             playerAchievementChartBuckets: $targetAchievementFlag === AchievementFlag::OfficialCore
                 ? $this->buildGameAchievementDistributionAction->execute($backingGame, $user)
@@ -316,7 +339,11 @@ class BuildGameShowPagePropsAction
             numBeatenSoftcore: $numBeatenSoftcore,
             numLeaderboards: $this->getLeaderboardsCount($backingGame),
             numMasters: $numMasters,
-            numOpenTickets: Ticket::forGame($backingGame)->unresolved()->count(),
+
+            numOpenTickets: $targetAchievementFlag === AchievementFlag::OfficialCore
+                ? Ticket::forGame($backingGame)->unresolved()->officialCore()->count()
+                : Ticket::forGame($backingGame)->unresolved()->unofficial()->count(),
+
             recentPlayers: $this->loadGameRecentPlayersAction->execute($backingGame),
             recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($backingGame->visibleComments))),
             topAchievers: $topAchievers,
@@ -332,8 +359,10 @@ class BuildGameShowPagePropsAction
                 ->map(function ($gas) {
                     $gas->achievementSet->setRelation('achievements', collect());
 
-                    $gas->achievementSet->median_time_to_complete = $gas->achievementSet->median_time_to_complete ?? 0;
-                    $gas->achievementSet->median_time_to_complete_hardcore = $gas->achievementSet->median_time_to_complete_hardcore ?? 0;
+                    $gas->achievementSet->median_time_to_complete ??= 0;
+                    $gas->achievementSet->median_time_to_complete_hardcore ??= 0;
+                    $gas->achievementSet->players_hardcore ??= 0;
+                    $gas->achievementSet->players_total ??= 0;
 
                     return GameAchievementSetData::from($gas)->include(
                         'type',
@@ -350,6 +379,13 @@ class BuildGameShowPagePropsAction
                 ->values()
                 ->all(),
         );
+
+        // Only include featured leaderboards for non-mobile devices.
+        if (!$isMobile) {
+            $propsData = $propsData->include('featuredLeaderboards');
+        }
+
+        return $propsData;
     }
 
     /**
@@ -632,7 +668,7 @@ class BuildGameShowPagePropsAction
     /**
      * @return Collection<int, LeaderboardData>
      */
-    private function buildLeaderboards(Game $game, ?User $user = null): Collection
+    private function buildLeaderboards(Game $game, ?User $user = null, ?int $limit = null): Collection
     {
         // Only show leaderboards if the system is active and it's not an event game.
         if (!$game->system->active || $game->system->id === System::Events) {
@@ -649,7 +685,12 @@ class BuildGameShowPagePropsAction
             $userEntriesByLeaderboardId = $userEntries->keyBy('leaderboard_id');
         }
 
-        return $game->leaderboards->map(function ($leaderboard) use ($userEntriesByLeaderboardId, $user) {
+        $leaderboards = $game->leaderboards;
+        if ($limit !== null) {
+            $leaderboards = $leaderboards->take($limit);
+        }
+
+        return $leaderboards->map(function ($leaderboard) use ($userEntriesByLeaderboardId, $user) {
             // Build the user entry if it exists.
             $userEntryData = null;
             if ($user && $userEntriesByLeaderboardId->has($leaderboard->id)) {

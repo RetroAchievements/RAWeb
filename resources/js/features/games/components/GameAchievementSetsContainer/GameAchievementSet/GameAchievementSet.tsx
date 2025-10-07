@@ -33,7 +33,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   achievements,
   gameAchievementSet,
 }) => {
-  const { auth, isViewingPublishedAchievements, leaderboards, numLeaderboards } =
+  const { allLeaderboards, auth, isViewingPublishedAchievements, numLeaderboards } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const currentAchievementSort = useAtomValue(currentPlayableListSortAtom);
@@ -69,8 +69,8 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   );
 
   const sortedLeaderboards = useMemo(
-    () => (leaderboards ? sortLeaderboards(leaderboards, currentAchievementSort) : []),
-    [leaderboards, currentAchievementSort],
+    () => (allLeaderboards ? sortLeaderboards(allLeaderboards, currentAchievementSort) : []),
+    [allLeaderboards, currentAchievementSort],
   );
 
   const isLargeAchievementsList = sortedAchievements.length > 50;
@@ -108,7 +108,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
       <div className="relative">
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.ul
-            key={userAchievementListChangeCounter}
+            key={`${currentListView}-${userAchievementListChangeCounter}`}
             className="flex flex-col gap-2.5"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

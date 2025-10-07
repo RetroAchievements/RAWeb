@@ -7,6 +7,7 @@ namespace App\Platform\Actions;
 use App\Models\GameSet;
 use App\Platform\Data\GameSetData;
 use App\Platform\Enums\GameSetType;
+use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Spatie\LaravelData\Lazy;
@@ -98,7 +99,7 @@ class BuildHubBreadcrumbsAction
      */
     public function execute(GameSet $gameSet): array
     {
-        $cacheKey = "hub_breadcrumbs:{$gameSet->id}";
+        $cacheKey = CacheKey::buildGameSetBreadcrumbsCacheKey($gameSet->id);
 
         /** @var array[] $cachedData */
         $cachedData = Cache::flexible($cacheKey, [self::FRESH_SECONDS, self::STALE_SECONDS], function () use ($gameSet) {
@@ -170,7 +171,7 @@ class BuildHubBreadcrumbsAction
                 gameId: 0,
                 game: Lazy::create(fn () => null),
                 hasMatureContent: false, // doesn't matter, this is just a breadcrumb
-                isEventHub: false, // doesn't matter, this is just a breadcrumb
+                isEventHub: $data['is_event_hub'] ?? false,
             ),
             $cachedData ?? [],
         );
@@ -190,6 +191,7 @@ class BuildHubBreadcrumbsAction
             'type' => $gameSet->type instanceof GameSetType ? $gameSet->type->value : $gameSet->type,
             'image_asset_path' => $gameSet->image_asset_path,
             'updated_at' => $gameSet->updated_at->toDateTimeString(),
+            'is_event_hub' => $gameSet->is_event_hub,
         ];
     }
 
@@ -446,6 +448,20 @@ class BuildHubBreadcrumbsAction
 
             if ($sameEventParent) {
                 return $sameEventParent;
+            }
+
+            // As a fallback, look for ANY parent hub that is an Events hub.
+            // This handles cases where naming is inconsistent (eg: "[RA Roulette 2022 - X]" with parent "[Events - RA Roulette (RAWR)]").
+            $anyEventParent = $gameSet->parents()
+                ->select('game_sets.*')
+                ->where('game_sets.type', GameSetType::Hub)
+                ->where('game_sets.title', 'like', '[Events - %')
+                ->whereNotIn('game_sets.id', $visited)
+                ->whereNull('game_sets.deleted_at')
+                ->first();
+
+            if ($anyEventParent) {
+                return $anyEventParent;
             }
         }
 

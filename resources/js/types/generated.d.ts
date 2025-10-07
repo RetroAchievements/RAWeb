@@ -810,7 +810,8 @@ declare namespace App.Platform.Data {
     isViewingPublishedAchievements: boolean;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
-    leaderboards?: Array<App.Platform.Data.Leaderboard>;
+    featuredLeaderboards?: Array<App.Platform.Data.Leaderboard>;
+    allLeaderboards?: Array<App.Platform.Data.Leaderboard>;
     numBeaten: number;
     numBeatenSoftcore: number;
     numComments: number;
