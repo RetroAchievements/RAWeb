@@ -27,6 +27,7 @@ use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameListSetTypeFilterValue;
 use App\Platform\Enums\GameListSortField;
 use App\Platform\Enums\GameListType;
+use App\Platform\Enums\GamePageListSort;
 use App\Platform\Enums\GamePageListView;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Requests\GameListRequest;
@@ -160,13 +161,17 @@ class GameController extends Controller
         // Get the initial view from query params.
         $initialView = GamePageListView::tryFrom($request->query('view', '')) ?? GamePageListView::Achievements;
 
+        // Get the initial sort from query params.
+        $initialSort = $request->query('sort') ? GamePageListSort::tryFrom($request->query('sort')) : null;
+
         $game = $loadGameWithRelationsAction->execute($game, $targetAchievementFlag, $targetAchievementSet);
         $props = $buildGameShowPagePropsAction->execute(
             $game,
             $user,
             $targetAchievementFlag,
             $targetAchievementSet,
-            $initialView
+            $initialView,
+            $initialSort
         );
 
         return Inertia::render('game/[game]', $props);
