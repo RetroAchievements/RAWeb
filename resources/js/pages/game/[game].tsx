@@ -22,6 +22,7 @@ import type { TranslatedString } from '@/types/i18next';
 
 const GameShow: AppPage = () => {
   const {
+    backingGame,
     game,
     initialSort,
     initialView,
@@ -53,7 +54,7 @@ const GameShow: AppPage = () => {
     <>
       <SEO
         title={title as TranslatedString}
-        description={buildGameMetaDescription(game)}
+        description={buildGameMetaDescription(game, backingGame)}
         ogImage={game!.badgeUrl}
       />
 
