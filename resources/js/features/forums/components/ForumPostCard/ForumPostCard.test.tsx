@@ -83,7 +83,7 @@ describe('Component: ForumPostCard', () => {
     });
 
     // ASSERT
-    const editLink = screen.getByRole('link', { name: /edit/i });
+    const editLink = screen.getByRole('link', { name: 'Edit' });
     expect(editLink).toBeVisible();
     expect(editLink).toHaveAttribute('href', expect.stringContaining('forum-topic-comment.edit'));
   });
