@@ -8,9 +8,10 @@ import { GameSetRequestsRoot } from './GameSetRequestsRoot';
 
 describe('Component: GameSetRequestsRoot', () => {
   it('renders without crashing', () => {
+    // ARRANGE
     const fakeGame = createGame();
 
-    // Build Container
+    // ACT
     const { container } = render(<GameSetRequestsRoot />, {
       pageProps: {
         deferredRequestors: null,
@@ -25,9 +26,10 @@ describe('Component: GameSetRequestsRoot', () => {
   });
 
   it('shows no one if there are no requestors', () => {
+    // ARRANGE
     const fakeGame = createGame();
 
-    // Build Container
+    // ACT
     const { container } = render(<GameSetRequestsRoot />, {
       pageProps: {
         deferredRequestors: null,
@@ -37,13 +39,16 @@ describe('Component: GameSetRequestsRoot', () => {
       } as App.Community.Data.GameSetRequestsPageProps,
     });
 
+    // ASSERT
     expect(container).toHaveTextContent(t('There are currently no active requests.'));
   });
 
   it('shows if there is one requestor', () => {
+    // ARRANGE
     const fakeGame = createGame();
     const fakeUser = createUser();
 
+    // ACT
     const { container } = render(<GameSetRequestsRoot />, {
       pageProps: {
         deferredRequestors: null,
@@ -53,6 +58,7 @@ describe('Component: GameSetRequestsRoot', () => {
       } as App.Community.Data.GameSetRequestsPageProps,
     });
 
+    // ASSERT
     expect(container).toHaveTextContent(
       'This achievement set has been requested by the following 1 users:',
     );
