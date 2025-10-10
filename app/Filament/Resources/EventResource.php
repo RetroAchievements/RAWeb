@@ -183,7 +183,7 @@ class EventResource extends Resource
                             ->rules([
                                 'dimensions:width=96,height=96',
                             ])
-                            ->acceptedFileTypes(['image/png'])
+                            ->acceptedFileTypes(['image/png', 'image/jpeg'])
                             ->maxSize(1024)
                             ->maxFiles(1)
                             ->required($isNew)
@@ -204,7 +204,7 @@ class EventResource extends Resource
                             ->label('Title')
                             ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
                             ->image()
-                            ->acceptedFileTypes(['image/png'])
+                            ->acceptedFileTypes(['image/png', 'image/jpeg'])
                             ->maxSize(1024)
                             ->maxFiles(1)
                             ->previewable(true),
@@ -213,7 +213,7 @@ class EventResource extends Resource
                             ->label('In Game')
                             ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
                             ->image()
-                            ->acceptedFileTypes(['image/png'])
+                            ->acceptedFileTypes(['image/png', 'image/jpeg'])
                             ->maxSize(1024)
                             ->maxFiles(1)
                             ->previewable(true),
@@ -222,7 +222,7 @@ class EventResource extends Resource
                             ->label('Box Art')
                             ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
                             ->image()
-                            ->acceptedFileTypes(['image/png'])
+                            ->acceptedFileTypes(['image/png', 'image/jpeg'])
                             ->maxSize(1024)
                             ->maxFiles(1)
                             ->previewable(true),

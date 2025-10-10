@@ -800,6 +800,7 @@ declare namespace App.Platform.Data {
     achievementSetClaims: Array<App.Platform.Data.AchievementSetClaim>;
     hasMatureContent: boolean;
     hubs: Array<App.Platform.Data.GameSet>;
+    defaultSort: App.Platform.Enums.GamePageListSort;
     initialSort: App.Platform.Enums.GamePageListSort;
     initialView: App.Platform.Enums.GamePageListView;
     isLockedOnlyFilterEnabled: boolean;

@@ -618,4 +618,73 @@ describe('Component: GameAchievementSetToolbar', () => {
       screen.queryByRole('menuitemcheckbox', { name: 'Unlocked first' }),
     ).not.toBeInTheDocument();
   });
+
+  it('given the user changes the sort order to the non-default sort order, updates the URL with the sort parameter', async () => {
+    // ARRANGE
+    const mockGame = createGame({ id: 123, achievementsPublished: 10 });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={1}
+      />,
+      {
+        pageProps: { backingGame: mockGame, defaultSort: 'displayOrder' },
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'displayOrder'],
+          //
+        ],
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /display order/i }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: /points \(most\)/i }));
+
+    // ASSERT
+    expect(window.location.search).toContain('sort=points');
+  });
+
+  it('given the user changes the sort order to the default sort order, removes the sort parameter from the URL', async () => {
+    // ARRANGE
+    const mockGame = createGame({ id: 123, achievementsPublished: 10 });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    // ... set an initial sort query param ...
+    window.history.replaceState({}, '', '?sort=points');
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={1}
+      />,
+      {
+        pageProps: { backingGame: mockGame, defaultSort: 'displayOrder' },
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'points'],
+          //
+        ],
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /points/i }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: 'Display order (first)' }));
+
+    // ASSERT
+    expect(window.location.search).not.toContain('sort');
+  });
 });
