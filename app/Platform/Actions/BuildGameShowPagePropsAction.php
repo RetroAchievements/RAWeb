@@ -73,6 +73,7 @@ class BuildGameShowPagePropsAction
         AchievementFlag $targetAchievementFlag = AchievementFlag::OfficialCore,
         ?GameAchievementSet $targetAchievementSet = null,
         GamePageListView $initialView = GamePageListView::Achievements,
+        ?GamePageListSort $initialSort = null,
     ): GameShowPagePropsData {
         // The backing game is the legacy game that backs the target achievement set.
         // For core sets, this will be $game->id. For subsets, it'll be a different ID.
@@ -238,6 +239,9 @@ class BuildGameShowPagePropsAction
         // Detect if the user is on mobile to conditionally include some props.
         $isMobile = (new GetUserDeviceKindAction())->execute() === 'mobile';
 
+        // Derive the default sort order based on the user's unlock progress.
+        $defaultSort = $this->getDefaultSort($backingGame, $playerGame);
+
         $propsData = new GameShowPagePropsData(
             achievementSetClaims: $achievementSetClaims,
 
@@ -254,7 +258,8 @@ class BuildGameShowPagePropsAction
             ),
 
             canSubmitBetaFeedback: $this->getCanSubmitBetaFeedback($user, 'react-game-page'),
-            initialSort: $this->getInitialSort($backingGame, $playerGame),
+            defaultSort: $defaultSort,
+            initialSort: $initialSort ?? $defaultSort,
             initialView: $initialView,
 
             game: GameData::fromGame($game)->include(
@@ -780,9 +785,9 @@ class BuildGameShowPagePropsAction
         return $data['visit_count'] >= $requiredVisits && $daysSinceFirst >= $requiredDays;
     }
 
-    private function getInitialSort(Game $backingGame, ?PlayerGame $playerGame): GamePageListSort
+    private function getDefaultSort(Game $backingGame, ?PlayerGame $playerGame): GamePageListSort
     {
-        // Calculate the initial sort based on user's unlock progress.
+        // Derive the default sort based on user's unlock progress.
         // If the user has unlocked some (but not all) achievements, we can use the 'normal' sort order.
         // Otherwise, default to 'displayOrder' which is always available.
         if ($playerGame) {
