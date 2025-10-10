@@ -264,7 +264,9 @@ class GameController extends Controller
         $allRequestors = UserGameListEntry::where('GameID', $game->id)
             ->where('type', UserGameListType::AchievementSetRequest)
             ->with('user')
-            ->get();
+            ->get()
+            // sort by user display name
+            ->sortBy(fn ($request) => $request->user->username);
 
         // Split the requestors into initial and deferred groups.
         $initialRequestors = $allRequestors->take(100);
