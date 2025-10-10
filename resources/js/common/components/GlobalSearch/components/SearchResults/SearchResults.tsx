@@ -229,8 +229,8 @@ export const SearchResults: FC<SearchResultsProps> = ({
         return (
           <motion.div
             key={section.key}
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, transform: 'translateY(5px)' }}
+            animate={{ opacity: 1, transform: 'translateY(0px)' }}
             transition={{
               duration: 0.2,
               delay: sectionsWithResults.indexOf(section) * 0.05,
@@ -253,8 +253,8 @@ export const SearchResults: FC<SearchResultsProps> = ({
               {results.map((item, index) => (
                 <motion.div
                   key={`${section.key}-result-${index}`}
-                  initial={{ opacity: 0, x: -5 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, transform: 'translateX(-5px)' }}
+                  animate={{ opacity: 1, transform: 'translateX(0px)' }}
                   transition={{
                     duration: 0.15,
                     delay: sectionsWithResults.indexOf(section) * 0.05 + index * 0.02,
