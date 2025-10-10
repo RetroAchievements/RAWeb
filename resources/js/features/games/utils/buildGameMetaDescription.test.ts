@@ -11,9 +11,10 @@ describe('Util: buildGameMetaDescription', () => {
   it('given the game has no achievements published, outputs the correct message', () => {
     // ARRANGE
     const game = createGame({ achievementsPublished: 0 });
+    const backingGame = game;
 
     // ACT
-    const result = buildGameMetaDescription(game);
+    const result = buildGameMetaDescription(game, backingGame);
 
     // ASSERT
     expect(result).toContain('No achievements have been created yet');
@@ -28,9 +29,10 @@ describe('Util: buildGameMetaDescription', () => {
       achievementsPublished: 100,
       pointsTotal: 800,
     });
+    const backingGame = game;
 
     // ACT
-    const result = buildGameMetaDescription(game);
+    const result = buildGameMetaDescription(game, backingGame);
 
     // ASSERT
     expect(result).toBe(
@@ -47,9 +49,10 @@ describe('Util: buildGameMetaDescription', () => {
       achievementsPublished: 50,
       pointsTotal: 1200, // !! should have comma formatting
     });
+    const backingGame = game;
 
     // ACT
-    const result = buildGameMetaDescription(game);
+    const result = buildGameMetaDescription(game, backingGame);
 
     // ASSERT
     expect(result).toBe(

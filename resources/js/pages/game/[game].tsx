@@ -22,6 +22,7 @@ import type { TranslatedString } from '@/types/i18next';
 
 const GameShow: AppPage = () => {
   const {
+    backingGame,
     game,
     initialSort,
     initialView,
@@ -47,14 +48,14 @@ const GameShow: AppPage = () => {
     setCurrentPlayableListSort(initialSort);
   }, [targetAchievementSetId, initialSort, setCurrentPlayableListSort]);
 
-  const title = `${game.title} (${game.system!.name})`;
+  const title = `${backingGame.title} (${game.system!.name})`;
 
   return (
     <>
       <SEO
         title={title as TranslatedString}
-        description={buildGameMetaDescription(game)}
-        ogImage={game!.badgeUrl}
+        description={buildGameMetaDescription(game, backingGame)}
+        ogImage={backingGame!.badgeUrl}
       />
 
       {ziggy.device === 'mobile' ? (
