@@ -4,11 +4,11 @@ import { route } from 'ziggy-js';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { cn } from '@/common/utils/cn';
 
-interface UserGridItemProps {
+interface UserGridLinkItemProps {
   user: App.Data.User;
 }
 
-export const UserGridLinkItem: FC<UserGridItemProps> = ({ user }) => {
+export const UserGridLinkItem: FC<UserGridLinkItemProps> = ({ user }) => {
   return (
     <a
       href={route('user.show', { user: user.displayName })}

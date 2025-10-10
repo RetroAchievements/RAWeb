@@ -546,7 +546,7 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
-    "game.requests.index": [
+    "game.requests.show": [
         {
             "name": "game",
             "required": true,
