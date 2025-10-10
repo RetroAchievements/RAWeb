@@ -48,7 +48,7 @@ const GameShow: AppPage = () => {
     setCurrentPlayableListSort(initialSort);
   }, [targetAchievementSetId, initialSort, setCurrentPlayableListSort]);
 
-  const title = `${game.title} (${game.system!.name})`;
+  const title = `${backingGame.title} (${game.system!.name})`;
 
   return (
     <>
