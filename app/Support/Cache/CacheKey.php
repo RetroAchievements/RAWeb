@@ -15,7 +15,7 @@ class CacheKey
 
     public static function buildGameSetBreadcrumbsCacheKey(int $gameSetId): string
     {
-        return self::buildNormalizedCacheKey("game-set", $gameSetId, "breadcrumbs");
+        return self::buildNormalizedCacheKey("game-set", $gameSetId, "breadcrumbs2");
     }
 
     public static function buildUserLastLoginCacheKey(string $username): string

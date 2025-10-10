@@ -132,6 +132,18 @@ class BuildHubBreadcrumbsAction
                     return $this->buildDifficultyBreadcrumbs($currentGameSet);
                 }
 
+                // Handle "[Central - ...]" hubs (they should only show Central -> themselves).
+                if ($currentType === 'Central') {
+                    $breadcrumbs = [];
+                    $centralHub = GameSet::centralHub()->first();
+                    if ($centralHub) {
+                        $breadcrumbs[] = $this->toPathArray($centralHub);
+                    }
+                    $breadcrumbs[] = $this->toPathArray($currentGameSet);
+
+                    return $breadcrumbs;
+                }
+
                 // Add the current hub to the path.
                 $remainingPath[] = $this->toPathArray($currentGameSet);
 
@@ -347,6 +359,9 @@ class BuildHubBreadcrumbsAction
                     array_unshift($remainingPath, $this->toPathArray($centralEventsHub));
                     $visited[] = $centralEventsHub->id;
                 }
+
+                // We've handled the central parent for Events hubs, so return early.
+                return;
             }
         }
 
