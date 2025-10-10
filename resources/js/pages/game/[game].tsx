@@ -55,7 +55,7 @@ const GameShow: AppPage = () => {
       <SEO
         title={title as TranslatedString}
         description={buildGameMetaDescription(game, backingGame)}
-        ogImage={game!.badgeUrl}
+        ogImage={backingGame!.badgeUrl}
       />
 
       {ziggy.device === 'mobile' ? (
