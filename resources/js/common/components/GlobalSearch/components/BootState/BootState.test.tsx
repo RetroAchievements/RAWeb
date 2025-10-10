@@ -1,4 +1,4 @@
-import { render, screen } from '@/test';
+import { render, screen, waitFor } from '@/test';
 
 import { BootState } from './BootState';
 
@@ -11,11 +11,13 @@ describe('Component: BootState', () => {
     expect(container).toBeTruthy();
   });
 
-  it('displays some welcome text', () => {
+  it('displays some welcome text', async () => {
     // ARRANGE
     render(<BootState />);
 
     // ASSERT
-    expect(screen.getByText(/type at least 3 characters/i)).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText(/type at least 3 characters/i)).toBeVisible();
+    });
   });
 });

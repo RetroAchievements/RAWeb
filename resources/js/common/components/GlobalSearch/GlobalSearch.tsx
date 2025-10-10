@@ -199,9 +199,9 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
               {!searchResults && rawQuery.length < 3 ? (
                 <motion.div
                   key="initial-state"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
+                  initial={{ opacity: 0, transform: 'translateY(10px)' }}
+                  animate={{ opacity: 1, transform: 'translateY(0px)' }}
+                  exit={{ opacity: 0, transform: 'translateY(-10px)' }}
                   transition={{ delay: 0.15, duration: 0.2 }}
                   className="px-3 py-[120px] text-center"
                 >
@@ -226,9 +226,9 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
               {areNoResultsFound ? (
                 <motion.div
                   key="no-results"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
+                  initial={{ opacity: 0, transform: 'translateY(10px)' }}
+                  animate={{ opacity: 1, transform: 'translateY(0px)' }}
+                  exit={{ opacity: 0, transform: 'translateY(-10px)' }}
                   transition={{ duration: 0.2 }}
                   className="py-[150px]"
                 >
