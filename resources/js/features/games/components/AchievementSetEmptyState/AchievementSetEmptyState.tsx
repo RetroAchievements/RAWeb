@@ -43,8 +43,11 @@ export const AchievementSetEmptyState: FC = () => {
                 val: setRequestData.totalRequests,
               }}
               components={{
-                // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is passed in by the consumer
-                1: auth?.user ? <a href={`/setRequestors.php?g=${backingGame.id}`} /> : <span />,
+                1: auth?.user ? (
+                  <InertiaLink href={route('game.requests.show', { game: backingGame.id })} />
+                ) : (
+                  <span />
+                ),
               }}
             />
           </p>

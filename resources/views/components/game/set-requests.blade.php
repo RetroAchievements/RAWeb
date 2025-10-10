@@ -39,7 +39,7 @@ function getSetRequestInformation(user, gameID) {
             var gameTotal = parseInt(results.gameRequests);
             var thisGame = results.requestedThisGame;
 
-            $('.gameRequestsLabel').html('Set Requests: <a href=\'/setRequestors.php?g=' + gameID + '\'>' + gameTotal + '</a>');
+            $('.gameRequestsLabel').html('Set Requests: <a href="{{ route("game.requests.show", ["game" => $gameId]) }}">' + gameTotal + '</a>');
             // loosely-typed route, but this whole component will be deleted very soon
             $('.userRequestsLabel').html('User Requests Remaining: <a href=\'/games/requests/' + user + '\'>' + remaining + '</a>');
 
@@ -69,7 +69,7 @@ function submitSetRequest(user, gameID) {
 
 <div>
     <h2 class='text-h4'>Set Requests</h2>
-    <div class='gameRequestsLabel'>Set Requests: <a href='/setRequestors.php?g={{ $gameId }}'>{{ $gameRequests }}</a></div>
+    <div class='gameRequestsLabel'>Set Requests: <a href='{{ route("game.requests.show", ["game" => $gameId]) }}'>{{ $gameRequests }}</a></div>
     <div><button type='button' class='btn setRequestLabel'{!! $onClick !!}>{{ $buttonText }}</button></div>
     {{-- loosely-typed route, but this whole component will be deleted very soon --}}
     <div class='userRequestsLabel'>User Requests Remaining: <a href='/games/requests/{{ $user->display_name }}'>{{ $userRequestsRemaining }}</a></div>
