@@ -1,21 +1,12 @@
+/* eslint-disable testing-library/no-node-access */
+
 import { screen } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
-import {
-  // @prettier-ignore
-  beforeEach,
-  describe,
-  expect,
-  it,
-} from 'vitest';
 
 import { toggleAchievementRowsComponent } from './toggleAchievementRowsComponent';
 
 function render() {
   const component = toggleAchievementRowsComponent();
-  (window as any).updateRowsVisibility = component.updateRowsVisibility.bind(component);
-  (window as any).toggleUnlockedRows = component.toggleUnlockedRows.bind(component);
-  (window as any).toggleNonMissableRows = component.toggleNonMissableRows.bind(component);
-  (window as any).toggleInactiveRows = component.toggleInactiveRows.bind(component);
 
   document.body.innerHTML = /** @html */ `
     <div>
@@ -23,7 +14,6 @@ function render() {
         <input
           type="checkbox"
           name="toggleUnlocked"
-          onchange="toggleUnlockedRows()"
         >
           Hide unlocked achievements
         </input>
@@ -33,7 +23,6 @@ function render() {
         <input
           type="checkbox"
           name="toggleMissables"
-          onchange="toggleNonMissableRows()"
         >
           Only show missables
         </input>
@@ -43,7 +32,6 @@ function render() {
         <input
           type="checkbox"
           name="toggleInactive"
-          onchange="toggleInactiveRows()"
         >
           Hide inactive achievements
         </input>
@@ -63,6 +51,16 @@ function render() {
       </ul>
     </div>
   `;
+
+  document
+    .querySelector('input[name="toggleUnlocked"]')
+    ?.addEventListener('change', component.toggleUnlockedRows.bind(component));
+  document
+    .querySelector('input[name="toggleMissables"]')
+    ?.addEventListener('change', component.toggleNonMissableRows.bind(component));
+  document
+    .querySelector('input[name="toggleInactive"]')
+    ?.addEventListener('change', component.toggleInactiveRows.bind(component));
 }
 
 // NOTE: Vitest is persisting JSDOM between each test case.
