@@ -6,12 +6,10 @@ import * as CookieModule from './cookie';
 import { cookieName, toggleUserCompletedSetsVisibility } from './toggleUserCompletedSetsVisibility';
 
 function render() {
-  (window as any).toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
-
   document.body.innerHTML = /** @html */ `
     <div>
       <label>
-        <input type="checkbox" id="hide-user-completed-sets-checkbox" onchange="toggleUserCompletedSetsVisibility()" />
+        <input type="checkbox" id="hide-user-completed-sets-checkbox" />
         Hide user completed sets
       </label>
       <table id="usercompletedgamescomponent">
@@ -21,6 +19,10 @@ function render() {
       </table>
     </div>
   `;
+
+  // eslint-disable-next-line testing-library/no-node-access -- needed for this test using dom manipulation
+  const checkbox = document.getElementById('hide-user-completed-sets-checkbox');
+  checkbox?.addEventListener('change', toggleUserCompletedSetsVisibility);
 }
 
 describe('Util: toggleUserCompletedSetsVisibility', () => {
