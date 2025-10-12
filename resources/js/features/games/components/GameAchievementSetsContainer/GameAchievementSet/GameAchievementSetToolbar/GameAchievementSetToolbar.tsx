@@ -10,10 +10,10 @@ import { PlayableListSortButton } from '@/common/components/PlayableListSortButt
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
+import { useCurrentPlayableListSort } from '@/features/games/hooks/useCurrentPlayableListSort';
 import { usePersistedGameIdsCookie } from '@/features/games/hooks/usePersistedGameIdsCookie';
 import {
   currentListViewAtom,
-  currentPlayableListSortAtom,
   isLockedOnlyFilterEnabledAtom,
   isMissableOnlyFilterEnabledAtom,
   userAchievementListChangeCounterAtom,
@@ -47,8 +47,9 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
     backingGame.id,
   );
 
+  const { currentPlayableListSort, setCurrentPlayableListSort } = useCurrentPlayableListSort();
+
   const [currentListView, setCurrentListView] = useAtom(currentListViewAtom);
-  const [currentAchievementSort, setCurrentAchievementSort] = useAtom(currentPlayableListSortAtom);
   const [isLockedOnlyFilterEnabled, setIsLockedOnlyFilterEnabled] = useAtom(
     isLockedOnlyFilterEnabledAtom,
   );
@@ -92,9 +93,9 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
     >
       <div className="flex w-full gap-2 sm:w-auto">
         <PlayableListSortButton
-          value={currentAchievementSort}
+          value={currentPlayableListSort}
           onChange={(newValue) => {
-            setCurrentAchievementSort(newValue);
+            setCurrentPlayableListSort(newValue);
 
             setUserAchievementListChangeCounter((prev) => prev + 1);
           }}
