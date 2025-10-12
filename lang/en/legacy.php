@@ -6,6 +6,7 @@ return [
 
     'error' => [
         'error' => __("An error occurred. Please check and try again."),
+        'other' => __("Something went wrong."),
 
         'account' => __("There appears to be a problem with your account. Please contact <a href='" . route('user.show', 'RAdmin') . "'>RAdmin</a> for more details."),
         'cannot_message_user' => __("This user isn't accepting messages right now."),
