@@ -5,17 +5,20 @@ import { describe, expect, it } from 'vitest';
 import { autoExpandTextInput } from './autoExpandTextInput';
 
 function render() {
-  (window as any).autoExpandTextInput = autoExpandTextInput;
-
   document.body.innerHTML = /** @html */ `
     <textarea
       class="comment-textarea"
       name="body"
       maxlength="2000"
       placeholder="Enter a comment here..."
-      oninput="autoExpandTextInput(this)"
     ></textarea>
   `;
+
+  // eslint-disable-next-line testing-library/no-node-access -- needed for this test using dom manipulation
+  const textarea = document.querySelector('textarea');
+  textarea?.addEventListener('input', (event) => {
+    autoExpandTextInput(event.target as HTMLTextAreaElement);
+  });
 }
 
 describe('Util: autoExpandTextInput', () => {
