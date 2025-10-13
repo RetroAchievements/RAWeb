@@ -50,7 +50,7 @@ export const CodeCreditsDisplay: FC<CodeCreditsDisplayProps> = ({
       <UserAvatarStack
         users={codeCreditUsers}
         maxVisible={6}
-        size={24}
+        size={20}
         isOverlappingAvatars={false}
       />
     </div>

@@ -52,7 +52,7 @@ export const DesignCreditsDisplay: FC<DesignCreditsDisplayProps> = ({
       <UserAvatarStack
         users={designCreditUsers}
         maxVisible={8}
-        size={24}
+        size={20}
         isOverlappingAvatars={false}
       />
     </div>
