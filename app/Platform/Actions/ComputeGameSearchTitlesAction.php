@@ -95,9 +95,18 @@ class ComputeGameSearchTitlesAction
             $variations[] = 'oot';
         }
 
+        // Special handling for the .hack series to avoid matching with ~Hack~ games.
+        // Replace ".hack" with "dothack" before simplification so it's treated without special chars.
+        $titleForSimplification = $title;
+        if (stripos($title, '.hack') !== false) {
+            $variations[] = 'dothack';
+            $variations[] = 'dot hack';
+            $titleForSimplification = str_ireplace('.hack', 'dothack', $title);
+        }
+
         // Create simplified titles that don't have any special characters.
-        $simplifiedTitle = $this->simplifyTitle($title);
-        if ($simplifiedTitle !== $title) {
+        $simplifiedTitle = $this->simplifyTitle($titleForSimplification);
+        if ($simplifiedTitle !== mb_strtolower($title)) {
             $variations[] = $simplifiedTitle;
         }
 
@@ -168,6 +177,7 @@ class ComputeGameSearchTitlesAction
         // It doesn't matter if some of these overlap, and these aren't case-sensitive.
         // This is just a way we can influence how heavily Meilisearch weighs certain terms.
         $seriesAbbreviationMap = [
+            '.hack' => ['dothack'],
             'Breath of Fire' => ['BoF'],
             'Call of Duty' => ['CoD'],
             'Castlevania' => ['CV'],

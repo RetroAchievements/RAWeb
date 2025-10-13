@@ -125,6 +125,22 @@ class SearchApiController extends Controller
     }
 
     /**
+     * Preprocess game search keywords to handle special cases.
+     * This ensures queries like ".hack" match the intended games rather than generic "hack" games.
+     */
+    private function preprocessGameSearchKeyword(string $keyword): string
+    {
+        // Replace ".hack" with its "dothack" alias to match our indexed variations.
+        // This prevents ".hack" from being simplified to just "hack" by Meilisearch
+        // when Meilisearch automatically fuzzes out special characters (".").
+        if (stripos($keyword, '.hack') !== false) {
+            return str_ireplace('.hack', 'dothack', $keyword);
+        }
+
+        return $keyword;
+    }
+
+    /**
      * Detect if a given query is likely searching for a hub based on common patterns.
      * Be very conservative - only boost hubs when we're confident.
      */
@@ -197,7 +213,9 @@ class SearchApiController extends Controller
 
     private function searchGames(string $keyword): array
     {
-        $games = Game::search($keyword)
+        $processedKeyword = $this->preprocessGameSearchKeyword($keyword);
+
+        $games = Game::search($processedKeyword)
             ->take(self::MAX_RESULTS_PER_SCOPE)
             ->get();
 
