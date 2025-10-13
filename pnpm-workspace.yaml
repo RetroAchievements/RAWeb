@@ -1,6 +1,8 @@
 packages: []
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
+  - '@inertiajs/core'
+  - '@inertiajs/react'
   - react
   - react-dom
   - vite

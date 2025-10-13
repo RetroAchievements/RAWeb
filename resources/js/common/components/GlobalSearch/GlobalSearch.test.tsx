@@ -78,7 +78,9 @@ describe('Component: GlobalSearch', () => {
         screen.getByText(/search for games, hubs, users, events, and achievements/i),
       ).toBeVisible();
     });
-    expect(screen.getByText(/type at least 3 characters to begin/i)).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText(/type at least 3 characters to begin/i)).toBeVisible();
+    });
   });
 
   it('given the user types a search query, displays search results', async () => {

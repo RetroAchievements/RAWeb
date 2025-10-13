@@ -40,6 +40,7 @@ class GameShowPagePropsData extends Data
         public bool $hasMatureContent,
         /** @var GameSetData[] */
         public array $hubs,
+        public GamePageListSort $defaultSort,
         public GamePageListSort $initialSort,
         public GamePageListView $initialView,
         public bool $isLockedOnlyFilterEnabled,
