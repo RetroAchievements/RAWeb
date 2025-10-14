@@ -27,11 +27,11 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1(react-hook-form@7.55.0(react@19.1.0))
       '@inertiajs/core':
-        specifier: ^2.1.6
-        version: 2.1.6
+        specifier: ^2.2.8
+        version: 2.2.8
       '@inertiajs/react':
-        specifier: ^2.1.6
-        version: 2.1.6(react@19.1.0)
+        specifier: ^2.2.8
+        version: 2.2.8(react@19.1.0)
       '@radix-ui/react-dialog':
         specifier: ^1.1.14
         version: 1.1.14(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -271,8 +271,8 @@ importers:
         specifier: ^15.14.0
         version: 15.15.0
       happy-dom:
-        specifier: ^19.0.2
-        version: 19.0.2
+        specifier: ^20.0.0
+        version: 20.0.0
       laravel-echo:
         specifier: ^1.15.1
         version: 1.16.1
@@ -317,7 +317,7 @@ importers:
         version: 7.1.5(@types/node@22.8.4)(jiti@2.6.1)(tsx@4.20.5)(yaml@2.6.0)
       vitest:
         specifier: ^3.2.4
-        version: 3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(happy-dom@19.0.2)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0)
+        version: 3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(happy-dom@20.0.0)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0)
 
 packages:
 
@@ -772,11 +772,11 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@inertiajs/core@2.1.6':
-    resolution: {integrity: sha512-PvY3QJecHt/Z+X+C+jJOHnBGxvi6YNuX3tLY0oXA2yC8aQZeUHnIoWnQdKgc0KA0CNj3b3sZSxm2ZQs9nMY7/Q==}
+  '@inertiajs/core@2.2.8':
+    resolution: {integrity: sha512-sN6ArjsDajohctU7j17lsnSk5j3otDDSuR0JgtJxUftNcV3mv51XTKm/IHM3zdHYhq4rpvgHlr9epUqp7tMnxQ==}
 
-  '@inertiajs/react@2.1.6':
-    resolution: {integrity: sha512-9FxbgvYSGsspHvhgLXpoDKkY+2kRa1OYJSzMeEV3q4GiJZdRKKpTL44FH3H+gIJ5smYC+urdWvtCD+apPtAQZQ==}
+  '@inertiajs/react@2.2.8':
+    resolution: {integrity: sha512-xiVZCTEOOi6MXF6njIL4RsULdWC7UOJmr0k7MJ2qAdErOuyoNRjf9OoVmXUIOq8LSgLevHP74wHyMocy2HZ9YQ==}
     peerDependencies:
       react: ^16.9.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -2697,6 +2697,9 @@ packages:
   axios@1.12.1:
     resolution: {integrity: sha512-Kn4kbSXpkFHCGE6rBFNwIv0GQs4AvDT80jlveJDKFxjbTYMUeB4QtsdPCv6H8Cm19Je7IU6VFtRl2zWZI0rudQ==}
 
+  axios@1.12.2:
+    resolution: {integrity: sha512-vMJzPewAlRyOgxV2dU0Cuz2O8zzzx9VYtbJOaBgXFeLc4IV/Eg50n4LowmehOOR61S8ZMpc2K5Sa7g6A4jfkUw==}
+
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
     engines: {node: '>= 0.4'}
@@ -3533,8 +3536,8 @@ packages:
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
 
-  happy-dom@19.0.2:
-    resolution: {integrity: sha512-831CLbgDyjRbd2lApHZFsBDe56onuFcjsCBPodzWpzedTpeDr8CGZjs7iEIdNW1DVwSFRecfwzLpVyGBPamwGA==}
+  happy-dom@20.0.0:
+    resolution: {integrity: sha512-GkWnwIFxVGCf2raNrxImLo397RdGhLapj5cT3R2PT7FwL62Ze1DROhzmYW7+J3p9105DYMVenEejEbnq5wA37w==}
     engines: {node: '>=20.0.0'}
 
   has-bigints@1.0.2:
@@ -4459,8 +4462,8 @@ packages:
   pusher-js@8.3.0:
     resolution: {integrity: sha512-6GohP06WlVeomAQQe9qWh1IDzd3+InluWt+ZUOcecVK1SEQkg6a8uYVsvxSJm7cbccfmHhE0jDkmhKIhue8vmA==}
 
-  qs@6.13.0:
-    resolution: {integrity: sha512-+38qI9SOr8tfZ4QmJNplMUxqjbe7LKvvZgWdExBOmd+egZTtjLB67Gu0HRX3u/XOq7UU2Nx6nsjvS16Z9uwfpg==}
+  qs@6.14.0:
+    resolution: {integrity: sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==}
     engines: {node: '>=0.6'}
 
   qs@6.9.7:
@@ -5830,18 +5833,18 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@inertiajs/core@2.1.6':
+  '@inertiajs/core@2.2.8':
     dependencies:
       '@types/lodash-es': 4.17.12
-      axios: 1.12.1
+      axios: 1.12.2
       lodash-es: 4.17.21
-      qs: 6.13.0
+      qs: 6.14.0
     transitivePeerDependencies:
       - debug
 
-  '@inertiajs/react@2.1.6(react@19.1.0)':
+  '@inertiajs/react@2.2.8(react@19.1.0)':
     dependencies:
-      '@inertiajs/core': 2.1.6
+      '@inertiajs/core': 2.2.8
       '@types/lodash-es': 4.17.12
       lodash-es: 4.17.21
       react: 19.1.0
@@ -7691,7 +7694,7 @@ snapshots:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(happy-dom@19.0.2)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0)
+      vitest: 3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(happy-dom@20.0.0)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -7702,7 +7705,7 @@ snapshots:
       eslint: 9.35.0(jiti@2.6.1)
     optionalDependencies:
       typescript: 5.7.3
-      vitest: 3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(happy-dom@19.0.2)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0)
+      vitest: 3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(happy-dom@20.0.0)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -7751,7 +7754,7 @@ snapshots:
       sirv: 3.0.1
       tinyglobby: 0.2.15
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(happy-dom@19.0.2)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0)
+      vitest: 3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(happy-dom@20.0.0)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0)
 
   '@vitest/utils@3.2.4':
     dependencies:
@@ -7960,6 +7963,14 @@ snapshots:
   axe-core@4.10.2: {}
 
   axios@1.12.1:
+    dependencies:
+      follow-redirects: 1.15.9
+      form-data: 4.0.4
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+
+  axios@1.12.2:
     dependencies:
       follow-redirects: 1.15.9
       form-data: 4.0.4
@@ -9009,7 +9020,7 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  happy-dom@19.0.2:
+  happy-dom@20.0.0:
     dependencies:
       '@types/node': 20.19.19
       '@types/whatwg-mimetype': 3.0.2
@@ -9844,7 +9855,7 @@ snapshots:
     dependencies:
       tweetnacl: 1.0.3
 
-  qs@6.13.0:
+  qs@6.14.0:
     dependencies:
       side-channel: 1.1.0
 
@@ -10846,7 +10857,7 @@ snapshots:
       tsx: 4.20.5
       yaml: 2.6.0
 
-  vitest@3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(happy-dom@19.0.2)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0):
+  vitest@3.2.4(@types/node@22.8.4)(@vitest/ui@3.2.4)(happy-dom@20.0.0)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.4))(tsx@4.20.5)(yaml@2.6.0):
     dependencies:
       '@types/chai': 5.2.2
       '@vitest/expect': 3.2.4
@@ -10874,7 +10885,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.8.4
       '@vitest/ui': 3.2.4(vitest@3.2.4)
-      happy-dom: 19.0.2
+      happy-dom: 20.0.0
       jsdom: 27.0.0(postcss@8.5.4)
     transitivePeerDependencies:
       - jiti

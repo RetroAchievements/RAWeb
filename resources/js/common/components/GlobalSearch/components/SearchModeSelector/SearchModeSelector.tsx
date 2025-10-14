@@ -34,8 +34,8 @@ export const SearchModeSelector: FC<SearchModeSelectorProps> = ({
       {modes.map((mode, index) => (
         <motion.div
           key={mode.value}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, transform: 'scale(0.95)' }}
+          animate={{ opacity: 1, transform: 'scale(1)' }}
           transition={{
             duration: 0.15,
             delay: index * 0.02,
@@ -47,7 +47,7 @@ export const SearchModeSelector: FC<SearchModeSelectorProps> = ({
           >
             <motion.span
               animate={{
-                scale: selectedMode === mode.value ? 1.05 : 1,
+                transform: selectedMode === mode.value ? 'scale(1.05)' : 'scale(1)',
               }}
               transition={{ duration: 0.1 }}
             >
