@@ -8,6 +8,7 @@ use App\Community\Enums\ArticleType;
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimStatus;
+use App\Mail\AnnualRecapMail;
 use App\Models\Achievement;
 use App\Models\AchievementSetClaim;
 use App\Models\Comment;
@@ -22,6 +23,7 @@ use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class GenerateAnnualRecapAction
 {
@@ -46,21 +48,21 @@ class GenerateAnnualRecapAction
             return;
         }
 
-        $subject = "RetroAchievements $year Year in Review for {$user->display_name}";
+        $recapData = [
+            'year' => $year,
+        ];
 
-        $body = "<p>Congratulations {$user->display_name}!\n";
-        $body .= $this->generateSummary($user, $gameData, $startDate, $endDate);
-        $body .= $this->summarizePlayTime($gameData);
-        $body .= $this->summarizeAwards($user, $startDate, $endDate);
-        $body .= $this->mostPlayedGame($gameData);
-        $body .= $this->rarestAchievement($user, $startDate, $endDate);
-        $body .= $this->summarizePosts($user, $startDate, $endDate);
-        $body .= $this->summarizeDevelopment($user, $startDate, $endDate);
+        $this->summarizeUnlocks($recapData, $user, $gameData, $startDate, $endDate);
+        $this->summarizePlayTime($recapData, $gameData);
+        $this->summarizeAwards($recapData, $user, $startDate, $endDate);
+        $this->determineMostPlayedGame($recapData, $gameData);
+        $this->determineRarestAchievement($recapData, $user, $startDate, $endDate);
+        $this->summarizePosts($recapData, $user, $startDate, $endDate);
+        $this->summarizeDevelopment($recapData, $user, $startDate, $endDate);
 
-        $body .= "\n";
-
-        // (new \Symfony\Component\Console\Output\ConsoleOutput())->writeln($body);
-        mail_utf8($user->EmailAddress, $subject, $body);
+        Mail::to($user->EmailAddress)->queue(
+            new AnnualRecapMail($user, $recapData)
+        );
     }
 
     private function getGameData(User $user, Carbon $startDate, Carbon $endDate): array
@@ -82,14 +84,14 @@ class GenerateAnnualRecapAction
         foreach ($games->get() as $game) {
             $gameData[$game->ID] = [
                 'ConsoleID' => $game->ConsoleID,
-                'totalDuration' => $game->totalDuration,
+                'totalDuration' => (int) $game->totalDuration,
             ];
         }
 
         return $gameData;
     }
 
-    private function generateSummary(User $user, array $gameData, Carbon $startDate, Carbon $endDate): string
+    private function summarizeUnlocks(array &$recapData, User $user, array $gameData, Carbon $startDate, Carbon $endDate): void
     {
         $gameIds = array_keys($gameData);
 
@@ -123,38 +125,14 @@ class GenerateAnnualRecapAction
             ->where('updated_at', '<', $endDate)
             ->count();
 
-        $numGames = count($gameData);
-
-        $message = "<p>In {$startDate->year}, you played $numGames games on " .
-                   "<a href=\"" . route('home') . "\">retroachievements.org</a>";
-
-        $numAchievements = (int) ($hardcoreTally->count + $softcoreTally->count);
-        if ($numAchievements > 0) {
-            $message .= " and unlocked $numAchievements achievements, earning you ";
-
-            if ($hardcoreTally->points > 0) {
-                $message .= "{$hardcoreTally->points} hardcore points";
-            }
-            if ($softcoreTally->points > 0) {
-                if ($hardcoreTally->points > 0) {
-                    $message .= " and ";
-                }
-                $message .= "{$softcoreTally->points} softcore points";
-            }
-        }
-
-        $message .= '.';
-
-        if ($numLeaderboards > 0) {
-            $message .= " You submitted new scores for $numLeaderboards leaderboards.";
-        }
-
-        $message .= "\n";
-
-        return $message;
+        $recapData['gamesPlayed'] = count($gameData);
+        $recapData['achievementsUnlocked'] = $hardcoreTally->count + $softcoreTally->count;
+        $recapData['hardcorePointsEarned'] = $hardcoreTally->points;
+        $recapData['softcorePointsEarned'] = $softcoreTally->points;
+        $recapData['leaderboardsSubmitted'] = $numLeaderboards;
     }
 
-    private function summarizePlayTime(array $gameData): string
+    private function summarizePlayTime(array &$recapData, array $gameData): void
     {
         $totalTime = 0;
         $systemTimes = [];
@@ -171,26 +149,20 @@ class GenerateAnnualRecapAction
             }
         }
 
-        $message = "<p>You spent " . $this->hoursMinutes($totalTime) . " playing games ";
+        $recapData['totalPlaytime'] = $this->hoursMinutes($totalTime);
+        $recapData['playedSystems'] = count($systemTimes);
 
-        $numSystems = count($systemTimes);
-        if ($numSystems === 1) {
-            $message .= "on 1 system.";
+        $system = System::find($mostPlayedSystem);
+        if ($system) {
+            $recapData['mostPlayedSystem'] = $system->Name;
+            $recapData['mostPlayedSystemPlaytime'] = $this->hoursMinutes($systemTimes[$mostPlayedSystem]);
         } else {
-            $message .= "across $numSystems systems.";
-
-            $system = System::find($mostPlayedSystem);
-            if ($system) {
-                $message .= ' ' . $this->hoursMinutes($systemTimes[$mostPlayedSystem]) .
-                            " of that were playing {$system->Name} games.";
-            }
+            $recapData['mostPlayedSystem'] = '';
+            $recapData['mostPlayedSystemPlaytime'] = '';
         }
-        $message .= "\n";
-
-        return $message;
     }
 
-    private function summarizeAwards(User $user, Carbon $startDate, Carbon $endDate): string
+    private function summarizeAwards(array &$recapData, User $user, Carbon $startDate, Carbon $endDate): void
     {
         $awards = PlayerBadge::where('user_id', $user->id)
             ->where('AwardDate', '>=', $startDate)
@@ -228,40 +200,13 @@ class GenerateAnnualRecapAction
             $counts[$awardType] = ($counts[$awardType] ?? 0) + 1;
         }
 
-        if (empty($counts)) {
-            return "";
-        }
-
-        $numMasteries = $counts[$MASTERED] ?? 0;
-        $numBeatenHardcore = $counts[$BEATEN] ?? 0;
-        $numCompletions = $counts[$COMPLETED] ?? 0;
-        $numBeaten = $counts[$BEATENSOFTCORE] ?? 0;
-
-        $message = '<p>';
-        if ($numMasteries > 0) {
-            if ($numBeatenHardcore > 0) {
-                $message .= "You mastered $numMasteries games, and beat $numBeatenHardcore games on hardcore. ";
-            } else {
-                $message .= "You mastered $numMasteries games. ";
-            }
-        } elseif ($numBeatenHardcore > 0) {
-            $message .= "You beat $numBeatenHardcore games on hardcore. ";
-        }
-        if ($numCompletions > 0) {
-            if ($numBeaten > 0) {
-                $message .= "You completed $numCompletions games, and beat $numBeaten games on softcore.";
-            } else {
-                $message .= "You completed $numCompletions games.";
-            }
-        } elseif ($numBeaten > 0) {
-            $message .= "You beat $numBeaten games on softcore.";
-        }
-        $message .= "\n";
-
-        return $message;
+        $recapData['numMasteries'] = $counts[$MASTERED] ?? 0;
+        $recapData['numBeatenHardcore'] = $counts[$BEATEN] ?? 0;
+        $recapData['numCompletions'] = $counts[$COMPLETED] ?? 0;
+        $recapData['numBeaten'] = $counts[$BEATENSOFTCORE] ?? 0;
     }
 
-    private function mostPlayedGame(array $gameData): string
+    private function determineMostPlayedGame(array &$recapData, array $gameData): void
     {
         $mostPlayedGame = 0;
         $mostPlayedGameTime = 0;
@@ -273,20 +218,25 @@ class GenerateAnnualRecapAction
             }
         }
 
+        $recapData['mostPlayedGame'] = null;
+        $recapData['mostPlayedGamePlaytime'] = '';
+
         if ($mostPlayedGame) {
             $game = Game::find($mostPlayedGame);
             if ($game) {
-                return "<p>Your most played game was <a href=\"" .
-                    route('game.show', $game) . "\">{$game->Title}</a> at " .
-                    $this->hoursMinutes((int) $mostPlayedGameTime) . ".\n";
+                $recapData['mostPlayedGame'] = $game;
+                $recapData['mostPlayedGamePlaytime'] = $this->hoursMinutes($mostPlayedGameTime);
             }
         }
-
-        return "";
     }
 
-    private function rarestAchievement(User $user, Carbon $startDate, Carbon $endDate): string
+    private function determineRarestAchievement(array &$recapData, User $user, Carbon $startDate, Carbon $endDate): void
     {
+        $recapData['rarestHardcoreAchievement'] = null;
+        $recapData['rarestHardcoreAchievementEarnRate'] = 0.0;
+        $recapData['rarestSoftcoreAchievement'] = null;
+        $recapData['rarestSoftcoreAchievementEarnRate'] = 0.0;
+
         $rarestHardcoreAchievement = PlayerAchievement::where('player_achievements.user_id', $user->id)
             ->where('unlocked_hardcore_at', '>=', $startDate)
             ->where('unlocked_hardcore_at', '<', $endDate)
@@ -298,13 +248,10 @@ class GenerateAnnualRecapAction
             ->orderBy('EarnRate')
             ->first();
         if ($rarestHardcoreAchievement) {
-            $achievement = Achievement::find($rarestHardcoreAchievement->ID);
-            if ($achievement) {
-                return "<p>Your rarest achievement earned was " .
-                    "<a href=\"" . route('achievement.show', $achievement) . "\">{$achievement->Title}</a>" .
-                    " from {$achievement->game->Title}, which has only been earned in hardcore by " .
-                    sprintf("%01.2f", $rarestHardcoreAchievement->EarnRate * 100) . "% of players.\n";
-            }
+            $recapData['rarestHardcoreAchievement'] = Achievement::find($rarestHardcoreAchievement->ID);
+            $recapData['rarestHardcoreAchievementEarnRate'] = sprintf("%01.2f", $rarestHardcoreAchievement->EarnRate * 100);
+
+            return; // only report rarest hardcore achievement if one was found
         }
 
         $rarestSoftcoreAchievement = PlayerAchievement::where('player_achievements.user_id', $user->id)
@@ -318,76 +265,46 @@ class GenerateAnnualRecapAction
             ->orderBy('EarnRate')
             ->first();
         if ($rarestSoftcoreAchievement) {
-            $achievement = Achievement::find($rarestSoftcoreAchievement->ID);
-            if ($achievement) {
-                return "<p>Your rarest achievement earned was " .
-                    "<a href=\"" . route('achievement.show', $achievement) . "\">{$achievement->Title}</a>" .
-                    " from {$achievement->game->Title}, which has only been earned by " .
-                    sprintf("%01.2f", $rarestSoftcoreAchievement->EarnRate * 100) . "% of players.\n";
-            }
+            $recapData['rarestSoftcoreAchievement'] = Achievement::find($rarestSoftcoreAchievement->ID);
+            $recapData['rarestSoftcoreAchievementEarnRate'] = sprintf("%01.2f", $rarestSoftcoreAchievement->EarnRate * 100);
         }
-
-        return "";
     }
 
-    private function summarizePosts(User $user, Carbon $startDate, Carbon $endDate): string
+    private function summarizePosts(array &$recapData, User $user, Carbon $startDate, Carbon $endDate): void
     {
-        $numForumPosts = (!$user->forum_verified_at) ? 0 :
+        $recapData['numForumPosts'] = (!$user->forum_verified_at) ? 0 :
             ForumTopicComment::where('author_id', $user->id)
             ->where('created_at', '>=', $startDate)
             ->where('created_at', '<', $endDate)
             ->count();
-        $numComments = Comment::where('user_id', $user->id)
+        $recapData['numComments'] = Comment::where('user_id', $user->id)
             ->whereIn('ArticleType', [ArticleType::Game, ArticleType::Achievement, ArticleType::Leaderboard])
             ->where('Submitted', '>=', $startDate)
             ->where('Submitted', '<', $endDate)
             ->count();
-
-        $message = '';
-        if ($numForumPosts > 0) {
-            if ($numComments > 0) {
-                $message = "<p>You made $numForumPosts forum posts and $numComments game comments.\n";
-            } else {
-                $message = "<p>You made $numForumPosts forum posts.\n";
-            }
-        } elseif ($numComments > 0) {
-            $message = "<p>You made $numComments game comments.\n";
-        }
-
-        return $message;
     }
 
-    private function summarizeDevelopment(User $user, Carbon $startDate, Carbon $endDate): string
+    private function summarizeDevelopment(array &$recapData, User $user, Carbon $startDate, Carbon $endDate): void
     {
+        $recapData['achievementsCreated'] = 0;
+        $recapData['completedClaims'] = 0;
+
         if (!$user->ContribCount) {
-            return "";
+            return;
         }
 
-        $numAchievementsCreated = Achievement::where('user_id', $user->id)
+        $recapData['achievementsCreated'] = Achievement::where('user_id', $user->id)
             ->where('Flags', AchievementFlag::OfficialCore)
             ->where('DateCreated', '>=', $startDate)
             ->where('DateCreated', '<', $endDate)
             ->count();
 
-        $numCompletedClaims = AchievementSetClaim::where('user_id', $user->id)
+        $recapData['completedClaims'] = AchievementSetClaim::where('user_id', $user->id)
             ->where('SetType', ClaimSetType::NewSet)
             ->where('Status', ClaimStatus::Complete)
             ->where('Finished', '>=', $startDate)
             ->where('Finished', '<', $endDate)
             ->count();
-
-        $message = '';
-        if ($numAchievementsCreated > 0) {
-            if ($numCompletedClaims > 0) {
-                $message = "<p>You published $numAchievementsCreated new achievements and $numCompletedClaims new sets.\n";
-            } else {
-                $message = "<p>You published $numAchievementsCreated new achievements.\n";
-            }
-        } elseif ($numCompletedClaims > 0) {
-            // this should never happen as new sets should have new achievements
-        }
-
-        return $message;
     }
 
     private function hoursMinutes(int $totalMinutes): string
