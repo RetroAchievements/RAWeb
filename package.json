@@ -108,7 +108,7 @@
         "eslint-plugin-testing-library": "^7.7.0",
         "eslint-plugin-unicorn": "^61.0.2",
         "globals": "^15.14.0",
-        "happy-dom": "^20.0.0",
+        "happy-dom": "^20.0.2",
         "laravel-echo": "^1.15.1",
         "laravel-vite-plugin": "^2.0.1",
         "postcss": "^8.5.4",
