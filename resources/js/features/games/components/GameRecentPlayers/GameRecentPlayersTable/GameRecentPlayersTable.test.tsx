@@ -114,9 +114,9 @@ describe('Component: GameRecentPlayersTable', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/player/i)).toBeInTheDocument();
-    expect(screen.getByText(/last seen/i)).toBeInTheDocument();
-    expect(screen.getByText(/progress/i)).toBeInTheDocument();
-    expect(screen.getByText(/activity/i)).toBeInTheDocument();
+    expect(screen.getByText('Player')).toBeInTheDocument();
+    expect(screen.getByText('Last Seen')).toBeInTheDocument();
+    expect(screen.getByText('Progress')).toBeInTheDocument();
+    expect(screen.getByText('Activity')).toBeInTheDocument();
   });
 });
