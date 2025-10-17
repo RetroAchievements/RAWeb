@@ -43,6 +43,7 @@ export const CodeCreditsDisplay: FC<CodeCreditsDisplayProps> = ({
       className={cn(
         'flex items-center rounded-md bg-neutral-800/70 py-1 pr-2 text-neutral-400',
         'light:border light:border-neutral-200 light:bg-white light:text-neutral-600',
+        'h-8',
       )}
     >
       <CodeCreditIcon activeMaintainers={maintainerCredits} logicCredits={filteredLogicCredits} />
@@ -50,7 +51,7 @@ export const CodeCreditsDisplay: FC<CodeCreditsDisplayProps> = ({
       <UserAvatarStack
         users={codeCreditUsers}
         maxVisible={6}
-        size={24}
+        size={20}
         isOverlappingAvatars={false}
       />
     </div>
