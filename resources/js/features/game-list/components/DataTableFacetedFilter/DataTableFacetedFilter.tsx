@@ -261,7 +261,7 @@ function FacetedFilterContent<TData, TValue>({
                   option={option}
                   isSelected={
                     option.isDefaultOption
-                      ? !selectedValues.size
+                      ? !selectedValues.size || selectedValues.has(option.value!)
                       : selectedValues.has(option.value!)
                   }
                   isSingleSelect={isSingleSelect}
@@ -280,7 +280,9 @@ function FacetedFilterContent<TData, TValue>({
                 key={option.value}
                 option={option}
                 isSelected={
-                  option.isDefaultOption ? !selectedValues.size : selectedValues.has(option.value!)
+                  option.isDefaultOption
+                    ? !selectedValues.size || selectedValues.has(option.value!)
+                    : selectedValues.has(option.value!)
                 }
                 isSingleSelect={isSingleSelect}
                 facets={facets}
