@@ -35,7 +35,7 @@ class LoginAction extends BaseApiAction
             return $this->missingParameters();
         }
 
-        $this->username = request()->input('u') ?? '';
+        $this->username = request()->input('u');
         $this->password = request()->input('p');
         $this->token = request()->input('t');
 
@@ -61,8 +61,7 @@ class LoginAction extends BaseApiAction
         }
 
         // don't let Banned or Spam users log in - treat as if the account was not found
-        $permissions = (int) $user->getAttribute('Permissions');
-        if ($permissions < Permissions::Unregistered) {
+        if ($user->isBanned()) {
             return $this->invalidCredentials();
         }
 
@@ -88,6 +87,7 @@ class LoginAction extends BaseApiAction
         }
 
         // unregistered users must verify their email first - do this after validating the password
+        $permissions = (int) $user->getAttribute('Permissions');
         if ($permissions === Permissions::Unregistered) {
             return $this->accessDenied('Access denied. Please verify your email address.');
         }
