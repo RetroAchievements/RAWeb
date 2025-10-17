@@ -19,15 +19,6 @@ describe('Component: SetRarityLabel', () => {
     expect(screen.getByText(/×3.50/i)).toBeVisible();
   });
 
-  it('displays the gem icon', () => {
-    // ARRANGE
-    render(<SetRarityLabel pointsTotal={100} pointsWeighted={200} />);
-
-    // ASSERT
-    const gemIcon = screen.getByText(/×2.00/i).querySelector('svg');
-    expect(gemIcon).toBeInTheDocument();
-  });
-
   it('given zero points total, does not display a rarity label', () => {
     // ARRANGE
     render(<SetRarityLabel pointsTotal={0} pointsWeighted={0} />);

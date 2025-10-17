@@ -48,7 +48,7 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
                   {achievements.length ? (
                     <>
                       <Trans
-                        i18nKey="<1>{{achievementsCount, number}}</1> $t(playerGameProgressHardcoreAchievements, {'count': {{achievementsCount}} }) worth <2>{{pointsCount, number}}</2> <3>(<4>{{retroPointsCount, number}}</4> <5></5>)</3> $t(playerGameProgressPoints, {'count': {{pointsCount}} })"
+                        i18nKey="<1>{{achievementsCount, number}}</1> $t(playerGameProgressHardcoreAchievements, {'count': {{achievementsCount}} }) worth <2>{{pointsCount, number}}</2> $t(playerGameProgressPoints, {'count': {{pointsCount}} }) <3>(<4>{{retroPointsCount, number}}</4> <5></5>)</3>"
                         values={{
                           achievementsCount: achievements.length,
                           pointsCount: pointsTotal,
