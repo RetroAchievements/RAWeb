@@ -71,7 +71,7 @@ You spent {{ $recapData['totalPlaytime'] }} playing games {{ $playedSystemsClaus
     height="64"
 >
     Your most played game was <a href="{{ route('game.show', $recapData['mostPlayedGame']) }}">{{ $recapData['mostPlayedGame']->Title }}</a> at {{ $recapData['mostPlayedGamePlaytime'] }}.
-</x-mail::panel>
+</x-mail::image-panel>
 @endif
 
 @if ($recapData['rarestHardcoreAchievement'])
@@ -92,7 +92,7 @@ You spent {{ $recapData['totalPlaytime'] }} playing games {{ $playedSystemsClaus
     width="64"
     height="64"
 >
-    Your rarest achievement earned was <a href="{{ route('achievement.show', $recapData['rarestSoftcoreAchievement']) }}">{{ $recapData['rarestHardcoreAchievement']->Title }}</a> from {{ $recapData['rarestHardcoreAchievement']->Game->Title }}, which has only been earned by {{ $recapData['rarestSoftcoreAchievementEarnRate'] }}% of players.
+    Your rarest achievement earned was <a href="{{ route('achievement.show', $recapData['rarestSoftcoreAchievement']) }}">{{ $recapData['rarestSoftcoreAchievement']->Title }}</a> from {{ $recapData['rarestSoftcoreAchievement']->Game->Title }}, which has only been earned by {{ $recapData['rarestSoftcoreAchievementEarnRate'] }}% of players.
 </x-mail::image-panel>
 @endif
 

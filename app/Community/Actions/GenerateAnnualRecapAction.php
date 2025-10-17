@@ -34,7 +34,7 @@ class GenerateAnnualRecapAction
         }
 
         $year = Carbon::now()->subMonths(6)->year;
-        $january = $startDate = Carbon::create($year, 1, 1, 0, 0, 0);
+        $startDate = Carbon::create($year, 1, 1, 0, 0, 0);
         $endDate = Carbon::create($year + 1, 1, 1, 0, 0, 0);
 
         $gameData = $this->getGameData($user, $startDate, $endDate);
