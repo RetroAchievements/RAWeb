@@ -1212,5 +1212,6 @@
     "You've used all your set requests.": "You've used all your set requests.",
     "Achievement Set": "Achievement Set",
     "Photosensitive Epilepsy Warning": "Photosensitive Epilepsy Warning",
-    "View all {{val, number}} leaderboards": "View all {{val, number}} leaderboards"
+    "View all {{val, number}} leaderboards": "View all {{val, number}} leaderboards",
+    "Set Requests - {{user}}": "Set Requests - {{user}}"
 }
