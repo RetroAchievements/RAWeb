@@ -83,6 +83,10 @@ return [
             'u' => '/games/requests/{u}',
             '' => '/games/requests',
         ],
+        '/setRequestors.php' => [
+            'g' => '/game/{g}/requests',
+            '' => '/games/requests',
+        ],
         '/game/{game}/masters' => '/game/{game}/top-achievers',
         '/game/{game}/suggest' => '/game/{game}/suggestions',
         '/games/suggest' => '/games/suggestions',
