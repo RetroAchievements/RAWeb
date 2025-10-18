@@ -27,15 +27,19 @@ class UserSetRequestListController extends Controller
 {
     public function index(GameListRequest $request): InertiaResponse
     {
-        return $this->buildResponse($request);
+        $props = $this->buildPageProps($request);
+
+        return Inertia::render('games/requests', $props);
     }
 
     public function userRequests(User $user, GameListRequest $request): InertiaResponse
     {
-        return $this->buildResponse($request, $user);
+        $props = $this->buildPageProps($request, $user);
+
+        return Inertia::render('games/requests/[user]', $props);
     }
 
-    private function buildResponse(GameListRequest $request, ?User $targetUser = null): InertiaResponse
+    private function buildPageProps(GameListRequest $request, ?User $targetUser = null): GameListPagePropsData
     {
         /** @var ?User $currentUser */
         $currentUser = $request->user();
@@ -116,7 +120,7 @@ class UserSetRequestListController extends Controller
                 ->all();
         }
 
-        $props = new GameListPagePropsData(
+        return new GameListPagePropsData(
             paginatedGameListEntries: $paginatedData,
             filterableSystemOptions: $filterableSystemOptions,
             can: UserPermissionsData::fromUser($currentUser),
@@ -125,7 +129,5 @@ class UserSetRequestListController extends Controller
             targetUser: $targetUser ? UserData::fromUser($targetUser)->include('displayName', 'id') : null,
             userRequestInfo: $userRequestInfo,
         );
-
-        return Inertia::render('games/requests', $props);
     }
 }
