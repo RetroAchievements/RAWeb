@@ -302,4 +302,46 @@ describe('Component: SidebarClaimButtons', () => {
     // ASSERT
     expect(screen.getByRole('button', { name: /create new claim/i })).toBeVisible();
   });
+
+  it('given the user has 2 or more unresolved tickets, does not show create claim button', () => {
+    // ARRANGE
+    render(<SidebarClaimButtons />, {
+      pageProps: {
+        achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        backingGame: createGame(),
+        claimData: createGamePageClaimData({
+          numClaimsRemaining: 1,
+          numUnresolvedTickets: 2, // !!
+          userClaim: null,
+        }),
+        game: createGame({ gameAchievementSets: [] }),
+        targetAchievementSetId: null,
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /create new claim/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user has fewer than 2 unresolved tickets, shows create claim button', () => {
+    // ARRANGE
+    render(<SidebarClaimButtons />, {
+      pageProps: {
+        achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        backingGame: createGame(),
+        claimData: createGamePageClaimData({
+          numClaimsRemaining: 1,
+          numUnresolvedTickets: 1, // !!
+          userClaim: null,
+        }),
+        game: createGame({ gameAchievementSets: [] }),
+        targetAchievementSetId: null,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /create new claim/i })).toBeVisible();
+  });
 });
