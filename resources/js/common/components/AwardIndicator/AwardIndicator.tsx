@@ -28,7 +28,7 @@ export const AwardIndicator: FC<AwardIndicatorProps> = ({ awardKind, className, 
       aria-label={safeTitle}
       title={safeTitle}
       className={cn(
-        'h-2 w-2 rounded-full',
+        'size-2 min-w-2 rounded-full',
 
         awardKind === 'mastery' ? 'bg-[gold] light:bg-yellow-600' : null,
         awardKind === 'completion' ? 'border border-yellow-600' : null,
