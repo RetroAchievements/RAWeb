@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChartBar, LuTrophy } from 'react-icons/lu';
 
@@ -13,14 +13,18 @@ import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { useCurrentListView } from '@/features/games/hooks/useCurrentListView';
+import { usePreloadDeferredLeaderboards } from '@/features/games/hooks/usePreloadDeferredLeaderboards';
 
 export const GameListViewSelectToggleGroup: FC = () => {
-  const { backingGame, numLeaderboards } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { allLeaderboards, backingGame, numLeaderboards } =
+    usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
   const { formatNumber } = useFormatNumber();
 
   const { currentListView, setCurrentListView } = useCurrentListView();
+
+  usePreloadDeferredLeaderboards(numLeaderboards, allLeaderboards);
 
   return (
     <BaseToggleGroup
