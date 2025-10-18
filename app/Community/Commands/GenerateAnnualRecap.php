@@ -28,8 +28,14 @@ class GenerateAnnualRecap extends Command
         $userId = $this->argument('userId');
         if ($userId) {
             $user = is_numeric($userId)
-                ? User::findOrFail($userId)
-                : User::whereName($userId)->firstOrFail();
+                ? User::find($userId)
+                : User::whereName($userId)->first();
+
+            if (!$user) {
+                $this->error("Could not find user [$userId]");
+
+                return;
+            }
 
             $this->generateAnnualRecapAction->execute($user);
         } else {
