@@ -6,6 +6,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { BASE_SET_LABEL } from '@/features/games/utils/baseSetLabel';
 
 import { GameAchievementSetProgress } from '../GameAchievementSetProgress';
+import { SetRarityLabel } from '../SetRarityLabel';
 import { PlayerGameProgressLabel } from './PlayerGameProgressLabel';
 
 interface GameAchievementSetHeaderProps {
@@ -45,19 +46,28 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
               <>
                 <span className="text-xs text-text">
                   {achievements.length ? (
-                    <Trans
-                      i18nKey="<1>{{achievementsCount, number}}</1> $t(playerGameProgressHardcoreAchievements, {'count': {{achievementsCount}} }) worth <2>{{pointsCount, number}}</2> <3>({{retroPointsCount, number}})</3> $t(playerGameProgressPoints, {'count': {{pointsCount}} })"
-                      values={{
-                        achievementsCount: achievements.length,
-                        pointsCount: pointsTotal,
-                        retroPointsCount: pointsWeighted,
-                      }}
-                      components={{
-                        1: <span className="font-bold" />,
-                        2: <span className="font-bold" />,
-                        3: <WeightedPointsContainer />,
-                      }}
-                    />
+                    <>
+                      <Trans
+                        i18nKey="<1>{{achievementsCount, number}}</1> $t(playerGameProgressHardcoreAchievements, {'count': {{achievementsCount}} }) worth <2>{{pointsCount, number}}</2> $t(playerGameProgressPoints, {'count': {{pointsCount}} }) <3>(<4>{{retroPointsCount, number}}</4> <5></5>)</3>"
+                        values={{
+                          achievementsCount: achievements.length,
+                          pointsCount: pointsTotal,
+                          retroPointsCount: pointsWeighted,
+                        }}
+                        components={{
+                          1: <span className="font-bold" />,
+                          2: <span className="font-bold" />,
+                          3: <span className="TrueRatio light:text-neutral-400" />,
+                          4: <WeightedPointsContainer />,
+                          5: (
+                            <SetRarityLabel
+                              pointsTotal={pointsTotal}
+                              pointsWeighted={pointsWeighted}
+                            />
+                          ),
+                        }}
+                      />
+                    </>
                   ) : (
                     t('There are no achievements for this set yet.')
                   )}
