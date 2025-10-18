@@ -8,9 +8,9 @@ import { useEffect } from 'react';
  * navigating back via browser back button from non-React pages.
  *
  * This hook solves an issue where:
- * 1. User loads game page → Inertia defers leaderboards loading.
- * 2. User navigates to Blade page → full page load.
- * 3. User hits back button → page restored from bfcache.
+ * 1. User loads a game page, and Inertia defers leaderboards loading.
+ * 2. User navigates to a Blade page, which is a full page load.
+ * 3. User hits their back button, which causes the page to be restored from bfcache.
  * 4. Inertia's deferred fetch doesn't re-run.
  * 5. Leaderboards data remains undefined.
  * 6. Leaderboards now fail to appear for the user.
