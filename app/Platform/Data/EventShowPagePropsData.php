@@ -16,12 +16,14 @@ class EventShowPagePropsData extends Data
      * @param Collection<int, FollowedPlayerCompletionData> $followedPlayerCompletions
      * @param Collection<int, PlayerAchievementChartBucketData> $playerAchievementChartBuckets
      * @param Collection<int, GameTopAchieverData> $topAchievers
+     * @param GameSetData[] $breadcrumbs Ordered array of hubs from root to current event's primary hub
      */
     public function __construct(
         public EventData $event,
         public UserPermissionsData $can,
         /** @var GameSetData[] */
         public array $hubs,
+        public array $breadcrumbs,
         public Collection $followedPlayerCompletions,
         public Collection $playerAchievementChartBuckets,
         public int $numMasters,
