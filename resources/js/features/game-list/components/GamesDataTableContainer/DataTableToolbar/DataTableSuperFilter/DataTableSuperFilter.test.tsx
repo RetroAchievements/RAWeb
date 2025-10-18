@@ -9,7 +9,7 @@ import { buildAchievementsPublishedColumnDef } from '@/features/game-list/utils/
 import { buildSystemColumnDef } from '@/features/game-list/utils/column-definitions/buildSystemColumnDef';
 import { buildTitleColumnDef } from '@/features/game-list/utils/column-definitions/buildTitleColumnDef';
 import i18n from '@/i18n-client';
-import { render, screen, waitFor } from '@/test';
+import { render, screen, waitFor, within } from '@/test';
 import { createSystem, createZiggyProps } from '@/test/factories';
 
 import { DataTableSuperFilter } from './DataTableSuperFilter';
@@ -537,6 +537,72 @@ describe('Component: DataTableSuperFilter', () => {
       // ASSERT
       expect(screen.getByRole('combobox', { name: /requests/i })).toBeVisible();
       expect(screen.queryByRole('combobox', { name: /has achievements/i })).not.toBeInTheDocument();
+    });
+
+    it('given we are on the user-specific set requests route, shows "All systems" as the default system filter option', async () => {
+      // ARRANGE
+      render(<TestHarnessWithRoute tableApiRouteName="api.set-request.user" />, {
+        pageProps: {
+          ziggy: createZiggyProps({ device: 'mobile' }),
+          filterableSystemOptions: [
+            createSystem({ id: 1, name: 'NES/Famicom' }),
+            createSystem({ id: 2, name: 'Nintendo 64' }),
+          ],
+        },
+      });
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /all games/i }));
+
+      // ASSERT
+      // ... both system filter options should be visible ...
+      const allSystemsOption = screen.getByRole('option', { name: /all systems/i });
+      const supportedSystemsOption = screen.getByRole('option', {
+        name: /only supported systems/i,
+      });
+
+      expect(allSystemsOption).toBeVisible();
+      expect(supportedSystemsOption).toBeVisible();
+
+      // ... but "All systems" should be marked as the default ...
+      await waitFor(() => {
+        expect(within(allSystemsOption).getByRole('img', { hidden: true })).toBeVisible();
+      });
+      expect(
+        within(supportedSystemsOption).queryByRole('img', { hidden: true }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('given we are on the general set requests route, shows "Only supported systems" as the default system filter option', async () => {
+      // ARRANGE
+      render(<TestHarnessWithRoute tableApiRouteName="api.set-request.index" />, {
+        pageProps: {
+          ziggy: createZiggyProps({ device: 'mobile' }),
+          filterableSystemOptions: [
+            createSystem({ id: 1, name: 'NES/Famicom' }),
+            createSystem({ id: 2, name: 'Nintendo 64' }),
+          ],
+        },
+      });
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: /all games/i }));
+
+      // ASSERT
+      // ... both system filter options should be visible ...
+      const allSystemsOption = screen.getByRole('option', { name: /all systems/i });
+      const supportedSystemsOption = screen.getByRole('option', {
+        name: /only supported systems/i,
+      });
+
+      expect(allSystemsOption).toBeVisible();
+      expect(supportedSystemsOption).toBeVisible();
+
+      // ... but "Only supported systems" should be marked as the default ...
+      await waitFor(() => {
+        expect(within(supportedSystemsOption).getByRole('img', { hidden: true })).toBeVisible();
+      });
+      expect(within(allSystemsOption).queryByRole('img', { hidden: true })).not.toBeInTheDocument();
     });
   });
 });

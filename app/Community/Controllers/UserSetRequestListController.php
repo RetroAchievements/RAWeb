@@ -54,7 +54,9 @@ class UserSetRequestListController extends Controller
 
         $filters = $request->getFilters(defaultAchievementsPublishedFilter: 'none');
         if (!isset($filters['system'])) {
-            $filters['system'] = ['supported'];
+            // For user-specific requests, default to all systems.
+            // For general requests, default to supported systems.
+            $filters['system'] = $targetUser ? ['all'] : ['supported'];
         }
 
         $userRequestInfo = null;

@@ -401,6 +401,91 @@ describe('Component: DataTableFacetedFilter', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('given a default option and the filter value matches its value, shows the default as selected', async () => {
+    // ARRANGE
+    const customColumn = {
+      ...mockColumn,
+      getFilterValue: () => ['all'], // !! filter is set to the default option's value
+    } as unknown as Column<any, any>;
+
+    const optionsWithDefault = [
+      { t_label: 'All' as TranslatedString, value: 'all', isDefaultOption: true }, // !!
+      ...mockOptions,
+    ];
+
+    render(
+      <DataTableFacetedFilter
+        options={optionsWithDefault}
+        column={customColumn}
+        t_title={'Test Filter' as TranslatedString}
+        isSingleSelect={true}
+      />,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /test filter/i }));
+
+    // ASSERT
+    const allOption = screen.getByRole('option', { name: /all/i });
+    const option1 = screen.getByRole('option', { name: /option 1/i });
+
+    expect(within(allOption).getByTestId('filter-option-indicator')).toHaveClass('bg-neutral-700');
+
+    expect(within(option1).getByTestId('filter-option-indicator')).not.toHaveClass(
+      'bg-neutral-700',
+    );
+  });
+
+  it('given grouped options with a default option and the filter value matches its value, shows the default as selected', async () => {
+    // ARRANGE
+    const customColumn = {
+      ...mockColumn,
+      getFilterValue: () => ['default'], // !! filter is set to the default option's value
+    } as unknown as Column<any, any>;
+
+    const groupedOptions = [
+      {
+        t_heading: 'Group 1' as TranslatedString,
+        options: [
+          {
+            t_label: 'Default Option' as TranslatedString,
+            value: 'default',
+            isDefaultOption: true, // !!
+          },
+          { t_label: 'Option 2' as TranslatedString, value: 'opt2' },
+        ],
+      },
+      {
+        t_heading: 'Group 2' as TranslatedString,
+        options: [{ t_label: 'Option 3' as TranslatedString, value: 'opt3', icon: LuX }],
+      },
+    ];
+
+    render(
+      <DataTableFacetedFilter
+        options={groupedOptions}
+        column={customColumn}
+        t_title={'Test Filter' as TranslatedString}
+        isSingleSelect={true}
+      />,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /test filter/i }));
+
+    // ASSERT
+    const defaultOption = screen.getByRole('option', { name: /default option/i });
+    const option2 = screen.getByRole('option', { name: /option 2/i });
+
+    expect(within(defaultOption).getByTestId('filter-option-indicator')).toHaveClass(
+      'bg-neutral-700',
+    );
+
+    expect(within(option2).getByTestId('filter-option-indicator')).not.toHaveClass(
+      'bg-neutral-700',
+    );
+  });
+
   it('given grouped options, toggles selection when an option is clicked', async () => {
     // ARRANGE
     const setFilterValueSpy = vi.fn();
