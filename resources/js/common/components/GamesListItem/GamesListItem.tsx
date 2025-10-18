@@ -17,13 +17,19 @@ export const GamesListItem: FC<GamesListItemProps> = ({ game, playerGame }) => {
   const { t } = useTranslation();
 
   return (
-    <div className="flex w-full flex-col gap-x-2 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-col gap-y-1 md:mt-1">
+    <div className="flex w-full flex-col gap-x-2 px-2 py-2.5 sm:grid sm:grid-cols-8">
+      <div className="flex flex-col gap-y-1 sm:col-span-4">
         <GameAvatar {...game} size={64} showSystemChip={true} />
       </div>
 
       <div className="justify-end">
-        <PlayerGameProgressBar playerGame={playerGame} game={game} variant="base" width={128} />
+        <PlayerGameProgressBar
+          playerGame={playerGame}
+          game={game}
+          variant="base"
+          width={128}
+          className="py-0"
+        />
 
         <p>
           {t('{{earned, number}} of {{total, number}}', {
@@ -33,16 +39,16 @@ export const GamesListItem: FC<GamesListItemProps> = ({ game, playerGame }) => {
         </p>
       </div>
 
-      <div>
+      <div className="flex flex-col justify-center sm:col-span-2 sm:items-end">
         {playerGame && playerGame.completedHardcoreAt ? (
-          <div className="flex flex-col justify-end">
+          <div className="flex items-center gap-1">
             <AwardIndicator awardKind="mastery" />
             {t('Mastered {{masteredDate}}', {
               masteredDate: formatDate(playerGame.completedHardcoreAt, 'lll'),
             })}
           </div>
         ) : playerGame && playerGame.completedAt ? (
-          <div className="flex flex-col justify-end">
+          <div className="flex items-center gap-1">
             <AwardIndicator awardKind="completion" />
             {t('Completed {{completedDate}}', {
               completedDate: formatDate(playerGame.completedAt, 'lll'),
@@ -50,14 +56,14 @@ export const GamesListItem: FC<GamesListItemProps> = ({ game, playerGame }) => {
           </div>
         ) : null}
         {playerGame && playerGame.beatenHardcoreAt ? (
-          <div className="flex flex-col justify-end">
+          <div className="flex items-center gap-1">
             <AwardIndicator awardKind="beaten-hardcore" />
             {t('Beaten {{beatenDate}}', {
               beatenDate: formatDate(playerGame.beatenHardcoreAt, 'lll'),
             })}
           </div>
         ) : playerGame && playerGame.beatenAt ? (
-          <div className="flex flex-col justify-end">
+          <div className="flex items-center gap-1">
             <AwardIndicator awardKind="beaten-softcore" />
             {t('Beaten (softcore) {{beatenDate}}', {
               beatenDate: formatDate(playerGame.beatenAt, 'lll'),

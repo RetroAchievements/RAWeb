@@ -72,7 +72,7 @@ export const GameListSection: FC<GameSectionProps> = ({
             )}
           >
             <div className="relative pt-2.5">
-              <ul ref={childContainerRef} className="flex flex-col gap-2.5">
+              <ul ref={childContainerRef} className="zebra-list flex flex-col">
                 {children}
               </ul>
             </div>
