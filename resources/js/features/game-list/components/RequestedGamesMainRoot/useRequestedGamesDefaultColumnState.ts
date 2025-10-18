@@ -12,7 +12,7 @@ export function useRequestedGamesDefaultColumnState({
 }: UseRequestedGamesDefaultColumnStateProps): DefaultColumnState {
   return useMemo(() => {
     const defaultColumnFilters: ColumnFiltersState = [
-      { id: 'system', value: ['supported'] },
+      { id: 'system', value: targetUser ? ['all'] : ['supported'] },
       { id: 'achievementsPublished', value: ['none'] },
       { id: 'hasActiveOrInReviewClaims', value: ['any'] },
     ];

@@ -392,7 +392,7 @@ describe('Component: RequestedGamesMainRoot', () => {
         'api.set-request.user',
         {
           user: targetUser.displayName,
-          'filter[system]': 'supported',
+          'filter[system]': 'all',
           'filter[achievementsPublished]': 'none',
           'filter[hasActiveOrInReviewClaims]': 'any',
           'filter[user]': targetUser.displayName,
