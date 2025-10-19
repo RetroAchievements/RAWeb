@@ -8,7 +8,7 @@ describe('Component: GamesListItem', () => {
     // ARRANGE
     const game = createGame({ title: 'Test Game' });
 
-    const { container } = render(<GamesListItem game={game} playerGame={null} index={0} />);
+    const { container } = render(<GamesListItem game={game} playerGame={null} />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -18,7 +18,7 @@ describe('Component: GamesListItem', () => {
     // ARRANGE
     const game = createGame({ title: 'Test Game' });
 
-    render(<GamesListItem game={game} playerGame={null} index={0} />);
+    render(<GamesListItem game={game} playerGame={null} />);
 
     // ASSERT
     expect(screen.getByText('Test Game')).toBeVisible();
@@ -29,7 +29,7 @@ describe('Component: GamesListItem', () => {
     // ARRANGE
     const game = createGame({ title: 'Test Game', achievementsPublished: 8 });
 
-    render(<GamesListItem game={game} playerGame={null} index={0} />);
+    render(<GamesListItem game={game} playerGame={null} />);
 
     // ASSERT
     expect(screen.getByText('0 of 8')).toBeVisible();
@@ -43,7 +43,7 @@ describe('Component: GamesListItem', () => {
       achievementsUnlockedHardcore: 2,
     });
 
-    render(<GamesListItem game={game} playerGame={playerGame} index={0} />);
+    render(<GamesListItem game={game} playerGame={playerGame} />);
 
     // ASSERT
     expect(screen.getByText('2 of 8')).toBeVisible();
@@ -53,7 +53,7 @@ describe('Component: GamesListItem', () => {
     // ARRANGE
     const game = createGame({ title: 'Test Game' });
 
-    render(<GamesListItem game={game} playerGame={null} index={0} />);
+    render(<GamesListItem game={game} playerGame={null} />);
 
     // ASSERT
     expect(screen.queryByText(/Mastered/i)).not.toBeInTheDocument();
@@ -73,7 +73,7 @@ describe('Component: GamesListItem', () => {
       beatenAt: null,
     });
 
-    render(<GamesListItem game={game} playerGame={playerGame} index={0} />);
+    render(<GamesListItem game={game} playerGame={playerGame} />);
 
     // ASSERT
     expect(screen.getByText('Mastered Jan 6, 2024 2:32 PM')).toBeVisible();
@@ -93,7 +93,7 @@ describe('Component: GamesListItem', () => {
       beatenAt: null,
     });
 
-    render(<GamesListItem game={game} playerGame={playerGame} index={0} />);
+    render(<GamesListItem game={game} playerGame={playerGame} />);
 
     // ASSERT
     expect(screen.getByText('Completed Jan 6, 2024 2:32 PM')).toBeVisible();
@@ -113,7 +113,7 @@ describe('Component: GamesListItem', () => {
       beatenAt: null,
     });
 
-    render(<GamesListItem game={game} playerGame={playerGame} index={0} />);
+    render(<GamesListItem game={game} playerGame={playerGame} />);
 
     // ASSERT
     expect(screen.getByText('Beaten Jan 6, 2024 2:32 PM')).toBeVisible();
@@ -134,7 +134,7 @@ describe('Component: GamesListItem', () => {
       beatenAt: '2024-01-06 14:32:11',
     });
 
-    render(<GamesListItem game={game} playerGame={playerGame} index={0} />);
+    render(<GamesListItem game={game} playerGame={playerGame} />);
 
     // ASSERT
     expect(screen.getByText('Beaten (softcore) Jan 6, 2024 2:32 PM')).toBeVisible();
@@ -154,7 +154,7 @@ describe('Component: GamesListItem', () => {
       beatenAt: '',
     });
 
-    render(<GamesListItem game={game} playerGame={playerGame} index={0} />);
+    render(<GamesListItem game={game} playerGame={playerGame} />);
 
     // ASSERT
     expect(screen.queryByText(/Mastered/i)).not.toBeInTheDocument();
@@ -174,7 +174,7 @@ describe('Component: GamesListItem', () => {
       beatenAt: null,
     });
 
-    render(<GamesListItem game={game} playerGame={playerGame} index={0} />);
+    render(<GamesListItem game={game} playerGame={playerGame} />);
 
     // ASSERT
     expect(screen.getByText('Mastered Jan 6, 2024 2:32 PM')).toBeVisible();
@@ -194,7 +194,7 @@ describe('Component: GamesListItem', () => {
       beatenAt: null,
     });
 
-    render(<GamesListItem game={game} playerGame={playerGame} index={0} />);
+    render(<GamesListItem game={game} playerGame={playerGame} />);
 
     // ASSERT
     expect(screen.getByText('Mastered Jan 6, 2024 2:32 PM')).toBeVisible();
