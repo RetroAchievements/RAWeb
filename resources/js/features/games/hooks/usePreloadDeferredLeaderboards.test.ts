@@ -37,7 +37,7 @@ describe('Hook: usePreloadDeferredLeaderboards', () => {
     renderHook(() => usePreloadDeferredLeaderboards(10, undefined)); // !! 10 leaderboards, no data loaded
 
     // ASSERT
-    expect(mockRouterReload).toHaveBeenCalledWith({ only: ['allLeaderboards'] });
+    expect(mockRouterReload).toHaveBeenCalledWith();
   });
 
   it('given navigation type is navigate (a normal page load), does not fetch the leaderboards', () => {

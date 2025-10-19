@@ -36,7 +36,7 @@ export function usePreloadDeferredLeaderboards(
      * 3. The data hasn't been loaded yet.
      */
     if (isBackForward && numLeaderboards > 5 && allLeaderboards === undefined) {
-      router.reload({ only: ['allLeaderboards'] });
+      router.reload();
     }
   }, [numLeaderboards, allLeaderboards]);
 }

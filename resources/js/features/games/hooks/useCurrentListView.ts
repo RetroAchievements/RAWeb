@@ -41,7 +41,7 @@ export function useCurrentListView() {
      * didn't work or the user clicked very quickly.
      */
     if (view === 'leaderboards' && allLeaderboards === undefined) {
-      router.reload({ only: ['allLeaderboards'] });
+      router.reload();
     }
   };
 

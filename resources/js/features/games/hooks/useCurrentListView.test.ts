@@ -45,7 +45,7 @@ describe('Hook: useCurrentListView', () => {
     });
 
     // ASSERT
-    expect(mockRouterReload).toHaveBeenCalledWith({ only: ['allLeaderboards'] });
+    expect(mockRouterReload).toHaveBeenCalledWith();
   });
 
   it('given the user is switching to leaderboards and allLeaderboards is loaded, does not fetch leaderboards', () => {
