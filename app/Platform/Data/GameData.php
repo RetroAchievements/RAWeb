@@ -101,6 +101,8 @@ class GameData extends Data
                 function ($gameAchievementSet) {
                     $gameAchievementSet->achievementSet->median_time_to_complete ??= 0;
                     $gameAchievementSet->achievementSet->median_time_to_complete_hardcore ??= 0;
+                    $gameAchievementSet->achievementSet->players_hardcore ??= 0;
+                    $gameAchievementSet->achievementSet->players_total ??= 0;
 
                     return GameAchievementSetData::from($gameAchievementSet);
                 }
