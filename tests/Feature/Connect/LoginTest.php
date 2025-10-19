@@ -155,6 +155,16 @@ class LoginTest extends TestCase
                 'Error' => 'One or more required parameters is missing.',
             ]);
 
+        // blank user
+        $this->post('dorequest.php', ['r' => 'login2', 'u' => '', 'p' => $password])
+            ->assertStatus(401)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid user/password combination. Please try again.',
+            ]);
+
         // no password or token
         $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->User])
             ->assertStatus(422)
@@ -163,6 +173,26 @@ class LoginTest extends TestCase
                 'Status' => 422,
                 'Code' => 'missing_parameter',
                 'Error' => 'One or more required parameters is missing.',
+            ]);
+
+        // no user or password
+        $this->post('dorequest.php', ['r' => 'login2'])
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 422,
+                'Code' => 'missing_parameter',
+                'Error' => 'One or more required parameters is missing.',
+            ]);
+
+        // blank password
+        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->User, 'p' => ''])
+            ->assertStatus(401)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid user/password combination. Please try again.',
             ]);
 
         // expired token
@@ -261,8 +291,38 @@ class LoginTest extends TestCase
                 'Error' => 'One or more required parameters is missing.',
             ]);
 
+        // blank user
+        $this->post($this->apiUrl('login', ['u' => '', 'p' => $password], credentials: false))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid user/password combination. Please try again.',
+            ]);
+
         // no password or token
         $this->get($this->apiUrl('login', ['u' => $user->User], credentials: false))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 422,
+                'Code' => 'missing_parameter',
+                'Error' => 'One or more required parameters is missing.',
+            ]);
+
+        // blank password
+        $this->get($this->apiUrl('login', ['u' => $user->User, 'p' => ''], credentials: false))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid user/password combination. Please try again.',
+            ]);
+
+        // no user or password
+        $this->get($this->apiUrl('login', [], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => false,

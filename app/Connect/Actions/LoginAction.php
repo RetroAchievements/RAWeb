@@ -35,7 +35,7 @@ class LoginAction extends BaseApiAction
             return $this->missingParameters();
         }
 
-        $this->username = request()->input('u');
+        $this->username = request()->input('u') ?? '';
         $this->password = request()->input('p');
         $this->token = request()->input('t');
 
