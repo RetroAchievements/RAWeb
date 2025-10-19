@@ -36,7 +36,7 @@ const UserAchievementChecklist: AppPage = () => {
           <UserBreadcrumbs t_currentPageLabel={t('Achievement Checklist')} user={player} />
           <UserHeading user={player}>{t('Achievement Checklist')}</UserHeading>
 
-          <div className="form-grid-container mb-4">
+          <div className="mb-4 flex items-center gap-2">
             <label>{t('Examine another user:')}</label>
 
             <BaseSelectAsync<App.Data.User>

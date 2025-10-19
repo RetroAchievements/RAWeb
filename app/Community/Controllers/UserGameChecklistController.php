@@ -15,7 +15,7 @@ use Inertia\Response as InertiaResponse;
 
 class UserGameChecklistController extends Controller
 {
-    public function index(Request $request, User $user): InertiaResponse
+    public function show(Request $request, User $user): InertiaResponse
     {
         $this->authorize('view', $user);
 

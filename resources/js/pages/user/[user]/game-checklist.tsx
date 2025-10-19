@@ -36,7 +36,7 @@ const UserGameChecklist: AppPage = () => {
           <UserBreadcrumbs t_currentPageLabel={t('Game Completion Checklist')} user={player} />
           <UserHeading user={player}>{t('Game Completion Checklist')}</UserHeading>
 
-          <div className="form-grid-container mb-4">
+          <div className="mb-4 flex items-center gap-2">
             <label>{t('Examine another user:')}</label>
 
             <BaseSelectAsync<App.Data.User>
@@ -77,7 +77,6 @@ const UserGameChecklist: AppPage = () => {
                     <GamesListItem
                       key={`game-${gameListEntry.game.id}`}
                       game={gameListEntry.game}
-                      index={gameListEntryIndex}
                       playerGame={gameListEntry.playerGame}
                     />
                   ))}

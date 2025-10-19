@@ -9,7 +9,6 @@ import { GameAvatar } from '../GameAvatar';
 
 interface GamesListItemProps {
   game: App.Platform.Data.Game;
-  index: number;
   playerGame: App.Platform.Data.PlayerGame | null;
 }
 
@@ -22,7 +21,7 @@ export const GamesListItem: FC<GamesListItemProps> = ({ game, playerGame }) => {
         <GameAvatar {...game} size={64} showSystemChip={true} />
       </div>
 
-      <div className="justify-end">
+      <div className="flex flex-col justify-center sm:col-span-2">
         <PlayerGameProgressBar
           playerGame={playerGame}
           game={game}
