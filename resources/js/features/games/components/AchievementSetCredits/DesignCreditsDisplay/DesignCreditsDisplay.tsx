@@ -40,6 +40,7 @@ export const DesignCreditsDisplay: FC<DesignCreditsDisplayProps> = ({
       className={cn(
         'flex items-center gap-2 rounded-md bg-neutral-800/70 px-2 py-1 text-neutral-400',
         'light:border light:border-neutral-200 light:bg-white light:text-neutral-600',
+        'h-8',
       )}
     >
       <DesignCreditIcon
@@ -52,7 +53,7 @@ export const DesignCreditsDisplay: FC<DesignCreditsDisplayProps> = ({
       <UserAvatarStack
         users={designCreditUsers}
         maxVisible={8}
-        size={24}
+        size={20}
         isOverlappingAvatars={false}
       />
     </div>

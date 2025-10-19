@@ -15,15 +15,21 @@ export const WeightedPointsContainer: FC<WeightedPointsContainerProps> = ({
   const { t } = useTranslation();
 
   return (
-    <BaseTooltip delayDuration={700} open={isTooltipEnabled ? undefined : false}>
+    <BaseTooltip open={isTooltipEnabled ? undefined : false}>
       <BaseTooltipTrigger asChild>
         <span className="TrueRatio light:text-neutral-400">{children}</span>
       </BaseTooltipTrigger>
 
       <BaseTooltipContent asChild>
-        <span className="flex flex-col items-center text-center text-xs">
-          <span>{t('RetroPoints: A measurement of rarity and estimated difficulty.')}</span>
-          <span>{t('Derived from points, number of achievers, and number of players.')}</span>
+        <span className="flex max-w-80 flex-col gap-1 text-wrap text-left text-xs">
+          {/* Intentionally untranslated, this is a branding term */}
+          <span className="font-bold">{'RetroPoints'}</span>
+
+          <span>
+            {t(
+              'A measurement of rarity and estimated difficulty. Derived from points, number of achievers, and number of players.',
+            )}
+          </span>
         </span>
       </BaseTooltipContent>
     </BaseTooltip>
