@@ -57,7 +57,7 @@ export interface QuerySelectProps<T> {
   /** Define an initial value the control will have. */
   selectedOption?: T | null;
   /** Define a unique identifier for the control. */
-  id?: string;
+  id?: string | undefined;
 }
 
 export function BaseSelectAsync<T>({
@@ -70,7 +70,7 @@ export function BaseSelectAsync<T>({
   placeholder,
   value,
   onChange,
-  id = null,
+  id = undefined,
   disabled = false,
   width = '200px',
   className,
