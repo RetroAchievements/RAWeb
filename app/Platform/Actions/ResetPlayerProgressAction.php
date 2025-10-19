@@ -140,8 +140,8 @@ class ResetPlayerProgressAction
             // If it's not, we'll create an achievement reset record.
             $remainingAchievements = $user->playerAchievements()
                 ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
-                ->where('Achievements.GameID', $achievement->game_id)
-                ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
+                ->where(DB::raw('Achievements.GameID'), $achievement->game_id)
+                ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore->value)
                 ->count();
 
             if ($remainingAchievements === 0) {

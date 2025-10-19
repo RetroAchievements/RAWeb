@@ -12,6 +12,7 @@ use App\Platform\Enums\PlayerStatType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBeatenGamesStatsUpdated;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class UpdatePlayerBeatenGamesStatsAction
 {
@@ -40,8 +41,8 @@ class UpdatePlayerBeatenGamesStatsAction
                 'GameData.Title',
                 'SiteAwards.AwardDate as beaten_hardcore_at'
             )
-            ->where('GameData.Title', 'not like', '%[Subset%')
-            ->where('GameData.Title', 'not like', '~Test Kit~%')
+            ->where(DB::raw('GameData.Title'), 'not like', '%[Subset%')
+            ->where(DB::raw('GameData.Title'), 'not like', '~Test Kit~%')
             ->orderBy('beaten_hardcore_at')
             ->get();
 

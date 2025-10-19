@@ -19,6 +19,7 @@ use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class AchievementSetResource extends Resource
 {
@@ -147,8 +148,8 @@ class AchievementSetResource extends Resource
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         // Search by game ID, game title, or set title.
                         return $query->whereHas('gameAchievementSets.game', function (Builder $gameQuery) use ($search) {
-                            $gameQuery->where('GameData.ID', 'LIKE', "%{$search}%")
-                                ->orWhere('GameData.Title', 'LIKE', "%{$search}%")
+                            $gameQuery->where(DB::raw('GameData.ID'), 'LIKE', "%{$search}%")
+                                ->orWhere(DB::raw('GameData.Title'), 'LIKE', "%{$search}%")
                                 ->orWhereHas('gameAchievementSets', function (Builder $setQuery) use ($search) {
                                     $setQuery->where('title', 'LIKE', "%{$search}%");
                                 });

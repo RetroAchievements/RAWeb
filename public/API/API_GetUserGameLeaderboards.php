@@ -32,6 +32,7 @@ use App\Models\LeaderboardEntry;
 use App\Platform\Enums\ValueFormat;
 use App\Support\Rules\ValidUserIdentifier;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
@@ -66,8 +67,8 @@ $userLeaderboardEntriesCount = LeaderboardEntry::where('user_id', $user->id)
             ->where('GameID', $game->ID)
             ->whereNull('deleted_at');
     })
-    ->whereNull('UserAccounts.unranked_at')
-    ->where('UserAccounts.Untracked', 0)
+    ->whereNull(DB::raw('UserAccounts.unranked_at'))
+    ->where(DB::raw('UserAccounts.Untracked'), 0)
     ->count();
 
 if ($userLeaderboardEntriesCount === 0) {
@@ -81,15 +82,15 @@ $leaderboardEntries = LeaderboardEntry::select('leaderboard_entries.*')
             ->join('UserAccounts', 'entries_rank_calc.user_id', '=', 'UserAccounts.ID')
             ->whereColumn('entries_rank_calc.leaderboard_id', 'leaderboard_entries.leaderboard_id')
             ->whereNull('UserAccounts.unranked_at')
-            ->where('UserAccounts.Untracked', 0)
-            ->where('entries_rank_calc.deleted_at', null)
-            ->where('leaderboard_rank_calc.deleted_at', null)
+            ->where(DB::raw('UserAccounts.Untracked'), 0)
+            ->where(DB::raw('entries_rank_calc.deleted_at'), null)
+            ->where(DB::raw('leaderboard_rank_calc.deleted_at'), null)
             ->where(function ($query) {
                 $query->where(function ($q) {
-                    $q->where('leaderboard_rank_calc.LowerIsBetter', 1)
+                    $q->where(DB::raw('leaderboard_rank_calc.LowerIsBetter'), 1)
                         ->whereColumn('entries_rank_calc.score', '<', 'leaderboard_entries.score');
                 })->orWhere(function ($q) {
-                    $q->where('leaderboard_rank_calc.LowerIsBetter', 0)
+                    $q->where(DB::raw('leaderboard_rank_calc.LowerIsBetter'), 0)
                         ->whereColumn('entries_rank_calc.score', '>', 'leaderboard_entries.score');
                 });
             })
@@ -97,13 +98,13 @@ $leaderboardEntries = LeaderboardEntry::select('leaderboard_entries.*')
     ])
     ->join('LeaderboardDef', 'leaderboard_entries.leaderboard_id', '=', 'LeaderboardDef.ID')
     ->join('UserAccounts', 'leaderboard_entries.user_id', '=', 'UserAccounts.ID')
-    ->where('LeaderboardDef.GameID', $game->ID)
+    ->where(DB::raw('LeaderboardDef.GameID'), $game->ID)
     ->where('leaderboard_entries.user_id', $user->id)
-    ->whereNull('UserAccounts.unranked_at')
-    ->where('UserAccounts.Untracked', 0)
-    ->whereNull('LeaderboardDef.deleted_at')
+    ->whereNull(DB::raw('UserAccounts.unranked_at'))
+    ->where(DB::raw('UserAccounts.Untracked'), 0)
+    ->whereNull(DB::raw('LeaderboardDef.deleted_at'))
     ->with('leaderboard')
-    ->orderBy('LeaderboardDef.ID', 'asc')
+    ->orderBy(DB::raw('LeaderboardDef.ID'), 'asc')
     ->skip($offset)
     ->take($count)
     ->get();

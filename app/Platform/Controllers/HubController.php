@@ -20,6 +20,7 @@ use App\Platform\Enums\GameListType;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Requests\GameListRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -86,7 +87,7 @@ class HubController extends Controller
         );
 
         // Only allow filtering by systems the hub has games linked for.
-        $filterableSystemIds = $gameSet->games()->distinct()->pluck('GameData.ConsoleID');
+        $filterableSystemIds = $gameSet->games()->distinct()->pluck(DB::raw('GameData.ConsoleID'));
         $filterableSystemOptions = System::whereIn('ID', $filterableSystemIds)
             ->get()
             ->map(fn ($system) => SystemData::fromSystem($system)->include('nameShort'))

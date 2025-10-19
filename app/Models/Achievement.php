@@ -589,7 +589,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     {
         $query->leftJoin('player_achievements', function ($join) use ($user) {
             $join->on('player_achievements.achievement_id', '=', 'Achievements.ID');
-            $join->where('player_achievements.user_id', '=', $user->id);
+            $join->where(DB::raw('player_achievements.user_id'), '=', $user->id);
         });
         $query->addSelect('Achievements.*');
         $query->addSelect('player_achievements.unlocked_at');

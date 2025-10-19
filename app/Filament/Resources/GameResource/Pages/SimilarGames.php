@@ -21,6 +21,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 
 class SimilarGames extends ManageRelatedRecords
@@ -56,19 +57,19 @@ class SimilarGames extends ManageRelatedRecords
                     ->label('ID')
                     ->url(fn (Game $record): string => GameResource::getUrl('view', ['record' => $record]))
                     ->sortable(query: function (Builder $query, string $direction): Builder {
-                        return $query->orderBy('GameData.ID', $direction);
+                        return $query->orderBy(DB::raw('GameData.ID'), $direction);
                     })
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->where('GameData.ID', 'LIKE', "%{$search}%");
+                        return $query->where(DB::raw('GameData.ID'), 'LIKE', "%{$search}%");
                     }),
 
                 Tables\Columns\TextColumn::make('Title')
                     ->url(fn (Game $record): string => GameResource::getUrl('view', ['record' => $record]))
                     ->sortable(query: function (Builder $query, string $direction): Builder {
-                        return $query->orderBy('GameData.Title', $direction);
+                        return $query->orderBy(DB::raw('GameData.Title'), $direction);
                     })
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->where('GameData.Title', 'LIKE', "%{$search}%");
+                        return $query->where(DB::raw('GameData.Title'), 'LIKE', "%{$search}%");
                     }),
 
                 Tables\Columns\TextColumn::make('system')

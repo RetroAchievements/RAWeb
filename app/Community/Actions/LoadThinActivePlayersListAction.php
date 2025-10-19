@@ -8,6 +8,7 @@ use App\Enums\Permissions;
 use App\Models\GameRecentPlayer;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class LoadThinActivePlayersListAction
 {
@@ -34,17 +35,17 @@ class LoadThinActivePlayersListAction
                 $activePlayers = GameRecentPlayer::with(['game'])
                     ->where('rich_presence_updated_at', '>', $timestampCutoff)
                     ->join('UserAccounts', 'UserAccounts.ID', '=', 'game_recent_players.user_id')
-                    ->whereColumn('game_recent_players.game_id', '=', 'UserAccounts.LastGameID')
-                    ->where('UserAccounts.Permissions', '>=', $minimumPermissions)
-                    ->whereNull('UserAccounts.banned_at')
-                    ->orderBy('UserAccounts.Untracked', 'asc')
-                    ->orderByDesc('UserAccounts.RAPoints')
-                    ->orderByDesc('UserAccounts.RASoftcorePoints')
-                    ->orderBy('UserAccounts.ID', 'asc')
+                    ->whereColumn('game_recent_players.game_id', 'UserAccounts.LastGameID')
+                    ->where(DB::raw('UserAccounts.Permissions'), '>=', $minimumPermissions)
+                    ->whereNull(DB::raw('UserAccounts.banned_at'))
+                    ->orderBy(DB::raw('UserAccounts.Untracked'), 'asc')
+                    ->orderByDesc(DB::raw('UserAccounts.RAPoints'))
+                    ->orderByDesc(DB::raw('UserAccounts.RASoftcorePoints'))
+                    ->orderBy(DB::raw('UserAccounts.ID'), 'asc')
                     ->select(
                         'game_recent_players.*',
-                        'UserAccounts.User as username',
-                        'UserAccounts.display_name'
+                        DB::raw('UserAccounts.User as username'),
+                        DB::raw('UserAccounts.display_name')
                     )
                     ->get();
 
