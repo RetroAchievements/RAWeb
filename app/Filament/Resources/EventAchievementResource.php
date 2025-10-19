@@ -183,6 +183,9 @@ class EventAchievementResource extends Resource
                                         4 => '4',
                                         5 => '5',
                                         10 => '10',
+                                        25 => '25',
+                                        50 => '50',
+                                        100 => '100',
                                     ])
                                     ->default(1)
                                     ->required(),
