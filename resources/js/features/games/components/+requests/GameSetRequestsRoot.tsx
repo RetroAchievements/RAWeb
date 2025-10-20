@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/common/components/EmptyState';
 import { GameBreadcrumbs } from '@/common/components/GameBreadcrumbs';
@@ -30,15 +30,18 @@ export const GameSetRequestsRoot: FC = () => {
         {t('Set Requests')}
       </GameHeading>
 
-      <div>
-        {allRequestors.length > 0 ? (
-          t('This achievement set has been requested by the following {{val, number}} users:', {
-            val: totalCount,
-          })
-        ) : (
+      {allRequestors.length > 0 ? (
+        <Trans
+          i18nKey="gameRequestsCount"
+          count={totalCount}
+          values={{ val: totalCount }}
+          components={{ 1: <span className="font-bold" /> }}
+        />
+      ) : (
+        <div className="rounded-lg bg-embed">
           <EmptyState>{t('There are currently no active requests.')}</EmptyState>
-        )}
-      </div>
+        </div>
+      )}
 
       <div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
