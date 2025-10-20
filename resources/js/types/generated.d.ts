@@ -390,6 +390,7 @@ declare namespace App.Data {
     deleteForumTopic?: boolean;
     develop?: boolean;
     lockForumTopic?: boolean;
+    manageAchievementSetClaims?: boolean;
     manageEmulators?: boolean;
     manageEvents?: boolean;
     manageForumTopicComments?: boolean;
@@ -399,9 +400,12 @@ declare namespace App.Data {
     manageGameSets?: boolean;
     manipulateApiKeys?: boolean;
     reviewAchievementSetClaims?: boolean;
+    updateAnyAchievementSetClaim?: boolean;
     updateAvatar?: boolean;
+    updateGame?: boolean;
     updateForumTopic?: boolean;
     updateMotto?: boolean;
+    viewAnyAchievementSetClaim?: boolean;
   };
 }
 declare namespace App.Enums {

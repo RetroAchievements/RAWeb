@@ -72,10 +72,20 @@ class AchievementSetClaimPolicy
         return ($activeClaimCount < $maxClaims) || $isSoleAuthor;
     }
 
+    public function updateAny(User $user): bool
+    {
+        // Admins and moderators have the ability to update any claim.
+        if ($user->hasAnyRole([Role::ADMINISTRATOR, Role::MODERATOR])) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function update(User $user, AchievementSetClaim $achievementSetClaim): bool
     {
         // Admins and moderators need the ability to fully modify the various fields of a claim.
-        if ($user->hasAnyRole([Role::ADMINISTRATOR, Role::MODERATOR])) {
+        if ($this->updateAny($user)) {
             return true;
         }
 

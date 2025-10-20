@@ -30,6 +30,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $deleteForumTopic,
         public Lazy|bool $develop,
         public Lazy|bool $lockForumTopic,
+        public Lazy|bool $manageAchievementSetClaims,
         public Lazy|bool $manageEmulators,
         public Lazy|bool $manageEvents,
         public Lazy|bool $manageForumTopicComments,
@@ -39,9 +40,12 @@ class UserPermissionsData extends Data
         public Lazy|bool $manageGameSets,
         public Lazy|bool $manipulateApiKeys,
         public Lazy|bool $reviewAchievementSetClaims,
+        public Lazy|bool $updateAnyAchievementSetClaim,
         public Lazy|bool $updateAvatar,
+        public Lazy|bool $updateGame,
         public Lazy|bool $updateForumTopic,
         public Lazy|bool $updateMotto,
+        public Lazy|bool $viewAnyAchievementSetClaim,
     ) {
     }
 
@@ -80,6 +84,7 @@ class UserPermissionsData extends Data
             deleteForumTopic: Lazy::create(fn () => $user && $forumTopic ? $user->can('delete', $forumTopic) : false),
             develop: Lazy::create(fn () => $user ? $user->can('develop') : false),
             lockForumTopic: Lazy::create(fn () => $user && $forumTopic ? $user->can('lock', $forumTopic) : false),
+            manageAchievementSetClaims: Lazy::create(fn () => $user ? $user->can('manage', AchievementSetClaim::class) : false),
             manageEmulators: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\Emulator::class) : false),
             manageForumTopicComments: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\ForumTopicComment::class) : false),
             manageForumTopics: Lazy::create(fn () => $user ? $user->can('manage', ForumTopic::class) : false),
@@ -92,9 +97,12 @@ class UserPermissionsData extends Data
                 ? $user->can('review', $claim)
                 : false
             ),
+            updateAnyAchievementSetClaim: Lazy::create(fn () => $user ? $user->can('updateAny', AchievementSetClaim::class) : false),
             updateAvatar: Lazy::create(fn () => $user ? $user->can('updateAvatar', $user) : false),
             updateForumTopic: Lazy::create(fn () => $user && $forumTopic ? $user->can('update', $forumTopic) : false),
+            updateGame: Lazy::create(fn () => $user && $game ? $user->can('update', $game) : false),
             updateMotto: Lazy::create(fn () => $user ? $user->can('updateMotto', $user) : false),
+            viewAnyAchievementSetClaim: Lazy::create(fn () => $user ? $user->can('viewAny', AchievementSetClaim::class) : false),
         );
     }
 }

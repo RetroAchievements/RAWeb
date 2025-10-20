@@ -8,6 +8,7 @@ import { PlayableOfficialForumTopicButton } from '@/common/components/PlayableOf
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
 import { PlayableSidebarButtonsSection } from '@/common/components/PlayableSidebarButtonsSection';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { cn } from '@/common/utils/cn';
 
 import { SidebarDevelopmentSection } from './SidebarDevelopmentSection';
 
@@ -23,7 +24,8 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
 
   const canShowEssentialResources = numCompatibleHashes > 0 || game.forumTopicId;
   const canShowExtras = !!auth?.user;
-  const canShowManagement = can.manageGames;
+  const canShowManagement =
+    can.manageGames || can.updateGame || can.manageGameHashes || can.updateAnyAchievementSetClaim;
 
   const userRoles = auth?.user.roles ?? [];
   const canShowDevelopment =
@@ -102,13 +104,50 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
 
       {canShowManagement ? (
         <PlayableSidebarButtonsSection headingLabel={t('Management')}>
-          <PlayableSidebarButton href={`/manage/games/${game.id}`} IconComponent={LuWrench}>
-            {t('Game Details')}
-          </PlayableSidebarButton>
-
           {!backingGame?.forumTopicId && can.createGameForumTopic ? (
             <GameCreateForumTopicButton game={backingGame} />
           ) : null}
+
+          {can.manageGames ? (
+            <PlayableSidebarButton
+              href={can.updateGame ? `/manage/games/${game.id}/edit` : `/manage/games/${game.id}`}
+              IconComponent={LuWrench}
+              target="_blank"
+            >
+              {can.updateGame ? t('Edit Game Details') : t('View Game Details')}
+            </PlayableSidebarButton>
+          ) : null}
+
+          <div
+            className={cn(
+              'gap-1',
+              can.manageGameHashes && can.updateAnyAchievementSetClaim
+                ? 'grid grid-cols-2'
+                : 'flex',
+            )}
+          >
+            {can.manageGameHashes ? (
+              <PlayableSidebarButton
+                href={`/manage/games/${backingGame.id}/hashes`}
+                IconComponent={LuWrench}
+              >
+                {can.manageGameHashes && can.updateAnyAchievementSetClaim
+                  ? t('Hashes')
+                  : t('Manage Hashes')}
+              </PlayableSidebarButton>
+            ) : null}
+
+            {can.updateAnyAchievementSetClaim ? (
+              <PlayableSidebarButton
+                href={`/manageclaims.php?g=${backingGame.id}`}
+                IconComponent={LuWrench}
+              >
+                {can.manageGameHashes && can.updateAnyAchievementSetClaim
+                  ? t('Claims')
+                  : t('Manage Claims')}
+              </PlayableSidebarButton>
+            ) : null}
+          </div>
         </PlayableSidebarButtonsSection>
       ) : null}
 
