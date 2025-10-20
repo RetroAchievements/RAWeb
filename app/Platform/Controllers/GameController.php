@@ -266,7 +266,7 @@ class GameController extends Controller
             ->with('user')
             ->get()
             // sort by user display name
-            ->sortBy(fn ($request) => $request->user->username);
+            ->sortBy(fn ($request) => $request->user->display_name);
 
         // Split the requestors into initial and deferred groups.
         $initialRequestors = $allRequestors->take(100);
