@@ -12,7 +12,7 @@ const SetRequestorsPage: AppPage<App.Community.Data.GameClaimsCommentsPageProps>
     <>
       <SEO
         title={t('Set Requests - {{gameTitle}}', { gameTitle: game.title })}
-        description={t('A list of set requests for {{gameTitle}}.', { gameTitle: game.title })}
+        description={`A list of set requests for ${game.title}.`}
       />
 
       <div className="container">
