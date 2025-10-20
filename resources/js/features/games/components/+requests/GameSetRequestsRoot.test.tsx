@@ -1,4 +1,3 @@
-import { t } from 'i18next';
 import { expect } from 'vitest';
 
 import { render } from '@/test';
@@ -40,7 +39,7 @@ describe('Component: GameSetRequestsRoot', () => {
     });
 
     // ASSERT
-    expect(container).toHaveTextContent(t('There are currently no active requests.'));
+    expect(container).toHaveTextContent('There are currently no active requests.');
   });
 
   it('shows if there is one requestor', () => {
