@@ -422,10 +422,7 @@ class AchievementsRelationManager extends RelationManager
                     ->button()
                     ->label($isReordering ? 'Stop reordering' : 'Start reordering'),
             )
-            ->reorderable('DisplayOrder', $this->canReorderAchievements())
-            ->checkIfRecordIsSelectableUsing(
-                fn (Model $record): bool => $user->can('update', $record->loadMissing('game')),
-            );
+            ->reorderable('DisplayOrder', $this->canReorderAchievements());
     }
 
     public function reorderTable(array $order): void
