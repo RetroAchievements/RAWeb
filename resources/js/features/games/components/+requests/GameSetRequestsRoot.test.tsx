@@ -59,7 +59,29 @@ describe('Component: GameSetRequestsRoot', () => {
 
     // ASSERT
     expect(container).toHaveTextContent(
-      'This achievement set has been requested by the following 1 users:',
+      'This achievement set has been requested by the following user:',
+    );
+  });
+
+  it('shows if there is multiple requestors', () => {
+    // ARRANGE
+    const fakeGame = createGame();
+    const fakeUser = createUser();
+    const fakeUser2 = createUser();
+
+    // ACT
+    const { container } = render(<GameSetRequestsRoot />, {
+      pageProps: {
+        deferredRequestors: null,
+        initialRequestors: [fakeUser, fakeUser2],
+        game: fakeGame,
+        totalCount: 2,
+      } as App.Community.Data.GameSetRequestsPageProps,
+    });
+
+    // ASSERT
+    expect(container).toHaveTextContent(
+      'This achievement set has been requested by the following 2 users:',
     );
   });
 });
