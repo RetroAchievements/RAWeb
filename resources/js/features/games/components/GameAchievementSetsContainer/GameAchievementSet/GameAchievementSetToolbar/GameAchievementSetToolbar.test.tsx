@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-restricted-imports -- fine in a test
+import * as InertiajsReact from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 
 import { usePersistedGameIdsCookie } from '@/features/games/hooks/usePersistedGameIdsCookie';
@@ -17,6 +19,9 @@ vi.mock('@/features/games/hooks/usePersistedGameIdsCookie');
 describe('Component: GameAchievementSetToolbar', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Mock router.reload to prevent actual HTTP requests in tests.
+    vi.spyOn(InertiajsReact.router, 'reload').mockImplementation(vi.fn());
   });
 
   it('renders without crashing', () => {

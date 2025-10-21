@@ -1,8 +1,13 @@
+import { router } from '@inertiajs/react';
 import { useAtom, useSetAtom } from 'jotai';
+
+import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { currentListViewAtom, currentPlayableListSortAtom } from '../state/games.atoms';
 
 export function useCurrentListView() {
+  const { allLeaderboards } = usePageProps<App.Platform.Data.GameShowPageProps>();
+
   const [currentListView, internal_setCurrentListView] = useAtom(currentListViewAtom);
   const setCurrentPlayableListSort = useSetAtom(currentPlayableListSortAtom);
 
@@ -29,6 +34,15 @@ export function useCurrentListView() {
     }
 
     window.history.replaceState({}, '', url.toString());
+
+    /**
+     * FALLBACK: If we're switching to leaderboards and that deferred data
+     * isn't loaded yet, fetch it. This handles edge cases where preloading
+     * didn't work or the user clicked very quickly.
+     */
+    if (view === 'leaderboards' && allLeaderboards === undefined) {
+      router.reload();
+    }
   };
 
   return { currentListView, setCurrentListView };
