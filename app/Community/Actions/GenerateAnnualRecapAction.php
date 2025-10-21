@@ -180,8 +180,8 @@ class GenerateAnnualRecapAction
             ->where('unlocked_hardcore_at', '>=', $startDate)
             ->where('unlocked_hardcore_at', '<', $endDate)
             ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
-            ->whereIn('Achievements.GameID', $gameIds)
-            ->where('Achievements.Flags', AchievementFlag::OfficialCore)
+            ->whereIn(DB::raw('Achievements.GameID'), $gameIds)
+            ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore)
             ->select(
                 DB::raw('count(*) as count'),
                 DB::raw('sum(Achievements.Points) as points'),
@@ -193,8 +193,8 @@ class GenerateAnnualRecapAction
             ->where('unlocked_at', '>=', $startDate)
             ->where('unlocked_at', '<', $endDate)
             ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
-            ->whereIn('Achievements.GameID', $gameIds)
-            ->where('Achievements.Flags', AchievementFlag::OfficialCore)
+            ->whereIn(DB::raw('Achievements.GameID'), $gameIds)
+            ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore)
             ->select(
                 DB::raw('count(*) as count'),
                 DB::raw('sum(Achievements.Points) as points'),
@@ -324,7 +324,7 @@ class GenerateAnnualRecapAction
             ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
             ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
             ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
-            ->where('Achievements.Flags', AchievementFlag::OfficialCore)
+            ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore)
             ->select('Achievements.ID', DB::raw('Achievements.unlocks_hardcore_total/GameData.players_total as EarnRate'))
             ->orderBy('EarnRate')
             ->first();
@@ -341,7 +341,7 @@ class GenerateAnnualRecapAction
             ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
             ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
             ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
-            ->where('Achievements.Flags', AchievementFlag::OfficialCore)
+            ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore)
             ->select('Achievements.ID', DB::raw('Achievements.unlocks_total/GameData.players_total as EarnRate'))
             ->orderBy('EarnRate')
             ->first();

@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 use InvalidArgumentException;
 use Livewire\Component;
@@ -188,7 +189,7 @@ class AchievementSetsRelationManager extends RelationManager
                                 $legacySubsetAchievementSet = $game->gameAchievementSets()->core()->first()->achievementSet;
                                 $attachedGame = $legacySubsetAchievementSet->games()
                                     ->wherePivot('type', '!=', AchievementSetType::Core->value)
-                                    ->where('GameData.id', '!=', $game->id)
+                                    ->where(DB::raw('GameData.id'), '!=', $game->id)
                                     ->first();
 
                                 // Set the flag in the form data.
