@@ -31,12 +31,7 @@ export const GameSetRequestsRoot: FC = () => {
       </GameHeading>
 
       {allRequestors.length > 0 ? (
-        <Trans
-          i18nKey="gameRequestsCount"
-          count={totalCount}
-          values={{ val: totalCount }}
-          components={{ 1: <span className="font-bold" /> }}
-        />
+        <Trans i18nKey="gameRequestsCount" count={totalCount} values={{ val: totalCount }} />
       ) : (
         <div className="rounded-lg bg-embed">
           <EmptyState>{t('There are currently no active requests.')}</EmptyState>
