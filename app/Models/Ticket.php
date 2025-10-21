@@ -144,6 +144,18 @@ class Ticket extends BaseModel
     }
 
     /**
+     * Tickets that are actively awaiting the developer's action.
+     * Excludes "Request" tickets which are reassigned back to the reporter.
+     *
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeAwaitingDeveloper(Builder $query): Builder
+    {
+        return $query->where('ReportState', TicketState::Open);
+    }
+
+    /**
      * @param Builder<Ticket> $query
      * @return Builder<Ticket>
      */
