@@ -496,15 +496,15 @@ function getGamesListDataNamesOnly(int $consoleId, bool $officialFlag = false): 
 {
     return Game::join('Console', 'GameData.ConsoleID', '=', 'Console.ID')
         ->when($consoleId !== 0, function ($query) use ($consoleId) {
-            return $query->where('GameData.ConsoleID', '=', $consoleId);
+            return $query->where(DB::raw('GameData.ConsoleID'), '=', $consoleId);
         })
         ->when($officialFlag === true, function ($query) {
-            return $query->where('GameData.achievements_published', '>', 0);
+            return $query->where(DB::raw('GameData.achievements_published'), '>', 0);
         })
         ->orderBy('Console.Name')
-        ->orderBy('GameData.Title')
-        ->select('GameData.Title', 'GameData.ID')
-        ->pluck('GameData.Title', 'GameData.ID') // return mapping of ID => Title
+        ->orderBy(DB::raw('GameData.Title'))
+        ->select(DB::raw('GameData.Title'), DB::raw('GameData.ID'))
+        ->pluck(DB::raw('GameData.Title'), 'GameData.ID') // return mapping of ID => Title
         ->toArray();
 }
 

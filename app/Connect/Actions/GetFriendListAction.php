@@ -9,6 +9,7 @@ use App\Enums\Permissions;
 use App\Models\Game;
 use App\Models\PlayerSession;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class GetFriendListAction extends BaseAuthenticatedApiAction
 {
@@ -26,8 +27,8 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
     {
         // only return the 100 most recently active friends (some users have more than 1000!)
         $friends = $this->user->followedUsers()
-            ->where('UserAccounts.Permissions', '>=', Permissions::Unregistered)
-            ->whereNull('UserAccounts.Deleted')
+            ->where(DB::raw('UserAccounts.Permissions'), '>=', Permissions::Unregistered)
+            ->whereNull(DB::raw('UserAccounts.Deleted'))
             ->orderBy('UserAccounts.LastLogin', 'DESC')
             ->limit(100)
             ->select([

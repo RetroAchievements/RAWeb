@@ -13,6 +13,7 @@ use App\Models\UserRelation;
 use App\Platform\Data\FollowedPlayerCompletionData;
 use App\Platform\Data\PlayerGameData;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class BuildFollowedPlayerCompletionAction
 {
@@ -29,8 +30,8 @@ class BuildFollowedPlayerCompletionAction
 
         $limitedFollowedUsers = UserRelation::query()
             ->join('UserAccounts', 'Friends.related_user_id', '=', 'UserAccounts.ID')
-            ->where('Friends.user_id', '=', $user->id)
-            ->where('Friends.Friendship', '=', UserRelationship::Following)
+            ->where(DB::raw('Friends.user_id'), '=', $user->id)
+            ->where(DB::raw('Friends.Friendship'), '=', UserRelationship::Following)
             ->select('UserAccounts.ID')
             ->limit(1000)
             ->pluck('ID')

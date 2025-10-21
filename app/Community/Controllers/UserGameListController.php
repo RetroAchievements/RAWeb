@@ -17,6 +17,7 @@ use App\Platform\Actions\BuildGameListAction;
 use App\Platform\Data\SystemData;
 use App\Platform\Enums\GameListType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -49,9 +50,9 @@ class UserGameListController extends Controller
 
         // Only allow filtering by systems the user has games on their list for.
         $filterableSystemIds = $user->gameListEntries(UserGameListType::Play)
-            ->join('GameData', 'SetRequest.GameID', '=', 'GameData.ID')
+            ->join('GameData', DB::raw('SetRequest.GameID'), '=', 'GameData.ID')
             ->distinct()
-            ->pluck('GameData.ConsoleID');
+            ->pluck(DB::raw('GameData.ConsoleID'));
         $filterableSystemOptions = System::whereIn('ID', $filterableSystemIds)
             ->get()
             ->map(fn ($system) => SystemData::fromSystem($system)->include('nameShort'))

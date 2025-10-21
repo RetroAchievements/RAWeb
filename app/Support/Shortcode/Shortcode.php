@@ -69,7 +69,7 @@ final class Shortcode
         // game_sets entries in a single query.
         $hubMap = Game::query()
             ->join('game_sets', 'GameData.ID', '=', 'game_sets.game_id')
-            ->where('GameData.ConsoleID', System::Hubs)
+            ->where(DB::raw('GameData.ConsoleID'), System::Hubs)
             ->where('game_sets.type', GameSetType::Hub)
             ->whereIn('GameData.ID', $gameIds)
             ->select('GameData.ID as game_id', 'game_sets.id as hub_id')
