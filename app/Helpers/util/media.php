@@ -122,7 +122,7 @@ function UploadBadgeImage(array $file): string
 
         $localImagePath = storage_path('app/media/' . $imagePath);
         $localImagePathLocked = storage_path('app/media/' . $imagePathLocked);
-        if (!file_exists($imagePath)) {
+        if (!file_exists($localImagePath)) {
             break;
         }
 
