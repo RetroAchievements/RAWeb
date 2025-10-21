@@ -7,10 +7,16 @@ use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Enums\Permissions;
+use App\Models\AchievementSetClaim;
+use App\Models\User;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     abort(401);
 }
+
+/** @var User $userModel */
+$userModel = Auth::user();
+abort_if(!$userModel->can('updateAny', AchievementSetClaim::class), 401);
 
 $gameID = (int) request()->query('g');
 if (empty($gameID)) {

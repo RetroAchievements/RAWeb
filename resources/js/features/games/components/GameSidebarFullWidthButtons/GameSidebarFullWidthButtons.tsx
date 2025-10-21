@@ -123,7 +123,7 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
               'gap-1',
               can.manageGameHashes && can.updateAnyAchievementSetClaim
                 ? 'grid grid-cols-2'
-                : 'flex',
+                : 'flex flex-col',
             )}
           >
             {can.manageGameHashes ? (
