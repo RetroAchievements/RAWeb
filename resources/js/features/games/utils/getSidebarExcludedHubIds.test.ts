@@ -1,6 +1,7 @@
 import { createGameSet, createSeriesHub } from '@/test/factories';
 
 import { getSidebarExcludedHubIds } from './getSidebarExcludedHubIds';
+import { hubIds } from './hubIds';
 
 describe('Util: getSidebarExcludedHubIds', () => {
   it('excludes event hubs', () => {
@@ -13,7 +14,7 @@ describe('Util: getSidebarExcludedHubIds', () => {
     const result = getSidebarExcludedHubIds(hubs, null, []);
 
     // ASSERT
-    expect(result).toEqual([1]);
+    expect(result).toEqual([1, ...Object.values(hubIds)]);
   });
 
   it('excludes the hub matching the series hub', () => {
@@ -30,7 +31,7 @@ describe('Util: getSidebarExcludedHubIds', () => {
     const result = getSidebarExcludedHubIds(hubs, seriesHub, []);
 
     // ASSERT
-    expect(result).toEqual([123]);
+    expect(result).toEqual([123, ...Object.values(hubIds)]);
   });
 
   it('excludes both event hubs and series hub', () => {
@@ -48,7 +49,7 @@ describe('Util: getSidebarExcludedHubIds', () => {
     const result = getSidebarExcludedHubIds(hubs, seriesHub, []);
 
     // ASSERT
-    expect(result).toEqual([1, 123]);
+    expect(result).toEqual([1, 123, ...Object.values(hubIds)]);
   });
 
   it('includes meta used hub IDs', () => {
@@ -62,7 +63,7 @@ describe('Util: getSidebarExcludedHubIds', () => {
     const result = getSidebarExcludedHubIds(hubs, null, metaUsedHubIds);
 
     // ASSERT
-    expect(result).toEqual([100, 200, 1]);
+    expect(result).toEqual([100, 200, 1, ...Object.values(hubIds)]);
   });
 
   it('handles empty hubs array', () => {
@@ -73,7 +74,7 @@ describe('Util: getSidebarExcludedHubIds', () => {
     const result = getSidebarExcludedHubIds([], null, metaUsedHubIds);
 
     // ASSERT
-    expect(result).toEqual([100]);
+    expect(result).toEqual([100, ...Object.values(hubIds)]);
   });
 
   it('handles null series hub', () => {
@@ -85,7 +86,7 @@ describe('Util: getSidebarExcludedHubIds', () => {
     const result = getSidebarExcludedHubIds(hubs, null, []);
 
     // ASSERT
-    expect(result).toEqual([]);
+    expect(result).toEqual([...Object.values(hubIds)]);
   });
 
   it('combines all exclusions correctly', () => {
@@ -105,6 +106,6 @@ describe('Util: getSidebarExcludedHubIds', () => {
     const result = getSidebarExcludedHubIds(hubs, seriesHub, metaUsedHubIds);
 
     // ASSERT
-    expect(result).toEqual([100, 200, 1, 2, 300]);
+    expect(result).toEqual([100, 200, 1, 2, 300, ...Object.values(hubIds)]);
   });
 });

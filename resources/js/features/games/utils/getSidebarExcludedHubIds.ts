@@ -1,3 +1,5 @@
+import { hubIds } from './hubIds';
+
 export function getSidebarExcludedHubIds(
   hubs: App.Platform.Data.GameSet[],
   seriesHub: App.Platform.Data.SeriesHub | null,
@@ -20,5 +22,5 @@ export function getSidebarExcludedHubIds(
     .map((hub) => hub.id);
 
   // Combine with meta hub IDs that are already used.
-  return [...metaUsedHubIds, ...filteredHubIds];
+  return [...metaUsedHubIds, ...filteredHubIds, ...Object.values(hubIds)];
 }

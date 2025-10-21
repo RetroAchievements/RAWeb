@@ -10,6 +10,7 @@ interface DataTableSystemFilterProps<TData> {
   table: Table<TData>;
 
   defaultOptionLabel?: TranslatedString;
+  defaultOptionValue?: 'supported' | 'all';
   includeDefaultOption?: boolean;
   isSingleSelect?: boolean;
   variant?: 'base' | 'drawer';
@@ -19,6 +20,7 @@ export function DataTableSystemFilter<TData>({
   table,
   variant,
   defaultOptionLabel,
+  defaultOptionValue = 'supported',
   filterableSystemOptions = [],
   includeDefaultOption = false,
   isSingleSelect = false,
@@ -36,18 +38,37 @@ export function DataTableSystemFilter<TData>({
   const defaultOptions: FacetedFilterOption[] = [];
 
   if (includeDefaultOption && defaultOptionLabel) {
-    // Add the primary default option (eg: "All supported systems").
-    defaultOptions.push({
-      t_label: defaultOptionLabel,
-      value: 'supported',
-    });
-
-    // In single-select mode, add an "All systems" option.
-    // The default option is probably a filtered set of systems.
+    // In single-select mode, add both the primary default option and "All systems".
+    // The option matching defaultOptionValue is marked as the default.
     if (isSingleSelect) {
+      if (defaultOptionValue === 'all') {
+        // "All systems" is the default option.
+        defaultOptions.push({
+          t_label: t('All systems'),
+          value: 'all',
+          isDefaultOption: true,
+        });
+        defaultOptions.push({
+          t_label: t('Only supported systems'),
+          value: 'supported',
+        });
+      } else {
+        // "Only supported systems" is the default option.
+        defaultOptions.push({
+          t_label: defaultOptionLabel,
+          value: 'supported',
+          isDefaultOption: true,
+        });
+        defaultOptions.push({
+          t_label: t('All systems'),
+          value: 'all',
+        });
+      }
+    } else {
+      // Multi-select mode: just add the primary default option.
       defaultOptions.push({
-        t_label: t('All systems'),
-        value: 'all',
+        t_label: defaultOptionLabel,
+        value: defaultOptionValue,
       });
     }
   }

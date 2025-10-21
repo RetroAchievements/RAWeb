@@ -116,7 +116,14 @@ export function DataTableSuperFilter<TData>({
             {doesColumnExist(allColumns, 'system') && filterableSystemOptions?.length > 1 ? (
               <DataTableSystemFilter
                 table={table}
-                defaultOptionLabel={t('Only supported systems')}
+                defaultOptionLabel={
+                  tableApiRouteName === 'api.set-request.user'
+                    ? t('All systems')
+                    : t('Only supported systems')
+                }
+                defaultOptionValue={
+                  tableApiRouteName === 'api.set-request.user' ? 'all' : 'supported'
+                }
                 filterableSystemOptions={filterableSystemOptions}
                 includeDefaultOption={tableApiRouteName.includes('api.set-request')}
                 isSingleSelect={tableApiRouteName.includes('api.set-request')}

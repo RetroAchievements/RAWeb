@@ -12,6 +12,8 @@ use App\Connect\Actions\GetLatestClientVersionAction;
 use App\Connect\Actions\GetLatestIntegrationVersionAction;
 use App\Connect\Actions\GetLeaderboardEntriesAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
+use App\Connect\Actions\LegacyLoginAction;
+use App\Connect\Actions\LoginAction;
 use App\Connect\Actions\PostActivityAction;
 use App\Connect\Actions\ResolveRootGameFromGameAndGameHashAction;
 use App\Connect\Actions\SubmitCodeNoteAction;
@@ -44,6 +46,8 @@ $handler = match ($requestType) {
     'latestclient' => new GetLatestClientVersionAction(),
     'latestintegration' => new GetLatestIntegrationVersionAction(),
     'lbinfo' => new GetLeaderboardEntriesAction(),
+    'login' => new LegacyLoginAction(),
+    'login2' => new LoginAction(),
     'postactivity' => new PostActivityAction(),
     'submitcodenote' => new SubmitCodeNoteAction(),
     'submitgametitle' => new SubmitGameTitleAction(),
@@ -207,25 +211,6 @@ if (
 }
 
 switch ($requestType) {
-    /*
-     * Login
-     */
-    case "login":
-        $username = request()->input('u');
-        $rawPass = request()->input('p');
-        $response = authenticateForConnect($username, $rawPass, $token);
-
-        // do not return $response['Status'] as an HTTP status code when using this
-        // endpoint. legacy clients sometimes report the HTTP status code instead of
-        // the $response['Error'] message.
-        return response()->json($response);
-
-    case "login2":
-        $username = request()->input('u');
-        $rawPass = request()->input('p');
-        $response = authenticateForConnect($username, $rawPass, $token);
-        break;
-
     /*
      * Global, no permissions required
      */
