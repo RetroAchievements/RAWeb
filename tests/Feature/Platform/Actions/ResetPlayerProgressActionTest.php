@@ -15,6 +15,7 @@ use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\PlayerProgressResetType;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
 use Tests\TestCase;
@@ -538,8 +539,8 @@ class ResetPlayerProgressActionTest extends TestCase
         // ... verify the user has 3 achievements for this game ...
         $playerAchievementCount = $user->playerAchievements()
             ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
-            ->where('Achievements.GameID', $game->ID)
-            ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
+            ->where(DB::raw('Achievements.GameID'), $game->ID)
+            ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore->value)
             ->count();
         $this->assertEquals(3, $playerAchievementCount);
 
@@ -556,8 +557,8 @@ class ResetPlayerProgressActionTest extends TestCase
         // ... verify the user now has 2 achievements left ...
         $playerAchievementCount = $user->playerAchievements()
             ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
-            ->where('Achievements.GameID', $game->ID)
-            ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
+            ->where(DB::raw('Achievements.GameID'), $game->ID)
+            ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore->value)
             ->count();
         $this->assertEquals(2, $playerAchievementCount);
 
@@ -578,8 +579,8 @@ class ResetPlayerProgressActionTest extends TestCase
         // ... verify the user now has 1 achievement left ...
         $playerAchievementCount = $user->playerAchievements()
             ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
-            ->where('Achievements.GameID', $game->ID)
-            ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
+            ->where(DB::raw('Achievements.GameID'), $game->ID)
+            ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore->value)
             ->count();
         $this->assertEquals(1, $playerAchievementCount);
 

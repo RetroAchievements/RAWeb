@@ -8,6 +8,7 @@ use App\Connect\Support\BaseApiAction;
 use App\Models\GameHash;
 use App\Models\System;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use stdClass;
 
 class GetHashLibraryAction extends BaseApiAction
@@ -34,7 +35,7 @@ class GetHashLibraryAction extends BaseApiAction
             ->select('game_hashes.md5', 'game_hashes.game_id')
             ->when($this->consoleId > 0, function ($q) {
                 $q->leftJoin('GameData as gd', 'gd.ID', '=', 'game_hashes.game_id')
-                    ->where('gd.ConsoleID', $this->consoleId);
+                    ->where(DB::raw('gd.ConsoleID'), $this->consoleId);
             });
 
         $hashes = $query->pluck('game_id', 'md5')->toArray();

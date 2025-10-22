@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class SystemsRelationManager extends RelationManager
 {
@@ -50,14 +51,14 @@ class SystemsRelationManager extends RelationManager
                     ->label('ID')
                     ->sortable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->where('Console.ID', 'like', "%{$search}%");
+                        return $query->where(DB::raw('Console.ID'), 'like', "%{$search}%");
                     }),
 
                 Tables\Columns\TextColumn::make('name_full')
                     ->label('Full name')
                     ->description(fn (System $record): ?string => $record->name_short)
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->where('Console.name_full', 'like', "%{$search}%");
+                        return $query->where(DB::raw('Console.name_full'), 'like', "%{$search}%");
                     })
                     ->sortable()
                     ->grow(true),

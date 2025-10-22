@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class GamesRelationManager extends RelationManager
 {
@@ -58,10 +59,10 @@ class GamesRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
                     ->sortable(query: function (Builder $query, string $direction): Builder {
-                        return $query->orderBy('GameData.ID', $direction);
+                        return $query->orderBy(DB::raw('GameData.ID'), $direction);
                     })
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->where('GameData.ID', 'like', "%{$search}%");
+                        return $query->where(DB::raw('GameData.ID'), 'like', "%{$search}%");
                     })
                     ->url(function (Game $record) {
                         if (request()->user()->can('manage', Game::class)) {

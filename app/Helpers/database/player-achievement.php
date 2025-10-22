@@ -271,27 +271,27 @@ function getAchievementDistribution(
 
         $subQuery = PlayerAchievement::query()
             ->selectRaw(
-                "player_achievements.user_id, 
-                sum(case when player_achievements.unlocked_hardcore_at is null then 1 else 0 end) as softcore_unlocks, 
+                "player_achievements.user_id,
+                sum(case when player_achievements.unlocked_hardcore_at is null then 1 else 0 end) as softcore_unlocks,
                 sum(case when player_achievements.unlocked_hardcore_at is not null then 1 else 0 end) as hardcore_unlocks"
             )
             ->join("Achievements", "player_achievements.achievement_id", "=", "Achievements.ID")
-            ->where("Achievements.GameID", $gameID)
-            ->where("Achievements.Flags", AchievementFlag::Unofficial->value)
+            ->where(DB::raw("Achievements.GameID"), $gameID)
+            ->where(DB::raw("Achievements.Flags"), AchievementFlag::Unofficial->value)
             ->groupBy("player_achievements.user_id");
 
         if ($shouldJoinUsers) {
             $subQuery->join("UserAccounts", "player_achievements.user_id", "=", "UserAccounts.ID")
                 ->where(fn ($query) => $query
-                    ->where("UserAccounts.Untracked", 0)
-                    ->orWhere("UserAccounts.User", $requestedBy)
+                    ->where(DB::raw("UserAccounts.Untracked"), 0)
+                    ->orWhere(DB::raw("UserAccounts.User"), $requestedBy)
             );
         }
 
         $countQuery = PlayerAchievement::query()
             ->fromSub($subQuery, "sub")
             ->selectRaw("$countColumn as AwardedCount, count(*) as NumUniquePlayers")
-            ->where("$countColumn", ">", 0)
+            ->where(DB::raw("$countColumn"), ">", 0)
             ->groupBy("$countColumn")
             ->orderBy("$countColumn", "desc");
 

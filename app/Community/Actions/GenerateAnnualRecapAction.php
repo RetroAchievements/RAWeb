@@ -10,10 +10,12 @@ use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimStatus;
 use App\Mail\AnnualRecapMail;
 use App\Models\Achievement;
+use App\Models\AchievementSet;
 use App\Models\AchievementSetClaim;
 use App\Models\Comment;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\LeaderboardEntry;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerBadge;
@@ -21,6 +23,7 @@ use App\Models\PlayerSession;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementSetType;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -51,6 +54,8 @@ class GenerateAnnualRecapAction
         $recapData = [
             'year' => $year,
         ];
+
+        $this->extractDevelopmentTime($recapData, $user, $gameData, $startDate, $endDate);
 
         $this->summarizeUnlocks($recapData, $user, $gameData, $startDate, $endDate);
         $this->summarizePlayTime($recapData, $gameData);
@@ -91,6 +96,82 @@ class GenerateAnnualRecapAction
         return $gameData;
     }
 
+    private function extractDevelopmentTime(array &$recapData, User $user, array &$gameData, Carbon $startDate, Carbon $endDate): void
+    {
+        $gameIds = AchievementSetClaim::where('user_id', $user->id)
+            ->where('Finished', '>', $startDate)
+            ->select('game_id')
+            ->get()
+            ->pluck('game_id')
+            ->unique()
+            ->toArray();
+
+        if (empty($gameIds)) {
+            $recapData['developmentTime'] = null;
+
+            return;
+        }
+
+        $achievementSetIds = GameAchievementSet::whereIn('game_id', $gameIds)
+            ->select('game_id', 'achievement_set_id')
+            ->where('type', AchievementSetType::Core)
+            ->get()
+            ->mapWithKeys(function ($gameAchievementSet) {
+                return [$gameAchievementSet->game_id => $gameAchievementSet->achievement_set_id];
+            });
+
+        $achievementSetPublishedDates = AchievementSet::whereIn('id', $achievementSetIds)
+            ->select(['id', 'achievements_first_published_at'])
+            ->get()
+            ->mapWithKeys(function ($achievementSet) {
+                return [$achievementSet->id => $achievementSet->achievements_first_published_at];
+            });
+
+        $developmentTime = 0;
+        foreach ($gameIds as $gameId) {
+            if (!array_key_exists($gameId, $gameData)) {
+                // user has a claim on a game they haven't played.
+                continue;
+            }
+
+            $achievementsPublishedDate = $achievementSetPublishedDates[$achievementSetIds[$gameId] ?? 0] ?? null;
+            if (!$achievementsPublishedDate) {
+                // if achievements haven't been published, assume all time is development time
+                $gameDevelopmentTime = $gameData[$gameId]['totalDuration'];
+                $developmentTime += $gameDevelopmentTime;
+                $gameData[$gameId]['developmentTime'] = $gameDevelopmentTime;
+                $gameData[$gameId]['totalDuration'] = 0;
+                continue;
+            }
+
+            // assume all time before achievements were published is development time
+            $sessions = PlayerSession::where('user_id', $user->id)
+                ->where('game_id', $gameId)
+                ->where('duration', '>=', 5)
+                ->where('created_at', '>=', $startDate)
+                ->where('created_at', '<', $achievementsPublishedDate)
+                ->get();
+
+            $gameDevelopmentTime = 0;
+            foreach ($sessions as $session) {
+                if ($session->updated_at > $achievementsPublishedDate) {
+                    $sessionTime = (int) $session->updated_at->diffInMinutes($session->created_at, true);
+                } else {
+                    $sessionTime = $session->duration;
+                }
+                $gameDevelopmentTime += $sessionTime;
+            }
+
+            $developmentTime += $gameDevelopmentTime;
+            $gameData[$gameId]['totalDuration'] =
+                max($gameData[$gameId]['totalDuration'] - $gameDevelopmentTime, 0);
+            $gameData[$gameId]['developmentTime'] =
+                ($gameData[$gameId]['developmentTime'] ?? 0) + $gameDevelopmentTime;
+        }
+
+        $recapData['developmentTime'] = $developmentTime > 0 ? $this->hoursMinutes($developmentTime) : null;
+    }
+
     private function summarizeUnlocks(array &$recapData, User $user, array $gameData, Carbon $startDate, Carbon $endDate): void
     {
         $gameIds = array_keys($gameData);
@@ -99,8 +180,8 @@ class GenerateAnnualRecapAction
             ->where('unlocked_hardcore_at', '>=', $startDate)
             ->where('unlocked_hardcore_at', '<', $endDate)
             ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
-            ->whereIn('Achievements.GameID', $gameIds)
-            ->where('Achievements.Flags', AchievementFlag::OfficialCore)
+            ->whereIn(DB::raw('Achievements.GameID'), $gameIds)
+            ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore)
             ->select(
                 DB::raw('count(*) as count'),
                 DB::raw('sum(Achievements.Points) as points'),
@@ -112,8 +193,8 @@ class GenerateAnnualRecapAction
             ->where('unlocked_at', '>=', $startDate)
             ->where('unlocked_at', '<', $endDate)
             ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
-            ->whereIn('Achievements.GameID', $gameIds)
-            ->where('Achievements.Flags', AchievementFlag::OfficialCore)
+            ->whereIn(DB::raw('Achievements.GameID'), $gameIds)
+            ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore)
             ->select(
                 DB::raw('count(*) as count'),
                 DB::raw('sum(Achievements.Points) as points'),
@@ -243,7 +324,7 @@ class GenerateAnnualRecapAction
             ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
             ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
             ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
-            ->where('Achievements.Flags', AchievementFlag::OfficialCore)
+            ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore)
             ->select('Achievements.ID', DB::raw('Achievements.unlocks_hardcore_total/GameData.players_total as EarnRate'))
             ->orderBy('EarnRate')
             ->first();
@@ -260,7 +341,7 @@ class GenerateAnnualRecapAction
             ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
             ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
             ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
-            ->where('Achievements.Flags', AchievementFlag::OfficialCore)
+            ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore)
             ->select('Achievements.ID', DB::raw('Achievements.unlocks_total/GameData.players_total as EarnRate'))
             ->orderBy('EarnRate')
             ->first();

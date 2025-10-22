@@ -664,6 +664,13 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "user.game-checklist": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "unsubscribe.show": [
         {
             "name": "token",

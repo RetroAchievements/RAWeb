@@ -13,7 +13,7 @@ import { IsPlayableChip } from '../EventHeader/IsPlayableChip';
 import { StartDateChip } from '../EventHeader/StartDateChip';
 
 export const EventShowMainRoot: FC = () => {
-  const { event } = usePageProps<App.Platform.Data.EventShowPageProps>();
+  const { breadcrumbs, event } = usePageProps<App.Platform.Data.EventShowPageProps>();
 
   const { t } = useTranslation();
 
@@ -25,7 +25,7 @@ export const EventShowMainRoot: FC = () => {
 
   return (
     <div data-testid="main" className="flex flex-col gap-3">
-      <EventBreadcrumbs event={event} />
+      <EventBreadcrumbs breadcrumbs={breadcrumbs} event={event} />
       <PlayableHeader
         badgeUrl={legacyGame.badgeUrl}
         systemLabel={t('Event')}
