@@ -3,18 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
 import { BaseSelectAsync } from '@/common/components/+vendor/BaseSelectAsync';
-import { AchievementsListItem } from '@/common/components/AchievementsListItem';
 import { EmptyState } from '@/common/components/EmptyState';
+import { GamesListItem } from '@/common/components/GamesListItem';
 import { UserBreadcrumbs } from '@/common/components/UserBreadcrumbs';
 import { UserHeading } from '@/common/components/UserHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useUserSearchQuery } from '@/common/hooks/useUserSearchQuery';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
-import { EventAchievementSection } from '@/features/events/components/EventAchievementSetContainer/EventAchievementSet/EventAchievementSection';
+import { GameListSection } from '@/features/users/components/GameListSection/GameListSection';
 
-const UserAchievementChecklist: AppPage = () => {
-  const { player, groups } = usePageProps<App.Community.Data.AchievementChecklistPageProps>();
+const UserGameChecklist: AppPage = () => {
+  const { player, groups } = usePageProps<App.Community.Data.GameChecklistPageProps>();
 
   const { t } = useTranslation();
 
@@ -22,7 +22,7 @@ const UserAchievementChecklist: AppPage = () => {
 
   const handleUserChange = (newUser: string) => {
     router.visit(
-      route('user.achievement-checklist', {
+      route('user.game-checklist', {
         user: newUser,
         _query: route().queryParams,
       }),
@@ -33,8 +33,8 @@ const UserAchievementChecklist: AppPage = () => {
     <>
       <AppLayout.Main>
         <div>
-          <UserBreadcrumbs t_currentPageLabel={t('Achievement Checklist')} user={player} />
-          <UserHeading user={player}>{t('Achievement Checklist')}</UserHeading>
+          <UserBreadcrumbs t_currentPageLabel={t('Game Completion Checklist')} user={player} />
+          <UserHeading user={player}>{t('Game Completion Checklist')}</UserHeading>
 
           <div className="mb-4 flex items-center gap-2">
             <label htmlFor="user-select">{t('Examine another user:')}</label>
@@ -68,23 +68,20 @@ const UserAchievementChecklist: AppPage = () => {
           {groups.length > 0 ? (
             <div className="flex flex-col gap-4">
               {groups.map((group, index) => (
-                <EventAchievementSection
-                  key={`ach-group-${index}`}
-                  achievementCount={group.achievements.length}
+                <GameListSection
+                  key={`game-group-${index}`}
+                  gameCount={group.games.length}
                   isInitiallyOpened={true}
                   title={group.header}
                 >
-                  {group.achievements.map((achievement, achIndex) => (
-                    <AchievementsListItem
-                      key={`ach-${achievement.id}`}
-                      achievement={achievement}
-                      index={achIndex}
-                      isLargeList={false}
-                      eventAchievement={undefined}
-                      playersTotal={achievement.game?.playersTotal ?? null}
+                  {group.games.map((gameListEntry) => (
+                    <GamesListItem
+                      key={`game-${gameListEntry.game.id}`}
+                      game={gameListEntry.game}
+                      playerGame={gameListEntry.playerGame}
                     />
                   ))}
-                </EventAchievementSection>
+                </GameListSection>
               ))}
             </div>
           ) : (
@@ -96,6 +93,6 @@ const UserAchievementChecklist: AppPage = () => {
   );
 };
 
-UserAchievementChecklist.layout = (page) => <AppLayout withSidebar={false}>{page}</AppLayout>;
+UserGameChecklist.layout = (page) => <AppLayout withSidebar={false}>{page}</AppLayout>;
 
-export default UserAchievementChecklist;
+export default UserGameChecklist;

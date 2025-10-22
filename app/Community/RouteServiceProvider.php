@@ -39,6 +39,7 @@ use App\Community\Controllers\UnsubscribeController;
 use App\Community\Controllers\UserAchievementChecklistController;
 use App\Community\Controllers\UserCommentController;
 use App\Community\Controllers\UserForumTopicCommentController;
+use App\Community\Controllers\UserGameChecklistController;
 use App\Community\Controllers\UserGameListController;
 use App\Community\Controllers\UserModerationCommentController;
 use App\Community\Controllers\UserSetRequestListController;
@@ -166,6 +167,7 @@ class RouteServiceProvider extends ServiceProvider
 
                     Route::get('user/{user}/posts', [UserForumTopicCommentController::class, 'index'])->name('user.posts.index');
                     Route::get('user/{user}/achievement-checklist', [UserAchievementChecklistController::class, 'index'])->name('user.achievement-checklist');
+                    Route::get('user/{user}/game-checklist', [UserGameChecklistController::class, 'show'])->name('user.game-checklist');
 
                     /**
                      * @see Middleware\ValidateSignature::class
