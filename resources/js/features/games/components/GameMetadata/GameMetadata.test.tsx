@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
-import { createGame, createGameRelease, createGameSet } from '@/test/factories';
+import { createGame, createGameRelease } from '@/test/factories';
 
 import { GameMetadata } from './GameMetadata';
 
