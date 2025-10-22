@@ -546,6 +546,13 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "game.requests.show": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "message-thread.show": [
         {
             "name": "messageThread",

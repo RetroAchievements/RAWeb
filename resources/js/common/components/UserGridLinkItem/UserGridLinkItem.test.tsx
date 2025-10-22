@@ -1,13 +1,13 @@
 import { render, screen } from '@/test';
 import { createUser } from '@/test/factories';
 
-import { PatreonSupporterItem } from './PatreonSupporterItem';
+import { UserGridLinkItem } from './UserGridLinkItem';
 
-describe('Component: PatreonSupporterItem', () => {
+describe('Component: UserGridLinkItem', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const supporter = createUser();
-    const { container } = render(<PatreonSupporterItem supporter={supporter} />);
+    const { container } = render(<UserGridLinkItem user={supporter} />);
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -16,7 +16,7 @@ describe('Component: PatreonSupporterItem', () => {
   it('given a supporter, renders a link to their profile', () => {
     // ARRANGE
     const supporter = createUser({ displayName: 'TestUser123' });
-    render(<PatreonSupporterItem supporter={supporter} />);
+    render(<UserGridLinkItem user={supporter} />);
 
     // ACT
     const profileLink = screen.getByRole('link');
@@ -32,7 +32,7 @@ describe('Component: PatreonSupporterItem', () => {
       displayName: 'TestUser123',
       avatarUrl: 'https://example.com/avatar.png',
     });
-    render(<PatreonSupporterItem supporter={supporter} />);
+    render(<UserGridLinkItem user={supporter} />);
 
     // ACT
     const avatar = screen.getByRole('img', { name: /testuser123/i });

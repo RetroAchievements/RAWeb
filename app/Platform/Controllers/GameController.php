@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Actions\GetUserDeviceKindAction;
+use App\Community\Data\GameSetRequestsPagePropsData;
+use App\Community\Enums\UserGameListType;
+use App\Data\UserData;
 use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Models\Game;
@@ -12,6 +15,7 @@ use App\Models\GameAchievementSet;
 use App\Models\GameSet;
 use App\Models\System;
 use App\Models\User;
+use App\Models\UserGameListEntry;
 use App\Platform\Actions\BuildGameInterestedDevelopersDataAction;
 use App\Platform\Actions\BuildGameListAction;
 use App\Platform\Actions\BuildGameShowPagePropsAction;
@@ -250,6 +254,41 @@ class GameController extends Controller
         );
 
         return Inertia::render('game/[game]/suggestions', $props);
+    }
+
+    /**
+     * Shows the set requestors for a given game
+     */
+    public function setRequests(Request $request, Game $game): InertiaResponse
+    {
+        $allRequestors = UserGameListEntry::where('GameID', $game->id)
+            ->where('type', UserGameListType::AchievementSetRequest)
+            ->with('user')
+            ->get()
+            // sort by user display name
+            ->sortBy(fn ($request) => $request->user->display_name);
+
+        // Split the requestors into initial and deferred groups.
+        $initialRequestors = $allRequestors->take(100);
+        $deferredRequestors = $allRequestors->skip(100);
+
+        // Map the results to minimal data objects with only the needed fields for the UI.
+        $initialRequestorsData = $initialRequestors
+            ->map(fn ($badge) => UserData::fromUser($badge->user)->include('displayName', 'avatarUrl', 'id'))
+            ->values();
+
+        $deferredRequestorsData = $deferredRequestors
+            ->map(fn ($badge) => UserData::fromUser($badge->user)->include('displayName', 'avatarUrl', 'id'))
+            ->values();
+
+        $props = new GameSetRequestsPagePropsData(
+            game: GameData::fromGame($game)->include('badgeUrl', 'system'),
+            initialRequestors: $initialRequestorsData,
+            deferredRequestors: Inertia::defer(fn () => $deferredRequestorsData),
+            totalCount: $allRequestors->count(),
+        );
+
+        return Inertia::render('game/[game]/requests', $props);
     }
 
     /**
