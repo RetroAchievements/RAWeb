@@ -13,11 +13,9 @@ describe('Component: GameMetadata', () => {
     genreRowElements: [{ label: 'Genre 1', hubId: 1 }],
     hackOfRowElements: [],
     languageRowElements: [{ label: 'English' }, { label: 'Spanish' }],
-    miscRowElements: [{ label: 'Misc 1' }],
     perspectiveRowElements: [{ label: 'First Person' }],
     protagonistRowElements: [{ label: 'Protagonist 1' }],
     publisherRowElements: [{ label: 'Publisher 1' }],
-    raFeatureRowElements: [{ label: 'RA Feature 1' }],
     regionalRowElements: [{ label: 'Regional 1' }],
     settingRowElements: [{ label: 'Setting 1' }],
     technicalRowElements: [{ label: 'Technical 1' }],
@@ -29,11 +27,7 @@ describe('Component: GameMetadata', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <GameMetadata
-        allMetaRowElements={createMockMetaRowElements() as any}
-        game={createGame()}
-        hubs={[]}
-      />,
+      <GameMetadata allMetaRowElements={createMockMetaRowElements() as any} game={createGame()} />,
     );
 
     // ASSERT
@@ -43,11 +37,7 @@ describe('Component: GameMetadata', () => {
   it('given initial render, shows only the primary metadata rows', () => {
     // ARRANGE
     render(
-      <GameMetadata
-        allMetaRowElements={createMockMetaRowElements() as any}
-        game={createGame()}
-        hubs={[]}
-      />,
+      <GameMetadata allMetaRowElements={createMockMetaRowElements() as any} game={createGame()} />,
     );
 
     // ASSERT
@@ -69,13 +59,7 @@ describe('Component: GameMetadata', () => {
       releases: [createGameRelease(), createGameRelease()],
     });
 
-    render(
-      <GameMetadata
-        allMetaRowElements={createMockMetaRowElements() as any}
-        game={game}
-        hubs={[]}
-      />,
-    );
+    render(<GameMetadata allMetaRowElements={createMockMetaRowElements() as any} game={game} />);
 
     // ASSERT
     expect(screen.getByText(/release/i)).toBeVisible();
@@ -85,13 +69,7 @@ describe('Component: GameMetadata', () => {
     // ARRANGE
     const game = createGame({ releasedAt: null });
 
-    render(
-      <GameMetadata
-        allMetaRowElements={createMockMetaRowElements() as any}
-        game={game}
-        hubs={[]}
-      />,
-    );
+    render(<GameMetadata allMetaRowElements={createMockMetaRowElements() as any} game={game} />);
 
     // ASSERT
     expect(screen.queryByText(/released/i)).not.toBeInTheDocument();
@@ -100,11 +78,7 @@ describe('Component: GameMetadata', () => {
   it('given the user clicks see more, shows additional metadata rows', async () => {
     // ARRANGE
     render(
-      <GameMetadata
-        allMetaRowElements={createMockMetaRowElements() as any}
-        game={createGame()}
-        hubs={[]}
-      />,
+      <GameMetadata allMetaRowElements={createMockMetaRowElements() as any} game={createGame()} />,
     );
 
     // ACT
@@ -116,18 +90,12 @@ describe('Component: GameMetadata', () => {
     expect(screen.getByText(/protagonist 1/i)).toBeVisible();
     expect(screen.getByText(/technical 1/i)).toBeVisible();
     expect(screen.getByText(/regional 1/i)).toBeVisible();
-    expect(screen.getByText(/misc 1/i)).toBeVisible();
-    expect(screen.getByText(/ra feature 1/i)).toBeVisible();
   });
 
   it('given the user has expanded the metadata, hides the see more button', async () => {
     // ARRANGE
     render(
-      <GameMetadata
-        allMetaRowElements={createMockMetaRowElements() as any}
-        game={createGame()}
-        hubs={[]}
-      />,
+      <GameMetadata allMetaRowElements={createMockMetaRowElements() as any} game={createGame()} />,
     );
 
     // ACT
@@ -140,11 +108,7 @@ describe('Component: GameMetadata', () => {
   it('given a metadata row has links, renders them as clickable elements', () => {
     // ARRANGE
     render(
-      <GameMetadata
-        allMetaRowElements={createMockMetaRowElements() as any}
-        game={createGame()}
-        hubs={[]}
-      />,
+      <GameMetadata allMetaRowElements={createMockMetaRowElements() as any} game={createGame()} />,
     );
 
     // ASSERT
@@ -158,9 +122,7 @@ describe('Component: GameMetadata', () => {
       hackOfRowElements: [],
     });
 
-    render(
-      <GameMetadata allMetaRowElements={metaRowElements as any} game={createGame()} hubs={[]} />,
-    );
+    render(<GameMetadata allMetaRowElements={metaRowElements as any} game={createGame()} />);
 
     // ASSERT
     expect(screen.getByText(/publisher 1/i)).toBeVisible();
@@ -173,9 +135,7 @@ describe('Component: GameMetadata', () => {
       hackOfRowElements: [{ label: 'Super Mario 64' }],
     });
 
-    render(
-      <GameMetadata allMetaRowElements={metaRowElements as any} game={createGame()} hubs={[]} />,
-    );
+    render(<GameMetadata allMetaRowElements={metaRowElements as any} game={createGame()} />);
 
     // ASSERT
     expect(screen.queryByText(/publisher/i)).not.toBeInTheDocument();
@@ -191,9 +151,7 @@ describe('Component: GameMetadata', () => {
       hackOfRowElements: [{ label: 'Original Game' }],
     });
 
-    render(
-      <GameMetadata allMetaRowElements={metaRowElements as any} game={createGame()} hubs={[]} />,
-    );
+    render(<GameMetadata allMetaRowElements={metaRowElements as any} game={createGame()} />);
 
     // ASSERT
     expect(screen.getByText(/hack - publisher/i)).toBeVisible(); // !! only one match
@@ -201,74 +159,19 @@ describe('Component: GameMetadata', () => {
     expect(screen.getByText(/original game/i)).toBeVisible();
   });
 
-  it('given the game has event hubs, processes and displays them when see more is clicked', async () => {
-    // ARRANGE
-    const hubs = [
-      createGameSet({ id: 1, title: 'Regular Hub', isEventHub: false }),
-      createGameSet({ id: 2, title: 'Event Hub 2023', isEventHub: true }),
-      createGameSet({ id: 3, title: 'AotW 2023-10', isEventHub: true }),
-      createGameSet({ id: 4, title: 'RA Awards 2022', isEventHub: true }),
-    ];
-
-    render(
-      <GameMetadata
-        allMetaRowElements={createMockMetaRowElements() as any}
-        game={createGame()}
-        hubs={hubs}
-      />,
-    );
-
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /see more/i }));
-
-    // ASSERT
-    expect(screen.queryByText(/regular hub/i)).not.toBeInTheDocument();
-
-    expect(screen.getByText(/event hub 2023/i)).toBeVisible();
-    expect(screen.getByText(/aotw 2023-10/i)).toBeVisible();
-    expect(screen.getByText(/ra awards 2022/i)).toBeVisible();
-  });
-
-  it('given the game has no event hubs, does not display any event hub entries', async () => {
-    // ARRANGE
-    const hubs = [
-      createGameSet({ id: 1, title: 'Regular Hub 1', isEventHub: false }),
-      createGameSet({ id: 2, title: 'Regular Hub 2', isEventHub: false }),
-    ];
-
-    render(
-      <GameMetadata
-        allMetaRowElements={createMockMetaRowElements() as any}
-        game={createGame()}
-        hubs={hubs}
-      />,
-    );
-
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /see more/i }));
-
-    // ASSERT
-    expect(screen.queryByText(/regular hub 1/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/regular hub 2/i)).not.toBeInTheDocument();
-  });
-
   it('given there is only one see more row with content, automatically expands that section', () => {
     // ARRANGE
     const metaRowElements = createMockMetaRowElements({
-      // Empty all "see more" sections except one
+      // Empty all "see more" sections except one.
       protagonistRowElements: [],
-      themeRowElements: [],
+      themeRowElements: [{ label: 'Only See More Item' }],
       settingRowElements: [],
       formatRowElements: [],
       technicalRowElements: [],
       regionalRowElements: [],
-      miscRowElements: [{ label: 'Only See More Item' }],
-      raFeatureRowElements: [],
     });
 
-    render(
-      <GameMetadata allMetaRowElements={metaRowElements as any} game={createGame()} hubs={[]} />,
-    );
+    render(<GameMetadata allMetaRowElements={metaRowElements as any} game={createGame()} />);
 
     // ASSERT
     expect(screen.getByText(/only see more item/i)).toBeVisible();
@@ -287,7 +190,6 @@ describe('Component: GameMetadata', () => {
       <GameMetadata
         allMetaRowElements={createMockMetaRowElements() as any}
         game={createGame({ releases })}
-        hubs={[]}
       />,
     );
 

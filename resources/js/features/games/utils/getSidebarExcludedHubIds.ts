@@ -7,11 +7,6 @@ export function getSidebarExcludedHubIds(
 ): number[] {
   const filteredHubIds = hubs
     .filter((hub) => {
-      // Exclude event hubs.
-      if (hub.isEventHub) {
-        return true;
-      }
-
       // Exclude the hub that matches the series hub.
       if (seriesHub?.hub && hub.id === seriesHub.hub.id) {
         return true;
