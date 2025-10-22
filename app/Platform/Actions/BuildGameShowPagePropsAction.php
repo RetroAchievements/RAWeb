@@ -253,8 +253,12 @@ class BuildGameShowPagePropsAction
                 'createAchievementSetClaims',
                 'createGameComments',
                 'createGameForumTopic',
+                'manageAchievementSetClaims',
+                'manageGameHashes',
                 'manageGames',
                 'reviewAchievementSetClaims',
+                'updateAnyAchievementSetClaim',
+                'updateGame',
             ),
 
             canSubmitBetaFeedback: $this->getCanSubmitBetaFeedback($user, 'react-game-page'),

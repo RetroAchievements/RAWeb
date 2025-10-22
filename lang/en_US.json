@@ -143,6 +143,10 @@
     "Game": "Game",
     "Game Completion Checklist": "Game Completion Checklist",
     "Game Details": "Game Details",
+    "Edit Game Details": "Edit Game Details",
+    "View Game Details": "View Game Details",
+    "Manage Claims": "Manage Claims",
+    "View Claim History": "View Claim History",
     "Games": "Games",
     "Games Beaten": "Games Beaten",
     "Sets Mastered": "Sets Mastered",
@@ -1223,5 +1227,7 @@
     "View all {{val, number}} leaderboards": "View all {{val, number}} leaderboards",
     "Reflects completion rates for this achievement set across all players. Rarer achievements earn more RetroPoints.": "Reflects completion rates for this achievement set across all players. Rarer achievements earn more RetroPoints.",
     "This indicator may be inflated by set revisions and player attrition.": "This indicator may be inflated by set revisions and player attrition.",
-    "Set Requests - {{user}}": "Set Requests - {{user}}"
+    "Set Requests - {{user}}": "Set Requests - {{user}}",
+    "Hashes": "Hashes",
+    "Claims": "Claims"
 }
