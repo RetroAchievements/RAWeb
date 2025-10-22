@@ -74,7 +74,7 @@ class BuildGamePageClaimDataAction
             isSoleAuthor: $isSoleAuthor,
             maxClaimCount: $maxClaimCount,
             numClaimsRemaining: $this->calculateNumClaimsRemaining($user, $maxClaimCount),
-            numUnresolvedTickets: Ticket::forDeveloper($user)->unresolved()->count(),
+            numUnresolvedTickets: Ticket::forDeveloper($user)->awaitingDeveloper()->count(),
             wouldBeCollaboration: $wouldBeCollaboration,
             wouldBeRevision: $wouldBeRevision,
         );

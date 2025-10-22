@@ -21,6 +21,7 @@ use App\Community\Enums\UserGameListType;
 use App\Models\UserGameListEntry;
 use App\Support\Rules\ValidUserIdentifier;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
@@ -44,11 +45,11 @@ $query = UserGameListEntry::select([
 ])
     ->join('GameData', 'SetRequest.GameID', '=', 'GameData.ID')
     ->join('Console', 'GameData.ConsoleID', '=', 'Console.ID')
-    ->where('SetRequest.user_id', $user->id)
+    ->where(DB::raw('SetRequest.user_id'), $user->id)
     ->where('type', UserGameListType::AchievementSetRequest);
 
 if ($type !== 1) {
-    $query->where('GameData.achievements_published', '=', '0');
+    $query->where(DB::raw('GameData.achievements_published'), '=', '0');
 }
 
 $requestedSets = $query->orderBy('GameData.sort_title')->get()->toArray();

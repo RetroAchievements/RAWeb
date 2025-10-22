@@ -9,6 +9,7 @@ use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class EventAward extends BaseModel
 {
@@ -92,7 +93,7 @@ class EventAward extends BaseModel
         $relation->getQuery()->whereIn('AwardData', function ($query) {
             $query->select('event_id')
                 ->from('event_awards')
-                ->whereColumn('tier_index', 'SiteAwards.AwardDataExtra');
+                ->whereColumn('tier_index', DB::raw('SiteAwards.AwardDataExtra'));
         });
 
         return $relation;
