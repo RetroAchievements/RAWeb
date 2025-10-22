@@ -104,7 +104,7 @@ You spent {{ $recapData['totalPlaytime'] }} playing games {{ $playedSystemsClaus
 @endif
 
 @if ($recapData['subsetAchievementsUnlocked'])
-You unlocked {{ $countThing($recapData['subsetAchievementsUnlocked'], 'subset achievement') }}, earning you {{ $subsetHardcorePointsClause }}{{ $subsetSoftcorePointsClause }}.
+You also unlocked {{ $countThing($recapData['subsetAchievementsUnlocked'], 'subset achievement') }}, earning you an additional {{ $subsetHardcorePointsClause }}{{ $subsetSoftcorePointsClause }}.
 @if ($recapData['rarestSubsetHardcoreAchievement'])
 <x-mail::image-panel
     src="{{ $recapData['rarestSubsetHardcoreAchievement']->badge_unlocked_url }}"
