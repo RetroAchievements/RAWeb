@@ -4,6 +4,7 @@ use App\Actions\FindUserByIdentifierAction;
 use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\BuildClientPatchDataV2Action;
 use App\Connect\Actions\GetAchievementUnlocksAction;
+use App\Connect\Actions\GetBadgeIdRangeAction;
 use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\GetCodeNotesAction;
 use App\Connect\Actions\GetFriendListAction;
@@ -12,6 +13,8 @@ use App\Connect\Actions\GetLatestClientVersionAction;
 use App\Connect\Actions\GetLatestIntegrationVersionAction;
 use App\Connect\Actions\GetLeaderboardEntriesAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
+use App\Connect\Actions\LegacyLoginAction;
+use App\Connect\Actions\LoginAction;
 use App\Connect\Actions\PostActivityAction;
 use App\Connect\Actions\ResolveRootGameFromGameAndGameHashAction;
 use App\Connect\Actions\SubmitCodeNoteAction;
@@ -31,19 +34,21 @@ use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Platform\Services\UserAgentService;
 use App\Platform\Services\VirtualGameIdService;
-use App\Support\Media\FilenameIterator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 
 $requestType = request()->input('r');
 $handler = match ($requestType) {
     'achievementwondata' => new GetAchievementUnlocksAction(),
+    'badgeiter' => new GetBadgeIdRangeAction(),
     'codenotes2' => new GetCodeNotesAction(),
     'getfriendlist' => new GetFriendListAction(),
     'hashlibrary' => new GetHashLibraryAction(),
     'latestclient' => new GetLatestClientVersionAction(),
     'latestintegration' => new GetLatestIntegrationVersionAction(),
     'lbinfo' => new GetLeaderboardEntriesAction(),
+    'login' => new LegacyLoginAction(),
+    'login2' => new LoginAction(),
     'postactivity' => new PostActivityAction(),
     'submitcodenote' => new SubmitCodeNoteAction(),
     'submitgametitle' => new SubmitGameTitleAction(),
@@ -208,36 +213,11 @@ if (
 
 switch ($requestType) {
     /*
-     * Login
-     */
-    case "login":
-        $username = request()->input('u');
-        $rawPass = request()->input('p');
-        $response = authenticateForConnect($username, $rawPass, $token);
-
-        // do not return $response['Status'] as an HTTP status code when using this
-        // endpoint. legacy clients sometimes report the HTTP status code instead of
-        // the $response['Error'] message.
-        return response()->json($response);
-
-    case "login2":
-        $username = request()->input('u');
-        $rawPass = request()->input('p');
-        $response = authenticateForConnect($username, $rawPass, $token);
-        break;
-
-    /*
      * Global, no permissions required
      */
     case "allprogress":
         $consoleID = (int) request()->input('c');
         $response['Response'] = GetAllUserProgress($user, $consoleID);
-        break;
-
-    case "badgeiter":
-        // Used by RALibretro achievement editor
-        $response['FirstBadge'] = 80;
-        $response['NextBadge'] = (int) FilenameIterator::getBadgeIterator();
         break;
 
     case "gameid":

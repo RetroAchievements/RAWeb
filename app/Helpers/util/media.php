@@ -1,5 +1,6 @@
 <?php
 
+use App\Connect\Actions\GetBadgeIdRangeAction;
 use App\Platform\Enums\ImageType;
 use App\Support\Media\FilenameIterator;
 use Illuminate\Support\Facades\Storage;
@@ -112,17 +113,28 @@ function UploadBadgeImage(array $file): string
     imagefilter($imageLocked, IMG_FILTER_CONTRAST, 20);
     imagefilter($imageLocked, IMG_FILTER_GAUSSIAN_BLUR);
 
-    $badgeIterator = FilenameIterator::getBadgeIterator();
-    $imagePath = 'Badge/' . $badgeIterator . '.png';
-    $imagePathLocked = 'Badge/' . $badgeIterator . '_lock.png';
-    if (!imagepng($image, storage_path('app/media/' . $imagePath))
-        || !imagepng($imageLocked, storage_path('app/media/' . $imagePathLocked))) {
+    $badgeRange = (new GetBadgeIdRangeAction())->execute();
+    while (true) {
+        $badgeIterator = str_pad((string) $badgeRange['NextBadge'], 5, '0', STR_PAD_LEFT);
+
+        $imagePath = 'Badge/' . $badgeIterator . '.png';
+        $imagePathLocked = 'Badge/' . $badgeIterator . '_lock.png';
+
+        $localImagePath = storage_path('app/media/' . $imagePath);
+        $localImagePathLocked = storage_path('app/media/' . $imagePathLocked);
+        if (!file_exists($localImagePath)) {
+            break;
+        }
+
+        $badgeRange['NextBadge']++;
+    }
+
+    if (!imagepng($image, $localImagePath) || !imagepng($imageLocked, $localImagePathLocked)) {
         throw new Exception('Cannot copy image to destination');
     }
-    FilenameIterator::incrementBadgeIterator();
 
-    UploadToS3(storage_path('app/media/' . $imagePath), $imagePath);
-    UploadToS3(storage_path('app/media/' . $imagePathLocked), $imagePathLocked);
+    UploadToS3($localImagePath, $imagePath);
+    UploadToS3($localImagePathLocked, $imagePathLocked);
 
     return $badgeIterator;
 }

@@ -649,6 +649,7 @@ declare namespace App.Platform.Data {
     event: App.Platform.Data.Event;
     can: App.Data.UserPermissions;
     hubs: Array<App.Platform.Data.GameSet>;
+    breadcrumbs: Array<App.Platform.Data.GameSet>;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
     numMasters: number;

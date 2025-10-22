@@ -42,10 +42,10 @@ class MessageThreadService
 
         foreach ($messageThreads as &$messageThread) {
             $messageThread['other_participants'] = User::withTrashed()
-                ->join('message_thread_participants', 'message_thread_participants.user_id', '=', 'UserAccounts.ID')
+                ->join('message_thread_participants', 'message_thread_participants.user_id', '=', DB::raw('UserAccounts.ID'))
                 ->where('message_thread_participants.thread_id', '=', $messageThread->id)
                 ->where('message_thread_participants.user_id', '!=', $user->ID)
-                ->pluck('UserAccounts.User')
+                ->pluck(DB::raw('UserAccounts.User'))
                 ->toArray();
             $messageThread['num_unread'] = MessageThreadParticipant::where('user_id', $user->ID)
                 ->where('thread_id', $messageThread->id)
@@ -96,14 +96,14 @@ class MessageThreadService
 
         $participants = MessageThreadParticipant::withTrashed()
             ->where('thread_id', $messageThread->id)
-            ->join('UserAccounts', 'UserAccounts.ID', '=', 'message_thread_participants.user_id');
+            ->join('UserAccounts', DB::raw('UserAccounts.ID'), '=', 'message_thread_participants.user_id');
 
         $canReply = ($participants->count() === 1) || (clone $participants)
             ->where('user_id', '!=', $user->ID)
-            ->whereNull('UserAccounts.Deleted')
+            ->whereNull(DB::raw('UserAccounts.Deleted'))
             ->exists();
 
-        $participants = $participants->get(['UserAccounts.ID', 'UserAccounts.User'])
+        $participants = $participants->get([DB::raw('UserAccounts.ID'), DB::raw('UserAccounts.User')])
             ->mapWithKeys(function ($participant, $key) {
                 return [$participant->ID => $participant->User];
             })

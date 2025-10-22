@@ -20,6 +20,7 @@ use App\Platform\Data\UserSetRequestInfoData;
 use App\Platform\Enums\GameListSortField;
 use App\Platform\Enums\GameListType;
 use App\Platform\Requests\GameListRequest;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -102,9 +103,9 @@ class UserSetRequestListController extends Controller
             $systemIds = UserGameListEntry::query()
                 ->where('user_id', $targetUser->id)
                 ->where('type', UserGameListType::AchievementSetRequest)
-                ->join('GameData', 'SetRequest.GameID', '=', 'GameData.ID')
+                ->join('GameData', DB::raw('SetRequest.GameID'), '=', 'GameData.ID')
                 ->distinct()
-                ->pluck('GameData.ConsoleID');
+                ->pluck(DB::raw('GameData.ConsoleID'));
 
             $filterableSystemOptions = System::query()
                 ->gameSystems()

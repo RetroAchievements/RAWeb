@@ -147,19 +147,47 @@ class LoginTest extends TestCase
 
         // no user
         $this->post('dorequest.php', ['r' => 'login2', 'p' => $password])
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 422,
+                'Code' => 'missing_parameter',
+                'Error' => 'One or more required parameters is missing.',
+            ]);
+
+        // blank user
+        $this->post('dorequest.php', ['r' => 'login2', 'u' => '', 'p' => $password])
             ->assertStatus(401)
-            ->assertHeader('WWW-Authenticate', 'Bearer')
             ->assertExactJson([
                 'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid username. Please try again.',
+                'Error' => 'Invalid user/password combination. Please try again.',
             ]);
 
         // no password or token
         $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->User])
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 422,
+                'Code' => 'missing_parameter',
+                'Error' => 'One or more required parameters is missing.',
+            ]);
+
+        // no user or password
+        $this->post('dorequest.php', ['r' => 'login2'])
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 422,
+                'Code' => 'missing_parameter',
+                'Error' => 'One or more required parameters is missing.',
+            ]);
+
+        // blank password
+        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->User, 'p' => ''])
             ->assertStatus(401)
-            ->assertHeader('WWW-Authenticate', 'Bearer')
             ->assertExactJson([
                 'Success' => false,
                 'Status' => 401,
@@ -183,7 +211,7 @@ class LoginTest extends TestCase
 
         // try with banned user - response should be the same as a non-existent user
         /** @var User $user2 */
-        $user2 = User::factory()->create(['Permissions' => Permissions::Banned, 'Password' => Hash::make($password)]);
+        $user2 = User::factory()->create(['Permissions' => Permissions::Banned, 'banned_at' => Carbon::now()->clone()->subMonths(2), 'Password' => Hash::make($password)]);
         $this->post('dorequest.php', ['r' => 'login2', 'u' => $user2->User, 'p' => $password])
             ->assertStatus(401)
             ->assertHeader('WWW-Authenticate', 'Bearer')
@@ -258,9 +286,19 @@ class LoginTest extends TestCase
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => false,
+                'Status' => 422,
+                'Code' => 'missing_parameter',
+                'Error' => 'One or more required parameters is missing.',
+            ]);
+
+        // blank user
+        $this->post($this->apiUrl('login', ['u' => '', 'p' => $password], credentials: false))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid username. Please try again.',
+                'Error' => 'Invalid user/password combination. Please try again.',
             ]);
 
         // no password or token
@@ -268,9 +306,29 @@ class LoginTest extends TestCase
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => false,
+                'Status' => 422,
+                'Code' => 'missing_parameter',
+                'Error' => 'One or more required parameters is missing.',
+            ]);
+
+        // blank password
+        $this->get($this->apiUrl('login', ['u' => $user->User, 'p' => ''], credentials: false))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
                 'Error' => 'Invalid user/password combination. Please try again.',
+            ]);
+
+        // no user or password
+        $this->get($this->apiUrl('login', [], credentials: false))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 422,
+                'Code' => 'missing_parameter',
+                'Error' => 'One or more required parameters is missing.',
             ]);
 
         // expired token
@@ -288,7 +346,7 @@ class LoginTest extends TestCase
 
         // try with banned user - response should be the same as a non-existent user
         /** @var User $user2 */
-        $user2 = User::factory()->create(['Permissions' => Permissions::Banned, 'Password' => Hash::make($password)]);
+        $user2 = User::factory()->create(['Permissions' => Permissions::Banned, 'banned_at' => Carbon::now()->clone()->subMonths(2), 'Password' => Hash::make($password)]);
         $this->get($this->apiUrl('login', ['u' => $user2->User, 'p' => $password], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([

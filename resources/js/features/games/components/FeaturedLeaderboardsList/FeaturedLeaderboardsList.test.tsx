@@ -1,25 +1,23 @@
+// eslint-disable-next-line no-restricted-imports -- fine in a test
+import * as InertiajsReact from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 
-import { useCurrentListView } from '@/features/games/hooks/useCurrentListView';
-import { render, screen } from '@/test';
+import { currentListViewAtom } from '@/features/games/state/games.atoms';
+import { act, render, screen } from '@/test';
 import { createLeaderboard, createLeaderboardEntry, createUser } from '@/test/factories';
 
 import { FeaturedLeaderboardsList } from './FeaturedLeaderboardsList';
 
-vi.mock('@/features/games/hooks/useCurrentListView');
-
 describe('Component: FeaturedLeaderboardsList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Mock router.reload to prevent actual HTTP requests in tests.
+    vi.spyOn(InertiajsReact.router, 'reload').mockImplementation(vi.fn());
   });
 
   it('renders without crashing', () => {
     // ARRANGE
-    vi.mocked(useCurrentListView).mockReturnValue({
-      currentListView: 'achievements',
-      setCurrentListView: vi.fn(),
-    });
-
     const { container } = render(<FeaturedLeaderboardsList featuredLeaderboards={[]} />, {
       pageProps: { numLeaderboards: 0 },
     });
@@ -30,11 +28,6 @@ describe('Component: FeaturedLeaderboardsList', () => {
 
   it('given there are no featured leaderboards, renders nothing', () => {
     // ARRANGE
-    vi.mocked(useCurrentListView).mockReturnValue({
-      currentListView: 'achievements',
-      setCurrentListView: vi.fn(),
-    });
-
     render(<FeaturedLeaderboardsList featuredLeaderboards={[]} />, {
       pageProps: { numLeaderboards: 0 },
     });
@@ -45,11 +38,6 @@ describe('Component: FeaturedLeaderboardsList', () => {
 
   it('given there are featured leaderboards, displays them', () => {
     // ARRANGE
-    vi.mocked(useCurrentListView).mockReturnValue({
-      currentListView: 'achievements',
-      setCurrentListView: vi.fn(),
-    });
-
     const leaderboard = createLeaderboard({
       id: 123,
       title: 'High Score Challenge',
@@ -67,11 +55,6 @@ describe('Component: FeaturedLeaderboardsList', () => {
 
   it('given a leaderboard has a top entry, displays the top entry information', () => {
     // ARRANGE
-    vi.mocked(useCurrentListView).mockReturnValue({
-      currentListView: 'achievements',
-      setCurrentListView: vi.fn(),
-    });
-
     const topUser = createUser({ displayName: 'TopPlayer' });
     const topEntry = createLeaderboardEntry({
       user: topUser,
@@ -90,11 +73,6 @@ describe('Component: FeaturedLeaderboardsList', () => {
 
   it('given a leaderboard has no top entry user, does not crash', () => {
     // ARRANGE
-    vi.mocked(useCurrentListView).mockReturnValue({
-      currentListView: 'achievements',
-      setCurrentListView: vi.fn(),
-    });
-
     const leaderboard = createLeaderboard({ topEntry: undefined });
 
     const { container } = render(
@@ -110,11 +88,6 @@ describe('Component: FeaturedLeaderboardsList', () => {
 
   it('given there are 5 or fewer total leaderboards, does not show the view all button', () => {
     // ARRANGE
-    vi.mocked(useCurrentListView).mockReturnValue({
-      currentListView: 'achievements',
-      setCurrentListView: vi.fn(),
-    });
-
     const leaderboard = createLeaderboard();
 
     render(<FeaturedLeaderboardsList featuredLeaderboards={[leaderboard]} />, {
@@ -127,11 +100,6 @@ describe('Component: FeaturedLeaderboardsList', () => {
 
   it('given there are more than 5 total leaderboards, shows the view all button with the correct count', () => {
     // ARRANGE
-    vi.mocked(useCurrentListView).mockReturnValue({
-      currentListView: 'achievements',
-      setCurrentListView: vi.fn(),
-    });
-
     const leaderboard = createLeaderboard();
 
     render(<FeaturedLeaderboardsList featuredLeaderboards={[leaderboard]} />, {
@@ -161,12 +129,6 @@ describe('Component: FeaturedLeaderboardsList', () => {
       toJSON: vi.fn(),
     });
     vi.spyOn(document, 'getElementById').mockReturnValue(mockElement);
-
-    const setCurrentListView = vi.fn();
-    vi.mocked(useCurrentListView).mockReturnValue({
-      currentListView: 'achievements',
-      setCurrentListView,
-    });
 
     const leaderboard = createLeaderboard();
 
@@ -206,27 +168,27 @@ describe('Component: FeaturedLeaderboardsList', () => {
     });
     vi.spyOn(document, 'getElementById').mockReturnValue(mockElement);
 
-    const setCurrentListView = vi.fn();
-    vi.mocked(useCurrentListView).mockReturnValue({
-      currentListView: 'achievements',
-      setCurrentListView,
-    });
-
     const leaderboard = createLeaderboard();
 
     render(<FeaturedLeaderboardsList featuredLeaderboards={[leaderboard]} />, {
       pageProps: { numLeaderboards: 10 },
+      jotaiAtoms: [
+        [currentListViewAtom, 'achievements'],
+        //
+      ],
     });
 
     // ACT
     await screen.getByRole('button', { name: /view all/i }).click();
 
-    // ... initially should not be called ...
-    expect(setCurrentListView).not.toHaveBeenCalled();
-
     // ASSERT
-    vi.runAllTimers();
-    expect(setCurrentListView).toHaveBeenCalledWith('leaderboards');
+    // ... wait for the timeout ...
+    act(() => {
+      vi.runAllTimers();
+    });
+
+    // ... URL should be updated with leaderboards view ...
+    expect(window.location.search).toContain('view=leaderboards');
 
     vi.useRealTimers();
   });
@@ -237,12 +199,6 @@ describe('Component: FeaturedLeaderboardsList', () => {
     window.scrollTo = mockScrollTo;
 
     vi.spyOn(document, 'getElementById').mockReturnValue(null); // !!
-
-    const setCurrentListView = vi.fn();
-    vi.mocked(useCurrentListView).mockReturnValue({
-      currentListView: 'achievements',
-      setCurrentListView,
-    });
 
     const leaderboard = createLeaderboard();
 
