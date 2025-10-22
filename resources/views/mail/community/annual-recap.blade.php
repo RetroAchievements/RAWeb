@@ -104,11 +104,13 @@ You made {{ $countThing($recapData['numForumPosts'], 'forum post') }}.
 You made {{ $countThing($recapData['numComments'], 'game comment') }}.
 @endif
 
-@if ($recapData['achievementsCreated'] > 0)
-@if ($recapData['completedClaims'] > 0)
-You published {{ $countThing($recapData['achievementsCreated'], 'new achievement') }} and {{ $countThing($recapData['completedClaims'], 'new set') }}.
+@if ($recapData['developmentTime'])
+@if ($recapData['achievementsCreated'] === 0)
+You spent {{ $recapData['developmentTime'] }} developing sets.
+@elseif ($recapData['completedClaims'] > 0)
+You spent {{ $recapData['developmentTime'] }} developing sets. You published {{ $countThing($recapData['achievementsCreated'], 'new achievement') }} and {{ $countThing($recapData['completedClaims'], 'new set') }}.
 @else
-You published {{ $countThing($recapData['achievementsCreated'], 'new achievement') }}.
+You spent {{ $recapData['developmentTime'] }} developing sets. You published {{ $countThing($recapData['achievementsCreated'], 'new achievement') }}.
 @endif
 @endif
 

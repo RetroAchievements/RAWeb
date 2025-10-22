@@ -39,6 +39,10 @@ declare namespace App.Community.Data {
     recentPlayerBadges: Array<App.Community.Data.RecentPlayerBadge>;
     recentLeaderboardEntries: Array<App.Community.Data.RecentLeaderboardEntry>;
   };
+  export type GameChecklistPageProps = {
+    player: App.Data.User;
+    groups: Array<App.Community.Data.GameGroup>;
+  };
   export type GameClaimsCommentsPageProps<TItems = App.Community.Data.Comment> = {
     game: App.Platform.Data.Game;
     paginatedComments: App.Data.PaginatedData<TItems>;
@@ -50,6 +54,10 @@ declare namespace App.Community.Data {
     paginatedComments: App.Data.PaginatedData<TItems>;
     isSubscribed: boolean;
     canComment: boolean;
+  };
+  export type GameGroup = {
+    header: string;
+    games: Array<App.Platform.Data.GameListEntry>;
   };
   export type GameHashesCommentsPageProps<TItems = App.Community.Data.Comment> = {
     game: App.Platform.Data.Game;
@@ -647,6 +655,7 @@ declare namespace App.Platform.Data {
     event: App.Platform.Data.Event;
     can: App.Data.UserPermissions;
     hubs: Array<App.Platform.Data.GameSet>;
+    breadcrumbs: Array<App.Platform.Data.GameSet>;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
     numMasters: number;

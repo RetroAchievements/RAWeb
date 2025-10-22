@@ -8,6 +8,7 @@ use App\Models\AchievementSet;
 use App\Models\Game;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class VerifyAchievementSetIntegrity extends Command
 {
@@ -147,14 +148,14 @@ class VerifyAchievementSetIntegrity extends Command
         $gameOrder = $game->achievements()
             ->whereNull('Achievements.deleted_at')
             ->orderBy('DisplayOrder')
-            ->pluck('Achievements.ID')
+            ->pluck(DB::raw('Achievements.ID'))
             ->toArray();
 
         // Get ordering from set achievements using the pivot table's order_column.
         $setOrder = $set->achievements()
             ->whereNull('Achievements.deleted_at')
             ->orderBy('achievement_set_achievements.order_column')
-            ->pluck('Achievements.ID')
+            ->pluck(DB::raw('Achievements.ID'))
             ->toArray();
 
         if ($gameOrder !== $setOrder) {

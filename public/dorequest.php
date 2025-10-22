@@ -4,6 +4,7 @@ use App\Actions\FindUserByIdentifierAction;
 use App\Connect\Actions\BuildClientPatchDataAction;
 use App\Connect\Actions\BuildClientPatchDataV2Action;
 use App\Connect\Actions\GetAchievementUnlocksAction;
+use App\Connect\Actions\GetBadgeIdRangeAction;
 use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\GetCodeNotesAction;
 use App\Connect\Actions\GetFriendListAction;
@@ -33,13 +34,13 @@ use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Platform\Services\UserAgentService;
 use App\Platform\Services\VirtualGameIdService;
-use App\Support\Media\FilenameIterator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 
 $requestType = request()->input('r');
 $handler = match ($requestType) {
     'achievementwondata' => new GetAchievementUnlocksAction(),
+    'badgeiter' => new GetBadgeIdRangeAction(),
     'codenotes2' => new GetCodeNotesAction(),
     'getfriendlist' => new GetFriendListAction(),
     'hashlibrary' => new GetHashLibraryAction(),
@@ -217,12 +218,6 @@ switch ($requestType) {
     case "allprogress":
         $consoleID = (int) request()->input('c');
         $response['Response'] = GetAllUserProgress($user, $consoleID);
-        break;
-
-    case "badgeiter":
-        // Used by RALibretro achievement editor
-        $response['FirstBadge'] = 80;
-        $response['NextBadge'] = (int) FilenameIterator::getBadgeIterator();
         break;
 
     case "gameid":

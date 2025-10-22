@@ -33,6 +33,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
@@ -593,7 +594,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
             'achievement_set_id',
             'ID',
             'achievement_set_id'
-        )->where('game_achievement_sets.type', AchievementSetType::Core);
+        )->where(DB::raw('game_achievement_sets.type'), AchievementSetType::Core);
     }
 
     /**
