@@ -32,7 +32,7 @@ export const EventShowSidebarRoot: FC = () => {
       <EventSidebarFullWidthButtons event={event} />
       <EventProgress event={event} playerGame={playerGame} />
       <EventAwardTiers event={event} numMasters={numMasters} />
-      <PlayableHubsList hubs={hubs} />
+      <PlayableHubsList hubs={hubs} variant="event" />
       <PlayableCompareProgress
         followedPlayerCompletions={followedPlayerCompletions}
         game={event.legacyGame!}

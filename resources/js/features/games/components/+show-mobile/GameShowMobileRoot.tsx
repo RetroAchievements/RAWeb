@@ -124,7 +124,7 @@ export const GameShowMobileRoot: FC = () => {
 
           <div className="flex flex-col gap-3">
             <GameContentWarnings />
-            <GameMetadata allMetaRowElements={allMetaRowElements} game={game} hubs={hubs} />
+            <GameMetadata allMetaRowElements={allMetaRowElements} game={game} />
           </div>
 
           <GameSidebarFullWidthButtons game={game} />
@@ -139,6 +139,7 @@ export const GameShowMobileRoot: FC = () => {
               seriesHub,
               allMetaRowElements.allUsedHubIds,
             )}
+            variant="game"
           />
         </BaseTabsContent>
 

@@ -142,4 +142,57 @@ describe('Component: HubsList', () => {
 
     expect(screen.getByRole('link', { name: /aaa/i })).toBeVisible();
   });
+
+  it('given the user cannot manage games but the hub is Meta|Art, displays the Meta|Art hub', () => {
+    // ARRANGE
+    const mockHubs = [
+      createGameSet({ title: 'Meta|Art - Stock/Recycled Badges' }),
+      createGameSet({ title: 'Meta|QA - Missing Content' }),
+    ];
+
+    render(<PlayableHubsList hubs={mockHubs} />, {
+      pageProps: {
+        can: {
+          manageGames: false, // !!
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /stock\/recycled badges/i })).toBeVisible(); // Meta|Art is visible
+    expect(screen.queryByRole('link', { name: /missing content/i })).not.toBeInTheDocument(); // Meta|QA is hidden
+  });
+
+  it('given the variant is game, displays Additional Hubs heading with an info icon', () => {
+    // ARRANGE
+    const mockHubs = [createGameSet({ title: 'Test Hub' })];
+
+    render(<PlayableHubsList hubs={mockHubs} variant="game" />, {
+      pageProps: {
+        can: {
+          manageGames: false,
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('heading', { name: /additional hubs/i })).toBeVisible();
+  });
+
+  it('given the variant is event, displays the normal Hubs heading', () => {
+    // ARRANGE
+    const mockHubs = [createGameSet({ title: 'Test Hub' })];
+
+    render(<PlayableHubsList hubs={mockHubs} variant="event" />, {
+      pageProps: {
+        can: {
+          manageGames: false,
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('heading', { name: 'Hubs' })).toBeVisible();
+    expect(screen.queryByText(/additional/i)).not.toBeInTheDocument();
+  });
 });

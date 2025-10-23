@@ -1229,5 +1229,7 @@
     "This indicator may be inflated by set revisions and player attrition.": "This indicator may be inflated by set revisions and player attrition.",
     "Set Requests - {{user}}": "Set Requests - {{user}}",
     "Hashes": "Hashes",
-    "Claims": "Claims"
+    "Claims": "Claims",
+    "Additional Hubs": "Additional Hubs",
+    "Many game details above (like Developer and Genre) are also hubs. Click any to explore related games.": "Many game details above (like Developer and Genre) are also hubs. Click any to explore related games."
 }
