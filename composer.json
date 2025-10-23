@@ -44,7 +44,6 @@
         "opcodesio/log-viewer": "^3.1",
         "owenvoke/blade-fontawesome": "^2.9",
         "sentry/sentry-laravel": "^4.13",
-        "snipe/banbuilder": "dev-master",
         "socialiteproviders/discord": "^4.1",
         "socialiteproviders/patreon": "^5.0",
         "socialiteproviders/twitch": "^5.3",
