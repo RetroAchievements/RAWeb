@@ -214,6 +214,7 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
                     //  DisplayOrders haven't been setup correctly; fallback to IDs for consistency
                     return $a['Achievement']['ID'] <=> $b['Achievement']['ID'];
                 }
+
                 return $a['Achievement']['DisplayOrder'] <=> $b['Achievement']['DisplayOrder'];
             });
 
@@ -370,13 +371,13 @@ function getUsersCompletedGamesAndMax(string $user): array
             pg.achievements_unlocked AS NumAwarded, pg.achievements_unlocked_hardcore AS NumAwardedHC, " .
             floatDivisionStatement('pg.achievements_unlocked', 'gd.achievements_published') . " AS PctWon, " .
             floatDivisionStatement('pg.achievements_unlocked_hardcore', 'gd.achievements_published') . " AS PctWonHC
-        FROM player_games AS pg
-        LEFT JOIN GameData AS gd ON gd.ID = pg.game_id
-        LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-        LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
-        WHERE (ua.User = :user OR ua.display_name = :user2)
-        AND gd.achievements_published > $minAchievementsForCompletion
-        ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.Title";
+            FROM player_games AS pg
+            LEFT JOIN GameData AS gd ON gd.ID = pg.game_id
+            LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+            LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
+            WHERE (ua.User = :user OR ua.display_name = :user2)
+            AND gd.achievements_published > $minAchievementsForCompletion
+            ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.Title";
 
     return legacyDbFetchAll($query, ['user' => $user, 'user2' => $user])->toArray();
 }
