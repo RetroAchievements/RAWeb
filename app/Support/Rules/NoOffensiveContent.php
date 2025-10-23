@@ -13,7 +13,7 @@ class NoOffensiveContent implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         // Let's not explicitly write these words in our codebase.
-        $base64EncodedSlurs = 'WyJuaWdnZXIiLCJuaWdnYSIsImtrayIsIm5hemkiLCJoaXRsZXIiLCJjaGluayIsImtpa2UiLCJzcGljIiwid2V0YmFjayIsInRvd2VsaGVhZCIsInJhZ2hlYWQiLCJnb29rIiwiamlnYWJvbyIsImNvb24iLCJiZWFuZXIiXQ==';
+        $base64EncodedSlurs = 'WyJuaWdnZXIiLCJuaWdnYSJd';
         $dictionary = json_decode(base64_decode($base64EncodedSlurs), true);
 
         // CensorWords also checks for ways people can obfuscate the slurs. ie: "wow" === "W0W"
