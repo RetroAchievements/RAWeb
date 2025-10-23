@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { route } from 'ziggy-js';
 
-import { buildMiscRowElements } from '../utils/buildMiscRowElements';
 import { extractAndProcessHubMetadata } from '../utils/extractAndProcessHubMetadata';
 import { hubIds } from '../utils/hubIds';
 
@@ -155,18 +154,6 @@ export function useAllMetaRowElements(
     [filteredHubs],
   );
 
-  const raFeatureRowElements = useMemo(
-    () =>
-      buildMetaRowElements({
-        hubs: filteredHubs,
-        hubTitleIncludes: ['Meta -', 'RANews -', 'Custom Awards -'],
-        hubTitleExcludes: ['Meta - Language'],
-        primaryLabel: 'Meta',
-        altLabels: ['RANews', 'Custom Awards'],
-      }),
-    [filteredHubs],
-  );
-
   const formatRowElements = useMemo(
     () =>
       buildMetaRowElements({
@@ -175,53 +162,6 @@ export function useAllMetaRowElements(
         primaryLabel: 'Format',
       }),
     [filteredHubs],
-  );
-
-  // Calculate used hub IDs from all other categories (excluding misc).
-  const usedHubIdsFromOtherCategories = useMemo(() => {
-    const allRows = [
-      ...creditRowElements,
-      ...developerRowElements,
-      ...featureRowElements,
-      ...formatRowElements,
-      ...genreRowElements,
-      ...hackOfRowElements,
-      ...languageRowElements,
-      ...perspectiveRowElements,
-      ...protagonistRowElements,
-      ...publisherRowElements,
-      ...raFeatureRowElements,
-      ...regionalRowElements,
-      ...settingRowElements,
-      ...technicalRowElements,
-      ...themeRowElements,
-    ];
-
-    return new Set(allRows.map((row) => row.hubId).filter((id): id is number => Boolean(id)));
-  }, [
-    creditRowElements,
-    developerRowElements,
-    featureRowElements,
-    formatRowElements,
-    genreRowElements,
-    hackOfRowElements,
-    languageRowElements,
-    perspectiveRowElements,
-    protagonistRowElements,
-    publisherRowElements,
-    raFeatureRowElements,
-    regionalRowElements,
-    settingRowElements,
-    technicalRowElements,
-    themeRowElements,
-  ]);
-
-  const miscRowElements = useMemo(
-    () =>
-      buildMiscRowElements(filteredHubs, usedHubIdsFromOtherCategories, {
-        keepPrefixFor: ['Clones', 'Fangames', 'Rollout Sets'],
-      }),
-    [filteredHubs, usedHubIdsFromOtherCategories],
   );
 
   const allUsedHubIds = useMemo(() => {
@@ -233,11 +173,9 @@ export function useAllMetaRowElements(
       ...genreRowElements,
       ...hackOfRowElements,
       ...languageRowElements,
-      ...miscRowElements,
       ...perspectiveRowElements,
       ...protagonistRowElements,
       ...publisherRowElements,
-      ...raFeatureRowElements,
       ...regionalRowElements,
       ...settingRowElements,
       ...technicalRowElements,
@@ -253,11 +191,9 @@ export function useAllMetaRowElements(
     genreRowElements,
     hackOfRowElements,
     languageRowElements,
-    miscRowElements,
     perspectiveRowElements,
     protagonistRowElements,
     publisherRowElements,
-    raFeatureRowElements,
     regionalRowElements,
     settingRowElements,
     technicalRowElements,
@@ -273,11 +209,9 @@ export function useAllMetaRowElements(
     genreRowElements,
     hackOfRowElements,
     languageRowElements,
-    miscRowElements,
     perspectiveRowElements,
     protagonistRowElements,
     publisherRowElements,
-    raFeatureRowElements,
     regionalRowElements,
     settingRowElements,
     technicalRowElements,
