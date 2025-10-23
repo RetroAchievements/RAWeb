@@ -60,7 +60,7 @@ export const GameMetadata: FC<GameMetadataProps> = ({ allMetaRowElements, game }
   const seeMoreRowsCount = seeMoreRows.filter((row) => row.elements?.length > 0).length;
   const canShowSeeMoreSection = seeMoreRowsCount > 0;
 
-  const [isSeeMoreOpen, setIsSeeMoreOpen] = useState(seeMoreRowsCount === 1);
+  const [isSeeMoreOpen, setIsSeeMoreOpen] = useState(seeMoreRowsCount <= 2);
 
   const canShowPublisherRow =
     publisherRowElements.length > 0 &&
