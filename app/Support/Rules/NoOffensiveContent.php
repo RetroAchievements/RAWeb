@@ -6,6 +6,7 @@ namespace App\Support\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Snipe\BanBuilder\CensorWords;
 
 class NoOffensiveContent implements ValidationRule
 {
@@ -15,15 +16,16 @@ class NoOffensiveContent implements ValidationRule
         $base64EncodedSlurs = 'WyJuaWdnZXIiLCJuaWdnYSIsImtrayIsIm5hemkiLCJoaXRsZXIiLCJjaGluayIsImtpa2UiLCJzcGljIiwid2V0YmFjayIsInRvd2VsaGVhZCIsInJhZ2hlYWQiLCJnb29rIiwiamlnYWJvbyIsImNvb24iLCJiZWFuZXIiXQ==';
         $dictionary = json_decode(base64_decode($base64EncodedSlurs), true);
 
+        // CensorWords also checks for ways people can obfuscate the slurs. ie: "wow" === "W0W"
+        $censor = new CensorWords();
+        $censor->addFromArray($dictionary);
+
         // Check for the slurs using substring matching.
         // There's no legitimate reason for these to appear anywhere in a username.
-        $lowerValue = strtolower((string) $value);
-        foreach ($dictionary as $term) {
-            if (str_contains($lowerValue, $term)) {
-                $fail('validation.no_offensive_content')->translate();
+        $result = $censor->censorString((string) $value, false);
 
-                return;
-            }
+        if (!empty($result['matched'])) {
+            $fail('validation.no_offensive_content')->translate();
         }
     }
 }
