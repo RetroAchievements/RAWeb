@@ -54,7 +54,7 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
     <x-nav-item :href="route('tool.index')">{{ __('Tools') }}</x-nav-item>
 @endif
 --}}
-<x-nav-dropdown :title="__res('game')">
+<x-nav-dropdown :title="__res('game')" class="z-20 sm:z-auto">
     <x-slot name="trigger">
         <x-fas-gamepad/>
         <span class="ml-1 hidden sm:inline-block">{{ __res('game') }}</span>
@@ -91,7 +91,7 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
         </div>
     </div>
 </x-nav-dropdown>
-<x-nav-dropdown :title="__res('achievement')">
+<x-nav-dropdown :title="__res('achievement')" class="z-20 sm:z-auto">
     <x-slot name="trigger">
         <x-fas-trophy/>
         <span class="ml-1 hidden sm:inline-block">{{ __res('achievement') }}</span>
@@ -102,7 +102,7 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
     <x-dropdown-item :href="url('achievementList.php?s=4&p=2')">Easy Achievements</x-dropdown-item>
     <x-dropdown-item :href="url('achievementList.php?s=14&p=2')">Hardest Achievements</x-dropdown-item>
 </x-nav-dropdown>
-<x-nav-dropdown :title="__('Community')">
+<x-nav-dropdown :title="__('Community')" class="z-20 sm:z-auto">
     <x-slot name="trigger">
         <x-fas-users/>
         <span class="ml-1 hidden sm:inline-block">{{ __('Community') }}</span>
