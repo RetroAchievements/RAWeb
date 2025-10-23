@@ -1229,5 +1229,6 @@
     "This indicator may be inflated by set revisions and player attrition.": "This indicator may be inflated by set revisions and player attrition.",
     "Set Requests - {{user}}": "Set Requests - {{user}}",
     "Hashes": "Hashes",
-    "Claims": "Claims"
+    "Claims": "Claims",
+    "This username is not available.": "This username is not available."
 }
