@@ -8,10 +8,6 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Snipe\BanBuilder\CensorWords;
 
-/**
- * Validates that the input does not contain offensive content.
- * Uses banbuilder's en-base, en-us, and en-uk dictionaries to detect profanity and offensive terms.
- */
 class NoOffensiveContent implements ValidationRule
 {
     public function validate(string $attribute, mixed $value, Closure $fail): void
