@@ -210,7 +210,15 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
 
         if ($numRecentAchievements === 0) {
             usort($lockedAchievements, function ($a, $b) {
-                return $a['Achievement']['DisplayOrder'] <=> $b['Achievement']['DisplayOrder'];
+                if ($a['Achievement']['DisplayOrder'] == $b['Achievement']['DisplayOrder'])
+                {
+                    //  DisplayOrders haven't been setup correctly; fallback to IDs for consistency
+                    return $a['Achievement']['ID'] <=> $b['Achievement']['ID'];
+                }
+                else
+                {
+                    return $a['Achievement']['DisplayOrder'] <=> $b['Achievement']['DisplayOrder'];
+                }
             });
 
             foreach ($lockedAchievements as $lockedAchievement) {
