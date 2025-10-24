@@ -23,7 +23,7 @@ class BuildSeriesHubDataAction
         }
 
         // Get all games in the hub (excluding subsets).
-        $query = $seriesHub->games()->where('GameData.Title', 'not like', '%[Subset -%');
+        $query = $seriesHub->games()->where(DB::raw('GameData.Title'), 'not like', '%[Subset -%');
 
         $allGames = $query->get();
 

@@ -39,10 +39,12 @@ use App\Community\Controllers\UnsubscribeController;
 use App\Community\Controllers\UserAchievementChecklistController;
 use App\Community\Controllers\UserCommentController;
 use App\Community\Controllers\UserForumTopicCommentController;
+use App\Community\Controllers\UserGameChecklistController;
 use App\Community\Controllers\UserGameListController;
 use App\Community\Controllers\UserModerationCommentController;
 use App\Community\Controllers\UserSetRequestListController;
 use App\Community\Controllers\UserSettingsController;
+use App\Platform\Controllers\GameController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -131,6 +133,8 @@ class RouteServiceProvider extends ServiceProvider
                         Route::get('forums/{category}/{forum}/create', [ForumTopicController::class, 'create'])->name('forum-topic.create');
                         Route::get('forums/post/{comment}/edit', [ForumTopicCommentController::class, 'edit'])->name('forum-topic-comment.edit');
 
+                        Route::get('game/{game}/requests', [GameController::class, 'setRequests'])->name('game.requests.show');
+
                         Route::get('message-thread/{messageThread}', [MessageThreadController::class, 'show'])->name('message-thread.show');
                         Route::get('messages', [MessageThreadController::class, 'index'])->name('message-thread.index');
                         Route::get('messages/create', [MessageThreadController::class, 'create'])->name('message-thread.create');
@@ -166,6 +170,7 @@ class RouteServiceProvider extends ServiceProvider
 
                     Route::get('user/{user}/posts', [UserForumTopicCommentController::class, 'index'])->name('user.posts.index');
                     Route::get('user/{user}/achievement-checklist', [UserAchievementChecklistController::class, 'index'])->name('user.achievement-checklist');
+                    Route::get('user/{user}/game-checklist', [UserGameChecklistController::class, 'show'])->name('user.game-checklist');
 
                     /**
                      * @see Middleware\ValidateSignature::class

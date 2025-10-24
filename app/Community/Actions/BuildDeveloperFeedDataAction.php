@@ -179,7 +179,7 @@ class BuildDeveloperFeedDataAction
         return LeaderboardEntry::select('leaderboard_entries.*')
             ->with(['leaderboard.game.system', 'user'])
             ->join('LeaderboardDef as ld', 'ld.ID', '=', 'leaderboard_entries.leaderboard_id')
-            ->where('ld.author_id', $targetUser->id)
+            ->where(DB::raw('ld.author_id'), $targetUser->id)
             ->whereNull('ld.deleted_at')
             ->whereNull('leaderboard_entries.deleted_at')
             ->where('leaderboard_entries.updated_at', '>=', now()->subDays(30))

@@ -77,9 +77,9 @@ describe('Component: AchievementSetEmptyState', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('link', { name: /123/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /123/i })).toHaveAttribute(
       'href',
-      '/setRequestors.php?g=456',
+      expect.stringContaining('game.requests.show,'),
     );
   });
 

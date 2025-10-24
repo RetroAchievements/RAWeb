@@ -14,11 +14,11 @@ import type { AppPage } from '@/common/models';
 import { EventAchievementSection } from '@/features/events/components/EventAchievementSetContainer/EventAchievementSet/EventAchievementSection';
 
 const UserAchievementChecklist: AppPage = () => {
-  const { player, groups } = usePageProps<App.Community.Data.AchievementChecklistPageProps>();
+  const { player, groups, auth } = usePageProps<App.Community.Data.AchievementChecklistPageProps>();
 
   const { t } = useTranslation();
 
-  const query = useUserSearchQuery({ initialSearchTerm: player.displayName });
+  const query = useUserSearchQuery({ initialSearchTerm: auth?.user.displayName });
 
   const handleUserChange = (newUser: string) => {
     router.visit(
@@ -36,10 +36,11 @@ const UserAchievementChecklist: AppPage = () => {
           <UserBreadcrumbs t_currentPageLabel={t('Achievement Checklist')} user={player} />
           <UserHeading user={player}>{t('Achievement Checklist')}</UserHeading>
 
-          <div className="form-grid-container mb-4">
-            <label>{t('Examine another user:')}</label>
+          <div className="mb-4 flex items-center gap-2">
+            <label htmlFor="user-select">{t('Examine another user:')}</label>
 
             <BaseSelectAsync<App.Data.User>
+              id="user-select"
               query={query}
               noResultsMessage={t('No users found.')}
               popoverPlaceholder={t('type a username...')}

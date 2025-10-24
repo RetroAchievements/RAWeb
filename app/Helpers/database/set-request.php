@@ -51,36 +51,6 @@ function getSetRequestCount(int $gameId): int
         ->count();
 }
 
-/**
- * Gets a list of set requestors for a given game.
- */
-function getSetRequestorsList(int $gameId, bool $getEmailInfo = false): array
-{
-    if ($gameId < 1) {
-        return [];
-    }
-
-    $query = UserGameListEntry::where('GameID', $gameId)
-        ->where('type', UserGameListType::AchievementSetRequest)
-        ->with('user');
-
-    $setRequests = $query->get();
-
-    $processedValues = $setRequests->map(function ($setRequest) use ($getEmailInfo) {
-        $record = [
-            'Requestor' => $setRequest->user->display_name,
-        ];
-
-        if ($getEmailInfo) {
-            $record['Email'] = $setRequest->user->EmailAddress;
-        }
-
-        return $record;
-    });
-
-    return $processedValues->toArray();
-}
-
 function getUserGameListsContaining(User $user, int $gameId): array
 {
     return UserGameListEntry::where("user_id", $user->id)

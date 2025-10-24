@@ -546,6 +546,13 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "game.requests.show": [
+        {
+            "name": "game",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
     "message-thread.show": [
         {
             "name": "messageThread",
@@ -658,6 +665,13 @@ declare module 'ziggy-js' {
         }
     ],
     "user.achievement-checklist": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "ID"
+        }
+    ],
+    "user.game-checklist": [
         {
             "name": "user",
             "required": true,

@@ -200,15 +200,6 @@ class BuildGameShowPagePropsAction
                     $data = $data->except('isEventHub');
                 }
 
-                // Remove fields from hubs that don't have "Series", "Subseries", or "Meta|" in the title.
-                if (
-                    !str_contains($hub->title, 'Series')
-                    && !str_contains($hub->title, 'Subseries')
-                    && !str_contains($hub->title, 'Meta|')
-                ) {
-                    $data = $data->except('badgeUrl', 'gameCount', 'linkCount', 'type');
-                }
-
                 return $data;
             })
             ->values()
@@ -253,8 +244,12 @@ class BuildGameShowPagePropsAction
                 'createAchievementSetClaims',
                 'createGameComments',
                 'createGameForumTopic',
+                'manageAchievementSetClaims',
+                'manageGameHashes',
                 'manageGames',
                 'reviewAchievementSetClaims',
+                'updateAnyAchievementSetClaim',
+                'updateGame',
             ),
 
             canSubmitBetaFeedback: $this->getCanSubmitBetaFeedback($user, 'react-game-page'),

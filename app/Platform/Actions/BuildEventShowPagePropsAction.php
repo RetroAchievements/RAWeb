@@ -21,6 +21,7 @@ class BuildEventShowPagePropsAction
         protected BuildFollowedPlayerCompletionAction $buildFollowedPlayerCompletionAction,
         protected BuildGameAchievementDistributionAction $buildGameAchievementDistributionAction,
         protected LoadGameTopAchieversAction $loadGameTopAchieversAction,
+        protected BuildHubBreadcrumbsAction $buildHubBreadcrumbsAction,
     ) {
     }
 
@@ -42,6 +43,8 @@ class BuildEventShowPagePropsAction
         $playerGame = $user
             ? $user->playerGames()->whereGameId($event->legacyGame->id)->first()
             : null;
+
+        $breadcrumbs = $this->buildEventBreadcrumbs($event);
 
         return new EventShowPagePropsData(
             can: UserPermissionsData::fromUser($user, game: $event->legacyGame)->include(
@@ -81,6 +84,7 @@ class BuildEventShowPagePropsAction
                 'state',
             ),
             hubs: $event->legacyGame->hubs->map(fn ($hub) => GameSetData::from($hub))->all(),
+            breadcrumbs: $breadcrumbs,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $event->legacyGame),
             playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($event->legacyGame, $user),
             numMasters: $numMasters,
@@ -90,5 +94,28 @@ class BuildEventShowPagePropsAction
                 ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($event->legacyGame->id, $user))
                 : null,
         );
+    }
+
+    /**
+     * @return GameSetData[]
+     */
+    private function buildEventBreadcrumbs(Event $event): array
+    {
+        $hubs = $event->legacyGame->hubs;
+
+        if ($hubs->isEmpty()) {
+            return [];
+        }
+
+        // Prefer hubs that match the "[Events - *]" pattern.
+        $eventHub = $hubs->first(fn ($hub) => str_starts_with($hub->title, '[Events - '));
+
+        // Fall back to the first hub if no event hub is found.
+        if (!$eventHub) {
+            $eventHub = $hubs->first();
+        }
+
+        // Build the breadcrumb trail using the existing hub breadcrumbs action.
+        return $this->buildHubBreadcrumbsAction->execute($eventHub);
     }
 }

@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 // TODO organize accessors, relations, and scopes
@@ -76,7 +77,7 @@ trait ActsAsCommunityMember
         $query = $this->hasMany(UserGameListEntry::class, 'user_id', 'ID');
 
         if ($type !== null) {
-            $query->where('SetRequest.type', $type);
+            $query->where(DB::raw('SetRequest.type'), $type);
         }
 
         return $query;

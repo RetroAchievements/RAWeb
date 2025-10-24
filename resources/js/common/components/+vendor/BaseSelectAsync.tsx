@@ -56,6 +56,8 @@ export interface QuerySelectProps<T> {
   clearable?: boolean;
   /** Define an initial value the control will have. */
   selectedOption?: T | null;
+  /** Define a unique identifier for the control. */
+  id?: string | undefined;
 }
 
 export function BaseSelectAsync<T>({
@@ -68,6 +70,7 @@ export function BaseSelectAsync<T>({
   placeholder,
   value,
   onChange,
+  id = undefined,
   disabled = false,
   width = '200px',
   className,
@@ -111,6 +114,7 @@ export function BaseSelectAsync<T>({
     <BasePopover open={open} onOpenChange={setOpen}>
       <BasePopoverTrigger asChild>
         <BaseButton
+          id={id}
           variant="outline"
           role="combobox"
           aria-expanded={open}
