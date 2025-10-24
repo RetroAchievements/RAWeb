@@ -14,11 +14,11 @@ import type { AppPage } from '@/common/models';
 import { GameListSection } from '@/features/users/components/GameListSection/GameListSection';
 
 const UserGameChecklist: AppPage = () => {
-  const { player, groups } = usePageProps<App.Community.Data.GameChecklistPageProps>();
+  const { player, groups, auth } = usePageProps<App.Community.Data.GameChecklistPageProps>();
 
   const { t } = useTranslation();
 
-  const query = useUserSearchQuery({ initialSearchTerm: player.displayName });
+  const query = useUserSearchQuery({ initialSearchTerm: auth?.user.displayName });
 
   const handleUserChange = (newUser: string) => {
     router.visit(
