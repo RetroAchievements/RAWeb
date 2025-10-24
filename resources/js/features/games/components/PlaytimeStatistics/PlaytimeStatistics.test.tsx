@@ -332,4 +332,55 @@ describe('Component: PlaytimeStatistics', () => {
     // ASSERT
     expect(screen.getByText(/achievements available since/i)).toBeVisible();
   });
+
+  it('given targetAchievementSetPlayers props are provided, uses those instead of game player counts', () => {
+    // ARRANGE
+    const game = createGame({
+      gameAchievementSets: [createGameAchievementSet()],
+      playersHardcore: 20000,
+      playersTotal: 40000,
+    });
+
+    render(<PlaytimeStatistics />, {
+      pageProps: {
+        backingGame: game,
+        game,
+        numBeaten: 50,
+        numBeatenSoftcore: 75,
+        numCompletions: 80,
+        numMasters: 40,
+        targetAchievementSetPlayersTotal: 206, // !!
+        targetAchievementSetPlayersHardcore: 167, // !!
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/167 players/i)).toBeVisible();
+    expect(screen.getByText(/40 players/i)).toBeVisible();
+  });
+
+  it('given no targetAchievementSetPlayers props, falls back to game player counts', () => {
+    // ARRANGE
+    const game = createGame({
+      gameAchievementSets: [createGameAchievementSet()],
+      playersHardcore: 100,
+      playersTotal: 200,
+    });
+
+    render(<PlaytimeStatistics />, {
+      pageProps: {
+        backingGame: game,
+        game,
+        numBeaten: 50,
+        numBeatenSoftcore: 75,
+        numCompletions: 80,
+        numMasters: 40,
+        // !! no targetAchievementSetPlayers props provided
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/100 players/i)).toBeVisible();
+    expect(screen.getByText(/40 players/i)).toBeVisible();
+  });
 });

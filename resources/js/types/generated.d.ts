@@ -844,6 +844,8 @@ declare namespace App.Platform.Data {
     seriesHub: App.Platform.Data.SeriesHub | null;
     setRequestData: App.Platform.Data.GameSetRequestData | null;
     targetAchievementSetId: number | null;
+    targetAchievementSetPlayersTotal: number | null;
+    targetAchievementSetPlayersHardcore: number | null;
   };
   export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
