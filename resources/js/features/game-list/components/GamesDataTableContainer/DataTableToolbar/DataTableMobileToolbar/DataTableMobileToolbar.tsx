@@ -20,6 +20,7 @@ import { DataTableSuperFilter } from '../DataTableSuperFilter';
 interface DataTableMobileToolbarProps<TData> {
   table: Table<TData>;
 
+  isTableQueryLoading?: boolean;
   randomGameApiRouteName?: RouteName;
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
@@ -29,6 +30,7 @@ interface DataTableMobileToolbarProps<TData> {
 export default function DataTableMobileToolbar<TData>({
   table,
   tableApiRouteParams,
+  isTableQueryLoading = false,
   randomGameApiRouteName = 'api.game.random',
   tableApiRouteName = 'api.game.index',
 }: DataTableMobileToolbarProps<TData>) {
@@ -63,6 +65,7 @@ export default function DataTableMobileToolbar<TData>({
         <DataTableSuperFilter
           table={table}
           hasResults={totalGames !== 0}
+          isTableQueryLoading={isTableQueryLoading}
           randomGameApiRouteName={randomGameApiRouteName}
           randomGameApiRouteParams={tableApiRouteParams}
           tableApiRouteName={tableApiRouteName}
