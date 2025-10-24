@@ -15,6 +15,13 @@ if ($hardcorePointsClause && $softcorePointsClause) {
     $softcorePointsClause = ' and ' . $softcorePointsClause;
 }
 
+$subsetHardcorePointsClause = $countThing($recapData['subsetHardcorePointsEarned'], 'hardcore point');
+$subsetSoftcorePointsClause = $countThing($recapData['subsetSoftcorePointsEarned'], 'softcore point');
+
+if ($subsetHardcorePointsClause && $subsetSoftcorePointsClause) {
+    $subsetSoftcorePointsClause = ' and ' . $subsetSoftcorePointsClause;
+}
+
 $leaderboardsSubmittedClause = $recapData['leaderboardsSubmitted'] > 0 ?
     'You submitted new scores for ' . $countThing($recapData['leaderboardsSubmitted'], 'leaderboard') . '.' :
     '';
@@ -94,6 +101,31 @@ You spent {{ $recapData['totalPlaytime'] }} playing games {{ $playedSystemsClaus
 >
     Your rarest achievement earned was <a href="{{ route('achievement.show', $recapData['rarestSoftcoreAchievement']) }}">{{ $recapData['rarestSoftcoreAchievement']->Title }}</a> from {{ $recapData['rarestSoftcoreAchievement']->Game->Title }}, which has only been earned by {{ $recapData['rarestSoftcoreAchievementEarnRate'] }}% of players.
 </x-mail::image-panel>
+@endif
+
+@if ($recapData['subsetAchievementsUnlocked'])
+You also unlocked {{ $countThing($recapData['subsetAchievementsUnlocked'], 'subset achievement') }}, earning you an additional {{ $subsetHardcorePointsClause }}{{ $subsetSoftcorePointsClause }}.
+@if ($recapData['rarestSubsetHardcoreAchievement'])
+<x-mail::image-panel
+    src="{{ $recapData['rarestSubsetHardcoreAchievement']->badge_unlocked_url }}"
+    alt="{{ $recapData['rarestSubsetHardcoreAchievement']->Title }} achievement badge"
+    url="{{ route('achievement.show', $recapData['rarestSubsetHardcoreAchievement']) }}"
+    width="64"
+    height="64"
+>
+    Your rarest subset achievement earned was <a href="{{ route('achievement.show', $recapData['rarestSubsetHardcoreAchievement']) }}">{{ $recapData['rarestSubsetHardcoreAchievement']->Title }}</a> from {{ $recapData['rarestSubsetHardcoreAchievement']->Game->Title }}, which has only been earned in hardcore by {{ $recapData['rarestSubsetHardcoreAchievementEarnRate'] }}% of players.
+</x-mail::image-panel>
+@elseif ($recapData['rarestSubsetSoftcoreAchievement'])
+<x-mail::image-panel
+    src="{{ $recapData['rarestSubsetSoftcoreAchievement']->badge_unlocked_url }}"
+    alt="{{ $recapData['rarestSubsetSoftcoreAchievement']->Title }} achievement badge"
+    url="{{ route('achievement.show', $recapData['rarestSubsetSoftcoreAchievement']) }}"
+    width="64"
+    height="64"
+>
+    Your rarest subset achievement earned was <a href="{{ route('achievement.show', $recapData['rarestSubsetSoftcoreAchievement']) }}">{{ $recapData['rarestSubsetSoftcoreAchievement']->Title }}</a> from {{ $recapData['rarestSubsetSoftcoreAchievement']->Game->Title }}, which has only been earned by {{ $recapData['rarestSubsetSoftcoreAchievementEarnRate'] }}% of players.
+</x-mail::image-panel>
+@endif
 @endif
 
 @if ($recapData['numForumPosts'] > 0 && $recapData['numComments'] > 0)
