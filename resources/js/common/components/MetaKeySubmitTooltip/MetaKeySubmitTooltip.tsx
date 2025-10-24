@@ -1,4 +1,5 @@
 import type { ComponentPropsWithoutRef, FC, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 
@@ -12,6 +13,7 @@ type MetaKeySubmitTooltipProps = BaseProps & ComponentPropsWithoutRef<typeof Bas
 
 export const MetaKeySubmitTooltip: FC<MetaKeySubmitTooltipProps> = ({ children, ...rest }) => {
   const { metaKey } = usePageProps();
+  const { t } = useTranslation();
 
   if (!metaKey) {
     return children;
@@ -21,8 +23,12 @@ export const MetaKeySubmitTooltip: FC<MetaKeySubmitTooltipProps> = ({ children, 
     <BaseTooltip {...rest}>
       <BaseTooltipTrigger asChild>{children}</BaseTooltipTrigger>
 
-      {/* Doesn't need to be localized. The 'Enter' key is universal. */}
-      <BaseTooltipContent>{`${metaKey} + Enter`}</BaseTooltipContent>
+      <BaseTooltipContent>
+        {t('Submit: {{metaKey}}+Enter', {
+          metaKey,
+          nsSeparator: null,
+        })}
+      </BaseTooltipContent>
     </BaseTooltip>
   );
 };

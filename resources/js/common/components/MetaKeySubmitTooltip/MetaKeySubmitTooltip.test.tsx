@@ -28,7 +28,7 @@ describe('Component: MetaKeySubmitTooltip', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getAllByText(/ctrl \+ enter/i)[0]).toBeVisible();
+      expect(screen.getAllByText('Submit: Ctrl+Enter')[0]).toBeVisible();
     });
   });
 });
