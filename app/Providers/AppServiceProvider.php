@@ -19,12 +19,14 @@ use App\Console\Commands\SystemAlert;
 use App\Http\InertiaResponseFactory;
 use App\Models\Role;
 use App\Models\User;
+use EragLaravelDisposableEmail\Rules\DisposableEmailRule;
 use Exception;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Inertia\ResponseFactory;
@@ -88,6 +90,22 @@ class AppServiceProvider extends ServiceProvider
                 $schedule->command(CacheMostPopularSystems::class)->weeklyOn(4, '8:30'); // Thursdays, ~3:30AM US Eastern
             }
         });
+
+        /**
+         * Register an alias for the "disposable_email" rule.
+         * We'll set it to "not_disposable_email", which is much more intuitive.
+         */
+        Validator::extend('not_disposable_email', function ($attribute, $value, $parameters, $validator) {
+            $rule = new DisposableEmailRule();
+
+            $failCallback = function ($message) use (&$error) {
+                $error = $message;
+            };
+
+            $rule->validate($attribute, $value, $failCallback ?? fn () => null);
+
+            return empty($error);
+        }, __('validation.not_disposable_email'));
 
         // TODO remove in favor of Inertia+React components
         Blade::if('hasfeature', function ($feature) {
