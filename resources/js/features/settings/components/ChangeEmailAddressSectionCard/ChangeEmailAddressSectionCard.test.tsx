@@ -3,7 +3,7 @@ import axios from 'axios';
 import { route } from 'ziggy-js';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen } from '@/test';
+import { render, screen, waitFor } from '@/test';
 
 import { ChangeEmailAddressSectionCard } from './ChangeEmailAddressSectionCard';
 
@@ -142,5 +142,61 @@ describe('Component: ChangeEmailAddressSectionCard', () => {
     expect(confirmSpy).toHaveBeenCalledWith(
       'Changing your email address will revoke your privileges and you will need to have them restored by staff. Are you sure you want to do this?',
     );
+  });
+
+  it('given the API returns a disposable email error, shows the appropriate error message', async () => {
+    // ARRANGE
+    vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
+    vi.spyOn(axios, 'put').mockRejectedValueOnce({
+      response: {
+        data: {
+          message: 'provider is not allowed', // !! disposable email error
+        },
+      },
+    });
+
+    render(<ChangeEmailAddressSectionCard />, {
+      pageProps: {
+        userSettings: { emailAddress: 'foo@bar.com' },
+      },
+    });
+
+    // ACT
+    await userEvent.type(screen.getByLabelText('New Email Address'), 'test@disposable.com');
+    await userEvent.type(screen.getByLabelText('Confirm New Email Address'), 'test@disposable.com');
+    await userEvent.click(screen.getByRole('button', { name: /update/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/this email provider is not allowed/i)).toBeVisible();
+    });
+  });
+
+  it('given the API returns an unexpected error, shows a generic error message', async () => {
+    // ARRANGE
+    vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
+    vi.spyOn(axios, 'put').mockRejectedValueOnce({
+      response: {
+        data: {
+          message: 'boom', // !!
+        },
+      },
+    });
+
+    render(<ChangeEmailAddressSectionCard />, {
+      pageProps: {
+        userSettings: { emailAddress: 'foo@bar.com' },
+      },
+    });
+
+    // ACT
+    await userEvent.type(screen.getByLabelText('New Email Address'), 'valid@email.com');
+    await userEvent.type(screen.getByLabelText('Confirm New Email Address'), 'valid@email.com');
+    await userEvent.click(screen.getByRole('button', { name: /update/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/something went wrong/i)).toBeVisible();
+    });
   });
 });

@@ -215,6 +215,7 @@ return [
          * Package Service Providers...
          */
         Jenssegers\Agent\AgentServiceProvider::class,
+        EragLaravelDisposableEmail\LaravelDisposableEmailServiceProvider::class,
 
         /*
         * Application Service Providers...
