@@ -19,6 +19,7 @@ class ValidNewUsername
             'min:4',
             'max:20',
             new CtypeAlnum(),
+            new NoOffensiveContent(),
         ];
 
         // We can't use the "mysql." prefix for SQLite (tests).
