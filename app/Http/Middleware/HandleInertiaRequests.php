@@ -4,6 +4,8 @@ namespace App\Http\Middleware;
 
 use App\Actions\GetUserDeviceKindAction;
 use App\Data\UserData;
+use App\Enums\UserOS;
+use App\Http\Actions\DetectUserOSAction;
 use Closure;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -75,6 +77,13 @@ class HandleInertiaRequests extends Middleware
     {
         $user = request()->user();
 
+        $userOS = (new DetectUserOSAction())->execute();
+        $metaKey = match ($userOS) {
+            UserOS::MacOS, UserOS::IOS => '⌘',
+            UserOS::Android => '',
+            default => 'Ctrl',
+        };
+
         return array_merge(parent::share($request), [
             'auth' => $user ? [
                 'user' => UserData::fromUser($user)->include(
@@ -106,6 +115,8 @@ class HandleInertiaRequests extends Middleware
                     'patreon' => ['userId' => config('services.patreon.user_id')],
                 ],
             ],
+
+            'metaKey' => $metaKey,
 
             'ziggy' => fn () => [
                 'defaults' => [],

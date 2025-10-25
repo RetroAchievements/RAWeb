@@ -16,6 +16,7 @@ import {
   BaseFormMessage,
 } from '../+vendor/BaseForm';
 import { baseTextareaClassNames } from '../+vendor/BaseTextarea';
+import { MetaKeySubmitTooltip } from '../MetaKeySubmitTooltip';
 import { UserAvatar } from '../UserAvatar';
 import { useCommentListContext } from './CommentListContext';
 import { useSubmitCommentForm } from './useSubmitCommentForm';
@@ -86,9 +87,11 @@ export const CommentInput: FC = () => {
             />
 
             <div className="-mt-3 flex justify-end">
-              <BaseButton type="submit" disabled={mutation.isPending || !form.formState.isValid}>
-                {t('Submit')}
-              </BaseButton>
+              <MetaKeySubmitTooltip>
+                <BaseButton type="submit" disabled={mutation.isPending || !form.formState.isValid}>
+                  {t('Submit')}
+                </BaseButton>
+              </MetaKeySubmitTooltip>
             </div>
           </div>
         </form>

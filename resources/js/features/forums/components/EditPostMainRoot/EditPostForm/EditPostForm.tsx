@@ -12,6 +12,7 @@ import {
   BaseFormLabel,
   BaseFormMessage,
 } from '@/common/components/+vendor/BaseForm';
+import { MetaKeySubmitTooltip } from '@/common/components/MetaKeySubmitTooltip';
 import { ShortcodePanel } from '@/common/components/ShortcodePanel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useSubmitOnMetaEnter } from '@/common/hooks/useSubmitOnMetaEnter';
@@ -87,9 +88,11 @@ export const EditPostForm: FC<EditPostFormProps> = ({ onPreview }) => {
                 {t('Preview')}
               </BaseButton>
 
-              <BaseButton type="submit" disabled={!form.formState.isValid || mutation.isPending}>
-                {t('Submit')}
-              </BaseButton>
+              <MetaKeySubmitTooltip>
+                <BaseButton type="submit" disabled={!form.formState.isValid || mutation.isPending}>
+                  {t('Submit')}
+                </BaseButton>
+              </MetaKeySubmitTooltip>
             </div>
           </div>
         </div>

@@ -29,6 +29,7 @@ export interface AppGlobalProps extends PageProps {
     };
   };
 
+  metaKey: string;
   ziggy: ZiggyProps;
 }
 
@@ -61,5 +62,6 @@ export const createAppGlobalProps = createFactory<AppGlobalProps>(() => ({
     services: { patreon: {} },
   },
 
+  metaKey: 'Ctrl',
   ziggy: { defaults: [], device: 'desktop', location: '', port: 8080, query: {}, url: '' },
 }));
