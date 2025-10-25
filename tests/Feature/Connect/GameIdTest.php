@@ -124,7 +124,8 @@ class GameIdTest extends TestCase
             ->assertExactJson([
                 'Status' => 403,
                 'Success' => false,
-                'Error' => 'This emulator is not supported',
+                'Code' => 'unsupported_client',
+                'Error' => 'This client is not supported.',
                 'GameID' => 0,
             ]);
 

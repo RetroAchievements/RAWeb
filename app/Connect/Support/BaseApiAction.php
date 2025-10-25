@@ -68,6 +68,16 @@ abstract class BaseApiAction
         ];
     }
 
+    protected function unsupportedClient(): array
+    {
+        return [
+            'Success' => false,
+            'Status' => 403,
+            'Code' => 'unsupported_client',
+            'Error' => 'This client is not supported.',
+        ];
+    }
+
     protected function resourceNotFound(string $resourceType): array
     {
         return [
