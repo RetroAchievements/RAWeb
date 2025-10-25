@@ -24,7 +24,7 @@ export const MetaKeySubmitTooltip: FC<MetaKeySubmitTooltipProps> = ({ children, 
       <BaseTooltipTrigger asChild>{children}</BaseTooltipTrigger>
 
       <BaseTooltipContent>
-        {t('Submit: {{metaKey}}+Enter', {
+        {t('Submit ({{metaKey}}+Enter)', {
           metaKey,
           nsSeparator: null,
         })}
