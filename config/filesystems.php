@@ -98,13 +98,13 @@ return [
     */
 
     'links' => [
+        public_path('assets') => storage_path('app/static/assets'),
         public_path('storage') => storage_path('app/public'),
 
         /*
          * re-link public assets and vendor folders in reverse - will be served through static host on production server
          * these do not carry over between deployments
          */
-        storage_path('app/static/assets') => public_path('assets'),
         storage_path('app/static/vendor') => public_path('vendor'),
         storage_path('app/static/docs') => base_path('docs/dist'),
 
