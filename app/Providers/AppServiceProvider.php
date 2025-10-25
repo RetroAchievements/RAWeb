@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Translation\PotentiallyTranslatedString;
 use Inertia\ResponseFactory;
 use Laravel\Pulse\Facades\Pulse;
 use Livewire\Livewire;
@@ -98,11 +99,14 @@ class AppServiceProvider extends ServiceProvider
         Validator::extend('not_disposable_email', function ($attribute, $value, $parameters, $validator) {
             $rule = new DisposableEmailRule();
 
-            $failCallback = function ($message) use (&$error) {
+            $error = null;
+            $failCallback = function (string $message) use (&$error): PotentiallyTranslatedString {
                 $error = $message;
+
+                return new PotentiallyTranslatedString($message, app('translator'));
             };
 
-            $rule->validate($attribute, $value, $failCallback ?? fn () => null);
+            $rule->validate($attribute, $value, $failCallback);
 
             return empty($error);
         }, __('validation.not_disposable_email'));
