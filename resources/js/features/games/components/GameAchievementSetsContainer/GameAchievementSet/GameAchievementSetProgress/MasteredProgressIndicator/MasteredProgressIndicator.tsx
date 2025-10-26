@@ -259,17 +259,17 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievement
           <BaseSeparator className="my-2" />
 
           <div className="flex flex-col gap-0.5">
-            {playerGame?.playtimeTotal ? (
-              <div className="flex justify-between text-2xs">
-                <p>{t('Total playtime')}</p>
-                <p className="font-medium">{formatDuration(playerGame.playtimeTotal)}</p>
-              </div>
-            ) : null}
-
             {playerGame?.lastPlayedAt ? (
               <div className="flex justify-between text-2xs">
                 <p>{t('Last played')}</p>
                 <p className="font-medium">{formatDate(playerGame.lastPlayedAt, 'll')}</p>
+              </div>
+            ) : null}
+
+            {playerGame?.playtimeTotal ? (
+              <div className="flex justify-between text-2xs">
+                <p>{t('Total playtime')}</p>
+                <p className="font-medium">{formatDuration(playerGame.playtimeTotal)}</p>
               </div>
             ) : null}
           </div>
