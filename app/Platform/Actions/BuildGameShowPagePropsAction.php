@@ -18,7 +18,6 @@ use App\Models\AchievementMaintainer;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameSet;
-use App\Platform\Data\PlayerAchievementSetData;
 use App\Models\LeaderboardEntry;
 use App\Models\PlayerGame;
 use App\Models\Role;
@@ -36,6 +35,7 @@ use App\Platform\Data\GameSetRequestData;
 use App\Platform\Data\GameShowPagePropsData;
 use App\Platform\Data\LeaderboardData;
 use App\Platform\Data\LeaderboardEntryData;
+use App\Platform\Data\PlayerAchievementSetData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
 use App\Platform\Data\UserCreditsData;
@@ -162,7 +162,7 @@ class BuildGameShowPagePropsAction
                 ->get()
                 ->mapWithKeys(fn ($pas) => [
                     $pas->achievement_set_id => PlayerAchievementSetData::fromPlayerAchievementSet($pas)
-                        ->include('timeTaken', 'timeTakenHardcore')
+                        ->include('timeTaken', 'timeTakenHardcore'),
                 ]);
         }
 
