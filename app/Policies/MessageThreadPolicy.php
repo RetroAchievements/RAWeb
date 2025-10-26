@@ -60,8 +60,7 @@ class MessageThreadPolicy
         }
 
         // Team accounts bypass fresh account restrictions.
-        $effectiveSender = $teamAccount ?? $user;
-        if ($effectiveSender->hasRole(Role::TEAM_ACCOUNT)) {
+        if ($user->hasRole(Role::TEAM_ACCOUNT)) {
             return true;
         }
 
@@ -71,7 +70,7 @@ class MessageThreadPolicy
         }
 
         // Fresh accounts cannot create new message threads to regular users.
-        if ($effectiveSender->isFreshAccount()) {
+        if ($user->isFreshAccount()) {
             return false;
         }
 
