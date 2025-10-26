@@ -27,6 +27,12 @@ class PlayerGameData extends Data
         public ?int $points,
         public ?int $pointsHardcore,
 
+        // Lazy fields
+        public Lazy|int|null $playtimeTotal,
+        public Lazy|Carbon|null $lastPlayedAt,
+        public Lazy|int|null $timeToBeat,
+        public Lazy|int|null $timeToBeatHardcore,
+
         // Derived fields
         public Lazy|PlayerBadgeData|null $highestAward,
     ) {
@@ -44,6 +50,11 @@ class PlayerGameData extends Data
             completedHardcoreAt: $playerGame->completed_hardcore_at,
             points: $playerGame->points,
             pointsHardcore: $playerGame->points_hardcore,
+
+            playtimeTotal: Lazy::create(fn () => $playerGame->playtime_total),
+            lastPlayedAt: Lazy::create(fn () => $playerGame->last_played_at),
+            timeToBeat: Lazy::create(fn () => $playerGame->time_to_beat),
+            timeToBeatHardcore: Lazy::create(fn () => $playerGame->time_to_beat_hardcore),
 
             highestAward: Lazy::create(fn () => static::getHighestAward($playerGame))
         );

@@ -18,6 +18,7 @@ use App\Models\AchievementMaintainer;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameSet;
+use App\Platform\Data\PlayerAchievementSetData;
 use App\Models\LeaderboardEntry;
 use App\Models\PlayerGame;
 use App\Models\Role;
@@ -149,6 +150,20 @@ class BuildGameShowPagePropsAction
                     }
                 }
             }
+        }
+
+        // Load the user's player_achievement_sets entities.
+        $playerAchievementSets = collect();
+        if ($user) {
+            $achievementSetIds = $game->gameAchievementSets->pluck('achievement_set_id')->unique();
+
+            $playerAchievementSets = $user->playerAchievementSets()
+                ->whereIn('achievement_set_id', $achievementSetIds)
+                ->get()
+                ->mapWithKeys(fn ($pas) => [
+                    $pas->achievement_set_id => PlayerAchievementSetData::fromPlayerAchievementSet($pas)
+                        ->include('timeTaken', 'timeTakenHardcore')
+                ]);
         }
 
         $similarGames = $game
@@ -347,10 +362,13 @@ class BuildGameShowPagePropsAction
             recentPlayers: $this->loadGameRecentPlayersAction->execute($backingGame),
             recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($backingGame->visibleComments))),
             topAchievers: $topAchievers,
-            playerGame: $playerGame ? PlayerGameData::fromPlayerGame($playerGame) : null,
+            playerGame: $playerGame
+                ? PlayerGameData::fromPlayerGame($playerGame)->include('lastPlayedAt', 'playtimeTotal', 'timeToBeat', 'timeToBeatHardcore')
+                : null,
             playerGameProgressionAwards: $user
                 ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($backingGame->id, $user))
                 : null,
+            playerAchievementSets: $playerAchievementSets,
             seriesHub: $this->buildSeriesHubDataAction->execute($game),
             setRequestData: $this->buildSetRequestData($backingGame, $user),
             targetAchievementSetId: $targetAchievementSet?->achievement_set_id,

@@ -6,7 +6,10 @@ import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
 import {
   createAchievement,
+  createAchievementSet,
   createGame,
+  createGameAchievementSet,
+  createPlayerAchievementSet,
   createPlayerBadge,
   createZiggyProps,
 } from '@/test/factories';
@@ -16,15 +19,22 @@ import { MasteredProgressIndicator } from './MasteredProgressIndicator';
 describe('Component: MasteredProgressIndicator', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<MasteredProgressIndicator achievements={[]} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame({ id: 1 }),
-        game: createGame({ id: 1 }),
-        playerGameProgressionAwards: {},
-        ziggy: createZiggyProps(),
+    const { container } = render(
+      <MasteredProgressIndicator
+        achievements={[]}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame({ id: 1 }),
+          game: createGame({ id: 1 }),
+          playerAchievementSets: {},
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
       },
-    });
+    );
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -32,14 +42,21 @@ describe('Component: MasteredProgressIndicator', () => {
 
   it('given the user is not authenticated, renders nothing', () => {
     // ARRANGE
-    render(<MasteredProgressIndicator achievements={[]} />, {
-      pageProps: {
-        auth: null,
-        backingGame: createGame(),
-        game: createGame(),
-        ziggy: createZiggyProps(),
+    render(
+      <MasteredProgressIndicator
+        achievements={[]}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: null,
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          ziggy: createZiggyProps(),
+        },
       },
-    });
+    );
 
     // ASSERT
     expect(screen.queryByText(/\d+%/)).not.toBeInTheDocument();
@@ -52,16 +69,23 @@ describe('Component: MasteredProgressIndicator', () => {
       createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
     ];
 
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
-        game: createGame(),
-        playerGame: { achievementsUnlocked: 2 }, // !!
-        playerGameProgressionAwards: {},
-        ziggy: createZiggyProps(),
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGame: { achievementsUnlocked: 2 }, // !!
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
       },
-    });
+    );
 
     // ASSERT
     expect(screen.getByText('100%')).toBeVisible();
@@ -75,16 +99,23 @@ describe('Component: MasteredProgressIndicator', () => {
       createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined }),
     ];
 
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
-        game: createGame(),
-        playerGame: { achievementsUnlocked: 2 }, // !! 2 out of 3 = 67% (ceiled)
-        playerGameProgressionAwards: {},
-        ziggy: createZiggyProps(),
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGame: { achievementsUnlocked: 2 }, // !! 2 out of 3 = 67% (ceiled)
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
       },
-    });
+    );
 
     // ASSERT
     expect(screen.getByText('67%')).toBeVisible();
@@ -98,16 +129,23 @@ describe('Component: MasteredProgressIndicator', () => {
       createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined }),
     ];
 
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
-        game: createGame(),
-        playerGame: { achievementsUnlocked: 2 }, // !! 2 out of 3 = 67%
-        playerGameProgressionAwards: {},
-        ziggy: createZiggyProps({ device: 'desktop' }),
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGame: { achievementsUnlocked: 2 }, // !! 2 out of 3 = 67%
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps({ device: 'desktop' }),
+        },
       },
-    });
+    );
 
     // ACT
     await userEvent.hover(screen.getByText('67%'));
@@ -127,16 +165,23 @@ describe('Component: MasteredProgressIndicator', () => {
       createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined }),
     ];
 
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
-        game: createGame(),
-        playerGame: { achievementsUnlocked: 2 }, // !! 2 out of 3 = 67%
-        playerGameProgressionAwards: {},
-        ziggy: createZiggyProps({ device: 'mobile' }),
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGame: { achievementsUnlocked: 2 }, // !! 2 out of 3 = 67%
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps({ device: 'mobile' }),
+        },
       },
-    });
+    );
 
     // ACT
     await userEvent.click(screen.getByText('67%'));
@@ -156,16 +201,23 @@ describe('Component: MasteredProgressIndicator', () => {
       createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
     ];
 
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
-        game: createGame(),
-        playerGame: { achievementsUnlocked: 3 }, // !!
-        playerGameProgressionAwards: {},
-        ziggy: createZiggyProps(),
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGame: { achievementsUnlocked: 3 }, // !!
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
       },
-    });
+    );
 
     // ACT
     await userEvent.hover(screen.getByText('100%'));
@@ -189,16 +241,23 @@ describe('Component: MasteredProgressIndicator', () => {
       createAchievement({ unlockedAt: '2024-01-01T00:00:00Z', unlockedHardcoreAt: undefined }),
     ];
 
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
-        game: createGame(),
-        playerGame: { achievementsUnlocked: 3 }, // !!
-        playerGameProgressionAwards: {},
-        ziggy: createZiggyProps(),
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGame: { achievementsUnlocked: 3 }, // !!
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
       },
-    });
+    );
 
     // ACT
     await userEvent.hover(screen.getByText('100%'));
@@ -223,16 +282,23 @@ describe('Component: MasteredProgressIndicator', () => {
       createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined }),
     ];
 
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
-        game: createGame(),
-        playerGame: { achievementsUnlocked: 3 }, // !!
-        playerGameProgressionAwards: {},
-        ziggy: createZiggyProps(),
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGame: { achievementsUnlocked: 3 }, // !!
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
       },
-    });
+    );
 
     // ACT
     await userEvent.hover(screen.getByText('75%')); // !! 3 out of 4
@@ -257,16 +323,23 @@ describe('Component: MasteredProgressIndicator', () => {
       createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined }),
     ];
 
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
-        game: createGame(),
-        playerGame: { achievementsUnlocked: 0 }, // !!
-        playerGameProgressionAwards: {},
-        ziggy: createZiggyProps(),
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGame: { achievementsUnlocked: 0 }, // !!
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
       },
-    });
+    );
 
     // ACT
     await userEvent.hover(screen.getByText('0%'));
@@ -286,16 +359,23 @@ describe('Component: MasteredProgressIndicator', () => {
       createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined }),
     ];
 
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
-        game: createGame(),
-        playerGame: { achievementsUnlocked: 2 }, // !!
-        playerGameProgressionAwards: {},
-        ziggy: createZiggyProps(),
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGame: { achievementsUnlocked: 2 }, // !!
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
       },
-    });
+    );
 
     // ACT
     await userEvent.hover(screen.getByText('67%'));
@@ -316,16 +396,23 @@ describe('Component: MasteredProgressIndicator', () => {
       createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined }),
     ];
 
-    const { container } = render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
-        game: createGame(),
-        playerGame: { achievementsUnlocked: 2 }, // !!
-        playerGameProgressionAwards: {},
-        ziggy: createZiggyProps(),
+    const { container } = render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGame: { achievementsUnlocked: 2 }, // !!
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
       },
-    });
+    );
 
     // ACT
     await userEvent.hover(screen.getByText('67%'));
@@ -347,21 +434,28 @@ describe('Component: MasteredProgressIndicator', () => {
       createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
     ];
 
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
-        game: createGame(),
-        playerGame: { achievementsUnlocked: 2 }, // !!
-        playerGameProgressionAwards: {
-          mastered: createPlayerBadge(), // !!
-          completed: null,
-          beatenHardcore: null,
-          beatenSoftcore: null,
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGame: { achievementsUnlocked: 2 }, // !!
+          playerGameProgressionAwards: {
+            mastered: createPlayerBadge(), // !!
+            completed: null,
+            beatenHardcore: null,
+            beatenSoftcore: null,
+          },
+          ziggy: createZiggyProps(),
         },
-        ziggy: createZiggyProps(),
       },
-    });
+    );
 
     // ASSERT
     const masteredElement = screen.getByText('100%').parentElement;
@@ -375,21 +469,28 @@ describe('Component: MasteredProgressIndicator', () => {
       createAchievement({ unlockedAt: '2024-01-01T00:00:00Z', unlockedHardcoreAt: undefined }),
     ];
 
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
-        game: createGame(),
-        playerGame: { achievementsUnlocked: 2 }, // !!
-        playerGameProgressionAwards: {
-          mastered: null,
-          completed: createPlayerBadge(), // !!
-          beatenHardcore: null,
-          beatenSoftcore: null,
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGame: { achievementsUnlocked: 2 }, // !!
+          playerGameProgressionAwards: {
+            mastered: null,
+            completed: createPlayerBadge(), // !!
+            beatenHardcore: null,
+            beatenSoftcore: null,
+          },
+          ziggy: createZiggyProps(),
         },
-        ziggy: createZiggyProps(),
       },
-    });
+    );
 
     // ASSERT
     const completedElement = screen.getByText('100%').parentElement;
@@ -403,21 +504,28 @@ describe('Component: MasteredProgressIndicator', () => {
       createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined }),
     ];
 
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
-        game: createGame(),
-        playerGame: { achievementsUnlocked: 1 }, // !!
-        playerGameProgressionAwards: {
-          mastered: null, // !!
-          completed: null, // !!
-          beatenHardcore: null,
-          beatenSoftcore: null,
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGame: { achievementsUnlocked: 1 }, // !!
+          playerGameProgressionAwards: {
+            mastered: null, // !!
+            completed: null, // !!
+            beatenHardcore: null,
+            beatenSoftcore: null,
+          },
+          ziggy: createZiggyProps(),
         },
-        ziggy: createZiggyProps(),
       },
-    });
+    );
 
     // ASSERT
     const labelElement = screen.getByText('50%').parentElement; // !! 1 out of 2 = 50%
@@ -432,16 +540,23 @@ describe('Component: MasteredProgressIndicator', () => {
       createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
     ];
 
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
-        game: createGame(),
-        playerGame: { achievementsUnlocked: 3 }, // !!
-        playerGameProgressionAwards: {},
-        ziggy: createZiggyProps({ device: 'mobile' }), // !!
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGame: { achievementsUnlocked: 3 }, // !!
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps({ device: 'mobile' }), // !!
+        },
       },
-    });
+    );
 
     // ASSERT
     expect(screen.getByText('100%')).toBeVisible();
@@ -454,16 +569,23 @@ describe('Component: MasteredProgressIndicator', () => {
       createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
     ];
 
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame({ id: 1 }),
-        game: createGame({ id: 1 }),
-        playerGame: { achievementsUnlocked: 2 }, // !!
-        playerGameProgressionAwards: {},
-        ziggy: createZiggyProps({ device: 'mobile' }), // !!
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame({ id: 1 }),
+          game: createGame({ id: 1 }),
+          playerAchievementSets: {},
+          playerGame: { achievementsUnlocked: 2 }, // !!
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps({ device: 'mobile' }), // !!
+        },
       },
-    });
+    );
 
     // ASSERT
     expect(screen.getByText('100%')).toBeVisible();
@@ -479,15 +601,22 @@ describe('Component: MasteredProgressIndicator', () => {
       achievements[i] = createAchievement({ unlockedAt: '2024-01-01T00:00:00Z' });
     }
 
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
-        game: createGame(),
-        playerGameProgressionAwards: {},
-        ziggy: createZiggyProps(),
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
       },
-    });
+    );
 
     // ASSERT
     expect(screen.getByText('99%')).toBeVisible();
@@ -503,17 +632,342 @@ describe('Component: MasteredProgressIndicator', () => {
       achievements[i] = createAchievement({ unlockedAt: '2024-01-01T00:00:00Z' });
     }
 
-    render(<MasteredProgressIndicator achievements={achievements} />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        backingGame: createGame(),
-        game: createGame(),
-        playerGameProgressionAwards: {},
-        ziggy: createZiggyProps(),
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={createGameAchievementSet()}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
       },
-    });
+    );
 
     // ASSERT
     expect(screen.getByText('99%')).toBeVisible();
+  });
+
+  it('given the set is mastered, shows the mastery date and time', async () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
+      createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ id: 123 }),
+    });
+
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={gameAchievementSet}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {
+            123: createPlayerAchievementSet({
+              completedAt: null,
+              completedHardcoreAt: '2024-12-28T04:37:26.000000Z', // !!
+              timeTaken: null,
+              timeTakenHardcore: 11442, // !!
+            }),
+          },
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.hover(screen.getByText('100%'));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/mastered on/i)[0]).toBeVisible();
+    });
+    expect(screen.getAllByText(/time to master/i)[0]).toBeVisible();
+    expect(screen.getAllByText(/dec 28, 2024/i)[0]).toBeVisible();
+    expect(screen.getAllByText(/3h 10m 42s/i)[0]).toBeVisible();
+  });
+
+  it('given the set is completed in softcore only, shows the completion date and time', async () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ unlockedAt: '2024-01-01T00:00:00Z', unlockedHardcoreAt: undefined }),
+      createAchievement({ unlockedAt: '2024-01-01T00:00:00Z', unlockedHardcoreAt: undefined }),
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ id: 456 }),
+    });
+
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={gameAchievementSet}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {
+            456: createPlayerAchievementSet({
+              completedAt: '2024-05-15T14:30:00.000000Z', // !!
+              completedHardcoreAt: null,
+              timeTaken: 7200, // !!
+              timeTakenHardcore: null,
+            }),
+          },
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.hover(screen.getByText('100%'));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/completed on/i)[0]).toBeVisible();
+    });
+    expect(screen.getAllByText(/time to complete/i)[0]).toBeVisible();
+    expect(screen.getAllByText(/may 15, 2024/i)[0]).toBeVisible();
+    expect(screen.getAllByText(/2h/i)[0]).toBeVisible();
+  });
+
+  it('given the set has both completion and mastery, prioritizes mastery stats', async () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
+      createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ id: 789 }),
+    });
+
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={gameAchievementSet}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {
+            789: createPlayerAchievementSet({
+              completedAt: '2024-05-15T14:30:00.000000Z',
+              completedHardcoreAt: '2024-05-16T18:45:00.000000Z',
+              timeTaken: 5000,
+              timeTakenHardcore: 6000,
+            }),
+          },
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.hover(screen.getByText('100%'));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/mastered on/i)[0]).toBeVisible();
+    });
+    expect(screen.getAllByText(/time to master/i)[0]).toBeVisible();
+    expect(screen.queryByText(/completed on/i)).not.toBeInTheDocument();
+  });
+
+  it('given the set is not completed, does not show completion stats', async () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ unlockedAt: '2024-01-01T00:00:00Z' }),
+      createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined }),
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ id: 999 }),
+    });
+
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={gameAchievementSet}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {}, // !!
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.hover(screen.getByText('50%'));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/overall set progress/i)[0]).toBeVisible();
+    });
+    expect(screen.queryByText(/mastered on/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/completed on/i)).not.toBeInTheDocument();
+  });
+
+  it('given the player has playtime and last played data, shows those stats', async () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ unlockedAt: '2024-01-01T00:00:00Z' }),
+      createAchievement({ unlockedAt: '2024-01-01T00:00:00Z' }),
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ id: 111 }),
+    });
+
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={gameAchievementSet}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGame: {
+            achievementsUnlocked: 2,
+            playtimeTotal: 3600, // !!
+            lastPlayedAt: '2024-10-15T14:30:00.000000Z', // !!
+          },
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.hover(screen.getByText('100%'));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/overall set progress/i)[0]).toBeVisible();
+    });
+    expect(screen.getAllByText(/total playtime/i)[0]).toBeVisible();
+    expect(screen.getAllByText(/1h/i)[0]).toBeVisible();
+    expect(screen.getAllByText(/last played/i)[0]).toBeVisible();
+    expect(screen.getAllByText(/oct 15, 2024/i)[0]).toBeVisible();
+  });
+
+  it('given the player has no playtime data, does not show playtime stats', async () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ unlockedAt: '2024-01-01T00:00:00Z' }),
+      createAchievement({ unlockedAt: undefined, unlockedHardcoreAt: undefined }),
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ id: 222 }),
+    });
+
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={gameAchievementSet}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {},
+          playerGame: null, // !!
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.hover(screen.getByText('50%'));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/overall set progress/i)[0]).toBeVisible();
+    });
+    expect(screen.queryByText(/total playtime/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/last played/i)).not.toBeInTheDocument();
+  });
+
+  it('given playtime stats match completion stats, only shows the completion stats', async () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
+      createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ id: 333 }),
+    });
+
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={gameAchievementSet}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {
+            333: createPlayerAchievementSet({
+              completedAt: null,
+              completedHardcoreAt: '2024-12-28T04:37:26.000000Z', // !!
+              timeTaken: null,
+              timeTakenHardcore: 11442, // !!
+            }),
+          },
+          playerGame: {
+            achievementsUnlocked: 2,
+            playtimeTotal: 11442, // !! matches timeTakenHardcore
+            lastPlayedAt: '2024-12-28T04:37:26.000000Z', // !! matches completedHardcoreAt
+          },
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.hover(screen.getByText('100%'));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/mastered on/i)[0]).toBeVisible();
+    });
+    expect(screen.getAllByText(/time to master/i)[0]).toBeVisible();
+
+    expect(screen.queryByText(/total playtime/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/last played/i)).not.toBeInTheDocument();
   });
 });

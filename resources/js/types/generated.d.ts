@@ -840,6 +840,7 @@ declare namespace App.Platform.Data {
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
+    playerAchievementSets: Record<number, App.Platform.Data.PlayerAchievementSet>;
     selectableGameAchievementSets: Array<App.Platform.Data.GameAchievementSet>;
     seriesHub: App.Platform.Data.SeriesHub | null;
     setRequestData: App.Platform.Data.GameSetRequestData | null;
@@ -925,6 +926,12 @@ declare namespace App.Platform.Data {
     softcore: number;
     hardcore: number;
   };
+  export type PlayerAchievementSet = {
+    completedAt: string | null;
+    completedHardcoreAt: string | null;
+    timeTaken?: number | null;
+    timeTakenHardcore?: number | null;
+  };
   export type PlayerBadge = {
     awardType: number;
     awardData: number;
@@ -986,6 +993,10 @@ declare namespace App.Platform.Data {
     completedHardcoreAt: string | null;
     points: number | null;
     pointsHardcore: number | null;
+    playtimeTotal?: number | null;
+    lastPlayedAt?: string | null;
+    timeToBeat?: number | null;
+    timeToBeatHardcore?: number | null;
     highestAward?: App.Platform.Data.PlayerBadge | null;
   };
   export type PlayerGameProgressionAwards = {
