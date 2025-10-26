@@ -108,6 +108,7 @@ declare namespace App.Community.Data {
     participants?: Array<App.Data.User>;
   };
   export type MessageThreadIndexPageProps<TItems = App.Community.Data.MessageThread> = {
+    can: App.Data.UserPermissions;
     paginatedMessageThreads: App.Data.PaginatedData<TItems>;
     unreadMessageCount: number;
     senderUserDisplayName: string;
@@ -398,6 +399,7 @@ declare namespace App.Data {
     createForumTopicComments?: boolean;
     createGameComments?: boolean;
     createGameForumTopic?: boolean;
+    createMessageThreads?: boolean;
     createTriggerTicket?: boolean;
     createUserBetaFeedbackSubmission?: boolean;
     createUsernameChangeRequest?: boolean;

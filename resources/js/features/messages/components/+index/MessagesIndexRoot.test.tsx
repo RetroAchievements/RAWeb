@@ -19,6 +19,7 @@ describe('Component: MessagesIndexRoot', () => {
     const { container } = render(<MessagesIndexRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        can: { createMessageThreads: true },
         paginatedMessageThreads: createPaginatedData([]),
         unreadMessageCount: 0,
         selectableInboxDisplayNames: [],
@@ -34,6 +35,7 @@ describe('Component: MessagesIndexRoot', () => {
     render(<MessagesIndexRoot />, {
       pageProps: {
         auth: null, // !!
+        can: { createMessageThreads: false },
         paginatedMessageThreads: createPaginatedData([]),
         unreadMessageCount: 0,
         selectableInboxDisplayNames: [],
@@ -49,6 +51,7 @@ describe('Component: MessagesIndexRoot', () => {
     render(<MessagesIndexRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        can: { createMessageThreads: true },
         paginatedMessageThreads: createPaginatedData([]),
         unreadMessageCount: 0,
         selectableInboxDisplayNames: ['Scott', 'RAdmin'], // !!
@@ -64,6 +67,7 @@ describe('Component: MessagesIndexRoot', () => {
     render(<MessagesIndexRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        can: { createMessageThreads: true },
         paginatedMessageThreads: createPaginatedData([]),
         unreadMessageCount: 0,
         selectableInboxDisplayNames: ['Scott'], // !!
@@ -79,6 +83,7 @@ describe('Component: MessagesIndexRoot', () => {
     render(<MessagesIndexRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
+        can: { createMessageThreads: true },
         paginatedMessageThreads: createPaginatedData([]),
         unreadMessageCount: 0,
         selectableInboxDisplayNames: ['Scott'],
@@ -97,6 +102,7 @@ describe('Component: MessagesIndexRoot', () => {
     render(<MessagesIndexRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        can: { createMessageThreads: true },
         paginatedMessageThreads: createPaginatedData(threads, { total: 2 }),
         unreadMessageCount: 1,
         selectableInboxDisplayNames: [],
@@ -112,6 +118,7 @@ describe('Component: MessagesIndexRoot', () => {
     render(<MessagesIndexRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        can: { createMessageThreads: true },
         paginatedMessageThreads: createPaginatedData([createMessageThread()], {
           currentPage: 1,
           lastPage: 2,
@@ -142,6 +149,7 @@ describe('Component: MessagesIndexRoot', () => {
     render(<MessagesIndexRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
+        can: { createMessageThreads: true },
         paginatedMessageThreads: createPaginatedData(
           [createMessageThread(), createMessageThread()],
           {
@@ -178,6 +186,7 @@ describe('Component: MessagesIndexRoot', () => {
     render(<MessagesIndexRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
+        can: { createMessageThreads: true },
         paginatedMessageThreads: createPaginatedData(
           [createMessageThread(), createMessageThread()],
           {
@@ -215,6 +224,7 @@ describe('Component: MessagesIndexRoot', () => {
     render(<MessagesIndexRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
+        can: { createMessageThreads: true }, // !!
         paginatedMessageThreads: createPaginatedData([]),
         unreadMessageCount: 0,
         selectableInboxDisplayNames: [],
@@ -223,5 +233,41 @@ describe('Component: MessagesIndexRoot', () => {
 
     // ASSERT
     expect(screen.getByRole('link', { name: /new message/i })).toBeVisible();
+  });
+
+  it('given the user cannot create threads, does not display a new message link', () => {
+    // ARRANGE
+    render(<MessagesIndexRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        can: { createMessageThreads: false }, // !!
+        paginatedMessageThreads: createPaginatedData([]),
+        unreadMessageCount: 0,
+        selectableInboxDisplayNames: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /new message/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user cannot create threads, displays an explanatory message', () => {
+    // ARRANGE
+    render(<MessagesIndexRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        can: { createMessageThreads: false }, // !!
+        paginatedMessageThreads: createPaginatedData([]),
+        unreadMessageCount: 0,
+        selectableInboxDisplayNames: [],
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.getByText(
+        /to send new messages, earn 250 points, verify your forum account, or wait until your account is at least 14 days old/i,
+      ),
+    ).toBeVisible();
   });
 });
