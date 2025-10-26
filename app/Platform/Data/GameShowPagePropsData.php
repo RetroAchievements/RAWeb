@@ -70,6 +70,7 @@ class GameShowPagePropsData extends Data
         public Collection $topAchievers,
         public ?PlayerGameData $playerGame,
         public ?PlayerGameProgressionAwardsData $playerGameProgressionAwards,
+        /** @var Collection<int, PlayerAchievementSetData> */
         #[LiteralTypeScriptType('Record<number, App.Platform.Data.PlayerAchievementSet>')]
         public Collection $playerAchievementSets,
         /** @var GameAchievementSetData[] */

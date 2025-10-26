@@ -27,8 +27,8 @@ class PlayerAchievementSetData extends Data
     public static function fromPlayerAchievementSet(PlayerAchievementSet $playerAchievementSet): self
     {
         return new self(
-            completedAt: $playerAchievementSet->completed_at,
-            completedHardcoreAt: $playerAchievementSet->completed_hardcore_at,
+            completedAt: $playerAchievementSet->completed_at ? Carbon::parse($playerAchievementSet->completed_at) : null,
+            completedHardcoreAt: $playerAchievementSet->completed_hardcore_at ? Carbon::parse($playerAchievementSet->completed_hardcore_at) : null,
 
             timeTaken: Lazy::create(fn () => $playerAchievementSet->time_taken),
             timeTakenHardcore: Lazy::create(fn () => $playerAchievementSet->time_taken_hardcore),
