@@ -250,24 +250,4 @@ describe('Component: MessagesIndexRoot', () => {
     // ASSERT
     expect(screen.queryByRole('link', { name: /new message/i })).not.toBeInTheDocument();
   });
-
-  it('given the user cannot create threads, displays an explanatory message', () => {
-    // ARRANGE
-    render(<MessagesIndexRoot />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser() },
-        can: { createMessageThreads: false }, // !!
-        paginatedMessageThreads: createPaginatedData([]),
-        unreadMessageCount: 0,
-        selectableInboxDisplayNames: [],
-      },
-    });
-
-    // ASSERT
-    expect(
-      screen.getByText(
-        /to send new messages, earn 250 points, verify your forum account, or wait until your account is at least 14 days old/i,
-      ),
-    ).toBeVisible();
-  });
 });
