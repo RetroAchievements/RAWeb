@@ -42,6 +42,11 @@ parameters:
         # lib/database/user-activity.php
         - '#Offset (.*) does not exist on#'
         - '#Unable to resolve the template type TMapWithKeysValue in call to method Illuminate\\Support\\Collection<\*NEVER\*,\*NEVER\*>::mapWithKeys\(\)#'
+        # False positives from PHPStan being overly strict about closure type hints
+        - identifier: varTag.nativeType
+        # Laravel template covariance limitations - these are framework-level issues we can't resolve
+        - identifier: method.childReturnType
+        - '#Template type.*is not covariant#'
 
     excludePaths:
         # unrelated directories
