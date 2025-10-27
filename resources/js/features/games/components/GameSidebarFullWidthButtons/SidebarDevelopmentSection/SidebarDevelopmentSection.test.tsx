@@ -382,4 +382,44 @@ describe('Component: SidebarDevelopmentSection', () => {
       }),
     );
   });
+
+  it('given manageAchievementSetClaims is true, shows the View Claim History button', () => {
+    // ARRANGE
+    const game = createGame({ id: 1, gameAchievementSets: [] });
+    const backingGame = createGame({ id: 123 });
+    const pageProps = {
+      backingGame,
+      game,
+      auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+      achievementSetClaims: [],
+      can: { manageAchievementSetClaims: true }, // !!
+      isOnWantToDevList: false,
+    };
+
+    render(<SidebarDevelopmentSection />, { pageProps });
+
+    // ASSERT
+    const link = screen.getByRole('link', { name: /view claim history/i });
+    expect(link).toBeVisible();
+    expect(link).toHaveAttribute('href', expect.stringContaining('game.claims,'));
+  });
+
+  it('given manageAchievementSetClaims is false, does not show the View Claim History button', () => {
+    // ARRANGE
+    const game = createGame({ id: 1, gameAchievementSets: [] });
+    const backingGame = createGame({ id: 123 });
+    const pageProps = {
+      backingGame,
+      game,
+      auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+      achievementSetClaims: [],
+      can: { manageAchievementSetClaims: false }, // !!
+      isOnWantToDevList: false,
+    };
+
+    render(<SidebarDevelopmentSection />, { pageProps });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /view claim history/i })).not.toBeInTheDocument();
+  });
 });

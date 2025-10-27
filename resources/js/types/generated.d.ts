@@ -71,6 +71,12 @@ declare namespace App.Community.Data {
     isSubscribed: boolean;
     canComment: boolean;
   };
+  export type GameSetRequestsPageProps = {
+    game: App.Platform.Data.Game;
+    initialRequestors: Array<App.Data.User>;
+    deferredRequestors: any | any;
+    totalCount: number;
+  };
   export type LeaderboardCommentsPageProps<TItems = App.Community.Data.Comment> = {
     leaderboard: App.Platform.Data.Leaderboard;
     paginatedComments: App.Data.PaginatedData<TItems>;
@@ -398,6 +404,7 @@ declare namespace App.Data {
     deleteForumTopic?: boolean;
     develop?: boolean;
     lockForumTopic?: boolean;
+    manageAchievementSetClaims?: boolean;
     manageEmulators?: boolean;
     manageEvents?: boolean;
     manageForumTopicComments?: boolean;
@@ -407,9 +414,12 @@ declare namespace App.Data {
     manageGameSets?: boolean;
     manipulateApiKeys?: boolean;
     reviewAchievementSetClaims?: boolean;
+    updateAnyAchievementSetClaim?: boolean;
     updateAvatar?: boolean;
+    updateGame?: boolean;
     updateForumTopic?: boolean;
     updateMotto?: boolean;
+    viewAnyAchievementSetClaim?: boolean;
   };
 }
 declare namespace App.Enums {

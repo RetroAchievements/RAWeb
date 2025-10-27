@@ -1,18 +1,23 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuInfo } from 'react-icons/lu';
 import { route } from 'ziggy-js';
 
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
+import { cn } from '@/common/utils/cn';
+
+import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';
 
 interface PlayableHubsListProps {
   hubs: App.Platform.Data.GameSet[];
 
   excludeHubIds?: number[];
+  variant?: 'event' | 'game';
 }
 
-export const PlayableHubsList: FC<PlayableHubsListProps> = ({ hubs, excludeHubIds }) => {
+export const PlayableHubsList: FC<PlayableHubsListProps> = ({ hubs, excludeHubIds, variant }) => {
   const { can } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { t } = useTranslation();
@@ -34,7 +39,30 @@ export const PlayableHubsList: FC<PlayableHubsListProps> = ({ hubs, excludeHubId
 
   return (
     <div data-testid="hubs-list">
-      <h2 className="mb-0 border-0 text-lg font-semibold">{t('Hubs')}</h2>
+      <h2 className="mb-0 flex items-center gap-1.5 border-0 text-lg font-semibold">
+        {variant === 'game' ? t('Additional Hubs') : t('Hubs')}
+
+        {variant === 'game' ? (
+          <BaseTooltip>
+            <BaseTooltipTrigger>
+              <LuInfo
+                className={cn(
+                  'hidden size-4 text-neutral-500 transition hover:text-neutral-300 sm:inline',
+                  'light:text-neutral-700',
+                )}
+              />
+            </BaseTooltipTrigger>
+
+            <BaseTooltipContent className="max-w-72 font-normal leading-normal">
+              <span className="text-xs font-normal">
+                {t(
+                  'Many game details above (like Developer and Genre) are also hubs. Click any to explore related games.',
+                )}
+              </span>
+            </BaseTooltipContent>
+          </BaseTooltip>
+        ) : null}
+      </h2>
 
       <div className="rounded-lg bg-embed p-1 light:border light:border-neutral-200 light:bg-white">
         <ul className="zebra-list overflow-hidden rounded-lg">
@@ -67,7 +95,8 @@ function filterHubs(
 
   return allHubs.filter((hub) => {
     // Only users who can manage games can see team meta hubs on the list.
-    if (hub.title?.includes('Meta|') && !canManageGames) {
+    // Exception: Meta|Art hubs are publicly visible.
+    if (hub.title?.includes('Meta|') && !hub.title?.includes('Meta|Art') && !canManageGames) {
       return false;
     }
 

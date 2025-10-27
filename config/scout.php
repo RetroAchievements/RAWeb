@@ -94,7 +94,7 @@ return [
     |
     */
 
-    'soft_delete' => false,
+    'soft_delete' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -269,6 +269,7 @@ return [
 
             User::class => [
                 'filterableAttributes' => [
+                    '__soft_deleted',
                     'display_name',
                     'username',
                 ],

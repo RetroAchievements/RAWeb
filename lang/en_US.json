@@ -143,6 +143,10 @@
     "Game": "Game",
     "Game Completion Checklist": "Game Completion Checklist",
     "Game Details": "Game Details",
+    "Edit Game Details": "Edit Game Details",
+    "View Game Details": "View Game Details",
+    "Manage Claims": "Manage Claims",
+    "View Claim History": "View Claim History",
     "Games": "Games",
     "Games Beaten": "Games Beaten",
     "Sets Mastered": "Sets Mastered",
@@ -1065,6 +1069,10 @@
     "There are no achievements for this set yet.": "There are no achievements for this set yet.",
     "No achievements yet": "No achievements yet",
     "Set requests help developers decide what games to work on next.": "Set requests help developers decide what games to work on next.",
+    "Set Requests - {{gameTitle}}": "Set Requests - {{gameTitle}}",
+    "There are currently no active requests.": "There are currently no active requests.",
+    "gameRequestsCount_other": "This achievement set has been requested by the following {{val, number}} users:",
+    "gameRequestsCount_one": "This achievement set has been requested by the following user:",
     "requestsFromPlayers_one": "<1>{{val, number}} request</1> from players",
     "requestsFromPlayers_other": "<1>{{val, number}} requests</1> from players",
     "myRemainingRequests2_one": "You have <1>{{val, number}} request</1> remaining",
@@ -1219,5 +1227,9 @@
     "View all {{val, number}} leaderboards": "View all {{val, number}} leaderboards",
     "Reflects completion rates for this achievement set across all players. Rarer achievements earn more RetroPoints.": "Reflects completion rates for this achievement set across all players. Rarer achievements earn more RetroPoints.",
     "This indicator may be inflated by set revisions and player attrition.": "This indicator may be inflated by set revisions and player attrition.",
-    "Set Requests - {{user}}": "Set Requests - {{user}}"
+    "Set Requests - {{user}}": "Set Requests - {{user}}",
+    "Hashes": "Hashes",
+    "Claims": "Claims",
+    "Additional Hubs": "Additional Hubs",
+    "Many game details above (like Developer and Genre) are also hubs. Click any to explore related games.": "Many game details above (like Developer and Genre) are also hubs. Click any to explore related games."
 }

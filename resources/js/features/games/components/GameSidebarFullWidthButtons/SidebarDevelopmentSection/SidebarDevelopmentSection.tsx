@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuCheck, LuFolder, LuFolderLock, LuPlus } from 'react-icons/lu';
+import { LuCheck, LuFolder, LuFolderLock, LuPlus, LuWrench } from 'react-icons/lu';
 import { route } from 'ziggy-js';
 
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
@@ -15,6 +15,7 @@ export const SidebarDevelopmentSection: FC = () => {
   const {
     auth,
     backingGame,
+    can,
     game,
     isViewingPublishedAchievements,
     isOnWantToDevList: isInitiallyOnWantToDevList,
@@ -77,6 +78,16 @@ export const SidebarDevelopmentSection: FC = () => {
       ) : null}
 
       <SidebarClaimButtons />
+
+      {can.manageAchievementSetClaims ? (
+        <PlayableSidebarButton
+          href={route('game.claims', { game: backingGame.id })}
+          IconComponent={LuWrench}
+        >
+          {t('View Claim History')}
+        </PlayableSidebarButton>
+      ) : null}
+
       <SidebarToggleInReviewButton />
 
       {isDeveloper ? (

@@ -1,6 +1,5 @@
 import { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { route } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
@@ -9,7 +8,6 @@ import {
   BaseTableCell,
   BaseTableRow,
 } from '@/common/components/+vendor/BaseTable';
-import { cleanHubTitle } from '@/common/utils/cleanHubTitle';
 import { cn } from '@/common/utils/cn';
 
 import type { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
@@ -22,10 +20,9 @@ import { GameReleaseDatesRow } from './GameReleaseDatesRow';
 interface GameMetadataProps {
   allMetaRowElements: ReturnType<typeof useAllMetaRowElements>;
   game: App.Platform.Data.Game;
-  hubs: App.Platform.Data.GameSet[];
 }
 
-export const GameMetadata: FC<GameMetadataProps> = ({ allMetaRowElements, game, hubs }) => {
+export const GameMetadata: FC<GameMetadataProps> = ({ allMetaRowElements, game }) => {
   const { t } = useTranslation();
 
   const {
@@ -36,28 +33,14 @@ export const GameMetadata: FC<GameMetadataProps> = ({ allMetaRowElements, game, 
     genreRowElements,
     hackOfRowElements,
     languageRowElements,
-    miscRowElements,
     perspectiveRowElements,
     protagonistRowElements,
     publisherRowElements,
-    raFeatureRowElements,
     regionalRowElements,
     settingRowElements,
     technicalRowElements,
     themeRowElements,
   } = allMetaRowElements;
-
-  const eventHubs = hubs.filter((h) => h.isEventHub);
-  const eventRowElements = eventHubs.map((h) => ({
-    label: cleanHubTitle(
-      h.title!,
-      h.title!.includes('AotW') ||
-        h.title!.includes('RA Awards') ||
-        h.title!.includes('Dev Events'),
-    ),
-    hubId: h.id,
-    href: route('hub.show', { gameSet: h.id }),
-  }));
 
   // These rows are buried under a "See more" button.
   const seeMoreRows: MetadataExpandableRowConfig[] = [
@@ -72,15 +55,12 @@ export const GameMetadata: FC<GameMetadataProps> = ({ allMetaRowElements, game, 
     { key: 'format', elements: formatRowElements },
     { key: 'technical', elements: technicalRowElements },
     { key: 'regional', elements: regionalRowElements },
-    { key: 'misc', elements: miscRowElements, useListSeparators: false },
-    { key: 'raFeature', elements: raFeatureRowElements, useListSeparators: false },
-    { key: 'events', elements: eventRowElements, useListSeparators: false },
   ];
 
   const seeMoreRowsCount = seeMoreRows.filter((row) => row.elements?.length > 0).length;
   const canShowSeeMoreSection = seeMoreRowsCount > 0;
 
-  const [isSeeMoreOpen, setIsSeeMoreOpen] = useState(seeMoreRowsCount === 1);
+  const [isSeeMoreOpen, setIsSeeMoreOpen] = useState(seeMoreRowsCount <= 2);
 
   const canShowPublisherRow =
     publisherRowElements.length > 0 &&

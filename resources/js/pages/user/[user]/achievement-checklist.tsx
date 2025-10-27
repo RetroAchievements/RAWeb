@@ -14,11 +14,11 @@ import type { AppPage } from '@/common/models';
 import { EventAchievementSection } from '@/features/events/components/EventAchievementSetContainer/EventAchievementSet/EventAchievementSection';
 
 const UserAchievementChecklist: AppPage = () => {
-  const { player, groups } = usePageProps<App.Community.Data.AchievementChecklistPageProps>();
+  const { player, groups, auth } = usePageProps<App.Community.Data.AchievementChecklistPageProps>();
 
   const { t } = useTranslation();
 
-  const query = useUserSearchQuery({ initialSearchTerm: player.displayName });
+  const query = useUserSearchQuery({ initialSearchTerm: auth?.user.displayName });
 
   const handleUserChange = (newUser: string) => {
     router.visit(
