@@ -47,7 +47,6 @@ class ResumePlayerSessionAction
 
         $isMultiDiscGameHash = $gameHash?->isMultiDiscGameHash();
 
-        // if a historical session was found, adjust the duration so it includes the timestamp and return it
         if ($isBackdated) {
             // timestamp is more than 10 minutes in the past, find the newest session it might
             // belong to. don't worry about matching hash or user agent.
