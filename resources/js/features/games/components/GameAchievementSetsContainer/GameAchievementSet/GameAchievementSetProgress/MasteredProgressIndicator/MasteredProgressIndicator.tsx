@@ -247,7 +247,9 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievement
             {timeTaken ? (
               <div className="flex justify-between text-2xs">
                 <p>{isMastered ? t('Time to master') : t('Time to complete')}</p>
-                <p className="font-medium">{formatDuration(timeTaken)}</p>
+                <p className="font-medium">
+                  {formatDuration(timeTaken, { shouldTruncateSeconds: true })}
+                </p>
               </div>
             ) : null}
           </div>
@@ -269,7 +271,9 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievement
             {playerGame?.playtimeTotal ? (
               <div className="flex justify-between text-2xs">
                 <p>{t('Total playtime')}</p>
-                <p className="font-medium">{formatDuration(playerGame.playtimeTotal)}</p>
+                <p className="font-medium">
+                  {formatDuration(playerGame.playtimeTotal, { shouldTruncateSeconds: true })}
+                </p>
               </div>
             ) : null}
           </div>

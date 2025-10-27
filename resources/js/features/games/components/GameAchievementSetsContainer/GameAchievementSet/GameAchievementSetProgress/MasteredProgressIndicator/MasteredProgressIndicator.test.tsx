@@ -697,7 +697,7 @@ describe('Component: MasteredProgressIndicator', () => {
     });
     expect(screen.getAllByText(/time to master/i)[0]).toBeVisible();
     expect(screen.getAllByText(/dec 28, 2024/i)[0]).toBeVisible();
-    expect(screen.getAllByText(/3h 10m 42s/i)[0]).toBeVisible();
+    expect(screen.getAllByText(/3h 10m/i)[0]).toBeVisible();
   });
 
   it('given the set is completed in softcore only, shows the completion date and time', async () => {

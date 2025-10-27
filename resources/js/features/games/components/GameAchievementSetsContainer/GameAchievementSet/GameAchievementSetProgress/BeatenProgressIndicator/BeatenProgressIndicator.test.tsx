@@ -377,7 +377,7 @@ describe('Component: BeatenProgressIndicator', () => {
     });
     expect(screen.getAllByText(/time to beat/i)[0]).toBeVisible();
     expect(screen.getAllByText(/jul 23, 2024/i)[0]).toBeVisible();
-    expect(screen.getAllByText(/296h 14m 32s/i)[0]).toBeVisible();
+    expect(screen.getAllByText(/296h 14m/i)[0]).toBeVisible();
   });
 
   it('given the game has both softcore and hardcore beaten dates, prioritizes hardcore stats', async () => {

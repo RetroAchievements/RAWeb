@@ -158,7 +158,9 @@ export const BeatenProgressIndicator: FC<BeatenProgressIndicatorProps> = ({ achi
                   {timeToBeat ? (
                     <div className="flex justify-between text-2xs">
                       <p>{t('Time to beat')}</p>
-                      <p className="font-medium">{formatDuration(timeToBeat)}</p>
+                      <p className="font-medium">
+                        {formatDuration(timeToBeat, { shouldTruncateSeconds: true })}
+                      </p>
                     </div>
                   ) : null}
                 </div>
