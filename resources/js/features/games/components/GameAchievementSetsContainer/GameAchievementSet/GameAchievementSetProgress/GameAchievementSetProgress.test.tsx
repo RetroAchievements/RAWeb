@@ -61,7 +61,7 @@ describe('Component: GameAchievementSetProgress', () => {
     expect(screen.queryByText(/beaten/i)).not.toBeInTheDocument();
   });
 
-  it('given the achievement set is not a subset, shows the beaten indicator', () => {
+  it('given the achievement set is not a subset, shows the beaten and playtime indicators', () => {
     // ARRANGE
     render(
       <GameAchievementSetProgress
@@ -80,5 +80,6 @@ describe('Component: GameAchievementSetProgress', () => {
 
     // ASSERT
     expect(screen.getByText(/beaten/i)).toBeVisible();
+    expect(screen.getByLabelText('No playtime recorded.')).toBeVisible();
   });
 });

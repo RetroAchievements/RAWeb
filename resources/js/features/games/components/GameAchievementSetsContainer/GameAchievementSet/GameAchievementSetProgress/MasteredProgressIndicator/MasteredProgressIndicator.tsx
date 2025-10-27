@@ -145,7 +145,7 @@ interface FloatableContentProps {
 }
 
 const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievementSetId }) => {
-  const { playerAchievementSets, playerGame } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { playerAchievementSets } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
   const { formatDuration } = useFormatDuration();
@@ -175,12 +175,6 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievement
     timeTaken = playerAchievementSet.timeTaken ?? null;
     isMastered = false;
   }
-
-  // Check if total playtime stats match completion stats (it's redundant to show both).
-  const doesPlaytimeMatchCompletionTime =
-    completionDate === playerGame?.lastPlayedAt && timeTaken === playerGame?.playtimeTotal;
-  const shouldShowPlaytimeStats =
-    (playerGame?.playtimeTotal || playerGame?.lastPlayedAt) && !doesPlaytimeMatchCompletionTime;
 
   return (
     <div className="flex flex-col gap-1">
@@ -249,30 +243,6 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievement
                 <p>{isMastered ? t('Time to master') : t('Time to complete')}</p>
                 <p className="font-medium">
                   {formatDuration(timeTaken, { shouldTruncateSeconds: true })}
-                </p>
-              </div>
-            ) : null}
-          </div>
-        </>
-      ) : null}
-
-      {shouldShowPlaytimeStats ? (
-        <>
-          <BaseSeparator className="my-2" />
-
-          <div className="flex flex-col gap-0.5">
-            {playerGame?.lastPlayedAt ? (
-              <div className="flex justify-between text-2xs">
-                <p>{t('Last played')}</p>
-                <p className="font-medium">{formatDate(playerGame.lastPlayedAt, 'll')}</p>
-              </div>
-            ) : null}
-
-            {playerGame?.playtimeTotal ? (
-              <div className="flex justify-between text-2xs">
-                <p>{t('Total playtime')}</p>
-                <p className="font-medium">
-                  {formatDuration(playerGame.playtimeTotal, { shouldTruncateSeconds: true })}
                 </p>
               </div>
             ) : null}

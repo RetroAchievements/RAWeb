@@ -4,6 +4,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { BeatenProgressIndicator } from './BeatenProgressIndicator';
 import { MasteredProgressIndicator } from './MasteredProgressIndicator';
+import { PlaytimeIndicator } from './PlaytimeIndicator';
 
 interface GameAchievementSetProgressProps {
   achievements: App.Platform.Data.Achievement[];
@@ -29,7 +30,10 @@ export const GameAchievementSetProgress: FC<GameAchievementSetProgressProps> = (
         />
 
         {backingGame.id === game.id ? (
-          <BeatenProgressIndicator achievements={achievements} />
+          <>
+            <BeatenProgressIndicator achievements={achievements} />
+            <PlaytimeIndicator />
+          </>
         ) : null}
       </div>
     </div>
