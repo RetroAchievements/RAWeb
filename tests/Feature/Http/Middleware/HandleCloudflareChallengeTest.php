@@ -249,6 +249,28 @@ class HandleCloudflareChallengeTest extends TestCase
 
         // Assert
         $this->assertEquals('GET', $result->method());
-        $this->assertEquals('user_session_123', $result->cookie('session'));
+        $this->assertEquals('user_session_123', $request->cookie('session'));
+    }
+
+    public function testItPreservesQueryParametersWhenConverting(): void
+    {
+        // Arrange
+        $request = Request::create(
+            '/game/1?set=5&filter=completed', // !!
+            'POST',
+            [
+                '0b9c535f3c859bdb441ffe35128a779a7008ef10b3550f1379eaf584f26c1f3f' => 'challenge_token',
+            ]
+        );
+        $request->cookies->set('cf_clearance', 'test_token');
+
+        // Act
+        $result = $this->executeMiddleware($request);
+
+        // Assert
+        $this->assertEquals('GET', $result->method());
+        $this->assertEmpty($result->request->all()); // POST data cleared
+        $this->assertEquals('5', $result->query('set')); // query params preserved
+        $this->assertEquals('completed', $result->query('filter')); // query params preserved
     }
 }

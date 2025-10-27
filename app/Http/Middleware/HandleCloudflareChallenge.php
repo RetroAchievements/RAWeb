@@ -41,8 +41,7 @@ class HandleCloudflareChallenge
         }
 
         // Only check POST data structure if Cloudflare indicators are present.
-        $postData = $request->all();
-
+        $postData = $request->post();
         if (empty($postData)) {
             return false;
         }
