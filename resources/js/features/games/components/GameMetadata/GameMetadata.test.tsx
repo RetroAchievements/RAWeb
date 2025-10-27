@@ -162,9 +162,9 @@ describe('Component: GameMetadata', () => {
   it('given there is only one see more row with content, automatically expands that section', () => {
     // ARRANGE
     const metaRowElements = createMockMetaRowElements({
-      // Empty all "see more" sections except one.
+      // ... empty all "see more" sections except one ...
       protagonistRowElements: [],
-      themeRowElements: [{ label: 'Only See More Item' }],
+      themeRowElements: [{ label: 'Only See More Item' }], // !!
       settingRowElements: [],
       formatRowElements: [],
       technicalRowElements: [],
@@ -177,6 +177,49 @@ describe('Component: GameMetadata', () => {
     expect(screen.getByText(/only see more item/i)).toBeVisible();
 
     expect(screen.queryByRole('button', { name: /see more/i })).not.toBeInTheDocument();
+  });
+
+  it('given there are exactly two see more rows with content, automatically expands that section', () => {
+    // ARRANGE
+    const metaRowElements = createMockMetaRowElements({
+      // ... empty all "see more" sections except two ...
+      protagonistRowElements: [{ label: 'Protagonist Item' }], // !!
+      themeRowElements: [{ label: 'Theme Item' }], // !!
+      settingRowElements: [],
+      formatRowElements: [],
+      technicalRowElements: [],
+      regionalRowElements: [],
+    });
+
+    render(<GameMetadata allMetaRowElements={metaRowElements as any} game={createGame()} />);
+
+    // ASSERT
+    expect(screen.getByText(/protagonist item/i)).toBeVisible();
+    expect(screen.getByText(/theme item/i)).toBeVisible();
+
+    expect(screen.queryByRole('button', { name: /see more/i })).not.toBeInTheDocument();
+  });
+
+  it('given there are three or more see more rows with content, shows the see more button', () => {
+    // ARRANGE
+    const metaRowElements = createMockMetaRowElements({
+      // ... keep three "see more" sections populated ...
+      protagonistRowElements: [{ label: 'Protagonist Item' }], // !!
+      themeRowElements: [{ label: 'Theme Item' }], // !!
+      settingRowElements: [{ label: 'Setting Item' }], // !!
+      formatRowElements: [],
+      technicalRowElements: [],
+      regionalRowElements: [],
+    });
+
+    render(<GameMetadata allMetaRowElements={metaRowElements as any} game={createGame()} />);
+
+    // ASSERT
+    expect(screen.queryByText(/protagonist item/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/theme item/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/setting item/i)).not.toBeInTheDocument();
+
+    expect(screen.getByRole('button', { name: /see more/i })).toBeVisible();
   });
 
   it('given the game has unique non-canonical titles, displays a row for them', () => {
