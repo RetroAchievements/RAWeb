@@ -29,34 +29,52 @@ class ResumePlayerSessionAction
         ?string $userAgent = null,
         ?string $ipAddress = null,
     ): PlayerSession {
+        $sessionKeepAliveTimeInMinutes = 10;
+        $isBackdated = ($timestamp && $timestamp->diffInMinutes(Carbon::now(), true) > $sessionKeepAliveTimeInMinutes);
+
         $timestamp ??= Carbon::now();
+
+        /** @var ?PlayerSession $playerSession */
+        $playerSession = null;
 
         // upsert player game and update last played date right away
         $playerGame = app()->make(AttachPlayerGameAction::class)
             ->execute($user, $game);
-        $playerGame->last_played_at = $timestamp;
-        $playerGame->save();
+        if (!$playerGame->last_played_at || $timestamp > $playerGame->last_played_at) {
+            $playerGame->last_played_at = $timestamp;
+            $playerGame->save();
+        }
 
         $isMultiDiscGameHash = $gameHash?->isMultiDiscGameHash();
 
-        // look for an active session
-        /** @var ?PlayerSession $playerSession */
-        $playerSession = $user->playerSessions()
-            ->where('game_id', $game->id)
-            ->where(function ($query) use ($gameHash, $isMultiDiscGameHash) {
-                if ($gameHash && !$isMultiDiscGameHash) {
-                    $query->where('game_hash_id', $gameHash->id)
-                        ->orWhereNull('game_hash_id');
-                }
-            })
-            ->where(function ($query) use ($userAgent) {
-                if ($userAgent) {
-                    $query->where('user_agent', $userAgent)
-                        ->orWhereNull('user_agent');
-                }
-            })
-            ->orderByDesc('id')
-            ->first();
+        // if a historical session was found, adjust the duration so it includes the timestamp and return it
+        if ($isBackdated) {
+            // timestamp is more than 10 minutes in the past, find the newest session it might
+            // belong to. don't worry about matching hash or user agent.
+            $playerSession = $user->playerSessions()
+                ->where('game_id', $game->id)
+                ->where('created_at', '<', $timestamp)
+                ->orderByDesc('id')
+                ->first();
+        } else {
+            // look for an active session
+            $playerSession = $user->playerSessions()
+                ->where('game_id', $game->id)
+                ->where(function ($query) use ($gameHash, $isMultiDiscGameHash) {
+                    if ($gameHash && !$isMultiDiscGameHash) {
+                        $query->where('game_hash_id', $gameHash->id)
+                            ->orWhereNull('game_hash_id');
+                    }
+                })
+                ->where(function ($query) use ($userAgent) {
+                    if ($userAgent) {
+                        $query->where('user_agent', $userAgent)
+                            ->orWhereNull('user_agent');
+                    }
+                })
+                ->orderByDesc('id')
+                ->first();
+        }
 
         // As best as we can, we'll try to only write once to the user model.
         $doesUserNeedsUpdate = false;
@@ -69,74 +87,86 @@ class ResumePlayerSessionAction
             $doesUserNeedsUpdate = true;
         }
 
-        // if the timestamp is within the session, just return it (backdated unlocks)
-        if ($playerSession && $timestamp->between($playerSession->created_at, $playerSession->rich_presence_updated_at)) {
-            return $playerSession;
-        }
-
-        // if the session is less than 10 minutes old, resume session
-        if ($playerSession && ($timestamp->diffInMinutes($playerSession->rich_presence_updated_at, true) < 10)) {
+        if ($playerSession) {
+            // if the session was last updated less than 10 minutes ago, extend it.
             $newDuration = max(1, (int) $timestamp->diffInMinutes($playerSession->created_at, true));
-            // duration is in minutes, playtimes are in seconds.
-            $adjustment = ($newDuration - $playerSession->duration) * 60;
-            if ($adjustment > 0) {
-                $playerSession->duration = $newDuration;
+            if ($isBackdated || $newDuration - $playerSession->duration < $sessionKeepAliveTimeInMinutes) {
+                if ($newDuration > $playerSession->duration) {
+                    // duration is in minutes, playtimes are in seconds.
+                    $adjustment = ($newDuration - $playerSession->duration) * 60;
 
-                if (!$playerGame->playtime_total) {
-                    // no playtime metrics exist - generate them
-                    $playerSession->save(); // ensure job uses updated duration
-                    dispatch(new UpdatePlayerGameMetricsJob($user->id, $game->id));
-                } else {
-                    // extending an existing session. attempt to keep the playtime metrics
-                    // up to date without doing a full regeneration. a full regeneration
-                    // will occur after the next unlock.
-                    $this->extendPlayTime($playerGame, $playerSession, $gameHash, $adjustment);
+                    $playerSession->duration = $newDuration;
+
+                    if (!$playerGame->playtime_total) {
+                        // no playtime metrics exist - generate them
+                        $playerSession->save(); // ensure job uses updated duration
+                        dispatch(new UpdatePlayerGameMetricsJob($user->id, $game->id));
+                    } else {
+                        // extending an existing session. attempt to keep the playtime metrics
+                        // up to date without doing a full regeneration. a full regeneration
+                        // will occur after the next unlock.
+                        $this->extendPlayTime($playerGame, $playerSession, $gameHash, $adjustment);
+                    }
                 }
+
+                if ($timestamp > $playerSession->rich_presence_updated_at) {
+                    // rich_presence_updated_at is used to generate playtime stats in
+                    // seconds as duration only captures minutes. so update it even if
+                    // the rich_presence message isn't being updated.
+                    $playerSession->rich_presence_updated_at = $timestamp;
+
+                    if ($presence) {
+                        $presence = utf8_sanitize($presence);
+
+                        $playerSession->rich_presence = $presence;
+
+                        if (!$isBackdated) {
+                            // TODO deprecated, read from last player_sessions entry where needed
+                            $user->RichPresenceMsg = $presence;
+                            $user->RichPresenceMsgDate = $timestamp;
+                            $doesUserNeedsUpdate = true;
+
+                            // Update the player's game_recent_players table entry.
+                            GameRecentPlayer::upsert(
+                                [
+                                    'game_id' => $game->id,
+                                    'user_id' => $user->id,
+                                    'rich_presence' => $presence,
+                                    'rich_presence_updated_at' => $timestamp,
+                                ],
+                                ['game_id', 'user_id'],
+                                ['rich_presence', 'rich_presence_updated_at']
+                            );
+                        }
+                    }
+                }
+
+                if (!$isBackdated) {
+                    if ($gameHash && !$playerSession->game_hash_id && !$isMultiDiscGameHash) {
+                        $playerSession->game_hash_id = $gameHash->id;
+                    }
+
+                    if ($userAgent && !$playerSession->user_agent) {
+                        $playerSession->user_agent = $userAgent;
+                    }
+
+                    if ($ipAddress && !$playerSession->ip_address) {
+                        $playerSession->ip_address = $ipAddress;
+                    }
+                }
+
+                $playerSession->save(['touch' => true]);
+
+                if ($doesUserNeedsUpdate) {
+                    $user->saveQuietly();
+                }
+
+                if (!$isBackdated) {
+                    PlayerSessionResumed::dispatch($user, $game, $presence);
+                }
+
+                return $playerSession;
             }
-
-            if ($presence) {
-                $playerSession->rich_presence = $presence;
-
-                // TODO deprecated, read from last player_sessions entry where needed
-                $user->RichPresenceMsg = utf8_sanitize($presence);
-                $user->RichPresenceMsgDate = $timestamp;
-                $doesUserNeedsUpdate = true;
-
-                // Update the player's game_recent_players table entry.
-                GameRecentPlayer::upsert(
-                    [
-                        'game_id' => $game->id,
-                        'user_id' => $user->id,
-                        'rich_presence' => $presence,
-                        'rich_presence_updated_at' => $timestamp,
-                    ],
-                    ['game_id', 'user_id'],
-                    ['rich_presence', 'rich_presence_updated_at']
-                );
-            }
-            $playerSession->rich_presence_updated_at = $timestamp > $playerSession->rich_presence_updated_at ? $timestamp : $playerSession->rich_presence_updated_at;
-
-            if ($gameHash && !$playerSession->game_hash_id && !$isMultiDiscGameHash) {
-                $playerSession->game_hash_id = $gameHash->id;
-            }
-
-            if ($userAgent && !$playerSession->user_agent) {
-                $playerSession->user_agent = $userAgent;
-            }
-
-            if ($ipAddress && !$playerSession->ip_address) {
-                $playerSession->ip_address = $ipAddress;
-            }
-
-            $playerSession->save(['touch' => true]);
-
-            if ($doesUserNeedsUpdate) {
-                $user->saveQuietly();
-            }
-
-            PlayerSessionResumed::dispatch($user, $game, $presence);
-
-            return $playerSession;
         }
 
         // provide a default presence for the new session if none was provided
@@ -163,7 +193,8 @@ class ResumePlayerSessionAction
             'ip_address' => $ipAddress,
         ]);
 
-        $user->playerSessions()->save($playerSession);
+        $playerSession->created_at = $timestamp;
+        $playerSession->save();
 
         // Update the player's game_recent_players table entry.
         GameRecentPlayer::upsert(
