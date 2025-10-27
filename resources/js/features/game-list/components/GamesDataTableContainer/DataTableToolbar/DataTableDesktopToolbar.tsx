@@ -27,6 +27,7 @@ interface DataTableDesktopToolbarProps<TData> {
   unfilteredTotal: number | null;
 
   defaultColumnFilters?: ColumnFiltersState;
+  isTableQueryLoading?: boolean;
   randomGameApiRouteName?: RouteName;
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
@@ -37,6 +38,7 @@ export function DataTableDesktopToolbar<TData>({
   tableApiRouteParams,
   unfilteredTotal,
   defaultColumnFilters = [],
+  isTableQueryLoading = false,
   randomGameApiRouteName = 'api.game.random',
   tableApiRouteName = 'api.game.index',
 }: DataTableDesktopToolbarProps<TData>) {
@@ -148,7 +150,7 @@ export function DataTableDesktopToolbar<TData>({
               apiRouteName={randomGameApiRouteName}
               apiRouteParams={tableApiRouteParams}
               columnFilters={currentFilters}
-              disabled={table.getRowCount() === 0}
+              disabled={table.getRowCount() === 0 || isTableQueryLoading}
             />
 
             <DataTableColumnsToggle table={table} />

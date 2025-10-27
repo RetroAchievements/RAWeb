@@ -78,6 +78,8 @@ class GameShowPagePropsData extends Data
         public ?SeriesHubData $seriesHub,
         public ?GameSetRequestData $setRequestData,
         public ?int $targetAchievementSetId,
+        public ?int $targetAchievementSetPlayersTotal,
+        public ?int $targetAchievementSetPlayersHardcore,
     ) {
     }
 }

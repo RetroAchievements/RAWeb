@@ -335,7 +335,14 @@ const FilterOption: FC<FilterOptionProps> = ({
         )}
         data-testid="filter-option-indicator"
       >
-        {isSelected && <HiOutlineCheck role="img" aria-hidden={true} className="size-4" />}
+        {isSelected && (
+          <HiOutlineCheck
+            role="img"
+            data-testid={`checked-${option.t_label}`}
+            aria-hidden={true}
+            className="size-4"
+          />
+        )}
       </div>
 
       {option.icon ? (

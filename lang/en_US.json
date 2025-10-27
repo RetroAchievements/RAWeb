@@ -1239,5 +1239,6 @@
     "Time to beat": "Time to beat",
     "Time to complete": "Time to complete",
     "Time to master": "Time to master",
-    "Total playtime": "Total playtime"
+    "Total playtime": "Total playtime",
+    "Submit ({{metaKey}}+Enter)": "Submit ({{metaKey}}+Enter)"
 }

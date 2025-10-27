@@ -19,6 +19,7 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\GameSet;
 use App\Models\LeaderboardEntry;
+use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\System;
@@ -248,6 +249,17 @@ class BuildGameShowPagePropsAction
         // Derive the default sort order based on the user's unlock progress.
         $defaultSort = $this->getDefaultSort($backingGame, $playerGame);
 
+        // Calculate target set player counts for non-core sets.
+        // This is used for the 'Playtime Stats' component. We need to get the real
+        // subset player count from player_achievement_sets, otherwise the UI will
+        // fall back to the base game player count.
+        $targetAchievementSetPlayersTotal = null;
+        $targetAchievementSetPlayersHardcore = null;
+        if ($targetAchievementSet !== null && $targetAchievementSet->type !== AchievementSetType::Core) {
+            [$targetAchievementSetPlayersTotal, $targetAchievementSetPlayersHardcore] =
+                $this->getAchievementSetPlayerCounts($targetAchievementSet->achievement_set_id);
+        }
+
         $propsData = new GameShowPagePropsData(
             achievementSetClaims: $achievementSetClaims,
 
@@ -372,6 +384,8 @@ class BuildGameShowPagePropsAction
             seriesHub: $this->buildSeriesHubDataAction->execute($game),
             setRequestData: $this->buildSetRequestData($backingGame, $user),
             targetAchievementSetId: $targetAchievementSet?->achievement_set_id,
+            targetAchievementSetPlayersTotal: $targetAchievementSetPlayersTotal,
+            targetAchievementSetPlayersHardcore: $targetAchievementSetPlayersHardcore,
 
             selectableGameAchievementSets: $game->getAttribute('selectableGameAchievementSets')
                 ->map(function ($gas) {
@@ -813,5 +827,29 @@ class BuildGameShowPagePropsAction
         }
 
         return GamePageListSort::DisplayOrder;
+    }
+
+    /**
+     * Get actual player counts for a specific achievement set from player_achievement_sets.
+     *
+     * @return array{int, int} [$playersTotal, $playersHardcore]
+     */
+    private function getAchievementSetPlayerCounts(int $achievementSetId): array
+    {
+        $playersTotal = PlayerAchievementSet::query()
+            ->where('achievement_set_id', $achievementSetId)
+            ->where('achievements_unlocked', '>', 0)
+            ->leftJoin('unranked_users', 'player_achievement_sets.user_id', '=', 'unranked_users.user_id')
+            ->whereNull('unranked_users.id')
+            ->count();
+
+        $playersHardcore = PlayerAchievementSet::query()
+            ->where('achievement_set_id', $achievementSetId)
+            ->where('achievements_unlocked_hardcore', '>', 0)
+            ->leftJoin('unranked_users', 'player_achievement_sets.user_id', '=', 'unranked_users.user_id')
+            ->whereNull('unranked_users.id')
+            ->count();
+
+        return [$playersTotal, $playersHardcore];
     }
 }
