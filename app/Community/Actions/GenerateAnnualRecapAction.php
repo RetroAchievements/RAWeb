@@ -57,11 +57,14 @@ class GenerateAnnualRecapAction
 
         $this->extractDevelopmentTime($recapData, $user, $gameData, $startDate, $endDate);
 
+        $subsetGameIds = $this->identifyAndMergeSubSets($gameData);
+
         $this->summarizeUnlocks($recapData, $user, $gameData, $startDate, $endDate);
         $this->summarizePlayTime($recapData, $gameData);
         $this->summarizeAwards($recapData, $user, $startDate, $endDate);
         $this->determineMostPlayedGame($recapData, $gameData);
-        $this->determineRarestAchievement($recapData, $user, $startDate, $endDate);
+        $this->determineRarestAchievement($recapData, $user, $gameData, $startDate, $endDate);
+        $this->determineRarestSubsetAchievement($recapData, $user, $subsetGameIds, $startDate, $endDate);
         $this->summarizePosts($recapData, $user, $startDate, $endDate);
         $this->summarizeDevelopment($recapData, $user, $startDate, $endDate);
 
@@ -172,10 +175,69 @@ class GenerateAnnualRecapAction
         $recapData['developmentTime'] = $developmentTime > 0 ? $this->hoursMinutes($developmentTime) : null;
     }
 
+    private function identifyAndMergeSubsets(array &$gameData): array
+    {
+        $gameIds = array_keys($gameData);
+        $achievementSets = GameAchievementSet::whereIn('game_id', $gameIds)
+            ->select(['game_id', 'achievement_set_id'])
+            ->where('type', AchievementSetType::Core)
+            ->get()
+            ->mapWithKeys(function ($gameAchievementSet) {
+                return [$gameAchievementSet->achievement_set_id => $gameAchievementSet->game_id];
+            })
+            ->toArray();
+
+        $subsets = GameAchievementSet::whereIn('achievement_set_id', array_keys($achievementSets))
+            ->select(['game_id', 'achievement_set_id'])
+            ->where('type', '!=', AchievementSetType::Core)
+            ->get()
+            ->mapWithKeys(function ($gameAchievementSet) {
+                return [$gameAchievementSet->achievement_set_id => $gameAchievementSet->game_id];
+            })
+            ->toArray();
+
+        $subsetGameIds = [];
+        foreach ($subsets as $setId => $gameId) {
+            $subsetGameId = $achievementSets[$setId] ?? 0;
+            if ($subsetGameId) {
+                $subsetGameIds[] = $subsetGameId;
+
+                // move the playtime from the subset to the core set
+                if (array_key_exists($subsetGameId, $gameData)) {
+                    if (array_key_exists($gameId, $gameData)) {
+                        $gameData[$gameId]['totalDuration'] += $gameData[$subsetGameId]['totalDuration'];
+                    } else {
+                        $gameData[$gameId] = $gameData[$subsetGameId];
+                    }
+
+                    unset($gameData[$subsetGameId]);
+                }
+            }
+        }
+
+        return $subsetGameIds;
+    }
+
     private function summarizeUnlocks(array &$recapData, User $user, array $gameData, Carbon $startDate, Carbon $endDate): void
     {
         $gameIds = array_keys($gameData);
 
+        $unlockTallies = $this->getUnlockTallies($gameIds, $user, $startDate, $endDate);
+
+        $numLeaderboards = LeaderboardEntry::where('user_id', $user->id)
+            ->where('updated_at', '>=', $startDate)
+            ->where('updated_at', '<', $endDate)
+            ->count();
+
+        $recapData['gamesPlayed'] = count($gameData);
+        $recapData['achievementsUnlocked'] = $unlockTallies['achievementsUnlocked'];
+        $recapData['hardcorePointsEarned'] = $unlockTallies['hardcorePointsEarned'];
+        $recapData['softcorePointsEarned'] = $unlockTallies['softcorePointsEarned'];
+        $recapData['leaderboardsSubmitted'] = $numLeaderboards;
+    }
+
+    private function getUnlockTallies(array $gameIds, User $user, Carbon $startDate, Carbon $endDate): array
+    {
         $hardcoreTally = PlayerAchievement::where('player_achievements.user_id', $user->id)
             ->where('unlocked_hardcore_at', '>=', $startDate)
             ->where('unlocked_hardcore_at', '<', $endDate)
@@ -201,16 +263,11 @@ class GenerateAnnualRecapAction
             )
             ->first();
 
-        $numLeaderboards = LeaderboardEntry::where('user_id', $user->id)
-            ->where('updated_at', '>=', $startDate)
-            ->where('updated_at', '<', $endDate)
-            ->count();
-
-        $recapData['gamesPlayed'] = count($gameData);
-        $recapData['achievementsUnlocked'] = $hardcoreTally->count + $softcoreTally->count;
-        $recapData['hardcorePointsEarned'] = $hardcoreTally->points;
-        $recapData['softcorePointsEarned'] = $softcoreTally->points;
-        $recapData['leaderboardsSubmitted'] = $numLeaderboards;
+        return [
+            'achievementsUnlocked' => $hardcoreTally->count + $softcoreTally->count,
+            'hardcorePointsEarned' => $hardcoreTally->points,
+            'softcorePointsEarned' => $softcoreTally->points,
+        ];
     }
 
     private function summarizePlayTime(array &$recapData, array $gameData): void
@@ -311,28 +368,40 @@ class GenerateAnnualRecapAction
         }
     }
 
-    private function determineRarestAchievement(array &$recapData, User $user, Carbon $startDate, Carbon $endDate): void
+    private function determineRarestAchievement(array &$recapData, User $user, array $gameData, Carbon $startDate, Carbon $endDate): void
     {
-        $recapData['rarestHardcoreAchievement'] = null;
-        $recapData['rarestHardcoreAchievementEarnRate'] = 0.0;
-        $recapData['rarestSoftcoreAchievement'] = null;
-        $recapData['rarestSoftcoreAchievementEarnRate'] = 0.0;
+        $gameIds = array_keys($gameData);
+        $rarestAchievement = $this->getRarestAchievement($gameIds, $user, $startDate, $endDate);
+        $recapData['rarestHardcoreAchievement'] = $rarestAchievement['rarestHardcoreAchievement'];
+        $recapData['rarestHardcoreAchievementEarnRate'] = $rarestAchievement['rarestHardcoreAchievementEarnRate'];
+        $recapData['rarestSoftcoreAchievement'] = $rarestAchievement['rarestSoftcoreAchievement'];
+        $recapData['rarestSoftcoreAchievementEarnRate'] = $rarestAchievement['rarestSoftcoreAchievementEarnRate'];
+    }
+
+    private function getRarestAchievement(array $gameIds, User $user, Carbon $startDate, Carbon $endDate): array
+    {
+        $result = [
+            'rarestHardcoreAchievement' => null,
+            'rarestHardcoreAchievementEarnRate' => 0.0,
+            'rarestSoftcoreAchievement' => null,
+            'rarestSoftcoreAchievementEarnRate' => 0.0,
+        ];
 
         $rarestHardcoreAchievement = PlayerAchievement::where('player_achievements.user_id', $user->id)
             ->where('unlocked_hardcore_at', '>=', $startDate)
             ->where('unlocked_hardcore_at', '<', $endDate)
             ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
             ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
-            ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
+            ->whereIn('Achievements.GameID', $gameIds)
             ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore)
             ->select('Achievements.ID', DB::raw('Achievements.unlocks_hardcore_total/GameData.players_total as EarnRate'))
             ->orderBy('EarnRate')
             ->first();
         if ($rarestHardcoreAchievement) {
-            $recapData['rarestHardcoreAchievement'] = Achievement::find($rarestHardcoreAchievement->ID);
-            $recapData['rarestHardcoreAchievementEarnRate'] = sprintf("%01.2f", $rarestHardcoreAchievement->EarnRate * 100);
+            $result['rarestHardcoreAchievement'] = Achievement::find($rarestHardcoreAchievement->ID);
+            $result['rarestHardcoreAchievementEarnRate'] = sprintf("%01.2f", $rarestHardcoreAchievement->EarnRate * 100);
 
-            return; // only report rarest hardcore achievement if one was found
+            return $result; // only report rarest hardcore achievement if one was found
         }
 
         $rarestSoftcoreAchievement = PlayerAchievement::where('player_achievements.user_id', $user->id)
@@ -340,15 +409,43 @@ class GenerateAnnualRecapAction
             ->where('unlocked_at', '<', $endDate)
             ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
             ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
-            ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
+            ->whereIn('Achievements.GameID', $gameIds)
             ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore)
             ->select('Achievements.ID', DB::raw('Achievements.unlocks_total/GameData.players_total as EarnRate'))
             ->orderBy('EarnRate')
             ->first();
         if ($rarestSoftcoreAchievement) {
-            $recapData['rarestSoftcoreAchievement'] = Achievement::find($rarestSoftcoreAchievement->ID);
-            $recapData['rarestSoftcoreAchievementEarnRate'] = sprintf("%01.2f", $rarestSoftcoreAchievement->EarnRate * 100);
+            $result['rarestSoftcoreAchievement'] = Achievement::find($rarestSoftcoreAchievement->ID);
+            $result['rarestSoftcoreAchievementEarnRate'] = sprintf("%01.2f", $rarestSoftcoreAchievement->EarnRate * 100);
         }
+
+        return $result;
+    }
+
+    private function determineRarestSubsetAchievement(array &$recapData, User $user, array $subsetGameIds, Carbon $startDate, Carbon $endDate): void
+    {
+        if (empty($subsetGameIds)) {
+            $recapData['subsetAchievementsUnlocked'] = 0;
+            $recapData['subsetHardcorePointsEarned'] = 0;
+            $recapData['subsetSoftcorePointsEarned'] = 0;
+            $recapData['rarestSubsetHardcoreAchievement'] = null;
+            $recapData['rarestSubsetHardcoreAchievementEarnRate'] = 0.0;
+            $recapData['rarestSubsetSoftcoreAchievement'] = null;
+            $recapData['rarestSubsetSoftcoreAchievementEarnRate'] = 0.0;
+
+            return;
+        }
+
+        $subsetUnlockTallies = $this->getUnlockTallies($subsetGameIds, $user, $startDate, $endDate);
+        $recapData['subsetAchievementsUnlocked'] = $subsetUnlockTallies['achievementsUnlocked'];
+        $recapData['subsetHardcorePointsEarned'] = $subsetUnlockTallies['hardcorePointsEarned'];
+        $recapData['subsetSoftcorePointsEarned'] = $subsetUnlockTallies['softcorePointsEarned'];
+
+        $rarestAchievement = $this->getRarestAchievement($subsetGameIds, $user, $startDate, $endDate);
+        $recapData['rarestSubsetHardcoreAchievement'] = $rarestAchievement['rarestHardcoreAchievement'];
+        $recapData['rarestSubsetHardcoreAchievementEarnRate'] = $rarestAchievement['rarestHardcoreAchievementEarnRate'];
+        $recapData['rarestSubsetSoftcoreAchievement'] = $rarestAchievement['rarestSoftcoreAchievement'];
+        $recapData['rarestSubsetSoftcoreAchievementEarnRate'] = $rarestAchievement['rarestSoftcoreAchievementEarnRate'];
     }
 
     private function summarizePosts(array &$recapData, User $user, Carbon $startDate, Carbon $endDate): void
