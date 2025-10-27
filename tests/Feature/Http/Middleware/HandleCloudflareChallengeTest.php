@@ -269,7 +269,7 @@ class HandleCloudflareChallengeTest extends TestCase
 
         // Assert
         $this->assertEquals('GET', $result->method());
-        $this->assertEmpty($result->request->all()); // POST data cleared
+        $this->assertEmpty($result->post()); // POST data cleared
         $this->assertEquals('5', $result->query('set')); // query params preserved
         $this->assertEquals('completed', $result->query('filter')); // query params preserved
     }
