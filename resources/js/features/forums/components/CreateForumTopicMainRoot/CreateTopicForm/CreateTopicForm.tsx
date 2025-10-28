@@ -14,6 +14,7 @@ import {
 } from '@/common/components/+vendor/BaseForm';
 import { BaseInput } from '@/common/components/+vendor/BaseInput';
 import { BaseSelectNative } from '@/common/components/+vendor/BaseSelectNative';
+import { MetaKeySubmitTooltip } from '@/common/components/MetaKeySubmitTooltip';
 import { ShortcodePanel } from '@/common/components/ShortcodePanel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useSubmitOnMetaEnter } from '@/common/hooks/useSubmitOnMetaEnter';
@@ -142,24 +143,26 @@ export const CreateTopicForm: FC<CreateTopicFormProps> = ({ onPreview }) => {
                 {t('Preview')}
               </BaseButton>
 
-              <BaseButton
-                type="submit"
-                className="flex items-center gap-2"
-                disabled={!form.formState.isValid || mutation.isPending}
-              >
-                {watchedPostAsUser ? (
-                  <img
-                    src={watchedPostAsUser.avatarUrl}
-                    alt={watchedPostAsUser.displayName}
-                    className="size-6 rounded-full"
-                    aria-hidden={true}
-                  />
-                ) : null}
+              <MetaKeySubmitTooltip>
+                <BaseButton
+                  type="submit"
+                  className="flex items-center gap-2"
+                  disabled={!form.formState.isValid || mutation.isPending}
+                >
+                  {watchedPostAsUser ? (
+                    <img
+                      src={watchedPostAsUser.avatarUrl}
+                      alt={watchedPostAsUser.displayName}
+                      className="size-6 rounded-full"
+                      aria-hidden={true}
+                    />
+                  ) : null}
 
-                {watchedPostAsUser
-                  ? t('Submit as {{displayName}}', { displayName: watchedPostAsUser.displayName })
-                  : t('Submit')}
-              </BaseButton>
+                  {watchedPostAsUser
+                    ? t('Submit as {{displayName}}', { displayName: watchedPostAsUser.displayName })
+                    : t('Submit')}
+                </BaseButton>
+              </MetaKeySubmitTooltip>
             </div>
           </div>
         </div>

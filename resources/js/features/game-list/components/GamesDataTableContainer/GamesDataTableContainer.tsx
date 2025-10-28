@@ -113,6 +113,7 @@ export const GamesDataTableContainer: FC<GamesDataTableContainerProps> = ({
     <div className="flex flex-col gap-3">
       <DataTableToolbar
         defaultColumnFilters={defaultColumnFilters}
+        isTableQueryLoading={gameListQuery.isLoading || gameListQuery.isFetching}
         randomGameApiRouteName={randomGameApiRouteName}
         table={table}
         tableApiRouteName={apiRouteName}

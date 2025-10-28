@@ -12,6 +12,7 @@ import {
   BaseFormLabel,
   BaseFormMessage,
 } from '@/common/components/+vendor/BaseForm';
+import { MetaKeySubmitTooltip } from '@/common/components/MetaKeySubmitTooltip';
 import { ShortcodePanel } from '@/common/components/ShortcodePanel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useSubmitOnMetaEnter } from '@/common/hooks/useSubmitOnMetaEnter';
@@ -79,24 +80,26 @@ export const CreateMessageReplyForm: FC<CreateMessageReplyFormProps> = ({ onPrev
                 {t('Preview')}
               </BaseButton>
 
-              <BaseButton
-                type="submit"
-                className="flex items-center gap-2"
-                disabled={!form.formState.isValid || mutation.isPending}
-              >
-                {senderUserAvatarUrl && auth!.user.displayName !== senderUserDisplayName ? (
-                  <img
-                    src={senderUserAvatarUrl}
-                    alt={senderUserDisplayName}
-                    className="size-6 rounded-full"
-                    aria-hidden={true}
-                  />
-                ) : null}
+              <MetaKeySubmitTooltip>
+                <BaseButton
+                  type="submit"
+                  className="flex items-center gap-2"
+                  disabled={!form.formState.isValid || mutation.isPending}
+                >
+                  {senderUserAvatarUrl && auth!.user.displayName !== senderUserDisplayName ? (
+                    <img
+                      src={senderUserAvatarUrl}
+                      alt={senderUserDisplayName}
+                      className="size-6 rounded-full"
+                      aria-hidden={true}
+                    />
+                  ) : null}
 
-                {auth!.user.displayName === senderUserDisplayName
-                  ? t('Submit')
-                  : t('Submit as {{displayName}}', { displayName: senderUserDisplayName })}
-              </BaseButton>
+                  {auth!.user.displayName === senderUserDisplayName
+                    ? t('Submit')
+                    : t('Submit as {{displayName}}', { displayName: senderUserDisplayName })}
+                </BaseButton>
+              </MetaKeySubmitTooltip>
             </div>
           </div>
         </div>

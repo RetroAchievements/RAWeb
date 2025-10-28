@@ -1230,6 +1230,8 @@
     "Set Requests - {{user}}": "Set Requests - {{user}}",
     "Hashes": "Hashes",
     "Claims": "Claims",
+    "This username is not available.": "This username is not available.",
     "Additional Hubs": "Additional Hubs",
-    "Many game details above (like Developer and Genre) are also hubs. Click any to explore related games.": "Many game details above (like Developer and Genre) are also hubs. Click any to explore related games."
+    "Many game details above (like Developer and Genre) are also hubs. Click any to explore related games.": "Many game details above (like Developer and Genre) are also hubs. Click any to explore related games.",
+    "Submit ({{metaKey}}+Enter)": "Submit ({{metaKey}}+Enter)"
 }

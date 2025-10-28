@@ -161,6 +161,7 @@ class AchievementSetsRelationManager extends RelationManager
                                                     ->orWhere('achievements_unpublished', '>', 0);
                                             })
                                             ->whereDoesntHave('gameAchievementSets', function (Builder $query) use ($attachedAchievementSetIds) {
+                                                /** @var Builder<GameAchievementSet> $query */
                                                 $query->core()->whereIn('achievement_set_id', $attachedAchievementSetIds);
                                             })
                                             ->orderBy('Title')

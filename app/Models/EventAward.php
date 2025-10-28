@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Community\Enums\AwardType;
 use App\Support\Database\Eloquent\BaseModel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -32,6 +33,7 @@ class EventAward extends BaseModel
             ->where('AwardData', $this->event_id)
             ->where('AwardDataExtra', $this->tier_index)
             ->whereHas('user', function ($query) {
+                /** @var Builder<User> $query */
                 $query->tracked();
             })
             ->count();
