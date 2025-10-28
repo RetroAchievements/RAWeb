@@ -1,14 +1,8 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:core\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Filament/Resources/GameResource/RelationManagers/AchievementSetsRelationManager.php
-
-		-
-			message: '#^Parameter &\$permissionOut by\-ref type of function authenticateFromAppToken\(\) expects int\|null, Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\> given\.$#'
-			identifier: parameterByRef.type
+			message: '#^Parameter &\$permissionOut @param\-out type of function authenticateFromAppToken\(\) expects int\|null, Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\> given\.$#'
+			identifier: paramOut.type
 			count: 1
 			path: app/Helpers/database/user-auth.php
 
@@ -73,12 +67,6 @@ parameters:
 			path: app/Models/Achievement.php
 
 		-
-			message: '#^Return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, \$this\(App\\Models\\Achievement\)\>\) of method App\\Models\\Achievement\:\:currentTrigger\(\) should be compatible with return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, App\\Models\\Achievement\>\) of method App\\Platform\\Contracts\\HasVersionedTrigger\<App\\Models\\Achievement\>\:\:currentTrigger\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: app/Models/Achievement.php
-
-		-
 			message: '#^Unable to resolve the template type TNewPivotModel in call to method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\User,\$this\(App\\Models\\Achievement\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\)$#'
 			identifier: argument.templateType
 			count: 1
@@ -127,18 +115,6 @@ parameters:
 			path: app/Models/Event.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:published\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Models/EventAchievement.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:tracked\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Models/EventAward.php
-
-		-
 			message: '#^Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\User,\$this\(App\\Models\\EventAward\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Relations\\Pivot\>, string given\.$#'
 			identifier: argument.type
 			count: 1
@@ -171,12 +147,6 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\User,\$this\(App\\Models\\Game\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Relations\\Pivot\>, string given\.$#'
 			identifier: argument.type
-			count: 1
-			path: app/Models/Game.php
-
-		-
-			message: '#^Return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, \$this\(App\\Models\\Game\)\>\) of method App\\Models\\Game\:\:currentTrigger\(\) should be compatible with return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, App\\Models\\Game\>\) of method App\\Platform\\Contracts\\HasVersionedTrigger\<App\\Models\\Game\>\:\:currentTrigger\(\)$#'
-			identifier: method.childReturnType
 			count: 1
 			path: app/Models/Game.php
 
@@ -223,12 +193,6 @@ parameters:
 			path: app/Models/Leaderboard.php
 
 		-
-			message: '#^Return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, \$this\(App\\Models\\Leaderboard\)\>\) of method App\\Models\\Leaderboard\:\:currentTrigger\(\) should be compatible with return type \(Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Trigger, App\\Models\\Leaderboard\>\) of method App\\Platform\\Contracts\\HasVersionedTrigger\<App\\Models\\Leaderboard\>\:\:currentTrigger\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: app/Models/Leaderboard.php
-
-		-
 			message: '#^Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Emulator,\$this\(App\\Models\\Platform\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Relations\\Pivot\>, string given\.$#'
 			identifier: argument.type
 			count: 1
@@ -259,12 +223,6 @@ parameters:
 			path: app/Models/Trigger.php
 
 		-
-			message: '#^Method App\\Models\\User\:\:displayableRoles\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<Spatie\\Permission\\Models\\Role, \$this\(App\\Models\\User\), Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<Spatie\\Permission\\Models\\Role, Illuminate\\Database\\Eloquent\\Relations\\Pivot, ''pivot''\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/User.php
-
-		-
 			message: '#^Method App\\Models\\User\:\:whereName\(\) should return Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\User\> but returns Illuminate\\Database\\Eloquent\\Builder\<static\(App\\Models\\User\)\>\.$#'
 			identifier: return.type
 			count: 2
@@ -279,12 +237,6 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<App\\Models\\Game,\$this\(App\\Models\\User\),Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:using\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Relations\\Pivot\>, string given\.$#'
 			identifier: argument.type
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Type string in generic type Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<Spatie\\Permission\\Models\\Role, Illuminate\\Database\\Eloquent\\Relations\\Pivot, string\> in PHPDoc tag @var is not subtype of template type TPivotModel of Illuminate\\Database\\Eloquent\\Relations\\Pivot \= Illuminate\\Database\\Eloquent\\Relations\\Pivot of class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\.$#'
-			identifier: generics.notSubtype
 			count: 1
 			path: app/Models/User.php
 
@@ -305,18 +257,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Platform/Actions/BuildGameListAction.php
-
-		-
-			message: '#^PHPDoc tag @var with type array\<int, array\{achievement\?\: array\}\> is not subtype of native type array\<int, array\{achievement\?\: array\{ID\: int, Title\: string, Description\: string, Points\: int, TrueRatio\: float, BadgeName\: string, Flags\: int\}\}\>\.$#'
-			identifier: varTag.nativeType
-			count: 1
-			path: app/Platform/Actions/BuildPlayerGameActivityDataAction.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:tracked\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Platform/Actions/UpdateAchievementMetricsAction.php
 
 		-
 			message: '#^Parameter \#2 \$syncData of method App\\Platform\\Actions\\UpsertGameCoreAchievementSetFromLegacyFlagsAction\:\:syncAchievementSetAchievements\(\) expects Illuminate\\Support\\Collection\<int, array\{created_at\: Carbon\\Carbon\|string, updated_at\: Carbon\\Carbon\|string, order_column\: int\}\>, Illuminate\\Support\\Collection\<int, array\{created_at\: mixed, updated_at\: mixed, order_column\: mixed\}\> given\.$#'
