@@ -32,16 +32,9 @@ class AchievementAuthorshipCreditFormSchema
                 ->label('User')
                 ->searchable()
                 ->getSearchResultsUsing(function (string $search): array {
-                    $lowercased = strtolower($search);
-
-                    return User::withTrashed()
-                        ->whereRaw('LOWER(User) = ?', [$lowercased])
-                        ->orWhere(function ($query) use ($lowercased) {
-                            $query->whereRaw('LOWER(display_name) like ?', ["%{$lowercased}%"])
-                                ->orWhereRaw('LOWER(User) like ?', ["%{$lowercased}%"]);
-                        })
-                        ->orderByRaw('LOWER(User) = ? DESC', [$lowercased])
-                        ->limit(50)
+                    return User::search($search)
+                        ->withTrashed()
+                        ->take(50)
                         ->get()
                         ->pluck('display_name', 'id')
                         ->toArray();
