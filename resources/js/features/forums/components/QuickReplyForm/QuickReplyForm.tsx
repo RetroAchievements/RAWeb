@@ -13,6 +13,7 @@ import {
   BaseFormMessage,
 } from '@/common/components/+vendor/BaseForm';
 import { BaseSelectNative } from '@/common/components/+vendor/BaseSelectNative';
+import { MetaKeySubmitTooltip } from '@/common/components/MetaKeySubmitTooltip';
 import { ShortcodePanel } from '@/common/components/ShortcodePanel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useSubmitOnMetaEnter } from '@/common/hooks/useSubmitOnMetaEnter';
@@ -134,33 +135,35 @@ export const QuickReplyForm: FC<QuickReplyFormProps> = ({ onPreview }) => {
                 {t('Preview')}
               </BaseButton>
 
-              <BaseButton
-                type="submit"
-                className="flex items-center gap-2"
-                disabled={!form.formState.isValid || mutation.isPending}
-              >
-                {watchedPostAsUser ? (
-                  <img
-                    src={watchedPostAsUser.avatarUrl}
-                    alt={watchedPostAsUser.displayName}
-                    className="size-6 rounded-full"
-                    aria-hidden={true}
-                  />
-                ) : null}
+              <MetaKeySubmitTooltip>
+                <BaseButton
+                  type="submit"
+                  className="flex items-center gap-2"
+                  disabled={!form.formState.isValid || mutation.isPending}
+                >
+                  {watchedPostAsUser ? (
+                    <img
+                      src={watchedPostAsUser.avatarUrl}
+                      alt={watchedPostAsUser.displayName}
+                      className="size-6 rounded-full"
+                      aria-hidden={true}
+                    />
+                  ) : null}
 
-                {!watchedPostAsUser && accessibleTeamAccounts?.length ? (
-                  <img
-                    src={auth.user.avatarUrl}
-                    alt={auth.user.displayName}
-                    className="size-6 rounded-full"
-                    aria-hidden={true}
-                  />
-                ) : null}
+                  {!watchedPostAsUser && accessibleTeamAccounts?.length ? (
+                    <img
+                      src={auth.user.avatarUrl}
+                      alt={auth.user.displayName}
+                      className="size-6 rounded-full"
+                      aria-hidden={true}
+                    />
+                  ) : null}
 
-                {watchedPostAsUser
-                  ? t('Submit as {{displayName}}', { displayName: watchedPostAsUser.displayName })
-                  : t('Submit')}
-              </BaseButton>
+                  {watchedPostAsUser
+                    ? t('Submit as {{displayName}}', { displayName: watchedPostAsUser.displayName })
+                    : t('Submit')}
+                </BaseButton>
+              </MetaKeySubmitTooltip>
             </div>
           </div>
         </div>

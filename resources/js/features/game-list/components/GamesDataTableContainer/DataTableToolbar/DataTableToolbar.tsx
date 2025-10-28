@@ -14,6 +14,7 @@ interface DataTableToolbarProps<TData> {
   unfilteredTotal: number | null;
 
   defaultColumnFilters?: ColumnFiltersState;
+  isTableQueryLoading?: boolean;
   randomGameApiRouteName?: RouteName;
   tableApiRouteName?: RouteName;
   tableApiRouteParams?: Record<string, unknown>;
@@ -24,6 +25,7 @@ export function DataTableToolbar<TData>({
   tableApiRouteParams,
   unfilteredTotal,
   defaultColumnFilters = [],
+  isTableQueryLoading = false,
   randomGameApiRouteName = 'api.game.random',
   tableApiRouteName = 'api.game.index',
 }: DataTableToolbarProps<TData>) {
@@ -36,6 +38,7 @@ export function DataTableToolbar<TData>({
       <Suspense fallback={<DataTableMobileToolbarSuspenseFallback />}>
         <DataTableMobileToolbar
           table={table as Table<unknown>}
+          isTableQueryLoading={isTableQueryLoading}
           randomGameApiRouteName={randomGameApiRouteName}
           tableApiRouteName={tableApiRouteName}
           tableApiRouteParams={tableApiRouteParams}
@@ -49,6 +52,7 @@ export function DataTableToolbar<TData>({
       table={table}
       unfilteredTotal={unfilteredTotal}
       defaultColumnFilters={defaultColumnFilters}
+      isTableQueryLoading={isTableQueryLoading}
       randomGameApiRouteName={randomGameApiRouteName}
       tableApiRouteName={tableApiRouteName}
       tableApiRouteParams={tableApiRouteParams}

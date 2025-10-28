@@ -43,6 +43,7 @@ interface DataTableSuperFilterProps<TData> {
   table: Table<TData>;
 
   hasResults?: boolean;
+  isTableQueryLoading?: boolean;
   randomGameApiRouteName?: RouteName;
   randomGameApiRouteParams?: Record<string, unknown>;
   tableApiRouteName?: RouteName;
@@ -52,6 +53,7 @@ export function DataTableSuperFilter<TData>({
   table,
   randomGameApiRouteParams,
   hasResults = false,
+  isTableQueryLoading = false,
   randomGameApiRouteName = 'api.game.random',
   tableApiRouteName = 'api.game.index',
 }: DataTableSuperFilterProps<TData>) {
@@ -189,7 +191,7 @@ export function DataTableSuperFilter<TData>({
                 apiRouteName={randomGameApiRouteName}
                 apiRouteParams={randomGameApiRouteParams}
                 columnFilters={currentFilters}
-                disabled={!hasResults}
+                disabled={!hasResults || isTableQueryLoading}
               />
 
               <BaseDrawerClose asChild>
