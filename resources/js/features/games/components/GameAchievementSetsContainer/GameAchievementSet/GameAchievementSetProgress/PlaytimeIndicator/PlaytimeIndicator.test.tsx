@@ -8,7 +8,7 @@ import { PlaytimeIndicator } from './PlaytimeIndicator';
 describe('Component: PlaytimeIndicator', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render(<PlaytimeIndicator />, {
+    const { container } = render(<PlaytimeIndicator showDivider={true} />, {
       pageProps: { ziggy: createZiggyProps() },
     });
 
@@ -18,7 +18,7 @@ describe('Component: PlaytimeIndicator', () => {
 
   it('given the player has never played the game, renders the correct aria label', () => {
     // ARRANGE
-    render(<PlaytimeIndicator />, {
+    render(<PlaytimeIndicator showDivider={true} />, {
       pageProps: {
         playerGame: null, // !!
         ziggy: createZiggyProps(),
@@ -31,7 +31,7 @@ describe('Component: PlaytimeIndicator', () => {
 
   it('given the player has playtime, renders the correct aria label', () => {
     // ARRANGE
-    render(<PlaytimeIndicator />, {
+    render(<PlaytimeIndicator showDivider={true} />, {
       pageProps: {
         playerGame: createPlayerGame({
           playtimeTotal: 24840,
@@ -46,7 +46,7 @@ describe('Component: PlaytimeIndicator', () => {
 
   it('given the player has zero playtime, renders the correct aria label', () => {
     // ARRANGE
-    render(<PlaytimeIndicator />, {
+    render(<PlaytimeIndicator showDivider={true} />, {
       pageProps: {
         playerGame: createPlayerGame({
           playtimeTotal: 0, // !!
@@ -61,7 +61,7 @@ describe('Component: PlaytimeIndicator', () => {
 
   it('on hover, shows playtime stats when available', async () => {
     // ARRANGE
-    render(<PlaytimeIndicator />, {
+    render(<PlaytimeIndicator showDivider={true} />, {
       pageProps: {
         playerGame: createPlayerGame({
           playtimeTotal: 24840,
@@ -85,7 +85,7 @@ describe('Component: PlaytimeIndicator', () => {
 
   it('on hover when never played, shows the no playtime message', async () => {
     // ARRANGE
-    render(<PlaytimeIndicator />, {
+    render(<PlaytimeIndicator showDivider={true} />, {
       pageProps: {
         playerGame: null, // !!
         ziggy: createZiggyProps(),
@@ -106,7 +106,7 @@ describe('Component: PlaytimeIndicator', () => {
 
   it('uses faded styling when no playtime exists', () => {
     // ARRANGE
-    render(<PlaytimeIndicator />, {
+    render(<PlaytimeIndicator showDivider={true} />, {
       pageProps: {
         playerGame: null, // !!
         ziggy: createZiggyProps(),
@@ -120,7 +120,7 @@ describe('Component: PlaytimeIndicator', () => {
 
   it('uses non-faded styling when playtime exists', () => {
     // ARRANGE
-    render(<PlaytimeIndicator />, {
+    render(<PlaytimeIndicator showDivider={true} />, {
       pageProps: {
         playerGame: createPlayerGame({
           playtimeTotal: 24840, // !!
@@ -136,7 +136,7 @@ describe('Component: PlaytimeIndicator', () => {
 
   it('given the player has playtime but no last played date, only shows total playtime', async () => {
     // ARRANGE
-    render(<PlaytimeIndicator />, {
+    render(<PlaytimeIndicator showDivider={true} />, {
       pageProps: {
         playerGame: createPlayerGame({
           playtimeTotal: 3600, // !! 1h
@@ -158,7 +158,7 @@ describe('Component: PlaytimeIndicator', () => {
 
   it('given the user is on mobile, renders with a popover instead of a tooltip', async () => {
     // ARRANGE
-    render(<PlaytimeIndicator />, {
+    render(<PlaytimeIndicator showDivider={true} />, {
       pageProps: {
         playerGame: createPlayerGame({
           playtimeTotal: 24840, // !! 6h 54m
@@ -177,5 +177,39 @@ describe('Component: PlaytimeIndicator', () => {
     });
     expect(screen.getAllByText(/total playtime/i)[0]).toBeVisible();
     expect(screen.getAllByText(/last played/i)[0]).toBeVisible();
+  });
+
+  it('given showDivider is false, does not render the left border', () => {
+    // ARRANGE
+    render(<PlaytimeIndicator showDivider={false} />, {
+      pageProps: {
+        playerGame: createPlayerGame({
+          playtimeTotal: 24840,
+        }),
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    const indicator = screen.getByLabelText('Your Playtime Stats');
+    expect(indicator).not.toHaveClass('border-l');
+    expect(indicator).not.toHaveClass('pl-4');
+  });
+
+  it('given showDivider is true, renders the left border', () => {
+    // ARRANGE
+    render(<PlaytimeIndicator showDivider={true} />, {
+      pageProps: {
+        playerGame: createPlayerGame({
+          playtimeTotal: 24840,
+        }),
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    const indicator = screen.getByLabelText('Your Playtime Stats');
+    expect(indicator).toHaveClass('border-l');
+    expect(indicator).toHaveClass('pl-4');
   });
 });

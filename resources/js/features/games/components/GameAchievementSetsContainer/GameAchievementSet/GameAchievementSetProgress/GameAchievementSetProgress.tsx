@@ -15,24 +15,32 @@ export const GameAchievementSetProgress: FC<GameAchievementSetProgressProps> = (
   achievements,
   gameAchievementSet,
 }) => {
-  const { auth, backingGame, game } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { auth, backingGame, game, isViewingPublishedAchievements } =
+    usePageProps<App.Platform.Data.GameShowPageProps>();
 
   if (!auth?.user) {
     return null;
   }
 
+  const canShowAwardIndicators = isViewingPublishedAchievements && achievements.length;
+
   return (
     <div className="flex items-center gap-4">
       <div className="flex h-full items-center">
-        <MasteredProgressIndicator
-          achievements={achievements}
-          gameAchievementSet={gameAchievementSet}
-        />
+        {canShowAwardIndicators ? (
+          <MasteredProgressIndicator
+            achievements={achievements}
+            gameAchievementSet={gameAchievementSet}
+          />
+        ) : null}
 
         {backingGame.id === game.id ? (
           <>
-            <BeatenProgressIndicator achievements={achievements} />
-            <PlaytimeIndicator />
+            {canShowAwardIndicators ? (
+              <BeatenProgressIndicator achievements={achievements} />
+            ) : null}
+
+            <PlaytimeIndicator showDivider={!!canShowAwardIndicators} />
           </>
         ) : null}
       </div>

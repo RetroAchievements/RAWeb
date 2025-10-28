@@ -17,7 +17,11 @@ import { cn } from '@/common/utils/cn';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 import { useFormatDuration } from '@/common/utils/l10n/useFormatDuration';
 
-export const PlaytimeIndicator: FC = () => {
+interface PlaytimeIndicatorProps {
+  showDivider: boolean;
+}
+
+export const PlaytimeIndicator: FC<PlaytimeIndicatorProps> = ({ showDivider }) => {
   const { playerGame, ziggy } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
@@ -37,7 +41,8 @@ export const PlaytimeIndicator: FC = () => {
         <BasePopoverTrigger>
           <div
             className={cn(
-              'flex items-center gap-0.5 border-l border-neutral-700 pl-4 light:border-neutral-300',
+              'flex items-center gap-0.5 light:border-neutral-300',
+              showDivider ? 'border-l border-neutral-700 pl-4' : null,
               indicatorColorClassName,
             )}
             aria-label={ariaLabel}
@@ -61,7 +66,8 @@ export const PlaytimeIndicator: FC = () => {
       <BaseTooltipTrigger>
         <div
           className={cn(
-            'flex items-center gap-0.5 border-l border-neutral-700 pl-4 light:border-neutral-300',
+            'flex items-center gap-0.5 light:border-neutral-300',
+            showDivider ? 'border-l border-neutral-700 pl-4' : null,
             indicatorColorClassName,
           )}
           aria-label={ariaLabel}
