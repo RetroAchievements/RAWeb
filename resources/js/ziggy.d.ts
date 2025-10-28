@@ -11,7 +11,6 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
-    "redirect": [],
     "developer.tickets": [
         {
             "name": "user",
@@ -778,6 +777,7 @@ declare module 'ziggy-js' {
             "required": false
         }
     ],
+    "redirect": [],
     "home": [],
     "download.index": [],
     "contact": [],

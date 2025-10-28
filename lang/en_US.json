@@ -1231,5 +1231,10 @@
     "Hashes": "Hashes",
     "Claims": "Claims",
     "Additional Hubs": "Additional Hubs",
-    "Many game details above (like Developer and Genre) are also hubs. Click any to explore related games.": "Many game details above (like Developer and Genre) are also hubs. Click any to explore related games."
+    "Many game details above (like Developer and Genre) are also hubs. Click any to explore related games.": "Many game details above (like Developer and Genre) are also hubs. Click any to explore related games.",
+    "Redirect": "Redirect",
+    "Heads up!": "Heads up!",
+    "You are leaving RetroAchievements.": "You are leaving RetroAchievements.",
+    "URLisExternalWarning": "<1>{{url}}</1> is not part of RetroAchievements. We don't know what you might see there.",
+    "Continue to external site": "Continue to external site"
 }
