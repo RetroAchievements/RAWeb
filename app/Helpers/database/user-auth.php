@@ -70,6 +70,9 @@ function authenticateFromCookie(
  * TOKEN
  */
 
+/**
+ * @param-out int|null $permissionOut
+ */
 function authenticateFromAppToken(
     ?string &$userOut,
     string $token,
