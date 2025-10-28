@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Controller;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class RedirectController extends Controller
 {
@@ -38,7 +39,7 @@ class RedirectController extends Controller
         'user-images.githubusercontent.com',
     ];
 
-    public function redirect(Request $request): View|RedirectResponse
+    public function redirect(Request $request): RedirectResponse|Response
     {
         $url = $request->get('url');
 
@@ -108,8 +109,9 @@ class RedirectController extends Controller
             }
         }
 
-        return view('pages.redirect')
-            ->with('url', $url);
+        $props = ["url" => $url];
+
+        return Inertia::render('redirect', $props);
     }
 
     private function redirectBack(): RedirectResponse
