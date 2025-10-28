@@ -3,6 +3,7 @@ import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import type { FC } from 'react';
+import type { RouteName } from 'ziggy-js';
 
 import i18n from '@/i18n-client';
 import { render, screen, waitFor } from '@/test';
@@ -46,12 +47,14 @@ const mockData: Model[] = [
 interface DataTableToolbarHarnessProps {
   columns?: ColumnDef<Model>[];
   data?: Model[];
+  tableApiRouteName?: RouteName;
   unfilteredTotal?: number;
 }
 
 const DataTableToolbarHarness: FC<DataTableToolbarHarnessProps> = ({
   columns = mockColumns,
   data = mockData,
+  tableApiRouteName,
   unfilteredTotal,
 }) => {
   const table = useReactTable({
@@ -67,6 +70,7 @@ const DataTableToolbarHarness: FC<DataTableToolbarHarnessProps> = ({
   return (
     <DataTableToolbar
       table={table as Table<unknown>}
+      tableApiRouteName={tableApiRouteName}
       unfilteredTotal={unfilteredTotal ?? data.length}
     />
   );
@@ -365,5 +369,26 @@ describe('Component: DataTableToolbar', () => {
 
     // ASSERT
     expect(screen.getByRole('checkbox', { name: /remember my view/i })).toBeChecked();
+  });
+
+  it('given the route is api.set-request.user, shows "All systems" as the default system filter label', async () => {
+    // ARRANGE
+    render(<DataTableToolbarHarness tableApiRouteName="api.set-request.user" />, {
+      pageProps: {
+        filterableSystemOptions: [
+          createSystem({ name: 'Nintendo 64', nameShort: 'N64' }),
+          createSystem({ name: 'NES/Famicom', nameShort: 'NES' }),
+        ],
+        ziggy: createZiggyProps({ device: 'desktop' }),
+      },
+    });
+
+    // ACT
+    const systemButton = screen.getByRole('button', { name: /system/i });
+    await userEvent.click(systemButton);
+
+    // ASSERT
+    expect(screen.getByRole('option', { name: /all systems/i })).toBeVisible();
+    expect(screen.getByTestId(`checked-All systems`)).toBeVisible();
   });
 });

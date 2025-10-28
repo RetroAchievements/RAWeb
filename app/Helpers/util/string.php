@@ -3,6 +3,9 @@
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * @param string &...$outputs
+ */
 function sanitize_outputs(string|int|null &...$outputs): void
 {
     /** @var string $output */

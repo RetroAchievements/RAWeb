@@ -8,6 +8,7 @@ use App\Connect\Actions\GetBadgeIdRangeAction;
 use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\GetCodeNotesAction;
 use App\Connect\Actions\GetFriendListAction;
+use App\Connect\Actions\GetGameIdFromHashAction;
 use App\Connect\Actions\GetHashLibraryAction;
 use App\Connect\Actions\GetLatestClientVersionAction;
 use App\Connect\Actions\GetLatestIntegrationVersionAction;
@@ -42,6 +43,7 @@ $handler = match ($requestType) {
     'achievementwondata' => new GetAchievementUnlocksAction(),
     'badgeiter' => new GetBadgeIdRangeAction(),
     'codenotes2' => new GetCodeNotesAction(),
+    'gameid' => new GetGameIdFromHashAction(),
     'getfriendlist' => new GetFriendListAction(),
     'hashlibrary' => new GetHashLibraryAction(),
     'latestclient' => new GetLatestClientVersionAction(),
@@ -218,22 +220,6 @@ switch ($requestType) {
     case "allprogress":
         $consoleID = (int) request()->input('c');
         $response['Response'] = GetAllUserProgress($user, $consoleID);
-        break;
-
-    case "gameid":
-        $md5 = request()->input('m') ?? '';
-        $userAgentService = new UserAgentService();
-        $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
-        if ($clientSupportLevel === ClientSupportLevel::Blocked) {
-            $response = [
-                'Status' => 403,
-                'Success' => false,
-                'Error' => "This emulator is not supported",
-                'GameID' => 0,
-            ];
-        } else {
-            $response['GameID'] = VirtualGameIdService::idFromHash($md5);
-        }
         break;
 
     case "gameslist":
