@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace App\Connect\Controllers;
 
 use App\Connect\Concerns\AchievementRequests;
+use App\Connect\Concerns\AuthRequests;
 use App\Connect\Concerns\BootstrapRequests;
+use App\Connect\Concerns\DevelopmentRequests;
+use App\Connect\Concerns\GameRequests;
 use App\Connect\Concerns\HeartbeatRequests;
 use App\Connect\Concerns\LeaderboardRequests;
 use App\Connect\Concerns\LegacyCompatProxyRequests;
+use App\Connect\Concerns\TicketRequests;
 use App\Http\Controller;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -37,10 +41,14 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  */
 class ConnectApiController extends Controller
 {
+    use AuthRequests;
     use BootstrapRequests;
+    use DevelopmentRequests;
     use HeartbeatRequests;
     use AchievementRequests;
+    use GameRequests;
     use LeaderboardRequests;
+    use TicketRequests;
     use LegacyCompatProxyRequests;
 
     /**
