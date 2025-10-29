@@ -7,6 +7,7 @@ namespace App\Community\Actions;
 use App\Community\Data\MessageThreadData;
 use App\Community\Data\MessageThreadIndexPagePropsData;
 use App\Data\PaginatedData;
+use App\Data\UserPermissionsData;
 use App\Models\MessageThread;
 use App\Models\User;
 use App\Policies\MessageThreadPolicy;
@@ -56,6 +57,7 @@ class BuildMessageThreadIndexPagePropsAction
         $paginatedMessageThreads = $messageThreadsQuery->paginate($perPage);
 
         $props = new MessageThreadIndexPagePropsData(
+            can: UserPermissionsData::fromUser($inboxUser)->include('createMessageThreads'),
             paginatedMessageThreads: PaginatedData::fromLengthAwarePaginator(
                 $paginatedMessageThreads,
                 total: $paginatedMessageThreads->total(),

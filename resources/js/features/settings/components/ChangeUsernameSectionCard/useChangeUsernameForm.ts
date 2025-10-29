@@ -96,6 +96,10 @@ export function useChangeUsernameForm() {
           return t('This username is already taken.');
         }
 
+        if (response.data.message.includes('not available')) {
+          return t('This username is not available.');
+        }
+
         return t('Something went wrong.');
       },
     });
