@@ -16,12 +16,13 @@ class ShortcodeApiController extends Controller
         FetchDynamicShortcodeContentAction $action,
     ): JsonResponse {
         $entities = $action->execute(
-            usernames: $request->input('usernames'),
-            ticketIds: $request->input('ticketIds'),
             achievementIds: $request->input('achievementIds'),
+            eventIds: $request->input('eventIds'),
             gameIds: $request->input('gameIds'),
             hubIds: $request->input('hubIds'),
-            eventIds: $request->input('eventIds'),
+            setIds: $request->input('setIds'),
+            ticketIds: $request->input('ticketIds'),
+            usernames: $request->input('usernames'),
         );
 
         return response()->json($entities);

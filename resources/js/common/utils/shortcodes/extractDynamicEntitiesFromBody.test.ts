@@ -98,4 +98,68 @@ describe('Util: extractDynamicEntitiesFromBody', () => {
     expect(result.gameIds).toEqual([1]);
     expect(result.ticketIds).toEqual([12345]);
   });
+
+  it('given the input contains game shortcodes with a set parameter and "?" separator, extracts set IDs instead of game IDs', () => {
+    // ARRANGE
+    const input = 'Check out [game=1?set=9534]';
+
+    // ACT
+    const result = extractDynamicEntitiesFromBody(input);
+
+    // ASSERT
+    expect(result.setIds).toEqual([9534]);
+    expect(result.gameIds).toEqual([]);
+  });
+
+  it('given the input contains game shortcodes with a set parameter and " " separator, extracts set IDs instead of game IDs', () => {
+    // ARRANGE
+    const input = 'Check out [game=1 set=9534]';
+
+    // ACT
+    const result = extractDynamicEntitiesFromBody(input);
+
+    // ASSERT
+    expect(result.setIds).toEqual([9534]);
+    expect(result.gameIds).toEqual([]);
+  });
+
+  it('given the input contains mixed game shortcodes (with and without sets), extracts both correctly', () => {
+    // ARRANGE
+    const input = 'Play [game=668] or try [game=668?set=8659]';
+
+    // ACT
+    const result = extractDynamicEntitiesFromBody(input);
+
+    // ASSERT
+    expect(result.gameIds).toEqual([668]);
+    expect(result.setIds).toEqual([8659]);
+  });
+
+  it('given the input contains multiple game shortcodes with sets, deduplicates set IDs', () => {
+    // ARRANGE
+    const input = '[game=1?set=9534] and [game=2?set=9534] and [game=3?set=7777]';
+
+    // ACT
+    const result = extractDynamicEntitiesFromBody(input);
+
+    // ASSERT
+    expect(result.setIds).toEqual([9534, 7777]);
+    expect(result.gameIds).toEqual([]);
+  });
+
+  it('given the input contains a bunch of stuff including game codes with set IDs, extracts everything correctly', () => {
+    // ARRANGE
+    const input =
+      '[user=xelnia] earned [ach=9] in [game=1] and [game=668?set=8659] with [ticket=123].';
+
+    // ACT
+    const result = extractDynamicEntitiesFromBody(input);
+
+    // ASSERT
+    expect(result.usernames).toEqual(['xelnia']);
+    expect(result.achievementIds).toEqual([9]);
+    expect(result.gameIds).toEqual([1]);
+    expect(result.setIds).toEqual([8659]);
+    expect(result.ticketIds).toEqual([123]);
+  });
 });

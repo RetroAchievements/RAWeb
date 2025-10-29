@@ -205,4 +205,61 @@ describe('Util: preProcessShortcodesInBody', () => {
     // ASSERT
     expect(result).toEqual('Check out [user=Scott]');
   });
+
+  it('converts game URL with ?set= query parameter to shortcode', () => {
+    // ARRANGE
+    const input = 'Check out https://retroachievements.org/game/668?set=8659';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Check out [game=668?set=8659]');
+  });
+
+  it('converts game URL with ?set= parameter and slug to shortcode', () => {
+    // ARRANGE
+    const input = 'Try https://retroachievements.org/game/668-pokemon-emerald-version?set=8659';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Try [game=668?set=8659]');
+  });
+
+  it('converts localhost game URL with ?set= parameter to shortcode', () => {
+    // ARRANGE
+    const input = 'Dev: http://localhost:64000/game/123?set=456';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Dev: [game=123?set=456]');
+  });
+
+  it('handles mixed game URLs with and without ?set= parameter', () => {
+    // ARRANGE
+    const input =
+      'Play https://retroachievements.org/game/668 or try https://retroachievements.org/game/668?set=8659';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Play [game=668] or try [game=668?set=8659]');
+  });
+
+  it('prioritizes game URLs with ?set= parameter over regular game URLs', () => {
+    // ARRANGE
+    const input = 'https://retroachievements.org/game/1?set=9534';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    // ... should become [game=1?set=9534], not [game=1] ...
+    expect(result).toEqual('[game=1?set=9534]');
+  });
 });

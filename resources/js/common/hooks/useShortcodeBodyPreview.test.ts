@@ -134,4 +134,207 @@ describe('Hook: useShortcodeBodyPreview', () => {
     expect(persistedTickets).toHaveLength(1);
     expect(persistedUsers).toHaveLength(1);
   });
+
+  it('given content with a game set shortcode, converts to backing game ID in the preview', async () => {
+    // ARRANGE
+    const contentWithSetId = 'Check out [game=668?set=8659]';
+
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({
+      data: {
+        achievements: [],
+        games: [createGame({ id: 29895, title: 'Sonic the Hedgehog [Subset - Perfect Bonus]' })],
+        hubs: [],
+        events: [],
+        tickets: [],
+        users: [],
+      },
+    });
+
+    const { result } = renderHook(() => useShortcodeBodyPreview());
+
+    // ACT
+    await act(async () => {
+      await result.current.initiatePreview(contentWithSetId);
+    });
+
+    // ASSERT
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledWith(
+        ['api.shortcode-body.preview'],
+        expect.objectContaining({
+          setIds: [8659], // !!
+          gameIds: [],
+        }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(result.current.previewContent).toEqual('Check out [game=29895]');
+    });
+
+    const { persistedGames } = result.current.unsafe_getPersistedValues();
+    expect(persistedGames).toHaveLength(1);
+    expect(persistedGames).toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: 29895 })]),
+    );
+  });
+
+  it('given content with multiple game set shortcodes, converts all to backing game IDs', async () => {
+    // ARRANGE
+    const contentWithSetIds = 'Try [game=668?set=8659] and [game=1?set=9534]';
+
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({
+      data: {
+        achievements: [],
+        games: [
+          createGame({ id: 29895, title: 'Sonic the Hedgehog [Subset - Perfect Bonus]' }),
+          createGame({ id: 28000, title: 'Another Subset Game' }),
+        ],
+        hubs: [],
+        events: [],
+        tickets: [],
+        users: [],
+      },
+    });
+
+    const { result } = renderHook(() => useShortcodeBodyPreview());
+
+    // ACT
+    await act(async () => {
+      await result.current.initiatePreview(contentWithSetIds);
+    });
+
+    // ASSERT
+    await waitFor(() => {
+      expect(result.current.previewContent).toEqual('Try [game=29895] and [game=28000]');
+    });
+  });
+
+  it('given content with mixed game shortcodes (with and without sets), handles both correctly', async () => {
+    // ARRANGE
+    const contentWithMixedShortcodes = 'Play [game=668] or [game=668?set=8659]';
+
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({
+      data: {
+        achievements: [],
+        games: [
+          createGame({ id: 668, title: 'Sonic the Hedgehog' }),
+          createGame({ id: 29895, title: 'Sonic the Hedgehog [Subset - Perfect Bonus]' }),
+        ],
+        hubs: [],
+        events: [],
+        tickets: [],
+        users: [],
+      },
+    });
+
+    const { result } = renderHook(() => useShortcodeBodyPreview());
+
+    // ACT
+    await act(async () => {
+      await result.current.initiatePreview(contentWithMixedShortcodes);
+    });
+
+    // ASSERT
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledWith(
+        ['api.shortcode-body.preview'],
+        expect.objectContaining({
+          gameIds: [668],
+          setIds: [8659],
+        }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(result.current.previewContent).toEqual('Play [game=668] or [game=29895]');
+    });
+  });
+
+  it('given content with a game set shortcode but no backing game found, falls back to the original shortcode', async () => {
+    // ARRANGE
+    const contentWithInvalidSetId = 'Check out [game=668?set=99999]';
+
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({
+      data: {
+        achievements: [],
+        games: [],
+        hubs: [],
+        events: [],
+        tickets: [],
+        users: [],
+      },
+    });
+
+    const { result } = renderHook(() => useShortcodeBodyPreview());
+
+    // ACT
+    await act(async () => {
+      await result.current.initiatePreview(contentWithInvalidSetId);
+    });
+
+    // ASSERT
+    await waitFor(() => {
+      expect(result.current.previewContent).toEqual('Check out [game=668?set=99999]');
+    });
+  });
+
+  it('given content with multiple game set shortcodes but only some have backing games, converts stuff correctly', async () => {
+    // ARRANGE
+    const contentWithMixedValidSets = 'Try [game=1?set=9534] and [game=2?set=8888]';
+
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({
+      data: {
+        achievements: [],
+        games: [createGame({ id: 29895, title: 'Sonic Subset' })],
+        hubs: [],
+        events: [],
+        tickets: [],
+        users: [],
+      },
+    });
+
+    const { result } = renderHook(() => useShortcodeBodyPreview());
+
+    // ACT
+    await act(async () => {
+      await result.current.initiatePreview(contentWithMixedValidSets);
+    });
+
+    // ASSERT
+    await waitFor(() => {
+      expect(result.current.previewContent).toEqual('Try [game=29895] and [game=2?set=8888]'); // !!
+    });
+  });
+
+  it('given content with both regular games and set shortcodes but the backend returns no backing games for sets, keeps set shortcodes unchanged', async () => {
+    // ARRANGE
+    const contentWithMixed = 'Play [game=668] or [game=1?set=9534]';
+
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({
+      data: {
+        achievements: [],
+        games: [
+          createGame({ id: 668, title: 'Sonic the Hedgehog' }),
+          // ... no backing game for set ID 9534 ...
+        ],
+        hubs: [],
+        events: [],
+        tickets: [],
+        users: [],
+      },
+    });
+
+    const { result } = renderHook(() => useShortcodeBodyPreview());
+
+    // ACT
+    await act(async () => {
+      await result.current.initiatePreview(contentWithMixed);
+    });
+
+    // ASSERT
+    await waitFor(() => {
+      expect(result.current.previewContent).toEqual('Play [game=668] or [game=1?set=9534]');
+    });
+  });
 });

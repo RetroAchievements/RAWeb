@@ -17,12 +17,13 @@ class ShortcodeApiControllerTest extends TestCase
         $this->withoutMiddleware();
 
         $payload = [
-            // !! missing required "usernames" array
-            'ticketIds' => [],
             'achievementIds' => [],
+            'eventIds' => [],
             'gameIds' => [],
             'hubIds' => [],
-            'eventIds' => [],
+            'setIds' => [],
+            'ticketIds' => [],
+            // !! missing required "usernames" array
         ];
 
         // Act
@@ -39,12 +40,13 @@ class ShortcodeApiControllerTest extends TestCase
         $this->withoutMiddleware();
 
         $payload = [
-            'usernames' => [],
-            'ticketIds' => [],
             'achievementIds' => [],
+            'eventIds' => [],
             'gameIds' => [],
             'hubIds' => [],
-            'eventIds' => [],
+            'setIds' => [],
+            'ticketIds' => [],
+            'usernames' => [],
         ];
 
         // Act

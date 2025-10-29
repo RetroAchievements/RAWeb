@@ -12,9 +12,10 @@ const shortcodePatterns = {
 export function extractDynamicEntitiesFromBody(input: string): DynamicShortcodeEntities {
   const entities: DynamicShortcodeEntities = {
     achievementIds: [],
+    eventIds: [],
     gameIds: [],
     hubIds: [],
-    eventIds: [],
+    setIds: [],
     ticketIds: [],
     usernames: [],
   };
@@ -25,10 +26,22 @@ export function extractDynamicEntitiesFromBody(input: string): DynamicShortcodeE
     if (!isNaN(id)) entities.achievementIds.push(id);
   }
 
-  // Extract game IDs.
+  // Extract game IDs and set IDs.
+  // Game shortcodes can be [game=123] or [game=123?set=456].
   for (const match of input.matchAll(shortcodePatterns.game)) {
-    const id = parseInt(match[1], 10);
-    if (!isNaN(id)) entities.gameIds.push(id);
+    const captured = match[1];
+
+    // Check if this is a game shortcode with a set parameter.
+    const setMatch = captured.match(/^(\d+)(?:\?|\s)set=(\d+)$/i);
+    if (setMatch) {
+      // Extract set ID only (we'll resolve the backing game on the backend).
+      const setId = parseInt(setMatch[2], 10);
+      if (!isNaN(setId)) entities.setIds.push(setId);
+    } else {
+      // Regular game shortcode without set parameter.
+      const id = parseInt(captured, 10);
+      if (!isNaN(id)) entities.gameIds.push(id);
+    }
   }
 
   // Extract hub IDs.
@@ -61,5 +74,6 @@ export function extractDynamicEntitiesFromBody(input: string): DynamicShortcodeE
     eventIds: [...new Set(entities.eventIds)],
     ticketIds: [...new Set(entities.ticketIds)],
     usernames: [...new Set(entities.usernames)],
+    setIds: [...new Set(entities.setIds)],
   };
 }
