@@ -41,14 +41,10 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  */
 class ConnectApiController extends Controller
 {
-    use AuthRequests;
     use BootstrapRequests;
-    use DevelopmentRequests;
     use HeartbeatRequests;
     use AchievementRequests;
-    use GameRequests;
     use LeaderboardRequests;
-    use TicketRequests;
     use LegacyCompatProxyRequests;
 
     /**
