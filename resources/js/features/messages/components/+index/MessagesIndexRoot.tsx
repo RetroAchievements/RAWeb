@@ -17,6 +17,7 @@ import { MessagesTable } from '../MessagesTable';
 export const MessagesIndexRoot: FC = memo(() => {
   const {
     auth,
+    can,
     paginatedMessageThreads,
     selectableInboxDisplayNames,
     senderUserDisplayName,
@@ -74,21 +75,23 @@ export const MessagesIndexRoot: FC = memo(() => {
       </div>
 
       <div className="flex w-full flex-col items-end justify-between gap-2 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-2">
-          <InertiaLink
-            href={
-              isDelegating
-                ? route('message-thread.user.create', { user: senderUserDisplayName })
-                : route('message-thread.create')
-            }
-            className={baseButtonVariants({ size: 'sm' })}
-          >
-            <LuSend className="mr-1.5 size-4" />
-            {t('New Message')}
-          </InertiaLink>
+        {can.createMessageThreads ? (
+          <div className="flex items-center gap-2">
+            <InertiaLink
+              href={
+                isDelegating
+                  ? route('message-thread.user.create', { user: senderUserDisplayName })
+                  : route('message-thread.create')
+              }
+              className={baseButtonVariants({ size: 'sm' })}
+            >
+              <LuSend className="mr-1.5 size-4" />
+              {t('New Message')}
+            </InertiaLink>
 
-          {selectableInboxDisplayNames.length > 1 ? <ChangeInboxButton /> : null}
-        </div>
+            {selectableInboxDisplayNames.length > 1 ? <ChangeInboxButton /> : null}
+          </div>
+        ) : null}
 
         <FullPaginator
           onPageSelectValueChange={handlePageSelectValueChange}

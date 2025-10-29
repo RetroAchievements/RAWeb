@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { route } from 'ziggy-js';
 
+import { buildMiscRowElements } from '../utils/buildMiscRowElements';
 import { extractAndProcessHubMetadata } from '../utils/extractAndProcessHubMetadata';
 import { hubIds } from '../utils/hubIds';
 
@@ -164,7 +165,18 @@ export function useAllMetaRowElements(
     [filteredHubs],
   );
 
-  const allUsedHubIds = useMemo(() => {
+  const raFeatureRowElements = useMemo(
+    () =>
+      buildMetaRowElements({
+        hubs: filteredHubs,
+        hubTitleIncludes: ['RANews -', 'Custom Awards -'],
+        primaryLabel: 'RANews',
+        altLabels: ['Custom Awards'],
+      }),
+    [filteredHubs],
+  );
+
+  const usedHubIdsFromOtherCategories = useMemo(() => {
     const allRows = [
       ...creditRowElements,
       ...developerRowElements,
@@ -176,10 +188,59 @@ export function useAllMetaRowElements(
       ...perspectiveRowElements,
       ...protagonistRowElements,
       ...publisherRowElements,
+      ...raFeatureRowElements,
       ...regionalRowElements,
       ...settingRowElements,
       ...technicalRowElements,
       ...themeRowElements,
+    ];
+
+    return new Set(allRows.map((row) => row.hubId).filter((id): id is number => Boolean(id)));
+  }, [
+    creditRowElements,
+    developerRowElements,
+    featureRowElements,
+    formatRowElements,
+    genreRowElements,
+    hackOfRowElements,
+    languageRowElements,
+    perspectiveRowElements,
+    protagonistRowElements,
+    publisherRowElements,
+    raFeatureRowElements,
+    regionalRowElements,
+    settingRowElements,
+    technicalRowElements,
+    themeRowElements,
+  ]);
+
+  const miscRowElements = useMemo(
+    () =>
+      buildMiscRowElements(filteredHubs, usedHubIdsFromOtherCategories, {
+        keepPrefixFor: ['Clones', 'Fangames'],
+      }),
+    [filteredHubs, usedHubIdsFromOtherCategories],
+  );
+
+  const allUsedHubIds = useMemo(() => {
+    const allRows = [
+      ...creditRowElements,
+      ...developerRowElements,
+      ...featureRowElements,
+      ...formatRowElements,
+      ...genreRowElements,
+      ...hackOfRowElements,
+      ...languageRowElements,
+      ...miscRowElements,
+      ...perspectiveRowElements,
+      ...protagonistRowElements,
+      ...publisherRowElements,
+      ...regionalRowElements,
+      ...settingRowElements,
+      ...technicalRowElements,
+      ...themeRowElements,
+
+      // Don't include raFeatureRowElements - those show in the sidebar Additional Hubs, not metadata.
     ];
 
     return [...new Set(allRows.map((row) => row.hubId).filter(Boolean))] as number[];
@@ -191,6 +252,7 @@ export function useAllMetaRowElements(
     genreRowElements,
     hackOfRowElements,
     languageRowElements,
+    miscRowElements,
     perspectiveRowElements,
     protagonistRowElements,
     publisherRowElements,
@@ -209,9 +271,11 @@ export function useAllMetaRowElements(
     genreRowElements,
     hackOfRowElements,
     languageRowElements,
+    miscRowElements,
     perspectiveRowElements,
     protagonistRowElements,
     publisherRowElements,
+    raFeatureRowElements,
     regionalRowElements,
     settingRowElements,
     technicalRowElements,

@@ -10,6 +10,7 @@ import {
   BasePopoverTrigger,
 } from '@/common/components/+vendor/BasePopover';
 import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
+import { BaseSeparator } from '@/common/components/+vendor/BaseSeparator';
 import {
   BaseTooltip,
   BaseTooltipContent,
@@ -18,13 +19,19 @@ import {
 import { useFormatPercentage } from '@/common/hooks/useFormatPercentage';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
+import { formatDate } from '@/common/utils/l10n/formatDate';
+import { useFormatDuration } from '@/common/utils/l10n/useFormatDuration';
 import { isResetAllProgressDialogOpenAtom } from '@/features/games/state/games.atoms';
 
 interface MasteredProgressIndicatorProps {
   achievements: App.Platform.Data.Achievement[];
+  gameAchievementSet: App.Platform.Data.GameAchievementSet;
 }
 
-export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ achievements }) => {
+export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({
+  achievements,
+  gameAchievementSet,
+}) => {
   const { auth, backingGame, game, playerGameProgressionAwards, ziggy } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
@@ -82,7 +89,10 @@ export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ 
           side="top"
           className="w-auto min-w-max border-neutral-800 px-3 py-1.5 text-xs text-menu-link light:border-neutral-200"
         >
-          <FloatableContent achievements={achievements} />
+          <FloatableContent
+            achievements={achievements}
+            achievementSetId={gameAchievementSet.achievementSet.id}
+          />
         </BasePopoverContent>
       </BasePopover>
     );
@@ -104,7 +114,10 @@ export const MasteredProgressIndicator: FC<MasteredProgressIndicatorProps> = ({ 
       </BaseTooltipTrigger>
 
       <BaseTooltipContent>
-        <FloatableContent achievements={achievements} />
+        <FloatableContent
+          achievements={achievements}
+          achievementSetId={gameAchievementSet.achievementSet.id}
+        />
       </BaseTooltipContent>
     </BaseTooltip>
   );
@@ -128,10 +141,14 @@ function getIndicatorColorClassName(
 
 interface FloatableContentProps {
   achievements: App.Platform.Data.Achievement[];
+  achievementSetId: number;
 }
 
-const FloatableContent: FC<FloatableContentProps> = ({ achievements }) => {
+const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievementSetId }) => {
+  const { playerAchievementSets } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
+
+  const { formatDuration } = useFormatDuration();
 
   // The dialog is mounted way higher than the tooltip.
   // This prevents the dialog from unmounting when the tooltip closes.
@@ -141,6 +158,23 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements }) => {
   const unlockedSoftcoreCount = achievements.filter(
     (ach) => ach.unlockedAt && !ach.unlockedHardcoreAt,
   ).length;
+
+  // Determine which completion date and time to display.
+  const playerAchievementSet = playerAchievementSets[achievementSetId];
+
+  let completionDate: string | null = null;
+  let timeTaken: number | null = null;
+  let isMastered = false;
+
+  if (playerAchievementSet?.completedHardcoreAt) {
+    completionDate = playerAchievementSet.completedHardcoreAt;
+    timeTaken = playerAchievementSet.timeTakenHardcore ?? null;
+    isMastered = true;
+  } else if (playerAchievementSet?.completedAt) {
+    completionDate = playerAchievementSet.completedAt;
+    timeTaken = playerAchievementSet.timeTaken ?? null;
+    isMastered = false;
+  }
 
   return (
     <div className="flex flex-col gap-1">
@@ -192,6 +226,28 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements }) => {
             {t('Softcore')}
           </p>
         </div>
+      ) : null}
+
+      {completionDate ? (
+        <>
+          <BaseSeparator className="my-2" />
+
+          <div className="flex flex-col gap-0.5">
+            <div className="flex justify-between text-2xs">
+              <p>{isMastered ? t('Mastered on') : t('Completed on')}</p>
+              <p className="font-medium">{formatDate(completionDate, 'll')}</p>
+            </div>
+
+            {timeTaken ? (
+              <div className="flex justify-between text-2xs">
+                <p>{isMastered ? t('Time to master') : t('Time to complete')}</p>
+                <p className="font-medium">
+                  {formatDuration(timeTaken, { shouldTruncateSeconds: true })}
+                </p>
+              </div>
+            ) : null}
+          </div>
+        </>
       ) : null}
 
       {unlockedHardcoreCount || unlockedSoftcoreCount ? (
