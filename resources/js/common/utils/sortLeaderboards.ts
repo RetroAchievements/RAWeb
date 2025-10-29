@@ -37,6 +37,18 @@ export function sortLeaderboards(
       });
     }
 
+    case 'rank':
+    case '-rank': {
+      const multiplier = sortOrder === 'rank' ? 1 : -1;
+
+      return sortedLeaderboards.sort((a, b) => {
+        const aRank = a.userEntry?.rank || 99999999; // this isn't ideal
+        const bRank = b.userEntry?.rank || 99999999;
+
+        return aRank - bRank * multiplier;
+      });
+    }
+
     default:
       return sortedLeaderboards;
   }
