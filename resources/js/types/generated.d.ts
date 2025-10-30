@@ -822,7 +822,9 @@ declare namespace App.Platform.Data {
     isMissableOnlyFilterEnabled: boolean;
     isOnWantToDevList: boolean;
     isOnWantToPlayList: boolean;
+    isSubscribedToAchievementComments: boolean;
     isSubscribedToComments: boolean;
+    isSubscribedToTickets: boolean;
     isViewingPublishedAchievements: boolean;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
@@ -842,7 +844,7 @@ declare namespace App.Platform.Data {
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
-    playerAchievementSets: Record<number, App.Platform.Data.PlayerAchievementSet>;
+    playerAchievementSets: Array<App.Platform.Data.PlayerAchievementSet>;
     selectableGameAchievementSets: Array<App.Platform.Data.GameAchievementSet>;
     seriesHub: App.Platform.Data.SeriesHub | null;
     setRequestData: App.Platform.Data.GameSetRequestData | null;
