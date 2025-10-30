@@ -89,8 +89,6 @@ class MessageThreadController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        $this->authorize('create', [MessageThread::class, $teamAccount]);
-
         $toUser = null;
         $toUserData = null;
         if ($request->input('to')) {
@@ -99,6 +97,8 @@ class MessageThreadController extends Controller
                 $toUserData = UserData::fromUser($toUser);
             }
         }
+
+        $this->authorize('create', [MessageThread::class, $teamAccount, $toUser]);
 
         return Inertia::render('messages/create', new MessageThreadCreatePagePropsData(
             toUser: $toUserData,

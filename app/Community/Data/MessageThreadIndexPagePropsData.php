@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community\Data;
 
 use App\Data\PaginatedData;
+use App\Data\UserPermissionsData;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
@@ -12,6 +13,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class MessageThreadIndexPagePropsData extends Data
 {
     public function __construct(
+        public UserPermissionsData $can,
         public PaginatedData $paginatedMessageThreads,
         public int $unreadMessageCount,
         public string $senderUserDisplayName,

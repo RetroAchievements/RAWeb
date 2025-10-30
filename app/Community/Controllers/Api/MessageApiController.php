@@ -78,6 +78,7 @@ class MessageApiController extends Controller
             (new AddToMessageThreadAction())->execute($thread, $userFrom, $user, $body);
         } else {
             $recipient = User::whereName($input['recipient'])->first();
+            $teamAccount = null;
 
             // Check if we're trying to send as a team account.
             if (
@@ -87,16 +88,14 @@ class MessageApiController extends Controller
             ) {
                 $teamAccount = User::firstWhere('User', $input['senderUserDisplayName']);
                 if ($teamAccount) {
-                    // Verify via policy that the user can actually send from this team account.
-                    $policy = new MessageThreadPolicy();
-                    $canSend = $policy->create($user, $teamAccount);
-
-                    if (!$canSend) {
-                        return response()->json(['error' => 'cannot_message_user'], 403);
-                    }
-
                     $authorId = $teamAccount->id;
                 }
+            }
+
+            // Verify the user can actually create a new message thread.
+            $policy = new MessageThreadPolicy();
+            if (!$policy->create($user, $teamAccount, $recipient)) {
+                return response()->json(['error' => 'cannot_message_user'], 403);
             }
 
             $userFrom = User::firstWhere('ID', $authorId);
