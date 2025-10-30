@@ -171,10 +171,12 @@ describe('Component: HubsList', () => {
   it('enforces visibility rules', () => {
     // ARRANGE
     const mockHubs = [
-      createGameSet({ title: '[License - Nintendo]', isEventHub: false }), // Not Meta, Event, or Achievement Extras
+      createGameSet({ title: '[License - Nintendo]', isEventHub: false }), // Not Meta, Event, Achievement Extras, or Series
       createGameSet({ title: 'Meta - Language - English', isEventHub: false }), // Meta hub
       createGameSet({ title: 'Event Hub 2023', isEventHub: true }), // Event hub
       createGameSet({ title: 'RANews - 2023-01', isEventHub: false }), // Achievement Extras hub
+      createGameSet({ title: '[Series - Mario]', isEventHub: false }), // Series hub
+      createGameSet({ title: '[Subseries - Wario]', isEventHub: false }), // Subseries hub
     ];
 
     render(<PlayableHubsList hubs={mockHubs} />, {
@@ -190,6 +192,30 @@ describe('Component: HubsList', () => {
     expect(screen.getByRole('link', { name: /english/i })).toBeVisible(); // Meta hub visible
     expect(screen.getByRole('link', { name: /event hub 2023/i })).toBeVisible(); // Event hub visible
     expect(screen.getByRole('link', { name: /2023-01/i })).toBeVisible(); // Achievement Extras hub visible
+    expect(screen.getByRole('link', { name: /mario/i })).toBeVisible(); // Series hub visible
+    expect(screen.getByRole('link', { name: /wario/i })).toBeVisible(); // Subseries hub visible
+  });
+
+  it('given a game has multiple series hubs, displays non-prioritized series hubs when the prioritized one is excluded', () => {
+    // ARRANGE
+    const mockHubs = [
+      createGameSet({ title: '[Series - Mario]', id: 1 }),
+      createGameSet({ title: '[Subseries - Wario]', id: 2 }), // !! this one is prioritized/excluded
+      createGameSet({ title: 'Meta - Test Hub', id: 3 }),
+    ];
+
+    render(<PlayableHubsList hubs={mockHubs} excludeHubIds={[2]} />, {
+      pageProps: {
+        can: {
+          manageGames: false,
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /mario/i })).toBeVisible(); // Non-prioritized series hub visible
+    expect(screen.queryByRole('link', { name: /wario/i })).not.toBeInTheDocument(); // Prioritized series hub excluded
+    expect(screen.getByRole('link', { name: /test hub/i })).toBeVisible(); // Other hubs still visible
   });
 
   it('given the variant is game, displays Additional Hubs heading with an info icon', () => {
