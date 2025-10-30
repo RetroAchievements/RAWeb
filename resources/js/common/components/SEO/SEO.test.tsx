@@ -163,4 +163,15 @@ describe('Component: SEO', () => {
     const scriptTag = container.querySelector('script[type="application/ld+json"]');
     expect(JSON.parse(scriptTag?.textContent || '')).toEqual(customJsonLd);
   });
+
+  it('given robot security tags, shows the meta tag', () => {
+    // ARRANGE
+    const { container } = render(
+      <SEO title={'Test Title' as TranslatedString} description={'Test Description'} noIndex />,
+    );
+
+    // ASSERT
+    const metaTag = container.querySelector('meta[name="robots"]');
+    expect(metaTag as HTMLMetaElement).toHaveAttribute('content', 'noindex');
+  });
 });

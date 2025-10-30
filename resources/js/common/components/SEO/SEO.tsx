@@ -129,6 +129,16 @@ interface SEOProps {
   tags?: string[];
 
   /**
+   * Adds "noindex" flag for robots
+   */
+  noIndex?: boolean;
+
+  /**
+   * Adds "nofollow" flag for robots
+   */
+  noFollow?: boolean;
+
+  /**
    * Custom structured data (JSON-LD).
    * Greatly improves Google SEO juice.
    * @see https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data
@@ -175,6 +185,10 @@ export const SEO: FC<SEOProps> = ({
   section,
   tags,
 
+  // Robot Security
+  noIndex,
+  noFollow,
+
   // Optional structured data.
   jsonLd,
 }) => {
@@ -191,6 +205,9 @@ export const SEO: FC<SEOProps> = ({
   };
 
   const isArticle = type === 'article';
+
+  const robot =
+    noIndex && noFollow ? 'noindex,nofollow' : noIndex ? 'noindex' : noFollow ? 'nofollow' : null;
 
   return (
     <Head title={title}>
@@ -229,6 +246,9 @@ export const SEO: FC<SEOProps> = ({
       {isArticle && tags?.length
         ? tags.map((tag) => <meta key={`head-tag-${tag}`} property="article:tag" content={tag} />)
         : null}
+
+      {/* Robot Security */}
+      {robot !== null ? <meta name={'robots'} content={robot} /> : null}
 
       {/* JSON-LD structured data */}
       <script type="application/ld+json">{JSON.stringify(jsonLd || defaultJsonLd)}</script>
