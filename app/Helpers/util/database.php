@@ -150,6 +150,7 @@ function getMysqliConnection(): mysqli
 
 /**
  * @deprecated
+ * @param string &...$inputs
  */
 function sanitize_sql_inputs(int|string|null &...$inputs): void
 {

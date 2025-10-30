@@ -19,7 +19,7 @@ class ResumePlayerSessionActionTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function testResumePlayerSession(): void
+    public function testResumePlayerSessionNormal(): void
     {
         $sessionStartAt = Carbon::parse('2025-04-01 12:34:56');
         Carbon::setTestNow($sessionStartAt);
@@ -394,5 +394,58 @@ class ResumePlayerSessionActionTest extends TestCase
         $playerAchievementSet->refresh();
         $this->assertEquals(120, $playerAchievementSet->time_taken); // ping adjustments always rounded to nearest minute.
         $this->assertEquals(0, $playerAchievementSet->time_taken_hardcore);
+    }
+
+    public function testResumePlayerSessionBackdated(): void
+    {
+        $firstSessionStartAt = Carbon::parse('2025-04-01 12:34:56');
+
+        $user = $this->seedUser();
+        $game = $this->seedGame(achievements: 3);
+        $gameHash = $game->hashes->first();
+        $coreAchievementSet = $game->achievementSets()->where('type', AchievementSetType::Core)->first();
+        $coreAchievementSet->achievements_first_published_at = $firstSessionStartAt->clone()->subDays(5);
+        $coreAchievementSet->save();
+
+        // ===== first session =====
+        Carbon::setTestNow($firstSessionStartAt);
+        $action = new ResumePlayerSessionAction();
+        $action->execute($user, $game, $gameHash);
+
+        // ===== second session =====
+        // 90 minutes later will create a separate session - this is meant to mimic a network loss of 90 minutes
+        $secondSessionStartAt = $firstSessionStartAt->clone()->addMinutes(90);
+        Carbon::setTestNow($secondSessionStartAt);
+        $action->execute($user, $game, $gameHash);
+
+        $this->assertEquals(2, PlayerSession::where('user_id', $user->id)->where('game_id', $game->id)->count());
+
+        // ===== backdated session activity should be merged into older session =====
+        $backdateAt = $firstSessionStartAt->clone()->addMinutes(15);
+        $action->execute($user, $game, $gameHash, timestamp: $backdateAt);
+
+        $this->assertEquals(2, PlayerSession::where('user_id', $user->id)->where('game_id', $game->id)->count());
+
+        $playerSession = PlayerSession::where('user_id', $user->id)->where('game_id', $game->id)->orderBy('created_at')->first();
+        $this->assertNotNull($playerSession);
+        $this->assertEquals($gameHash->id, $playerSession->game_hash_id);
+        $this->assertEquals(0, $playerSession->hardcore);
+        $this->assertEquals('Playing ' . $game->title, $playerSession->rich_presence);
+        $this->assertEquals($firstSessionStartAt, $playerSession->created_at);
+        $this->assertEquals(15, $playerSession->duration);
+
+        // ===== backdated session predates oldest session =====
+        $backdateAt = $firstSessionStartAt->clone()->subMinutes(15);
+        $action->execute($user, $game, $gameHash, timestamp: $backdateAt);
+
+        $this->assertEquals(3, PlayerSession::where('user_id', $user->id)->where('game_id', $game->id)->count());
+
+        $playerSession = PlayerSession::where('user_id', $user->id)->where('game_id', $game->id)->orderBy('created_at')->first();
+        $this->assertNotNull($playerSession);
+        $this->assertEquals($gameHash->id, $playerSession->game_hash_id);
+        $this->assertEquals(0, $playerSession->hardcore);
+        $this->assertEquals('Playing ' . $game->title, $playerSession->rich_presence);
+        $this->assertEquals($backdateAt, $playerSession->created_at);
+        $this->assertEquals(1, $playerSession->duration);
     }
 }

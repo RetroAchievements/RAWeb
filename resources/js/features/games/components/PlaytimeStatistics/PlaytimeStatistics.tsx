@@ -11,8 +11,16 @@ import { formatDate } from '@/common/utils/l10n/formatDate';
 import { PlaytimeRow } from './PlaytimeRow';
 
 export const PlaytimeStatistics: FC = () => {
-  const { backingGame, game, numBeaten, numBeatenSoftcore, numCompletions, numMasters } =
-    usePageProps<App.Platform.Data.GameShowPageProps>();
+  const {
+    backingGame,
+    game,
+    numBeaten,
+    numBeatenSoftcore,
+    numCompletions,
+    numMasters,
+    targetAchievementSetPlayersHardcore,
+    targetAchievementSetPlayersTotal,
+  } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
   const [currentMode, setCurrentMode] = useState<PlayMode>('hardcore');
@@ -26,9 +34,13 @@ export const PlaytimeStatistics: FC = () => {
 
   const achievementSet = game.gameAchievementSets[0].achievementSet;
 
-  const playersHardcore = game.playersHardcore!;
+  // Use target set player counts if available, otherwise fall back to game player counts.
+  // The back-end sets target set player counts to the UI only if the player is viewing
+  // a non-core set. Those subset player counts are derived from player_achievement_sets.
+  const playersHardcore = targetAchievementSetPlayersHardcore ?? game.playersHardcore!;
+  const playersTotal = targetAchievementSetPlayersTotal ?? game.playersTotal!;
   const totalPlayers =
-    currentMode === 'hardcore' ? playersHardcore : game.playersTotal! - playersHardcore;
+    currentMode === 'hardcore' ? playersHardcore : playersTotal - playersHardcore;
 
   const handleValueChange = (val?: PlayMode) => {
     if (!val) {

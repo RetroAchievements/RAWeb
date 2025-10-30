@@ -137,6 +137,7 @@ return [
     'ctype_alnum' => 'The :attribute must only contain unaccented letters and numbers.',
     'locale' => 'The :attribute locale is not currently supported.',
     'not_disposable_email' => 'This email provider is not allowed.',
+    'no_offensive_content' => 'This username is not available.',
 
     /*
     |--------------------------------------------------------------------------

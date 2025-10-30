@@ -21,6 +21,7 @@ use App\Models\UserUsername;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role as SpatieRole;
@@ -88,7 +89,7 @@ trait ActsAsCommunityMember
      */
     public function displayableRoles(): BelongsToMany
     {
-        /** @var BelongsToMany<SpatieRole> */
+        /** @var BelongsToMany<SpatieRole, $this, Pivot, 'pivot'> */
         return $this->roles()->where('display', '>', 0);
     }
 

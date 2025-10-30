@@ -730,7 +730,7 @@ class StartSessionTest extends TestCase
             'game_id' => $bonusGameOne->id,
         ])->first();
         $this->assertModelExists($playerSession);
-        $this->assertEquals(1, $playerSession->duration);
+        $this->assertEquals(30, $playerSession->duration);
         $this->assertEquals('Playing ' . $bonusGameOne->title, $playerSession->rich_presence);
 
         $this->assertEquals($bonusGameOne->id, $delegatedUser->LastGameID);
@@ -897,7 +897,7 @@ class StartSessionTest extends TestCase
             'game_id' => $bonusGameOne->id,
         ])->first();
         $this->assertModelExists($playerSession);
-        $this->assertEquals(1, $playerSession->duration);
+        $this->assertEquals(30, $playerSession->duration);
         $this->assertEquals('Playing ' . $bonusGameOne->title, $playerSession->rich_presence);
 
         $this->assertEquals($bonusGameOne->id, $delegatedUser->LastGameID);

@@ -1230,7 +1230,19 @@
     "Set Requests - {{user}}": "Set Requests - {{user}}",
     "Hashes": "Hashes",
     "Claims": "Claims",
+    "This username is not available.": "This username is not available.",
     "Additional Hubs": "Additional Hubs",
     "Many game details above (like Developer and Genre) are also hubs. Click any to explore related games.": "Many game details above (like Developer and Genre) are also hubs. Click any to explore related games.",
-    "This email provider is not allowed.": "This email provider is not allowed."
+    "This email provider is not allowed.": "This email provider is not allowed.",
+    "Beaten on": "Beaten on",
+    "Completed on": "Completed on",
+    "Last played": "Last played",
+    "Mastered on": "Mastered on",
+    "Time to beat": "Time to beat",
+    "Time to complete": "Time to complete",
+    "Time to master": "Time to master",
+    "Total playtime": "Total playtime",
+    "Your Playtime Stats": "Your Playtime Stats",
+    "No playtime recorded.": "No playtime recorded.",
+    "Submit ({{metaKey}}+Enter)": "Submit ({{metaKey}}+Enter)"
 }
