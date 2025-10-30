@@ -100,15 +100,21 @@ class PingTest extends TestCase
     public function testPingInvalidGame(): void
     {
         $this->post('dorequest.php', $this->apiParams('ping', ['g' => 123456789]))
-            ->assertStatus(200)
+            ->assertStatus(404)
             ->assertExactJson([
                 'Success' => false,
+                'Status' => 404,
+                'Code' => 'not_found',
+                'Error' => 'Unknown game.',
             ]);
 
         $this->post('dorequest.php', $this->apiParams('ping', ['g' => 'abcdef']))
-            ->assertStatus(200)
+            ->assertStatus(404)
             ->assertExactJson([
                 'Success' => false,
+                'Status' => 404,
+                'Code' => 'not_found',
+                'Error' => 'Unknown game.',
             ]);
     }
 
@@ -285,6 +291,17 @@ class PingTest extends TestCase
             'game_id' => $gameOne->id,
         ]);
 
+        // Next, try to delegate for an unknown user
+        $params['k'] = 'IDontExist';
+        $this->post('dorequest.php', $params)
+            ->assertStatus(404)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 404,
+                'Code' => 'not_found',
+                'Error' => 'Unknown target user.',
+            ]);
+
         // Next, try to delegate on a non-standalone game.
         // This is not allowed and should fail.
         /** @var System $normalSystem */
@@ -292,13 +309,14 @@ class PingTest extends TestCase
         /** @var Game $gameTwo */
         $gameTwo = Game::factory()->create(['ConsoleID' => $normalSystem->ID]);
 
+        $params['k'] = $delegatedUser->User;
         $params['g'] = $gameTwo->id;
 
         $this->post('dorequest.php', $params)
             ->assertStatus(403)
             ->assertExactJson([
                 "Success" => false,
-                "Error" => "You do not have permission to do that.",
+                "Error" => "Access denied.",
                 "Code" => "access_denied",
                 "Status" => 403,
             ]);
@@ -316,7 +334,7 @@ class PingTest extends TestCase
             ->assertStatus(403)
             ->assertExactJson([
                 "Success" => false,
-                "Error" => "You do not have permission to do that.",
+                "Error" => "Access denied.",
                 "Code" => "access_denied",
                 "Status" => 403,
             ]);
@@ -385,7 +403,7 @@ class PingTest extends TestCase
             ->assertStatus(403)
             ->assertExactJson([
                 "Success" => false,
-                "Error" => "You do not have permission to do that.",
+                "Error" => "Access denied.",
                 "Code" => "access_denied",
                 "Status" => 403,
             ]);
@@ -403,7 +421,7 @@ class PingTest extends TestCase
             ->assertStatus(403)
             ->assertExactJson([
                 "Success" => false,
-                "Error" => "You do not have permission to do that.",
+                "Error" => "Access denied.",
                 "Code" => "access_denied",
                 "Status" => 403,
             ]);
