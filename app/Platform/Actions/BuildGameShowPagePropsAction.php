@@ -260,6 +260,8 @@ class BuildGameShowPagePropsAction
                 $this->getAchievementSetPlayerCounts($targetAchievementSet->achievement_set_id);
         }
 
+        $subscriptionService = new SubscriptionService();
+
         $propsData = new GameShowPagePropsData(
             achievementSetClaims: $achievementSetClaims,
 
@@ -349,7 +351,9 @@ class BuildGameShowPagePropsAction
             hubs: $relatedHubs,
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
             isOnWantToPlayList: $initialUserGameListState['isOnWantToPlayList'],
-            isSubscribedToComments: $user ? (new SubscriptionService())->isSubscribed($user, SubscriptionSubjectType::GameWall, $backingGame->id) : false,
+            isSubscribedToAchievementComments: $user ? $subscriptionService->isSubscribed($user, SubscriptionSubjectType::GameAchievements, $backingGame->id) : false,
+            isSubscribedToComments: $user ? $subscriptionService->isSubscribed($user, SubscriptionSubjectType::GameWall, $backingGame->id) : false,
+            isSubscribedToTickets: $user ? $subscriptionService->isSubscribed($user, SubscriptionSubjectType::GameTickets, $backingGame->id) : false,
             isLockedOnlyFilterEnabled: $isLockedOnlyFilterEnabled,
             isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
             isViewingPublishedAchievements: $targetAchievementFlag === AchievementFlag::OfficialCore,
