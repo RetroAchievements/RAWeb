@@ -38,6 +38,7 @@ export * from './createNews';
 export * from './createPaginatedData';
 export * from './createParsedUserAgent';
 export * from './createPlatform';
+export * from './createPlayerAchievementSet';
 export * from './createPlayerBadge';
 export * from './createPlayerGame';
 export * from './createPlayerGameActivityEvent';

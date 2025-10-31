@@ -457,7 +457,12 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={1}
       />,
       {
-        pageProps: { backingGame: mockGame, numLeaderboards: 10, ziggy: createZiggyProps() },
+        pageProps: {
+          backingGame: mockGame,
+          numLeaderboards: 10,
+          ziggy: createZiggyProps(),
+          defaultSort: 'normal',
+        },
         jotaiAtoms: [
           [currentListViewAtom, 'leaderboards'],
           //

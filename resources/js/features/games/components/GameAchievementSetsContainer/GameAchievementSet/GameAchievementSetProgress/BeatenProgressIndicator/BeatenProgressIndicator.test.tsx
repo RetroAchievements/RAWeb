@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
-import { createAchievement } from '@/test/factories';
+import { createAchievement, createPlayerGame } from '@/test/factories';
 
 import { BeatenProgressIndicator } from './BeatenProgressIndicator';
 
@@ -348,5 +348,92 @@ describe('Component: BeatenProgressIndicator', () => {
 
     // ASSERT
     expect(screen.getByText('Mocked BeatenCreditDialog')).toBeVisible();
+  });
+
+  it('given the game is beaten, shows the beaten date and time', async () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ type: 'progression', unlockedAt: '2024-01-01T00:00:00Z' }),
+      createAchievement({ type: 'progression', unlockedAt: '2024-01-02T00:00:00Z' }),
+    ];
+
+    render(<BeatenProgressIndicator achievements={achievements} />, {
+      pageProps: {
+        playerGame: createPlayerGame({
+          beatenAt: '2024-07-23T23:56:40.000000Z', // !!
+          beatenHardcoreAt: null,
+          timeToBeat: 1066472, // !!
+          timeToBeatHardcore: null,
+        }),
+      },
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByRole('button', { name: /beaten/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/beaten on/i)[0]).toBeVisible();
+    });
+    expect(screen.getAllByText(/time to beat/i)[0]).toBeVisible();
+    expect(screen.getAllByText(/jul 23, 2024/i)[0]).toBeVisible();
+    expect(screen.getAllByText(/296h 14m/i)[0]).toBeVisible();
+  });
+
+  it('given the game has both softcore and hardcore beaten dates, prioritizes hardcore stats', async () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ type: 'progression', unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
+      createAchievement({ type: 'progression', unlockedHardcoreAt: '2024-01-02T00:00:00Z' }),
+    ];
+
+    render(<BeatenProgressIndicator achievements={achievements} />, {
+      pageProps: {
+        playerGame: createPlayerGame({
+          beatenAt: '2024-07-10T02:07:57.000000Z',
+          beatenHardcoreAt: '2024-07-13T14:24:18.000000Z',
+          timeToBeat: 900000,
+          timeToBeatHardcore: 1066472,
+        }),
+      },
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByRole('button', { name: /beaten/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/beaten on/i)[0]).toBeVisible();
+    });
+    expect(screen.getAllByText(/jul 13, 2024/i)[0]).toBeVisible();
+    expect(screen.queryByText(/jul 10, 2024/i)).not.toBeInTheDocument();
+  });
+
+  it('given the game is not beaten, does not show beaten stats', async () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ type: 'progression', unlockedAt: '2024-01-01T00:00:00Z' }),
+      createAchievement({
+        type: 'progression',
+        unlockedAt: undefined,
+        unlockedHardcoreAt: undefined,
+      }),
+    ];
+
+    render(<BeatenProgressIndicator achievements={achievements} />, {
+      pageProps: {
+        playerGame: null, // !!
+      },
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByRole('button', { name: /beaten/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/beaten progress/i)[0]).toBeVisible();
+    });
+    expect(screen.queryByText(/beaten on/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/time to beat/i)).not.toBeInTheDocument();
   });
 });

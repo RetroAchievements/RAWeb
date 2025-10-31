@@ -6,7 +6,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { currentListViewAtom, currentPlayableListSortAtom } from '../state/games.atoms';
 
 export function useCurrentListView() {
-  const { allLeaderboards } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { allLeaderboards, defaultSort } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const [currentListView, internal_setCurrentListView] = useAtom(currentListViewAtom);
   const setCurrentPlayableListSort = useSetAtom(currentPlayableListSortAtom);
@@ -22,7 +22,7 @@ export function useCurrentListView() {
     if (view === 'leaderboards') {
       setCurrentPlayableListSort('displayOrder');
     } else {
-      setCurrentPlayableListSort('normal');
+      setCurrentPlayableListSort(defaultSort);
     }
 
     const url = new URL(window.location.href);

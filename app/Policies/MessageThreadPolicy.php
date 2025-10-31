@@ -6,6 +6,7 @@ namespace App\Policies;
 
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
+use App\Models\Role;
 use App\Models\User;
 use App\Policies\Concerns\HandlesTeamAccounts;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -50,12 +51,27 @@ class MessageThreadPolicy
         return true;
     }
 
-    public function create(User $user, ?User $teamAccount = null): bool
+    public function create(User $user, ?User $teamAccount = null, ?User $recipient = null): bool
     {
         // Users are able to create threads on behalf of team accounts,
         // assuming the correct role is attached to the user.
         if ($teamAccount) {
             return $this->canActAsTeamAccount($user, $teamAccount);
+        }
+
+        // Team accounts bypass fresh account restrictions.
+        if ($user->hasRole(Role::TEAM_ACCOUNT)) {
+            return true;
+        }
+
+        // Fresh accounts can message team accounts.
+        if ($recipient && $recipient->hasRole(Role::TEAM_ACCOUNT)) {
+            return true;
+        }
+
+        // Fresh accounts cannot create new message threads to regular users.
+        if ($user->isFreshAccount()) {
+            return false;
         }
 
         return true;

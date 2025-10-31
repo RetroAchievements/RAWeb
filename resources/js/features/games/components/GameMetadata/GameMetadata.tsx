@@ -33,6 +33,7 @@ export const GameMetadata: FC<GameMetadataProps> = ({ allMetaRowElements, game }
     genreRowElements,
     hackOfRowElements,
     languageRowElements,
+    miscRowElements,
     perspectiveRowElements,
     protagonistRowElements,
     publisherRowElements,
@@ -55,6 +56,7 @@ export const GameMetadata: FC<GameMetadataProps> = ({ allMetaRowElements, game }
     { key: 'format', elements: formatRowElements },
     { key: 'technical', elements: technicalRowElements },
     { key: 'regional', elements: regionalRowElements },
+    { key: 'misc', elements: miscRowElements, useListSeparators: false },
   ];
 
   const seeMoreRowsCount = seeMoreRows.filter((row) => row.elements?.length > 0).length;
