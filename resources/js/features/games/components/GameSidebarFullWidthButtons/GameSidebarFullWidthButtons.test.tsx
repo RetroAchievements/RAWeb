@@ -374,4 +374,64 @@ describe('Component: GameSidebarFullWidthButtons', () => {
     // ASSERT
     expect(screen.queryByRole('link', { name: /claims/i })).not.toBeInTheDocument();
   });
+
+  it('given the user is a developer, shows the Subscribe section with Achievement Comments and Tickets buttons', () => {
+    // ARRANGE
+    const backingGame = createGame({ id: 123 });
+
+    render(<GameSidebarFullWidthButtons game={createGame()} />, {
+      pageProps: {
+        achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) }, // !!
+        backingGame,
+        game: createGame({ gameAchievementSets: [] }),
+        can: {},
+        isSubscribedToAchievementComments: false,
+        isSubscribedToTickets: false,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/subscribe/i)).toBeVisible();
+    expect(screen.getByRole('button', { name: /achievement comments/i })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Tickets' })).toBeVisible();
+  });
+
+  it('given the user is a junior developer, shows the Subscribe section with Achievement Comments and Tickets buttons', () => {
+    // ARRANGE
+    const backingGame = createGame({ id: 123 });
+
+    render(<GameSidebarFullWidthButtons game={createGame()} />, {
+      pageProps: {
+        achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer-junior'] }) }, // !!
+        backingGame,
+        game: createGame({ gameAchievementSets: [] }),
+        can: {},
+        isSubscribedToAchievementComments: false,
+        isSubscribedToTickets: false,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/subscribe/i)).toBeVisible();
+    expect(screen.getByRole('button', { name: /achievement comments/i })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Tickets' })).toBeVisible();
+  });
+
+  it('given the user is not a developer, does not show the Subscribe section', () => {
+    // ARRANGE
+    render(<GameSidebarFullWidthButtons game={createGame()} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ roles: [] }) }, // !!
+        backingGame: createGame(),
+        can: {},
+        isSubscribedToAchievementComments: false,
+        isSubscribedToTickets: false,
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/subscribe/i)).not.toBeInTheDocument();
+  });
 });

@@ -16,8 +16,8 @@ use App\Connect\Actions\GetLeaderboardEntriesAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\LegacyLoginAction;
 use App\Connect\Actions\LoginAction;
+use App\Connect\Actions\PingAction;
 use App\Connect\Actions\PostActivityAction;
-use App\Connect\Actions\ResolveRootGameFromGameAndGameHashAction;
 use App\Connect\Actions\SubmitCodeNoteAction;
 use App\Connect\Actions\SubmitGameTitleAction;
 use App\Connect\Actions\SubmitRichPresenceAction;
@@ -51,6 +51,7 @@ $handler = match ($requestType) {
     'lbinfo' => new GetLeaderboardEntriesAction(),
     'login' => new LegacyLoginAction(),
     'login2' => new LoginAction(),
+    'ping' => new PingAction(),
     'postactivity' => new PostActivityAction(),
     'submitcodenote' => new SubmitCodeNoteAction(),
     'submitgametitle' => new SubmitGameTitleAction(),
@@ -133,7 +134,6 @@ $credentialsOK = match ($requestType) {
     "awardachievement",
     "awardachievements",
     "patch",
-    "ping",
     "richpresencepatch",
     "startsession",
     "submitgametitle",
@@ -171,7 +171,6 @@ if (!$credentialsOK) {
  */
 $allowsGenericDelegation = [
     "awardachievement",
-    "ping",
     "startsession",
 ];
 if (
@@ -244,36 +243,6 @@ switch ($requestType) {
     /*
      * User-based (require credentials)
      */
-
-    case "ping":
-        $game = Game::find($gameID);
-        $gameHash = null;
-        if ($user === null || $game === null) {
-            $response['Success'] = false;
-        } else {
-            $activityMessage = request()->post('m');
-            if ($activityMessage) {
-                $activityMessage = utf8_sanitize($activityMessage);
-            }
-
-            $gameHashMd5 = request()->input('x');
-            if ($gameHashMd5) {
-                $gameHash = GameHash::whereMd5($gameHashMd5)->first();
-                if ($gameHash?->isMultiDiscGameHash()) {
-                    $gameHash = null;
-                }
-            }
-
-            // If multiset is enabled, resolve the root game ID.
-            if (config('feature.enable_multiset')) {
-                $game = (new ResolveRootGameFromGameAndGameHashAction())->execute($gameHash, $game, $user);
-            }
-
-            PlayerSessionHeartbeat::dispatch($user, $game, $activityMessage, $gameHash);
-
-            $response['Success'] = true;
-        }
-        break;
 
     case "awardachievement":
         $achIDToAward = (int) request()->input('a', 0);

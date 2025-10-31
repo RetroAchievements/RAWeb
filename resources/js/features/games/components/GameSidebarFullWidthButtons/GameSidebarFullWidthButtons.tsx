@@ -7,6 +7,7 @@ import { GameCreateForumTopicButton } from '@/common/components/GameCreateForumT
 import { PlayableOfficialForumTopicButton } from '@/common/components/PlayableOfficialForumTopicButton';
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
 import { PlayableSidebarButtonsSection } from '@/common/components/PlayableSidebarButtonsSection';
+import { SubscribeToggleButton } from '@/common/components/SubscribeToggleButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
@@ -17,8 +18,15 @@ interface GameSidebarFullWidthButtonsProps {
 }
 
 export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> = ({ game }) => {
-  const { auth, backingGame, can, numCompatibleHashes, numOpenTickets } =
-    usePageProps<App.Platform.Data.GameShowPageProps>();
+  const {
+    auth,
+    backingGame,
+    can,
+    isSubscribedToAchievementComments,
+    isSubscribedToTickets,
+    numCompatibleHashes,
+    numOpenTickets,
+  } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { t } = useTranslation();
 
@@ -152,9 +160,34 @@ export const GameSidebarFullWidthButtons: FC<GameSidebarFullWidthButtonsProps> =
       ) : null}
 
       {canShowDevelopment ? (
-        <PlayableSidebarButtonsSection headingLabel={t('Development')}>
-          <SidebarDevelopmentSection />
-        </PlayableSidebarButtonsSection>
+        <>
+          <PlayableSidebarButtonsSection headingLabel={t('Development')}>
+            <SidebarDevelopmentSection />
+          </PlayableSidebarButtonsSection>
+
+          <PlayableSidebarButtonsSection headingLabel={t('Subscribe')}>
+            <div className="flex w-full gap-1">
+              <div className="flex items-center justify-between gap-2">
+                <SubscribeToggleButton
+                  hasExistingSubscription={isSubscribedToAchievementComments}
+                  label={t('Achievement Comments')}
+                  subjectId={backingGame.id}
+                  subjectType="GameAchievements"
+                />
+              </div>
+
+              <div className="flex w-full items-center justify-between gap-2">
+                <SubscribeToggleButton
+                  className="w-full"
+                  hasExistingSubscription={isSubscribedToTickets}
+                  label={t('Tickets')}
+                  subjectId={backingGame.id}
+                  subjectType="GameTickets"
+                />
+              </div>
+            </div>
+          </PlayableSidebarButtonsSection>
+        </>
       ) : null}
     </div>
   );
