@@ -116,7 +116,7 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
                   'type',
                   '-type',
                 ]
-              : ['displayOrder', '-displayOrder', 'title', '-title']
+              : ['displayOrder', '-displayOrder', 'title', '-title', 'rank', '-rank']
           }
           buttonClassName="w-full sm:w-auto"
         />

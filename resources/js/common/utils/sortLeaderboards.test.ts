@@ -106,6 +106,27 @@ describe('Util: sortLeaderboards', () => {
     expect(result.map((l) => l.id)).toEqual([1, 3, 2]);
   });
 
+  it('given rank sort, sorta by the user rank', () => {
+    // ARRANGE
+    const baseLeaderboard = createLeaderboard();
+    const leaderboards = [
+      {
+        ...baseLeaderboard,
+        userEntry: { id: 1, rank: 1 },
+      },
+      {
+        ...baseLeaderboard,
+        userEntry: { id: 2, rank: 2 },
+      },
+    ];
+
+    // ACT
+    const result = sortLeaderboards(leaderboards, 'rank');
+
+    // ASSERT
+    expect(result.map((l) => l.userEntry?.rank)).toEqual([1, 2]);
+  });
+
   it('given an unsupported sort order, returns the original order', () => {
     // ARRANGE
     const baseLeaderboard = createLeaderboard();
