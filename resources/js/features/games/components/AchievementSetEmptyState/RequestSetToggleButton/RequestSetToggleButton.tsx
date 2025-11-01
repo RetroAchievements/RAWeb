@@ -102,6 +102,10 @@ export const RequestSetToggleButton: FC = () => {
       className={cn(
         'relative gap-1.5 border border-embed-highlight hover:border-neutral-700 light:hover:border-neutral-200',
         'data-[state=on]:hover:border-embed-highlight',
+
+        'hover:light:border-neutral-700 hover:light:bg-neutral-300 hover:light:text-neutral-700',
+        'data-[state=on]:light:border-neutral-700 data-[state=on]:light:bg-neutral-300 data-[state=on]:light:text-neutral-700',
+
         'disabled:pointer-events-auto disabled:opacity-100',
       )}
       disabled={mutation.isPending || isDebounced}

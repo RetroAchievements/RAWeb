@@ -12,7 +12,7 @@
   .game-set__toggle {
     @apply flex h-[30px] items-center gap-1 whitespace-nowrap !text-[13px] lg:active:translate-y-[1px] lg:active:scale-[0.98];
     @apply light:bg-white light:hover:bg-neutral-50 light:hover:text-neutral-700;
-    @apply data-[state=on]:light:border-neutral-700 data-[state=on]:light:bg-neutral-50 data-[state=on]:light:text-neutral-900;
+    @apply data-[state=on]:light:!border-neutral-300 data-[state=on]:light:!bg-neutral-200 data-[state=on]:light:text-neutral-900;
   }
 
   .game-set__toggle-chip {
