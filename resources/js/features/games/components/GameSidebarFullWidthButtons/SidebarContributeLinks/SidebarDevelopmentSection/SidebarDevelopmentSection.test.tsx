@@ -245,7 +245,8 @@ describe('Component: SidebarDevelopmentSection', () => {
     render(<SidebarDevelopmentSection />, { pageProps });
 
     // ASSERT
-    expect(screen.getByRole('link', { name: /view published achievements/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: /published achievements/i })).toBeVisible();
+    expect(screen.queryByRole('link', { name: /unpublished/i })).not.toBeInTheDocument();
   });
 
   it('given the user is viewing published achievements and there are unpublished achievements, shows the count of unpublished achievements', () => {
@@ -269,7 +270,7 @@ describe('Component: SidebarDevelopmentSection', () => {
     render(<SidebarDevelopmentSection />, { pageProps });
 
     // ASSERT
-    const link = screen.getByRole('link', { name: /view unpublished achievements/i });
+    const link = screen.getByRole('link', { name: /unpublished achievements/i });
     expect(link).toBeVisible();
     expect(link).toHaveTextContent('12');
   });
@@ -295,7 +296,9 @@ describe('Component: SidebarDevelopmentSection', () => {
     render(<SidebarDevelopmentSection />, { pageProps });
 
     // ASSERT
-    const link = screen.getByRole('link', { name: /view published achievements/i });
+    expect(screen.queryByRole('link', { name: /unpublished/i })).not.toBeInTheDocument();
+
+    const link = screen.getByRole('link', { name: /published achievements/i });
     expect(link).toBeVisible();
     expect(link).toHaveTextContent('75');
   });
@@ -322,7 +325,7 @@ describe('Component: SidebarDevelopmentSection', () => {
 
     // ASSERT
     expect(
-      screen.queryByRole('link', { name: /view unpublished achievements/i }),
+      screen.queryByRole('link', { name: /unpublished achievements/i }),
     ).not.toBeInTheDocument();
   });
 
@@ -347,7 +350,7 @@ describe('Component: SidebarDevelopmentSection', () => {
     render(<SidebarDevelopmentSection />, { pageProps });
 
     // ASSERT
-    expect(screen.getByRole('link', { name: /view unpublished achievements/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: /unpublished achievements/i })).toBeVisible();
   });
 
   it('given the user taps the link to view unpublished achievements, scrolls to the top of the screen', async () => {
@@ -373,7 +376,7 @@ describe('Component: SidebarDevelopmentSection', () => {
     render(<SidebarDevelopmentSection />, { pageProps });
 
     // ACT
-    await userEvent.click(screen.getByRole('link', { name: /view unpublished achievements/i }));
+    await userEvent.click(screen.getByRole('link', { name: /unpublished achievements/i }));
 
     // ASSERT
     expect(scrollToSpy).toHaveBeenCalledWith(
