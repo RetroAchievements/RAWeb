@@ -91,7 +91,7 @@ describe('Component: AchievementBreadcrumbs', () => {
     // ARRANGE
     const system = createSystem({ name: 'SNES' });
     const game = createGame({ title: '~Hack~ Super Junkoid' });
-    const achievement = createAchievement();
+    const achievement = createAchievement({ title: 'Some Achievement' });
 
     render(
       <AchievementBreadcrumbs

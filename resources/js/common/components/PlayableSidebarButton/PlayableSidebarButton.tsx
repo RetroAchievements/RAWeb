@@ -1,8 +1,7 @@
 import type { FC, ReactNode } from 'react';
-import { useTranslation } from 'react-i18next';
 import type { IconType } from 'react-icons/lib';
-import { LuLayers } from 'react-icons/lu';
 
+import { SubsetIcon } from '@/common/components/SubsetIcon';
 import { cn } from '@/common/utils/cn';
 
 import { baseButtonVariants } from '../+vendor/BaseButton';
@@ -91,32 +90,20 @@ const ButtonContent: FC<ButtonContentProps> = ({
   IconComponent,
   showSubsetIndicator,
 }) => {
-  const { t } = useTranslation();
-
   return (
     <>
       <span className="flex items-center gap-2">
         <span className="flex items-center gap-0.5">
           <IconComponent className="size-4" />
 
-          {showSubsetIndicator ? (
-            <>
-              <LuLayers
-                role="img"
-                className="size-4"
-                title={t('Subset')}
-                aria-label={t('Subset')}
-              />
-              <span className="sr-only">{t('Subset')}</span>
-            </>
-          ) : null}
+          {showSubsetIndicator ? <SubsetIcon /> : null}
         </span>
 
         <span className="flex items-center gap-1">{children}</span>
       </span>
 
       {count ? (
-        <BaseChip className="bg-neutral-950 px-2 text-neutral-300 light:border-neutral-500 light:text-neutral-800">
+        <BaseChip className="border border-neutral-700 bg-neutral-900 px-2 text-2xs text-neutral-300 light:border-neutral-500 light:text-neutral-800">
           {count}
         </BaseChip>
       ) : null}

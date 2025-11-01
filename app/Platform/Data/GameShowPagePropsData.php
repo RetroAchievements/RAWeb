@@ -62,6 +62,7 @@ class GameShowPagePropsData extends Data
         public int $numComments,
         public int $numCompatibleHashes,
         public int $numCompletions,
+        public ?int $numInterestedDevelopers,
         public int $numLeaderboards,
         public int $numMasters,
         public int $numOpenTickets,

@@ -8,6 +8,7 @@ import {
   createGame,
   createGameAchievementSet,
   createGameSet,
+  createLeaderboard,
   createSeriesHub,
   createSystem,
 } from '@/test/factories';
@@ -275,5 +276,40 @@ describe('Component: GameShowSidebarRoot', () => {
     // ASSERT
     expect(screen.queryByTestId('playtime-statistics')).not.toBeInTheDocument();
     expect(screen.queryByText(/unlocked an achievement/i)).not.toBeInTheDocument();
+  });
+
+  it('given there are featured leaderboards, displays the featured leaderboards section', () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet(),
+        }),
+      ],
+    });
+
+    render(<GameShowSidebarRoot />, {
+      pageProps: {
+        game,
+        backingGame: game,
+        can: {},
+        featuredLeaderboards: [createLeaderboard({ title: 'My Leaderboard' })], // !!
+        hubs: [createGameSet()],
+        isViewingPublishedAchievements: true,
+        playerAchievementChartBuckets: [],
+        topAchievers: [],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('heading', { name: /leaderboards/i })).toBeVisible();
+    expect(screen.getByText('My Leaderboard')).toBeVisible();
   });
 });

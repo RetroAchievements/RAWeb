@@ -1,4 +1,4 @@
-import { type FC, useState } from 'react';
+import { type FC, type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuBell, LuBellOff } from 'react-icons/lu';
 
@@ -24,11 +24,13 @@ interface SubscribeToggleButtonProps {
   subjectType: App.Community.Enums.SubscriptionSubjectType;
 
   className?: string;
+  extraIconSlot?: ReactNode;
   label?: TranslatedString;
 }
 
 export const SubscribeToggleButton: FC<SubscribeToggleButtonProps> = ({
   className,
+  extraIconSlot,
   hasExistingSubscription,
   label,
   subjectId,
@@ -66,11 +68,15 @@ export const SubscribeToggleButton: FC<SubscribeToggleButtonProps> = ({
       className={cn('gap-1.5', className)}
       aria-label={finalLabel}
     >
-      {isSubscribed ? (
-        <LuBellOff className="size-4" aria-label="click to unsubscribe" />
-      ) : (
-        <LuBell className="size-4" aria-label="click to subscribe" />
-      )}
+      <span className="flex items-center gap-0.5">
+        {isSubscribed ? (
+          <LuBellOff className="size-4" aria-label="click to unsubscribe" />
+        ) : (
+          <LuBell className="size-4" aria-label="click to subscribe" />
+        )}
+
+        {extraIconSlot}
+      </span>
 
       <span className="hidden sm:block">{finalLabel}</span>
     </BaseButton>
