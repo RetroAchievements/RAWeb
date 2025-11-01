@@ -69,6 +69,9 @@ class ForumTopicCommentApiController extends Controller
         // Convert [game={legacy_hub_id}] to [hub={game_set_id}].
         $newPayload = Shortcode::convertLegacyGameHubShortcodesToHubShortcodes($newPayload);
 
+        // Convert [game=X?set=Y] to [game=backingGameId].
+        $newPayload = Shortcode::convertGameSetShortcodesToBackingGame($newPayload);
+
         $comment->body = $newPayload;
 
         // If this post is being edited by someone other than

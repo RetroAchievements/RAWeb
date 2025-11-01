@@ -96,6 +96,17 @@ function normalize_shortcodes(string $input): string
 function normalize_targeted_shortcodes(string $input, string $kind, ?string $tagName = null): string
 {
     // Find any URL variants of user links and transform them into shortcode tags.
+    // First, handle URLs with a ?set= query param (these are games).
+    if ($kind === 'game') {
+        $findWithSet = [
+            "~https?://(?:[\w\-]+\.)?retroachievements\.org/game/([\w]{1,20})(?:-[^\s\"'<>]*)?(?:/)?\\?set=(\d+)~si",
+            "~https?://localhost(?::\d{1,5})?/game/([\w]{1,20})(?:-[^\s\"'<>]*)?(?:/)?\\?set=(\d+)~si",
+        ];
+        $replaceWithSet = "[game=$1?set=$2]";
+        $input = preg_replace($findWithSet, $replaceWithSet, $input);
+    }
+
+    // Then, handle URLs without query params.
     // Ignore URLs that contain path or query params.
     $find = [
         "~\<a [^/>]*retroachievements\.org/" . $kind . "/([\w]{1,20})(?:-[^\s\"'<>]*)?(/?(?![\w/?]))[^/>]*\][^</a>]*</a>~si",
