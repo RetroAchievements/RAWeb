@@ -74,7 +74,7 @@ class ForwardMessageToDiscordAction
 
         $webhookUrl = $inboxConfig['url']; // each inbox has its own dedicated webhook url
 
-        $fullBody = Shortcode::stripAndClamp($message->body, self::MESSAGE_BODY_MAX_LENGTH, preserveWhitespace: true);
+        $fullBody = Shortcode::convertToMarkdown($message->body, self::MESSAGE_BODY_MAX_LENGTH, preserveWhitespace: true);
 
         if (empty($messageThread->title) || empty($fullBody)) {
             return;
@@ -450,7 +450,7 @@ class ForwardMessageToDiscordAction
         Message $message,
     ): void {
         $webhookUrl = $senderInboxConfig['url'];
-        $fullBody = Shortcode::stripAndClamp($message->body, self::MESSAGE_BODY_MAX_LENGTH, preserveWhitespace: true);
+        $fullBody = Shortcode::convertToMarkdown($message->body, self::MESSAGE_BODY_MAX_LENGTH, preserveWhitespace: true);
 
         if (empty($fullBody)) {
             return;
