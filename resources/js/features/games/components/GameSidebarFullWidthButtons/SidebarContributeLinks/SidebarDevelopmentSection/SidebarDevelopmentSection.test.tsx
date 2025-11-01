@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen, waitFor } from '@/test';
+import { render, screen, waitFor, within } from '@/test';
 import { createGame, createZiggyProps } from '@/test/factories';
 
 import { SidebarDevelopmentSection } from './SidebarDevelopmentSection';
@@ -421,5 +421,96 @@ describe('Component: SidebarDevelopmentSection', () => {
 
     // ASSERT
     expect(screen.queryByRole('link', { name: /view claim history/i })).not.toBeInTheDocument();
+  });
+
+  it('given the game and backing game are different, shows the subset indicator on the View Claim History button', () => {
+    // ARRANGE
+    const game = createGame({ id: 1, gameAchievementSets: [] }); // !!
+    const backingGame = createGame({ id: 2 }); // !!
+
+    render(<SidebarDevelopmentSection />, {
+      pageProps: {
+        backingGame,
+        game,
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        achievementSetClaims: [],
+        can: { manageAchievementSetClaims: true }, // !!
+        isOnWantToDevList: false,
+      },
+    });
+
+    // ASSERT
+    const link = screen.getByRole('link', { name: /view claim history/i });
+    expect(link).toBeVisible();
+
+    expect(within(link).getByRole('img', { name: /subset/i })).toBeVisible();
+  });
+
+  it('given the game and backing game are the same, does not show the subset indicator on the View Claim History button', () => {
+    // ARRANGE
+    const game = createGame({ id: 1, gameAchievementSets: [] }); // !!
+    const backingGame = createGame({ id: 1 }); // !!
+
+    render(<SidebarDevelopmentSection />, {
+      pageProps: {
+        backingGame,
+        game,
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        achievementSetClaims: [],
+        can: { manageAchievementSetClaims: true }, // !!
+        isOnWantToDevList: false,
+      },
+    });
+
+    // ASSERT
+    const link = screen.getByRole('link', { name: /view claim history/i });
+    expect(link).toBeVisible();
+
+    expect(within(link).queryByRole('img', { name: /subset/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user can view developer interest, displays the View Developer Interest button with its count', () => {
+    // ARRANGE
+    const game = createGame({ gameAchievementSets: [] });
+    const backingGame = createGame({ id: 123 });
+
+    render(<SidebarDevelopmentSection />, {
+      pageProps: {
+        backingGame,
+        game,
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        achievementSetClaims: [],
+        can: { viewDeveloperInterest: true }, // !!
+        isOnWantToDevList: false,
+        numInterestedDevelopers: 5, // !!
+      },
+    });
+
+    // ASSERT
+    const link = screen.getByRole('link', { name: /view developer interest/i });
+    expect(link).toBeVisible();
+    expect(link).toHaveTextContent('5');
+  });
+
+  it('given the user cannot view developer interest, does not show the View Developer Interest button', () => {
+    // ARRANGE
+    const game = createGame({ gameAchievementSets: [] });
+    const backingGame = createGame({ id: 123 });
+
+    render(<SidebarDevelopmentSection />, {
+      pageProps: {
+        backingGame,
+        game,
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        achievementSetClaims: [],
+        can: { viewDeveloperInterest: false }, // !!
+        isOnWantToDevList: false,
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.queryByRole('link', { name: /view developer interest/i }),
+    ).not.toBeInTheDocument();
   });
 });
