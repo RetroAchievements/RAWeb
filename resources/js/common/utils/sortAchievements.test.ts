@@ -41,7 +41,54 @@ describe('Util: sortAchievements', () => {
       expect(result.map((a) => a.id)).toEqual([2, 1]);
     });
 
-    it('given same unlock status, sorts by orderColumn ascending', () => {
+    it('given unlocked achievements, sorts by the most recent unlock time first', () => {
+      // ARRANGE
+      const baseAchievement = createAchievement();
+      const achievements = [
+        { ...baseAchievement, id: 1, unlockedAt: '2023-01-01' }, // !! oldest unlock
+        { ...baseAchievement, id: 2, unlockedAt: '2023-01-03' }, // !! most recent unlock
+        { ...baseAchievement, id: 3, unlockedAt: '2023-01-02' }, // !! middle unlock
+      ];
+
+      // ACT
+      const result = sortAchievements(achievements, 'normal');
+
+      // ASSERT
+      expect(result.map((a) => a.id)).toEqual([2, 3, 1]);
+    });
+
+    it('given unlocked achievements, uses the most recent of unlockedAt or unlockedHardcoreAt', () => {
+      // ARRANGE
+      const baseAchievement = createAchievement();
+      const achievements = [
+        { ...baseAchievement, id: 1, unlockedAt: '2023-01-03', unlockedHardcoreAt: '2023-01-01' }, // !! unlockedAt is more recent
+        { ...baseAchievement, id: 2, unlockedAt: '2023-01-01', unlockedHardcoreAt: '2023-01-05' }, // !! unlockedHardcoreAt is more recent
+        { ...baseAchievement, id: 3, unlockedAt: '2023-01-02' }, // !! only unlockedAt
+      ];
+
+      // ACT
+      const result = sortAchievements(achievements, 'normal');
+
+      // ASSERT
+      expect(result.map((a) => a.id)).toEqual([2, 1, 3]);
+    });
+
+    it('given unlocked achievements with the same unlock time, sorts by orderColumn ascending', () => {
+      // ARRANGE
+      const baseAchievement = createAchievement();
+      const achievements = [
+        { ...baseAchievement, id: 1, unlockedAt: '2023-01-01', orderColumn: 2 }, // !! higher orderColumn
+        { ...baseAchievement, id: 2, unlockedAt: '2023-01-01', orderColumn: 1 }, // !! same unlock time, lower orderColumn
+      ];
+
+      // ACT
+      const result = sortAchievements(achievements, 'normal');
+
+      // ASSERT
+      expect(result.map((a) => a.id)).toEqual([2, 1]);
+    });
+
+    it('given locked achievements, sorts by orderColumn ascending', () => {
       // ARRANGE
       const baseAchievement = createAchievement();
       const achievements = [
@@ -56,7 +103,7 @@ describe('Util: sortAchievements', () => {
       expect(result.map((a) => a.id)).toEqual([2, 1]);
     });
 
-    it('given same orderColumn, sorts by createdAt ascending', () => {
+    it('given locked achievements with same orderColumn, sorts by createdAt ascending', () => {
       // ARRANGE
       const baseAchievement = createAchievement();
       const achievements = [

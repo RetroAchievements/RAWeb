@@ -41,13 +41,20 @@ export function sortAchievements(
       const multiplier = sortOrder === 'normal' ? 1 : -1;
 
       return sortedAchievements.sort((a, b) => {
-        // For 'normal' sort, the unlocked status is affected by direction.
         const unlockedResult = compareUnlockStatus(a, b);
         if (unlockedResult !== 0) {
           return unlockedResult * multiplier;
         }
 
-        // Then sort by orderColumn within each group (unlocked and not unlocked).
+        // If both are unlocked, sort by most recent unlock time.
+        if (getIsAchievementUnlocked(a)) {
+          const timeDiff = getMostRecentUnlock(b) - getMostRecentUnlock(a);
+          if (timeDiff !== 0) {
+            return timeDiff * multiplier;
+          }
+        }
+
+        // For both locked and unlocked (with same unlock time), sort by orderColumn.
         const orderDiff = (a.orderColumn as number) - (b.orderColumn as number);
         if (orderDiff !== 0) {
           return orderDiff * multiplier;
@@ -219,4 +226,13 @@ export function sortAchievements(
     default:
       return sortedAchievements;
   }
+}
+
+function getMostRecentUnlock(achievement: App.Platform.Data.Achievement): number {
+  const unlockedAt = achievement.unlockedAt ? new Date(achievement.unlockedAt).valueOf() : 0;
+  const unlockedHardcoreAt = achievement.unlockedHardcoreAt
+    ? new Date(achievement.unlockedHardcoreAt).valueOf()
+    : 0;
+
+  return Math.max(unlockedAt, unlockedHardcoreAt);
 }
