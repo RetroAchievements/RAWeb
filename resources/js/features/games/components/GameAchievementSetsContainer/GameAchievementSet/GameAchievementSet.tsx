@@ -90,7 +90,10 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
 
         {auth?.user && achievements.length ? (
           <div className="my-2 flex justify-center sm:hidden">
-            <GameAchievementSetProgress achievements={achievements} />
+            <GameAchievementSetProgress
+              achievements={achievements}
+              gameAchievementSet={gameAchievementSet}
+            />
           </div>
         ) : null}
 

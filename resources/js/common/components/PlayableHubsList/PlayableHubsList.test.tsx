@@ -22,7 +22,10 @@ describe('Component: HubsList', () => {
 
   it('given there are hubs, renders the hubs list with the correct title', () => {
     // ARRANGE
-    const mockHubs = [createGameSet({ title: 'AAAAA' }), createGameSet({ title: 'BBBBB' })];
+    const mockHubs = [
+      createGameSet({ title: 'Meta - AAAAA' }),
+      createGameSet({ title: 'Meta - BBBBB' }),
+    ];
 
     render(<PlayableHubsList hubs={mockHubs} />, {
       pageProps: {
@@ -43,7 +46,9 @@ describe('Component: HubsList', () => {
 
   it('cleans hub titles', () => {
     // ARRANGE
-    const mockHubs = [createGameSet({ title: '[Events - Achievement of the Week]' })];
+    const mockHubs = [
+      createGameSet({ title: '[Events - Achievement of the Week]', isEventHub: true }),
+    ];
 
     render(<PlayableHubsList hubs={mockHubs} />, {
       pageProps: {
@@ -62,10 +67,10 @@ describe('Component: HubsList', () => {
   it('sorts hub titles alphabetically', () => {
     // ARRANGE
     const mockHubs = [
-      createGameSet({ title: 'ZZZ' }),
-      createGameSet({ title: 'AAA' }),
-      createGameSet({ title: 'CCC' }),
-      createGameSet({ title: 'BBB' }),
+      createGameSet({ title: 'Meta - ZZZ' }),
+      createGameSet({ title: 'Meta - AAA' }),
+      createGameSet({ title: 'Meta - CCC' }),
+      createGameSet({ title: 'Meta - BBB' }),
     ];
 
     render(<PlayableHubsList hubs={mockHubs} />, {
@@ -121,10 +126,10 @@ describe('Component: HubsList', () => {
 
   it('given some hub IDs are marked for exclusion, does not display their links', () => {
     const mockHubs = [
-      createGameSet({ title: 'ZZZ', id: 1 }),
-      createGameSet({ title: 'AAA', id: 2 }), // !! only this one should be visible
-      createGameSet({ title: 'CCC', id: 3 }),
-      createGameSet({ title: 'BBB', id: 4 }),
+      createGameSet({ title: 'Meta - ZZZ', id: 1 }),
+      createGameSet({ title: 'Meta - AAA', id: 2 }), // !! only this one should be visible
+      createGameSet({ title: 'Meta - CCC', id: 3 }),
+      createGameSet({ title: 'Meta - BBB', id: 4 }),
     ];
 
     render(<PlayableHubsList hubs={mockHubs} excludeHubIds={[1, 3, 4]} />, {
@@ -163,9 +168,59 @@ describe('Component: HubsList', () => {
     expect(screen.queryByRole('link', { name: /missing content/i })).not.toBeInTheDocument(); // Meta|QA is hidden
   });
 
+  it('enforces visibility rules', () => {
+    // ARRANGE
+    const mockHubs = [
+      createGameSet({ title: '[License - Nintendo]', isEventHub: false }), // Not Meta, Event, Achievement Extras, or Series
+      createGameSet({ title: 'Meta - Language - English', isEventHub: false }), // Meta hub
+      createGameSet({ title: 'Event Hub 2023', isEventHub: true }), // Event hub
+      createGameSet({ title: 'RANews - 2023-01', isEventHub: false }), // Achievement Extras hub
+      createGameSet({ title: '[Series - Mario]', isEventHub: false }), // Series hub
+      createGameSet({ title: '[Subseries - Wario]', isEventHub: false }), // Subseries hub
+    ];
+
+    render(<PlayableHubsList hubs={mockHubs} />, {
+      pageProps: {
+        can: {
+          manageGames: false,
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /nintendo/i })).not.toBeInTheDocument(); // License hub hidden
+    expect(screen.getByRole('link', { name: /english/i })).toBeVisible(); // Meta hub visible
+    expect(screen.getByRole('link', { name: /event hub 2023/i })).toBeVisible(); // Event hub visible
+    expect(screen.getByRole('link', { name: /2023-01/i })).toBeVisible(); // Achievement Extras hub visible
+    expect(screen.getByRole('link', { name: /mario/i })).toBeVisible(); // Series hub visible
+    expect(screen.getByRole('link', { name: /wario/i })).toBeVisible(); // Subseries hub visible
+  });
+
+  it('given a game has multiple series hubs, displays non-prioritized series hubs when the prioritized one is excluded', () => {
+    // ARRANGE
+    const mockHubs = [
+      createGameSet({ title: '[Series - Mario]', id: 1 }),
+      createGameSet({ title: '[Subseries - Wario]', id: 2 }), // !! this one is prioritized/excluded
+      createGameSet({ title: 'Meta - Test Hub', id: 3 }),
+    ];
+
+    render(<PlayableHubsList hubs={mockHubs} excludeHubIds={[2]} />, {
+      pageProps: {
+        can: {
+          manageGames: false,
+        },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /mario/i })).toBeVisible(); // Non-prioritized series hub visible
+    expect(screen.queryByRole('link', { name: /wario/i })).not.toBeInTheDocument(); // Prioritized series hub excluded
+    expect(screen.getByRole('link', { name: /test hub/i })).toBeVisible(); // Other hubs still visible
+  });
+
   it('given the variant is game, displays Additional Hubs heading with an info icon', () => {
     // ARRANGE
-    const mockHubs = [createGameSet({ title: 'Test Hub' })];
+    const mockHubs = [createGameSet({ title: 'Meta - Test Hub' })];
 
     render(<PlayableHubsList hubs={mockHubs} variant="game" />, {
       pageProps: {
@@ -181,7 +236,7 @@ describe('Component: HubsList', () => {
 
   it('given the variant is event, displays the normal Hubs heading', () => {
     // ARRANGE
-    const mockHubs = [createGameSet({ title: 'Test Hub' })];
+    const mockHubs = [createGameSet({ title: 'Meta - Test Hub' })];
 
     render(<PlayableHubsList hubs={mockHubs} variant="event" />, {
       pageProps: {

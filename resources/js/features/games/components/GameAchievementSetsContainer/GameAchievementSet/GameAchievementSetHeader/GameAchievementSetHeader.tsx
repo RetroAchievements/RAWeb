@@ -100,11 +100,12 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
         </div>
       </div>
 
-      {isViewingPublishedAchievements && achievements.length ? (
-        <div className="absolute right-2 top-2 hidden sm:block">
-          <GameAchievementSetProgress achievements={achievements} />
-        </div>
-      ) : null}
+      <div className="absolute right-2 top-2 hidden sm:block">
+        <GameAchievementSetProgress
+          achievements={achievements}
+          gameAchievementSet={gameAchievementSet}
+        />
+      </div>
     </div>
   );
 };
