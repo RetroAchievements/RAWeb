@@ -106,7 +106,7 @@ describe('Util: sortLeaderboards', () => {
     expect(result.map((l) => l.id)).toEqual([1, 3, 2]);
   });
 
-  it('given rank sort, sorta by the user rank', () => {
+  it('given rank sort ascending, sorts by the user rank', () => {
     // ARRANGE
     const baseLeaderboard = createLeaderboard();
     const leaderboards = [
@@ -116,7 +116,11 @@ describe('Util: sortLeaderboards', () => {
       },
       {
         ...baseLeaderboard,
-        userEntry: { id: 2, rank: 2 },
+        userEntry: { id: 2, rank: null },
+      },
+      {
+        ...baseLeaderboard,
+        userEntry: { id: 3, rank: 2 },
       },
     ];
 
@@ -124,7 +128,32 @@ describe('Util: sortLeaderboards', () => {
     const result = sortLeaderboards(leaderboards, 'rank');
 
     // ASSERT
-    expect(result.map((l) => l.userEntry?.rank)).toEqual([1, 2]);
+    expect(result.map((l) => l.userEntry?.id)).toEqual([1, 3, 2]);
+  });
+
+  it('given rank sort descending, sorts by the user rank', () => {
+    // ARRANGE
+    const baseLeaderboard = createLeaderboard();
+    const leaderboards = [
+      {
+        ...baseLeaderboard,
+        userEntry: { id: 1, rank: 1 },
+      },
+      {
+        ...baseLeaderboard,
+        userEntry: { id: 2, rank: null },
+      },
+      {
+        ...baseLeaderboard,
+        userEntry: { id: 3, rank: 2 },
+      },
+    ];
+
+    // ACT
+    const result = sortLeaderboards(leaderboards, '-rank');
+
+    // ASSERT
+    expect(result.map((l) => l.userEntry?.id)).toEqual([3, 1, 2]);
   });
 
   it('given an unsupported sort order, returns the original order', () => {
