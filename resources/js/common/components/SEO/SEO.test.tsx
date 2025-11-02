@@ -164,14 +164,46 @@ describe('Component: SEO', () => {
     expect(JSON.parse(scriptTag?.textContent || '')).toEqual(customJsonLd);
   });
 
-  it('given robot security tags, shows the meta tag', () => {
-    // ARRANGE
-    const { container } = render(
-      <SEO title={'Test Title' as TranslatedString} description={'Test Description'} noIndex />,
-    );
+  describe('robot security tags', () => {
+    it('given noindex, shows the noindex meta tag', () => {
+      // ARRANGE
+      const { container } = render(
+        <SEO title={'Test Title' as TranslatedString} description={'Test Description'} noindex />,
+        { pageProps: defaultPageProps },
+      );
 
-    // ASSERT
-    const metaTag = container.querySelector('meta[name="robots"]');
-    expect(metaTag as HTMLMetaElement).toHaveAttribute('content', 'noindex');
+      // ASSERT
+      const metaTag = container.querySelector('span[name="robots"]');
+      expect(metaTag?.getAttribute('content')).toEqual('noindex');
+    });
+
+    it('given nofollow, shows the nofollow meta tag', () => {
+      // ARRANGE
+      const { container } = render(
+        <SEO title={'Test Title' as TranslatedString} description={'Test Description'} nofollow />,
+        { pageProps: defaultPageProps },
+      );
+
+      // ASSERT
+      const metaTag = container.querySelector('span[name="robots"]');
+      expect(metaTag?.getAttribute('content')).toEqual('nofollow');
+    });
+
+    it('given both noindex and nofollow, shows both in meta tag', () => {
+      // ARRANGE
+      const { container } = render(
+        <SEO
+          title={'Test Title' as TranslatedString}
+          description={'Test Description'}
+          noindex
+          nofollow
+        />,
+        { pageProps: defaultPageProps },
+      );
+
+      // ASSERT
+      const metaTag = container.querySelector('span[name="robots"]');
+      expect(metaTag?.getAttribute('content')).toEqual('noindex,nofollow');
+    });
   });
 });
