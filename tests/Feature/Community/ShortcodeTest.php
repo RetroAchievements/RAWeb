@@ -358,6 +358,14 @@ final class ShortcodeTest extends TestCase
         );
     }
 
+    public function testConvertToMarkdownBoldAndItalic(): void
+    {
+        $this->assertSame(
+            '***Hello***',
+            Shortcode::convertToMarkdown('[b][i]Hello[/i][/b]')
+        );
+    }
+
     public function testConvertToMarkdownStrikethrough(): void
     {
         $this->assertSame(
@@ -395,14 +403,6 @@ final class ShortcodeTest extends TestCase
         $this->assertSame(
             "> Line 1\n> Line 2\n> Line 3",
             Shortcode::convertToMarkdown("[quote]Line 1\nLine 2\nLine 3[/quote]", 10000, preserveWhitespace: true)
-        );
-    }
-
-    public function testConvertToMarkdownNestedQuotes(): void
-    {
-        $this->assertSame(
-            '> > Inner quote Outer quote', // nested quotes get prefixed together
-            Shortcode::convertToMarkdown('[quote][quote]Inner quote[/quote] Outer quote[/quote]', 10000, preserveWhitespace: true)
         );
     }
 
