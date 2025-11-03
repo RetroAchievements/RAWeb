@@ -422,6 +422,7 @@ declare namespace App.Data {
     updateForumTopic?: boolean;
     updateMotto?: boolean;
     viewAnyAchievementSetClaim?: boolean;
+    viewDeveloperInterest?: boolean;
   };
 }
 declare namespace App.Enums {
@@ -835,6 +836,7 @@ declare namespace App.Platform.Data {
     numComments: number;
     numCompatibleHashes: number;
     numCompletions: number;
+    numInterestedDevelopers: number | null;
     numLeaderboards: number;
     numMasters: number;
     numOpenTickets: number;

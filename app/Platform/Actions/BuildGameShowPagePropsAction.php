@@ -279,6 +279,7 @@ class BuildGameShowPagePropsAction
                 'reviewAchievementSetClaims',
                 'updateAnyAchievementSetClaim',
                 'updateGame',
+                'viewDeveloperInterest',
             ),
 
             canSubmitBetaFeedback: $this->getCanSubmitBetaFeedback($user, 'react-game-page'),
@@ -368,6 +369,7 @@ class BuildGameShowPagePropsAction
             numCompletions: $numCompletions,
             numBeaten: $numBeaten,
             numBeatenSoftcore: $numBeatenSoftcore,
+            numInterestedDevelopers: $this->getInterestedDevelopersCount($backingGame, $user),
             numLeaderboards: $this->getLeaderboardsCount($backingGame),
             numMasters: $numMasters,
 
@@ -761,6 +763,17 @@ class BuildGameShowPagePropsAction
         }
 
         return $game->leaderboards->count();
+    }
+
+    private function getInterestedDevelopersCount(Game $game, ?User $user): ?int
+    {
+        if (!$user || !$user->can('viewDeveloperInterest', $game)) {
+            return null;
+        }
+
+        return UserGameListEntry::where('type', UserGameListType::Develop)
+            ->where('GameID', $game->id)
+            ->count();
     }
 
     /**
