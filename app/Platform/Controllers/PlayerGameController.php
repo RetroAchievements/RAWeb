@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
+use App\Community\Enums\ArticleType;
 use App\Data\UserData;
 use App\Http\Controller;
 use App\Models\Game;
@@ -114,6 +115,13 @@ class PlayerGameController extends Controller
         $this->authorize('resetEntireAccount', [$user, $user]);
 
         (new ResetPlayerProgressAction())->execute($user);
+
+        addArticleComment(
+            'Server',
+            ArticleType::UserModeration,
+            $user->id,
+            "{$user->display_name} performed a full account reset"
+        );
 
         return response()->json(['message' => __('legacy.success.reset')]);
     }
