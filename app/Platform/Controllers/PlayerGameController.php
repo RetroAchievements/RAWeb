@@ -106,6 +106,18 @@ class PlayerGameController extends Controller
         return response()->json(['message' => __('legacy.success.reset')]);
     }
 
+    public function destroyAll(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $this->authorize('resetEntireAccount', [$user, $user]);
+
+        (new ResetPlayerProgressAction())->execute($user);
+
+        return response()->json(['message' => __('legacy.success.reset')]);
+    }
+
     public function activity(
         User $user,
         Game $game,
