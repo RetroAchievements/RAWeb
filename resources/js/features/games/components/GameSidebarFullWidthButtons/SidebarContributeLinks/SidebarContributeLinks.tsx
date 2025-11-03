@@ -37,7 +37,7 @@ export const SidebarContributeLinks: FC<SidebarContributeLinksProps> = ({
       <BaseCollapsibleTrigger asChild>
         <BaseButton
           size="sm"
-          className={cn(isOpen ? 'rounded-b-none border-transparent bg-embed' : null)}
+          className={cn('w-full', isOpen ? 'rounded-b-none border-transparent bg-embed' : null)}
         >
           {t('Contribute')}
 
