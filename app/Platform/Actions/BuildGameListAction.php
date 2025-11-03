@@ -76,7 +76,7 @@ class BuildGameListAction
             perPage: $perPage,
         );
 
-        /** @var LengthAwarePaginator<Game> $entries */
+        /** @var LengthAwarePaginator<int, Game> $entries */
         $entries = $query->paginate($perPage, ['*'], 'page', $page);
 
         // If the user is authenticated, pull all their progress records for the games in the list.
