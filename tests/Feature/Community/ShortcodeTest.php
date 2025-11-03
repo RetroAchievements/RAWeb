@@ -406,6 +406,14 @@ final class ShortcodeTest extends TestCase
         );
     }
 
+    public function testConvertToMarkdownNestedQuotes(): void
+    {
+        $this->assertSame(
+            '> > Inner quote Outer quote', // nested quotes get prefixed together
+            Shortcode::convertToMarkdown('[quote][quote]Inner quote[/quote] Outer quote[/quote]', 10000, preserveWhitespace: true)
+        );
+    }
+
     public function testConvertToMarkdownSpoiler(): void
     {
         $this->assertSame(
