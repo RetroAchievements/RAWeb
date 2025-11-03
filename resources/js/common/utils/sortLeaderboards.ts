@@ -39,16 +39,16 @@ export function sortLeaderboards(
 
     case 'rank':
     case '-rank': {
-      const reversed = sortOrder === 'rank';
+      const isBestFirst = sortOrder === 'rank';
 
       const sorted = sortedLeaderboards.sort((a, b) => {
-        const aRank = a.userEntry?.rank || (!reversed ? 0 : 9999999); // this isn't ideal
-        const bRank = b.userEntry?.rank || (!reversed ? 0 : 9999999);
+        const aRank = a.userEntry?.rank || (!isBestFirst ? 0 : Number.MAX_SAFE_INTEGER);
+        const bRank = b.userEntry?.rank || (!isBestFirst ? 0 : Number.MAX_SAFE_INTEGER);
 
         return aRank - bRank;
       });
 
-      return reversed ? sorted : sorted.reverse();
+      return isBestFirst ? sorted : sorted.reverse();
     }
 
     default:
