@@ -69,7 +69,7 @@ class Badge extends BaseModel implements HasMedia
     // == relations
 
     /**
-     * @return MorphTo<Model, Badge>
+     * @return MorphTo<Model, $this>
      */
     public function badgeable(): MorphTo
     {

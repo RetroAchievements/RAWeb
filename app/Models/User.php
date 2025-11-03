@@ -344,7 +344,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     // == actions
 
     /**
-     * @return Builder<User>
+     * @return Builder<static>
      */
     public static function whereName(?string $displayNameOrUsername): Builder
     {

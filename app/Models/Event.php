@@ -223,7 +223,7 @@ class Event extends BaseModel
     }
 
     /**
-     * @return BelongsToMany<GameSet, $this>
+     * @return BelongsToMany<GameSet, Game>
      */
     public function hubs(): BelongsToMany
     {
