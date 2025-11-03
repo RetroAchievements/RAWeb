@@ -129,7 +129,7 @@ class Comment extends BaseModel
     // == relations
 
     /**
-     * @return MorphTo<Model, Comment>
+     * @return MorphTo<Model, $this>
      */
     public function commentable(): MorphTo
     {
