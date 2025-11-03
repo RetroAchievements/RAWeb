@@ -47,7 +47,7 @@ const LANGUAGES = {
   ru_RU: 'ru',
   sv_SE: 'sv-SE',
   pt_BR: 'pt-BR',
-  vi_VN: 'vi-VN',
+  vi_VN: 'vi',
 } as const;
 
 // ============================================================================

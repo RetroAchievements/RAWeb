@@ -98,7 +98,9 @@ function authenticateFromAppToken(
     }
 
     $userOut = $user->User; // always normalize to the username field
-    $permissionOut = $user->Permissions;
+    /** @var int|null $permissions */
+    $permissions = $user->Permissions;
+    $permissionOut = $permissions;
 
     return true;
 }

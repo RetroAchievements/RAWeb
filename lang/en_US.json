@@ -1156,8 +1156,8 @@
     "Claim History": "Claim History",
     "There are currently no unpublished achievements for this set.": "There are currently no unpublished achievements for this set.",
     "Author: <1>{{displayName}}</1>": "Author: <1>{{displayName}}</1>",
-    "View Published Achievements": "View Published Achievements",
-    "View Unpublished Achievements": "View Unpublished Achievements",
+    "Published Achievements": "Published Achievements",
+    "Unpublished Achievements": "Unpublished Achievements",
     "Developers may not be able to easily resolve tickets for issues encountered while using this emulator.": "Developers may not be able to easily resolve tickets for issues encountered while using this emulator.",
     "Display mode": "Display mode",
     "{{val}} Rarity": "{{val}} Rarity",
@@ -1251,5 +1251,11 @@
     "Your Playtime Stats": "Your Playtime Stats",
     "No playtime recorded.": "No playtime recorded.",
     "Submit ({{metaKey}}+Enter)": "Submit ({{metaKey}}+Enter)",
-    "Achievement Comments": "Achievement Comments"
+    "Achievement Comments": "Achievement Comments",
+    "Edit Base Game Details": "Edit Base Game Details",
+    "View Base Game Details": "View Base Game Details",
+    "Edit Subset Game Details": "Edit Subset Game Details",
+    "View Subset Game Details": "View Subset Game Details",
+    "Contribute": "Contribute",
+    "View Developer Interest": "View Developer Interest"
 }

@@ -16,7 +16,7 @@ export const SubsetButtonChip: FC<SubsetButtonChipProps> = ({ className }) => {
     <BaseChip
       className={cn('bg-neutral-950 px-2 py-0 text-[0.65rem] light:border-neutral-500', className)}
     >
-      <LuLayers className="size-3.5" />
+      <LuLayers className="size-3.5" role="img" aria-label={t('Subset')} />
       {t('Subset')}
     </BaseChip>
   );

@@ -98,6 +98,7 @@ class UpsertGameCoreAchievementSetFromLegacyFlagsAction
 
         // Resync the set's achievement timestamps data.
         // During this sync, newly-uploaded achievements to the server will also be attached.
+        /** @var Collection<int, array{created_at: Carbon|string, updated_at: Carbon|string, order_column: int}> $syncData */
         $syncData = $allAchievements->mapWithKeys(function ($achievement) {
             return [
                 $achievement->ID => [
