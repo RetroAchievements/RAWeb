@@ -47,6 +47,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $updateForumTopic,
         public Lazy|bool $updateMotto,
         public Lazy|bool $viewAnyAchievementSetClaim,
+        public Lazy|bool $viewDeveloperInterest,
     ) {
     }
 
@@ -105,6 +106,10 @@ class UserPermissionsData extends Data
             updateGame: Lazy::create(fn () => $user && $game ? $user->can('update', $game) : false),
             updateMotto: Lazy::create(fn () => $user ? $user->can('updateMotto', $user) : false),
             viewAnyAchievementSetClaim: Lazy::create(fn () => $user ? $user->can('viewAny', AchievementSetClaim::class) : false),
+            viewDeveloperInterest: Lazy::create(fn () => $user && $game
+                ? $user->can('viewDeveloperInterest', $game)
+                : false
+            ),
         );
     }
 }
