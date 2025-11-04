@@ -48,7 +48,7 @@ class RouteServiceProvider extends ServiceProvider
          * Future implementation should follow standard Laravel MVC patterns and ideally host
          * the Connect API on a dedicated subdomain (see connectDomain/connectPrefix methods below)
          * to cleanly separate RPC traffic from the main web application. This work was previously
-         * started in the site's V2 release (circa 2022), but ultimately removed because PHPStan was 
+         * started in the site's V2 release (circa 2022), but ultimately removed because PHPStan was
          * complaining about dead code.
          * @see https://github.com/RetroAchievements/RAWeb/blob/d81dfbfd06d3233f73168546467e3e6c8006d124/app/Connect/Controllers/ConnectApiController.php
          */
