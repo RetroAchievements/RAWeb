@@ -26,6 +26,7 @@ export const SidebarSubscribeSection: FC<SidebarSubscribeSectionProps> = ({ game
         subjectType="GameAchievements"
         className="h-9 justify-start px-4"
         extraIconSlot={showSubsetIndicator ? <SubsetIcon /> : undefined}
+        shouldShowMobileLabel={true}
       />
 
       <SubscribeToggleButton
@@ -35,6 +36,7 @@ export const SidebarSubscribeSection: FC<SidebarSubscribeSectionProps> = ({ game
         subjectType="GameTickets"
         className="h-9 justify-start px-4"
         extraIconSlot={showSubsetIndicator ? <SubsetIcon /> : undefined}
+        shouldShowMobileLabel={true}
       />
     </PlayableSidebarButtonsSection>
   );
