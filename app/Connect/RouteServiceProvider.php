@@ -53,7 +53,6 @@ class RouteServiceProvider extends ServiceProvider
          * @see https://github.com/RetroAchievements/RAWeb/blob/d81dfbfd06d3233f73168546467e3e6c8006d124/app/Connect/Controllers/ConnectApiController.php
          */
         Route::middleware(['connect'])->group(function () {
-            Route::any('login_app.php', fn () => $this->handleRequest('login_app'));
             Route::any('dorequest.php', fn () => $this->handleRequest('dorequest'));
             Route::any('doupload.php', fn () => $this->handleRequest('doupload'));
         });
