@@ -93,6 +93,9 @@ class DownloadsController extends Controller
         $keys = $systemIds->map(fn ($id) => "popular-emulators-for-system:{$id}");
 
         // Then, fetch the popularity metrics in a single query and transform the results.
+        /** @var Collection<int, array<int>> $emptySystemIds */
+        $emptySystemIds = $systemIds->mapWithKeys(fn ($id) => [$id => []]);
+
         return DownloadsPopularityMetric::whereIn('key', $keys)
             ->get()
             ->mapWithKeys(function ($metric) {
@@ -101,7 +104,7 @@ class DownloadsController extends Controller
 
                 return [$systemId => $metric->ordered_ids];
             })
-            ->union($systemIds->mapWithKeys(fn ($id) => [$id => []])) // Fill missing keys with empty arrays.
+            ->union($emptySystemIds) // Fill missing keys with empty arrays.
             ->all();
     }
 

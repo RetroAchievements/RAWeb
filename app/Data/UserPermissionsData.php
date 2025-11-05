@@ -40,6 +40,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $manageGames,
         public Lazy|bool $manageGameSets,
         public Lazy|bool $manipulateApiKeys,
+        public Lazy|bool $resetEntireAccount,
         public Lazy|bool $reviewAchievementSetClaims,
         public Lazy|bool $updateAnyAchievementSetClaim,
         public Lazy|bool $updateAvatar,
@@ -47,6 +48,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $updateForumTopic,
         public Lazy|bool $updateMotto,
         public Lazy|bool $viewAnyAchievementSetClaim,
+        public Lazy|bool $viewDeveloperInterest,
     ) {
     }
 
@@ -95,6 +97,7 @@ class UserPermissionsData extends Data
             manageGames: Lazy::create(fn () => $user ? $user->can('manage', Game::class) : false),
             manageGameSets: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\GameSet::class) : false),
             manipulateApiKeys: Lazy::create(fn () => $user ? $user->can('manipulateApiKeys', $user) : false),
+            resetEntireAccount: Lazy::create(fn () => $user ? $user->can('resetEntireAccount', $user) : false),
             reviewAchievementSetClaims: Lazy::create(fn () => $user && $claim
                 ? $user->can('review', $claim)
                 : false
@@ -105,6 +108,10 @@ class UserPermissionsData extends Data
             updateGame: Lazy::create(fn () => $user && $game ? $user->can('update', $game) : false),
             updateMotto: Lazy::create(fn () => $user ? $user->can('updateMotto', $user) : false),
             viewAnyAchievementSetClaim: Lazy::create(fn () => $user ? $user->can('viewAny', AchievementSetClaim::class) : false),
+            viewDeveloperInterest: Lazy::create(fn () => $user && $game
+                ? $user->can('viewDeveloperInterest', $game)
+                : false
+            ),
         );
     }
 }

@@ -75,7 +75,7 @@ class Trigger extends BaseModel
     }
 
     /**
-     * @return MorphTo<Model, Trigger>
+     * @return MorphTo<Model, $this>
      */
     public function triggerable(): MorphTo
     {
