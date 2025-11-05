@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
+use App\Community\Enums\DiscordReportableType;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
@@ -18,6 +19,8 @@ class CreateMessageThreadAction
         string $title,
         string $body,
         bool $isProxied = false,
+        ?DiscordReportableType $reportableType = null,
+        ?int $reportableId = null,
     ): MessageThread {
         $thread = new MessageThread([
             'title' => $title,
@@ -49,7 +52,14 @@ class CreateMessageThreadAction
             $participantTo->save();
         }
 
-        (new AddToMessageThreadAction())->execute($thread, $userFrom, $trueSenderUser, $body);
+        (new AddToMessageThreadAction())->execute(
+            $thread,
+            $userFrom,
+            $trueSenderUser,
+            $body,
+            $reportableType,
+            $reportableId,
+        );
 
         return $thread;
     }

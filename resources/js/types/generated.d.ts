@@ -97,6 +97,8 @@ declare namespace App.Community.Data {
     templateKind: App.Community.Enums.MessageThreadTemplateKind | null;
     senderUserAvatarUrl: string | null;
     senderUserDisplayName: string;
+    reportableType: App.Community.Enums.DiscordReportableType | null;
+    reportableId: number | null;
   };
   export type MessageThread = {
     id: number;
@@ -121,6 +123,7 @@ declare namespace App.Community.Data {
     canReply: boolean;
     senderUserAvatarUrl: string | null;
     senderUserDisplayName: string;
+    can: App.Data.UserPermissions;
   };
   export type PatreonSupportersPageProps = {
     recentSupporters: Array<App.Data.User>;
@@ -223,6 +226,12 @@ declare namespace App.Community.Enums {
     | 'media'
     | 'site-release-notes'
     | 'technical';
+  export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+  export type DiscordReportableType =
+    | 'Comment'
+    | 'DirectMessage'
+    | 'ForumTopicComment'
+    | 'UserProfile';
   export type SubscriptionSubjectType =
     | 'ForumTopic'
     | 'UserWall'
@@ -233,7 +242,6 @@ declare namespace App.Community.Enums {
     | 'GameAchievements'
     | 'AchievementTicket';
   export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
-  export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
   export type AwardType = 1 | 2 | 3 | 6 | 7 | 8 | 9;
   export type ClaimSetType = 0 | 1;
   export type ClaimStatus = 0 | 1 | 2 | 3;
@@ -400,6 +408,7 @@ declare namespace App.Data {
     createGameComments?: boolean;
     createGameForumTopic?: boolean;
     createMessageThreads?: boolean;
+    createModerationReports?: boolean;
     createTriggerTicket?: boolean;
     createUserBetaFeedbackSubmission?: boolean;
     createUsernameChangeRequest?: boolean;
