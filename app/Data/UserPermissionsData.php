@@ -40,6 +40,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $manageGames,
         public Lazy|bool $manageGameSets,
         public Lazy|bool $manipulateApiKeys,
+        public Lazy|bool $resetEntireAccount,
         public Lazy|bool $reviewAchievementSetClaims,
         public Lazy|bool $updateAnyAchievementSetClaim,
         public Lazy|bool $updateAvatar,
@@ -96,6 +97,7 @@ class UserPermissionsData extends Data
             manageGames: Lazy::create(fn () => $user ? $user->can('manage', Game::class) : false),
             manageGameSets: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\GameSet::class) : false),
             manipulateApiKeys: Lazy::create(fn () => $user ? $user->can('manipulateApiKeys', $user) : false),
+            resetEntireAccount: Lazy::create(fn () => $user ? $user->can('resetEntireAccount', $user) : false),
             reviewAchievementSetClaims: Lazy::create(fn () => $user && $claim
                 ? $user->can('review', $claim)
                 : false

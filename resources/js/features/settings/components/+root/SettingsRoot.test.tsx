@@ -115,4 +115,32 @@ describe('Component: SettingsRoot', () => {
     // ASSERT
     expect(screen.queryByText(/change username/i)).not.toBeInTheDocument();
   });
+
+  it('given user has permission to reset their entire account, shows the reset entire account section', () => {
+    // ARRANGE
+    render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ websitePrefs: 139687 }) },
+        userSettings: createUser(),
+        can: { updateMotto: true, resetEntireAccount: true }, // !!
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('heading', { name: /reset entire account/i })).toBeVisible();
+  });
+
+  it('given user lacks permission to reset their entire account, does not show the reset entire account section', () => {
+    // ARRANGE
+    render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ websitePrefs: 139687 }) },
+        userSettings: createUser(),
+        can: { updateMotto: true, resetEntireAccount: false }, // !!
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/reset entire account/i)).not.toBeInTheDocument();
+  });
 });
