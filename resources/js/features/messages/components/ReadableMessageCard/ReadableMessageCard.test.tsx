@@ -160,6 +160,7 @@ describe('Component: ReadableMessageCard', () => {
       pageProps: {
         auth: { user: createAuthenticatedUser({ displayName: 'CurrentUser' }) },
         can: { createModerationReports: true }, // !!
+        senderUserDisplayName: 'CurrentUser',
       },
     });
 
@@ -181,6 +182,7 @@ describe('Component: ReadableMessageCard', () => {
           user: createAuthenticatedUser({ displayName: 'CurrentUser' }),
         },
         can: { createModerationReports: true }, // !! they can create reports
+        senderUserDisplayName: 'CurrentUser',
       },
     });
 
@@ -201,6 +203,7 @@ describe('Component: ReadableMessageCard', () => {
           user: createAuthenticatedUser({ displayName: 'CurrentUser' }),
         },
         can: { createModerationReports: false }, // !!
+        senderUserDisplayName: 'CurrentUser',
       },
     });
 
