@@ -61,6 +61,7 @@ class UserSettingsController extends Controller
         $can = UserPermissionsData::fromUser($user)->include(
             'createUsernameChangeRequest',
             'manipulateApiKeys',
+            'resetEntireAccount',
             'updateAvatar',
             'updateMotto'
         );

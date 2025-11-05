@@ -4,6 +4,7 @@ import { LuCheck, LuFolder, LuFolderLock, LuPlus, LuWrench } from 'react-icons/l
 import { route } from 'ziggy-js';
 
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
+import { PlayableSidebarButtonsSection } from '@/common/components/PlayableSidebarButtonsSection';
 import { useGameBacklogState } from '@/common/hooks/useGameBacklogState';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useGameShowTabs } from '@/features/games/hooks/useGameShowTabs';
@@ -19,6 +20,7 @@ export const SidebarDevelopmentSection: FC = () => {
     game,
     isViewingPublishedAchievements,
     isOnWantToDevList: isInitiallyOnWantToDevList,
+    numInterestedDevelopers,
   } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
@@ -57,7 +59,7 @@ export const SidebarDevelopmentSection: FC = () => {
   };
 
   return (
-    <>
+    <PlayableSidebarButtonsSection headingLabel={t('Development')}>
       {!isViewingPublishedAchievements || backingGame.achievementsUnpublished ? (
         <PlayableSidebarButton
           IconComponent={isViewingPublishedAchievements ? LuFolderLock : LuFolder}
@@ -72,8 +74,8 @@ export const SidebarDevelopmentSection: FC = () => {
           }
         >
           {isViewingPublishedAchievements
-            ? t('View Unpublished Achievements')
-            : t('View Published Achievements')}
+            ? t('Unpublished Achievements')
+            : t('Published Achievements')}
         </PlayableSidebarButton>
       ) : null}
 
@@ -83,12 +85,24 @@ export const SidebarDevelopmentSection: FC = () => {
         <PlayableSidebarButton
           href={route('game.claims', { game: backingGame.id })}
           IconComponent={LuWrench}
+          showSubsetIndicator={game.id !== backingGame.id}
         >
           {t('View Claim History')}
         </PlayableSidebarButton>
       ) : null}
 
       <SidebarToggleInReviewButton />
+
+      {can.viewDeveloperInterest ? (
+        <PlayableSidebarButton
+          href={route('game.dev-interest', { game: backingGame.id })}
+          IconComponent={LuWrench}
+          showSubsetIndicator={game.id !== backingGame.id}
+          count={numInterestedDevelopers ?? undefined}
+        >
+          {t('View Developer Interest')}
+        </PlayableSidebarButton>
+      ) : null}
 
       {isDeveloper ? (
         <PlayableSidebarButton
@@ -100,6 +114,6 @@ export const SidebarDevelopmentSection: FC = () => {
           {backingGame.achievementsPublished ? t('Want to Revise') : t('Want to Develop')}
         </PlayableSidebarButton>
       ) : null}
-    </>
+    </PlayableSidebarButtonsSection>
   );
 };

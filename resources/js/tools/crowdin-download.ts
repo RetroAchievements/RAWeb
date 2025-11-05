@@ -49,7 +49,7 @@ const LANGUAGES = {
   tr_TR: 'tr',
   pt_BR: 'pt-BR',
   pt_PT: 'pt-PT',
-  vi_VN: 'vi-VN',
+  vi_VN: 'vi',
 } as const;
 
 // ============================================================================
