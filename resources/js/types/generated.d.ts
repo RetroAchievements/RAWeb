@@ -372,6 +372,7 @@ declare namespace App.Data {
     emailAddress?: string | null;
     enableBetaFeatures?: boolean | null;
     id?: number;
+    isBanned?: boolean;
     isEmailVerified?: boolean;
     isGone?: boolean;
     isMuted?: boolean;
