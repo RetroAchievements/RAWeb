@@ -12,10 +12,11 @@ import { LocaleSectionCard } from '../LocaleSectionCard';
 import { NotificationsSectionCard } from '../NotificationsSectionCard';
 import { PreferencesSectionCard } from '../PreferencesSectionCard';
 import { ProfileSectionCard } from '../ProfileSectionCard';
+import { ResetEntireAccountSectionCard } from '../ResetEntireAccountSectionCard';
 import { ResetGameProgressSectionCard } from '../ResetGameProgressSectionCard';
 
 export const SettingsRoot: FC = memo(() => {
-  const { auth } = usePageProps<App.Community.Data.UserSettingsPageProps>();
+  const { auth, can } = usePageProps<App.Community.Data.UserSettingsPageProps>();
 
   const { t } = useTranslation();
 
@@ -41,6 +42,8 @@ export const SettingsRoot: FC = memo(() => {
         <ChangeEmailAddressSectionCard />
 
         <ResetGameProgressSectionCard />
+
+        {can.resetEntireAccount ? <ResetEntireAccountSectionCard /> : null}
 
         <DeleteAccountSectionCard />
       </div>

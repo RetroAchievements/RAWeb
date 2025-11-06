@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Platform\Concerns;
 
 use App\Community\Enums\Rank;
-use App\Connect\Controllers\ConnectApiController;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\LeaderboardEntry;
@@ -41,7 +40,7 @@ trait ActsAsPlayer
         do {
             $this->appToken = Str::random(30);
         } while ($this->where('appToken', $this->appToken)->exists());
-        $this->appTokenExpiry = Carbon::now()->addDays(ConnectApiController::TOKEN_EXPIRY_DAYS);
+        $this->appTokenExpiry = Carbon::now()->addDays(14);
         $this->save();
     }
 

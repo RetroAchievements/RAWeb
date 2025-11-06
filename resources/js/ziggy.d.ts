@@ -240,6 +240,7 @@ declare module 'ziggy-js' {
             "binding": "ID"
         }
     ],
+    "api.user.progress.destroy": [],
     "api.user.game-achievement-set.preference.update": [
         {
             "name": "gameAchievementSet",
