@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Observers;
 
-use App\Community\Actions\AddUserDiscordRoleAction;
-use App\Community\Actions\RemoveUserDiscordRoleAction;
-use App\Http\Actions\RemoveDiscordRolesAction;
+use App\Community\Actions\AddUserDiscordRolesAction;
+use App\Community\Actions\RemoveUserDiscordRolesAction;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -18,17 +17,17 @@ class UserObserver
 
         // Handle muting - add the "Muted" role if they're a Discord member.
         if ($this->isBeingMuted($user) && $mutedRoleId) {
-            (new AddUserDiscordRoleAction())->execute($user, $mutedRoleId);
+            (new AddUserDiscordRolesAction())->execute($user, [$mutedRoleId]);
         }
 
         // Handle manual unmuting - remove the "Muted" role if they're a Discord member.
         if ($this->isBeingUnmuted($user) && $mutedRoleId) {
-            (new RemoveUserDiscordRoleAction())->execute($user, $mutedRoleId);
+            (new RemoveUserDiscordRolesAction())->execute($user, [$mutedRoleId]);
         }
 
         // Handle banning - remove all roles if they're a Discord member.
         if ($this->isBeingBanned($user)) {
-            (new RemoveDiscordRolesAction())->execute($user);
+            (new RemoveUserDiscordRolesAction())->execute($user);
         }
     }
 

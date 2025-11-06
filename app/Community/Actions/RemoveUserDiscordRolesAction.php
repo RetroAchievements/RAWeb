@@ -11,9 +11,9 @@ use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
- * Remove a specific role from a user if they're present in the main Discord server.
+ * Remove specific Discord roles from a user, or remove all roles if none are specified.
  */
-class RemoveUserDiscordRoleAction
+class RemoveUserDiscordRolesAction
 {
     private Client $client;
     private ?string $botToken;
@@ -26,7 +26,13 @@ class RemoveUserDiscordRoleAction
         $this->guildId = config('services.discord.guild_id');
     }
 
-    public function execute(User $user, string $roleId): void
+    /**
+     * Remove Discord roles from a user.
+     *
+     * @param User $user user to remove roles from
+     * @param array<string> $roleIds Role IDs to remove. Empty array removes ALL roles.
+     */
+    public function execute(User $user, array $roleIds = []): void
     {
         if (!$this->botToken || !$this->guildId) {
             return;
@@ -41,11 +47,17 @@ class RemoveUserDiscordRoleAction
             $userId = $member['user']['id'];
             $currentRoles = $member['roles'] ?? [];
 
-            // Remove the role if they have it.
-            $updatedRoles = array_values(array_filter($currentRoles, fn ($role) => $role !== $roleId));
+            // Determine the updated roles based on what we're removing.
+            if (empty($roleIds)) {
+                // Remove all roles.
+                $updatedRoles = [];
+            } else {
+                // Remove specific roles.
+                $updatedRoles = array_values(array_filter($currentRoles, fn ($role) => !in_array($role, $roleIds, true)));
+            }
 
-            // Only make the API call if we actually removed something.
-            if (count($updatedRoles) !== count($currentRoles)) {
+            // Only make the API call if roles actually changed.
+            if ($updatedRoles !== $currentRoles) {
                 $this->client->patch(
                     "https://discord.com/api/v10/guilds/{$this->guildId}/members/{$userId}",
                     [
@@ -57,7 +69,8 @@ class RemoveUserDiscordRoleAction
                 );
             }
         } catch (Throwable $e) {
-            Log::error("Failed to remove Discord role {$roleId} for user: " . $e->getMessage());
+            $roleList = empty($roleIds) ? 'roles' : 'roles: ' . implode(', ', $roleIds);
+            Log::error("Failed to remove Discord {$roleList} for user: " . $e->getMessage());
         }
     }
 }

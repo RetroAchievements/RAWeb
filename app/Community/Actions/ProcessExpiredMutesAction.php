@@ -21,7 +21,7 @@ class ProcessExpiredMutesAction
         foreach ($expiredMutedUsers as $user) {
             // Remove the Discord Muted role.
             if ($mutedRoleId) {
-                (new RemoveUserDiscordRoleAction())->execute($user, $mutedRoleId);
+                (new RemoveUserDiscordRolesAction())->execute($user, [$mutedRoleId]);
             }
 
             // Set muted_until to null.
