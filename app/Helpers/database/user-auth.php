@@ -14,8 +14,9 @@ function changePassword(string $username, string $password): string
 
     $user->Password = $hashedPassword;
     $user->SaltedPass = '';
-    $user->PasswordResetToken = '';
     $user->saveQuietly();
+
+    // TODO: delete password_reset_tokens
 
     return $hashedPassword;
 }
