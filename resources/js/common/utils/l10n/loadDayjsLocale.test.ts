@@ -46,8 +46,10 @@ describe('Util: loadDayjsLocale', () => {
     ${'nl_BE'} | ${'nl-be'}
     ${'ru_RU'} | ${'ru'}
     ${'sv_SE'} | ${'sv'}
+    ${'tr_TR'} | ${'tr'}
     ${'pl_PL'} | ${'pl'}
     ${'pt_BR'} | ${'pt-br'}
+    ${'pt_PT'} | ${'pt'}
     ${'vi_VN'} | ${'vi'}
   `('loads and sets the $userLocale locale successfully', async ({ userLocale, dayjsLocale }) => {
     // ARRANGE

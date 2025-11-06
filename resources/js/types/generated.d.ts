@@ -415,6 +415,7 @@ declare namespace App.Data {
     manageGames?: boolean;
     manageGameSets?: boolean;
     manipulateApiKeys?: boolean;
+    resetEntireAccount?: boolean;
     reviewAchievementSetClaims?: boolean;
     updateAnyAchievementSetClaim?: boolean;
     updateAvatar?: boolean;
