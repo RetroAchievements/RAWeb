@@ -225,6 +225,42 @@ final class ShortcodeTest extends TestCase
         );
     }
 
+    public function testNormalizeGame2Shortcodes(): void
+    {
+        $rawString = 'https://retroachievements.org/game2/1';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            '[game=1]',
+            $normalized
+        );
+    }
+
+    public function testNormalizeGameShortcodesWithSetParam(): void
+    {
+        $rawString = 'https://retroachievements.org/game/668?set=8659';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            '[game=668?set=8659]',
+            $normalized
+        );
+    }
+
+    public function testNormalizeGame2ShortcodesWithSetParam(): void
+    {
+        $rawString = 'https://retroachievements.org/game2/668?set=8659';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            '[game=668?set=8659]',
+            $normalized
+        );
+    }
+
     public function testNormalizeHubShortcodes(): void
     {
         $rawString = 'https://retroachievements.org/hub/1';

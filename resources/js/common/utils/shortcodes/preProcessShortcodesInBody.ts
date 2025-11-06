@@ -8,28 +8,31 @@ const shortcodeTypes = [
 ] as const;
 
 const createPatterns = (type: string) => {
+  // For games, match both /game/ and /game2/ URLs.
+  const pathPattern = type === 'game' ? 'game2?' : type;
+
   const patterns = [
     // HTML anchor tags.
     new RegExp(
-      `<a [^/>]*retroachievements\\.org/${type}/(\\w{1,20})(?:-[^\\s"'<>]*)?(/?(?![\\w/?]))[^/>]*\\][^</a>]*</a>`,
+      `<a [^/>]*retroachievements\\.org/${pathPattern}/(\\w{1,20})(?:-[^\\s"'<>]*)?(/?(?![\\w/?]))[^/>]*\\][^</a>]*</a>`,
       'gi',
     ),
 
     // BBCode url tags.
     new RegExp(
-      `\\[url[^\\]]*retroachievements\\.org/${type}/(\\w{1,20})(?:-[^\\s"'<>]*)?(/?(?![\\w/?]))[^\\]]*\\][^\\[]*\\[/url\\]`,
+      `\\[url[^\\]]*retroachievements\\.org/${pathPattern}/(\\w{1,20})(?:-[^\\s"'<>]*)?(/?(?![\\w/?]))[^\\]]*\\][^\\[]*\\[/url\\]`,
       'gi',
     ),
 
     // Direct production URLs without query params.
     new RegExp(
-      `https?://(?:[\\w-]+\\.)?retroachievements\\.org/${type}/(\\w{1,20})(?:-[^\\s"'<>]*)?(/?(?![\\w/?]))`,
+      `https?://(?:[\\w-]+\\.)?retroachievements\\.org/${pathPattern}/(\\w{1,20})(?:-[^\\s"'<>]*)?(/?(?![\\w/?]))`,
       'gi',
     ),
 
     // Local development URLs without query params.
     new RegExp(
-      `https?://localhost(?::\\d{1,5})?/${type}/(\\w{1,20})(?:-[^\\s"'<>]*)?(/?(?![\\w/?]))`,
+      `https?://localhost(?::\\d{1,5})?/${pathPattern}/(\\w{1,20})(?:-[^\\s"'<>]*)?(/?(?![\\w/?]))`,
       'gi',
     ),
   ];
@@ -39,13 +42,13 @@ const createPatterns = (type: string) => {
     patterns.unshift(
       // Production URLs with a ?set= parameter.
       new RegExp(
-        `https?://(?:[\\w-]+\\.)?retroachievements\\.org/game/(\\w{1,20})(?:-[^\\s"'<>]*)?(?:/)?\\?set=(\\d+)`,
+        `https?://(?:[\\w-]+\\.)?retroachievements\\.org/game2?/(\\w{1,20})(?:-[^\\s"'<>]*)?(?:/)?\\?set=(\\d+)`,
         'gi',
       ),
 
       // Local development URLs with a ?set= parameter.
       new RegExp(
-        `https?://localhost(?::\\d{1,5})?/game/(\\w{1,20})(?:-[^\\s"'<>]*)?(?:/)?\\?set=(\\d+)`,
+        `https?://localhost(?::\\d{1,5})?/game2?/(\\w{1,20})(?:-[^\\s"'<>]*)?(?:/)?\\?set=(\\d+)`,
         'gi',
       ),
     );
