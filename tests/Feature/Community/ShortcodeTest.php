@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Platform\Enums\GameSetType;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 final class ShortcodeTest extends TestCase
@@ -304,9 +305,7 @@ final class ShortcodeTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider youtubeUrlProvider
-     */
+    #[DataProvider('youtubeUrlProvider')]
     public function testAutoEmbedYoutube(string $url, string $expected): void
     {
         $this->assertStringContainsString(
