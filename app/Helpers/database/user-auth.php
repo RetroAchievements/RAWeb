@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\PasswordResetToken;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
@@ -16,7 +17,7 @@ function changePassword(string $username, string $password): string
     $user->SaltedPass = '';
     $user->saveQuietly();
 
-    // TODO: delete password_reset_tokens
+    PasswordResetToken::where('user_id', $user->id)->delete();
 
     return $hashedPassword;
 }

@@ -1,10 +1,24 @@
 <?php
 
+use App\Models\PasswordResetToken;
+use App\Models\User;
+
 // TODO migrate to Fortify
 
 $user = request()->query('u');
 $token = request()->query('t');
-$allowNewPasswordEntry = is_string($user) && is_string($token) && isValidPasswordResetToken($user, $token);
+
+$allowNewPasswordEntry = false;
+if (is_string($user) && is_string($token)) {
+    $targetUser = User::whereName($user)->first();
+
+    if ($targetUser) {
+        $allowNewPasswordEntry = PasswordResetToken::query()
+            ->where('user_id', $targetUser->id)
+            ->where('token', $token)
+            ->exists();
+    }
+}
 
 ?>
 <x-app-layout pageTitle="Password Reset">

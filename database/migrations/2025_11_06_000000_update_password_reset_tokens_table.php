@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->timestamp('created_at')->useCurrent();
 
             $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('cascade');
-        });        
+        });
     }
 
     public function down(): void

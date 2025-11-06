@@ -1,7 +1,10 @@
 <?php
 
+use App\Mail\PasswordResetMail;
+use App\Models\PasswordResetToken;
 use App\Models\User;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 
@@ -22,7 +25,15 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $targetUser = User::whereName($input['username'])->first();
 
 if ($targetUser && !$targetUser->isBanned()) {
-    RequestPasswordReset($targetUser);
+    $newToken = Str::random(20);
+
+    PasswordResetToken::create([
+        'user_id' => $targetUser->id,
+        'token' => $newToken,
+        'ip_address' => request()->ip(),
+    ]);
+
+    Mail::to($targetUser)->queue(new PasswordResetMail($targetUser, $newToken));
 }
 
 return back()->with('message', __('legacy.email_check'));
