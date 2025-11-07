@@ -54,12 +54,18 @@ class PostActivityAction extends BaseAuthenticatedApiAction
     protected function process(): array
     {
         if (VirtualGameIdService::isVirtualGameId($this->gameId)) {
-            [$this->gameId, $compatibility] = VirtualGameIdService::decodeVirtualGameId($this->gameId);
+            // don't create sessions for incompatible hashes
+            return ['Success' => true];
         }
 
         $game = Game::find($this->gameId);
         if (!$game) {
             return $this->gameNotFound();
+        }
+
+        // if multiset is enabled, redirect the heartbeat to the root game.
+        if (config('feature.enable_multiset')) {
+            $game = (new ResolveRootGameFromGameAndGameHashAction())->execute(null, $game, $this->user);
         }
 
         PlayerSessionHeartbeat::dispatch($this->user, $game);
