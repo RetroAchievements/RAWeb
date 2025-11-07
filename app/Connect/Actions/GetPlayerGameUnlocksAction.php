@@ -83,7 +83,7 @@ class GetPlayerGameUnlocksAction extends BaseAuthenticatedApiAction
             // achievement as earned in softcore so it only pops in hardcore.
             $userAgentService = new UserAgentService();
             $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
-            if ($clientSupportLevel != ClientSupportLevel::Full) {
+            if ($clientSupportLevel !== ClientSupportLevel::Full) {
                 // don't allow outdated client popup to appear in softcore mode
                 $response['UserUnlocks'][] = Achievement::CLIENT_WARNING_ID;
             }
