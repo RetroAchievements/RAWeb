@@ -14,7 +14,7 @@ return new class extends Migration {
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->string('token', 32);
+            $table->string('token', 255)->nullable();
             $table->string('ip_address', 40)->nullable();
 
             $table->timestamp('created_at')->useCurrent();

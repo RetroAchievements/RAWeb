@@ -22,11 +22,7 @@ if (!$targetUser || $targetUser->isBanned()) {
     return back()->withErrors(__('legacy.error.token'));
 }
 
-$token = PasswordResetToken::query()
-    ->where('user_id', $targetUser->id)
-    ->where('token', $passResetToken)
-    ->first();
-if (!$token) {
+if (!PasswordResetToken::isValidForUser($targetUser, $passResetToken)) {
     return back()->withErrors(__('legacy.error.token'));
 }
 

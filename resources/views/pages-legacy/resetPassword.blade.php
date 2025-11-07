@@ -13,10 +13,7 @@ if (is_string($user) && is_string($token)) {
     $targetUser = User::whereName($user)->first();
 
     if ($targetUser) {
-        $allowNewPasswordEntry = PasswordResetToken::query()
-            ->where('user_id', $targetUser->id)
-            ->where('token', $token)
-            ->exists();
+        $allowNewPasswordEntry = PasswordResetToken::isValidForUser($targetUser, $token);
     }
 }
 

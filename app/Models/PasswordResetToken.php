@@ -6,6 +6,8 @@ namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Hash;
 
 // TODO: replace with Laravel standard features and/or Fortify
 class PasswordResetToken extends BaseModel
@@ -20,6 +22,10 @@ class PasswordResetToken extends BaseModel
     ];
 
     public $timestamps = false;
+
+    protected $casts = [
+        'created_at' => 'datetime',
+    ];
 
     // == accessors
 
@@ -36,4 +42,17 @@ class PasswordResetToken extends BaseModel
     }
 
     // == scopes
+
+    // == helpers
+
+    public static function isValidForUser(User $user, string $token): bool
+    {
+        $passwordResetToken = PasswordResetToken::query()
+            ->where('user_id', $user->id)
+            ->where('created_at', '>', Carbon::now()->subMinutes(60))
+            ->whereNotNull('token')
+            ->first();
+
+        return $passwordResetToken && Hash::check($token, $passwordResetToken->token);
+    }
 }
