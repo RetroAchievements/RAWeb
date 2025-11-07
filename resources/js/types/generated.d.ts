@@ -57,6 +57,10 @@ declare namespace App.Community.Data {
   };
   export type GameGroup = {
     header: string;
+    masteredCount: number;
+    completedCount: number;
+    beatenCount: number;
+    beatenSoftcoreCount: number;
     games: Array<App.Platform.Data.GameListEntry>;
   };
   export type GameHashesCommentsPageProps<TItems = App.Community.Data.Comment> = {
@@ -415,6 +419,7 @@ declare namespace App.Data {
     manageGames?: boolean;
     manageGameSets?: boolean;
     manipulateApiKeys?: boolean;
+    resetEntireAccount?: boolean;
     reviewAchievementSetClaims?: boolean;
     updateAnyAchievementSetClaim?: boolean;
     updateAvatar?: boolean;

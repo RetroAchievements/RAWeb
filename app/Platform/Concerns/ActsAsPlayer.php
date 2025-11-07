@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Platform\Concerns;
 
 use App\Community\Enums\Rank;
-use App\Connect\Controllers\ConnectApiController;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\LeaderboardEntry;
@@ -24,25 +23,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 
 trait ActsAsPlayer
 {
     public static function bootActsAsPlayer(): void
     {
-    }
-
-    /**
-     * Roll Connect API Key
-     * For RetroArch this key may not be longer than 31 characters, let's go with 30 then
-     */
-    public function rollConnectToken(): void
-    {
-        do {
-            $this->appToken = Str::random(30);
-        } while ($this->where('appToken', $this->appToken)->exists());
-        $this->appTokenExpiry = Carbon::now()->addDays(ConnectApiController::TOKEN_EXPIRY_DAYS);
-        $this->save();
     }
 
     // == instance methods

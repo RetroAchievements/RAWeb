@@ -162,6 +162,31 @@ class UserPolicy
         return $user->unranked_at === null;
     }
 
+    public function resetEntireAccount(User $user, User $model): bool
+    {
+        // Admins and moderators can reset any account.
+        if ($this->requireAdministrativePrivileges($user, $model)) {
+            return true;
+        }
+
+        // Users can only reset their own account.
+        if (!$user->is($model)) {
+            return false;
+        }
+
+        // User must be unranked to reset their entire account.
+        if ($user->unranked_at === null) {
+            return false;
+        }
+
+        // Active developers cannot reset their entire account.
+        if ($user->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function viewFriends(User $user, User $model): bool
     {
         if (!$user->is($model)) {
