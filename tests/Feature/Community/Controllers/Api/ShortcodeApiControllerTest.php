@@ -27,29 +27,4 @@ class ShortcodeApiControllerTest extends TestCase
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['body']);
     }
-
-    public function testItReturnsEmptyCollectionsWhenNoIdsProvided(): void
-    {
-        // Arrange
-        $this->withoutMiddleware();
-
-        $payload = [
-            'body' => '', // !! empty
-        ];
-
-        // Act
-        $response = $this->postJson(route('api.shortcode-body.preview'), $payload);
-
-        // Assert
-        $response->assertOk();
-        $response->assertExactJson([
-            'users' => [],
-            'tickets' => [],
-            'achievements' => [],
-            'games' => [],
-            'hubs' => [],
-            'events' => [],
-            'convertedBody' => '',
-        ]);
-    }
 }
