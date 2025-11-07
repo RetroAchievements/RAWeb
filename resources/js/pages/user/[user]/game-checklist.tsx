@@ -73,6 +73,10 @@ const UserGameChecklist: AppPage = () => {
                   gameCount={group.games.length}
                   isInitiallyOpened={true}
                   title={group.header}
+                  masteredCount={group.masteredCount}
+                  completedCount={group.completedCount}
+                  beatenCount={group.beatenCount}
+                  beatenSoftcoreCount={group.beatenSoftcoreCount}
                 >
                   {group.games.map((gameListEntry) => (
                     <GamesListItem
