@@ -19,6 +19,7 @@ class Kernel extends HttpKernel
         Middleware\TrustHosts::class,
         Middleware\TrustProxies::class,
         \Illuminate\Http\Middleware\HandleCors::class,
+        Middleware\HandleCloudflareChallenge::class,
         Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         Middleware\TrimStrings::class,

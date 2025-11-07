@@ -99,8 +99,9 @@ function filterHubs(
     const isAchievementExtras =
       hub.title?.includes('RANews -') || hub.title?.includes('Custom Awards -');
     const isRolloutSets = hub.title?.includes('Rollout Sets -');
+    const isSeriesHub = hub.title?.includes('Series -') || hub.title?.includes('Subseries -');
 
-    if (!isMetaHub && !isEventHub && !isAchievementExtras && !isRolloutSets) {
+    if (!isMetaHub && !isEventHub && !isAchievementExtras && !isRolloutSets && !isSeriesHub) {
       return false; // Everything else goes to metadata table.
     }
 

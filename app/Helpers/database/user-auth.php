@@ -2,7 +2,6 @@
 
 use App\Enums\Permissions;
 use App\Models\User;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -98,28 +97,11 @@ function authenticateFromAppToken(
     }
 
     $userOut = $user->User; // always normalize to the username field
-    $permissionOut = $user->Permissions;
+    /** @var int|null $permissions */
+    $permissions = $user->Permissions;
+    $permissionOut = $permissions;
 
     return true;
-}
-
-function generateAppToken(string $username, ?string &$tokenOut): bool
-{
-    $user = User::whereName($username)->first();
-    if (!$user) {
-        return false;
-    }
-
-    $user->appToken = $tokenOut = newAppToken();
-    $user->appTokenExpiry = Carbon::now()->clone()->addDays(14);
-    $user->saveQuietly();
-
-    return true;
-}
-
-function newAppToken(): string
-{
-    return Str::random(16);
 }
 
 /*

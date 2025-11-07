@@ -61,6 +61,7 @@ class UserSettingsController extends Controller
         $can = UserPermissionsData::fromUser($user)->include(
             'createUsernameChangeRequest',
             'manipulateApiKeys',
+            'resetEntireAccount',
             'updateAvatar',
             'updateMotto'
         );
@@ -119,7 +120,8 @@ class UserSettingsController extends Controller
         $user = $request->user();
 
         changePassword($user->username, $data->newPassword);
-        generateAppToken($user->username, $tokenInOut);
+        $user->generateNewConnectToken();
+        $user->saveQuietly();
 
         return response()->json(['success' => true]);
     }
@@ -216,7 +218,11 @@ class UserSettingsController extends Controller
 
     public function resetConnectApiKey(ResetConnectApiKeyRequest $request): JsonResponse
     {
-        generateAppToken($request->user()->username, $newToken);
+        /** @var User $user */
+        $user = $request->user();
+
+        $user->generateNewConnectToken();
+        $user->saveQuietly();
 
         return response()->json(['success' => true]);
     }

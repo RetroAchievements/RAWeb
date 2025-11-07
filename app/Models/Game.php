@@ -819,7 +819,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return BelongsToMany<Game, $this>
+     * @return BelongsToMany<Game, GameSet>
      */
     public function similarGamesList(): BelongsToMany
     {
@@ -901,12 +901,18 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
         return $this->belongsTo(Trigger::class, 'trigger_id', 'ID');
     }
 
+    /**
+     * @return MorphOne<Trigger, $this>
+     */
     public function trigger(): MorphOne
     {
         return $this->morphOne(Trigger::class, 'triggerable')
             ->latest('version');
     }
 
+    /**
+     * @return MorphMany<Trigger, $this>
+     */
     public function triggers(): MorphMany
     {
         return $this->morphMany(Trigger::class, 'triggerable')

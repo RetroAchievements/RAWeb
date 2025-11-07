@@ -15,6 +15,7 @@ use App\Enums\UserPreference;
 use App\Platform\Concerns\ActsAsDeveloper;
 use App\Platform\Concerns\ActsAsPlayer;
 use App\Platform\Concerns\CollectsBadges;
+use App\Platform\Concerns\HasConnectToken;
 use App\Platform\Contracts\Developer;
 use App\Platform\Contracts\Player;
 use App\Support\Database\Eloquent\Concerns\HasFullTableName;
@@ -76,6 +77,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
      */
     use HasAccount;
     use HasAvatar;
+    use HasConnectToken;
     use HasPreferences;
     use ActsAsCommunityMember {
         ActsAsCommunityMember::activities insteadof LogsActivity;
@@ -344,7 +346,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     // == actions
 
     /**
-     * @return Builder<User>
+     * @return Builder<static>
      */
     public static function whereName(?string $displayNameOrUsername): Builder
     {

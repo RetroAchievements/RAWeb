@@ -123,10 +123,11 @@ class Hashes extends ManageRelatedRecords
                                             ->helperText("If you're marking this hash as compatible based on a compatibility test, leave the tester assigned so they receive credit.")
                                             ->searchable()
                                             ->getSearchResultsUsing(function (string $search): array {
-                                                return User::where('display_name', 'like', "%{$search}%")
-                                                    ->limit(50)
+                                                return User::search($search)
+                                                    ->withTrashed()
+                                                    ->take(50)
                                                     ->get()
-                                                    ->mapWithKeys(fn ($user) => [$user->id => "{$user->display_name}"])
+                                                    ->pluck('display_name', 'id')
                                                     ->toArray();
                                             })
                                             ->getOptionLabelUsing(function (int $value): string {

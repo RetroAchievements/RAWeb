@@ -14,6 +14,11 @@ class GameGroupData extends Data
     public function __construct(
         public string $header,
 
+        public int $masteredCount,
+        public int $completedCount,
+        public int $beatenCount,
+        public int $beatenSoftcoreCount,
+
         /** @var GameListEntryData[] */
         public array $games,
     ) {
