@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Observers;
 
-use App\Http\Actions\RemoveDiscordRolesAction;
+use App\Community\Actions\AddUserDiscordRolesAction;
+use App\Community\Actions\RemoveUserDiscordRolesAction;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -12,13 +13,26 @@ class UserObserver
 {
     public function updating(User $user): void
     {
-        if ($this->isBeingMuted($user) || $this->isBeingBanned($user)) {
-            (new RemoveDiscordRolesAction())->execute($user);
+        $mutedRoleId = config('services.discord.muted');
+
+        // Handle muting - add the "Muted" role if they're a Discord member.
+        if ($this->isBeingMuted($user) && $mutedRoleId) {
+            (new AddUserDiscordRolesAction())->execute($user, [$mutedRoleId]);
+        }
+
+        // Handle manual unmuting - remove the "Muted" role if they're a Discord member.
+        if ($this->isBeingUnmuted($user) && $mutedRoleId) {
+            (new RemoveUserDiscordRolesAction())->execute($user, [$mutedRoleId]);
+        }
+
+        // Handle banning - remove all roles if they're a Discord member.
+        if ($this->isBeingBanned($user)) {
+            (new RemoveUserDiscordRolesAction())->execute($user);
         }
     }
 
     /**
-     * Check if a user is transitioning from unmuted to muted state.
+     * Check if a user is transitioning from an unmuted to muted state.
      */
     private function isBeingMuted(User $user): bool
     {
@@ -38,7 +52,27 @@ class UserObserver
     }
 
     /**
-     * Check if a user is transitioning from unbanned to banned state.
+     * Check if a user is transitioning from a muted to unmuted state.
+     */
+    private function isBeingUnmuted(User $user): bool
+    {
+        if (!$user->isDirty('muted_until')) {
+            return false;
+        }
+
+        $oldMutedUntil = $user->getOriginal('muted_until')
+            ? Carbon::parse($user->getOriginal('muted_until'))
+            : null;
+        $newMutedUntil = $user->muted_until;
+
+        $wasMuted = $oldMutedUntil && $oldMutedUntil->isFuture();
+        $isNowUnmuted = !$newMutedUntil || $newMutedUntil->isPast();
+
+        return $wasMuted && $isNowUnmuted;
+    }
+
+    /**
+     * Check if a user is transitioning from an unbanned to banned state.
      */
     private function isBeingBanned(User $user): bool
     {
