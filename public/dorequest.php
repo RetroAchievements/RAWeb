@@ -13,11 +13,13 @@ use App\Connect\Actions\GetHashLibraryAction;
 use App\Connect\Actions\GetLatestClientVersionAction;
 use App\Connect\Actions\GetLatestIntegrationVersionAction;
 use App\Connect\Actions\GetLeaderboardEntriesAction;
+use App\Connect\Actions\GetPlayerGameUnlocksAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\LegacyLoginAction;
 use App\Connect\Actions\LoginAction;
 use App\Connect\Actions\PingAction;
 use App\Connect\Actions\PostActivityAction;
+use App\Connect\Actions\StartSessionAction;
 use App\Connect\Actions\SubmitCodeNoteAction;
 use App\Connect\Actions\SubmitGameTitleAction;
 use App\Connect\Actions\SubmitRichPresenceAction;
@@ -30,8 +32,6 @@ use App\Models\Leaderboard;
 use App\Models\PlayerAchievement;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\UnlockMode;
-use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Platform\Services\UserAgentService;
 use App\Platform\Services\VirtualGameIdService;
@@ -53,9 +53,11 @@ $handler = match ($requestType) {
     'login2' => new LoginAction(),
     'ping' => new PingAction(),
     'postactivity' => new PostActivityAction(),
+    'startsession' => new StartSessionAction(),
     'submitcodenote' => new SubmitCodeNoteAction(),
     'submitgametitle' => new SubmitGameTitleAction(),
     'submitrichpresence' => new SubmitRichPresenceAction(),
+    'unlocks' => new GetPlayerGameUnlocksAction(),
     default => null,
 };
 if ($handler) {
@@ -135,11 +137,9 @@ $credentialsOK = match ($requestType) {
     "awardachievements",
     "patch",
     "richpresencepatch",
-    "startsession",
     "submitgametitle",
     "submitlbentry",
     "submitrichpresence",
-    "unlocks",
     "uploadachievement",
     "uploadleaderboard" => $validLogin && ($permissions >= Permissions::Registered),
     /*
@@ -171,7 +171,6 @@ if (!$credentialsOK) {
  */
 $allowsGenericDelegation = [
     "awardachievement",
-    "startsession",
 ];
 if (
     in_array($requestType, $allowsGenericDelegation)
@@ -492,59 +491,6 @@ switch ($requestType) {
         $response['RichPresencePatch'] = $richPresenceData;
         break;
 
-    case "startsession":
-        if (VirtualGameIdService::isVirtualGameId($gameID)) {
-            $response['Success'] = true;
-            break;
-        }
-
-        $game = Game::find($gameID);
-        $gameHash = null;
-
-        if (!$game) {
-            return DoRequestError("Unknown game");
-        }
-
-        $gameHashMd5 = request()->input('m');
-        if ($gameHashMd5) {
-            $gameHash = GameHash::whereMd5($gameHashMd5)->first();
-        }
-
-        PlayerSessionHeartbeat::dispatch($user, $game, null, $gameHash);
-
-        $response['Success'] = true;
-        $userModel = User::whereName($username)->first();
-        $userUnlocks = getUserAchievementUnlocksForGame($userModel, $game->id);
-        $userUnlocks = reactivateUserEventAchievements($userModel, $userUnlocks);
-        foreach ($userUnlocks as $achId => $unlock) {
-            if (array_key_exists('DateEarnedHardcore', $unlock)) {
-                $response['HardcoreUnlocks'][] = [
-                    'ID' => $achId,
-                    'When' => strtotime($unlock['DateEarnedHardcore']),
-                ];
-            } else {
-                $response['Unlocks'][] = [
-                    'ID' => $achId,
-                    'When' => strtotime($unlock['DateEarned']),
-                ];
-            }
-        }
-
-        $userAgentService = new UserAgentService();
-        $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
-        if ($clientSupportLevel === ClientSupportLevel::Unknown
-            || $clientSupportLevel === ClientSupportLevel::Outdated
-            || $clientSupportLevel === ClientSupportLevel::Unsupported) {
-            // don't allow outdated client popup to appear in softcore mode
-            $response['Unlocks'][] = [
-                'ID' => Achievement::CLIENT_WARNING_ID,
-                'When' => Carbon::now()->unix(),
-            ];
-        }
-
-        $response['ServerNow'] = Carbon::now()->timestamp;
-        break;
-
     case "submitlbentry":
         $lbID = (int) request()->input('i', 0);
         $score = (int) request()->input('s', 0);
@@ -607,36 +553,6 @@ switch ($requestType) {
         if (isset($response['Response']['Error'])) {
             $response['Error'] = $response['Response']['Error'];
         }
-        break;
-
-    case "unlocks":
-        if (VirtualGameIdService::isVirtualGameId($gameID)) {
-            $response['UserUnlocks'] = [];
-            $response['Success'] = true;
-            break;
-        }
-
-        $hardcoreMode = (int) request()->input('h', 0) === UnlockMode::Hardcore;
-        $userModel = User::whereName($username)->first();
-        $game = Game::find($gameID);
-        $userUnlocks = getUserAchievementUnlocksForGame($userModel, $game ? $game->id : $gameID);
-        if ($hardcoreMode) {
-            $userUnlocks = reactivateUserEventAchievements($userModel, $userUnlocks);
-            $response['UserUnlocks'] = collect($userUnlocks)
-                ->filter(fn ($value, $key) => array_key_exists('DateEarnedHardcore', $value))
-                ->keys();
-        } else {
-            $response['UserUnlocks'] = array_keys($userUnlocks);
-
-            $userAgentService = new UserAgentService();
-            $clientSupportLevel = $userAgentService->getSupportLevel(request()->header('User-Agent'));
-            if ($clientSupportLevel !== ClientSupportLevel::Full) {
-                // don't allow outdated client popup to appear in softcore mode
-                $response['UserUnlocks'][] = Achievement::CLIENT_WARNING_ID;
-            }
-        }
-        $response['GameID'] = $gameID;     // Repeat this back to the caller?
-        $response['HardcoreMode'] = $hardcoreMode;
         break;
 
     case "uploadachievement":

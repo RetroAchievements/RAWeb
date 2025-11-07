@@ -16,6 +16,10 @@ interface GameSectionProps {
   children: ReactNode;
   isInitiallyOpened: boolean;
   title: string;
+  masteredCount?: number;
+  completedCount?: number;
+  beatenCount?: number;
+  beatenSoftcoreCount?: number;
 }
 
 export const GameListSection: FC<GameSectionProps> = ({
@@ -23,11 +27,30 @@ export const GameListSection: FC<GameSectionProps> = ({
   children,
   isInitiallyOpened,
   title,
+  masteredCount = 0,
+  completedCount = 0,
+  beatenCount = 0,
+  beatenSoftcoreCount = 0,
 }) => {
   const { t } = useTranslation();
 
   const { childContainerRef, contentRef, isInitialRender, isOpen, setIsOpen } =
     useAchievementGroupAnimation({ isInitiallyOpened });
+
+  const countsClauses: string[] = [];
+  if (masteredCount > 0) {
+    countsClauses.push(t('{{count, number}} mastered', { count: masteredCount }));
+  }
+  if (beatenCount > 0) {
+    countsClauses.push(t('{{count, number}} beaten', { count: beatenCount }));
+  }
+  if (completedCount > 0) {
+    countsClauses.push(t('{{count, number}} completed', { count: completedCount }));
+  }
+  if (beatenSoftcoreCount > 0) {
+    countsClauses.push(t('{{count, number}} beaten (softcore)', { count: beatenSoftcoreCount }));
+  }
+  const countsClause = countsClauses.join(', ');
 
   return (
     <motion.li
@@ -51,6 +74,8 @@ export const GameListSection: FC<GameSectionProps> = ({
                   count: gameCount,
                   val: gameCount,
                 })}
+                {countsClause.length > 0 && ' - '}
+                {countsClause.length > 0 && countsClause}
                 {')'}
               </span>
             </span>

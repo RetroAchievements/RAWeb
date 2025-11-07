@@ -57,6 +57,10 @@ declare namespace App.Community.Data {
   };
   export type GameGroup = {
     header: string;
+    masteredCount: number;
+    completedCount: number;
+    beatenCount: number;
+    beatenSoftcoreCount: number;
     games: Array<App.Platform.Data.GameListEntry>;
   };
   export type GameHashesCommentsPageProps<TItems = App.Community.Data.Comment> = {
@@ -1139,7 +1143,9 @@ declare namespace App.Platform.Enums {
     | 'title'
     | '-title'
     | 'type'
-    | '-type';
+    | '-type'
+    | 'rank'
+    | '-rank';
   export type GamePageListView = 'achievements' | 'leaderboards';
   export type GameReleaseRegion =
     | 'as'
