@@ -7,6 +7,7 @@ use App\Community\Enums\ClaimFilters;
 use App\Community\Enums\ClaimSorting;
 use App\Community\Enums\UserAction;
 use App\Enums\Permissions;
+use App\Exceptions\BannedUserException;
 use App\Models\GameAchievementSet;
 use App\Models\User;
 use App\Platform\Enums\AchievementSetType;
@@ -32,7 +33,7 @@ if (empty($userMassData)) {
 }
 
 if ((int) $userMassData['Permissions'] < Permissions::Unregistered && $permissions < Permissions::Moderator) {
-    abort(404);
+    throw new BannedUserException();
 }
 
 $userPage = $userMassData['User'];
