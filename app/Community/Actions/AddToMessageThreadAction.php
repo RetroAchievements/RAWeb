@@ -21,6 +21,16 @@ class AddToMessageThreadAction
         ?DiscordReportableType $reportableType = null,
         ?int $reportableId = null,
     ): void {
+        // Prepend report context to the message body before saving to the database.
+        if ($reportableType && $reportableId) {
+            $body = (new BuildReportContextAction())->execute(
+                $body,
+                $reportableType,
+                $reportableId,
+                forDiscord: false
+            );
+        }
+
         $message = new Message([
             'thread_id' => $thread->id,
             'author_id' => $userFrom->id,

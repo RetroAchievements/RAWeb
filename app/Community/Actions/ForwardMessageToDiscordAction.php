@@ -112,7 +112,12 @@ class ForwardMessageToDiscordAction
         // Prepend context for NEW report messages only (the OP).
         // For deduplicated reports, context is already in the OP.
         if ($reportableType && $reportableId && !$isExistingReport) {
-            $fullBody = $this->prependReportContext($fullBody, $reportableType, $reportableId);
+            $fullBody = (new BuildReportContextAction())->execute(
+                $fullBody,
+                $reportableType,
+                $reportableId,
+                forDiscord: true
+            );
         }
 
         $processedData = $this->processSpecialMessageTypes(
@@ -546,74 +551,5 @@ class ForwardMessageToDiscordAction
         }
 
         return false;
-    }
-
-    /**
-     * Prepend contextual information to report messages.
-     * This adds link, author, timestamp, and a content excerpt automatically.
-     */
-    private function prependReportContext(
-        string $messageBody,
-        DiscordReportableType $reportableType,
-        int $reportableId,
-    ): string {
-        $reportedItem = $reportableType->getReportedItem($reportableId);
-        if (!$reportedItem) {
-            return $messageBody;
-        }
-
-        $context = '';
-
-        // For DirectMessages, we can't link to the content (it's in someone's inbox), so
-        // there's no "Reported Content" header.
-        if ($reportableType !== DiscordReportableType::DirectMessage) {
-            $context .= "**Reported Content:**\n";
-
-            // Add a direct link to the reported content.
-            $link = match ($reportableType) {
-                // TODO DiscordReportableType::Comment
-                DiscordReportableType::ForumTopicComment => $reportedItem->forumTopic
-                    ? route('forum-topic.show', ['topic' => $reportedItem->forumTopic->id]) . '?comment=' . $reportedItem->id
-                    : null,
-                // TODO DiscordReportableType::UserProfile
-                default => null,
-            };
-
-            if ($link) {
-                $context .= $link . "\n";
-            }
-        }
-
-        // Add the content author with a hyperlink to their profile.
-        $author = $reportedItem->user ?? $reportedItem->author ?? null;
-        if ($author) {
-            $authorUrl = route('user.show', ['user' => $author]);
-            $context .= "**Author:** [{$author->display_name}]({$authorUrl})\n";
-        }
-
-        // Add a Discord-native timestamp (for relative time display) of when the content was created.
-        $createdAt = $reportedItem->created_at ?? $reportedItem->Submitted ?? null;
-        if ($createdAt) {
-            $timestamp = $createdAt->timestamp;
-            $timeLabel = $reportableType === DiscordReportableType::DirectMessage ? 'Sent' : 'Posted';
-            $context .= "**{$timeLabel}:** <t:{$timestamp}:R>\n";
-        }
-
-        // Add a content excerpt.
-        $content = $reportedItem->body ?? $reportedItem->Payload ?? '';
-        if ($content) {
-            // For DirectMessage, include the FULL content since mods can't access user inboxes.
-            if ($reportableType === DiscordReportableType::DirectMessage) {
-                $context .= "**Full Message:**\n" . Shortcode::convertToMarkdown($content, self::MESSAGE_BODY_MAX_LENGTH, preserveWhitespace: true) . "\n";
-            } else {
-                // For other types, just include an excerpt.
-                $excerpt = mb_substr(Shortcode::convertToMarkdown($content, 200, preserveWhitespace: true), 0, 200);
-                $context .= "**Excerpt:** " . $excerpt . "...\n";
-            }
-        }
-
-        $context .= "\n**Report Details:**\n";
-
-        return $context . $messageBody;
     }
 }
