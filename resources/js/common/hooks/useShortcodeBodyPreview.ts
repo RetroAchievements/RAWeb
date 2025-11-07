@@ -9,7 +9,6 @@ import {
   persistedTicketsAtom,
   persistedUsersAtom,
 } from '@/common/state/shortcode.atoms';
-import { extractDynamicEntitiesFromBody } from '@/common/utils/shortcodes/extractDynamicEntitiesFromBody';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 
 import type { ShortcodeBodyPreviewMutationResponse } from '../models';
@@ -42,29 +41,15 @@ export function useShortcodeBodyPreview() {
 
   const initiatePreview = async (body: string) => {
     // Normalize any internal URLs to shortcode format.
-    let normalizedBody = preProcessShortcodesInBody(body);
+    const normalizedBody = preProcessShortcodesInBody(body);
 
-    // Then, extract dynamic entities from the normalized content.
-    const dynamicEntities = extractDynamicEntitiesFromBody(normalizedBody);
+    // Send the body to the server for entity extraction and fetching.
+    // The server will handle normalizing, converting [game=X?set=Y] to backing game IDs, and extracting entities.
+    const response = await mutation.mutateAsync(normalizedBody);
+    mergeRetrievedEntities(response.data);
 
-    // Do we have any dynamic entities to fetch from the server?
-    // If not, we'll skip a round trip to the server to make the preview seem instantaneous.
-    const hasDynamicEntities = Object.values(dynamicEntities).some((arr) => arr.length > 0);
-
-    // If there are no dynamic entities in the post content, skip the round trip to the server.
-    if (hasDynamicEntities) {
-      const response = await mutation.mutateAsync(dynamicEntities);
-      mergeRetrievedEntities(response.data);
-
-      // Replace [game=X?set=Y] shortcodes with their backing game IDs.
-      normalizedBody = replaceGameSetShortcodesWithBackingGames(
-        normalizedBody,
-        dynamicEntities,
-        response.data.games,
-      );
-    }
-
-    setPreviewContent(normalizedBody);
+    // Use the converted body from the server (eg: "[game=X?set=Y]"" has been converted to "[game=backingGameId]").
+    setPreviewContent(response.data.convertedBody);
   };
 
   /**
@@ -98,38 +83,4 @@ function mergeEntities<TEntity>(
   }
 
   return Array.from(existingMap.values());
-}
-
-function replaceGameSetShortcodesWithBackingGames(
-  body: string,
-  dynamicEntities: ReturnType<typeof extractDynamicEntitiesFromBody>,
-  games: ShortcodeBodyPreviewMutationResponse['games'],
-): string {
-  if (dynamicEntities.setIds.length === 0 || games.length === 0) {
-    return body;
-  }
-
-  // Count how many games came from regular gameIds vs setIds.
-  const gamesFromRegularIds = dynamicEntities.gameIds.length;
-  const gamesFromSets = games.slice(gamesFromRegularIds);
-
-  // Build a map of setId -> backing game ID.
-  const setToBackingGameMap = new Map<number, number>();
-  for (const [index, setId] of dynamicEntities.setIds.entries()) {
-    if (gamesFromSets[index]) {
-      setToBackingGameMap.set(setId, gamesFromSets[index].id);
-    }
-  }
-
-  // Replace each [game=X?set=Y] with [game=backingGameId].
-  if (setToBackingGameMap.size === 0) {
-    return body;
-  }
-
-  return body.replace(/\[game=\d+(?:\?|\s)set=(\d+)\]/gi, (match, setIdStr) => {
-    const setId = parseInt(setIdStr, 10);
-    const backingGameId = setToBackingGameMap.get(setId);
-
-    return backingGameId ? `[game=${backingGameId}]` : match;
-  });
 }

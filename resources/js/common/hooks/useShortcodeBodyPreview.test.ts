@@ -22,13 +22,23 @@ describe('Hook: useShortcodeBodyPreview', () => {
     expect(result.current).toBeTruthy();
   });
 
-  it('given content with no dynamic entities, sets preview content without making an API call', async () => {
+  it('given content with no dynamic entities, makes an API call with body text', async () => {
     // ARRANGE
-    const postSpy = vi.spyOn(axios, 'post');
+    const simpleContent = 'Hello world!';
+
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({
+      data: {
+        achievements: [],
+        games: [],
+        hubs: [],
+        events: [],
+        tickets: [],
+        users: [],
+        convertedBody: simpleContent,
+      },
+    });
 
     const { result } = renderHook(() => useShortcodeBodyPreview());
-
-    const simpleContent = 'Hello world!';
 
     // ACT
     await act(async () => {
@@ -36,7 +46,7 @@ describe('Hook: useShortcodeBodyPreview', () => {
     });
 
     // ASSERT
-    expect(postSpy).not.toHaveBeenCalled();
+    expect(postSpy).toHaveBeenCalledWith(['api.shortcode-body.preview'], { body: simpleContent });
 
     await waitFor(() => {
       expect(result.current.previewContent).toEqual(simpleContent);
@@ -54,6 +64,7 @@ describe('Hook: useShortcodeBodyPreview', () => {
         events: [],
         tickets: [],
         users: [createUser({ displayName: 'username' })],
+        convertedBody: '[user=username] and [game=123]',
       },
     };
 
@@ -68,7 +79,7 @@ describe('Hook: useShortcodeBodyPreview', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(result.current.previewContent).toEqual(contentWithEntities);
+      expect(result.current.previewContent).toEqual('[user=username] and [game=123]'); // !! uses converted body
     });
   });
 
@@ -88,6 +99,7 @@ describe('Hook: useShortcodeBodyPreview', () => {
         ],
         tickets: [createTicket({ id: 12345 })],
         users: [createUser({ displayName: 'username' })],
+        convertedBody: '[user=username] and [game=123]',
       },
     };
 
@@ -108,7 +120,7 @@ describe('Hook: useShortcodeBodyPreview', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(result.current.previewContent).toEqual(contentWithEntities);
+      expect(result.current.previewContent).toEqual('[user=username] and [game=123]');
     });
 
     const {
@@ -147,6 +159,7 @@ describe('Hook: useShortcodeBodyPreview', () => {
         events: [],
         tickets: [],
         users: [],
+        convertedBody: 'Check out [game=29895]',
       },
     });
 
@@ -159,13 +172,9 @@ describe('Hook: useShortcodeBodyPreview', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(postSpy).toHaveBeenCalledWith(
-        ['api.shortcode-body.preview'],
-        expect.objectContaining({
-          setIds: [8659], // !!
-          gameIds: [],
-        }),
-      );
+      expect(postSpy).toHaveBeenCalledWith(['api.shortcode-body.preview'], {
+        body: contentWithSetId,
+      });
     });
 
     await waitFor(() => {
@@ -194,6 +203,7 @@ describe('Hook: useShortcodeBodyPreview', () => {
         events: [],
         tickets: [],
         users: [],
+        convertedBody: 'Try [game=29895] and [game=28000]',
       },
     });
 
@@ -225,6 +235,7 @@ describe('Hook: useShortcodeBodyPreview', () => {
         events: [],
         tickets: [],
         users: [],
+        convertedBody: 'Play [game=668] or [game=29895]',
       },
     });
 
@@ -237,13 +248,9 @@ describe('Hook: useShortcodeBodyPreview', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(postSpy).toHaveBeenCalledWith(
-        ['api.shortcode-body.preview'],
-        expect.objectContaining({
-          gameIds: [668],
-          setIds: [8659],
-        }),
-      );
+      expect(postSpy).toHaveBeenCalledWith(['api.shortcode-body.preview'], {
+        body: contentWithMixedShortcodes,
+      });
     });
 
     await waitFor(() => {
@@ -263,6 +270,7 @@ describe('Hook: useShortcodeBodyPreview', () => {
         events: [],
         tickets: [],
         users: [],
+        convertedBody: 'Check out [game=668?set=99999]',
       },
     });
 
@@ -291,6 +299,7 @@ describe('Hook: useShortcodeBodyPreview', () => {
         events: [],
         tickets: [],
         users: [],
+        convertedBody: 'Try [game=29895] and [game=2?set=8888]',
       },
     });
 
@@ -322,6 +331,7 @@ describe('Hook: useShortcodeBodyPreview', () => {
         events: [],
         tickets: [],
         users: [],
+        convertedBody: 'Play [game=668] or [game=1?set=9534]',
       },
     });
 

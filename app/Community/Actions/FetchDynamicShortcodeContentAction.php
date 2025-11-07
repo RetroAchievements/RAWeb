@@ -12,7 +12,6 @@ use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Platform\Actions\ResolveBackingGameForAchievementSetAction;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\EventData;
 use App\Platform\Data\GameData;
@@ -30,21 +29,16 @@ class FetchDynamicShortcodeContentAction
         array $gameIds = [],
         array $hubIds = [],
         array $eventIds = [],
-        array $setIds = [],
+        string $convertedBody = '',
     ): ShortcodeDynamicEntitiesData {
         return new ShortcodeDynamicEntitiesData(
             users: $this->fetchUsers($usernames)->all(),
             tickets: $this->fetchTickets($ticketIds)->all(),
             achievements: $this->fetchAchievements($achievementIds)->all(),
-
-            games: $this->fetchGames($gameIds)
-                ->merge($this->fetchBackingGamesFromSets($setIds))
-                ->unique('id')
-                ->values()
-                ->all(),
-
+            games: $this->fetchGames($gameIds)->all(),
             hubs: $this->fetchHubs($hubIds)->all(),
             events: $this->fetchEvents($eventIds)->all(),
+            convertedBody: $convertedBody,
         );
     }
 
@@ -143,34 +137,5 @@ class FetchDynamicShortcodeContentAction
             ->whereIn('id', $eventIds)
             ->get()
             ->map(fn (Event $event) => EventData::fromEvent($event)->include('legacyGame.badgeUrl'));
-    }
-
-    /**
-     * @return Collection<int, GameData>
-     */
-    private function fetchBackingGamesFromSets(array $setIds): Collection
-    {
-        if (empty($setIds)) {
-            return collect();
-        }
-
-        $resolveAction = new ResolveBackingGameForAchievementSetAction();
-        $backingGameIds = [];
-
-        foreach ($setIds as $setId) {
-            $backingGameId = $resolveAction->execute($setId);
-            if ($backingGameId) {
-                $backingGameIds[] = $backingGameId;
-            }
-        }
-
-        if (empty($backingGameIds)) {
-            return collect();
-        }
-
-        return Game::with('system')
-            ->whereIn('ID', $backingGameIds)
-            ->get()
-            ->map(fn (Game $game) => GameData::fromGame($game)->include('badgeUrl', 'system.name'));
     }
 }

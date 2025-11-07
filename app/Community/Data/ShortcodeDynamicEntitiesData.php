@@ -31,6 +31,7 @@ class ShortcodeDynamicEntitiesData extends Data
         public array $games = [],
         public array $hubs = [],
         public array $events = [],
+        public string $convertedBody = '',
     ) {
     }
 }

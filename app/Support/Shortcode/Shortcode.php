@@ -168,6 +168,42 @@ final class Shortcode
         );
     }
 
+    public static function extractShortcodeIds(string $input): array
+    {
+        // Extract achievement IDs from [ach=X] shortcodes.
+        preg_match_all('/\[ach=(\d+)\]/i', $input, $achievementMatches);
+        $achievementIds = array_unique(array_map('intval', $achievementMatches[1]));
+
+        // Extract game IDs from [game=X] shortcodes (but not [game=X set=Y]).
+        preg_match_all('/\[game=(\d+)(?!\?|\ set=)\]/i', $input, $gameMatches);
+        $gameIds = array_unique(array_map('intval', $gameMatches[1]));
+
+        // Extract hub IDs from [hub=X] shortcodes.
+        preg_match_all('/\[hub=(\d+)\]/i', $input, $hubMatches);
+        $hubIds = array_unique(array_map('intval', $hubMatches[1]));
+
+        // Extract event IDs from [event=X] shortcodes.
+        preg_match_all('/\[event=(\d+)\]/i', $input, $eventMatches);
+        $eventIds = array_unique(array_map('intval', $eventMatches[1]));
+
+        // Extract ticket IDs from [ticket=X] shortcodes.
+        preg_match_all('/\[ticket=(\d+)\]/i', $input, $ticketMatches);
+        $ticketIds = array_unique(array_map('intval', $ticketMatches[1]));
+
+        // Extract usernames from [user=X] shortcodes.
+        preg_match_all('/\[user=([^\]]+)\]/i', $input, $userMatches);
+        $usernames = array_unique($userMatches[1]);
+
+        return [
+            'achievementIds' => array_values($achievementIds),
+            'gameIds' => array_values($gameIds),
+            'hubIds' => array_values($hubIds),
+            'eventIds' => array_values($eventIds),
+            'ticketIds' => array_values($ticketIds),
+            'usernames' => $usernames,
+        ];
+    }
+
     public static function stripAndClamp(
         string $input,
         int $previewLength = 100,

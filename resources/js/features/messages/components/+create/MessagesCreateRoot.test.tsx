@@ -1,4 +1,5 @@
 import userEvent from '@testing-library/user-event';
+import axios from 'axios';
 
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
@@ -27,6 +28,18 @@ describe('Component: MessagesCreateRoot', () => {
 
   it('given the user previews their message, shows the preview content', async () => {
     // ARRANGE
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({
+      data: {
+        achievements: [],
+        games: [],
+        hubs: [],
+        events: [],
+        tickets: [],
+        users: [],
+        convertedBody: 'hello world',
+      },
+    });
+
     render(<MessagesCreateRoot />, {
       pageProps: {
         auth: { user: createAuthenticatedUser() },
