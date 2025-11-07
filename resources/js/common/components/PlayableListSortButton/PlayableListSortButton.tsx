@@ -6,6 +6,8 @@ import {
   LuArrowDown01,
   LuArrowDown10,
   LuArrowDownAZ,
+  LuArrowDownNarrowWide,
+  LuArrowDownWideNarrow,
   LuArrowDownZA,
   LuArrowUp,
   LuClock,
@@ -68,6 +70,9 @@ export const PlayableListSortButton: FC<PlayableListSortButtonProps> = ({
 
     '-wonBy': { label: t('Won by (least)'), icon: LuUsers },
     wonBy: { label: t('Won by (most)'), icon: LuUsers },
+
+    '-rank': { label: t('My Rank (worst)'), icon: LuArrowDownWideNarrow },
+    rank: { label: t('My Rank (best)'), icon: LuArrowDownNarrowWide },
   };
 
   const handleCheckedChange = (sortOrder: PlayableListSortOrder) => {

@@ -1143,7 +1143,9 @@ declare namespace App.Platform.Enums {
     | 'title'
     | '-title'
     | 'type'
-    | '-type';
+    | '-type'
+    | 'rank'
+    | '-rank';
   export type GamePageListView = 'achievements' | 'leaderboards';
   export type GameReleaseRegion =
     | 'as'
