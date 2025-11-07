@@ -26,6 +26,7 @@ interface SubscribeToggleButtonProps {
   className?: string;
   extraIconSlot?: ReactNode;
   label?: TranslatedString;
+  shouldShowMobileLabel?: boolean;
 }
 
 export const SubscribeToggleButton: FC<SubscribeToggleButtonProps> = ({
@@ -35,6 +36,7 @@ export const SubscribeToggleButton: FC<SubscribeToggleButtonProps> = ({
   label,
   subjectId,
   subjectType,
+  shouldShowMobileLabel = false,
 }) => {
   const { t } = useTranslation();
 
@@ -78,7 +80,7 @@ export const SubscribeToggleButton: FC<SubscribeToggleButtonProps> = ({
         {extraIconSlot}
       </span>
 
-      <span className="hidden sm:block">{finalLabel}</span>
+      <span className={cn(!shouldShowMobileLabel ? 'hidden sm:block' : null)}>{finalLabel}</span>
     </BaseButton>
   );
 };
