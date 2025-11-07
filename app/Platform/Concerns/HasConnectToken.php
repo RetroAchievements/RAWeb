@@ -9,7 +9,8 @@ use Illuminate\Support\Str;
 
 trait HasConnectToken
 {
-    /* We may want to increase the length of this token in the future to make it more resilient.
+    /**
+     * We may want to increase the length of this token in the future to make it more resilient.
      * We'll probably have to grandfather in the 16-character tokens as users can perpetually
      * extend the life of a token by playing at least once every two weeks.
      *
@@ -18,7 +19,8 @@ trait HasConnectToken
      */
     private const CONNECT_TOKEN_LENGTH = 16;
 
-    /* Any time a token is used, its expiry date is pushed back two weeks. This allows the
+    /**
+     * Any time a token is used, its expiry date is pushed back two weeks. This allows the
      * token to persist indefinitely as long as the user remains active.
      */
     private const CONNECT_TOKEN_EXPIRY_DAYS = 14;
