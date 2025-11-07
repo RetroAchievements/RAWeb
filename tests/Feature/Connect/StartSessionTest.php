@@ -156,7 +156,9 @@ class StartSessionTest extends TestCase
             ->get($this->apiUrl('startsession', ['g' => 999999]))
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'Unknown game',
+                'Error' => 'Unknown game.',
+                'Code' => 'not_found',
+                'Status' => 404,
             ]);
 
         // no player session
@@ -185,6 +187,8 @@ class StartSessionTest extends TestCase
             ->get($this->apiUrl('startsession', ['g' => $game2->ID, 'm' => $gameHash2->md5]))
             ->assertExactJson([
                 'Success' => true,
+                'HardcoreUnlocks' => [],
+                'Unlocks' => [],
                 'ServerNow' => Carbon::now()->timestamp,
             ]);
 
@@ -209,6 +213,8 @@ class StartSessionTest extends TestCase
             ->get($this->apiUrl('startsession', ['g' => $game2->ID, 'm' => $gameHash2->md5]))
             ->assertExactJson([
                 'Success' => true,
+                'HardcoreUnlocks' => [],
+                'Unlocks' => [],
                 'ServerNow' => Carbon::now()->timestamp,
             ]);
 
@@ -230,6 +236,8 @@ class StartSessionTest extends TestCase
             ->get($this->apiUrl('startsession', ['g' => $game2->ID, 'm' => $gameHash2->md5]))
             ->assertExactJson([
                 'Success' => true,
+                'HardcoreUnlocks' => [],
+                'Unlocks' => [],
                 'ServerNow' => Carbon::now()->timestamp,
             ]);
 
@@ -757,7 +765,7 @@ class StartSessionTest extends TestCase
             ->assertStatus(403)
             ->assertExactJson([
                 "Success" => false,
-                "Error" => "You do not have permission to do that.",
+                "Error" => "Access denied.",
                 "Code" => "access_denied",
                 "Status" => 403,
             ]);
@@ -774,7 +782,7 @@ class StartSessionTest extends TestCase
             ->assertStatus(403)
             ->assertExactJson([
                 "Success" => false,
-                "Error" => "You do not have permission to do that.",
+                "Error" => "Access denied.",
                 "Code" => "access_denied",
                 "Status" => 403,
             ]);
@@ -912,6 +920,9 @@ class StartSessionTest extends TestCase
 
     public function testStartSessionIncompatibleId(): void
     {
+        $now = Carbon::create(2020, 3, 4, 16, 40, 13); // 4:40:13pm 4 Mar 2020
+        Carbon::setTestNow($now);
+
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
@@ -930,6 +941,9 @@ class StartSessionTest extends TestCase
             ->get($this->apiUrl('startsession', ['g' => $game->ID + VirtualGameIdService::IncompatibleIdBase, 'm' => $gameHash->md5]))
             ->assertExactJson([
                 'Success' => true,
+                'HardcoreUnlocks' => [],
+                'Unlocks' => [],
+                'ServerNow' => Carbon::now()->timestamp,
             ]);
 
         // player session not created
