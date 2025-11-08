@@ -1,3 +1,5 @@
+'use no memo';
+
 import type { Table } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import type { FC } from 'react';
@@ -16,6 +18,7 @@ export const GameSuggestionsDataTable: FC<GameSuggestionsDataTableProps> = ({
 }) => {
   const { paginatedGameListEntries } = usePageProps<App.Platform.Data.GameSuggestPageProps>();
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- https://github.com/TanStack/table/issues/5567
   const table = useReactTable({
     columns: useColumnDefinitions({ showSourceGame }),
     data: paginatedGameListEntries.items,

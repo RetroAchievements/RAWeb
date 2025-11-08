@@ -35,6 +35,9 @@ describe('Hook: useDelayedButtonDisable', () => {
 
     // ACT
     rerender({ isPending: true });
+    act(() => {
+      vi.runAllTimers();
+    });
 
     // ASSERT
     expect(result.current).toBeTruthy();
@@ -49,6 +52,12 @@ describe('Hook: useDelayedButtonDisable', () => {
         initialProps: { isPending: true },
       },
     );
+
+    // ... initially, the button should be disabled immediately ...
+    act(() => {
+      vi.runAllTimers();
+    });
+    expect(result.current).toEqual(true); // !! isPending is true
 
     rerender({ isPending: false });
 

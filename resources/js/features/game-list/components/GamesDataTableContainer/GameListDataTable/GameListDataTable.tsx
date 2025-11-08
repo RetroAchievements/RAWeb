@@ -1,3 +1,7 @@
+/* eslint-disable react-hooks/refs -- the use no memo directive is enabled */
+
+'use no memo';
+
 import type { Row, Table } from '@tanstack/react-table';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';

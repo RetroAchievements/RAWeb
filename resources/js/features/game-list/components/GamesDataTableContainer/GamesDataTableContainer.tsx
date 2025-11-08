@@ -1,3 +1,5 @@
+'use no memo';
+
 import type {
   ColumnDef,
   ColumnFiltersState,
@@ -83,6 +85,7 @@ export const GamesDataTableContainer: FC<GamesDataTableContainerProps> = ({
     isEnabled: ziggy.device === 'desktop',
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- https://github.com/TanStack/table/issues/5567
   const table = useReactTable({
     columns: columnDefinitions,
     data: gameListQuery.data?.items ?? [],
