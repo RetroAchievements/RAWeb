@@ -63,18 +63,20 @@ class BuildClientPatchDataAction
         }
 
         // Use the game from the hash for legacy clients.
-        return $this->buildPatchData($gameHash->game, $user, $flag);
+        return $this->buildPatchData($gameHash->game, $user, $flag, $gameHash->compatibility);
     }
 
     /**
      * @param Game $game The game to build root-level data for
      * @param User|null $user The current user requesting the patch data (for player count calculations)
      * @param AchievementFlag|null $flag Optional flag to filter the achievements by (eg: only official achievements)
+     * @param GameHashCompatibility $compatibility Optional flag to modify the title to reflect the hash compatibility
      */
     private function buildPatchData(
         Game $game,
         ?User $user,
         ?AchievementFlag $flag,
+        GameHashCompatibility $compatibility = GameHashCompatibility::Compatible,
     ): array {
         $gamePlayerCount = $this->calculateGamePlayerCount($game, $user);
 
@@ -86,7 +88,7 @@ class BuildClientPatchDataAction
         return [
             'Success' => true,
             'PatchData' => [
-                ...$this->buildBaseGameData($game),
+                ...$this->buildBaseGameData($game, $compatibility),
                 'Achievements' => $coreAchievementSet
                     ? $this->buildAchievementsData($coreAchievementSet, $gamePlayerCount, $flag)
                     : [],
@@ -157,12 +159,16 @@ class BuildClientPatchDataAction
     /**
      * Builds the basic game information needed by emulators.
      */
-    private function buildBaseGameData(Game $game): array
+    private function buildBaseGameData(Game $game, GameHashCompatibility $compatibility): array
     {
+        $title = ($compatibility === GameHashCompatibility::Compatible)
+            ? $game->title
+            : "Unsupported Game Version ($game->title)";
+
         return [
             'ID' => $game->id,
             'ParentID' => $game->id,
-            'Title' => $game->title,
+            'Title' => $title,
             'ImageIcon' => $game->ImageIcon,
             'RichPresencePatch' => $game->RichPresencePatch,
             'ConsoleID' => $game->ConsoleID,
@@ -242,7 +248,7 @@ class BuildClientPatchDataAction
             'Success' => true,
             'PatchData' => [
                 'ID' => VirtualGameIdService::encodeVirtualGameId($game->id, $gameHashCompatibility),
-                'Title' => 'Unsupported Game Version',
+                'Title' => "Unsupported Game Version ($game->title)",
                 'ConsoleID' => $game->ConsoleID,
                 'ImageIcon' => $game->ImageIcon,
                 'ImageIconURL' => media_asset($game->ImageIcon),
