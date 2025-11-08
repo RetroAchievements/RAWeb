@@ -860,4 +860,34 @@ describe('Component: GameAchievementSetToolbar', () => {
     expect(screen.getByRole('menuitemcheckbox', { name: 'My Rank (best)' })).toBeInTheDocument();
     expect(screen.getByRole('menuitemcheckbox', { name: 'My Rank (worst)' })).toBeInTheDocument();
   });
+
+  it('given the user is on mobile and there are leaderboards, shows the display mode toggle group', () => {
+    // ARRANGE
+    const mockGame = createGame({ id: 123 });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={1}
+      />,
+      {
+        pageProps: {
+          backingGame: mockGame,
+          numLeaderboards: 10, // !!
+          ziggy: createZiggyProps({ device: 'mobile' }), // !!
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByRole('radio', { name: /achievements/i })).toBeVisible();
+    expect(screen.getByRole('radio', { name: /leaderboards/i })).toBeVisible();
+  });
 });
