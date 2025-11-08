@@ -24,7 +24,7 @@ interface GameListDataTableProps {
 }
 
 export function GameListDataTable({ table, isLoading = false }: GameListDataTableProps) {
-  'use no memo';
+  'use no memo'; // useReactTable does not support React Compiler
 
   const { t } = useTranslation();
 
