@@ -889,4 +889,55 @@ class ForwardMessageToDiscordActionTest extends TestCase
         $this->assertEquals('Second report explanation', $secondPayload['embeds'][0]['description']); // no context prepended
         $this->assertStringNotContainsString('**Reported Content:**', $secondPayload['embeds'][0]['description']);
     }
+
+    public function testItFallsBackToReportsUrlWhenUrlIsEmpty(): void
+    {
+        // Arrange
+        $this->setDiscordConfig(
+            $this->recipient,
+            webhookUrl: '', // !!
+            isForum: true,
+            reportsUrl: 'https://discord.com/api/webhooks/reports/xyz'
+        );
+        $message = $this->createMessage('Test message');
+        $this->queueDiscordResponses(1);
+
+        // Act
+        $this->action->execute($this->sender, $this->recipient, $this->thread, $message);
+
+        // Assert
+        $this->assertCount(1, $this->webhookHistory);
+        $request = $this->webhookHistory[0]['request'];
+        $this->assertStringContainsString('/webhooks/reports/xyz', $request->getUri()->getPath()); // uses reports_url
+    }
+
+    public function testItFindsThreadByMessageThreadIdFirst(): void
+    {
+        // Arrange
+        $this->setDiscordConfig($this->recipient, isForum: true);
+
+        // ... create a message thread mapping for an existing Discord thread ...
+        DiscordMessageThreadMapping::storeMapping($this->thread->id, 'existing_thread_456');
+
+        $message = $this->createMessage('Reply to existing thread');
+        $this->queueDiscordResponses(1);
+
+        // Act
+        $this->action->execute(
+            $this->sender,
+            $this->recipient,
+            $this->thread,
+            $message,
+            null, // no reportableType
+            null  // no reportableId
+        );
+
+        // Assert
+        $this->assertCount(1, $this->webhookHistory);
+
+        $request = $this->webhookHistory[0]['request'];
+        $queryParams = [];
+        parse_str($request->getUri()->getQuery(), $queryParams);
+        $this->assertEquals('existing_thread_456', $queryParams['thread_id']); // found thread via message_thread_id
+    }
 }

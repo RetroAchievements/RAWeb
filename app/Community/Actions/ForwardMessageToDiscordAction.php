@@ -83,42 +83,60 @@ class ForwardMessageToDiscordAction
         }
 
         // Set default webhook URL. This may be overridden by specialized routing logic below.
-        $webhookUrl = $inboxConfig['url'] ?? $inboxConfig['reports_url'] ?? '';
+        $webhookUrl = '';
+        if (!empty($inboxConfig['url'])) {
+            $webhookUrl = $inboxConfig['url'];
+        } elseif (!empty($inboxConfig['reports_url'])) {
+            $webhookUrl = $inboxConfig['reports_url'];
+        }
 
-        $fullBody = Shortcode::convertToMarkdown($message->body, self::MESSAGE_BODY_MAX_LENGTH, preserveWhitespace: true);
+        // Get forum configuration early since we need it for thread lookup.
+        $isForum = $inboxConfig['is_forum'] ?? false;
+
+        // Check for an existing Discord thread.
+        $existingThreadId = null;
+        $isExistingReport = false;
+
+        if ($isForum) {
+            $existingThreadId = $this->getExistingDiscordThreadId($messageThread);
+        }
+
+        // For reports, also check if this specific reportable item has been reported before.
+        // This helps us determine if we should prepend context (new report) or not (existing report).
+        if ($reportableType && $reportableId && !$existingThreadId) {
+            $reportMapping = DiscordMessageThreadMapping::findReportMapping($reportableType, $reportableId);
+            $existingThreadId = $reportMapping?->discord_thread_id;
+            $isExistingReport = $reportMapping !== null;
+        }
+
+        // For new reports, strip shortcode context and build fresh Discord context.
+        // For replies and existing reports, convert the entire body normally.
+        if ($reportableType && $reportableId && !$isExistingReport) {
+            $reportDetailsMarker = "[b]Report Details:[/b]\n";
+            $userDescription = $message->body;
+            $markerPos = mb_strpos($message->body, $reportDetailsMarker);
+            if ($markerPos !== false) {
+                $userDescription = mb_substr($message->body, $markerPos + mb_strlen($reportDetailsMarker));
+            }
+
+            // Convert only the user description to markdown.
+            $convertedDescription = Shortcode::convertToMarkdown($userDescription, self::MESSAGE_BODY_MAX_LENGTH, preserveWhitespace: true);
+
+            // Build Discord context with excerpt and Discord timestamp.
+            $discordContext = (new BuildReportContextAction())->execute('', $reportableType, $reportableId, forDiscord: true);
+
+            $fullBody = $discordContext . $convertedDescription;
+        } else {
+            // Normal flow for non-reports, existing reports, and replies.
+            $fullBody = Shortcode::convertToMarkdown($message->body, self::MESSAGE_BODY_MAX_LENGTH, preserveWhitespace: true);
+        }
 
         if (empty($messageThread->title) || empty($fullBody)) {
             return;
         }
 
         $color = self::COLOR_DEFAULT;
-        $isForum = $inboxConfig['is_forum'] ?? false;
-
-        // Check for an existing Discord thread.
-        // If this is a report, check if the same item has already been reported and
-        // put this report into the existing report thread for the item.
-        $existingThreadId = null;
-        $isExistingReport = false;
-        if ($reportableType && $reportableId) {
-            $existingMapping = DiscordMessageThreadMapping::findReportMapping($reportableType, $reportableId);
-            $existingThreadId = $existingMapping?->discord_thread_id;
-            $isExistingReport = $existingMapping !== null;
-        } elseif ($isForum) {
-            $existingThreadId = $this->getExistingDiscordThreadId($messageThread);
-        }
-
         $isNewThread = $isForum ? !$existingThreadId : true;
-
-        // Prepend context for NEW report messages only (the OP).
-        // For deduplicated reports, context is already in the OP.
-        if ($reportableType && $reportableId && !$isExistingReport) {
-            $fullBody = (new BuildReportContextAction())->execute(
-                $fullBody,
-                $reportableType,
-                $reportableId,
-                forDiscord: true
-            );
-        }
 
         $processedData = $this->processSpecialMessageTypes(
             $messageThread,
