@@ -62,6 +62,7 @@ class UserCard extends Component
 
                 return $foundUser ? [
                     ...$foundUser->toArray(),
+                    'isBanned' => $foundUser->isBanned(),
                     'isMuted' => $foundUser->isMuted(),
                     'visibleRoleName' => $foundUser->visible_role?->name,
                 ] : null;
@@ -73,7 +74,7 @@ class UserCard extends Component
     {
         $cardBioData = $this->buildCardBioData($rawUserData);
         $cardRankData = $this->buildCardRankData($username, $rawUserData['RAPoints'], $rawUserData['RASoftcorePoints'], $rawUserData['Untracked'] ? true : false);
-        $cardRoleData = $this->buildCardRoleData($username, $rawUserData['visibleRoleName']);
+        $cardRoleData = $this->buildCardRoleData($username, $rawUserData['visibleRoleName'], $rawUserData['isBanned'], $rawUserData['isMuted']);
 
         return array_merge($cardBioData, $cardRankData, $cardRoleData);
     }
@@ -148,10 +149,22 @@ class UserCard extends Component
         );
     }
 
-    private function buildCardRoleData(string $username, ?string $visibleRoleName): array
+    private function buildCardRoleData(string $username, ?string $visibleRoleName, bool $isBanned, bool $isMuted): array
     {
-        $canShowUserRole = $visibleRoleName !== null;
-        $roleLabel = $visibleRoleName ? __('permission.role.' . $visibleRoleName) : null;
+        // Priority: Banned > Muted > Role.
+        if ($isBanned) {
+            $canShowUserRole = true;
+            $roleLabel = __('Banned');
+        } elseif ($isMuted) {
+            $canShowUserRole = true;
+            $roleLabel = __('Muted');
+        } elseif ($visibleRoleName !== null) {
+            $canShowUserRole = true;
+            $roleLabel = __('permission.role.' . $visibleRoleName);
+        } else {
+            $canShowUserRole = false;
+            $roleLabel = null;
+        }
 
         $useExtraNamePadding =
             $canShowUserRole
