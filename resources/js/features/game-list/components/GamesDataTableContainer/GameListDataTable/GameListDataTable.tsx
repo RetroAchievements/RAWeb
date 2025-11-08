@@ -1,7 +1,5 @@
 /* eslint-disable react-hooks/refs -- the use no memo directive is enabled */
 
-'use no memo';
-
 import type { Row, Table } from '@tanstack/react-table';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +24,8 @@ interface GameListDataTableProps {
 }
 
 export function GameListDataTable({ table, isLoading = false }: GameListDataTableProps) {
+  'use no memo';
+
   const { t } = useTranslation();
 
   const wasShowingGroups = useRef(false);

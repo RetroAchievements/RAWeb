@@ -1,5 +1,3 @@
-'use no memo';
-
 import type {
   ColumnDef,
   ColumnFiltersState,
@@ -74,6 +72,8 @@ export const GamesDataTableContainer: FC<GamesDataTableContainerProps> = ({
   randomGameApiRouteName,
   shouldHideItemIfNotInBacklog = false,
 }) => {
+  'use no memo';
+
   const { ziggy } = usePageProps();
 
   const gameListQuery = useGameListPaginatedQuery({
