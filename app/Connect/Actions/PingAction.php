@@ -21,8 +21,6 @@ class PingAction extends BaseAuthenticatedApiAction
     protected ?string $gameHashMd5;
     protected ?bool $hardcore;
 
-    protected string $delegateTargetObject = Game::class;
-
     public function execute(User $user, Game $game, string $richPresenceMessage, ?string $gameHashMd5 = null, ?bool $hardcore = null): array
     {
         $this->user = $user;
@@ -40,7 +38,7 @@ class PingAction extends BaseAuthenticatedApiAction
             return $this->missingParameters();
         }
 
-        $this->game = Game::find(request()->input('g', 0));
+        $this->game = Game::find(request()->integer('g', 0));
         if (!$this->game) {
             return $this->gameNotFound();
         }
