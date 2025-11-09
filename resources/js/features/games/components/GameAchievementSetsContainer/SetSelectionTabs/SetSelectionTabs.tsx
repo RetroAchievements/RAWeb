@@ -47,7 +47,7 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
       {/* Tabs */}
       <div className="relative flex items-center space-x-[6px]">
         {selectableGameAchievementSets.map((gas, index) => (
-          <BaseHoverCard key={gas.id} openDelay={300} closeDelay={0}>
+          <BaseHoverCard key={gas.id} openDelay={300} closeDelay={100}>
             <BaseHoverCardTrigger asChild>
               <InertiaLink
                 href={route('game2.show', {
