@@ -70,6 +70,7 @@ class GameShowPagePropsData extends Data
         public Collection $recentVisibleComments,
         /** @var GameData[] */
         public array $similarGames,
+        public bool $shouldPrioritizeHardcoreStats,
         public Collection $topAchievers,
         public ?PlayerGameData $playerGame,
         public ?PlayerGameProgressionAwardsData $playerGameProgressionAwards,

@@ -5,6 +5,7 @@ import { route } from 'ziggy-js';
 
 import { BaseProgress } from '@/common/components/+vendor/BaseProgress';
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
+import { calculateUnlockPercentage } from '@/common/utils/calculateUnlockPercentage';
 import { formatPercentage } from '@/common/utils/l10n/formatPercentage';
 
 import { UserAvatar } from '../UserAvatar';
@@ -29,6 +30,8 @@ interface AchievementsListItemProps {
    */
   eventAchievement?: App.Platform.Data.EventAchievement;
 
+  shouldPrioritizeHardcoreStats?: boolean;
+
   /**
    * When truthy, shows who created this achievement.
    * This is mainly intended for internal use, such as when the user is viewing
@@ -45,16 +48,21 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
   index,
   isLargeList,
   playersTotal,
+  shouldPrioritizeHardcoreStats = false,
   shouldShowAuthor = false,
 }) => {
   const { t } = useTranslation();
 
   const { description, game, title, type, decorator } = achievement;
 
-  const unlockPercentage = achievement.unlockPercentage ? Number(achievement.unlockPercentage) : 0;
-
   const unlocksHardcoreTotal = achievement.unlocksHardcoreTotal ?? 0;
   const unlocksTotal = achievement.unlocksTotal ?? 0;
+  const unlockPercentage = calculateUnlockPercentage(
+    shouldPrioritizeHardcoreStats,
+    unlocksHardcoreTotal,
+    playersTotal,
+    achievement.unlockPercentage,
+  );
 
   return (
     <motion.li
@@ -175,6 +183,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
               <ProgressBarMetaText
                 achievement={achievement}
                 playersTotal={playersTotal}
+                shouldPrioritizeHardcoreStats={shouldPrioritizeHardcoreStats}
                 variant={eventAchievement ? 'event' : 'game'}
               />
             </p>
@@ -188,7 +197,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
                   className: 'bg-gradient-to-r from-amber-500 to-[gold]',
                 },
                 {
-                  value: unlocksTotal - unlocksHardcoreTotal,
+                  value: shouldPrioritizeHardcoreStats ? 0 : unlocksTotal - unlocksHardcoreTotal,
                   className: 'bg-neutral-500',
                 },
               ]}

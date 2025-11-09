@@ -159,4 +159,83 @@ describe('Component: ProgressBarMetaText', () => {
     expect(screen.getByText('(0)')).toBeVisible();
     expect(screen.getByText('200')).toBeVisible();
   });
+
+  it('given shouldPrioritizeHardcoreStats is true, displays the hardcore unlock count as the main count', () => {
+    // ARRANGE
+    render(
+      <ProgressBarMetaText
+        achievement={createAchievement({
+          unlocksTotal: 100,
+          unlocksHardcoreTotal: 50, // !! should show this as the main count
+          unlockPercentage: '0.5',
+        })}
+        playersTotal={200}
+        variant="game"
+        shouldPrioritizeHardcoreStats={true} // !!
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText('50')).toBeVisible();
+    expect(screen.queryByText('100')).not.toBeInTheDocument(); // !! total count not shown
+  });
+
+  it('given shouldPrioritizeHardcoreStats is true, hides the hardcore count in parentheses', () => {
+    // ARRANGE
+    render(
+      <ProgressBarMetaText
+        achievement={createAchievement({
+          unlocksTotal: 100,
+          unlocksHardcoreTotal: 50,
+          unlockPercentage: '0.5',
+        })}
+        playersTotal={200}
+        variant="game"
+        shouldPrioritizeHardcoreStats={true} // !!
+      />,
+    );
+
+    // ASSERT
+    const hardcoreElement = screen.getByText('(50)');
+    expect(hardcoreElement).toHaveClass('sr-only');
+  });
+
+  it('given shouldPrioritizeHardcoreStats is true, calculates the percentage from hardcore unlocks divided by total players', () => {
+    // ARRANGE
+    render(
+      <ProgressBarMetaText
+        achievement={createAchievement({
+          unlocksTotal: 100,
+          unlocksHardcoreTotal: 50, // 50/200 = 0.25 = 25%
+          unlockPercentage: '0.5', // this should be ignored
+        })}
+        playersTotal={200} // !!
+        variant="game"
+        shouldPrioritizeHardcoreStats={true} // !!
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText('- 25.00%')).toBeVisible(); // !! 50/200
+  });
+
+  it('given shouldPrioritizeHardcoreStats is false, displays total unlock count as the main count', () => {
+    // ARRANGE
+    render(
+      <ProgressBarMetaText
+        achievement={createAchievement({
+          unlocksTotal: 100, // should show this as main count
+          unlocksHardcoreTotal: 50,
+          unlockPercentage: '0.5',
+        })}
+        playersTotal={200}
+        variant="game"
+        shouldPrioritizeHardcoreStats={false} // !!
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText('100')).toBeVisible();
+    expect(screen.getByText('(50)')).toBeVisible();
+  });
 });

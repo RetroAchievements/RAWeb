@@ -222,4 +222,106 @@ describe('Component: AchievementsListItem', () => {
       expect(screen.getByRole('link', { name: /scott/i })).toBeVisible();
     });
   });
+
+  it('given shouldPrioritizeHardcoreStats is true, does not crash', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlocksTotal: 100,
+      unlocksHardcoreTotal: 50,
+      unlockPercentage: '0.5',
+    });
+
+    const { container } = render(
+      <AchievementsListItem
+        achievement={achievement}
+        index={0}
+        isLargeList={false}
+        shouldPrioritizeHardcoreStats={true} // !!
+        playersTotal={200}
+      />,
+    );
+
+    // ASSERT
+    expect(container).toBeTruthy();
+  });
+
+  it('given shouldPrioritizeHardcoreStats is true, displays the hardcore unlock count instead of total unlocks', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      title: 'Test Achievement',
+      unlocksTotal: 100,
+      unlocksHardcoreTotal: 50, // !!
+      unlockPercentage: '0.5',
+    });
+
+    render(
+      <AchievementsListItem
+        achievement={achievement}
+        index={0}
+        isLargeList={false}
+        shouldPrioritizeHardcoreStats={true} // !!
+        playersTotal={200}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText('Test Achievement')).toBeVisible();
+    });
+    expect(screen.getByText('50')).toBeVisible();
+
+    expect(screen.queryByText('100')).not.toBeInTheDocument();
+  });
+
+  it('given shouldPrioritizeHardcoreStats is true, calculates unlock percentage from hardcore unlocks divided by total players', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      title: 'Test Achievement',
+      unlocksTotal: 100,
+      unlocksHardcoreTotal: 50, // !!
+      unlockPercentage: '0.5', // should be ignored
+    });
+
+    render(
+      <AchievementsListItem
+        achievement={achievement}
+        index={0}
+        isLargeList={false}
+        shouldPrioritizeHardcoreStats={true} // !!
+        playersTotal={200} // !!
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/25\.00% unlock rate/i)).toBeVisible(); // !! 50/200 = 25%
+    });
+  });
+
+  it('given shouldPrioritizeHardcoreStats is false, displays the total unlock count and uses the default percentage', async () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      title: 'Test Achievement',
+      unlocksTotal: 100, // should display this count
+      unlocksHardcoreTotal: 50,
+      unlockPercentage: '0.5', // should use this percentage
+    });
+
+    render(
+      <AchievementsListItem
+        achievement={achievement}
+        index={0}
+        isLargeList={false}
+        shouldPrioritizeHardcoreStats={false} // !!
+        playersTotal={200}
+      />,
+    );
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText('Test Achievement')).toBeVisible();
+    });
+    expect(screen.getByText('100')).toBeVisible();
+    expect(screen.getByText(/50\.00% unlock rate/i)).toBeVisible();
+  });
 });

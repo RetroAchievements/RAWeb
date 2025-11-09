@@ -51,6 +51,12 @@ export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
         />
 
         <PreferencesSwitchField
+          t_label={t('Prioritize hardcore mode statistics')}
+          fieldName={StringifiedUserPreference.Game_PrioritizeHardcoreStats}
+          control={form.control}
+        />
+
+        <PreferencesSwitchField
           t_label={t('Enable beta features')}
           fieldName={StringifiedUserPreference.User_EnableBetaFeatures}
           control={form.control}

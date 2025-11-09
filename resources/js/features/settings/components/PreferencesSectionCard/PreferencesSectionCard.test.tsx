@@ -108,4 +108,24 @@ describe('Component: PreferencesSectionCard', () => {
     // ASSERT
     expect(screen.getByRole('switch', { name: /enable beta features/i })).not.toBeChecked();
   });
+
+  it('given the user has hardcore stats prioritized, shows the prioritize hardcore stats toggle as checked', () => {
+    // ARRANGE
+    render(<PreferencesSectionCard currentWebsitePrefs={1048576} />);
+
+    // ASSERT
+    expect(
+      screen.getByRole('switch', { name: /prioritize hardcore mode statistics/i }),
+    ).toBeChecked();
+  });
+
+  it('given the user does not have hardcore stats prioritized, shows the prioritize hardcore stats toggle as unchecked', () => {
+    // ARRANGE
+    render(<PreferencesSectionCard currentWebsitePrefs={0} />);
+
+    // ASSERT
+    expect(
+      screen.getByRole('switch', { name: /prioritize hardcore mode statistics/i }),
+    ).not.toBeChecked();
+  });
 });

@@ -460,7 +460,8 @@ declare namespace App.Enums {
     | 16
     | 17
     | 18
-    | 19;
+    | 19
+    | 20;
 }
 declare namespace App.Http.Data {
   export type AchievementOfTheWeekProps = {
@@ -848,6 +849,7 @@ declare namespace App.Platform.Data {
     recentPlayers: Array<App.Platform.Data.GameRecentPlayer>;
     recentVisibleComments: Array<App.Community.Data.Comment>;
     similarGames: Array<App.Platform.Data.Game>;
+    shouldPrioritizeHardcoreStats: boolean;
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;

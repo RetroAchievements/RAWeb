@@ -33,8 +33,13 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   achievements,
   gameAchievementSet,
 }) => {
-  const { allLeaderboards, auth, isViewingPublishedAchievements, numLeaderboards } =
-    usePageProps<App.Platform.Data.GameShowPageProps>();
+  const {
+    allLeaderboards,
+    auth,
+    isViewingPublishedAchievements,
+    numLeaderboards,
+    shouldPrioritizeHardcoreStats,
+  } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const currentAchievementSort = useAtomValue(currentPlayableListSortAtom);
   const currentListView = useAtomValue(currentListViewAtom);
@@ -127,6 +132,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
                     beatenDialogContent={<BeatenCreditDialog />}
                     index={index}
                     isLargeList={isLargeAchievementsList}
+                    shouldPrioritizeHardcoreStats={shouldPrioritizeHardcoreStats}
                     shouldShowAuthor={!isViewingPublishedAchievements}
                     playersTotal={gameAchievementSet.achievementSet.playersTotal}
                   />

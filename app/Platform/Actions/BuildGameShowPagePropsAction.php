@@ -358,6 +358,7 @@ class BuildGameShowPagePropsAction
             isLockedOnlyFilterEnabled: $isLockedOnlyFilterEnabled,
             isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
             isViewingPublishedAchievements: $targetAchievementFlag === AchievementFlag::OfficialCore,
+            shouldPrioritizeHardcoreStats: $user->is_prioritizing_hardcore_stats,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
 
             playerAchievementChartBuckets: $targetAchievementFlag === AchievementFlag::OfficialCore
