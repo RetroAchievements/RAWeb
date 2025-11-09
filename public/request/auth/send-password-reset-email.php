@@ -1,9 +1,14 @@
 <?php
 
+use App\Mail\PasswordResetMail;
+use App\Models\PasswordResetToken;
 use App\Models\User;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 // Three attempts per IP per hour.
 $key = 'password-reset:' . request()->ip();
@@ -22,7 +27,18 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $targetUser = User::whereName($input['username'])->first();
 
 if ($targetUser && !$targetUser->isBanned()) {
-    RequestPasswordReset($targetUser);
+    $newToken = Str::random(20);
+
+    // discard old tokens. only the most recent should be usable to actually reset the password.
+    PasswordResetToken::where('user_id', $targetUser->id)->update(['token' => null]);
+
+    PasswordResetToken::create([
+        'user_id' => $targetUser->id,
+        'token' => Hash::make($newToken),
+        'ip_address' => request()->ip(),
+    ]);
+
+    Mail::to($targetUser)->queue(new PasswordResetMail($targetUser, $newToken));
 }
 
 return back()->with('message', __('legacy.email_check'));
