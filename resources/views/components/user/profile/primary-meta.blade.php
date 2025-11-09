@@ -69,22 +69,30 @@ $usernameTitle = $previousUsernames ? "Username history:\n{$previousUsernames}" 
                 @endif
             </h1>
 
-            {{-- Visible Role --}}
-            @if ($hasVisibleRole)
+            {{-- Status Badge: Banned > Muted > Visible Role --}}
+            @if ($userMassData['Permissions'] === Permissions::Spam)
+                <div class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1">
+                    <p class="text-2xs -mb-0.5">Spam</p>
+                </div>
+            @elseif ($userMassData['Permissions'] === Permissions::Banned)
+                <div class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1">
+                    <p class="text-2xs -mb-0.5">Banned</p>
+                </div>
+            @elseif ($userMassData['Permissions'] === Permissions::Unregistered)
+                <div class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1">
+                    <p class="text-2xs -mb-0.5">Unregistered</p>
+                </div>
+            @elseif ($user->isMuted())
+                <div class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1">
+                    <p class="text-2xs -mb-0.5">{{ __('Muted') }}</p>
+                </div>
+            @elseif ($hasVisibleRole)
                 <div
                     class="flex h-5 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1 {{ $fullRolesLabel ? 'cursor-help border border-dotted border-neutral-400' : '' }}"
                     @if ($fullRolesLabel) title="{{ $fullRolesLabel }}" @endif
                 >
                     <p class="text-2xs -mb-0.5">
-                        @if ($userMassData['Permissions'] === Permissions::Spam)
-                            Spam
-                        @elseif ($userMassData['Permissions'] === Permissions::Banned)
-                            Banned
-                        @elseif ($userMassData['Permissions'] === Permissions::Unregistered)
-                            Unregistered
-                        @else
-                            {{ __('permission.role.' . $user->visible_role->name) }}
-                        @endif
+                        {{ __('permission.role.' . $user->visible_role->name) }}
                     </p>
                 </div>
             @endif

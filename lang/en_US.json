@@ -445,6 +445,10 @@
     "{{awardLabel}} Award Earners ({{eventTitle}})": "{{awardLabel}} Award Earners ({{eventTitle}})",
     "{{awardLabel}} on {{awardDate}}": "{{awardLabel}} on {{awardDate}}",
     "{{claimType}}, {{timeAgo}}": "{{claimType}}, {{timeAgo}}",
+    "{{count, number}} beaten": "{{count, number}} beaten",
+    "{{count, number}} beaten (softcore)": "{{count, number}} beaten (softcore)",
+    "{{count, number}} completed": "{{count, number}} completed",
+    "{{count, number}} mastered": "{{count, number}} mastered",
     "{{count, number}} posts in the last 24 hours": "{{count, number}} posts in the last 24 hours",
     "{{count, number}} posts in the last 7 days": "{{count, number}} posts in the last 7 days",
     "{{count, number}} selected": "{{count, number}} selected",
@@ -798,6 +802,8 @@
     "Won by (least)": "Won by (least)",
     "Display order": "Display order",
     "Won by": "Won by",
+    "My Rank (best)": "My Rank (best)",
+    "My Rank (worst)": "My Rank (worst)",
     "Official Forum Topic": "Official Forum Topic",
     "Create New Forum Topic": "Create New Forum Topic",
     "Creating...": "Creating...",
@@ -932,7 +938,8 @@
     "Posted by <1>{{username}}</1>": "Posted by <1>{{username}}</1>",
     "Last edited by <1>{{username}}</1>": "Last edited by <1>{{username}}</1>",
     "Subset {{subsetNumber, number}}": "Subset {{subsetNumber, number}}",
-    "<1>{{achievementsCount, number}}</1> $t(playerGameProgressHardcoreAchievements, {'count': {{achievementsCount}} }) worth <2>{{pointsCount, number}}</2> $t(playerGameProgressPoints, {'count': {{pointsCount}} }) <3>(<4>{{retroPointsCount, number}}</4> <5></5>)</3>": "<1>{{achievementsCount, number}}</1> $t(playerGameProgressHardcoreAchievements, {'count': {{achievementsCount}} }) worth <2>{{pointsCount, number}}</2> $t(playerGameProgressPoints, {'count': {{pointsCount}} }) <3>(<4>{{retroPointsCount, number}}</4> <5></5>)</3>",
+    "<1>{{achievementsCount, number}}</1> $t(playerGameProgressHardcoreAchievements, {'count': {{achievementsCount}} }) worth <2>{{pointsCount, number}}</2> $t(playerGameProgressPoints, {'count': {{pointsCount}} })": "<1>{{achievementsCount, number}}</1> $t(playerGameProgressHardcoreAchievements, {'count': {{achievementsCount}} }) worth <2>{{pointsCount, number}}</2> $t(playerGameProgressPoints, {'count': {{pointsCount}} })",
+    "<1>(<2>{{retroPointsCount, number}}</2> <3></3>)</1>": "<1>(<2>{{retroPointsCount, number}}</2> <3></3>)</1>",
     "<1>{{achievementsCount, number}}</1> unpublished $t(playerGameProgressHardcoreAchievements, {'count': {{achievementsCount}} }) worth <2>{{pointsCount, number}}</2> <3>({{retroPointsCount, number}})</3> $t(playerGameProgressPoints, {'count': {{pointsCount}} })": "<1>{{achievementsCount, number}}</1> unpublished $t(playerGameProgressHardcoreAchievements, {'count': {{achievementsCount}} }) worth <2>{{pointsCount, number}}</2> <3>({{retroPointsCount, number}})</3> $t(playerGameProgressPoints, {'count': {{pointsCount}} })",
     "Points (least)": "Points (least)",
     "Points (most)": "Points (most)",
@@ -1257,5 +1264,7 @@
     "Edit Subset Game Details": "Edit Subset Game Details",
     "View Subset Game Details": "View Subset Game Details",
     "Contribute": "Contribute",
-    "View Developer Interest": "View Developer Interest"
+    "View Developer Interest": "View Developer Interest",
+    "Muted": "Muted",
+    "Banned": "Banned"
 }

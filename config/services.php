@@ -24,6 +24,7 @@ return [
         'invite_id' => env('DISCORD_INVITE_ID'),
         'guild_id' => env('DISCORD_GUILD_ID'),
         'rabot_token' => env('DISCORD_RABOT_TOKEN'),
+        'muted' => env('DISCORD_ROLE_MUTED'),
         'webhook' => [
             // public
             'achievements' => env('DISCORD_WEBHOOK_ACHIEVEMENTS'),

@@ -51,7 +51,6 @@ class GetFriendListTest extends TestCase
             ]);
 
         // user2 is playing game1
-        $user2->LastActivityID = 2;
         $user2->LastGameID = $game1->ID;
         $user2->RichPresenceMsg = "Running through a forest";
         $user2->RichPresenceMsgDate = $date1;
@@ -79,7 +78,6 @@ class GetFriendListTest extends TestCase
             ]);
 
         // user3 is playing game2
-        $user3->LastActivityID = 3;
         $user3->LastGameID = $game2->ID;
         $user3->RichPresenceMsg = "Killing everything";
         $user3->RichPresenceMsgDate = $date2->clone()->subMinutes(45);
@@ -93,7 +91,6 @@ class GetFriendListTest extends TestCase
         ]);
 
         // user4 is playing game2
-        $user4->LastActivityID = 4;
         $user4->LastGameID = $game2->ID;
         $user4->RichPresenceMsg = "Killing everything";
         $user4->RichPresenceMsgDate = $date3;
@@ -135,7 +132,6 @@ class GetFriendListTest extends TestCase
             ]);
 
         // user5 is playing game2
-        $user5->LastActivityID = 5;
         $user5->LastGameID = $game2->ID;
         $user5->RichPresenceMsg = "Killing everything";
         $user5->RichPresenceMsgDate = $date3;
@@ -190,7 +186,6 @@ class GetFriendListTest extends TestCase
             ]);
 
         // user6 is playing game 2
-        $user6->LastActivityID = 6;
         $user6->LastGameID = $game2->ID;
         $user6->RichPresenceMsg = "Killing everything";
         $user6->RichPresenceMsgDate = $date3;

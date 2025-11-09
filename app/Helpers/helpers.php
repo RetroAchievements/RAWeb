@@ -27,7 +27,6 @@ require_once __DIR__ . '/database/user-account-deletion.php';
 require_once __DIR__ . '/database/user-activity.php';
 require_once __DIR__ . '/database/user-auth.php';
 require_once __DIR__ . '/database/user-email-verify.php';
-require_once __DIR__ . '/database/user-password-reset.php';
 require_once __DIR__ . '/database/user-permission.php';
 require_once __DIR__ . '/database/user-relationship.php';
 

@@ -156,9 +156,6 @@ function banAccountByUsername(string $username, int $permissions): void
     $user->password = null;
     $user->SaltedPass = '';
     $user->setAttribute('Permissions', $permissions);
-    $user->fbUser = 0;
-    $user->fbPrefs = null;
-    $user->cookie = null;
     $user->appToken = null;
     $user->appTokenExpiry = null;
     $user->ManuallyVerified = 0;
@@ -170,7 +167,6 @@ function banAccountByUsername(string $username, int $permissions): void
     $user->UserWallActive = 0;
     $user->RichPresenceMsg = null;
     $user->RichPresenceMsgDate = null;
-    $user->PasswordResetToken = '';
     $user->banned_at = now();
     $user->Updated = now();
 

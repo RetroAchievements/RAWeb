@@ -25,7 +25,15 @@ export const ForumPostAuthorBox: FC<ForumPostAuthorBoxProps> = ({ comment }) => 
               <UserAvatar {...author} showImage={false} />
             </div>
 
-            {author.visibleRole ? (
+            {author.isBanned ? (
+              <p data-testid="banned-status" className="smalltext !text-xs !leading-4 lg:!text-2xs">
+                {t('Banned')}
+              </p>
+            ) : author.isMuted ? (
+              <p data-testid="muted-status" className="smalltext !text-xs !leading-4 lg:!text-2xs">
+                {t('Muted')}
+              </p>
+            ) : author.visibleRole ? (
               <p data-testid="visible-role" className="smalltext !text-xs !leading-4 lg:!text-2xs">
                 {t(author.visibleRole.name as TranslationKey)}
               </p>
