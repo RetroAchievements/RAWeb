@@ -115,7 +115,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
 
       coverage: {
         provider: 'v8',
-        reporter: ['text', 'html'],
+        reporter: [['text', { skipFull: true }], 'html'],
         include: [
           /*
            * Disregard coverage for Alpine.js stuff, mounting code, /pages, and /tools.

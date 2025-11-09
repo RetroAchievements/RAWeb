@@ -41,7 +41,6 @@ class UserFactory extends Factory
             'ContribCount' => 0,
             'TrueRAPoints' => 0,
             'DeleteRequested' => null,
-            'fbUser' => 0,
             'Untracked' => 0,
             'UserWallActive' => 1,
             'muted_until' => null,
