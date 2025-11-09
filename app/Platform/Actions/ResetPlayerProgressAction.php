@@ -202,8 +202,8 @@ class ResetPlayerProgressAction
             $user->leaderboardEntries()->delete();
 
             $user->RAPoints = 0;
-            $user->RASoftcorePoints = null;
-            $user->TrueRAPoints = null;
+            $user->RASoftcorePoints = 0;
+            $user->TrueRAPoints = 0;
             $user->ContribCount = 0;
             $user->ContribYield = 0;
             $user->saveQuietly();
