@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { route } from 'ziggy-js';
 
 import { currentListViewAtom } from '@/features/games/state/games.atoms';
-import { render, screen } from '@/test';
+import { render, screen, waitFor } from '@/test';
 import {
   createAchievementSet,
   createGame,
@@ -265,5 +265,33 @@ describe('Component: SetSelectionTabs', () => {
         view: 'leaderboards',
       }),
     );
+  });
+
+  it('given the animation timing progresses, eventually applies transition classes to the indicator', async () => {
+    // ARRANGE
+    const game = createGame();
+    const selectableGameAchievementSets = [createGameAchievementSet()];
+
+    render(<SetSelectionTabs activeTab={null} />, {
+      pageProps: {
+        game,
+        selectableGameAchievementSets,
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    const indicator = screen.getByTestId('tab-indicator');
+
+    // ... initially there are no transition classes applied (isAnimationReady starts as false) ...
+    expect(indicator).not.toHaveClass('transition-all');
+
+    // ASSERT
+    await waitFor(
+      () => {
+        expect(indicator).toHaveClass('transition-all'); // !!
+      },
+      { timeout: 200 },
+    );
+    expect(indicator).toHaveClass('duration-200');
   });
 });

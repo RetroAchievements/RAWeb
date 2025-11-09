@@ -141,10 +141,10 @@ export default defineConfig(({ mode, isSsrBuild }) => {
           '**/*.spec.tsx',
         ],
         thresholds: {
-          lines: 98.5,
+          lines: 99,
           functions: 100,
-          branches: 98.5,
-          statements: 98.5,
+          branches: 99.5,
+          statements: 99,
         },
       },
     },
@@ -176,13 +176,13 @@ function detectServerConfig(env: Record<string, string>) {
         key: readFileSync(keyPath),
         cert: readFileSync(certificatePath),
       },
-      port: env.VITE_PORT,
+      port: Number(env.VITE_PORT),
     };
   }
 
   return {
     watch,
     cors: true,
-    port: env.VITE_PORT,
+    port: Number(env.VITE_PORT),
   };
 }
