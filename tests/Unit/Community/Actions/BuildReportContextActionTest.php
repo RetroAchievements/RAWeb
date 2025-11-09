@@ -212,7 +212,7 @@ class BuildReportContextActionTest extends TestCase
         // Assert
         $this->assertStringContainsString('**Reported Content:**', $result);
         $this->assertStringContainsString('#comment_' . $comment->ID, $result);
-        $this->assertStringContainsString('**Author:** [SomeGUy](', $result);
+        $this->assertStringContainsString('**Author:** [SomeGuy](', $result);
 
         $this->assertStringContainsString('**Posted:** <t:', $result); // discord timestamp format
         $this->assertStringContainsString(':R>', $result);
