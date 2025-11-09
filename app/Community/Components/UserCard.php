@@ -73,7 +73,7 @@ class UserCard extends Component
     private function buildAllCardViewValues(string $username, array $rawUserData): array
     {
         $cardBioData = $this->buildCardBioData($rawUserData);
-        $cardRankData = $this->buildCardRankData($username, $rawUserData['RAPoints'], $rawUserData['RASoftcorePoints'], $rawUserData['Untracked'] ? true : false);
+        $cardRankData = $this->buildCardRankData($username, $rawUserData['RAPoints'], $rawUserData['RASoftcorePoints'] ?? 0, $rawUserData['Untracked'] ? true : false);
         $cardRoleData = $this->buildCardRoleData($username, $rawUserData['visibleRoleName'], $rawUserData['isBanned'], $rawUserData['isMuted']);
 
         return array_merge($cardBioData, $cardRankData, $cardRoleData);

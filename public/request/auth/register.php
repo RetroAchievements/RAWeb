@@ -57,8 +57,6 @@ $userModel = new User([
 $userModel->Password = Hash::make($pass);
 $userModel->ulid = (string) Str::ulid();
 $userModel->email_backup = $email;
-$userModel->fbUser = 0;
-$userModel->fbPrefs = 0;
 $userModel->UnreadMessageCount = 0;
 $userModel->save();
 
