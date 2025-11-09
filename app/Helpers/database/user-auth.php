@@ -1,8 +1,8 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\PasswordResetToken;
 use App\Models\User;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -14,8 +14,9 @@ function changePassword(string $username, string $password): string
 
     $user->Password = $hashedPassword;
     $user->SaltedPass = '';
-    $user->PasswordResetToken = '';
     $user->saveQuietly();
+
+    PasswordResetToken::where('user_id', $user->id)->delete();
 
     return $hashedPassword;
 }
@@ -103,25 +104,6 @@ function authenticateFromAppToken(
     $permissionOut = $permissions;
 
     return true;
-}
-
-function generateAppToken(string $username, ?string &$tokenOut): bool
-{
-    $user = User::whereName($username)->first();
-    if (!$user) {
-        return false;
-    }
-
-    $user->appToken = $tokenOut = newAppToken();
-    $user->appTokenExpiry = Carbon::now()->clone()->addDays(14);
-    $user->saveQuietly();
-
-    return true;
-}
-
-function newAppToken(): string
-{
-    return Str::random(16);
 }
 
 /*

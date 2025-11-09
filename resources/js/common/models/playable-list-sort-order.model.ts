@@ -1,6 +1,7 @@
 export type PlayableListSortOrder =
   | '-displayOrder'
   | '-points'
+  | '-rank'
   | '-title'
   | '-type'
   | '-wonBy'
@@ -8,6 +9,7 @@ export type PlayableListSortOrder =
   | 'displayOrder'
   | 'normal'
   | 'points'
+  | 'rank'
   | 'title'
   | 'type'
   | 'wonBy';
