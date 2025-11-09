@@ -7,6 +7,7 @@ namespace App\Community;
 use App\Community\Commands\DeleteOldUserActivities;
 use App\Community\Commands\GenerateAnnualRecap;
 use App\Community\Commands\MigrateTicketCommentMetadata;
+use App\Community\Commands\ProcessExpiredMutes;
 use App\Community\Components\DeveloperGameStatsTable;
 use App\Community\Components\ForumRecentActivity;
 use App\Community\Components\MessageIcon;
@@ -48,6 +49,7 @@ class AppServiceProvider extends ServiceProvider
                 DeleteOldUserActivities::class,
                 GenerateAnnualRecap::class,
                 MigrateTicketCommentMetadata::class,
+                ProcessExpiredMutes::class,
             ]);
         }
 
@@ -56,6 +58,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule = $this->app->make(Schedule::class);
 
             $schedule->command(DeleteOldUserActivities::class)->daily();
+            $schedule->command(ProcessExpiredMutes::class)->daily();
         });
 
         Relation::morphMap([
