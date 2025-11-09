@@ -26,6 +26,7 @@ declare namespace App.Community.Data {
     updatedAt: string | null;
     user: App.Data.User;
     canDelete: boolean;
+    canReport: boolean;
     isAutomated: boolean;
   };
   export type DeveloperFeedPageProps<TItems = App.Community.Data.ActivePlayer> = {
@@ -120,10 +121,10 @@ declare namespace App.Community.Data {
     messageThread: App.Community.Data.MessageThread;
     paginatedMessages: App.Data.PaginatedData<TItems>;
     dynamicEntities: App.Community.Data.ShortcodeDynamicEntities;
+    can: App.Data.UserPermissions;
     canReply: boolean;
     senderUserAvatarUrl: string | null;
     senderUserDisplayName: string;
-    can: App.Data.UserPermissions;
   };
   export type PatreonSupportersPageProps = {
     recentSupporters: Array<App.Data.User>;
