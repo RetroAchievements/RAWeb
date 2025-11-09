@@ -113,7 +113,11 @@ class BuildReportContextActionTest extends TestCase
         );
 
         // Assert
-        $this->assertStringNotContainsString('[b]Reported Content:[/b]', $result); // no header for DMs
+        $this->assertStringContainsString('[b]Reported Content:[/b]', $result);
+        $this->assertStringContainsString('[url=', $result);
+        $this->assertStringContainsString(']View reported message[/url]', $result);
+        $this->assertStringContainsString('?message=' . $message->id, $result);
+
         $this->assertStringContainsString('[b]Author:[/b] [user=' . $author->id . ']', $result);
         $this->assertStringContainsString('[b]Sent:[/b]', $result); // !! "Sent", not "Posted", for DMs
         $this->assertStringContainsString('[b]Report Details:[/b]', $result);
