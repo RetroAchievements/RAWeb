@@ -66,11 +66,30 @@ class BuildGameChecklistAction
 
         $result = [];
         foreach ($groups as $group) {
+            $masteredCount = 0;
+            $completedCount = 0;
+            $beatenCount = 0;
+            $beatenSoftcoreCount = 0;
+
             $gameList = [];
             foreach ($group['gameIds'] as $gameId) {
                 $game = $games->filter(fn ($g) => $g->ID === $gameId)->first();
                 if ($game) {
                     $playerGame = $playerGames->filter(fn ($pg) => $pg->game_id === $gameId)->first();
+                    if ($playerGame) {
+                        if ($playerGame->completed_hardcore_at) {
+                            $masteredCount++;
+                        } elseif ($playerGame->completed_at) {
+                            $completedCount++;
+                        }
+
+                        if ($playerGame->beaten_hardcore_at) {
+                            $beatenCount++;
+                        } elseif ($playerGame->beaten_at) {
+                            $beatenSoftcoreCount++;
+                        }
+                    }
+
                     $gameList[] = new GameListEntryData(
                         GameData::fromGame($game)->include(
                             'achievementsPublished',
@@ -84,7 +103,14 @@ class BuildGameChecklistAction
                 }
             }
 
-            $result[] = new GameGroupData($group['header'], $gameList);
+            $result[] = new GameGroupData(
+                $group['header'],
+                $masteredCount,
+                $completedCount,
+                $beatenCount,
+                $beatenSoftcoreCount,
+                $gameList
+            );
         }
 
         return $result;

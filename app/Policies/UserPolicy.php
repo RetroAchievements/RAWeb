@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Community\Enums\Rank;
+use App\Exceptions\BannedUserException;
 use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
@@ -39,7 +40,7 @@ class UserPolicy
          * regular users shouldn't be able to view banned users
          */
         if ($model->isBanned()) {
-            return false;
+            throw new BannedUserException();
         }
 
         /*

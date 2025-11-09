@@ -78,7 +78,13 @@ class BuildShowForumTopicPagePropsAction
             function ($comment, $index) use ($updatedBodies, $user, $accessibleTeamIds) {
                 $comment->body = $updatedBodies[$index];
 
-                $includes = ['user.createdAt', 'user.deletedAt', 'user.visibleRole'];
+                $includes = [
+                    'user.createdAt',
+                    'user.deletedAt',
+                    'user.isBanned',
+                    'user.isMuted',
+                    'user.visibleRole',
+                ];
 
                 /**
                  * Include the sentBy and editedBy values if:
