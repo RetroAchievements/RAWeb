@@ -24,6 +24,14 @@ class NewsPolicy
         ]);
     }
 
+    public function manageSiteReleaseNotes(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::ENGINEER,
+        ]);
+    }
+
     public function viewAny(?User $user): bool
     {
         return true;

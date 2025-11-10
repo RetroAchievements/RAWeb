@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Community\Concerns\HasAuthor;
+use App\Community\Concerns\HasViews;
 use App\Community\Contracts\HasComments;
+use App\Community\Contracts\HasViewTracking;
 use App\Community\Enums\NewsCategory;
 use App\Support\Database\Eloquent\BaseModel;
 use Carbon\Carbon;
@@ -20,11 +22,12 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class News extends BaseModel implements HasComments, HasMedia
+class News extends BaseModel implements HasComments, HasMedia, HasViewTracking
 {
     use HasAuthor;
     /** @use HasFactory<NewsFactory> */
     use HasFactory;
+    use HasViews;
     use InteractsWithMedia;
 
     use SoftDeletes;

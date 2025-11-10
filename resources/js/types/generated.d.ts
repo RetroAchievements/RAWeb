@@ -493,6 +493,9 @@ declare namespace App.Http.Data {
     persistedActivePlayersSearch: string | null;
     userCurrentGame: App.Platform.Data.Game | null;
     userCurrentGameMinutesAgo: number | null;
+    hasSiteReleaseNotes: boolean;
+    hasUnreadSiteReleaseNote: boolean;
+    deferredSiteReleaseNotes: Array<App.Data.News>;
   };
 }
 declare namespace App.Models {
