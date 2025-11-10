@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuRocket } from 'react-icons/lu';
+import { LuSquareTerminal } from 'react-icons/lu';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { BaseDialog, BaseDialogTrigger } from '@/common/components/+vendor/BaseDialog';
@@ -40,7 +40,7 @@ export const LatestSiteUpdatesButton: FC = () => {
             buildTrackingClassNames('Click Top Link Latest Site Updates'),
           )}
         >
-          <LuRocket className="mr-2 size-4 text-amber-400" />
+          <LuSquareTerminal className="mr-2 size-4 text-amber-400" />
 
           {t('Latest Site Updates')}
 

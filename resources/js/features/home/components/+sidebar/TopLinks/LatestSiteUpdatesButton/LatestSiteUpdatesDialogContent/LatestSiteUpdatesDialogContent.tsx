@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { LuChevronRight } from 'react-icons/lu';
 
 import {
@@ -9,10 +9,11 @@ import {
   BaseDialogHeader,
   BaseDialogTitle,
 } from '@/common/components/+vendor/BaseDialog';
+import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { MarkdownRenderer } from '@/common/components/MarkdownRenderer';
+import { UserAvatar } from '@/common/components/UserAvatar';
 import { useMarkAsViewedMutation } from '@/common/hooks/mutations/useMarkAsViewedMutation';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 interface LatestSiteUpdatesDialogContentProps {
   latestNewsId?: number;
@@ -61,9 +62,30 @@ export const LatestSiteUpdatesDialogContent: FC<LatestSiteUpdatesDialogContentPr
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
                   <p className="text-lg font-semibold">{note.title}</p>
-                  <time className="shrink-0 text-2xs text-neutral-400">
-                    {formatDate(note.createdAt, 'll')}
-                  </time>
+
+                  <span className="flex items-center gap-2 text-2xs text-neutral-400">
+                    <span>
+                      <DiffTimestamp at={note.createdAt} enableTooltip={false} />
+                    </span>
+
+                    <span>{'·'}</span>
+
+                    <span className="flex gap-1 italic">
+                      <Trans
+                        i18nKey="Posted by <1>{{username}}</1>"
+                        components={{
+                          1: (
+                            <UserAvatar
+                              {...note.user}
+                              size={16}
+                              imgClassName="rounded-full"
+                              labelClassName="-ml-1 not-italic"
+                            />
+                          ),
+                        }}
+                      />
+                    </span>
+                  </span>
                 </div>
 
                 <MarkdownRenderer>{note.body}</MarkdownRenderer>
