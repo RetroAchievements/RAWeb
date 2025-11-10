@@ -516,4 +516,28 @@ describe('Component: SidebarDevelopmentSection', () => {
       screen.queryByRole('link', { name: /view developer interest/i }),
     ).not.toBeInTheDocument();
   });
+
+  it('given the user can view developer interest but the count is null, displays the button without a count', () => {
+    // ARRANGE
+    const game = createGame({ gameAchievementSets: [] });
+    const backingGame = createGame({ id: 123 });
+
+    render(<SidebarDevelopmentSection />, {
+      pageProps: {
+        backingGame,
+        game,
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        achievementSetClaims: [],
+        can: { viewDeveloperInterest: true }, // !!
+        isOnWantToDevList: false,
+        numInterestedDevelopers: null, // !!
+      },
+    });
+
+    // ASSERT
+    const link = screen.getByRole('link', { name: /view developer interest/i });
+
+    expect(link).toBeVisible();
+    expect(link).not.toHaveTextContent(/\d+/); // no digits
+  });
 });

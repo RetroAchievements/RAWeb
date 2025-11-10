@@ -21,7 +21,7 @@ export const SetRarityLabel: FC<SetRarityLabelProps> = ({ pointsTotal, pointsWei
   }
 
   return (
-    <BaseTooltip>
+    <BaseTooltip disableHoverableContent={true}>
       <BaseTooltipTrigger>
         <span>
           {'· '}

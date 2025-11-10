@@ -236,6 +236,11 @@ class Handler extends ExceptionHandler
             }
         }
 
+        // Handle banned user exceptions with a contextual 404 page.
+        if ($e instanceof BannedUserException && !$request->expectsJson()) {
+            return response()->view('errors.404', ['isBannedUser' => true], 404);
+        }
+
         return parent::render($request, $e);
     }
 }

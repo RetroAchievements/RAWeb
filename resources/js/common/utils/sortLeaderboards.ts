@@ -37,6 +37,20 @@ export function sortLeaderboards(
       });
     }
 
+    case 'rank':
+    case '-rank': {
+      const isBestFirst = sortOrder === 'rank';
+
+      const sorted = sortedLeaderboards.sort((a, b) => {
+        const aRank = a.userEntry?.rank || (!isBestFirst ? 0 : Number.MAX_SAFE_INTEGER);
+        const bRank = b.userEntry?.rank || (!isBestFirst ? 0 : Number.MAX_SAFE_INTEGER);
+
+        return aRank - bRank;
+      });
+
+      return isBestFirst ? sorted : sorted.reverse();
+    }
+
     default:
       return sortedLeaderboards;
   }

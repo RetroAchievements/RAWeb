@@ -9,7 +9,6 @@ import {
   persistedTicketsAtom,
   persistedUsersAtom,
 } from '@/common/state/shortcode.atoms';
-import { extractDynamicEntitiesFromBody } from '@/common/utils/shortcodes/extractDynamicEntitiesFromBody';
 import { preProcessShortcodesInBody } from '@/common/utils/shortcodes/preProcessShortcodesInBody';
 
 import type { ShortcodeBodyPreviewMutationResponse } from '../models';
@@ -44,20 +43,13 @@ export function useShortcodeBodyPreview() {
     // Normalize any internal URLs to shortcode format.
     const normalizedBody = preProcessShortcodesInBody(body);
 
-    // Then, extract dynamic entities from the normalized content.
-    const dynamicEntities = extractDynamicEntitiesFromBody(normalizedBody);
+    // Send the body to the server for entity extraction and fetching.
+    // The server will handle normalizing, converting [game=X?set=Y] to backing game IDs, and extracting entities.
+    const response = await mutation.mutateAsync(normalizedBody);
+    mergeRetrievedEntities(response.data);
 
-    // Do we have any dynamic entities to fetch from the server?
-    // If not, we'll skip a round trip to the server to make the preview seem instantaneous.
-    const hasDynamicEntities = Object.values(dynamicEntities).some((arr) => arr.length > 0);
-
-    // If there are no dynamic entities in the post content, skip the round trip to the server.
-    if (hasDynamicEntities) {
-      const response = await mutation.mutateAsync(dynamicEntities);
-      mergeRetrievedEntities(response.data);
-    }
-
-    setPreviewContent(normalizedBody);
+    // Use the converted body from the server (eg: "[game=X?set=Y]"" has been converted to "[game=backingGameId]").
+    setPreviewContent(response.data.convertedBody);
   };
 
   /**
