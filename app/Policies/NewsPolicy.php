@@ -27,7 +27,6 @@ class NewsPolicy
     public function manageSiteReleaseNotes(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::ADMINISTRATOR,
             Role::ENGINEER,
         ]);
     }
