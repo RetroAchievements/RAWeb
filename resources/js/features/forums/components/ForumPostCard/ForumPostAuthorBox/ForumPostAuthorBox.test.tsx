@@ -25,6 +25,8 @@ describe('Component: ForumPostAuthorBox', () => {
     const user = createUser({
       id: 1,
       displayName: 'Scott',
+      isBanned: false, // !!
+      isMuted: false, // !!
       visibleRole: { id: 1, name: 'founder' },
     });
 
@@ -46,7 +48,9 @@ describe('Component: ForumPostAuthorBox', () => {
     const user = createUser({
       id: 1,
       displayName: 'Scott',
-      visibleRole: null, //!!
+      isBanned: false, // !!
+      isMuted: false, // !!
+      visibleRole: null, // !!
     });
 
     const mockComment = createForumTopicComment({
@@ -78,5 +82,95 @@ describe('Component: ForumPostAuthorBox', () => {
     // ASSERT
     expect(screen.getByText(user.displayName)).toBeVisible();
     expect(screen.queryByText(/joined/i)).not.toBeInTheDocument();
+  });
+
+  it('given the author is banned, always displays a Banned status', () => {
+    // ARRANGE
+    const user = createUser({
+      id: 1,
+      displayName: 'SomeGuy',
+      isBanned: true, // !!
+      visibleRole: { id: 1, name: 'developer' },
+    });
+
+    const mockComment = createForumTopicComment({
+      user,
+    });
+
+    render(<ForumPostAuthorBox comment={mockComment} />);
+
+    // ASSERT
+    expect(screen.getByTestId('banned-status')).toBeVisible();
+    expect(screen.getByText(/banned/i)).toBeVisible();
+    expect(screen.queryByTestId('visible-role')).not.toBeInTheDocument();
+  });
+
+  it('given the author is muted but not banned, always displays a Muted status', () => {
+    // ARRANGE
+    const user = createUser({
+      id: 1,
+      displayName: 'SomeGuy',
+      isMuted: true, // !!
+      visibleRole: { id: 1, name: 'developer' },
+    });
+
+    const mockComment = createForumTopicComment({
+      user,
+    });
+
+    render(<ForumPostAuthorBox comment={mockComment} />);
+
+    // ASSERT
+    expect(screen.getByTestId('muted-status')).toBeVisible();
+    expect(screen.getByText(/muted/i)).toBeVisible();
+    expect(screen.queryByTestId('visible-role')).not.toBeInTheDocument();
+  });
+
+  it('given the author is both banned and muted, displays Banned', () => {
+    // ARRANGE
+    const user = createUser({
+      id: 1,
+      displayName: 'SomeGuy',
+      isBanned: true, // !!
+      isMuted: true, // !!
+      visibleRole: { id: 1, name: 'developer' },
+    });
+
+    const mockComment = createForumTopicComment({
+      user,
+    });
+
+    render(<ForumPostAuthorBox comment={mockComment} />);
+
+    // ASSERT
+    expect(screen.getByTestId('banned-status')).toBeVisible();
+    expect(screen.getByText(/banned/i)).toBeVisible();
+
+    expect(screen.queryByTestId('muted-status')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('visible-role')).not.toBeInTheDocument();
+  });
+
+  it('given the author is not banned or muted, displays their role normally', () => {
+    // ARRANGE
+    const user = createUser({
+      id: 1,
+      displayName: 'SomeGuy',
+      isBanned: false, // !!
+      isMuted: false, // !!
+      visibleRole: { id: 1, name: 'developer' },
+    });
+
+    const mockComment = createForumTopicComment({
+      user,
+    });
+
+    render(<ForumPostAuthorBox comment={mockComment} />);
+
+    // ASSERT
+    expect(screen.getByTestId('visible-role')).toBeVisible();
+    expect(screen.getByText(/developer/i)).toBeVisible();
+
+    expect(screen.queryByTestId('banned-status')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('muted-status')).not.toBeInTheDocument();
   });
 });

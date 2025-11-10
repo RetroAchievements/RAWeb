@@ -58,7 +58,15 @@ export function useChangeEmailAddressForm(props: {
 
         return t('Changed email address!');
       },
-      error: t('Something went wrong.'),
+      error: (error) => {
+        const response = error?.response;
+
+        if (response?.data?.message?.includes('provider is not allowed')) {
+          return t('This email provider is not allowed.');
+        }
+
+        return t('Something went wrong.');
+      },
     });
   };
 

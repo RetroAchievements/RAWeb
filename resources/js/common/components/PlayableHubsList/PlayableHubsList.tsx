@@ -94,6 +94,17 @@ function filterHubs(
   const { canManageGames, excludeIds } = options;
 
   return allHubs.filter((hub) => {
+    const isMetaHub = hub.title?.includes('Meta -') || hub.title?.includes('Meta|');
+    const isEventHub = hub.isEventHub;
+    const isAchievementExtras =
+      hub.title?.includes('RANews -') || hub.title?.includes('Custom Awards -');
+    const isRolloutSets = hub.title?.includes('Rollout Sets -');
+    const isSeriesHub = hub.title?.includes('Series -') || hub.title?.includes('Subseries -');
+
+    if (!isMetaHub && !isEventHub && !isAchievementExtras && !isRolloutSets && !isSeriesHub) {
+      return false; // Everything else goes to metadata table.
+    }
+
     // Only users who can manage games can see team meta hubs on the list.
     // Exception: Meta|Art hubs are publicly visible.
     if (hub.title?.includes('Meta|') && !hub.title?.includes('Meta|Art') && !canManageGames) {

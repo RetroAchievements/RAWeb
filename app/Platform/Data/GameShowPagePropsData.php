@@ -12,6 +12,7 @@ use Illuminate\Support\Collection;
 use Spatie\LaravelData\Attributes\AutoInertiaDeferred;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
+use Spatie\TypeScriptTransformer\Attributes\LiteralTypeScriptType;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript('GameShowPageProps')]
@@ -47,7 +48,9 @@ class GameShowPagePropsData extends Data
         public bool $isMissableOnlyFilterEnabled,
         public bool $isOnWantToDevList,
         public bool $isOnWantToPlayList,
+        public bool $isSubscribedToAchievementComments,
         public bool $isSubscribedToComments,
+        public bool $isSubscribedToTickets,
         public bool $isViewingPublishedAchievements,
         public Collection $followedPlayerCompletions,
         public Collection $playerAchievementChartBuckets,
@@ -59,6 +62,7 @@ class GameShowPagePropsData extends Data
         public int $numComments,
         public int $numCompatibleHashes,
         public int $numCompletions,
+        public ?int $numInterestedDevelopers,
         public int $numLeaderboards,
         public int $numMasters,
         public int $numOpenTickets,
@@ -69,6 +73,9 @@ class GameShowPagePropsData extends Data
         public Collection $topAchievers,
         public ?PlayerGameData $playerGame,
         public ?PlayerGameProgressionAwardsData $playerGameProgressionAwards,
+        /** @var Collection<int, PlayerAchievementSetData> */
+        #[LiteralTypeScriptType('Record<number, App.Platform.Data.PlayerAchievementSet>')]
+        public Collection $playerAchievementSets,
         /** @var GameAchievementSetData[] */
         public array $selectableGameAchievementSets,
         public ?SeriesHubData $seriesHub,

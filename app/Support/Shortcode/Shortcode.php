@@ -214,9 +214,10 @@ final class Shortcode
         $injectionShortcodes = [
             // "[game=1]" --> "Sonic the Hedgehog (Mega Drive)"
             '~\[game=(\d+)]~i' => function ($matches) {
-                $gameData = getGameData((int) $matches[1]);
-                if ($gameData) {
-                    return "{$gameData['Title']} ({$gameData['ConsoleName']})";
+                $gameId = (int) $matches[1];
+                $game = Game::with('system')->find($gameId);
+                if ($game) {
+                    return "{$game->title} ({$game->system->name})";
                 }
 
                 return "";
@@ -239,9 +240,10 @@ final class Shortcode
 
             // "[ach=1]" --> "Ring Collector (5)"
             '~\[ach=(\d+)]~i' => function ($matches) {
-                $achievementData = GetAchievementData((int) $matches[1]);
-                if ($achievementData) {
-                    return "{$achievementData['Title']} ({$achievementData['Points']})";
+                $achievementId = (int) $matches[1];
+                $achievement = Achievement::find($achievementId);
+                if ($achievement) {
+                    return "{$achievement->title} ({$achievement->points})";
                 }
 
                 return "";
@@ -320,6 +322,214 @@ final class Shortcode
         }
 
         // Handle edge case: if the input is just ellipses, show nothing.
+        if ($input === "...") {
+            $input = "";
+        }
+
+        return $input;
+    }
+
+    public static function convertToMarkdown(
+        string $input,
+        int $maxLength = 10000,
+        bool $preserveWhitespace = false,
+    ): string {
+        // Inject game, achievement, user, hub, event, and ticket data as Markdown links.
+        $injectionShortcodes = [
+            // "[game=1]" --> "[Sonic the Hedgehog (Mega Drive)](https://retroachievements.org/game/1)"
+            '~\[game=(\d+)]~i' => function ($matches) {
+                $gameId = (int) $matches[1];
+                $game = Game::with('system')->find($gameId);
+                if ($game) {
+                    $url = route('game.show', $matches[1]);
+
+                    return "[{$game->title} ({$game->system->name})]({$url})";
+                }
+
+                return "";
+            },
+
+            // "[hub=1]" --> "[[Central] (Hubs)](https://retroachievements.org/hub/1)"
+            '~\[hub=(\d+)]~i' => function ($matches) {
+                $hubId = (int) $matches[1];
+                $hubData = GameSet::query()
+                    ->where('id', $hubId)
+                    ->where('type', GameSetType::Hub)
+                    ->first();
+
+                if ($hubData) {
+                    $url = route('hub.show', $hubId);
+
+                    return "[{$hubData->title} (Hubs)]({$url})";
+                }
+
+                return "";
+            },
+
+            // "[ach=1]" --> "[Ring Collector (5)](https://retroachievements.org/achievement/1)"
+            '~\[ach=(\d+)]~i' => function ($matches) {
+                $achievementId = (int) $matches[1];
+                $achievement = Achievement::find($achievementId);
+                if ($achievement) {
+                    $url = route('achievement.show', $matches[1]);
+
+                    return "[{$achievement->title} ({$achievement->points})]({$url})";
+                }
+
+                return "";
+            },
+
+            // "[event=1]" --> "[Event Name (Events)](https://retroachievements.org/event/1)"
+            '~\[event=(\d+)]~i' => function ($matches) {
+                $eventId = (int) $matches[1];
+                $eventData = Event::find($eventId);
+                if ($eventData) {
+                    $url = route('event.show', $eventId);
+
+                    return "[{$eventData->legacyGame->title} (Events)]({$url})";
+                }
+
+                return "";
+            },
+
+            // "[user=1]" --> "[Scott](https://retroachievements.org/user/Scott)"
+            '~\[user=(\d+)]~i' => function ($matches) {
+                $userId = (int) $matches[1];
+                $user = User::withTrashed()->find($userId);
+                if ($user) {
+                    $url = route('user.show', ['user' => $user]);
+
+                    return "[{$user->display_name}]({$url})";
+                }
+
+                return "Deleted User";
+            },
+
+            // "[ticket=123]" --> "[Ticket #123](https://retroachievements.org/ticket/123)"
+            '~\[ticket=(\d+)]~i' => function ($matches) {
+                $ticketId = (int) $matches[1];
+                $ticket = Ticket::find($ticketId);
+                if ($ticket) {
+                    $url = route('ticket.show', ['ticket' => $ticket]);
+
+                    return "[Ticket #{$ticketId}]({$url})";
+                }
+
+                return "Ticket #{$ticketId}";
+            },
+        ];
+
+        foreach ($injectionShortcodes as $pattern => $callback) {
+            $input = preg_replace_callback($pattern, $callback, $input);
+        }
+
+        // Convert [quote] blocks to Markdown blockquotes.
+        // Handle nested quotes by processing innermost quotes first.
+        while (preg_match('~\[quote\](.*?)\[/quote\]~is', $input)) {
+            $input = preg_replace_callback(
+                '~\[quote\](.*?)\[/quote\]~is',
+                function ($matches) {
+                    $content = trim($matches[1]);
+
+                    // Prefix each line with "> " to create a Markdown blockquote.
+                    $lines = explode("\n", $content);
+                    $quotedLines = array_map(fn ($line) => '> ' . trim($line), $lines);
+
+                    return implode("\n", $quotedLines);
+                },
+                $input
+            );
+        }
+
+        // Convert [url] tags to Markdown links.
+        // It's important to always be sure a protocol prefix is set,
+        // otherwise Discord won't render the link and will render plain text.
+        $input = preg_replace_callback(
+            '~\[url=(.*?)\](.*?)\[/url\]~is',
+            function ($matches) {
+                $url = $matches[1];
+
+                // Add protocol prefix if it's missing.
+                $scheme = parse_url($url, PHP_URL_SCHEME);
+                $host = parse_url($url, PHP_URL_HOST);
+
+                if (empty($scheme)) {
+                    $url = 'https://' . ltrim($url, '/');
+                } elseif ($scheme === 'http' && str_ends_with($host, 'retroachievements.org')) {
+                    $url = str_replace('http://', 'https://', $url);
+                }
+
+                return "[{$matches[2]}]({$url})";
+            },
+            $input
+        );
+
+        // Convert [url]link[/url] to just the link.
+        $input = preg_replace_callback(
+            '~\[url\](.*?)\[/url\]~is',
+            function ($matches) {
+                $url = $matches[1];
+
+                // Add protocol prefix if it's missing.
+                $scheme = parse_url($url, PHP_URL_SCHEME);
+                $host = parse_url($url, PHP_URL_HOST);
+
+                if (empty($scheme)) {
+                    $url = 'https://' . ltrim($url, '/');
+                } elseif ($scheme === 'http' && str_ends_with($host, 'retroachievements.org')) {
+                    $url = str_replace('http://', 'https://', $url);
+                }
+
+                return $url;
+            },
+            $input
+        );
+
+        // Convert non-custom BBCode to Markdown.
+        $conversionPatterns = [
+            // "[b]text[/b]" --> "**text**"
+            '~\[b\](.*?)\[/b\]~is' => '**$1**',
+
+            // "[i]text[/i]" --> "*text*"
+            '~\[i\](.*?)\[/i\]~is' => '*$1*',
+
+            // "[s]text[/s]" --> "~~text~~"
+            '~\[s\](.*?)\[/s\]~is' => '~~$1~~',
+
+            // "[u]text[/u]" --> "__text__"
+            '~\[u\](.*?)\[/u\]~is' => '__$1__',
+
+            // "[code]code[/code]" --> "```code```"
+            '~\[code\](.*?)\[/code\]~is' => '```$1```',
+
+            // "[spoiler]text[/spoiler]" --> "||text||"
+            '~\[spoiler\](.*?)\[/spoiler\]~is' => '||$1||',
+
+            // "[img]url[/img]" --> "url"
+            '~\[img\](.*?)\[/img\]~i' => '$1',
+            '~\[img=(.*?)\]~i' => '$1',
+        ];
+
+        foreach ($conversionPatterns as $pattern => $replacement) {
+            $input = preg_replace($pattern, $replacement, $input);
+        }
+
+        // Strip any remaining unconverted BBCode fragments (but not Markdown links).
+        // Match [tag] or [tag=value] or [/tag], but only simple tag names without spaces.
+        // Don't match if it's part of a Markdown link [text](url) structure.
+        $input = preg_replace('~\[/?[a-z]+(?:=[^\]\s]*?)?\](?!\s*\([^\)]+\))~i', '', $input);
+
+        // Clean up whitespace if needed.
+        if (!$preserveWhitespace) {
+            $input = trim(preg_replace('/\s+/', ' ', $input));
+        }
+
+        // Clamp to max length.
+        if (mb_strlen($input) > $maxLength) {
+            $input = mb_substr($input, 0, $maxLength) . '...';
+        }
+
+        // If for some reason the input is just ellipses, show nothing.
         if ($input === "...") {
             $input = "";
         }

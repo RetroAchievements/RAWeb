@@ -7,7 +7,9 @@ namespace App\Platform\Actions;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\PlayerAchievement;
+use App\Models\User;
 use App\Platform\Services\SearchIndexingService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -37,7 +39,10 @@ class UpdateAchievementMetricsAction
         $achievementIds = $achievements->pluck('ID')->all();
         $unlockStats = PlayerAchievement::query()
             ->whereIn('player_achievements.achievement_id', $achievementIds)
-            ->whereHas('user', function ($query) { $query->tracked(); })
+            ->whereHas('user', function ($query) {
+                /** @var Builder<User> $query */
+                $query->tracked();
+            })
             ->groupBy('player_achievements.achievement_id')
             ->selectRaw('
                 player_achievements.achievement_id,

@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'username' => ValidNewUsername::get(),
     'password' => 'required|min:8|different:username',
-    'email' => 'required|email:filter|confirmed',
+    'email' => 'required|email:filter|confirmed|not_disposable_email',
     'terms' => 'accepted',
 ]);
 
@@ -57,8 +57,6 @@ $userModel = new User([
 $userModel->Password = Hash::make($pass);
 $userModel->ulid = (string) Str::ulid();
 $userModel->email_backup = $email;
-$userModel->fbUser = 0;
-$userModel->fbPrefs = 0;
 $userModel->UnreadMessageCount = 0;
 $userModel->save();
 

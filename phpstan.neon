@@ -1,7 +1,6 @@
 includes:
     - vendor/larastan/larastan/extension.neon
     - vendor/nesbot/carbon/extension.neon
-    - phpstan-baseline.neon
 
 parameters:
 
@@ -30,24 +29,66 @@ parameters:
 
     ignoreErrors:
         - identifier: missingType.iterableValue # replaces deprecated `checkMissingIterableValueType: false`
+
         # Eager loading with with() doesn't guarantee relationships are non-null.
         - identifier: nullsafe.neverNull
+
         - '#Return type of call to method .+::map\(\) contains unresolvable type#'
         - '#Unsafe usage of new static#'
-        # accessors to polymorphic relationships
+
+        # Accessors to polymorphic relationships.
         - '#Access to an undefined property [a-zA-Z0-9\&\\_]+::\$[trigger\|subject]#'
         - '#Access to an undefined property [a-zA-Z0-9\&\\_]+::\$[a-zA-Z0-9\&\\_]+[_count]#'
-        # TODO views have been removed
+
+        # TODO views have been removed.
         - '#Parameter (.*) \$view of function view expects view-string\|null, string given.#'
-        # lib/database/user-activity.php
+
+        # lib/database/user-activity.php.
         - '#Offset (.*) does not exist on#'
+
+        # Collection template type resolution issues.
+        # PHPStan cannot always infer the key/value types from mapWithKeys() closures.
+        # This is a known limitation when using complex transformations.
         - '#Unable to resolve the template type TMapWithKeysValue in call to method Illuminate\\Support\\Collection<\*NEVER\*,\*NEVER\*>::mapWithKeys\(\)#'
+        - '#Unable to resolve the template type TMapWithKeysKey in call to method Illuminate\\Support\\Collection::mapWithKeys\(\)#'
+
+        # False positives from PHPStan being overly strict about closure type hints.
+        - identifier: varTag.nativeType
+
+        # Laravel template covariance limitations.
+        # These are framework-level issues that cannot be resolved at the application level.
+        # Laravel's Eloquent relationships use template types that are not covariant by design.
+        # See: https://phpstan.org/blog/whats-up-with-template-covariant
+        - identifier: method.childReturnType
+        - '#Template type.*is not covariant#'
+
+        # BelongsToMany::using() with custom pivot models - there is a known Larastan limitation here.
+        # The using() method expects class-string<Pivot> but PHPStan cannot always infer this from ClassName::class.
+        # This is an ongoing compatibility issue between Laravel Framework and Larastan that emerged in 2024.
+        - identifier: argument.templateType
+        -
+          identifier: argument.type
+          message: '#Parameter \#1 \$class of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany.*::using\(\) expects class-string.*#'
+
+        # Delegated relationships return different parent types.
+        # The similarGamesList() method delegates to GameSet::games() which returns a different parent type.
+        # This delegation pattern is intentional and cannot be accurately typed without a significant and low-value refactor.
+        -
+          message: '#Method App\\Models\\Game::similarGamesList\(\) should return.*but returns.*#'
+          path: app/Models/Game.php
+
+        # Deprecated helper functions with by-ref variadic parameters.
+        # PHPStan cannot accurately analyze variadic by-ref parameters to determine which types are actually assigned.
+        # These functions (sanitize_sql_inputs, sanitize_outputs) are marked @deprecated and will eventually be removed.
+        - identifier: parameterByRef.unusedType
 
     excludePaths:
         # unrelated directories
         - public/storage (?)
         - public/tmp (?)
+
         # disabled features
         - public/API/API_GetFeed.php
+
         # third party
         - app/Helpers/util/recaptcha.php

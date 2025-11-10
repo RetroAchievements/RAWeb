@@ -142,6 +142,7 @@ class RouteServiceProvider extends ServiceProvider
 
                     Route::delete('user/game/{game}', [PlayerGameController::class, 'destroy'])->name('api.user.game.destroy');
                     Route::delete('user/achievement/{achievement}', [PlayerAchievementController::class, 'destroy'])->name('api.user.achievement.destroy');
+                    Route::delete('user/progress', [PlayerGameController::class, 'destroyAll'])->name('api.user.progress.destroy');
 
                     Route::put('user/game-achievement-set/{gameAchievementSet}/preference', [UserGameAchievementSetPreferenceController::class, 'update'])
                         ->name('api.user.game-achievement-set.preference.update');

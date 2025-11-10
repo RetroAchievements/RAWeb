@@ -15,7 +15,7 @@ describe('Component: ChangeUsernameSectionCard', () => {
   const originalLocation = window.location;
 
   afterEach(() => {
-    window.location = originalLocation;
+    (window as any).location = originalLocation;
   });
 
   it('renders without crashing', () => {
@@ -201,6 +201,35 @@ describe('Component: ChangeUsernameSectionCard', () => {
     });
   });
 
+  it('given the API returns a username not available error, shows the appropriate error message', async () => {
+    // ARRANGE
+    vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
+    vi.spyOn(axios, 'post').mockRejectedValueOnce({
+      response: {
+        data: {
+          message: 'not available',
+        },
+      },
+    });
+
+    render(<ChangeUsernameSectionCard />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ displayName: 'TestUser' }) },
+        can: { createUsernameChangeRequest: true },
+      },
+    });
+
+    // ACT
+    await userEvent.type(screen.getAllByLabelText(/new username/i)[0], 'NewName');
+    await userEvent.type(screen.getByLabelText(/confirm new username/i), 'NewName');
+    await userEvent.click(screen.getByRole('button', { name: /update/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/this username is not available/i)).toBeVisible();
+    });
+  });
+
   it('given the API returns an unexpected error, shows a generic error message', async () => {
     // ARRANGE
     vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
@@ -233,7 +262,7 @@ describe('Component: ChangeUsernameSectionCard', () => {
   it('given the user submits a username that only differs in case, auto-approves without confirmation', async () => {
     // ARRANGE
     delete (window as any).location;
-    window.location = {
+    (window as any).location = {
       ...originalLocation,
       reload: vi.fn(),
     };
@@ -269,7 +298,7 @@ describe('Component: ChangeUsernameSectionCard', () => {
   it('given the API returns success for a case change, reloads the page', async () => {
     // ARRANGE
     delete (window as any).location;
-    window.location = {
+    (window as any).location = {
       ...originalLocation,
       reload: vi.fn(),
     };

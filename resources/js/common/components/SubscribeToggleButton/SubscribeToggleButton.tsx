@@ -1,8 +1,10 @@
-import { type FC, useState } from 'react';
+import { type FC, type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuBell, LuBellOff } from 'react-icons/lu';
 
 import { useToggleSubscriptionMutation } from '@/common/hooks/mutations/useToggleSubscriptionMutation';
+import { cn } from '@/common/utils/cn';
+import type { TranslatedString } from '@/types/i18next';
 
 import { BaseButton } from '../+vendor/BaseButton';
 import { toastMessage } from '../+vendor/BaseToaster';
@@ -22,12 +24,19 @@ interface SubscribeToggleButtonProps {
   subjectType: App.Community.Enums.SubscriptionSubjectType;
 
   className?: string;
+  extraIconSlot?: ReactNode;
+  label?: TranslatedString;
+  shouldShowMobileLabel?: boolean;
 }
 
 export const SubscribeToggleButton: FC<SubscribeToggleButtonProps> = ({
+  className,
+  extraIconSlot,
   hasExistingSubscription,
+  label,
   subjectId,
   subjectType,
+  shouldShowMobileLabel = false,
 }) => {
   const { t } = useTranslation();
 
@@ -35,7 +44,7 @@ export const SubscribeToggleButton: FC<SubscribeToggleButtonProps> = ({
 
   const [isSubscribed, setIsSubscribed] = useState(hasExistingSubscription);
 
-  const label = isSubscribed ? t('Unsubscribe') : t('Subscribe');
+  const finalLabel = label ?? (isSubscribed ? t('Unsubscribe') : t('Subscribe'));
 
   const handleClick = () => {
     const newState = !isSubscribed;
@@ -55,10 +64,23 @@ export const SubscribeToggleButton: FC<SubscribeToggleButtonProps> = ({
   };
 
   return (
-    <BaseButton size="sm" onClick={handleClick} className="gap-1.5" aria-label={label}>
-      {isSubscribed ? <LuBellOff className="size-4" /> : <LuBell className="size-4" />}
+    <BaseButton
+      size="sm"
+      onClick={handleClick}
+      className={cn('gap-1.5', className)}
+      aria-label={finalLabel}
+    >
+      <span className="flex items-center gap-0.5">
+        {isSubscribed ? (
+          <LuBellOff className="size-4" aria-label="click to unsubscribe" />
+        ) : (
+          <LuBell className="size-4" aria-label="click to subscribe" />
+        )}
 
-      <span className="hidden sm:block">{label}</span>
+        {extraIconSlot}
+      </span>
+
+      <span className={cn(!shouldShowMobileLabel ? 'hidden sm:block' : null)}>{finalLabel}</span>
     </BaseButton>
   );
 };

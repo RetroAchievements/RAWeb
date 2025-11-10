@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Community\Enums\Rank;
+use App\Exceptions\BannedUserException;
 use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
@@ -39,7 +40,7 @@ class UserPolicy
          * regular users shouldn't be able to view banned users
          */
         if ($model->isBanned()) {
-            return false;
+            throw new BannedUserException();
         }
 
         /*
@@ -160,6 +161,31 @@ class UserPolicy
     public function unrank(User $user, User $mode): bool
     {
         return $user->unranked_at === null;
+    }
+
+    public function resetEntireAccount(User $user, User $model): bool
+    {
+        // Admins and moderators can reset any account.
+        if ($this->requireAdministrativePrivileges($user, $model)) {
+            return true;
+        }
+
+        // Users can only reset their own account.
+        if (!$user->is($model)) {
+            return false;
+        }
+
+        // User must be unranked to reset their entire account.
+        if ($user->unranked_at === null) {
+            return false;
+        }
+
+        // Active developers cannot reset their entire account.
+        if ($user->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])) {
+            return false;
+        }
+
+        return true;
     }
 
     public function viewFriends(User $user, User $model): bool

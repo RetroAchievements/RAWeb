@@ -163,6 +163,7 @@ class EventAchievement extends BaseModel
     public function scopePublished(Builder $query): Builder
     {
         return $query->whereHas('achievement', function ($q) {
+            /** @var Builder<Achievement> $q */
             $q->published();
         });
     }

@@ -48,7 +48,7 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
                   {achievements.length ? (
                     <>
                       <Trans
-                        i18nKey="<1>{{achievementsCount, number}}</1> $t(playerGameProgressHardcoreAchievements, {'count': {{achievementsCount}} }) worth <2>{{pointsCount, number}}</2> $t(playerGameProgressPoints, {'count': {{pointsCount}} }) <3>(<4>{{retroPointsCount, number}}</4> <5></5>)</3>"
+                        i18nKey="<1>{{achievementsCount, number}}</1> $t(playerGameProgressHardcoreAchievements, {'count': {{achievementsCount}} }) worth <2>{{pointsCount, number}}</2> $t(playerGameProgressPoints, {'count': {{pointsCount}} })"
                         values={{
                           achievementsCount: achievements.length,
                           pointsCount: pointsTotal,
@@ -58,19 +58,36 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
                           1: <span className="font-bold" />,
                           2: <span className="font-bold" />,
                           3: <span className="TrueRatio light:text-neutral-400" />,
-                          4: <WeightedPointsContainer />,
-                          5: (
-                            <SetRarityLabel
-                              pointsTotal={pointsTotal}
-                              pointsWeighted={pointsWeighted}
-                            />
-                          ),
                         }}
                       />
                     </>
                   ) : (
                     t('There are no achievements for this set yet.')
                   )}
+
+                  {pointsWeighted !== 0 ? (
+                    <Trans
+                      i18nKey="<1>(<2>{{retroPointsCount, number}}</2> <3></3>)</1>"
+                      values={{
+                        retroPointsCount: pointsWeighted,
+                      }}
+                      components={{
+                        1: (
+                          <span
+                            data-testid="ratio-container"
+                            className="TrueRatio ml-1 light:text-neutral-400"
+                          />
+                        ),
+                        2: <WeightedPointsContainer />,
+                        3: (
+                          <SetRarityLabel
+                            pointsTotal={pointsTotal}
+                            pointsWeighted={pointsWeighted}
+                          />
+                        ),
+                      }}
+                    />
+                  ) : null}
                 </span>
 
                 <PlayerGameProgressLabel achievements={achievements} />
@@ -100,11 +117,12 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
         </div>
       </div>
 
-      {isViewingPublishedAchievements && achievements.length ? (
-        <div className="absolute right-2 top-2 hidden sm:block">
-          <GameAchievementSetProgress achievements={achievements} />
-        </div>
-      ) : null}
+      <div className="absolute right-2 top-2 hidden sm:block">
+        <GameAchievementSetProgress
+          achievements={achievements}
+          gameAchievementSet={gameAchievementSet}
+        />
+      </div>
     </div>
   );
 };

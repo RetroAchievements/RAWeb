@@ -57,6 +57,10 @@ declare namespace App.Community.Data {
   };
   export type GameGroup = {
     header: string;
+    masteredCount: number;
+    completedCount: number;
+    beatenCount: number;
+    beatenSoftcoreCount: number;
     games: Array<App.Platform.Data.GameListEntry>;
   };
   export type GameHashesCommentsPageProps<TItems = App.Community.Data.Comment> = {
@@ -108,6 +112,7 @@ declare namespace App.Community.Data {
     participants?: Array<App.Data.User>;
   };
   export type MessageThreadIndexPageProps<TItems = App.Community.Data.MessageThread> = {
+    can: App.Data.UserPermissions;
     paginatedMessageThreads: App.Data.PaginatedData<TItems>;
     unreadMessageCount: number;
     senderUserDisplayName: string;
@@ -372,6 +377,7 @@ declare namespace App.Data {
     emailAddress?: string | null;
     enableBetaFeatures?: boolean | null;
     id?: number;
+    isBanned?: boolean;
     isEmailVerified?: boolean;
     isGone?: boolean;
     isMuted?: boolean;
@@ -399,6 +405,7 @@ declare namespace App.Data {
     createForumTopicComments?: boolean;
     createGameComments?: boolean;
     createGameForumTopic?: boolean;
+    createMessageThreads?: boolean;
     createTriggerTicket?: boolean;
     createUserBetaFeedbackSubmission?: boolean;
     createUsernameChangeRequest?: boolean;
@@ -414,6 +421,7 @@ declare namespace App.Data {
     manageGames?: boolean;
     manageGameSets?: boolean;
     manipulateApiKeys?: boolean;
+    resetEntireAccount?: boolean;
     reviewAchievementSetClaims?: boolean;
     updateAnyAchievementSetClaim?: boolean;
     updateAvatar?: boolean;
@@ -421,6 +429,7 @@ declare namespace App.Data {
     updateForumTopic?: boolean;
     updateMotto?: boolean;
     viewAnyAchievementSetClaim?: boolean;
+    viewDeveloperInterest?: boolean;
   };
 }
 declare namespace App.Enums {
@@ -821,7 +830,9 @@ declare namespace App.Platform.Data {
     isMissableOnlyFilterEnabled: boolean;
     isOnWantToDevList: boolean;
     isOnWantToPlayList: boolean;
+    isSubscribedToAchievementComments: boolean;
     isSubscribedToComments: boolean;
+    isSubscribedToTickets: boolean;
     isViewingPublishedAchievements: boolean;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
     playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
@@ -832,6 +843,7 @@ declare namespace App.Platform.Data {
     numComments: number;
     numCompatibleHashes: number;
     numCompletions: number;
+    numInterestedDevelopers: number | null;
     numLeaderboards: number;
     numMasters: number;
     numOpenTickets: number;
@@ -841,6 +853,7 @@ declare namespace App.Platform.Data {
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
+    playerAchievementSets: Array<App.Platform.Data.PlayerAchievementSet>;
     selectableGameAchievementSets: Array<App.Platform.Data.GameAchievementSet>;
     seriesHub: App.Platform.Data.SeriesHub | null;
     setRequestData: App.Platform.Data.GameSetRequestData | null;
@@ -928,6 +941,12 @@ declare namespace App.Platform.Data {
     softcore: number;
     hardcore: number;
   };
+  export type PlayerAchievementSet = {
+    completedAt: string | null;
+    completedHardcoreAt: string | null;
+    timeTaken?: number | null;
+    timeTakenHardcore?: number | null;
+  };
   export type PlayerBadge = {
     awardType: number;
     awardData: number;
@@ -989,6 +1008,10 @@ declare namespace App.Platform.Data {
     completedHardcoreAt: string | null;
     points: number | null;
     pointsHardcore: number | null;
+    playtimeTotal?: number | null;
+    lastPlayedAt?: string | null;
+    timeToBeat?: number | null;
+    timeToBeatHardcore?: number | null;
     highestAward?: App.Platform.Data.PlayerBadge | null;
   };
   export type PlayerGameProgressionAwards = {
@@ -1122,7 +1145,9 @@ declare namespace App.Platform.Enums {
     | 'title'
     | '-title'
     | 'type'
-    | '-type';
+    | '-type'
+    | 'rank'
+    | '-rank';
   export type GamePageListView = 'achievements' | 'leaderboards';
   export type GameReleaseRegion =
     | 'as'

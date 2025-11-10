@@ -187,13 +187,23 @@ class ResetPlayerProgressAction
                 ->delete();
 
             $user->playerGames()->forceDelete();
-            $user->playerBadges()->delete();
+            $user->playerAchievementSets()->forceDelete();
+
+            // Only delete game-related badges (Mastery, GameBeaten, Event) unless the user is already soft deleted.
+            if ($user->trashed()) {
+                $user->playerBadges()->delete();
+            } else {
+                $user->playerBadges()
+                    ->whereIn('AwardType', [AwardType::Mastery, AwardType::GameBeaten, AwardType::Event])
+                    ->delete();
+            }
+
             $user->playerAchievements()->delete();
             $user->leaderboardEntries()->delete();
 
             $user->RAPoints = 0;
-            $user->RASoftcorePoints = null;
-            $user->TrueRAPoints = null;
+            $user->RASoftcorePoints = 0;
+            $user->TrueRAPoints = 0;
             $user->ContribCount = 0;
             $user->ContribYield = 0;
             $user->saveQuietly();

@@ -36,6 +36,7 @@ use App\Platform\Data\GameSetRequestData;
 use App\Platform\Data\GameShowPagePropsData;
 use App\Platform\Data\LeaderboardData;
 use App\Platform\Data\LeaderboardEntryData;
+use App\Platform\Data\PlayerAchievementSetData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
 use App\Platform\Data\UserCreditsData;
@@ -152,6 +153,20 @@ class BuildGameShowPagePropsAction
             }
         }
 
+        // Load the user's player_achievement_sets entities.
+        $playerAchievementSets = collect();
+        if ($user) {
+            $achievementSetIds = $game->gameAchievementSets->pluck('achievement_set_id')->unique();
+
+            $playerAchievementSets = $user->playerAchievementSets()
+                ->whereIn('achievement_set_id', $achievementSetIds)
+                ->get()
+                ->mapWithKeys(fn ($pas) => [
+                    $pas->achievement_set_id => PlayerAchievementSetData::fromPlayerAchievementSet($pas)
+                        ->include('timeTaken', 'timeTakenHardcore'),
+                ]);
+        }
+
         $similarGames = $game
             ->similarGamesList
             ->filter(
@@ -245,6 +260,8 @@ class BuildGameShowPagePropsAction
                 $this->getAchievementSetPlayerCounts($targetAchievementSet->achievement_set_id);
         }
 
+        $subscriptionService = new SubscriptionService();
+
         $propsData = new GameShowPagePropsData(
             achievementSetClaims: $achievementSetClaims,
 
@@ -262,6 +279,7 @@ class BuildGameShowPagePropsAction
                 'reviewAchievementSetClaims',
                 'updateAnyAchievementSetClaim',
                 'updateGame',
+                'viewDeveloperInterest',
             ),
 
             canSubmitBetaFeedback: $this->getCanSubmitBetaFeedback($user, 'react-game-page'),
@@ -334,7 +352,9 @@ class BuildGameShowPagePropsAction
             hubs: $relatedHubs,
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
             isOnWantToPlayList: $initialUserGameListState['isOnWantToPlayList'],
-            isSubscribedToComments: $user ? (new SubscriptionService())->isSubscribed($user, SubscriptionSubjectType::GameWall, $backingGame->id) : false,
+            isSubscribedToAchievementComments: $user ? $subscriptionService->isSubscribed($user, SubscriptionSubjectType::GameAchievements, $backingGame->id) : false,
+            isSubscribedToComments: $user ? $subscriptionService->isSubscribed($user, SubscriptionSubjectType::GameWall, $backingGame->id) : false,
+            isSubscribedToTickets: $user ? $subscriptionService->isSubscribed($user, SubscriptionSubjectType::GameTickets, $backingGame->id) : false,
             isLockedOnlyFilterEnabled: $isLockedOnlyFilterEnabled,
             isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
             isViewingPublishedAchievements: $targetAchievementFlag === AchievementFlag::OfficialCore,
@@ -349,6 +369,7 @@ class BuildGameShowPagePropsAction
             numCompletions: $numCompletions,
             numBeaten: $numBeaten,
             numBeatenSoftcore: $numBeatenSoftcore,
+            numInterestedDevelopers: $this->getInterestedDevelopersCount($backingGame, $user),
             numLeaderboards: $this->getLeaderboardsCount($backingGame),
             numMasters: $numMasters,
 
@@ -359,10 +380,13 @@ class BuildGameShowPagePropsAction
             recentPlayers: $this->loadGameRecentPlayersAction->execute($backingGame),
             recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($backingGame->visibleComments))),
             topAchievers: $topAchievers,
-            playerGame: $playerGame ? PlayerGameData::fromPlayerGame($playerGame) : null,
+            playerGame: $playerGame
+                ? PlayerGameData::fromPlayerGame($playerGame)->include('lastPlayedAt', 'playtimeTotal', 'timeToBeat', 'timeToBeatHardcore')
+                : null,
             playerGameProgressionAwards: $user
                 ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($backingGame->id, $user))
                 : null,
+            playerAchievementSets: $playerAchievementSets,
             seriesHub: $this->buildSeriesHubDataAction->execute($game),
             setRequestData: $this->buildSetRequestData($backingGame, $user),
             targetAchievementSetId: $targetAchievementSet?->achievement_set_id,
@@ -739,6 +763,17 @@ class BuildGameShowPagePropsAction
         }
 
         return $game->leaderboards->count();
+    }
+
+    private function getInterestedDevelopersCount(Game $game, ?User $user): ?int
+    {
+        if (!$user || !$user->can('viewDeveloperInterest', $game)) {
+            return null;
+        }
+
+        return UserGameListEntry::where('type', UserGameListType::Develop)
+            ->where('GameID', $game->id)
+            ->count();
     }
 
     /**
