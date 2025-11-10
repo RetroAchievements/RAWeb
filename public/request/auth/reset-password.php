@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\PasswordResetToken;
 use App\Models\User;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
@@ -17,7 +18,11 @@ $newPass = $input['password'];
 
 $targetUser = User::whereName($input['username'])->first();
 
-if (!$targetUser || $targetUser->isBanned() || !isValidPasswordResetToken($targetUser->username, $passResetToken)) {
+if (!$targetUser || $targetUser->isBanned()) {
+    return back()->withErrors(__('legacy.error.token'));
+}
+
+if (!PasswordResetToken::isValidForUser($targetUser, $passResetToken)) {
     return back()->withErrors(__('legacy.error.token'));
 }
 

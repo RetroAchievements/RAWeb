@@ -37,6 +37,7 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
     <div className="relative">
       {/* Active Tab Indicator */}
       <div
+        data-testid="tab-indicator"
         className={cn(
           'absolute bottom-[-6px] left-0 h-[2px] bg-neutral-300 will-change-transform light:bg-neutral-800',
           isAnimationReady ? 'transition-all duration-200 ease-out' : null,

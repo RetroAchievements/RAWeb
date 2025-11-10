@@ -60,7 +60,6 @@ function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchi
     $libraryOut['User'] = $user->display_name;
     $libraryOut['MemberSince'] = $user->created_at->__toString();
     $libraryOut['LastActivity'] = $user->LastLogin?->__toString();
-    $libraryOut['LastActivityID'] = $user->LastActivityID;
     $libraryOut['RichPresenceMsg'] = empty($user->RichPresenceMsg) || $user->RichPresenceMsg === 'Unknown' ? null : $user->RichPresenceMsg;
     $libraryOut['LastGameID'] = (int) $user->LastGameID;
     $libraryOut['ContribCount'] = (int) $user->ContribCount;
