@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -26,7 +27,7 @@ class UserModerationReport extends BaseModel
     // == relations
 
     /**
-     * @return MorphTo<BaseModel, $this>
+     * @return MorphTo<Model, $this>
      */
     public function reportable(): MorphTo
     {
