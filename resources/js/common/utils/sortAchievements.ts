@@ -38,26 +38,24 @@ export function sortAchievements(
 
   switch (sortOrder) {
     case 'normal': {
-      const multiplier = sortOrder === 'normal' ? 1 : -1;
-
       return sortedAchievements.sort((a, b) => {
         // For 'normal' sort, the unlocked status is affected by direction.
         const unlockedResult = compareUnlockStatus(a, b);
         if (unlockedResult !== 0) {
-          return unlockedResult * multiplier;
+          return unlockedResult;
         }
 
         // Then sort by orderColumn within each group (unlocked and not unlocked).
         const orderDiff = (a.orderColumn as number) - (b.orderColumn as number);
         if (orderDiff !== 0) {
-          return orderDiff * multiplier;
+          return orderDiff;
         }
 
         // If orderColumn is the same, sort by createdAt.
         const aDate = new Date(a.createdAt as string).valueOf();
         const bDate = new Date(b.createdAt as string).valueOf();
 
-        return (aDate - bDate) * multiplier;
+        return aDate - bDate;
       });
     }
 

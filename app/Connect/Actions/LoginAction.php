@@ -8,7 +8,6 @@ use App\Connect\Support\BaseApiAction;
 use App\Enums\Permissions;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 
 class LoginAction extends BaseApiAction
@@ -92,9 +91,9 @@ class LoginAction extends BaseApiAction
             return $this->accessDenied('Access denied. Please verify your email address.');
         }
 
-        // if the token doesn't exist or is incorrectly formatted, generate a new token
-        if (empty($user->appToken) || mb_strlen($user->appToken) !== 16) {
-            $user->appToken = newAppToken();
+        // if the token doesn't exist, is incorrectly formatted, or is expired, generate a new token
+        if (!$user->isConnectTokenValid() || $user->isConnectTokenExpired()) {
+            $user->generateNewConnectToken();
         }
 
         return $this->completeLogin($user);
@@ -119,9 +118,8 @@ class LoginAction extends BaseApiAction
         }
 
         // if appToken has expired, generate a new one and force the user to log in again.
-        if ($user->appTokenExpiry && $user->appTokenExpiry < Carbon::now()) {
-            $user->appToken = newAppToken();
-            $user->appTokenExpiry = Carbon::now()->clone()->addDays(14);
+        if ($user->isConnectTokenExpired()) {
+            $user->generateNewConnectToken();
             $user->saveQuietly();
 
             return [
@@ -138,7 +136,7 @@ class LoginAction extends BaseApiAction
     private function completeLogin(User $user): array
     {
         // keep the token alive for another two weeks
-        $user->appTokenExpiry = Carbon::now()->clone()->addDays(14);
+        $user->extendConnectTokenExpiry();
         $user->saveQuietly();
 
         $permissions = (int) $user->getAttribute('Permissions');

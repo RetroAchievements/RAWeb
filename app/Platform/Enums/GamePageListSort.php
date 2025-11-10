@@ -20,4 +20,6 @@ enum GamePageListSort: string
     case TitleReverse = '-title';
     case Type = 'type';
     case TypeReverse = '-type';
+    case Rank = 'rank';
+    case RankReverse = '-rank';
 }
