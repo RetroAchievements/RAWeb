@@ -24,7 +24,7 @@ trait SeedsUsers
         }
 
         $user = User::factory()->create(array_merge(['User' => $safeUsername], $attributes));
-        $user->rollConnectToken();
+        $user->generateNewConnectToken();
 
         // set the connect token expiry back a few minutes so we can detect if it gets
         // updated to now + expiry_delay

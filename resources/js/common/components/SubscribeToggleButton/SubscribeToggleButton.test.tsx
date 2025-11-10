@@ -133,4 +133,40 @@ describe('Component: SubscribeToggleButton', () => {
     expect(screen.getByRole('button', { name: 'Tickets' })).toBeVisible();
     expect(screen.queryByRole('button', { name: /unsubscribe/i })).not.toBeInTheDocument();
   });
+
+  it('given shouldShowMobileLabel is true, displays the label text visibly', () => {
+    // ARRANGE
+    render(
+      <SubscribeToggleButton
+        hasExistingSubscription={false}
+        subjectId={1}
+        subjectType="GameWall"
+        label={'Achievement Comments' as TranslatedString}
+        shouldShowMobileLabel={true}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /achievement comments/i })).toBeVisible();
+    expect(screen.getByText(/achievement comments/i)).toBeVisible();
+  });
+
+  it('given shouldShowMobileLabel is false, hides the label text visually while maintaining accessibility', () => {
+    // ARRANGE
+    render(
+      <SubscribeToggleButton
+        hasExistingSubscription={false}
+        subjectId={1}
+        subjectType="GameWall"
+        label={'Achievement Comments' as TranslatedString}
+        shouldShowMobileLabel={false}
+      />,
+    );
+
+    // ASSERT
+    const label = screen.getByText(/achievement comments/i);
+
+    expect(label).toBeVisible();
+    expect(label).toHaveClass('hidden sm:block');
+  });
 });

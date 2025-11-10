@@ -58,6 +58,10 @@ declare namespace App.Community.Data {
   };
   export type GameGroup = {
     header: string;
+    masteredCount: number;
+    completedCount: number;
+    beatenCount: number;
+    beatenSoftcoreCount: number;
     games: Array<App.Platform.Data.GameListEntry>;
   };
   export type GameHashesCommentsPageProps<TItems = App.Community.Data.Comment> = {
@@ -162,6 +166,7 @@ declare namespace App.Community.Data {
     games: Array<App.Platform.Data.Game>;
     hubs: Array<App.Platform.Data.GameSet>;
     events: Array<App.Platform.Data.Event>;
+    convertedBody: string;
   };
   export type Subscription = {
     id: number;
@@ -381,6 +386,7 @@ declare namespace App.Data {
     emailAddress?: string | null;
     enableBetaFeatures?: boolean | null;
     id?: number;
+    isBanned?: boolean;
     isEmailVerified?: boolean;
     isGone?: boolean;
     isMuted?: boolean;
@@ -1149,7 +1155,9 @@ declare namespace App.Platform.Enums {
     | 'title'
     | '-title'
     | 'type'
-    | '-type';
+    | '-type'
+    | 'rank'
+    | '-rank';
   export type GamePageListView = 'achievements' | 'leaderboards';
   export type GameReleaseRegion =
     | 'as'
