@@ -7,8 +7,8 @@ namespace App\Community\Controllers;
 use App\Community\Actions\BuildMessageThreadIndexPagePropsAction;
 use App\Community\Actions\BuildMessageThreadShowPagePropsAction;
 use App\Community\Data\MessageThreadCreatePagePropsData;
-use App\Community\Enums\DiscordReportableType;
 use App\Community\Enums\MessageThreadTemplateKind;
+use App\Community\Enums\ModerationReportableType;
 use App\Data\UserData;
 use App\Http\Controller;
 use App\Models\MessageThread;
@@ -113,7 +113,7 @@ class MessageThreadController extends Controller
             reportableId: $request->input('rId') ? (int) $request->input('rId') : null,
 
             reportableType: $request->input('rType') ?
-                DiscordReportableType::tryFrom($request->input('rType'))
+                ModerationReportableType::tryFrom($request->input('rType'))
                 : null,
 
             senderUserAvatarUrl: $teamAccount?->avatar_url ?? null,

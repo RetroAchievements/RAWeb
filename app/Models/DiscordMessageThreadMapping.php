@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Community\Enums\DiscordReportableType;
+use App\Community\Enums\ModerationReportableType;
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,12 +15,7 @@ class DiscordMessageThreadMapping extends BaseModel
     protected $fillable = [
         'message_thread_id',
         'discord_thread_id',
-        'reportable_type',
-        'reportable_id',
-    ];
-
-    protected $casts = [
-        'reportable_type' => DiscordReportableType::class,
+        'moderation_report_id',
     ];
 
     // == accessors
@@ -35,6 +30,14 @@ class DiscordMessageThreadMapping extends BaseModel
     public function messageThread(): BelongsTo
     {
         return $this->belongsTo(MessageThread::class, 'message_thread_id');
+    }
+
+    /**
+     * @return BelongsTo<UserModerationReport, $this>
+     */
+    public function moderationReport(): BelongsTo
+    {
+        return $this->belongsTo(UserModerationReport::class, 'moderation_report_id');
     }
 
     // == scopes
@@ -68,30 +71,31 @@ class DiscordMessageThreadMapping extends BaseModel
     /**
      * Find an existing Discord thread mapping for a reportable item.
      */
-    public static function findReportMapping(DiscordReportableType $reportableType, int $reportableId): ?self
+    public static function findReportMapping(ModerationReportableType $reportableType, int $reportableId): ?self
     {
-        return self::where('reportable_type', $reportableType->value)
+        $report = UserModerationReport::where('reportable_type', $reportableType->value)
             ->where('reportable_id', $reportableId)
+            ->whereHas('discordThreadMapping')
             ->first();
+
+        return $report?->discordThreadMapping;
     }
 
     /**
-     * Store a new Discord thread mapping for a reportable item.
+     * Store a new Discord thread mapping for a moderation report.
      */
     public static function storeReportMapping(
-        DiscordReportableType $reportableType,
-        int $reportableId,
+        int $moderationReportId,
         string $discordThreadId,
         int $messageThreadId,
     ): self {
         return self::updateOrCreate(
             [
-                'reportable_type' => $reportableType->value,
-                'reportable_id' => $reportableId,
+                'message_thread_id' => $messageThreadId,
             ],
             [
                 'discord_thread_id' => $discordThreadId,
-                'message_thread_id' => $messageThreadId,
+                'moderation_report_id' => $moderationReportId,
             ]
         );
     }

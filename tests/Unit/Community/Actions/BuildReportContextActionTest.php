@@ -6,7 +6,7 @@ namespace Tests\Unit\Community\Actions;
 
 use App\Community\Actions\BuildReportContextAction;
 use App\Community\Enums\ArticleType;
-use App\Community\Enums\DiscordReportableType;
+use App\Community\Enums\ModerationReportableType;
 use App\Models\Comment;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
@@ -45,7 +45,7 @@ class BuildReportContextActionTest extends TestCase
         // Act
         $result = $this->action->execute(
             $userMessage,
-            DiscordReportableType::ForumTopicComment,
+            ModerationReportableType::ForumTopicComment,
             $comment->id,
             forDiscord: false // !!
         );
@@ -78,7 +78,7 @@ class BuildReportContextActionTest extends TestCase
         // Act
         $result = $this->action->execute(
             $userMessage,
-            DiscordReportableType::ForumTopicComment,
+            ModerationReportableType::ForumTopicComment,
             $comment->id,
             forDiscord: true // !!
         );
@@ -109,7 +109,7 @@ class BuildReportContextActionTest extends TestCase
         // Act
         $result = $this->action->execute(
             $userMessage,
-            DiscordReportableType::DirectMessage,
+            ModerationReportableType::DirectMessage,
             $message->id,
             forDiscord: false // !!
         );
@@ -136,7 +136,7 @@ class BuildReportContextActionTest extends TestCase
         // Act
         $result = $this->action->execute(
             $userMessage,
-            DiscordReportableType::DirectMessage,
+            ModerationReportableType::DirectMessage,
             $message->id,
             forDiscord: true // !!
         );
@@ -170,7 +170,7 @@ class BuildReportContextActionTest extends TestCase
         // Act
         $result = $this->action->execute(
             $userMessage,
-            DiscordReportableType::Comment,
+            ModerationReportableType::Comment,
             $comment->ID,
             forDiscord: false // !!
         );
@@ -204,7 +204,7 @@ class BuildReportContextActionTest extends TestCase
         // Act
         $result = $this->action->execute(
             $userMessage,
-            DiscordReportableType::Comment,
+            ModerationReportableType::Comment,
             $comment->ID,
             forDiscord: true // !!
         );

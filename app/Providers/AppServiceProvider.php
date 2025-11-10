@@ -17,6 +17,9 @@ use App\Console\Commands\PruneApiLogs;
 use App\Console\Commands\SquashMigrations;
 use App\Console\Commands\SystemAlert;
 use App\Http\InertiaResponseFactory;
+use App\Models\Comment;
+use App\Models\ForumTopicComment;
+use App\Models\Message;
 use App\Models\Role;
 use App\Models\User;
 use EragLaravelDisposableEmail\Rules\DisposableEmailRule;
@@ -120,6 +123,12 @@ class AppServiceProvider extends ServiceProvider
          * https://josephsilber.com/posts/2018/07/02/eloquent-polymorphic-relations-morph-map
          */
         Relation::morphMap([
+            // ModerationReportableType values
+            'Comment' => Comment::class,
+            'DirectMessage' => Message::class,
+            'ForumTopicComment' => ForumTopicComment::class,
+            'UserProfile' => User::class,
+
             'role' => Role::class,
             'user' => User::class,
         ]);

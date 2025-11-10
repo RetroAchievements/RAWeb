@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Community\Actions;
 
 use App\Community\Data\ProcessedDiscordMessageData;
-use App\Community\Enums\DiscordReportableType;
+use App\Community\Enums\ModerationReportableType;
 use App\Models\DiscordMessageThreadMapping;
 use App\Models\Message;
 use App\Models\MessageThread;
 use App\Models\User;
+use App\Models\UserModerationReport;
 use App\Support\Shortcode\Shortcode;
 use GuzzleHttp\Client;
 
@@ -46,9 +47,21 @@ class ForwardMessageToDiscordAction
         User $userTo,
         MessageThread $messageThread,
         Message $message,
-        ?DiscordReportableType $reportableType = null,
-        ?int $reportableId = null,
+        ?int $moderationReportId = null,
     ): void {
+        // Load the moderation report if this is a report message.
+        $moderationReport = null;
+        $reportableType = null;
+        $reportableId = null;
+
+        if ($moderationReportId) {
+            $moderationReport = UserModerationReport::find($moderationReportId);
+            if ($moderationReport) {
+                $reportableType = ModerationReportableType::from($moderationReport->reportable_type);
+                $reportableId = $moderationReport->reportable_id;
+            }
+        }
+
         $inboxConfig = config('services.discord.inbox_webhook.' . $userTo->username);
 
         // Check if this is a reply from a team account to an existing Discord thread.
@@ -146,7 +159,7 @@ class ForwardMessageToDiscordAction
             $color,
             $isForum,
             $isNewThread,
-            $reportableType
+            $moderationReportId
         );
 
         $messageThread->title = $processedData->threadTitle;
@@ -160,8 +173,7 @@ class ForwardMessageToDiscordAction
             $processedData->color,
             $processedData->isForum,
             $existingThreadId,
-            $reportableType,
-            $reportableId
+            $moderationReportId
         );
     }
 
@@ -176,13 +188,13 @@ class ForwardMessageToDiscordAction
         int $color,
         bool $isForum,
         bool $isNewThread,
-        ?DiscordReportableType $reportableType = null,
+        ?int $moderationReportId = null,
     ): ProcessedDiscordMessageData {
         $messageTitle = mb_strtolower($messageThread->title);
         $threadTitle = $messageThread->title;
 
         // Detect report messages and route them to a special reports channel.
-        if ($reportableType !== null && !empty($inboxConfig['reports_url'] ?? null)) {
+        if ($moderationReportId !== null && !empty($inboxConfig['reports_url'] ?? null)) {
             $webhookUrl = $inboxConfig['reports_url'];
             $color = self::COLOR_DEFAULT;
             $isForum = true;
@@ -263,8 +275,7 @@ class ForwardMessageToDiscordAction
         int $color,
         bool $isForum,
         ?string $existingThreadId = null,
-        ?DiscordReportableType $reportableType = null,
-        ?int $reportableId = null,
+        ?int $moderationReportId = null,
     ): void {
         if ($isForum) {
             $isNewThread = !$existingThreadId;
@@ -276,8 +287,7 @@ class ForwardMessageToDiscordAction
                 $messageThread,
                 $messageBody,
                 $color,
-                $reportableType,
-                $reportableId
+                $moderationReportId
             );
 
             if ($discordThreadId) {
@@ -326,8 +336,7 @@ class ForwardMessageToDiscordAction
         MessageThread $messageThread,
         string $messageBody,
         int $color,
-        ?DiscordReportableType $reportableType = null,
-        ?int $reportableId = null,
+        ?int $moderationReportId = null,
     ): ?string {
         $isLongMessage = mb_strlen($messageBody) > self::DISCORD_EMBED_DESCRIPTION_LIMIT;
         $firstChunk = $isLongMessage
@@ -356,11 +365,10 @@ class ForwardMessageToDiscordAction
 
         if ($threadId) {
             // If this is a report, store the report mapping.
-            // Otherwise, we can just restore a regular mapping.
-            if ($reportableType && $reportableId) {
+            // Otherwise, we can just store a regular mapping.
+            if ($moderationReportId) {
                 DiscordMessageThreadMapping::storeReportMapping(
-                    $reportableType,
-                    $reportableId,
+                    $moderationReportId,
                     $threadId,
                     $messageThread->id
                 );
