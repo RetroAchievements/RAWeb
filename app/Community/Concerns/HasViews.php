@@ -8,6 +8,25 @@ use App\Models\User;
 use App\Models\Viewable;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
+/**
+ * Provides polymorphic view tracking for models.
+ *
+ * This trait allows models to track when individual users have viewed them,
+ * storing timestamps in the `viewables` table. Useful for features like
+ * unread indicators, view counts, or determining if a user has seen content.
+ *
+ * @example
+ * ```php
+ * class News extends BaseModel {
+ *     use HasViews;
+ * }
+ *
+ * $news->markAsViewedBy($user);
+ * if ($news->wasViewedBy($user)) {
+ *     // ... user has viewed this news item ...
+ * }
+ * ```
+ */
 trait HasViews
 {
     /**
