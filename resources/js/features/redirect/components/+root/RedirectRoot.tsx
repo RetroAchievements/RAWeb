@@ -4,7 +4,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 export const RedirectRoot: FC = () => {
-  const { url } = usePageProps<{ url: string }>();
+  const { url } = usePageProps<App.Community.Data.RedirectPagePropsData>();
   const { t } = useTranslation();
 
   return (
@@ -30,21 +30,24 @@ export const RedirectRoot: FC = () => {
         <div className="flex flex-col gap-y-4">
           <p>
             <Trans
-              i18nKey={'URLisExternalWarning'}
+              i18nKey="<1>{{url}}</1> is not part of RetroAchievements. We don't know what you might see there."
               values={{ url }}
               components={{ 1: <span className="font-bold" /> }}
             />
           </p>
 
           <div className="flex w-full justify-center">
-            <button
-              onClick={() => {
+            <a
+              href={url}
+              onClick={(e) => {
+                e.preventDefault();
                 window.location.replace(url);
               }}
+              rel="noreferrer"
               className="btn"
             >
               {t('Continue to external site')}
-            </button>
+            </a>
           </div>
         </div>
       </div>

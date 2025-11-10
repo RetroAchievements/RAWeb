@@ -1261,6 +1261,6 @@
     "Redirect": "Redirect",
     "Heads up!": "Heads up!",
     "You are leaving RetroAchievements.": "You are leaving RetroAchievements.",
-    "URLisExternalWarning": "<1>{{url}}</1> is not part of RetroAchievements. We don't know what you might see there.",
+    "<1>{{url}}</1> is not part of RetroAchievements. We don't know what you might see there.": "<1>{{url}}</1> is not part of RetroAchievements. We don't know what you might see there.",
     "Continue to external site": "Continue to external site"
 }

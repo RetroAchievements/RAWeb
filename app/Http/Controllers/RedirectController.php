@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Community\Data\RedirectPagePropsData;
 use App\Http\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -109,7 +110,7 @@ class RedirectController extends Controller
             }
         }
 
-        $props = ["url" => $url];
+        $props = new RedirectPagePropsData($url);
 
         return Inertia::render('redirect', $props);
     }

@@ -1,5 +1,3 @@
-import { expect } from 'vitest';
-
 import { render, screen } from '@/test';
 
 import { RedirectRoot } from './RedirectRoot';

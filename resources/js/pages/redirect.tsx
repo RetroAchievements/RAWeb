@@ -10,7 +10,7 @@ const Redirect: AppPage = () => {
 
   return (
     <>
-      <SEO title={t('Redirect')} description="Redirect page" />
+      <SEO title={t('Redirect')} description="Redirect page" noindex={true} nofollow={true} />
 
       <AppLayout.Main>
         <RedirectRoot />

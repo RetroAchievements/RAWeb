@@ -151,6 +151,9 @@ declare namespace App.Community.Data {
     unlockedAt: string;
     isHardcore: boolean;
   };
+  export type RedirectPagePropsData = {
+    url: string;
+  };
   export type ShortcodeDynamicEntities = {
     users: Array<App.Data.User>;
     tickets: Array<App.Platform.Data.Ticket>;
