@@ -57,7 +57,9 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
                         components={{
                           1: <span className="font-bold" />,
                           2: <span className="font-bold" />,
-                          3: <span className="TrueRatio light:text-neutral-400" />,
+                          3: (
+                            <span className="TrueRatio whitespace-nowrap light:text-neutral-400" />
+                          ),
                           4: <WeightedPointsContainer />,
                           5: (
                             <SetRarityLabel

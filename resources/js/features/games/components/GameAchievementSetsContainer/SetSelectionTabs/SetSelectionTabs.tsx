@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { type FC } from 'react';
+import type { FC } from 'react';
 import { route } from 'ziggy-js';
 
 import { BaseHoverCard, BaseHoverCardTrigger } from '@/common/components/+vendor/BaseHoverCard';
@@ -17,7 +17,7 @@ interface SetSelectionTabsProps {
 }
 
 export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
-  const { game, selectableGameAchievementSets } =
+  const { game, selectableGameAchievementSets, ziggy } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const currentListView = useAtomValue(currentListViewAtom);
@@ -47,7 +47,12 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
       {/* Tabs */}
       <div className="relative flex items-center space-x-[6px]">
         {selectableGameAchievementSets.map((gas, index) => (
-          <BaseHoverCard key={gas.id} openDelay={300} closeDelay={100}>
+          <BaseHoverCard
+            key={gas.id}
+            openDelay={300}
+            closeDelay={100}
+            open={ziggy.device === 'mobile' ? false : undefined}
+          >
             <BaseHoverCardTrigger asChild>
               <InertiaLink
                 href={route('game2.show', {
