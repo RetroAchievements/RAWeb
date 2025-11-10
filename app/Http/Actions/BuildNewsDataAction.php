@@ -20,7 +20,10 @@ class BuildNewsDataAction
     public function execute(int $limit = 9): Collection
     {
         $news = News::with('user')
-            ->where('category', '!=', NewsCategory::SiteReleaseNotes)
+            ->where(function ($query) {
+                $query->where('category', '!=', NewsCategory::SiteReleaseNotes)
+                    ->orWhereNull('category');
+            })
             ->orderByDesc('pinned_at')
             ->orderByDesc('created_at')
             ->limit($limit)
