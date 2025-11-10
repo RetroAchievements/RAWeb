@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
+import axios from 'axios';
 import { route } from 'ziggy-js';
 
 import { createAuthenticatedUser } from '@/common/models';
@@ -106,6 +107,18 @@ describe('Component: MessagesShowRoot', () => {
 
   it('given the user previews a message, shows the preview content', async () => {
     // ARRANGE
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({
+      data: {
+        achievements: [],
+        games: [],
+        hubs: [],
+        events: [],
+        tickets: [],
+        users: [],
+        convertedBody: 'hello world',
+      },
+    });
+
     const messageThread = createMessageThread();
     const paginatedMessages = createPaginatedData([createMessage()]);
 
@@ -126,7 +139,9 @@ describe('Component: MessagesShowRoot', () => {
     await userEvent.click(previewButton);
 
     // ASSERT
-    expect(screen.getAllByText(/hello world/i).length).toEqual(2); // textarea and preview div
+    await waitFor(() => {
+      expect(screen.getAllByText(/hello world/i).length).toEqual(2); // textarea and preview div
+    });
   });
 
   it('given the user paginates, changes the current route correctly', async () => {

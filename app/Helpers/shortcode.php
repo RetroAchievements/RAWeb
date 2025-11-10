@@ -96,12 +96,25 @@ function normalize_shortcodes(string $input): string
 function normalize_targeted_shortcodes(string $input, string $kind, ?string $tagName = null): string
 {
     // Find any URL variants of user links and transform them into shortcode tags.
+    // First, handle URLs with a ?set= query param (these are games).
+    if ($kind === 'game') {
+        $findWithSet = [
+            "~https?://(?:[\w\-]+\.)?retroachievements\.org/game2?/([\w]{1,20})(?:-[^\s\"'<>]*)?(?:/)?\\?set=(\d+)~si",
+            "~https?://localhost(?::\d{1,5})?/game2?/([\w]{1,20})(?:-[^\s\"'<>]*)?(?:/)?\\?set=(\d+)~si",
+        ];
+        $replaceWithSet = "[game=$1?set=$2]";
+        $input = preg_replace($findWithSet, $replaceWithSet, $input);
+    }
+
+    // Then, handle URLs without query params.
     // Ignore URLs that contain path or query params.
+    // For games, match both /game/ and /game2/ URLs.
+    $pathPattern = $kind === 'game' ? 'game2?' : $kind;
     $find = [
-        "~\<a [^/>]*retroachievements\.org/" . $kind . "/([\w]{1,20})(?:-[^\s\"'<>]*)?(/?(?![\w/?]))[^/>]*\][^</a>]*</a>~si",
-        "~\[url[^\]]*retroachievements\.org/" . $kind . "/([\w]{1,20})(?:-[^\s\"'<>]*)?(/?(?![\w/?]))[^\]]*\][^\[]*\[/url\]~si",
-        "~https?://(?:[\w\-]+\.)?retroachievements\.org/" . $kind . "/([\w]{1,20})(?:-[^\s\"'<>]*)?(/?(?![\w/?]))~si",
-        "~https?://localhost(?::\d{1,5})?/" . $kind . "/([\w]{1,20})(?:-[^\s\"'<>]*)?(/?(?![\w/?]))~si",
+        "~\<a [^/>]*retroachievements\.org/" . $pathPattern . "/([\w]{1,20})(?:-[^\s\"'<>]*)?(/?(?![\w/?]))[^/>]*\][^</a>]*</a>~si",
+        "~\[url[^\]]*retroachievements\.org/" . $pathPattern . "/([\w]{1,20})(?:-[^\s\"'<>]*)?(/?(?![\w/?]))[^\]]*\][^\[]*\[/url\]~si",
+        "~https?://(?:[\w\-]+\.)?retroachievements\.org/" . $pathPattern . "/([\w]{1,20})(?:-[^\s\"'<>]*)?(/?(?![\w/?]))~si",
+        "~https?://localhost(?::\d{1,5})?/" . $pathPattern . "/([\w]{1,20})(?:-[^\s\"'<>]*)?(/?(?![\w/?]))~si",
     ];
     $replace = "[" . ($tagName ?? $kind) . "=$1]";
 
