@@ -779,4 +779,115 @@ describe('Component: GameAchievementSetToolbar', () => {
     expect(screen.getByRole('menuitemcheckbox', { name: 'My Rank (best)' })).toBeInTheDocument();
     expect(screen.getByRole('menuitemcheckbox', { name: 'My Rank (worst)' })).toBeInTheDocument();
   });
+
+  it('given the user is not logged in, does not show auth required sorting options', async () => {
+    // ARRANGE
+    const mockGame = createGame({ id: 123, achievementsPublished: 10 });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={1}
+      />,
+      {
+        pageProps: {
+          backingGame: mockGame,
+          numLeaderboards: 10,
+          ziggy: createZiggyProps(),
+          defaultSort: 'normal',
+        },
+        jotaiAtoms: [
+          [currentListViewAtom, 'leaderboards'],
+          //
+        ],
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /display order/i }));
+
+    // ASSERT
+    expect(
+      screen.queryByRole('menuitemcheckbox', { name: 'My Rank (best)' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('menuitemcheckbox', { name: 'My Rank (worst)' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('given the user is logged in, does show auth required sorting options', async () => {
+    // ARRANGE
+    const mockGame = createGame({ id: 123, achievementsPublished: 10 });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={1}
+      />,
+      {
+        pageProps: {
+          backingGame: mockGame,
+          numLeaderboards: 10,
+          ziggy: createZiggyProps(),
+          defaultSort: 'normal',
+          auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
+        },
+        jotaiAtoms: [
+          [currentListViewAtom, 'leaderboards'],
+          //
+        ],
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /display order/i }));
+
+    // ASSERT
+    expect(screen.getByRole('menuitemcheckbox', { name: 'My Rank (best)' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitemcheckbox', { name: 'My Rank (worst)' })).toBeInTheDocument();
+  });
+
+  it('given the user is on mobile and there are leaderboards, shows the display mode toggle group', () => {
+    // ARRANGE
+    const mockGame = createGame({ id: 123 });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={1}
+      />,
+      {
+        pageProps: {
+          backingGame: mockGame,
+          numLeaderboards: 10, // !!
+          ziggy: createZiggyProps({ device: 'mobile' }), // !!
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByRole('radio', { name: /achievements/i })).toBeVisible();
+    expect(screen.getByRole('radio', { name: /leaderboards/i })).toBeVisible();
+  });
 });

@@ -10,6 +10,7 @@ use App\Console\Commands\CacheMostPopularEmulators;
 use App\Console\Commands\CacheMostPopularSystems;
 use App\Console\Commands\CleanupAvatars;
 use App\Console\Commands\DeleteExpiredEmailVerificationTokens;
+use App\Console\Commands\DeleteExpiredPasswordResetTokens;
 use App\Console\Commands\DeleteOverdueUserAccounts;
 use App\Console\Commands\GenerateTypeScript;
 use App\Console\Commands\LogUsersOnlineCount;
@@ -56,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
                 CacheMostPopularEmulators::class,
                 CacheMostPopularSystems::class,
                 DeleteExpiredEmailVerificationTokens::class,
+                DeleteExpiredPasswordResetTokens::class,
                 DeleteOverdueUserAccounts::class,
                 GenerateTypeScript::class,
                 LogUsersOnlineCount::class,
@@ -85,6 +87,7 @@ class AppServiceProvider extends ServiceProvider
 
             if (app()->environment() === 'production') {
                 $schedule->command(DeleteExpiredEmailVerificationTokens::class)->daily();
+                $schedule->command(DeleteExpiredPasswordResetTokens::class)->daily();
                 $schedule->command(DeleteOverdueUserAccounts::class)->daily();
 
                 $schedule->command(CacheMostPopularEmulators::class)->weeklyOn(4, '8:00'); // Thursdays, ~3:00AM US Eastern

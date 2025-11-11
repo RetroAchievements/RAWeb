@@ -163,6 +163,9 @@ function editTopicComment(int $commentId, string $newPayload): void
     // Convert [game={legacy_hub_id}] to [hub={game_set_id}].
     $newPayload = Shortcode::convertLegacyGameHubShortcodesToHubShortcodes($newPayload);
 
+    // Convert [game=X?set=Y] to [game=backingGameId].
+    $newPayload = Shortcode::convertGameSetShortcodesToBackingGame($newPayload);
+
     $comment = ForumTopicComment::findOrFail($commentId);
     $comment->body = $newPayload;
     $comment->save();
@@ -189,6 +192,9 @@ function submitTopicComment(
 
     // Convert [game={legacy_hub_id}] to [hub={game_set_id}].
     $commentPayload = Shortcode::convertLegacyGameHubShortcodesToHubShortcodes($commentPayload);
+
+    // Convert [game=X?set=Y] to [game=backingGameId].
+    $commentPayload = Shortcode::convertGameSetShortcodesToBackingGame($commentPayload);
 
     // if this exact message was just posted by this user, assume it's an
     // accidental double submission and ignore.

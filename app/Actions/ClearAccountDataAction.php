@@ -23,7 +23,6 @@ class ClearAccountDataAction
         DB::statement("UPDATE UserAccounts SET
             Password = null,
             SaltedPass = '',
-            cookie = null,
             appToken = null,
             APIKey = null
             WHERE ID = :userId", ['userId' => $user->ID]
@@ -59,14 +58,10 @@ class ClearAccountDataAction
             EmailAddress = '',
             email_verified_at = null,
             Permissions = :permissions,
-            fbUser = 0,
-            fbPrefs = null,
-            cookie = null,
             appToken = null,
             appTokenExpiry = null,
             websitePrefs = 0,
             LastLogin = null,
-            LastActivityID = 0,
             ManuallyVerified = 0,
             forum_verified_at = null,
             Motto = '',
@@ -77,7 +72,6 @@ class ClearAccountDataAction
             LastGameID = 0,
             RichPresenceMsg = null,
             RichPresenceMsgDate = null,
-            PasswordResetToken = null,
             Deleted = :now
             WHERE ID = :userId",
             [
