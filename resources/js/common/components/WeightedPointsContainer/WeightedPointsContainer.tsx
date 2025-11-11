@@ -15,7 +15,7 @@ export const WeightedPointsContainer: FC<WeightedPointsContainerProps> = ({
   const { t } = useTranslation();
 
   return (
-    <BaseTooltip open={isTooltipEnabled ? undefined : false}>
+    <BaseTooltip open={isTooltipEnabled ? undefined : false} disableHoverableContent={true}>
       <BaseTooltipTrigger asChild>
         <span className="TrueRatio light:text-neutral-400">{children}</span>
       </BaseTooltipTrigger>

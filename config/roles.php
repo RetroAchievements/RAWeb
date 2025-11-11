@@ -36,6 +36,7 @@ $adminAssignable = [
 $modAssignable = [
     Role::ARTIST,
     Role::CHEAT_INVESTIGATOR,
+    Role::CODE_REVIEWER,
     Role::DEV_COMPLIANCE,
     Role::DEVELOPER_JUNIOR,
     Role::DEVELOPER,

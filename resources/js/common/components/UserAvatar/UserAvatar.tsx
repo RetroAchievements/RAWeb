@@ -17,6 +17,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
   deletedAt,
   displayName,
   imgClassName,
+  isBanned,
   isGone,
   labelClassName,
   wrapperClassName,
@@ -28,7 +29,7 @@ export const UserAvatar: FC<UserAvatarProps> = ({
 }) => {
   const { cardTooltipProps } = useCardTooltip({ dynamicType: 'user', dynamicId: displayName });
 
-  const shouldLinkToUser = canLinkToUser && displayName && !deletedAt && !isGone;
+  const shouldLinkToUser = canLinkToUser && displayName && !deletedAt && !isGone && !isBanned;
   const Wrapper = shouldLinkToUser ? 'a' : 'span';
 
   return (

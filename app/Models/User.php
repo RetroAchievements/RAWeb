@@ -89,9 +89,8 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     use CollectsBadges;
 
     // TODO rename UserAccounts table to users
-    // TODO drop cookie, fbUser, fbPrefs, LastActivityID, LastGameID, PasswordResetToken, UnreadMessageCount
     // TODO drop RichPresenceMsg, RichPresenceMsgDate -> player_sessions
-    // TODO drop LastActivityID, LastGameID, UnreadMessageCount -> derived
+    // TODO drop LastGameID, UnreadMessageCount -> derived
     // TODO drop PasswordResetToken -> password_resets table
     // TODO move UserWallActive to preferences, allow comments to be visible to/writable for public, friends, private etc
     // TODO rename Untracked to unranked or drop in favor of unranked_at (update indexes)
@@ -129,7 +128,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         'APIUses',
         'APIKey',
         'banned_at',
-        'cookie', // fillable for when users are banned
         'ContribCount',
         'ContribYield',
         'country',

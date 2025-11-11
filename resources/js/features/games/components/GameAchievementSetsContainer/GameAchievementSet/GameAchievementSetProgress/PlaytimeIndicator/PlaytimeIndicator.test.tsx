@@ -212,4 +212,21 @@ describe('Component: PlaytimeIndicator', () => {
     expect(indicator).toHaveClass('border-l');
     expect(indicator).toHaveClass('pl-4');
   });
+
+  it('given the user is on mobile and showDivider is false, does not render the left border', () => {
+    // ARRANGE
+    render(<PlaytimeIndicator showDivider={false} />, {
+      pageProps: {
+        playerGame: createPlayerGame({
+          playtimeTotal: 24840,
+        }),
+        ziggy: createZiggyProps({ device: 'mobile' }), // !!
+      },
+    });
+
+    // ASSERT
+    const indicator = screen.getByLabelText('Your Playtime Stats');
+    expect(indicator).not.toHaveClass('border-l');
+    expect(indicator).not.toHaveClass('pl-4');
+  });
 });
