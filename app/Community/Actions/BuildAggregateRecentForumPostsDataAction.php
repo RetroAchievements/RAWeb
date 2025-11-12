@@ -8,6 +8,7 @@ use App\Data\ForumTopicData;
 use App\Data\PaginatedData;
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
+use App\Support\Shortcode\Shortcode;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
@@ -26,8 +27,17 @@ class BuildAggregateRecentForumPostsDataAction
     ): PaginatedData|array {
         $topics = $this->getRecentForumTopics($page, $permissions, $limit);
 
+        $shortcodeIds = [];
+        foreach ($topics as $topic) {
+            $postShortcodeIds = Shortcode::extractShortcodeIds($topic['ShortMsg']);
+            foreach ($postShortcodeIds as $key => $ids) {
+                $shortcodeIds[$key] = array_merge($shortcodeIds[$key] ?? [], $ids);
+            }
+        }
+        $shortcodeRecords = Shortcode::fetchRecords($shortcodeIds);
+
         $transformedTopics = array_map(
-            fn ($topic) => ForumTopicData::fromRecentlyActiveTopic($topic)->include(
+            fn ($topic) => ForumTopicData::fromRecentlyActiveTopic($topic, $shortcodeRecords)->include(
                 'commentCount24h',
                 'oldestComment24hId',
                 'commentCount7d',
