@@ -75,7 +75,7 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
                         1: (
                           <span
                             data-testid="ratio-container"
-                            className="TrueRatio ml-1 light:text-neutral-400"
+                            className="TrueRatio ml-1 whitespace-nowrap light:text-neutral-400"
                           />
                         ),
                         2: <WeightedPointsContainer />,
