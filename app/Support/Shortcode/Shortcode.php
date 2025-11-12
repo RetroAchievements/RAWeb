@@ -11,6 +11,7 @@ use App\Models\GameSet;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Actions\ResolveBackingGameForAchievementSetAction;
 use App\Platform\Enums\GameSetType;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -126,6 +127,81 @@ final class Shortcode
 
             return $user ? "[user={$user->ID}]" : $matches[0];
         }, $input);
+    }
+
+    public static function convertGameSetShortcodesToBackingGame(string $input): string
+    {
+        // Extract all [game=X?set=Y] or [game=X set=Y] patterns.
+        preg_match_all('/\[game=(\d+)(?:\?|\s)set=(\d+)\]/i', $input, $matches, PREG_SET_ORDER);
+        if (empty($matches)) {
+            return $input;
+        }
+
+        // Collect all unique set IDs for bulk processing.
+        $setIds = array_unique(array_column($matches, 2));
+
+        // Now, resolve backing games for all sets.
+        // Build a map of achievement set ID -> backing game ID.
+        $setToBackingGameMap = [];
+        $resolveAction = (new ResolveBackingGameForAchievementSetAction());
+
+        foreach ($setIds as $setId) {
+            $backingGameId = $resolveAction->execute((int) $setId);
+            if ($backingGameId) {
+                $setToBackingGameMap[$setId] = $backingGameId;
+            }
+        }
+
+        // Replace each shortcode with the backing game ID.
+        // If no backing game is found, fall back to the original game ID.
+        return preg_replace_callback(
+            '/\[game=(\d+)(?:\?|\s)set=(\d+)\]/i',
+            function ($match) use ($setToBackingGameMap) {
+                $originalGameId = $match[1];
+                $setId = $match[2];
+
+                $gameId = $setToBackingGameMap[$setId] ?? $originalGameId;
+
+                return "[game={$gameId}]";
+            },
+            $input
+        );
+    }
+
+    public static function extractShortcodeIds(string $input): array
+    {
+        // Extract achievement IDs from [ach=X] shortcodes.
+        preg_match_all('/\[ach=(\d+)\]/i', $input, $achievementMatches);
+        $achievementIds = array_unique(array_map('intval', $achievementMatches[1]));
+
+        // Extract game IDs from [game=X] shortcodes (but not [game=X set=Y]).
+        preg_match_all('/\[game=(\d+)(?!\?|\ set=)\]/i', $input, $gameMatches);
+        $gameIds = array_unique(array_map('intval', $gameMatches[1]));
+
+        // Extract hub IDs from [hub=X] shortcodes.
+        preg_match_all('/\[hub=(\d+)\]/i', $input, $hubMatches);
+        $hubIds = array_unique(array_map('intval', $hubMatches[1]));
+
+        // Extract event IDs from [event=X] shortcodes.
+        preg_match_all('/\[event=(\d+)\]/i', $input, $eventMatches);
+        $eventIds = array_unique(array_map('intval', $eventMatches[1]));
+
+        // Extract ticket IDs from [ticket=X] shortcodes.
+        preg_match_all('/\[ticket=(\d+)\]/i', $input, $ticketMatches);
+        $ticketIds = array_unique(array_map('intval', $ticketMatches[1]));
+
+        // Extract usernames from [user=X] shortcodes.
+        preg_match_all('/\[user=([^\]]+)\]/i', $input, $userMatches);
+        $usernames = array_unique($userMatches[1]);
+
+        return [
+            'achievementIds' => array_values($achievementIds),
+            'gameIds' => array_values($gameIds),
+            'hubIds' => array_values($hubIds),
+            'eventIds' => array_values($eventIds),
+            'ticketIds' => array_values($ticketIds),
+            'usernames' => $usernames,
+        ];
     }
 
     public static function stripAndClamp(
@@ -476,6 +552,10 @@ final class Shortcode
 
     private function parse(string $input, array $options = []): string
     {
+        // Resolve game set shortcodes to backing games before render-time.
+        // This allows [game=1?set=9534] to display the correct backing game.
+        $input = self::convertGameSetShortcodesToBackingGame($input);
+
         $this->prefetchUsers($input);
 
         // make sure to use attribute delimiter for string values
