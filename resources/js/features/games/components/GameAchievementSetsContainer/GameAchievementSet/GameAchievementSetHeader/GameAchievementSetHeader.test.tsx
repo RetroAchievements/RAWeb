@@ -141,4 +141,43 @@ describe('Component: GameAchievementSetHeader', () => {
     // ASSERT
     expect(screen.getByText(/there are currently no unpublished achievements/i)).toBeVisible();
   });
+
+  it('given weighted points is 0, does not show weighted points or rarity', () => {
+    // ARRANGE
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements: [
+          createAchievement({ points: 10, pointsWeighted: 0 }), // !!
+          createAchievement({ points: 20, pointsWeighted: 0 }), // !!
+        ],
+      }),
+    });
+
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />, {
+      pageProps: { isViewingPublishedAchievements: true },
+    });
+
+    // ASSERT
+    expect(screen.queryByTestId('ratio-container')).not.toBeInTheDocument();
+  });
+
+  it('given weighted points is not 0, shows weighted points and rarity', () => {
+    // ARRANGE
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements: [
+          createAchievement({ points: 10, pointsWeighted: 15 }),
+          createAchievement({ points: 20, pointsWeighted: 25 }),
+        ],
+      }),
+    });
+
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />, {
+      pageProps: { isViewingPublishedAchievements: true },
+    });
+
+    // ASSERT
+    expect(screen.getByTestId('ratio-container')).toBeVisible();
+    expect(screen.getByText(/40/i)).toBeVisible();
+  });
 });

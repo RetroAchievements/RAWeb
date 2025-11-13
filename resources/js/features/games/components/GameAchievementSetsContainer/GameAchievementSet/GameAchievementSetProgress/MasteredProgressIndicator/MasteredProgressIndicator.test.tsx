@@ -831,4 +831,94 @@ describe('Component: MasteredProgressIndicator', () => {
     expect(screen.queryByText(/mastered on/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/completed on/i)).not.toBeInTheDocument();
   });
+
+  it('given the set is completed but has no time taken, does not show the time to complete stat', async () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ unlockedAt: '2024-01-01T00:00:00Z', unlockedHardcoreAt: undefined }),
+      createAchievement({ unlockedAt: '2024-01-01T00:00:00Z', unlockedHardcoreAt: undefined }),
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ id: 456 }),
+    });
+
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={gameAchievementSet}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {
+            456: createPlayerAchievementSet({
+              completedAt: '2024-05-15T14:30:00.000000Z', // !! it's completed
+              completedHardcoreAt: null,
+              timeTaken: null, // !! but no time taken
+              timeTakenHardcore: null,
+            }),
+          },
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.hover(screen.getByText('100%'));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/completed on/i)[0]).toBeVisible();
+    });
+    expect(screen.queryByText(/time to complete/i)).not.toBeInTheDocument();
+  });
+
+  it('given the set is mastered but has no time taken hardcore, does not show a time to master stat', async () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
+      createAchievement({ unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ id: 789 }),
+    });
+
+    render(
+      <MasteredProgressIndicator
+        achievements={achievements}
+        gameAchievementSet={gameAchievementSet}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          backingGame: createGame(),
+          game: createGame(),
+          playerAchievementSets: {
+            789: createPlayerAchievementSet({
+              completedAt: null,
+              completedHardcoreAt: '2024-05-15T14:30:00.000000Z', // !! it's mastered
+              timeTaken: null,
+              timeTakenHardcore: null, // !! but has no time taken hardcore
+            }),
+          },
+          playerGameProgressionAwards: {},
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.hover(screen.getByText('100%'));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/mastered on/i)[0]).toBeVisible();
+    });
+    expect(screen.queryByText(/time to master/i)).not.toBeInTheDocument();
+  });
 });

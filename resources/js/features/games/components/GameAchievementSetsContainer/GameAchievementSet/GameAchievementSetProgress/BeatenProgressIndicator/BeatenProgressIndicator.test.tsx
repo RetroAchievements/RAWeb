@@ -436,4 +436,60 @@ describe('Component: BeatenProgressIndicator', () => {
     expect(screen.queryByText(/beaten on/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/time to beat/i)).not.toBeInTheDocument();
   });
+
+  it('given the game is beaten but has no time to beat, does not sho the time to beat stat', async () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ type: 'progression', unlockedAt: '2024-01-01T00:00:00Z' }),
+      createAchievement({ type: 'progression', unlockedAt: '2024-01-02T00:00:00Z' }),
+    ];
+
+    render(<BeatenProgressIndicator achievements={achievements} />, {
+      pageProps: {
+        playerGame: createPlayerGame({
+          beatenAt: '2024-07-23T23:56:40.000000Z', // !! it's beaten
+          beatenHardcoreAt: null,
+          timeToBeat: null, // !! but no time to beat
+          timeToBeatHardcore: null,
+        }),
+      },
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByRole('button', { name: /beaten/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/beaten on/i)[0]).toBeVisible();
+    });
+    expect(screen.queryByText(/time to beat/i)).not.toBeInTheDocument();
+  });
+
+  it('given the game is beaten hardcore but has no time to beat hardcore, does not show the time to beat stat', async () => {
+    // ARRANGE
+    const achievements = [
+      createAchievement({ type: 'progression', unlockedHardcoreAt: '2024-01-01T00:00:00Z' }),
+      createAchievement({ type: 'progression', unlockedHardcoreAt: '2024-01-02T00:00:00Z' }),
+    ];
+
+    render(<BeatenProgressIndicator achievements={achievements} />, {
+      pageProps: {
+        playerGame: createPlayerGame({
+          beatenAt: null,
+          beatenHardcoreAt: '2024-07-23T23:56:40.000000Z', // !! it's beaten hardcore
+          timeToBeat: null,
+          timeToBeatHardcore: null, // !! but no time to beat hardcore
+        }),
+      },
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByRole('button', { name: /beaten/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/beaten on/i)[0]).toBeVisible();
+    });
+    expect(screen.queryByText(/time to beat/i)).not.toBeInTheDocument();
+  });
 });
