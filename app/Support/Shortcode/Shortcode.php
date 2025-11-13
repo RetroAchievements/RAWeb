@@ -222,7 +222,6 @@ final class Shortcode
         foreach ($shortcodeIds as $key => $ids) {
             $ids = array_unique($ids);
             if (empty($ids)) {
-                $results[$key] = [];
                 continue;
             }
 
@@ -347,8 +346,10 @@ final class Shortcode
             },
         ];
 
-        foreach ($injectionShortcodes as $pattern => $callback) {
-            $input = preg_replace_callback($pattern, $callback, $input);
+        if (str_contains($input, '[') && !empty($shortcodeRecords)) {
+            foreach ($injectionShortcodes as $pattern => $callback) {
+                $input = preg_replace_callback($pattern, $callback, $input);
+            }
         }
 
         // Remove all quoted content, including nested quotes.
@@ -511,8 +512,10 @@ final class Shortcode
             },
         ];
 
-        foreach ($injectionShortcodes as $pattern => $callback) {
-            $input = preg_replace_callback($pattern, $callback, $input);
+        if (str_contains($input, '[') && !empty($shortcodeRecords)) {
+            foreach ($injectionShortcodes as $pattern => $callback) {
+                $input = preg_replace_callback($pattern, $callback, $input);
+            }
         }
 
         // Convert [quote] blocks to Markdown blockquotes.
