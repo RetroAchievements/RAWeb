@@ -3,34 +3,27 @@
 namespace App\Filament\Pages;
 
 use App\Platform\Enums\AchievementFlag;
+use BackedEnum;
 use Closure;
-use Filament\Forms\Components\Field;
-use Filament\Forms\Components\MorphToSelect;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
-use Filament\Pages\Concerns\InteractsWithFormActions;
-use Filament\Resources\Pages\Concerns\InteractsWithRecord;
-use Filament\Resources\Pages\Page;
-use Filament\Tables\Concerns\CanPaginateRecords;
+use Filament\Forms;
+use Filament\Pages;
+use Filament\Schemas;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Livewire\Features\SupportPagination\HandlesPagination;
 use Livewire\WithPagination;
 
-abstract class ResourceAuditLog extends Page implements HasForms
+abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implements Forms\Contracts\HasForms
 {
-    use CanPaginateRecords;
-    use HandlesPagination;
-    use InteractsWithFormActions;
-    use InteractsWithRecord;
-    use WithPagination {
-        WithPagination::resetPage as resetLivewirePage;
-    }
+    use Pages\Concerns\InteractsWithFormActions;
+    use \Filament\Resources\Pages\Concerns\InteractsWithRecord;
+    use WithPagination;
 
-    protected static ?string $navigationIcon = 'fas-clock-rotate-left';
+    protected static string|BackedEnum|null $navigationIcon = 'fas-clock-rotate-left';
 
-    protected static string $view = 'filament.pages.audit-log';
+    protected string $view = 'filament.pages.audit-log';
+
+    public int $tableRecordsPerPage = 10;
 
     public function mount(int|string $record): void
     {
@@ -47,8 +40,8 @@ abstract class ResourceAuditLog extends Page implements HasForms
             return new LengthAwarePaginator([], 0, 1);
         }
 
-        $query = $this->record->auditLog()->with('causer')->latest()->getQuery();
-        $paginator = $this->paginateTableQuery($query);
+        $query = $this->record->auditLog()->with('causer')->latest();
+        $paginator = $query->paginate($this->tableRecordsPerPage);
 
         // Map raw values to human-readable values.
         // eg: 3 -> "Published"
@@ -75,36 +68,14 @@ abstract class ResourceAuditLog extends Page implements HasForms
     }
 
     /**
-     * @return Collection<int|string, mixed>
+     * @return Collection<string, mixed>
      */
     protected function createFieldLabelMap(): Collection
     {
-        $form = static::getResource()::form(new Form($this));
+        $form = static::getResource()::form(new Schemas\Schema($this));
 
-        $components = new Collection($form->getComponents());
-        $extracted = new Collection();
-
-        while (($component = $components->shift()) !== null) {
-            if ($component instanceof Field || $component instanceof MorphToSelect) {
-                $extracted->push($component);
-
-                continue;
-            }
-
-            $children = $component->getChildComponents();
-
-            if (count($children) > 0) {
-                $components = $components->merge($children);
-
-                continue;
-            }
-
-            $extracted->push($component);
-        }
-
-        return $extracted
-            ->filter(fn (mixed $field): bool => $field instanceof Field) // @phpstan-ignore-line
-            ->mapWithKeys(fn (Field $field) => [
+        return collect($form->getFlatFields())
+            ->mapWithKeys(fn (Forms\Components\Field $field) => [
                 $field->getName() => $field->getLabel(),
             ]);
     }
@@ -176,11 +147,6 @@ abstract class ResourceAuditLog extends Page implements HasForms
             'unlinkedHash' => 'danger',
             default => 'info',
         };
-    }
-
-    protected function getIdentifiedTableQueryStringPropertyNameFor(string $property): string
-    {
-        return $property;
     }
 
     protected function getTableRecordsPerPageSelectOptions(): array
