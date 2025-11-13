@@ -8,9 +8,6 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 #[TypeScript('RedirectPagePropsData')]
 class RedirectPagePropsData extends Data
 {
-    /**
-     * @param string $url
-     */
     public function __construct(
         public string $url,
     ) {

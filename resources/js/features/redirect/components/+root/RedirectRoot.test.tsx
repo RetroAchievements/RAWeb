@@ -31,7 +31,7 @@ describe('Component: RedirectRoot', () => {
     });
 
     // ACT
-    const button = screen.getByRole('button', { name: 'Continue to external site' });
+    const button = screen.getByRole('link', { name: 'Continue to external site' });
     button.click();
 
     // ASSERT
