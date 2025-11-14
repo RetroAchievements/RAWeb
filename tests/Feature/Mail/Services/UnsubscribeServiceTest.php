@@ -786,7 +786,7 @@ class UnsubscribeServiceTest extends TestCase
         // Act
         $result = $this->service->processUnsubscribe(
             $token,
-            generateUndoToken: false // !!
+            shouldGenerateUndoToken: false // !!
         );
 
         // Assert
@@ -816,7 +816,7 @@ class UnsubscribeServiceTest extends TestCase
         // Act
         $result = $this->service->processUnsubscribe(
             $token,
-            generateUndoToken: false // !!
+            shouldGenerateUndoToken: false // !!
         );
 
         // Assert
