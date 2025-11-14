@@ -772,4 +772,59 @@ class UnsubscribeServiceTest extends TestCase
             true // !! explicitly subscribed again
         );
     }
+
+    public function testItProcessesUnsubscribeWithoutGeneratingUndoToken(): void
+    {
+        // Arrange
+        $forumTopic = ForumTopic::factory()->create();
+        $token = $this->generateValidGranularToken(
+            $this->user->id,
+            SubscriptionSubjectType::ForumTopic,
+            $forumTopic->id
+        );
+
+        // Act
+        $result = $this->service->processUnsubscribe(
+            $token,
+            generateUndoToken: false // !!
+        );
+
+        // Assert
+        $this->assertTrue($result['success']);
+        $this->assertNull($result['undoToken']); // !! undo token should be null
+        $this->assertEquals('unsubscribeSuccess-forumThread', $result['descriptionKey']);
+
+        // ... verify the unsubscribe still worked ...
+        $this->assertSubscriptionExists(
+            $this->user->id,
+            SubscriptionSubjectType::ForumTopic,
+            $forumTopic->id,
+            false
+        );
+    }
+
+    public function testItProcessesCategoryUnsubscribeWithoutGeneratingUndoToken(): void
+    {
+        // Arrange
+        $initialPrefs = (1 << UserPreference::EmailOn_ForumReply);
+        $user = $this->createUserWithPreferences($initialPrefs);
+        $token = $this->generateValidCategoryToken(
+            $user->id,
+            UserPreference::EmailOn_ForumReply
+        );
+
+        // Act
+        $result = $this->service->processUnsubscribe(
+            $token,
+            generateUndoToken: false // !!
+        );
+
+        // Assert
+        $this->assertTrue($result['success']);
+        $this->assertNull($result['undoToken']); // !! undo token should be null
+        $this->assertEquals('unsubscribeSuccess-allForumReplies', $result['descriptionKey']);
+
+        // ... verify the unsubscribe still worked ...
+        $this->assertUserPreferenceBit($user, UserPreference::EmailOn_ForumReply, false);
+    }
 }
