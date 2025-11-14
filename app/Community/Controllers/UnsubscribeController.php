@@ -21,26 +21,8 @@ class UnsubscribeController extends Controller
 
     public function show(Request $request, string $token): InertiaResponse|Response
     {
-        /**
-         * @see https://laravel.com/docs/12.x/urls#signed-urls
-         */
-        if (!$request->hasValidSignature()) {
-            // For POST (one-click) requests, return 401 Unauthorized.
-            if ($request->isMethod('post')) {
-                return response('Unauthorized', 401);
-            }
-
-            // For GET requests, show an error page.
-            $props = [
-                'success' => false,
-                'error' => 'expired',
-                'descriptionKey' => null,
-                'descriptionParams' => null,
-                'undoToken' => null,
-            ];
-
-            return Inertia::render('unsubscribe', UnsubscribeShowPagePropsData::from($props));
-        }
+        // Invalid signatures are handled automatically by the 'signed' middleware (returns 403).
+        // If we reach this point, the signature is valid.
 
         // Handle POST requests for RFC 8058 one-click unsubscribe from email clients.
         if ($request->isMethod('post')) {

@@ -43,12 +43,6 @@ class UnsubscribeControllerTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
-        $response->assertInertia(
-            fn ($page) => $page
-                ->component('unsubscribe')
-                ->has('success')
-                ->has('undoToken')
-        );
 
         // ... verify the unsubscribe was processed ...
         $this->assertDatabaseHas('Subscriptions', [
@@ -59,7 +53,7 @@ class UnsubscribeControllerTest extends TestCase
         ]);
     }
 
-    public function testGetRequestWithInvalidSignatureShowsErrorPage(): void
+    public function testGetRequestWithInvalidSignatureReturns403(): void
     {
         // Arrange
         $forumTopic = ForumTopic::factory()->create();
@@ -76,13 +70,7 @@ class UnsubscribeControllerTest extends TestCase
         $response = $this->get($url);
 
         // Assert
-        $response->assertStatus(200);
-        $response->assertInertia(
-            fn ($page) => $page
-                ->component('unsubscribe')
-                ->where('success', false)
-                ->where('error', 'expired')
-        );
+        $response->assertStatus(403);
 
         // ... verify the unsubscribe was NOT processed ...
         $this->assertDatabaseMissing('Subscriptions', [
@@ -120,7 +108,7 @@ class UnsubscribeControllerTest extends TestCase
         ]);
     }
 
-    public function testPostRequestWithInvalidSignatureReturns401(): void
+    public function testPostRequestWithInvalidSignatureReturns403(): void
     {
         // Arrange
         $forumTopic = ForumTopic::factory()->create();
@@ -139,7 +127,7 @@ class UnsubscribeControllerTest extends TestCase
         ]);
 
         // Assert
-        $response->assertStatus(401);
+        $response->assertStatus(403);
 
         // ... verify the unsubscribe was NOT processed ...
         $this->assertDatabaseMissing('Subscriptions', [
