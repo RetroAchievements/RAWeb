@@ -132,21 +132,29 @@ class AuthorshipCreditsRelationManager extends RelationManager
                                     }
                                 }
 
-                                AchievementAuthor::create([
-                                    'user_id' => $developer->id,
-                                    'achievement_id' => $achievement->id,
-                                    'task' => $task,
-                                    'created_at' => $backdate ?? $achievement->DateCreated,
-                                ]);
+                                AchievementAuthor::firstOrCreate(
+                                    [
+                                        'user_id' => $developer->id,
+                                        'achievement_id' => $achievement->id,
+                                        'task' => $task,
+                                    ],
+                                    [
+                                        'created_at' => $backdate ?? $achievement->DateCreated,
+                                    ]
+                                );
                             }
                         }
 
-                        return AchievementAuthor::create([
-                            'user_id' => (int) $data['user_id'],
-                            'achievement_id' => $achievement->id,
-                            'task' => $task,
-                            'created_at' => $data['created_at'] ?? now(),
-                        ]);
+                        return AchievementAuthor::firstOrCreate(
+                            [
+                                'user_id' => (int) $data['user_id'],
+                                'achievement_id' => $achievement->id,
+                                'task' => $task,
+                            ],
+                            [
+                                'created_at' => $data['created_at'] ?? now(),
+                            ]
+                        );
                     })
                     ->visible(fn () => $canCreate),
             ])
