@@ -129,9 +129,7 @@ export function BaseSelectAsync<T>({
             disabled && 'cursor-not-allowed opacity-50',
             triggerClassName,
           )}
-          disabled={
-            disabled || (query.isLoading && (!internalSelectedOption || !isInitialLoad.current))
-          }
+          disabled={disabled || (query.isLoading && !internalSelectedOption)}
         >
           {internalSelectedOption ? getDisplayValue(internalSelectedOption) : placeholder}
 

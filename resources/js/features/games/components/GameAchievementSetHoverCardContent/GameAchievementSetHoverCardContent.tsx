@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { BaseTooltipContent } from '@/common/components/+vendor/BaseTooltip';
+import { BaseHoverCardContent } from '@/common/components/+vendor/BaseHoverCard';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { buildGameRarityLabel } from '@/common/utils/buildGameRarityLabel';
 import { cn } from '@/common/utils/cn';
@@ -9,11 +9,11 @@ import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { BASE_SET_LABEL } from '../../utils/baseSetLabel';
 
-interface GameAchievementSetTooltipContentProps {
+interface GameAchievementSetHoverCardContentProps {
   gameAchievementSet: App.Platform.Data.GameAchievementSet;
 }
 
-export const GameAchievementSetTooltipContent: FC<GameAchievementSetTooltipContentProps> = ({
+export const GameAchievementSetHoverCardContent: FC<GameAchievementSetHoverCardContentProps> = ({
   gameAchievementSet,
 }) => {
   const { t } = useTranslation();
@@ -30,7 +30,10 @@ export const GameAchievementSetTooltipContent: FC<GameAchievementSetTooltipConte
   } = achievementSet;
 
   return (
-    <BaseTooltipContent className="w-[400px] max-w-[400px] border border-embed-highlight bg-box-bg p-2">
+    <BaseHoverCardContent
+      side="top"
+      className="w-[400px] max-w-[400px] border border-embed-highlight bg-box-bg p-2"
+    >
       <div className="flex gap-2">
         <img src={imageAssetPathUrl} alt={title ?? BASE_SET_LABEL} className="size-24 rounded-sm" />
 
@@ -77,6 +80,6 @@ export const GameAchievementSetTooltipContent: FC<GameAchievementSetTooltipConte
           </p>
         </div>
       </div>
-    </BaseTooltipContent>
+    </BaseHoverCardContent>
   );
 };

@@ -398,8 +398,8 @@ function calculateBuckets(
         // Distribute the achievements into the bucket by adding the number of hardcore
         // users who achieved it and the number of softcore users who achieved it to
         // the respective counts.
-        $buckets[$targetBucketIndex]['hardcore'] += $hardcoreUnlocks[$i];
-        $buckets[$targetBucketIndex]['softcore'] += $softcoreUnlocks[$i];
+        $buckets[$targetBucketIndex]['hardcore'] += $hardcoreUnlocks[$i] ?? 0;
+        $buckets[$targetBucketIndex]['softcore'] += $softcoreUnlocks[$i] ?? 0;
 
         // We need to also keep tracked of `largestWonByCount`, which is later used for chart
         // configuration, such as determining the number of gridlines to show.

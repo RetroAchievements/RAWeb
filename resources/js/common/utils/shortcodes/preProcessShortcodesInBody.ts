@@ -7,31 +7,55 @@ const shortcodeTypes = [
   { type: 'user', shortcode: 'user' },
 ] as const;
 
-const createPatterns = (type: string) => [
-  // HTML anchor tags.
-  new RegExp(
-    `<a [^/>]*retroachievements\\.org/${type}/(\\w{1,20})(?:-[^\\s"'<>]*)?(/?(?![\\w/?]))[^/>]*\\][^</a>]*</a>`,
-    'gi',
-  ),
+const createPatterns = (type: string) => {
+  // For games, match both /game/ and /game2/ URLs.
+  const pathPattern = type === 'game' ? 'game2?' : type;
 
-  // BBCode url tags.
-  new RegExp(
-    `\\[url[^\\]]*retroachievements\\.org/${type}/(\\w{1,20})(?:-[^\\s"'<>]*)?(/?(?![\\w/?]))[^\\]]*\\][^\\[]*\\[/url\\]`,
-    'gi',
-  ),
+  const patterns = [
+    // HTML anchor tags.
+    new RegExp(
+      `<a [^/>]*retroachievements\\.org/${pathPattern}/(\\w{1,20})(?:-[^\\s"'<>]*)?(/?(?![\\w/?]))[^/>]*\\][^</a>]*</a>`,
+      'gi',
+    ),
 
-  // Direct production URLs.
-  new RegExp(
-    `https?://(?:[\\w-]+\\.)?retroachievements\\.org/${type}/(\\w{1,20})(?:-[^\\s"'<>]*)?(/?(?![\\w/?]))`,
-    'gi',
-  ),
+    // BBCode url tags.
+    new RegExp(
+      `\\[url[^\\]]*retroachievements\\.org/${pathPattern}/(\\w{1,20})(?:-[^\\s"'<>]*)?(/?(?![\\w/?]))[^\\]]*\\][^\\[]*\\[/url\\]`,
+      'gi',
+    ),
 
-  // Local development URLs.
-  new RegExp(
-    `https?://localhost(?::\\d{1,5})?/${type}/(\\w{1,20})(?:-[^\\s"'<>]*)?(/?(?![\\w/?]))`,
-    'gi',
-  ),
-];
+    // Direct production URLs without query params.
+    new RegExp(
+      `https?://(?:[\\w-]+\\.)?retroachievements\\.org/${pathPattern}/(\\w{1,20})(?:-[^\\s"'<>]*)?(/?(?![\\w/?]))`,
+      'gi',
+    ),
+
+    // Local development URLs without query params.
+    new RegExp(
+      `https?://localhost(?::\\d{1,5})?/${pathPattern}/(\\w{1,20})(?:-[^\\s"'<>]*)?(/?(?![\\w/?]))`,
+      'gi',
+    ),
+  ];
+
+  // For games specifically, also handle URLs with ?set= query parameter.
+  if (type === 'game') {
+    patterns.unshift(
+      // Production URLs with a ?set= parameter.
+      new RegExp(
+        `https?://(?:[\\w-]+\\.)?retroachievements\\.org/game2?/(\\w{1,20})(?:-[^\\s"'<>]*)?(?:/)?\\?set=(\\d+)`,
+        'gi',
+      ),
+
+      // Local development URLs with a ?set= parameter.
+      new RegExp(
+        `https?://localhost(?::\\d{1,5})?/game2?/(\\w{1,20})(?:-[^\\s"'<>]*)?(?:/)?\\?set=(\\d+)`,
+        'gi',
+      ),
+    );
+  }
+
+  return patterns;
+};
 
 export function preProcessShortcodesInBody(body: string): string {
   // First, normalize any escaped newlines back to actual newlines.
@@ -42,8 +66,15 @@ export function preProcessShortcodesInBody(body: string): string {
 
   for (const { type, shortcode } of shortcodeTypes) {
     const patterns = createPatterns(type);
-    for (const regex of patterns) {
-      result = result.replaceAll(regex, `[${shortcode}=$1]`);
+    for (let i = 0; i < patterns.length; i++) {
+      const regex = patterns[i];
+
+      // Special handling for game URLs with a ?set= parameter (first two patterns for games).
+      if (type === 'game' && i < 2) {
+        result = result.replaceAll(regex, `[${shortcode}=$1?set=$2]`);
+      } else {
+        result = result.replaceAll(regex, `[${shortcode}=$1]`);
+      }
     }
   }
 

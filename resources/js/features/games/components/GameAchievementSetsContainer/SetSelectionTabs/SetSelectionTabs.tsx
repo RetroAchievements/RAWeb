@@ -1,15 +1,15 @@
 import { useAtomValue } from 'jotai';
-import { type FC } from 'react';
+import type { FC } from 'react';
 import { route } from 'ziggy-js';
 
-import { BaseTooltip, BaseTooltipTrigger } from '@/common/components/+vendor/BaseTooltip';
+import { BaseHoverCard, BaseHoverCardTrigger } from '@/common/components/+vendor/BaseHoverCard';
 import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { currentListViewAtom } from '@/features/games/state/games.atoms';
 import { BASE_SET_LABEL } from '@/features/games/utils/baseSetLabel';
 
-import { GameAchievementSetTooltipContent } from '../../GameAchievementSetTooltipContent';
+import { GameAchievementSetHoverCardContent } from '../../GameAchievementSetHoverCardContent';
 import { useTabIndicator } from './useTabIndicator';
 
 interface SetSelectionTabsProps {
@@ -37,6 +37,7 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
     <div className="relative">
       {/* Active Tab Indicator */}
       <div
+        data-testid="tab-indicator"
         className={cn(
           'absolute bottom-[-6px] left-0 h-[2px] bg-neutral-300 will-change-transform light:bg-neutral-800',
           isAnimationReady ? 'transition-all duration-200 ease-out' : null,
@@ -47,8 +48,13 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
       {/* Tabs */}
       <div className="relative flex items-center space-x-[6px]">
         {selectableGameAchievementSets.map((gas, index) => (
-          <BaseTooltip key={gas.id} open={ziggy.device === 'mobile' ? false : undefined}>
-            <BaseTooltipTrigger>
+          <BaseHoverCard
+            key={gas.id}
+            openDelay={300}
+            closeDelay={100}
+            open={ziggy.device === 'mobile' ? false : undefined}
+          >
+            <BaseHoverCardTrigger asChild>
               <InertiaLink
                 href={route('game2.show', {
                   game: game.id,
@@ -80,10 +86,10 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
                   />
                 </div>
               </InertiaLink>
-            </BaseTooltipTrigger>
+            </BaseHoverCardTrigger>
 
-            <GameAchievementSetTooltipContent gameAchievementSet={gas} />
-          </BaseTooltip>
+            <GameAchievementSetHoverCardContent gameAchievementSet={gas} />
+          </BaseHoverCard>
         ))}
       </div>
     </div>

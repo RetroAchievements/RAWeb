@@ -50,6 +50,7 @@ const DataTableSystemFilterHarness: FC<DataTableSystemFilterHarnessProps> = ({
   includeDefaultOption = false,
   isSingleSelect = false,
 }) => {
+  // eslint-disable-next-line react-hooks/incompatible-library -- https://github.com/TanStack/table/issues/5567
   const table = useReactTable({
     data,
     columns,
