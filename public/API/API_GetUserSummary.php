@@ -141,7 +141,6 @@ $retVal['LastActivity'] = [
     'data' => null,
     'data2' => null,
 ];
-unset($retVal['LastActivityID']);
 
 $retVal['Status'] = 'Offline';
 

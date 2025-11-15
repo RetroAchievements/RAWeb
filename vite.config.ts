@@ -98,24 +98,42 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       /** @see https://vitest.dev/guide/improving-performance.html#pool */
       pool: 'threads',
 
-      // Filter out harmless happy-dom iframe fetch abort errors from stderr.
+      // Filter out harmless happy-dom errors from stderr.
       onConsoleLog(log, type) {
-        if (
-          type === 'stderr' &&
-          log.includes('DOMException') &&
-          (log.includes('AbortError') || log.includes('NetworkError')) &&
-          (log.includes('Fetch') ||
-            log.includes('iframe') ||
-            log.includes('youtube') ||
-            log.includes('twitch'))
-        ) {
-          return false;
+        if (type === 'stderr') {
+          // Filter DOMException errors from iframes.
+          if (
+            log.includes('DOMException') &&
+            (log.includes('AbortError') || log.includes('NetworkError')) &&
+            (log.includes('Fetch') ||
+              log.includes('iframe') ||
+              log.includes('youtube') ||
+              log.includes('twitch'))
+          ) {
+            return false;
+          }
+
+          // Filter ECONNREFUSED network errors.
+          if (
+            log.includes('ECONNREFUSED') ||
+            log.includes('AggregateError') ||
+            log.includes('internalConnectMultiple') ||
+            log.includes('afterConnectMultiple') ||
+            log.includes('createConnectionError') ||
+            log.includes('[errors]:') ||
+            log.includes('errno:') ||
+            log.includes('syscall:') ||
+            (log.includes('::1:') && log.includes('connect')) ||
+            (log.includes('127.0.0.1:') && log.includes('connect'))
+          ) {
+            return false;
+          }
         }
       },
 
       coverage: {
         provider: 'v8',
-        reporter: ['text', 'html'],
+        reporter: [['text', { skipFull: true }], 'html'],
         include: [
           /*
            * Disregard coverage for Alpine.js stuff, mounting code, /pages, and /tools.
@@ -141,10 +159,10 @@ export default defineConfig(({ mode, isSsrBuild }) => {
           '**/*.spec.tsx',
         ],
         thresholds: {
-          lines: 98.5,
+          lines: 99,
           functions: 100,
-          branches: 98.5,
-          statements: 98.5,
+          branches: 99.5,
+          statements: 99,
         },
       },
     },
@@ -176,13 +194,13 @@ function detectServerConfig(env: Record<string, string>) {
         key: readFileSync(keyPath),
         cert: readFileSync(certificatePath),
       },
-      port: env.VITE_PORT,
+      port: Number(env.VITE_PORT),
     };
   }
 
   return {
     watch,
     cors: true,
-    port: env.VITE_PORT,
+    port: Number(env.VITE_PORT),
   };
 }

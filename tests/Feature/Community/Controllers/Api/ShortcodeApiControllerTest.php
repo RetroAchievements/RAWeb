@@ -17,12 +17,7 @@ class ShortcodeApiControllerTest extends TestCase
         $this->withoutMiddleware();
 
         $payload = [
-            // !! missing required "usernames" array
-            'ticketIds' => [],
-            'achievementIds' => [],
-            'gameIds' => [],
-            'hubIds' => [],
-            'eventIds' => [],
+            // ... missing required "body" field ...
         ];
 
         // Act
@@ -30,35 +25,6 @@ class ShortcodeApiControllerTest extends TestCase
 
         // Assert
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['usernames']);
-    }
-
-    public function testItReturnsEmptyCollectionsWhenNoIdsProvided(): void
-    {
-        // Arrange
-        $this->withoutMiddleware();
-
-        $payload = [
-            'usernames' => [],
-            'ticketIds' => [],
-            'achievementIds' => [],
-            'gameIds' => [],
-            'hubIds' => [],
-            'eventIds' => [],
-        ];
-
-        // Act
-        $response = $this->postJson(route('api.shortcode-body.preview'), $payload);
-
-        // Assert
-        $response->assertOk();
-        $response->assertExactJson([
-            'users' => [],
-            'tickets' => [],
-            'achievements' => [],
-            'games' => [],
-            'hubs' => [],
-            'events' => [],
-        ]);
+        $response->assertJsonValidationErrors(['body']);
     }
 }

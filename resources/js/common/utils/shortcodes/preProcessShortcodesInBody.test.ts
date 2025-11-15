@@ -205,4 +205,139 @@ describe('Util: preProcessShortcodesInBody', () => {
     // ASSERT
     expect(result).toEqual('Check out [user=Scott]');
   });
+
+  it('converts game URL with ?set= query parameter to shortcode', () => {
+    // ARRANGE
+    const input = 'Check out https://retroachievements.org/game/668?set=8659';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Check out [game=668?set=8659]');
+  });
+
+  it('converts game URL with ?set= parameter and slug to shortcode', () => {
+    // ARRANGE
+    const input = 'Try https://retroachievements.org/game/668-pokemon-emerald-version?set=8659';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Try [game=668?set=8659]');
+  });
+
+  it('converts localhost game URL with ?set= parameter to shortcode', () => {
+    // ARRANGE
+    const input = 'Dev: http://localhost:64000/game/123?set=456';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Dev: [game=123?set=456]');
+  });
+
+  it('handles mixed game URLs with and without ?set= parameter', () => {
+    // ARRANGE
+    const input =
+      'Play https://retroachievements.org/game/668 or try https://retroachievements.org/game/668?set=8659';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Play [game=668] or try [game=668?set=8659]');
+  });
+
+  it('prioritizes game URLs with ?set= parameter over regular game URLs', () => {
+    // ARRANGE
+    const input = 'https://retroachievements.org/game/1?set=9534';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    // ... should become [game=1?set=9534], not [game=1] ...
+    expect(result).toEqual('[game=1?set=9534]');
+  });
+
+  it('converts /game2/ URLs to shortcode', () => {
+    // ARRANGE
+    const input = 'Check out https://retroachievements.org/game2/1234';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Check out [game=1234]');
+  });
+
+  it('converts /game2/ URLs with slugs to shortcode', () => {
+    // ARRANGE
+    const input = 'Check out https://retroachievements.org/game2/1234-super-mario-64';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Check out [game=1234]');
+  });
+
+  it('converts /game2/ URLs with ?set= query params to shortcode', () => {
+    // ARRANGE
+    const input = 'Check out https://retroachievements.org/game2/668?set=8659';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Check out [game=668?set=8659]');
+  });
+
+  it('converts /game2/ URLs with ?set= parameters and slugs to shortcode', () => {
+    // ARRANGE
+    const input = 'Try https://retroachievements.org/game2/668-pokemon-emerald-version?set=8659';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Try [game=668?set=8659]');
+  });
+
+  it('converts localhost /game2/ URLs with ?set= parameters to shortcode', () => {
+    // ARRANGE
+    const input = 'Dev: http://localhost:64000/game2/123?set=456';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Dev: [game=123?set=456]');
+  });
+
+  it('handles mixed /game/ and /game2/ URLs', () => {
+    // ARRANGE
+    const input =
+      'Play https://retroachievements.org/game/668 or try https://retroachievements.org/game2/668?set=8659';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('Play [game=668] or try [game=668?set=8659]');
+  });
+
+  it('converts /game2/ BBCode url tags to shortcode', () => {
+    // ARRANGE
+    const input = '[url=https://retroachievements.org/game2/1234]Cool Game[/url]';
+
+    // ACT
+    const result = preProcessShortcodesInBody(input);
+
+    // ASSERT
+    expect(result).toEqual('[game=1234]');
+  });
 });

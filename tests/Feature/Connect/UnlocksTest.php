@@ -285,6 +285,8 @@ class UnlocksTest extends TestCase
             ->get($this->apiUrl('unlocks', ['g' => $game->ID + VirtualGameIdService::IncompatibleIdBase, 'h' => 1]))
             ->assertExactJson([
                 'Success' => true,
+                'GameID' => $game->ID,
+                'HardcoreMode' => true,
                 'UserUnlocks' => [],
             ]);
     }

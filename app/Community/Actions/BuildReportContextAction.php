@@ -36,8 +36,8 @@ class BuildReportContextAction
 
         $context = '';
 
-        // For DirectMessages, we can't link to the content (it's in someone's inbox), so
-        // there's no "Reported Content" header.
+        // For DirectMessages in the user inbox, we link to the message since the reporter can access it.
+        // For Discord, we skip the link since moderators can't access user inboxes.
         if ($reportableType !== DiscordReportableType::DirectMessage) {
             $context .= $forDiscord ? "**Reported Content:**\n" : "[b]Reported Content:[/b]\n";
 
@@ -56,6 +56,10 @@ class BuildReportContextAction
             if ($link) {
                 $context .= $forDiscord ? $link . "\n" : "[url={$link}]{$link}[/url]\n";
             }
+        } elseif (!$forDiscord) {
+            // For DirectMessages in the user inbox, add a link the reporter can use.
+            $link = route('message-thread.show', ['messageThread' => $reportedItem->thread_id]) . '?message=' . $reportedItem->id;
+            $context .= "[b]Reported Content:[/b] [url={$link}]View reported message[/url]\n";
         }
 
         // Add the content author with appropriate formatting.

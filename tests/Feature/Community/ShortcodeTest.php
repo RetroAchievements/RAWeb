@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Platform\Enums\GameSetType;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 final class ShortcodeTest extends TestCase
@@ -232,6 +233,42 @@ final class ShortcodeTest extends TestCase
         );
     }
 
+    public function testNormalizeGame2Shortcodes(): void
+    {
+        $rawString = 'https://retroachievements.org/game2/1';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            '[game=1]',
+            $normalized
+        );
+    }
+
+    public function testNormalizeGameShortcodesWithSetParam(): void
+    {
+        $rawString = 'https://retroachievements.org/game/668?set=8659';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            '[game=668?set=8659]',
+            $normalized
+        );
+    }
+
+    public function testNormalizeGame2ShortcodesWithSetParam(): void
+    {
+        $rawString = 'https://retroachievements.org/game2/668?set=8659';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            '[game=668?set=8659]',
+            $normalized
+        );
+    }
+
     public function testNormalizeHubShortcodes(): void
     {
         $rawString = 'https://retroachievements.org/hub/1';
@@ -304,9 +341,7 @@ final class ShortcodeTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider youtubeUrlProvider
-     */
+    #[DataProvider('youtubeUrlProvider')]
     public function testAutoEmbedYoutube(string $url, string $expected): void
     {
         $this->assertStringContainsString(

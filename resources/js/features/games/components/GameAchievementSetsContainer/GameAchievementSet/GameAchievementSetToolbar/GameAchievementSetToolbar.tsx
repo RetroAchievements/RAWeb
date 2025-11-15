@@ -32,7 +32,7 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
   missableAchievementsCount,
   unlockedAchievementsCount,
 }) => {
-  const { backingGame, numLeaderboards, ziggy } =
+  const { auth, backingGame, numLeaderboards, ziggy } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { t } = useTranslation();
@@ -116,7 +116,13 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
                   'type',
                   '-type',
                 ]
-              : ['displayOrder', '-displayOrder', 'title', '-title']
+              : [
+                  'displayOrder',
+                  '-displayOrder',
+                  'title',
+                  '-title',
+                  ...(auth?.user ? ['rank' as const, '-rank' as const] : []),
+                ]
           }
           buttonClassName="w-full sm:w-auto"
         />

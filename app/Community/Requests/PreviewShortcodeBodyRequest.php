@@ -11,16 +11,7 @@ class PreviewShortcodeBodyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'usernames' => 'present|array',
-            'usernames.*' => 'string',
-            'ticketIds' => 'present|array',
-            'ticketIds.*' => 'integer',
-            'achievementIds' => 'present|array',
-            'achievementIds.*' => 'integer',
-            'gameIds' => 'present|array',
-            'gameIds.*' => 'integer',
-            'hubIds' => 'present|array',
-            'hubIds.*' => 'integer',
+            'body' => 'required|string',
         ];
     }
 }
