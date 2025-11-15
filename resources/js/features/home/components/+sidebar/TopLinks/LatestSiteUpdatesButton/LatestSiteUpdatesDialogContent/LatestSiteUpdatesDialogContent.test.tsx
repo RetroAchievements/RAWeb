@@ -1,8 +1,5 @@
-import axios from 'axios';
-
 import { BaseDialog } from '@/common/components/+vendor/BaseDialog';
-import { createAuthenticatedUser } from '@/common/models';
-import { render, screen, waitFor } from '@/test';
+import { render, screen } from '@/test';
 import { createNews } from '@/test/factories';
 
 import { LatestSiteUpdatesDialogContent } from './LatestSiteUpdatesDialogContent';
@@ -123,97 +120,5 @@ describe('Component: LatestSiteUpdatesDialogContent', () => {
 
     // ASSERT
     expect(screen.queryByRole('link', { name: /see full release notes/i })).not.toBeInTheDocument();
-  });
-
-  it('given the user is authenticated and there is an unread note, marks it as viewed', async () => {
-    // ARRANGE
-    const axiosPostSpy = vi.spyOn(axios, 'post').mockResolvedValue({});
-
-    render(
-      <BaseDialog open={true}>
-        <LatestSiteUpdatesDialogContent latestNewsId={123} />
-      </BaseDialog>,
-      {
-        pageProps: {
-          auth: { user: createAuthenticatedUser({ id: 1 }) },
-          deferredSiteReleaseNotes: [createNews({ id: 123 })],
-          hasUnreadSiteReleaseNote: true, // !!
-        },
-      },
-    );
-
-    // ASSERT
-    await waitFor(() => {
-      expect(axiosPostSpy).toHaveBeenCalled();
-    });
-  });
-
-  it('given the user is not authenticated, does not mark the note as viewed', async () => {
-    // ARRANGE
-    const axiosPostSpy = vi.spyOn(axios, 'post').mockResolvedValue({});
-
-    render(
-      <BaseDialog open={true}>
-        <LatestSiteUpdatesDialogContent latestNewsId={123} />
-      </BaseDialog>,
-      {
-        pageProps: {
-          auth: null, // !!
-          deferredSiteReleaseNotes: [createNews({ id: 123 })],
-          hasUnreadSiteReleaseNote: true,
-        },
-      },
-    );
-
-    // ASSERT
-    await waitFor(() => {
-      expect(axiosPostSpy).not.toHaveBeenCalled();
-    });
-  });
-
-  it('given there is no unread note, does not mark anything as viewed', async () => {
-    // ARRANGE
-    const axiosPostSpy = vi.spyOn(axios, 'post').mockResolvedValue({});
-
-    render(
-      <BaseDialog open={true}>
-        <LatestSiteUpdatesDialogContent latestNewsId={123} />
-      </BaseDialog>,
-      {
-        pageProps: {
-          auth: { user: createAuthenticatedUser({ id: 1 }) },
-          deferredSiteReleaseNotes: [createNews({ id: 123 })],
-          hasUnreadSiteReleaseNote: false, // !!
-        },
-      },
-    );
-
-    // ASSERT
-    await waitFor(() => {
-      expect(axiosPostSpy).not.toHaveBeenCalled();
-    });
-  });
-
-  it('given no latest news ID is provided, does not mark anything as viewed', async () => {
-    // ARRANGE
-    const axiosPostSpy = vi.spyOn(axios, 'post').mockResolvedValue({});
-
-    render(
-      <BaseDialog open={true}>
-        <LatestSiteUpdatesDialogContent /> {/* !! no latestNewsId prop */}
-      </BaseDialog>,
-      {
-        pageProps: {
-          auth: { user: createAuthenticatedUser({ id: 1 }) },
-          deferredSiteReleaseNotes: [createNews({ id: 123 })],
-          hasUnreadSiteReleaseNote: true,
-        },
-      },
-    );
-
-    // ASSERT
-    await waitFor(() => {
-      expect(axiosPostSpy).not.toHaveBeenCalled();
-    });
   });
 });

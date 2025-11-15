@@ -15,7 +15,6 @@ return new class extends Migration {
             $table->unsignedBigInteger('viewable_id');
             $table->unsignedBigInteger('user_id');
             $table->timestamp('viewed_at');
-            $table->timestamps();
 
             $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('cascade');
             $table->unique(['viewable_type', 'viewable_id', 'user_id'], 'viewables_viewable_type_viewable_id_user_id_unique');

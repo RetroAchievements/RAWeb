@@ -5,6 +5,7 @@ import { LuSquareTerminal } from 'react-icons/lu';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { BaseDialog, BaseDialogTrigger } from '@/common/components/+vendor/BaseDialog';
+import { useMarkAsViewedMutation } from '@/common/hooks/mutations/useMarkAsViewedMutation';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 import { cn } from '@/common/utils/cn';
@@ -12,9 +13,11 @@ import { cn } from '@/common/utils/cn';
 import { LatestSiteUpdatesDialogContent } from './LatestSiteUpdatesDialogContent';
 
 export const LatestSiteUpdatesButton: FC = () => {
-  const { deferredSiteReleaseNotes, hasUnreadSiteReleaseNote } =
+  const { auth, deferredSiteReleaseNotes, hasUnreadSiteReleaseNote } =
     usePageProps<App.Http.Data.HomePageProps>();
   const { t } = useTranslation();
+
+  const markAsViewedMutation = useMarkAsViewedMutation();
 
   const [isShowingUnreadIndicator, setIsShowingUnreadIndicator] =
     useState(hasUnreadSiteReleaseNote);
@@ -29,8 +32,18 @@ export const LatestSiteUpdatesButton: FC = () => {
     setIsShowingUnreadIndicator(false);
   };
 
+  // Mark the latest release notes entry as viewed when the dialog opens.
+  const handleOpenChange = (isOpen: boolean) => {
+    if (isOpen && auth?.user && latestNewsId && hasUnreadSiteReleaseNote) {
+      markAsViewedMutation.mutate({
+        viewableId: latestNewsId,
+        viewableType: 'site_release_note',
+      });
+    }
+  };
+
   return (
-    <BaseDialog>
+    <BaseDialog onOpenChange={handleOpenChange}>
       <BaseDialogTrigger asChild>
         <button
           onClick={handleOpenDialog}
@@ -53,7 +66,7 @@ export const LatestSiteUpdatesButton: FC = () => {
         </button>
       </BaseDialogTrigger>
 
-      <LatestSiteUpdatesDialogContent latestNewsId={latestNewsId} />
+      <LatestSiteUpdatesDialogContent />
     </BaseDialog>
   );
 };

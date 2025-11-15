@@ -53,10 +53,40 @@ trait HasViews
     }
 
     /**
+     * Mark this item as viewed by the given user, tracking only the latest view.
+     * Deletes any previous view records for this user and morph type, then creates
+     * a new record. Useful for content where we only need to know if the user has
+     * seen the most recent item (eg: site release notes).
+     */
+    public function markLatestAsViewedBy(User $user): void
+    {
+        Viewable::where('user_id', $user->id)
+            ->where('viewable_type', $this->getMorphClass())
+            ->delete();
+
+        $this->views()->create([
+            'user_id' => $user->id,
+            'viewed_at' => now(),
+        ]);
+    }
+
+    /**
      * Check if this item was viewed by the given user.
      */
     public function wasViewedBy(User $user): bool
     {
         return $this->views()->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * Determine if this model should track only the latest view per user.
+     * Default implementation returns false (track all views).
+     *
+     * If this is truthy, on a view, we'll delete any previous view records
+     * for the user and morph type and create a new record.
+     */
+    public function shouldTrackLatestViewOnly(): bool
+    {
+        return false;
     }
 }

@@ -20,6 +20,8 @@ class Viewable extends BaseModel
         'viewed_at',
     ];
 
+    public $timestamps = false;
+
     protected $casts = [
         'viewed_at' => 'datetime',
     ];

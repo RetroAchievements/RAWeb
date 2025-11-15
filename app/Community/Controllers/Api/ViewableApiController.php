@@ -42,7 +42,11 @@ class ViewableApiController extends Controller
             return response()->json(['error' => 'This model does not support views'], 400);
         }
 
-        $viewable->markAsViewedBy($user);
+        if ($viewable->shouldTrackLatestViewOnly()) {
+            $viewable->markLatestAsViewedBy($user);
+        } else {
+            $viewable->markAsViewedBy($user);
+        }
 
         return response()->json(['success' => true]);
     }

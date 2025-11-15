@@ -125,6 +125,7 @@ class AppServiceProvider extends ServiceProvider
          */
         Relation::morphMap([
             'news' => News::class,
+            'site_release_note' => News::class,
             'role' => Role::class,
             'user' => User::class,
         ]);

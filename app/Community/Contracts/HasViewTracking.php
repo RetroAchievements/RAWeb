@@ -10,5 +10,9 @@ interface HasViewTracking
 {
     public function markAsViewedBy(User $user): void;
 
+    public function markLatestAsViewedBy(User $user): void;
+
     public function wasViewedBy(User $user): bool;
+
+    public function shouldTrackLatestViewOnly(): bool;
 }

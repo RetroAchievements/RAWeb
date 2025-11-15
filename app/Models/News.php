@@ -55,6 +55,22 @@ class News extends BaseModel implements HasComments, HasMedia, HasViewTracking
         'pinned_at' => 'datetime',
     ];
 
+    // == view tracking
+
+    public function getMorphClass(): string
+    {
+        if ($this->category === NewsCategory::SiteReleaseNotes) {
+            return 'site_release_note';
+        }
+
+        return 'news';
+    }
+
+    public function shouldTrackLatestViewOnly(): bool
+    {
+        return $this->category === NewsCategory::SiteReleaseNotes;
+    }
+
     // == media
 
     public function registerMediaCollections(): void

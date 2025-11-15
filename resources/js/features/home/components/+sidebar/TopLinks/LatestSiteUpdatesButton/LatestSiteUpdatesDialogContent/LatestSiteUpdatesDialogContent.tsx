@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { useEffect } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { LuChevronRight } from 'react-icons/lu';
 
@@ -12,31 +11,11 @@ import {
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { MarkdownRenderer } from '@/common/components/MarkdownRenderer';
 import { UserAvatar } from '@/common/components/UserAvatar';
-import { useMarkAsViewedMutation } from '@/common/hooks/mutations/useMarkAsViewedMutation';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
-interface LatestSiteUpdatesDialogContentProps {
-  latestNewsId?: number;
-}
-
-export const LatestSiteUpdatesDialogContent: FC<LatestSiteUpdatesDialogContentProps> = ({
-  latestNewsId,
-}) => {
-  const { auth, deferredSiteReleaseNotes, hasUnreadSiteReleaseNote } =
-    usePageProps<App.Http.Data.HomePageProps>();
+export const LatestSiteUpdatesDialogContent: FC = () => {
+  const { deferredSiteReleaseNotes } = usePageProps<App.Http.Data.HomePageProps>();
   const { t } = useTranslation();
-
-  const markAsViewedMutation = useMarkAsViewedMutation();
-
-  // Mark the latest release notes entry as viewed when the dialog opens.
-  useEffect(() => {
-    if (auth?.user && latestNewsId && hasUnreadSiteReleaseNote) {
-      markAsViewedMutation.mutate({
-        viewableId: latestNewsId,
-        viewableType: 'news',
-      });
-    }
-  }, [latestNewsId, auth?.user, markAsViewedMutation, hasUnreadSiteReleaseNote]);
 
   return (
     <BaseDialogContent className="flex h-full max-w-[52rem] flex-col overflow-auto px-0 pb-0 sm:max-h-[60vh]">
@@ -64,12 +43,6 @@ export const LatestSiteUpdatesDialogContent: FC<LatestSiteUpdatesDialogContentPr
                   <p className="text-lg font-semibold">{note.title}</p>
 
                   <span className="flex items-center gap-2 text-2xs text-neutral-400">
-                    <span>
-                      <DiffTimestamp at={note.createdAt} enableTooltip={false} />
-                    </span>
-
-                    <span>{'·'}</span>
-
                     <span className="flex gap-1 italic">
                       <Trans
                         i18nKey="Posted by <1>{{username}}</1>"
@@ -84,6 +57,12 @@ export const LatestSiteUpdatesDialogContent: FC<LatestSiteUpdatesDialogContentPr
                           ),
                         }}
                       />
+                    </span>
+
+                    <span>{'·'}</span>
+
+                    <span>
+                      <DiffTimestamp at={note.createdAt} enableTooltip={false} />
                     </span>
                   </span>
                 </div>
