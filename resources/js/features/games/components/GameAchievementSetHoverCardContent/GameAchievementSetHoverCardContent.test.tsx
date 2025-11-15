@@ -1,18 +1,18 @@
-import { BaseTooltip } from '@/common/components/+vendor/BaseTooltip';
+import { BaseHoverCard } from '@/common/components/+vendor/BaseHoverCard';
 import { render, screen } from '@/test';
 import { createAchievementSet, createGameAchievementSet } from '@/test/factories';
 
-import { GameAchievementSetTooltipContent } from './GameAchievementSetTooltipContent';
+import { GameAchievementSetHoverCardContent } from './GameAchievementSetHoverCardContent';
 
-describe('Component: GameAchievementSetTooltipContent', () => {
+describe('Component: GameAchievementSetHoverCardContent', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const gameAchievementSet = createGameAchievementSet();
 
     const { container } = render(
-      <BaseTooltip open={true}>
-        <GameAchievementSetTooltipContent gameAchievementSet={gameAchievementSet} />
-      </BaseTooltip>,
+      <BaseHoverCard open={true}>
+        <GameAchievementSetHoverCardContent gameAchievementSet={gameAchievementSet} />
+      </BaseHoverCard>,
     );
 
     // ASSERT
@@ -27,9 +27,9 @@ describe('Component: GameAchievementSetTooltipContent', () => {
     });
 
     render(
-      <BaseTooltip open={true}>
-        <GameAchievementSetTooltipContent gameAchievementSet={gameAchievementSet} />
-      </BaseTooltip>,
+      <BaseHoverCard open={true}>
+        <GameAchievementSetHoverCardContent gameAchievementSet={gameAchievementSet} />
+      </BaseHoverCard>,
     );
 
     // ASSERT
@@ -43,9 +43,9 @@ describe('Component: GameAchievementSetTooltipContent', () => {
     });
 
     render(
-      <BaseTooltip open={true}>
-        <GameAchievementSetTooltipContent gameAchievementSet={gameAchievementSet} />
-      </BaseTooltip>,
+      <BaseHoverCard open={true}>
+        <GameAchievementSetHoverCardContent gameAchievementSet={gameAchievementSet} />
+      </BaseHoverCard>,
     );
 
     // ASSERT
@@ -64,9 +64,9 @@ describe('Component: GameAchievementSetTooltipContent', () => {
     });
 
     render(
-      <BaseTooltip open={true}>
-        <GameAchievementSetTooltipContent gameAchievementSet={gameAchievementSet} />
-      </BaseTooltip>,
+      <BaseHoverCard open={true}>
+        <GameAchievementSetHoverCardContent gameAchievementSet={gameAchievementSet} />
+      </BaseHoverCard>,
     );
 
     // ASSERT
@@ -83,9 +83,9 @@ describe('Component: GameAchievementSetTooltipContent', () => {
     });
 
     render(
-      <BaseTooltip open={true}>
-        <GameAchievementSetTooltipContent gameAchievementSet={gameAchievementSet} />
-      </BaseTooltip>,
+      <BaseHoverCard open={true}>
+        <GameAchievementSetHoverCardContent gameAchievementSet={gameAchievementSet} />
+      </BaseHoverCard>,
     );
 
     // ASSERT
@@ -103,9 +103,9 @@ describe('Component: GameAchievementSetTooltipContent', () => {
     });
 
     render(
-      <BaseTooltip open={true}>
-        <GameAchievementSetTooltipContent gameAchievementSet={gameAchievementSet} />
-      </BaseTooltip>,
+      <BaseHoverCard open={true}>
+        <GameAchievementSetHoverCardContent gameAchievementSet={gameAchievementSet} />
+      </BaseHoverCard>,
     );
 
     // ASSERT
@@ -123,9 +123,9 @@ describe('Component: GameAchievementSetTooltipContent', () => {
     });
 
     render(
-      <BaseTooltip open={true}>
-        <GameAchievementSetTooltipContent gameAchievementSet={gameAchievementSet} />
-      </BaseTooltip>,
+      <BaseHoverCard open={true}>
+        <GameAchievementSetHoverCardContent gameAchievementSet={gameAchievementSet} />
+      </BaseHoverCard>,
     );
 
     // ASSERT
@@ -145,9 +145,9 @@ describe('Component: GameAchievementSetTooltipContent', () => {
     });
 
     render(
-      <BaseTooltip open={true}>
-        <GameAchievementSetTooltipContent gameAchievementSet={gameAchievementSet} />
-      </BaseTooltip>,
+      <BaseHoverCard open={true}>
+        <GameAchievementSetHoverCardContent gameAchievementSet={gameAchievementSet} />
+      </BaseHoverCard>,
     );
 
     // ASSERT
@@ -164,9 +164,9 @@ describe('Component: GameAchievementSetTooltipContent', () => {
     });
 
     render(
-      <BaseTooltip open={true}>
-        <GameAchievementSetTooltipContent gameAchievementSet={gameAchievementSet} />
-      </BaseTooltip>,
+      <BaseHoverCard open={true}>
+        <GameAchievementSetHoverCardContent gameAchievementSet={gameAchievementSet} />
+      </BaseHoverCard>,
     );
 
     // ASSERT
@@ -184,9 +184,9 @@ describe('Component: GameAchievementSetTooltipContent', () => {
     });
 
     render(
-      <BaseTooltip open={true}>
-        <GameAchievementSetTooltipContent gameAchievementSet={gameAchievementSet} />
-      </BaseTooltip>,
+      <BaseHoverCard open={true}>
+        <GameAchievementSetHoverCardContent gameAchievementSet={gameAchievementSet} />
+      </BaseHoverCard>,
     );
 
     // ASSERT
@@ -203,9 +203,9 @@ describe('Component: GameAchievementSetTooltipContent', () => {
     });
 
     render(
-      <BaseTooltip open={true}>
-        <GameAchievementSetTooltipContent gameAchievementSet={gameAchievementSet} />
-      </BaseTooltip>,
+      <BaseHoverCard open={true}>
+        <GameAchievementSetHoverCardContent gameAchievementSet={gameAchievementSet} />
+      </BaseHoverCard>,
     );
 
     // ASSERT
@@ -222,9 +222,9 @@ describe('Component: GameAchievementSetTooltipContent', () => {
     });
 
     render(
-      <BaseTooltip open={true}>
-        <GameAchievementSetTooltipContent gameAchievementSet={gameAchievementSet} />
-      </BaseTooltip>,
+      <BaseHoverCard open={true}>
+        <GameAchievementSetHoverCardContent gameAchievementSet={gameAchievementSet} />
+      </BaseHoverCard>,
     );
 
     // ASSERT
@@ -241,9 +241,9 @@ describe('Component: GameAchievementSetTooltipContent', () => {
     });
 
     render(
-      <BaseTooltip open={true}>
-        <GameAchievementSetTooltipContent gameAchievementSet={gameAchievementSet} />
-      </BaseTooltip>,
+      <BaseHoverCard open={true}>
+        <GameAchievementSetHoverCardContent gameAchievementSet={gameAchievementSet} />
+      </BaseHoverCard>,
     );
 
     // ASSERT

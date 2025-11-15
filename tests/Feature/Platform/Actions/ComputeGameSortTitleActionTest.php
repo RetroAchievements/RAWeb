@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Actions;
 
 use App\Platform\Actions\ComputeGameSortTitleAction;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class ComputeGameSortTitleActionTest extends TestCase
 {
-    /**
-     * @dataProvider titleProvider
-     */
+    #[DataProvider('titleProvider')]
     public function testItGeneratesCorrectSortTitles(string $gameTitle, string $expectedSortTitle): void
     {
         // Act

@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { type FC, useRef } from 'react';
+import { type FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useDiffForHumans } from '@/common/utils/l10n/useDiffForHumans';
@@ -43,15 +43,13 @@ interface LastSeenLabelProps {
 
 const LastSeenLabel: FC<LastSeenLabelProps> = ({ userLastActivityAt }) => {
   const { t } = useTranslation();
-
-  // We don't want the label to re-render.
-  const lastActivityAt = useRef(userLastActivityAt);
-
   const { diffForHumans } = useDiffForHumans();
 
-  return (
-    <span>
-      {t('Last seen {{lastSeenDate}}', { lastSeenDate: diffForHumans(lastActivityAt.current) })}
-    </span>
+  // Freeze the "last seen" text when the component mounts to prevent continuous updates.
+  const lastSeenText = useMemo(
+    () => diffForHumans(userLastActivityAt),
+    [diffForHumans, userLastActivityAt],
   );
+
+  return <span>{t('Last seen {{lastSeenDate}}', { lastSeenDate: lastSeenText })}</span>;
 };

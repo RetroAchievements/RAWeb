@@ -31,6 +31,7 @@ describe('Hook: useHydrateShortcodeDynamicEntities', () => {
       events: [],
       tickets: [],
       users: [],
+      convertedBody: '',
     };
 
     // ACT
@@ -45,6 +46,7 @@ describe('Hook: useHydrateShortcodeDynamicEntities', () => {
             events: [],
             tickets: [],
             users: [],
+            convertedBody: '',
           },
         },
       },
@@ -65,6 +67,7 @@ describe('Hook: useHydrateShortcodeDynamicEntities', () => {
       hubs: [{ id: 3 }],
       tickets: [{ id: 4 }],
       users: [{ id: 5 }],
+      convertedBody: '',
     };
 
     // ACT
@@ -77,6 +80,7 @@ describe('Hook: useHydrateShortcodeDynamicEntities', () => {
           events: [],
           tickets: [],
           users: [],
+          convertedBody: '',
         },
       },
     });

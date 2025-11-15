@@ -49,7 +49,7 @@ export const useBaseAutosizeTextArea = ({
         window.scrollTo(0, scrollPos);
       }
     }
-  }, [textAreaRef.current, triggerAutoSize, init, maxHeight, minHeight]);
+  }, [triggerAutoSize, init, maxHeight, minHeight]);
 };
 
 export type BaseAutosizeTextAreaRef = {
