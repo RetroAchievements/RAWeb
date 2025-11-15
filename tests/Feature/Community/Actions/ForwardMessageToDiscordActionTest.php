@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Feature\Community\Actions;
 
 use App\Community\Actions\ForwardMessageToDiscordAction;
+use App\Community\Enums\DiscordReportableType;
 use App\Models\DiscordMessageThreadMapping;
+use App\Models\ForumTopicComment;
 use App\Models\Message;
 use App\Models\MessageThread;
 use App\Models\User;
@@ -74,6 +76,7 @@ class ForwardMessageToDiscordActionTest extends TestCase
         ?string $verifyUrl = null,
         ?string $achievementIssuesUrl = null,
         ?string $manualUnlockUrl = null,
+        ?string $reportsUrl = null,
     ): void {
         config([
             'services.discord.inbox_webhook.' . $user->username => [
@@ -82,6 +85,7 @@ class ForwardMessageToDiscordActionTest extends TestCase
                 'verify_url' => $verifyUrl,
                 'achievement_issues_url' => $achievementIssuesUrl,
                 'manual_unlock_url' => $manualUnlockUrl,
+                'reports_url' => $reportsUrl,
             ],
         ]);
     }
@@ -617,5 +621,323 @@ class ForwardMessageToDiscordActionTest extends TestCase
         foreach ($payloads as $payload) {
             $this->assertEquals('QATeam Inbox', $payload['username']);
         }
+    }
+
+    public function testItRoutesReportsToTheReportsUrl(): void
+    {
+        // Arrange
+        $this->setDiscordConfig(
+            $this->recipient,
+            reportsUrl: 'https://discord.com/api/webhooks/reports/xyz',
+            isForum: true
+        );
+        $this->thread->title = 'Report: Forum Post by TestUser';
+        $this->thread->save();
+
+        $reportedComment = ForumTopicComment::factory()->create([
+            'body' => 'This is the reported content',
+            'author_id' => $this->sender->id,
+        ]);
+        $reportedComment->load('forumTopic');
+
+        $message = $this->createMessage('This post violates the rules');
+        $this->queueDiscordResponses(1, ['channel_id' => 'report_thread_123']);
+
+        // Act
+        $this->action->execute(
+            $this->sender,
+            $this->recipient,
+            $this->thread,
+            $message,
+            DiscordReportableType::ForumTopicComment,
+            $reportedComment->id
+        );
+
+        // Assert
+        $this->assertCount(1, $this->webhookHistory);
+
+        $request = $this->webhookHistory[0]['request'];
+        $this->assertEquals('https://discord.com/api/webhooks/reports/xyz?wait=true', (string) $request->getUri());
+    }
+
+    public function testItDeduplicatesReportsOfTheSameItem(): void
+    {
+        // Arrange
+        $this->setDiscordConfig(
+            $this->recipient,
+            reportsUrl: 'https://discord.com/api/webhooks/reports/dedup',
+            isForum: true
+        );
+
+        $reportedComment = ForumTopicComment::factory()->create([
+            'body' => 'Offensive content',
+            'author_id' => $this->sender->id,
+        ]);
+        $reportedComment->load('forumTopic');
+
+        // ... the first report creates a new Discord thread ...
+        $firstMessage = $this->createMessage('First report of this content');
+        $this->queueDiscordResponses(1, ['channel_id' => 'dedup_thread_456']);
+        $this->action->execute(
+            $this->sender,
+            $this->recipient,
+            $this->thread,
+            $firstMessage,
+            DiscordReportableType::ForumTopicComment,
+            $reportedComment->id
+        );
+
+        // ... clear webhook history to prepare for the second report ...
+        $this->webhookHistory = [];
+
+        // ... the second report of the same item should use the existing Discord thread ...
+        $secondThread = MessageThread::factory()->create(['title' => 'Another Report']);
+        $secondMessage = Message::factory()->create([
+            'thread_id' => $secondThread->id,
+            'author_id' => $this->sender->id,
+            'body' => 'Second report of the same content',
+        ]);
+        $this->queueDiscordResponses(1);
+
+        // Act
+        $this->action->execute(
+            $this->sender,
+            $this->recipient,
+            $secondThread,
+            $secondMessage,
+            DiscordReportableType::ForumTopicComment, // !! same reportable type
+            $reportedComment->id // !! same reportable ID
+        );
+
+        // Assert
+        $this->assertCount(1, $this->webhookHistory);
+
+        $request = $this->webhookHistory[0]['request'];
+        $this->assertStringContainsString('thread_id=dedup_thread_456', $request->getUri()->getQuery()); // !! uses existing thread
+    }
+
+    public function testItPrependsContextForForumTopicCommentReports(): void
+    {
+        // Arrange
+        $this->setDiscordConfig(
+            $this->recipient,
+            reportsUrl: 'https://discord.com/api/webhooks/reports/context',
+            isForum: true
+        );
+
+        $reportedComment = ForumTopicComment::factory()->create([
+            'body' => 'This is some offensive content that should be reported to moderators for review',
+            'author_id' => $this->sender->id,
+        ]);
+        $reportedComment->load('forumTopic');
+
+        $message = $this->createMessage('Rule violation');
+        $this->queueDiscordResponses(1);
+
+        // Act
+        $this->action->execute(
+            $this->sender,
+            $this->recipient,
+            $this->thread,
+            $message,
+            DiscordReportableType::ForumTopicComment,
+            $reportedComment->id
+        );
+
+        // Assert
+        $payload = $this->getLastWebhookPayload();
+        $description = $payload['embeds'][0]['description'];
+
+        $this->assertStringContainsString('**Reported Content:**', $description);
+        $this->assertStringContainsString('**Author:**', $description);
+        $this->assertStringContainsString('**Posted:**', $description);
+        $this->assertStringContainsString('**Excerpt:**', $description); // !!
+        $this->assertStringContainsString('**Report Details:**', $description);
+        $this->assertStringContainsString('Rule violation', $description);
+    }
+
+    public function testItIncludesFullContentForDirectMessageReports(): void
+    {
+        // Arrange
+        $this->setDiscordConfig(
+            $this->recipient,
+            reportsUrl: 'https://discord.com/api/webhooks/reports/dm',
+            isForum: true
+        );
+
+        $reportedDm = Message::factory()->create([
+            'thread_id' => $this->thread->id,
+            'author_id' => $this->sender->id,
+            'body' => 'This is a harassing direct message',
+        ]);
+
+        $reportMessage = $this->createMessage('This DM is inappropriate');
+        $this->queueDiscordResponses(1);
+
+        // Act
+        $this->action->execute(
+            $this->sender,
+            $this->recipient,
+            $this->thread,
+            $reportMessage,
+            DiscordReportableType::DirectMessage, // !!
+            $reportedDm->id
+        );
+
+        // Assert
+        $payload = $this->getLastWebhookPayload();
+        $description = $payload['embeds'][0]['description'];
+
+        $this->assertStringContainsString('**Full Message:**', $description); // full message for DMs
+        $this->assertStringContainsString('This is a harassing direct message', $description); // full content included
+        $this->assertStringNotContainsString('**Excerpt:**', $description); // no excerpt for DMs
+    }
+
+    public function testItStoresReportMappingWithReportableMetadata(): void
+    {
+        // Arrange
+        $this->setDiscordConfig(
+            $this->recipient,
+            reportsUrl: 'https://discord.com/api/webhooks/reports/mapping',
+            isForum: true
+        );
+
+        $reportedComment = ForumTopicComment::factory()->create([
+            'body' => 'Reported content',
+            'author_id' => $this->sender->id,
+        ]);
+        $reportedComment->load('forumTopic');
+
+        $message = $this->createMessage('This violates rules');
+        $this->queueDiscordResponses(1, ['channel_id' => 'report_mapping_789']);
+
+        // Act
+        $this->action->execute(
+            $this->sender,
+            $this->recipient,
+            $this->thread,
+            $message,
+            DiscordReportableType::ForumTopicComment,
+            $reportedComment->id
+        );
+
+        // Assert
+        $mapping = DiscordMessageThreadMapping::where('reportable_type', DiscordReportableType::ForumTopicComment->value)
+            ->where('reportable_id', $reportedComment->id)
+            ->first();
+
+        $this->assertNotNull($mapping);
+        $this->assertEquals('report_mapping_789', $mapping->discord_thread_id);
+        $this->assertEquals(DiscordReportableType::ForumTopicComment, $mapping->reportable_type);
+        $this->assertEquals($reportedComment->id, $mapping->reportable_id);
+    }
+
+    public function testItDoesNotPrependContextForDeduplicatedReports(): void
+    {
+        // Arrange
+        $this->setDiscordConfig(
+            $this->recipient,
+            reportsUrl: 'https://discord.com/api/webhooks/reports/nocontext',
+            isForum: true
+        );
+
+        $reportedComment = ForumTopicComment::factory()->create([
+            'body' => 'Bad content',
+            'author_id' => $this->sender->id,
+        ]);
+        $reportedComment->load('forumTopic');
+
+        // ... the first report creates the thread with context ...
+        $firstMessage = $this->createMessage('First report');
+        $this->queueDiscordResponses(1, ['channel_id' => 'nocontext_thread_999']);
+        $this->action->execute(
+            $this->sender,
+            $this->recipient,
+            $this->thread,
+            $firstMessage,
+            DiscordReportableType::ForumTopicComment,
+            $reportedComment->id
+        );
+
+        $firstPayload = $this->getLastWebhookPayload();
+        $this->assertStringContainsString('**Reported Content:**', $firstPayload['embeds'][0]['description']);
+
+        // ... clear all webhook history ...
+        $this->webhookHistory = [];
+
+        // ... the second report of the same item should NOT have context prepended ...
+        $secondThread = MessageThread::factory()->create(['title' => 'Another Report']);
+        $secondMessage = Message::factory()->create([
+            'thread_id' => $secondThread->id,
+            'author_id' => $this->sender->id,
+            'body' => 'Second report explanation',
+        ]);
+        $this->queueDiscordResponses(1);
+
+        // Act
+        $this->action->execute(
+            $this->sender,
+            $this->recipient,
+            $secondThread,
+            $secondMessage,
+            DiscordReportableType::ForumTopicComment,
+            $reportedComment->id
+        );
+
+        // Assert
+        $secondPayload = $this->getLastWebhookPayload();
+        $this->assertEquals('Second report explanation', $secondPayload['embeds'][0]['description']); // no context prepended
+        $this->assertStringNotContainsString('**Reported Content:**', $secondPayload['embeds'][0]['description']);
+    }
+
+    public function testItFallsBackToReportsUrlWhenUrlIsEmpty(): void
+    {
+        // Arrange
+        $this->setDiscordConfig(
+            $this->recipient,
+            webhookUrl: '', // !!
+            isForum: true,
+            reportsUrl: 'https://discord.com/api/webhooks/reports/xyz'
+        );
+        $message = $this->createMessage('Test message');
+        $this->queueDiscordResponses(1);
+
+        // Act
+        $this->action->execute($this->sender, $this->recipient, $this->thread, $message);
+
+        // Assert
+        $this->assertCount(1, $this->webhookHistory);
+        $request = $this->webhookHistory[0]['request'];
+        $this->assertStringContainsString('/webhooks/reports/xyz', $request->getUri()->getPath()); // uses reports_url
+    }
+
+    public function testItFindsThreadByMessageThreadIdFirst(): void
+    {
+        // Arrange
+        $this->setDiscordConfig($this->recipient, isForum: true);
+
+        // ... create a message thread mapping for an existing Discord thread ...
+        DiscordMessageThreadMapping::storeMapping($this->thread->id, 'existing_thread_456');
+
+        $message = $this->createMessage('Reply to existing thread');
+        $this->queueDiscordResponses(1);
+
+        // Act
+        $this->action->execute(
+            $this->sender,
+            $this->recipient,
+            $this->thread,
+            $message,
+            null, // no reportableType
+            null  // no reportableId
+        );
+
+        // Assert
+        $this->assertCount(1, $this->webhookHistory);
+
+        $request = $this->webhookHistory[0]['request'];
+        $queryParams = [];
+        parse_str($request->getUri()->getQuery(), $queryParams);
+        $this->assertEquals('existing_thread_456', $queryParams['thread_id']); // found thread via message_thread_id
     }
 }
