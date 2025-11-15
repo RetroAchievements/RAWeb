@@ -79,7 +79,7 @@ class ReplaceBackingGameShortcodesWithGameUrlsAction
                 $parentGameId = $conversionMap[$gameId]['parentGameId'];
                 $setId = $conversionMap[$gameId]['setId'];
 
-                return route('game2.show', ['game' => $parentGameId, 'set' => $setId]);
+                return route('game.show', ['game' => $parentGameId, 'set' => $setId]);
             }
 
             return $matches[0]; // leave unchanged

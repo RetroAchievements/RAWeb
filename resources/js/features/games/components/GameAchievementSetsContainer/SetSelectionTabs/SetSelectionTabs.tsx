@@ -56,7 +56,7 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
           >
             <BaseHoverCardTrigger asChild>
               <InertiaLink
-                href={route('game2.show', {
+                href={route('game.show', {
                   game: game.id,
                   set: gas.type === 'core' ? undefined : gas.achievementSet.id,
                   view: currentListView === 'leaderboards' ? 'leaderboards' : undefined,
