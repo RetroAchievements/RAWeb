@@ -57,6 +57,7 @@ const DataTableToolbarHarness: FC<DataTableToolbarHarnessProps> = ({
   tableApiRouteName,
   unfilteredTotal,
 }) => {
+  // eslint-disable-next-line react-hooks/incompatible-library -- https://github.com/TanStack/table/issues/5567
   const table = useReactTable({
     data,
     columns,

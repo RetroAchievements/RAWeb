@@ -217,7 +217,7 @@ $get_median = function (array $a): int {
     $values = array_values($a);
     sort($values);
 
-    $index = floor($length / 2);
+    $index = (int) floor($length / 2);
     if (($length % 2) == 1) {
         return $values[$index];
     }

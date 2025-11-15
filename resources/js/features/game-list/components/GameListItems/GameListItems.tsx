@@ -136,9 +136,14 @@ const GameListItems: FC<GameListItemsProps> = ({
       );
 
       if (hasNextPageData) {
-        // The data finally arrived.
-        setVisiblePageNumbers([...visiblePageNumbers, nextPageNumber]);
-        setIsLoadingMore(false);
+        // The data finally arrived. Update state in a callback to indicate
+        // we're responding to an external state change.
+        const timeoutId = setTimeout(() => {
+          setVisiblePageNumbers([...visiblePageNumbers, nextPageNumber]);
+          setIsLoadingMore(false);
+        }, 0);
+
+        return () => clearTimeout(timeoutId);
       }
     }
   }, [dataInfiniteQuery.data, isLoadingMore, visiblePageNumbers]);

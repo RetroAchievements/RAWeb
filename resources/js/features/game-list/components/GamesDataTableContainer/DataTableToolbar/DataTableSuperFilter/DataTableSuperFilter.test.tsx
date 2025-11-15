@@ -38,6 +38,7 @@ const TestHarness: FC<TestHarnessProps> = ({
   onSortingChange = () => {},
   sorting = [],
 }) => {
+  // eslint-disable-next-line react-hooks/incompatible-library -- https://github.com/TanStack/table/issues/5567
   const table = useReactTable({
     onColumnFiltersChange: onColumnFiltersChange as any,
     onSortingChange: onSortingChange as any,
@@ -446,6 +447,7 @@ describe('Component: DataTableSuperFilter', () => {
       onSortingChange = () => {},
       sorting = [],
     }) => {
+      // eslint-disable-next-line react-hooks/incompatible-library -- https://github.com/TanStack/table/issues/5567
       const table = useReactTable({
         onColumnFiltersChange: onColumnFiltersChange as any,
         onSortingChange: onSortingChange as any,
