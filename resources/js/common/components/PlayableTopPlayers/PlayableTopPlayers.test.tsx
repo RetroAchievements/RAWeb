@@ -53,6 +53,23 @@ describe('Component: PlayableTopPlayers', () => {
     expect(screen.getByText(/mastered/i)).toBeVisible();
   });
 
+  it('given there are exactly 10 masters, shows Latest Masters list', () => {
+    // ARRANGE
+    render(
+      <PlayableTopPlayers
+        achievements={[]}
+        game={createGame()}
+        numMasters={10} // !!
+        players={[createGameTopAchiever()]}
+        variant="event"
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/latest masters/i)).toBeVisible();
+    expect(screen.getByText(/mastered/i)).toBeVisible();
+  });
+
   it('given all achievements are worth 1 point and there are less than 10 masters, shows Most Achievements Earned list', () => {
     // ARRANGE
     const achievements = [createAchievement({ points: 1 }), createAchievement({ points: 1 })];
