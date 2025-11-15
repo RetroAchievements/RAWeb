@@ -69,18 +69,6 @@ export function DataTableColumnHeader<TData, TValue>({
   const getIcon = (direction: 'asc' | 'desc'): IconType =>
     sortConfig[direction].icon || defaultIcons[direction];
 
-  const getCurrentSortIcon = (): IconType => {
-    const sortDirection = column.getIsSorted();
-
-    if (sortDirection === false) {
-      return RxCaretSort;
-    }
-
-    return getIcon(sortDirection);
-  };
-
-  const SortIcon = getCurrentSortIcon();
-
   const handleSortMenuItemClick = (desc?: boolean) => {
     column.toggleSorting(desc);
 
@@ -110,7 +98,12 @@ export function DataTableColumnHeader<TData, TValue>({
             data-testid={`column-header-${column.columnDef.meta?.t_label}`}
           >
             <span>{column.columnDef.meta?.t_label}</span>
-            <SortIcon className="ml-1 h-4 w-4" />
+            <SortIcon
+              sortDirection={column.getIsSorted()}
+              ascIcon={getIcon('asc')}
+              descIcon={getIcon('desc')}
+              className="ml-1 h-4 w-4"
+            />
           </BaseButton>
         </BaseDropdownMenuTrigger>
 
@@ -141,6 +134,31 @@ export function DataTableColumnHeader<TData, TValue>({
     </div>
   );
 }
+
+interface SortIconProps {
+  sortDirection: false | SortDirection;
+  ascIcon: IconType;
+  descIcon: IconType;
+
+  className?: string;
+}
+
+const SortIcon: FC<SortIconProps> = ({
+  sortDirection,
+  className,
+  ascIcon: AscIcon,
+  descIcon: DescIcon,
+}) => {
+  if (sortDirection === false) {
+    return <RxCaretSort className={className} />;
+  }
+
+  if (sortDirection === 'asc') {
+    return <AscIcon className={className} />;
+  }
+
+  return <DescIcon className={className} />;
+};
 
 interface SortMenuItemProps {
   direction: 'asc' | 'desc';
