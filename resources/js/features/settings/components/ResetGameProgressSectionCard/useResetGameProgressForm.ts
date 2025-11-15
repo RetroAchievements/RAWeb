@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useMemo, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 import { z } from 'zod';
@@ -33,7 +33,7 @@ export function useResetGameProgressForm() {
   // When the user selects a game, instantly choose the "all won achievements"
   // option from the Achievement select field. This should reduce an extra click
   // for users looking to quickly wipe out a bunch of stuff.
-  const [selectedGameId] = form.watch(['gameId']);
+  const selectedGameId = useWatch({ control: form.control, name: 'gameId' });
   useEffect(() => {
     if (selectedGameId) {
       form.setValue('achievementId', 'all');
@@ -49,28 +49,24 @@ export function useResetGameProgressForm() {
 
   const [alreadyResetGameIds, setAlreadyResetGameIds] = useState<number[]>([]);
   const [alreadyResetAchievementIds, setAlreadyResetAchievementIds] = useState<number[]>([]);
-  const [filteredGames, setFilteredGames] = useState<App.Platform.Data.PlayerResettableGame[]>([]);
-  const [filteredAchievements, setFilteredAchievements] = useState<
-    App.Platform.Data.PlayerResettableGameAchievement[]
-  >([]);
 
-  useEffect(() => {
-    if (resettableGamesQuery.data) {
-      setFilteredGames(
-        resettableGamesQuery.data.filter((game) => !alreadyResetGameIds.includes(game.id)),
-      );
+  const filteredGames = useMemo(() => {
+    if (!resettableGamesQuery.data) {
+      return [];
     }
-  }, [alreadyResetGameIds, resettableGamesQuery.data]);
 
-  useEffect(() => {
-    if (resettableGameAchievementsQuery.data) {
-      setFilteredAchievements(
-        resettableGameAchievementsQuery.data.filter(
-          (achievement) => !alreadyResetAchievementIds.includes(achievement.id),
-        ),
-      );
+    return resettableGamesQuery.data.filter((game) => !alreadyResetGameIds.includes(game.id));
+  }, [resettableGamesQuery.data, alreadyResetGameIds]);
+
+  const filteredAchievements = useMemo(() => {
+    if (!resettableGameAchievementsQuery.data) {
+      return [];
     }
-  }, [alreadyResetAchievementIds, resettableGameAchievementsQuery.data]);
+
+    return resettableGameAchievementsQuery.data.filter(
+      (achievement) => !alreadyResetAchievementIds.includes(achievement.id),
+    );
+  }, [resettableGameAchievementsQuery.data, alreadyResetAchievementIds]);
 
   const mutation = useMutation({
     mutationFn: (payload: Partial<FormValues>) => {

@@ -5,9 +5,18 @@ interface ShortcodeCodeProps {
 }
 
 export const ShortcodeCode: FC<ShortcodeCodeProps> = ({ children }) => {
-  // Remove leading <br>s and empty strings until we find content.
+  const processedChildren = filterLeadingWhitespace(children);
+
+  return <span className="codetags mb-3 font-mono">{processedChildren}</span>;
+};
+
+/**
+ * Removes leading <br>s and empty strings until actual content is found.
+ */
+function filterLeadingWhitespace(children: ReactNode): ReactNode[] {
   let isLeadingWhitespace = true;
-  const processedChildren = (Array.isArray(children) ? children : [children]).filter((node) => {
+
+  return (Array.isArray(children) ? children : [children]).filter((node) => {
     if (isLeadingWhitespace) {
       const isObjectNode = typeof node === 'object' && node !== null;
       const isEmptyObject = isObjectNode && !Object.keys(node as object).length;
@@ -21,6 +30,4 @@ export const ShortcodeCode: FC<ShortcodeCodeProps> = ({ children }) => {
     // Otherwise, it's filtered out.
     return !isLeadingWhitespace;
   });
-
-  return <span className="codetags mb-3 font-mono">{processedChildren}</span>;
-};
+}
