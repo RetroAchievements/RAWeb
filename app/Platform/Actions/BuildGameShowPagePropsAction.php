@@ -522,11 +522,13 @@ class BuildGameShowPagePropsAction
         // Use aggregation query for active maintainers.
         if ($achievementIds->isNotEmpty()) {
             $maintainerStats = AchievementMaintainer::query()
-                ->whereIn('achievement_id', $achievementIds)
-                ->where('is_active', true)
-                ->select('user_id', DB::raw('COUNT(*) as count'), DB::raw('MAX(effective_from) as latest_date'))
+                ->join('Achievements', 'achievement_maintainers.achievement_id', '=', 'Achievements.ID')
+                ->whereIn('achievement_maintainers.achievement_id', $achievementIds)
+                ->where('achievement_maintainers.is_active', true)
+                ->whereColumn('achievement_maintainers.user_id', '!=', 'Achievements.user_id')
+                ->select('achievement_maintainers.user_id', DB::raw('COUNT(*) as count'), DB::raw('MAX(achievement_maintainers.effective_from) as latest_date'))
                 ->with('user')
-                ->groupBy('user_id')
+                ->groupBy('achievement_maintainers.user_id')
                 ->get();
 
             foreach ($maintainerStats as $stat) {

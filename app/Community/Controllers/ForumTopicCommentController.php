@@ -6,6 +6,7 @@ namespace App\Community\Controllers;
 
 use App\Community\Actions\AddCommentAction;
 use App\Community\Actions\GetUrlToCommentDestinationAction;
+use App\Community\Actions\ReplaceBackingGameShortcodesWithGameUrlsAction;
 use App\Community\Actions\ReplaceUserShortcodesWithUsernamesAction;
 use App\Community\Requests\ForumTopicCommentRequest;
 use App\Data\EditForumTopicCommentPagePropsData;
@@ -54,6 +55,9 @@ class ForumTopicCommentController extends CommentController
 
         // "[user=1]" -> "[user=Scott]"
         $comment->body = (new ReplaceUserShortcodesWithUsernamesAction())->execute($comment->body);
+
+        // "[game=backingGameId]" -> "https://retroachievements.org/game2/1?set=9534"
+        $comment->body = (new ReplaceBackingGameShortcodesWithGameUrlsAction())->execute($comment->body);
 
         $props = new EditForumTopicCommentPagePropsData(
             forumTopicComment: ForumTopicCommentData::from($comment)->include(
