@@ -35,6 +35,7 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   prettierConfig,
+  reactHooks.configs.flat['recommended-latest'],
 
   // Use native flat configs where available.
   importPlugin.flatConfigs.recommended,
@@ -55,7 +56,6 @@ export default tseslint.config(
     plugins: {
       '@typescript-eslint': tseslint.plugin,
       react,
-      'react-hooks': reactHooks,
       prettier,
       'simple-import-sort': simpleImportSort,
       unicorn,

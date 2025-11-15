@@ -294,7 +294,7 @@ class UserPolicy
         }
 
         // Fresh accounts cannot create reports.
-        if ($user->isFreshAccount(requireForumVerification: false)) {
+        if ($user->isFreshAccount()) {
             return false;
         }
 

@@ -98,18 +98,36 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       /** @see https://vitest.dev/guide/improving-performance.html#pool */
       pool: 'threads',
 
-      // Filter out harmless happy-dom iframe fetch abort errors from stderr.
+      // Filter out harmless happy-dom errors from stderr.
       onConsoleLog(log, type) {
-        if (
-          type === 'stderr' &&
-          log.includes('DOMException') &&
-          (log.includes('AbortError') || log.includes('NetworkError')) &&
-          (log.includes('Fetch') ||
-            log.includes('iframe') ||
-            log.includes('youtube') ||
-            log.includes('twitch'))
-        ) {
-          return false;
+        if (type === 'stderr') {
+          // Filter DOMException errors from iframes.
+          if (
+            log.includes('DOMException') &&
+            (log.includes('AbortError') || log.includes('NetworkError')) &&
+            (log.includes('Fetch') ||
+              log.includes('iframe') ||
+              log.includes('youtube') ||
+              log.includes('twitch'))
+          ) {
+            return false;
+          }
+
+          // Filter ECONNREFUSED network errors.
+          if (
+            log.includes('ECONNREFUSED') ||
+            log.includes('AggregateError') ||
+            log.includes('internalConnectMultiple') ||
+            log.includes('afterConnectMultiple') ||
+            log.includes('createConnectionError') ||
+            log.includes('[errors]:') ||
+            log.includes('errno:') ||
+            log.includes('syscall:') ||
+            (log.includes('::1:') && log.includes('connect')) ||
+            (log.includes('127.0.0.1:') && log.includes('connect'))
+          ) {
+            return false;
+          }
         }
       },
 
