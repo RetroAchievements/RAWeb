@@ -73,7 +73,18 @@ class AchievementSetsRelationManager extends RelationManager
                 Tables\Columns\TextInputColumn::make('pivot.title')
                     ->label('Title')
                     ->placeholder(fn ($record) => $record->type === AchievementSetType::Core->value ? 'Base Set' : null)
-                    ->rules(['required', 'string', 'min:2', 'max:80'])
+                    ->rules(fn () => [
+                        'required',
+                        'string',
+                        'min:2',
+                        'max:80',
+                        function ($attribute, $value, $fail) {
+                            $normalized = strtolower(trim($value));
+                            if ($normalized === 'base' || $normalized === 'base set') {
+                                $fail('The title cannot be "Base" or "Base Set".');
+                            }
+                        },
+                    ])
                     ->updateStateUsing(function ($record, $state) {
                         $record->games()->updateExistingPivot(
                             $this->getOwnerRecord()->id,
