@@ -89,6 +89,7 @@ class BuildClientPatchDataV2Action
      * @param AchievementFlag|null $flag Optional flag to filter the achievements by (eg: only official achievements)
      * @param int|null $richPresenceGameId the game ID where the RP patch code comes from
      * @param string|null $richPresencePatch the RP patch code that the client should use
+     * @param GameHashCompatibility $compatibility Indicates the compatibility of the hash being loaded (affects game title)
      */
     private function buildPatchData(
         Game $game,

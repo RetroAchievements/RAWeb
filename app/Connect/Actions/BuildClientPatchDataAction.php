@@ -70,7 +70,7 @@ class BuildClientPatchDataAction
      * @param Game $game The game to build root-level data for
      * @param User|null $user The current user requesting the patch data (for player count calculations)
      * @param AchievementFlag|null $flag Optional flag to filter the achievements by (eg: only official achievements)
-     * @param GameHashCompatibility $compatibility Optional flag to modify the title to reflect the hash compatibility
+     * @param GameHashCompatibility $compatibility Indicates the compatibility of the hash being loaded (affects game title)
      */
     private function buildPatchData(
         Game $game,
