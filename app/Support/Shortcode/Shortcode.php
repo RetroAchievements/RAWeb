@@ -273,8 +273,8 @@ final class Shortcode
                                 ->orWhereIn('display_name', $ids);
                         })
                         ->get()->map(function ($user) use ($key, &$results) {
-                            $results[$key][$user->display_name] = $user;
-                            $results[$key][$user->User] = $user;
+                            $results[$key][$user->display_name] ??= $user;
+                            $results[$key][$user->User] ??= $user;
                         });
 
                     break;
@@ -335,8 +335,8 @@ final class Shortcode
                 return "";
             },
 
-            // "[user=1]" --> "@Scott"
-            '~\[user=(\d+)]~i' => function ($matches) use ($shortcodeRecords) {
+            // "[user=1]" -->  "@Scott", "[user=Scott]"  -->  "@Scott"
+            '~\[user=([^\]]+)]~i' => function ($matches) use ($shortcodeRecords) {
                 $userId = $matches[1];
                 $user = $shortcodeRecords['usernames'][$userId] ?? null;
                 if ($user) {
@@ -487,7 +487,7 @@ final class Shortcode
             },
 
             // "[user=1]" --> "[Scott](https://retroachievements.org/user/Scott)"
-            '~\[user=(\d+)]~i' => function ($matches) use ($shortcodeRecords) {
+            '~\[user=([^\]]+)]~i' => function ($matches) use ($shortcodeRecords) {
                 $userId = $matches[1];
                 $user = $shortcodeRecords['usernames'][$userId] ?? null;
                 if ($user) {
