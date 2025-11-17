@@ -160,11 +160,12 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
         echo "<div class='mt-1 mb-8 bg-embed p-5 rounded sm:p-2.5 md:p-5 lg:p-3 xl:p-5'>";
         ?>
         <x-user-progression-status
+            :subsetGameIds="$subsetGameIds"
             :userCompletionProgress="$userCompletedGamesList"
-            :userJoinedGamesAndAwards="$userJoinedGamesAndAwards"
-            :userSiteAwards="$userAwards"
-            :userRecentlyPlayed="$userMassData['RecentlyPlayed']"
             :userHardcorePoints="$userMassData['TotalPoints']"
+            :userJoinedGamesAndAwards="$userJoinedGamesAndAwards"
+            :userRecentlyPlayed="$userMassData['RecentlyPlayed']"
+            :userSiteAwards="$userAwards"
             :userSoftcorePoints="$userMassData['TotalSoftcorePoints']"
         />
         <?php
