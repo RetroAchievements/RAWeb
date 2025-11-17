@@ -466,4 +466,111 @@ describe('Component: CreateMessageThreadForm', () => {
 
     expect(routerSpy).toHaveBeenCalledOnce();
   });
+
+  it('given the subject starts with "Report", shows the report notice with a Code of Conduct link', () => {
+    // ARRANGE
+    render(<CreateMessageThreadForm onPreview={() => {}} />, {
+      pageProps: {
+        message: null,
+        subject: 'Report: Forum Post by TestUser', // !!
+        templateKind: null,
+        senderUserDisplayName: 'CurrentUser',
+        auth: { user: createAuthenticatedUser() },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/create a new report/i)).toBeVisible();
+    expect(
+      screen.getByText(/we'll automatically be sent the link, author, timestamp/i),
+    ).toBeVisible();
+
+    expect(screen.getByRole('link', { name: /which rule/i })).toBeVisible();
+  });
+
+  it('given the subject does not start with "Report", does not show the report notice', () => {
+    // ARRANGE
+    render(<CreateMessageThreadForm onPreview={() => {}} />, {
+      pageProps: {
+        message: null,
+        subject: 'Regular message subject', // !!
+        templateKind: null,
+        senderUserDisplayName: 'CurrentUser',
+        auth: { user: createAuthenticatedUser() },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/create a new report/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/we'll automatically be sent the link, author, timestamp/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it('given reportable metadata is provided, sends it in the mutation payload', async () => {
+    // ARRANGE
+    const mockUser = createUser({
+      id: 1,
+      displayName: faker.internet.username().slice(0, 20),
+      avatarUrl: faker.image.avatar(),
+    });
+
+    vi.spyOn(axios, 'get').mockImplementation((url) => {
+      if (url.includes('api.search.index')) {
+        return Promise.resolve({
+          data: {
+            results: { users: [mockUser] },
+            query: mockUser.displayName,
+            scopes: ['users'],
+            scopeRelevance: { users: 1 },
+          },
+        });
+      }
+
+      return Promise.reject(new Error('Not mocked'));
+    });
+
+    const mockThreadId = faker.number.int();
+    const postSpy = vi.spyOn(axios, 'post').mockResolvedValue({ data: { threadId: mockThreadId } });
+    vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
+
+    render(<CreateMessageThreadForm onPreview={() => {}} />, {
+      pageProps: {
+        message: null,
+        subject: 'Report: Forum Post by TestUser',
+        templateKind: null,
+        reportableType: 'ForumTopicComment', // !!
+        reportableId: 123, // !!
+        auth: { user: createAuthenticatedUser() },
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('combobox'));
+    await userEvent.type(screen.getByPlaceholderText(/type a username/i), mockUser.displayName);
+    await waitFor(() => {
+      expect(screen.getByText(mockUser.displayName)).toBeVisible();
+    });
+    await userEvent.click(screen.getByText(mockUser.displayName));
+
+    await userEvent.type(
+      screen.getByPlaceholderText(/don't ask for links/i),
+      'this violates the rules',
+    );
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledWith(
+        route('api.message.store'),
+        expect.objectContaining({
+          recipient: mockUser.displayName,
+          title: 'Report: Forum Post by TestUser',
+          body: 'this violates the rules',
+          rType: 'ForumTopicComment', // !!
+          rId: 123, // !!
+        }),
+      );
+    });
+  });
 });

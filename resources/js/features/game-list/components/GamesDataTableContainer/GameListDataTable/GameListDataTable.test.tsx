@@ -46,6 +46,7 @@ const TestHarness: FC<TestHarnessProps> = ({
     ];
   }
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- https://github.com/TanStack/table/issues/5567
   const table = useReactTable({
     columns,
     data,
