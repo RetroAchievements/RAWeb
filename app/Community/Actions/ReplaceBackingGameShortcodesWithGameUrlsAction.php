@@ -18,7 +18,7 @@ class ReplaceBackingGameShortcodesWithGameUrlsAction
      *
      * Otherwise, the action leaves the shortcode unchanged to avoid ambiguity.
      *
-     * Example: [game=29895] becomes https://retroachievements.org/game2/668?set=9534
+     * Example: [game=29895] becomes https://retroachievements.org/game/668?set=9534
      */
     public function execute(string $messageBody): string
     {
