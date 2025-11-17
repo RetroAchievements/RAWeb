@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Actions;
 
 use App\Platform\Actions\ComputeGameSearchTitlesAction;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class ComputeGameSearchTitlesActionTest extends TestCase
 {
-    /**
-     * @dataProvider titleProvider
-     */
+    #[DataProvider('titleProvider')]
     public function testItGeneratesCorrectSearchVariations(string $gameTitle, array $expectedVariations): void
     {
         // Act
@@ -27,9 +26,7 @@ class ComputeGameSearchTitlesActionTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider titleWithAlternativesProvider
-     */
+    #[DataProvider('titleWithAlternativesProvider')]
     public function testItIncludesAlternativeTitles(string $gameTitle, array $altTitles, array $expectedVariations): void
     {
         // Act

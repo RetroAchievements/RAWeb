@@ -70,7 +70,14 @@ class UnsubscribeService
         );
     }
 
-    public function processUnsubscribe(string $token): array
+    /**
+     * Process an unsubscribe request.
+     *
+     * $shouldGenerateUndoToken should be set to false for RFC 8058 one-click
+     * POST requests where users will never see a confirmation page. It defaults
+     * to true for GET requests to an Inertia UI.
+     */
+    public function processUnsubscribe(string $token, bool $shouldGenerateUndoToken = true): array
     {
         try {
             $json = base64_decode($token);
@@ -98,7 +105,8 @@ class UnsubscribeService
             return ['success' => false, 'errorCode' => 'user_not_found'];
         }
 
-        if ($data instanceof GranularUnsubscribeData) {
+        // Only capture the previous subscription state if we're generating an undo token.
+        if ($shouldGenerateUndoToken && $data instanceof GranularUnsubscribeData) {
             // Check if there's an existing subscription record to capture its state.
             $existingSubscription = Subscription::where('user_id', $user->id)
                 ->where('subject_type', $data->subjectType)
@@ -112,7 +120,8 @@ class UnsubscribeService
             $data->previousState = $existingSubscription?->state;
         }
 
-        $undoToken = $this->generateUndoToken($data);
+        // Generate an undo token only if requested.
+        $undoToken = $shouldGenerateUndoToken ? $this->generateUndoToken($data) : null;
 
         if ($data instanceof GranularUnsubscribeData) {
             // Handle granular unsubscribe from a specific subscription.

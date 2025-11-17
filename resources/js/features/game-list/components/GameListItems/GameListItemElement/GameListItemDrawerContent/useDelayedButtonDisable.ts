@@ -10,6 +10,7 @@ export const useDelayedButtonDisable = (isPending: boolean, delay = 1000) => {
 
   useEffect(() => {
     if (!isPending) {
+      // When the operation completes, keep the button disabled for the delay period.
       const timeoutId = setTimeout(() => {
         setIsButtonDisabled(false);
       }, delay);
@@ -17,7 +18,12 @@ export const useDelayedButtonDisable = (isPending: boolean, delay = 1000) => {
       return () => clearTimeout(timeoutId);
     }
 
-    setIsButtonDisabled(true);
+    // When the operation starts, disable the button immediately.
+    const timeoutId = setTimeout(() => {
+      setIsButtonDisabled(true);
+    }, 0);
+
+    return () => clearTimeout(timeoutId);
   }, [isPending, delay]);
 
   return isButtonDisabled;
