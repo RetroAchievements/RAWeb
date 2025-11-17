@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
+use App\Community\Enums\DiscordReportableType;
 use App\Community\Events\MessageCreated;
 use App\Models\Message;
 use App\Models\MessageThread;
@@ -17,7 +18,19 @@ class AddToMessageThreadAction
         User $userFrom,
         User $trueSenderUser,
         string $body,
+        ?DiscordReportableType $reportableType = null,
+        ?int $reportableId = null,
     ): void {
+        // Prepend report context to the message body before saving to the database.
+        if ($reportableType && $reportableId) {
+            $body = (new BuildReportContextAction())->execute(
+                $body,
+                $reportableType,
+                $reportableId,
+                forDiscord: false
+            );
+        }
+
         $message = new Message([
             'thread_id' => $thread->id,
             'author_id' => $userFrom->id,
@@ -31,6 +44,6 @@ class AddToMessageThreadAction
         $thread->last_message_id = $message->id;
         $thread->save();
 
-        MessageCreated::dispatch($message);
+        MessageCreated::dispatch($message, $reportableType, $reportableId);
     }
 }

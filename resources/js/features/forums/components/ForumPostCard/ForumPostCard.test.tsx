@@ -1,5 +1,6 @@
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
-import { createForumTopic, createForumTopicComment } from '@/test/factories';
+import { createForumTopic, createForumTopicComment, createUser } from '@/test/factories';
 
 import { ForumPostCard } from './ForumPostCard';
 
@@ -86,5 +87,85 @@ describe('Component: ForumPostCard', () => {
     const editLink = screen.getByRole('link', { name: 'Edit' });
     expect(editLink).toBeVisible();
     expect(editLink).toHaveAttribute('href', expect.stringContaining('forum-topic-comment.edit'));
+  });
+
+  it('given the user is authenticated and not muted, shows a report button for posts that arent theirs', () => {
+    // ARRANGE
+    const comment = createForumTopicComment({
+      id: 456,
+      user: createUser({ displayName: 'OtherUser' }),
+    });
+    const topic = createForumTopic();
+
+    render(<ForumPostCard body="Test content" comment={comment} topic={topic} />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({ displayName: 'CurrentUser' }),
+        },
+        can: { authorizeForumTopicComments: false, createModerationReports: true }, // !! can create reports
+      },
+    });
+
+    // ASSERT
+    const reportLink = screen.getByRole('link', { name: /report/i });
+    expect(reportLink).toBeVisible();
+  });
+
+  it('given the user is viewing their own post, does not show a report button', () => {
+    // ARRANGE
+    const comment = createForumTopicComment({
+      user: createUser({ displayName: 'CurrentUser' }),
+    });
+    const topic = createForumTopic();
+
+    render(<ForumPostCard body="Test content" comment={comment} topic={topic} />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({ displayName: 'CurrentUser' }),
+        },
+        can: { authorizeForumTopicComments: false, createModerationReports: true }, // !! can create reports
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /report/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user lacks the createModerationReports permission, does not show a report button', () => {
+    // ARRANGE
+    const comment = createForumTopicComment({
+      user: createUser({ displayName: 'OtherUser' }),
+    });
+    const topic = createForumTopic();
+
+    render(<ForumPostCard body="Test content" comment={comment} topic={topic} />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({ displayName: 'CurrentUser' }),
+        },
+        can: { authorizeForumTopicComments: false, createModerationReports: false }, // !!
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /report/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user is not authenticated, does not show a report button', () => {
+    // ARRANGE
+    const comment = createForumTopicComment({
+      user: createUser({ displayName: 'OtherUser' }),
+    });
+    const topic = createForumTopic();
+
+    render(<ForumPostCard body="Test content" comment={comment} topic={topic} />, {
+      pageProps: {
+        auth: null, // !!
+        can: { authorizeForumTopicComments: false, createModerationReports: false },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /report/i })).not.toBeInTheDocument();
   });
 });

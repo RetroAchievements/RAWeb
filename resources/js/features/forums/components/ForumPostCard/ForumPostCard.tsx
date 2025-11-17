@@ -1,9 +1,11 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuFlag } from 'react-icons/lu';
 import { route } from 'ziggy-js';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { ShortcodeRenderer } from '@/common/components/ShortcodeRenderer';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 import { ForumPostAuthorBox } from './ForumPostAuthorBox';
@@ -29,7 +31,11 @@ export const ForumPostCard: FC<ForumPostCardProps> = ({
   canUpdate = false,
   isHighlighted = false,
 }) => {
+  const { auth, can } = usePageProps<App.Community.Data.MessageThreadShowPageProps>();
   const { t } = useTranslation();
+
+  const canReport =
+    can?.createModerationReports && comment?.user?.displayName !== auth?.user.displayName;
 
   return (
     <div id={comment?.id ? `${comment.id}` : undefined} className="scroll-mt-14">
@@ -67,6 +73,24 @@ export const ForumPostCard: FC<ForumPostCardProps> = ({
                       })}
                     >
                       {t('Edit')}
+                    </a>
+                  ) : null}
+
+                  {canReport ? (
+                    <a
+                      href={route('message-thread.create', {
+                        to: 'RAdmin',
+                        subject: `Report: Forum Post by ${comment.user?.displayName}`,
+                        rType: 'ForumTopicComment',
+                        rId: comment.id,
+                      })}
+                      className={baseButtonVariants({
+                        size: 'sm',
+                        className: 'max-h-[22px] gap-1 !p-1 !text-2xs lg:!text-xs',
+                      })}
+                    >
+                      <LuFlag className="size-3" />
+                      {t('Report')}
                     </a>
                   ) : null}
 

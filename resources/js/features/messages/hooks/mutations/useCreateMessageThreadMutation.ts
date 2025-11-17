@@ -4,10 +4,13 @@ import { route } from 'ziggy-js';
 
 interface Variables {
   payload: {
-    recipient: string;
-    title: string;
     body: string;
+    recipient: string;
     senderUserDisplayName: string;
+    title: string;
+
+    rId?: number;
+    rType?: App.Community.Enums.DiscordReportableType;
   };
 }
 
