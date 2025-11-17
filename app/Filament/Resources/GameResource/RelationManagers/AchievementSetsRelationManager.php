@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\RelationManagers;
 
-use App\Filament\Resources\AchievementSetResource;
 use App\Models\AchievementSet;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
@@ -71,18 +70,77 @@ class AchievementSetsRelationManager extends RelationManager
         return $table
             ->recordTitle(fn (AchievementSet $record): string => "{$record->games()->first()->title}")
             ->columns([
-                Tables\Columns\TextColumn::make('title')
-                    ->placeholder('Core Set')
-                    ->url(function (AchievementSet $record) {
-                        if (!request()->user()->can('manage', GameAchievementSet::class)) {
-                            return null;
-                        }
+                Tables\Columns\TextInputColumn::make('pivot.title')
+                    ->label('Title')
+                    ->placeholder(fn ($record) => $record->type === AchievementSetType::Core->value ? 'Base Set' : null)
+                    ->rules(['required', 'string', 'min:2', 'max:80'])
+                    ->updateStateUsing(function ($record, $state) {
+                        $record->games()->updateExistingPivot(
+                            $this->getOwnerRecord()->id,
+                            [
+                                'title' => $state,
+                                'updated_at' => now(),
+                            ]
+                        );
 
-                        return AchievementSetResource::getUrl('view', ['record' => $record->id]);
-                    }),
+                        return $state;
+                    })
+                    ->afterStateUpdated(function () {
+                        Notification::make()
+                            ->success()
+                            ->title('Set title updated successfully')
+                            ->send();
+                    })
+                    ->disabled(fn ($record) => $record->type === AchievementSetType::Core->value),
 
                 Tables\Columns\TextColumn::make('type')
                     ->formatStateUsing(fn ($state): string => AchievementSetType::tryFrom($state)?->label())
+                    ->color(fn ($record) => $record->type !== AchievementSetType::Core->value ? 'primary' : null)
+                    ->icon(fn ($record) => $record->type !== AchievementSetType::Core->value ? 'heroicon-m-pencil-square' : null)
+                    ->iconPosition('after')
+                    ->extraAttributes(fn ($record) => $record->type === AchievementSetType::Core->value
+                        ? ['style' => 'cursor: default;']
+                        : []
+                    )
+                    ->action(
+                        Tables\Actions\Action::make('updateType')
+                            ->label('Change Type')
+                            ->form([
+                                Select::make('type')
+                                    ->label('Set Type')
+                                    ->options([
+                                        AchievementSetType::WillBeBonus->value => AchievementSetType::Bonus->label(),
+                                        AchievementSetType::WillBeSpecialty->value => AchievementSetType::Specialty->label(),
+                                        AchievementSetType::WillBeExclusive->value => AchievementSetType::Exclusive->label(),
+                                    ])
+                                    ->default(fn ($record) => $record->type)
+                                    ->required()
+                                    ->helperText("
+                                        Bonus loads with any hashes supported by Core.
+                                        Specialty requires a unique hash, but also loads Core.
+                                        Exclusive requires a unique hash, but does not load Core.
+                                    "),
+                            ])
+                            ->requiresConfirmation()
+                            ->modalHeading('Change Achievement Set Type')
+                            ->modalDescription("DANGER: This will affect how the achievement set loads and behaves. Be sure you know what you're doing.")
+                            ->modalSubmitActionLabel('Change Type')
+                            ->action(function ($record, array $data) {
+                                $record->games()->updateExistingPivot(
+                                    $this->getOwnerRecord()->id,
+                                    [
+                                        'type' => $data['type'],
+                                        'updated_at' => now(),
+                                    ]
+                                );
+
+                                Notification::make()
+                                    ->success()
+                                    ->title('Set type updated successfully')
+                                    ->send();
+                            })
+                            ->hidden(fn ($record) => $record->type === AchievementSetType::Core->value)
+                    )
                     ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
                         $state = $column->getState();
 
