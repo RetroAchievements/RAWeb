@@ -272,10 +272,11 @@ final class Shortcode
                             $query->whereIn('User', $ids)
                                 ->orWhereIn('display_name', $ids);
                         })
-                        ->get()->map(function ($user) use ($key) {
+                        ->get()->map(function ($user) use ($key, &$results) {
                             $results[$key][$user->display_name] = $user;
                             $results[$key][$user->User] = $user;
                         });
+
                     break;
             }
         }
