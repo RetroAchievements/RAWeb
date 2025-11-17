@@ -35,7 +35,8 @@ $nonReportableArticleTypes = [
 
 $userModel = Auth::user();
 $canCreateModerationReports = (
-    $userModel->can('createModerationReports', $userModel)
+    $userModel
+    && $userModel->can('createModerationReports', $userModel)
     && $author
     && $author->id !== auth()->user()->id
     && $author->User !== 'Server'
