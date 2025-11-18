@@ -153,7 +153,7 @@ function calculatePlayerRanks(
 }
 
 function getListKind(areAllAchievementsOnePoint: boolean, numMasters: number): TopPlayersListKind {
-  if (numMasters > 10) {
+  if (numMasters >= 10) {
     return 'latest-masters';
   }
 
