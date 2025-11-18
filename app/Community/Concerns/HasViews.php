@@ -60,14 +60,16 @@ trait HasViews
      */
     public function markLatestAsViewedBy(User $user): void
     {
-        Viewable::where('user_id', $user->id)
-            ->where('viewable_type', $this->getMorphClass())
-            ->delete();
-
-        $this->views()->create([
-            'user_id' => $user->id,
-            'viewed_at' => now(),
-        ]);
+        Viewable::updateOrCreate(
+            [
+                'viewable_type' => $this->getMorphClass(),
+                'user_id' => $user->id,
+            ],
+            [
+                'viewable_id' => $this->id,
+                'viewed_at' => now(),
+            ]
+        );
     }
 
     /**
