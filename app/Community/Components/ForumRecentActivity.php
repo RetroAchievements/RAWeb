@@ -49,9 +49,18 @@ class ForumRecentActivity extends Component
 
         $isShowAbsoluteDatesPreferenceSet = $userPreferences && BitSet($userPreferences, UserPreference::Forum_ShowAbsoluteDates);
 
+        $shortcodeIds = [];
+        foreach ($rawRecentPosts as $rawRecentPost) {
+            $postShortcodeIds = Shortcode::extractShortcodeIds($rawRecentPost['Payload']);
+            foreach ($postShortcodeIds as $key => $ids) {
+                $shortcodeIds[$key] = array_merge($shortcodeIds[$key] ?? [], $ids);
+            }
+        }
+        $shortcodeRecords = Shortcode::fetchRecords($shortcodeIds);
+
         foreach ($rawRecentPosts as $rawRecentPost) {
             $recentForumPosts[] = [
-                'ShortMsg' => $this->buildShortMessage($rawRecentPost),
+                'ShortMsg' => Shortcode::stripAndClamp($rawRecentPost['Payload'], 100, shortcodeRecords: $shortcodeRecords),
                 'Author' => $rawRecentPost['Author'],
                 'ForumTopicTitle' => $rawRecentPost['ForumTopicTitle'],
                 'HasDateTooltip' => !$isShowAbsoluteDatesPreferenceSet,
@@ -72,12 +81,5 @@ class ForumRecentActivity extends Component
         }
 
         return $recentForumPosts;
-    }
-
-    private function buildShortMessage(array $rawRecentPost): string
-    {
-        $payload = trim($rawRecentPost['Payload']);
-
-        return Shortcode::stripAndClamp($payload, 100);
     }
 }
