@@ -25,6 +25,7 @@ class CommentData extends Data
         public ?Carbon $updatedAt,
         public UserData $user,
         public bool $canDelete,
+        public bool $canReport,
         public bool $isAutomated,
     ) {
     }
@@ -43,6 +44,7 @@ class CommentData extends Data
             updatedAt: $comment->Edited ? Carbon::parse($comment->Edited) : null,
             user: UserData::fromUser($comment->user)->include('deletedAt'),
             canDelete: $currentUser ? $currentUser->can('delete', $comment) : false,
+            canReport: $currentUser && $currentUser->can('createModerationReports', $currentUser) && $comment->user_id !== $currentUser->id,
             isAutomated: $comment->is_automated,
         );
     }
