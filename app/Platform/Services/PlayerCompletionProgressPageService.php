@@ -7,6 +7,7 @@ namespace App\Platform\Services;
 use App\Enums\Permissions;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Actions\FilterGameIdsToSubsetGameIdsAction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -43,6 +44,11 @@ class PlayerCompletionProgressPageService
         $userGamesList = getUsersCompletedGamesAndMax($targetUsername);
         $userSiteAwards = getUsersSiteAwards($foundTargetUser);
 
+        // Identify subset game IDs. We'll exclude these from the user's "Unfinished" count.
+        $subsetGameIds = (new FilterGameIdsToSubsetGameIdsAction())->execute(
+            collect($userGamesList)->pluck('GameID')
+        );
+
         // Only show filters for console IDs the user has actually associated with.
         $allAvailableConsoleIds = $this->getAllAvailableConsoleIds(
             $userGamesList,
@@ -66,7 +72,10 @@ class PlayerCompletionProgressPageService
             $foundTargetUser->id,
             allowEvents: $targetSystemId === System::Events,
         );
-        $primaryCountsMetrics = $this->playerProgressionService->buildPrimaryCountsMetrics($filteredAndJoinedGamesList);
+        $primaryCountsMetrics = $this->playerProgressionService->buildPrimaryCountsMetrics(
+            $filteredAndJoinedGamesList,
+            excludedGameIdsFromUnfinished: $subsetGameIds
+        );
 
         // The user may only be wanting to see a certain subset of games, such
         // as only mastered games, or only unawarded games. Perform this filtering now.

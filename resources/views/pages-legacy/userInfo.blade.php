@@ -8,9 +8,8 @@ use App\Community\Enums\ClaimSorting;
 use App\Community\Enums\UserAction;
 use App\Enums\Permissions;
 use App\Exceptions\BannedUserException;
-use App\Models\GameAchievementSet;
 use App\Models\User;
-use App\Platform\Enums\AchievementSetType;
+use App\Platform\Actions\FilterGameIdsToSubsetGameIdsAction;
 use App\Platform\Services\PlayerProgressionService;
 
 $userPage = request('user');
@@ -58,21 +57,9 @@ $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
 $userAwards = getUsersSiteAwards($userPageModel);
 
 // Identify subset game IDs. We'll exclude these from the user's average completion %.
-$gameIds = collect($userCompletedGamesList)->pluck('GameID')->filter()->unique();
-$subsetGameIds = [];
-if ($gameIds->isNotEmpty()) {
-    $subsetGameIds = GameAchievementSet::whereIn('game_id', $gameIds)
-        ->where('type', AchievementSetType::Core)
-        ->whereExists(function($query) {
-            $query->select('*')
-                ->from('game_achievement_sets as gas2')
-                ->whereColumn('gas2.achievement_set_id', 'game_achievement_sets.achievement_set_id')
-                ->whereColumn('gas2.game_id', '!=', 'game_achievement_sets.game_id')
-                ->where('gas2.type', '!=', AchievementSetType::Core);
-        })
-        ->pluck('game_id')
-        ->toArray();
-}
+$subsetGameIds = (new FilterGameIdsToSubsetGameIdsAction())->execute(
+    collect($userCompletedGamesList)->pluck('GameID')
+);
 
 $playerProgressionService = new PlayerProgressionService();
 $userJoinedGamesAndAwards = $playerProgressionService->filterAndJoinGames(
