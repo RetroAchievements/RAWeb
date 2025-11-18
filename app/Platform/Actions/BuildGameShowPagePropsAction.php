@@ -231,8 +231,8 @@ class BuildGameShowPagePropsAction
         $game->setRelation('releases', collect($processedReleases));
 
         // Check cookies for filter states.
-        $isLockedOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_unlocked_achievements_games', $game->id);
-        $isMissableOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_nonmissable_achievements_games', $game->id);
+        $isLockedOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_unlocked_achievements_games', $backingGame->id);
+        $isMissableOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_nonmissable_achievements_games', $backingGame->id);
 
         // Track the beta visit for authenticated users.
         $this->trackBetaVisit($user, 'react-game-page');
