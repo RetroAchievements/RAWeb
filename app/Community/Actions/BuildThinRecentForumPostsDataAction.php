@@ -6,6 +6,7 @@ namespace App\Community\Actions;
 
 use App\Data\ForumTopicData;
 use App\Enums\Permissions;
+use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -51,10 +52,19 @@ class BuildThinRecentForumPostsDataAction
             ->limit($limit)
             ->get();
 
-        return $latestComments->map(function ($post) use ($numMessageChars) {
+        $shortcodeIds = [];
+        foreach ($latestComments as $post) {
+            $postShortcodeIds = Shortcode::extractShortcodeIds($post->Payload);
+            foreach ($postShortcodeIds as $key => $ids) {
+                $shortcodeIds[$key] = array_merge($shortcodeIds[$key] ?? [], $ids);
+            }
+        }
+        $shortcodeRecords = Shortcode::fetchRecords($shortcodeIds);
+
+        return $latestComments->map(function ($post) use ($numMessageChars, $shortcodeRecords) {
             $postArray = (array) $post;
 
-            return ForumTopicData::fromHomePageQuery($postArray, $numMessageChars)->include('latestComment');
+            return ForumTopicData::fromHomePageQuery($postArray, $numMessageChars, $shortcodeRecords)->include('latestComment');
         });
     }
 

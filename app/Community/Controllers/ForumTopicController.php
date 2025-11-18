@@ -17,6 +17,7 @@ use App\Http\Controller;
 use App\Models\Forum;
 use App\Models\ForumCategory;
 use App\Models\ForumTopic;
+use App\Models\ForumTopicComment;
 use App\Models\User;
 use App\Policies\ForumTopicPolicy;
 use Illuminate\Http\RedirectResponse;
@@ -59,7 +60,7 @@ class ForumTopicController extends Controller
     public function show(ForumTopic $topic, ShowForumTopicRequest $request): InertiaResponse|RedirectResponse
     {
         $this->authorize('view', $topic);
-        abort_if($topic->comments->isEmpty(), 404);
+        abort_if(!ForumTopicComment::where('forum_topic_id', $topic->id)->exists(), 404);
 
         $actionResult = (new BuildShowForumTopicPagePropsAction())->execute(
             topic: $topic,
