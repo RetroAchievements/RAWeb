@@ -4,7 +4,6 @@ import { LuWrench } from 'react-icons/lu';
 
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { cn } from '@/common/utils/cn';
 import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { ClaimConfirmationDialog } from '@/features/games/components/ClaimConfirmationDialog';
 import { getAllPageAchievements } from '@/features/games/utils/getAllPageAchievements';
@@ -77,14 +76,7 @@ export const SidebarClaimButtons: FC = () => {
       ) : null}
 
       {claimData?.userClaim ? (
-        <div
-          className={cn(
-            'grid gap-1',
-            claimData?.userClaim?.isExtendable && claimData?.userClaim?.isDroppable
-              ? 'grid-cols-2'
-              : null,
-          )}
-        >
+        <>
           {claimData?.userClaim?.isExtendable ? (
             <ClaimConfirmationDialog
               action="extend"
@@ -112,7 +104,7 @@ export const SidebarClaimButtons: FC = () => {
               }
             />
           ) : null}
-        </div>
+        </>
       ) : null}
     </>
   );
