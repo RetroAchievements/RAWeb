@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit\Community\Actions;
 
 use App\Community\Actions\BuildReportContextAction;
+use App\Community\Enums\ArticleType;
 use App\Community\Enums\DiscordReportableType;
+use App\Models\Comment;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Message;
@@ -151,6 +153,78 @@ class BuildReportContextActionTest extends TestCase
         $this->assertStringContainsString('**Full Message:**', $result); // full message for DMs in Discord
 
         $this->assertStringContainsString('This is an inappropriate direct message.', $result);
+        $this->assertStringContainsString('**Report Details:**', $result);
+        $this->assertStringContainsString($userMessage, $result);
+    }
+
+    public function testItBuildsCommentContextForInbox(): void
+    {
+        // Arrange
+        $author = User::factory()->create(['User' => 'CommentAuthor']);
+        $targetUser = User::factory()->create(['User' => 'WallOwner']);
+        $comment = Comment::factory()->create([
+            'ArticleType' => ArticleType::User, // !!
+            'ArticleID' => $targetUser->id, // !!
+            'Payload' => 'This is the reported wall comment.',
+            'user_id' => $author->id,
+        ]);
+
+        $userMessage = 'This wall comment is inappropriate.';
+
+        // Act
+        $result = $this->action->execute(
+            $userMessage,
+            DiscordReportableType::Comment,
+            $comment->ID,
+            forDiscord: false // !!
+        );
+
+        // Assert
+        $this->assertStringContainsString('[b]Reported Content:[/b]', $result);
+        $this->assertStringContainsString('[url=', $result);
+        $this->assertStringContainsString('#comment_' . $comment->ID, $result);
+        $this->assertStringContainsString('[b]Author:[/b] [user=' . $author->id . ']', $result);
+        $this->assertStringContainsString('[b]Posted:[/b]', $result);
+        $this->assertStringContainsString('[b]Report Details:[/b]', $result);
+        $this->assertStringContainsString($userMessage, $result);
+
+        $this->assertStringNotContainsString('**', $result); // no markdown
+    }
+
+    public function testItBuildsCommentContextForDiscord(): void
+    {
+        // Arrange
+        $author = User::factory()->create(['User' => 'CommentAuthor', 'display_name' => 'SomeGuy']);
+        $targetUser = User::factory()->create(['User' => 'WallOwner']);
+        $comment = Comment::factory()->create([
+            'ArticleType' => ArticleType::User, // !!
+            'ArticleID' => $targetUser->id, // !!
+            'Payload' => 'This is the reported wall comment.',
+            'user_id' => $author->id,
+        ]);
+
+        $userMessage = 'This wall comment is inappropriate.';
+
+        // Act
+        $result = $this->action->execute(
+            $userMessage,
+            DiscordReportableType::Comment,
+            $comment->ID,
+            forDiscord: true // !!
+        );
+
+        // Assert
+        $this->assertStringContainsString('**Reported Content:**', $result);
+        $this->assertStringContainsString('#comment_' . $comment->ID, $result);
+        $this->assertStringContainsString('**Author:** [SomeGuy](', $result);
+
+        $this->assertStringContainsString('**Posted:** <t:', $result); // discord timestamp format
+        $this->assertStringContainsString(':R>', $result);
+
+        $this->assertStringContainsString('**Full Comment:**', $result); // full comment, not an excerpt
+        $this->assertStringNotContainsString('**Excerpt:**', $result);
+
+        $this->assertStringContainsString('This is the reported wall comment.', $result); // full content
         $this->assertStringContainsString('**Report Details:**', $result);
         $this->assertStringContainsString($userMessage, $result);
     }
