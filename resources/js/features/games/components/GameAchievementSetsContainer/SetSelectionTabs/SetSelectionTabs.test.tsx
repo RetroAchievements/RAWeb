@@ -294,4 +294,76 @@ describe('Component: SetSelectionTabs', () => {
     );
     expect(indicator).toHaveClass('duration-200');
   });
+
+  it('given a tab is clicked, suppresses the hover card from reopening on hover', async () => {
+    // ARRANGE
+    const game = createGame();
+    const achievementSet1 = createAchievementSet({ id: 10 });
+    const achievementSet2 = createAchievementSet({ id: 20 });
+    const selectableGameAchievementSets = [
+      createGameAchievementSet({ achievementSet: achievementSet1, title: 'Set 1' }),
+      createGameAchievementSet({ achievementSet: achievementSet2, title: 'Set 2' }),
+    ];
+
+    render(<SetSelectionTabs activeTab={10} />, {
+      pageProps: {
+        game,
+        selectableGameAchievementSets,
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    const secondTabLink = screen.getAllByRole('link')[1];
+
+    // ACT
+    // ... click the second tab ...
+    await userEvent.click(secondTabLink);
+
+    // ... then hover over it without moving the mouse away first ...
+    await userEvent.hover(secondTabLink);
+
+    // ASSERT
+    expect(screen.queryByTestId('set-hover-card')).not.toBeInTheDocument();
+  });
+
+  it('given a tab is clicked and then the pointer leaves, allows the hover card to reopen', async () => {
+    // ARRANGE
+    const game = createGame();
+    const achievementSet1 = createAchievementSet({ id: 10 });
+    const achievementSet2 = createAchievementSet({ id: 20 });
+    const selectableGameAchievementSets = [
+      createGameAchievementSet({ achievementSet: achievementSet1, title: 'Set 1' }),
+      createGameAchievementSet({ achievementSet: achievementSet2, title: 'Set 2' }),
+    ];
+
+    render(<SetSelectionTabs activeTab={10} />, {
+      pageProps: {
+        game,
+        selectableGameAchievementSets,
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    const secondTabLink = screen.getAllByRole('link')[1];
+
+    // ... click the second tab ...
+    await userEvent.click(secondTabLink);
+
+    // ... verify it's suppressed ...
+    await userEvent.hover(secondTabLink);
+    expect(screen.queryByTestId('set-hover-card')).not.toBeInTheDocument();
+
+    // ACT
+    // ... move the pointer away from the tab ...
+    await userEvent.unhover(secondTabLink);
+
+    // ... then hover over it again ...
+    await userEvent.hover(secondTabLink);
+
+    // ASSERT
+    // ... now the hover card should appear because we moved away first ...
+    await waitFor(() => {
+      expect(screen.getByTestId('set-hover-card')).toBeVisible();
+    });
+  });
 });
