@@ -128,6 +128,15 @@ You also unlocked {{ $countThing($recapData['subsetAchievementsUnlocked'], 'subs
 @endif
 @endif
 
+
+@if ($recapData['numEventAwards'] > 0 && $recapData['numSiteAwards'] > 0)
+You were awarded badges from {{ $countThing($recapData['numEventAwards'], 'event') }}. You also earned {{ $countThing($recapData['numSiteAwards'], 'site award') }}.
+@elseif ($recapData['numEventAwards'] > 0)
+You were awarded badges from {{ $countThing($recapData['numEventAwards'], 'event') }}.
+@elseif ($recapData['numSiteAwards'] > 0)
+You earned {{ $countThing($recapData['numSiteAwards'], 'site award') }}.
+@endif
+
 @if ($recapData['numForumPosts'] > 0 && $recapData['numComments'] > 0)
 You made {{ $countThing($recapData['numForumPosts'], 'forum post') }} and {{ $countThing($recapData['numComments'], 'game comment') }}.
 @elseif ($recapData['numForumPosts'] > 0)

@@ -53,7 +53,7 @@ export const DiffTimestamp: FC<DiffTimestampProps> = ({
         </span>
       </BaseTooltipTrigger>
 
-      <BaseTooltipContent>
+      <BaseTooltipContent className="py-2.5">
         <p className="text-xs">{formatDate(date, 'lll')}</p>
       </BaseTooltipContent>
     </BaseTooltip>

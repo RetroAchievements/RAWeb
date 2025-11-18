@@ -13,6 +13,7 @@ use App\Models\Achievement;
 use App\Models\AchievementSet;
 use App\Models\AchievementSetClaim;
 use App\Models\Comment;
+use App\Models\Event;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
@@ -308,11 +309,20 @@ class GenerateAnnualRecapAction
             ->whereIn('AwardType', [
                 AwardType::Mastery,
                 AwardType::GameBeaten,
+                AwardType::Event,
+                AwardType::AchievementUnlocksYield,
+                AwardType::AchievementPointsYield,
+                AwardType::CertifiedLegend,
             ])
             ->join('GameData', 'GameData.ID', '=', 'AwardData')
             ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
             ->get();
 
+        $recapData['numEventAwards'] = 0;
+        $recapData['numSiteAwards'] = 0;
+        $eventIds = [];
+
+        $OTHER = 0;
         $MASTERED = 1;
         $BEATEN = 2;
         $COMPLETED = 3;
@@ -321,14 +331,30 @@ class GenerateAnnualRecapAction
         // determine best award for each game
         $bestAwards = [];
         foreach ($awards as $award) {
-            if ($award->AwardDataExtra === 1) {
-                $awardType = ($award->AwardType === AwardType::Mastery) ? $MASTERED : $BEATEN;
-            } else {
-                $awardType = ($award->AwardType === AwardType::Mastery) ? $COMPLETED : $BEATENSOFTCORE;
+            switch ($award->AwardType) {
+                case AwardType::Mastery:
+                    $awardType = ($award->AwardDataExtra === 1) ? $MASTERED : $COMPLETED;
+                    break;
+
+                case AwardType::GameBeaten:
+                    $awardType = ($award->AwardDataExtra === 1) ? $BEATEN : $BEATENSOFTCORE;
+                    break;
+
+                case AwardType::Event:
+                    $eventIds[] = $award->AwardData;
+                    $awardType = $OTHER;
+                    break;
+
+                default: // AchievementUnlocks, AchievementYields, CertifiedLegend
+                    $recapData['numSiteAwards']++;
+                    $awardType = $OTHER;
+                    break;
             }
 
-            if (!array_key_exists($award->AwardData, $bestAwards) || $awardType < $bestAwards[$award->AwardData]) {
-                $bestAwards[$award->AwardData] = $awardType;
+            if ($awardType !== $OTHER) {
+                if (!array_key_exists($award->AwardData, $bestAwards) || $awardType < $bestAwards[$award->AwardData]) {
+                    $bestAwards[$award->AwardData] = $awardType;
+                }
             }
         }
 
@@ -342,6 +368,16 @@ class GenerateAnnualRecapAction
         $recapData['numBeatenHardcore'] = $counts[$BEATEN] ?? 0;
         $recapData['numCompletions'] = $counts[$COMPLETED] ?? 0;
         $recapData['numBeaten'] = $counts[$BEATENSOFTCORE] ?? 0;
+
+        if (!empty($eventIds)) {
+            foreach (Event::whereIn('ID', $eventIds)->get() as $event) {
+                if ($event->gives_site_award) {
+                    $recapData['numSiteAwards']++;
+                } else {
+                    $recapData['numEventAwards']++;
+                }
+            }
+        }
     }
 
     private function determineMostPlayedGame(array &$recapData, array $gameData): void
