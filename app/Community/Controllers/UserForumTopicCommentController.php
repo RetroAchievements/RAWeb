@@ -11,6 +11,7 @@ use App\Data\UserData;
 use App\Enums\Permissions;
 use App\Http\Controller;
 use App\Models\User;
+use App\Support\Shortcode\Shortcode;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
@@ -40,8 +41,17 @@ class UserForumTopicCommentController extends Controller
             permissions: $permissions,
         );
 
+        $shortcodeIds = [];
+        foreach ($posts as $post) {
+            $postShortcodeIds = Shortcode::extractShortcodeIds($post['ShortMsg']);
+            foreach ($postShortcodeIds as $key => $ids) {
+                $shortcodeIds[$key] = array_merge($shortcodeIds[$key] ?? [], $ids);
+            }
+        }
+        $shortcodeRecords = Shortcode::fetchRecords($shortcodeIds);
+
         $transformedPosts = array_map(
-            fn ($post) => ForumTopicData::fromUserPost($post)->include('latestComment'),
+            fn ($post) => ForumTopicData::fromUserPost($post, $shortcodeRecords)->include('latestComment'),
             $posts
         );
 

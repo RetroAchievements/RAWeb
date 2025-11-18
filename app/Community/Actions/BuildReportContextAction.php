@@ -123,7 +123,7 @@ class BuildReportContextAction
 
         return match ($comment->ArticleType) {
             ArticleType::Game => ($game = Game::find($comment->ArticleID))
-                ? route('game.show', $game) . $anchor
+                ? route('game.show', ['game' => $game, 'tab' => 'community']) . $anchor
                 : null,
 
             ArticleType::Achievement => ($achievement = Achievement::find($comment->ArticleID))

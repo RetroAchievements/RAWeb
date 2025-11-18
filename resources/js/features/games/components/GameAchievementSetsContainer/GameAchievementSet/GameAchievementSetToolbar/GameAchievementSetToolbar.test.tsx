@@ -342,8 +342,8 @@ describe('Component: GameAchievementSetToolbar', () => {
     );
 
     // ASSERT
-    expect(screen.getByRole('radio', { name: /achievements/i })).toBeVisible();
-    expect(screen.getByRole('radio', { name: /leaderboards/i })).toBeVisible();
+    expect(screen.getAllByRole('radio', { name: /achievements/i })[0]).toBeVisible();
+    expect(screen.getAllByRole('radio', { name: /leaderboards/i })[0]).toBeVisible();
   });
 
   it('given there are no leaderboards, does not show the display mode toggle group', () => {
@@ -402,7 +402,7 @@ describe('Component: GameAchievementSetToolbar', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('radio', { name: /leaderboards/i }));
+    await userEvent.click(screen.getAllByRole('radio', { name: /leaderboards/i })[0]);
 
     // ASSERT
     expect(screen.getByRole('button', { name: /locked only/i })).toBeDisabled();
@@ -435,10 +435,10 @@ describe('Component: GameAchievementSetToolbar', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('radio', { name: /achievements/i }));
+    await userEvent.click(screen.getAllByRole('radio', { name: /achievements/i })[0]);
 
     // ASSERT
-    expect(screen.getByRole('radio', { name: /achievements/i })).toBeChecked();
+    expect(screen.getAllByRole('radio', { name: /achievements/i })[0]).toBeChecked();
   });
 
   it('given the current display mode is leaderboards and the user clicks the achievements toggle button, switches to the achievements view', async () => {
@@ -472,7 +472,7 @@ describe('Component: GameAchievementSetToolbar', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('radio', { name: /achievements/i }));
+    await userEvent.click(screen.getAllByRole('radio', { name: /achievements/i })[0]);
 
     // ASSERT
     expect(screen.getByRole('button', { name: /locked only/i })).toBeEnabled();
