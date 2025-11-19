@@ -49,6 +49,50 @@ describe('Component: GameAchievementSetHeader', () => {
     expect(screen.getByText('Professor Oak Challenge')).toBeVisible();
   });
 
+  it('given a title is provided and type is not core, shows the Subset tag', () => {
+    // ARRANGE
+    const gameAchievementSet = createGameAchievementSet({
+      title: 'Professor Oak Challenge',
+      type: 'bonus',
+    });
+
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />, {
+      pageProps: { isViewingPublishedAchievements: true },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/subset/i)).toBeVisible();
+  });
+
+  it('given no title is provided, does not show the Subset tag', () => {
+    // ARRANGE
+    const gameAchievementSet = createGameAchievementSet({
+      title: null,
+    });
+
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />, {
+      pageProps: { isViewingPublishedAchievements: true },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/subset/i)).not.toBeInTheDocument();
+  });
+
+  it('given type is core with a title, does not show the Subset tag', () => {
+    // ARRANGE
+    const gameAchievementSet = createGameAchievementSet({
+      title: 'Some Title',
+      type: 'core',
+    });
+
+    render(<GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />, {
+      pageProps: { isViewingPublishedAchievements: true },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/subset/i)).not.toBeInTheDocument();
+  });
+
   it('given it is the only set for the game, does not show a chevron', () => {
     // ARRANGE
     render(<GameAchievementSetHeader gameAchievementSet={createGameAchievementSet()} />);

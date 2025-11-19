@@ -20,7 +20,7 @@ export const GameAchievementSetHoverCardContent: FC<GameAchievementSetHoverCardC
 
   const { formatNumber } = useFormatNumber();
 
-  const { achievementSet, title } = gameAchievementSet;
+  const { achievementSet, title, type } = gameAchievementSet;
   const {
     achievementsFirstPublishedAt,
     achievementsPublished,
@@ -41,10 +41,23 @@ export const GameAchievementSetHoverCardContent: FC<GameAchievementSetHoverCardC
           <p
             className={cn(
               'line-clamp-2 font-bold',
-              title && title.length > 24 ? 'mb-1 text-sm leading-4' : '-mt-0.5 text-lg leading-6',
+              title && title.length > 18 ? 'mb-1 text-sm leading-4' : '-mt-0.5 text-lg leading-6',
             )}
           >
-            {title ?? BASE_SET_LABEL}
+            {title ? (
+              <>
+                {type !== 'core' ? (
+                  <>
+                    <span className="tag">
+                      <span>{t('Subset')}</span>
+                    </span>{' '}
+                  </>
+                ) : null}
+                {title}
+              </>
+            ) : (
+              BASE_SET_LABEL
+            )}
           </p>
 
           <p className="flex gap-1">
