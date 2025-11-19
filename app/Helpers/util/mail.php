@@ -302,6 +302,7 @@ function sendActivityEmail(
     if (
         $user->is($activityCommenter)
         || $user->isGone()
+        || $user->isInactive()
         || empty($user->EmailAddress)
     ) {
         return false;

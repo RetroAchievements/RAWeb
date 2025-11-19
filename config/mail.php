@@ -106,6 +106,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Inactive User Threshold
+    |--------------------------------------------------------------------------
+    |
+    | This option controls how many days of inactivity before a user stops
+    | receiving community notification emails. Users who haven't logged in
+    | within this threshold will not receive emails like activity comments,
+    | forum replies, follows, or ticket updates. Transactional emails like
+    | password resets and email verification are unaffected.
+    |
+    */
+
+    'inactive_user_threshold_days' => env('MAIL_INACTIVE_USER_THRESHOLD_DAYS', 90),
+
+    /*
+    |--------------------------------------------------------------------------
     | Markdown Mail Settings
     |--------------------------------------------------------------------------
     |
