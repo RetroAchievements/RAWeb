@@ -201,10 +201,9 @@ trait ActsAsCommunityMember
         return $this->isBanned() || $this->isDeleted();
     }
 
-    public function isInactive(?int $days = null): bool
+    public function isInactive(int $thresholdDays = 90): bool
     {
-        $threshold = $days ?? config('mail.inactive_user_threshold_days', 90);
-        $inactiveCutoff = now()->subDays($threshold);
+        $inactiveCutoff = now()->subDays($thresholdDays);
 
         return $this->LastLogin < $inactiveCutoff;
     }
