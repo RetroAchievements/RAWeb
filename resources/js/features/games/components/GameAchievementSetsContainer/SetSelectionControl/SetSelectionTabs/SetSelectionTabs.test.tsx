@@ -292,7 +292,7 @@ describe('Component: SetSelectionTabs', () => {
       },
       { timeout: 200 },
     );
-    expect(indicator).toHaveClass('duration-200');
+    expect(indicator).toHaveClass('duration-150');
   });
 
   it('given a tab is clicked, suppresses the hover card from reopening on hover', async () => {
