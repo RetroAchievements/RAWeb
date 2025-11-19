@@ -316,6 +316,25 @@ return [
             'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value.
             'nice' => 0,
         ],
+
+        /**
+         * Daily email supervisor - handles mass email distribution.
+         * Isolated to allow non-time-critial emails to be sent without affecting other queues.
+         */
+        'supervisor-6' => [
+            'connection' => 'redis',
+            'queue' => [
+                'summary-emails',
+            ],
+            'balance' => 'simple',
+            'maxProcesses' => 2, // low priority - don't starve other processes
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 128,
+            'tries' => 1,
+            'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value.
+            'nice' => 5, // low priority
+        ],
     ],
 
     'environments' => [
