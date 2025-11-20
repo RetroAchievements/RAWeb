@@ -17,6 +17,14 @@ vi.mock('@/common/hooks/useAddOrRemoveFromUserGameList', () => ({
   }),
 }));
 
+const mockSetCurrentTab = vi.fn();
+vi.mock('@/features/games/hooks/useGameShowTabs', () => ({
+  useGameShowTabs: () => ({
+    currentTab: 'achievements',
+    setCurrentTab: mockSetCurrentTab,
+  }),
+}));
+
 vi.mock('@/common/components/InertiaLink', () => ({
   InertiaLink: ({ children, href, ...props }: any) => (
     <a href={href} {...props}>
@@ -355,6 +363,16 @@ describe('Component: SidebarDevelopmentSection', () => {
 
   it('given the user taps the link to view unpublished achievements, scrolls to the top of the screen', async () => {
     // ARRANGE
+    Object.defineProperty(window, 'location', {
+      value: {
+        ...window.location,
+        href: 'https://retroachievements.org/game/1',
+        pathname: '/game/1',
+        search: '',
+      },
+      writable: true,
+    });
+
     const game = createGame({ id: 1, gameAchievementSets: [] });
     const backingGame = createGame({
       id: 2,

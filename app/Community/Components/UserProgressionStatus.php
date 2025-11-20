@@ -11,6 +11,7 @@ use Illuminate\View\Component;
 
 class UserProgressionStatus extends Component
 {
+    public array $subsetGameIds = [];
     public array $userCompletionProgress = [];
     public array $userJoinedGamesAndAwards = [];
     public array $userRecentlyPlayed = [];
@@ -20,19 +21,20 @@ class UserProgressionStatus extends Component
 
     public function __construct(
         protected PlayerProgressionService $playerProgressionService,
+        array $subsetGameIds = [],
         array $userCompletionProgress = [],
-        array $userJoinedGamesAndAwards = [],
-        array $userSiteAwards = [],
-        array $userRecentlyPlayed = [],
         int $userHardcorePoints = 0,
+        array $userJoinedGamesAndAwards = [],
+        array $userRecentlyPlayed = [],
+        array $userSiteAwards = [],
         int $userSoftcorePoints = 0,
     ) {
-
+        $this->subsetGameIds = $subsetGameIds;
         $this->userCompletionProgress = $userCompletionProgress;
-        $this->userJoinedGamesAndAwards = $userJoinedGamesAndAwards;
-        $this->userSiteAwards = $userSiteAwards;
-        $this->userRecentlyPlayed = $userRecentlyPlayed;
         $this->userHardcorePoints = $userHardcorePoints;
+        $this->userJoinedGamesAndAwards = $userJoinedGamesAndAwards;
+        $this->userRecentlyPlayed = $userRecentlyPlayed;
+        $this->userSiteAwards = $userSiteAwards;
         $this->userSoftcorePoints = $userSoftcorePoints;
     }
 
@@ -85,7 +87,8 @@ class UserProgressionStatus extends Component
         $consoleProgress = [];
 
         $totalCountsMetrics = $this->playerProgressionService->buildPrimaryCountsMetrics(
-            $userJoinedGamesAndAwards
+            $userJoinedGamesAndAwards,
+            excludedGameIdsFromUnfinished: $this->subsetGameIds
         );
 
         $validConsoleIds = array_filter(getValidConsoleIds(), fn ($n) => System::isGameSystem($n));
@@ -98,7 +101,8 @@ class UserProgressionStatus extends Component
 
             $consoleCountsMetrics = $this->playerProgressionService->buildPrimaryCountsMetrics(
                 $userJoinedGamesAndAwards,
-                $consoleId
+                $consoleId,
+                excludedGameIdsFromUnfinished: $this->subsetGameIds
             );
 
             $consoleProgress[$consoleId] = [

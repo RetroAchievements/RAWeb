@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
@@ -19,6 +20,9 @@ import { GameShowMobileRoot } from './GameShowMobileRoot';
 
 describe('Component: GameShowMobileRoot', () => {
   beforeEach(() => {
+    // Mock router.visit to prevent actual navigation during tests.
+    vi.spyOn(router, 'visit').mockImplementation(() => {});
+
     const mockIntersectionObserver = vi.fn();
     mockIntersectionObserver.mockReturnValue({
       observe: () => null,
