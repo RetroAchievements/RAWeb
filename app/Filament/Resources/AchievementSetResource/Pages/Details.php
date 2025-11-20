@@ -11,6 +11,13 @@ class Details extends ViewRecord
 {
     protected static string $resource = AchievementSetResource::class;
 
+    public function getBreadcrumbs(): array
+    {
+        return [
+            'Achievement Set #' . $this->record->id,
+        ];
+    }
+
     protected function getHeaderActions(): array
     {
         return [
