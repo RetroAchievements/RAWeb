@@ -528,6 +528,16 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
+    "api.viewable.store": [
+        {
+            "name": "viewableType",
+            "required": true
+        },
+        {
+            "name": "viewableId",
+            "required": true
+        }
+    ],
     "forum-topic.create": [
         {
             "name": "category",

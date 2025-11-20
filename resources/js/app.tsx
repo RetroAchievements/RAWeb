@@ -1,4 +1,4 @@
-import { createInertiaApp, router } from '@inertiajs/react';
+import { createInertiaApp } from '@inertiajs/react';
 import * as Sentry from '@sentry/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot, hydrateRoot } from 'react-dom/client';
@@ -53,39 +53,6 @@ createInertiaApp({
     }
 
     await Promise.all([i18n.changeLanguage(userLocale), loadDayjsLocale(userLocale)]);
-
-    /**
-     * WORKAROUND: Inertia has a major bug with iOS Safari.
-     * @see https://github.com/inertiajs/inertia/issues/2402
-     * iOS Safari doesn't properly restore Inertia's page component state when using
-     * the back/forward buttons. The page URL changes but the content doesn't update.
-     * This workaround forces a full page reload on back/forward navigation to solve the issue.
-     *
-     * TODO Remove this when Inertia fixes iOS Safari history handling.
-     * This is still not resolved as of 2.2.8.
-     */
-    if (typeof window !== 'undefined') {
-      const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      if (isIos) {
-        // Store the current URL when navigating.
-        let lastUrl = window.location.href;
-
-        // Listen for popstate (back/forward button or a swipe gesture).
-        window.addEventListener('popstate', () => {
-          const currentUrl = window.location.href;
-          // If the URL changed (meaning back/forward was triggered).
-          if (currentUrl !== lastUrl) {
-            // Use replace() instead of setting href to avoid adding a history entry.
-            window.location.replace(currentUrl);
-          }
-        });
-
-        // Update the last URL whenever navigation happens successfully.
-        router.on('success', () => {
-          lastUrl = window.location.href;
-        });
-      }
-    }
 
     const appElement = (
       <AppProviders i18n={i18n}>
