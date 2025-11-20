@@ -30,21 +30,12 @@ return new class extends Migration {
         Schema::table('discord_message_thread_mappings', function (Blueprint $table) {
             $table->dropIndex('idx_reportable_type_id');
             $table->dropColumn(['reportable_type', 'reportable_id']);
-
-            $table->unsignedBigInteger('moderation_report_id')->nullable()->after('discord_thread_id');
-            $table->index('moderation_report_id');
-
-            $table->foreign('moderation_report_id')->references('id')->on('user_moderation_reports')->onDelete('set null');
         });
     }
 
     public function down(): void
     {
         Schema::table('discord_message_thread_mappings', function (Blueprint $table) {
-            $table->dropForeign(['moderation_report_id']);
-            $table->dropIndex(['moderation_report_id']);
-            $table->dropColumn('moderation_report_id');
-
             $table->string('reportable_type', 255)->nullable()->after('discord_thread_id');
             $table->unsignedBigInteger('reportable_id')->nullable()->after('reportable_type');
             $table->index(['reportable_type', 'reportable_id'], 'idx_reportable_type_id');

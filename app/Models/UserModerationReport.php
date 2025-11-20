@@ -7,7 +7,6 @@ namespace App\Models;
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class UserModerationReport extends BaseModel
@@ -56,13 +55,5 @@ class UserModerationReport extends BaseModel
     public function messageThread(): BelongsTo
     {
         return $this->belongsTo(MessageThread::class, 'message_thread_id');
-    }
-
-    /**
-     * @return HasOne<DiscordMessageThreadMapping, $this>
-     */
-    public function discordThreadMapping(): HasOne
-    {
-        return $this->hasOne(DiscordMessageThreadMapping::class, 'moderation_report_id');
     }
 }

@@ -15,7 +15,6 @@ class DiscordMessageThreadMapping extends BaseModel
     protected $fillable = [
         'message_thread_id',
         'discord_thread_id',
-        'moderation_report_id',
     ];
 
     // == accessors
@@ -30,14 +29,6 @@ class DiscordMessageThreadMapping extends BaseModel
     public function messageThread(): BelongsTo
     {
         return $this->belongsTo(MessageThread::class, 'message_thread_id');
-    }
-
-    /**
-     * @return BelongsTo<UserModerationReport, $this>
-     */
-    public function moderationReport(): BelongsTo
-    {
-        return $this->belongsTo(UserModerationReport::class, 'moderation_report_id');
     }
 
     // == scopes
@@ -70,33 +61,19 @@ class DiscordMessageThreadMapping extends BaseModel
 
     /**
      * Find an existing Discord thread mapping for a reportable item.
+     * If multiple users have reported the same item, this finds a mapping
+     * from any of those reports.
      */
     public static function findReportMapping(ModerationReportableType $reportableType, int $reportableId): ?self
     {
-        $report = UserModerationReport::where('reportable_type', $reportableType->value)
+        $reportThreadIds = UserModerationReport::where('reportable_type', $reportableType->value)
             ->where('reportable_id', $reportableId)
-            ->whereHas('discordThreadMapping')
-            ->first();
+            ->pluck('message_thread_id');
 
-        return $report?->discordThreadMapping;
-    }
+        if ($reportThreadIds->isEmpty()) {
+            return null;
+        }
 
-    /**
-     * Store a new Discord thread mapping for a moderation report.
-     */
-    public static function storeReportMapping(
-        int $moderationReportId,
-        string $discordThreadId,
-        int $messageThreadId,
-    ): self {
-        return self::updateOrCreate(
-            [
-                'message_thread_id' => $messageThreadId,
-            ],
-            [
-                'discord_thread_id' => $discordThreadId,
-                'moderation_report_id' => $moderationReportId,
-            ]
-        );
+        return self::whereIn('message_thread_id', $reportThreadIds)->first();
     }
 }

@@ -749,6 +749,15 @@ class ForwardMessageToDiscordActionTest extends TestCase
 
         $request = $this->webhookHistory[0]['request'];
         $this->assertStringContainsString('thread_id=dedup_thread_456', $request->getUri()->getQuery()); // !! uses existing thread
+
+        // ... both message threads should have mappings to the same Discord thread ...
+        $firstMapping = DiscordMessageThreadMapping::where('message_thread_id', $this->thread->id)->first();
+        $secondMapping = DiscordMessageThreadMapping::where('message_thread_id', $secondThread->id)->first();
+
+        $this->assertNotNull($firstMapping);
+        $this->assertNotNull($secondMapping); // !! second thread also gets a mapping
+        $this->assertEquals('dedup_thread_456', $firstMapping->discord_thread_id);
+        $this->assertEquals('dedup_thread_456', $secondMapping->discord_thread_id); // !! same Discord thread
     }
 
     public function testItPrependsContextForForumTopicCommentReports(): void
@@ -874,16 +883,17 @@ class ForwardMessageToDiscordActionTest extends TestCase
             $report->id
         );
 
-        // Assert - the mapping should reference the moderation report.
+        // Assert
+        // ... the mapping should be linked to the same message_thread_id as the report ...
         $mapping = DiscordMessageThreadMapping::where('message_thread_id', $this->thread->id)->first();
 
         $this->assertNotNull($mapping);
         $this->assertEquals('report_mapping_789', $mapping->discord_thread_id);
-        $this->assertNotNull($mapping->moderation_report_id);
-        $this->assertEquals($report->id, $mapping->moderation_report_id);
+        $this->assertEquals($this->thread->id, $mapping->message_thread_id);
 
-        // ... verify the report has the correct reportable metadata ...
-        $storedReport = UserModerationReport::find($mapping->moderation_report_id);
+        // ... verify we can find the report via the shared message_thread_id ...
+        $storedReport = UserModerationReport::where('message_thread_id', $mapping->message_thread_id)->first();
+        $this->assertNotNull($storedReport);
         $this->assertEquals(ModerationReportableType::ForumTopicComment->value, $storedReport->reportable_type);
         $this->assertEquals($reportedComment->id, $storedReport->reportable_id);
     }
@@ -954,6 +964,63 @@ class ForwardMessageToDiscordActionTest extends TestCase
         $secondPayload = $this->getLastWebhookPayload();
         $this->assertEquals('Second report explanation', $secondPayload['embeds'][0]['description']); // no context prepended
         $this->assertStringNotContainsString('**Reported Content:**', $secondPayload['embeds'][0]['description']);
+    }
+
+    public function testItForwardsTeamRepliesToDiscordUsingReportsUrl(): void
+    {
+        // Arrange
+        // ... team account has reports_url but url is empty ...
+        $teamAccount = User::factory()->create(['User' => 'TestTeam']);
+        $this->setDiscordConfig(
+            $teamAccount,
+            webhookUrl: '', // !! empty, not null
+            isForum: true,
+            reportsUrl: 'https://discord.com/api/webhooks/reports/team'
+        );
+
+        // ... user reports something to the team account ...
+        $reportedComment = ForumTopicComment::factory()->create([
+            'body' => 'Spam content',
+            'author_id' => $this->sender->id,
+        ]);
+        $reportedComment->load('forumTopic');
+
+        $reportThread = MessageThread::factory()->create(['title' => 'Report: Spam']);
+        $reportMessage = Message::factory()->create([
+            'thread_id' => $reportThread->id,
+            'author_id' => $this->sender->id,
+            'body' => 'This is spam',
+        ]);
+        $this->queueDiscordResponses(1, ['channel_id' => 'report_thread_xyz']);
+
+        $report = $this->createModerationReport(
+            $this->sender,
+            ModerationReportableType::ForumTopicComment,
+            $reportedComment->id,
+            $reportThread
+        );
+
+        $this->action->execute($this->sender, $teamAccount, $reportThread, $reportMessage, $report->id);
+
+        // ... team account replies to the report ...
+        $this->webhookHistory = [];
+        $replyMessage = Message::factory()->create([
+            'thread_id' => $reportThread->id,
+            'author_id' => $teamAccount->id,
+            'body' => 'Thanks for reporting, we will review this',
+        ]);
+        $this->queueDiscordResponses(1);
+
+        // Act
+        // ... team replies, userFrom=team, userTo=reporter ...
+        $this->action->execute($teamAccount, $this->sender, $reportThread, $replyMessage);
+
+        // Assert
+        // ... the reply should be forwarded using reports_url ...
+        $this->assertCount(1, $this->webhookHistory);
+        $request = $this->webhookHistory[0]['request'];
+        $this->assertStringContainsString('/webhooks/reports/team', $request->getUri()->getPath()); // uses reports_url
+        $this->assertStringContainsString('thread_id=report_thread_xyz', $request->getUri()->getQuery()); // appends to the existing thread
     }
 
     public function testItFallsBackToReportsUrlWhenUrlIsEmpty(): void

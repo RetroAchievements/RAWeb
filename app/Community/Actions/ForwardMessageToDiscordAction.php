@@ -80,7 +80,8 @@ class ForwardMessageToDiscordAction
                 // This thread is already being tracked in Discord.
                 // Check if the sender (team account) has a webhook config.
                 $senderInboxConfig = config('services.discord.inbox_webhook.' . $userFrom->username);
-                if ($senderInboxConfig !== null && !empty($senderInboxConfig['url'] ?? null)) {
+
+                if ($senderInboxConfig !== null) {
                     // Forward the team's reply to the existing Discord thread.
                     $this->forwardTeamReplyToDiscord(
                         $senderInboxConfig,
@@ -173,7 +174,6 @@ class ForwardMessageToDiscordAction
             $processedData->color,
             $processedData->isForum,
             $existingThreadId,
-            $moderationReportId
         );
     }
 
@@ -275,7 +275,6 @@ class ForwardMessageToDiscordAction
         int $color,
         bool $isForum,
         ?string $existingThreadId = null,
-        ?int $moderationReportId = null,
     ): void {
         if ($isForum) {
             $isNewThread = !$existingThreadId;
@@ -287,10 +286,17 @@ class ForwardMessageToDiscordAction
                 $messageThread,
                 $messageBody,
                 $color,
-                $moderationReportId
             );
 
             if ($discordThreadId) {
+                // Always create a mapping for this message thread, whether the Discord
+                // thread is new or reused. This ensures replies to any report conversation
+                // get correctly forwarded to Discord.
+                DiscordMessageThreadMapping::storeMapping(
+                    $messageThread->id,
+                    $discordThreadId
+                );
+
                 $this->sendMessagesToDiscordThread(
                     $webhookUrl,
                     $discordThreadId,
@@ -326,8 +332,7 @@ class ForwardMessageToDiscordAction
     }
 
     /**
-     * Create a new Discord thread and store the mapping.
-     * The mapping is used so we know where to attach replies to.
+     * Create a new Discord forum thread.
      */
     private function createDiscordThread(
         string $webhookUrl,
@@ -336,7 +341,6 @@ class ForwardMessageToDiscordAction
         MessageThread $messageThread,
         string $messageBody,
         int $color,
-        ?int $moderationReportId = null,
     ): ?string {
         $isLongMessage = mb_strlen($messageBody) > self::DISCORD_EMBED_DESCRIPTION_LIMIT;
         $firstChunk = $isLongMessage
@@ -361,26 +365,8 @@ class ForwardMessageToDiscordAction
         // wait=true is required for Discord to give us the thread ID in the response.
         $response = $this->client->post($webhookUrl . '?wait=true', ['json' => $payload]);
         $responseData = json_decode($response->getBody()->getContents(), true);
-        $threadId = $responseData['channel_id'] ?? null;
 
-        if ($threadId) {
-            // If this is a report, store the report mapping.
-            // Otherwise, we can just store a regular mapping.
-            if ($moderationReportId) {
-                DiscordMessageThreadMapping::storeReportMapping(
-                    $moderationReportId,
-                    $threadId,
-                    $messageThread->id
-                );
-            } else {
-                DiscordMessageThreadMapping::storeMapping(
-                    $messageThread->id,
-                    $threadId
-                );
-            }
-        }
-
-        return $threadId;
+        return $responseData['channel_id'] ?? null;
     }
 
     /**
@@ -537,7 +523,18 @@ class ForwardMessageToDiscordAction
         MessageThread $messageThread,
         Message $message,
     ): void {
-        $webhookUrl = $senderInboxConfig['url'];
+        $webhookUrl = '';
+        foreach (['url', 'reports_url', 'verify_url', 'manual_unlock_url'] as $key) {
+            if (!empty($senderInboxConfig[$key])) {
+                $webhookUrl = $senderInboxConfig[$key];
+                break;
+            }
+        }
+
+        if (empty($webhookUrl)) {
+            return;
+        }
+
         $fullBody = Shortcode::convertToMarkdown($message->body, self::MESSAGE_BODY_MAX_LENGTH, preserveWhitespace: true);
 
         if (empty($fullBody)) {
