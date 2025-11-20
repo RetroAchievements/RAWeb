@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { route } from 'ziggy-js';
 
 import { currentListViewAtom } from '@/features/games/state/games.atoms';
-import { render, screen, waitFor } from '@/test';
+import { __UNSAFE_VERY_DANGEROUS_SLEEP, act, render, screen, waitFor } from '@/test';
 import {
   createAchievementSet,
   createGame,
@@ -326,7 +326,7 @@ describe('Component: SetSelectionTabs', () => {
     expect(screen.queryByTestId('set-hover-card')).not.toBeInTheDocument();
   });
 
-  it('given a tab is clicked and then the pointer leaves, allows the hover card to reopen', async () => {
+  it('given a tab is clicked and then the pointer leaves, allows the hover card to reopen after timeout', async () => {
     // ARRANGE
     const game = createGame();
     const achievementSet1 = createAchievementSet({ id: 10 });
@@ -357,11 +357,16 @@ describe('Component: SetSelectionTabs', () => {
     // ... move the pointer away from the tab ...
     await userEvent.unhover(secondTabLink);
 
+    // ... wait for the suppression timeout to clear ...
+    await act(async () => {
+      await __UNSAFE_VERY_DANGEROUS_SLEEP(500);
+    });
+
     // ... then hover over it again ...
     await userEvent.hover(secondTabLink);
 
     // ASSERT
-    // ... now the hover card should appear because we moved away first ...
+    // ... now the hover card should appear because we moved away and the timeout cleared ...
     await waitFor(() => {
       expect(screen.getByTestId('set-hover-card')).toBeVisible();
     });

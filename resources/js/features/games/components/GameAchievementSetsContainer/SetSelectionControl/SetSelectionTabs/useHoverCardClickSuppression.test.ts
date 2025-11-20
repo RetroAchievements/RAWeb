@@ -85,8 +85,9 @@ describe('Hook: useHoverCardClickSuppression', () => {
     expect(result.current.openHoverCard).toEqual(null);
   });
 
-  it('given a tab is clicked and then the pointer leaves, allows the hover card to reopen', () => {
+  it('given a tab is clicked and then the pointer leaves, allows the hover card to reopen after timeout', () => {
     // ARRANGE
+    vi.useFakeTimers();
     const { result } = renderHook(() => useHoverCardClickSuppression());
 
     // ... click the tab to suppress it ...
@@ -100,10 +101,21 @@ describe('Hook: useHoverCardClickSuppression', () => {
     });
     expect(result.current.openHoverCard).toEqual(null);
 
-    // ACT
     // ... the pointer now leaves the tab ...
     act(() => {
       result.current.handlePointerLeave(2);
+    });
+
+    // ... try to open immediately (should still be suppressed) ...
+    act(() => {
+      result.current.handleHoverCardOpenChange(2, true);
+    });
+    expect(result.current.openHoverCard).toEqual(null); // !! still suppressed
+
+    // ACT
+    // ... advance time past the timeout ...
+    act(() => {
+      vi.advanceTimersByTime(500);
     });
 
     // ... try to open the hover card again ...
@@ -114,5 +126,35 @@ describe('Hook: useHoverCardClickSuppression', () => {
     // ASSERT
     // ... now it should open ...
     expect(result.current.openHoverCard).toEqual(2);
+
+    vi.useRealTimers();
+  });
+
+  it('given a tab is clicked and pointer leaves immediately, suppresses hover card from reopening', () => {
+    // ARRANGE
+    vi.useFakeTimers();
+    const { result } = renderHook(() => useHoverCardClickSuppression());
+
+    // ACT
+    // ... click the tab ...
+    act(() => {
+      result.current.handleTabClick(1);
+    });
+
+    // ... pointer leaves immediately ...
+    act(() => {
+      result.current.handlePointerLeave(1);
+    });
+
+    // ... hover card tries to open (simulating BaseHoverCard's delayed open) ...
+    act(() => {
+      result.current.handleHoverCardOpenChange(1, true);
+    });
+
+    // ASSERT
+    // ... the hover card should still be suppressed ...
+    expect(result.current.openHoverCard).toEqual(null);
+
+    vi.useRealTimers();
   });
 });
