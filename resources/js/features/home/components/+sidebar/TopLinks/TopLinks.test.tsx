@@ -128,4 +128,28 @@ describe('Component: TopLinks', () => {
     expect(linkEl).toBeVisible();
     expect(linkEl).toHaveAttribute('href', 'https://docs.retroachievements.org/general/faq.html');
   });
+
+  it('given there are site release notes, shows the latest site updates button', () => {
+    // ARRANGE
+    render(<TopLinks />, {
+      pageProps: {
+        hasSiteReleaseNotes: true, // !!
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /latest site updates/i })).toBeVisible();
+  });
+
+  it('given there are no site release notes, does not show the latest site updates button', () => {
+    // ARRANGE
+    render(<TopLinks />, {
+      pageProps: {
+        hasSiteReleaseNotes: false, // !!
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /latest site updates/i })).not.toBeInTheDocument();
+  });
 });
