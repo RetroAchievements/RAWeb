@@ -17,6 +17,21 @@ class UserObserver
 
         // Handle muting - add the "Muted" role if they're a Discord member.
         if ($this->isBeingMuted($user) && $mutedRoleId) {
+            /**
+             * Remove _all_ the user's roles. Due to role precedence, this is the
+             * only way we can ensure a user can't talk while having the Muted role.
+             *
+             * An ideal state would be to only remove the user's "Verified" role, and
+             * then we'd add it back when the user is unmuted. However, we have no way
+             * of tracking if the user was actually given the "Verified" role in the first
+             * place, making this a potential vulnerability.
+             *
+             * TODO: In the future, users should be able to directly connect their Discord
+             * account to RA, and we can use that to determine whether to add/remove only
+             * the Verified role (in addition to the Muted) role on mute/unmute.
+             */
+            (new RemoveUserDiscordRolesAction())->execute($user);
+
             (new AddUserDiscordRolesAction())->execute($user, [$mutedRoleId]);
         }
 
