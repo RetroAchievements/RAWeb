@@ -21,6 +21,7 @@ use App\Http\InertiaResponseFactory;
 use App\Models\Comment;
 use App\Models\ForumTopicComment;
 use App\Models\Message;
+use App\Models\News;
 use App\Models\Role;
 use App\Models\User;
 use EragLaravelDisposableEmail\Rules\DisposableEmailRule;
@@ -132,6 +133,8 @@ class AppServiceProvider extends ServiceProvider
             'ForumTopicComment' => ForumTopicComment::class,
             'UserProfile' => User::class,
 
+            'news' => News::class,
+            'site_release_note' => News::class,
             'role' => Role::class,
             'user' => User::class,
         ]);
