@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import { useAtom } from 'jotai';
 
 import type { GameShowTab } from '../models';
@@ -21,7 +22,12 @@ export function useGameShowTabs() {
       ? `${window.location.pathname}?${queryString}`
       : window.location.pathname;
 
-    window.history.replaceState(null, '', newUrl);
+    router.visit(newUrl, {
+      replace: true,
+      preserveState: true,
+      preserveScroll: true,
+      only: [], // Don't reload any data, just update the URL.
+    });
   };
 
   return { currentTab, setCurrentTab };
