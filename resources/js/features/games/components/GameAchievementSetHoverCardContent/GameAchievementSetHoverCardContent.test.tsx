@@ -52,6 +52,56 @@ describe('Component: GameAchievementSetHoverCardContent', () => {
     expect(screen.getAllByText(/base set/i)[0]).toBeVisible();
   });
 
+  it('given a game achievement set with a title and type is not core, shows the Subset tag', () => {
+    // ARRANGE
+    const gameAchievementSet = createGameAchievementSet({
+      title: 'Achievements',
+      type: 'bonus',
+    });
+
+    render(
+      <BaseHoverCard open={true}>
+        <GameAchievementSetHoverCardContent gameAchievementSet={gameAchievementSet} />
+      </BaseHoverCard>,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/subset/i)).toBeVisible();
+  });
+
+  it('given a game achievement set without a title, does not show the Subset tag', () => {
+    // ARRANGE
+    const gameAchievementSet = createGameAchievementSet({
+      title: null,
+    });
+
+    render(
+      <BaseHoverCard open={true}>
+        <GameAchievementSetHoverCardContent gameAchievementSet={gameAchievementSet} />
+      </BaseHoverCard>,
+    );
+
+    // ASSERT
+    expect(screen.queryByText(/subset/i)).not.toBeInTheDocument();
+  });
+
+  it('given a game achievement set with type core and a title, does not show the Subset tag', () => {
+    // ARRANGE
+    const gameAchievementSet = createGameAchievementSet({
+      title: 'Some Title',
+      type: 'core',
+    });
+
+    render(
+      <BaseHoverCard open={true}>
+        <GameAchievementSetHoverCardContent gameAchievementSet={gameAchievementSet} />
+      </BaseHoverCard>,
+    );
+
+    // ASSERT
+    expect(screen.queryByText(/subset/i)).not.toBeInTheDocument();
+  });
+
   it('given a game achievement set, displays the achievement set image', () => {
     // ARRANGE
     const imageUrl = 'https://example.com/achievement-set.png';
