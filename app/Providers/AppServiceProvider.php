@@ -131,7 +131,6 @@ class AppServiceProvider extends ServiceProvider
             'Comment' => Comment::class,
             'DirectMessage' => Message::class,
             'ForumTopicComment' => ForumTopicComment::class,
-            'UserProfile' => User::class,
 
             'news' => News::class,
             'site_release_note' => News::class,
