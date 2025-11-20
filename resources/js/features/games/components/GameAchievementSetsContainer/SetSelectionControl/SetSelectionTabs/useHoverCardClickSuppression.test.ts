@@ -157,4 +157,40 @@ describe('Hook: useHoverCardClickSuppression', () => {
 
     vi.useRealTimers();
   });
+
+  it('given a tab is clicked again before the suppression timeout completes, clears the existing timeout', () => {
+    // ARRANGE
+    vi.useFakeTimers();
+    const { result } = renderHook(() => useHoverCardClickSuppression());
+
+    // ... click the tab ...
+    act(() => {
+      result.current.handleTabClick(0);
+    });
+
+    // ... pointer leaves (starts 500ms timeout) ...
+    act(() => {
+      result.current.handlePointerLeave(0);
+    });
+
+    // ACT
+    // ... click the same tab again before timeout completes ...
+    act(() => {
+      result.current.handleTabClick(0);
+    });
+
+    // ... advance time past what would have been the original timeout ...
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+
+    // ASSERT
+    // ... the tab should still be suppressed because the new click reset the state ...
+    act(() => {
+      result.current.handleHoverCardOpenChange(0, true);
+    });
+    expect(result.current.openHoverCard).toEqual(null); // !! still suppressed
+
+    vi.useRealTimers();
+  });
 });
