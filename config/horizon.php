@@ -195,12 +195,13 @@ return [
      * for a CCX53 server upgrade which doubled the CPU and RAM. The architecture isolates
      * high-volume and slow queues to prevent them from monopolizing shared workers.
      *
-     * Total Workers: 42 (19+10+1+8+4)
+     * Total Workers: 44 (19+10+1+8+4+2)
      * - supervisor-1: General queues (fast, medium volume)
      * - supervisor-2: Batch processing (slower, larger timeout)
      * - supervisor-3: Search indexing (very fast, isolated)
      * - supervisor-4: Player sessions (very high volume, fast - 49M jobs/month)
      * - supervisor-5: Game player count (very slow - 351ms avg)
+     * - supervisor-6: Email dispatching (low priority)
      */
     'defaults' => [
         /**
@@ -326,14 +327,17 @@ return [
             'queue' => [
                 'summary-emails',
             ],
-            'balance' => 'simple',
-            'maxProcesses' => 2, // low priority - don't starve other processes
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'size',
+            'maxProcesses' => 2,
+            'balanceMaxShift' => 1,
+            'balanceCooldown' => 3,
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 128,
             'tries' => 1,
             'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value.
-            'nice' => 5, // low priority
+            'nice' => 5, // low priority - don't starve other processes
         ],
     ],
 
