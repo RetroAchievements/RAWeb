@@ -9,22 +9,17 @@ use App\Data\NewsData;
 use App\Models\News;
 use Illuminate\Support\Collection;
 
-class BuildNewsDataAction
+class BuildSiteReleaseNotesAction
 {
     /**
-     * Fetch the news items to show on the home page.
-     * Pinned news items should always appear first.
+     * Fetch the site release notes to display in the Latest Site Updates dialog.
      *
      * @return Collection<int, NewsData>
      */
-    public function execute(int $limit = 9): Collection
+    public function execute(int $limit = 5): Collection
     {
         $news = News::with('user')
-            ->where(function ($query) {
-                $query->where('category', '!=', NewsCategory::SiteReleaseNotes)
-                    ->orWhereNull('category');
-            })
-            ->orderByDesc('pinned_at')
+            ->where('category', NewsCategory::SiteReleaseNotes)
             ->orderByDesc('created_at')
             ->limit($limit)
             ->get();

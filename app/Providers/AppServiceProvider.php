@@ -18,6 +18,7 @@ use App\Console\Commands\PruneApiLogs;
 use App\Console\Commands\SquashMigrations;
 use App\Console\Commands\SystemAlert;
 use App\Http\InertiaResponseFactory;
+use App\Models\News;
 use App\Models\Role;
 use App\Models\User;
 use EragLaravelDisposableEmail\Rules\DisposableEmailRule;
@@ -123,6 +124,8 @@ class AppServiceProvider extends ServiceProvider
          * https://josephsilber.com/posts/2018/07/02/eloquent-polymorphic-relations-morph-map
          */
         Relation::morphMap([
+            'news' => News::class,
+            'site_release_note' => News::class,
             'role' => Role::class,
             'user' => User::class,
         ]);
