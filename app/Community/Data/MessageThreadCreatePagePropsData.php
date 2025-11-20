@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Data;
 
+use App\Community\Enums\DiscordReportableType;
 use App\Community\Enums\MessageThreadTemplateKind;
 use App\Data\UserData;
 use Spatie\LaravelData\Data;
@@ -19,6 +20,8 @@ class MessageThreadCreatePagePropsData extends Data
         public ?MessageThreadTemplateKind $templateKind,
         public ?string $senderUserAvatarUrl,
         public string $senderUserDisplayName,
+        public ?DiscordReportableType $reportableType = null,
+        public ?int $reportableId = null,
     ) {
     }
 }

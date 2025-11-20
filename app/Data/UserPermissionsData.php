@@ -25,6 +25,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $createGameComments,
         public Lazy|bool $createGameForumTopic,
         public Lazy|bool $createMessageThreads,
+        public Lazy|bool $createModerationReports,
         public Lazy|bool $createTriggerTicket,
         public Lazy|bool $createUserBetaFeedbackSubmission,
         public Lazy|bool $createUsernameChangeRequest,
@@ -79,6 +80,7 @@ class UserPermissionsData extends Data
                 : false
             ),
             createMessageThreads: Lazy::create(fn () => $user ? $user->can('create', \App\Models\MessageThread::class) : false),
+            createModerationReports: Lazy::create(fn () => $user ? $user->can('createModerationReports', User::class) : false),
             createTriggerTicket: Lazy::create(fn () => $user && $triggerable
                 ? $user->can('createFor', [\App\Models\TriggerTicket::class, $triggerable])
                 : $user?->can('create', \App\Models\TriggerTicket::class) ?? false

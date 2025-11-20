@@ -178,8 +178,9 @@ class RouteServiceProvider extends ServiceProvider
                     /**
                      * @see Middleware\ValidateSignature::class
                      * This is a deliberately unauthenticated route.
+                     * Supports both GET (browser) and POST (RFC 8058 one-click).
                      */
-                    Route::get('unsubscribe/{token}', [UnsubscribeController::class, 'show'])->name('unsubscribe.show')->middleware('signed');
+                    Route::match(['get', 'post'], 'unsubscribe/{token}', [UnsubscribeController::class, 'show'])->name('unsubscribe.show')->middleware('signed');
                 });
 
                 /*

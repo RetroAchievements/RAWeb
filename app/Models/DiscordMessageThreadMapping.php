@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Community\Enums\DiscordReportableType;
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -14,6 +15,12 @@ class DiscordMessageThreadMapping extends BaseModel
     protected $fillable = [
         'message_thread_id',
         'discord_thread_id',
+        'reportable_type',
+        'reportable_id',
+    ];
+
+    protected $casts = [
+        'reportable_type' => DiscordReportableType::class,
     ];
 
     // == accessors
@@ -54,6 +61,37 @@ class DiscordMessageThreadMapping extends BaseModel
             ],
             [
                 'discord_thread_id' => $discordThreadId,
+            ]
+        );
+    }
+
+    /**
+     * Find an existing Discord thread mapping for a reportable item.
+     */
+    public static function findReportMapping(DiscordReportableType $reportableType, int $reportableId): ?self
+    {
+        return self::where('reportable_type', $reportableType->value)
+            ->where('reportable_id', $reportableId)
+            ->first();
+    }
+
+    /**
+     * Store a new Discord thread mapping for a reportable item.
+     */
+    public static function storeReportMapping(
+        DiscordReportableType $reportableType,
+        int $reportableId,
+        string $discordThreadId,
+        int $messageThreadId,
+    ): self {
+        return self::updateOrCreate(
+            [
+                'reportable_type' => $reportableType->value,
+                'reportable_id' => $reportableId,
+            ],
+            [
+                'discord_thread_id' => $discordThreadId,
+                'message_thread_id' => $messageThreadId,
             ]
         );
     }

@@ -609,7 +609,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID + VirtualGameIdService::IncompatibleIdBase,
-                    'Title' => 'Unsupported Game Version',
+                    'Title' => "Unsupported Game Version ($game->title)",
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageIconURL' => media_asset($game->ImageIcon),
@@ -630,7 +630,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID + VirtualGameIdService::IncompatibleIdBase,
-                    'Title' => 'Unsupported Game Version',
+                    'Title' => "Unsupported Game Version ($game->title)",
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageIconURL' => media_asset($game->ImageIcon),
@@ -654,7 +654,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID + VirtualGameIdService::UntestedIdBase,
-                    'Title' => 'Unsupported Game Version',
+                    'Title' => "Unsupported Game Version ($game->title)",
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageIconURL' => media_asset($game->ImageIcon),
@@ -675,7 +675,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID + VirtualGameIdService::UntestedIdBase,
-                    'Title' => 'Unsupported Game Version',
+                    'Title' => "Unsupported Game Version ($game->title)",
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageIconURL' => media_asset($game->ImageIcon),
@@ -699,7 +699,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID + VirtualGameIdService::PatchRequiredIdBase,
-                    'Title' => 'Unsupported Game Version',
+                    'Title' => "Unsupported Game Version ($game->title)",
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageIconURL' => media_asset($game->ImageIcon),
@@ -720,7 +720,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID + VirtualGameIdService::PatchRequiredIdBase,
-                    'Title' => 'Unsupported Game Version',
+                    'Title' => "Unsupported Game Version ($game->title)",
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageIconURL' => media_asset($game->ImageIcon),
@@ -771,7 +771,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
-                    'Title' => $game->Title,
+                    'Title' => "Unsupported Game Version ({$game->Title})",
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageIconURL' => media_asset($game->ImageIcon),
@@ -824,7 +824,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID + VirtualGameIdService::UntestedIdBase,
-                    'Title' => 'Unsupported Game Version',
+                    'Title' => "Unsupported Game Version ($game->Title)",
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageIconURL' => media_asset($game->ImageIcon),
@@ -845,7 +845,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID + VirtualGameIdService::UntestedIdBase,
-                    'Title' => 'Unsupported Game Version',
+                    'Title' => "Unsupported Game Version ($game->Title)",
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageIconURL' => media_asset($game->ImageIcon),
@@ -870,7 +870,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
-                    'Title' => $game->Title,
+                    'Title' => "Unsupported Game Version ({$game->Title})",
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageIconURL' => media_asset($game->ImageIcon),
@@ -893,7 +893,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
-                    'Title' => $game->Title,
+                    'Title' => "Unsupported Game Version ({$game->Title})",
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageIconURL' => media_asset($game->ImageIcon),
@@ -921,7 +921,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
-                    'Title' => $game->Title,
+                    'Title' => "Unsupported Game Version ({$game->Title})",
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageIconURL' => media_asset($game->ImageIcon),
@@ -948,7 +948,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->ID,
-                    'Title' => $game->Title,
+                    'Title' => "Unsupported Game Version ({$game->Title})",
                     'ConsoleID' => $game->ConsoleID,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageIconURL' => media_asset($game->ImageIcon),

@@ -10,6 +10,7 @@ import { currentListViewAtom } from '@/features/games/state/games.atoms';
 import { BASE_SET_LABEL } from '@/features/games/utils/baseSetLabel';
 
 import { GameAchievementSetHoverCardContent } from '../../GameAchievementSetHoverCardContent';
+import { useHoverCardClickSuppression } from './useHoverCardClickSuppression';
 import { useTabIndicator } from './useTabIndicator';
 
 interface SetSelectionTabsProps {
@@ -28,6 +29,11 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
 
   const { activeIndex, indicatorStyles, isAnimationReady, setActiveIndex, tabRefs } =
     useTabIndicator(initialActiveIndex);
+
+  const { handleHoverCardOpenChange, handlePointerLeave, handleTabClick, openHoverCard } =
+    useHoverCardClickSuppression({
+      onTabChange: setActiveIndex,
+    });
 
   if (!selectableGameAchievementSets.length) {
     return null;
@@ -52,7 +58,10 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
             key={gas.id}
             openDelay={300}
             closeDelay={100}
-            open={ziggy.device === 'mobile' ? false : undefined}
+            open={ziggy.device === 'mobile' ? false : openHoverCard === index}
+            onOpenChange={(isOpen) => {
+              handleHoverCardOpenChange(index, isOpen);
+            }}
           >
             <BaseHoverCardTrigger asChild>
               <InertiaLink
@@ -63,8 +72,12 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
                 })}
                 prefetch="desktop-hover-only"
                 preserveScroll={true}
+                preserveState={true}
                 onClick={() => {
-                  setActiveIndex(index);
+                  handleTabClick(index);
+                }}
+                onPointerLeave={() => {
+                  handlePointerLeave(index);
                 }}
               >
                 <div

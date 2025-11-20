@@ -34,7 +34,7 @@ export const GameAchievementSetHoverCardContent: FC<GameAchievementSetHoverCardC
       side="top"
       className="w-[400px] max-w-[400px] border border-embed-highlight bg-box-bg p-2"
     >
-      <div className="flex gap-2">
+      <div className="flex gap-2" data-testid="set-hover-card">
         <img src={imageAssetPathUrl} alt={title ?? BASE_SET_LABEL} className="size-24 rounded-sm" />
 
         <div className="flex flex-col">
