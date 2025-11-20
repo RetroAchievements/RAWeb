@@ -699,7 +699,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
 
         // Assert
         $this->assertTrue($result['Success']);
-        $this->assertEquals('Unsupported Game Version', $result['Title']);
+        $this->assertEquals("Unsupported Game Version ($game->title)", $result['Title']);
         $this->assertCount(1, $result['Sets']);
 
         $this->assertCount(1, $result['Sets'][0]['Achievements']);
@@ -725,7 +725,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
 
         // Assert
         $this->assertTrue($result['Success']);
-        $this->assertEquals($game->title, $result['Title']);
+        $this->assertEquals("Unsupported Game Version ({$game->title})", $result['Title']);
         $this->assertCount(1, $result['Sets']);
 
         // ... it should include the actual achievements, not a warning ...
@@ -752,7 +752,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
 
         // Assert
         $this->assertTrue($result['Success']);
-        $this->assertEquals($game->title, $result['Title']);
+        $this->assertEquals("Unsupported Game Version ({$game->title})", $result['Title']);
         $this->assertCount(1, $result['Sets']);
 
         // ... it should include the actual achievements, not a warning ...
@@ -780,7 +780,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
 
         // Assert
         $this->assertTrue($result['Success']);
-        $this->assertEquals($game->title, $result['Title']);
+        $this->assertEquals("Unsupported Game Version ({$game->title})", $result['Title']);
         $this->assertCount(1, $result['Sets']);
 
         // ... it should include the actual achievements, not a warning ...

@@ -51,7 +51,7 @@ class ForumTopicData extends Data
         );
     }
 
-    public static function fromHomePageQuery(array $comment, int $numMessageChars): self
+    public static function fromHomePageQuery(array $comment, int $numMessageChars, ?array $shortcodeRecords): self
     {
         return new self(
             id: $comment['ForumTopicID'],
@@ -71,7 +71,7 @@ class ForumTopicData extends Data
 
             latestComment: Lazy::create(fn () => new ForumTopicCommentData(
                 id: $comment['CommentID'],
-                body: Shortcode::stripAndClamp($comment['Payload'], $numMessageChars),
+                body: Shortcode::stripAndClamp($comment['Payload'], $numMessageChars, shortcodeRecords: $shortcodeRecords),
                 createdAt: Carbon::parse($comment['PostedAt']),
                 updatedAt: null,
                 user: UserData::fromRecentForumTopic($comment),
@@ -80,7 +80,7 @@ class ForumTopicData extends Data
         );
     }
 
-    public static function fromRecentlyActiveTopic(array $topic): self
+    public static function fromRecentlyActiveTopic(array $topic, ?array $shortcodeRecords): self
     {
         return new self(
             id: $topic['ForumTopicID'],
@@ -102,7 +102,7 @@ class ForumTopicData extends Data
                 fn () => isset($topic['CommentID']),
                 fn () => new ForumTopicCommentData(
                     id: $topic['CommentID'],
-                    body: Shortcode::stripAndClamp($topic['ShortMsg'], 200),
+                    body: Shortcode::stripAndClamp($topic['ShortMsg'], 200, shortcodeRecords: $shortcodeRecords),
                     createdAt: Carbon::parse($topic['PostedAt']),
                     updatedAt: null, // If no updated date is available, you can set it to null or handle accordingly
                     user: UserData::fromRecentForumTopic($topic),
@@ -113,7 +113,7 @@ class ForumTopicData extends Data
         );
     }
 
-    public static function fromUserPost(array $userPost): self
+    public static function fromUserPost(array $userPost, ?array $shortcodeRecords = null): self
     {
         return new self(
             id: $userPost['ForumTopicID'],
@@ -133,7 +133,7 @@ class ForumTopicData extends Data
 
             latestComment: Lazy::create(fn () => new ForumTopicCommentData(
                 id: $userPost['CommentID'],
-                body: Shortcode::stripAndClamp($userPost['ShortMsg'], 200),
+                body: Shortcode::stripAndClamp($userPost['ShortMsg'], 200, shortcodeRecords: $shortcodeRecords),
                 createdAt: Carbon::parse($userPost['PostedAt']),
                 updatedAt: null,
                 user: null,
