@@ -13,9 +13,12 @@ use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\LinkSimilarGamesAction;
 use App\Platform\Actions\UnlinkSimilarGamesAction;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ManageRelatedRecords;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -30,7 +33,7 @@ class SimilarGames extends ManageRelatedRecords
 
     protected static string $relationship = 'similarGamesList';
 
-    protected static ?string $navigationIcon = 'fas-gamepad';
+    protected static string|BackedEnum|null $navigationIcon = 'fas-gamepad';
 
     public static function canAccess(array $arguments = []): bool
     {
@@ -51,6 +54,7 @@ class SimilarGames extends ManageRelatedRecords
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
+                    ->width('60px')
                     ->size(config('media.icon.sm.width')),
 
                 Tables\Columns\TextColumn::make('ID')
@@ -102,15 +106,15 @@ class SimilarGames extends ManageRelatedRecords
                     ),
             ])
             ->headerActions([
-                Tables\Actions\Action::make('add')
+                Actions\Action::make('add')
                     ->label('Add similar games')
-                    ->form([
+                    ->schema([
                         Forms\Components\TextInput::make('game_ids_csv')
                             ->label('Game IDs (CSV)')
                             ->placeholder('729,2204,3987,53')
                             ->helperText('Enter game IDs separated by commas or spaces. URLs are also supported.')
-                            ->hidden(fn (Forms\Get $get): bool => filled($get('game_ids')))
-                            ->disabled(fn (Forms\Get $get): bool => filled($get('game_ids')))
+                            ->hidden(fn (Get $get): bool => filled($get('game_ids')))
+                            ->disabled(fn (Get $get): bool => filled($get('game_ids')))
                             ->live(debounce: 200),
 
                         Forms\Components\Select::make('game_ids')
@@ -145,8 +149,8 @@ class SimilarGames extends ManageRelatedRecords
                                     ->get()
                                     ->mapWithKeys(fn ($game) => [$game->id => "[{$game->id}] {$game->title} ({$game->system->name})"]);
                             })
-                            ->hidden(fn (Forms\Get $get): bool => filled($get('game_ids_csv')))
-                            ->disabled(fn (Forms\Get $get): bool => filled($get('game_ids_csv')))
+                            ->hidden(fn (Get $get): bool => filled($get('game_ids_csv')))
+                            ->disabled(fn (Get $get): bool => filled($get('game_ids_csv')))
                             ->live()
                             ->helperText('... or search and select games to add.'),
                     ])
@@ -176,8 +180,8 @@ class SimilarGames extends ManageRelatedRecords
                             ->send();
                     }),
             ])
-            ->actions([
-                Tables\Actions\Action::make('remove')
+            ->recordActions([
+                Actions\Action::make('remove')
                     ->tooltip('Remove')
                     ->icon('heroicon-o-trash')
                     ->iconButton()
@@ -197,8 +201,8 @@ class SimilarGames extends ManageRelatedRecords
                             ->send();
                     }),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkAction::make('remove')
+            ->toolbarActions([
+                Actions\BulkAction::make('remove')
                     ->label('Remove selected')
                     ->modalHeading('Remove selected similar games')
                     ->modalDescription('Are you sure you would like to do this?')

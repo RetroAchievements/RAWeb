@@ -1,16 +1,19 @@
-@php
-    $state = $getState();
-@endphp
+<x-dynamic-component
+    :component="$getEntryWrapperView()"
+    :entry="$entry"
+>
+    @php
+        $state = $getState();
+    @endphp
 
-<div>
     @if ($state)
-        <textarea 
-            disabled 
+        <textarea
+            disabled
             readonly
             rows="10"
-            class="w-full font-mono text-sm bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-600 rounded-md"
+            class="p-2 w-full font-mono text-sm border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-900 rounded-md"
         >{{ $state }}</textarea>
     @else
-        <p class="text-gray-500 dark:text-gray-400 text-sm">No Rich Presence script defined.</p>
+        <p class="text-neutral-500 dark:text-neutral-400 text-sm">No Rich Presence script defined.</p>
     @endif
-</div>
+</x-dynamic-component>

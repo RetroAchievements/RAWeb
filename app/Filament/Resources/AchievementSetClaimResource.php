@@ -14,27 +14,30 @@ use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\Role;
 use App\Models\User;
-use Filament\Forms\Form;
+use BackedEnum;
+use Filament\Actions\EditAction;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use UnitEnum;
 
 class AchievementSetClaimResource extends Resource
 {
     protected static ?string $model = AchievementSetClaim::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-flag';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-flag';
 
-    protected static ?string $navigationGroup = 'Platform';
+    protected static string|UnitEnum|null $navigationGroup = 'Platform';
 
     protected static ?string $navigationLabel = 'Claims';
 
     protected static ?int $navigationSort = 70;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
 
             ]);
     }
@@ -165,10 +168,10 @@ class AchievementSetClaimResource extends Resource
                         });
                     }),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ])
             ->paginated([50, 100, 150])

@@ -10,7 +10,6 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
-use Filament\Tables\Filters;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -56,7 +55,8 @@ class AchievementsRelationManager extends RelationManager
                         AchievementType::WinCondition => 'success',
                         default => '',
                     })
-                    ->badge(),
+                    ->badge()
+                    ->wrap(),
 
                 Tables\Columns\TextColumn::make('points')
                     ->toggleable(),
@@ -73,7 +73,7 @@ class AchievementsRelationManager extends RelationManager
                     ->toggleable(),
             ])
             ->filters([
-                Filters\SelectFilter::make('Flags')
+                Tables\Filters\SelectFilter::make('Flags')
                     ->options([
                         0 => 'All',
                         AchievementFlag::OfficialCore->value => AchievementFlag::OfficialCore->label(),
@@ -91,7 +91,7 @@ class AchievementsRelationManager extends RelationManager
             ->headerActions([
 
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ])
             ->recordUrl(function (Achievement $record) use ($user): string {

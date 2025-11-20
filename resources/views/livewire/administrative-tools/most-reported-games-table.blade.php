@@ -2,6 +2,8 @@
 
 use App\Models\Role;
 use App\Models\Ticket;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
@@ -12,9 +14,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Livewire\Volt\Component;
 
-new class extends Component implements HasForms, HasTable {
+new class extends Component implements HasForms, HasTable, HasActions {
     use InteractsWithTable;
     use InteractsWithForms;
+    use InteractsWithActions;
 
     public function table(Table $table): Table
     {
@@ -120,4 +123,5 @@ new class extends Component implements HasForms, HasTable {
 
 <div>
     {{ $this->table }}
+    <x-filament-actions::modals />
 </div>

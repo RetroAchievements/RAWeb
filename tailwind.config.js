@@ -1,10 +1,17 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-/** @type {import('tailwindcss').Config} */
+/**
+ * Main Application Tailwind Configuration (v3)
+ *
+ * This config is for the main Laravel application only.
+ * The Filament admin panel uses its own separate Tailwind v4 build pipeline.
+ * See resources/filament/ for Filament-specific config.
+ *
+ * @type {import('tailwindcss').Config}
+ */
 module.exports = {
   content: [
-    './app/Filament/**/*.php',
     './app/Helpers/render/*.php',
     './app/Helpers/util/*.php',
     './public/*.php',
@@ -12,7 +19,6 @@ module.exports = {
     './resources/js/**/*.tsx',
     './resources/views/**/*.blade.php',
     './storage/framework/views/*.php',
-    './vendor/filament/**/*.blade.php',
     './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
   ],
 

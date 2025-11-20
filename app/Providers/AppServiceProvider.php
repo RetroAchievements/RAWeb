@@ -74,6 +74,18 @@ class AppServiceProvider extends ServiceProvider
 
         Model::shouldBeStrict(!$this->app->isProduction());
 
+        // Filament v4: Preserve v3 behavior for layout components spanning full width.
+        \Filament\Schemas\Components\Fieldset::configureUsing(fn (\Filament\Schemas\Components\Fieldset $fieldset) => $fieldset
+            ->columnSpanFull());
+        \Filament\Schemas\Components\Grid::configureUsing(fn (\Filament\Schemas\Components\Grid $grid) => $grid
+            ->columnSpanFull());
+        \Filament\Schemas\Components\Section::configureUsing(fn (\Filament\Schemas\Components\Section $section) => $section
+            ->columnSpanFull());
+
+        // Filament v4: Preserve v3 behavior for unique() validation not ignoring current record by default.
+        \Filament\Forms\Components\Field::configureUsing(fn (\Filament\Forms\Components\Field $field) => $field
+            ->uniqueValidationIgnoresRecordByDefault(false));
+
         Pulse::user(fn (User $user) => [
             'name' => $user->User,
             'avatar' => $user->avatarUrl,

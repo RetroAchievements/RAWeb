@@ -9,11 +9,14 @@ use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\Role;
 use App\Models\User;
+use BackedEnum;
+use Closure;
+use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Infolists;
-use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Filters;
 use Filament\Tables\Table;
@@ -27,7 +30,7 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'fas-users';
+    protected static string|BackedEnum|null $navigationIcon = 'fas-users';
 
     protected static ?int $navigationSort = 1;
 
@@ -35,9 +38,15 @@ class UserResource extends Resource
 
     protected static int $globalSearchResultsLimit = 5;
 
-    public static function resolveRecordRouteBinding(int|string $key): ?Model
+    public static function resolveRecordRouteBinding(int|string $key, ?Closure $modifyQuery = null): ?Model
     {
-        return User::whereName($key)->first();
+        $query = User::whereName($key);
+
+        if ($modifyQuery) {
+            $query = $modifyQuery($query);
+        }
+
+        return $query->first();
     }
 
     /**
@@ -61,19 +70,19 @@ class UserResource extends Resource
         return ['ID', 'User', 'display_name'];
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
         /** @var User $user */
         $user = Auth::user();
 
-        return $infolist
+        return $schema
             ->columns(1)
-            ->schema([
-                Infolists\Components\Split::make([
-                    Infolists\Components\Section::make()
+            ->components([
+                Schemas\Components\Flex::make([
+                    Schemas\Components\Section::make()
                         ->columns(['xl' => 2, '2xl' => 3])
                         ->schema([
-                            Infolists\Components\Group::make()
+                            Schemas\Components\Group::make()
                                 ->schema([
                                     Infolists\Components\ImageEntry::make('avatar_url')
                                         ->label('Avatar')
@@ -81,10 +90,12 @@ class UserResource extends Resource
 
                                     Infolists\Components\TextEntry::make('Motto'),
                                 ]),
-                            Infolists\Components\Group::make()
+
+                            Schemas\Components\Group::make()
                                 ->schema([
                                     Infolists\Components\TextEntry::make('roles.name')
                                         ->badge()
+                                        ->wrap()
                                         ->formatStateUsing(fn (string $state): string => __('permission.role.' . $state))
                                         ->color(fn (string $state): string => Role::toFilamentColor($state))
                                         ->hidden(fn ($record) => $record->roles->isEmpty()),
@@ -92,6 +103,7 @@ class UserResource extends Resource
                                     Infolists\Components\TextEntry::make('Permissions')
                                         ->label('Permissions (legacy)')
                                         ->badge()
+                                        ->wrap()
                                         ->formatStateUsing(fn (int $state): string => Permissions::toString($state))
                                         ->color(fn (int $state): string => match ($state) {
                                             Permissions::Spam => 'danger',
@@ -102,7 +114,8 @@ class UserResource extends Resource
                                             default => 'gray',
                                         }),
                                 ]),
-                            Infolists\Components\Group::make()
+
+                            Schemas\Components\Group::make()
                                 ->schema([
                                     Infolists\Components\TextEntry::make('username')
                                         ->label('Original Username')
@@ -119,7 +132,8 @@ class UserResource extends Resource
                                         ->openUrlInNewTab(),
                                 ]),
                         ]),
-                    Infolists\Components\Section::make()
+
+                    Schemas\Components\Section::make()
                         ->grow(false)
                         ->schema([
                             Infolists\Components\TextEntry::make('id')
@@ -173,20 +187,20 @@ class UserResource extends Resource
             ]);
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->columns(1)
-            ->schema([
-                Forms\Components\Split::make([
-                    Forms\Components\Section::make()
+            ->components([
+                Schemas\Components\Flex::make([
+                    Schemas\Components\Section::make()
                         ->columns(['xl' => 2, '2xl' => 2])
                         ->schema([
                             Forms\Components\TextInput::make('Motto')
                                 ->maxLength(50),
                         ]),
 
-                    Forms\Components\Section::make()
+                    Schemas\Components\Section::make()
                         ->grow(false)
                         ->schema([
                             Forms\Components\DatePicker::make('muted_until')
@@ -197,10 +211,10 @@ class UserResource extends Resource
                                 ->maxDate('2038-01-18')
                                 ->displayFormat('Y-m-d')
                                 ->date()
-                                ->afterStateHydrated(function (Forms\Components\DatePicker $component, ?string $state) use ($form) {
+                                ->afterStateHydrated(function (Forms\Components\DatePicker $component, ?string $state) use ($schema) {
                                     if (!$state) {
                                         /** @var User $user */
-                                        $user = $form->model;
+                                        $user = $schema->model;
 
                                         $utcMutedUntil = $user->muted_until?->setTimezone('UTC');
                                         $formattedDate = $utcMutedUntil?->format('Y-m-d');
@@ -242,12 +256,14 @@ class UserResource extends Resource
 
                 Tables\Columns\TextColumn::make('roles.name')
                     ->badge()
+                    ->wrap()
                     ->formatStateUsing(fn (string $state): string => __('permission.role.' . $state))
                     ->color(fn (string $state): string => Role::toFilamentColor($state)),
 
                 Tables\Columns\TextColumn::make('Permissions')
                     ->label('Legacy permissions')
                     ->badge()
+                    ->wrap()
                     ->formatStateUsing(fn (int $state): string => Permissions::toString($state))
                     ->color(fn (int $state): string => match ($state) {
                         Permissions::Spam => 'danger',
@@ -339,24 +355,24 @@ class UserResource extends Resource
                 Filters\TrashedFilter::make(),
             ])
             ->deferFilters()
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ActionGroup::make([
-                        Tables\Actions\ViewAction::make(),
-                        Tables\Actions\EditAction::make(),
+            ->recordActions([
+                Actions\ActionGroup::make([
+                    Actions\ActionGroup::make([
+                        Actions\ViewAction::make(),
+                        Actions\EditAction::make(),
                     ])->dropdown(false),
 
-                    Tables\Actions\Action::make('roles')
+                    Actions\Action::make('roles')
                         ->url(fn ($record) => UserResource::getUrl('roles', ['record' => $record]))
                         ->icon('fas-lock'),
 
-                    Tables\Actions\Action::make('audit-log')
+                    Actions\Action::make('audit-log')
                         ->url(fn ($record) => UserResource::getUrl('audit-log', ['record' => $record]))
                         ->icon('fas-clock-rotate-left'),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([]),
+            ->toolbarActions([
+                Actions\BulkActionGroup::make([]),
             ]);
     }
 

@@ -1,0 +1,27 @@
+@import 'tailwindcss4';
+
+@import '../../../vendor/filament/support/resources/css/index.css';
+@import '../../../vendor/filament/actions/resources/css/index.css';
+@import '../../../vendor/filament/forms/resources/css/index.css';
+@import '../../../vendor/filament/infolists/resources/css/index.css';
+@import '../../../vendor/filament/notifications/resources/css/index.css';
+@import '../../../vendor/filament/schemas/resources/css/index.css';
+@import '../../../vendor/filament/tables/resources/css/index.css';
+@import '../../../vendor/filament/widgets/resources/css/index.css';
+
+@import '../../../vendor/filament/filament/resources/css/base.css' layer(base);
+
+@import '../../../vendor/filament/filament/resources/css/components/global-search.css' layer(components);
+@import '../../../vendor/filament/filament/resources/css/components/header.css' layer(components);
+@import '../../../vendor/filament/filament/resources/css/components/layout.css' layer(components);
+@import '../../../vendor/filament/filament/resources/css/components/logo.css' layer(components);
+@import '../../../vendor/filament/filament/resources/css/components/page.css' layer(components);
+@import '../../../vendor/filament/filament/resources/css/components/sidebar.css' layer(components);
+@import '../../../vendor/filament/filament/resources/css/components/tenant-menu.css' layer(components);
+@import '../../../vendor/filament/filament/resources/css/components/theme-switcher.css' layer(components);
+@import '../../../vendor/filament/filament/resources/css/components/topbar.css' layer(components);
+@import '../../../vendor/filament/filament/resources/css/components/user-menu.css' layer(components);
+@import '../../../vendor/filament/filament/resources/css/widgets/account-widget.css' layer(components);
+@import '../../../vendor/filament/filament/resources/css/widgets/filament-info-widget.css' layer(components);
+
+@custom-variant dark (&:where(.dark, .dark *));

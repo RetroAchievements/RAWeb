@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\EmulatorResource\RelationManagers;
 
+use Filament\Actions\ActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\RestoreAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,10 +31,10 @@ class EmulatorReleasesRelationManager extends RelationManager
         return (string) $ownerRecord->releases->count();
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Forms\Components\TextInput::make('version')
                     ->placeholder('2.4.0')
                     ->helperText('eg: "2.4.0" or "2407-68"')
@@ -78,6 +83,7 @@ class EmulatorReleasesRelationManager extends RelationManager
                     ->label('Type')
                     ->formatStateUsing(fn (bool $state): string => $state ? 'Stable' : 'Pre-release')
                     ->badge()
+                    ->wrap()
                     ->color(fn (bool $state): string => $state ? 'success' : 'warning'),
 
                 Tables\Columns\IconColumn::make('minimum')
@@ -94,15 +100,15 @@ class EmulatorReleasesRelationManager extends RelationManager
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                CreateAction::make()
                     ->label('Add release')
                     ->modalHeading('Add release'),
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
+            ->recordActions([
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make(),
+                    RestoreAction::make(),
                 ]),
             ])
             ->defaultSort(function (Builder $query): Builder {

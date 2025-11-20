@@ -15,12 +15,14 @@ use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Infolists;
-use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
@@ -28,14 +30,15 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use UnitEnum;
 
 class AchievementResource extends Resource
 {
     protected static ?string $model = Achievement::class;
 
-    protected static ?string $navigationIcon = 'fas-trophy';
+    protected static string|BackedEnum|null $navigationIcon = 'fas-trophy';
 
-    protected static ?string $navigationGroup = 'Platform';
+    protected static string|UnitEnum|null $navigationGroup = 'Platform';
 
     protected static ?int $navigationSort = 50;
 
@@ -64,19 +67,19 @@ class AchievementResource extends Resource
         return ['ID', 'Title', 'Description'];
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
         /** @var User $user */
         $user = Auth::user();
 
-        return $infolist
+        return $schema
             ->columns(1)
-            ->schema([
-                Infolists\Components\Split::make([
-                    Infolists\Components\Section::make()
+            ->components([
+                Schemas\Components\Flex::make([
+                    Schemas\Components\Section::make()
                         ->columns(['xl' => 2, '2xl' => 3])
                         ->schema([
-                            Infolists\Components\Group::make()
+                            Schemas\Components\Group::make()
                                 ->schema([
                                     Infolists\Components\ImageEntry::make('badge_url')
                                         ->label('Badge')
@@ -86,7 +89,7 @@ class AchievementResource extends Resource
                                         ->size(config('media.icon.lg.width')),
                                 ]),
 
-                            Infolists\Components\Group::make()
+                            Schemas\Components\Group::make()
                                 ->schema([
                                     Infolists\Components\TextEntry::make('Title'),
 
@@ -101,7 +104,7 @@ class AchievementResource extends Resource
                                         ->formatStateUsing(fn (User $state) => $state->display_name),
                                 ]),
 
-                            Infolists\Components\Group::make()
+                            Schemas\Components\Group::make()
                                 ->schema([
                                     Infolists\Components\TextEntry::make('canonical_url')
                                         ->label('Canonical URL')
@@ -117,11 +120,11 @@ class AchievementResource extends Resource
                                             ($record->activeMaintainer?->effective_from?->format('Y-m-d') ?? 'N/A') . ')')
                                         ->extraAttributes(['class' => 'font-medium']),
 
-                                    Infolists\Components\Actions::make([
-                                        Infolists\Components\Actions\Action::make('setMaintainer')
+                                    Schemas\Components\Actions::make([
+                                        Actions\Action::make('setMaintainer')
                                             ->label('Change Maintainer')
                                             ->icon('heroicon-o-user')
-                                            ->form(fn (Achievement $record) => static::buildMaintainerForm($record))
+                                            ->schema(fn (Achievement $record) => static::buildMaintainerForm($record))
                                             ->action(function (Achievement $record, array $data): void {
                                                 static::handleSetMaintainer($record, $data);
 
@@ -136,7 +139,7 @@ class AchievementResource extends Resource
                                 ]),
                         ]),
 
-                    Infolists\Components\Section::make([
+                    Schemas\Components\Section::make([
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
 
@@ -157,6 +160,7 @@ class AchievementResource extends Resource
 
                         Infolists\Components\TextEntry::make('Flags')
                             ->badge()
+                            ->wrap()
                             ->formatStateUsing(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
                                 AchievementFlag::OfficialCore => AchievementFlag::OfficialCore->label(),
                                 AchievementFlag::Unofficial => AchievementFlag::Unofficial->label(),
@@ -170,7 +174,8 @@ class AchievementResource extends Resource
 
                         Infolists\Components\TextEntry::make('type')
                             ->hidden(fn ($record) => $record->game->system->id === System::Events)
-                            ->badge(),
+                            ->badge()
+                            ->wrap(),
 
                         Infolists\Components\TextEntry::make('Points'),
 
@@ -178,7 +183,7 @@ class AchievementResource extends Resource
                     ])->grow(false),
                 ])->from('md'),
 
-                Infolists\Components\Section::make('Event Association')
+                Schemas\Components\Section::make('Event Association')
                     ->schema([
                         Infolists\Components\TextEntry::make('eventData.source_achievement_id')
                             ->label('Source Achievement')
@@ -200,29 +205,29 @@ class AchievementResource extends Resource
             ]);
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
         /** @var User $user */
         $user = Auth::user();
 
-        $form->model?->loadMissing('game.system');
+        $schema->model?->loadMissing('game.system');
 
-        return $form
+        return $schema
             ->columns(1)
-            ->schema([
-                Forms\Components\Split::make([
-                    Forms\Components\Section::make()
+            ->components([
+                Schemas\Components\Flex::make([
+                    Schemas\Components\Section::make()
                         ->columns(['xl' => 2, '2xl' => 2])
                         ->schema([
                             Forms\Components\TextInput::make('Title')
                                 ->required()
                                 ->maxLength(64)
-                                ->disabled(!$user->can('updateField', [$form->model, 'Title'])),
+                                ->disabled(!$user->can('updateField', [$schema->model, 'Title'])),
 
                             Forms\Components\TextInput::make('Description')
                                 ->required()
                                 ->maxLength(255)
-                                ->disabled(!$user->can('updateField', [$form->model, 'Description'])),
+                                ->disabled(!$user->can('updateField', [$schema->model, 'Description'])),
 
                             Forms\Components\Select::make('GameID')
                                 ->label('Game')
@@ -233,9 +238,9 @@ class AchievementResource extends Resource
                                 ->searchable(['ID', 'Title'])
                                 ->getOptionLabelFromRecordUsing(fn (Model $record) => "[{$record->ID}] {$record->Title}")
                                 ->required()
-                                ->disabled(!$user->can('updateField', [$form->model, 'GameID'])),
+                                ->disabled(!$user->can('updateField', [$schema->model, 'GameID'])),
 
-                            Forms\Components\Section::make('Maintainer')
+                            Schemas\Components\Section::make('Maintainer')
                                 ->schema([
                                     Forms\Components\Placeholder::make('current_maintainer')
                                         ->label('Current Maintainer')
@@ -248,11 +253,11 @@ class AchievementResource extends Resource
                                             return $record->developer->display_name . ' (original developer)';
                                         }),
 
-                                    Forms\Components\Actions::make([
-                                        Forms\Components\Actions\Action::make('setMaintainer')
+                                    Schemas\Components\Actions::make([
+                                        Actions\Action::make('setMaintainer')
                                             ->label('Change Maintainer')
                                             ->icon('heroicon-o-user')
-                                            ->form(fn (Achievement $record) => static::buildMaintainerForm($record))
+                                            ->schema(fn (Achievement $record) => static::buildMaintainerForm($record))
                                             ->action(function (Achievement $record, array $data): void {
                                                 static::handleSetMaintainer($record, $data);
 
@@ -268,7 +273,7 @@ class AchievementResource extends Resource
                                 ->visible(fn (): bool => $user->can('assignMaintainer', [Achievement::class])),
                         ]),
 
-                    Forms\Components\Section::make()
+                    Schemas\Components\Section::make()
                         ->grow(false)
                         ->schema([
                             Forms\Components\Select::make('Flags')
@@ -278,15 +283,15 @@ class AchievementResource extends Resource
                                 ])
                                 ->default(AchievementFlag::Unofficial->value)
                                 ->required()
-                                ->disabled(!$user->can('updateField', [$form->model, 'Flags'])),
+                                ->disabled(!$user->can('updateField', [$schema->model, 'Flags'])),
 
                             Forms\Components\Select::make('type')
                                 ->options(
                                     collect(AchievementType::cases())
                                         ->mapWithKeys(fn ($value) => [$value => __($value)])
                                 )
-                                ->hidden(fn (Achievement $record) => $record->game->system->id === System::Events)
-                                ->disabled(!$user->can('updateField', [$form->model, 'type'])),
+                                ->hidden(fn (?Achievement $record) => $record?->game?->system?->id === System::Events)
+                                ->disabled(!$user->can('updateField', [$schema->model, 'type'])),
 
                             Forms\Components\Select::make('Points')
                                 ->required()
@@ -295,24 +300,24 @@ class AchievementResource extends Resource
                                     collect(AchievementPoints::cases())
                                         ->mapWithKeys(fn ($value) => [$value => $value])
                                 )
-                                ->disabled(!$user->can('updateField', [$form->model, 'Points'])),
+                                ->disabled(!$user->can('updateField', [$schema->model, 'Points'])),
 
                             Forms\Components\TextInput::make('DisplayOrder')
                                 ->required()
                                 ->numeric()
                                 ->default(0)
-                                ->disabled(!$user->can('updateField', [$form->model, 'DisplayOrder'])),
+                                ->disabled(!$user->can('updateField', [$schema->model, 'DisplayOrder'])),
                         ]),
                 ])->from('md'),
 
-                Forms\Components\Section::make('Media')
+                Schemas\Components\Section::make('Media')
                     ->icon('heroicon-s-photo')
                     ->schema([
                         // Store a temporary file on disk until the user submits.
                         // When the user submits, put in storage.
                         Forms\Components\FileUpload::make('BadgeName')
                             ->label('Badge')
-                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
+                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk.
                             ->image()
                             ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/gif'])
                             ->maxSize(1024)
@@ -320,7 +325,7 @@ class AchievementResource extends Resource
                             ->previewable(true),
                     ])
                     ->columns(2)
-                    ->hidden(!$user->can('updateField', [$form->model, 'BadgeName'])),
+                    ->hidden(!$user->can('updateField', [$schema->model, 'BadgeName'])),
             ]);
     }
 
@@ -355,6 +360,7 @@ class AchievementResource extends Resource
 
                 Tables\Columns\TextColumn::make('Flags')
                     ->badge()
+                    ->wrap()
                     ->formatStateUsing(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
                         AchievementFlag::OfficialCore => AchievementFlag::OfficialCore->label(),
                         AchievementFlag::Unofficial => AchievementFlag::Unofficial->label(),
@@ -379,7 +385,8 @@ class AchievementResource extends Resource
                         AchievementType::WinCondition => 'success',
                         default => '',
                     })
-                    ->badge(),
+                    ->badge()
+                    ->wrap(),
 
                 Tables\Columns\TextColumn::make('Points')
                     ->numeric()
@@ -461,24 +468,24 @@ class AchievementResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->deferFilters()
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ActionGroup::make([
-                        Tables\Actions\ViewAction::make(),
-                        Tables\Actions\EditAction::make(),
-                        Tables\Actions\DeleteAction::make(),
-                        Tables\Actions\RestoreAction::make(),
+            ->recordActions([
+                Actions\ActionGroup::make([
+                    Actions\ActionGroup::make([
+                        Actions\ViewAction::make(),
+                        Actions\EditAction::make(),
+                        Actions\DeleteAction::make(),
+                        Actions\RestoreAction::make(),
                     ])->dropdown(false),
 
-                    Tables\Actions\Action::make('audit-log')
+                    Actions\Action::make('audit-log')
                         ->url(fn ($record) => AchievementResource::getUrl('audit-log', ['record' => $record]))
                         ->icon('fas-clock-rotate-left'),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
-                    // Tables\Actions\RestoreBulkAction::make(),
+            ->toolbarActions([
+                Actions\BulkActionGroup::make([
+                    // DeleteBulkAction::make(),
+                    // RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -520,7 +527,7 @@ class AchievementResource extends Resource
             ->with(['activeMaintainer.user', 'game']);
     }
 
-    public static function buildMaintainerForm(Achievement $record): array
+    public static function buildMaintainerForm(?Achievement $record): array
     {
         return [
             Forms\Components\Placeholder::make('ticket_info')
@@ -537,7 +544,7 @@ class AchievementResource extends Resource
                         ->take(50)
                         ->get()
                         ->filter(function ($user) use ($record) {
-                            return $user->hasRole(Role::DEVELOPER) || $user->id === $record->user_id;
+                            return $user->hasRole(Role::DEVELOPER) || ($record && $user->id === $record->user_id);
                         })
                         ->pluck('display_name', 'id')
                         ->toArray();

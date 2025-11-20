@@ -18,11 +18,16 @@ use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
+use BackedEnum;
+use Filament\Actions;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Infolists;
-use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
@@ -31,14 +36,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
+use UnitEnum;
 
 class GameResource extends Resource
 {
     protected static ?string $model = Game::class;
 
-    protected static ?string $navigationIcon = 'fas-gamepad';
+    protected static string|BackedEnum|null $navigationIcon = 'fas-gamepad';
 
-    protected static ?string $navigationGroup = 'Platform';
+    protected static string|UnitEnum|null $navigationGroup = 'Platform';
 
     protected static ?int $navigationSort = 10;
 
@@ -70,15 +76,15 @@ class GameResource extends Resource
         return ['ID', 'Title'];
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
+        return $schema
+            ->components([
                 Infolists\Components\ImageEntry::make('badge_url')
                     ->label('')
                     ->size(config('media.icon.lg.width')),
 
-                Infolists\Components\Section::make('Primary Details')
+                Schemas\Components\Section::make('Primary Details')
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
@@ -125,7 +131,7 @@ class GameResource extends Resource
                             }),
                     ]),
 
-                Infolists\Components\Section::make('Metadata')
+                Schemas\Components\Section::make('Metadata')
                     ->icon('heroicon-c-information-circle')
                     ->description('While optional, this metadata can help more players find the game. It also gets fed to various apps plugged in to the RetroAchievements API.')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
@@ -150,14 +156,14 @@ class GameResource extends Resource
                             ->limit(30),
                     ]),
 
-                Infolists\Components\Section::make('Metrics')
+                Schemas\Components\Section::make('Metrics')
                     ->icon('heroicon-s-arrow-trending-up')
                     ->description("
                         Statistics regarding the game's players and achievements can be found here.
                     ")
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\Fieldset::make('Players')
+                        Schemas\Components\Fieldset::make('Players')
                             ->schema([
                                 Infolists\Components\TextEntry::make('players_total')
                                     ->label('Total')
@@ -170,7 +176,7 @@ class GameResource extends Resource
                             ->columns(2)
                             ->columnSpan(['md' => 2, 'xl' => 1, '2xl' => 1]),
 
-                        Infolists\Components\Fieldset::make('Achievements')
+                        Schemas\Components\Fieldset::make('Achievements')
                             ->schema([
                                 Infolists\Components\TextEntry::make('achievements_published')
                                     ->label('Published')
@@ -183,7 +189,7 @@ class GameResource extends Resource
                             ->columns(2)
                             ->columnSpan(['md' => 2, 'xl' => 1, '2xl' => 1]),
 
-                        Infolists\Components\Fieldset::make('Score')
+                        Schemas\Components\Fieldset::make('Score')
                             ->schema([
                                 Infolists\Components\TextEntry::make('points_total')
                                     ->label('Points')
@@ -197,7 +203,7 @@ class GameResource extends Resource
                             ->columnSpan(['md' => 2, 'xl' => 1, '2xl' => 1]),
                     ]),
 
-                Infolists\Components\Section::make('Rich Presence')
+                Schemas\Components\Section::make('Rich Presence')
                     ->icon('heroicon-s-chat-bubble-left-right')
                     ->description('Rich Presence scripts display dynamic game information to players.')
                     ->schema([
@@ -208,14 +214,14 @@ class GameResource extends Resource
             ]);
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
         /** @var User $user */
         $user = Auth::user();
 
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Primary Details')
+        return $schema
+            ->components([
+                Schemas\Components\Section::make('Primary Details')
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
@@ -224,15 +230,15 @@ class GameResource extends Resource
                             ->required()
                             ->minLength(2)
                             ->maxLength(80)
-                            ->disabled(!$user->can('updateField', [$form->model, 'Title'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'Title'])),
 
                         Forms\Components\TextInput::make('sort_title')
                             ->required()
                             ->label('Sort Title')
                             ->minLength(2)
-                            ->disabled(!$user->can('updateField', [$form->model, 'sort_title']))
+                            ->disabled(!$user->can('updateField', [$schema->model, 'sort_title']))
                             ->helperText('Normalized title for sorting purposes. For example, "The Goonies II" would sort as "goonies 02". DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.')
-                            ->reactive()
+                            ->live()
                             ->afterStateHydrated(function (callable $set, callable $get, ?string $state) {
                                 $set('original_sort_title', $state ?? '');
                             }),
@@ -241,35 +247,35 @@ class GameResource extends Resource
                             ->label('Forum Topic ID')
                             ->numeric()
                             ->rules([new ExistsInForumTopics()])
-                            ->disabled(!$user->can('updateField', [$form->model, 'ForumTopicID'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'ForumTopicID'])),
                     ]),
 
-                Forms\Components\Section::make('Metadata')
+                Schemas\Components\Section::make('Metadata')
                     ->icon('heroicon-c-information-circle')
                     ->description('While optional, this metadata can help more players find the game. It also gets fed to various apps plugged in to the RetroAchievements API.')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
                         Forms\Components\TextInput::make('Developer')
                             ->maxLength(50)
-                            ->disabled(!$user->can('updateField', [$form->model, 'Developer'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'Developer'])),
 
                         Forms\Components\TextInput::make('Publisher')
                             ->maxLength(50)
-                            ->disabled(!$user->can('updateField', [$form->model, 'Publisher'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'Publisher'])),
 
                         Forms\Components\TextInput::make('Genre')
                             ->maxLength(50)
-                            ->disabled(!$user->can('updateField', [$form->model, 'Genre'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'Genre'])),
 
                         Forms\Components\TextInput::make('GuideURL')
                             ->label('RAGuide URL')
                             ->url()
                             ->rules([new IsAllowedGuideUrl()])
                             ->suffixIcon('heroicon-m-globe-alt')
-                            ->disabled(!$user->can('updateField', [$form->model, 'GuideURL'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'GuideURL'])),
                     ]),
 
-                Forms\Components\Section::make('Media')
+                Schemas\Components\Section::make('Media')
                     ->icon('heroicon-s-photo')
                     ->schema([
                         // Store a temporary file on disk until the user submits.
@@ -315,7 +321,7 @@ class GameResource extends Resource
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make('Rich Presence')
+                Schemas\Components\Section::make('Rich Presence')
                     ->icon('heroicon-s-chat-bubble-left-right')
                     ->schema([
                         Forms\Components\Textarea::make('RichPresencePatch')
@@ -325,7 +331,7 @@ class GameResource extends Resource
                             ->helperText(new HtmlString('<a href="https://docs.retroachievements.org/developer-docs/rich-presence.html" target="_blank" class="underline">Learn more about Rich Presence</a>'))
                             ->placeholder("Format:Number\nFormatType=VALUE")
                             ->extraInputAttributes(['class' => 'font-mono'])
-                            ->disabled(!$user->can('updateField', [$form->model, 'RichPresencePatch'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'RichPresencePatch'])),
                     ]),
             ]);
     }
@@ -580,21 +586,21 @@ class GameResource extends Resource
                         blank: fn (Builder $query): Builder => $query,
                     ),
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ActionGroup::make([
-                        Tables\Actions\ViewAction::make(),
-                        Tables\Actions\EditAction::make(),
+            ->recordActions([
+                ActionGroup::make([
+                    ActionGroup::make([
+                        ViewAction::make(),
+                        EditAction::make(),
                     ])->dropdown(false),
 
-                    Tables\Actions\Action::make('audit-log')
+                    Actions\Action::make('audit-log')
                         ->url(fn ($record) => GameResource::getUrl('audit-log', ['record' => $record]))
                         ->icon('fas-clock-rotate-left'),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                Actions\BulkActionGroup::make([
+                    // DeleteBulkAction::make(),
                 ]),
             ]);
     }

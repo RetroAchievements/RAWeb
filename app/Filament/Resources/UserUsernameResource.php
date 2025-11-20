@@ -10,12 +10,15 @@ use App\Filament\Resources\UserUsernameResource\Pages;
 use App\Mail\DisplayNameChangeDeclinedMail;
 use App\Models\User;
 use App\Models\UserUsername;
-use Filament\Forms\Form;
+use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Mail;
+use UnitEnum;
 
 class UserUsernameResource extends Resource
 {
@@ -23,9 +26,9 @@ class UserUsernameResource extends Resource
 
     protected static ?int $navigationSort = 30;
 
-    protected static ?string $navigationIcon = 'heroicon-s-wrench';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-s-wrench';
 
-    protected static ?string $navigationGroup = 'Tools';
+    protected static string|UnitEnum|null $navigationGroup = 'Tools';
 
     protected static ?string $navigationLabel = 'Username Change Requests';
 
@@ -33,7 +36,7 @@ class UserUsernameResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $count = static::getModel()::pending()->count();
+        $count = UserUsername::pending()->count();
 
         return "{$count}";
     }
@@ -43,10 +46,10 @@ class UserUsernameResource extends Resource
         return static::getNavigationBadge() > 0 ? 'warning' : null;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
 
             ]);
     }
@@ -147,8 +150,8 @@ class UserUsernameResource extends Resource
                     })
                     ->default('pending'),
             ])
-            ->actions([
-                Tables\Actions\Action::make('approve')
+            ->recordActions([
+                Action::make('approve')
                     ->action(function (UserUsername $record) {
                         /** @var User $user */
                         $user = $record->user;
@@ -168,7 +171,7 @@ class UserUsernameResource extends Resource
                     ->color('success')
                     ->icon('heroicon-o-check'),
 
-                Tables\Actions\Action::make('deny')
+                Action::make('deny')
                     ->action(function (UserUsername $record) {
                         $record->update(['denied_at' => now()]);
 
@@ -189,7 +192,7 @@ class UserUsernameResource extends Resource
                     ->color('danger')
                     ->icon('heroicon-o-x-mark'),
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ]);
     }

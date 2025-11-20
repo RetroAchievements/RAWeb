@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\EmulatorResource\RelationManagers;
 
-use Filament\Forms\Form;
+use Filament\Actions\AttachAction;
+use Filament\Actions\DetachAction;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,10 +27,10 @@ class EmulatorPlatformsRelationManager extends RelationManager
         return (string) $ownerRecord->platforms->count();
     }
 
-    public function function(Form $form): Form
+    public function function(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
 
             ]);
     }
@@ -50,11 +52,11 @@ class EmulatorPlatformsRelationManager extends RelationManager
                     ->formatStateUsing(fn ($state) => $state->label()),
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make()
+                AttachAction::make()
                     ->preloadRecordSelect(),
             ])
-            ->actions([
-                Tables\Actions\DetachAction::make(),
+            ->recordActions([
+                DetachAction::make(),
             ])
             ->defaultSort(function (Builder $query): Builder {
                 return $query->orderBy('execution_environment')->orderBy('name');

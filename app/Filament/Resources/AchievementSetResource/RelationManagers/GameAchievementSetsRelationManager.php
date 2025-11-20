@@ -6,8 +6,8 @@ namespace App\Filament\Resources\AchievementSetResource\RelationManagers;
 
 use App\Filament\Resources\GameResource;
 use App\Models\GameAchievementSet;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -25,10 +25,10 @@ class GameAchievementSetsRelationManager extends RelationManager
         return $count > 0 ? "{$count}" : null;
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
 
             ]);
     }

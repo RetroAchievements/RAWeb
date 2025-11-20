@@ -9,37 +9,38 @@ use App\Filament\Resources\GameHashResource\Pages;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\System;
-use Filament\Forms\Form;
-use Filament\Infolists\Infolist;
+use BackedEnum;
 use Filament\Resources\Pages\Page;
+use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontFamily;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class GameHashResource extends Resource
 {
     protected static ?string $model = GameHash::class;
 
-    protected static ?string $navigationIcon = 'fas-file-archive';
+    protected static string|BackedEnum|null $navigationIcon = 'fas-file-archive';
 
-    protected static ?string $navigationGroup = 'Platform';
+    protected static string|UnitEnum|null $navigationGroup = 'Platform';
 
     protected static ?int $navigationSort = 40;
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
+        return $schema
+            ->components([
                 // TODO
             ]);
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 // TODO
             ]);
     }
@@ -120,11 +121,11 @@ class GameHashResource extends Resource
                         }
                     }),
             ])
-            ->actions([
+            ->recordActions([
                 // TODO
-                // Tables\Actions\EditAction::make(),
+                // EditAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ])
             ->defaultSort('created_at', 'desc')

@@ -1,18 +1,17 @@
 <x-filament-widgets::widget class="fi-filament-info-widget">
     <x-filament::section>
-        <div class="flex items-center gap-x-3">
-            <div class="flex-1">
-                <a href="{{ route('home') }}" class="flex gap-2">
-                    <img src="{{ asset('assets/images/favicon.webp') }}" class="h-6 inline" alt="{{ config('app.name') }}">
-                    <span>RAWeb</span>
-                </a>
+        <div class="fi-filament-info-widget-main">
+            <a href="{{ route('home') }}" class="flex gap-2 items-center">
+                <img src="{{ asset('assets/images/favicon.webp') }}" class="h-6 inline" alt="{{ config('app.name') }}">
+                <span class="text-sm font-semibold">RAWeb</span>
+            </a>
 
-                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                    v{{ config('app.version') }}
-                </p>
-            </div>
+            <p class="fi-filament-info-widget-version">
+                v{{ config('app.version') }}
+            </p>
+        </div>
 
-            <div class="flex flex-col items-end gap-y-1">
+        <div class="fi-filament-info-widget-links">
                 <x-filament::link
                     color="gray"
                     href="https://docs.retroachievements.org"
@@ -43,7 +42,6 @@
 
                     {{ __('filament-panels::widgets/filament-info-widget.actions.open_github.label') }}
                 </x-filament::link>
-            </div>
         </div>
     </x-filament::section>
 </x-filament-widgets::widget>

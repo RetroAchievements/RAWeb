@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\EmulatorResource\RelationManagers;
 
+use Filament\Actions\ActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -25,10 +29,10 @@ class EmulatorUserAgentsRelationManager extends RelationManager
         return (string) $ownerRecord->userAgents->count();
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Forms\Components\TextInput::make('client')
                     ->label('Client Identifier')
                     ->required()
@@ -71,14 +75,14 @@ class EmulatorUserAgentsRelationManager extends RelationManager
                     ->formatStateUsing(fn ($state) => $state ?: 'No restriction'),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                CreateAction::make()
                     ->label('Add user agent')
                     ->modalHeading('Add user agent'),
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make(),
                 ]),
             ]);
     }

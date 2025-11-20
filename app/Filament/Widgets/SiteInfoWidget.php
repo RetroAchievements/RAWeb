@@ -10,5 +10,5 @@ class SiteInfoWidget extends Widget
 
     protected static bool $isLazy = false;
 
-    protected static string $view = 'filament.widgets.site-info-widget';
+    protected string $view = 'filament.widgets.site-info-widget';
 }

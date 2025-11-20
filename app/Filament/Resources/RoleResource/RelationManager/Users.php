@@ -6,6 +6,8 @@ namespace App\Filament\Resources\RoleResource\RelationManager;
 
 use App\Filament\Resources\UserResource;
 use App\Models\User;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DetachAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -35,13 +37,13 @@ class Users extends RelationManager
             ->defaultSort('User', 'asc')
             ->headerActions([
             ])
-            ->actions([
-                Tables\Actions\DetachAction::make()
+            ->recordActions([
+                DetachAction::make()
                     ->label(__('Remove'))
                     ->authorize(fn (User $record) => auth()->user()->can('detachRole', [$record, $this->getOwnerRecord()])),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([]),
+            ->toolbarActions([
+                BulkActionGroup::make([]),
             ]);
     }
 }

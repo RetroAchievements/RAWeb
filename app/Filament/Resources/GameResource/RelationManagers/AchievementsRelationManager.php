@@ -15,13 +15,17 @@ use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrdersAction;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
+use BackedEnum;
+use Filament\Actions;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Filters;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -36,7 +40,7 @@ class AchievementsRelationManager extends RelationManager
 
     protected static ?string $title = 'Achievements';
 
-    protected static ?string $icon = 'fas-trophy';
+    protected static string|BackedEnum|null $icon = 'fas-trophy';
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
@@ -60,10 +64,10 @@ class AchievementsRelationManager extends RelationManager
         return $count > 0 ? "{$count}" : null;
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Forms\Components\TextInput::make('title')
                     ->required()
                     ->maxLength(255),
@@ -105,7 +109,8 @@ class AchievementsRelationManager extends RelationManager
                         AchievementType::WinCondition => 'success',
                         default => '',
                     })
-                    ->badge(),
+                    ->badge()
+                    ->wrap(),
 
                 Tables\Columns\TextColumn::make('points')
                     ->toggleable(),
@@ -129,7 +134,7 @@ class AchievementsRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Filters\SelectFilter::make('Flags')
+                Tables\Filters\SelectFilter::make('Flags')
                     ->options([
                         0 => 'All',
                         AchievementFlag::OfficialCore->value => AchievementFlag::OfficialCore->label(),
@@ -144,7 +149,7 @@ class AchievementsRelationManager extends RelationManager
                         }
                     }),
 
-                Filters\TernaryFilter::make('duplicate_badges')
+                Tables\Filters\TernaryFilter::make('duplicate_badges')
                     ->label('Has duplicate badge')
                     ->placeholder('Any')
                     ->trueLabel('Yes')
@@ -174,12 +179,12 @@ class AchievementsRelationManager extends RelationManager
             ->headerActions([
 
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Action::make('assign-maintainer')
+            ->recordActions([
+                ActionGroup::make([
+                    Actions\Action::make('assign-maintainer')
                         ->label('Assign Maintainer')
                         ->icon('heroicon-o-user')
-                        ->form(fn (Achievement $record) => AchievementResource::buildMaintainerForm($record))
+                        ->schema(fn (Achievement $record) => AchievementResource::buildMaintainerForm($record))
                         ->action(function (Achievement $record, array $data): void {
                             AchievementResource::handleSetMaintainer($record, $data);
 
@@ -191,12 +196,12 @@ class AchievementsRelationManager extends RelationManager
                         })
                         ->visible(fn () => $user->can('assignMaintainer', Achievement::class)),
 
-                    Tables\Actions\DeleteAction::make(),
+                    DeleteAction::make(),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('flags-core')
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    BulkAction::make('flags-core')
                         ->label('Promote selected')
                         ->icon('heroicon-o-arrow-up-right')
                         ->color('success')
@@ -218,7 +223,7 @@ class AchievementsRelationManager extends RelationManager
                                 ->send();
                         }),
 
-                    Tables\Actions\BulkAction::make('flags-unofficial')
+                    BulkAction::make('flags-unofficial')
                         ->label('Demote selected')
                         ->icon('heroicon-o-arrow-down-right')
                         ->color('danger')
@@ -243,8 +248,8 @@ class AchievementsRelationManager extends RelationManager
                     ->label('Bulk promote or demote')
                     ->visible(fn (): bool => $user->can('updateField', [Achievement::class, null, 'Flags'])),
 
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('type-progression')
+                BulkActionGroup::make([
+                    BulkAction::make('type-progression')
                         ->label('Set selected to Progression')
                         ->color('info')
                         ->requiresConfirmation()
@@ -265,7 +270,7 @@ class AchievementsRelationManager extends RelationManager
                                 ->send();
                         }),
 
-                    Tables\Actions\BulkAction::make('type-win-condition')
+                    BulkAction::make('type-win-condition')
                         ->label('Set selected to Win Condition')
                         ->color('success')
                         ->requiresConfirmation()
@@ -286,7 +291,7 @@ class AchievementsRelationManager extends RelationManager
                                 ->send();
                         }),
 
-                    Tables\Actions\BulkAction::make('type-missable')
+                    BulkAction::make('type-missable')
                         ->label('Set selected to Missable')
                         ->color('warning')
                         ->requiresConfirmation()
@@ -307,7 +312,7 @@ class AchievementsRelationManager extends RelationManager
                                 ->send();
                         }),
 
-                    Tables\Actions\BulkAction::make('type-null')
+                    BulkAction::make('type-null')
                         ->label('Remove type from selected')
                         ->requiresConfirmation()
                         ->action(function (Collection $records) use ($user) {
@@ -336,7 +341,7 @@ class AchievementsRelationManager extends RelationManager
                         return $user->can('updateField', [Achievement::class, null, 'type']);
                     }),
 
-                Tables\Actions\BulkAction::make('add-credit')
+                BulkAction::make('add-credit')
                     ->label('Bulk add credit')
                     ->modalHeading('Bulk add credit')
                     ->color('gray')
@@ -383,10 +388,10 @@ class AchievementsRelationManager extends RelationManager
                     })
                     ->visible(fn (): bool => $user->can('create', [AchievementAuthor::class])),
 
-                Tables\Actions\BulkAction::make('set-maintainer')
+                BulkAction::make('set-maintainer')
                     ->label('Assign maintainer')
                     ->color('gray')
-                    ->form(fn (Achievement $record) => AchievementResource::buildMaintainerForm($record))
+                    ->form(fn () => AchievementResource::buildMaintainerForm(null))
                     ->action(function (Collection $records, array $data) {
                         $records->each(function (Achievement $record) use ($data) {
                             AchievementResource::handleSetMaintainer($record, $data);
@@ -418,16 +423,16 @@ class AchievementsRelationManager extends RelationManager
                     ->orderBy('DateCreated', 'asc');
             })
             ->reorderRecordsTriggerAction(
-                fn (Action $action, bool $isReordering) => $action
+                fn (Actions\Action $action, bool $isReordering) => $action
                     ->button()
                     ->label($isReordering ? 'Stop reordering' : 'Start reordering'),
             )
             ->reorderable('DisplayOrder', $this->canReorderAchievements());
     }
 
-    public function reorderTable(array $order): void
+    public function reorderTable(array $order, string|int|null $draggedRecordKey = null): void
     {
-        parent::reorderTable($order);
+        parent::reorderTable($order, $draggedRecordKey);
 
         /** @var User $user */
         $user = Auth::user();

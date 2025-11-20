@@ -1,5 +1,5 @@
 <x-filament-panels::page>
-    <x-filament::grid :xl="2" class="gap-6">
+    <div class="grid xl:grid-cols-2 gap-6">
         <x-filament::section>
             <div class="flex flex-col gap-y-4">
                 <x-filament::section.heading>
@@ -29,5 +29,5 @@
                 <livewire:administrative-tools.migrate-achievements />
             </div>
         </x-filament::section>
-    </x-filament::grid>
+    </div>
 </x-filament-panels::page>

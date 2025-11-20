@@ -8,6 +8,7 @@ use App\Filament\Extensions\Resources\Resource;
 use {{ resource }}\Pages;
 use {{ resource }}\RelationManagers;
 use {{ model }};
+use Filament\Actions\BulkActionGroup;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Tables;
@@ -42,7 +43,7 @@ class {{ resourceClass }} extends Resource
 {{ tableActions }}
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+                BulkActionGroup::make([
 {{ tableBulkActions }}
                 ]),
             ]);

@@ -18,7 +18,7 @@
         "aws/aws-sdk-php": "^3.235",
         "erag/laravel-disposable-email": "^3.7",
         "fico7489/laravel-pivot": "^3.0",
-        "filament/filament": "3.3.5",
+        "filament/filament": "^4.0",
         "graham-campbell/markdown": "^16.0",
         "guzzlehttp/guzzle": "^7.5",
         "http-interop/http-factory-guzzle": "^1.2",
@@ -112,13 +112,13 @@
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi",
-            "@php artisan filament:upgrade"
+            "@php artisan filament:upgrade || true"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
             "@php artisan vendor:publish --tag=livewire:assets --ansi --force",
             "@php artisan vendor:publish --tag=horizon-assets --ansi --force",
-            "@php artisan filament:upgrade"
+            "@php artisan filament:upgrade || true"
         ],
         "post-root-package-install": [
             "@setup"

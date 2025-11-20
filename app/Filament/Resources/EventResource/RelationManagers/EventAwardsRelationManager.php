@@ -9,9 +9,13 @@ use App\Filament\Enums\ImageUploadType;
 use App\Models\Event;
 use App\Models\EventAward;
 use App\Models\User;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -29,7 +33,7 @@ class EventAwardsRelationManager extends RelationManager
         return $user->can('manage', EventAward::class);
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
         /** @var Event $event */
         $event = $this->getOwnerRecord();
@@ -47,7 +51,7 @@ class EventAwardsRelationManager extends RelationManager
             $tierIndex = 1;
         } else {
             /** @var EventAward $award */
-            $award = $form->model;
+            $award = $schema->model;
             if (is_a($award, EventAward::class)) {
                 $tierIndex = $award->tier_index;
                 $isNew = false;
@@ -67,8 +71,8 @@ class EventAwardsRelationManager extends RelationManager
             }
         }
 
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Forms\Components\TextInput::make('label')
                     ->minLength(2)
                     ->maxLength(40)
@@ -87,7 +91,7 @@ class EventAwardsRelationManager extends RelationManager
                     ->readOnly()
                     ->required(),
 
-                Forms\Components\Section::make('Media')
+                Schemas\Components\Section::make('Media')
                     ->icon('heroicon-s-photo')
                     ->schema([
                         // Store a temporary file on disk until the user submits.
@@ -129,18 +133,18 @@ class EventAwardsRelationManager extends RelationManager
 
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
-                    ->mutateFormDataUsing(function (array $data): array {
+                CreateAction::make()
+                    ->mutateDataUsing(function (array $data): array {
                         $this->processUploadedImage($data, null);
 
                         return $data;
                     })
                     ->createAnother(false), // Create Another doesn't update tier_index, which causes a unique constraint error
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make()
-                        ->mutateFormDataUsing(function (Model $record, array $data): array {
+            ->recordActions([
+                ActionGroup::make([
+                    EditAction::make()
+                        ->mutateDataUsing(function (Model $record, array $data): array {
                             /** @var EventAward $record */
                             $this->processUploadedImage($data, $record);
 

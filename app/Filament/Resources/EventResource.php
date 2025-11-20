@@ -15,16 +15,21 @@ use App\Filament\Rules\ExistsInForumTopics;
 use App\Models\Event;
 use App\Models\EventAchievement;
 use App\Models\User;
+use BackedEnum;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Infolists;
-use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use UnitEnum;
 
 class EventResource extends Resource
 {
@@ -33,8 +38,8 @@ class EventResource extends Resource
     protected static ?string $modelLabel = 'Event';
     protected static ?string $pluralModelLabel = 'Events';
     protected static ?string $breadcrumb = 'Events';
-    protected static ?string $navigationIcon = 'fas-calendar-days';
-    protected static ?string $navigationGroup = 'Platform';
+    protected static string|BackedEnum|null $navigationIcon = 'fas-calendar-days';
+    protected static string|UnitEnum|null $navigationGroup = 'Platform';
     protected static ?string $navigationLabel = 'Events';
     protected static ?int $navigationSort = 55;
     protected static ?string $recordTitleAttribute = 'legacyGame.title';
@@ -44,15 +49,15 @@ class EventResource extends Resource
         return $record->legacyGame->title ?? '';
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
+        return $schema
+            ->components([
                 Infolists\Components\ImageEntry::make('badge_url')
                     ->label('')
                     ->size(config('media.icon.lg.width')),
 
-                Infolists\Components\Section::make('Primary Details')
+                Schemas\Components\Section::make('Primary Details')
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
@@ -92,7 +97,7 @@ class EventResource extends Resource
                             ->boolean(),
                     ]),
 
-                Infolists\Components\Section::make('Metrics')
+                Schemas\Components\Section::make('Metrics')
                     ->icon('heroicon-s-arrow-trending-up')
                     ->description("
                         Statistics regarding the game's players and achievements can be found here.
@@ -110,13 +115,13 @@ class EventResource extends Resource
             ]);
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        $isNew = !is_a($form->model, Event::class);
+        $isNew = !is_a($schema->model, Event::class);
 
-        return $form
-            ->schema([
-                Forms\Components\Section::make()
+        return $schema
+            ->components([
+                Schemas\Components\Section::make()
                     ->relationship('legacyGame')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
@@ -133,7 +138,7 @@ class EventResource extends Resource
                             ->rules([new ExistsInForumTopics()]),
                     ]),
 
-                Forms\Components\Section::make()
+                Schemas\Components\Section::make()
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
                         Forms\Components\DatePicker::make('active_from')
@@ -150,7 +155,7 @@ class EventResource extends Resource
                             ->inline(false),
                     ]),
 
-                Forms\Components\Section::make('Achievements')
+                Schemas\Components\Section::make('Achievements')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
                         Forms\Components\TextInput::make('numberOfAchievements')
@@ -171,7 +176,7 @@ class EventResource extends Resource
                     ])
                     ->visible($isNew),
 
-                Forms\Components\Section::make('Media')
+                Schemas\Components\Section::make('Media')
                     ->icon('heroicon-s-photo')
                     ->schema([
                         // Store a temporary file on disk until the user submits.
@@ -194,7 +199,7 @@ class EventResource extends Resource
                 // TODO: move these to events table with better names
                 //       apparently, some events actually desire to have them:
                 //       https://discord.com/channels/310192285306454017/758865736072167474/1326712584623099927
-                Forms\Components\Section::make('Media from Game Record')
+                Schemas\Components\Section::make('Media from Game Record')
                     ->icon('heroicon-s-photo')
                     ->relationship('legacyGame')
                     ->schema([
@@ -251,6 +256,7 @@ class EventResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
+                    ->width('60px')
                     ->size(config('media.icon.sm.width')),
 
                 Tables\Columns\TextColumn::make('id')
@@ -296,15 +302,15 @@ class EventResource extends Resource
             ->filters([
 
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ActionGroup::make([
-                        Tables\Actions\ViewAction::make(),
-                        Tables\Actions\EditAction::make(),
+            ->recordActions([
+                ActionGroup::make([
+                    ActionGroup::make([
+                        ViewAction::make(),
+                        EditAction::make(),
                     ])->dropdown(false),
                 ]),
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ]);
     }
