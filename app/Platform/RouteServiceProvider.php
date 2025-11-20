@@ -71,7 +71,7 @@ class RouteServiceProvider extends ServiceProvider
                 Route::get('event/{event}', [EventController::class, 'show'])->name('event.show');
                 Route::get('event/{event}/award-earners', [EventAwardEarnersController::class, 'index'])->name('event.award-earners.index');
 
-                Route::get('game2/{game}', [GameController::class, 'show'])->name('game2.show');
+                Route::get('game/{game}', [GameController::class, 'show'])->name('game.show');
                 Route::get('game/{game}/dev-interest', [GameController::class, 'devInterest'])->name('game.dev-interest');
                 Route::get('game/{game}/hashes', [GameHashController::class, 'index'])->name('game.hashes.index');
                 Route::get('game/{game}/top-achievers', [GameTopAchieversController::class, 'index'])->name('game.top-achievers.index');

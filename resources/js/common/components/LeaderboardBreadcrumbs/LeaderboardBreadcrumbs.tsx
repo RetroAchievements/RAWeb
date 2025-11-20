@@ -70,8 +70,13 @@ export const LeaderboardBreadcrumbs: FC<LeaderboardBreadcrumbsProps> = ({
             <>
               <BaseBreadcrumbSeparator />
               <BaseBreadcrumbItem aria-label={game.title}>
-                <BaseBreadcrumbLink href={route('game.show', { game: game.id })}>
-                  <GameTitle title={game.title} />
+                <BaseBreadcrumbLink asChild>
+                  <InertiaLink
+                    href={route('game.show', { game: game.id })}
+                    prefetch="desktop-hover-only"
+                  >
+                    <GameTitle title={game.title} />
+                  </InertiaLink>
                 </BaseBreadcrumbLink>
               </BaseBreadcrumbItem>
             </>

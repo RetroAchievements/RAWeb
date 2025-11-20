@@ -136,40 +136,6 @@ describe('Component: GameMobileHeader', () => {
     expect(button).toHaveAttribute('aria-pressed', 'false');
   });
 
-  it('given the user can submit beta feedback, shows the feedback button', () => {
-    // ARRANGE
-    const game = createGame();
-
-    render(<GameMobileHeader />, {
-      pageProps: {
-        game,
-        backingGame: game,
-        canSubmitBetaFeedback: true, // !!
-        isOnWantToPlayList: false,
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByRole('button', { name: /give feedback/i })).toBeVisible();
-  });
-
-  it('given the user cannot submit beta feedback, does not show the feedback button', () => {
-    // ARRANGE
-    const game = createGame();
-
-    render(<GameMobileHeader />, {
-      pageProps: {
-        game,
-        backingGame: game,
-        canSubmitBetaFeedback: false, // !!
-        isOnWantToPlayList: false,
-      },
-    });
-
-    // ASSERT
-    expect(screen.queryByRole('button', { name: /give feedback/i })).not.toBeInTheDocument();
-  });
-
   it('given the game is for the Nintendo DS, applies special background image styling', () => {
     // ARRANGE
     const system = createSystem({ id: 18, nameShort: 'NDS' });

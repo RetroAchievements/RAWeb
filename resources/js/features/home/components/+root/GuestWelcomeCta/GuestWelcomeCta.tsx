@@ -85,11 +85,12 @@ const RandomGameLink: FC = () => {
   });
 
   return (
-    <a
+    <InertiaLink
       href={route('game.show', { game: randomGameId })}
+      prefetch="desktop-hover-only"
       className={buildTrackingClassNames('Click Guest Random Game Page Link')}
     >
       {t('Which of these achievements do you think you can get?')}
-    </a>
+    </InertiaLink>
   );
 };

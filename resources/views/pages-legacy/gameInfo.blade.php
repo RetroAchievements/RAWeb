@@ -546,20 +546,12 @@ if ($isFullyFeaturedGame) {
             <x-game.screenshots :titleImageSrc="$imageTitle" :ingameImageSrc="$imageIngame" />
         @endif
 
-        @if (
-            $isFullyFeaturedGame
-            && isset($userModel)
-            && !$userModel->enable_beta_features
-            && $userModel->can('create', \App\Models\UserBetaFeedbackSubmission::class)
-        )
-            <div class="mb-6 p-2 bg-embed light:bg-white rounded-md">
-                <p>
-                    RetroAchievements is beta testing a new game page. To try it, turn on "Enable beta features" on 
-                    your <a href="{{ route('settings.show') }}">settings page</a>, then visit any game page.
-                    After a few days, you'll see a feedback button to share your thoughts on the new design.
-                </p>
-            </div>
-        @endif
+        <div class="mb-6 p-2 bg-embed light:bg-white rounded-md">
+            <p class="text-center">
+                This page is deprecated and will soon be removed. The new game page supports
+                playtime tracking and multiset features.
+            </p>
+        </div>
 
         @if ($isFullyFeaturedGame || ($isEventGame))
             @if ($userModel && $userModel->can('update', $gameModel))

@@ -3,6 +3,8 @@ import { router } from '@inertiajs/react';
 import { tooltipStore } from '../state/tooltipStore';
 import { hideTooltip } from './hideTooltip';
 
+type RouterEvent = CustomEvent<Record<string, unknown>>;
+
 /**
  * Initializes tooltip cleanup on Inertia navigation.
  * This should be called once when the app initializes.
@@ -14,7 +16,13 @@ export function initializeTooltipCleanup() {
     return;
   }
 
-  const handleNavigationStart = () => {
+  const handleNavigationStart = (event?: RouterEvent) => {
+    // Prefetch visits shouldn't clear tooltips since no navigation happens.
+    const visit = (event?.detail as { visit?: { prefetch?: boolean } })?.visit;
+    if (visit?.prefetch) {
+      return;
+    }
+
     // First, properly hide any active tooltip (this clears dynamic timeouts).
     if (tooltipStore.tooltipEl || tooltipStore.dynamicTimeoutId) {
       hideTooltip();

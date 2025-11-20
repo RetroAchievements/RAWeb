@@ -13,6 +13,7 @@ import {
 } from '@/common/components/+vendor/BaseDrawer';
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { GameTitle } from '@/common/components/GameTitle';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { PlayerGameProgressBar } from '@/common/components/PlayerGameProgressBar';
 import { SystemChip } from '@/common/components/SystemChip';
 import { WeightedPointsContainer } from '@/common/components/WeightedPointsContainer';
@@ -38,7 +39,6 @@ export const GameListItemDrawerContent: FC<GameListItemDrawerContentProps> = ({
   onToggleBacklog,
 }) => {
   const { auth } = usePageProps();
-
   const { t } = useTranslation();
 
   const { formatNumber } = useFormatNumber();
@@ -72,12 +72,12 @@ export const GameListItemDrawerContent: FC<GameListItemDrawerContentProps> = ({
                * We've made this a URL in the event that the user starts panic tapping.
                * But we deliberately don't "show" it as a URL with the text-link color.
                */}
-              <a
+              <InertiaLink
                 href={route('game.show', { game: game.id })}
                 className="z-20 text-balance px-1.5 text-center text-lg tracking-tight text-text"
               >
                 <GameTitle title={game.title} />
-              </a>
+              </InertiaLink>
 
               {game.system ? (
                 <SystemChip {...game.system} className="z-20 bg-black light:bg-neutral-200/70">
@@ -171,12 +171,12 @@ export const GameListItemDrawerContent: FC<GameListItemDrawerContentProps> = ({
           />
 
           {/* TODO after migrating the game page to Inertia, prefetch this link */}
-          <a
+          <InertiaLink
             href={route('game.show', { game: gameListEntry.game.id })}
             className={baseButtonVariants({ variant: 'secondary' })}
           >
             {t('Open Game')}
-          </a>
+          </InertiaLink>
         </div>
       </BaseDrawerFooter>
     </BaseDrawerContent>

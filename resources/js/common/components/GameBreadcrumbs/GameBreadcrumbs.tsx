@@ -65,8 +65,13 @@ export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({
 
               <BaseBreadcrumbItem aria-label={game.title}>
                 {t_currentPageLabel ? (
-                  <BaseBreadcrumbLink href={route('game.show', { game: game.id })}>
-                    <GameTitle title={game.title} />
+                  <BaseBreadcrumbLink asChild>
+                    <InertiaLink
+                      href={route('game.show', { game: game.id })}
+                      prefetch="desktop-hover-only"
+                    >
+                      <GameTitle title={game.title} />
+                    </InertiaLink>
                   </BaseBreadcrumbLink>
                 ) : null}
 
@@ -77,8 +82,13 @@ export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({
                 ) : null}
 
                 {!t_currentPageLabel && gameAchievementSet?.title ? (
-                  <BaseBreadcrumbLink href={route('game.show', { game: game.id })}>
-                    <GameTitle title={game.title} />
+                  <BaseBreadcrumbLink asChild>
+                    <InertiaLink
+                      href={route('game.show', { game: game.id })}
+                      prefetch="desktop-hover-only"
+                    >
+                      <GameTitle title={game.title} />
+                    </InertiaLink>
                   </BaseBreadcrumbLink>
                 ) : null}
               </BaseBreadcrumbItem>
@@ -91,13 +101,13 @@ export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({
 
               <BaseBreadcrumbItem aria-label={gameAchievementSet.title}>
                 {t_currentPageLabel ? (
-                  <BaseBreadcrumbLink
-                    href={route('game2.show', {
-                      game: game.id,
-                      set: gameAchievementSet.achievementSet.id,
-                    })}
-                  >
-                    {gameAchievementSet.title}
+                  <BaseBreadcrumbLink asChild>
+                    <InertiaLink
+                      href={route('game.show', { game: game.id })}
+                      prefetch="desktop-hover-only"
+                    >
+                      {gameAchievementSet.title}
+                    </InertiaLink>
                   </BaseBreadcrumbLink>
                 ) : (
                   <BaseBreadcrumbPage>{gameAchievementSet.title}</BaseBreadcrumbPage>

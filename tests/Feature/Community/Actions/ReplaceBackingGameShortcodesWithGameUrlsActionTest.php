@@ -43,7 +43,7 @@ class ReplaceBackingGameShortcodesWithGameUrlsActionTest extends TestCase
         $result = (new ReplaceBackingGameShortcodesWithGameUrlsAction())->execute($messageBody);
 
         // Assert
-        $expectedUrl = route('game2.show', ['game' => 668, 'set' => 9534]); // full URL
+        $expectedUrl = route('game.show', ['game' => 668, 'set' => 9534]); // full URL
         $this->assertEquals("Check out {$expectedUrl}!", $result);
     }
 
@@ -141,7 +141,7 @@ class ReplaceBackingGameShortcodesWithGameUrlsActionTest extends TestCase
         $result = (new ReplaceBackingGameShortcodesWithGameUrlsAction())->execute($messageBody);
 
         // Assert
-        $expectedUrl = route('game2.show', ['game' => 668, 'set' => 9534]);
+        $expectedUrl = route('game.show', ['game' => 668, 'set' => 9534]);
         $this->assertEquals("Play [game=668] or {$expectedUrl} or [game=500]!", $result); // !! only backing game converted
     }
 
@@ -187,8 +187,8 @@ class ReplaceBackingGameShortcodesWithGameUrlsActionTest extends TestCase
         $result = (new ReplaceBackingGameShortcodesWithGameUrlsAction())->execute($messageBody);
 
         // Assert
-        $expectedUrl1 = route('game2.show', ['game' => 668, 'set' => 9534]);
-        $expectedUrl2 = route('game2.show', ['game' => 1, 'set' => 8659]);
+        $expectedUrl1 = route('game.show', ['game' => 668, 'set' => 9534]);
+        $expectedUrl2 = route('game.show', ['game' => 1, 'set' => 8659]);
         $this->assertEquals("Try {$expectedUrl1} and {$expectedUrl2}!", $result); // !! both converted
     }
 

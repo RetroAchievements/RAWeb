@@ -141,7 +141,7 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
-    "game2.show": [
+    "game.show": [
         {
             "name": "game",
             "required": true,
@@ -760,16 +760,6 @@ declare module 'ziggy-js' {
         }
     ],
     "game1.show": [
-        {
-            "name": "game",
-            "required": true
-        },
-        {
-            "name": "slug",
-            "required": false
-        }
-    ],
-    "game.show": [
         {
             "name": "game",
             "required": true

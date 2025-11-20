@@ -29,7 +29,11 @@ export const SimilarGamesListItem: FC<SimilarGamesListItemProps> = ({ game }) =>
     <div className="flex w-full items-center justify-between gap-2">
       <div className="relative flex items-center gap-x-2">
         {/* Keep the image and game title in a single tooltipped container. Do not tooltip the system name. */}
-        <InertiaLink href={route('game2.show', { game: game.id })} {...cardTooltipProps}>
+        <InertiaLink
+          href={route('game.show', { game: game.id })}
+          prefetch="desktop-hover-only"
+          {...cardTooltipProps}
+        >
           <img
             src={game.badgeUrl}
             alt={game.title}

@@ -13,6 +13,7 @@ import {
   BaseBreadcrumbSeparator,
 } from '../+vendor/BaseBreadcrumb';
 import { GameTitle } from '../GameTitle';
+import { InertiaLink } from '../InertiaLink';
 
 interface UserBreadcrumbsProps {
   t_currentPageLabel: TranslatedString;
@@ -49,8 +50,13 @@ export const UserBreadcrumbs: FC<UserBreadcrumbsProps> = ({ t_currentPageLabel, 
               <BaseBreadcrumbSeparator />
 
               <BaseBreadcrumbItem aria-label={game.title}>
-                <BaseBreadcrumbLink href={route('game.show', { game: game.id })}>
-                  <GameTitle title={game.title} />
+                <BaseBreadcrumbLink asChild>
+                  <InertiaLink
+                    href={route('game.show', { game: game.id })}
+                    prefetch="desktop-hover-only"
+                  >
+                    <GameTitle title={game.title} />
+                  </InertiaLink>
                 </BaseBreadcrumbLink>
               </BaseBreadcrumbItem>
             </>

@@ -202,7 +202,7 @@ describe('Component: GameAvatar', () => {
 
     // ASSERT
     const wrapperEl = screen.getByRole('link');
-    expect(wrapperEl).toHaveAttribute('href', 'https://google.com');
+    expect(wrapperEl).toHaveAttribute('href', 'https://google.com/');
   });
 
   it('given showSystemChip is true, renders the system chip', () => {

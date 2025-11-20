@@ -8,8 +8,7 @@ const shortcodeTypes = [
 ] as const;
 
 const createPatterns = (type: string) => {
-  // For games, match both /game/ and /game2/ URLs.
-  const pathPattern = type === 'game' ? 'game2?' : type;
+  const pathPattern = type;
 
   const patterns = [
     // HTML anchor tags.
@@ -42,13 +41,13 @@ const createPatterns = (type: string) => {
     patterns.unshift(
       // Production URLs with a ?set= parameter.
       new RegExp(
-        `https?://(?:[\\w-]+\\.)?retroachievements\\.org/game2?/(\\w{1,20})(?:-[^\\s"'<>]*)?(?:/)?\\?set=(\\d+)`,
+        `https?://(?:[\\w-]+\\.)?retroachievements\\.org/game/(\\w{1,20})(?:-[^\\s"'<>]*)?(?:/)?\\?set=(\\d+)`,
         'gi',
       ),
 
       // Local development URLs with a ?set= parameter.
       new RegExp(
-        `https?://localhost(?::\\d{1,5})?/game2?/(\\w{1,20})(?:-[^\\s"'<>]*)?(?:/)?\\?set=(\\d+)`,
+        `https?://localhost(?::\\d{1,5})?/game/(\\w{1,20})(?:-[^\\s"'<>]*)?(?:/)?\\?set=(\\d+)`,
         'gi',
       ),
     );

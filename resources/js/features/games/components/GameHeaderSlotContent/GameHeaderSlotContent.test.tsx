@@ -227,42 +227,4 @@ describe('Component: GameHeaderSlotContent', () => {
       'false',
     );
   });
-
-  it('given the user is allowed to submit beta feedback, displays the corresponding button', () => {
-    // ARRANGE
-    const game = createGame();
-    const pageProps = {
-      game,
-      auth: null,
-      backingGame: game,
-      isOnWantToPlayList: false,
-      isOnWantToDevList: false,
-      canSubmitBetaFeedback: true, // !!
-      ziggy: createZiggyProps(),
-    };
-
-    render(<GameHeaderSlotContent />, { pageProps });
-
-    // ASSERT
-    expect(screen.getByRole('button', { name: /give beta feedback/i })).toBeVisible();
-  });
-
-  it('given the user is not allowed to submit beta feedback, does not display the corresponding button', () => {
-    // ARRANGE
-    const game = createGame();
-    const pageProps = {
-      game,
-      auth: null,
-      backingGame: game,
-      isOnWantToPlayList: false,
-      isOnWantToDevList: false,
-      canSubmitBetaFeedback: false, // !!
-      ziggy: createZiggyProps(),
-    };
-
-    render(<GameHeaderSlotContent />, { pageProps });
-
-    // ASSERT
-    expect(screen.queryByRole('button', { name: /give beta feedback/i })).not.toBeInTheDocument();
-  });
 });

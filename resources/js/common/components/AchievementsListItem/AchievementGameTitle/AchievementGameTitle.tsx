@@ -5,6 +5,8 @@ import { GameTitle } from '@/common/components/GameTitle';
 import { useCardTooltip } from '@/common/hooks/useCardTooltip';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { InertiaLink } from '../../InertiaLink';
+
 interface AchievementGameTitleProps {
   game: App.Platform.Data.Game;
 }
@@ -19,9 +21,13 @@ export const AchievementGameTitle: FC<AchievementGameTitleProps> = ({ game }) =>
   });
 
   return (
-    <a href={route('game.show', { game })} {...cardTooltipProps}>
+    <InertiaLink
+      href={route('game.show', { game: game.id })}
+      prefetch="desktop-hover-only"
+      {...cardTooltipProps}
+    >
       <GameTitle title={game.title} isWordWrappingEnabled={true} />{' '}
       {`(${game.system?.nameShort ?? ''})`}
-    </a>
+    </InertiaLink>
   );
 };

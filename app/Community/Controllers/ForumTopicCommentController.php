@@ -56,7 +56,7 @@ class ForumTopicCommentController extends CommentController
         // "[user=1]" -> "[user=Scott]"
         $comment->body = (new ReplaceUserShortcodesWithUsernamesAction())->execute($comment->body);
 
-        // "[game=backingGameId]" -> "https://retroachievements.org/game2/1?set=9534"
+        // "[game=backingGameId]" -> "https://retroachievements.org/game/1?set=9534"
         $comment->body = (new ReplaceBackingGameShortcodesWithGameUrlsAction())->execute($comment->body);
 
         $props = new EditForumTopicCommentPagePropsData(

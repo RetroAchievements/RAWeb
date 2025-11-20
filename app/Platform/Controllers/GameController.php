@@ -127,7 +127,7 @@ class GameController extends Controller
             unset($queryParams['f']);
             $queryParams['unpublished'] = 'true';
 
-            return redirect()->route('game2.show', array_merge(['game' => $game], $queryParams));
+            return redirect()->route('game.show', array_merge(['game' => $game], $queryParams));
         }
 
         // Get the target achievement set ID from query params.
@@ -320,6 +320,6 @@ class GameController extends Controller
         $queryParams = $request->query();
         $queryParams['set'] = $coreSet->achievement_set_id;
 
-        return redirect()->route('game2.show', array_merge(['game' => $backingGameSet->game_id], $queryParams));
+        return redirect()->route('game.show', array_merge(['game' => $backingGameSet->game_id], $queryParams));
     }
 }

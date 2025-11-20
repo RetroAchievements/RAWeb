@@ -9,6 +9,7 @@ import type { BaseAvatarProps } from '@/common/models';
 import { cn } from '@/common/utils/cn';
 
 import { GameTitle } from '../GameTitle';
+import { InertiaLink } from '../InertiaLink';
 import { SystemChip } from '../SystemChip';
 
 type GameAvatarProps = BaseAvatarProps &
@@ -58,7 +59,7 @@ export const GameAvatar: FC<GameAvatarProps> = ({
     dynamicContext: showHoverCardProgressForUsername ?? auth?.user.displayName,
   });
 
-  const Wrapper = shouldLink ? 'a' : 'div';
+  const Wrapper = shouldLink ? InertiaLink : 'div';
 
   const gameTitle = showSystemInTitle ? `${title} (${system?.name})` : title;
 
@@ -67,6 +68,7 @@ export const GameAvatar: FC<GameAvatarProps> = ({
   return (
     <Wrapper
       href={shouldLink ? usedHref : undefined}
+      prefetch={shouldLink ? 'desktop-hover-only' : undefined}
       className={cn(
         variant === 'base' ? 'flex max-w-fit items-center gap-2' : null,
         variant === 'inline' ? 'ml-0.5 mt-0.5 inline-block min-h-7 gap-2' : null,

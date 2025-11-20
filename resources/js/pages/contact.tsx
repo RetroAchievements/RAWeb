@@ -3,6 +3,7 @@
 import { Trans, useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { SEO } from '@/common/components/SEO';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
@@ -29,7 +30,7 @@ const Contact: AppPage = () => {
                   <Trans
                     i18nKey="<1>Send a message to RAdmin</1> for:"
                     components={{
-                      1: <a href={route('message-thread.create', { to: 'RAdmin' })} />,
+                      1: <InertiaLink href={route('message-thread.create', { to: 'RAdmin' })} />,
                     }}
                   />
                 </p>
@@ -48,7 +49,11 @@ const Contact: AppPage = () => {
                   <Trans
                     i18nKey="<1>Send a message to DevCompliance</1> for:"
                     components={{
-                      1: <a href={route('message-thread.create', { to: 'DevCompliance' })} />,
+                      1: (
+                        <InertiaLink
+                          href={route('message-thread.create', { to: 'DevCompliance' })}
+                        />
+                      ),
                     }}
                   />
                 </p>
@@ -67,7 +72,7 @@ const Contact: AppPage = () => {
                   <Trans
                     i18nKey="<1>Send a message to QATeam</1> for:"
                     components={{
-                      1: <a href={route('message-thread.create', { to: 'QATeam' })} />,
+                      1: <InertiaLink href={route('message-thread.create', { to: 'QATeam' })} />,
                     }}
                   />
                 </p>
@@ -75,8 +80,6 @@ const Contact: AppPage = () => {
                   <li>{t('Reporting a broken set, leaderboard, or rich presence.')}</li>
                   <li>{t('Requesting a set be playtested.')}</li>
                   <li>{t('Hash compatibility questions.')}</li>
-                  {/* <li>{t('Hub organizational questions.')}</li>
-                  <li>{t('Getting involved in a QA sub-team.')}</li> */}
                 </ul>
               </div>
             </div>
@@ -88,7 +91,7 @@ const Contact: AppPage = () => {
                   <Trans
                     i18nKey="<1>Send a message to RAArtTeam</1> for:"
                     components={{
-                      1: <a href={route('message-thread.create', { to: 'RAArtTeam' })} />,
+                      1: <InertiaLink href={route('message-thread.create', { to: 'RAArtTeam' })} />,
                     }}
                   />
                 </p>
@@ -108,8 +111,8 @@ const Contact: AppPage = () => {
                   <Trans
                     i18nKey="<1>Send a message to DevQuest</1> for submissions, questions, ideas, or reporting issues related to <2>DevQuest</2>."
                     components={{
-                      1: <a href={route('message-thread.create', { to: 'DevQuest' })} />,
-                      2: <a href={route('game.show', { game: 5686 })} />,
+                      1: <InertiaLink href={route('message-thread.create', { to: 'DevQuest' })} />,
+                      2: <InertiaLink href={route('game.show', { game: 5686 })} />,
                     }}
                   />
                 </p>
@@ -125,7 +128,7 @@ const Contact: AppPage = () => {
                   <Trans
                     i18nKey="<1>Send a message to RACheats</1> if you believe someone is in violation of our <2>Global Leaderboard and Achievement Hunting Rules</2>."
                     components={{
-                      1: <a href={route('message-thread.create', { to: 'RACheats' })} />,
+                      1: <InertiaLink href={route('message-thread.create', { to: 'RACheats' })} />,
                       2: (
                         <a href="https://docs.retroachievements.org/guidelines/users/global-leaderboard-and-achievement-hunting-rules.html#not-allowed" />
                       ),
@@ -147,7 +150,9 @@ const Contact: AppPage = () => {
                   <Trans
                     i18nKey="<1>Send a message to WritingTeam</1> for:"
                     components={{
-                      1: <a href={route('message-thread.create', { to: 'WritingTeam' })} />,
+                      1: (
+                        <InertiaLink href={route('message-thread.create', { to: 'WritingTeam' })} />
+                      ),
                     }}
                   />
                 </p>
@@ -169,7 +174,7 @@ const Contact: AppPage = () => {
                   <Trans
                     i18nKey="<1>Send a message to RANews</1> for:"
                     components={{
-                      1: <a href={route('message-thread.create', { to: 'RANews' })} />,
+                      1: <InertiaLink href={route('message-thread.create', { to: 'RANews' })} />,
                     }}
                   />
                 </p>
@@ -189,8 +194,8 @@ const Contact: AppPage = () => {
                   <Trans
                     i18nKey="<1>Send a message to RAEvents</1> for submissions, questions, ideas, or reporting issues related to <2>community events</2>."
                     components={{
-                      1: <a href={route('message-thread.create', { to: 'RAEvents' })} />,
-                      2: <a href={route('game.show', { game: 3105 })} />,
+                      1: <InertiaLink href={route('message-thread.create', { to: 'RAEvents' })} />,
+                      2: <InertiaLink href={route('game.show', { game: 3105 })} />,
                     }}
                   />
                 </p>
@@ -198,8 +203,10 @@ const Contact: AppPage = () => {
                   <Trans
                     i18nKey="<1>Send a message to TheUnwanted</1> for submissions, questions, ideas, or reporting issues specifically related to <2>The Unwanted</2>."
                     components={{
-                      1: <a href={route('message-thread.create', { to: 'TheUnwanted' })} />,
-                      2: <a href={route('game.show', { game: 4271 })} />,
+                      1: (
+                        <InertiaLink href={route('message-thread.create', { to: 'TheUnwanted' })} />
+                      ),
+                      2: <InertiaLink href={route('game.show', { game: 4271 })} />,
                     }}
                   />
                 </p>

@@ -47,7 +47,7 @@ export const SidebarDevelopmentSection: FC = () => {
       delete queryParams['unpublished'];
     }
 
-    return route('game2.show', { game: game.id, _query: queryParams });
+    return route('game.show', { game: game.id, _query: queryParams });
   };
 
   const handleTogglePublishedAchievementsClick = () => {

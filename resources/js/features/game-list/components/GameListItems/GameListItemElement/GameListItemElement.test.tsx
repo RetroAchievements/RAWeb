@@ -12,6 +12,10 @@ console.warn = vi.fn();
 
 window.HTMLElement.prototype.setPointerCapture = vi.fn();
 
+vi.mock('@/common/components/InertiaLink', () => ({
+  InertiaLink: ({ children, ...props }: any) => <a {...props}>{children}</a>,
+}));
+
 describe('Component: GameListItemElement', () => {
   let originalUrl: string;
 
