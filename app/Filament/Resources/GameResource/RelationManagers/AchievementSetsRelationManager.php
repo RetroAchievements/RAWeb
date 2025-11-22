@@ -73,6 +73,7 @@ class AchievementSetsRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->placeholder('Core Set')
+                    ->disabledClick()
                     ->url(function (AchievementSet $record) {
                         if (!request()->user()->can('manage', GameAchievementSet::class)) {
                             return null;
