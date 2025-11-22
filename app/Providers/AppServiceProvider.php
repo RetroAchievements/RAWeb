@@ -18,6 +18,9 @@ use App\Console\Commands\PruneApiLogs;
 use App\Console\Commands\SquashMigrations;
 use App\Console\Commands\SystemAlert;
 use App\Http\InertiaResponseFactory;
+use App\Models\Comment;
+use App\Models\ForumTopicComment;
+use App\Models\Message;
 use App\Models\News;
 use App\Models\Role;
 use App\Models\User;
@@ -124,6 +127,11 @@ class AppServiceProvider extends ServiceProvider
          * https://josephsilber.com/posts/2018/07/02/eloquent-polymorphic-relations-morph-map
          */
         Relation::morphMap([
+            // ModerationReportableType values
+            'Comment' => Comment::class,
+            'DirectMessage' => Message::class,
+            'ForumTopicComment' => ForumTopicComment::class,
+
             'news' => News::class,
             'site_release_note' => News::class,
             'role' => Role::class,

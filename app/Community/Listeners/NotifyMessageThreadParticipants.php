@@ -78,8 +78,7 @@ class NotifyMessageThreadParticipants
                     $userTo,
                     $thread,
                     $message,
-                    $event->reportableType,
-                    $event->reportableId
+                    $event->moderationReportId
                 );
             } catch (Exception $e) {
                 Log::warning('Discord notification failed', [
