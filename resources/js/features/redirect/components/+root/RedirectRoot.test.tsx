@@ -1,3 +1,5 @@
+import userEvent from '@testing-library/user-event';
+
 import { render, screen } from '@/test';
 
 import { RedirectRoot } from './RedirectRoot';
@@ -15,7 +17,7 @@ describe('Component: RedirectRoot', () => {
     expect(container).toBeTruthy();
   });
 
-  it('redirects properly when clicked', () => {
+  it('redirects properly when clicked', async () => {
     // ARRANGE
     const testUrl = 'https://example.com';
     const mockReplace = vi.fn();
@@ -32,7 +34,7 @@ describe('Component: RedirectRoot', () => {
 
     // ACT
     const button = screen.getByRole('link', { name: 'Continue to external site' });
-    button.click();
+    await userEvent.click(button);
 
     // ASSERT
     expect(mockReplace).toHaveBeenCalledWith(testUrl);
