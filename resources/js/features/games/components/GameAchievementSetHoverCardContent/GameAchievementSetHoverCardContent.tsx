@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { BaseHoverCardContent } from '@/common/components/+vendor/BaseHoverCard';
+import { SubsetTag } from '@/common/components/SubsetTag';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { buildGameRarityLabel } from '@/common/utils/buildGameRarityLabel';
 import { cn } from '@/common/utils/cn';
@@ -41,24 +42,17 @@ export const GameAchievementSetHoverCardContent: FC<GameAchievementSetHoverCardC
           <p
             className={cn(
               'line-clamp-2 font-bold',
-              title && title.length > 18 ? 'mb-1 text-sm leading-4' : '-mt-0.5 text-lg leading-6',
+              title && title.length > 24 ? 'mb-1 text-sm leading-4' : '-mt-0.5 text-lg leading-6',
             )}
           >
-            {title ? (
-              <>
-                {type !== 'core' ? (
-                  <>
-                    <span className="tag">
-                      <span>{t('Subset')}</span>
-                    </span>{' '}
-                  </>
-                ) : null}
-                {title}
-              </>
-            ) : (
-              BASE_SET_LABEL
-            )}
+            {title ? <>{title}</> : BASE_SET_LABEL}
           </p>
+
+          {type !== 'core' ? (
+            <span className="py-1">
+              <SubsetTag type={type} className="text-xs" />
+            </span>
+          ) : null}
 
           <p className="flex gap-1">
             <span className="font-bold">{t('Achievements:', { nsSeparator: null })}</span>
@@ -85,12 +79,14 @@ export const GameAchievementSetHoverCardContent: FC<GameAchievementSetHoverCardC
             )}
           </p>
 
-          <p className="flex gap-1">
-            <span className="font-bold">{t('First Published:', { nsSeparator: null })}</span>
-            {achievementsFirstPublishedAt
-              ? formatDate(achievementsFirstPublishedAt, 'll')
-              : t('Unknown')}
-          </p>
+          {type === 'core' ? (
+            <p className="flex gap-1">
+              <span className="font-bold">{t('First Published:', { nsSeparator: null })}</span>
+              {achievementsFirstPublishedAt
+                ? formatDate(achievementsFirstPublishedAt, 'll')
+                : t('Unknown')}
+            </p>
+          ) : null}
         </div>
       </div>
     </BaseHoverCardContent>
