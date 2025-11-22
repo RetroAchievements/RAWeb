@@ -4,7 +4,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 import { GameAchievementSet } from './GameAchievementSet/GameAchievementSet';
-import { SetSelectionTabs } from './SetSelectionTabs';
+import { SetSelectionControl } from './SetSelectionControl';
 
 interface GameAchievementSetsContainerProps {
   game: App.Platform.Data.Game;
@@ -31,7 +31,7 @@ export const GameAchievementSetsContainer: FC<GameAchievementSetsContainerProps>
             'light:bg-white',
           )}
         >
-          <SetSelectionTabs activeTab={targetAchievementSetId} />
+          <SetSelectionControl activeTab={targetAchievementSetId} />
         </div>
       ) : null}
 

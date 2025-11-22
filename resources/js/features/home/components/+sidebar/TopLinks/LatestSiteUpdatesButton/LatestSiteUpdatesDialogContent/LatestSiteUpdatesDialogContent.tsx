@@ -1,0 +1,92 @@
+import type { FC } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { LuChevronRight } from 'react-icons/lu';
+
+import {
+  BaseDialogContent,
+  BaseDialogDescription,
+  BaseDialogHeader,
+  BaseDialogTitle,
+} from '@/common/components/+vendor/BaseDialog';
+import { DiffTimestamp } from '@/common/components/DiffTimestamp';
+import { MarkdownRenderer } from '@/common/components/MarkdownRenderer';
+import { UserAvatar } from '@/common/components/UserAvatar';
+import { usePageProps } from '@/common/hooks/usePageProps';
+
+export const LatestSiteUpdatesDialogContent: FC = () => {
+  const { deferredSiteReleaseNotes } = usePageProps<App.Http.Data.HomePageProps>();
+  const { t } = useTranslation();
+
+  return (
+    <BaseDialogContent className="flex h-full max-w-[52rem] flex-col overflow-auto px-0 pb-0 sm:max-h-[60vh]">
+      <BaseDialogHeader className="px-4">
+        <BaseDialogTitle>{t('Latest Site Updates')}</BaseDialogTitle>
+
+        <BaseDialogDescription className="sr-only">
+          {t('Latest Site Updates')}
+        </BaseDialogDescription>
+      </BaseDialogHeader>
+
+      {!deferredSiteReleaseNotes || !Array.isArray(deferredSiteReleaseNotes) ? (
+        <div className="flex items-center justify-center py-8 text-neutral-400">
+          {t('Loading...')}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-1 overflow-y-auto px-4">
+          {deferredSiteReleaseNotes.map((note) => (
+            <div
+              key={note.id}
+              className="mb-5 rounded-xl border border-neutral-800 bg-neutral-950 p-4 light:border-neutral-200 light:bg-white"
+            >
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1">
+                  <p className="text-lg font-semibold">{note.title}</p>
+
+                  <span className="flex items-center gap-2 text-2xs text-neutral-400">
+                    <span className="flex gap-1 italic">
+                      <Trans
+                        i18nKey="Posted by <1>{{username}}</1>"
+                        components={{
+                          1: (
+                            <UserAvatar
+                              {...note.user}
+                              size={16}
+                              imgClassName="rounded-full"
+                              labelClassName="-ml-1 not-italic"
+                            />
+                          ),
+                        }}
+                      />
+                    </span>
+
+                    <span>{'·'}</span>
+
+                    <span>
+                      <DiffTimestamp at={note.createdAt} enableTooltip={false} />
+                    </span>
+                  </span>
+                </div>
+
+                <MarkdownRenderer>{note.body}</MarkdownRenderer>
+
+                {note.link ? (
+                  <div className="flex w-full justify-end">
+                    <a
+                      href={note.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-0.5 text-sm"
+                    >
+                      {t('See full release notes')}
+                      <LuChevronRight className="-mb-0.5" />
+                    </a>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </BaseDialogContent>
+  );
+};

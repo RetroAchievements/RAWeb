@@ -201,6 +201,13 @@ trait ActsAsCommunityMember
         return $this->isBanned() || $this->isDeleted();
     }
 
+    public function isInactive(int $thresholdDays = 90): bool
+    {
+        $inactiveCutoff = now()->subDays($thresholdDays);
+
+        return $this->LastLogin < $inactiveCutoff;
+    }
+
     public function isMuted(): bool
     {
         return $this->muted_until?->isFuture() ?? false;

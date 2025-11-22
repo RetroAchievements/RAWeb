@@ -49,6 +49,7 @@ beforeEach(() => {
       if (args.length === 0) {
         return {
           current: vi.fn(() => 'some.route'),
+          queryParams: {},
         };
       }
 
