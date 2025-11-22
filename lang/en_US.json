@@ -1273,5 +1273,14 @@
     "Muted": "Muted",
     "Banned": "Banned",
     "Latest Site Updates": "Latest Site Updates",
-    "See full release notes": "See full release notes"
+    "See full release notes": "See full release notes",
+    "Subset Configuration": "Subset Configuration",
+    "You have <1>globally opted out of all subsets</1>. Use the toggles below to opt in to specific sets for this game.": "You have <1>globally opted out of all subsets</1>. Use the toggles below to opt in to specific sets for this game.",
+    "You have <1>globally opted in to all subsets</1>. Use the toggles below to opt out of specific sets for this game.": "You have <1>globally opted in to all subsets</1>. Use the toggles below to opt out of specific sets for this game.",
+    "Save": "Save",
+    "Saving...": "Saving...",
+    "Saved!": "Saved!",
+    "<1>If subsets aren't working or if every subset still requires a patch</1>, make sure you're using the latest version of your emulator. If you're using RetroArch, make absolutely sure the emulator version is 1.22.1 or higher. Updating the RetroArch cores alone is not sufficient.": "<1>If subsets aren't working or if every subset still requires a patch</1>, make sure you're using the latest version of your emulator. If you're using RetroArch, make absolutely sure the emulator version is 1.22.1 or higher. Updating the RetroArch cores alone is not sufficient.",
+    "Opted In": "Opted In",
+    "Opted Out": "Opted Out"
 }

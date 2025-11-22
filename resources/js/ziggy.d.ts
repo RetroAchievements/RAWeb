@@ -242,13 +242,7 @@ declare module 'ziggy-js' {
         }
     ],
     "api.user.progress.destroy": [],
-    "api.user.game-achievement-set.preference.update": [
-        {
-            "name": "gameAchievementSet",
-            "required": true,
-            "binding": "id"
-        }
-    ],
+    "api.user.game-achievement-set.preferences.update": [],
     "api.ticket.store": [],
     "player.games.resettable": [],
     "player.game.achievements.resettable": [

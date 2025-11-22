@@ -61,4 +61,5 @@ export * from './createTicket';
 export * from './createTrendingGame';
 export * from './createUser';
 export * from './createUserCredits';
+export * from './createUserGameAchievementSetPreference';
 export * from './createZiggyProps';
