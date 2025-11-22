@@ -26,6 +26,7 @@ use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserBetaFeedbackSubmission;
+use App\Models\UserGameAchievementSetPreference;
 use App\Models\UserGameListEntry;
 use App\Platform\Data\AchievementSetClaimData;
 use App\Platform\Data\AggregateAchievementSetCreditsData;
@@ -40,6 +41,7 @@ use App\Platform\Data\PlayerAchievementSetData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
 use App\Platform\Data\UserCreditsData;
+use App\Platform\Data\UserGameAchievementSetPreferenceData;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetAuthorTask;
@@ -416,6 +418,8 @@ class BuildGameShowPagePropsAction
                 })
                 ->values()
                 ->all(),
+
+            userGameAchievementSetPreferences: Lazy::inertiaDeferred(fn () => $this->buildUserAchievementSetPreferences($game, $user)),
         );
 
         // Only include featured leaderboards for non-mobile devices.
@@ -622,6 +626,26 @@ class BuildGameShowPagePropsAction
             achievementsWriting: $sortByCountDesc($achievementsWritingCredits),
             hashCompatibilityTesting: $sortByCountDesc($hashCompatibilityTestingCredits),
         );
+    }
+
+    /**
+     * @return Collection<int, UserGameAchievementSetPreferenceData>
+     */
+    private function buildUserAchievementSetPreferences(Game $game, ?User $user): Collection
+    {
+        $userGameAchievementSetPreferences = collect();
+        if ($user) {
+            $gameAchievementSetIds = $game->selectableGameAchievementSets()->pluck('id');
+
+            $userGameAchievementSetPreferences = UserGameAchievementSetPreference::where('user_id', $user->id)
+                ->whereIn('game_achievement_set_id', $gameAchievementSetIds)
+                ->get()
+                ->mapWithKeys(fn ($preference) => [
+                    $preference->game_achievement_set_id => UserGameAchievementSetPreferenceData::fromUserGameAchievementSetPreference($preference),
+                ]);
+        }
+
+        return $userGameAchievementSetPreferences;
     }
 
     /**

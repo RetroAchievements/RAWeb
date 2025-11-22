@@ -1,4 +1,4 @@
-import { createAuthenticatedUser } from '@/common/models';
+import { createAuthenticatedUser, createAuthenticatedUserPreferences } from '@/common/models';
 import { render, screen } from '@/test';
 import {
   createForumTopicComment,
@@ -139,7 +139,10 @@ describe('Component: RecentPostsTable', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            preferences: { prefersAbsoluteDates: true, shouldAlwaysBypassContentWarnings: false },
+            preferences: createAuthenticatedUserPreferences({
+              prefersAbsoluteDates: true,
+              shouldAlwaysBypassContentWarnings: false,
+            }),
           }),
         },
       },

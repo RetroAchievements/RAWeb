@@ -129,7 +129,6 @@ declare namespace App.Community.Data {
     canReply: boolean;
     senderUserAvatarUrl: string | null;
     senderUserDisplayName: string;
-    can: App.Data.UserPermissions;
   };
   export type PatreonSupportersPageProps = {
     recentSupporters: Array<App.Data.User>;
@@ -406,7 +405,11 @@ declare namespace App.Data {
     userWallActive?: boolean | null;
     visibleRole?: App.Data.Role | null;
     websitePrefs?: number | null;
-    preferences?: { shouldAlwaysBypassContentWarnings: boolean; prefersAbsoluteDates: boolean };
+    preferences?: {
+      isGloballyOptedOutOfSubsets: boolean;
+      prefersAbsoluteDates: boolean;
+      shouldAlwaysBypassContentWarnings: boolean;
+    };
     roles?: App.Models.UserRole[];
   };
   export type UserPermissions = {
@@ -874,6 +877,7 @@ declare namespace App.Platform.Data {
     targetAchievementSetId: number | null;
     targetAchievementSetPlayersTotal: number | null;
     targetAchievementSetPlayersHardcore: number | null;
+    userGameAchievementSetPreferences?: Array<App.Platform.Data.UserGameAchievementSetPreference>;
   };
   export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
@@ -1099,6 +1103,10 @@ declare namespace App.Platform.Data {
     count: number;
     dateCredited: string | null;
     isGone?: boolean;
+  };
+  export type UserGameAchievementSetPreference = {
+    gameAchievementSetId: number;
+    optedIn: boolean;
   };
   export type UserSetRequestInfo = {
     total: number;

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { route } from 'ziggy-js';
 
 import type { ZiggyProps } from '@/common/models';
-import { createAuthenticatedUser } from '@/common/models';
+import { createAuthenticatedUser, createAuthenticatedUserPreferences } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
 
 import { MatureContentWarningDialog } from './MatureContentWarningDialog';
@@ -19,7 +19,10 @@ describe('Component: ContentWarningDialog', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: false },
+            preferences: createAuthenticatedUserPreferences({
+              prefersAbsoluteDates: false,
+              shouldAlwaysBypassContentWarnings: false,
+            }),
           }),
         },
         ziggy: { query: {} } as ZiggyProps,
@@ -36,10 +39,10 @@ describe('Component: ContentWarningDialog', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            preferences: {
+            preferences: createAuthenticatedUserPreferences({
               prefersAbsoluteDates: false,
               shouldAlwaysBypassContentWarnings: false, // !!
-            },
+            }),
           }),
         },
         ziggy: { query: {} } as ZiggyProps,
@@ -59,10 +62,10 @@ describe('Component: ContentWarningDialog', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            preferences: {
+            preferences: createAuthenticatedUserPreferences({
               prefersAbsoluteDates: false,
               shouldAlwaysBypassContentWarnings: true, // !!
-            },
+            }),
           }),
         },
       },
@@ -78,10 +81,10 @@ describe('Component: ContentWarningDialog', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            preferences: {
+            preferences: createAuthenticatedUserPreferences({
               prefersAbsoluteDates: false,
               shouldAlwaysBypassContentWarnings: false,
-            },
+            }),
           }),
         },
         ziggy: { query: { mature_content_accepted: '1' } } as unknown as ZiggyProps, // !!
@@ -101,7 +104,10 @@ describe('Component: ContentWarningDialog', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: false },
+            preferences: createAuthenticatedUserPreferences({
+              prefersAbsoluteDates: false,
+              shouldAlwaysBypassContentWarnings: false,
+            }),
           }),
         },
         ziggy: { query: {} } as ZiggyProps,
@@ -128,7 +134,10 @@ describe('Component: ContentWarningDialog', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: false },
+            preferences: createAuthenticatedUserPreferences({
+              prefersAbsoluteDates: false,
+              shouldAlwaysBypassContentWarnings: false,
+            }),
           }),
         },
         ziggy: { query: {} } as ZiggyProps,
@@ -162,7 +171,10 @@ describe('Component: ContentWarningDialog', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: false },
+            preferences: createAuthenticatedUserPreferences({
+              prefersAbsoluteDates: false,
+              shouldAlwaysBypassContentWarnings: false,
+            }),
           }),
         },
         ziggy: { query: {} } as ZiggyProps,
@@ -188,7 +200,10 @@ describe('Component: ContentWarningDialog', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: false },
+            preferences: createAuthenticatedUserPreferences({
+              prefersAbsoluteDates: false,
+              shouldAlwaysBypassContentWarnings: false,
+            }),
           }),
         },
         ziggy: { query: {} } as ZiggyProps,
@@ -208,7 +223,10 @@ describe('Component: ContentWarningDialog', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: false },
+            preferences: createAuthenticatedUserPreferences({
+              prefersAbsoluteDates: false,
+              shouldAlwaysBypassContentWarnings: false,
+            }),
           }),
         },
         ziggy: { query: {} } as ZiggyProps,
