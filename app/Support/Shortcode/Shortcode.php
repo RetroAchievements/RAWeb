@@ -11,6 +11,7 @@ use App\Models\GameSet;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Actions\ResolveBackingGameForAchievementSetAction;
 use App\Platform\Enums\GameSetType;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -128,18 +129,183 @@ final class Shortcode
         }, $input);
     }
 
+    public static function convertGameSetShortcodesToBackingGame(string $input): string
+    {
+        // Extract all [game=X?set=Y] or [game=X set=Y] patterns.
+        preg_match_all('/\[game=(\d+)(?:\?|\s)set=(\d+)\]/i', $input, $matches, PREG_SET_ORDER);
+        if (empty($matches)) {
+            return $input;
+        }
+
+        // Collect all unique set IDs for bulk processing.
+        $setIds = array_unique(array_column($matches, 2));
+
+        // Now, resolve backing games for all sets.
+        // Build a map of achievement set ID -> backing game ID.
+        $setToBackingGameMap = [];
+        $resolveAction = (new ResolveBackingGameForAchievementSetAction());
+
+        foreach ($setIds as $setId) {
+            $backingGameId = $resolveAction->execute((int) $setId);
+            if ($backingGameId) {
+                $setToBackingGameMap[$setId] = $backingGameId;
+            }
+        }
+
+        // Replace each shortcode with the backing game ID.
+        // If no backing game is found, fall back to the original game ID.
+        return preg_replace_callback(
+            '/\[game=(\d+)(?:\?|\s)set=(\d+)\]/i',
+            function ($match) use ($setToBackingGameMap) {
+                $originalGameId = $match[1];
+                $setId = $match[2];
+
+                $gameId = $setToBackingGameMap[$setId] ?? $originalGameId;
+
+                return "[game={$gameId}]";
+            },
+            $input
+        );
+    }
+
+    public static function extractShortcodeIds(string $input): array
+    {
+        if (!str_contains($input, '[')) {
+            return [
+                'achievementIds' => [],
+                'gameIds' => [],
+                'hubIds' => [],
+                'eventIds' => [],
+                'ticketIds' => [],
+                'usernames' => [],
+            ];
+        }
+
+        // Extract achievement IDs from [ach=X] shortcodes.
+        preg_match_all('/\[ach=(\d+)\]/i', $input, $achievementMatches);
+        $achievementIds = array_unique(array_map('intval', $achievementMatches[1]));
+
+        // Extract game IDs from [game=X] shortcodes (but not [game=X set=Y]).
+        preg_match_all('/\[game=(\d+)(?!\?|\ set=)\]/i', $input, $gameMatches);
+        $gameIds = array_unique(array_map('intval', $gameMatches[1]));
+
+        // Extract hub IDs from [hub=X] shortcodes.
+        preg_match_all('/\[hub=(\d+)\]/i', $input, $hubMatches);
+        $hubIds = array_unique(array_map('intval', $hubMatches[1]));
+
+        // Extract event IDs from [event=X] shortcodes.
+        preg_match_all('/\[event=(\d+)\]/i', $input, $eventMatches);
+        $eventIds = array_unique(array_map('intval', $eventMatches[1]));
+
+        // Extract ticket IDs from [ticket=X] shortcodes.
+        preg_match_all('/\[ticket=(\d+)\]/i', $input, $ticketMatches);
+        $ticketIds = array_unique(array_map('intval', $ticketMatches[1]));
+
+        // Extract usernames from [user=X] shortcodes.
+        preg_match_all('/\[user=([^\]]+)\]/i', $input, $userMatches);
+        $usernames = array_unique($userMatches[1]);
+
+        return [
+            'achievementIds' => array_values($achievementIds),
+            'gameIds' => array_values($gameIds),
+            'hubIds' => array_values($hubIds),
+            'eventIds' => array_values($eventIds),
+            'ticketIds' => array_values($ticketIds),
+            'usernames' => $usernames,
+        ];
+    }
+
+    public static function fetchRecords(array $shortcodeIds): array
+    {
+        $results = [];
+
+        foreach ($shortcodeIds as $key => $ids) {
+            $ids = array_unique($ids);
+            if (empty($ids)) {
+                continue;
+            }
+
+            switch ($key) {
+                case 'achievementIds':
+                    $results[$key] = Achievement::whereIn('ID', $ids)
+                        ->get()->mapWithKeys(function ($achievement) {
+                            return [$achievement->ID => $achievement];
+                        });
+                    break;
+
+                case 'gameIds':
+                    $results[$key] = Game::with('system')->whereIn('ID', $ids)
+                        ->get()->mapWithKeys(function ($game) {
+                            return [$game->ID => $game];
+                        });
+                    break;
+
+                case 'hubIds':
+                    $results[$key] = GameSet::where('type', GameSetType::Hub)->whereIn('id', $ids)
+                        ->get()->mapWithKeys(function ($hub) {
+                            return [$hub->id => $hub];
+                        });
+                    break;
+
+                case 'eventIds':
+                    $results[$key] = Event::with('legacyGame')->whereIn('id', $ids)
+                        ->get()->mapWithKeys(function ($event) {
+                            return [$event->id => $event];
+                        });
+                    break;
+
+                case 'ticketIds':
+                    $results[$key] = Ticket::whereIn('ID', $ids)
+                        ->get()->mapWithKeys(function ($ticket) {
+                            return [$ticket->ID => $ticket];
+                        });
+                    break;
+
+                case 'usernames':
+                    $userIds = array_filter($ids, fn ($value) => ctype_digit($value));
+                    $results[$key] = User::withTrashed()->whereIn('ID', $userIds)
+                        ->get()->mapWithKeys(function ($user) {
+                            return [$user->ID => $user];
+                        });
+                    User::withTrashed()
+                        ->where(function ($query) use ($ids) {
+                            $query->whereIn('User', $ids)
+                                ->orWhereIn('display_name', $ids);
+                        })
+                        ->get()->map(function ($user) use ($key, &$results) {
+                            $results[$key][$user->display_name] ??= $user;
+                            $results[$key][$user->User] ??= $user;
+                        });
+
+                    break;
+            }
+        }
+
+        return $results;
+    }
+
     public static function stripAndClamp(
         string $input,
         int $previewLength = 100,
         bool $preserveWhitespace = false,
+        ?array $shortcodeRecords = null,
     ): string {
+        if (!$preserveWhitespace) {
+            $input = trim($input);
+        }
+
+        if (!$shortcodeRecords) {
+            $shortcodeIds = Shortcode::extractShortcodeIds($input);
+            $shortcodeRecords = Shortcode::fetchRecords($shortcodeIds);
+        }
+
         // Inject game and achievement data for shortcodes.
         // This is more desirable than showing "Game 123" or "Achievement 123".
         $injectionShortcodes = [
             // "[game=1]" --> "Sonic the Hedgehog (Mega Drive)"
-            '~\[game=(\d+)]~i' => function ($matches) {
+            '~\[game=(\d+)]~i' => function ($matches) use ($shortcodeRecords) {
                 $gameId = (int) $matches[1];
-                $game = Game::with('system')->find($gameId);
+                $game = $shortcodeRecords['gameIds'][$gameId] ?? null;
                 if ($game) {
                     return "{$game->title} ({$game->system->name})";
                 }
@@ -148,13 +314,9 @@ final class Shortcode
             },
 
             // "[hub=1]" --> "[Central]"
-            '~\[hub=(\d+)]~i' => function ($matches) {
+            '~\[hub=(\d+)]~i' => function ($matches) use ($shortcodeRecords) {
                 $hubId = (int) $matches[1];
-                $hubData = GameSet::query()
-                    ->where('id', $hubId)
-                    ->where('type', GameSetType::Hub)
-                    ->first();
-
+                $hubData = $shortcodeRecords['hubIds'][$hubId] ?? null;
                 if ($hubData) {
                     return "{$hubData->title} (Hubs)";
                 }
@@ -163,9 +325,9 @@ final class Shortcode
             },
 
             // "[ach=1]" --> "Ring Collector (5)"
-            '~\[ach=(\d+)]~i' => function ($matches) {
+            '~\[ach=(\d+)]~i' => function ($matches) use ($shortcodeRecords) {
                 $achievementId = (int) $matches[1];
-                $achievement = Achievement::find($achievementId);
+                $achievement = $shortcodeRecords['achievementIds'][$achievementId] ?? null;
                 if ($achievement) {
                     return "{$achievement->title} ({$achievement->points})";
                 }
@@ -173,10 +335,10 @@ final class Shortcode
                 return "";
             },
 
-            // "[user=1]" --> "@Scott"
-            '~\[user=(\d+)]~i' => function ($matches) {
-                $userId = (int) $matches[1];
-                $user = User::withTrashed()->find($userId);
+            // "[user=1]" -->  "@Scott", "[user=Scott]"  -->  "@Scott"
+            '~\[user=([^\]]+)]~i' => function ($matches) use ($shortcodeRecords) {
+                $userId = $matches[1];
+                $user = $shortcodeRecords['usernames'][$userId] ?? null;
                 if ($user) {
                     return "@{$user->display_name}";
                 }
@@ -185,8 +347,10 @@ final class Shortcode
             },
         ];
 
-        foreach ($injectionShortcodes as $pattern => $callback) {
-            $input = preg_replace_callback($pattern, $callback, $input);
+        if (str_contains($input, '[') && !empty($shortcodeRecords)) {
+            foreach ($injectionShortcodes as $pattern => $callback) {
+                $input = preg_replace_callback($pattern, $callback, $input);
+            }
         }
 
         // Remove all quoted content, including nested quotes.
@@ -257,13 +421,23 @@ final class Shortcode
         string $input,
         int $maxLength = 10000,
         bool $preserveWhitespace = false,
+        ?array $shortcodeRecords = null,
     ): string {
+        if (!$preserveWhitespace) {
+            $input = trim($input);
+        }
+
+        if (!$shortcodeRecords) {
+            $shortcodeIds = Shortcode::extractShortcodeIds($input);
+            $shortcodeRecords = Shortcode::fetchRecords($shortcodeIds);
+        }
+
         // Inject game, achievement, user, hub, event, and ticket data as Markdown links.
         $injectionShortcodes = [
             // "[game=1]" --> "[Sonic the Hedgehog (Mega Drive)](https://retroachievements.org/game/1)"
-            '~\[game=(\d+)]~i' => function ($matches) {
+            '~\[game=(\d+)]~i' => function ($matches) use ($shortcodeRecords) {
                 $gameId = (int) $matches[1];
-                $game = Game::with('system')->find($gameId);
+                $game = $shortcodeRecords['gameIds'][$gameId] ?? null;
                 if ($game) {
                     $url = route('game.show', $matches[1]);
 
@@ -274,13 +448,9 @@ final class Shortcode
             },
 
             // "[hub=1]" --> "[[Central] (Hubs)](https://retroachievements.org/hub/1)"
-            '~\[hub=(\d+)]~i' => function ($matches) {
+            '~\[hub=(\d+)]~i' => function ($matches) use ($shortcodeRecords) {
                 $hubId = (int) $matches[1];
-                $hubData = GameSet::query()
-                    ->where('id', $hubId)
-                    ->where('type', GameSetType::Hub)
-                    ->first();
-
+                $hubData = $shortcodeRecords['hubIds'][$hubId] ?? null;
                 if ($hubData) {
                     $url = route('hub.show', $hubId);
 
@@ -291,9 +461,9 @@ final class Shortcode
             },
 
             // "[ach=1]" --> "[Ring Collector (5)](https://retroachievements.org/achievement/1)"
-            '~\[ach=(\d+)]~i' => function ($matches) {
+            '~\[ach=(\d+)]~i' => function ($matches) use ($shortcodeRecords) {
                 $achievementId = (int) $matches[1];
-                $achievement = Achievement::find($achievementId);
+                $achievement = $shortcodeRecords['achievementIds'][$achievementId] ?? null;
                 if ($achievement) {
                     $url = route('achievement.show', $matches[1]);
 
@@ -304,9 +474,9 @@ final class Shortcode
             },
 
             // "[event=1]" --> "[Event Name (Events)](https://retroachievements.org/event/1)"
-            '~\[event=(\d+)]~i' => function ($matches) {
+            '~\[event=(\d+)]~i' => function ($matches) use ($shortcodeRecords) {
                 $eventId = (int) $matches[1];
-                $eventData = Event::find($eventId);
+                $eventData = $shortcodeRecords['eventIds'][$eventId] ?? null;
                 if ($eventData) {
                     $url = route('event.show', $eventId);
 
@@ -317,9 +487,9 @@ final class Shortcode
             },
 
             // "[user=1]" --> "[Scott](https://retroachievements.org/user/Scott)"
-            '~\[user=(\d+)]~i' => function ($matches) {
-                $userId = (int) $matches[1];
-                $user = User::withTrashed()->find($userId);
+            '~\[user=([^\]]+)]~i' => function ($matches) use ($shortcodeRecords) {
+                $userId = $matches[1];
+                $user = $shortcodeRecords['usernames'][$userId] ?? null;
                 if ($user) {
                     $url = route('user.show', ['user' => $user]);
 
@@ -330,9 +500,9 @@ final class Shortcode
             },
 
             // "[ticket=123]" --> "[Ticket #123](https://retroachievements.org/ticket/123)"
-            '~\[ticket=(\d+)]~i' => function ($matches) {
+            '~\[ticket=(\d+)]~i' => function ($matches) use ($shortcodeRecords) {
                 $ticketId = (int) $matches[1];
-                $ticket = Ticket::find($ticketId);
+                $ticket = $shortcodeRecords['ticketIds'][$ticketId] ?? null;
                 if ($ticket) {
                     $url = route('ticket.show', ['ticket' => $ticket]);
 
@@ -343,8 +513,10 @@ final class Shortcode
             },
         ];
 
-        foreach ($injectionShortcodes as $pattern => $callback) {
-            $input = preg_replace_callback($pattern, $callback, $input);
+        if (str_contains($input, '[') && !empty($shortcodeRecords)) {
+            foreach ($injectionShortcodes as $pattern => $callback) {
+                $input = preg_replace_callback($pattern, $callback, $input);
+            }
         }
 
         // Convert [quote] blocks to Markdown blockquotes.
@@ -476,6 +648,10 @@ final class Shortcode
 
     private function parse(string $input, array $options = []): string
     {
+        // Resolve game set shortcodes to backing games before render-time.
+        // This allows [game=1?set=9534] to display the correct backing game.
+        $input = self::convertGameSetShortcodesToBackingGame($input);
+
         $this->prefetchUsers($input);
 
         // make sure to use attribute delimiter for string values

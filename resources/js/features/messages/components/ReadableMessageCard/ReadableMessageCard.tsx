@@ -1,8 +1,12 @@
 import type { FC } from 'react';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
+import { LuFlag } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
+import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { ShortcodeRenderer } from '@/common/components/ShortcodeRenderer';
 import { UserAvatar } from '@/common/components/UserAvatar';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 import { MessageTimestamp } from './MessageTimestamp';
@@ -17,6 +21,15 @@ export const ReadableMessageCard: FC<ReadableMessageCardProps> = ({
   message,
   isHighlighted = false,
 }) => {
+  const { auth, can, senderUserDisplayName } =
+    usePageProps<App.Community.Data.MessageThreadShowPageProps>();
+  const { t } = useTranslation();
+
+  const canReport =
+    can?.createModerationReports &&
+    message.author?.displayName !== auth?.user.displayName &&
+    senderUserDisplayName === auth?.user.displayName;
+
   return (
     <div
       id={`${message.id}`}
@@ -32,8 +45,26 @@ export const ReadableMessageCard: FC<ReadableMessageCardProps> = ({
           <MessageTimestamp message={message} />
         </div>
 
-        {message.sentBy ? (
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          {canReport ? (
+            <a
+              href={route('message-thread.create', {
+                to: 'RAdmin',
+                subject: `Report: Direct Message by ${message.author?.displayName}`,
+                rType: 'DirectMessage',
+                rId: message.id,
+              })}
+              className={baseButtonVariants({
+                size: 'sm',
+                className: 'max-h-[22px] gap-1 !p-1 !text-2xs',
+              })}
+            >
+              <LuFlag className="size-3" />
+              {t('Report')}
+            </a>
+          ) : null}
+
+          {message.sentBy ? (
             <Trans
               i18nKey="Sent by <1>{{username}}</1>"
               values={{ username: message.sentBy.displayName }}
@@ -41,8 +72,8 @@ export const ReadableMessageCard: FC<ReadableMessageCardProps> = ({
                 1: <UserAvatar {...message.sentBy} size={24} />,
               }}
             />
-          </div>
-        ) : null}
+          ) : null}
+        </div>
       </div>
 
       <hr className="my-2 w-full border-embed-highlight" />

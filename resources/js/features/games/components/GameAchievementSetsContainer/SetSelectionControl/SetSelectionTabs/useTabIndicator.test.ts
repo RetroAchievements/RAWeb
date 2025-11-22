@@ -58,7 +58,7 @@ describe('Hook: useTabIndicator', () => {
 
     // ASSERT
     expect(result.current.indicatorStyles).toEqual({
-      transform: 'translateX(0px)',
+      transform: 'translateX(0px) translateY(0px)',
       width: '0px',
       opacity: 0,
       contain: 'layout',
@@ -117,7 +117,7 @@ describe('Hook: useTabIndicator', () => {
     });
 
     // ASSERT
-    expect(result.current.indicatorStyles.transform).toEqual('translateX(60px)');
+    expect(result.current.indicatorStyles.transform).toContain('translateX(60px)');
     expect(result.current.indicatorStyles.width).toEqual('80px');
   });
 

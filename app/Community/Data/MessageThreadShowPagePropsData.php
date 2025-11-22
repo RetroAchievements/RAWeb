@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community\Data;
 
 use App\Data\PaginatedData;
+use App\Data\UserPermissionsData;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
@@ -15,6 +16,7 @@ class MessageThreadShowPagePropsData extends Data
         public MessageThreadData $messageThread,
         public PaginatedData $paginatedMessages,
         public ShortcodeDynamicEntitiesData $dynamicEntities,
+        public UserPermissionsData $can,
         public bool $canReply,
         public ?string $senderUserAvatarUrl,
         public string $senderUserDisplayName,

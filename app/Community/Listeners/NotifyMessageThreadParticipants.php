@@ -73,7 +73,13 @@ class NotifyMessageThreadParticipants
             }
 
             try {
-                (new ForwardMessageToDiscordAction())->execute($userFrom, $userTo, $thread, $message);
+                (new ForwardMessageToDiscordAction())->execute(
+                    $userFrom,
+                    $userTo,
+                    $thread,
+                    $message,
+                    $event->moderationReportId
+                );
             } catch (Exception $e) {
                 Log::warning('Discord notification failed', [
                     'thread_id' => $thread->id,

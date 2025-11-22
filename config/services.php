@@ -78,6 +78,7 @@ return [
                 ],
                 'manual_unlock_url' => env('DISCORD_WEBHOOK_MOD_MANUAL_UNLOCK'),
                 'verify_url' => env('DISCORD_WEBHOOK_MOD_VERIFY'),
+                'reports_url' => env('DISCORD_WEBHOOK_MOD_REPORTS'),
             ],
             'RAEvents' => [
                 'url' => env('DISCORD_WEBHOOK_RAEVENTS'),

@@ -6,6 +6,7 @@ namespace App\Community\Controllers\Api;
 
 use App\Community\Actions\AddToMessageThreadAction;
 use App\Community\Actions\CreateMessageThreadAction;
+use App\Community\Enums\ModerationReportableType;
 use App\Community\Requests\MessageRequest;
 use App\Http\Controller;
 use App\Models\Message;
@@ -31,6 +32,10 @@ class MessageApiController extends Controller
         $body = Shortcode::convertUserShortcodesToUseIds($body);
 
         $authorId = $user->id;
+
+        // Extract reportable metadata if it's present.
+        $reportableType = isset($input['rType']) ? ModerationReportableType::from($input['rType']) : null;
+        $reportableId = $input['rId'] ?? null;
 
         $thread = null;
         if (array_key_exists('thread_id', $input) && $input['thread_id'] !== null) {
@@ -75,7 +80,7 @@ class MessageApiController extends Controller
                 }
             }
 
-            (new AddToMessageThreadAction())->execute($thread, $userFrom, $user, $body);
+            (new AddToMessageThreadAction())->execute($thread, $userFrom, $user, $body, $reportableType, $reportableId);
         } else {
             $recipient = User::whereName($input['recipient'])->first();
             $teamAccount = null;
@@ -107,7 +112,16 @@ class MessageApiController extends Controller
                 ]);
             }
 
-            $thread = (new CreateMessageThreadAction())->execute($userFrom, $recipient, $user, $input['title'], $body);
+            $thread = (new CreateMessageThreadAction())->execute(
+                $userFrom,
+                $recipient,
+                $user,
+                $input['title'],
+                $body,
+                false,
+                $reportableType,
+                $reportableId,
+            );
         }
 
         return response()->json(['success' => true, 'threadId' => $thread->id]);

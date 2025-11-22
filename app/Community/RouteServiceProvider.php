@@ -26,6 +26,7 @@ use App\Community\Controllers\Api\UserCommentApiController;
 use App\Community\Controllers\Api\UserGameListApiController;
 use App\Community\Controllers\Api\UserModerationCommentApiController;
 use App\Community\Controllers\Api\UserSetRequestListApiController;
+use App\Community\Controllers\Api\ViewableApiController;
 use App\Community\Controllers\ForumTopicCommentController;
 use App\Community\Controllers\ForumTopicController;
 use App\Community\Controllers\GameClaimsCommentController;
@@ -127,6 +128,8 @@ class RouteServiceProvider extends ServiceProvider
                         Route::get('user-game-list/random', [UserGameListApiController::class, 'random'])->name('api.user-game-list.random');
                         Route::post('user-game-list/{game}', [UserGameListApiController::class, 'store'])->name('api.user-game-list.store');
                         Route::delete('user-game-list/{game}', [UserGameListApiController::class, 'destroy'])->name('api.user-game-list.destroy');
+
+                        Route::post('viewable/{viewableType}/{viewableId}', [ViewableApiController::class, 'store'])->name('api.viewable.store');
                     });
 
                     Route::middleware(['inertia'])->group(function () {
@@ -175,8 +178,9 @@ class RouteServiceProvider extends ServiceProvider
                     /**
                      * @see Middleware\ValidateSignature::class
                      * This is a deliberately unauthenticated route.
+                     * Supports both GET (browser) and POST (RFC 8058 one-click).
                      */
-                    Route::get('unsubscribe/{token}', [UnsubscribeController::class, 'show'])->name('unsubscribe.show')->middleware('signed');
+                    Route::match(['get', 'post'], 'unsubscribe/{token}', [UnsubscribeController::class, 'show'])->name('unsubscribe.show')->middleware('signed');
                 });
 
                 /*

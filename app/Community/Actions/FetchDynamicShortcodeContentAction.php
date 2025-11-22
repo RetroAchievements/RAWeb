@@ -29,6 +29,7 @@ class FetchDynamicShortcodeContentAction
         array $gameIds = [],
         array $hubIds = [],
         array $eventIds = [],
+        string $convertedBody = '',
     ): ShortcodeDynamicEntitiesData {
         return new ShortcodeDynamicEntitiesData(
             users: $this->fetchUsers($usernames)->all(),
@@ -37,6 +38,7 @@ class FetchDynamicShortcodeContentAction
             games: $this->fetchGames($gameIds)->all(),
             hubs: $this->fetchHubs($hubIds)->all(),
             events: $this->fetchEvents($eventIds)->all(),
+            convertedBody: $convertedBody,
         );
     }
 

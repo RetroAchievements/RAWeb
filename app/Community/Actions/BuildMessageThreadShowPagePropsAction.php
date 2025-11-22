@@ -8,6 +8,7 @@ use App\Community\Data\MessageData;
 use App\Community\Data\MessageThreadData;
 use App\Community\Data\MessageThreadShowPagePropsData;
 use App\Data\PaginatedData;
+use App\Data\UserPermissionsData;
 use App\Models\Message;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
@@ -107,6 +108,7 @@ class BuildMessageThreadShowPagePropsAction
                 items: $messages,
             ),
             dynamicEntities: $dynamicEntities,
+            can: UserPermissionsData::fromUser($user)->include('createModerationReports'),
             canReply: $this->getCanReply($messageThread, $user),
             senderUserAvatarUrl: $senderUser->avatar_url,
             senderUserDisplayName: $senderUser->display_name,

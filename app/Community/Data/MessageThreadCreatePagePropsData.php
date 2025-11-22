@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community\Data;
 
 use App\Community\Enums\MessageThreadTemplateKind;
+use App\Community\Enums\ModerationReportableType;
 use App\Data\UserData;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -19,6 +20,8 @@ class MessageThreadCreatePagePropsData extends Data
         public ?MessageThreadTemplateKind $templateKind,
         public ?string $senderUserAvatarUrl,
         public string $senderUserDisplayName,
+        public ?ModerationReportableType $reportableType = null,
+        public ?int $reportableId = null,
     ) {
     }
 }

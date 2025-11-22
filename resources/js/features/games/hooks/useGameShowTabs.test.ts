@@ -1,3 +1,5 @@
+import { router } from '@inertiajs/react';
+
 import { act, renderHook } from '@/test';
 
 import { currentTabAtom } from '../state/games.atoms';
@@ -7,13 +9,14 @@ describe('Hook: useGameShowTabs', () => {
   let originalLocation: Location;
 
   beforeEach(() => {
-    vi.spyOn(window.history, 'replaceState').mockImplementation(() => {});
+    vi.spyOn(router, 'visit').mockImplementation(() => {});
 
     originalLocation = window.location;
     delete (window as any).location;
 
     (window.location as any) = {
       ...originalLocation,
+      href: 'https://retroachievements.org/game/123',
       pathname: '/game/123',
       search: '',
     } as Location;
@@ -28,7 +31,10 @@ describe('Hook: useGameShowTabs', () => {
   it('returns the correct function definitions', () => {
     // ACT
     const { result } = renderHook(() => useGameShowTabs(), {
-      jotaiAtoms: [[currentTabAtom, 'achievements']],
+      jotaiAtoms: [
+        [currentTabAtom, 'achievements'],
+        //
+      ],
     });
 
     // ASSERT
@@ -52,7 +58,12 @@ describe('Hook: useGameShowTabs', () => {
 
     // ASSERT
     expect(result.current.currentTab).toEqual('info');
-    expect(window.history.replaceState).toHaveBeenCalledWith(null, '', '/game/123?tab=info');
+    expect(router.visit).toHaveBeenCalledWith('/game/123?tab=info', {
+      replace: true,
+      preserveState: true,
+      preserveScroll: true,
+      only: [],
+    });
   });
 
   it('given the user sets the tab to stats, updates the atom and adds the tab param to the URL', () => {
@@ -71,7 +82,12 @@ describe('Hook: useGameShowTabs', () => {
 
     // ASSERT
     expect(result.current.currentTab).toEqual('stats');
-    expect(window.history.replaceState).toHaveBeenCalledWith(null, '', '/game/123?tab=stats');
+    expect(router.visit).toHaveBeenCalledWith('/game/123?tab=stats', {
+      replace: true,
+      preserveState: true,
+      preserveScroll: true,
+      only: [],
+    });
   });
 
   it('given the user sets the tab to community, updates the atom and adds the tab param to the URL', () => {
@@ -90,7 +106,12 @@ describe('Hook: useGameShowTabs', () => {
 
     // ASSERT
     expect(result.current.currentTab).toEqual('community');
-    expect(window.history.replaceState).toHaveBeenCalledWith(null, '', '/game/123?tab=community');
+    expect(router.visit).toHaveBeenCalledWith('/game/123?tab=community', {
+      replace: true,
+      preserveState: true,
+      preserveScroll: true,
+      only: [],
+    });
   });
 
   it('given the user sets the tab to achievements, updates the atom and removes the tab param from the URL', () => {
@@ -110,7 +131,12 @@ describe('Hook: useGameShowTabs', () => {
 
     // ASSERT
     expect(result.current.currentTab).toEqual('achievements');
-    expect(window.history.replaceState).toHaveBeenCalledWith(null, '', '/game/123');
+    expect(router.visit).toHaveBeenCalledWith('/game/123', {
+      replace: true,
+      preserveState: true,
+      preserveScroll: true,
+      only: [],
+    });
   });
 
   it('given there are existing query params and the user sets a non-achievements tab, preserves those existing params', () => {
@@ -129,11 +155,12 @@ describe('Hook: useGameShowTabs', () => {
     });
 
     // ASSERT
-    expect(window.history.replaceState).toHaveBeenCalledWith(
-      null,
-      '',
-      '/game/123?foo=bar&baz=qux&tab=stats',
-    );
+    expect(router.visit).toHaveBeenCalledWith('/game/123?foo=bar&baz=qux&tab=stats', {
+      replace: true,
+      preserveState: true,
+      preserveScroll: true,
+      only: [],
+    });
   });
 
   it('given there are existing query params including tab and the user sets to achievements, removes only the tab param', () => {
@@ -152,6 +179,11 @@ describe('Hook: useGameShowTabs', () => {
     });
 
     // ASSERT
-    expect(window.history.replaceState).toHaveBeenCalledWith(null, '', '/game/123?foo=bar&baz=qux');
+    expect(router.visit).toHaveBeenCalledWith('/game/123?foo=bar&baz=qux', {
+      replace: true,
+      preserveState: true,
+      preserveScroll: true,
+      only: [],
+    });
   });
 });

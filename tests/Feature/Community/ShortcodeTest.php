@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Platform\Enums\GameSetType;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 final class ShortcodeTest extends TestCase
@@ -232,6 +233,42 @@ final class ShortcodeTest extends TestCase
         );
     }
 
+    public function testNormalizeGame2Shortcodes(): void
+    {
+        $rawString = 'https://retroachievements.org/game2/1';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            '[game=1]',
+            $normalized
+        );
+    }
+
+    public function testNormalizeGameShortcodesWithSetParam(): void
+    {
+        $rawString = 'https://retroachievements.org/game/668?set=8659';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            '[game=668?set=8659]',
+            $normalized
+        );
+    }
+
+    public function testNormalizeGame2ShortcodesWithSetParam(): void
+    {
+        $rawString = 'https://retroachievements.org/game2/668?set=8659';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            '[game=668?set=8659]',
+            $normalized
+        );
+    }
+
     public function testNormalizeHubShortcodes(): void
     {
         $rawString = 'https://retroachievements.org/hub/1';
@@ -304,9 +341,7 @@ final class ShortcodeTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider youtubeUrlProvider
-     */
+    #[DataProvider('youtubeUrlProvider')]
     public function testAutoEmbedYoutube(string $url, string $expected): void
     {
         $this->assertStringContainsString(
@@ -584,6 +619,55 @@ final class ShortcodeTest extends TestCase
 
         // Assert
         $expectedUrl = route('user.show', ['user' => $user]);
+
+        $this->assertSame(
+            "[Scott]({$expectedUrl})",
+            $result
+        );
+    }
+
+    public function testConvertToMarkdownLegacyUserEmbed(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create([
+            'ID' => 456,
+            'User' => 'Scott',
+            'display_name' => 'Scott',
+        ]);
+
+        // Act
+        $result = Shortcode::convertToMarkdown('[user=Scott]');
+
+        // Assert
+        $expectedUrl = route('user.show', ['user' => $user]);
+
+        $this->assertSame(
+            "[Scott]({$expectedUrl})",
+            $result
+        );
+    }
+
+    public function testConvertToMarkdownLegacyUserEmbedConflict(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create([
+            'ID' => 456,
+            'User' => 'Scott',
+            'display_name' => 'Scott',
+        ]);
+        $user2 = User::factory()->create([
+            'ID' => 999,
+            'User' => '456',
+            'display_name' => '456',
+        ]);
+
+        // Act
+        $result = Shortcode::convertToMarkdown('[user=456]');
+
+        // Assert
+        $expectedUrl = route('user.show', ['user' => $user]); // ID match should be preferred over name match
 
         $this->assertSame(
             "[Scott]({$expectedUrl})",
