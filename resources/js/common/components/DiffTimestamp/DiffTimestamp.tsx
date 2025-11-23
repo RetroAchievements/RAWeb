@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { type FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useServerRenderTime } from '@/common/hooks/useServerRenderTime';
 import { formatDate } from '@/common/utils/l10n/formatDate';
@@ -27,14 +28,15 @@ export const DiffTimestamp: FC<DiffTimestampProps> = ({
   asAbsoluteDate = false,
   enableTooltip = true,
 }) => {
-  const { renderedAt } = useServerRenderTime();
+  const { i18n } = useTranslation();
 
+  const { renderedAt } = useServerRenderTime();
   const { diffForHumans } = useDiffForHumans();
 
   const date = dayjs.utc(at);
 
   if (asAbsoluteDate) {
-    return formatDate(date, 'MMM DD, YYYY, HH:mm');
+    return formatDate(date, 'MMM DD, YYYY, HH:mm', i18n.language);
   }
 
   if (!enableTooltip) {
@@ -54,7 +56,7 @@ export const DiffTimestamp: FC<DiffTimestampProps> = ({
       </BaseTooltipTrigger>
 
       <BaseTooltipContent className="py-2.5">
-        <p className="text-xs">{formatDate(date, 'lll')}</p>
+        <p className="text-xs">{formatDate(date, 'lll', i18n.language)}</p>
       </BaseTooltipContent>
     </BaseTooltip>
   );
