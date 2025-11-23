@@ -57,7 +57,7 @@ describe('Component: GameMobileBannerImage', () => {
     expect(placeholderImg).toHaveClass('opacity-100'); // initially visible
   });
 
-  it('given the game has no banner, renders the fallback div with the ingame screenshot image', () => {
+  it('given the game has no banner, renders the fallback img with the ingame screenshot', () => {
     // ARRANGE
     const game = createGame({
       banner: undefined, // !!
@@ -69,12 +69,11 @@ describe('Component: GameMobileBannerImage', () => {
     });
 
     // ASSERT
-    const fallbackDiv = container.querySelector('[style*="background-image"]');
+    const fallbackImg = container.querySelector('img[src="https://example.com/ingame.jpg"]');
 
-    expect(fallbackDiv).toBeInTheDocument();
-    expect(fallbackDiv).toHaveStyle({
-      backgroundImage: 'url(https://example.com/ingame.jpg)',
-    });
+    expect(fallbackImg).toBeInTheDocument();
+    expect(fallbackImg).toHaveAttribute('fetchpriority', 'high');
+    expect(fallbackImg).toHaveAttribute('loading', 'eager');
   });
 
   it('given the game is for the Nintendo DS, applies special positioning styles to the fallback image', () => {
@@ -91,11 +90,11 @@ describe('Component: GameMobileBannerImage', () => {
     });
 
     // ASSERT
-    const fallbackDiv = container.querySelector('[style*="background-image"]');
-    expect(fallbackDiv).toHaveStyle({
-      backgroundSize: '100% auto',
-      backgroundPosition: 'center 0%',
-    });
+    const fallbackImg = container.querySelector('img[src="https://example.com/ingame.jpg"]');
+    expect(fallbackImg).toBeInTheDocument();
+    expect((fallbackImg as any)?.style.objectPosition).toEqual('center 0%');
+    expect((fallbackImg as any)?.style.objectFit).toEqual('none');
+    expect((fallbackImg as any)?.style.scale).toEqual('2');
   });
 
   it('given the game is not for Nintendo DS, applies standard positioning styles to the fallback image', () => {
@@ -112,11 +111,10 @@ describe('Component: GameMobileBannerImage', () => {
     });
 
     // ASSERT
-    const fallbackDiv = container.querySelector('[style*="background-image"]');
-    expect(fallbackDiv).toHaveStyle({
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-    });
+    const fallbackImg = container.querySelector('img[src="https://example.com/ingame.jpg"]');
+    expect(fallbackImg).toBeInTheDocument();
+    expect((fallbackImg as any)?.style.objectPosition).toEqual('center');
+    expect((fallbackImg as any)?.style.objectFit).toEqual('cover');
   });
 
   it('given the game is for Nintendo DS and a banner is used, applies special positioning to the fallback img element', () => {
