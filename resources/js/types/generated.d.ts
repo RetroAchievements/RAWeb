@@ -704,6 +704,22 @@ declare namespace App.Platform.Data {
     updatedAt: string | null;
     achievementSet: App.Platform.Data.AchievementSet;
   };
+  export type GameBanner = {
+    mobileSmWebp: string | null;
+    mobileSmAvif: string | null;
+    mobileMdWebp: string | null;
+    mobileMdAvif: string | null;
+    desktopMdWebp: string | null;
+    desktopMdAvif: string | null;
+    desktopLgWebp: string | null;
+    desktopLgAvif: string | null;
+    desktopXlWebp: string | null;
+    desktopXlAvif: string | null;
+    mobilePlaceholder: string | null;
+    desktopPlaceholder: string | null;
+    leftEdgeColor: string | null;
+    rightEdgeColor: string | null;
+  };
   export type GameClaimant = {
     user: App.Data.User;
     claimType: string;
@@ -739,6 +755,7 @@ declare namespace App.Platform.Data {
     system?: App.Platform.Data.System;
     timesBeaten?: number;
     timesBeatenHardcore?: number;
+    banner?: App.Platform.Data.GameBanner;
     claimants?: Array<App.Platform.Data.GameClaimant>;
     gameAchievementSets?: Array<App.Platform.Data.GameAchievementSet>;
     releases?: Array<App.Platform.Data.GameRelease>;

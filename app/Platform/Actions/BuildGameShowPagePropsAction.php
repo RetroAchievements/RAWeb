@@ -311,6 +311,7 @@ class BuildGameShowPagePropsAction
                 'imageBoxArtUrl',
                 'imageIngameUrl',
                 'imageTitleUrl',
+                'banner',
                 'medianTimeToBeat',
                 'medianTimeToBeatHardcore',
                 'playersHardcore',

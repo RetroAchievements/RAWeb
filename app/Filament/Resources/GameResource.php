@@ -18,6 +18,7 @@ use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
+use App\Rules\UploadedImageAspectRatioRule;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Infolists;
@@ -77,6 +78,11 @@ class GameResource extends Resource
                 Infolists\Components\ImageEntry::make('badge_url')
                     ->label('')
                     ->size(config('media.icon.lg.width')),
+
+                Infolists\Components\SpatieMediaLibraryImageEntry::make('banner')
+                    ->label('Banner Image')
+                    ->collection('banner')
+                    ->conversion('lg-webp'),
 
                 Infolists\Components\Section::make('Primary Details')
                     ->icon('heroicon-m-key')
@@ -312,6 +318,23 @@ class GameResource extends Resource
                             ->maxSize(1024)
                             ->maxFiles(1)
                             ->previewable(true),
+
+                        Forms\Components\SpatieMediaLibraryFileUpload::make('banner')
+                            ->label('Banner Image')
+                            ->collection('banner')
+                            ->disk('s3')
+                            ->image()
+                            ->rules([
+                                'dimensions:min_width=1920,min_height=540',
+                                new UploadedImageAspectRatioRule(32 / 9, 0.15), // 32:9 aspect ratio with a ±15% tolerance
+                            ])
+                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
+                            ->maxSize(5120)
+                            ->maxFiles(1)
+                            ->helperText('Upload a high-quality 32:9 ultra-wide banner image (minimum: 1920x540, recommended: 3200x900). The image must be approximately 32:9 aspect ratio (±15% tolerance). The image will be processed to multiple sizes for mobile and desktop.')
+                            ->previewable(true)
+                            ->downloadable(false)
+                            ->disabled(!$user->can('updateField', [$form->model, 'banner'])),
                     ])
                     ->columns(2),
 

@@ -11,8 +11,11 @@ use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\GameResource;
 use App\Models\Game;
 use App\Models\User;
+use App\Support\MediaLibrary\Actions\ExtractBannerEdgeColorsAction;
+use Exception;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class Edit extends EditRecord
 {
@@ -46,6 +49,38 @@ class Edit extends EditRecord
             unset($data['RichPresencePatch']);
         }
 
+        // Remove banner from the data array - it's handled by MediaLibrary, not a database column.
+        unset($data['banner']);
+
         return $data;
+    }
+
+    protected function afterSave(): void
+    {
+        /** @var Game $game */
+        $game = $this->record;
+        $banner = $game->getFirstMedia('banner');
+
+        // Extract and store edge colors.
+        if ($banner && !$banner->getCustomProperty('left_edge_color')) {
+            try {
+                $action = new ExtractBannerEdgeColorsAction();
+
+                $fileContents = Storage::disk('s3')->get($banner->getPath());
+                $extension = $banner->extension;
+                $tempPath = tempnam(sys_get_temp_dir(), 'banner-') . '.' . $extension;
+                file_put_contents($tempPath, $fileContents);
+
+                $colors = $action->execute($tempPath);
+
+                unlink($tempPath);
+
+                $banner->setCustomProperty('left_edge_color', $colors['left_edge_color']);
+                $banner->setCustomProperty('right_edge_color', $colors['right_edge_color']);
+                $banner->save();
+            } catch (Exception $e) {
+                // Silently fail if color extraction fails - this isn't critical.
+            }
+        }
     }
 }

@@ -91,6 +91,7 @@ class GamePolicy
         $roleFieldPermissions = [
             // Junior Developers cannot edit the game title.
             Role::DEVELOPER_JUNIOR => [
+                'banner',
                 'GuideURL',
                 'Developer',
                 'Publisher',
@@ -105,6 +106,7 @@ class GamePolicy
             ],
 
             Role::DEVELOPER => [
+                'banner',
                 'Title',
                 'GuideURL',
                 'Developer',

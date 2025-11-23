@@ -626,7 +626,8 @@ trait BuildsGameListQueries
                 case GameListProgressFilterValue::GteBeatenSoftcore->value:
                     $query->orWhereExists(function ($subQuery) use ($user) {
                         $this->baseAwardsQuery($user)($subQuery)
-                            ->whereIn('SiteAwards.AwardType', [AwardType::GameBeaten, AwardType::Mastery]);
+                            ->whereIn('SiteAwards.AwardType', [AwardType::GameBeaten, AwardType::Mastery])
+                            ->limit(1);
                     });
                     break;
 

@@ -19,6 +19,7 @@
         "erag/laravel-disposable-email": "^3.7",
         "fico7489/laravel-pivot": "^3.0",
         "filament/filament": "3.3.5",
+        "filament/spatie-laravel-media-library-plugin": "^3.0",
         "graham-campbell/markdown": "^16.0",
         "guzzlehttp/guzzle": "^7.5",
         "http-interop/http-factory-guzzle": "^1.2",
