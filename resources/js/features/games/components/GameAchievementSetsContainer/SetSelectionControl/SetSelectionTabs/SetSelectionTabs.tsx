@@ -9,7 +9,8 @@ import { cn } from '@/common/utils/cn';
 import { currentListViewAtom } from '@/features/games/state/games.atoms';
 import { BASE_SET_LABEL } from '@/features/games/utils/baseSetLabel';
 
-import { GameAchievementSetHoverCardContent } from '../../GameAchievementSetHoverCardContent';
+import { GameAchievementSetHoverCardContent } from '../../../GameAchievementSetHoverCardContent';
+import { useHoverCardClickSuppression } from './useHoverCardClickSuppression';
 import { useTabIndicator } from './useTabIndicator';
 
 interface SetSelectionTabsProps {
@@ -29,6 +30,11 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
   const { activeIndex, indicatorStyles, isAnimationReady, setActiveIndex, tabRefs } =
     useTabIndicator(initialActiveIndex);
 
+  const { handleHoverCardOpenChange, handlePointerLeave, handleTabClick, openHoverCard } =
+    useHoverCardClickSuppression({
+      onTabChange: setActiveIndex,
+    });
+
   if (!selectableGameAchievementSets.length) {
     return null;
   }
@@ -39,20 +45,23 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
       <div
         data-testid="tab-indicator"
         className={cn(
-          'absolute bottom-[-6px] left-0 h-[2px] bg-neutral-300 will-change-transform light:bg-neutral-800',
-          isAnimationReady ? 'transition-all duration-200 ease-out' : null,
+          'absolute left-0 top-0 h-[2px] bg-neutral-300 will-change-transform light:bg-neutral-800',
+          isAnimationReady ? 'transition-all duration-150 ease-out' : null,
         )}
         style={indicatorStyles}
       />
 
       {/* Tabs */}
-      <div className="relative flex items-center space-x-[6px]">
+      <div className="relative flex flex-wrap items-center gap-x-[6px] gap-y-4">
         {selectableGameAchievementSets.map((gas, index) => (
           <BaseHoverCard
             key={gas.id}
             openDelay={300}
             closeDelay={100}
-            open={ziggy.device === 'mobile' ? false : undefined}
+            open={ziggy.device === 'mobile' ? false : openHoverCard === index}
+            onOpenChange={(isOpen) => {
+              handleHoverCardOpenChange(index, isOpen);
+            }}
           >
             <BaseHoverCardTrigger asChild>
               <InertiaLink
@@ -63,8 +72,12 @@ export const SetSelectionTabs: FC<SetSelectionTabsProps> = ({ activeTab }) => {
                 })}
                 prefetch="desktop-hover-only"
                 preserveScroll={true}
+                preserveState={true}
                 onClick={() => {
-                  setActiveIndex(index);
+                  handleTabClick(index);
+                }}
+                onPointerLeave={() => {
+                  handlePointerLeave(index);
                 }}
               >
                 <div

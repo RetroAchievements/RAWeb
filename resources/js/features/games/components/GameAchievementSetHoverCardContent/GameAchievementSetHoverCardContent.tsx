@@ -20,7 +20,7 @@ export const GameAchievementSetHoverCardContent: FC<GameAchievementSetHoverCardC
 
   const { formatNumber } = useFormatNumber();
 
-  const { achievementSet, title } = gameAchievementSet;
+  const { achievementSet, title, type } = gameAchievementSet;
   const {
     achievementsFirstPublishedAt,
     achievementsPublished,
@@ -34,17 +34,30 @@ export const GameAchievementSetHoverCardContent: FC<GameAchievementSetHoverCardC
       side="top"
       className="w-[400px] max-w-[400px] border border-embed-highlight bg-box-bg p-2"
     >
-      <div className="flex gap-2">
+      <div className="flex gap-2" data-testid="set-hover-card">
         <img src={imageAssetPathUrl} alt={title ?? BASE_SET_LABEL} className="size-24 rounded-sm" />
 
         <div className="flex flex-col">
           <p
             className={cn(
               'line-clamp-2 font-bold',
-              title && title.length > 24 ? 'mb-1 text-sm leading-4' : '-mt-0.5 text-lg leading-6',
+              title && title.length > 18 ? 'mb-1 text-sm leading-4' : '-mt-0.5 text-lg leading-6',
             )}
           >
-            {title ?? BASE_SET_LABEL}
+            {title ? (
+              <>
+                {type !== 'core' ? (
+                  <>
+                    <span className="tag">
+                      <span>{t('Subset')}</span>
+                    </span>{' '}
+                  </>
+                ) : null}
+                {title}
+              </>
+            ) : (
+              BASE_SET_LABEL
+            )}
           </p>
 
           <p className="flex gap-1">

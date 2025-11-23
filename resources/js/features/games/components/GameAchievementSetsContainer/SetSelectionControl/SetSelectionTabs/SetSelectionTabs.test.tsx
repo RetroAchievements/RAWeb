@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { route } from 'ziggy-js';
 
 import { currentListViewAtom } from '@/features/games/state/games.atoms';
-import { render, screen, waitFor } from '@/test';
+import { __UNSAFE_VERY_DANGEROUS_SLEEP, act, render, screen, waitFor } from '@/test';
 import {
   createAchievementSet,
   createGame,
@@ -17,8 +17,8 @@ import { SetSelectionTabs } from './SetSelectionTabs';
 
 vi.mock('@/common/components/InertiaLink', () => ({
   // InertiaLink doesn't play nicely with onClick in tests.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- preserveScroll is an intentional pick
-  InertiaLink: ({ children, onClick, preserveScroll, ...props }: any) => (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- preserveScroll and preserveState are intentional picks
+  InertiaLink: ({ children, onClick, preserveScroll, preserveState, ...props }: any) => (
     <a
       {...props}
       onClick={(e: any) => {
@@ -292,6 +292,83 @@ describe('Component: SetSelectionTabs', () => {
       },
       { timeout: 200 },
     );
-    expect(indicator).toHaveClass('duration-200');
+    expect(indicator).toHaveClass('duration-150');
+  });
+
+  it('given a tab is clicked, suppresses the hover card from reopening on hover', async () => {
+    // ARRANGE
+    const game = createGame();
+    const achievementSet1 = createAchievementSet({ id: 10 });
+    const achievementSet2 = createAchievementSet({ id: 20 });
+    const selectableGameAchievementSets = [
+      createGameAchievementSet({ achievementSet: achievementSet1, title: 'Set 1' }),
+      createGameAchievementSet({ achievementSet: achievementSet2, title: 'Set 2' }),
+    ];
+
+    render(<SetSelectionTabs activeTab={10} />, {
+      pageProps: {
+        game,
+        selectableGameAchievementSets,
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    const secondTabLink = screen.getAllByRole('link')[1];
+
+    // ACT
+    // ... click the second tab ...
+    await userEvent.click(secondTabLink);
+
+    // ... then hover over it without moving the mouse away first ...
+    await userEvent.hover(secondTabLink);
+
+    // ASSERT
+    expect(screen.queryByTestId('set-hover-card')).not.toBeInTheDocument();
+  });
+
+  it('given a tab is clicked and then the pointer leaves, allows the hover card to reopen after timeout', async () => {
+    // ARRANGE
+    const game = createGame();
+    const achievementSet1 = createAchievementSet({ id: 10 });
+    const achievementSet2 = createAchievementSet({ id: 20 });
+    const selectableGameAchievementSets = [
+      createGameAchievementSet({ achievementSet: achievementSet1, title: 'Set 1' }),
+      createGameAchievementSet({ achievementSet: achievementSet2, title: 'Set 2' }),
+    ];
+
+    render(<SetSelectionTabs activeTab={10} />, {
+      pageProps: {
+        game,
+        selectableGameAchievementSets,
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    const secondTabLink = screen.getAllByRole('link')[1];
+
+    // ... click the second tab ...
+    await userEvent.click(secondTabLink);
+
+    // ... verify it's suppressed ...
+    await userEvent.hover(secondTabLink);
+    expect(screen.queryByTestId('set-hover-card')).not.toBeInTheDocument();
+
+    // ACT
+    // ... move the pointer away from the tab ...
+    await userEvent.unhover(secondTabLink);
+
+    // ... wait for the suppression timeout to clear ...
+    await act(async () => {
+      await __UNSAFE_VERY_DANGEROUS_SLEEP(500);
+    });
+
+    // ... then hover over it again ...
+    await userEvent.hover(secondTabLink);
+
+    // ASSERT
+    // ... now the hover card should appear because we moved away and the timeout cleared ...
+    await waitFor(() => {
+      expect(screen.getByTestId('set-hover-card')).toBeVisible();
+    });
   });
 });

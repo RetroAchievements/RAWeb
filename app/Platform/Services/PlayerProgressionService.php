@@ -11,7 +11,7 @@ use App\Platform\Enums\UnlockMode;
 
 class PlayerProgressionService
 {
-    public function buildPrimaryCountsMetrics(array $filteredAndJoinedGamesList, ?int $consoleId = null): array
+    public function buildPrimaryCountsMetrics(array $filteredAndJoinedGamesList, ?int $consoleId = null, array $excludedGameIdsFromUnfinished = []): array
     {
         if ($consoleId) {
             $filteredAndJoinedGamesList = array_filter(
@@ -33,7 +33,9 @@ class PlayerProgressionService
 
         foreach ($filteredAndJoinedGamesList as $game) {
             if (!isset($game['HighestAwardKind'])) {
-                $metrics['numUnfinished']++;
+                if (!in_array($game['GameID'], $excludedGameIdsFromUnfinished)) {
+                    $metrics['numUnfinished']++;
+                }
             } elseif ($game['HighestAwardKind'] === 'beaten-softcore') {
                 $metrics['numBeatenSoftcore']++;
             } elseif ($game['HighestAwardKind'] === 'beaten-hardcore') {
