@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Actions\AddGameBadgeCreditAction;
+use App\Community\Actions\AddGameCreditAction;
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
 use App\Enums\Permissions;
@@ -75,7 +75,7 @@ if (!$game->save()) {
 if ($field === 'ImageIcon') {
     // Credit the uploader for artwork. Note that this is smart
     // enough to not create duplicate credit entries.
-    (new AddGameBadgeCreditAction())->execute($game, $userModel);
+    (new AddGameCreditAction())->execute($game, $userModel);
 
     // Double write to game_sets.
     if ($game->ConsoleID === System::Hubs) {

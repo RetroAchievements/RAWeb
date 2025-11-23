@@ -189,6 +189,18 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
               </TooltipCreditsSection>
             ) : null}
 
+            {aggregateCredits.achievementSetBanner.length ? (
+              <TooltipCreditsSection headingLabel={t('Banner Artwork')}>
+                {aggregateCredits.achievementSetBanner.map((credit) => (
+                  <TooltipCreditRow
+                    key={`tooltip-banner-artwork-credit-${credit.displayName}`}
+                    credit={credit}
+                    showCreditDate={true}
+                  />
+                ))}
+              </TooltipCreditsSection>
+            ) : null}
+
             {aggregateCredits.achievementsArtwork.length ? (
               <TooltipCreditsSection headingLabel={t('Achievement Artwork')}>
                 {aggregateCredits.achievementsArtwork.map((credit) => (

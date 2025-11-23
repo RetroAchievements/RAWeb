@@ -448,6 +448,7 @@ class BuildGameShowPagePropsAction
         $achievementsAuthors = collect();
         $achievementsMaintainers = collect();
         $achievementSetArtworkCredits = collect();
+        $achievementSetBannerCredits = collect();
         $achievementsArtworkCredits = collect();
         $achievementsDesignCredits = collect();
         $achievementsLogicCredits = collect();
@@ -463,7 +464,7 @@ class BuildGameShowPagePropsAction
             ->filter()
             ->values();
 
-        // Process achievement set authors. Right now, we only support badge artwork as a task.
+        // Process achievement set authors.
         foreach ($game->gameAchievementSets as $gameAchievementSet) {
             $achievementSet = $gameAchievementSet->achievementSet;
 
@@ -481,6 +482,23 @@ class BuildGameShowPagePropsAction
                     'user' => $mostRecentArtworkAuthor->user,
                     'count' => ($existing['count'] ?? 0) + 1,
                     'created_at' => $mostRecentArtworkAuthor->created_at,
+                ]);
+            }
+
+            // Get only the most recent banner author for this achievement set.
+            $mostRecentBannerAuthor = $achievementSet->achievementSetAuthors
+                ->filter(fn ($author) => $author->task === AchievementSetAuthorTask::Banner)
+                ->sortByDesc('created_at')
+                ->first();
+
+            if ($mostRecentBannerAuthor) {
+                $userId = $mostRecentBannerAuthor->user_id;
+                $existing = $achievementSetBannerCredits->get($userId);
+
+                $achievementSetBannerCredits->put($userId, [
+                    'user' => $mostRecentBannerAuthor->user,
+                    'count' => ($existing['count'] ?? 0) + 1,
+                    'created_at' => $mostRecentBannerAuthor->created_at,
                 ]);
             }
         }
@@ -617,6 +635,7 @@ class BuildGameShowPagePropsAction
             achievementsArtwork: $sortByCountDesc($achievementsArtworkCredits),
             achievementsDesign: $sortByCountDesc($achievementsDesignCredits),
             achievementSetArtwork: $sortByCountDesc($achievementSetArtworkCredits),
+            achievementSetBanner: $sortByCountDesc($achievementSetBannerCredits),
             achievementsLogic: $sortByCountDesc($achievementsLogicCredits),
             achievementsTesting: $sortByCountDesc($achievementsTestingCredits),
             achievementsWriting: $sortByCountDesc($achievementsWritingCredits),

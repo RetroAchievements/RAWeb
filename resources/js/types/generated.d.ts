@@ -129,7 +129,6 @@ declare namespace App.Community.Data {
     canReply: boolean;
     senderUserAvatarUrl: string | null;
     senderUserDisplayName: string;
-    can: App.Data.UserPermissions;
   };
   export type PatreonSupportersPageProps = {
     recentSupporters: Array<App.Data.User>;
@@ -602,6 +601,7 @@ declare namespace App.Platform.Data {
     achievementsArtwork: Array<App.Platform.Data.UserCredits>;
     achievementsDesign: Array<App.Platform.Data.UserCredits>;
     achievementSetArtwork: Array<App.Platform.Data.UserCredits>;
+    achievementSetBanner: Array<App.Platform.Data.UserCredits>;
     achievementsLogic: Array<App.Platform.Data.UserCredits>;
     achievementsTesting: Array<App.Platform.Data.UserCredits>;
     achievementsWriting: Array<App.Platform.Data.UserCredits>;
@@ -1110,7 +1110,7 @@ declare namespace App.Platform.Data {
 declare namespace App.Platform.Enums {
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
   export type AchievementFlag = 3 | 5;
-  export type AchievementSetAuthorTask = 'artwork';
+  export type AchievementSetAuthorTask = 'artwork' | 'banner';
   export type AchievementSetType =
     | 'core'
     | 'bonus'
