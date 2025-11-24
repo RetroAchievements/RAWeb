@@ -3,6 +3,7 @@ import { route } from 'ziggy-js';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { InertiaLink as Link } from '@/common/components/InertiaLink';
+import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 
@@ -11,8 +12,25 @@ type AuthorizeDeviceProps = {
     client_id: string;
   };
 };
+
 const DeviceCode: AppPage<AuthorizeDeviceProps> = () => {
+  const { flash } = usePageProps<{ flash?: { status?: string | null } }>();
+
   const [userCode, setUserCode] = useState('');
+
+  const isSuccess = flash?.status === 'authorization-approved';
+
+  if (isSuccess) {
+    return (
+      <div className="container">
+        <AppLayout.Main>
+          <p>
+            {'Device authorized successfully. You can close this window and return to your device.'}
+          </p>
+        </AppLayout.Main>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Enums\Permissions;
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Passport\Passport;
 
@@ -51,6 +53,22 @@ class AuthServiceProvider extends ServiceProvider
                     'request' => $parameters['request'],
                     'authToken' => $parameters['authToken'],
                 ])->toResponse(request());
+        });
+
+        /**
+         * Add `inertia` middleware to Passport routes that render as Inertia pages.
+         * This enables `flash` data sharing for success/error states.
+         */
+        $this->app->booted(function () {
+            $passportRouteNames = [
+                'passport.authorizations.authorize',
+                'passport.device.authorizations.authorize',
+                'passport.device',
+            ];
+
+            foreach ($passportRouteNames as $routeName) {
+                Route::getRoutes()->getByName($routeName)?->middleware(HandleInertiaRequests::class);
+            }
         });
 
         /*
