@@ -7,13 +7,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 
-type AuthorizeDeviceProps = {
-  request: {
-    client_id: string;
-  };
-};
-
-const DeviceCode: AppPage<AuthorizeDeviceProps> = () => {
+const DeviceCode: AppPage<App.Data.DeviceCodePageProps> = () => {
   const { flash } = usePageProps();
 
   const [userCode, setUserCode] = useState('');

@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Enums\Permissions;
+use App\Data\AuthorizeDevicePagePropsData;
+use App\Data\DeviceAuthorizationRequestData;
+use App\Data\DeviceCodePagePropsData;
+use App\Data\DeviceCodeRequestData;
+use App\Data\OAuthAuthorizePagePropsData;
+use App\Data\OAuthClientData;
+use App\Data\OAuthRequestData;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Role;
 use App\Models\User;
@@ -30,29 +36,27 @@ class AuthServiceProvider extends ServiceProvider
         }
 
         Passport::authorizationView(function ($parameters) {
-            return Inertia::render('auth/oauth/authorize', [
-                'user' => $parameters['user'],
-                'client' => $parameters['client'],
-                'scopes' => $parameters['scopes'],
-                'request' => $parameters['request'],
-                'authToken' => $parameters['authToken'],
-            ])->toResponse(request());
+            return Inertia::render('auth/oauth/authorize', new OAuthAuthorizePagePropsData(
+                client: OAuthClientData::fromClient($parameters['client']),
+                scopes: $parameters['scopes'],
+                request: OAuthRequestData::fromPassportRequest($parameters['request']),
+                authToken: $parameters['authToken'],
+            ))->toResponse(request());
         });
 
         Passport::deviceUserCodeView(function ($parameters) {
-            return Inertia::render('auth/oauth/device-code', [
-                'request' => $parameters['request'],
-            ])->toResponse(request());
+            return Inertia::render('auth/oauth/device-code', new DeviceCodePagePropsData(
+                request: DeviceCodeRequestData::fromPassportRequest($parameters['request']),
+            ))->toResponse(request());
         });
 
         Passport::deviceAuthorizationView(function ($parameters) {
-                return Inertia::render('auth/oauth/authorize-device', [
-                    'user' => $parameters['user'],
-                    'client' => $parameters['client'],
-                    'scopes' => $parameters['scopes'],
-                    'request' => $parameters['request'],
-                    'authToken' => $parameters['authToken'],
-                ])->toResponse(request());
+            return Inertia::render('auth/oauth/authorize-device', new AuthorizeDevicePagePropsData(
+                client: OAuthClientData::fromClient($parameters['client']),
+                scopes: $parameters['scopes'],
+                request: DeviceAuthorizationRequestData::fromPassportRequest($parameters['request']),
+                authToken: $parameters['authToken'],
+            ))->toResponse(request());
         });
 
         /**

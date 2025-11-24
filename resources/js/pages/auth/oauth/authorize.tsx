@@ -5,30 +5,7 @@ import { InertiaLink as Link } from '@/common/components/InertiaLink';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 
-type AuthorizeProps = {
-  user: App.Data.User;
-  scopes: string[];
-  request: {
-    scope: string;
-    state?: string;
-    client_id: string;
-    redirect_uri: string;
-    response_type: string;
-  };
-  authToken: string;
-  client: {
-    id: string;
-    name: string;
-    redirect: string;
-    revoked: boolean;
-    created_at: string;
-    updated_at: string;
-    password_client: boolean;
-    personal_access_client: boolean;
-  };
-};
-
-const Authorize: AppPage<AuthorizeProps> = (props) => {
+const Authorize: AppPage<App.Data.OAuthAuthorizePageProps> = ({ authToken, client, request }) => {
   return (
     <>
       <div className="container">
@@ -42,9 +19,9 @@ const Authorize: AppPage<AuthorizeProps> = (props) => {
               href={route('passport.authorizations.approve')}
               method="post"
               data={{
-                state: props.request.state,
-                client_id: props.client.id,
-                auth_token: props.authToken,
+                state: request.state,
+                client_id: client.id,
+                auth_token: authToken,
               }}
             >
               {'Approve'}
@@ -57,9 +34,9 @@ const Authorize: AppPage<AuthorizeProps> = (props) => {
               href={route('passport.authorizations.deny')}
               method="delete"
               data={{
-                state: props.request.state,
-                client_id: props.client.id,
-                auth_token: props.authToken,
+                state: request.state,
+                client_id: client.id,
+                auth_token: authToken,
               }}
             >
               {'Reject'}

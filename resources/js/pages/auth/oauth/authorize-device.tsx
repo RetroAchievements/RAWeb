@@ -5,27 +5,7 @@ import { InertiaLink as Link } from '@/common/components/InertiaLink';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 
-type AuthorizeDeviceProps = {
-  user: App.Data.User;
-  scopes: string[];
-  client: {
-    id: string;
-    name: string;
-    redirect: string;
-    revoked: boolean;
-    created_at: string;
-    updated_at: string;
-    password_client: boolean;
-    personal_access_client: boolean;
-  };
-  request: {
-    state?: string;
-    user_code: string;
-  };
-  authToken: string;
-};
-
-const AuthorizeDevice: AppPage<AuthorizeDeviceProps> = (props) => {
+const AuthorizeDevice: AppPage<App.Data.AuthorizeDevicePageProps> = (props) => {
   return (
     <>
       <div className="container">
