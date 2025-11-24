@@ -1,9 +1,9 @@
-import type { AppPage } from "@/common/models";
-import { useTranslation } from "react-i18next";
-import { AppLayout } from "@/common/layouts/AppLayout";
-import { Link } from "@inertiajs/react";
-import { route } from "ziggy-js";
-import { baseButtonVariants } from "@/common/components/+vendor/BaseButton";
+import { route } from 'ziggy-js';
+
+import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
+import { InertiaLink as Link } from '@/common/components/InertiaLink';
+import { AppLayout } from '@/common/layouts/AppLayout';
+import type { AppPage } from '@/common/models';
 
 type AuthorizeDeviceProps = {
   user: App.Data.User;
@@ -26,18 +26,17 @@ type AuthorizeDeviceProps = {
 };
 
 const AuthorizeDevice: AppPage<AuthorizeDeviceProps> = (props) => {
-  console.log(props);
   return (
     <>
       <div className="container">
         <AppLayout.Main className="min-h-[4000px]">
-          <div className="gap-4 flex ">
+          <div className="flex gap-4">
             <Link
               className={baseButtonVariants({
-                size: "sm",
-                className: "gap-1",
+                size: 'sm',
+                className: 'gap-1',
               })}
-              href={route("passport.device.authorizations.approve")}
+              href={route('passport.device.authorizations.approve')}
               method="post"
               data={{
                 state: props.request.state,
@@ -45,14 +44,14 @@ const AuthorizeDevice: AppPage<AuthorizeDeviceProps> = (props) => {
                 auth_token: props.authToken,
               }}
             >
-              Approve
+              {'Approve'}
             </Link>
             <Link
               className={baseButtonVariants({
-                size: "sm",
-                className: "gap-1",
+                size: 'sm',
+                className: 'gap-1',
               })}
-              href={route("passport.device.authorizations.deny")}
+              href={route('passport.device.authorizations.deny')}
               method="delete"
               data={{
                 state: props.request.state,
@@ -60,7 +59,7 @@ const AuthorizeDevice: AppPage<AuthorizeDeviceProps> = (props) => {
                 auth_token: props.authToken,
               }}
             >
-              Reject
+              {'Reject'}
             </Link>
           </div>
         </AppLayout.Main>
@@ -69,8 +68,6 @@ const AuthorizeDevice: AppPage<AuthorizeDeviceProps> = (props) => {
   );
 };
 
-AuthorizeDevice.layout = (page) => (
-  <AppLayout withSidebar={false}>{page}</AppLayout>
-);
+AuthorizeDevice.layout = (page) => <AppLayout withSidebar={false}>{page}</AppLayout>;
 
 export default AuthorizeDevice;
