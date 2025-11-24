@@ -37,6 +37,12 @@ class AuthServiceProvider extends ServiceProvider
             ])->toResponse(request());
         });
 
+        Passport::deviceUserCodeView(function ($parameters) {
+            return Inertia::render('auth/oauth/device-code', [
+                'request' => $parameters['request'],
+            ])->toResponse(request());
+        });
+
         Passport::deviceAuthorizationView(function ($parameters) {
                 return Inertia::render('auth/oauth/authorize-device', [
                     'user' => $parameters['user'],

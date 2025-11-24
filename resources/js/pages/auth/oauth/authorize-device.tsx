@@ -1,18 +1,13 @@
 import type { AppPage } from "@/common/models";
 import { useTranslation } from "react-i18next";
 import { AppLayout } from "@/common/layouts/AppLayout";
-import { PatreonSupportersRoot } from "@/features/patreon-supporters/components/+root";
+import { Link } from "@inertiajs/react";
+import { route } from "ziggy-js";
+import { baseButtonVariants } from "@/common/components/+vendor/BaseButton";
 
-type AuthorizeProps = {
+type AuthorizeDeviceProps = {
   user: App.Data.User;
   scopes: string[];
-  request: {
-    scope: string;
-    client_id: string;
-    redirect_uri: string;
-    response_type: string;
-  };
-  authToken: string;
   client: {
     id: string;
     name: string;
@@ -23,21 +18,59 @@ type AuthorizeProps = {
     password_client: boolean;
     personal_access_client: boolean;
   };
+  request: {
+    state?: string;
+    user_code: string;
+  };
+  authToken: string;
 };
-const Authorize: AppPage<AuthorizeProps> = (props) => {
-  const { t } = useTranslation();
 
+const AuthorizeDevice: AppPage<AuthorizeDeviceProps> = (props) => {
+  console.log(props);
   return (
     <>
       <div className="container">
         <AppLayout.Main className="min-h-[4000px]">
-          <PatreonSupportersRoot />
+          <div className="gap-4 flex ">
+            <Link
+              className={baseButtonVariants({
+                size: "sm",
+                className: "gap-1",
+              })}
+              href={route("passport.device.authorizations.approve")}
+              method="post"
+              data={{
+                state: props.request.state,
+                client_id: props.client.id,
+                auth_token: props.authToken,
+              }}
+            >
+              Approve
+            </Link>
+            <Link
+              className={baseButtonVariants({
+                size: "sm",
+                className: "gap-1",
+              })}
+              href={route("passport.device.authorizations.deny")}
+              method="delete"
+              data={{
+                state: props.request.state,
+                client_id: props.client.id,
+                auth_token: props.authToken,
+              }}
+            >
+              Reject
+            </Link>
+          </div>
         </AppLayout.Main>
       </div>
     </>
   );
 };
 
-Authorize.layout = (page) => <AppLayout withSidebar={false}>{page}</AppLayout>;
+AuthorizeDevice.layout = (page) => (
+  <AppLayout withSidebar={false}>{page}</AppLayout>
+);
 
-export default Authorize;
+export default AuthorizeDevice;
