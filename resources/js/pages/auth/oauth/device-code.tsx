@@ -14,12 +14,11 @@ type AuthorizeDeviceProps = {
 };
 
 const DeviceCode: AppPage<AuthorizeDeviceProps> = () => {
-  const { flash } = usePageProps<{ flash?: { status?: string | null } }>();
+  const { flash } = usePageProps();
 
   const [userCode, setUserCode] = useState('');
 
   const isSuccess = flash?.status === 'authorization-approved';
-
   if (isSuccess) {
     return (
       <div className="container">

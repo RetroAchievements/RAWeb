@@ -17,6 +17,9 @@ export type AuthenticatedUser = SetRequired<
   | 'websitePrefs'
 >;
 
+/**
+ * @see HandleInertiaRequests.php
+ */
 export interface AppGlobalProps extends PageProps {
   auth: { user: AuthenticatedUser } | null;
 
@@ -31,6 +34,8 @@ export interface AppGlobalProps extends PageProps {
 
   metaKey: string;
   ziggy: ZiggyProps;
+
+  flash?: { status?: string | null };
 }
 
 export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) => ({
