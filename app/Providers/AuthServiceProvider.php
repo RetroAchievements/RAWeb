@@ -23,6 +23,10 @@ class AuthServiceProvider extends ServiceProvider
         // Passport::routes();
         // Passport::cookie(config('session.cookie') . '_token');
 
+        if (app()->isProduction()) {
+            Passport::ignoreRoutes();
+        }
+
         Passport::authorizationView(function ($parameters) {
             return Inertia::render('auth/oauth/authorize', [
                 'user' => $parameters['user'],
