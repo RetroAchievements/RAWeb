@@ -11,7 +11,7 @@ use App\Actions\UpdateUserProfileInformation;
 use App\Enums\Permissions;
 use App\Http\Responses\LoginResponse;
 use App\Models\User;
-use Hash;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
