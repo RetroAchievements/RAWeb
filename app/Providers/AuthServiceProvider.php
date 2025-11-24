@@ -24,7 +24,7 @@ class AuthServiceProvider extends ServiceProvider
         // Passport::cookie(config('session.cookie') . '_token');
 
         Passport::authorizationView(function ($parameters) {
-            return Inertia::render('pages/auth/oauth/authorize', [
+            return Inertia::render('auth/oauth/authorize', [
                 'user' => $parameters['user'],
                 'client' => $parameters['client'],
                 'scopes' => $parameters['scopes'],
@@ -34,7 +34,7 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         Passport::deviceAuthorizationView(function ($parameters) {
-                return Inertia::render('pages/auth/oauth/authorize-device', [
+                return Inertia::render('auth/oauth/authorize-device', [
                     'user' => $parameters['user'],
                     'client' => $parameters['client'],
                     'scopes' => $parameters['scopes'],
