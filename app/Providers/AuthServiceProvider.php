@@ -9,6 +9,8 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Inertia\Inertia;
+use Laravel\Passport\Passport;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -20,6 +22,26 @@ class AuthServiceProvider extends ServiceProvider
          */
         // Passport::routes();
         // Passport::cookie(config('session.cookie') . '_token');
+
+        Passport::authorizationView(function ($parameters) {
+            return Inertia::render('pages/auth/oauth/authorize', [
+                'user' => $parameters['user'],
+                'client' => $parameters['client'],
+                'scopes' => $parameters['scopes'],
+                'request' => $parameters['request'],
+                'authToken' => $parameters['authToken'],
+            ])->toResponse(request());
+        });
+
+        Passport::deviceAuthorizationView(function ($parameters) {
+                return Inertia::render('pages/auth/oauth/authorize-device', [
+                    'user' => $parameters['user'],
+                    'client' => $parameters['client'],
+                    'scopes' => $parameters['scopes'],
+                    'request' => $parameters['request'],
+                    'authToken' => $parameters['authToken'],
+                ])->toResponse(request());
+        });
 
         /*
          * a general manage role
