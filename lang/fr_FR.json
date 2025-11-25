@@ -1181,6 +1181,8 @@
     "We'll automatically be sent the link, author, timestamp, and content excerpt when you submit. Just describe what you're reporting and <1>which rule</1> was violated.": "Nous enverrons automatiquement le lien, l'auteur, l'horodatage et l'extrait de contenu lorsque vous soumettrez. Il suffit de décrire ce que vous signalez et <1>quelle règle</1> a été violée.",
     "Muted": "Muet",
     "Banned": "Banni",
+    "Latest Site Updates": "Dernières Mises à jour du site",
+    "See full release notes": "Voir les notes de version complète",
     "supportedGameFilesCountLabel_one": "Il y a actuellement <1>{{count, number}}</1> empreinte de fichier de jeu pris en charge enregistrée pour ce jeu.",
     "supportedGameFilesCountLabel_other": "Il y a actuellement <1>{{count, number}}</1> empreintes de fichiers de jeu pris en charge enregistrées pour ce jeu.",
     "userCount_one": "<1>{{userCount, number}}</1> utilisateur est actuellement en ligne.",
