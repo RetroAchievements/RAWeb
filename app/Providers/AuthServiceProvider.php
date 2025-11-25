@@ -6,8 +6,8 @@ namespace App\Providers;
 
 use App\Data\AuthorizeDevicePagePropsData;
 use App\Data\DeviceAuthorizationRequestData;
-use App\Data\EnterDeviceCodePagePropsData;
 use App\Data\DeviceCodeRequestData;
+use App\Data\EnterDeviceCodePagePropsData;
 use App\Data\OAuthAuthorizePagePropsData;
 use App\Data\OAuthClientData;
 use App\Data\OAuthRequestData;
