@@ -36,7 +36,7 @@ class AuthServiceProvider extends ServiceProvider
         }
 
         Passport::authorizationView(function ($parameters) {
-            return Inertia::render('auth/oauth/authorize', new OAuthAuthorizePagePropsData(
+            return Inertia::render('oauth/authorize', new OAuthAuthorizePagePropsData(
                 client: OAuthClientData::fromClient($parameters['client']),
                 scopes: $parameters['scopes'],
                 request: OAuthRequestData::fromPassportRequest($parameters['request']),
@@ -45,13 +45,13 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         Passport::deviceUserCodeView(function ($parameters) {
-            return Inertia::render('auth/oauth/device-code', new DeviceCodePagePropsData(
+            return Inertia::render('oauth/device', new DeviceCodePagePropsData(
                 request: DeviceCodeRequestData::fromPassportRequest($parameters['request']),
             ))->toResponse(request());
         });
 
         Passport::deviceAuthorizationView(function ($parameters) {
-            return Inertia::render('auth/oauth/authorize-device', new AuthorizeDevicePagePropsData(
+            return Inertia::render('oauth/device/authorize', new AuthorizeDevicePagePropsData(
                 client: OAuthClientData::fromClient($parameters['client']),
                 scopes: $parameters['scopes'],
                 request: DeviceAuthorizationRequestData::fromPassportRequest($parameters['request']),
