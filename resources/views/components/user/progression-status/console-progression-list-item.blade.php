@@ -15,10 +15,6 @@ $totalBeatenGamesCount = $beatenSoftcoreCount + $beatenHardcoreCount;
 $totalMasteredGamesCount = $completedCount + $masteredCount;
 $totalGamesCount = $unfinishedCount + $beatenSoftcoreCount + $beatenHardcoreCount + $completedCount + $masteredCount;
 
-$unfinishedGamesWidth = sprintf("%1.2f", ($unfinishedCount / $totalGamesCount) * 100.0);
-$beatenGamesWidth = sprintf("%1.2f", ($totalBeatenGamesCount / $totalGamesCount) * 100.0);
-$masteredGamesWidth = sprintf("%1.2f", ($totalMasteredGamesCount / $totalGamesCount) * 100.0);
-
 $widthsPreference = request()->cookie('progression_status_widths_preference');
 
 $widthMode = $widthsPreference;
