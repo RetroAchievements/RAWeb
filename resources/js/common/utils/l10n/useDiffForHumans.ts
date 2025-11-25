@@ -1,8 +1,6 @@
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 
-import { mapDayjsLocaleToIntlLocale } from '@/common/utils/l10n/mapDayjsLocaleToIntlLocale';
-
 type TimeUnit = 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
 
 interface DiffForHumansOptions {
@@ -21,7 +19,7 @@ interface DiffForHumansOptions {
 }
 
 export function useDiffForHumans() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const diffForHumans = (date: string, options: DiffForHumansOptions = {}) => {
     const { from, maxUnit, style } = options;
@@ -30,7 +28,7 @@ export function useDiffForHumans() {
     const isPast = diffInSeconds > 0;
     const seconds = Math.abs(diffInSeconds);
 
-    const formatter = new Intl.RelativeTimeFormat(mapDayjsLocaleToIntlLocale(dayjs.locale()), {
+    const formatter = new Intl.RelativeTimeFormat(i18n.language.replace('_', '-'), {
       numeric: 'always',
       style: style ?? 'long',
     });
