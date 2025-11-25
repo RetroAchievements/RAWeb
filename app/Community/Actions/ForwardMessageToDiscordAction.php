@@ -523,11 +523,19 @@ class ForwardMessageToDiscordAction
         MessageThread $messageThread,
         Message $message,
     ): void {
+        // Check if this thread is associated with a moderation report.
+        // If so, we need to use reports_url to post to the reports forum.
+        $isReportThread = UserModerationReport::where('message_thread_id', $messageThread->id)->exists();
+
         $webhookUrl = '';
-        foreach (['url', 'reports_url', 'verify_url', 'manual_unlock_url'] as $key) {
-            if (!empty($senderInboxConfig[$key])) {
-                $webhookUrl = $senderInboxConfig[$key];
-                break;
+        if ($isReportThread && !empty($senderInboxConfig['reports_url'])) {
+            $webhookUrl = $senderInboxConfig['reports_url'];
+        } else {
+            foreach (['url', 'reports_url', 'verify_url', 'manual_unlock_url'] as $key) {
+                if (!empty($senderInboxConfig[$key])) {
+                    $webhookUrl = $senderInboxConfig[$key];
+                    break;
+                }
             }
         }
 
