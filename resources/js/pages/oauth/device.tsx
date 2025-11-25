@@ -1,58 +1,11 @@
-import { useState } from 'react';
-import { route } from 'ziggy-js';
-
-import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
-import { InertiaLink as Link } from '@/common/components/InertiaLink';
-import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
+import { EnterDeviceCodeRoot } from '@/features/auth/components/+enter-device-code';
 
-const DeviceCode: AppPage<App.Data.DeviceCodePageProps> = () => {
-  const { flash } = usePageProps();
-
-  const [userCode, setUserCode] = useState('');
-
-  const isSuccess = flash?.status === 'authorization-approved';
-  if (isSuccess) {
-    return (
-      <div className="container">
-        <AppLayout.Main>
-          <p>
-            {'Device authorized successfully. You can close this window and return to your device.'}
-          </p>
-        </AppLayout.Main>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <div className="container">
-        <AppLayout.Main className="min-h-[4000px]">
-          <p>{'enter your code below'}</p>
-          <input
-            type="text"
-            placeholder="here plz"
-            value={userCode}
-            onChange={(e) => setUserCode(e.target.value)}
-          />
-          <Link
-            className={baseButtonVariants({
-              size: 'sm',
-              className: 'gap-1',
-            })}
-            href={route('passport.device.authorizations.authorize')}
-            method="get"
-            data={{ user_code: userCode }}
-          >
-            {'Submit'}
-          </Link>
-        </AppLayout.Main>
-      </div>
-    </>
-  );
+const EnterDeviceCode: AppPage<App.Data.EnterDeviceCodePageProps> = () => {
+  return <EnterDeviceCodeRoot />;
 };
 
-DeviceCode.layout = (page) => <AppLayout withSidebar={false}>{page}</AppLayout>;
+EnterDeviceCode.layout = (page) => <AppLayout withSidebar={false}>{page}</AppLayout>;
 
-export default DeviceCode;
+export default EnterDeviceCode;

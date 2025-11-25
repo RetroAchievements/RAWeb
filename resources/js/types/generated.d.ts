@@ -286,14 +286,14 @@ declare namespace App.Data {
     userCode: string;
     state: string | null;
   };
-  export type DeviceCodePageProps = {
-    request: App.Data.DeviceCodeRequest;
-  };
   export type DeviceCodeRequest = {
     clientId: string | null;
   };
   export type EditForumTopicCommentPageProps = {
     forumTopicComment: App.Data.ForumTopicComment;
+  };
+  export type EnterDeviceCodePageProps = {
+    request: App.Data.DeviceCodeRequest;
   };
   export type ForumCategory = {
     id: number;

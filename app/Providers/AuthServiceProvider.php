@@ -6,7 +6,7 @@ namespace App\Providers;
 
 use App\Data\AuthorizeDevicePagePropsData;
 use App\Data\DeviceAuthorizationRequestData;
-use App\Data\DeviceCodePagePropsData;
+use App\Data\EnterDeviceCodePagePropsData;
 use App\Data\DeviceCodeRequestData;
 use App\Data\OAuthAuthorizePagePropsData;
 use App\Data\OAuthClientData;
@@ -45,7 +45,7 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         Passport::deviceUserCodeView(function ($parameters) {
-            return Inertia::render('oauth/device', new DeviceCodePagePropsData(
+            return Inertia::render('oauth/device', new EnterDeviceCodePagePropsData(
                 request: DeviceCodeRequestData::fromPassportRequest($parameters['request']),
             ))->toResponse(request());
         });

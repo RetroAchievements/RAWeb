@@ -160,11 +160,24 @@ class RouteServiceProvider extends ServiceProvider
              */
             if (!app()->isProduction()) {
                 // TODO eventually remove after we're happy with our OAuth2 implementation
-                Route::get('auth/callback', fn () => response()->json([
-                    'message' => 'OAuth authorization successful',
-                    'code' => request()->get('code'),
-                    'state' => request()->get('state'),
-                ]))->name('auth.callback.test');
+                Route::get('auth/callback', function () {
+                    $error = request()->get('error');
+
+                    if ($error) {
+                        return response()->json([
+                            'message' => 'OAuth authorization denied',
+                            'error' => $error,
+                            'error_description' => request()->get('error_description'),
+                            'state' => request()->get('state'),
+                        ]);
+                    }
+
+                    return response()->json([
+                        'message' => 'OAuth authorization successful',
+                        'code' => request()->get('code'),
+                        'state' => request()->get('state'),
+                    ]);
+                })->name('auth.callback.test');
             }
         });
     }
