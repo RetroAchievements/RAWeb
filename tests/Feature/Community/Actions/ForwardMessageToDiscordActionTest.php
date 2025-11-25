@@ -1072,4 +1072,61 @@ class ForwardMessageToDiscordActionTest extends TestCase
         parse_str($request->getUri()->getQuery(), $queryParams);
         $this->assertEquals('existing_thread_456', $queryParams['thread_id']); // found thread via message_thread_id
     }
+
+    public function testItUsesReportsUrlWhenTeamRepliesEvenWhenUrlIsConfigured(): void
+    {
+        // Arrange
+        // ... team account has both url AND reports_url configured ...
+        $teamAccount = User::factory()->create(['User' => 'RAdmin']);
+        $this->setDiscordConfig(
+            $teamAccount,
+            webhookUrl: 'https://discord.com/api/webhooks/inbox/general',
+            isForum: true,
+            reportsUrl: 'https://discord.com/api/webhooks/reports/moderation'
+        );
+
+        // ... user reports something to the team account ...
+        $reportedComment = ForumTopicComment::factory()->create([
+            'body' => 'Spam content',
+            'author_id' => $this->sender->id,
+        ]);
+        $reportedComment->load('forumTopic');
+
+        $reportThread = MessageThread::factory()->create(['title' => 'Report: Spam']);
+        $reportMessage = Message::factory()->create([
+            'thread_id' => $reportThread->id,
+            'author_id' => $this->sender->id,
+            'body' => 'This is spam',
+        ]);
+        $this->queueDiscordResponses(1, ['channel_id' => 'report_thread_abc']);
+
+        $report = $this->createModerationReport(
+            $this->sender,
+            ModerationReportableType::ForumTopicComment,
+            $reportedComment->id,
+            $reportThread
+        );
+
+        $this->action->execute($this->sender, $teamAccount, $reportThread, $reportMessage, $report->id);
+
+        // ... team account replies to the report ...
+        $this->webhookHistory = [];
+        $replyMessage = Message::factory()->create([
+            'thread_id' => $reportThread->id,
+            'author_id' => $teamAccount->id,
+            'body' => 'We are looking into this',
+        ]);
+        $this->queueDiscordResponses(1);
+
+        // Act
+        // ... team replies, userFrom=team, userTo=reporter ...
+        $this->action->execute($teamAccount, $this->sender, $reportThread, $replyMessage);
+
+        // Assert
+        // ... the reply should use reports_url, NOT the general inbox url ...
+        $this->assertCount(1, $this->webhookHistory);
+        $request = $this->webhookHistory[0]['request'];
+        $this->assertStringContainsString('/webhooks/reports/moderation', $request->getUri()->getPath());
+        $this->assertStringContainsString('thread_id=report_thread_abc', $request->getUri()->getQuery());
+    }
 }
