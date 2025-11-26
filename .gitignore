@@ -1,55 +1,87 @@
-/bootstrap/ssr
-/coverage
-/database/*.sql
-/docker/nginx/logs
-/docs/dist
+# Dependencies
 /node_modules
-/public/build
-/public/hot
-/public/Badge
-/public/Images
-/public/UserPic
+/vendor
+
+# Build output
+/bootstrap/ssr
+/docs/dist
 /public/assets/build
-/public/bin
-/public/docs
-/public/media
-/public/storage
+/public/build
+/public/fi-build
+/public/filament.hot
+/public/hot
 /public/vendor/filament
-/public/tmp
-# TODO replace LatestIntegration.html with integration release management and V2 connect API
-/public/Latest*
-/public/.well-known
-/reports
-/resources/views/pages-legacy/interceptor/
+
+# Generated files
+_ide_helper_models.php
+_ide_helper.php
+.phpstorm.meta.php
+/resources/js/ziggy.d.ts
+/resources/js/ziggy.js
+
+# Environment and config
+/.env*
+auth.json
+Homestead.json
+Homestead.yaml
+
+# Storage and logs
+/database/*.sql
 /storage/*.key
 /storage/backup
 /storage/media-library
-/vendor
-/tmp
+/storage/pail
+
+# Public assets (user content, local data)
+/public/.well-known
+/public/Badge
+/public/bin
+/public/docs
+/public/Images
+# TODO replace LatestIntegration.html with integration release management and V2 connect API
+/public/Latest*
+/public/media
+/public/storage
+/public/tmp
+/public/UserPic
+
+# Testing and coverage
+.phpunit.cache
+.phpunit.result.cache
+/.vitest-reports
+/coverage
+/reports
+
+# Caches
+.deptrac.cache
+.eslintcache
+/.pnpm-store
+
+# IDE and editor
+/.claude
 /.fleet
 /.idea
-/.pnpm-store
+/.nova
 /.project
 /.settings
 /.vscode
-/.vagrant
-/.vitest-reports
-Homestead.json
-Homestead.yaml
-auth.json
 nbproject
-npm-debug.log
-yarn-error.log
+
+# Docker and local dev
+/.vagrant
+/docker/nginx/logs
+/tmp
+
+# OS files
 ._*
 .~lock.*
-.buildpath
 .DS_Store
-/.env*
-.deptrac.cache
-.eslintcache
-.phpstorm.meta.php
-.phpunit.cache
-.phpunit.result.cache
-_ide_helper.php
-_ide_helper_models.php
+
+# Misc
+.buildpath
+.mcp.json
+.rnd
+/resources/views/pages-legacy/interceptor/
 lang/php_*.json
+npm-debug.log
+yarn-error.log

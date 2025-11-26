@@ -163,6 +163,22 @@ jobs:
         if: ${{ needs.changes.outputs.node == 'true' }}
         run: pnpm install --frozen-lockfile --prefer-offline
 
+      - name: Setup PHP
+        if: ${{ needs.changes.outputs.node == 'true' }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: mbstring
+          coverage: none
+
+      - name: Install composer packages
+        if: ${{ needs.changes.outputs.node == 'true' }}
+        run: composer install --prefer-dist --no-progress
+
+      - name: Generate Ziggy routes
+        if: ${{ needs.changes.outputs.node == 'true' }}
+        run: php artisan ziggy:generate --types
+
       - name: Run ${{ matrix.check }}
         if: ${{ needs.changes.outputs.node == 'true' }}
         run: ${{ matrix.command }}
@@ -204,6 +220,22 @@ jobs:
       - name: Install dependencies
         if: ${{ needs.changes.outputs.node == 'true' }}
         run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Setup PHP
+        if: ${{ needs.changes.outputs.node == 'true' }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: mbstring
+          coverage: none
+
+      - name: Install composer packages
+        if: ${{ needs.changes.outputs.node == 'true' }}
+        run: composer install --prefer-dist --no-progress
+
+      - name: Generate Ziggy routes
+        if: ${{ needs.changes.outputs.node == 'true' }}
+        run: php artisan ziggy:generate --types
 
       - name: Run tests with sharding
         if: ${{ needs.changes.outputs.node == 'true' }}

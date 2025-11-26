@@ -3,6 +3,7 @@
 set -e
 
 php composer.phar install
+php artisan ziggy:generate --types
 pnpm install
 pnpm build
 
