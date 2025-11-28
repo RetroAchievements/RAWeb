@@ -9,6 +9,10 @@ use App\Filament\Resources\UserResource;
 use App\Models\AchievementMaintainer;
 use App\Models\Role;
 use App\Models\User;
+use BackedEnum;
+use Filament\Actions\AttachAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Forms;
 use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Tables;
@@ -24,7 +28,7 @@ class Roles extends ManageRelatedRecords
 
     protected static string $relationship = 'roles';
 
-    protected static ?string $navigationIcon = 'fas-lock';
+    protected static string|BackedEnum|null $navigationIcon = 'fas-lock';
 
     public function table(Table $table): Table
     {
@@ -38,11 +42,12 @@ class Roles extends ManageRelatedRecords
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->badge()
+                    ->wrap()
                     ->formatStateUsing(fn ($state) => __('permission.role.' . $state))
                     ->color(fn (string $state): string => Role::toFilamentColor($state)),
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make()
+                AttachAction::make()
                     ->label(__('Add'))
                     ->color('primary')
                     ->authorize(fn () => $user->can('updateRoles', $this->getRecord()))
@@ -149,8 +154,8 @@ class Roles extends ManageRelatedRecords
                     }),
             ])
             ->paginated(false)
-            ->actions([
-                Tables\Actions\DetachAction::make()
+            ->recordActions([
+                DeleteAction::make()
                     ->label(__('Remove'))
                     ->authorize(fn (SpatieRole $record) => $user->can('detachRole', [$this->getRecord(), $record]))
                     ->after(function (SpatieRole $record) {
@@ -191,8 +196,8 @@ class Roles extends ManageRelatedRecords
                         }
                     }),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([]),
+            ->toolbarActions([
+                BulkActionGroup::make([]),
             ]);
     }
 

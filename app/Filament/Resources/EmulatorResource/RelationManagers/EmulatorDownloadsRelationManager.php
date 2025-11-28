@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace App\Filament\Resources\EmulatorResource\RelationManagers;
 
 use App\Models\Platform;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -26,10 +30,10 @@ class EmulatorDownloadsRelationManager extends RelationManager
         return (string) $ownerRecord->downloads->count();
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Forms\Components\Select::make('platform_id')
                     ->label('Platform')
                     ->options(function () {
@@ -55,12 +59,12 @@ class EmulatorDownloadsRelationManager extends RelationManager
                     ->label('URL'),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make(),
                 ]),
             ])
             ->emptyStateDescription('Emulator download records are optional overrides for default download link(s) on a platform-specific basis.');
