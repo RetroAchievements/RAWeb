@@ -8,7 +8,7 @@ use App\Models\System;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
-class SystemsTest extends JsonApiResourceTest
+class SystemsTest extends JsonApiResourceTestCase
 {
     protected function resourceType(): string
     {

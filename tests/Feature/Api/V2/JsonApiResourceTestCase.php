@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use LaravelJsonApi\Testing\MakesJsonApiRequests;
 use Tests\TestCase;
 
-abstract class JsonApiResourceTest extends TestCase
+abstract class JsonApiResourceTestCase extends TestCase
 {
     use RefreshDatabase;
     use MakesJsonApiRequests;
