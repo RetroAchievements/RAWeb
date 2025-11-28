@@ -82,6 +82,11 @@ parameters:
         # These functions (sanitize_sql_inputs, sanitize_outputs) are marked @deprecated and will eventually be removed.
         - identifier: parameterByRef.unusedType
 
+        # ImageDriver isn't reporting internal types correctly.
+        -
+            identifier: method.notFound
+            message: '#ImageDriver::performOnCollections#'
+
     excludePaths:
         # unrelated directories
         - public/storage (?)

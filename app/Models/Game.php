@@ -13,6 +13,7 @@ use App\Platform\Actions\SyncAchievementSetImageAssetPathFromGameAction;
 use App\Platform\Actions\SyncGameTagsFromTitleAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Contracts\HasVersionedTrigger;
+use App\Platform\Data\GameBannerData;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameSetType;
@@ -299,6 +300,65 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
                         ->optimize();
                 }
             });
+
+        $this->addMediaCollection('banner')
+            ->useDisk('s3')
+            ->singleFile()
+            ->registerMediaConversions(function () {
+                $bannerSizes = ['mobile-sm', 'mobile-md', 'desktop-md', 'desktop-lg', 'desktop-xl'];
+
+                foreach ($bannerSizes as $size) {
+                    $width = config("media.game.banner.{$size}.width");
+                    $height = config("media.game.banner.{$size}.height");
+
+                    // Use Fit::Crop for all sizes to avoid letterboxing.
+                    // Uploaded images may vary slightly in aspect ratio (SteamGridDB, etc).
+                    // Cropping ensures no white bars are added to the image while maintaining our target dimensions.
+                    /**
+                     * WebP conversion.
+                     * @see https://web.dev/learn/images/webp
+                     */
+                    $this->addMediaConversion("{$size}-webp")
+                        ->format('webp')
+                        ->fit(Fit::Crop, $width, $height)
+                        ->optimize()
+                        ->performOnCollections('banner');
+
+                    /**
+                     * AVIF conversion.
+                     * @see https://web.dev/learn/images/avif
+                     */
+                    $this->addMediaConversion("{$size}-avif")
+                        ->format('avif')
+                        ->fit(Fit::Crop, $width, $height)
+                        ->optimize()
+                        ->performOnCollections('banner');
+                }
+
+                /**
+                 * Generate tiny blurred placeholders for progressive loading.
+                 *
+                 * These are going to be the LCP images for whatever page they're on.
+                 * LCP is one of the most heavily-weighted Core Web Vitals. It is
+                 * therefore critical we display _something_ that's an image in these
+                 * slots as quickly as possible, or we will get dinged by search engines.
+                 *
+                 * @see https://web.dev/articles/lcp
+                 */
+                $this->addMediaConversion('mobile-placeholder')
+                    ->format('webp')
+                    ->width(32)
+                    ->quality(10)
+                    ->fit(Fit::Crop, 32, 18)
+                    ->performOnCollections('banner');
+
+                $this->addMediaConversion('desktop-placeholder')
+                    ->format('webp')
+                    ->width(32)
+                    ->quality(10)
+                    ->fit(Fit::Crop, 32, 9)
+                    ->performOnCollections('banner');
+            });
     }
 
     // == search
@@ -410,6 +470,28 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     public function getImageIngameUrlAttribute(): string
     {
         return media_asset($this->ImageIngame);
+    }
+
+    public function getBannerAttribute(): GameBannerData
+    {
+        $banner = $this->getFirstMedia('banner');
+
+        return new GameBannerData(
+            mobileSmWebp: $this->getFirstMediaUrl('banner', 'mobile-sm-webp') ?: null,
+            mobileSmAvif: $this->getFirstMediaUrl('banner', 'mobile-sm-avif') ?: null,
+            mobileMdWebp: $this->getFirstMediaUrl('banner', 'mobile-md-webp') ?: null,
+            mobileMdAvif: $this->getFirstMediaUrl('banner', 'mobile-md-avif') ?: null,
+            desktopMdWebp: $this->getFirstMediaUrl('banner', 'desktop-md-webp') ?: null,
+            desktopMdAvif: $this->getFirstMediaUrl('banner', 'desktop-md-avif') ?: null,
+            desktopLgWebp: $this->getFirstMediaUrl('banner', 'desktop-lg-webp') ?: null,
+            desktopLgAvif: $this->getFirstMediaUrl('banner', 'desktop-lg-avif') ?: null,
+            desktopXlWebp: $this->getFirstMediaUrl('banner', 'desktop-xl-webp') ?: null,
+            desktopXlAvif: $this->getFirstMediaUrl('banner', 'desktop-xl-avif') ?: null,
+            mobilePlaceholder: $this->getFirstMediaUrl('banner', 'mobile-placeholder') ?: null,
+            desktopPlaceholder: $this->getFirstMediaUrl('banner', 'desktop-placeholder') ?: null,
+            leftEdgeColor: $banner?->getCustomProperty('left_edge_color'),
+            rightEdgeColor: $banner?->getCustomProperty('right_edge_color'),
+        );
     }
 
     public function getParentGameIdAttribute(): ?int

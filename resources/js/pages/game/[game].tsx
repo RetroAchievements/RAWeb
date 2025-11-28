@@ -3,6 +3,7 @@ import { useHydrateAtoms } from 'jotai/utils';
 import { useEffect } from 'react';
 
 import { SEO } from '@/common/components/SEO';
+import { SEOPreloadImage } from '@/common/components/SEOPreloadImage';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
@@ -44,6 +45,7 @@ const GameShow: AppPage = () => {
   ]);
 
   // Reset the sort order when switching between achievement sets.
+  // TODO this probably shouldn't live at the page component level
   useEffect(() => {
     setCurrentPlayableListSort(initialSort);
   }, [targetAchievementSetId, initialSort, setCurrentPlayableListSort]);
@@ -57,6 +59,14 @@ const GameShow: AppPage = () => {
         description={buildGameMetaDescription(game, backingGame)}
         ogImage={backingGame!.badgeUrl}
       />
+
+      {/* TODO desktop preload image */}
+      {ziggy.device === 'mobile' && (game.banner?.mobileSmAvif || game.imageIngameUrl) ? (
+        <SEOPreloadImage
+          src={game.banner?.mobileSmAvif ?? (game.imageIngameUrl as string)}
+          type={game.banner?.mobileSmAvif ? 'image/avif' : 'image/png'}
+        />
+      ) : null}
 
       {ziggy.device === 'mobile' ? (
         <AppLayout.Main>
