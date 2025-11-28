@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-import { createAuthenticatedUser } from '@/common/models';
+import { createAuthenticatedUser, createAuthenticatedUserPreferences } from '@/common/models';
 import { render, screen } from '@/test';
 
 import { MessageTimestamp } from './MessageTimestamp';
@@ -36,7 +36,10 @@ describe('Component: MessageTimestamp', () => {
     } as App.Community.Data.Message;
 
     const user = createAuthenticatedUser({
-      preferences: { prefersAbsoluteDates: true, shouldAlwaysBypassContentWarnings: false },
+      preferences: createAuthenticatedUserPreferences({
+        prefersAbsoluteDates: true,
+        shouldAlwaysBypassContentWarnings: false,
+      }),
     });
 
     render(<MessageTimestamp message={message} />, {
@@ -55,7 +58,10 @@ describe('Component: MessageTimestamp', () => {
     } as App.Community.Data.Message;
 
     const user = createAuthenticatedUser({
-      preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: true },
+      preferences: createAuthenticatedUserPreferences({
+        prefersAbsoluteDates: false,
+        shouldAlwaysBypassContentWarnings: true,
+      }),
     });
 
     render(<MessageTimestamp message={message} />, {
@@ -74,7 +80,10 @@ describe('Component: MessageTimestamp', () => {
     } as App.Community.Data.Message;
 
     const user = createAuthenticatedUser({
-      preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: false },
+      preferences: createAuthenticatedUserPreferences({
+        prefersAbsoluteDates: false,
+        shouldAlwaysBypassContentWarnings: false,
+      }),
     });
 
     render(<MessageTimestamp message={message} />, {

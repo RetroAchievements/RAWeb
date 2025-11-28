@@ -83,6 +83,11 @@ class GameShowPagePropsData extends Data
         public ?int $targetAchievementSetId,
         public ?int $targetAchievementSetPlayersTotal,
         public ?int $targetAchievementSetPlayersHardcore,
+
+        /** @var Collection<int, UserGameAchievementSetPreferenceData> */
+        #[AutoInertiaDeferred]
+        #[LiteralTypeScriptType('Record<number, App.Platform.Data.UserGameAchievementSetPreference>')]
+        public Lazy|Collection $userGameAchievementSetPreferences,
     ) {
     }
 }

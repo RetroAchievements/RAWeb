@@ -1,4 +1,4 @@
-import { createAuthenticatedUser } from '@/common/models';
+import { createAuthenticatedUser, createAuthenticatedUserPreferences } from '@/common/models';
 import { render, screen } from '@/test';
 import { createMessage, createMessageThread, createUser } from '@/test/factories';
 
@@ -59,10 +59,10 @@ describe('Component: MessagesCard', () => {
       participants: [createUser({ displayName: 'Other User' })],
     });
     const user = createAuthenticatedUser({
-      preferences: {
+      preferences: createAuthenticatedUserPreferences({
         prefersAbsoluteDates: true, // !!
         shouldAlwaysBypassContentWarnings: true,
-      },
+      }),
     });
 
     render(<MessagesCard messageThread={thread} />, {
