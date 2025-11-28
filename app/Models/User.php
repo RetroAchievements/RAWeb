@@ -33,6 +33,8 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Passport\Contracts\OAuthenticatable;
+use Laravel\Passport\HasApiTokens;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
@@ -43,7 +45,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 // TODO MustVerifyEmail,
 // TODO HasComments,
-class User extends Authenticatable implements CommunityMember, Developer, HasLocalePreference, HasMedia, Player, FilamentUser, HasName
+class User extends Authenticatable implements CommunityMember, Developer, HasLocalePreference, HasMedia, Player, FilamentUser, HasName, OAuthenticatable
 {
     /*
      * Framework Traits
@@ -52,8 +54,8 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     use HasFactory;
     use Notifiable;
     use Searchable;
-
     use SoftDeletes;
+    use HasApiTokens;
 
     /*
      * Providers Traits

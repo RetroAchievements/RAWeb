@@ -11,7 +11,7 @@
 <body
     data-scheme="{{ request()->cookie('scheme', '') }}"
     data-theme="{{ request()->cookie('theme', '') }}"
-    class="{{ config('app.debug') ? 'debug' : '' }} {{ !Route::is('news.index') ? 'with-news' : '' }} with-footer"
+    class="{{ config('app.debug') ? 'debug' : '' }} {{ !Route::is('passport.*') ? 'with-footer' : '' }}"
 >
 <x-navbar class="flex flex-col w-full justify-center lg:sticky lg:top-0">
     <x-slot name="brand">

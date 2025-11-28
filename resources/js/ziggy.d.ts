@@ -97,6 +97,16 @@ declare module 'ziggy-js' {
     "claims.completed": [],
     "claims.active": [],
     "pulse": [],
+    "passport.token": [],
+    "passport.authorizations.authorize": [],
+    "passport.device": [],
+    "passport.device.code": [],
+    "passport.token.refresh": [],
+    "passport.authorizations.approve": [],
+    "passport.authorizations.deny": [],
+    "passport.device.authorizations.authorize": [],
+    "passport.device.authorizations.approve": [],
+    "passport.device.authorizations.deny": [],
     "api.hub.game.index": [
         {
             "name": "gameSet",
@@ -805,7 +815,8 @@ declare module 'ziggy-js' {
     "api.user.delete-request.store": [],
     "api.user.delete-request.destroy": [],
     "api.user.avatar.store": [],
-    "api.user.avatar.destroy": []
+    "api.user.avatar.destroy": [],
+    "auth.callback.test": []
 }
 }
 export {};

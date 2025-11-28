@@ -12,6 +12,40 @@ import { Ziggy } from './ziggy';
 globalThis.Ziggy = Ziggy;
 process.env.TZ = 'UTC';
 
+// Mock Inertia globally for all tests.
+vi.mock('@inertiajs/react', async (importOriginal) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const original = (await importOriginal()) as any;
+  const React = await import('react');
+
+  return {
+    ...original,
+    __esModule: true,
+
+    Head: ({ children }: { children: React.ReactNode }) => {
+      // React 19 refuses to render <meta /> or <link /> tags into JSDOM.
+      // We need to convert them to <span /> tags instead.
+      const convertedChildren = React.Children.map(children, (child) => {
+        if (React.isValidElement(child) && (child.type === 'meta' || child.type === 'link')) {
+          return React.createElement('span', child.props as React.HTMLAttributes<HTMLSpanElement>);
+        }
+
+        return child;
+      });
+
+      return React.createElement('div', { 'data-testid': 'head-content' }, convertedChildren);
+    },
+
+    router: {
+      visit: vi.fn(),
+      reload: vi.fn(),
+      prefetch: vi.fn(),
+    },
+
+    usePage: vi.fn(),
+  };
+});
+
 beforeAll(async () => {
   /**
    * Asynchronously load faker before any tests run. `createFactory()` helpers
