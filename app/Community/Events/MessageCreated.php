@@ -18,6 +18,7 @@ class MessageCreated
 
     public function __construct(
         public Message $message,
+        public ?int $moderationReportId = null,
     ) {
     }
 

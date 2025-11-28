@@ -1,24 +1,42 @@
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { ArticleType } from '@/common/utils/generatedAppConstants';
 
+import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';
 import { DiffTimestamp } from '../DiffTimestamp';
 import { FormatNewlines } from '../FormatNewlines';
 import { UserAvatar } from '../UserAvatar';
 import { useCommentListContext } from './CommentListContext';
 import { DeleteCommentButton } from './DeleteCommentButton';
+import { ReportCommentButton } from './ReportCommentButton';
 
 type CommentListItemProps = App.Community.Data.Comment;
 
 export const CommentListItem: FC<CommentListItemProps> = ({ ...comment }) => {
-  const { auth } = usePageProps();
+  const { auth, ziggy } = usePageProps();
+  const { t } = useTranslation();
 
   const { onDeleteSuccess } = useCommentListContext();
+
+  const excludedArticleTypes: number[] = [
+    ArticleType.News,
+    ArticleType.UserModeration,
+    ArticleType.GameHash,
+    ArticleType.SetClaim,
+    ArticleType.GameModification,
+  ];
+
+  const canShowReportButton =
+    comment.canReport &&
+    !comment.isAutomated &&
+    !excludedArticleTypes.includes(comment.commentableType);
 
   return (
     <li
       id={`comment_${comment.id}`}
-      className="flex w-full scroll-mt-20 items-start gap-4 p-2 target:outline target:outline-2 target:outline-text"
+      className="group flex w-full scroll-mt-20 items-start gap-4 p-2 target:outline target:outline-2 target:outline-text"
     >
       <div className="mt-1">
         {comment.isAutomated ? (
@@ -39,10 +57,33 @@ export const CommentListItem: FC<CommentListItemProps> = ({ ...comment }) => {
                 at={comment.createdAt}
               />
             </span>
+
+            {/* Desktop report button */}
+            {canShowReportButton && ziggy.device !== 'mobile' ? (
+              <BaseTooltip>
+                <BaseTooltipTrigger>
+                  <ReportCommentButton
+                    comment={comment}
+                    className="hidden opacity-0 group-hover:opacity-100 sm:block"
+                  />
+                </BaseTooltipTrigger>
+
+                <BaseTooltipContent>{t('Report')}</BaseTooltipContent>
+              </BaseTooltip>
+            ) : null}
           </div>
 
-          {comment.canDelete ? (
-            <DeleteCommentButton {...comment} onDeleteSuccess={onDeleteSuccess} />
+          {/* Delete button & mobile actions */}
+          {comment.canDelete || (canShowReportButton && ziggy.device === 'mobile') ? (
+            <div className="flex items-center gap-2">
+              {canShowReportButton && ziggy.device === 'mobile' ? (
+                <ReportCommentButton comment={comment} className="sm:hidden" />
+              ) : null}
+
+              {comment.canDelete ? (
+                <DeleteCommentButton {...comment} onDeleteSuccess={onDeleteSuccess} />
+              ) : null}
+            </div>
           ) : null}
         </div>
 

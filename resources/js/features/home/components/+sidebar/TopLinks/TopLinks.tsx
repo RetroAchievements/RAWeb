@@ -18,8 +18,10 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 import { cn } from '@/common/utils/cn';
 
+import { LatestSiteUpdatesButton } from './LatestSiteUpdatesButton';
+
 export const TopLinks: FC = () => {
-  const { config } = usePageProps<App.Http.Data.HomePageProps>();
+  const { config, hasSiteReleaseNotes } = usePageProps<App.Http.Data.HomePageProps>();
 
   const { t } = useTranslation();
 
@@ -86,6 +88,8 @@ export const TopLinks: FC = () => {
             {t('Become a Patron')}
           </a>
         ) : null}
+
+        {hasSiteReleaseNotes ? <LatestSiteUpdatesButton /> : null}
       </div>
 
       <div className="grid grid-cols-2 gap-2.5">

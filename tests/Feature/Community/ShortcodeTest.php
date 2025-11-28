@@ -626,6 +626,55 @@ final class ShortcodeTest extends TestCase
         );
     }
 
+    public function testConvertToMarkdownLegacyUserEmbed(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create([
+            'ID' => 456,
+            'User' => 'Scott',
+            'display_name' => 'Scott',
+        ]);
+
+        // Act
+        $result = Shortcode::convertToMarkdown('[user=Scott]');
+
+        // Assert
+        $expectedUrl = route('user.show', ['user' => $user]);
+
+        $this->assertSame(
+            "[Scott]({$expectedUrl})",
+            $result
+        );
+    }
+
+    public function testConvertToMarkdownLegacyUserEmbedConflict(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create([
+            'ID' => 456,
+            'User' => 'Scott',
+            'display_name' => 'Scott',
+        ]);
+        $user2 = User::factory()->create([
+            'ID' => 999,
+            'User' => '456',
+            'display_name' => '456',
+        ]);
+
+        // Act
+        $result = Shortcode::convertToMarkdown('[user=456]');
+
+        // Assert
+        $expectedUrl = route('user.show', ['user' => $user]); // ID match should be preferred over name match
+
+        $this->assertSame(
+            "[Scott]({$expectedUrl})",
+            $result
+        );
+    }
+
     public function testConvertToMarkdownHubEmbed(): void
     {
         // Arrange

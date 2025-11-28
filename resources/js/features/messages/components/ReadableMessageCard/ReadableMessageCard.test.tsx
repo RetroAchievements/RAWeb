@@ -147,4 +147,105 @@ describe('Component: ReadableMessageCard', () => {
     const messageCard = screen.getByTestId(`message-${message.id}`);
     expect(messageCard).not.toHaveClass('outline');
   });
+
+  it('given the user is authenticated and has the createModerationReports permission, shows a report button for other user messages', () => {
+    // ARRANGE
+    const message = createMessage({
+      id: 789,
+      author: createUser({ displayName: 'OtherUser' }), // !!
+      body: 'Hello world',
+    });
+
+    render(<ReadableMessageCard message={message} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ displayName: 'CurrentUser' }) },
+        can: { createModerationReports: true }, // !!
+        senderUserDisplayName: 'CurrentUser',
+      },
+    });
+
+    // ASSERT
+    const reportLink = screen.getByRole('link', { name: /report/i });
+    expect(reportLink).toBeVisible();
+  });
+
+  it('given the user is viewing their own message, does not show a report button', () => {
+    // ARRANGE
+    const message = createMessage({
+      author: createUser({ displayName: 'CurrentUser' }), // !!
+      body: 'Hello world',
+    });
+
+    render(<ReadableMessageCard message={message} />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({ displayName: 'CurrentUser' }),
+        },
+        can: { createModerationReports: true }, // !! they can create reports
+        senderUserDisplayName: 'CurrentUser',
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /report/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user is authenticated and does not have the createModerationReports permission, does not show a report button', () => {
+    // ARRANGE
+    const message = createMessage({
+      author: createUser({ displayName: 'OtherUser' }),
+      body: 'Hello world',
+    });
+
+    render(<ReadableMessageCard message={message} />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({ displayName: 'CurrentUser' }),
+        },
+        can: { createModerationReports: false }, // !!
+        senderUserDisplayName: 'CurrentUser',
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /report/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user is authenticated but using a delegated/team inbox, does not show a report button', () => {
+    // ARRANGE
+    const message = createMessage({
+      id: 789,
+      author: createUser({ displayName: 'OtherUser' }), // !!
+      body: 'Hello world',
+    });
+
+    render(<ReadableMessageCard message={message} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ displayName: 'CurrentUser' }) },
+        can: { createModerationReports: true }, // !!
+        senderUserDisplayName: 'RAdmin',
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /report/i })).not.toBeInTheDocument();
+  });
+
+  it('given the user is not authenticated, does not show a report button', () => {
+    // ARRANGE
+    const message = createMessage({
+      author: createUser({ displayName: 'OtherUser' }),
+      body: 'Hello world',
+    });
+
+    render(<ReadableMessageCard message={message} />, {
+      pageProps: {
+        auth: null, // !!
+        can: { createModerationReports: false },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /report/i })).not.toBeInTheDocument();
+  });
 });

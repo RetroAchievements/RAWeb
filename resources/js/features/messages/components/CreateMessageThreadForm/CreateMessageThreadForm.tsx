@@ -1,7 +1,13 @@
 import { type FC } from 'react';
 import { useRef } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
+import { LuCircleAlert } from 'react-icons/lu';
 
+import {
+  BaseAlert,
+  BaseAlertDescription,
+  BaseAlertTitle,
+} from '@/common/components/+vendor/BaseAlert';
 import { BaseAutosizeTextarea } from '@/common/components/+vendor/BaseAutosizeTextarea';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
@@ -31,10 +37,12 @@ export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPr
   const {
     auth,
     message,
-    subject,
-    templateKind,
+    reportableId,
+    reportableType,
     senderUserAvatarUrl,
     senderUserDisplayName,
+    subject,
+    templateKind,
     toUser,
   } = usePageProps<App.Community.Data.MessageThreadCreatePageProps>();
 
@@ -47,6 +55,8 @@ export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPr
       recipient: toUser?.displayName,
     },
     senderUserDisplayName,
+    reportableType,
+    reportableId,
   );
   const [body] = form.watch(['body']);
 
@@ -129,6 +139,28 @@ export const CreateMessageThreadForm: FC<CreateMessageThreadFormProps> = ({ onPr
           </div>
 
           {templateKind ? <TemplateKindAlert templateKind={templateKind} /> : null}
+
+          {subject?.startsWith('Report:') ? (
+            <BaseAlert>
+              <LuCircleAlert className="size-5" />
+              <BaseAlertTitle>{t('Create a new report')}</BaseAlertTitle>
+
+              <BaseAlertDescription>
+                <Trans
+                  i18nKey="We'll automatically be sent the link, author, timestamp, and content excerpt when you submit. Just describe what you're reporting and <1>which rule</1> was violated."
+                  components={{
+                    1: (
+                      // eslint-disable-next-line jsx-a11y/anchor-has-content -- this is fine for the Trans component
+                      <a
+                        href="https://docs.retroachievements.org/guidelines/users/code-of-conduct.html"
+                        target="_blank"
+                      />
+                    ),
+                  }}
+                />
+              </BaseAlertDescription>
+            </BaseAlert>
+          ) : null}
 
           <div className="flex flex-col gap-3">
             <ShortcodePanel />

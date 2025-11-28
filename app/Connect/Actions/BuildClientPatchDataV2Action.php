@@ -49,13 +49,13 @@ class BuildClientPatchDataV2Action
 
         // If multiset is disabled or there's no user, just use the game directly.
         if (!$user || $user->is_globally_opted_out_of_subsets) {
-            return $this->buildPatchData($actualLoadedGame, null, $user, $flag);
+            return $this->buildPatchData($actualLoadedGame, null, $user, $flag, compatibility: $gameHash->compatibility);
         }
 
         // Resolve sets once - we'll use this for building the full patch data.
         $resolvedSets = (new ResolveAchievementSetsAction())->execute($gameHash, $user);
         if ($resolvedSets->isEmpty()) {
-            return $this->buildPatchData($actualLoadedGame, null, $user, $flag);
+            return $this->buildPatchData($actualLoadedGame, null, $user, $flag, compatibility: $gameHash->compatibility);
         }
 
         // Get the core game from the first resolved set.
@@ -77,7 +77,8 @@ class BuildClientPatchDataV2Action
             $user,
             $flag,
             $richPresenceGameId,
-            $richPresencePatch
+            $richPresencePatch,
+            $gameHash->compatibility,
         );
     }
 
@@ -88,6 +89,7 @@ class BuildClientPatchDataV2Action
      * @param AchievementFlag|null $flag Optional flag to filter the achievements by (eg: only official achievements)
      * @param int|null $richPresenceGameId the game ID where the RP patch code comes from
      * @param string|null $richPresencePatch the RP patch code that the client should use
+     * @param GameHashCompatibility $compatibility Indicates the compatibility of the hash being loaded (affects game title)
      */
     private function buildPatchData(
         Game $game,
@@ -96,6 +98,7 @@ class BuildClientPatchDataV2Action
         ?AchievementFlag $flag,
         ?int $richPresenceGameId = null,
         ?string $richPresencePatch = null,
+        GameHashCompatibility $compatibility = GameHashCompatibility::Compatible,
     ): array {
         $gamePlayerCount = $this->calculateGamePlayerCount($game, $user);
 
@@ -145,10 +148,14 @@ class BuildClientPatchDataV2Action
             ];
         }
 
+        $title = ($compatibility === GameHashCompatibility::Compatible)
+            ? $game->title
+            : "Unsupported Game Version ($game->title)";
+
         return [
             'Success' => true,
             'GameId' => $game->id,
-            'Title' => $game->title,
+            'Title' => $title,
             'ImageIconUrl' => media_asset($game->ImageIcon),
             'RichPresenceGameId' => $richPresenceGameId ?? $game->id,
             'RichPresencePatch' => $richPresencePatch ?? $game->RichPresencePatch,
@@ -312,7 +319,7 @@ class BuildClientPatchDataV2Action
         return [
             'Success' => true,
             'GameId' => VirtualGameIdService::encodeVirtualGameId($game->id, $gameHashCompatibility),
-            'Title' => 'Unsupported Game Version',
+            'Title' => "Unsupported Game Version ($game->title)",
             'ImageIconUrl' => media_asset($game->ImageIcon),
             'ConsoleId' => $game->ConsoleID,
             'Sets' => [

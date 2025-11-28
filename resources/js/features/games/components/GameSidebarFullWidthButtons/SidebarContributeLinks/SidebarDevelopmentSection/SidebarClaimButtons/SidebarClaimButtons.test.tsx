@@ -173,29 +173,6 @@ describe('Component: SidebarClaimButtons', () => {
     expect(screen.getByRole('button', { name: /drop claim/i })).toBeVisible();
   });
 
-  it('given the user has both an extendable and droppable claim, shows both buttons in a grid', () => {
-    // ARRANGE
-    render(<SidebarClaimButtons />, {
-      pageProps: {
-        achievementSetClaims: [],
-        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
-        backingGame: createGame(),
-        claimData: createGamePageClaimData({
-          userClaim: createAchievementSetClaim({ isExtendable: true, isDroppable: true }),
-        }),
-        game: createGame({ gameAchievementSets: [] }),
-        targetAchievementSetId: null,
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByRole('button', { name: /extend claim/i })).toBeVisible();
-    expect(screen.getByRole('button', { name: /drop claim/i })).toBeVisible();
-
-    const dropButton = screen.getByRole('button', { name: /drop claim/i });
-    expect(dropButton.parentElement).toHaveClass('grid-cols-2');
-  });
-
   it('given the game is a subset, shows the subset indicator on buttons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {

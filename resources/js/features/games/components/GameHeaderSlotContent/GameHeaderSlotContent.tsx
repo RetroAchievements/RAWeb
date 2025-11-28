@@ -6,6 +6,7 @@ import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { BetaFeedbackDialog } from '@/common/components/BetaFeedbackDialog';
 import { useGameBacklogState } from '@/common/hooks/useGameBacklogState';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { cn } from '@/common/utils/cn';
 
 import { SubsetButtonChip } from '../SubsetButtonChip';
 
@@ -35,7 +36,25 @@ export const GameHeaderSlotContent: FC = () => {
         aria-pressed={isOnWantToPlayList}
       >
         <div className="flex items-center gap-1">
-          {isOnWantToPlayList ? <LuCheck className="size-4" /> : <LuPlus className="size-4" />}
+          <div className="relative size-4">
+            <LuPlus
+              className={cn(
+                'absolute inset-0 size-4 transition-[transform,opacity] duration-200',
+                isOnWantToPlayList
+                  ? 'rotate-45 scale-75 opacity-0'
+                  : 'rotate-0 scale-100 opacity-100',
+              )}
+            />
+            <LuCheck
+              className={cn(
+                'absolute inset-0 size-4 text-green-400 transition-[transform,opacity] duration-200',
+                'light:text-green-700',
+                isOnWantToPlayList
+                  ? 'rotate-0 scale-100 opacity-100'
+                  : '-rotate-45 scale-75 opacity-0',
+              )}
+            />
+          </div>
           {t('game_wantToPlayToggle')}
         </div>
 

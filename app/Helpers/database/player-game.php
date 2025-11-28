@@ -258,6 +258,7 @@ function getUserAchievementUnlocksForGame(User|string $user, int $gameID, Achiev
         ->join('game_achievement_sets', 'game_achievement_sets.achievement_set_id', '=', 'achievement_sets.id')
         ->where('game_achievement_sets.game_id', $gameID)
         ->where('Flags', $flag->value)
+        ->orderBy('player_achievements.achievement_id')
         ->get([
             'player_achievements.achievement_id',
             'player_achievements.unlocked_at',

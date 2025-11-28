@@ -162,7 +162,9 @@ class NewsResource extends Resource
                     ->label('Author'),
             ])
             ->modifyQueryUsing(function (Builder $query) {
-                return $query->where('created_at', '>=', '2024-01-01');
+                return $query
+                    ->where('created_at', '>=', '2024-01-01')
+                    ->where('category', '!=', NewsCategory::SiteReleaseNotes);
             })
             ->defaultSort('created_at', 'desc')
             ->searchPlaceholder('Search (Title)')
