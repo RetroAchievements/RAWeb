@@ -28,7 +28,7 @@ class HealthControllerTest extends TestCase
         User::factory()->create(['APIKey' => 'regular-user-api-key']);
 
         // ... this user is not in the allowed service accounts list ...
-        config(['internal-api.allowed_user_ids' => '99999']);
+        config(['api.internal.allowed_user_ids' => '99999']);
 
         // Act
         $response = $this->getJson('/api/internal/health', [
@@ -58,7 +58,7 @@ class HealthControllerTest extends TestCase
         ]);
 
         // ... this is an actual service account ...
-        config(['internal-api.allowed_user_ids' => (string) $serviceAccount->id]);
+        config(['api.internal.allowed_user_ids' => (string) $serviceAccount->id]);
 
         // Act
         $response = $this->getJson('/api/internal/health', [
@@ -87,7 +87,7 @@ class HealthControllerTest extends TestCase
         ]);
 
         // ... configure multiple service accounts as comma-separated IDs ...
-        config(['internal-api.allowed_user_ids' => "{$serviceAccount1->id},{$serviceAccount2->id}"]);
+        config(['api.internal.allowed_user_ids' => "{$serviceAccount1->id},{$serviceAccount2->id}"]);
 
         // Act
         $response1 = $this->getJson('/api/internal/health', [
@@ -111,7 +111,7 @@ class HealthControllerTest extends TestCase
         ]);
 
         // ... no service accounts are configured ...
-        config(['internal-api.allowed_user_ids' => '']);
+        config(['api.internal.allowed_user_ids' => '']);
 
         // Act
         $response = $this->getJson('/api/internal/health', [
