@@ -10,11 +10,17 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\User;
 use App\Platform\Enums\AchievementSetAuthorTask;
+use BackedEnum;
 use Carbon\Carbon;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -26,7 +32,7 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
 
     protected static ?string $title = 'Set Credits';
 
-    protected static ?string $icon = 'fas-users';
+    protected static string|BackedEnum|null $icon = 'fas-users';
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
     {
@@ -35,10 +41,10 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
         return $count > 0 ? "{$count}" : null;
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Forms\Components\Select::make('task')
                     ->options(
                         collect(AchievementSetAuthorTask::cases())
@@ -92,10 +98,10 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
 
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                CreateAction::make()
                     ->label('Add contribution credit')
                     ->modalHeading('Add contribution credit')
-                    ->before(function (Tables\Actions\CreateAction $action, array $data) {
+                    ->before(function (CreateAction $action, array $data) {
                         /** @var Game $game */
                         $game = $this->ownerRecord;
 
@@ -133,18 +139,18 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
                     })
                     ->visible(fn () => $canManageContributionCredit),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                EditAction::make()
                     ->modalHeading('Edit contribution credit')
                     ->visible(fn () => $canManageContributionCredit),
 
-                Tables\Actions\DeleteAction::make()
+                DeleteAction::make()
                     ->modalHeading('Delete contribution credit')
                     ->visible(fn () => $canManageContributionCredit),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->visible(fn () => $canManageContributionCredit),
                 ]),
             ])

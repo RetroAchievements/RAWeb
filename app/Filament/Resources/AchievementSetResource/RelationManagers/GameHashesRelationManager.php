@@ -7,11 +7,12 @@ namespace App\Filament\Resources\AchievementSetResource\RelationManagers;
 use App\Models\AchievementSet;
 use App\Models\GameHash;
 use App\Models\User;
+use Filament\Actions\Action;
+use Filament\Actions\DetachAction;
 use Filament\Forms;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontFamily;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -32,10 +33,10 @@ class GameHashesRelationManager extends RelationManager
         return $count > 0 ? "{$count}" : null;
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
 
             ]);
     }
@@ -77,19 +78,19 @@ class GameHashesRelationManager extends RelationManager
             ->filters([
 
             ])
-            ->actions([
-                Tables\Actions\DetachAction::make()
+            ->recordActions([
+                DetachAction::make()
                     ->label('Remove incompatibility')
                     ->modalHeading('Remove incompatibility')
                     ->modalDescription('Are you sure you want to do this? This hash will once again be compatible with the set.')
                     ->visible(fn () => $user->can('markGameHashAsIncompatible', [AchievementSet::class])),
             ])
             ->headerActions([
-                Tables\Actions\Action::make('attachHashCompatibility')
+                Action::make('attachHashCompatibility')
                     ->label('Mark Hash as Incompatible')
                     ->color('danger')
                     ->disabled(empty($availableHashes))
-                    ->form([
+                    ->schema([
                         Forms\Components\Placeholder::make('warning')
                             ->label('')
                             ->content(fn () => new HtmlString("
@@ -102,7 +103,7 @@ class GameHashesRelationManager extends RelationManager
                                 "
                             )),
 
-                        Select::make('hash')
+                        Forms\Components\Select::make('hash')
                             ->label('Linked Hash')
                             ->placeholder('Select hash')
                             ->options($availableHashes)

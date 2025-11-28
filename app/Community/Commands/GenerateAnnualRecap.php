@@ -49,7 +49,7 @@ class GenerateAnnualRecap extends Command
                 ->pluck('ID');
 
             foreach ($users as $userId) {
-                GenerateAnnualRecapJob::dispatch($userId)->onQueue('player-metrics');
+                GenerateAnnualRecapJob::dispatch($userId)->onQueue('summary-emails');
             }
         }
     }

@@ -6,7 +6,7 @@ namespace App\Filament\Actions;
 
 use App\Models\Leaderboard;
 use App\Models\User;
-use Filament\Tables\Actions\Action;
+use Filament\Actions\Action;
 use Illuminate\Support\Facades\Auth;
 
 class ResetAllLeaderboardEntriesAction extends Action
