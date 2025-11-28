@@ -13,10 +13,10 @@ use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Infolists;
-use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 
 class EventAchievementResource extends Resource
 {
@@ -28,12 +28,12 @@ class EventAchievementResource extends Resource
 
     protected static bool $isGloballySearchable = false;
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
+        return $schema
             ->columns(1)
-            ->schema([
-                Infolists\Components\Section::make()
+            ->components([
+                Schemas\Components\Section::make()
                     ->schema([
                         Infolists\Components\TextEntry::make('source_achievement_id')
                             ->columnSpan(2)
@@ -61,11 +61,11 @@ class EventAchievementResource extends Resource
                     ])
                     ->columns(['xl' => 4, 'md' => 2]),
 
-                Infolists\Components\Section::make('Source Achievement')
+                Schemas\Components\Section::make('Source Achievement')
                     ->relationship('sourceAchievement')
                     ->columns(['xl' => 2, '2xl' => 3])
                     ->schema([
-                        Infolists\Components\Group::make()
+                        Schemas\Components\Group::make()
                             ->schema([
                                 Infolists\Components\ImageEntry::make('badge_url')
                                     ->label('Badge')
@@ -75,7 +75,7 @@ class EventAchievementResource extends Resource
                                     ->size(config('media.icon.lg.width')),
                             ]),
 
-                        Infolists\Components\Group::make()
+                        Schemas\Components\Group::make()
                             ->schema([
                                 Infolists\Components\TextEntry::make('Title'),
 
@@ -84,30 +84,30 @@ class EventAchievementResource extends Resource
                                 Infolists\Components\TextEntry::make('game')
                                     ->label('Game')
                                     ->formatStateUsing(fn (Game $state) => '[' . $state->id . '] ' . $state->title)
-                                    ->url(fn (EventAchievement $record): string => $record->sourceAchievement->game->getCanonicalUrlAttribute()),
+                                    ->url(fn (Achievement $record): string => $record->game->getCanonicalUrlAttribute()),
 
                                 Infolists\Components\TextEntry::make('developer')
                                     ->label('Author')
                                     ->formatStateUsing(fn (User $state) => $state->display_name),
                             ]),
 
-                        Infolists\Components\Group::make()
+                        Schemas\Components\Group::make()
                             ->schema([
                                 Infolists\Components\TextEntry::make('canonical_url')
                                     ->label('Canonical URL')
-                                    ->url(fn (EventAchievement $record): string => $record->sourceAchievement->getCanonicalUrlAttribute()),
+                                    ->url(fn (Achievement $record): string => $record->getCanonicalUrlAttribute()),
 
                                 Infolists\Components\TextEntry::make('permalink')
-                                    ->url(fn (EventAchievement $record): string => $record->sourceAchievement->getPermalinkAttribute()),
+                                    ->url(fn (Achievement $record): string => $record->getPermalinkAttribute()),
                             ]),
                     ])
                     ->hidden(fn ($record) => !$record->sourceAchievement),
 
-                Infolists\Components\Section::make()
+                Schemas\Components\Section::make()
                     ->relationship('achievement')
                     ->columns(['xl' => 2, '2xl' => 3])
                     ->schema([
-                        Infolists\Components\Group::make()
+                        Schemas\Components\Group::make()
                             ->schema([
                                 Infolists\Components\ImageEntry::make('badge_url')
                                     ->label('Badge')
@@ -118,7 +118,7 @@ class EventAchievementResource extends Resource
                                     ->size(config('media.icon.lg.width')),
                             ]),
 
-                        Infolists\Components\Group::make()
+                        Schemas\Components\Group::make()
                             ->schema([
                                 Infolists\Components\TextEntry::make('Title'),
 
@@ -129,12 +129,12 @@ class EventAchievementResource extends Resource
             ]);
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->columns(1)
-            ->schema([
-                Forms\Components\Section::make()
+            ->components([
+                Schemas\Components\Section::make()
                     ->columns(['xl' => 4, 'md' => 2])
                     ->schema([
                         Forms\Components\Select::make('source_achievement_id')
@@ -172,7 +172,7 @@ class EventAchievementResource extends Resource
                             ->columnSpan(2)
                             ->maxLength(40),
 
-                        Forms\Components\Group::make()
+                        Schemas\Components\Group::make()
                             ->relationship('achievement')
                             ->schema([
                                 Forms\Components\Select::make('Points')
@@ -192,7 +192,7 @@ class EventAchievementResource extends Resource
                             ]),
                     ]),
 
-                Forms\Components\Section::make()
+                Schemas\Components\Section::make()
                     ->relationship('achievement')
                     ->columns(['xl' => 2, '2xl' => 2])
                     ->schema([

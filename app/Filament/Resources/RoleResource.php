@@ -9,8 +9,13 @@ use App\Filament\Resources\RoleResource\Pages\Details;
 use App\Filament\Resources\RoleResource\Pages\Index;
 use App\Filament\Resources\RoleResource\RelationManager\Users;
 use App\Models\Role;
+use BackedEnum;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
@@ -20,7 +25,7 @@ class RoleResource extends Resource
 {
     protected static ?string $model = Role::class;
 
-    protected static ?string $navigationIcon = 'fas-lock';
+    protected static string|BackedEnum|null $navigationIcon = 'fas-lock';
 
     protected static ?int $navigationSort = 2;
 
@@ -39,11 +44,11 @@ class RoleResource extends Resource
         return ['name'];
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make()
+        return $schema
+            ->components([
+                Schemas\Components\Section::make()
                     ->columns(2)
                     ->schema([
                         Forms\Components\TextInput::make('name'),
@@ -59,6 +64,7 @@ class RoleResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->badge()
+                    ->wrap()
                     ->formatStateUsing(fn ($state) => __('permission.role.' . $state))
                     ->color(fn (string $state): string => Role::toFilamentColor($state)),
                 Tables\Columns\TextColumn::make('users_count')
@@ -68,13 +74,13 @@ class RoleResource extends Resource
             ->paginated(false)
             ->filters([])
             ->deferFilters()
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
+            ->recordActions([
+                ActionGroup::make([
+                    ViewAction::make(),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([]),
+            ->toolbarActions([
+                BulkActionGroup::make([]),
             ])
             ->emptyStateActions([]);
     }
