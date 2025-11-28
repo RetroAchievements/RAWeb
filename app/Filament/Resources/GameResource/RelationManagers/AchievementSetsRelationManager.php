@@ -116,10 +116,10 @@ class AchievementSetsRelationManager extends RelationManager
                         : []
                     )
                     ->action(
-                        Tables\Actions\Action::make('updateType')
+                        Actions\Action::make('updateType')
                             ->label('Change Type')
                             ->form([
-                                Select::make('type')
+                                Forms\Components\Select::make('type')
                                     ->label('Set Type')
                                     ->options([
                                         AchievementSetType::WillBeBonus->value => AchievementSetType::Bonus->label(),
