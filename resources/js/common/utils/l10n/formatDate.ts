@@ -41,10 +41,11 @@ type ValidLocalizedFormat = StandardLocalizedFormat | CustomLocalizedFormat;
 export function formatDate(
   date: Dayjs | string,
   format: ValidLocalizedFormat | `${ValidLocalizedFormat} ${ValidLocalizedFormat}`,
+  locale?: string,
 ): string {
   const dayjsDate = typeof date === 'string' ? dayjs.utc(date) : date;
-  const locale = dayjs.locale();
-  const nativeLocale = mapDayjsLocaleToIntlLocale(locale);
+  const dayjsLocale = locale ? locale.replace('_', '-').toLowerCase() : dayjs.locale();
+  const nativeLocale = mapDayjsLocaleToIntlLocale(dayjsLocale);
 
   if (format === 'MMM YYYY') {
     const formatter = new Intl.DateTimeFormat(nativeLocale, {

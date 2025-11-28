@@ -8,15 +8,17 @@ use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\IntegrationReleaseResource\Pages;
 use App\Filament\Rules\DisallowHtml;
 use App\Models\IntegrationRelease;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Infolists;
-use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
+use Filament\Schemas;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class IntegrationReleaseResource extends Resource
 {
@@ -24,9 +26,9 @@ class IntegrationReleaseResource extends Resource
 
     protected static ?string $label = 'Integration';
 
-    protected static ?string $navigationIcon = 'fas-puzzle-piece';
+    protected static string|BackedEnum|null $navigationIcon = 'fas-puzzle-piece';
 
-    protected static ?string $navigationGroup = 'Releases';
+    protected static string|UnitEnum|null $navigationGroup = 'Releases';
 
     protected static ?int $navigationSort = 30;
 
@@ -34,15 +36,15 @@ class IntegrationReleaseResource extends Resource
 
     protected static int $globalSearchResultsLimit = 5;
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schemas\Schema $schema): Schemas\Schema
     {
-        return $infolist
+        return $schema
             ->columns(1)
-            ->schema([
-                Infolists\Components\Split::make([
-                    Infolists\Components\Section::make('Details')
+            ->components([
+                Schemas\Components\Flex::make([
+                    Schemas\Components\Section::make('Details')
                         ->schema([
-                            Infolists\Components\Group::make()
+                            Schemas\Components\Group::make()
                                 ->columns(['xl' => 2, '2xl' => 2])
                                 ->schema([
                                     Infolists\Components\TextEntry::make('version')
@@ -54,7 +56,7 @@ class IntegrationReleaseResource extends Resource
                                 ]),
                         ]),
 
-                    Infolists\Components\Section::make([
+                    Schemas\Components\Section::make([
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
 
@@ -74,13 +76,13 @@ class IntegrationReleaseResource extends Resource
             ]);
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schemas\Schema $schema): Schemas\Schema
     {
-        return $form
+        return $schema
             ->columns(1)
-            ->schema([
-                Forms\Components\Split::make([
-                    Forms\Components\Section::make()
+            ->components([
+                Schemas\Components\Flex::make([
+                    Schemas\Components\Section::make()
                         ->schema([
                             Forms\Components\TextInput::make('version'),
 
@@ -96,7 +98,7 @@ class IntegrationReleaseResource extends Resource
                                 ->rows(10),
                         ]),
 
-                    Forms\Components\Section::make()
+                    Schemas\Components\Section::make()
                         ->schema([
                             Forms\Components\Toggle::make('stable')
                                 ->label('An official release'),
@@ -139,16 +141,16 @@ class IntegrationReleaseResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->deferFilters()
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ActionGroup::make([
-                        Tables\Actions\ViewAction::make(),
-                        Tables\Actions\EditAction::make(),
-                        Tables\Actions\DeleteAction::make(),
-                        Tables\Actions\RestoreAction::make(),
+            ->recordActions([
+                Actions\ActionGroup::make([
+                    Actions\ActionGroup::make([
+                        Actions\ViewAction::make(),
+                        Actions\EditAction::make(),
+                        Actions\DeleteAction::make(),
+                        Actions\RestoreAction::make(),
                     ])->dropdown(false),
 
-                    Tables\Actions\Action::make('audit-log')
+                    Actions\Action::make('audit-log')
                         ->url(fn ($record) => IntegrationReleaseResource::getUrl('audit-log', ['record' => $record]))
                         ->icon('fas-clock-rotate-left'),
                 ]),

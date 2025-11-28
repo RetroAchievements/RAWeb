@@ -10,10 +10,12 @@ use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\User;
 use App\Platform\Enums\ValueFormat;
-use Filament\Forms\Form;
+use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -24,7 +26,7 @@ class LeaderboardsRelationManager extends RelationManager
 {
     protected static string $relationship = 'leaderboards';
 
-    protected static ?string $icon = 'fas-bars-staggered';
+    protected static string|BackedEnum|null $icon = 'fas-bars-staggered';
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
@@ -41,10 +43,10 @@ class LeaderboardsRelationManager extends RelationManager
         return $count > 0 ? "{$count}" : null;
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
 
             ]);
     }
@@ -95,8 +97,8 @@ class LeaderboardsRelationManager extends RelationManager
             ->headerActions([
 
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
+            ->recordActions([
+                ActionGroup::make([
                     Action::make('view_entries')
                         ->label('View entries')
                         ->url(fn (Leaderboard $leaderboard) => route('filament.admin.resources.leaderboards.view', ['record' => $leaderboard]))
@@ -116,7 +118,7 @@ class LeaderboardsRelationManager extends RelationManager
                     DeleteLeaderboardAction::make('delete_leaderboard'),
                 ]),
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ])
             ->paginated([25, 50, 100])
@@ -136,7 +138,7 @@ class LeaderboardsRelationManager extends RelationManager
             );
     }
 
-    public function reorderTable(array $order): void
+    public function reorderTable(array $order, string|int|null $draggedRecordKey = null): void
     {
         // Do not automatically adjust the DisplayOrder of hidden leaderboards (DisplayOrder < 0).
         $order = array_filter($order, function (string $leaderboardId) {
@@ -145,7 +147,7 @@ class LeaderboardsRelationManager extends RelationManager
             return $leaderboard && $leaderboard->DisplayOrder >= 0;
         });
 
-        parent::reorderTable($order);
+        parent::reorderTable($order, $draggedRecordKey);
 
         /** @var User $user */
         $user = Auth::user();

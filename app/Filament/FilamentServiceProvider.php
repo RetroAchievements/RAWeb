@@ -2,39 +2,28 @@
 
 namespace App\Filament;
 
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Infolists\Infolist;
-use Filament\Pages;
-use Filament\Panel;
-use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
-use Filament\Support\Enums\MaxWidth;
-use Filament\Tables\Table;
-use Filament\Widgets\AccountWidget;
+use App\Filament\Widgets\SiteInfoWidget;
 use Illuminate\Support\Facades\Blade;
 
-class FilamentServiceProvider extends PanelProvider
+class FilamentServiceProvider extends \Filament\PanelProvider
 {
     public function boot(): void
     {
-        Table::configureUsing(function (Table $table): void {
+        \Filament\Tables\Table::configureUsing(function (\Filament\Tables\Table $table): void {
             $table
                 ->paginationPageOptions(config('filament.default_page_options'));
         });
 
-        Table::$defaultDateTimeDisplayFormat = 'Y-m-d H:i:s';
-        Infolist::$defaultDateTimeDisplayFormat = 'Y-m-d H:i:s';
-        DateTimePicker::$defaultDateDisplayFormat = 'Y-m-d';
-        DateTimePicker::$defaultDateTimeDisplayFormat = 'Y-m-d H:i';
-        DateTimePicker::$defaultDateTimeWithSecondsDisplayFormat = 'Y-m-d H:i:s';
-        DateTimePicker::$defaultTimeDisplayFormat = 'H:i';
-        DateTimePicker::$defaultTimeWithSecondsDisplayFormat = 'H:i:s';
+        \Filament\Tables\Table::configureUsing(fn (\Filament\Tables\Table $table) => $table->defaultDateTimeDisplayFormat('Y-m-d H:i:s'));
+        \Filament\Schemas\Schema::configureUsing(fn (\Filament\Schemas\Schema $schema) => $schema->defaultDateTimeDisplayFormat('Y-m-d H:i:s'));
+        \Filament\Forms\Components\DateTimePicker::configureUsing(fn (\Filament\Forms\Components\DateTimePicker $dateTimePicker) => $dateTimePicker->defaultDateDisplayFormat('Y-m-d'));
+        \Filament\Forms\Components\DateTimePicker::configureUsing(fn (\Filament\Forms\Components\DateTimePicker $dateTimePicker) => $dateTimePicker->defaultDateTimeDisplayFormat('Y-m-d H:i'));
+        \Filament\Forms\Components\DateTimePicker::configureUsing(fn (\Filament\Forms\Components\DateTimePicker $dateTimePicker) => $dateTimePicker->defaultDateTimeWithSecondsDisplayFormat('Y-m-d H:i:s'));
+        \Filament\Forms\Components\DateTimePicker::configureUsing(fn (\Filament\Forms\Components\DateTimePicker $dateTimePicker) => $dateTimePicker->defaultTimeDisplayFormat('H:i'));
+        \Filament\Forms\Components\DateTimePicker::configureUsing(fn (\Filament\Forms\Components\DateTimePicker $dateTimePicker) => $dateTimePicker->defaultTimeWithSecondsDisplayFormat('H:i:s'));
     }
 
-    public function panel(Panel $panel): Panel
+    public function panel(\Filament\Panel $panel): \Filament\Panel
     {
         return $panel
             ->default()
@@ -49,15 +38,15 @@ class FilamentServiceProvider extends PanelProvider
             )
             ->homeUrl(url('/'))
             ->colors([
-                'danger' => Color::Red,
-                'gray' => Color::Gray,
-                'info' => Color::Sky,
-                'primary' => Color::Blue,
-                'success' => Color::Green,
-                'warning' => Color::Amber,
+                'danger' => \Filament\Support\Colors\Color::Red,
+                'gray' => \Filament\Support\Colors\Color::Gray,
+                'info' => \Filament\Support\Colors\Color::Sky,
+                'primary' => \Filament\Support\Colors\Color::Blue,
+                'success' => \Filament\Support\Colors\Color::Green,
+                'warning' => \Filament\Support\Colors\Color::Amber,
             ])
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
-            ->maxContentWidth(MaxWidth::ScreenTwoExtraLarge)
+            ->maxContentWidth(\Filament\Support\Enums\Width::ScreenTwoExtraLarge)
             ->navigationGroups([
                 'Community',
                 'Development',
@@ -70,24 +59,26 @@ class FilamentServiceProvider extends PanelProvider
             ->readOnlyRelationManagersOnResourceViewPagesByDefault(false)
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                \Filament\Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                AccountWidget::class,
-                Widgets\SiteInfoWidget::class,
+                \Filament\Widgets\AccountWidget::class,
+                SiteInfoWidget::class,
             ])
             ->renderHook(
                 'panels::head.start',
                 fn () => Blade::render('<x-head-analytics />')
             )
+            ->viteTheme('resources/filament/css/theme.css')
             ->middleware([
                 'web',
-                DisableBladeIconComponents::class,
-                DispatchServingFilamentEvent::class,
+                \Filament\Http\Middleware\DisableBladeIconComponents::class,
+                \Filament\Http\Middleware\DispatchServingFilamentEvent::class,
+                \App\Http\Middleware\UseViteForFilament::class,
             ])
             ->authMiddleware([
-                Authenticate::class,
+                \Filament\Http\Middleware\Authenticate::class,
             ]);
     }
 }

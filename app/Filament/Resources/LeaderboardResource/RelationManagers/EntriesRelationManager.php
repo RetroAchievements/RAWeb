@@ -9,10 +9,12 @@ use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Platform\Actions\RemoveLeaderboardEntryAction;
 use App\Platform\Enums\ValueFormat;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,11 +23,11 @@ class EntriesRelationManager extends RelationManager
 {
     protected static string $relationship = 'entries';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('id')
+        return $schema
+            ->components([
+                TextInput::make('id')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -73,10 +75,10 @@ class EntriesRelationManager extends RelationManager
             ->headerActions([
                 ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
 
-                Tables\Actions\DeleteAction::make()
+                DeleteAction::make()
                     ->requiresConfirmation()
                     ->modalHeading(function (LeaderboardEntry $entry): string {
                         $entry->loadMissing('leaderboard');
@@ -86,8 +88,8 @@ class EntriesRelationManager extends RelationManager
                         return "Delete {$entry->user->display_name}'s entry of {$score}";
                     })
                     ->modalDescription('Are you sure you want to do this? You must provide a reason for the removal.')
-                    ->form([
-                        Forms\Components\TextInput::make('reason')
+                    ->schema([
+                        TextInput::make('reason')
                             ->required(),
                     ])
                     ->modalSubmitActionLabel('Remove entry')
@@ -103,7 +105,7 @@ class EntriesRelationManager extends RelationManager
                             ->send();
                     }),
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ]);
     }
