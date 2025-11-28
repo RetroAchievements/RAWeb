@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
-enum DiscordReportableType: string
+enum ModerationReportableType: string
 {
     case Comment = 'Comment';
     case DirectMessage = 'DirectMessage';

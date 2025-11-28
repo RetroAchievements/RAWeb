@@ -10,7 +10,7 @@ interface Variables {
     title: string;
 
     rId?: number;
-    rType?: App.Community.Enums.DiscordReportableType;
+    rType?: App.Community.Enums.ModerationReportableType;
   };
 }
 

@@ -23,6 +23,11 @@ export function useHoverCardClickSuppression(options?: UseHoverCardClickSuppress
    */
   const clickSuppressedTabs = useRef(new Set<number>());
 
+  /**
+   * Track timeouts for clearing suppression per tab index.
+   */
+  const suppressionTimeouts = useRef(new Map<number, NodeJS.Timeout>());
+
   const handleHoverCardOpenChange = (index: number, isOpen: boolean) => {
     // Don't allow reopening if this tab was just clicked.
     if (isOpen && clickSuppressedTabs.current.has(index)) {
@@ -36,6 +41,13 @@ export function useHoverCardClickSuppression(options?: UseHoverCardClickSuppress
     // Suppress the hover card reopening until mouse leaves.
     clickSuppressedTabs.current.add(index);
 
+    // Clear any existing timeout for this tab.
+    const existingTimeout = suppressionTimeouts.current.get(index);
+    if (existingTimeout) {
+      clearTimeout(existingTimeout);
+      suppressionTimeouts.current.delete(index);
+    }
+
     // Then, close the hover card.
     setOpenHoverCard(null);
 
@@ -44,8 +56,14 @@ export function useHoverCardClickSuppression(options?: UseHoverCardClickSuppress
   };
 
   const handlePointerLeave = (index: number) => {
-    // Clear suppression so the hover card can reopen on the next mouse cursor hover.
-    clickSuppressedTabs.current.delete(index);
+    // Delay clearing the suppression to allow navigation and a re-render to complete.
+    // This prevents the hover card from reopening if the user clicks and quickly moves away.
+    const timeout = setTimeout(() => {
+      clickSuppressedTabs.current.delete(index);
+      suppressionTimeouts.current.delete(index);
+    }, 500);
+
+    suppressionTimeouts.current.set(index, timeout);
   };
 
   return {
