@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Community\Actions;
 
 use App\Community\Enums\ArticleType;
-use App\Community\Enums\DiscordReportableType;
+use App\Community\Enums\ModerationReportableType;
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Game;
@@ -25,7 +25,7 @@ class BuildReportContextAction
      */
     public function execute(
         string $messageBody,
-        DiscordReportableType $reportableType,
+        ModerationReportableType $reportableType,
         int $reportableId,
         bool $forDiscord = false,
     ): string {
@@ -38,18 +38,18 @@ class BuildReportContextAction
 
         // For DirectMessages in the user inbox, we link to the message since the reporter can access it.
         // For Discord, we skip the link since moderators can't access user inboxes.
-        if ($reportableType !== DiscordReportableType::DirectMessage) {
+        if ($reportableType !== ModerationReportableType::DirectMessage) {
             $context .= $forDiscord ? "**Reported Content:**\n" : "[b]Reported Content:[/b]\n";
 
             // Add a direct link to the reported content.
             $link = match ($reportableType) {
-                DiscordReportableType::Comment => $reportedItem instanceof Comment
+                ModerationReportableType::Comment => $reportedItem instanceof Comment
                     ? $this->buildCommentLink($reportedItem)
                     : null,
-                DiscordReportableType::ForumTopicComment => $reportedItem->forumTopic
+                ModerationReportableType::ForumTopicComment => $reportedItem->forumTopic
                     ? route('forum-topic.show', ['topic' => $reportedItem->forumTopic->id]) . '?comment=' . $reportedItem->id
                     : null,
-                // TODO DiscordReportableType::UserProfile
+                // TODO ModerationReportableType::UserProfile
                 default => null,
             };
 
@@ -76,7 +76,7 @@ class BuildReportContextAction
         // Add timestamp with appropriate formatting.
         $createdAt = $reportedItem->created_at ?? $reportedItem->Submitted ?? null;
         if ($createdAt) {
-            $timeLabel = $reportableType === DiscordReportableType::DirectMessage ? 'Sent' : 'Posted';
+            $timeLabel = $reportableType === ModerationReportableType::DirectMessage ? 'Sent' : 'Posted';
 
             if ($forDiscord) {
                 $timestamp = $createdAt->timestamp;
@@ -92,9 +92,9 @@ class BuildReportContextAction
             $content = $reportedItem->body ?? $reportedItem->Payload ?? '';
             if ($content) {
                 // For DirectMessage and Comment, include the FULL content.
-                if ($reportableType === DiscordReportableType::DirectMessage) {
+                if ($reportableType === ModerationReportableType::DirectMessage) {
                     $context .= "**Full Message:**\n" . Shortcode::convertToMarkdown($content, self::MESSAGE_BODY_MAX_LENGTH, preserveWhitespace: true) . "\n";
-                } elseif ($reportableType === DiscordReportableType::Comment) {
+                } elseif ($reportableType === ModerationReportableType::Comment) {
                     $context .= "**Full Comment:**\n" . Shortcode::convertToMarkdown($content, self::MESSAGE_BODY_MAX_LENGTH, preserveWhitespace: true) . "\n";
                 } else {
                     // For other types, just include an excerpt.

@@ -72,4 +72,23 @@ return [
     'livewire_loading_delay' => 'default',
 
     'default_page_options' => [5, 10, 25, 50],
+
+    /*
+    |--------------------------------------------------------------------------
+    | File Generation
+    |--------------------------------------------------------------------------
+    |
+    | These options configure how Filament generates files.
+    |
+    */
+
+    'file_generation' => [
+        'flags' => [
+            Filament\Support\Commands\FileGenerators\FileGenerationFlag::EMBEDDED_PANEL_RESOURCE_SCHEMAS,
+            Filament\Support\Commands\FileGenerators\FileGenerationFlag::EMBEDDED_PANEL_RESOURCE_TABLES,
+            Filament\Support\Commands\FileGenerators\FileGenerationFlag::PANEL_CLUSTER_CLASSES_OUTSIDE_DIRECTORIES,
+            Filament\Support\Commands\FileGenerators\FileGenerationFlag::PANEL_RESOURCE_CLASSES_OUTSIDE_DIRECTORIES,
+            Filament\Support\Commands\FileGenerators\FileGenerationFlag::PARTIAL_IMPORTS,
+        ],
+    ],
 ];

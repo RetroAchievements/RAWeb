@@ -9,30 +9,34 @@ use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\SiteReleaseNotesResource\Pages;
 use App\Models\News;
 use App\Models\User;
+use BackedEnum;
+use Filament\Actions\EditAction;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use UnitEnum;
 
 class SiteReleaseNotesResource extends Resource
 {
     protected static ?string $model = News::class;
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    protected static ?string $navigationGroup = 'Releases';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
+    protected static string|UnitEnum|null $navigationGroup = 'Releases';
     protected static ?int $navigationSort = 2;
     protected static ?string $recordTitleAttribute = 'title';
     protected static ?string $navigationLabel = 'Site Release Notes';
     protected static ?string $modelLabel = 'Site Release Note';
     protected static ?string $pluralModelLabel = 'Site Release Notes';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Primary Details')
+        return $schema
+            ->components([
+                Schemas\Components\Section::make('Primary Details')
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2])
                     ->schema([
@@ -48,14 +52,13 @@ class SiteReleaseNotesResource extends Resource
                             ->helperText('Optional link to GitHub release, docs, etc.'),
                     ]),
 
-                Forms\Components\Section::make('Release Notes Content')
+                Schemas\Components\Section::make('Release Notes Content')
                     ->icon('heroicon-m-document-text')
                     ->description('Write your release notes in Markdown. This content will appear in the "Latest Site Updates" dialog on the home page.')
                     ->schema([
                         Forms\Components\MarkdownEditor::make('body')
                             ->label('Content')
                             ->required()
-                            ->disableToolbarButtons(['attachFiles', 'table', 'codeBlock'])
                             ->columnSpanFull(),
                     ]),
             ]);
@@ -83,8 +86,8 @@ class SiteReleaseNotesResource extends Resource
             ->filters([
 
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
             ->bulkActions([
 

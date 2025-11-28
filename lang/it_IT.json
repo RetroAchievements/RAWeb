@@ -1181,6 +1181,8 @@
     "We'll automatically be sent the link, author, timestamp, and content excerpt when you submit. Just describe what you're reporting and <1>which rule</1> was violated.": "We'll automatically be sent the link, author, timestamp, and content excerpt when you submit. Just describe what you're reporting and <1>which rule</1> was violated.",
     "Muted": "Muted",
     "Banned": "Banned",
+    "Latest Site Updates": "Latest Site Updates",
+    "See full release notes": "See full release notes",
     "supportedGameFilesCountLabel_one": "Al momento c'è <1>{{count, number}}</1> hash di un file di gioco supportato registrato per questo gioco.",
     "supportedGameFilesCountLabel_other": "Ci sono attualmente <1>{{count, number}}</1> hash di file di gioco supportati registrati per questo gioco.",
     "userCount_one": "<1>{{userCount, number}}</1> utente è attualmente online.",

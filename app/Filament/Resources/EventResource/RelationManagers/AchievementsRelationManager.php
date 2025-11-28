@@ -10,10 +10,12 @@ use App\Models\User;
 use App\Platform\Actions\AddAchievementsToEventAction;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use Carbon\Carbon;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -30,10 +32,10 @@ class AchievementsRelationManager extends RelationManager
         return true;
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Forms\Components\TextInput::make('title')
                     ->required()
                     ->maxLength(255),
@@ -80,10 +82,10 @@ class AchievementsRelationManager extends RelationManager
 
             ])
             ->headerActions([
-                Tables\Actions\Action::make('add-achievements')
+                Action::make('add-achievements')
                     ->label('Add additional achievements')
                     ->modalHeading('Add additional achievements')
-                    ->form([
+                    ->schema([
                         Forms\Components\TextInput::make('numberOfAchievements')
                             ->label('Number of achievements')
                             ->numeric()
@@ -105,12 +107,12 @@ class AchievementsRelationManager extends RelationManager
                     })
                     ->visible(fn () => $user->can('manage', Event::class)),
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\Action::make('award')
+            ->recordActions([
+                ActionGroup::make([
+                    Action::make('award')
                         ->label('Award to User(s)')
                         ->icon('fas-trophy')
-                        ->form([
+                        ->schema([
                             Forms\Components\Textarea::make('users')
                                 ->label('CSV of User names')
                                 ->autosize()
@@ -168,7 +170,7 @@ class AchievementsRelationManager extends RelationManager
                         ->hidden(!$user->can('manage', Event::class)),
                 ]),
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ])
             ->recordUrl(function (EventAchievement $record): string {
