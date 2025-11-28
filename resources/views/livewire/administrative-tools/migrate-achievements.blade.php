@@ -7,7 +7,7 @@ use App\Platform\Actions\MigrateAchievementIdsToDifferentGameIdAction;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Component;
@@ -60,9 +60,9 @@ new class extends Component implements HasForms {
         $this->gameId = null;
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\Textarea::make('achievementIdsCsv')
                     ->label('Achievement IDs (CSV)')

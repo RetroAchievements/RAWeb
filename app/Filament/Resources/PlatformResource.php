@@ -8,27 +8,31 @@ use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\PlatformResource\Pages;
 use App\Models\Platform;
 use App\Platform\Enums\PlatformExecutionEnvironment;
+use BackedEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\EditAction;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class PlatformResource extends Resource
 {
     protected static ?string $model = Platform::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cpu-chip';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-cpu-chip';
 
-    protected static ?string $navigationGroup = 'Releases';
+    protected static string|UnitEnum|null $navigationGroup = 'Releases';
 
     protected static ?int $navigationSort = 10;
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Forms\Components\TextInput::make('name')
                     ->label('Name')
                     ->required()
@@ -74,11 +78,11 @@ class PlatformResource extends Resource
             ->filters([
 
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+            ->toolbarActions([
+                BulkActionGroup::make([
 
                 ]),
             ]);

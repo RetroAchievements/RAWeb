@@ -1181,6 +1181,8 @@
     "We'll automatically be sent the link, author, timestamp, and content excerpt when you submit. Just describe what you're reporting and <1>which rule</1> was violated.": "Quan enviïs la denúncia, rebrem automàticament l’enllaç, l’autor, la data i hora, i un fragment del contingut. Només cal que descriguis què estàs denunciant i <1>quina norma</1> s’ha infringit.",
     "Muted": "Silenciat",
     "Banned": "Suspès",
+    "Latest Site Updates": "Últimes actualitzacions del lloc",
+    "See full release notes": "Veure les notes de la versió",
     "supportedGameFilesCountLabel_one": "Actualment <1>{{count, number}}</1> registre de hash d'arxiu suportat registrat per a aquest joc.",
     "supportedGameFilesCountLabel_other": "Actualment hi ha registrats <1>{{count, number}}</1> hashes d'arxius suportats registrats per a aquest joc.",
     "userCount_one": "Hi ha <1>{{userCount, number}}</1> usuari en línia.",

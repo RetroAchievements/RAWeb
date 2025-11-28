@@ -1181,6 +1181,8 @@
     "We'll automatically be sent the link, author, timestamp, and content excerpt when you submit. Just describe what you're reporting and <1>which rule</1> was violated.": "Когда вы отправите жалобу, нам автоматически будут переданы ссылка, автор, время публикации и фрагмент содержимого. Просто опишите, на что именно вы жалуетесь, и <1>какое правило</1> было нарушено.",
     "Muted": "Заглушен(-а)",
     "Banned": "Заблокирован(-а)",
+    "Latest Site Updates": "Недавние обновления сайта",
+    "See full release notes": "Посмотреть полный список изменений",
     "supportedGameFilesCountLabel_one": "На данный момент известен <1>{{count, number}}</1> поддерживаемый хэш ROM файлов для этой игры.",
     "supportedGameFilesCountLabel_few": "На данный момент известны <1>{{count, number}}</1> поддерживаемых хэша ROM файлов для этой игры.",
     "supportedGameFilesCountLabel_many": "На данный момент известны <1>{{count, number}}</1> поддерживаемых хэшей ROM файлов для этой игры.",
