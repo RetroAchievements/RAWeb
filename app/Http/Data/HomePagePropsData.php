@@ -14,6 +14,7 @@ use App\Data\StaticDataData;
 use App\Data\StaticGameAwardData;
 use App\Platform\Data\GameData;
 use Illuminate\Support\Collection;
+use Inertia\DeferProp;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
@@ -26,6 +27,7 @@ class HomePagePropsData extends Data
      * @param Collection<int, TrendingGameData> $trendingGames
      * @param Collection<int, AchievementSetClaimGroupData> $newClaims
      * @param Collection<int, ForumTopicData> $recentForumPosts
+     * @param Collection<int, NewsData>|DeferProp $deferredSiteReleaseNotes
      */
     public function __construct(
         public StaticDataData $staticData,
@@ -42,6 +44,9 @@ class HomePagePropsData extends Data
         public ?string $persistedActivePlayersSearch,
         public ?GameData $userCurrentGame = null,
         public ?int $userCurrentGameMinutesAgo = null,
+        public bool $hasSiteReleaseNotes = false,
+        public bool $hasUnreadSiteReleaseNote = false,
+        public Collection|DeferProp $deferredSiteReleaseNotes = new Collection(),
     ) {
     }
 }

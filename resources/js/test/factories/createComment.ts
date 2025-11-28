@@ -4,6 +4,7 @@ import { createUser } from './createUser';
 export const createComment = createFactory<App.Community.Data.Comment>((faker) => {
   return {
     canDelete: false,
+    canReport: false,
     commentableId: faker.number.int({ min: 1, max: 10000 }),
     commentableType: 1,
     createdAt: faker.date.recent().toISOString(),

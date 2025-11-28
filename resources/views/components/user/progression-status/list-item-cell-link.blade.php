@@ -22,7 +22,9 @@ if ($widthMode === 'dynamic' && $cellGamesCount > 0) {
     $classNames .= " min-w-fit px-2";
 }
 
-$dynamicWidth = sprintf("%1.2f", ($cellGamesCount / $totalGamesCount) * 100.0);
+$dynamicWidth = $totalGamesCount > 0
+    ? sprintf("%1.2f", ($cellGamesCount / $totalGamesCount) * 100.0)
+    : "0.00";
 ?>
 
 <a

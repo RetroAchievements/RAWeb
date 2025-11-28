@@ -11,22 +11,24 @@ use App\Models\GameAchievementSet;
 use App\Models\User;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Enums\AchievementSetType;
+use BackedEnum;
+use Filament\Actions;
+use Filament\Actions\DetachAction;
 use Filament\Forms;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Wizard;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Wizard\Step;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 use InvalidArgumentException;
-use Livewire\Component;
 
 class AchievementSetsRelationManager extends RelationManager
 {
@@ -34,7 +36,7 @@ class AchievementSetsRelationManager extends RelationManager
 
     protected static ?string $title = 'Sets';
 
-    protected static ?string $icon = 'heroicon-o-rectangle-stack';
+    protected static string|BackedEnum|null $icon = 'heroicon-o-rectangle-stack';
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
@@ -48,10 +50,10 @@ class AchievementSetsRelationManager extends RelationManager
         return $count > 0 ? "{$count}" : null;
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
 
             ]);
     }
@@ -132,25 +134,15 @@ class AchievementSetsRelationManager extends RelationManager
 
             ])
             ->headerActions([
-                Tables\Actions\Action::make('attachSubset')
+                Actions\Action::make('attachSubset')
                     ->visible(fn () => $user->can('create', GameAchievementSet::class))
                     ->label('Attach Subset')
                     ->modalHeading('Attach Subset')
-                    ->modifyWizardUsing(fn (Wizard $wizard) => $wizard->submitAction(
-                        new HtmlString(Blade::render(<<<BLADE
-                            <x-filament::button
-                                type="submit"
-                                size="sm"
-                            >
-                                Submit
-                            </x-filament::button>
-                        BLADE))
-                    ))
                     ->steps([
-                        Wizard\Step::make('Subset')
+                        Step::make('Subset')
                             ->description('Find the subset in the database')
                             ->schema([
-                                Select::make('game')
+                                Forms\Components\Select::make('game')
                                     ->label('Subset game')
                                     ->helperText('Find the current subset game in the database. For example: "Mega Man 2 [Subset - Bonus]".')
                                     ->searchable()
@@ -174,9 +166,9 @@ class AchievementSetsRelationManager extends RelationManager
                                     )
                                     ->required(),
                             ])
-                            ->afterValidation(function (Component $livewire) {
+                            ->afterValidation(function (Get $get, Set $set) {
                                 // Try to set the default subset title based on the selected game.
-                                $gameId = (int) $livewire->mountedTableActionsData[0]['game'];
+                                $gameId = (int) $get('game');
                                 $game = Game::find($gameId);
 
                                 // Extract the default subset title, ie: the part after "[Subset - " and before "]".
@@ -185,7 +177,7 @@ class AchievementSetsRelationManager extends RelationManager
                                     $defaultSubsetTitle = $matches[1];
                                 }
 
-                                $livewire->mountedTableActionsData[0]['title'] = $defaultSubsetTitle;
+                                $set('title', $defaultSubsetTitle);
 
                                 // Check if the achievement set is already attached to another game as a non-core type.
                                 $legacySubsetAchievementSet = $game->gameAchievementSets()->core()->first()->achievementSet;
@@ -195,10 +187,10 @@ class AchievementSetsRelationManager extends RelationManager
                                     ->first();
 
                                 // Set the flag in the form data.
-                                $livewire->mountedTableActionsData[0]['attachedToGameId'] = $attachedGame?->id;
+                                $set('attachedToGameId', $attachedGame?->id);
                             }),
 
-                        Wizard\Step::make('Details')
+                        Step::make('Details')
                             ->description('Give some required info and submit')
                             ->schema([
                                 Forms\Components\Hidden::make('attachedToGameId'),
@@ -219,7 +211,7 @@ class AchievementSetsRelationManager extends RelationManager
                                         'not_regex:/[\x{1F600}-\x{1F64F}]/u',  // No emojis.
                                     ]),
 
-                                Select::make('type')
+                                Forms\Components\Select::make('type')
                                     ->options([
                                         AchievementSetType::WillBeBonus->value => AchievementSetType::Bonus->label(),
                                         AchievementSetType::WillBeSpecialty->value => AchievementSetType::Specialty->label(),
@@ -257,14 +249,14 @@ class AchievementSetsRelationManager extends RelationManager
                         }
                     }),
             ])
-            ->actions([
-                Tables\Actions\DetachAction::make()
+            ->recordActions([
+                DetachAction::make()
                     ->visible(fn () => $user->can('delete', [GameAchievementSet::class, null]))
 
                     // Core sets cannot be detached.
                     ->hidden(fn ($record) => $record->type === AchievementSetType::Core->value),
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ])
             ->defaultSort(function (Builder $query): Builder {

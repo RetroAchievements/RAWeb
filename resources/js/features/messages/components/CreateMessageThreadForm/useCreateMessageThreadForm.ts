@@ -20,7 +20,7 @@ type FormValues = z.infer<typeof formSchema>;
 export function useCreateMessageThreadForm(
   defaultValues: Partial<FormValues>,
   senderUserDisplayName: string,
-  reportableType?: App.Community.Enums.DiscordReportableType | null,
+  reportableType?: App.Community.Enums.ModerationReportableType | null,
   reportableId?: number | null,
 ) {
   const { t } = useTranslation();

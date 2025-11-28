@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Actions;
 
+use App\Community\Enums\NewsCategory;
 use App\Data\NewsData;
 use App\Models\News;
 use Illuminate\Support\Collection;
@@ -19,6 +20,10 @@ class BuildNewsDataAction
     public function execute(int $limit = 9): Collection
     {
         $news = News::with('user')
+            ->where(function ($query) {
+                $query->where('category', '!=', NewsCategory::SiteReleaseNotes)
+                    ->orWhereNull('category');
+            })
             ->orderByDesc('pinned_at')
             ->orderByDesc('created_at')
             ->limit($limit)
