@@ -57,7 +57,10 @@ const BaseDialogContent = React.forwardRef<
         if (blockerTimeoutRef.current) {
           clearTimeout(blockerTimeoutRef.current);
         }
-        document.getElementById('dialog-hover-blocker')?.remove();
+        const blocker = document.getElementById('dialog-hover-blocker');
+        if (blocker?.parentNode) {
+          blocker.parentNode.removeChild(blocker);
+        }
       };
     }, []);
 
