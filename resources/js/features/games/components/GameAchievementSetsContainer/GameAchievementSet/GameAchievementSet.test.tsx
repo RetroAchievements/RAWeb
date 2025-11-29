@@ -1,3 +1,4 @@
+import * as useIsHydratedModule from '@/common/hooks/useIsHydrated';
 import { createAuthenticatedUser } from '@/common/models';
 import {
   currentListViewAtom,
@@ -19,6 +20,10 @@ import {
 import { GameAchievementSet } from './GameAchievementSet';
 
 describe('Component: GameAchievementSet', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const game = createGame();
@@ -441,5 +446,95 @@ describe('Component: GameAchievementSet', () => {
 
     // ASSERT
     expect(screen.getAllByText(/0%/i)[0]).toBeVisible();
+  });
+
+  it('given the component has not hydrated yet, limits rendered achievements and shows a placeholder', () => {
+    // ARRANGE
+    vi.spyOn(useIsHydratedModule, 'useIsHydrated').mockReturnValue(false); // we're in SSR
+
+    const game = createGame();
+    const achievements = Array.from({ length: 30 }, (_, i) =>
+      createAchievement({
+        id: i + 1,
+        title: `Achievement ${i + 1}`,
+      }),
+    );
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+      }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+        },
+      },
+    );
+
+    // ASSERT
+    // ... only the first 20 achievements should be rendered ...
+    expect(screen.getByText('Achievement 1')).toBeVisible();
+    expect(screen.getByText('Achievement 20')).toBeVisible();
+    expect(screen.queryByText('Achievement 21')).not.toBeInTheDocument();
+    expect(screen.queryByText('Achievement 30')).not.toBeInTheDocument();
+
+    // ... and there should be an invisible placeholder for the remaining 10 achievements ...
+    const placeholder = screen.getByTestId('invisible-placeholder');
+    expect(placeholder).toBeInTheDocument();
+    expect(placeholder).toHaveStyle({ height: '950px' }); // (10 * 96) - 10 = 950
+  });
+
+  it('given the component has not hydrated yet but there are 20 or fewer achievements, does not show a placeholder', () => {
+    // ARRANGE
+    vi.spyOn(useIsHydratedModule, 'useIsHydrated').mockReturnValue(false); // we're in SSR
+
+    const game = createGame();
+    const achievements = Array.from({ length: 15 }, (_, i) =>
+      createAchievement({
+        id: i + 1,
+        title: `Achievement ${i + 1}`,
+      }),
+    );
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+      }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+        },
+      },
+    );
+
+    // ASSERT
+    // ... all 15 achievements should be rendered since they fit within the SSR limit ...
+    expect(screen.getByText('Achievement 1')).toBeVisible();
+    expect(screen.getByText('Achievement 15')).toBeVisible();
+
+    // ... no placeholder needed since all achievements are rendered ...
+    expect(screen.queryByTestId('invisible-placeholder')).not.toBeInTheDocument();
   });
 });
