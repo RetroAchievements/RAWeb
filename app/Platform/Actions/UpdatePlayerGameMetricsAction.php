@@ -210,19 +210,23 @@ class UpdatePlayerGameMetricsAction
 
         $playerAchievementSet->completion_percentage = $playerAchievementSet->achievements_unlocked / $numSetAchievements;
         $isCompleted = $playerAchievementSet->achievements_unlocked === $numSetAchievements;
-        if ($isCompleted && !$playerAchievementSet->completed_at) {
-            $playerAchievementSet->completed_at = $playerAchievementSet->last_unlock_at;
-            if ($playerAchievementSet->completed_at !== null) {
-                array_push($completionDates, $playerAchievementSet->completed_at->toJSON());
+        if ($isCompleted) {
+            if (!$playerAchievementSet->completed_at) {
+                $playerAchievementSet->completed_at = $playerAchievementSet->last_unlock_at;
+                if ($playerAchievementSet->completed_at !== null) {
+                    array_push($completionDates, $playerAchievementSet->completed_at->toJSON());
+                }
             }
 
-            if ($isCoreSet) {
-                $playerGame->completed_at = $playerAchievementSet->last_unlock_at;
+            // Sync to PlayerGame independently. This may have been missed if
+            // another game's job set PlayerAchievementSet.completed_at first.
+            if ($isCoreSet && !$playerGame->completed_at) {
+                $playerGame->completed_at = $playerAchievementSet->completed_at;
                 if ($playerGame->completed_at !== null) {
                     array_push($gameCompletionDates, $playerGame->completed_at->toJSON());
                 }
             }
-        } elseif (!$isCompleted) {
+        } else {
             $playerAchievementSet->completed_at = null;
             if ($isCoreSet) {
                 $playerGame->completed_at = null;
@@ -232,22 +236,26 @@ class UpdatePlayerGameMetricsAction
 
         $playerAchievementSet->completion_percentage_hardcore = $playerAchievementSet->achievements_unlocked_hardcore / $numSetAchievements;
         $isCompletedHardcore = $playerAchievementSet->achievements_unlocked_hardcore === $numSetAchievements;
-        if ($isCompletedHardcore && !$playerAchievementSet->completed_hardcore_at) {
-            $playerAchievementSet->completed_hardcore_at = $playerAchievementSet->last_unlock_hardcore_at;
-            if ($playerAchievementSet->completed_hardcore_at !== null) {
-                array_push($completionDatesHardcore, $playerAchievementSet->completed_hardcore_at->toJSON());
+        if ($isCompletedHardcore) {
+            if (!$playerAchievementSet->completed_hardcore_at) {
+                $playerAchievementSet->completed_hardcore_at = $playerAchievementSet->last_unlock_hardcore_at;
+                if ($playerAchievementSet->completed_hardcore_at !== null) {
+                    array_push($completionDatesHardcore, $playerAchievementSet->completed_hardcore_at->toJSON());
+                }
             }
 
-            if ($isCoreSet) {
-                $playerGame->completed_hardcore_at = $playerAchievementSet->last_unlock_hardcore_at;
+            // Sync to PlayerGame independently. This may have been missed if
+            // another game's job set PlayerAchievementSet.completed_hardcore_at first.
+            if ($isCoreSet && !$playerGame->completed_hardcore_at) {
+                $playerGame->completed_hardcore_at = $playerAchievementSet->completed_hardcore_at;
                 if ($playerGame->completion_dates_hardcore === null) {
                     $playerGame->completion_dates_hardcore = [];
                 }
-                if ($playerAchievementSet->last_unlock_hardcore_at !== null) {
+                if ($playerGame->completed_hardcore_at !== null) {
                     array_push($gameCompletionDatesHardcore, $playerGame->completed_hardcore_at->toJSON());
                 }
             }
-        } elseif (!$isCompletedHardcore) {
+        } else {
             $playerAchievementSet->completed_hardcore_at = null;
             if ($isCoreSet) {
                 $playerGame->completed_hardcore_at = null;
