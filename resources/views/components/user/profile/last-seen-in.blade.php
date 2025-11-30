@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\PlayerSession;
 use App\Models\Game;
+use App\Models\GameRecentPlayer;
 use Illuminate\Support\Carbon;
 ?>
 
@@ -10,9 +10,9 @@ use Illuminate\Support\Carbon;
 ])
 
 <?php
-$mostRecentSession = PlayerSession::where('user_id', $userMassData['ID'])
+$mostRecentSession = GameRecentPlayer::where('user_id', $userMassData['ID'])
     ->with('game')
-    ->orderBy('created_at', 'desc')
+    ->orderByDesc('rich_presence_updated_at')
     ->first();
 
 // If there's no session for some reason, try to fall back to the user record.
