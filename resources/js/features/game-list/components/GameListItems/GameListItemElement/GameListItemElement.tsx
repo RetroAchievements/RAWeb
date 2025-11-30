@@ -2,11 +2,11 @@ import type { ColumnSort } from '@tanstack/react-table';
 import { type FC, useState } from 'react';
 import type { RouteName } from 'ziggy-js';
 
-import { BaseDrawer } from '@/common/components/+vendor/BaseDrawer';
+import { BaseDialog } from '@/common/components/+vendor/BaseDialog';
 import { useGameBacklogState } from '@/common/hooks/useGameBacklogState';
 
 import { GameListItemContent } from './GameListItemContent';
-import { GameListItemDrawerContent } from './GameListItemDrawerContent';
+import { GameListItemDialogContent } from './GameListItemDialogContent';
 
 interface GameListItemElementProps {
   apiRouteName: RouteName;
@@ -45,17 +45,17 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
     isInitiallyInBacklog: isInBacklog ?? false,
   });
 
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   if (shouldHideItemIfNotInBacklog && !backlogState.isInBacklogMaybeOptimistic) {
     return null;
   }
 
-  const handleToggleBacklogFromDrawerButton = () => {
+  const handleToggleBacklogFromDialogButton = () => {
     const isViewingWantToPlayGames = shouldHideItemIfNotInBacklog;
 
     if (isViewingWantToPlayGames) {
-      setIsDrawerOpen(false);
+      setIsDialogOpen(false);
     }
 
     setTimeout(() => {
@@ -64,7 +64,7 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
   };
 
   return (
-    <BaseDrawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen} shouldScaleBackground={false}>
+    <BaseDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <GameListItemContent
         apiRouteName={apiRouteName}
         backlogState={backlogState}
@@ -75,11 +75,11 @@ export const GameListItemElement: FC<GameListItemElementProps> = ({
         sortFieldId={sortFieldId}
       />
 
-      <GameListItemDrawerContent
+      <GameListItemDialogContent
         backlogState={backlogState}
         gameListEntry={gameListEntry}
-        onToggleBacklog={handleToggleBacklogFromDrawerButton}
+        onToggleBacklog={handleToggleBacklogFromDialogButton}
       />
-    </BaseDrawer>
+    </BaseDialog>
   );
 };

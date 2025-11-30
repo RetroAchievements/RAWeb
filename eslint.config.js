@@ -190,7 +190,6 @@ export default tseslint.config(
             '@radix-ui/*', // Use our wrapped Base* components.
             'radix-ui', // Use our wrapped Base* components.
             'sonner', // Use toastMessage instead.
-            'vaul', // Use our wrapped BaseDrawer component.
           ],
         },
       ],

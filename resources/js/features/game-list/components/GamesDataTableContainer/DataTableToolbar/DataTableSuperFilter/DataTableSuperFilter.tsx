@@ -1,20 +1,20 @@
 import type { ColumnDef, SortDirection, Table } from '@tanstack/react-table';
 import { Fragment } from 'react/jsx-runtime';
 import { useTranslation } from 'react-i18next';
-import { HiFilter } from 'react-icons/hi';
+import { RiFilter3Fill } from 'react-icons/ri';
 import type { RouteName } from 'ziggy-js';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
-  BaseDrawer,
-  BaseDrawerClose,
-  BaseDrawerContent,
-  BaseDrawerDescription,
-  BaseDrawerFooter,
-  BaseDrawerHeader,
-  BaseDrawerTitle,
-  BaseDrawerTrigger,
-} from '@/common/components/+vendor/BaseDrawer';
+  BaseDialog,
+  BaseDialogClose,
+  BaseDialogContent,
+  BaseDialogDescription,
+  BaseDialogFooter,
+  BaseDialogHeader,
+  BaseDialogTitle,
+  BaseDialogTrigger,
+} from '@/common/components/+vendor/BaseDialog';
 import { BaseLabel } from '@/common/components/+vendor/BaseLabel';
 import {
   BaseSelect,
@@ -92,20 +92,20 @@ export function DataTableSuperFilter<TData>({
   };
 
   return (
-    <BaseDrawer shouldScaleBackground={false}>
-      <BaseDrawerTrigger asChild>
-        <button className="flex items-center gap-1 tracking-tight text-neutral-200 light:text-neutral-950">
+    <BaseDialog>
+      <BaseDialogTrigger asChild>
+        <BaseButton size="sm" className="gap-1.5">
           {currentSuperFilterLabel}
-          <HiFilter className="h-4 w-4" />
-        </button>
-      </BaseDrawerTrigger>
+          <RiFilter3Fill className="size-4" />
+        </BaseButton>
+      </BaseDialogTrigger>
 
-      <BaseDrawerContent>
+      <BaseDialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-md">
         <div className="mx-auto w-full max-w-sm">
-          <BaseDrawerHeader>
-            <BaseDrawerTitle>{t('Customize View')}</BaseDrawerTitle>
-            <BaseDrawerDescription className="sr-only">{t('Customize View')}</BaseDrawerDescription>
-          </BaseDrawerHeader>
+          <BaseDialogHeader>
+            <BaseDialogTitle>{t('Customize View')}</BaseDialogTitle>
+            <BaseDialogDescription className="sr-only">{t('Customize View')}</BaseDialogDescription>
+          </BaseDialogHeader>
 
           <div className="flex flex-col gap-4 p-4">
             {!tableApiRouteName.includes('api.set-request') ? (
@@ -184,24 +184,24 @@ export function DataTableSuperFilter<TData>({
             </div>
           </div>
 
-          <BaseDrawerFooter>
+          <BaseDialogFooter>
             <div className="grid grid-cols-2 gap-3">
               <RandomGameButton
-                variant="mobile-drawer"
+                variant="mobile-dialog"
                 apiRouteName={randomGameApiRouteName}
                 apiRouteParams={randomGameApiRouteParams}
                 columnFilters={currentFilters}
                 disabled={!hasResults || isTableQueryLoading}
               />
 
-              <BaseDrawerClose asChild>
-                <BaseButton variant="secondary">{t('Close')}</BaseButton>
-              </BaseDrawerClose>
+              <BaseDialogClose asChild>
+                <BaseButton>{t('Save')}</BaseButton>
+              </BaseDialogClose>
             </div>
-          </BaseDrawerFooter>
+          </BaseDialogFooter>
         </div>
-      </BaseDrawerContent>
-    </BaseDrawer>
+      </BaseDialogContent>
+    </BaseDialog>
   );
 }
 

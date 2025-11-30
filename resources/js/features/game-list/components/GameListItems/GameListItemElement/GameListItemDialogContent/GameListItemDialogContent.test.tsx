@@ -1,4 +1,4 @@
-import { BaseDrawer } from '@/common/components/+vendor/BaseDrawer';
+import { BaseDialog } from '@/common/components/+vendor/BaseDialog';
 import { createAuthenticatedUser } from '@/common/models';
 import { AwardType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
@@ -10,12 +10,12 @@ import {
   createSystem,
 } from '@/test/factories';
 
-import { GameListItemDrawerContent } from './GameListItemDrawerContent';
+import { GameListItemDialogContent } from './GameListItemDialogContent';
 
 // Suppress "Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}."
 console.warn = vi.fn();
 
-describe('Component: GameListItemDrawerContent', () => {
+describe('Component: GameListItemDialogContent', () => {
   let originalUrl: string;
 
   beforeEach(() => {
@@ -34,8 +34,8 @@ describe('Component: GameListItemDrawerContent', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry()}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -44,7 +44,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -54,8 +54,8 @@ describe('Component: GameListItemDrawerContent', () => {
   it('displays an accessible image representing the game', () => {
     // ARRANGE
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game: createGame({ title: 'Sonic the Hedgehog' }) })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -64,7 +64,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -74,8 +74,8 @@ describe('Component: GameListItemDrawerContent', () => {
   it('always shows the game title', () => {
     // ARRANGE
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game: createGame({ title: 'Sonic the Hedgehog' }) })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -84,7 +84,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -94,8 +94,8 @@ describe('Component: GameListItemDrawerContent', () => {
   it('there is always one or more tappable links directly to the game page', () => {
     // ARRANGE
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game: createGame({ title: 'Sonic the Hedgehog' }) })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -104,7 +104,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -121,8 +121,8 @@ describe('Component: GameListItemDrawerContent', () => {
     });
 
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -131,7 +131,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -147,8 +147,8 @@ describe('Component: GameListItemDrawerContent', () => {
     });
 
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -157,7 +157,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -172,8 +172,8 @@ describe('Component: GameListItemDrawerContent', () => {
     });
 
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -182,7 +182,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -201,8 +201,8 @@ describe('Component: GameListItemDrawerContent', () => {
     });
 
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -211,7 +211,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -229,8 +229,8 @@ describe('Component: GameListItemDrawerContent', () => {
     });
 
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -239,7 +239,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -257,8 +257,8 @@ describe('Component: GameListItemDrawerContent', () => {
     });
 
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -267,7 +267,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -286,8 +286,8 @@ describe('Component: GameListItemDrawerContent', () => {
     });
 
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -296,7 +296,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -315,8 +315,8 @@ describe('Component: GameListItemDrawerContent', () => {
     });
 
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -325,7 +325,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -344,8 +344,8 @@ describe('Component: GameListItemDrawerContent', () => {
     });
 
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -354,7 +354,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -373,8 +373,8 @@ describe('Component: GameListItemDrawerContent', () => {
     });
 
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -383,7 +383,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -402,8 +402,8 @@ describe('Component: GameListItemDrawerContent', () => {
     });
 
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -412,7 +412,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -430,8 +430,8 @@ describe('Component: GameListItemDrawerContent', () => {
     });
 
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -440,7 +440,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -458,8 +458,8 @@ describe('Component: GameListItemDrawerContent', () => {
     });
 
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -468,7 +468,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
     );
 
     // ASSERT
@@ -482,8 +482,8 @@ describe('Component: GameListItemDrawerContent', () => {
   it('given the user is unauthenticated, does not display a progress row', () => {
     // ARRANGE
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry()}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -492,7 +492,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
       {
         pageProps: { auth: null },
       },
@@ -511,8 +511,8 @@ describe('Component: GameListItemDrawerContent', () => {
     });
 
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game, playerGame })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -521,7 +521,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
       {
         pageProps: { auth: { user: createAuthenticatedUser() } },
       },
@@ -544,8 +544,8 @@ describe('Component: GameListItemDrawerContent', () => {
     });
 
     render(
-      <BaseDrawer open={true}>
-        <GameListItemDrawerContent
+      <BaseDialog open={true}>
+        <GameListItemDialogContent
           gameListEntry={createGameListEntry({ game, playerGame })}
           backlogState={{
             isInBacklogMaybeOptimistic: false,
@@ -554,7 +554,7 @@ describe('Component: GameListItemDrawerContent', () => {
           }}
           onToggleBacklog={vi.fn()}
         />
-      </BaseDrawer>,
+      </BaseDialog>,
       {
         pageProps: { auth: { user: createAuthenticatedUser() } },
       },
@@ -583,8 +583,8 @@ describe('Component: GameListItemDrawerContent', () => {
       });
 
       render(
-        <BaseDrawer open={true}>
-          <GameListItemDrawerContent
+        <BaseDialog open={true}>
+          <GameListItemDialogContent
             gameListEntry={createGameListEntry({ game, playerGame })}
             backlogState={{
               isInBacklogMaybeOptimistic: false,
@@ -593,7 +593,7 @@ describe('Component: GameListItemDrawerContent', () => {
             }}
             onToggleBacklog={vi.fn()}
           />
-        </BaseDrawer>,
+        </BaseDialog>,
         {
           pageProps: { auth: { user: createAuthenticatedUser() } },
         },

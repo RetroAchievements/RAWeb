@@ -16,7 +16,7 @@ import { DataTableSuperFilter } from './DataTableSuperFilter';
 
 vi.mock('@/common/components/GameAvatar', () => ({ GameAvatar: () => null }));
 
-// Suppress vaul a11y warnings.
+// Suppress Radix Dialog a11y warnings.
 console.warn = vi.fn();
 
 // Suppress "[Table] Column with id 'progress' does not exist".
@@ -64,12 +64,6 @@ describe('Component: DataTableSuperFilter', () => {
     window.HTMLElement.prototype.hasPointerCapture = vi.fn();
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
     window.HTMLElement.prototype.setPointerCapture = vi.fn();
-
-    // This prevents vaul from exploding.
-    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
-      transform: 'matrix(1, 0, 0, 1, 0, 0)',
-      getPropertyValue: vi.fn(),
-    } as unknown as CSSStyleDeclaration);
   });
 
   it('renders without crashing', () => {
@@ -136,8 +130,8 @@ describe('Component: DataTableSuperFilter', () => {
     });
   });
 
-  describe('Drawer', () => {
-    it('given the user taps the super filter button, the drawer appears', async () => {
+  describe('Dialog', () => {
+    it('given the user taps the super filter button, the dialog appears', async () => {
       // ARRANGE
       render(<TestHarness columnFilters={[{ id: 'achievementsPublished', value: 'has' }]} />, {
         pageProps: { ziggy: createZiggyProps({ device: 'mobile' }) },

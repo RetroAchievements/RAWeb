@@ -1,16 +1,18 @@
 import type { FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { IconType } from 'react-icons/lib';
+import { LuArrowBigRight, LuX } from 'react-icons/lu';
 import { route } from 'ziggy-js';
 
-import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
+import { BaseButton, baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import {
-  BaseDrawerContent,
-  BaseDrawerDescription,
-  BaseDrawerFooter,
-  BaseDrawerHeader,
-  BaseDrawerTitle,
-} from '@/common/components/+vendor/BaseDrawer';
+  BaseDialogClose,
+  BaseDialogContent,
+  BaseDialogDescription,
+  BaseDialogFooter,
+  BaseDialogHeader,
+  BaseDialogTitle,
+} from '@/common/components/+vendor/BaseDialog';
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { GameTitle } from '@/common/components/GameTitle';
 import { PlayerGameProgressBar } from '@/common/components/PlayerGameProgressBar';
@@ -24,15 +26,15 @@ import { formatGameReleasedAt } from '@/common/utils/formatGameReleasedAt';
 import { gameListFieldIconMap } from '@/features/game-list/utils/gameListFieldIconMap';
 import type { TranslatedString } from '@/types/i18next';
 
-import { GameListItemDrawerBacklogToggleButton } from './GameListItemDrawerBacklogToggleButton';
+import { GameListItemDialogBacklogToggleButton } from './GameListItemDialogBacklogToggleButton';
 
-interface GameListItemDrawerContentProps {
+interface GameListItemDialogContentProps {
   backlogState: ReturnType<typeof useGameBacklogState>;
   gameListEntry: App.Platform.Data.GameListEntry;
   onToggleBacklog: () => void;
 }
 
-export const GameListItemDrawerContent: FC<GameListItemDrawerContentProps> = ({
+export const GameListItemDialogContent: FC<GameListItemDialogContentProps> = ({
   backlogState,
   gameListEntry,
   onToggleBacklog,
@@ -46,12 +48,12 @@ export const GameListItemDrawerContent: FC<GameListItemDrawerContentProps> = ({
   const { game, playerGame } = gameListEntry;
 
   return (
-    <BaseDrawerContent>
-      <div className="mx-auto w-full max-w-sm overflow-hidden">
-        <BaseDrawerHeader>
-          <BaseDrawerTitle>{t('Game Details')}</BaseDrawerTitle>
-          <BaseDrawerDescription className="sr-only">{game.title}</BaseDrawerDescription>
-        </BaseDrawerHeader>
+    <BaseDialogContent className="sm:max-w-md">
+      <div className="mx-auto w-full max-w-sm">
+        <BaseDialogHeader>
+          <BaseDialogTitle>{t('Game Details')}</BaseDialogTitle>
+          <BaseDialogDescription className="sr-only">{game.title}</BaseDialogDescription>
+        </BaseDialogHeader>
 
         <div className="flex flex-col gap-4 p-4">
           <div className="flex flex-col items-center gap-4">
@@ -87,16 +89,16 @@ export const GameListItemDrawerContent: FC<GameListItemDrawerContentProps> = ({
             </div>
           </div>
 
-          <ul className="mb-5 flex w-full flex-col gap-3 px-2">
-            <DrawerListItem t_label={t('Release Date')} Icon={gameListFieldIconMap.releasedAt}>
+          <ul className="flex w-full flex-col gap-3 px-2">
+            <DialogListItem t_label={t('Release Date')} Icon={gameListFieldIconMap.releasedAt}>
               {game.releasedAt ? (
                 <p>{formatGameReleasedAt(game.releasedAt, game.releasedAtGranularity)}</p>
               ) : (
                 <p className="text-muted italic">{t('unknown')}</p>
               )}
-            </DrawerListItem>
+            </DialogListItem>
 
-            <DrawerListItem
+            <DialogListItem
               t_label={t('Achievements')}
               Icon={gameListFieldIconMap.achievementsPublished}
             >
@@ -105,9 +107,9 @@ export const GameListItemDrawerContent: FC<GameListItemDrawerContentProps> = ({
               ) : (
                 <p className="text-muted">{formatNumber(0)}</p>
               )}
-            </DrawerListItem>
+            </DialogListItem>
 
-            <DrawerListItem t_label={t('Points')} Icon={gameListFieldIconMap.pointsTotal}>
+            <DialogListItem t_label={t('Points')} Icon={gameListFieldIconMap.pointsTotal}>
               {game.pointsTotal !== undefined ? (
                 <p>
                   {formatNumber(game.pointsTotal)}{' '}
@@ -120,17 +122,17 @@ export const GameListItemDrawerContent: FC<GameListItemDrawerContentProps> = ({
               ) : (
                 <p className="text-muted">{formatNumber(0)}</p>
               )}
-            </DrawerListItem>
+            </DialogListItem>
 
-            <DrawerListItem t_label={t('Rarity')} Icon={gameListFieldIconMap.retroRatio}>
+            <DialogListItem t_label={t('Rarity')} Icon={gameListFieldIconMap.retroRatio}>
               {game.pointsTotal ? (
                 <p>{buildGameRarityLabel(game.pointsTotal, game.pointsWeighted)}</p>
               ) : (
                 <p className="text-muted italic">{t('none')}</p>
               )}
-            </DrawerListItem>
+            </DialogListItem>
 
-            <DrawerListItem
+            <DialogListItem
               t_label={t('Players')}
               Icon={gameListFieldIconMap.playersTotal}
               hasBottomBorder={!!auth?.user}
@@ -140,10 +142,10 @@ export const GameListItemDrawerContent: FC<GameListItemDrawerContentProps> = ({
               ) : (
                 <p className="text-muted italic">{formatNumber(0)}</p>
               )}
-            </DrawerListItem>
+            </DialogListItem>
 
             {auth?.user ? (
-              <DrawerListItem
+              <DialogListItem
                 t_label={t('Progress')}
                 Icon={gameListFieldIconMap.progress}
                 hasBottomBorder={false}
@@ -157,33 +159,43 @@ export const GameListItemDrawerContent: FC<GameListItemDrawerContentProps> = ({
                   progressClassName="bg-neutral-800"
                   showProgressPercentage={true}
                 />
-              </DrawerListItem>
+              </DialogListItem>
             ) : null}
           </ul>
         </div>
       </div>
 
-      <BaseDrawerFooter>
-        <div className="grid grid-cols-2 gap-3">
-          <GameListItemDrawerBacklogToggleButton
+      <BaseDialogFooter className="flex flex-col gap-3">
+        <div className="flex w-full justify-center">
+          <GameListItemDialogBacklogToggleButton
             backlogState={backlogState}
             onToggle={onToggleBacklog}
           />
+        </div>
+
+        <div className="grid w-full grid-cols-2 gap-3">
+          <BaseDialogClose asChild>
+            <BaseButton className="w-full gap-1">
+              <LuX className="size-4" />
+              {t('Close')}
+            </BaseButton>
+          </BaseDialogClose>
 
           {/* TODO after migrating the game page to Inertia, prefetch this link */}
           <a
             href={route('game.show', { game: gameListEntry.game.id })}
-            className={baseButtonVariants({ variant: 'secondary' })}
+            className={baseButtonVariants({ className: 'gap-1' })}
           >
             {t('Open Game')}
+            <LuArrowBigRight className="size-4" />
           </a>
         </div>
-      </BaseDrawerFooter>
-    </BaseDrawerContent>
+      </BaseDialogFooter>
+    </BaseDialogContent>
   );
 };
 
-interface DrawerListItemProps {
+interface DialogListItemProps {
   children: ReactNode;
   Icon: IconType;
   t_label: TranslatedString;
@@ -191,7 +203,7 @@ interface DrawerListItemProps {
   hasBottomBorder?: boolean;
 }
 
-const DrawerListItem: FC<DrawerListItemProps> = ({
+const DialogListItem: FC<DialogListItemProps> = ({
   t_label,
   Icon,
   children,

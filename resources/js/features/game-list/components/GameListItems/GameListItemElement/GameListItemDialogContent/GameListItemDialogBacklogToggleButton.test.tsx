@@ -6,7 +6,7 @@ import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createGame } from '@/test/factories';
 
-import { GameListItemDrawerBacklogToggleButton } from './GameListItemDrawerBacklogToggleButton';
+import { GameListItemDialogBacklogToggleButton } from './GameListItemDialogBacklogToggleButton';
 
 vi.mock('@/common/hooks/useGameBacklogState');
 
@@ -22,14 +22,14 @@ const TestHarness: FC<TestHarnessProps> = ({ game, isInitiallyInBacklog, onToggl
   const backlogState = useGameBacklogState({ game, isInitiallyInBacklog });
 
   return (
-    <GameListItemDrawerBacklogToggleButton
+    <GameListItemDialogBacklogToggleButton
       backlogState={backlogState}
       onToggle={onToggle ?? vi.fn()}
     />
   );
 };
 
-describe('Component: GameListItemDrawerBacklogToggleButton', () => {
+describe('Component: GameListItemDialogBacklogToggleButton', () => {
   let originalUrl: string;
 
   beforeEach(() => {
@@ -64,8 +64,9 @@ describe('Component: GameListItemDrawerBacklogToggleButton', () => {
     render(<TestHarness game={createGame()} isInitiallyInBacklog={false} />);
 
     // ASSERT
-    expect(screen.getByRole('button', { name: /add to want to play games/i })).toBeVisible();
-    expect(screen.queryByText(/remove from/i)).not.toBeInTheDocument();
+    const buttonEl = screen.getByRole('button', { name: /want to play/i });
+    expect(buttonEl).toBeVisible();
+    expect(buttonEl).not.toBePressed();
   });
 
   it("given the game is currently in the user's backlog, renders an accessible button that allows them to remove it", () => {
@@ -73,8 +74,9 @@ describe('Component: GameListItemDrawerBacklogToggleButton', () => {
     render(<TestHarness game={createGame()} isInitiallyInBacklog={true} />);
 
     // ASSERT
-    expect(screen.getByRole('button', { name: /remove from want to play games/i })).toBeVisible();
-    expect(screen.queryByText(/add to/i)).not.toBeInTheDocument();
+    const buttonEl = screen.getByRole('button', { name: /want to play/i });
+    expect(buttonEl).toBeVisible();
+    expect(buttonEl).toBePressed();
   });
 
   it("given the game is not currently in the user's backlog and the user presses the button, invokes the toggle event", async () => {
@@ -88,7 +90,7 @@ describe('Component: GameListItemDrawerBacklogToggleButton', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /add to want to play games/i }));
+    await userEvent.click(screen.getByRole('button', { name: /want to play/i }));
 
     // ASSERT
     expect(onToggle).toHaveBeenCalledOnce();
@@ -105,7 +107,7 @@ describe('Component: GameListItemDrawerBacklogToggleButton', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /remove from want to play games/i }));
+    await userEvent.click(screen.getByRole('button', { name: /want to play/i }));
 
     // ASSERT
     expect(onToggle).toHaveBeenCalledOnce();
