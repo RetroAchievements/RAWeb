@@ -7,6 +7,7 @@ import {
   createAchievement,
   createAchievementSet,
   createAggregateAchievementSetCredits,
+  createComment,
   createGame,
   createGameAchievementSet,
   createGameSet,
@@ -552,5 +553,85 @@ describe('Component: GameShowMobileRoot', () => {
 
     // ASSERT
     expect(container).toBeTruthy();
+  });
+
+  it('given there are comments and the user is viewing published achievements, shows the comments preview card', () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+    });
+
+    render(<GameShowMobileRoot />, {
+      jotaiAtoms: [
+        [currentTabAtom, 'achievements'],
+        //
+      ],
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: true, // !!
+        numComments: 5, // !!
+        playerAchievementChartBuckets: [],
+        recentPlayers: [],
+        recentVisibleComments: [createComment()], // !!
+        topAchievers: [],
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /view all comments/i })).toBeVisible();
+  });
+
+  it('given the user is not viewing published achievements, does not show the comments preview card', () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+    });
+
+    render(<GameShowMobileRoot />, {
+      jotaiAtoms: [
+        [currentTabAtom, 'achievements'],
+        //
+      ],
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: false, // !!
+        numComments: 5,
+        playerAchievementChartBuckets: [],
+        recentPlayers: [],
+        recentVisibleComments: [createComment()],
+        topAchievers: [],
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /view all comments/i })).not.toBeInTheDocument();
   });
 });
