@@ -9,6 +9,7 @@ use App\Models\Forum;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
+use App\Models\Subscription;
 use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Collection;
@@ -230,22 +231,61 @@ function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTop
     $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::ForumTopic, $topic->id)
         ->filter(fn ($s) => isset($s->EmailAddress) && BitSet($s->websitePrefs, UserPreference::EmailOn_ForumReply));
 
-    if (!$subscribers->isEmpty()) {
-        $payload = nl2br(Shortcode::stripAndClamp($newComment->body, previewLength: 1000, preserveWhitespace: true));
+    if ($subscribers->isEmpty()) {
+        return;
+    }
 
-        $urlTarget = route('forum-topic.show', ['topic' => $topic->id, 'comment' => $newComment->id]) . '#' . $newComment->id;
+    /**
+     * For larger threads (90+ posts), we'll filter out implicit subscribers who
+     * haven't posted in the thread for 90+ days, unless they're the OP.
+     *
+     * Explicit subscribers and implicit subscribers in smaller threads always receive email notifications.
+     */
+    $topicCommentCount = ForumTopicComment::where('forum_topic_id', $topic->id)->count();
+    if ($topicCommentCount >= 90) {
+        $threadActivityCutoff = now()->subDays(90);
 
-        foreach ($subscribers as $subscriber) {
-            sendActivityEmail(
-                $subscriber,
-                $topic->id,
-                $author,
-                ArticleType::Forum,
-                $topic->title ?? '',
-                $urlTarget,
-                payload: $payload
-            );
-        }
+        $explicitSubscriberIds = Subscription::where('subject_type', SubscriptionSubjectType::ForumTopic)
+            ->where('subject_id', $topic->id)
+            ->where('state', true)
+            ->pluck('user_id')
+            ->toArray();
+
+        $recentlyActiveUserIds = ForumTopicComment::where('forum_topic_id', $topic->id)
+            ->where('created_at', '>=', $threadActivityCutoff)
+            ->distinct()
+            ->pluck('author_id')
+            ->toArray();
+
+        $subscribers = $subscribers->filter(function ($subscriber) use ($topic, $explicitSubscriberIds, $recentlyActiveUserIds) {
+            // Explicit subscribers always get notified.
+            if (in_array($subscriber->id, $explicitSubscriberIds)) {
+                return true;
+            }
+
+            // OP always gets notified about their thread.
+            if ($subscriber->id === $topic->author_id) {
+                return true;
+            }
+
+            // Other implicit subscribers only get notified if they've posted in this thread recently.
+            return in_array($subscriber->id, $recentlyActiveUserIds);
+        });
+    }
+
+    $payload = nl2br(Shortcode::stripAndClamp($newComment->body, previewLength: 1000, preserveWhitespace: true));
+    $urlTarget = route('forum-topic.show', ['topic' => $topic->id, 'comment' => $newComment->id]) . '#' . $newComment->id;
+
+    foreach ($subscribers as $subscriber) {
+        sendActivityEmail(
+            $subscriber,
+            $topic->id,
+            $author,
+            ArticleType::Forum,
+            $topic->title ?? '',
+            $urlTarget,
+            payload: $payload
+        );
     }
 }
 
