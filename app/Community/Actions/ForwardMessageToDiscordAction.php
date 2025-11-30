@@ -31,6 +31,9 @@ class ForwardMessageToDiscordAction
     private const COLOR_VERIFICATION = 0x00CC66;
     private const COLOR_MANUAL_UNLOCK = 0xCC0066;
 
+    /** Discord forum tag IDs */
+    private const DISCORD_TAG_MOD_REPORTS_OPEN = '1442949578629578882';
+
     private Client $client;
 
     public function __construct(?Client $client = null)
@@ -165,6 +168,12 @@ class ForwardMessageToDiscordAction
 
         $messageThread->title = $processedData->threadTitle;
 
+        // Apply the "Open" tag to new report threads.
+        $appliedTags = [];
+        if ($moderationReportId !== null) {
+            $appliedTags[] = self::DISCORD_TAG_MOD_REPORTS_OPEN;
+        }
+
         $this->sendDiscordWebhooks(
             $processedData->webhookUrl,
             $userFrom,
@@ -174,6 +183,7 @@ class ForwardMessageToDiscordAction
             $processedData->color,
             $processedData->isForum,
             $existingThreadId,
+            $appliedTags,
         );
     }
 
@@ -275,6 +285,7 @@ class ForwardMessageToDiscordAction
         int $color,
         bool $isForum,
         ?string $existingThreadId = null,
+        array $appliedTags = [],
     ): void {
         if ($isForum) {
             $isNewThread = !$existingThreadId;
@@ -286,6 +297,7 @@ class ForwardMessageToDiscordAction
                 $messageThread,
                 $messageBody,
                 $color,
+                $appliedTags,
             );
 
             if ($discordThreadId) {
@@ -341,6 +353,7 @@ class ForwardMessageToDiscordAction
         MessageThread $messageThread,
         string $messageBody,
         int $color,
+        array $appliedTags = [],
     ): ?string {
         $isLongMessage = mb_strlen($messageBody) > self::DISCORD_EMBED_DESCRIPTION_LIMIT;
         $firstChunk = $isLongMessage
@@ -356,6 +369,10 @@ class ForwardMessageToDiscordAction
             true
         );
         $payload['thread_name'] = mb_substr($messageThread->title, 0, self::DISCORD_THREAD_NAME_LIMIT);
+
+        if (!empty($appliedTags)) {
+            $payload['applied_tags'] = $appliedTags;
+        }
 
         if ($isLongMessage) {
             $totalParts = count(mb_str_split($messageBody, self::DISCORD_EMBED_DESCRIPTION_LIMIT));

@@ -685,6 +685,71 @@ class ForwardMessageToDiscordActionTest extends TestCase
         $this->assertEquals('https://discord.com/api/webhooks/reports/xyz?wait=true', (string) $request->getUri());
     }
 
+    public function testItAppliesOpenTagToNewReportThreads(): void
+    {
+        // Arrange
+        $this->setDiscordConfig(
+            $this->recipient,
+            reportsUrl: 'https://discord.com/api/webhooks/reports/tags',
+            isForum: true
+        );
+        $this->thread->title = 'Report: Forum Post by TestUser';
+        $this->thread->save();
+
+        $reportedComment = ForumTopicComment::factory()->create([
+            'body' => 'This is the reported content',
+            'author_id' => $this->sender->id,
+        ]);
+        $reportedComment->load('forumTopic');
+
+        $message = $this->createMessage('This post violates the rules');
+        $this->queueDiscordResponses(1, ['channel_id' => 'report_thread_123']);
+
+        $report = $this->createModerationReport(
+            $this->sender,
+            ModerationReportableType::ForumTopicComment,
+            $reportedComment->id,
+            $this->thread
+        );
+
+        // Act
+        $this->action->execute(
+            $this->sender,
+            $this->recipient,
+            $this->thread,
+            $message,
+            $report->id
+        );
+
+        // Assert
+        $payload = $this->getLastWebhookPayload();
+        $this->assertArrayHasKey('applied_tags', $payload);
+
+        $correctTagId = '1442949578629578882'; // see ForwardMessageToDiscordAction
+        $this->assertContains($correctTagId, $payload['applied_tags']);
+    }
+
+    public function testItDoesNotApplyOpenTagToNonReportMessages(): void
+    {
+        // Arrange
+        $this->setDiscordConfig($this->recipient, isForum: true);
+        $message = $this->createMessage('Regular message to some forum');
+        $this->queueDiscordResponses(1);
+
+        // Act
+        $this->action->execute(
+            $this->sender,
+            $this->recipient,
+            $this->thread,
+            $message,
+            null
+        );
+
+        // Assert
+        $payload = $this->getLastWebhookPayload();
+        $this->assertArrayNotHasKey('applied_tags', $payload);
+    }
+
     public function testItDeduplicatesReportsOfTheSameItem(): void
     {
         // Arrange
