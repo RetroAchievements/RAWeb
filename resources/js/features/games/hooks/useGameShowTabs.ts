@@ -10,23 +10,18 @@ export function useGameShowTabs() {
   const setCurrentTab = (value: GameShowTab) => {
     internal_setCurrentTab(value);
 
-    const searchParams = new URLSearchParams(window.location.search);
+    const url = new URL(window.location.href);
+
     if (value !== 'achievements') {
-      searchParams.set('tab', value);
+      url.searchParams.set('tab', value);
     } else {
-      searchParams.delete('tab');
+      url.searchParams.delete('tab');
     }
 
-    const queryString = searchParams.toString();
-    const newUrl = queryString
-      ? `${window.location.pathname}?${queryString}`
-      : window.location.pathname;
-
-    router.visit(newUrl, {
-      replace: true,
-      preserveState: true,
+    router.replace({
+      url: url.toString(),
       preserveScroll: true,
-      only: [], // Don't reload any data, just update the URL.
+      preserveState: true,
     });
   };
 

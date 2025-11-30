@@ -9,7 +9,7 @@ describe('Hook: useGameShowTabs', () => {
   let originalLocation: Location;
 
   beforeEach(() => {
-    vi.spyOn(router, 'visit').mockImplementation(() => {});
+    vi.spyOn(router, 'replace').mockImplementation(() => {});
 
     originalLocation = window.location;
     delete (window as any).location;
@@ -58,11 +58,10 @@ describe('Hook: useGameShowTabs', () => {
 
     // ASSERT
     expect(result.current.currentTab).toEqual('info');
-    expect(router.visit).toHaveBeenCalledWith('/game/123?tab=info', {
-      replace: true,
-      preserveState: true,
+    expect(router.replace).toHaveBeenCalledWith({
+      url: 'https://retroachievements.org/game/123?tab=info', // !! full URL because we use new URL()
       preserveScroll: true,
-      only: [],
+      preserveState: true,
     });
   });
 
@@ -82,11 +81,10 @@ describe('Hook: useGameShowTabs', () => {
 
     // ASSERT
     expect(result.current.currentTab).toEqual('stats');
-    expect(router.visit).toHaveBeenCalledWith('/game/123?tab=stats', {
-      replace: true,
-      preserveState: true,
+    expect(router.replace).toHaveBeenCalledWith({
+      url: 'https://retroachievements.org/game/123?tab=stats', // !! full URL because we use new URL()
       preserveScroll: true,
-      only: [],
+      preserveState: true,
     });
   });
 
@@ -106,16 +104,16 @@ describe('Hook: useGameShowTabs', () => {
 
     // ASSERT
     expect(result.current.currentTab).toEqual('community');
-    expect(router.visit).toHaveBeenCalledWith('/game/123?tab=community', {
-      replace: true,
-      preserveState: true,
+    expect(router.replace).toHaveBeenCalledWith({
+      url: 'https://retroachievements.org/game/123?tab=community', // !! full URL because we use new URL()
       preserveScroll: true,
-      only: [],
+      preserveState: true,
     });
   });
 
   it('given the user sets the tab to achievements, updates the atom and removes the tab param from the URL', () => {
     // ARRANGE
+    (window.location as any).href = 'https://retroachievements.org/game/123?tab=info'; // !! include query param in href
     window.location.search = '?tab=info';
     const { result } = renderHook(() => useGameShowTabs(), {
       jotaiAtoms: [
@@ -131,16 +129,16 @@ describe('Hook: useGameShowTabs', () => {
 
     // ASSERT
     expect(result.current.currentTab).toEqual('achievements');
-    expect(router.visit).toHaveBeenCalledWith('/game/123', {
-      replace: true,
-      preserveState: true,
+    expect(router.replace).toHaveBeenCalledWith({
+      url: 'https://retroachievements.org/game/123', // !! tab param removed
       preserveScroll: true,
-      only: [],
+      preserveState: true,
     });
   });
 
   it('given there are existing query params and the user sets a non-achievements tab, preserves those existing params', () => {
     // ARRANGE
+    (window.location as any).href = 'https://retroachievements.org/game/123?foo=bar&baz=qux'; // !! include query params in href
     window.location.search = '?foo=bar&baz=qux';
     const { result } = renderHook(() => useGameShowTabs(), {
       jotaiAtoms: [
@@ -155,16 +153,17 @@ describe('Hook: useGameShowTabs', () => {
     });
 
     // ASSERT
-    expect(router.visit).toHaveBeenCalledWith('/game/123?foo=bar&baz=qux&tab=stats', {
-      replace: true,
-      preserveState: true,
+    expect(router.replace).toHaveBeenCalledWith({
+      url: 'https://retroachievements.org/game/123?foo=bar&baz=qux&tab=stats', // !! preserves existing params
       preserveScroll: true,
-      only: [],
+      preserveState: true,
     });
   });
 
   it('given there are existing query params including tab and the user sets to achievements, removes only the tab param', () => {
     // ARRANGE
+    (window.location as any).href =
+      'https://retroachievements.org/game/123?foo=bar&tab=stats&baz=qux'; // !! include query params in href
     window.location.search = '?foo=bar&tab=stats&baz=qux';
     const { result } = renderHook(() => useGameShowTabs(), {
       jotaiAtoms: [
@@ -179,11 +178,10 @@ describe('Hook: useGameShowTabs', () => {
     });
 
     // ASSERT
-    expect(router.visit).toHaveBeenCalledWith('/game/123?foo=bar&baz=qux', {
-      replace: true,
-      preserveState: true,
+    expect(router.replace).toHaveBeenCalledWith({
+      url: 'https://retroachievements.org/game/123?foo=bar&baz=qux', // !! only tab param removed
       preserveScroll: true,
-      only: [],
+      preserveState: true,
     });
   });
 });
