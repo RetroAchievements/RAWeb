@@ -136,10 +136,14 @@ class NewsResource extends Resource
 
                         Forms\Components\Placeholder::make('ImagePreview')
                             ->label('Image preview')
-                            ->content(function (News $news) {
+                            ->content(function (?News $news) {
+                                if (!$news) {
+                                    return null;
+                                }
+
                                 return new HtmlString("<img src='{$news->image_asset_path}' style='width:197px; height:112px;' class='rounded object-cover'>");
                             })
-                            ->visible(fn (News $news) => !is_null($news->image_asset_path)),
+                            ->visible(fn (?News $news) => $news && !is_null($news->image_asset_path)),
                     ]),
             ]);
     }
