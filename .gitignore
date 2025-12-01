@@ -53,11 +53,13 @@ Homestead.yaml
 /reports
 
 # Caches
+*.tsbuildinfo
 .deptrac.cache
 .eslintcache
 /.pnpm-store
 
 # IDE and editor
+/.beads
 /.claude
 /.fleet
 /.idea
