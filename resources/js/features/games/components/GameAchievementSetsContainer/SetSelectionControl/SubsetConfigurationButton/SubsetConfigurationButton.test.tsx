@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
@@ -8,6 +9,10 @@ import { createGame, createGameAchievementSet, createSystem } from '@/test/facto
 import { SubsetConfigurationButton } from './SubsetConfigurationButton';
 
 describe('Component: SubsetConfigurationButton', () => {
+  beforeEach(() => {
+    vi.spyOn(router, 'reload').mockImplementation(vi.fn());
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const game = createGame();
@@ -178,6 +183,7 @@ describe('Component: SubsetConfigurationButton', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
+    expect(router.reload).toHaveBeenCalled();
   });
 
   it('filters out will_be_* type sets from configurable sets', async () => {

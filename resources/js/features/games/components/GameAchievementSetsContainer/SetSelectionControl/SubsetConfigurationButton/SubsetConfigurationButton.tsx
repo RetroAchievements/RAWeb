@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuSettings2 } from 'react-icons/lu';
@@ -45,6 +46,7 @@ export const SubsetConfigurationButton: FC = () => {
 
   const handleSubmitSuccess = () => {
     setIsDialogOpen(false);
+    router.reload({ only: ['userGameAchievementSetPreferences'] });
   };
 
   return (
