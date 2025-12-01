@@ -9,7 +9,7 @@ import { CommentsPreviewCard } from './CommentsPreviewCard';
 
 describe('Component: CommentsPreviewCard', () => {
   beforeEach(() => {
-    vi.spyOn(router, 'visit').mockImplementation(() => {});
+    vi.spyOn(router, 'replace').mockImplementation(vi.fn());
 
     window.scrollTo = vi.fn();
   });
@@ -141,9 +141,10 @@ describe('Component: CommentsPreviewCard', () => {
     await userEvent.click(screen.getByRole('button'));
 
     // ASSERT
-    expect(router.visit).toHaveBeenCalledWith(
-      expect.stringContaining('tab=community'),
-      expect.objectContaining({ replace: true }),
+    expect(router.replace).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: expect.stringContaining('tab=community'),
+      }),
     );
   });
 
