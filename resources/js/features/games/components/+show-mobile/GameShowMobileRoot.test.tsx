@@ -20,9 +20,34 @@ import { currentTabAtom } from '../../state/games.atoms';
 import { GameShowMobileRoot } from './GameShowMobileRoot';
 
 describe('Component: GameShowMobileRoot', () => {
+  let originalLocation: Location;
+
   beforeEach(() => {
-    // Mock router.visit to prevent actual navigation during tests.
+    // Mock router methods to prevent actual navigation during tests.
     vi.spyOn(router, 'visit').mockImplementation(() => {});
+    vi.spyOn(router, 'replace').mockImplementation(() => {});
+
+    // Mock window.location so the useGameShowTabs hook can read and modify URL params.
+    originalLocation = window.location;
+    Object.defineProperty(window, 'location', {
+      value: {
+        href: 'https://retroachievements.org/game/123',
+        origin: 'https://retroachievements.org',
+        protocol: 'https:',
+        host: 'retroachievements.org',
+        hostname: 'retroachievements.org',
+        port: '',
+        pathname: '/game/123',
+        search: '',
+        hash: '',
+        assign: vi.fn(),
+        reload: vi.fn(),
+        replace: vi.fn(),
+        toString: () => 'https://retroachievements.org/game/123',
+      },
+      writable: true,
+      configurable: true,
+    });
 
     const mockIntersectionObserver = vi.fn();
     mockIntersectionObserver.mockReturnValue({
@@ -31,6 +56,10 @@ describe('Component: GameShowMobileRoot', () => {
       disconnect: () => null,
     });
     window.IntersectionObserver = mockIntersectionObserver;
+  });
+
+  afterEach(() => {
+    (window.location as any) = originalLocation;
   });
 
   it('renders without crashing', () => {
@@ -267,6 +296,9 @@ describe('Component: GameShowMobileRoot', () => {
 
   it('given the game has a series hub, shows the series hub display in the info tab', () => {
     // ARRANGE
+    (window.location as any).href = 'https://retroachievements.org/game/123?tab=info';
+    window.location.search = '?tab=info';
+
     const game = createGame({
       badgeUrl: 'badge.jpg',
       gameAchievementSets: [
@@ -432,6 +464,9 @@ describe('Component: GameShowMobileRoot', () => {
 
   it('given the game has players but no achievements and the user is on the stats tab, does not render PlaytimeStatistics', () => {
     // ARRANGE
+    (window.location as any).href = 'https://retroachievements.org/game/123?tab=stats';
+    window.location.search = '?tab=stats';
+
     const game = createGame({
       badgeUrl: 'badge.jpg',
       gameAchievementSets: [
@@ -475,6 +510,9 @@ describe('Component: GameShowMobileRoot', () => {
 
   it('given the game has players but no achievements and the user is on the stats tab, does not render the compare progress component', () => {
     // ARRANGE
+    (window.location as any).href = 'https://retroachievements.org/game/123?tab=stats';
+    window.location.search = '?tab=stats';
+
     const game = createGame({
       badgeUrl: 'badge.jpg',
       gameAchievementSets: [
@@ -592,7 +630,7 @@ describe('Component: GameShowMobileRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('button', { name: /view all comments/i })).toBeVisible();
+    expect(screen.getByRole('button', { name: /view recent comments/i })).toBeVisible();
   });
 
   it('given the user is not viewing published achievements, does not show the comments preview card', () => {
@@ -632,6 +670,6 @@ describe('Component: GameShowMobileRoot', () => {
     });
 
     // ASSERT
-    expect(screen.queryByRole('button', { name: /view all comments/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /view recent comments/i })).not.toBeInTheDocument();
   });
 });

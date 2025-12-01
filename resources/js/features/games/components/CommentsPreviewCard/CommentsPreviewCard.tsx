@@ -33,11 +33,14 @@ export const CommentsPreviewCard: FC = () => {
   const previewComment = recentFirstComments[0];
 
   const handleClick = () => {
-    setCurrentTab('community');
+    setCurrentTab('community', {
+      // We want the back button to return the user to the previous tab.
+      shouldPushHistory: true,
+    });
 
-    // Wait for the tab content to render, then scroll to comments.
+    // Wait for the tab content to render, then scroll to the bottom of the comments list.
     setTimeout(() => {
-      document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }, 0);
   };
 
@@ -54,7 +57,7 @@ export const CommentsPreviewCard: FC = () => {
         'text-left transition hover:border-neutral-600',
         'light:border light:border-neutral-300 light:bg-white light:hover:border-neutral-400',
       )}
-      aria-label={t('View all comments')}
+      aria-label={t('View recent comments')}
     >
       {/* Avatars and comment count */}
       <div className="flex items-center justify-between gap-3">
@@ -89,7 +92,7 @@ export const CommentsPreviewCard: FC = () => {
 
       {/* CTA that looks like a link */}
       <div className="flex items-center gap-1 text-xs text-link">
-        <span>{t('View all comments')}</span>
+        <span>{t('View recent comments')}</span>
         <LuChevronRight className="size-4" />
       </div>
     </button>

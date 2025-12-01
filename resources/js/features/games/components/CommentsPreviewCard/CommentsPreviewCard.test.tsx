@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 
+import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
 import { createComment, createUser, createZiggyProps } from '@/test/factories';
 
@@ -10,6 +11,7 @@ import { CommentsPreviewCard } from './CommentsPreviewCard';
 describe('Component: CommentsPreviewCard', () => {
   beforeEach(() => {
     vi.spyOn(router, 'replace').mockImplementation(vi.fn());
+    vi.spyOn(router, 'visit').mockImplementation(vi.fn());
 
     window.scrollTo = vi.fn();
   });
@@ -123,6 +125,24 @@ describe('Component: CommentsPreviewCard', () => {
     expect(screen.getAllByRole('img')).toHaveLength(2);
   });
 
+  it('given the user prefers absolute dates, passes that preference to DiffTimestamp', () => {
+    // ARRANGE
+    render(<CommentsPreviewCard />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({
+            preferences: { prefersAbsoluteDates: true, shouldAlwaysBypassContentWarnings: false },
+          }),
+        },
+        numComments: 5,
+        recentVisibleComments: [createComment({ createdAt: '2025-06-06T12:00:00Z' })],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/jun 06, 2025/i)).toBeVisible();
+  });
+
   it('given the user clicks the card, switches to the community tab', async () => {
     // ARRANGE
     render(<CommentsPreviewCard />, {
@@ -141,21 +161,23 @@ describe('Component: CommentsPreviewCard', () => {
     await userEvent.click(screen.getByRole('button'));
 
     // ASSERT
-    expect(router.replace).toHaveBeenCalledWith(
+    expect(router.visit).toHaveBeenCalledWith(
+      expect.stringContaining('tab=community'),
       expect.objectContaining({
-        url: expect.stringContaining('tab=community'),
+        preserveScroll: true,
+        preserveState: true,
       }),
     );
   });
 
-  it('given the user clicks the card, scrolls to the comments section', async () => {
+  it('given the user clicks the card, scrolls to the bottom of the comments section', async () => {
     // ARRANGE
     const mockScrollIntoView = vi.fn();
 
-    const commentsDiv = document.createElement('div');
-    commentsDiv.id = 'comments';
-    commentsDiv.scrollIntoView = mockScrollIntoView;
-    document.body.appendChild(commentsDiv);
+    const commentsElement = document.createElement('div');
+    commentsElement.id = 'comments';
+    commentsElement.scrollIntoView = mockScrollIntoView;
+    document.body.appendChild(commentsElement);
 
     render(<CommentsPreviewCard />, {
       pageProps: {
@@ -170,9 +192,9 @@ describe('Component: CommentsPreviewCard', () => {
 
     // ASSERT
     await vi.waitFor(() => {
-      expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' });
+      expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'end' });
     });
 
-    document.body.removeChild(commentsDiv);
+    document.body.removeChild(commentsElement);
   });
 });

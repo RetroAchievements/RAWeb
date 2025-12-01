@@ -1274,7 +1274,7 @@
     "Banned": "Banned",
     "Latest Site Updates": "Latest Site Updates",
     "See full release notes": "See full release notes",
-    "View all comments": "View all comments",
+    "View recent comments": "View recent comments",
     "commentCount_one": "{{val, number}} comment",
     "commentCount_other": "{{val, number}} comments",
     "Bonus Subset": "Bonus Subset",
