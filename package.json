@@ -4,7 +4,9 @@
     "type": "module",
     "scripts": {
         "preinstall": "npx only-allow pnpm",
+        "predev": "pnpm ziggy:generate",
         "dev": "vite",
+        "prebuild": "pnpm ziggy:generate",
         "build": "vite build && vite build --ssr && vite build --config resources/filament/vite.config.js",
         "tsc": "tsc --noEmit --skipLibCheck",
         "lint": "eslint public/js resources/js postcss.config.js tailwind.config.js vite.config.ts --cache",
@@ -16,7 +18,8 @@
         "verify": "npm run lint:fix && npm run tsc && npm run test",
         "analyze": "cross-env ANALYZE=true pnpm prod",
         "crowdin:download": "tsx resources/js/tools/crowdin-download.ts",
-        "crowdin:upload": "tsx resources/js/tools/crowdin-upload.ts"
+        "crowdin:upload": "tsx resources/js/tools/crowdin-upload.ts",
+        "ziggy:generate": "php artisan ziggy:generate --types"
     },
     "dependencies": {
         "@bbob/plugin-helper": "^4.2.0",
