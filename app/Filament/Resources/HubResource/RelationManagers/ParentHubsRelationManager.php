@@ -112,6 +112,12 @@ class ParentHubsRelationManager extends RelationManager
                                     ->get()
                                     ->mapWithKeys(fn ($gameSet) => [$gameSet->id => "[{$gameSet->id} {$gameSet->title}]"]);
                             })
+                            ->getOptionLabelsUsing(function (array $values): array {
+                                return GameSet::whereIn('id', $values)
+                                    ->get()
+                                    ->mapWithKeys(fn ($gameSet) => [$gameSet->id => "[{$gameSet->id} {$gameSet->title}]"])
+                                    ->toArray();
+                            })
                             ->hidden(fn (Get $get): bool => filled($get('hub_ids_csv')))
                             ->disabled(fn (Get $get): bool => filled($get('hub_ids_csv')))
                             ->live()
