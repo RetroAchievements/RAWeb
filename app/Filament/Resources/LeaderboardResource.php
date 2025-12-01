@@ -13,25 +13,28 @@ use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\User;
 use App\Platform\Enums\ValueFormat;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Infolists;
-use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use UnitEnum;
 
 class LeaderboardResource extends Resource
 {
     protected static ?string $model = Leaderboard::class;
 
-    protected static ?string $navigationIcon = 'fas-bars-staggered';
+    protected static string|BackedEnum|null $navigationIcon = 'fas-bars-staggered';
 
-    protected static ?string $navigationGroup = 'Platform';
+    protected static string|UnitEnum|null $navigationGroup = 'Platform';
 
     protected static ?int $navigationSort = 60;
 
@@ -60,11 +63,11 @@ class LeaderboardResource extends Resource
         return ['ID', 'Title'];
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                Infolists\Components\Section::make('Primary Details')
+        return $schema
+            ->components([
+                Schemas\Components\Section::make('Primary Details')
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
@@ -98,7 +101,7 @@ class LeaderboardResource extends Resource
                         Infolists\Components\TextEntry::make('DisplayOrder'),
                     ]),
 
-                Infolists\Components\Section::make('Rules')
+                Schemas\Components\Section::make('Rules')
                     ->icon('heroicon-c-wrench-screwdriver')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
@@ -113,14 +116,14 @@ class LeaderboardResource extends Resource
             ]);
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
         /** @var User $user */
         $user = Auth::user();
 
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Primary Details')
+        return $schema
+            ->components([
+                Schemas\Components\Section::make('Primary Details')
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
@@ -128,20 +131,20 @@ class LeaderboardResource extends Resource
                             ->required()
                             ->minLength(2)
                             ->maxLength(255)
-                            ->disabled(!$user->can('updateField', [$form->model, 'Title'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'Title'])),
 
                         Forms\Components\TextInput::make('Description')
                             ->maxLength(255)
-                            ->disabled(!$user->can('updateField', [$form->model, 'Description'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'Description'])),
 
                         Forms\Components\TextInput::make('DisplayOrder')
                             ->numeric()
                             ->helperText("If set to less than 0, the leaderboard will be invisible to regular players.")
                             ->required()
-                            ->disabled(!$user->can('updateField', [$form->model, 'DisplayOrder'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'DisplayOrder'])),
                     ]),
 
-                Forms\Components\Section::make('Rules')
+                Schemas\Components\Section::make('Rules')
                     ->icon('heroicon-c-wrench-screwdriver')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
@@ -152,13 +155,13 @@ class LeaderboardResource extends Resource
                                     ->toArray()
                             )
                             ->required()
-                            ->disabled(!$user->can('updateField', [$form->model, 'Format'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'Format'])),
 
                         Forms\Components\Toggle::make('LowerIsBetter')
                             ->label('Lower Is Better')
                             ->inline(false)
                             ->helperText('Useful for speedrun leaderboards and similar scenarios.')
-                            ->disabled(!$user->can('updateField', [$form->model, 'LowerIsBetter'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'LowerIsBetter'])),
                     ]),
             ]);
     }
@@ -220,7 +223,7 @@ class LeaderboardResource extends Resource
             ->searchPlaceholder('(ID, Title, Game, Dev)')
             ->filters([
                 Tables\Filters\Filter::make('game')
-                    ->form([
+                    ->schema([
                         Forms\Components\Select::make('id')
                             ->label('Game')
                             ->searchable()
@@ -255,20 +258,20 @@ class LeaderboardResource extends Resource
                         return "Game {$data['id']}";
                     }),
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ActionGroup::make([
+            ->recordActions([
+                Actions\ActionGroup::make([
+                    Actions\ActionGroup::make([
                         ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
                         DeleteLeaderboardAction::make('delete_leaderboard'),
                     ])
                         ->dropdown(false),
 
-                    Tables\Actions\Action::make('audit-log')
+                    Actions\Action::make('audit-log')
                         ->url(fn ($record) => LeaderboardResource::getUrl('audit-log', ['record' => $record]))
                         ->icon('fas-clock-rotate-left'),
                 ]),
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ]);
     }

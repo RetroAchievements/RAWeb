@@ -1181,6 +1181,8 @@
     "We'll automatically be sent the link, author, timestamp, and content excerpt when you submit. Just describe what you're reporting and <1>which rule</1> was violated.": "Chúng tôi sẽ tự động gửi liên kết, tác giả, dấu thời gian và trích đoạn nội dung khi bạn gửi. Bạn chỉ cần mô tả nội dung bạn đang báo cáo và <1>quy tắc nào</1> đã bị vi phạm.",
     "Muted": "Đã tắt âm",
     "Banned": "Đã bị cấm",
+    "Latest Site Updates": "Các bản cập nhật trang web gần đây",
+    "See full release notes": "Xem chi tiết bản cập nhật",
     "supportedGameFilesCountLabel_other": "Hiện chỉ có <1>{{count, number}}</1> file game chứa mã hash được hỗ trợ đã đăng ký cho trò chơi này.",
     "userCount_other": "<1>{{userCount, number}}</1> người dùng đang trực tuyến.",
     "{{val, number}} Games_other": "{{val, number}} Trò chơi",
