@@ -14,7 +14,7 @@ import { useRandomGameId } from './useRandomGameId';
 interface RandomGameButtonProps {
   columnFilters: ColumnFiltersState;
   disabled: boolean;
-  variant: 'mobile-drawer' | 'toolbar';
+  variant: 'mobile-dialog' | 'toolbar';
 
   apiRouteName?: RouteName;
   apiRouteParams?: Record<string, unknown>;
@@ -61,8 +61,7 @@ export const RandomGameButton: FC<RandomGameButtonProps> = ({
       onMouseEnter={() => prefetchRandomGameId()}
       disabled={disabled}
       size={variant === 'toolbar' ? 'sm' : undefined}
-      className={variant === 'mobile-drawer' ? 'gap-1.5' : 'group gap-1'}
-      variant={variant === 'mobile-drawer' ? 'secondary' : undefined}
+      className={variant === 'mobile-dialog' ? 'gap-1.5' : 'group gap-1'}
     >
       <LuDices className="size-4 transition-transform duration-100 group-hover:rotate-12" />
       <span className={cn(device === 'desktop' ? 'hidden sm:inline' : null)}>
