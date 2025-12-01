@@ -133,6 +133,7 @@ $credentialsOK = match ($requestType) {
     /*
      * Registration required and user=local
      */
+    "achievementsets",
     "awardachievement",
     "awardachievements",
     "patch",
