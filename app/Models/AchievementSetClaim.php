@@ -106,12 +106,13 @@ class AchievementSetClaim extends BaseModel
             return null;
         }
 
-        $recentPlayer = GameRecentPlayer::query()
+        $playerSession = PlayerSession::query()
             ->where('game_id', $this->game_id)
             ->where('user_id', $this->user_id)
+            ->orderByDesc('rich_presence_updated_at')
             ->first(['rich_presence_updated_at']);
 
-        return $recentPlayer?->rich_presence_updated_at;
+        return $playerSession?->rich_presence_updated_at;
     }
 
     // == mutators
