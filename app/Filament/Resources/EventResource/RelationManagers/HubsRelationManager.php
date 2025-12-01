@@ -93,6 +93,12 @@ class HubsRelationManager extends RelationManager
                                     ->get()
                                     ->mapWithKeys(fn ($gameSet) => [$gameSet->id => "[{$gameSet->id} {$gameSet->title}]"]);
                             })
+                            ->getOptionLabelsUsing(function (array $values): array {
+                                return GameSet::whereIn('id', $values)
+                                    ->get()
+                                    ->mapWithKeys(fn ($gameSet) => [$gameSet->id => "[{$gameSet->id} {$gameSet->title}]"])
+                                    ->toArray();
+                            })
                             ->required(),
                     ])
                     ->modalHeading('Add event to related hub')
