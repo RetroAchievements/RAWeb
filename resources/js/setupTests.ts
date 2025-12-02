@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 
 import { loadFaker } from './test/createFactory';
-// @ts-expect-error -- this isn't a real ts module
+// eslint-disable-next-line import/no-unresolved -- this is a generated file
 import { Ziggy } from './ziggy';
 
 // @ts-expect-error -- we're injecting this on purpose
@@ -37,6 +37,7 @@ vi.mock('@inertiajs/react', async (importOriginal) => {
     },
 
     router: {
+      replace: vi.fn(),
       visit: vi.fn(),
       reload: vi.fn(),
       prefetch: vi.fn(),

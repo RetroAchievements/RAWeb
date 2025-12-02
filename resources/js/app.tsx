@@ -7,7 +7,7 @@ import { AppProviders } from './common/components/AppProviders';
 import type { AppGlobalProps } from './common/models';
 import { loadDayjsLocale } from './common/utils/l10n/loadDayjsLocale';
 import i18n from './i18n-client';
-// @ts-expect-error -- this isn't a real ts module
+// eslint-disable-next-line import/no-unresolved -- this is a generated file
 import { Ziggy } from './ziggy';
 
 // @ts-expect-error -- we're injecting this on purpose
