@@ -5,7 +5,8 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 
 import { loadFaker } from './test/createFactory';
-// eslint-disable-next-line import/no-unresolved -- this is a generated file
+// @ts-expect-error -- this isn't a real ts module
+// eslint-disable-next-line import/no-unresolved
 import { Ziggy } from './ziggy';
 
 // @ts-expect-error -- we're injecting this on purpose
