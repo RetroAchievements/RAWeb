@@ -10,6 +10,9 @@ class AuditLog extends ResourceAuditLog
 {
     protected static string $resource = GameResource::class;
 
+    /**
+     * @return Collection<string, mixed>
+     */
     protected function createFieldLabelMap(): Collection
     {
         $fieldLabelMap = parent::createFieldLabelMap();

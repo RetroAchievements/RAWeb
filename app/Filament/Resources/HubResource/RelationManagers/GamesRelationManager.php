@@ -11,9 +11,12 @@ use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\System;
 use App\Models\User;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,7 +29,7 @@ class GamesRelationManager extends RelationManager
 {
     protected static string $relationship = 'games';
     protected static ?string $title = 'Games';
-    protected static ?string $icon = 'fas-gamepad';
+    protected static string|BackedEnum|null $icon = 'fas-gamepad';
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
     {
@@ -115,16 +118,16 @@ class GamesRelationManager extends RelationManager
                     ),
             ])
             ->headerActions([
-                Tables\Actions\Action::make('add')
+                Actions\Action::make('add')
                     ->label('Add games')
                     ->visible(fn (): bool => $user->can('update', $gameSet))
-                    ->form([
+                    ->schema([
                         Forms\Components\TextInput::make('game_ids_csv')
                             ->label('Game IDs (CSV)')
                             ->placeholder('729,2204,3987,53')
                             ->helperText('Enter game IDs separated by commas or spaces. URLs are also supported.')
-                            ->hidden(fn (Forms\Get $get): bool => filled($get('game_ids')))
-                            ->disabled(fn (Forms\Get $get): bool => filled($get('game_ids')))
+                            ->hidden(fn (Get $get): bool => filled($get('game_ids')))
+                            ->disabled(fn (Get $get): bool => filled($get('game_ids')))
                             ->live(debounce: 200),
 
                         Forms\Components\Select::make('game_ids')
@@ -149,8 +152,14 @@ class GamesRelationManager extends RelationManager
                                     ->get()
                                     ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title}"]);
                             })
-                            ->hidden(fn (Forms\Get $get): bool => filled($get('game_ids_csv')))
-                            ->disabled(fn (Forms\Get $get): bool => filled($get('game_ids_csv')))
+                            ->getOptionLabelsUsing(function (array $values): array {
+                                return Game::whereIn('ID', $values)
+                                    ->get()
+                                    ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title}"])
+                                    ->toArray();
+                            })
+                            ->hidden(fn (Get $get): bool => filled($get('game_ids_csv')))
+                            ->disabled(fn (Get $get): bool => filled($get('game_ids_csv')))
                             ->live()
                             ->helperText('... or search and select games to add.'),
                     ])
@@ -184,8 +193,8 @@ class GamesRelationManager extends RelationManager
                         }
                     }),
             ])
-            ->actions([
-                Tables\Actions\Action::make('remove')
+            ->recordActions([
+                Actions\Action::make('remove')
                     ->tooltip('Remove')
                     ->visible(fn (): bool => $user->can('update', $gameSet))
                     ->icon('heroicon-o-trash')
@@ -207,15 +216,15 @@ class GamesRelationManager extends RelationManager
                             ->send();
                     }),
 
-                Tables\Actions\Action::make('visit')
+                Actions\Action::make('visit')
                     ->tooltip('View on Site')
                     ->icon('heroicon-m-arrow-top-right-on-square')
                     ->iconButton()
                     ->url(fn (Game $record): string => route('game.show', $record))
                     ->openUrlInNewTab(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkAction::make('remove')
+            ->toolbarActions([
+                Actions\BulkAction::make('remove')
                     ->label('Remove selected')
                     ->visible(fn (): bool => $user->can('update', $gameSet))
                     ->modalHeading('Remove selected games from hub')

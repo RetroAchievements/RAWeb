@@ -9,21 +9,25 @@ use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\NewsResource\Pages;
 use App\Models\News;
 use App\Models\User;
+use BackedEnum;
+use Filament\Actions\EditAction;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
+use UnitEnum;
 
 class NewsResource extends Resource
 {
     protected static ?string $model = News::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-newspaper';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-newspaper';
 
-    protected static ?string $navigationGroup = 'Community';
+    protected static string|UnitEnum|null $navigationGroup = 'Community';
 
     protected static ?int $navigationSort = 1;
 
@@ -31,14 +35,14 @@ class NewsResource extends Resource
 
     protected static int $globalSearchResultsLimit = 2;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
         /** @var User $user */
         $user = Auth::user();
 
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Primary Details')
+        return $schema
+            ->components([
+                Schemas\Components\Section::make('Primary Details')
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2])
                     ->schema([
@@ -100,7 +104,7 @@ class NewsResource extends Resource
                             ->live(),
                     ]),
 
-                Forms\Components\Section::make('Leading Text')
+                Schemas\Components\Section::make('Leading Text')
                     ->icon('heroicon-m-chat-bubble-oval-left-ellipsis')
                     ->description("
                         This short description will appear on the site's home page and in any news feed features we support.
@@ -111,25 +115,14 @@ class NewsResource extends Resource
                         Forms\Components\Textarea::make('body') // TODO use `lead` field instead
                             ->label('Lead')
                             ->maxLength(238) // We have some guardrails so people don't go crazy with these.
-                            ->helperText(function (?string $state, Forms\Components\Textarea $component) {
-                                $maxLength = $component->getMaxLength();
-
-                                return new HtmlString('
-                                    <div class="flex w-full justify-between">' .
-                                        '<p>Summaries should be a single sentence/paragraph.</p>' .
-
-                                        '<p>' .
-                                            strlen($state ?? '') . '/' . $maxLength .
-                                        '</p>' .
-                                    '</div>'
-                                );
-                            })
+                            ->hint(fn (?string $state, Forms\Components\Textarea $component): string => strlen($state ?? '') . '/' . $component->getMaxLength())
+                            ->helperText('Summaries should be a single sentence/paragraph.')
                             ->live(debounce: 1000) // add debounce to mitigate users getting rate limited while typing
                             ->rows(4)
                             ->required(),
                     ]),
 
-                Forms\Components\Section::make('Image')
+                Schemas\Components\Section::make('Image')
                     ->schema([
                         // Store a temporary file on disk until the user submits.
                         // When the user submits, upload to S3.
@@ -143,10 +136,14 @@ class NewsResource extends Resource
 
                         Forms\Components\Placeholder::make('ImagePreview')
                             ->label('Image preview')
-                            ->content(function (News $news) {
+                            ->content(function (?News $news) {
+                                if (!$news) {
+                                    return null;
+                                }
+
                                 return new HtmlString("<img src='{$news->image_asset_path}' style='width:197px; height:112px;' class='rounded object-cover'>");
                             })
-                            ->visible(fn (News $news) => !is_null($news->image_asset_path)),
+                            ->visible(fn (?News $news) => $news && !is_null($news->image_asset_path)),
                     ]),
             ]);
     }
@@ -178,10 +175,10 @@ class NewsResource extends Resource
             ->filters([
 
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ]);
     }
