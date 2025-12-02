@@ -152,6 +152,12 @@ class GamesRelationManager extends RelationManager
                                     ->get()
                                     ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title}"]);
                             })
+                            ->getOptionLabelsUsing(function (array $values): array {
+                                return Game::whereIn('ID', $values)
+                                    ->get()
+                                    ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title}"])
+                                    ->toArray();
+                            })
                             ->hidden(fn (Get $get): bool => filled($get('game_ids_csv')))
                             ->disabled(fn (Get $get): bool => filled($get('game_ids_csv')))
                             ->live()

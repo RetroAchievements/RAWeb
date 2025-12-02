@@ -1289,5 +1289,9 @@
     "Deny": "Deny",
     "Authorized": "Authorized",
     "Denied": "Denied",
-    "You can close this window.": "You can close this window."
+    "You can close this window.": "You can close this window.",
+    "Bonus Subset": "Bonus Subset",
+    "Specialty Subset": "Specialty Subset",
+    "Exclusive Subset": "Exclusive Subset",
+    "Save": "Save"
 }
