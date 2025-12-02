@@ -77,7 +77,7 @@ describe('Component: RandomGameButton', () => {
     render(
       <RandomGameButton
         columnFilters={[]}
-        variant="mobile-drawer"
+        variant="mobile-dialog"
         apiRouteName="api.game.random"
         disabled={false}
       />,

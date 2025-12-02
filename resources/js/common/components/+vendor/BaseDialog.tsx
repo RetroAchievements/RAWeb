@@ -44,6 +44,55 @@ const BaseDialogContent = React.forwardRef<
   ) => {
     const { t } = useTranslation();
 
+    const closeButtonRef = React.useRef<HTMLButtonElement>(null);
+    const blockerTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    /**
+     * To band-aid a bug in Safari, we create a synthetic "dialog-hover-blocker"
+     * element. We need to always be sure to clean that up on unmount so we
+     * don't leak memory for every dialog we open.
+     */
+    React.useEffect(() => {
+      return () => {
+        if (blockerTimeoutRef.current) {
+          clearTimeout(blockerTimeoutRef.current);
+        }
+        const blocker = document.getElementById('dialog-hover-blocker');
+        if (blocker?.parentNode) {
+          blocker.parentNode.removeChild(blocker);
+        }
+      };
+    }, []);
+
+    /**
+     * On Safari mobile, tapping the dialog close button triggers a "sticky hover"
+     * on elements underneath after the dialog closes (such as dropdown menus).
+     * We handle touch separately by adding a temporary synthetic blocker element to
+     * absorb the hover state, then programmatically trigger the close.
+     *
+     * If we don't do this, closing the dialog on mobile Safari can inadvertently
+     * trigger elements z-indexed directly underneath the dialog close button.
+     */
+    const handleCloseTouchEnd = (e: React.TouchEvent) => {
+      e.preventDefault(); // Prevent the synthetic click.
+
+      // Only create one blocker at a time.
+      if (!document.getElementById('dialog-hover-blocker')) {
+        const blocker = document.createElement('div');
+        blocker.id = 'dialog-hover-blocker';
+        blocker.style.cssText = 'position:fixed;inset:0;z-index:9999;';
+        document.body.appendChild(blocker);
+
+        blockerTimeoutRef.current = setTimeout(() => {
+          blocker.remove();
+          blockerTimeoutRef.current = null;
+        }, 300);
+      }
+
+      // Programmatically trigger the close via Radix.
+      closeButtonRef.current?.click();
+    };
+
     return (
       <BaseDialogPortal>
         <BaseDialogOverlay className={cn(shouldBlurBackdrop ? 'backdrop-blur' : '')} />
@@ -65,12 +114,14 @@ const BaseDialogContent = React.forwardRef<
 
           {shouldShowCloseButton ? (
             <DialogPrimitive.Close
+              ref={closeButtonRef}
               className={cn(
                 'ring-offset-background data-[state=open]:bg-accent data-[state=open]:text-muted-foreground',
                 'absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100',
                 'focus:outline-none focus:ring-offset-2 disabled:pointer-events-none',
                 'text-link',
               )}
+              onTouchEnd={handleCloseTouchEnd}
             >
               <RxCross2 className="size-4" />
               <span className="sr-only">{t('Close')}</span>
