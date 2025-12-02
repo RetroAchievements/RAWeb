@@ -62,11 +62,28 @@ $user = Auth::user();
 $permissions = $user->getAttribute('Permissions');
 $commentData = [];
 
+$statusDate = TicketState::isOpen($ticket->ReportState)
+    ? $ticket->ReportedAt
+    : $ticket->ResolvedAt;
+$metaStatusText = match (true) {
+    TicketState::isOpen($ticket->ReportState) => 'Open since ' . $statusDate->format('d M Y'),
+    $ticket->ReportState === TicketState::Resolved => 'Resolved on ' . $statusDate->format('d M Y'),
+    default => 'Closed on ' . $statusDate->format('d M Y'),
+};
+/**
+ * "Did not trigger: Street-Smart Scorer III (Streets of Rage 2). Open since 01 Sep 2025."
+ * "Triggered at the wrong time: My Eyes On You (Sonic the Hedgehog). Closed on 01 Sep 2025."
+ * "Did not trigger: Water Pressure (Pikmin 2). Resolved on 29 Aug 2025."
+ */
+$metaDescription = TicketType::toString($ticket->ReportType) . ': '
+    . $ticket->achievement->title . ' (' . $ticket->achievement->game->title . '). '
+    . $metaStatusText . '.';
+
 @endphp
 
 <x-app-layout
     pageTitle="Ticket {{ $ticket->ID }}: {!! $ticket->achievement->Title !!} ({!! TicketType::toString($ticket->ReportType) !!})"
-    pageDescription="{{ $ticket->achievement->Description }}"
+    pageDescription="{{ $metaDescription }}"
     pageImage="{{ media_asset('/Badge/' . $ticket->achievement->BadgeName . '.png') }}"
     pageType="retroachievements:ticket"
 >
