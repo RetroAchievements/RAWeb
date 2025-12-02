@@ -236,14 +236,12 @@ function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTop
     }
 
     /**
-     * For larger threads (90+ posts), we'll filter out implicit subscribers who
-     * haven't posted in the thread for 90+ days, unless they're the OP.
-     *
-     * Explicit subscribers and implicit subscribers in smaller threads always receive email notifications.
+     * For threads with many subscribers (200+), we filter out implicit subscribers
+     * who haven't posted recently, unless they explicitly subscribed or are the OP.
+     * This targets high-volume threads where each comment triggers hundreds of emails.
      */
-    $topicCommentCount = ForumTopicComment::where('forum_topic_id', $topic->id)->count();
-    if ($topicCommentCount >= 90) {
-        $threadActivityCutoff = now()->subDays(90);
+    if ($subscribers->count() >= 200) {
+        $threadActivityCutoff = now()->subDays(45);
 
         $explicitSubscriberIds = Subscription::where('subject_type', SubscriptionSubjectType::ForumTopic)
             ->where('subject_id', $topic->id)
