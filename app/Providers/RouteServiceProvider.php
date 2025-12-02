@@ -92,6 +92,11 @@ class RouteServiceProvider extends ServiceProvider
                 // Return a non-Inertia response that will bypass Inertia middleware.
                 return response()->view('pages-legacy.gameInfo');
             })->name('game.show');
+
+            /*
+             * redirects
+             */
+            Route::get('redirect', [RedirectController::class, 'redirect'])->name('redirect');
         });
 
         Route::middleware(['web', 'csp'])->group(function () {
@@ -115,11 +120,6 @@ class RouteServiceProvider extends ServiceProvider
              * Octane test route
              */
             Octane::route('GET', '/octane', fn () => response('Octane'));
-
-            /*
-             * redirects
-             */
-            Route::get('redirect', [RedirectController::class, 'redirect'])->name('redirect');
 
             /*
              * user & permalinks
