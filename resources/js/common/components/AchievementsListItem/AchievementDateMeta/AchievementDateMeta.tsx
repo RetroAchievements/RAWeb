@@ -3,6 +3,7 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import utc from 'dayjs/plugin/utc';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuCircleAlert } from 'react-icons/lu';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
@@ -32,6 +33,7 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
   const activeFrom = eventAchievement?.activeFrom;
   const activeThrough = eventAchievement?.activeThrough;
 
+  let isDemoted = eventAchievement?.sourceAchievement?.flags === 5;
   let isActive = false;
   let isExpired = false;
   let isUpcoming = false;
@@ -43,9 +45,10 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
     isActive = activeFrom.isSameOrBefore(now) && now.isBefore(activeUntil);
     isExpired = activeUntil.isSameOrBefore(now);
     isUpcoming = activeFrom.isAfter(now);
+    isDemoted = isActive && isDemoted;
   }
 
-  if (!unlockedAt && !unlockedHardcoreAt && !isActive && !isExpired && !isUpcoming) {
+  if (!unlockedAt && !unlockedHardcoreAt && !isActive && !isExpired && !isUpcoming && !isDemoted) {
     return null;
   }
 
@@ -69,6 +72,14 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
           {t('Ended {{endDate}}', { endDate: formatDate(activeThrough, 'll') })}
         </p>
       ) : null}
+
+      {isDemoted ? (
+        <span className="flex items-center cursor-help"
+              title={t('This achievement cannot currently be earned because the source achievement has been demoted.')}>
+          <LuCircleAlert data-testid="warning-icon" className="text-text-danger" />
+          <span className="text-text-danger ml-0.5">{t('Unavailable')}</span>
+        </span>
+      ): null}
 
       {unlockedAt ? (
         <p>
