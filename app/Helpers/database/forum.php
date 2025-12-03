@@ -236,11 +236,11 @@ function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTop
     }
 
     /**
-     * For threads with many subscribers (100+), we filter out implicit subscribers
+     * For threads with many subscribers (130+), we filter out implicit subscribers
      * who haven't posted recently, unless they explicitly subscribed or are the OP.
      * This targets high-volume threads where each comment triggers hundreds of emails.
      */
-    if ($subscribers->count() >= 100) {
+    if ($subscribers->count() >= 130) {
         $threadActivityCutoff = now()->subDays(21);
 
         $explicitSubscriberIds = Subscription::where('subject_type', SubscriptionSubjectType::ForumTopic)
