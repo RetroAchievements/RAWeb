@@ -29,7 +29,6 @@ class SubscriptionNotificationService
     {
         return User::query()
             ->whereIn('ID', $userIds)
-            ->whereNotNull('EmailAddress')
             ->where('EmailAddress', '<>', '')
             ->whereRaw('websitePrefs & ? != 0', 1 << $userPreference);
     }
