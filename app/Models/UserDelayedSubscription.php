@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Community\Enums\SubscriptionSubjectType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -18,6 +19,10 @@ class UserDelayedSubscription extends Model
         'subject_type',
         'subject_id',
         'first_update_id',
+    ];
+
+    protected $casts = [
+        'subject_type' => SubscriptionSubjectType::class,
     ];
 
     // == accessors

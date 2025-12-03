@@ -70,4 +70,16 @@ class SubscriptionNotificationService
             );
         }
     }
+
+    /**
+     * Resets/clears the notification for a user's subscription
+     */
+    public function resetNotification(int $userId, SubscriptionSubjectType $subjectType, int $subjectId): void
+    {
+        UserDelayedSubscription::query()
+            ->where('user_id', $userId)
+            ->where('subject_type', $subjectType)
+            ->where('subject_id', $subjectId)
+            ->delete();
+    }
 }

@@ -220,6 +220,10 @@ function submitTopicComment(
     setLatestCommentInForumTopic($topic, $newComment->id);
 
     if ($user->ManuallyVerified ?? false) {
+        // if user has any notifications pending for this post, assume they're no longer needed
+        $notificationService = new SubscriptionNotificationService();
+        $notificationService->resetNotification($user->id, SubscriptionSubjectType::ForumTopic, $topic->id);
+
         notifyUsersAboutForumActivity($topic, $user, $newComment);
     }
 
