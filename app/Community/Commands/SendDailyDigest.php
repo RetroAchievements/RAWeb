@@ -8,7 +8,6 @@ use App\Community\Actions\SendDailyDigestAction;
 use App\Community\Jobs\SendDailyDigestJob;
 use App\Models\User;
 use App\Models\UserDelayedSubscription;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class SendDailyDigest extends Command
@@ -16,7 +15,7 @@ class SendDailyDigest extends Command
     protected $signature = 'ra:community:send-daily-digest ' .
                            '{userId? : User ID or username. Usernames containing only numbers are ambiguous and must be referenced by user ID}';
 
-    protected $description = 'Generates an annual summary email for the provided user';
+    protected $description = 'Generates a daily digest email for the provided user';
 
     public function __construct(
         private readonly SendDailyDigestAction $sendDailyDigestAction,
@@ -45,7 +44,7 @@ class SendDailyDigest extends Command
                 ->distinct()
                 ->pluck('user_id')
                 ->toArray();
-                
+
             foreach ($users as $userId) {
                 SendDailyDigestJob::dispatch($userId)->onQueue('summary-emails');
             }

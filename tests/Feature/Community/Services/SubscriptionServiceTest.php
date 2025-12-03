@@ -291,8 +291,8 @@ class SubscriptionServiceTest extends TestCase
         // user1 has an old comment. user4 is only implicitly subscribed via GameAchievements.
         $segmentedSubscribers = $service->getSegmentedSubscriberIds(SubscriptionSubjectType::Achievement, $achievement->ID, $achievement->user_id);
         $this->assertEqualsCanonicalizing([2], $segmentedSubscribers['explicitlySubscribed']);
-        $this->assertEqualsCanonicalizing([5,7], $segmentedSubscribers['implicitlySubscribedNotifyNow']);
-        $this->assertEqualsCanonicalizing([1,4], $segmentedSubscribers['implicitlySubscribedNotifyLater']);
+        $this->assertEqualsCanonicalizing([5, 7], $segmentedSubscribers['implicitlySubscribedNotifyNow']);
+        $this->assertEqualsCanonicalizing([1, 4], $segmentedSubscribers['implicitlySubscribedNotifyLater']);
     }
 
     public function testTicketSubscribers(): void
@@ -471,7 +471,7 @@ class SubscriptionServiceTest extends TestCase
         $subscribers = $service->getSubscribers(SubscriptionSubjectType::ForumTopic, $topic->id);
         $subscribedUserIds = $subscribers->pluck('id')->toArray();
         $this->assertEqualsCanonicalizing([2, 3, 4, 6, 7], $subscribedUserIds);
-   
+
         $segmentedSubscribers = $service->getSegmentedSubscriberIds(SubscriptionSubjectType::ForumTopic, $topic->id, $topic->author_id);
         $this->assertEqualsCanonicalizing([7], $segmentedSubscribers['explicitlySubscribed']);
         $this->assertEqualsCanonicalizing([2, 3, 6], $segmentedSubscribers['implicitlySubscribedNotifyNow']);

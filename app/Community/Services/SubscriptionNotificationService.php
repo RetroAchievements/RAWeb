@@ -14,7 +14,7 @@ class SubscriptionNotificationService
 {
     /**
      * Converts an array of User IDs to User records for users who are eligible to receive emails for the specified preference.
-     * 
+     *
      * @return Collection<int, User>
      */
     public function getEmailTargets(array $userIds, int $userPreference): Collection

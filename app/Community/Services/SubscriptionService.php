@@ -27,7 +27,7 @@ class SubscriptionService
 {
     /**
      * Gets all users who are explicitly or implicitly subscribed to the subject.
-     * 
+     *
      * @return Collection<int, User>
      */
     public function getSubscribers(SubscriptionSubjectType $subjectType, int $subjectId): Collection
@@ -35,6 +35,7 @@ class SubscriptionService
         [$explicitSubscriberIds, $implicitSubscriberIds] = $this->getSubscriberIds($subjectType, $subjectId);
 
         $allSubscriberIds = array_merge($explicitSubscriberIds, $implicitSubscriberIds);
+
         return User::whereIn('ID', $allSubscriberIds)->get();
     }
 
@@ -141,9 +142,9 @@ class SubscriptionService
 
     /**
      * Gets all of the subscriptions (explicit or implicit) a user has.
-     * 
+     *
      * Use "subscription->exists()" to detect implicit subscriptions.
-     * 
+     *
      * @return Collection<int, Subscription>
      */
     public function getSubscriptions(User $user, array $subjectTypes, int $offset = 0, int $count = 100): Collection
@@ -301,7 +302,7 @@ abstract class BaseSubscriptionHandler
     /**
      * Returns IDs of users who have contributed to the subject since the provided time.
      */
-    abstract function getRecentParticipants(int $subjectId, Carbon $since): array;
+    abstract public function getRecentParticipants(int $subjectId, Carbon $since): array;
 }
 
 abstract class CommentSubscriptionHandler extends BaseSubscriptionHandler
@@ -337,7 +338,7 @@ abstract class CommentSubscriptionHandler extends BaseSubscriptionHandler
         return $query;
     }
 
-    function getRecentParticipants(int $subjectId, Carbon $since): array
+    public function getRecentParticipants(int $subjectId, Carbon $since): array
     {
         return Comment::query()
             ->where('ArticleType', $this->getArticleType())
@@ -593,7 +594,7 @@ class ForumTopicSubscriptionHandler extends BaseSubscriptionHandler
         return $query;
     }
 
-    function getRecentParticipants(int $subjectId, Carbon $since): array
+    public function getRecentParticipants(int $subjectId, Carbon $since): array
     {
         return ForumTopicComment::query()
             ->where('forum_topic_id', $subjectId)
@@ -627,7 +628,7 @@ class GameAchievementsSubscriptionHandler extends BaseSubscriptionHandler
         return false;
     }
 
-    function getRecentParticipants(int $subjectId, Carbon $since): array
+    public function getRecentParticipants(int $subjectId, Carbon $since): array
     {
         return [];
     }
@@ -656,7 +657,7 @@ class GameTicketsSubscriptionHandler extends BaseSubscriptionHandler
         return false;
     }
 
-    function getRecentParticipants(int $subjectId, Carbon $since): array
+    public function getRecentParticipants(int $subjectId, Carbon $since): array
     {
         return [];
     }

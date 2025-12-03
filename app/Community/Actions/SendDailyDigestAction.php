@@ -10,8 +10,6 @@ use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\User;
 use App\Models\UserDelayedSubscription;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class SendDailyDigestAction

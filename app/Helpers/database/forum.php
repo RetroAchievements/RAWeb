@@ -2,15 +2,14 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
-use App\Community\Services\SubscriptionService;
 use App\Community\Services\SubscriptionNotificationService;
+use App\Community\Services\SubscriptionService;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
 use App\Models\Forum;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
-use App\Models\Subscription;
 use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Collection;
