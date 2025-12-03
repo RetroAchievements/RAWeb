@@ -18,6 +18,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class SubscriptionServiceTest extends TestCase
@@ -233,6 +234,7 @@ class SubscriptionServiceTest extends TestCase
             'ArticleID' => $achievement->ID,
             'user_id' => $user1->id,
             'Payload' => 'Test',
+            'Submitted' => Carbon::now()->subDays(8),
         ]);
 
         // user2 explicitly subscribed to achievement
@@ -244,6 +246,7 @@ class SubscriptionServiceTest extends TestCase
             'ArticleID' => $achievement->ID,
             'user_id' => $user3->id,
             'Payload' => 'Test',
+            'Submitted' => Carbon::now()->subDays(4),
         ]);
         $this->updateSubscription($user3, SubscriptionSubjectType::Achievement, $achievement->ID, false);
 
@@ -256,6 +259,7 @@ class SubscriptionServiceTest extends TestCase
             'ArticleID' => $achievement->ID,
             'user_id' => $user5->id,
             'Payload' => 'Test',
+            'Submitted' => Carbon::now()->subDays(2),
         ]);
         $this->updateSubscription($user5, SubscriptionSubjectType::GameAchievements, $achievement->game->ID, false);
 
@@ -282,6 +286,13 @@ class SubscriptionServiceTest extends TestCase
         $subscribers = $service->getSubscribers(SubscriptionSubjectType::Achievement, $achievement->ID);
         $subscribedUserIds = $subscribers->pluck('id')->toArray();
         $this->assertEqualsCanonicalizing([1, 2, 4, 5, 7], $subscribedUserIds);
+
+        // user2 is explicitly subscribed. user 7 is the author. user 5 has a recent comments.
+        // user1 has an old comment. user4 is only implicitly subscribed via GameAchievements.
+        $segmentedSubscribers = $service->getSegmentedSubscriberIds(SubscriptionSubjectType::Achievement, $achievement->ID, $achievement->user_id);
+        $this->assertEqualsCanonicalizing([2], $segmentedSubscribers['explicitlySubscribed']);
+        $this->assertEqualsCanonicalizing([5,7], $segmentedSubscribers['implicitlySubscribedNotifyNow']);
+        $this->assertEqualsCanonicalizing([1,4], $segmentedSubscribers['implicitlySubscribedNotifyLater']);
     }
 
     public function testTicketSubscribers(): void
@@ -377,20 +388,95 @@ class SubscriptionServiceTest extends TestCase
 
     public function testForumTopicSubscribers(): void
     {
-        /** @var User $user */
-        $user = User::factory()->create();
+        /** @var User $user1 */
+        $user1 = User::factory()->create();
+        /** @var User $user2 */
+        $user2 = User::factory()->create();
+        /** @var User $user3 */
+        $user3 = User::factory()->create();
+        /** @var User $user4 */
+        $user4 = User::factory()->create();
+        /** @var User $user5 */
+        $user5 = User::factory()->create();
+        /** @var User $user6 */
+        $user6 = User::factory()->create();
+        /** @var User $user7 */
+        $user7 = User::factory()->create();
 
+        // user3 started the topic
         /** @var ForumTopic $topic */
-        $topic = ForumTopic::factory()->create();
-        ForumTopicComment::factory()->create(['forum_topic_id' => $topic->id]);
+        $topic = ForumTopic::factory()->create(['author_id' => $user3->id]);
+        ForumTopicComment::factory()->create([
+            'forum_topic_id' => $topic->id,
+            'author_id' => $user3->id,
+            'created_at' => Carbon::now()->subDays(10),
+        ]);
+
+        // user4 posted over a week ago
+        ForumTopicComment::factory()->create([
+            'forum_topic_id' => $topic->id,
+            'author_id' => $user4->id,
+            'created_at' => Carbon::now()->subDays(9),
+        ]);
+
+        // user2 posted over a week ago
+        ForumTopicComment::factory()->create([
+            'forum_topic_id' => $topic->id,
+            'author_id' => $user2->id,
+            'created_at' => Carbon::now()->subDays(8),
+        ]);
+
+        // user6 posted under a week ago
+        ForumTopicComment::factory()->create([
+            'forum_topic_id' => $topic->id,
+            'author_id' => $user6->id,
+            'created_at' => Carbon::now()->subDays(5),
+        ]);
+
+        // user2 posted again under a week ago
+        ForumTopicComment::factory()->create([
+            'forum_topic_id' => $topic->id,
+            'author_id' => $user2->id,
+            'created_at' => Carbon::now()->subDays(4),
+        ]);
+
+        // user5 posted again under a week ago, but explicitly unsubscribed
+        ForumTopicComment::factory()->create([
+            'forum_topic_id' => $topic->id,
+            'author_id' => $user5->id,
+            'created_at' => Carbon::now()->subDays(3),
+        ]);
+        $this->updateSubscription($user5, SubscriptionSubjectType::ForumTopic, $topic->id, false);
+
+        // user7 is explicitly subscribed, but has never posted
+        $this->updateSubscription($user7, SubscriptionSubjectType::ForumTopic, $topic->id, true);
+
+        // user6 just posted now
+        ForumTopicComment::factory()->create([
+            'forum_topic_id' => $topic->id,
+            'author_id' => $user6->id,
+            'created_at' => Carbon::now(),
+        ]);
 
         $service = new SubscriptionService();
 
-        $this->assertTrue($service->isSubscribed($user, SubscriptionSubjectType::ForumTopic, $topic->id));
+        $this->assertFalse($service->isSubscribed($user1, SubscriptionSubjectType::ForumTopic, $topic->id));
+        $this->assertTrue($service->isSubscribed($user2, SubscriptionSubjectType::ForumTopic, $topic->id));
+        $this->assertTrue($service->isSubscribed($user3, SubscriptionSubjectType::ForumTopic, $topic->id));
+        $this->assertTrue($service->isSubscribed($user4, SubscriptionSubjectType::ForumTopic, $topic->id));
+        $this->assertFalse($service->isSubscribed($user5, SubscriptionSubjectType::ForumTopic, $topic->id));
+        $this->assertTrue($service->isSubscribed($user6, SubscriptionSubjectType::ForumTopic, $topic->id));
+        $this->assertTrue($service->isSubscribed($user7, SubscriptionSubjectType::ForumTopic, $topic->id));
 
         $subscribers = $service->getSubscribers(SubscriptionSubjectType::ForumTopic, $topic->id);
-        $this->assertEquals(1, $subscribers->count());
-        $this->assertEquals($user->id, $subscribers->first()->id);
+        $subscribedUserIds = $subscribers->pluck('id')->toArray();
+        $this->assertEqualsCanonicalizing([2, 3, 4, 6, 7], $subscribedUserIds);
+   
+        $segmentedSubscribers = $service->getSegmentedSubscriberIds(SubscriptionSubjectType::ForumTopic, $topic->id, $topic->author_id);
+        $this->assertEqualsCanonicalizing([7], $segmentedSubscribers['explicitlySubscribed']);
+        $this->assertEqualsCanonicalizing([2, 3, 6], $segmentedSubscribers['implicitlySubscribedNotifyNow']);
+        $this->assertEqualsCanonicalizing([4], $segmentedSubscribers['implicitlySubscribedNotifyLater']);
+
     }
 
     public function testUserWallSubscribers(): void
