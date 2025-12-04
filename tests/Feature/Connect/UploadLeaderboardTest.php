@@ -8,6 +8,7 @@ use App\Community\Enums\ArticleType;
 use App\Enums\GameHashCompatibility;
 use App\Enums\Permissions;
 use App\Models\AchievementSet;
+use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\Leaderboard;
@@ -53,7 +54,33 @@ class UploadLeaderboardTest extends TestCase
         $this->addServerUser();
 
         // ----------------------------
-        // new leaderboard for valid game
+        // new leaderboard for unclaimed game
+        $this->post('dorequest.php', $this->checksumParams([
+            'g' => $game->ID,
+            'n' => 'Title',
+            'd' => 'Description',
+            's' => '1=0',
+            'b' => '2=0',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+        ]))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'You must have an active claim on this game to perform this action.',
+            ]);
+
+        // ----------------------------
+        // new leaderboard for valid game with claim
+        AchievementSetClaim::factory()->create([
+            'user_id' => $this->user->id,
+            'game_id' => $game->id,
+        ]);
+
         $this->post('dorequest.php', $this->checksumParams([
             'g' => $game->ID,
             'n' => 'Title',
@@ -69,7 +96,6 @@ class UploadLeaderboardTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'LeaderboardID' => 1,
-                'Error' => '',
             ]);
 
         $leaderboard1 = Leaderboard::find(1);
@@ -96,7 +122,6 @@ class UploadLeaderboardTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'LeaderboardID' => 2,
-                'Error' => '',
             ]);
 
         $leaderboard2 = Leaderboard::find(2);
@@ -124,7 +149,6 @@ class UploadLeaderboardTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'LeaderboardID' => $leaderboard1->id,
-                'Error' => '',
             ]);
 
         $leaderboard1->refresh();
@@ -133,7 +157,8 @@ class UploadLeaderboardTest extends TestCase
         $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->Mem);
         $this->assertEquals(true, $leaderboard1->LowerIsBetter);
         $this->assertEquals('VALUE', $leaderboard1->Format);
-        $this->assertAuditComment(ArticleType::Leaderboard, $leaderboard1->id, "{$this->user->display_name} edited this leaderboard.");
+        $this->assertAuditComment(ArticleType::Leaderboard, $leaderboard1->id, 
+            "{$this->user->display_name} edited this leaderboard's title.");
 
         // ----------------------------
         // update second leaderboard everything
@@ -153,7 +178,6 @@ class UploadLeaderboardTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'LeaderboardID' => $leaderboard2->id,
-                'Error' => '',
             ]);
 
         $leaderboard2->refresh();
@@ -162,7 +186,8 @@ class UploadLeaderboardTest extends TestCase
         $this->assertEquals('STA:11=0::CAN:13=0::SUB:12=0::VAL:14=0', $leaderboard2->Mem);
         $this->assertEquals(true, $leaderboard2->LowerIsBetter);
         $this->assertEquals('TIMESECS', $leaderboard2->Format);
-        $this->assertAuditComment(ArticleType::Leaderboard, $leaderboard2->id, "{$this->user->display_name} edited this leaderboard.");
+        $this->assertAuditComment(ArticleType::Leaderboard, $leaderboard2->id,
+            "{$this->user->display_name} edited this leaderboard's title, description, format, order, logic.");
 
         // ----------------------------
         // update non-existant leaderboard
@@ -178,11 +203,12 @@ class UploadLeaderboardTest extends TestCase
             'w' => 1,
             'f' => 'TIMESECS',
         ]))
-            ->assertStatus(200)
+            ->assertStatus(404)
             ->assertExactJson([
+                'Status' => 404,
+                'Code' => 'not_found',
                 'Success' => false,
-                'LeaderboardID' => 9999,
-                'Error' => 'Unknown leaderboard',
+                'Error' => 'Unknown leaderboard.',
             ]);
 
         // ----------------------------
@@ -199,10 +225,11 @@ class UploadLeaderboardTest extends TestCase
             'w' => 1,
             'f' => 'BANANA',
         ]))
-            ->assertStatus(200)
+            ->assertStatus(422)
             ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
                 'Success' => false,
-                'LeaderboardID' => $leaderboard2->id,
                 'Error' => 'Unknown format: BANANA',
             ]);
 
@@ -222,10 +249,11 @@ class UploadLeaderboardTest extends TestCase
             'w' => 1,
             'f' => 'BANANA',
         ]))
-            ->assertStatus(200)
+            ->assertStatus(422)
             ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
                 'Success' => false,
-                'LeaderboardID' => 0,
                 'Error' => 'Unknown format: BANANA',
             ]);
 
@@ -249,7 +277,6 @@ class UploadLeaderboardTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'LeaderboardID' => 3,
-                'Error' => '',
             ]);
 
         $leaderboard3 = Leaderboard::find(3);
@@ -269,7 +296,34 @@ class UploadLeaderboardTest extends TestCase
         $this->addServerUser();
 
         // ----------------------------
-        // new leaderboard for valid game
+        // new leaderboard for unclaimed game
+        // NOTE: LeaderboardPolicy::create validates claim, so junior only gets a generic access denied message
+        $this->post('dorequest.php', $this->checksumParams([
+            'g' => $game->ID,
+            'n' => 'Title',
+            'd' => 'Description',
+            's' => '1=0',
+            'b' => '2=0',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+        ]))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'Access denied.',
+            ]);
+
+        // ----------------------------
+        // new leaderboard for valid game with claim
+        AchievementSetClaim::factory()->create([
+            'user_id' => $this->user->id,
+            'game_id' => $game->id,
+        ]);
+
         $this->post('dorequest.php', $this->checksumParams([
             'g' => $game->ID,
             'n' => 'Title',
@@ -285,7 +339,6 @@ class UploadLeaderboardTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'LeaderboardID' => 1,
-                'Error' => '',
             ]);
 
         $leaderboard1 = Leaderboard::find(1);
@@ -313,7 +366,6 @@ class UploadLeaderboardTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'LeaderboardID' => $leaderboard1->id,
-                'Error' => '',
             ]);
 
         $leaderboard1->refresh();
@@ -322,7 +374,8 @@ class UploadLeaderboardTest extends TestCase
         $this->assertEquals('STA:11=0::CAN:13=0::SUB:12=0::VAL:14=0', $leaderboard1->Mem);
         $this->assertEquals(false, $leaderboard1->LowerIsBetter);
         $this->assertEquals('SCORE', $leaderboard1->Format);
-        $this->assertAuditComment(ArticleType::Leaderboard, $leaderboard1->id, "{$this->user->display_name} edited this leaderboard.");
+        $this->assertAuditComment(ArticleType::Leaderboard, $leaderboard1->id,
+            "{$this->user->display_name} edited this leaderboard's title, description, format, order, logic.");
 
         // ----------------------------
         // update another user's leaderboard
@@ -341,11 +394,12 @@ class UploadLeaderboardTest extends TestCase
             'w' => 0,
             'f' => 'SCORE',
         ]))
-            ->assertStatus(200)
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'LeaderboardID' => $leaderboard2->id,
-                'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
+                'Error' => 'Access denied.',
             ]);
 
         $leaderboard2->refresh();
@@ -373,11 +427,12 @@ class UploadLeaderboardTest extends TestCase
             'w' => 1,
             'f' => 'VALUE',
         ]))
-            ->assertStatus(200)
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'LeaderboardID' => 0,
-                'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
+                'Error' => 'Access denied.',
             ]);
 
         // ----------------------------
@@ -397,11 +452,12 @@ class UploadLeaderboardTest extends TestCase
             'w' => 0,
             'f' => 'SCORE',
         ]))
-            ->assertStatus(200)
+            ->assertStatus(403)
             ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
                 'Success' => false,
-                'LeaderboardID' => $leaderboard2->id,
-                'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
+                'Error' => 'Access denied.',
             ]);
 
         $leaderboard2->refresh();
