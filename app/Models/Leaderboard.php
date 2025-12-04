@@ -68,6 +68,10 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
         'LowerIsBetter',
         'DisplayOrder',
         'trigger_id',
+
+        'GameID',
+        'Mem',
+        'author_id',
     ];
 
     protected static function newFactory(): LeaderboardFactory

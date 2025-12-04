@@ -159,27 +159,20 @@ function submitLBData(
     bool $lbLowerIsBetter,
     int $lbDisplayOrder,
 ): bool {
-    sanitize_sql_inputs($user, $lbMem, $lbTitle, $lbDescription, $lbFormat);
-
-    $lbLowerIsBetter = (int) $lbLowerIsBetter;
-
-    $query = "UPDATE LeaderboardDef AS ld SET
-              ld.Mem = '$lbMem',
-              ld.Format = '$lbFormat',
-              ld.Title = '$lbTitle',
-              ld.Description = '$lbDescription',
-              ld.Format = '$lbFormat',
-              ld.LowerIsBetter = '$lbLowerIsBetter',
-              ld.DisplayOrder = '$lbDisplayOrder'
-              WHERE ld.ID = $lbID";
-
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);
-    if ($dbResult !== false) {
-        return true;
+    $leaderboard = Leaderboard::find($lbID);
+    if (!$leaderboard) {
+        return false;
     }
 
-    return false;
+    $leaderboard->Mem = $lbMem;
+    $leaderboard->Format = $lbFormat;
+    $leaderboard->Title = $lbTitle;
+    $leaderboard->Description = $lbDescription;
+    $leaderboard->LowerIsBetter = $lbLowerIsBetter;
+    $leaderboard->DisplayOrder = $lbDisplayOrder;
+    $leaderboard->save();
+
+    return true;
 }
 
 function SubmitNewLeaderboard(int $gameID, ?int &$lbIDOut, User $user): bool
@@ -189,19 +182,20 @@ function SubmitNewLeaderboard(int $gameID, ?int &$lbIDOut, User $user): bool
     }
 
     $defaultMem = "STA:0x0000=h0010_0xhf601=h0c::CAN:0xhfe13<d0xhfe13::SUB:0xf7cc!=0_d0xf7cc=0::VAL:0xhfe24*1_0xhfe25*60_0xhfe22*3600";
-    $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder, author_id, Created)
-                                VALUES ($gameID, '$defaultMem', 'SCORE', 'My Leaderboard', 'My Leaderboard Description', 0,
-                                (SELECT * FROM (SELECT COALESCE(Max(DisplayOrder) + 1, 0) FROM LeaderboardDef WHERE  GameID = $gameID) AS temp), {$user->id}, NOW())";
+    $leaderboard = Leaderboard::create([
+        'GameID' => $gameID,
+        'Mem' => $defaultMem,
+        'Format' => 'SCORE',
+        'Title' => 'My Leaderboard',
+        'Description' => 'My Leaderboard Description',
+        'LowerIsBetter' => 0,
+        'DisplayOrder' => 1,
+        'author_id' => $user->id,
+    ]);
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $db = getMysqliConnection();
-        $lbIDOut = (int) mysqli_insert_id($db);
+    $lbIDOut = $leaderboard->id;
 
-        return true;
-    }
-
-    return false;
+    return true;
 }
 
 function UploadNewLeaderboard(
