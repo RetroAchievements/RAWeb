@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Connect\Support;
 
-use App\Community\Enums\ArticleType;
 use App\Models\Comment;
 
 trait GeneratesLegacyAuditComment

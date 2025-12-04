@@ -32,7 +32,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
     protected bool $lowerIsBetter;
     protected string $format;
 
-    public function execute(User $user, 
+    public function execute(User $user,
         ?int $leaderboardId, ?int $gameId, ?int $achievementSetId,
         string $title, string $description,
         string $startTrigger, string $submitTrigger, string $cancelTrigger,
@@ -66,7 +66,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
         }
 
         // all properties must be provided regardless of update/create
-        if (!$request->has(['n','d','s','b','c','l','w','f','h'])) {
+        if (!$request->has(['n', 'd', 's', 'b', 'c', 'l', 'w', 'f', 'h'])) {
             return $this->missingParameters();
         }
 
@@ -102,7 +102,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
         $message = "{$username}SECRET{$this->leaderboardId}SEC{$this->startTrigger}{$this->submitTrigger}{$this->cancelTrigger}{$this->valueDefinition}RE2{$this->format}";
         $md5 = md5($message);
 
-        return (strcasecmp($md5, $checksum) === 0);
+        return strcasecmp($md5, $checksum) === 0;
     }
 
     protected function process(): array
@@ -193,8 +193,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
             }
 
             $this->gameId = $gameAchievementSet->game_id;
-        }
-        else if (VirtualGameIdService::isVirtualGameId($this->gameId)) {
+        } elseif (VirtualGameIdService::isVirtualGameId($this->gameId)) {
             [$this->gameId, $compatibility] = VirtualGameIdService::decodeVirtualGameId($this->gameId);
         }
 

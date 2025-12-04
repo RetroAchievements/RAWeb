@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature\Connect;
 
 use App\Community\Enums\ArticleType;
-use App\Enums\GameHashCompatibility;
 use App\Enums\Permissions;
 use App\Models\AchievementSet;
 use App\Models\AchievementSetClaim;
@@ -14,7 +13,6 @@ use App\Models\GameAchievementSet;
 use App\Models\Leaderboard;
 use App\Models\Role;
 use App\Models\User;
-use App\Platform\Services\VirtualGameIdService;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -157,7 +155,7 @@ class UploadLeaderboardTest extends TestCase
         $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->Mem);
         $this->assertEquals(true, $leaderboard1->LowerIsBetter);
         $this->assertEquals('VALUE', $leaderboard1->Format);
-        $this->assertAuditComment(ArticleType::Leaderboard, $leaderboard1->id, 
+        $this->assertAuditComment(ArticleType::Leaderboard, $leaderboard1->id,
             "{$this->user->display_name} edited this leaderboard's title.");
 
         // ----------------------------
@@ -261,7 +259,7 @@ class UploadLeaderboardTest extends TestCase
 
         // ----------------------------
         // third new leaderboard for valid achievement set
-        $achievementSet = GameAchievementSet::create(['game_id' => $game->id, 'achievement_set_id' =>  AchievementSet::create()->id]);
+        $achievementSet = GameAchievementSet::create(['game_id' => $game->id, 'achievement_set_id' => AchievementSet::create()->id]);
         $this->post('dorequest.php', $this->checksumParams([
             'p' => $achievementSet->id,
             'n' => 'Title5',
