@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuWrench } from 'react-icons/lu';
+import { LuFileArchive, LuFlagTriangleRight, LuWrench } from 'react-icons/lu';
 
 import { GameCreateForumTopicButton } from '@/common/components/GameCreateForumTopicButton';
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
@@ -70,7 +70,8 @@ export const SidebarManagementSection: FC<SidebarManagementSectionProps> = ({ ga
         {can.manageGameHashes ? (
           <PlayableSidebarButton
             href={`/manage/games/${backingGame.id}/hashes`}
-            IconComponent={LuWrench}
+            target="_blank"
+            IconComponent={LuFileArchive}
             showSubsetIndicator={game.id !== backingGame.id}
           >
             {can.manageGameHashes && can.updateAnyAchievementSetClaim
@@ -82,7 +83,8 @@ export const SidebarManagementSection: FC<SidebarManagementSectionProps> = ({ ga
         {can.updateAnyAchievementSetClaim ? (
           <PlayableSidebarButton
             href={`/manageclaims.php?g=${backingGame.id}`}
-            IconComponent={LuWrench}
+            target="_blank"
+            IconComponent={LuFlagTriangleRight}
             showSubsetIndicator={game.id !== backingGame.id}
           >
             {can.manageGameHashes && can.updateAnyAchievementSetClaim
