@@ -1,3 +1,5 @@
+import { createAuthenticatedUserPreferences } from '@/common/models';
+
 import { createFactory } from '../createFactory';
 
 export const createUser = createFactory<App.Data.User>((faker) => {
@@ -12,10 +14,7 @@ export const createUser = createFactory<App.Data.User>((faker) => {
     avatarUrl: `http://media.retroachievements.org/UserPic/${displayName}.png`,
     id: faker.number.int({ min: 1, max: 1000000 }),
     legacyPermissions: faker.number.int({ min: 0, max: 4 }),
-    preferences: {
-      prefersAbsoluteDates: faker.datatype.boolean(),
-      shouldAlwaysBypassContentWarnings: faker.datatype.boolean(),
-    },
+    preferences: createAuthenticatedUserPreferences(),
     playerPreferredMode: 'hardcore',
     roles: [],
     unreadMessageCount: faker.number.int({ min: 0, max: 3 }),
