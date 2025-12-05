@@ -227,6 +227,20 @@ function submitTopicComment(
 
 function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTopicComment $newComment): void
 {
+    // TODO remove this when digest emails are ready
+    // These high-volume topics are blocked from sending email notifications entirely.
+    $blockedTopicIds = [
+        12108, // Peak Streak
+        29289, // AOTW 2025
+        29592, // RA Roulette 2025
+        32219, // Bounty Hunters Villains
+        33001, // RA-TALITY
+    ];
+    if (in_array($topic->id, $blockedTopicIds, strict: true)) {
+        return;
+    }
+    // ENDTODO
+
     $subscriptionService = new SubscriptionService();
     $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::ForumTopic, $topic->id)
         ->filter(fn ($s) => isset($s->EmailAddress) && BitSet($s->websitePrefs, UserPreference::EmailOn_ForumReply));
