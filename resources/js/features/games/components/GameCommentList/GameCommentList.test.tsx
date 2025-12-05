@@ -51,7 +51,7 @@ describe('Component: GameCommentList', () => {
     expect(screen.getByText(/second comment/i)).toBeVisible();
   });
 
-  it('given there are more than 20 comments, shows a link to view all comments', () => {
+  it('given there are more than 20 comments, shows a link to view recent comments', () => {
     // ARRANGE
     const game = createGame({ id: 123 });
     const comments = [createComment()];
