@@ -1,6 +1,7 @@
 import { type FC, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
+import { SubsetTag } from '@/common/components/SubsetTag';
 import { WeightedPointsContainer } from '@/common/components/WeightedPointsContainer';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { BASE_SET_LABEL } from '@/features/games/utils/baseSetLabel';
@@ -44,9 +45,7 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
               <span className="inline">
                 {type !== 'core' ? (
                   <>
-                    <span className="tag">
-                      <span>{t('Subset')}</span>
-                    </span>{' '}
+                    <SubsetTag type={type} className="mr-1.5 inline px-1.5 text-xs" />
                   </>
                 ) : null}
                 {title}

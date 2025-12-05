@@ -42,6 +42,7 @@
  *   string?    ReleasedAtGranularity  how precise the Released value is. possible values are "day", "month", "year", and null.
  *   int        IsFinal                deprecated, will always be 0
  *  string     RichPresenceMsg         activity information about the last game the user played
+ *  datetime   RichPresenceUpdated     when the RichPresenceMsg was last updated
  *  int        RecentlyPlayedCount     number of items in the RecentlyPlayed array
  *  array      RecentlyPlayed
  *   int        GameID                 unique identifier of the game
