@@ -4,7 +4,7 @@ import axios from 'axios';
 import { toast } from 'sonner';
 
 import i18n from '@/i18n-client';
-import { renderHook, screen, waitFor } from '@/test';
+import { __UNSAFE_VERY_DANGEROUS_SLEEP, renderHook, screen, waitFor } from '@/test';
 
 import { useAddOrRemoveFromUserGameList } from './useAddOrRemoveFromUserGameList';
 
@@ -16,9 +16,11 @@ describe('Hook: useAddOrRemoveFromUserGameList', () => {
     vi.clearAllTimers();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     // Clean up all active toasts after each test to prevent timers from running after teardown.
     toast.dismiss();
+    await __UNSAFE_VERY_DANGEROUS_SLEEP(100); // giver Sonner a chance to clean itself up
+
     vi.clearAllTimers();
   });
 
