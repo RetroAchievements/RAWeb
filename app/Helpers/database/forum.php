@@ -229,6 +229,7 @@ function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTop
 {
     // TODO remove this when digest emails are ready
     // These high-volume topics are blocked from sending email notifications entirely.
+    // We'll remove this TODO when digest emails are ready to go.
     $blockedTopicIds = [
         12108, // Peak Streak
         29289, // AOTW 2025
