@@ -201,6 +201,25 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
                     $foundGameSet->save();
                 }
             }
+
+            // Sync game achievement set titles when subset (backing) game titles change.
+            if ($originalTitle !== $freshGame->title && str_contains($freshGame->title, '[Subset -')) {
+                if (preg_match('/\[Subset\s*-\s*(.+?)\]/', $freshGame->title, $matches)) {
+                    $newSubsetTitle = trim($matches[1]);
+
+                    // Find this game's core achievement set.
+                    $foundCoreSet = GameAchievementSet::where('game_id', $freshGame->id)
+                        ->where('type', AchievementSetType::Core)
+                        ->first();
+
+                    if ($foundCoreSet) {
+                        // Find where this achievement set is attached as non-core to another game.
+                        GameAchievementSet::where('achievement_set_id', $foundCoreSet->achievement_set_id)
+                            ->where('type', '!=', AchievementSetType::Core)
+                            ->update(['title' => $newSubsetTitle]);
+                    }
+                }
+            }
         });
 
         static::pivotAttached(function ($model, $relationName, $pivotIds, $pivotIdsAttributes) {

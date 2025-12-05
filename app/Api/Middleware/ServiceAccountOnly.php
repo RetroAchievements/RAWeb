@@ -32,7 +32,7 @@ class ServiceAccountOnly
      */
     private function getAllowedUserIds(): array
     {
-        $configValue = config('internal-api.allowed_user_ids', '');
+        $configValue = config('api.internal.allowed_user_ids', '');
 
         if (empty($configValue)) {
             return [];
