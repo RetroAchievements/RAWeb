@@ -17,9 +17,6 @@ class AchievementSetPolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
-            Role::DEVELOPER,
-            // Juniors can see set management, but can't manipulate sets.
-            Role::DEVELOPER_JUNIOR,
         ]);
     }
 
@@ -37,8 +34,6 @@ class AchievementSetPolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
-            Role::DEVELOPER,
-            Role::DEVELOPER_JUNIOR,
         ]);
     }
 
@@ -46,7 +41,6 @@ class AchievementSetPolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
-            Role::DEVELOPER,
         ]);
     }
 
@@ -54,7 +48,6 @@ class AchievementSetPolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
-            Role::DEVELOPER,
         ]);
     }
 
@@ -62,7 +55,6 @@ class AchievementSetPolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
-            Role::DEVELOPER,
         ]);
     }
 
@@ -75,7 +67,6 @@ class AchievementSetPolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
-            Role::DEVELOPER,
         ]);
     }
 }

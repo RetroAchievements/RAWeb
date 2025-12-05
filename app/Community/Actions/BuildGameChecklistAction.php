@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Community\Actions;
 
 use App\Community\Data\GameGroupData;
+use App\Community\Enums\AwardType;
 use App\Models\Game;
+use App\Models\PlayerBadge;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Data\GameData;
@@ -63,6 +65,10 @@ class BuildGameChecklistAction
 
         $games = Game::whereIn('ID', $ids)->with('system')->get();
         $playerGames = PlayerGame::where('user_id', $user->id)->whereIn('game_id', $ids)->get();
+        $gameBadges = PlayerBadge::where('user_id', $user->id)
+            ->whereIn('AwardType', [AwardType::Mastery, AwardType::GameBeaten])
+            ->whereIn('AwardData', $ids)
+            ->get();
 
         $result = [];
         foreach ($groups as $group) {
@@ -81,12 +87,34 @@ class BuildGameChecklistAction
                             $masteredCount++;
                         } elseif ($playerGame->completed_at) {
                             $completedCount++;
+                        } else {
+                            $gameBadge = $gameBadges->filter(fn ($gb) => $gb->AwardData === $gameId && $gb->AwardType === AwardType::Mastery)->first();
+                            if ($gameBadge) {
+                                if ($gameBadge->AwardDataExtra) {
+                                    $masteredCount++;
+                                    $playerGame->completed_hardcore_at = $gameBadge->AwardDate;
+                                } else {
+                                    $completedCount++;
+                                    $playerGame->completed_at = $gameBadge->AwardDate;
+                                }
+                            }
                         }
 
                         if ($playerGame->beaten_hardcore_at) {
                             $beatenCount++;
                         } elseif ($playerGame->beaten_at) {
                             $beatenSoftcoreCount++;
+                        } else {
+                            $gameBadge = $gameBadges->filter(fn ($gb) => $gb->AwardData === $gameId && $gb->AwardType === AwardType::GameBeaten)->first();
+                            if ($gameBadge) {
+                                if ($gameBadge->AwardDataExtra) {
+                                    $beatenCount++;
+                                    $playerGame->beaten_hardcore_at = $gameBadge->AwardDate;
+                                } else {
+                                    $beatenSoftcoreCount++;
+                                    $playerGame->beaten_at = $gameBadge->AwardDate;
+                                }
+                            }
                         }
                     }
 

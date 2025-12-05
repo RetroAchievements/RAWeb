@@ -36,6 +36,10 @@ class AchievementSetResource extends Resource
 
     protected static ?int $navigationSort = 52;
 
+    protected static bool $shouldRegisterNavigation = false;
+
+    protected static bool $isGloballySearchable = false;
+
     public static function infolist(Schema $schema): Schema
     {
         return $schema
@@ -238,7 +242,6 @@ class AchievementSetResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\Index::route('/'),
             'view' => Pages\Details::route('/{record}'),
             'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),
         ];
