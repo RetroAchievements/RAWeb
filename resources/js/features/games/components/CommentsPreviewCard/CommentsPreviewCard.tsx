@@ -49,15 +49,12 @@ export const CommentsPreviewCard: FC = () => {
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
+    <div
       className={cn(
         'flex w-full flex-col gap-3 rounded-lg bg-neutral-950 p-4',
         'text-left transition hover:border-neutral-600',
         'light:border light:border-neutral-300 light:bg-white light:hover:border-neutral-400',
       )}
-      aria-label={t('View recent comments')}
     >
       {/* Avatars and comment count */}
       <div className="flex items-center justify-between gap-3">
@@ -90,11 +87,10 @@ export const CommentsPreviewCard: FC = () => {
         </div>
       </div>
 
-      {/* CTA that looks like a link */}
-      <div className="flex items-center gap-1 text-xs text-link">
+      <button className="flex items-center gap-1 text-xs text-link" onClick={handleClick}>
         <span>{t('View recent comments')}</span>
         <LuChevronRight className="size-4" />
-      </div>
-    </button>
+      </button>
+    </div>
   );
 };
