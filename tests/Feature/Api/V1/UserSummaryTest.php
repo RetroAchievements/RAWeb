@@ -113,6 +113,10 @@ class UserSummaryTest extends TestCase
 
     public function testGetUserSummary(): void
     {
+        // Freeze time.
+        $now = Carbon::now();
+        Carbon::setTestNow($now);
+
         $game = $this->seedGame(achievements: 3);
         $game->fill([
             'ForumTopicID' => 222334,
