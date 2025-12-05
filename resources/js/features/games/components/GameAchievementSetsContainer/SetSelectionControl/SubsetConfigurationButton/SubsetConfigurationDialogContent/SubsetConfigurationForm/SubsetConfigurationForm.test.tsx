@@ -168,9 +168,9 @@ describe('Component: SubsetConfigurationForm', () => {
     expect(switches[1]).toBeChecked();
   });
 
-  it('given the user is globally opted out, unconfigured sets default to opted out', () => {
+  it('given the user is globally opted out, unconfigured non-core sets default to opted out', () => {
     // ARRANGE
-    const sets = [createGameAchievementSet({ id: 1, title: 'Bonus Set' })];
+    const sets = [createGameAchievementSet({ id: 1, title: 'Bonus Set', type: 'bonus' })];
 
     render(<SubsetConfigurationForm configurableSets={sets} onSubmitSuccess={vi.fn()} />, {
       pageProps: {
@@ -192,9 +192,9 @@ describe('Component: SubsetConfigurationForm', () => {
     expect(switches[0]).not.toBeChecked();
   });
 
-  it('given the user is globally opted in, unconfigured sets default to opted in', () => {
+  it('given the user is globally opted in, unconfigured non-core sets default to opted in', () => {
     // ARRANGE
-    const sets = [createGameAchievementSet({ id: 1, title: 'Bonus Set' })];
+    const sets = [createGameAchievementSet({ id: 1, title: 'Bonus Set', type: 'bonus' })];
 
     render(<SubsetConfigurationForm configurableSets={sets} onSubmitSuccess={vi.fn()} />, {
       pageProps: {
@@ -202,6 +202,30 @@ describe('Component: SubsetConfigurationForm', () => {
           user: createAuthenticatedUser({
             preferences: createAuthenticatedUserPreferences({
               isGloballyOptedOutOfSubsets: false, // !!
+              prefersAbsoluteDates: false,
+              shouldAlwaysBypassContentWarnings: false,
+            }),
+          }),
+        },
+        userGameAchievementSetPreferences: {},
+      },
+    });
+
+    // ASSERT
+    const switches = screen.getAllByRole('switch');
+    expect(switches[0]).toBeChecked();
+  });
+
+  it('given the user is globally opted out, core sets still default to opted in', () => {
+    // ARRANGE
+    const sets = [createGameAchievementSet({ id: 1, title: null, type: 'core' })];
+
+    render(<SubsetConfigurationForm configurableSets={sets} onSubmitSuccess={vi.fn()} />, {
+      pageProps: {
+        auth: {
+          user: createAuthenticatedUser({
+            preferences: createAuthenticatedUserPreferences({
+              isGloballyOptedOutOfSubsets: true, // !!
               prefersAbsoluteDates: false,
               shouldAlwaysBypassContentWarnings: false,
             }),

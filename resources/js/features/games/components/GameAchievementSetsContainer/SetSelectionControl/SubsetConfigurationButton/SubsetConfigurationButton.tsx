@@ -15,7 +15,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { SubsetConfigurationDialogContent } from './SubsetConfigurationDialogContent';
 
 export const SubsetConfigurationButton: FC = () => {
-  const { auth, game, selectableGameAchievementSets, userGameAchievementSetPreferences } =
+  const { auth, game, selectableGameAchievementSets } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
@@ -36,11 +36,6 @@ export const SubsetConfigurationButton: FC = () => {
   }
 
   const handleClick = () => {
-    // It's a deferred prop.
-    if (userGameAchievementSetPreferences === undefined) {
-      return;
-    }
-
     setIsDialogOpen(true);
   };
 

@@ -42,7 +42,7 @@ export function useSubsetConfigurationForm({
      */
     defaultValues: buildDefaultValues(
       configurableSets,
-      userGameAchievementSetPreferences!,
+      userGameAchievementSetPreferences,
       isGloballyOptedOut,
     ),
   });
@@ -55,8 +55,11 @@ export function useSubsetConfigurationForm({
     // In the request payload, we only want to include values that have actually changed.
     for (const set of configurableSets) {
       const formValue = formValues.preferences[String(set.id)];
-      const existingPreference = userGameAchievementSetPreferences![set.id];
-      const defaultValue = !isGloballyOptedOut;
+      const existingPreference = userGameAchievementSetPreferences[set.id];
+
+      // Core sets always default to opted in.
+      const isCoreSet = set.type === 'core';
+      const defaultValue = isCoreSet ? true : !isGloballyOptedOut;
 
       const hasChanged = existingPreference
         ? existingPreference.optedIn !== formValue
@@ -100,13 +103,14 @@ function buildDefaultValues(
     const preference = userPreferences[set.id];
 
     if (preference) {
-      // The user has a local preference. use it.
+      // The user has a local preference. Use it.
       defaultValues.preferences[String(set.id)] = preference.optedIn;
     } else {
       // The user doesn't have a local preference.
-      // If they're globally opted out, default to opted out (false).
-      // If they're globally opted in, default to opted in (true).
-      defaultValues.preferences[String(set.id)] = !isGloballyOptedOut;
+      // Core sets are always opted in by default (which matches our back-end behavior).
+      // Non-core sets follow the global preference.
+      const isCoreSet = set.type === 'core';
+      defaultValues.preferences[String(set.id)] = isCoreSet ? true : !isGloballyOptedOut;
     }
   }
 

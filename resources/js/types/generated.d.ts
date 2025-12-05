@@ -880,7 +880,7 @@ declare namespace App.Platform.Data {
     targetAchievementSetId: number | null;
     targetAchievementSetPlayersTotal: number | null;
     targetAchievementSetPlayersHardcore: number | null;
-    userGameAchievementSetPreferences?: Array<App.Platform.Data.UserGameAchievementSetPreference>;
+    userGameAchievementSetPreferences: Array<App.Platform.Data.UserGameAchievementSetPreference>;
   };
   export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;

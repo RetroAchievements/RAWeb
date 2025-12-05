@@ -419,7 +419,7 @@ class BuildGameShowPagePropsAction
                 ->values()
                 ->all(),
 
-            userGameAchievementSetPreferences: Lazy::inertiaDeferred(fn () => $this->buildUserAchievementSetPreferences($game, $user)),
+            userGameAchievementSetPreferences: $this->buildUserAchievementSetPreferences($game, $user),
         );
 
         // Only include featured leaderboards for non-mobile devices.

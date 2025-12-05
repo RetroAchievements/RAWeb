@@ -219,30 +219,6 @@ describe('Component: SubsetConfigurationButton', () => {
     expect(screen.queryByText('Future Bonus')).not.toBeInTheDocument();
   });
 
-  it('given userGameAchievementSetPreferences is still loading, clicking the button does nothing', async () => {
-    // ARRANGE
-    const game = createGame();
-    const selectableGameAchievementSets = [
-      createGameAchievementSet({ type: 'core' }),
-      createGameAchievementSet({ type: 'bonus' }),
-    ];
-
-    render(<SubsetConfigurationButton />, {
-      pageProps: {
-        game,
-        auth: { user: createAuthenticatedUser() },
-        selectableGameAchievementSets,
-        userGameAchievementSetPreferences: undefined, // !! it's a deferred prop
-      },
-    });
-
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: /subset configuration/i }));
-
-    // ASSERT
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
   it('given all non-core sets are will_be_* types, does not render the button', () => {
     // ARRANGE
     const game = createGame();
