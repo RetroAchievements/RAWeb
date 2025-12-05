@@ -1,15 +1,11 @@
 <?php
 
-use App\Community\Enums\ArticleType;
 use App\Enums\ClientSupportLevel;
-use App\Enums\Permissions;
-use App\Models\GameAchievementSet;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\User;
 use App\Platform\Actions\ResumePlayerSessionAction;
-use App\Platform\Actions\UpsertTriggerVersionAction;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;

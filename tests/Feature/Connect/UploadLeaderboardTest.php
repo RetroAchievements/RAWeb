@@ -102,6 +102,7 @@ class UploadLeaderboardTest extends TestCase
         $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->Mem);
         $this->assertEquals(true, $leaderboard1->LowerIsBetter);
         $this->assertEquals('VALUE', $leaderboard1->Format);
+        $this->assertEquals(1, $leaderboard1->DisplayOrder);
 
         // ----------------------------
         // second new leaderboard for valid game
@@ -128,6 +129,7 @@ class UploadLeaderboardTest extends TestCase
         $this->assertEquals('STA:5=0::CAN:7=0::SUB:6=0::VAL:8=0', $leaderboard2->Mem);
         $this->assertEquals(false, $leaderboard2->LowerIsBetter);
         $this->assertEquals('SCORE', $leaderboard2->Format);
+        $this->assertEquals(2, $leaderboard2->DisplayOrder);
 
         // ----------------------------
         // update first leaderboard title
@@ -155,6 +157,7 @@ class UploadLeaderboardTest extends TestCase
         $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->Mem);
         $this->assertEquals(true, $leaderboard1->LowerIsBetter);
         $this->assertEquals('VALUE', $leaderboard1->Format);
+        $this->assertEquals(1, $leaderboard1->DisplayOrder);
         $this->assertAuditComment(ArticleType::Leaderboard, $leaderboard1->id,
             "{$this->user->display_name} edited this leaderboard's title.");
 
@@ -184,6 +187,7 @@ class UploadLeaderboardTest extends TestCase
         $this->assertEquals('STA:11=0::CAN:13=0::SUB:12=0::VAL:14=0', $leaderboard2->Mem);
         $this->assertEquals(true, $leaderboard2->LowerIsBetter);
         $this->assertEquals('TIMESECS', $leaderboard2->Format);
+        $this->assertEquals(2, $leaderboard2->DisplayOrder);
         $this->assertAuditComment(ArticleType::Leaderboard, $leaderboard2->id,
             "{$this->user->display_name} edited this leaderboard's title, description, format, order, logic.");
 
@@ -283,6 +287,8 @@ class UploadLeaderboardTest extends TestCase
         $this->assertEquals('STA:15=0::CAN:17=0::SUB:16=0::VAL:18=0', $leaderboard3->Mem);
         $this->assertEquals(true, $leaderboard3->LowerIsBetter);
         $this->assertEquals('UNSIGNED', $leaderboard3->Format);
+        $this->assertEquals($game->id, $leaderboard3->GameID);
+        $this->assertEquals(3, $leaderboard3->DisplayOrder);
     }
 
     public function testUploadLeaderboardJuniorDeveloper(): void

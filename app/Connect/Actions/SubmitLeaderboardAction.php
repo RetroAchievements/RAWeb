@@ -38,7 +38,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
         string $startTrigger, string $submitTrigger, string $cancelTrigger,
         string $valueDefinition, bool $lowerIsBetter, string $format): array
     {
-        if (!$leaderboardId && !$gameId && !$achievemnetSetId) {
+        if (!$leaderboardId && !$gameId && !$achievementSetId) {
             return $this->missingParameters();
         }
 
@@ -216,7 +216,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
             return $this->invalidParameter('Unknown format: ' . $this->format);
         }
 
-        $maxDisplayOrder = Leaderboard::where('GameID')->max('DisplayOrder') ?? 0;
+        $maxDisplayOrder = Leaderboard::where('GameID', $game->ID)->max('DisplayOrder') ?? 0;
 
         $leaderboard = Leaderboard::create([
             'GameID' => $this->gameId,
