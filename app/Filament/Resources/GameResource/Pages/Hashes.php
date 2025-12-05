@@ -12,8 +12,11 @@ use App\Models\Comment;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\User;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\Pages\ManageRelatedRecords;
+use Filament\Schemas;
 use Filament\Support\Enums\FontFamily;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -26,7 +29,7 @@ class Hashes extends ManageRelatedRecords
 
     protected static string $relationship = 'hashes';
 
-    protected static ?string $navigationIcon = 'fas-file-archive';
+    protected static string|BackedEnum|null $navigationIcon = 'fas-file-archive';
 
     public static function canAccess(array $arguments = []): bool
     {
@@ -82,26 +85,26 @@ class Hashes extends ManageRelatedRecords
 
             ])
             ->headerActions([
-                Tables\Actions\Action::make('view-comments')
+                Actions\Action::make('view-comments')
                     ->color($nonAutomatedCommentsCount > 0 ? 'info' : 'gray')
                     ->label("View Comments ({$nonAutomatedCommentsCount})")
                     ->url(route('game.hashes.comment.index', ['game' => $this->getOwnerRecord()->id])),
             ])
-            ->actions([
-                Tables\Actions\Action::make('audit-log')
+            ->recordActions([
+                Actions\Action::make('audit-log')
                     ->url(fn ($record) => GameHashResource::getUrl('audit-log', ['record' => $record]))
                     ->icon('fas-clock-rotate-left'),
 
-                Tables\Actions\EditAction::make()
+                Actions\EditAction::make()
                     ->modalHeading(fn (GameHash $record) => "Edit game hash {$record->md5}")
-                    ->form([
-                        Forms\Components\Section::make()
+                    ->schema([
+                        Schemas\Components\Section::make()
                             ->description("
                                 If you're not 100% sure of what you're doing, contact RAdmin and they'll help you out.
                             ")
                             ->icon('heroicon-c-exclamation-triangle')
                             ->schema([
-                                Forms\Components\Grid::make()
+                                Schemas\Components\Grid::make()
                                     ->columns(['xl' => 2])
                                     ->schema([
                                         Forms\Components\TextInput::make('name')
@@ -164,7 +167,7 @@ class Hashes extends ManageRelatedRecords
                             }),
                     ]),
 
-                Tables\Actions\Action::make('unlink')
+                Actions\Action::make('unlink')
                     ->label('Unlink hash')
                     ->icon('heroicon-s-trash')
                     ->color('danger')
@@ -220,7 +223,7 @@ class Hashes extends ManageRelatedRecords
                         return $user->can('forceDelete', $gameHash);
                     }),
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ])
             ->paginated(false);

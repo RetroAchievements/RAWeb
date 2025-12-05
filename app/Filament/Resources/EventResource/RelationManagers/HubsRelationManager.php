@@ -8,6 +8,9 @@ use App\Filament\Resources\HubResource;
 use App\Models\Event;
 use App\Models\GameSet;
 use App\Platform\Enums\GameSetType;
+use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -19,7 +22,7 @@ class HubsRelationManager extends RelationManager
 {
     protected static string $relationship = 'hubs';
     protected static ?string $title = 'Related Hubs';
-    protected static ?string $icon = 'fas-sitemap';
+    protected static string|BackedEnum|null $icon = 'fas-sitemap';
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
     {
@@ -65,9 +68,9 @@ class HubsRelationManager extends RelationManager
 
             ])
             ->headerActions([
-                Tables\Actions\Action::make('add')
+                Action::make('add')
                     ->label('Add related hubs')
-                    ->form([
+                    ->schema([
                         Forms\Components\Select::make('hub_ids')
                             ->label('Hubs')
                             ->multiple()
@@ -90,6 +93,12 @@ class HubsRelationManager extends RelationManager
                                     ->get()
                                     ->mapWithKeys(fn ($gameSet) => [$gameSet->id => "[{$gameSet->id} {$gameSet->title}]"]);
                             })
+                            ->getOptionLabelsUsing(function (array $values): array {
+                                return GameSet::whereIn('id', $values)
+                                    ->get()
+                                    ->mapWithKeys(fn ($gameSet) => [$gameSet->id => "[{$gameSet->id} {$gameSet->title}]"])
+                                    ->toArray();
+                            })
                             ->required(),
                     ])
                     ->modalHeading('Add event to related hub')
@@ -102,8 +111,8 @@ class HubsRelationManager extends RelationManager
                         }
                     }),
             ])
-            ->actions([
-                Tables\Actions\Action::make('remove')
+            ->recordActions([
+                Action::make('remove')
                     ->tooltip('Remove')
                     ->icon('heroicon-o-trash')
                     ->iconButton()
@@ -117,15 +126,15 @@ class HubsRelationManager extends RelationManager
                         $gameSetToDetach->games()->detach([$event->legacyGame->id]);
                     }),
 
-                Tables\Actions\Action::make('visit')
+                Action::make('visit')
                     ->tooltip('View on Site')
                     ->icon('heroicon-m-arrow-top-right-on-square')
                     ->iconButton()
                     ->url(fn (GameSet $record): string => route('hub.show', $record))
                     ->openUrlInNewTab(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkAction::make('remove')
+            ->toolbarActions([
+                BulkAction::make('remove')
                     ->label('Remove selected')
                     ->modalHeading('Remove selected events from hub')
                     ->modalDescription('Are you sure you would like to do this?')

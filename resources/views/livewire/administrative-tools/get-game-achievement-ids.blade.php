@@ -5,7 +5,7 @@ use App\Models\Game;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Livewire\Volt\Component;
 
 new class extends Component implements HasForms {
@@ -27,9 +27,9 @@ new class extends Component implements HasForms {
         $this->dispatch('open-modal', id: 'achievement-ids-results');
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\Select::make('games')
                     ->label('Games')

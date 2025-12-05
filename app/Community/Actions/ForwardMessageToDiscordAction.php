@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Community\Actions;
 
 use App\Community\Data\ProcessedDiscordMessageData;
-use App\Community\Enums\DiscordReportableType;
+use App\Community\Enums\ModerationReportableType;
 use App\Models\DiscordMessageThreadMapping;
 use App\Models\Message;
 use App\Models\MessageThread;
 use App\Models\User;
+use App\Models\UserModerationReport;
 use App\Support\Shortcode\Shortcode;
 use GuzzleHttp\Client;
 
@@ -30,6 +31,9 @@ class ForwardMessageToDiscordAction
     private const COLOR_VERIFICATION = 0x00CC66;
     private const COLOR_MANUAL_UNLOCK = 0xCC0066;
 
+    /** Discord forum tag IDs */
+    private const DISCORD_TAG_MOD_REPORTS_OPEN = '1442949578629578882';
+
     private Client $client;
 
     public function __construct(?Client $client = null)
@@ -46,9 +50,21 @@ class ForwardMessageToDiscordAction
         User $userTo,
         MessageThread $messageThread,
         Message $message,
-        ?DiscordReportableType $reportableType = null,
-        ?int $reportableId = null,
+        ?int $moderationReportId = null,
     ): void {
+        // Load the moderation report if this is a report message.
+        $moderationReport = null;
+        $reportableType = null;
+        $reportableId = null;
+
+        if ($moderationReportId) {
+            $moderationReport = UserModerationReport::find($moderationReportId);
+            if ($moderationReport) {
+                $reportableType = ModerationReportableType::from($moderationReport->reportable_type);
+                $reportableId = $moderationReport->reportable_id;
+            }
+        }
+
         $inboxConfig = config('services.discord.inbox_webhook.' . $userTo->username);
 
         // Check if this is a reply from a team account to an existing Discord thread.
@@ -67,7 +83,8 @@ class ForwardMessageToDiscordAction
                 // This thread is already being tracked in Discord.
                 // Check if the sender (team account) has a webhook config.
                 $senderInboxConfig = config('services.discord.inbox_webhook.' . $userFrom->username);
-                if ($senderInboxConfig !== null && !empty($senderInboxConfig['url'] ?? null)) {
+
+                if ($senderInboxConfig !== null) {
                     // Forward the team's reply to the existing Discord thread.
                     $this->forwardTeamReplyToDiscord(
                         $senderInboxConfig,
@@ -146,10 +163,16 @@ class ForwardMessageToDiscordAction
             $color,
             $isForum,
             $isNewThread,
-            $reportableType
+            $moderationReportId
         );
 
         $messageThread->title = $processedData->threadTitle;
+
+        // Apply the "Open" tag to new report threads.
+        $appliedTags = [];
+        if ($moderationReportId !== null) {
+            $appliedTags[] = self::DISCORD_TAG_MOD_REPORTS_OPEN;
+        }
 
         $this->sendDiscordWebhooks(
             $processedData->webhookUrl,
@@ -160,8 +183,7 @@ class ForwardMessageToDiscordAction
             $processedData->color,
             $processedData->isForum,
             $existingThreadId,
-            $reportableType,
-            $reportableId
+            $appliedTags,
         );
     }
 
@@ -176,13 +198,13 @@ class ForwardMessageToDiscordAction
         int $color,
         bool $isForum,
         bool $isNewThread,
-        ?DiscordReportableType $reportableType = null,
+        ?int $moderationReportId = null,
     ): ProcessedDiscordMessageData {
         $messageTitle = mb_strtolower($messageThread->title);
         $threadTitle = $messageThread->title;
 
         // Detect report messages and route them to a special reports channel.
-        if ($reportableType !== null && !empty($inboxConfig['reports_url'] ?? null)) {
+        if ($moderationReportId !== null && !empty($inboxConfig['reports_url'] ?? null)) {
             $webhookUrl = $inboxConfig['reports_url'];
             $color = self::COLOR_DEFAULT;
             $isForum = true;
@@ -263,8 +285,7 @@ class ForwardMessageToDiscordAction
         int $color,
         bool $isForum,
         ?string $existingThreadId = null,
-        ?DiscordReportableType $reportableType = null,
-        ?int $reportableId = null,
+        array $appliedTags = [],
     ): void {
         if ($isForum) {
             $isNewThread = !$existingThreadId;
@@ -276,11 +297,18 @@ class ForwardMessageToDiscordAction
                 $messageThread,
                 $messageBody,
                 $color,
-                $reportableType,
-                $reportableId
+                $appliedTags,
             );
 
             if ($discordThreadId) {
+                // Always create a mapping for this message thread, whether the Discord
+                // thread is new or reused. This ensures replies to any report conversation
+                // get correctly forwarded to Discord.
+                DiscordMessageThreadMapping::storeMapping(
+                    $messageThread->id,
+                    $discordThreadId
+                );
+
                 $this->sendMessagesToDiscordThread(
                     $webhookUrl,
                     $discordThreadId,
@@ -316,8 +344,7 @@ class ForwardMessageToDiscordAction
     }
 
     /**
-     * Create a new Discord thread and store the mapping.
-     * The mapping is used so we know where to attach replies to.
+     * Create a new Discord forum thread.
      */
     private function createDiscordThread(
         string $webhookUrl,
@@ -326,8 +353,7 @@ class ForwardMessageToDiscordAction
         MessageThread $messageThread,
         string $messageBody,
         int $color,
-        ?DiscordReportableType $reportableType = null,
-        ?int $reportableId = null,
+        array $appliedTags = [],
     ): ?string {
         $isLongMessage = mb_strlen($messageBody) > self::DISCORD_EMBED_DESCRIPTION_LIMIT;
         $firstChunk = $isLongMessage
@@ -344,6 +370,10 @@ class ForwardMessageToDiscordAction
         );
         $payload['thread_name'] = mb_substr($messageThread->title, 0, self::DISCORD_THREAD_NAME_LIMIT);
 
+        if (!empty($appliedTags)) {
+            $payload['applied_tags'] = $appliedTags;
+        }
+
         if ($isLongMessage) {
             $totalParts = count(mb_str_split($messageBody, self::DISCORD_EMBED_DESCRIPTION_LIMIT));
             $payload['content'] = "[Part 1 of {$totalParts}]";
@@ -352,27 +382,8 @@ class ForwardMessageToDiscordAction
         // wait=true is required for Discord to give us the thread ID in the response.
         $response = $this->client->post($webhookUrl . '?wait=true', ['json' => $payload]);
         $responseData = json_decode($response->getBody()->getContents(), true);
-        $threadId = $responseData['channel_id'] ?? null;
 
-        if ($threadId) {
-            // If this is a report, store the report mapping.
-            // Otherwise, we can just restore a regular mapping.
-            if ($reportableType && $reportableId) {
-                DiscordMessageThreadMapping::storeReportMapping(
-                    $reportableType,
-                    $reportableId,
-                    $threadId,
-                    $messageThread->id
-                );
-            } else {
-                DiscordMessageThreadMapping::storeMapping(
-                    $messageThread->id,
-                    $threadId
-                );
-            }
-        }
-
-        return $threadId;
+        return $responseData['channel_id'] ?? null;
     }
 
     /**
@@ -529,7 +540,26 @@ class ForwardMessageToDiscordAction
         MessageThread $messageThread,
         Message $message,
     ): void {
-        $webhookUrl = $senderInboxConfig['url'];
+        // Check if this thread is associated with a moderation report.
+        // If so, we need to use reports_url to post to the reports forum.
+        $isReportThread = UserModerationReport::where('message_thread_id', $messageThread->id)->exists();
+
+        $webhookUrl = '';
+        if ($isReportThread && !empty($senderInboxConfig['reports_url'])) {
+            $webhookUrl = $senderInboxConfig['reports_url'];
+        } else {
+            foreach (['url', 'reports_url', 'verify_url', 'manual_unlock_url'] as $key) {
+                if (!empty($senderInboxConfig[$key])) {
+                    $webhookUrl = $senderInboxConfig[$key];
+                    break;
+                }
+            }
+        }
+
+        if (empty($webhookUrl)) {
+            return;
+        }
+
         $fullBody = Shortcode::convertToMarkdown($message->body, self::MESSAGE_BODY_MAX_LENGTH, preserveWhitespace: true);
 
         if (empty($fullBody)) {

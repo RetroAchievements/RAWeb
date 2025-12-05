@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Requests;
 
-use App\Community\Enums\DiscordReportableType;
+use App\Community\Enums\ModerationReportableType;
 use App\Support\Rules\ContainsRegularCharacter;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -26,7 +26,7 @@ class MessageRequest extends FormRequest
             'senderUserDisplayName' => 'sometimes|string|exists:UserAccounts,display_name',
             'rType' => [
                 'nullable',
-                Rule::enum(DiscordReportableType::class),
+                Rule::enum(ModerationReportableType::class),
             ],
             'rId' => 'nullable|integer',
         ];

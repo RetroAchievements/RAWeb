@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Community\Events;
 
-use App\Community\Enums\DiscordReportableType;
 use App\Models\Message;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -19,8 +18,7 @@ class MessageCreated
 
     public function __construct(
         public Message $message,
-        public ?DiscordReportableType $reportableType = null,
-        public ?int $reportableId = null,
+        public ?int $moderationReportId = null,
     ) {
     }
 

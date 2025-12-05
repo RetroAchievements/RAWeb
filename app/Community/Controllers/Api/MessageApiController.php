@@ -6,7 +6,7 @@ namespace App\Community\Controllers\Api;
 
 use App\Community\Actions\AddToMessageThreadAction;
 use App\Community\Actions\CreateMessageThreadAction;
-use App\Community\Enums\DiscordReportableType;
+use App\Community\Enums\ModerationReportableType;
 use App\Community\Requests\MessageRequest;
 use App\Http\Controller;
 use App\Models\Message;
@@ -34,7 +34,7 @@ class MessageApiController extends Controller
         $authorId = $user->id;
 
         // Extract reportable metadata if it's present.
-        $reportableType = isset($input['rType']) ? DiscordReportableType::from($input['rType']) : null;
+        $reportableType = isset($input['rType']) ? ModerationReportableType::from($input['rType']) : null;
         $reportableId = $input['rId'] ?? null;
 
         $thread = null;
