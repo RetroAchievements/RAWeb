@@ -5,6 +5,7 @@ import { SubsetTag } from '@/common/components/SubsetTag';
 import { WeightedPointsContainer } from '@/common/components/WeightedPointsContainer';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { BASE_SET_LABEL } from '@/features/games/utils/baseSetLabel';
+import { getAchievementSetPointsStats } from '@/features/games/utils/getAchievementSetPointsStats';
 
 import { GameAchievementSetProgress } from '../GameAchievementSetProgress';
 import { SetRarityLabel } from '../SetRarityLabel';
@@ -24,7 +25,7 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
   const { achievements, imageAssetPathUrl } = achievementSet;
 
   const { pointsTotal, pointsWeighted } = useMemo(
-    () => getAchievementStats(achievements),
+    () => getAchievementSetPointsStats(achievements),
     [achievements],
   );
 
@@ -138,23 +139,3 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
     </div>
   );
 };
-
-function getAchievementStats(achievements: App.Platform.Data.Achievement[]): {
-  pointsTotal: number;
-  pointsWeighted: number;
-} {
-  const stats = {
-    pointsTotal: 0,
-    pointsWeighted: 0,
-  };
-
-  for (const achievement of achievements) {
-    const achievementPoints = achievement.points as number;
-    const achievementPointsWeighted = achievement.pointsWeighted as number;
-
-    stats.pointsTotal += achievementPoints;
-    stats.pointsWeighted += achievementPointsWeighted;
-  }
-
-  return stats;
-}
