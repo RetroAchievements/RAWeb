@@ -11,7 +11,11 @@ class JsonResponse
 {
     public function handle(Request $request, Closure $next): mixed
     {
-        $request->headers->set('Accept', 'application/json');
+        // Don't override the Accept header for JSON:API routes.
+        // JSON:API requires Accept: application/vnd.api+json
+        if (!str_starts_with($request->path(), 'api/v2/')) {
+            $request->headers->set('Accept', 'application/json');
+        }
 
         return $next($request);
     }
