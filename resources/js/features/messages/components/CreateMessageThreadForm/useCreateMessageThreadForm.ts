@@ -20,6 +20,8 @@ type FormValues = z.infer<typeof formSchema>;
 export function useCreateMessageThreadForm(
   defaultValues: Partial<FormValues>,
   senderUserDisplayName: string,
+  reportableType?: App.Community.Enums.ModerationReportableType | null,
+  reportableId?: number | null,
 ) {
   const { t } = useTranslation();
 
@@ -40,6 +42,7 @@ export function useCreateMessageThreadForm(
       ...formValues,
       senderUserDisplayName,
       body: preProcessShortcodesInBody(formValues.body),
+      ...(reportableType && reportableId ? { rType: reportableType, rId: reportableId } : {}),
     };
 
     await toastMessage.promise(mutation.mutateAsync({ payload: normalizedPayload }), {

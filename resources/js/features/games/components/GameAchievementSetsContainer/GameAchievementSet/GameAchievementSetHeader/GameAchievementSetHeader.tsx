@@ -1,6 +1,7 @@
 import { type FC, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
+import { SubsetTag } from '@/common/components/SubsetTag';
 import { WeightedPointsContainer } from '@/common/components/WeightedPointsContainer';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { BASE_SET_LABEL } from '@/features/games/utils/baseSetLabel';
@@ -19,7 +20,7 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
   const { isViewingPublishedAchievements } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
-  const { achievementSet, title } = gameAchievementSet;
+  const { achievementSet, title, type } = gameAchievementSet;
   const { achievements, imageAssetPathUrl } = achievementSet;
 
   const { pointsTotal, pointsWeighted } = useMemo(
@@ -40,7 +41,18 @@ export const GameAchievementSetHeader: FC<GameAchievementSetHeaderProps> = ({
 
         <div className="flex w-full items-center justify-between">
           <div className="flex flex-col items-start gap-0">
-            <span>{title ?? BASE_SET_LABEL}</span>
+            {title ? (
+              <span className="inline">
+                {type !== 'core' ? (
+                  <>
+                    <SubsetTag type={type} className="mr-1.5 inline px-1.5 text-xs" />
+                  </>
+                ) : null}
+                {title}
+              </span>
+            ) : (
+              <span>{BASE_SET_LABEL}</span>
+            )}
 
             {isViewingPublishedAchievements ? (
               <>

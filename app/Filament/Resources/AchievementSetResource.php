@@ -12,32 +12,39 @@ use App\Filament\Resources\AchievementSetResource\RelationManagers\GameHashesRel
 use App\Models\AchievementSet;
 use App\Models\GameAchievementSet;
 use App\Platform\Enums\AchievementSetType;
-use Filament\Forms\Form;
+use BackedEnum;
+use Filament\Actions\EditAction;
 use Filament\Infolists;
-use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use UnitEnum;
 
 class AchievementSetResource extends Resource
 {
     protected static ?string $model = AchievementSet::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationLabel = 'Sets';
 
-    protected static ?string $navigationGroup = 'Platform';
+    protected static string|UnitEnum|null $navigationGroup = 'Platform';
 
     protected static ?int $navigationSort = 52;
 
-    public static function infolist(Infolist $infolist): Infolist
+    protected static bool $shouldRegisterNavigation = false;
+
+    protected static bool $isGloballySearchable = false;
+
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                Infolists\Components\Section::make('Primary Details')
+        return $schema
+            ->components([
+                Schemas\Components\Section::make('Primary Details')
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
@@ -45,14 +52,14 @@ class AchievementSetResource extends Resource
                             ->label('ID'),
                     ]),
 
-                Infolists\Components\Section::make('Metrics')
+                Schemas\Components\Section::make('Metrics')
                     ->icon('heroicon-s-arrow-trending-up')
                     ->description("
                         Statistics regarding the set's players and achievements can be found here.
                     ")
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\Fieldset::make('Players')
+                        Schemas\Components\Fieldset::make('Players')
                             ->schema([
                                 Infolists\Components\TextEntry::make('players_total')
                                     ->label('Total')
@@ -65,7 +72,7 @@ class AchievementSetResource extends Resource
                             ->columns(2)
                             ->columnSpan(['md' => 2, 'xl' => 1, '2xl' => 1]),
 
-                        Infolists\Components\Fieldset::make('Achievements')
+                        Schemas\Components\Fieldset::make('Achievements')
                             ->schema([
                                 Infolists\Components\TextEntry::make('achievements_published')
                                     ->label('Published')
@@ -78,7 +85,7 @@ class AchievementSetResource extends Resource
                             ->columns(2)
                             ->columnSpan(['md' => 2, 'xl' => 1, '2xl' => 1]),
 
-                        Infolists\Components\Fieldset::make('Score')
+                        Schemas\Components\Fieldset::make('Score')
                             ->schema([
                                 Infolists\Components\TextEntry::make('points_total')
                                     ->label('Points')
@@ -94,10 +101,10 @@ class AchievementSetResource extends Resource
             ]);
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
 
             ]);
     }
@@ -184,11 +191,11 @@ class AchievementSetResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('points_total')
-                ->label('Points')
-                ->numeric()
-                ->sortable()
-                ->alignEnd()
-                ->toggleable(),
+                    ->label('Points')
+                    ->numeric()
+                    ->sortable()
+                    ->alignEnd()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('points_weighted')
                     ->label('RetroPoints')
@@ -200,10 +207,10 @@ class AchievementSetResource extends Resource
             ->filters([
 
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ])
             ->searchPlaceholder('Search (Game ID, Title)');
@@ -235,7 +242,6 @@ class AchievementSetResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\Index::route('/'),
             'view' => Pages\Details::route('/{record}'),
             'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),
         ];

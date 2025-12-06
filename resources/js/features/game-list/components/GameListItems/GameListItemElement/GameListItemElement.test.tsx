@@ -178,7 +178,7 @@ describe('Component: GameListItemElement', () => {
     expect(screen.queryByRole('separator')).not.toBeInTheDocument();
   });
 
-  it('given the user clicks the open game details button, pops a drawer', async () => {
+  it('given the user clicks the open game details button, pops a dialog', async () => {
     // ARRANGE
     const system = createSystem({ id: 1, nameShort: 'MD' });
     const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
@@ -197,7 +197,7 @@ describe('Component: GameListItemElement', () => {
     expect(await screen.findByText('Game Details')).toBeVisible();
   });
 
-  it('the game details drawer contains a backlog toggle button and an open game button', async () => {
+  it('the game details dialog contains a backlog toggle button and an open game button', async () => {
     // ARRANGE
     const system = createSystem({ id: 1, nameShort: 'MD' });
     const game = createGame({ system, id: 1, title: 'Sonic the Hedgehog' });
@@ -357,8 +357,8 @@ describe('Component: GameListItemElement', () => {
       - the game is NOT on the user's backlog
     
     when:
-      - the user opens the drawer
-      - the user toggles the backlog item from the drawer
+      - the user opens the dialog
+      - the user toggles the backlog item from the dialog
 
     then:
       - the correct POST API call is made
@@ -382,9 +382,9 @@ describe('Component: GameListItemElement', () => {
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /open game details/i }));
 
-    const toggleButtonEl = await screen.findByTestId('drawer-backlog-toggle');
+    const toggleButtonEl = await screen.findByTestId('dialog-backlog-toggle');
 
-    // The drawer component does not play nicely with userEvent.click() for some reason.
+    // The dialog component does not play nicely with userEvent.click() for some reason.
     // To work around these, we have to reach for the lower-level `fireEvent.click()`.
     // This is generally not recommended.
     fireEvent.click(toggleButtonEl);
@@ -406,12 +406,12 @@ describe('Component: GameListItemElement', () => {
       - the game element should disappear when removed from the backlog
 
     when:
-      - the user opens the drawer
-      - the user toggles the backlog item from the drawer
+      - the user opens the dialog
+      - the user toggles the backlog item from the dialog
 
     then:
       - the correct DELETE API call is made
-      - the drawer automatically closes
+      - the dialog automatically closes
       - the game list item is no longer displayed
   `, async () => {
     // ARRANGE
@@ -434,9 +434,9 @@ describe('Component: GameListItemElement', () => {
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /open game details/i }));
 
-    const toggleButtonEl = await screen.findByTestId('drawer-backlog-toggle');
+    const toggleButtonEl = await screen.findByTestId('dialog-backlog-toggle');
 
-    // The drawer component does not play nicely with userEvent.click() for some reason.
+    // The dialog component does not play nicely with userEvent.click() for some reason.
     // To work around these, we have to reach for the lower-level `fireEvent.click()`.
     // This is generally not recommended.
     fireEvent.click(toggleButtonEl);
@@ -446,7 +446,7 @@ describe('Component: GameListItemElement', () => {
       expect(deleteSpy).toHaveBeenCalledOnce();
     });
 
-    expect(screen.queryByTestId('drawer-backlog-toggle')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('dialog-backlog-toggle')).not.toBeInTheDocument();
     expect(screen.queryByText(/md/i)).not.toBeInTheDocument();
 
     await waitFor(() => {

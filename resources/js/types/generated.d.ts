@@ -26,6 +26,7 @@ declare namespace App.Community.Data {
     updatedAt: string | null;
     user: App.Data.User;
     canDelete: boolean;
+    canReport: boolean;
     isAutomated: boolean;
   };
   export type DeveloperFeedPageProps<TItems = App.Community.Data.ActivePlayer> = {
@@ -101,6 +102,8 @@ declare namespace App.Community.Data {
     templateKind: App.Community.Enums.MessageThreadTemplateKind | null;
     senderUserAvatarUrl: string | null;
     senderUserDisplayName: string;
+    reportableType: App.Community.Enums.ModerationReportableType | null;
+    reportableId: number | null;
   };
   export type MessageThread = {
     id: number;
@@ -122,9 +125,11 @@ declare namespace App.Community.Data {
     messageThread: App.Community.Data.MessageThread;
     paginatedMessages: App.Data.PaginatedData<TItems>;
     dynamicEntities: App.Community.Data.ShortcodeDynamicEntities;
+    can: App.Data.UserPermissions;
     canReply: boolean;
     senderUserAvatarUrl: string | null;
     senderUserDisplayName: string;
+    can: App.Data.UserPermissions;
   };
   export type PatreonSupportersPageProps = {
     recentSupporters: Array<App.Data.User>;
@@ -154,6 +159,9 @@ declare namespace App.Community.Data {
     user: App.Data.User;
     unlockedAt: string;
     isHardcore: boolean;
+  };
+  export type RedirectPagePropsData = {
+    url: string;
   };
   export type ShortcodeDynamicEntities = {
     users: Array<App.Data.User>;
@@ -220,6 +228,11 @@ declare namespace App.Community.Enums {
     | 'misclassification'
     | 'unwelcome-concept'
     | 'writing-error';
+  export type ModerationReportableType =
+    | 'Comment'
+    | 'DirectMessage'
+    | 'ForumTopicComment'
+    | 'UserProfile';
   export type NewsCategory =
     | 'achievement-set'
     | 'community'
@@ -406,6 +419,7 @@ declare namespace App.Data {
     createGameComments?: boolean;
     createGameForumTopic?: boolean;
     createMessageThreads?: boolean;
+    createModerationReports?: boolean;
     createTriggerTicket?: boolean;
     createUserBetaFeedbackSubmission?: boolean;
     createUsernameChangeRequest?: boolean;
@@ -494,6 +508,9 @@ declare namespace App.Http.Data {
     persistedActivePlayersSearch: string | null;
     userCurrentGame: App.Platform.Data.Game | null;
     userCurrentGameMinutesAgo: number | null;
+    hasSiteReleaseNotes: boolean;
+    hasUnreadSiteReleaseNote: boolean;
+    deferredSiteReleaseNotes: Array<App.Data.News>;
   };
 }
 declare namespace App.Models {

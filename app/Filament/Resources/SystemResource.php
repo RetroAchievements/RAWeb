@@ -7,25 +7,34 @@ namespace App\Filament\Resources;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\SystemResource\Pages;
 use App\Models\System;
+use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Infolists;
-use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class SystemResource extends Resource
 {
     protected static ?string $model = System::class;
 
-    protected static ?string $navigationIcon = 'fas-computer';
+    protected static string|BackedEnum|null $navigationIcon = 'fas-computer';
 
-    protected static ?string $navigationGroup = 'Platform';
+    protected static string|UnitEnum|null $navigationGroup = 'Platform';
 
     protected static ?int $navigationSort = 20;
 
@@ -54,54 +63,52 @@ class SystemResource extends Resource
         return ['ID', 'name_full', 'name_short'];
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
+        return $schema
             ->columns(1)
-            ->schema([
-                Infolists\Components\Split::make([
-                    Infolists\Components\Section::make('Details')
+            ->components([
+                Schemas\Components\Flex::make([
+                    Schemas\Components\Section::make('Details')
                         ->columns(['xl' => 2, '2xl' => 2])
                         ->schema([
-                            Infolists\Components\Group::make()
+                            Schemas\Components\Group::make()
                                 ->schema([
                                     Infolists\Components\ImageEntry::make('icon_url')
                                         ->label('Icon')
                                         ->size(config('media.icon.lg.width')),
                                 ]),
-                            Infolists\Components\Group::make()
+                            Schemas\Components\Group::make()
                                 ->schema([
                                     Infolists\Components\TextEntry::make('Name')
                                         ->helperText('Used in menus and page titles. May include manufacturer for recognizability.'),
+
                                     Infolists\Components\TextEntry::make('name_short')
                                         ->label('Short name')
                                         ->helperText('Used in condensed lists and to determine icon image name.'),
+
                                     Infolists\Components\TextEntry::make('name_full')
                                         ->label('Full name')
                                         ->helperText('Manufacturer + name. Name might not include manufacturer.'),
+
                                     Infolists\Components\TextEntry::make('manufacturer')
                                         ->helperText('Manufacturer company name.'),
                                 ]),
-                            // Infolists\Components\Group::make()
-                            //     ->schema([
-                            //         Infolists\Components\TextEntry::make('canonical_url')
-                            //             ->label('Canonical URL')
-                            //             ->url(fn (System $record): string => $record->getCanonicalUrlAttribute()),
-                            //         Infolists\Components\TextEntry::make('permalink')
-                            //             ->url(fn (System $record): string => $record->getPermalinkAttribute()),
-                            //     ]),
                         ]),
-                    Infolists\Components\Section::make([
+                    Schemas\Components\Section::make([
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
+
                         Infolists\Components\TextEntry::make('Created')
                             ->label('Created at')
                             ->dateTime()
                             ->hidden(fn ($state) => !$state),
+
                         Infolists\Components\TextEntry::make('Updated')
                             ->label('Updated at')
                             ->dateTime()
                             ->hidden(fn ($state) => !$state),
+
                         Infolists\Components\IconEntry::make('active')
                             ->boolean(),
                     ])->grow(false),
@@ -109,32 +116,35 @@ class SystemResource extends Resource
             ]);
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->columns(1)
-            ->schema([
-                Forms\Components\Split::make([
-                    Forms\Components\Section::make()
+            ->components([
+                Schemas\Components\Flex::make([
+                    Schemas\Components\Section::make()
                         ->columns(2)
                         ->schema([
                             Forms\Components\TextInput::make('Name')
                                 ->helperText('Used in menus and page titles. May include manufacturer for recognizability.')
                                 ->required()
                                 ->maxLength(255),
+
                             Forms\Components\TextInput::make('name_short')
                                 ->label('Short name')
                                 ->helperText('Used in condensed lists and to determine icon image name.')
                                 ->maxLength(255),
+
                             Forms\Components\TextInput::make('manufacturer')
                                 ->helperText('Manufacturer company name.')
                                 ->maxLength(255),
+
                             Forms\Components\TextInput::make('name_full')
                                 ->label('Full name')
                                 ->helperText('Manufacturer + name. Name might not include manufacturer.')
                                 ->maxLength(255),
                         ]),
-                    Forms\Components\Section::make()
+                    Schemas\Components\Section::make()
                         ->grow(false)
                         ->schema([
                             Forms\Components\Toggle::make('active'),
@@ -150,39 +160,48 @@ class SystemResource extends Resource
                 Tables\Columns\ImageColumn::make('icon_url')
                     ->label('')
                     ->size(config('media.icon.sm.width')),
+
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
                     ->sortable()
                     ->searchable(),
+
                 Tables\Columns\TextColumn::make('name_full')
                     ->label('Full name')
                     ->description(fn (System $record): ?string => $record->name_short)
                     ->searchable()
                     ->sortable()
                     ->grow(true),
+
                 Tables\Columns\TextColumn::make('name_short')
                     ->label('Short name')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('manufacturer')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('Name')
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\IconColumn::make('active')
                     ->boolean()
                     ->default(false)
                     ->alignCenter(),
+
                 Tables\Columns\TextColumn::make('Created')
                     ->label('Created at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('Updated')
                     ->label('Updated at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
@@ -194,21 +213,22 @@ class SystemResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->deferFilters()
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ActionGroup::make([
-                        Tables\Actions\ViewAction::make(),
-                        Tables\Actions\EditAction::make(),
-                        Tables\Actions\DeleteAction::make(),
-                        Tables\Actions\RestoreAction::make(),
+            ->recordActions([
+                ActionGroup::make([
+                    ActionGroup::make([
+                        ViewAction::make(),
+                        EditAction::make(),
+                        DeleteAction::make(),
+                        RestoreAction::make(),
                     ])->dropdown(false),
-                    Tables\Actions\Action::make('audit-log')
+
+                    Action::make('audit-log')
                         ->url(fn ($record) => SystemResource::getUrl('audit-log', ['record' => $record]))
                         ->icon('fas-clock-rotate-left'),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+            ->toolbarActions([
+                BulkActionGroup::make([
                 ]),
             ]);
     }

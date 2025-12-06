@@ -5,7 +5,7 @@ import { MdClose } from 'react-icons/md';
 import { RxDotsVertical } from 'react-icons/rx';
 import { route, type RouteName } from 'ziggy-js';
 
-import { BaseDrawerTrigger } from '@/common/components/+vendor/BaseDrawer';
+import { BaseDialogTrigger } from '@/common/components/+vendor/BaseDialog';
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { GameTitle } from '@/common/components/GameTitle';
 import { InertiaLink } from '@/common/components/InertiaLink';
@@ -117,12 +117,12 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
             </span>
           </button>
 
-          <BaseDrawerTrigger asChild>
+          <BaseDialogTrigger asChild>
             <button className="p-3 text-neutral-100 light:text-neutral-950">
               <RxDotsVertical className="h-4 w-4" />
               <span className="sr-only">{t('Open game details')}</span>
             </button>
-          </BaseDrawerTrigger>
+          </BaseDialogTrigger>
         </div>
       </div>
 

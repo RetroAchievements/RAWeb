@@ -286,6 +286,21 @@ class UserPolicy
         return $this->requireAdministrativePrivileges($user, $model);
     }
 
+    public function createModerationReports(User $user): bool
+    {
+        // Unverified users and muted users cannot create reports.
+        if (!$user->isEmailVerified() || $user->isMuted()) {
+            return false;
+        }
+
+        // Fresh accounts cannot create reports.
+        if ($user->isFreshAccount()) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function viewDeveloperFeed(User $user, User $model): bool
     {
         if ($user->ContribCount === 0) {

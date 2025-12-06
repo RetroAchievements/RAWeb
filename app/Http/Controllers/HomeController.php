@@ -9,6 +9,7 @@ use App\Community\Actions\BuildThinRecentForumPostsDataAction;
 use App\Community\Actions\BuildTrendingGamesAction;
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimStatus;
+use App\Community\Enums\NewsCategory;
 use App\Data\StaticDataData;
 use App\Enums\Permissions;
 use App\Http\Actions\BuildAchievementOfTheWeekDataAction;
@@ -16,9 +17,12 @@ use App\Http\Actions\BuildCurrentlyOnlineDataAction;
 use App\Http\Actions\BuildHomePageClaimsDataAction;
 use App\Http\Actions\BuildMostRecentGameAwardDataAction;
 use App\Http\Actions\BuildNewsDataAction;
+use App\Http\Actions\BuildSiteReleaseNotesAction;
 use App\Http\Actions\BuildUserCurrentGameDataAction;
+use App\Http\Actions\CheckHasUnreadSiteReleaseNoteAction;
 use App\Http\Controller;
 use App\Http\Data\HomePagePropsData;
+use App\Models\News;
 use App\Models\StaticData;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -39,6 +43,8 @@ class HomeController extends Controller
         BuildHomePageClaimsDataAction $buildHomePageClaimsData,
         BuildThinRecentForumPostsDataAction $buildThinRecentForumPostsData,
         BuildUserCurrentGameDataAction $buildUserCurrentGameData,
+        BuildSiteReleaseNotesAction $buildSiteReleaseNotes,
+        CheckHasUnreadSiteReleaseNoteAction $checkHasUnreadSiteReleaseNote,
     ): InertiaResponse {
         /** @var ?User $user */
         $user = Auth::user();
@@ -64,6 +70,7 @@ class HomeController extends Controller
         );
 
         $userCurrentGameData = $buildUserCurrentGameData->execute($user);
+        $hasUnreadSiteReleaseNote = $checkHasUnreadSiteReleaseNote->execute($user);
 
         $props = new HomePagePropsData(
             staticData: $staticDataData,
@@ -80,6 +87,9 @@ class HomeController extends Controller
             persistedActivePlayersSearch: $persistedActivePlayersSearch,
             userCurrentGame: $userCurrentGameData[0] ?? null,
             userCurrentGameMinutesAgo: $userCurrentGameData[1] ?? null,
+            hasSiteReleaseNotes: News::where('category', NewsCategory::SiteReleaseNotes)->exists(),
+            hasUnreadSiteReleaseNote: $hasUnreadSiteReleaseNote,
+            deferredSiteReleaseNotes: Inertia::defer(fn () => $buildSiteReleaseNotes->execute()),
         );
 
         return Inertia::render('index', $props);

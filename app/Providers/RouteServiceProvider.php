@@ -87,11 +87,6 @@ class RouteServiceProvider extends ServiceProvider
             Octane::route('GET', '/octane', fn () => response('Octane'));
 
             /*
-             * redirects
-             */
-            Route::get('redirect', [RedirectController::class, 'redirect'])->name('redirect');
-
-            /*
              * user & permalinks
              */
             // Route::resource('user', UserController::class)->only('show');

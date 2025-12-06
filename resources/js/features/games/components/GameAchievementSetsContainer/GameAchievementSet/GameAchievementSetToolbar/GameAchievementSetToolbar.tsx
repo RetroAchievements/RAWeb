@@ -32,19 +32,16 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
   missableAchievementsCount,
   unlockedAchievementsCount,
 }) => {
-  const { auth, backingGame, numLeaderboards, ziggy } =
+  const { auth, backingGame, game, numLeaderboards, ziggy } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const { t } = useTranslation();
   const { formatNumber } = useFormatNumber();
 
-  const lockedOnlyCookie = usePersistedGameIdsCookie(
-    'hide_unlocked_achievements_games',
-    backingGame.id,
-  );
+  const lockedOnlyCookie = usePersistedGameIdsCookie('hide_unlocked_achievements_games', game.id);
   const missableOnlyCookie = usePersistedGameIdsCookie(
     'hide_nonmissable_achievements_games',
-    backingGame.id,
+    game.id,
   );
 
   const { currentPlayableListSort, setCurrentPlayableListSort } = useCurrentPlayableListSort();
@@ -127,8 +124,10 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
           buttonClassName="w-full sm:w-auto"
         />
 
-        {numLeaderboards > 0 && ziggy.device === 'mobile' ? (
-          <GameListViewSelectToggleGroup />
+        {numLeaderboards > 0 ? (
+          <div className={cn(ziggy.device !== 'mobile' && 'sm:hidden')}>
+            <GameListViewSelectToggleGroup />
+          </div>
         ) : null}
       </div>
 
@@ -173,7 +172,11 @@ export const GameAchievementSetToolbar: FC<GameAchievementSetToolbarProps> = ({
             </BaseToggle>
           ) : null}
 
-          {canShowDesktopViewToggle ? <GameListViewSelectToggleGroup /> : null}
+          {canShowDesktopViewToggle ? (
+            <div className="hidden sm:block">
+              <GameListViewSelectToggleGroup />
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>

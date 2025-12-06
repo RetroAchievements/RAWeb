@@ -18,6 +18,10 @@ use App\Console\Commands\PruneApiLogs;
 use App\Console\Commands\SquashMigrations;
 use App\Console\Commands\SystemAlert;
 use App\Http\InertiaResponseFactory;
+use App\Models\Comment;
+use App\Models\ForumTopicComment;
+use App\Models\Message;
+use App\Models\News;
 use App\Models\Role;
 use App\Models\User;
 use EragLaravelDisposableEmail\Rules\DisposableEmailRule;
@@ -74,6 +78,18 @@ class AppServiceProvider extends ServiceProvider
 
         Model::shouldBeStrict(!$this->app->isProduction());
 
+        // Filament v4: Preserve v3 behavior for layout components spanning full width.
+        \Filament\Schemas\Components\Fieldset::configureUsing(fn (\Filament\Schemas\Components\Fieldset $fieldset) => $fieldset
+            ->columnSpanFull());
+        \Filament\Schemas\Components\Grid::configureUsing(fn (\Filament\Schemas\Components\Grid $grid) => $grid
+            ->columnSpanFull());
+        \Filament\Schemas\Components\Section::configureUsing(fn (\Filament\Schemas\Components\Section $section) => $section
+            ->columnSpanFull());
+
+        // Filament v4: Preserve v3 behavior for unique() validation not ignoring current record by default.
+        \Filament\Forms\Components\Field::configureUsing(fn (\Filament\Forms\Components\Field $field) => $field
+            ->uniqueValidationIgnoresRecordByDefault(false));
+
         Pulse::user(fn (User $user) => [
             'name' => $user->User,
             'avatar' => $user->avatarUrl,
@@ -123,6 +139,13 @@ class AppServiceProvider extends ServiceProvider
          * https://josephsilber.com/posts/2018/07/02/eloquent-polymorphic-relations-morph-map
          */
         Relation::morphMap([
+            // ModerationReportableType values
+            'Comment' => Comment::class,
+            'DirectMessage' => Message::class,
+            'ForumTopicComment' => ForumTopicComment::class,
+
+            'news' => News::class,
+            'site_release_note' => News::class,
             'role' => Role::class,
             'user' => User::class,
         ]);

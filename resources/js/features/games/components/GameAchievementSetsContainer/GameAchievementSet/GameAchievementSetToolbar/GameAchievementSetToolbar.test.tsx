@@ -41,7 +41,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         missableAchievementsCount={3}
         unlockedAchievementsCount={0}
       />,
-      { pageProps: { backingGame: mockGame } },
+      { pageProps: { backingGame: mockGame, game: mockGame } },
     );
 
     // ASSERT
@@ -64,7 +64,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         missableAchievementsCount={0}
         unlockedAchievementsCount={1} // !!
       />,
-      { pageProps: { backingGame: mockGame } },
+      { pageProps: { backingGame: mockGame, game: mockGame } },
     );
 
     // ASSERT
@@ -87,7 +87,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         missableAchievementsCount={0}
         unlockedAchievementsCount={0} // !!
       />,
-      { pageProps: { backingGame: mockGame } },
+      { pageProps: { backingGame: mockGame, game: mockGame } },
     );
 
     // ASSERT
@@ -110,7 +110,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         missableAchievementsCount={3}
         unlockedAchievementsCount={0}
       />,
-      { pageProps: { backingGame: mockGame } },
+      { pageProps: { backingGame: mockGame, game: mockGame } },
     );
 
     // ASSERT
@@ -133,7 +133,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         missableAchievementsCount={7}
         unlockedAchievementsCount={0}
       />,
-      { pageProps: { backingGame: mockGame } },
+      { pageProps: { backingGame: mockGame, game: mockGame } },
     );
 
     // ASSERT
@@ -157,7 +157,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         missableAchievementsCount={0}
         unlockedAchievementsCount={0}
       />,
-      { pageProps: { backingGame: mockGame } },
+      { pageProps: { backingGame: mockGame, game: mockGame } },
     );
 
     // ASSERT
@@ -181,7 +181,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={1}
       />,
       {
-        pageProps: { backingGame: mockGame },
+        pageProps: { backingGame: mockGame, game: mockGame },
         jotaiAtoms: [
           [isLockedOnlyFilterEnabledAtom, false],
           //
@@ -213,7 +213,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={1}
       />,
       {
-        pageProps: { backingGame: mockGame },
+        pageProps: { backingGame: mockGame, game: mockGame },
         jotaiAtoms: [
           [isLockedOnlyFilterEnabledAtom, true],
           //
@@ -245,7 +245,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={1}
       />,
       {
-        pageProps: { backingGame: mockGame },
+        pageProps: { backingGame: mockGame, game: mockGame },
         jotaiAtoms: [
           [isMissableOnlyFilterEnabledAtom, false],
           //
@@ -277,7 +277,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={0}
       />,
       {
-        pageProps: { backingGame: mockGame },
+        pageProps: { backingGame: mockGame, game: mockGame },
         jotaiAtoms: [
           [isMissableOnlyFilterEnabledAtom, true],
           //
@@ -308,7 +308,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         missableAchievementsCount={5}
         unlockedAchievementsCount={1}
       />,
-      { pageProps: { backingGame: mockGame } },
+      { pageProps: { backingGame: mockGame, game: mockGame } },
     );
 
     // ASSERT
@@ -335,6 +335,7 @@ describe('Component: GameAchievementSetToolbar', () => {
       {
         pageProps: {
           backingGame: mockGame,
+          game: mockGame,
           numLeaderboards: 10, // !!
           ziggy: createZiggyProps(),
         },
@@ -342,8 +343,8 @@ describe('Component: GameAchievementSetToolbar', () => {
     );
 
     // ASSERT
-    expect(screen.getByRole('radio', { name: /achievements/i })).toBeVisible();
-    expect(screen.getByRole('radio', { name: /leaderboards/i })).toBeVisible();
+    expect(screen.getAllByRole('radio', { name: /achievements/i })[0]).toBeVisible();
+    expect(screen.getAllByRole('radio', { name: /leaderboards/i })[0]).toBeVisible();
   });
 
   it('given there are no leaderboards, does not show the display mode toggle group', () => {
@@ -365,6 +366,7 @@ describe('Component: GameAchievementSetToolbar', () => {
       {
         pageProps: {
           backingGame: mockGame,
+          game: mockGame,
           numLeaderboards: 0, // !!
           ziggy: createZiggyProps(),
         },
@@ -393,7 +395,12 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={1}
       />,
       {
-        pageProps: { backingGame: mockGame, numLeaderboards: 10, ziggy: createZiggyProps() },
+        pageProps: {
+          backingGame: mockGame,
+          game: mockGame,
+          numLeaderboards: 10,
+          ziggy: createZiggyProps(),
+        },
         jotaiAtoms: [
           [currentListViewAtom, 'achievements'],
           //
@@ -402,7 +409,7 @@ describe('Component: GameAchievementSetToolbar', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('radio', { name: /leaderboards/i }));
+    await userEvent.click(screen.getAllByRole('radio', { name: /leaderboards/i })[0]);
 
     // ASSERT
     expect(screen.getByRole('button', { name: /locked only/i })).toBeDisabled();
@@ -426,7 +433,12 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={1}
       />,
       {
-        pageProps: { backingGame: mockGame, numLeaderboards: 10, ziggy: createZiggyProps() },
+        pageProps: {
+          backingGame: mockGame,
+          game: mockGame,
+          numLeaderboards: 10,
+          ziggy: createZiggyProps(),
+        },
         jotaiAtoms: [
           [currentListViewAtom, 'achievements'],
           //
@@ -435,10 +447,10 @@ describe('Component: GameAchievementSetToolbar', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('radio', { name: /achievements/i }));
+    await userEvent.click(screen.getAllByRole('radio', { name: /achievements/i })[0]);
 
     // ASSERT
-    expect(screen.getByRole('radio', { name: /achievements/i })).toBeChecked();
+    expect(screen.getAllByRole('radio', { name: /achievements/i })[0]).toBeChecked();
   });
 
   it('given the current display mode is leaderboards and the user clicks the achievements toggle button, switches to the achievements view', async () => {
@@ -460,6 +472,7 @@ describe('Component: GameAchievementSetToolbar', () => {
       {
         pageProps: {
           backingGame: mockGame,
+          game: mockGame,
           numLeaderboards: 10,
           ziggy: createZiggyProps(),
           defaultSort: 'normal',
@@ -472,7 +485,7 @@ describe('Component: GameAchievementSetToolbar', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('radio', { name: /achievements/i }));
+    await userEvent.click(screen.getAllByRole('radio', { name: /achievements/i })[0]);
 
     // ASSERT
     expect(screen.getByRole('button', { name: /locked only/i })).toBeEnabled();
@@ -497,7 +510,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={1}
       />,
       {
-        pageProps: { backingGame: mockGame, numLeaderboards: 0 }, // !! no leaderboards
+        pageProps: { backingGame: mockGame, game: mockGame, numLeaderboards: 0 }, // !! no leaderboards
         jotaiAtoms: [
           [currentListViewAtom, 'leaderboards'],
           //
@@ -525,7 +538,12 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={1}
       />,
       {
-        pageProps: { backingGame: mockGame, numLeaderboards: 10, ziggy: createZiggyProps() },
+        pageProps: {
+          backingGame: mockGame,
+          game: mockGame,
+          numLeaderboards: 10,
+          ziggy: createZiggyProps(),
+        },
         jotaiAtoms: [
           [currentPlayableListSortAtom, 'normal'],
           //
@@ -559,7 +577,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={3} // !! some unlocked
       />,
       {
-        pageProps: { backingGame: mockGame },
+        pageProps: { backingGame: mockGame, game: mockGame },
       },
     );
 
@@ -587,7 +605,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={0} // !! none unlocked
       />,
       {
-        pageProps: { backingGame: mockGame },
+        pageProps: { backingGame: mockGame, game: mockGame },
       },
     );
 
@@ -617,7 +635,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={10} // !! all unlocked
       />,
       {
-        pageProps: { backingGame: mockGame },
+        pageProps: { backingGame: mockGame, game: mockGame },
       },
     );
 
@@ -647,7 +665,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={1}
       />,
       {
-        pageProps: { backingGame: mockGame, defaultSort: 'displayOrder' },
+        pageProps: { backingGame: mockGame, defaultSort: 'displayOrder', game: mockGame },
         jotaiAtoms: [
           [currentPlayableListSortAtom, 'displayOrder'],
           //
@@ -683,7 +701,7 @@ describe('Component: GameAchievementSetToolbar', () => {
         unlockedAchievementsCount={1}
       />,
       {
-        pageProps: { backingGame: mockGame, defaultSort: 'displayOrder' },
+        pageProps: { backingGame: mockGame, defaultSort: 'displayOrder', game: mockGame },
         jotaiAtoms: [
           [currentPlayableListSortAtom, 'points'],
           //
@@ -718,6 +736,7 @@ describe('Component: GameAchievementSetToolbar', () => {
       {
         pageProps: {
           backingGame: mockGame,
+          game: mockGame,
           numLeaderboards: 10,
           ziggy: createZiggyProps(),
           defaultSort: 'normal',
@@ -760,6 +779,7 @@ describe('Component: GameAchievementSetToolbar', () => {
       {
         pageProps: {
           backingGame: mockGame,
+          game: mockGame,
           numLeaderboards: 10,
           ziggy: createZiggyProps(),
           defaultSort: 'normal',
@@ -799,6 +819,7 @@ describe('Component: GameAchievementSetToolbar', () => {
       {
         pageProps: {
           backingGame: mockGame,
+          game: mockGame,
           numLeaderboards: 10,
           ziggy: createZiggyProps(),
           defaultSort: 'normal',
@@ -841,6 +862,7 @@ describe('Component: GameAchievementSetToolbar', () => {
       {
         pageProps: {
           backingGame: mockGame,
+          game: mockGame,
           numLeaderboards: 10,
           ziggy: createZiggyProps(),
           defaultSort: 'normal',
@@ -880,6 +902,7 @@ describe('Component: GameAchievementSetToolbar', () => {
       {
         pageProps: {
           backingGame: mockGame,
+          game: mockGame,
           numLeaderboards: 10, // !!
           ziggy: createZiggyProps({ device: 'mobile' }), // !!
         },

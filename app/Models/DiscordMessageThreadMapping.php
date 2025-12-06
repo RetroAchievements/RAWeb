@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Community\Enums\ModerationReportableType;
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -56,5 +57,23 @@ class DiscordMessageThreadMapping extends BaseModel
                 'discord_thread_id' => $discordThreadId,
             ]
         );
+    }
+
+    /**
+     * Find an existing Discord thread mapping for a reportable item.
+     * If multiple users have reported the same item, this finds a mapping
+     * from any of those reports.
+     */
+    public static function findReportMapping(ModerationReportableType $reportableType, int $reportableId): ?self
+    {
+        $reportThreadIds = UserModerationReport::where('reportable_type', $reportableType->value)
+            ->where('reportable_id', $reportableId)
+            ->pluck('message_thread_id');
+
+        if ($reportThreadIds->isEmpty()) {
+            return null;
+        }
+
+        return self::whereIn('message_thread_id', $reportThreadIds)->first();
     }
 }

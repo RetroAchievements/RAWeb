@@ -11,9 +11,12 @@ use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\User;
 use App\Platform\Enums\GameSetType;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ManageRelatedRecords;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -27,7 +30,7 @@ class Hubs extends ManageRelatedRecords
 
     protected static string $relationship = 'hubs';
 
-    protected static ?string $navigationIcon = 'fas-sitemap';
+    protected static string|BackedEnum|null $navigationIcon = 'fas-sitemap';
 
     public static function canAccess(array $arguments = []): bool
     {
@@ -54,6 +57,7 @@ class Hubs extends ManageRelatedRecords
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
+                    ->width('60px')
                     ->size(config('media.icon.sm.width')),
 
                 Tables\Columns\TextColumn::make('id')
@@ -76,15 +80,15 @@ class Hubs extends ManageRelatedRecords
 
             ])
             ->headerActions([
-                Tables\Actions\Action::make('add')
+                Actions\Action::make('add')
                     ->label('Add hubs')
-                    ->form([
+                    ->schema([
                         Forms\Components\TextInput::make('hub_ids_csv')
                             ->label('Hub IDs (CSV)')
                             ->placeholder('729,2204,3987,53')
                             ->helperText('Enter hub IDs separated by commas or spaces. URLs are also supported.')
-                            ->hidden(fn (Forms\Get $get): bool => filled($get('hub_ids')))
-                            ->disabled(fn (Forms\Get $get): bool => filled($get('hub_ids')))
+                            ->hidden(fn (Get $get): bool => filled($get('hub_ids')))
+                            ->disabled(fn (Get $get): bool => filled($get('hub_ids')))
                             ->live(debounce: 200),
 
                         Forms\Components\Select::make('hub_ids')
@@ -121,8 +125,8 @@ class Hubs extends ManageRelatedRecords
 
                                 return !$user->can('update', $hub);
                             })
-                            ->hidden(fn (Forms\Get $get): bool => filled($get('hub_ids_csv')))
-                            ->disabled(fn (Forms\Get $get): bool => filled($get('hub_ids_csv')))
+                            ->hidden(fn (Get $get): bool => filled($get('hub_ids_csv')))
+                            ->disabled(fn (Get $get): bool => filled($get('hub_ids_csv')))
                             ->live()
                             ->helperText('... or search and select hubs to add.'),
                     ])
@@ -182,8 +186,8 @@ class Hubs extends ManageRelatedRecords
                         }
                     }),
             ])
-            ->actions([
-                Tables\Actions\Action::make('remove')
+            ->recordActions([
+                Actions\Action::make('remove')
                     ->visible(fn ($record): bool => $user->can('update', $record))
                     ->tooltip('Remove')
                     ->icon('heroicon-o-trash')
@@ -204,15 +208,15 @@ class Hubs extends ManageRelatedRecords
                             ->send();
                     }),
 
-                Tables\Actions\Action::make('visit')
+                Actions\Action::make('visit')
                     ->tooltip('View on Site')
                     ->icon('heroicon-m-arrow-top-right-on-square')
                     ->iconButton()
                     ->url(fn (GameSet $record): string => route('hub.show', $record))
                     ->openUrlInNewTab(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkAction::make('remove')
+            ->toolbarActions([
+                Actions\BulkAction::make('remove')
                     ->label('Remove selected')
                     ->modalHeading('Remove selected hubs from game')
                     ->modalDescription('Are you sure you would like to do this?')
