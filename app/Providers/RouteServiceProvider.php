@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\SearchApiController;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\DownloadsController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\UserController;
 use App\Models\Game;
 use App\Models\User;
@@ -73,6 +74,7 @@ class RouteServiceProvider extends ServiceProvider
                 Route::get('downloads', [DownloadsController::class, 'index'])->name('download.index');
 
                 Route::get('contact', fn () => Inertia::render('contact'))->name('contact');
+                Route::get('redirect', [RedirectController::class, 'redirect'])->name('redirect');
                 Route::get('rss', fn () => Inertia::render('rss'))->name('rss.index');
                 Route::get('terms', fn () => Inertia::render('terms'))->name('terms');
             });
