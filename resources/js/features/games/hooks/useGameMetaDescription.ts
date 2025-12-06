@@ -5,19 +5,23 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { getAchievementSetPointsStats } from '../utils/getAchievementSetPointsStats';
 
 export function useGameMetaDescription(): { description: string; noindex: boolean } {
-  const { backingGame, game, isViewingPublishedAchievements, selectableGameAchievementSets } =
+  const { backingGame, game, targetAchievementSetId, isViewingPublishedAchievements } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
 
   return useMemo(() => {
     /** Viewing unpublished achievements */
     if (!isViewingPublishedAchievements) {
-      const allAchievements = selectableGameAchievementSets.flatMap(
-        (set) => set.achievementSet.achievements,
-      );
+      const setsToShowContent = targetAchievementSetId
+        ? game.gameAchievementSets!.filter(
+            (gas) => gas.achievementSet.id === targetAchievementSetId,
+          )
+        : game.gameAchievementSets!;
+
+      const allAchievements = setsToShowContent[0].achievementSet.achievements;
 
       if (allAchievements.length === 0) {
         return {
-          description: `No achievements have been created yet for ${backingGame.title} (${game.system!.name}).`,
+          description: `There are no unpublished achievements for ${backingGame.title} (${game.system!.name}).`,
           noindex: true,
         };
       }
@@ -42,5 +46,13 @@ export function useGameMetaDescription(): { description: string; noindex: boolea
       description: `There are ${backingGame.achievementsPublished} achievements worth ${backingGame.pointsTotal!.toLocaleString()} points. ${backingGame.title} for ${game.system!.name} - explore and compete on this classic game at RetroAchievements.`,
       noindex: false,
     };
-  }, [backingGame, game, isViewingPublishedAchievements, selectableGameAchievementSets]);
+  }, [
+    backingGame.achievementsPublished,
+    backingGame.pointsTotal,
+    backingGame.title,
+    game.gameAchievementSets,
+    game.system,
+    isViewingPublishedAchievements,
+    targetAchievementSetId,
+  ]);
 }
