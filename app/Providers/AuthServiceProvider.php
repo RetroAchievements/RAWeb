@@ -73,6 +73,8 @@ class AuthServiceProvider extends ServiceProvider
             foreach ($passportRouteNames as $routeName) {
                 Route::getRoutes()->getByName($routeName)?->middleware(HandleInertiaRequests::class);
             }
+
+            Route::getRoutes()->getByName('passport.device')?->middleware('auth');
         });
 
         /*
