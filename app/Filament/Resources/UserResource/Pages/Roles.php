@@ -12,7 +12,7 @@ use App\Models\User;
 use BackedEnum;
 use Filament\Actions\AttachAction;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
+use Filament\Actions\DetachAction;
 use Filament\Forms;
 use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Tables;
@@ -155,7 +155,7 @@ class Roles extends ManageRelatedRecords
             ])
             ->paginated(false)
             ->recordActions([
-                DeleteAction::make()
+                DetachAction::make()
                     ->label(__('Remove'))
                     ->authorize(fn (SpatieRole $record) => $user->can('detachRole', [$this->getRecord(), $record]))
                     ->after(function (SpatieRole $record) {
