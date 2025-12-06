@@ -72,6 +72,7 @@ class UserSummaryTest extends TestCase
                 'TotalRanked' => 0,
                 'LastGameID' => null,
                 'RichPresenceMsg' => null,
+                'RichPresenceMsgDate' => null,
                 'RecentlyPlayedCount' => 0,
                 'RecentlyPlayed' => [],
             ]);
@@ -104,6 +105,7 @@ class UserSummaryTest extends TestCase
                 'TotalRanked' => 0,
                 'LastGameID' => null,
                 'RichPresenceMsg' => null,
+                'RichPresenceMsgDate' => null,
                 'RecentlyPlayedCount' => 0,
                 'RecentlyPlayed' => [],
             ]);
@@ -111,6 +113,10 @@ class UserSummaryTest extends TestCase
 
     public function testGetUserSummary(): void
     {
+        // Freeze time.
+        $now = Carbon::now();
+        Carbon::setTestNow($now);
+
         $game = $this->seedGame(achievements: 3);
         $game->fill([
             'ForumTopicID' => 222334,
@@ -221,6 +227,7 @@ class UserSummaryTest extends TestCase
                 'TotalRanked' => 2, // $this->user and $user
                 'LastGameID' => $game->id,
                 'RichPresenceMsg' => 'Playing ' . $game->title,
+                'RichPresenceMsgDate' => Carbon::now()->__toString(),
                 'RecentlyPlayedCount' => 0,
                 'RecentlyPlayed' => [],
                 'LastActivity' => [
@@ -275,6 +282,7 @@ class UserSummaryTest extends TestCase
                     'ReleasedAtGranularity' => $game->released_at_granularity->value,
                 ],
                 'RichPresenceMsg' => 'Playing ' . $game->title,
+                'RichPresenceMsgDate' => Carbon::now()->__toString(),
                 'RecentlyPlayedCount' => 2,
                 'RecentlyPlayed' => [
                     [
@@ -388,6 +396,7 @@ class UserSummaryTest extends TestCase
                     'ReleasedAtGranularity' => $game->released_at_granularity->value,
                 ],
                 'RichPresenceMsg' => 'Playing ' . $game->title,
+                'RichPresenceMsgDate' => Carbon::now()->__toString(),
                 'RecentlyPlayedCount' => 1,
                 'RecentlyPlayed' => [
                     [

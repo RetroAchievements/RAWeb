@@ -1,33 +1,21 @@
 <?php
 
-use App\Models\PlayerSession;
 use App\Models\Game;
-use Illuminate\Support\Carbon;
+use App\Models\User;
 ?>
 
 @props([
-    'userMassData' => [],
+    'user' => null, // User
 ])
 
 <?php
-$mostRecentSession = PlayerSession::where('user_id', $userMassData['ID'])
-    ->with('game')
-    ->orderBy('created_at', 'desc')
-    ->first();
+/** @var ?User $user */
+$sessionGame = $user?->LastGameID
+    ? Game::with('system')->find($user->LastGameID)
+    : null;
 
-// If there's no session for some reason, try to fall back to the user record.
-$sessionGame = $mostRecentSession?->game;
-if (!$mostRecentSession) {
-    $sessionGame = Game::with('system')->find($userMassData['LastGame']['ID']);
-}
-
-$mostRecentRichPresenceMessage = (
-    $mostRecentSession?->rich_presence
-    ?? $userMassData['RichPresenceMsg']
-    ?? null
-);
-
-$parsedDate = Carbon::parse($mostRecentSession?->rich_presence_updated_at);
+$richPresenceMessage = $user?->RichPresenceMsg;
+$richPresenceDate = $user?->RichPresenceMsgDate;
 ?>
 
 @if ($sessionGame)
@@ -36,9 +24,9 @@ $parsedDate = Carbon::parse($mostRecentSession?->rich_presence_updated_at);
             <p role="heading" aria-level="2" class="text-2xs font-bold">
                 Most Recently Played
 
-                @if ($mostRecentSession?->rich_presence_updated_at)
-                    <p class="smalldate min-w-auto cursor-help" title="{{ $parsedDate->format('F j Y, g:ia') }}">
-                        {{ $parsedDate->diffForHumans() }}
+                @if ($richPresenceDate)
+                    <p class="smalldate min-w-auto cursor-help" title="{{ $richPresenceDate->format('F j Y, g:ia') }}">
+                        {{ $richPresenceDate->diffForHumans() }}
                     </p>
                 @endif
             </p>
@@ -54,12 +42,12 @@ $parsedDate = Carbon::parse($mostRecentSession?->rich_presence_updated_at);
             />
 
             @if (
-                $mostRecentRichPresenceMessage
-                && $mostRecentRichPresenceMessage !== 'Unknown'
-                && $mostRecentRichPresenceMessage !== 'Playing ' . $sessionGame->Title
+                $richPresenceMessage
+                && $richPresenceMessage !== 'Unknown'
+                && $richPresenceMessage !== 'Playing ' . $sessionGame->Title
             )
                 <p class="text-2xs" style="word-break: break-word;">
-                    {{ $mostRecentRichPresenceMessage }}
+                    {{ $richPresenceMessage }}
                 </p>
             @endif
         </div>
