@@ -2,14 +2,14 @@
 
 namespace App\Api\V2\Systems;
 
+use App\Api\V2\BaseJsonApiResource;
 use App\Models\System;
 use Illuminate\Http\Request;
-use LaravelJsonApi\Core\Resources\JsonApiResource;
 
 /**
  * @property System $resource
  */
-class SystemResource extends JsonApiResource
+class SystemResource extends BaseJsonApiResource
 {
     /**
      * Get the resource's attributes.

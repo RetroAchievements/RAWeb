@@ -84,6 +84,7 @@ class RouteServiceProvider extends ServiceProvider
                     Route::middleware([
                         LogApiRequest::class . ':v2',
                         'auth:api-token-header', // TODO multiauth support with auth:api-token-header,passport
+                        AddContentLengthHeader::class,
                         'throttle:' . $rateLimit,
                     ])->group(function () {
                         Route::get('health', [HealthController::class, 'check'])->name('v2.health');
@@ -93,6 +94,7 @@ class RouteServiceProvider extends ServiceProvider
                         ->middleware(
                             LogApiRequest::class . ':v2',
                             'auth:api-token-header',
+                            AddContentLengthHeader::class,
                             'throttle:' . $rateLimit
                         )
                         ->resources(function ($server) {

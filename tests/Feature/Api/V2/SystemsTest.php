@@ -80,7 +80,7 @@ class SystemsTest extends JsonApiResourceTestCase
         $response = $this->jsonApi('v2')
             ->expects('systems')
             ->withHeader('X-API-Key', 'test-key')
-            ->get('/api/v2/systems?filter[active]=1');
+            ->get('/api/v2/systems?filter[active]=true');
 
         // Assert
         $response->assertSuccessful();
