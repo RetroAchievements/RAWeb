@@ -6,8 +6,6 @@ use App\Models\Comment;
 use App\Models\PlayerGame;
 use App\Models\System;
 use App\Models\User;
-use App\Support\Cache\CacheKey;
-use Illuminate\Support\Facades\Cache;
 
 function getIsCommentDoublePost(int $userID, array|int $articleID, string $commentPayload): bool
 {
@@ -61,12 +59,6 @@ function addArticleComment(
     }
 
     return true;
-}
-
-function expireRecentlyPlayedGames(string $user): void
-{
-    $userRecentGamesCacheKey = CacheKey::buildUserRecentGamesCacheKey($user);
-    Cache::forget($userRecentGamesCacheKey);
 }
 
 function getRecentlyPlayedGames(User $user, int $offset, int $count, array &$dataOut): int
