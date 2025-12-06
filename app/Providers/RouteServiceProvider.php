@@ -9,7 +9,6 @@ use App\Http\Controllers\Api\SearchApiController;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\DownloadsController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\UserController;
 use App\Models\Game;
 use App\Models\User;
