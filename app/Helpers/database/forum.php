@@ -227,6 +227,14 @@ function submitTopicComment(
 
 function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTopicComment $newComment): void
 {
+    // TODO remove this when digest emails are ready
+    // Event topics are blocked from sending email notifications entirely.
+    // We'll remove this TODO when digest emails are ready to go.
+    if ($topic->forum_id === 25) {
+        return;
+    }
+    // ENDTODO
+
     $subscriptionService = new SubscriptionService();
     $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::ForumTopic, $topic->id)
         ->filter(fn ($s) => isset($s->EmailAddress) && BitSet($s->websitePrefs, UserPreference::EmailOn_ForumReply));
