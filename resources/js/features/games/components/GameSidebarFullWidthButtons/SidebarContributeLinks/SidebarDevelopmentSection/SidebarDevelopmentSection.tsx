@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuCheck, LuFolder, LuFolderLock, LuPlus, LuRotateCcw, LuUserSearch } from 'react-icons/lu';
+import { LuCheck, LuFolder, LuFolderLock, LuHistory, LuPlus, LuUserSearch } from 'react-icons/lu';
 import { route } from 'ziggy-js';
 
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
@@ -84,7 +84,7 @@ export const SidebarDevelopmentSection: FC = () => {
       {can.manageAchievementSetClaims ? (
         <PlayableSidebarButton
           href={route('game.claims', { game: backingGame.id })}
-          IconComponent={LuRotateCcw}
+          IconComponent={LuHistory}
           showSubsetIndicator={game.id !== backingGame.id}
         >
           {t('View Claim History')}
