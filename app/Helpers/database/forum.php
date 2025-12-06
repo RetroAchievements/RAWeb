@@ -228,16 +228,9 @@ function submitTopicComment(
 function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTopicComment $newComment): void
 {
     // TODO remove this when digest emails are ready
-    // These high-volume topics are blocked from sending email notifications entirely.
+    // Event topics are blocked from sending email notifications entirely.
     // We'll remove this TODO when digest emails are ready to go.
-    $blockedTopicIds = [
-        12108, // Peak Streak
-        29289, // AOTW 2025
-        29592, // RA Roulette 2025
-        32219, // Bounty Hunters Villains
-        33001, // RA-TALITY
-    ];
-    if (in_array($topic->id, $blockedTopicIds, strict: true)) {
+    if ($topic->forum_id === 25) {
         return;
     }
     // ENDTODO
