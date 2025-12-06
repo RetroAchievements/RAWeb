@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace App\Platform\Services;
 
 use App\Models\Game;
-use App\Models\PlayerStat;
+use App\Models\PlayerStatRanking;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\PlayerStatType;
+use App\Platform\Enums\PlayerStatRankingKind;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class BeatenGamesLeaderboardService
 {
@@ -47,10 +46,10 @@ class BeatenGamesLeaderboardService
         $currentPage = (int) ($validatedData['page']['number'] ?? 1);
 
         // Fetch the paginated leaderboard data.
-        $paginator = $this->getAggregatedLeaderboardData(
+        $paginator = $this->getLeaderboardData(
             $request,
             $currentPage,
-            $gameKindFilterOptions,
+            $leaderboardKind,
             $targetSystemId,
         );
 
@@ -60,7 +59,7 @@ class BeatenGamesLeaderboardService
         $userPageNumber = null;
         $targetUser = $foundUserByFilter ?? Auth::user() ?? null;
         if ($targetUser) {
-            $targetUserRankingData = $this->getUserRankingData($targetUser->id, $gameKindFilterOptions, $targetSystemId);
+            $targetUserRankingData = $this->getUserRankingData($targetUser->id, $leaderboardKind, $targetSystemId);
             if ($targetUserRankingData) {
                 $userPageNumber = (int) $targetUserRankingData['userPageNumber'];
                 $isUserOnCurrentPage = (int) $currentPage === $userPageNumber;
@@ -109,7 +108,7 @@ class BeatenGamesLeaderboardService
         $consoleIds = $gameData->pluck('ConsoleID')->unique()->filter();
         $consoleData = System::whereIn('ID', $consoleIds)->get(['ID', 'Name'])->keyBy('ID');
 
-        // Stitch all the fetched metadata back onto the aggregate rankings.
+        // Stitch all the fetched metadata back onto the rankings.
         $rankingRows->transform(function ($ranking) use ($usernames, $gameData, $consoleData) {
             $ranking->User = $usernames[$ranking->user_id]->User ?? null;
             $ranking->GameTitle = $gameData[$ranking->last_game_id]->Title ?? null;
@@ -120,49 +119,6 @@ class BeatenGamesLeaderboardService
 
             return $ranking;
         });
-    }
-
-    private function buildAggregatedLeaderboardQuery(array $gameKindFilterOptions = [], ?int $targetSystemId = null): mixed
-    {
-        $includedTypes = $this->getIncludedTypes($gameKindFilterOptions);
-
-        $aggregateSubquery = PlayerStat::selectRaw(
-            'user_id,
-            SUM(value) AS total_awards,
-            MAX(stat_updated_at) AS last_beaten_date'
-        )
-            ->when($targetSystemId, function ($query) use ($targetSystemId) {
-                return $query->where('system_id', $targetSystemId);
-            }, function ($query) {
-                return $query->whereNull('system_id');
-            })
-            ->whereIn('type', $includedTypes)
-            ->groupBy('user_id');
-
-        $query = PlayerStat::selectRaw(
-            'sub.user_id,
-            MAX(CASE WHEN player_stats.type IN (\'' . implode("', '", $includedTypes) . '\') THEN player_stats.last_game_id ELSE NULL END) AS last_game_id,
-            MAX(CASE WHEN player_stats.type IN (\'' . implode("', '", $includedTypes) . '\') THEN player_stats.stat_updated_at ELSE NULL END) as last_beaten_date,
-            sub.total_awards,
-            RANK() OVER (ORDER BY sub.total_awards DESC) as rank_number,
-            ROW_NUMBER() OVER (ORDER BY sub.total_awards DESC, sub.last_beaten_date ASC) as leaderboard_row_number'
-        )
-            ->joinSub($aggregateSubquery, 'sub', function ($join) use ($targetSystemId) {
-                $join->on('sub.user_id', '=', 'player_stats.user_id')
-                    ->on('sub.last_beaten_date', '=', 'player_stats.stat_updated_at');
-
-                if (isset($targetSystemId) && $targetSystemId > 0) {
-                    $join->where('player_stats.system_id', '=', $targetSystemId);
-                } else {
-                    $join->whereNull('player_stats.system_id');
-                }
-            })
-            ->whereIn('player_stats.type', $includedTypes)
-            ->groupBy('sub.user_id', 'sub.total_awards', 'sub.last_beaten_date')
-            ->orderBy('sub.total_awards', 'desc')
-            ->orderBy('sub.last_beaten_date', 'asc');
-
-        return $query;
     }
 
     private function determineGameKindFilterOptions(array $validatedData, int $targetSystemId): array
@@ -206,16 +162,41 @@ class BeatenGamesLeaderboardService
     }
 
     /**
-     * Fetch the paginated leaderboard data.
+     * Maps a URL filter kind (eg: 'retail') to the database enum value (eg: 'retail-beaten').
      */
-    private function getAggregatedLeaderboardData(
+    private function mapFilterKindToDbKind(string $filterKind): PlayerStatRankingKind
+    {
+        return match ($filterKind) {
+            'retail' => PlayerStatRankingKind::RetailBeaten,
+            'homebrew' => PlayerStatRankingKind::HomebrewBeaten,
+            'hacks' => PlayerStatRankingKind::HacksBeaten,
+            'all' => PlayerStatRankingKind::AllBeaten,
+            default => PlayerStatRankingKind::RetailBeaten,
+        };
+    }
+
+    /**
+     * Fetch the paginated leaderboard data from the pre-computed rankings table.
+     */
+    private function getLeaderboardData(
         Request $request,
         int $currentPage,
-        array $gameKindFilterOptions,
+        string $leaderboardKind,
         ?int $targetSystemId = null,
     ): mixed {
-        // Fetch the aggregated leaderboard with pagination.
-        $paginator = $this->buildAggregatedLeaderboardQuery($gameKindFilterOptions, $targetSystemId)
+        $dbKind = $this->mapFilterKindToDbKind($leaderboardKind);
+
+        $query = PlayerStatRanking::query()->where('kind', $dbKind);
+
+        // Handle system filtering. A targetSystemId of 0 means all systems.
+        if ($targetSystemId === 0 || $targetSystemId === null) {
+            $query->whereNull('system_id');
+        } else {
+            $query->where('system_id', $targetSystemId);
+        }
+
+        $paginator = $query
+            ->orderBy('row_number')
             ->paginate($this->pageSize, ['*'], 'page[number]', $currentPage);
 
         // Fetch extraneous metadata without doing joins.
@@ -231,50 +212,28 @@ class BeatenGamesLeaderboardService
         return $paginator;
     }
 
-    private function getIncludedTypes(array $gameKindFilterOptions = []): array
-    {
-        $includedTypes = [];
-
-        if ($gameKindFilterOptions['retail']) {
-            $includedTypes[] = PlayerStatType::GamesBeatenHardcoreRetail;
-        }
-        if ($gameKindFilterOptions['hacks']) {
-            $includedTypes[] = PlayerStatType::GamesBeatenHardcoreHacks;
-        }
-        if ($gameKindFilterOptions['homebrew']) {
-            $includedTypes[] = PlayerStatType::GamesBeatenHardcoreHomebrew;
-        }
-        if ($gameKindFilterOptions['unlicensed']) {
-            $includedTypes[] = PlayerStatType::GamesBeatenHardcoreUnlicensed;
-        }
-        if ($gameKindFilterOptions['prototypes']) {
-            $includedTypes[] = PlayerStatType::GamesBeatenHardcorePrototypes;
-        }
-        if ($gameKindFilterOptions['demos']) {
-            $includedTypes[] = PlayerStatType::GamesBeatenHardcoreDemos;
-        }
-
-        return $includedTypes;
-    }
-
     /**
-     * Calculates the user's ranking data without loading the entire leaderboard.
+     * Looks up the user's ranking from the pre-computed rankings table.
      */
     private function getUserRankingData(
         int $userId,
-        array $gameKindFilterOptions,
+        string $leaderboardKind,
         ?int $targetSystemId = null,
     ): ?array {
-        $query = $this->buildAggregatedLeaderboardQuery($gameKindFilterOptions, $targetSystemId);
+        $dbKind = $this->mapFilterKindToDbKind($leaderboardKind);
 
-        // Create a subquery to get the complete ranking data.
-        $rankingSubquery = $query->toSql();
-
-        // Use the subquery to get the specific user's data.
-        $userData = DB::table(DB::raw("({$rankingSubquery}) as rankings"))
-            ->mergeBindings($query->getQuery())
+        $query = PlayerStatRanking::query()
             ->where('user_id', $userId)
-            ->first();
+            ->where('kind', $dbKind);
+
+        // Handle system filtering. A targetSystemId of 0 means all systems.
+        if ($targetSystemId === 0 || $targetSystemId === null) {
+            $query->whereNull('system_id');
+        } else {
+            $query->where('system_id', $targetSystemId);
+        }
+
+        $userData = $query->first();
 
         if (!$userData) {
             return null;
@@ -286,7 +245,7 @@ class BeatenGamesLeaderboardService
         $userDataWithMetadata = $userDataWithMetadata->first();
 
         // Calculate the user's page number based on row number.
-        $userPageNumber = (int) ceil($userData->leaderboard_row_number / $this->pageSize);
+        $userPageNumber = (int) ceil($userData->row_number / $this->pageSize);
 
         return [
             'userRankingData' => $userDataWithMetadata,

@@ -35,6 +35,7 @@ use App\Platform\Commands\RevertManualUnlocks;
 use App\Platform\Commands\SyncEvents;
 use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAwardsStaticData;
+use App\Platform\Commands\UpdateBeatenGamesLeaderboard;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
 use App\Platform\Commands\UpdateGameAchievementsMetrics;
 use App\Platform\Commands\UpdateGameBeatenMetrics;
@@ -91,6 +92,7 @@ class AppServiceProvider extends ServiceProvider
 
                 // Player Stats
                 DeleteStalePlayerPointsStatsEntries::class,
+                UpdateBeatenGamesLeaderboard::class,
                 UpdatePlayerBeatenGamesStats::class,
                 UpdatePlayerPointsStats::class,
 
@@ -124,6 +126,7 @@ class AppServiceProvider extends ServiceProvider
             if (app()->environment() === 'production') {
                 $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
                 $schedule->command(CrawlPlayerWeightedPoints::class)->everyFiveMinutes();
+                $schedule->command(UpdateBeatenGamesLeaderboard::class)->everyThirtyMinutes();
                 $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
                 $schedule->command(ProcessExpiringClaims::class)->hourly();
                 $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC
