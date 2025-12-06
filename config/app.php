@@ -215,6 +215,7 @@ return [
          * Package Service Providers...
          */
         Jenssegers\Agent\AgentServiceProvider::class,
+        Laravel\Passport\PassportServiceProvider::class,
         EragLaravelDisposableEmail\LaravelDisposableEmailServiceProvider::class,
 
         /*

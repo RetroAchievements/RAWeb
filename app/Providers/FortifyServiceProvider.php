@@ -11,9 +11,9 @@ use App\Actions\UpdateUserProfileInformation;
 use App\Enums\Permissions;
 use App\Http\Responses\LoginResponse;
 use App\Models\User;
-use Hash;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -141,7 +141,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
         Fortify::loginView(function () {
-            if (!session()->has('intended_url')) {
+            if (!session()->has('url.intended')) {
                 session()->put('url.intended', url()->previous());
             }
 
