@@ -168,6 +168,9 @@ abstract class JsonApiResourceTestCase extends TestCase
             ->get("{$this->resourceEndpoint()}/{$resource->getKey()}");
 
         // Assert
-        $response->assertFetchedOne($resource);
+        $response->assertFetchedOne([
+            'type' => $this->resourceType(),
+            'id' => (string) $resource->getKey(),
+        ]);
     }
 }

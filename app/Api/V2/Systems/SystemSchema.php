@@ -57,7 +57,7 @@ class SystemSchema extends Schema
     {
         return [
             WhereIdIn::make($this),
-            Where::make('active'),
+            Where::make('active')->asBoolean(),
         ];
     }
 

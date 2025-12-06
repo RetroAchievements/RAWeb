@@ -41,7 +41,9 @@ class SystemsTest extends JsonApiResourceTestCase
             ->get('/api/v2/systems');
 
         // Assert
-        $response->assertFetchedMany([$system]);
+        $response->assertFetchedMany([
+            ['type' => 'systems', 'id' => (string) $system->id],
+        ]);
     }
 
     public function testItPaginatesBy50ByDefault(): void
