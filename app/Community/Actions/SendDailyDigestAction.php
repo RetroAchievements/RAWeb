@@ -16,10 +16,7 @@ class SendDailyDigestAction
 {
     public function execute(User $user): void
     {
-        if (!$user->EmailAddress) {
-            return;
-        }
-
+        // load up the pending subscriptions, then delete them.
         $delayedSubscriptions = UserDelayedSubscription::query()
             ->where('user_id', $user->id)
             ->orderBy('id')
@@ -33,15 +30,40 @@ class SendDailyDigestAction
             ->where('id', '<=', $last->id)
             ->delete();
 
+        // if the user doesn't have an email address, bail.
+        // do this after deleting the pending subscriptions.
+        if (!$user->EmailAddress) {
+            return;
+        }
+
+        // build a map of ids for each type
+        $ids = [];
+        foreach ($delayedSubscriptions as $delayedSubscription) {
+            if (!isset($ids[$delayedSubscription->subject_type->value])) {
+                $ids[$delayedSubscription->subject_type->value] = [];
+            }
+            $ids[$delayedSubscription->subject_type->value][] = $delayedSubscription->subject_id;
+        }
+        // and preload the titles for the associated records
+        $titles = [];
+        foreach ($ids as $type => $typeIds) {
+            $titles[$type] = match ($type) {
+                SubscriptionSubjectType::ForumTopic->value => ForumTopic::whereIn('id', $typeIds)->pluck('title', 'id'),
+                default => [],
+            };
+        }
+
+        // build the data to pass to the mail script
         $notificationItems = [];
         foreach ($delayedSubscriptions as $delayedSubscription) {
             $handler = $this->getHandler($delayedSubscription->subject_type);
             if ($handler) {
+                // if all the new posts have been deleted or aren't visible, ignore it
                 $count = $handler->getUpdatesSince($delayedSubscription);
                 if ($count > 0) {
                     $notificationItems[] = [
                         'type' => $delayedSubscription->subject_type->value,
-                        'title' => $handler->getTitle($delayedSubscription->subject_id) ?? '(untitled)',
+                        'title' => $titles[$delayedSubscription->subject_type->value][$delayedSubscription->subject_id] ?? '(untitled)',
                         'link' => $handler->getLink($delayedSubscription->subject_id, $delayedSubscription->first_update_id),
                         'count' => $count,
                     ];
@@ -49,6 +71,7 @@ class SendDailyDigestAction
             }
         }
 
+        // send the mail
         Mail::to($user->EmailAddress)->queue(
             new DailyDigestMail($user, $notificationItems)
         );
@@ -70,11 +93,6 @@ abstract class BaseDelayedSubscriptionHandler
     abstract public function getUpdatesSince(UserDelayedSubscription $delayedSubscription): int;
 
     /**
-     * Gets the title of the subject.
-     */
-    abstract public function getTitle(int $subjectId): ?string;
-
-    /**
      * Gets a link to the first updated subrecord of the subject.
      */
     abstract public function getLink(int $subjectId, int $firstUpdateId): string;
@@ -90,11 +108,6 @@ class ForumTopicDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandle
             ->where('author_id', '!=', $delayedSubscription->user_id)
             ->where('is_authorized', true)
             ->count();
-    }
-
-    public function getTitle(int $subjectId): ?string
-    {
-        return ForumTopic::find($subjectId)?->title;
     }
 
     public function getLink(int $subjectId, int $firstUpdateId): string
