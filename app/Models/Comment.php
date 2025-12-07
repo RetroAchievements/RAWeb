@@ -36,7 +36,7 @@ class Comment extends BaseModel
     public const CREATED_AT = 'Submitted';
     public const UPDATED_AT = 'Edited';
 
-    public const SYSTEM_USER_ID = 14188;
+    public const SERVER_USER_ID = 14188;
 
     protected $fillable = [
         'ArticleType',
@@ -75,7 +75,7 @@ class Comment extends BaseModel
         }
 
         // Don't index automated system comments.
-        if ($this->user_id === self::SYSTEM_USER_ID) {
+        if ($this->user_id === self::SERVER_USER_ID) {
             return false;
         }
 
@@ -121,7 +121,7 @@ class Comment extends BaseModel
 
     public function getIsAutomatedAttribute(): bool
     {
-        return $this->user_id === self::SYSTEM_USER_ID;
+        return $this->user_id === self::SERVER_USER_ID;
     }
 
     // == mutators
@@ -162,7 +162,7 @@ class Comment extends BaseModel
      */
     public function scopeAutomated(Builder $query): Builder
     {
-        return $query->where('user_id', self::SYSTEM_USER_ID);
+        return $query->where('user_id', self::SERVER_USER_ID);
     }
 
     /**
@@ -171,7 +171,7 @@ class Comment extends BaseModel
      */
     public function scopeNotAutomated(Builder $query): Builder
     {
-        return $query->where('user_id', '!=', self::SYSTEM_USER_ID);
+        return $query->where('user_id', '!=', self::SERVER_USER_ID);
     }
 
     /**

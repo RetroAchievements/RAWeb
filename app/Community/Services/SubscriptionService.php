@@ -270,7 +270,7 @@ abstract class CommentSubscriptionHandler extends BaseSubscriptionHandler
         if ($forUserId !== null) {
             $query->where('user_id', $forUserId);
         } else {
-            $query->where('user_id', '!=', Comment::SYSTEM_USER_ID);
+            $query->where('user_id', '!=', Comment::SERVER_USER_ID);
 
             if ($ignoreUserIds !== null) {
                 $query->whereNotIn('user_id', $ignoreUserIds);

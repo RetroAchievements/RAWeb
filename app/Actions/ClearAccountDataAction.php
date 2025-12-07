@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Community\Actions\DeleteMessageThreadAction;
+use App\Community\Enums\ArticleType;
+use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
 use App\Events\UserDeleted;
+use App\Models\Comment;
 use App\Models\Leaderboard;
+use App\Models\Ticket;
 use App\Models\UnrankedUser;
 use App\Models\User;
 use App\Platform\Actions\RecalculateLeaderboardTopEntryAction;
@@ -27,6 +31,8 @@ class ClearAccountDataAction
             APIKey = null
             WHERE ID = :userId", ['userId' => $user->ID]
         );
+
+        $this->closeUnresolvedTickets($user);
 
         // TODO $user->activities()->delete();
         $user->emailConfirmations()->delete();
@@ -96,5 +102,38 @@ class ClearAccountDataAction
         }
 
         Log::info("Cleared account data: {$user->User} [{$user->ID}]");
+    }
+
+    private function closeUnresolvedTickets(User $user): void
+    {
+        $unresolvedTickets = Ticket::query()
+            ->unresolved()
+            ->where('reporter_id', $user->id)
+            ->with('author')
+            ->get();
+
+        if ($unresolvedTickets->isEmpty()) {
+            return;
+        }
+
+        $now = Carbon::now();
+        foreach ($unresolvedTickets as $ticket) {
+            $ticket->update([
+                'ReportState' => TicketState::Closed,
+                'ResolvedAt' => $now,
+                'resolver_id' => null,
+            ]);
+
+            Comment::create([
+                'ArticleType' => ArticleType::AchievementTicket,
+                'ArticleID' => $ticket->id,
+                'Payload' => 'Ticket closed: Reporter account deleted.',
+                'user_id' => Comment::SERVER_USER_ID,
+            ]);
+
+            if ($ticket->author) {
+                expireUserTicketCounts($ticket->author);
+            }
+        }
     }
 }

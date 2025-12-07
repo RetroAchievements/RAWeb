@@ -32,7 +32,7 @@ class ProcessExpiringClaimsAction
         $cacheKey = "claims:expiring:notified";
         $notificationsSent = Cache::get($cacheKey);
 
-        $systemUser = null;
+        $serverUser = null;
         $newNotificationsSent = [];
         foreach ($expiringClaims as $claim) {
             if ($claim->Special === ClaimSpecial::ScheduledRelease
@@ -40,12 +40,12 @@ class ProcessExpiringClaimsAction
                 // A ScheduledRelease claim is a completed claim that cannot be released until some future date
                 // An InReview claim is a potentially completed claim that cannot be released until it's been reviewed
                 // Since the user isn't controlling the release for these, automatically extend them.
-                $systemUser ??= User::find(Comment::SYSTEM_USER_ID);
-                (new ExtendGameClaimAction())->execute($claim, $systemUser);
+                $serverUser ??= User::find(Comment::SERVER_USER_ID);
+                (new ExtendGameClaimAction())->execute($claim, $serverUser);
                 continue;
             }
 
-            if ($claim->ClaimType === ClaimType::Collaboration && $systemUser) {
+            if ($claim->ClaimType === ClaimType::Collaboration && $serverUser) {
                 // Collaboration claim may have been extended by auto-extending the primary claim
                 $claim->refresh();
                 if ($claim->Finished > $expireThreshold) {
@@ -75,15 +75,15 @@ class ProcessExpiringClaimsAction
             ->with(['game.system', 'user'])
             ->get();
         foreach ($expiredClaims as $claim) {
-            $systemUser ??= User::find(Comment::SYSTEM_USER_ID);
+            $serverUser ??= User::find(Comment::SERVER_USER_ID);
 
             if ($claim->Special === ClaimSpecial::ScheduledRelease
                 || $claim->Status === ClaimStatus::InReview) {
                 // unexpected, as these should be auto-extended by the logic above, but this
                 // handles last-minute changes, and data prior to this functionality being added
-                (new ExtendGameClaimAction())->execute($claim, $systemUser);
+                (new ExtendGameClaimAction())->execute($claim, $serverUser);
             } else {
-                (new DropGameClaimAction())->execute($claim, $systemUser);
+                (new DropGameClaimAction())->execute($claim, $serverUser);
             }
         }
     }
