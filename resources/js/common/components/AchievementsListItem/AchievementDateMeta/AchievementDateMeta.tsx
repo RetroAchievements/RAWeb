@@ -9,6 +9,13 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 
+import {
+  BaseTooltip,
+  BaseTooltipContent,
+  BaseTooltipPortal,
+  BaseTooltipTrigger,
+} from '../../+vendor/BaseTooltip';
+
 dayjs.extend(utc);
 dayjs.extend(isSameOrBefore);
 
@@ -74,15 +81,21 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
       ) : null}
 
       {isDemoted ? (
-        <span
-          className="flex cursor-help items-center"
-          title={t(
-            'This achievement cannot currently be earned because the source achievement has been demoted.',
-          )}
-        >
-          <LuCircleAlert data-testid="warning-icon" className="text-text-danger" />
-          <span className="ml-0.5 text-text-danger">{t('Unavailable')}</span>
-        </span>
+        <BaseTooltip>
+          <BaseTooltipTrigger asChild>
+            <span className="flex items-center gap-1">
+              <LuCircleAlert data-testid="warning-icon" className="size-4 text-text-danger" />
+              <span className="text-text-danger">{t('Unavailable')}</span>
+            </span>
+          </BaseTooltipTrigger>
+          <BaseTooltipPortal>
+            <BaseTooltipContent>
+              {t(
+                'This achievement cannot currently be earned because the source achievement has been demoted.',
+              )}
+            </BaseTooltipContent>
+          </BaseTooltipPortal>
+        </BaseTooltip>
       ) : null}
 
       {unlockedAt ? (
