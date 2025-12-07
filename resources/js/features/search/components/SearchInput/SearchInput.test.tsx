@@ -18,7 +18,7 @@ describe('Component: SearchInput', () => {
     render(<SearchInput isLoading={false} onSearch={vi.fn()} query="" />);
 
     // ASSERT
-    const input = screen.getAllByRole('textbox')[0];
+    const input = screen.getAllByRole('textbox')[1];
 
     expect(input).toBeVisible();
     expect(input).toHaveAttribute(

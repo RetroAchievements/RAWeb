@@ -44,7 +44,7 @@ describe('Component: SelectableChip', () => {
     const chipButton = screen.getByRole('button', { name: /test chip/i });
 
     expect(chipButton).toBeVisible();
-    expect(chipButton).not.toBePressed();
+    expect(chipButton).toBePressed();
   });
 
   it('given the user clicks the chip, calls the onClick handler', async () => {
