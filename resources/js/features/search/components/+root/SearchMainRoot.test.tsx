@@ -1,11 +1,24 @@
 import userEvent from '@testing-library/user-event';
 
+import type { SearchResults } from '@/common/hooks/queries/useSearchQuery';
+import { useSearchQuery } from '@/common/hooks/queries/useSearchQuery';
 import { render, screen } from '@/test';
-import { createZiggyProps } from '@/test/factories';
+import { createGame, createZiggyProps } from '@/test/factories';
 
 import { SearchMainRoot } from './SearchMainRoot';
 
+vi.mock('@/common/hooks/queries/useSearchQuery');
+
 describe('Component: SearchMainRoot', () => {
+  beforeEach(() => {
+    vi.mocked(useSearchQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      setSearchTerm: vi.fn(),
+      setShouldUsePlaceholderData: vi.fn(),
+    } as unknown as ReturnType<typeof useSearchQuery>);
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render<App.Http.Data.SearchPageProps>(<SearchMainRoot />, {
@@ -157,5 +170,86 @@ describe('Component: SearchMainRoot', () => {
 
     // ASSERT
     expect(screen.getByText(/enter a search term to get started/i)).toBeVisible();
+  });
+
+  it('given a non-all scope with pagination results, displays pagination controls', () => {
+    // ARRANGE
+    const mockSearchResults: SearchResults = {
+      results: {
+        games: [createGame()],
+      },
+      query: 'mario',
+      scopes: ['games'],
+      scopeRelevance: { games: 100 },
+      pagination: {
+        currentPage: 1,
+        lastPage: 5,
+        perPage: 50,
+        total: 250,
+      },
+    };
+
+    vi.mocked(useSearchQuery).mockReturnValue({
+      data: mockSearchResults,
+      isLoading: false,
+      setSearchTerm: vi.fn(),
+      setShouldUsePlaceholderData: vi.fn(),
+    } as unknown as ReturnType<typeof useSearchQuery>);
+
+    render<App.Http.Data.SearchPageProps>(<SearchMainRoot />, {
+      pageProps: {
+        initialQuery: 'mario',
+        initialScope: 'games',
+        initialPage: 1,
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/of 5/i)).toBeVisible();
+    expect(screen.getByRole('combobox')).toHaveValue('1');
+  });
+
+  it('given the user clicks the next page button, updates the current page', async () => {
+    // ARRANGE
+    const mockSearchResults: SearchResults = {
+      results: {
+        games: [createGame()],
+      },
+      query: 'mario',
+      scopes: ['games'],
+      scopeRelevance: { games: 100 },
+      pagination: {
+        currentPage: 1,
+        lastPage: 5,
+        perPage: 50,
+        total: 250,
+      },
+    };
+
+    vi.mocked(useSearchQuery).mockReturnValue({
+      data: mockSearchResults,
+      isLoading: false,
+      setSearchTerm: vi.fn(),
+      setShouldUsePlaceholderData: vi.fn(),
+    } as unknown as ReturnType<typeof useSearchQuery>);
+
+    render<App.Http.Data.SearchPageProps>(<SearchMainRoot />, {
+      pageProps: {
+        initialQuery: 'mario',
+        initialScope: 'games',
+        initialPage: 1,
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ACT
+    const nextPageItem = screen.getByRole('listitem', { name: /next page/i });
+    // eslint-disable-next-line testing-library/no-node-access -- this is fine in this case
+    const nextButton = nextPageItem.querySelector('button')!;
+    await userEvent.click(nextButton);
+
+    // ASSERT
+    expect(screen.getByRole('combobox')).toHaveValue('2');
   });
 });

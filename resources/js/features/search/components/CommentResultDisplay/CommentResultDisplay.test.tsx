@@ -99,6 +99,16 @@ describe('Component: CommentResultDisplay', () => {
     expect(screen.getByText(/leaderboard comment/i)).toBeVisible();
   });
 
+  it('given the comment is a ticket comment, displays the ticket comment label', () => {
+    // ARRANGE
+    const comment = createComment({ commentableType: ArticleType.AchievementTicket });
+
+    render(<CommentResultDisplay comment={comment} />);
+
+    // ASSERT
+    expect(screen.getByText(/ticket comment/i)).toBeVisible();
+  });
+
   it('given the comment has an unknown type, displays the default comment label', () => {
     // ARRANGE
     const comment = createComment({ commentableType: 999 });
