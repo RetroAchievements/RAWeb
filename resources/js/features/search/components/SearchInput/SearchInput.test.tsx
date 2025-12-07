@@ -18,7 +18,7 @@ describe('Component: SearchInput', () => {
     render(<SearchInput isLoading={false} onSearch={vi.fn()} query="" />);
 
     // ASSERT
-    const input = screen.getByRole('textbox');
+    const input = screen.getAllByRole('textbox')[0];
 
     expect(input).toBeVisible();
     expect(input).toHaveAttribute(
@@ -32,7 +32,7 @@ describe('Component: SearchInput', () => {
     render(<SearchInput isLoading={false} onSearch={vi.fn()} query="mario" />);
 
     // ASSERT
-    const input = screen.getByRole('textbox');
+    const input = screen.getAllByRole('textbox')[0];
 
     expect(input).toHaveValue('mario');
   });
@@ -43,7 +43,7 @@ describe('Component: SearchInput', () => {
     render(<SearchInput isLoading={false} onSearch={onSearch} query="" />);
 
     // ACT
-    const input = screen.getByRole('textbox');
+    const input = screen.getAllByRole('textbox')[0];
     await userEvent.type(input, 'z');
 
     // ASSERT

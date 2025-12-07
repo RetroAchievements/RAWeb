@@ -45,7 +45,7 @@ describe('Component: SearchMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('textbox')).toBeVisible();
+    expect(screen.getAllByRole('textbox')[0]).toBeVisible();
   });
 
   it('displays the scope selector with all scope buttons', () => {
@@ -75,7 +75,7 @@ describe('Component: SearchMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('textbox')).toHaveValue('mario');
+    expect(screen.getAllByRole('textbox')[0]).toHaveValue('mario');
   });
 
   it('given an initial scope, selects that scope', () => {
@@ -119,7 +119,7 @@ describe('Component: SearchMainRoot', () => {
     });
 
     // ACT
-    const input = screen.getByRole('textbox');
+    const input = screen.getAllByRole('textbox')[0];
     await userEvent.type(input, 'zelda');
 
     // ASSERT
