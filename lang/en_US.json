@@ -1285,5 +1285,14 @@
     "Bonus Subset": "Bonus Subset",
     "Specialty Subset": "Specialty Subset",
     "Exclusive Subset": "Exclusive Subset",
-    "Save": "Save"
+    "Save": "Save",
+    "Search for games, users, achievements, and more...": "Search for games, users, achievements, and more...",
+    "Enter a search term to get started.": "Enter a search term to get started.",
+    "Game Comment": "Game Comment",
+    "Achievement Comment": "Achievement Comment",
+    "User Wall Comment": "User Wall Comment",
+    "Leaderboard Comment": "Leaderboard Comment",
+    "Ticket Comment": "Ticket Comment",
+    "posted {{when}}": "posted {{when}}",
+    "Unknown User": "Unknown User"
 }

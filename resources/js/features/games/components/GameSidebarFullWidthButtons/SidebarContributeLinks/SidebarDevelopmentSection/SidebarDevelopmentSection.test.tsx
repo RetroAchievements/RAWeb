@@ -88,7 +88,7 @@ describe('Component: SidebarDevelopmentSection', () => {
     // ASSERT
     const button = screen.getByRole('button', { name: /want to develop/i });
     expect(button).toBeVisible();
-    expect(button).toHaveAttribute('aria-pressed', 'false');
+    expect(button).not.toBePressed();
   });
 
   it('given the game is on the want to develop list, sets aria-pressed to true', () => {
@@ -110,7 +110,7 @@ describe('Component: SidebarDevelopmentSection', () => {
     // ASSERT
     const button = screen.getByRole('button', { name: /want to develop/i });
     expect(button).toBeVisible();
-    expect(button).toHaveAttribute('aria-pressed', 'true');
+    expect(button).toBePressed();
   });
 
   it('given the user clicks the button when the game is not in the list, adds it to the develop list', async () => {
@@ -145,10 +145,7 @@ describe('Component: SidebarDevelopmentSection', () => {
     });
 
     // ... the button should optimistically update to show as pressed ...
-    expect(screen.getByRole('button', { name: /want to develop/i })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    expect(screen.getByRole('button', { name: /want to develop/i })).toBePressed();
   });
 
   it('given the user clicks the button when the game is in the list, removes it from the develop list', async () => {
@@ -183,10 +180,7 @@ describe('Component: SidebarDevelopmentSection', () => {
     });
 
     // ... the button should optimistically update to show as not pressed ...
-    expect(screen.getByRole('button', { name: /want to develop/i })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    );
+    expect(screen.getByRole('button', { name: /want to develop/i })).not.toBePressed();
   });
 
   it('given the game already has achievements published, changes the button label to mention revisions instead', () => {

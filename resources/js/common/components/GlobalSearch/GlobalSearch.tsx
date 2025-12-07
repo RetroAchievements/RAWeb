@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { type FC, type KeyboardEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronRight, LuLoaderCircle, LuSearch } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
 import {
   BaseCommand,
@@ -17,6 +18,7 @@ import {
 } from '@/common/components/+vendor/BaseDialog';
 import { BaseSeparator } from '@/common/components/+vendor/BaseSeparator';
 import { useSearchQuery } from '@/common/hooks/queries/useSearchQuery';
+import type { SearchMode } from '@/common/models';
 import { cn } from '@/common/utils/cn';
 
 import { BootState } from './components/BootState';
@@ -27,7 +29,6 @@ import { SearchResultsSkeleton } from './components/SearchResultsSkeleton';
 import { useGlobalSearchDebounce } from './hooks/useGlobalSearchDebounce';
 import { useGlobalSearchHotkey } from './hooks/useGlobalSearchHotkey';
 import { useScrollToTopOnSearchResults } from './hooks/useScrollToTopOnSearchResults';
-import type { SearchMode } from './models';
 
 interface GlobalSearchProps {
   isOpen: boolean;
@@ -166,8 +167,12 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
               rawQuery={rawQuery}
             />
 
+            {/* Because this is a React island, we can't use InertiaLink. */}
             <a
-              href={rawQuery ? `/searchresults.php?s=${rawQuery}` : '/searchresults.php'}
+              href={route('search', {
+                query: rawQuery || undefined,
+                scope: searchMode !== 'all' ? searchMode : undefined,
+              })}
               className="hidden items-center sm:flex"
             >
               {t('Browse')} <LuChevronRight className="size-4" />
