@@ -289,7 +289,57 @@ class UploadLeaderboardTest extends TestCase
         $this->assertEquals('UNSIGNED', $leaderboard3->Format);
         $this->assertEquals($game->id, $leaderboard3->GameID);
         $this->assertEquals(3, $leaderboard3->DisplayOrder);
-    }
+
+        // ----------------------------
+        // create new leaderboard invalid checksum
+        $params = $this->checksumParams([
+            'g' => $game->id,
+            'n' => 'Title5',
+            'd' => 'Description5',
+            's' => '11=0',
+            'b' => '12=0',
+            'c' => '13=0',
+            'l' => '14=0',
+            'w' => 1,
+            'f' => 'SCORE',
+        ]);
+        unset($params['h']); // no checksum
+        $this->post('dorequest.php', $params)
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'missing_parameter',
+                'Success' => false,
+                'Error' => 'One or more required parameters is missing.',
+            ]);
+        $this->assertEquals(3, Leaderboard::count());
+
+        $params['h'] = 'INVALID'; // invalid checksum
+        $this->post('dorequest.php', $params)
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'Invalid checksum.',
+            ]);
+
+        $this->assertEquals(3, Leaderboard::count());
+
+        $params['i'] = $leaderboard2->ID; // also try updating
+        $this->post('dorequest.php', $params)
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'Invalid checksum.',
+            ]);
+
+        $this->assertEquals(3, Leaderboard::count());
+        $leaderboard2->refresh();
+        $this->assertEquals('Title4', $leaderboard2->Title);
+   }
 
     public function testUploadLeaderboardJuniorDeveloper(): void
     {
