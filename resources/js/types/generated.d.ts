@@ -129,7 +129,6 @@ declare namespace App.Community.Data {
     canReply: boolean;
     senderUserAvatarUrl: string | null;
     senderUserDisplayName: string;
-    can: App.Data.UserPermissions;
   };
   export type PatreonSupportersPageProps = {
     recentSupporters: Array<App.Data.User>;
@@ -228,6 +227,7 @@ declare namespace App.Community.Enums {
     | 'misclassification'
     | 'unwelcome-concept'
     | 'writing-error';
+  export type ModerationActionType = 'mute' | 'unmute' | 'ban' | 'unban' | 'unrank' | 'rerank';
   export type ModerationReportableType =
     | 'Comment'
     | 'DirectMessage'
