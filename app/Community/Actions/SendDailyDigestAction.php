@@ -56,18 +56,16 @@ class SendDailyDigestAction
         // build the data to pass to the mail script
         $notificationItems = [];
         foreach ($delayedSubscriptions as $delayedSubscription) {
+            // if all the new posts have been deleted or aren't visible, ignore it
             $handler = $this->getHandler($delayedSubscription->subject_type);
-            if ($handler) {
-                // if all the new posts have been deleted or aren't visible, ignore it
-                $count = $handler->getUpdatesSince($delayedSubscription);
-                if ($count > 0) {
-                    $notificationItems[] = [
-                        'type' => $delayedSubscription->subject_type->value,
-                        'title' => $titles[$delayedSubscription->subject_type->value][$delayedSubscription->subject_id] ?? '(untitled)',
-                        'link' => $handler->getLink($delayedSubscription->subject_id, $delayedSubscription->first_update_id),
-                        'count' => $count,
-                    ];
-                }
+            $count = $handler->getUpdatesSince($delayedSubscription);
+            if ($count > 0) {
+                $notificationItems[] = [
+                    'type' => $delayedSubscription->subject_type->value,
+                    'title' => $titles[$delayedSubscription->subject_type->value][$delayedSubscription->subject_id] ?? '(untitled)',
+                    'link' => $handler->getLink($delayedSubscription->subject_id, $delayedSubscription->first_update_id),
+                    'count' => $count,
+                ];
             }
         }
 
@@ -81,6 +79,10 @@ class SendDailyDigestAction
     {
         return match ($subjectType) {
             SubscriptionSubjectType::ForumTopic => new ForumTopicDelayedSubscriptionHandler(),
+
+            // this is wrong, but we have to return something to satisfy phpstan.
+            // other cases will be filled in as the calls are updated.
+            default => new ForumTopicDelayedSubscriptionHandler(),
         };
     }
 }

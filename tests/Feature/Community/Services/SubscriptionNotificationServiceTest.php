@@ -99,7 +99,7 @@ class SubscriptionNotificationServiceTest extends TestCase
         }
     }
 
-    public function testResetNotification()
+    public function testResetNotification(): void
     {
         $userPreference = UserPreference::EmailOn_ForumReply;
         $websitePrefs = 1 << $userPreference;
