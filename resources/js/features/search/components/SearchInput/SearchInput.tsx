@@ -19,8 +19,21 @@ export const SearchInput: FC<SearchInputProps> = ({ isLoading, onSearch, query }
         type="text"
         value={query}
         onChange={(event) => onSearch(event.target.value)}
+        placeholder={t('Search...')}
+        className={cn(
+          'sm:hidden',
+          'w-full rounded-lg border border-neutral-700 bg-embed px-4 py-3 pl-11 text-base',
+          'focus:border-neutral-500 focus:outline-none light:border-neutral-300 light:focus:border-neutral-400',
+        )}
+      />
+
+      <input
+        type="text"
+        value={query}
+        onChange={(event) => onSearch(event.target.value)}
         placeholder={t('Search for games, users, achievements, and more...')}
         className={cn(
+          'hidden sm:block',
           'w-full rounded-lg border border-neutral-700 bg-embed px-4 py-3 pl-11 text-base',
           'focus:border-neutral-500 focus:outline-none light:border-neutral-300 light:focus:border-neutral-400',
         )}
