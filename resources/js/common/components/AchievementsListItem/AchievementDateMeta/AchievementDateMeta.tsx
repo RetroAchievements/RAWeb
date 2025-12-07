@@ -74,12 +74,16 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
       ) : null}
 
       {isDemoted ? (
-        <span className="flex items-center cursor-help"
-              title={t('This achievement cannot currently be earned because the source achievement has been demoted.')}>
+        <span
+          className="flex cursor-help items-center"
+          title={t(
+            'This achievement cannot currently be earned because the source achievement has been demoted.',
+          )}
+        >
           <LuCircleAlert data-testid="warning-icon" className="text-text-danger" />
-          <span className="text-text-danger ml-0.5">{t('Unavailable')}</span>
+          <span className="ml-0.5 text-text-danger">{t('Unavailable')}</span>
         </span>
-      ): null}
+      ) : null}
 
       {unlockedAt ? (
         <p>

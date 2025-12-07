@@ -175,7 +175,6 @@ describe('AchievementDateMeta', () => {
 
   it('should not show unavailable warning for non-demoted event achievement.', () => {
     // ARRANGE
-    const now = dayjs.utc();
     const eventAchievement = createEventAchievement();
 
     render(
@@ -189,9 +188,8 @@ describe('AchievementDateMeta', () => {
 
   it('should show unavailable warning for demoted event achievement.', () => {
     // ARRANGE
-    const now = dayjs.utc();
     const eventAchievement = createEventAchievement({
-      sourceAchievement: createAchievement({flags: 5}),
+      sourceAchievement: createAchievement({ flags: 5 }),
     });
 
     render(
@@ -207,7 +205,7 @@ describe('AchievementDateMeta', () => {
     // ARRANGE
     const now = dayjs.utc();
     const eventAchievement = createEventAchievement({
-      sourceAchievement: createAchievement({flags: 5}),
+      sourceAchievement: createAchievement({ flags: 5 }),
       activeFrom: now.subtract(2, 'day').toISOString(),
       activeThrough: now.subtract(1, 'day').toISOString(),
       activeUntil: now.toISOString(),
