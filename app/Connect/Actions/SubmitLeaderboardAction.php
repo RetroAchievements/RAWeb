@@ -218,16 +218,24 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
 
         $maxDisplayOrder = Leaderboard::where('GameID', $game->ID)->max('DisplayOrder') ?? 0;
 
+        $newMem = $this->buildMemString();
         $leaderboard = Leaderboard::create([
             'GameID' => $this->gameId,
             'author_id' => $this->user->id,
             'DisplayOrder' => $maxDisplayOrder + 1,
             'Title' => $this->title,
             'Description' => $this->description,
-            'Mem' => $this->buildMemString(),
+            'Mem' => $newMem,
             'LowerIsBetter' => $this->lowerIsBetter,
             'Format' => $this->format,
         ]);
+
+        (new UpsertTriggerVersionAction())->execute(
+            $leaderboard,
+            $newMem,
+            versioned: true, // we don't currently support unpublished leaderboards
+            user: $this->user,
+        );
 
         return [
             'Success' => true,
