@@ -43,11 +43,6 @@ class CacheKey
         return self::buildNormalizedUserCacheKey($username, "rank", [$rankTypeParam]);
     }
 
-    public static function buildUserRecentGamesCacheKey(string $username): string
-    {
-        return self::buildNormalizedUserCacheKey($username, "recent-games");
-    }
-
     public static function buildUserRequestTicketsCacheKey(string $username): string
     {
         return self::buildNormalizedUserCacheKey($username, "request-tickets");
