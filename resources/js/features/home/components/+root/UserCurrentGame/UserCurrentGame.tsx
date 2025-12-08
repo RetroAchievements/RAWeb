@@ -4,6 +4,7 @@ import { LuChevronRight } from 'react-icons/lu';
 import { route } from 'ziggy-js';
 
 import { GameTitle } from '@/common/components/GameTitle';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
@@ -20,8 +21,9 @@ export const UserCurrentGame: FC = () => {
   const treatmentKind: 'active' | 'recent' = userCurrentGameMinutesAgo < 5 ? 'active' : 'recent';
 
   return (
-    <a
+    <InertiaLink
       href={route('game.show', { game: userCurrentGame.id })}
+      prefetch="desktop-hover-only"
       className={cn(
         'group lg:hover:bg-neutral-950/30 lg:hover:light:bg-neutral-100',
         '-mx-4 -mt-4 w-[calc(100%+2rem)] bg-embed px-4 py-2',
@@ -58,6 +60,6 @@ export const UserCurrentGame: FC = () => {
       </div>
 
       <LuChevronRight className="hidden size-4 min-w-4 transition lg:ml-auto lg:inline-block lg:group-hover:translate-x-0.5" />
-    </a>
+    </InertiaLink>
   );
 };

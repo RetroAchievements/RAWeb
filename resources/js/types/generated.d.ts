@@ -837,7 +837,6 @@ declare namespace App.Platform.Data {
     aggregateCredits: App.Platform.Data.AggregateAchievementSetCredits;
     backingGame: App.Platform.Data.Game;
     can: App.Data.UserPermissions;
-    canSubmitBetaFeedback: boolean;
     claimData: App.Platform.Data.GamePageClaimData | null;
     game: App.Platform.Data.Game;
     achievementSetClaims: Array<App.Platform.Data.AchievementSetClaim>;
