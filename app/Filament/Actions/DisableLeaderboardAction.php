@@ -29,13 +29,13 @@ class DisableLeaderboardAction extends Action
             ->action(function (Leaderboard $leaderboard) {
                 // Get the current Mem value
                 $mem = $leaderboard->Mem ?? '';
-                
+
                 // Find the position of the first ::
                 $firstDoubleColon = strpos($mem, '::');
-                
+
                 // Insert _0=1 before the first ::
                 $modifiedMem = substr_replace($mem, '_0=1', $firstDoubleColon, 0);
-                
+
                 $leaderboard->Mem = $modifiedMem;
                 $leaderboard->push();
             })

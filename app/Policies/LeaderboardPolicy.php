@@ -41,7 +41,7 @@ class LeaderboardPolicy
 
         return $user->hasAnyRole([
             Role::DEVELOPER,
-            Role::EVENT_MANAGER
+            Role::EVENT_MANAGER,
         ]);
     }
 
@@ -156,7 +156,6 @@ class LeaderboardPolicy
             Role::EVENT_MANAGER,
         ]);
     }
-
 
     // Only required until we are able to set leaderboards to 'unofficial'
     public function disable(User $user): bool
