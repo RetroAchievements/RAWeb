@@ -152,7 +152,6 @@ class LeaderboardPolicy
     public function clone(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::DEVELOPER,
             Role::EVENT_MANAGER,
         ]);
     }
