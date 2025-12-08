@@ -1,9 +1,8 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuCheck, LuMegaphone, LuPlus } from 'react-icons/lu';
+import { LuCheck, LuPlus } from 'react-icons/lu';
 import { route } from 'ziggy-js';
 
-import { BetaFeedbackDialog } from '@/common/components/BetaFeedbackDialog';
 import { GameTitle } from '@/common/components/GameTitle';
 import { useGameBacklogState } from '@/common/hooks/useGameBacklogState';
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -12,7 +11,6 @@ import { cn } from '@/common/utils/cn';
 export const GameMobileHeader: FC = () => {
   const {
     backingGame,
-    canSubmitBetaFeedback,
     game,
     isOnWantToPlayList: isInitiallyOnWantToPlayList,
   } = usePageProps<App.Platform.Data.GameShowPageProps>();
@@ -144,23 +142,6 @@ export const GameMobileHeader: FC = () => {
                   {t('game_wantToPlayToggle')}
                 </span>
               </button>
-
-              {/* Give beta feedback */}
-              {canSubmitBetaFeedback ? (
-                <BetaFeedbackDialog betaName="react-game-page">
-                  <button
-                    className={cn(
-                      'whitespace-nowrap text-link light:text-neutral-700',
-                      'flex items-center gap-1 rounded-full',
-                      'border border-white/30 bg-black/70 px-2.5 py-1 shadow-md backdrop-blur-sm transition-all hover:bg-black/80',
-                      'light:border-neutral-300 light:bg-white/80 light:backdrop-blur-md light:hover:bg-white/90',
-                    )}
-                  >
-                    <LuMegaphone className="size-3.5" />
-                    {t('Give Feedback')}
-                  </button>
-                </BetaFeedbackDialog>
-              ) : null}
             </div>
           </div>
         </div>

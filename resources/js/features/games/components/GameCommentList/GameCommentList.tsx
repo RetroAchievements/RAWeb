@@ -19,7 +19,7 @@ export const GameCommentList: FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div id="comments" className="flex flex-col gap-2">
       <div className="flex w-full items-end justify-between">
         <div className="flex items-center gap-1">
           <p>

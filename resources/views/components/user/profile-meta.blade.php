@@ -49,8 +49,8 @@ $isUserStatsDefaultExpanded = request()->cookie('prefers_hidden_user_profile_sta
     @endif
 @endcan
 
-@if (!empty($userMassData['LastGame']))
-    <x-user.profile.last-seen-in :userMassData="$userMassData" />
+@if ($user->LastGameID)
+    <x-user.profile.last-seen-in :user="$user" />
 @endif
 
 <div

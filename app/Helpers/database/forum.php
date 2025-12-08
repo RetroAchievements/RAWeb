@@ -227,6 +227,14 @@ function submitTopicComment(
 
 function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTopicComment $newComment): void
 {
+    // TODO remove this when digest emails are ready
+    // Event topics are blocked from sending email notifications entirely.
+    // We'll remove this TODO when digest emails are ready to go.
+    if ($topic->forum_id === 25) {
+        return;
+    }
+    // ENDTODO
+
     $subscriptionService = new SubscriptionService();
     $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::ForumTopic, $topic->id)
         ->filter(fn ($s) => isset($s->EmailAddress) && BitSet($s->websitePrefs, UserPreference::EmailOn_ForumReply));
@@ -236,12 +244,12 @@ function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTop
     }
 
     /**
-     * For threads with many subscribers (200+), we filter out implicit subscribers
+     * For threads with many subscribers (130+), we filter out implicit subscribers
      * who haven't posted recently, unless they explicitly subscribed or are the OP.
      * This targets high-volume threads where each comment triggers hundreds of emails.
      */
-    if ($subscribers->count() >= 200) {
-        $threadActivityCutoff = now()->subDays(45);
+    if ($subscribers->count() >= 130) {
+        $threadActivityCutoff = now()->subDays(21);
 
         $explicitSubscriberIds = Subscription::where('subject_type', SubscriptionSubjectType::ForumTopic)
             ->where('subject_id', $topic->id)
