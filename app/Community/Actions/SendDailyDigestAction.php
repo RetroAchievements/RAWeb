@@ -11,6 +11,7 @@ use App\Models\ForumTopicComment;
 use App\Models\User;
 use App\Models\UserDelayedSubscription;
 use Illuminate\Support\Facades\Mail;
+use InvalidArgumentException;
 
 class SendDailyDigestAction
 {
@@ -69,6 +70,10 @@ class SendDailyDigestAction
             }
         }
 
+        if (empty($notificationItems)) {
+            return;
+        }
+
         // send the mail
         Mail::to($user->EmailAddress)->queue(
             new DailyDigestMail($user, $notificationItems)
@@ -82,7 +87,7 @@ class SendDailyDigestAction
 
             // this is wrong, but we have to return something to satisfy phpstan.
             // other cases will be filled in as the calls are updated.
-            default => new ForumTopicDelayedSubscriptionHandler(),
+            default => throw new InvalidArgumentException("No handler for {$subjectType->value}"),
         };
     }
 }

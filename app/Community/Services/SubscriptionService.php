@@ -42,11 +42,17 @@ class SubscriptionService
     /**
      * Gets all users who are explicitly or implicitly subscribed to the subject separated into three categories.
      *
+     * @param SubscriptionSubjectType $subjectType the type of object to get subscribers of
+     * @param int $subjectId the unique identifier of the object to get subscribers of
+     * @param ?int $subjectAuthorUserId Optionally specifies the user who originally created the object.
+     *                                  Ensures they get returned in the `implicitlySubscribedNotifyNow` bucket if they are only implicitly subscribed.
+     *
+     * @return array containing the following:
      *   'explicitlySubscribed': Users who are explicitly subscribed to the content.
      *   'implicitlySubscribedNotifyNow': Users who are implicitly subscribed to the content and should be notified immediately.
      *   'implicitlySubscribedNotifyLater': Users who are implicitly subscribed to the content and should be notified when convienent.
      */
-    public function getSegmentedSubscriberIds(SubscriptionSubjectType $subjectType, int $subjectId, ?int $authorUserId): array
+    public function getSegmentedSubscriberIds(SubscriptionSubjectType $subjectType, int $subjectId, ?int $subjectAuthorUserId): array
     {
         [$explicitSubscriberIds, $implicitSubscriberIds] = $this->getSubscriberIds($subjectType, $subjectId);
 
@@ -55,9 +61,9 @@ class SubscriptionService
         $handler = $this->getHandler($subjectType);
         $recentUserIds = $handler->getRecentParticipants($subjectId, $recentActivityCutoff);
 
-        if ($authorUserId) {
+        if ($subjectAuthorUserId) {
             // if the author is implicitly subscribed, ensure they get classified as "notify now"
-            $recentUserIds[] = $authorUserId;
+            $recentUserIds[] = $subjectAuthorUserId;
         }
 
         return [
@@ -74,17 +80,17 @@ class SubscriptionService
             ->where('subject_type', $subjectType)
             ->where('subject_id', $subjectId)
             ->get();
-        $explicitSubcriberIds = $subscribers->pluck('user_id')->toArray();
+        $explicitSubscriberIds = $subscribers->pluck('user_id')->toArray();
 
         // get implicit subscriptions
         $handler = $this->getHandler($subjectType);
-        $implicitSubscriptionsQuery = $handler->getImplicitSubscriptionQuery($subjectId, null, null, $explicitSubcriberIds);
+        $implicitSubscriptionsQuery = $handler->getImplicitSubscriptionQuery($subjectId, null, null, $explicitSubscriberIds);
         $implicitSubscriberIds = $implicitSubscriptionsQuery->get()->pluck('user_id')->toArray();
 
         // discard explicitly unsubscribed
-        $explicitSubcriberIds = $subscribers->filter(fn ($s) => $s->state === true)->pluck('user_id')->toArray();
+        $explicitSubscriberIds = $subscribers->filter(fn ($s) => $s->state === true)->pluck('user_id')->toArray();
 
-        return [$explicitSubcriberIds, $implicitSubscriberIds];
+        return [$explicitSubscriberIds, $implicitSubscriberIds];
     }
 
     /**
