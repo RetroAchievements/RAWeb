@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Filament\Actions\CloneLeaderboardAction;
 use App\Filament\Actions\DeleteLeaderboardAction;
+use App\Filament\Actions\DisableLeaderboardAction;
 use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\LeaderboardResource\Pages;
@@ -261,6 +263,8 @@ class LeaderboardResource extends Resource
             ->recordActions([
                 Actions\ActionGroup::make([
                     Actions\ActionGroup::make([
+                        CloneLeaderboardAction::make('clone_leaderboard'),
+                        DisableLeaderboardAction::make('disable_leaderboard'),
                         ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
                         DeleteLeaderboardAction::make('delete_leaderboard'),
                     ])

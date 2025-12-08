@@ -19,6 +19,7 @@ class LeaderboardPolicy
         return $user->hasAnyRole([
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
+            Role::EVENT_MANAGER,
         ]);
     }
 
@@ -40,6 +41,7 @@ class LeaderboardPolicy
 
         return $user->hasAnyRole([
             Role::DEVELOPER,
+            Role::EVENT_MANAGER
         ]);
     }
 
@@ -55,6 +57,11 @@ class LeaderboardPolicy
              * writers may update leaderboard title and description if the respective leaderboard are open for editing
              */
             Role::WRITER,
+
+            /*
+             * event managers may update title, description, and display order to facilitate leaderboards for events
+             */
+            Role::EVENT_MANAGER,
         ]);
 
         if ($canEditAnyLeaderboard) {
@@ -76,6 +83,7 @@ class LeaderboardPolicy
             Role::DEVELOPER_JUNIOR => ['Title', 'Description', 'Format', 'LowerIsBetter', 'DisplayOrder'],
             Role::DEVELOPER => ['Title', 'Description', 'Format', 'LowerIsBetter', 'DisplayOrder'],
             Role::WRITER => ['Title', 'Description'],
+            Role::EVENT_MANAGER => ['Title', 'Description', 'DisplayOrder'],
         ];
 
         // Root can edit everything.
@@ -138,6 +146,24 @@ class LeaderboardPolicy
     {
         return $user->hasAnyRole([
             Role::DEVELOPER,
+        ]);
+    }
+
+    public function clone(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::DEVELOPER,
+            Role::EVENT_MANAGER,
+        ]);
+    }
+
+
+    // Only required until we are able to set leaderboards to 'unofficial'
+    public function disable(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::DEVELOPER,
+            Role::EVENT_MANAGER,
         ]);
     }
 }
