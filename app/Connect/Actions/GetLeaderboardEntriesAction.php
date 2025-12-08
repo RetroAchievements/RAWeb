@@ -8,6 +8,7 @@ use App\Connect\Support\BaseApiAction;
 use App\Models\Leaderboard;
 use App\Models\User;
 use App\Platform\Actions\GetRankedLeaderboardEntriesAction;
+use App\Platform\Enums\LeaderboardState;
 use Illuminate\Http\Request;
 
 class GetLeaderboardEntriesAction extends BaseApiAction
@@ -49,7 +50,7 @@ class GetLeaderboardEntriesAction extends BaseApiAction
     {
         $leaderboard = Leaderboard::query()
             ->where('ID', $this->leaderboardId)
-            ->where('state', 'active')
+            ->where('state', LeaderboardState::Active)
             ->with('developer')
             ->first();
         if (!$leaderboard) {
