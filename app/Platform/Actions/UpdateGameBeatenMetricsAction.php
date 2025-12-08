@@ -8,6 +8,9 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
+use App\Models\System;
+use App\Platform\Enums\PlayerStatRankingKind;
+use App\Platform\Jobs\UpdateBeatenGamesLeaderboardJob;
 use Illuminate\Database\Eloquent\Builder;
 
 class UpdateGameBeatenMetricsAction
@@ -49,6 +52,44 @@ class UpdateGameBeatenMetricsAction
 
             $achievementSet->save();
         }
+
+        $this->dispatchPlayerStatRankingJobs($game);
+    }
+
+    private function dispatchPlayerStatRankingJobs(Game $game): void
+    {
+        $systemId = $game->ConsoleID;
+        $specificKind = $this->determineRankingKindForGame($game, $systemId);
+
+        // Update system-specific leaderboards.
+        UpdateBeatenGamesLeaderboardJob::dispatch($systemId, PlayerStatRankingKind::AllBeaten)
+            ->onQueue('game-beaten-metrics');
+        UpdateBeatenGamesLeaderboardJob::dispatch($systemId, $specificKind)
+            ->onQueue('game-beaten-metrics');
+
+        // Update overall leaderboards.
+        UpdateBeatenGamesLeaderboardJob::dispatch(null, PlayerStatRankingKind::AllBeaten)
+            ->onQueue('game-beaten-metrics');
+        UpdateBeatenGamesLeaderboardJob::dispatch(null, $specificKind)
+            ->onQueue('game-beaten-metrics');
+    }
+
+    private function determineRankingKindForGame(Game $game, int $systemId): PlayerStatRankingKind
+    {
+        $tags = $game->tags()
+            ->whereType('game')
+            ->whereIn('name->en', ['Hack', 'Homebrew'])
+            ->pluck('name->en');
+
+        if ($tags->contains('Hack')) {
+            return PlayerStatRankingKind::HacksBeaten;
+        }
+
+        if ($tags->contains('Homebrew') || System::isHomebrewSystem($systemId)) {
+            return PlayerStatRankingKind::HomebrewBeaten;
+        }
+
+        return PlayerStatRankingKind::RetailBeaten;
     }
 
     /**
