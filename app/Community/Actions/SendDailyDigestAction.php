@@ -85,7 +85,6 @@ class SendDailyDigestAction
         return match ($subjectType) {
             SubscriptionSubjectType::ForumTopic => new ForumTopicDelayedSubscriptionHandler(),
 
-            // this is wrong, but we have to return something to satisfy phpstan.
             // other cases will be filled in as the calls are updated.
             default => throw new InvalidArgumentException("No handler for {$subjectType->value}"),
         };
