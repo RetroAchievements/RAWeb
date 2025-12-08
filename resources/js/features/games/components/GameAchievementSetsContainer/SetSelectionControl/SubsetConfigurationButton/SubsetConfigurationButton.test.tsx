@@ -1,4 +1,3 @@
-import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
@@ -8,9 +7,15 @@ import { createGame, createGameAchievementSet, createSystem } from '@/test/facto
 
 import { SubsetConfigurationButton } from './SubsetConfigurationButton';
 
+const mockReload = vi.fn();
+Object.defineProperty(window, 'location', {
+  value: { ...window.location, reload: mockReload },
+  writable: true,
+});
+
 describe('Component: SubsetConfigurationButton', () => {
   beforeEach(() => {
-    vi.spyOn(router, 'reload').mockImplementation(vi.fn());
+    mockReload.mockClear();
   });
 
   it('renders without crashing', () => {
@@ -183,7 +188,7 @@ describe('Component: SubsetConfigurationButton', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
-    expect(router.reload).toHaveBeenCalled();
+    expect(mockReload).toHaveBeenCalled();
   });
 
   it('filters out will_be_* type sets from configurable sets', async () => {
