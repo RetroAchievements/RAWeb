@@ -30,11 +30,12 @@ class SyncAuthenticationCookie
 {
     public function handle(Request $request, Closure $next): Response
     {
+        /** @var Response $response */
         $response = $next($request);
 
         if (Auth::check()) {
             // User is authenticated, so set the 'authenticated' cookie.
-            $response->withCookie(
+            $response->headers->setCookie(
                 cookie(
                     'retroachievements_authenticated',
                     '1',
@@ -50,7 +51,7 @@ class SyncAuthenticationCookie
         } else {
             // User is not authenticated, so remove the 'authenticated' cookie if it exists.
             if ($request->hasCookie('retroachievements_authenticated')) {
-                $response->withCookie(
+                $response->headers->setCookie(
                     cookie()->forget('retroachievements_authenticated', config('session.path'), config('session.domain'))
                 );
             }

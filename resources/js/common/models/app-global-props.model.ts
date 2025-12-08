@@ -17,6 +17,9 @@ export type AuthenticatedUser = SetRequired<
   | 'websitePrefs'
 >;
 
+/**
+ * @see HandleInertiaRequests.php
+ */
 export interface AppGlobalProps extends PageProps {
   auth: { user: AuthenticatedUser } | null;
 
@@ -29,8 +32,11 @@ export interface AppGlobalProps extends PageProps {
     };
   };
 
+  csrfToken: string;
   metaKey: string;
   ziggy: ZiggyProps;
+
+  flash?: { status?: string | null };
 }
 
 export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) => ({
@@ -67,6 +73,7 @@ export const createAppGlobalProps = createFactory<AppGlobalProps>(() => ({
     services: { patreon: {} },
   },
 
+  csrfToken: 'test-csrf-token',
   metaKey: 'Ctrl',
   ziggy: { defaults: [], device: 'desktop', location: '', port: 8080, query: {}, url: '' },
 }));

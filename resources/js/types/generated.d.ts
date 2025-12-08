@@ -269,6 +269,12 @@ declare namespace App.Data {
     created: string;
     finished: string;
   };
+  export type AuthorizeDevicePageProps = {
+    client: App.Data.OAuthClient;
+    scopes: Array<string>;
+    request: App.Data.DeviceAuthorizationRequest;
+    authToken: string;
+  };
   export type CreateForumTopicPageProps = {
     forum: App.Data.Forum;
     accessibleTeamAccounts: Array<App.Data.User> | null;
@@ -279,8 +285,18 @@ declare namespace App.Data {
     allTimeHighPlayers: number;
     allTimeHighDate: string | null;
   };
+  export type DeviceAuthorizationRequest = {
+    userCode: string;
+    state: string | null;
+  };
+  export type DeviceCodeRequest = {
+    clientId: string | null;
+  };
   export type EditForumTopicCommentPageProps = {
     forumTopicComment: App.Data.ForumTopicComment;
+  };
+  export type EnterDeviceCodePageProps = {
+    request: App.Data.DeviceCodeRequest;
   };
   export type ForumCategory = {
     id: number;
@@ -335,6 +351,28 @@ declare namespace App.Data {
     publishAt: string | null;
     unpublishAt: string | null;
     pinnedAt: string | null;
+  };
+  export type OAuthAuthorizePageProps = {
+    client: App.Data.OAuthClient;
+    scopes: Array<string>;
+    request: App.Data.OAuthRequest;
+    authToken: string;
+  };
+  export type OAuthClient = {
+    id: string;
+    name: string;
+    redirectUris: Array<string>;
+    grantTypes: Array<string>;
+    revoked: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+  export type OAuthRequest = {
+    clientId: string;
+    redirectUri: string;
+    responseType: string;
+    scope: string | null;
+    state: string | null;
   };
   export type PaginatedData<TItems> = {
     currentPage: number;
