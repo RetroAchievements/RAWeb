@@ -221,6 +221,14 @@ class LeaderboardResource extends Resource
                     ->label('Display Order')
                     ->sortable()
                     ->toggleable(),
+                Tables\Columns\SelectColumn::make('state')
+                    ->label('State')
+                    ->options([
+                        'active' => 'Active',
+                        'disabled' => 'Disabled',
+                        'unofficial' => 'Unofficial',
+                    ])
+                    ->selectablePlaceholder(false),
             ])
             ->searchPlaceholder('(ID, Title, Game, Dev)')
             ->filters([
@@ -264,7 +272,6 @@ class LeaderboardResource extends Resource
                 Actions\ActionGroup::make([
                     Actions\ActionGroup::make([
                         CloneLeaderboardAction::make('clone_leaderboard'),
-                        DisableLeaderboardAction::make('disable_leaderboard'),
                         ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
                         DeleteLeaderboardAction::make('delete_leaderboard'),
                     ])
