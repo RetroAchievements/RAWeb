@@ -109,6 +109,19 @@ class LeaderboardInfoTest extends TestCase
             ]);
     }
 
+    public function testDisabledLeaderboardInfo(): void
+    {
+        $game = $this->seedGame();
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'state' => 'disabled',
+        ]);
+
+        $this->get($this->apiUrl('lbinfo', ['i' => $leaderboard->id]))
+            ->assertStatus(404);
+    }
+
     public function testLeaderboardInfoNearUser(): void
     {
         $now = Carbon::now();

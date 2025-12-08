@@ -237,6 +237,12 @@ class BuildClientPatchDataActionTest extends TestCase
             'DisplayOrder' => -1, // !! hidden
             'Format' => 'VALUE',
         ]);
+        $leaderboard3 = Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'DisplayOrder' => 1,
+            'Format' => 'VALUE',
+            'state' => 'disabled',
+        ]);
 
         // Act
         $result = (new BuildClientPatchDataAction())->execute(game: $game);
@@ -255,6 +261,9 @@ class BuildClientPatchDataActionTest extends TestCase
         $this->assertEquals($leaderboard1->id, $leaderboardData[1]['ID']);
         $this->assertEquals($leaderboard1->title, $leaderboardData[1]['Title']);
         $this->assertFalse($leaderboardData[1]['Hidden']);
+
+        // Disabled leaderboards should not be included
+        $this->assertNotContains($leaderboard3->id, array_column($leaderboardData, 'ID'));
     }
 
     public function testItFiltersAchievementsByFlag(): void
