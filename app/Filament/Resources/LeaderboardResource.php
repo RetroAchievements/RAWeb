@@ -6,7 +6,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Actions\CloneLeaderboardAction;
 use App\Filament\Actions\DeleteLeaderboardAction;
-use App\Filament\Actions\DisableLeaderboardAction;
 use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\LeaderboardResource\Pages;
