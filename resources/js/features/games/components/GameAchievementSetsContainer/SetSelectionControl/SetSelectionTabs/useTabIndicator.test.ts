@@ -139,6 +139,10 @@ describe('Hook: useTabIndicator', () => {
       result.current.setActiveIndex(0); // !! change to index 0 which has width 0
     });
 
+    act(() => {
+      vi.advanceTimersByTime(50);
+    });
+
     // ASSERT
     expect(result.current.indicatorStyles.opacity).toEqual(0);
     expect(result.current.indicatorStyles.width).toEqual('0px');

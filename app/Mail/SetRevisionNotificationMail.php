@@ -32,7 +32,7 @@ class SetRevisionNotificationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Revision Completed for {$this->game->title}",
+            subject: "{$this->game->title} - Achievement Set Updated",
         );
     }
 
