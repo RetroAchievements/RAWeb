@@ -739,7 +739,8 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function leaderboards(): HasMany
     {
-        return $this->hasMany(Leaderboard::class, 'GameID', 'ID');
+        return $this->hasMany(Leaderboard::class, 'GameID', 'ID')
+        ->with('topEntry.user'); // eager load required to filter active leaderboards on game detail page
     }
 
     /**
