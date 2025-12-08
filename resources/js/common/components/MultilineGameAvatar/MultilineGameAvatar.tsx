@@ -6,6 +6,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import type { BaseAvatarProps } from '@/common/models';
 
 import { GameTitle } from '../GameTitle';
+import { InertiaLink } from '../InertiaLink';
 
 /**
  * Should only be used on table layouts, which themselves should be used
@@ -36,7 +37,11 @@ export const MultilineGameAvatar: FC<MultilineGameAvatarProps> = ({
   return (
     <div className="relative flex max-w-fit items-center gap-x-2">
       {/* Keep the image and game title in a single tooltipped container. Do not tooltip the system name. */}
-      <a href={route('game.show', { game: id })} {...(hasTooltip ? cardTooltipProps : undefined)}>
+      <InertiaLink
+        href={route('game.show', { game: id })}
+        prefetch="desktop-hover-only"
+        {...(hasTooltip ? cardTooltipProps : undefined)}
+      >
         <img
           src={badgeUrl}
           alt={title}
@@ -50,7 +55,7 @@ export const MultilineGameAvatar: FC<MultilineGameAvatarProps> = ({
         <p className="absolute left-7 top-0 mb-0.5 max-w-fit pl-4 text-xs font-medium">
           <GameTitle title={title} />
         </p>
-      </a>
+      </InertiaLink>
 
       <div>
         {/* Provide invisible space to slide the system underneath. */}

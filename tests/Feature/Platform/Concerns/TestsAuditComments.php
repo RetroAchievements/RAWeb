@@ -16,6 +16,7 @@ trait TestsAuditComments
     protected function addServerUser(): void
     {
         $this->serverUser = User::factory()->create([
+            'ID' => Comment::SYSTEM_USER_ID,
             'User' => 'Server',
             'Permissions' => Permissions::Unregistered,
             'EmailAddress' => '',

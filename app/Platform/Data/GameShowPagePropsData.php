@@ -34,7 +34,6 @@ class GameShowPagePropsData extends Data
         public AggregateAchievementSetCreditsData $aggregateCredits,
         public GameData $backingGame,
         public UserPermissionsData $can,
-        public bool $canSubmitBetaFeedback,
         public ?GamePageClaimData $claimData,
         public GameData $game,
         public Collection $achievementSetClaims,
@@ -83,6 +82,10 @@ class GameShowPagePropsData extends Data
         public ?int $targetAchievementSetId,
         public ?int $targetAchievementSetPlayersTotal,
         public ?int $targetAchievementSetPlayersHardcore,
+
+        /** @var Collection<int, UserGameAchievementSetPreferenceData> */
+        #[LiteralTypeScriptType('Record<number, App.Platform.Data.UserGameAchievementSetPreference>')]
+        public Collection $userGameAchievementSetPreferences,
     ) {
     }
 }

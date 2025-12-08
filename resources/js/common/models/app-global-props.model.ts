@@ -49,14 +49,19 @@ export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) 
   legacyPermissions: 8447,
   points: faker.number.int({ min: 0, max: 100000 }),
   pointsSoftcore: faker.number.int({ min: 0, max: 100000 }),
-  preferences: {
-    prefersAbsoluteDates: false,
-    shouldAlwaysBypassContentWarnings: false,
-  },
+  preferences: createAuthenticatedUserPreferences(),
   roles: [],
   unreadMessageCount: 0,
   websitePrefs: 63, // The default when a new account is created.
 }));
+
+export const createAuthenticatedUserPreferences = createFactory<AuthenticatedUser['preferences']>(
+  () => ({
+    isGloballyOptedOutOfSubsets: false,
+    prefersAbsoluteDates: false,
+    shouldAlwaysBypassContentWarnings: false,
+  }),
+);
 
 export const createAppGlobalProps = createFactory<AppGlobalProps>(() => ({
   auth: { user: createAuthenticatedUser() },

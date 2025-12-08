@@ -8,6 +8,7 @@ import { route, type RouteName } from 'ziggy-js';
 import { BaseDialogTrigger } from '@/common/components/+vendor/BaseDialog';
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { GameTitle } from '@/common/components/GameTitle';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { SystemChip } from '@/common/components/SystemChip';
 import type { useGameBacklogState } from '@/common/hooks/useGameBacklogState';
 import { cn } from '@/common/utils/cn';
@@ -57,9 +58,13 @@ export const GameListItemContent: FC<GameListItemContentProps> = ({
         {/* TODO if this gets more complex, break it out into another component */}
         <div className="flex-grow truncate">
           <div className="flex flex-col gap-1">
-            <a href={route('game.show', { game: game.id })} className="truncate tracking-tight">
+            <InertiaLink
+              href={route('game.show', { game: game.id })}
+              prefetch="desktop-hover-only"
+              className="truncate tracking-tight"
+            >
               <GameTitle title={game.title} />
-            </a>
+            </InertiaLink>
 
             <div className="flex flex-wrap items-center gap-1">
               {apiRouteName !== 'api.system.game.index' && game.system ? (

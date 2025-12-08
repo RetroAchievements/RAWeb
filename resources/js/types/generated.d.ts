@@ -446,7 +446,11 @@ declare namespace App.Data {
     userWallActive?: boolean | null;
     visibleRole?: App.Data.Role | null;
     websitePrefs?: number | null;
-    preferences?: { shouldAlwaysBypassContentWarnings: boolean; prefersAbsoluteDates: boolean };
+    preferences?: {
+      isGloballyOptedOutOfSubsets: boolean;
+      prefersAbsoluteDates: boolean;
+      shouldAlwaysBypassContentWarnings: boolean;
+    };
     roles?: App.Models.UserRole[];
   };
   export type UserPermissions = {
@@ -871,7 +875,6 @@ declare namespace App.Platform.Data {
     aggregateCredits: App.Platform.Data.AggregateAchievementSetCredits;
     backingGame: App.Platform.Data.Game;
     can: App.Data.UserPermissions;
-    canSubmitBetaFeedback: boolean;
     claimData: App.Platform.Data.GamePageClaimData | null;
     game: App.Platform.Data.Game;
     achievementSetClaims: Array<App.Platform.Data.AchievementSetClaim>;
@@ -914,6 +917,7 @@ declare namespace App.Platform.Data {
     targetAchievementSetId: number | null;
     targetAchievementSetPlayersTotal: number | null;
     targetAchievementSetPlayersHardcore: number | null;
+    userGameAchievementSetPreferences: Array<App.Platform.Data.UserGameAchievementSetPreference>;
   };
   export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
@@ -1139,6 +1143,10 @@ declare namespace App.Platform.Data {
     count: number;
     dateCredited: string | null;
     isGone?: boolean;
+  };
+  export type UserGameAchievementSetPreference = {
+    gameAchievementSetId: number;
+    optedIn: boolean;
   };
   export type UserSetRequestInfo = {
     total: number;

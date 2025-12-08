@@ -13,11 +13,7 @@ use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\UserController;
 use App\Models\Game;
 use App\Models\User;
-use App\Platform\Actions\BuildGameShowPagePropsAction;
-use App\Platform\Actions\LoadGameWithRelationsAction;
-use App\Platform\Controllers\GameController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Octane\Facades\Octane;
@@ -68,37 +64,6 @@ class RouteServiceProvider extends ServiceProvider
             Route::get('game1/{game}{slug?}', fn ($game) => $this->handlePageRequest('gameInfo', $game))->name('game1.show');
         });
 
-        // Intelligently serves different pages based whether the user has enabled beta features.
-        Route::middleware(['web', 'csp', 'inertia'])->group(function () {
-            Route::get('game/{game}{slug?}', function ($game) {
-                /** @var ?User $user */
-                $user = Auth::user();
-
-                if ($user?->enable_beta_features) {
-                    $gameModel = Game::findOrFail($game);
-                    $controller = app(GameController::class);
-
-                    return $controller->show(
-                        request(),
-                        $gameModel,
-                        app(LoadGameWithRelationsAction::class),
-                        app(BuildGameShowPagePropsAction::class)
-                    );
-                }
-
-                // For non-beta users, we need to bypass Inertia and serve the legacy page.
-                request()->merge(['game' => $game]);
-
-                // Return a non-Inertia response that will bypass Inertia middleware.
-                return response()->view('pages-legacy.gameInfo');
-            })->name('game.show');
-
-            /*
-             * redirects
-             */
-            Route::get('redirect', [RedirectController::class, 'redirect'])->name('redirect');
-        });
-
         Route::middleware(['web', 'csp'])->group(function () {
             /*
              * content
@@ -109,6 +74,7 @@ class RouteServiceProvider extends ServiceProvider
                 Route::get('downloads', [DownloadsController::class, 'index'])->name('download.index');
 
                 Route::get('contact', fn () => Inertia::render('contact'))->name('contact');
+                Route::get('redirect', [RedirectController::class, 'redirect'])->name('redirect');
                 Route::get('rss', fn () => Inertia::render('rss'))->name('rss.index');
                 Route::get('terms', fn () => Inertia::render('terms'))->name('terms');
             });
