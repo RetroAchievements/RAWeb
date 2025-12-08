@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Http\Controller;
-use App\Models\GameAchievementSet;
 use App\Models\User;
 use App\Models\UserGameAchievementSetPreference;
+use App\Platform\Requests\UpdateGameAchievementSetPreferencesRequest;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class UserGameAchievementSetPreferenceController extends Controller
 {
@@ -29,21 +28,24 @@ class UserGameAchievementSetPreferenceController extends Controller
     {
     }
 
-    public function update(Request $request, GameAchievementSet $gameAchievementSet): JsonResponse
+    public function update(UpdateGameAchievementSetPreferencesRequest $request): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
-        $optedIn = $request->input('optedIn');
 
-        $preference = UserGameAchievementSetPreference::updateOrCreate(
-            [
-                'user_id' => $user->id,
-                'game_achievement_set_id' => $gameAchievementSet->id,
-            ],
-            ['opted_in' => $optedIn]
-        );
+        foreach ($request->validated()['preferences'] as $pref) {
+            UserGameAchievementSetPreference::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'game_achievement_set_id' => $pref['gameAchievementSetId'],
+                ],
+                [
+                    'opted_in' => $pref['optedIn'],
+                ]
+            );
+        }
 
-        return response()->json(['optedIn' => $preference->opted_in]);
+        return response()->json(['success' => true]);
     }
 
     public function destroy(): void
