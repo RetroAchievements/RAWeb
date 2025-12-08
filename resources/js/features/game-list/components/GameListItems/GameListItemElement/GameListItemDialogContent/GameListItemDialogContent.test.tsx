@@ -12,6 +12,10 @@ import {
 
 import { GameListItemDialogContent } from './GameListItemDialogContent';
 
+vi.mock('@/common/components/InertiaLink', () => ({
+  InertiaLink: ({ children, ...props }: any) => <a {...props}>{children}</a>,
+}));
+
 // Suppress "Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}."
 console.warn = vi.fn();
 

@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
-import { createAuthenticatedUser } from '@/common/models';
+import { createAuthenticatedUser, createAuthenticatedUserPreferences } from '@/common/models';
 import { render, screen } from '@/test';
 import { createComment, createUser } from '@/test/factories';
 
@@ -127,7 +127,10 @@ describe('Component: CommentList', () => {
         pageProps: {
           auth: {
             user: createAuthenticatedUser({
-              preferences: { prefersAbsoluteDates: true, shouldAlwaysBypassContentWarnings: false },
+              preferences: createAuthenticatedUserPreferences({
+                prefersAbsoluteDates: true,
+                shouldAlwaysBypassContentWarnings: false,
+              }),
             }),
           },
         },

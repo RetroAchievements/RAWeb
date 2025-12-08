@@ -22,6 +22,7 @@ import type { GameShowTab } from '../../models';
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
 import { getSidebarExcludedHubIds } from '../../utils/getSidebarExcludedHubIds';
 import { AchievementSetEmptyState } from '../AchievementSetEmptyState';
+import { CommentsPreviewCard } from '../CommentsPreviewCard';
 import { GameAchievementSetsContainer } from '../GameAchievementSetsContainer';
 import { GameCommentList } from '../GameCommentList';
 import { GameContentWarnings } from '../GameContentWarnings';
@@ -108,7 +109,14 @@ export const GameShowMobileRoot: FC = () => {
           className="data-[state=inactive]:hidden"
         >
           <GameAchievementSetsContainer game={game} />
+
           {!allPageAchievements.length ? <AchievementSetEmptyState /> : null}
+
+          {isViewingPublishedAchievements ? (
+            <div className="mt-6">
+              <CommentsPreviewCard />
+            </div>
+          ) : null}
         </BaseTabsContent>
 
         {/* Info tab content */}

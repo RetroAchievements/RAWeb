@@ -4,11 +4,21 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Enums\Permissions;
+use App\Data\AuthorizeDevicePagePropsData;
+use App\Data\DeviceAuthorizationRequestData;
+use App\Data\DeviceCodeRequestData;
+use App\Data\EnterDeviceCodePagePropsData;
+use App\Data\OAuthAuthorizePagePropsData;
+use App\Data\OAuthClientData;
+use App\Data\OAuthRequestData;
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+use Laravel\Passport\Passport;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -20,6 +30,52 @@ class AuthServiceProvider extends ServiceProvider
          */
         // Passport::routes();
         // Passport::cookie(config('session.cookie') . '_token');
+
+        if (app()->isProduction()) {
+            Passport::ignoreRoutes();
+        }
+
+        Passport::authorizationView(function ($parameters) {
+            return Inertia::render('oauth/authorize', new OAuthAuthorizePagePropsData(
+                client: OAuthClientData::fromClient($parameters['client']),
+                scopes: $parameters['scopes'],
+                request: OAuthRequestData::fromPassportRequest($parameters['request']),
+                authToken: $parameters['authToken'],
+            ))->toResponse(request());
+        });
+
+        Passport::deviceUserCodeView(function ($parameters) {
+            return Inertia::render('oauth/device', new EnterDeviceCodePagePropsData(
+                request: DeviceCodeRequestData::fromPassportRequest($parameters['request']),
+            ))->toResponse(request());
+        });
+
+        Passport::deviceAuthorizationView(function ($parameters) {
+            return Inertia::render('oauth/device/authorize', new AuthorizeDevicePagePropsData(
+                client: OAuthClientData::fromClient($parameters['client']),
+                scopes: $parameters['scopes'],
+                request: DeviceAuthorizationRequestData::fromPassportRequest($parameters['request']),
+                authToken: $parameters['authToken'],
+            ))->toResponse(request());
+        });
+
+        /**
+         * Add `inertia` middleware to Passport routes that render as Inertia pages.
+         * This enables `flash` data sharing for success/error states.
+         */
+        $this->app->booted(function () {
+            $passportRouteNames = [
+                'passport.authorizations.authorize',
+                'passport.device.authorizations.authorize',
+                'passport.device',
+            ];
+
+            foreach ($passportRouteNames as $routeName) {
+                Route::getRoutes()->getByName($routeName)?->middleware(HandleInertiaRequests::class);
+            }
+
+            Route::getRoutes()->getByName('passport.device')?->middleware('auth');
+        });
 
         /*
          * a general manage role

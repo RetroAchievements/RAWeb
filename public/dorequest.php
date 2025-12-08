@@ -22,6 +22,7 @@ use App\Connect\Actions\PostActivityAction;
 use App\Connect\Actions\StartSessionAction;
 use App\Connect\Actions\SubmitCodeNoteAction;
 use App\Connect\Actions\SubmitGameTitleAction;
+use App\Connect\Actions\SubmitLeaderboardAction;
 use App\Connect\Actions\SubmitRichPresenceAction;
 use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
@@ -58,6 +59,7 @@ $handler = match ($requestType) {
     'submitgametitle' => new SubmitGameTitleAction(),
     'submitrichpresence' => new SubmitRichPresenceAction(),
     'unlocks' => new GetPlayerGameUnlocksAction(),
+    'uploadleaderboard' => new SubmitLeaderboardAction(),
     default => null,
 };
 if ($handler) {
@@ -133,6 +135,7 @@ $credentialsOK = match ($requestType) {
     /*
      * Registration required and user=local
      */
+    "achievementsets",
     "awardachievement",
     "awardachievements",
     "patch",
@@ -140,8 +143,7 @@ $credentialsOK = match ($requestType) {
     "submitgametitle",
     "submitlbentry",
     "submitrichpresence",
-    "uploadachievement",
-    "uploadleaderboard" => $validLogin && ($permissions >= Permissions::Registered),
+    "uploadachievement" => $validLogin && ($permissions >= Permissions::Registered),
     /*
      * Anything else is public. Includes login
      */
@@ -582,40 +584,6 @@ switch ($requestType) {
             gameAchievementSetID: request()->input('s')
         );
         $response['AchievementID'] = $achievementID;
-        $response['Error'] = $errorOut;
-        break;
-
-    case "uploadleaderboard":
-        if (VirtualGameIdService::isVirtualGameId($gameID)) {
-            [$gameID, $compatibility] = VirtualGameIdService::decodeVirtualGameId($gameID);
-        }
-
-        $leaderboardID = (int) request()->input('i', 0);
-        $newTitle = request()->input('n');
-        $newDesc = request()->input('d') ?? '';
-        $newStartMemString = request()->input('s');
-        $newSubmitMemString = request()->input('b');
-        $newCancelMemString = request()->input('c');
-        $newValueMemString = request()->input('l');
-        $gameAchievementSetID = request()->input('p');
-        $newLowerIsBetter = (bool) request()->input('w', 0);
-        $newFormat = request()->input('f');
-        $newMemString = "STA:$newStartMemString::CAN:$newCancelMemString::SUB:$newSubmitMemString::VAL:$newValueMemString";
-
-        $errorOut = "";
-        $response['Success'] = UploadNewLeaderboard(
-            $username,
-            $gameID,
-            $newTitle,
-            $newDesc,
-            $newFormat,
-            $newLowerIsBetter,
-            $newMemString,
-            $leaderboardID,
-            $errorOut,
-            $gameAchievementSetID
-        );
-        $response['LeaderboardID'] = $leaderboardID;
         $response['Error'] = $errorOut;
         break;
 

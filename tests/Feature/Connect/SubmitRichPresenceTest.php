@@ -13,18 +13,21 @@ use App\Models\User;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Tests\Feature\Platform\Concerns\TestsAuditComments;
 use Tests\TestCase;
 
 class SubmitRichPresenceTest extends TestCase
 {
     use BootstrapsConnect;
     use RefreshDatabase;
+    use TestsAuditComments;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->seed(RolesTableSeeder::class);
+        $this->addServerUser();
     }
 
     public function testDeveloperCanSubmitRichPresence(): void
