@@ -231,6 +231,7 @@ class BuildClientPatchDataV2Action
 
         // TODO detach leaderboards from games
         $leaderboards = $game->leaderboards()
+            ->where('state', 'active')
             ->orderBy('DisplayOrder') // explicit display order
             ->orderBy('ID')           // tiebreaker on creation sequence
             ->get();

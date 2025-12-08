@@ -49,6 +49,7 @@ class GetLeaderboardEntriesAction extends BaseApiAction
     {
         $leaderboard = Leaderboard::query()
             ->where('ID', $this->leaderboardId)
+            ->where('state', 'active')
             ->with('developer')
             ->first();
         if (!$leaderboard) {
