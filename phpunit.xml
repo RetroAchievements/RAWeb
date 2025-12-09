@@ -20,6 +20,10 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+
+        <!-- mirror CI's memory limit -->
+        <ini name="memory_limit" value="1G"/>
+
         <!-- see .env.testing -->
     </php>
 </phpunit>

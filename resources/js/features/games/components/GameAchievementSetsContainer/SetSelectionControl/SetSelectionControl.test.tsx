@@ -1,5 +1,5 @@
 import { render, screen } from '@/test';
-import { createGameAchievementSet, createZiggyProps } from '@/test/factories';
+import { createGame, createGameAchievementSet, createZiggyProps } from '@/test/factories';
 
 import { SetSelectionControl } from './SetSelectionControl';
 
@@ -16,6 +16,7 @@ describe('Component: SetSelectionControl', () => {
     // ARRANGE
     const { container } = render(<SetSelectionControl activeTab={null} />, {
       pageProps: {
+        game: createGame(),
         selectableGameAchievementSets: [],
         ziggy: createZiggyProps({ device: 'desktop' }),
       },
@@ -37,6 +38,7 @@ describe('Component: SetSelectionControl', () => {
 
     render(<SetSelectionControl activeTab={123} />, {
       pageProps: {
+        game: createGame(),
         selectableGameAchievementSets: sets,
         ziggy: createZiggyProps({ device: 'mobile' }), // !!
       },
@@ -58,6 +60,7 @@ describe('Component: SetSelectionControl', () => {
 
     render(<SetSelectionControl activeTab={456} />, {
       pageProps: {
+        game: createGame(),
         selectableGameAchievementSets: sets,
         ziggy: createZiggyProps({ device: 'mobile' }), // !!
       },
@@ -80,6 +83,7 @@ describe('Component: SetSelectionControl', () => {
 
     render(<SetSelectionControl activeTab={789} />, {
       pageProps: {
+        game: createGame(),
         selectableGameAchievementSets: sets,
         ziggy: createZiggyProps({ device: 'desktop' }), // !!
       },
@@ -96,6 +100,7 @@ describe('Component: SetSelectionControl', () => {
 
     render(<SetSelectionControl activeTab={null} />, {
       pageProps: {
+        game: createGame(),
         selectableGameAchievementSets: sets,
         ziggy: createZiggyProps({ device: 'desktop' }), // !!
       },

@@ -16,7 +16,7 @@ import { useCurrentListView } from '@/features/games/hooks/useCurrentListView';
 import { usePreloadDeferredLeaderboards } from '@/features/games/hooks/usePreloadDeferredLeaderboards';
 
 export const GameListViewSelectToggleGroup: FC = () => {
-  const { allLeaderboards, backingGame, numLeaderboards } =
+  const { allLeaderboards, backingGame, isViewingPublishedAchievements, numLeaderboards } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
@@ -88,7 +88,11 @@ export const GameListViewSelectToggleGroup: FC = () => {
                   currentListView === 'achievements' ? 'opacity-100' : null,
                 ])}
               >
-                {formatNumber(backingGame.achievementsPublished)}
+                {formatNumber(
+                  isViewingPublishedAchievements
+                    ? backingGame.achievementsPublished
+                    : backingGame.achievementsUnpublished,
+                )}
               </BaseChip>
             </div>
           </BaseTooltipTrigger>

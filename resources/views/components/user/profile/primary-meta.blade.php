@@ -92,7 +92,7 @@ $usernameTitle = $previousUsernames ? "Username history:\n{$previousUsernames}" 
                     @if ($fullRolesLabel) title="{{ $fullRolesLabel }}" @endif
                 >
                     <p class="text-2xs -mb-0.5">
-                        {{ __('permission.role.' . $user->visible_role->name) }}
+                        {{ __('permission.role.' . $user->visible_role?->name) }}
                     </p>
                 </div>
             @endif

@@ -6,6 +6,7 @@ namespace App\Connect\Actions;
 
 use App\Community\Enums\ArticleType;
 use App\Connect\Support\BaseAuthenticatedApiAction;
+use App\Connect\Support\GeneratesLegacyAuditComment;
 use App\Enums\GameHashCompatibility;
 use App\Models\Game;
 use App\Models\GameHash;
@@ -17,6 +18,8 @@ use Illuminate\Http\Request;
 
 class SubmitGameTitleAction extends BaseAuthenticatedApiAction
 {
+    use GeneratesLegacyAuditComment;
+
     protected string $hash;
     protected ?string $hashDescription;
     protected string $gameTitle;
@@ -134,7 +137,8 @@ class SubmitGameTitleAction extends BaseAuthenticatedApiAction
             if (!empty($this->hashDescription)) {
                 $message .= " Description: \"$this->hashDescription\"";
             }
-            addArticleComment('Server', ArticleType::GameHash, $game->id, $message);
+
+            $this->addLegacyAuditComment(ArticleType::GameHash, $game->id, $message);
         }
 
         return [

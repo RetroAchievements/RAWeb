@@ -837,4 +837,147 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $this->assertCount(1, $result['Sets']);
         $this->assertCount(6, $result['Sets'][0]['Achievements']);
     }
+
+    public function testItReturnsWarningAchievementWhenUserOptsOutOfAllSets(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', publishedCount: 2);
+        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', publishedCount: 3);
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($bonusGame);
+
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
+
+        $baseGameHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
+
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // ... the user opts out of BOTH the core set and the bonus set ...
+        $coreSet = GameAchievementSet::whereGameId($baseGame->id)->whereType(AchievementSetType::Core)->first();
+        $bonusSet = GameAchievementSet::whereGameId($baseGame->id)->whereType(AchievementSetType::Bonus)->first();
+        UserGameAchievementSetPreference::factory()->create([
+            'user_id' => $user->id,
+            'game_achievement_set_id' => $coreSet->id,
+            'opted_in' => false,
+        ]);
+        UserGameAchievementSetPreference::factory()->create([
+            'user_id' => $user->id,
+            'game_achievement_set_id' => $bonusSet->id,
+            'opted_in' => false,
+        ]);
+
+        // Act
+        $result = (new BuildClientPatchDataV2Action())->execute(gameHash: $baseGameHash, user: $user);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+        $this->assertCount(1, $result['Sets']);
+        $this->assertEquals(AchievementSetType::Core->value, $result['Sets'][0]['Type']);
+
+        // ... there should be a core set with a single warning achievement, not the actual game achievements ...
+        $this->assertCount(1, $result['Sets'][0]['Achievements']);
+        $this->assertMatchesRegularExpression('/opted out/i', $result['Sets'][0]['Achievements'][0]['Description']);
+    }
+
+    public function testItOnlyExcludesSpecificLocallyOptedOutSubsets(): void
+    {
+        /**
+         * If the user is globally opted in but locally opts out of one specific subset,
+         * only that subset should be excluded. All other sets should still be returned.
+         */
+
+        // Arrange
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', publishedCount: 1);
+        $bonusGame1 = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus 1]', publishedCount: 2);
+        $bonusGame2 = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus 2]', publishedCount: 3);
+        $bonusGame3 = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus 3]', publishedCount: 4);
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($bonusGame1);
+        $this->upsertGameCoreSetAction->execute($bonusGame2);
+        $this->upsertGameCoreSetAction->execute($bonusGame3);
+
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame1, AchievementSetType::Bonus, 'Bonus 1');
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame2, AchievementSetType::Bonus, 'Bonus 2');
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame3, AchievementSetType::Bonus, 'Bonus 3');
+
+        $baseGameHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
+
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // ... user opts out of only "Bonus 2" ...
+        $bonus2Set = GameAchievementSet::whereGameId($baseGame->id)
+            ->whereType(AchievementSetType::Bonus)
+            ->whereTitle('Bonus 2')
+            ->first();
+        UserGameAchievementSetPreference::factory()->create([
+            'user_id' => $user->id,
+            'game_achievement_set_id' => $bonus2Set->id,
+            'opted_in' => false,
+        ]);
+
+        // Act
+        $result = (new BuildClientPatchDataV2Action())->execute(gameHash: $baseGameHash, user: $user);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+
+        $this->assertCount(3, $result['Sets']);
+        $this->assertEquals(AchievementSetType::Core->value, $result['Sets'][0]['Type']);
+
+        $bonusSetTitles = [];
+        foreach ($result['Sets'] as $set) {
+            if ($set['Type'] === AchievementSetType::Bonus->value) {
+                $bonusSetTitles[] = $set['Title'];
+            }
+        }
+        $this->assertContains('Bonus 1', $bonusSetTitles);
+        $this->assertContains('Bonus 3', $bonusSetTitles);
+        $this->assertNotContains('Bonus 2', $bonusSetTitles);
+    }
+
+    public function testItIncludesSubsetWhenGloballyOptedOutButLocallyOptedIn(): void
+    {
+        /**
+         * If a user is globally opted out but has locally opted in to a specific subset,
+         * that subset should be included along with the core set.
+         */
+
+        // Arrange
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', publishedCount: 2);
+        $bonusGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus]', publishedCount: 3);
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($bonusGame);
+
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
+
+        $baseGameHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
+
+        // ... globally opt them out ...
+        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_DISABLED]);
+
+        // ... locally opt them in ...
+        $bonusSet = GameAchievementSet::whereGameId($baseGame->id)->whereType(AchievementSetType::Bonus)->first();
+        UserGameAchievementSetPreference::factory()->create([
+            'user_id' => $user->id,
+            'game_achievement_set_id' => $bonusSet->id,
+            'opted_in' => true,
+        ]);
+
+        // Act
+        $result = (new BuildClientPatchDataV2Action())->execute(gameHash: $baseGameHash, user: $user);
+
+        // Assert
+        $this->assertTrue($result['Success']);
+
+        $this->assertCount(2, $result['Sets']); // both core and bonus are included in Sets
+
+        $this->assertEquals(AchievementSetType::Core->value, $result['Sets'][0]['Type']);
+        $this->assertCount(2, $result['Sets'][0]['Achievements']);
+
+        $this->assertEquals(AchievementSetType::Bonus->value, $result['Sets'][1]['Type']);
+        $this->assertCount(3, $result['Sets'][1]['Achievements']);
+    }
 }

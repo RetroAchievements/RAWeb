@@ -913,4 +913,77 @@ describe('Component: GameAchievementSetToolbar', () => {
     expect(screen.getByRole('radio', { name: /achievements/i })).toBeVisible();
     expect(screen.getByRole('radio', { name: /leaderboards/i })).toBeVisible();
   });
+
+  it('given the user is viewing published achievements, shows the published achievements count in the list mode toggle', () => {
+    // ARRANGE
+    const mockGame = createGame({
+      id: 123,
+      achievementsPublished: 45,
+      achievementsUnpublished: 12,
+    });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={1}
+      />,
+      {
+        pageProps: {
+          backingGame: mockGame,
+          game: mockGame,
+          numLeaderboards: 10,
+          isViewingPublishedAchievements: true, // !!
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    // The toggle group renders for both mobile and desktop, so the count appears twice.
+    expect(screen.getAllByText('45')).toHaveLength(2);
+    expect(screen.queryByText('12')).not.toBeInTheDocument();
+  });
+
+  it('given the user is viewing unpublished achievements, shows the unpublished achievements count in the list mode toggle', () => {
+    // ARRANGE
+    const mockGame = createGame({
+      id: 123,
+      achievementsPublished: 45,
+      achievementsUnpublished: 12,
+    });
+    const mockToggleGameId = vi.fn();
+
+    vi.mocked(usePersistedGameIdsCookie).mockReturnValue({
+      isGameIdInCookie: vi.fn().mockReturnValue(false),
+      toggleGameId: mockToggleGameId,
+    });
+
+    render(
+      <GameAchievementSetToolbar
+        lockedAchievementsCount={5}
+        missableAchievementsCount={3}
+        unlockedAchievementsCount={1}
+      />,
+      {
+        pageProps: {
+          backingGame: mockGame,
+          game: mockGame,
+          numLeaderboards: 10,
+          isViewingPublishedAchievements: false, // !!
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getAllByText('12')).toHaveLength(2);
+    expect(screen.queryByText('45')).not.toBeInTheDocument();
+  });
 });

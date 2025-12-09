@@ -11,6 +11,7 @@ use App\Models\GameAchievementSet;
 use App\Models\GameHash;
 use App\Models\PlayerGame;
 use App\Models\User;
+use App\Models\UserGameAchievementSetPreference;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\LeaderboardState;
@@ -48,20 +49,43 @@ class BuildClientPatchDataV2Action
 
         $actualLoadedGame = (new ResolveRootGameFromGameAndGameHashAction())->execute($gameHash, $game, $user);
 
-        // If multiset is disabled or there's no user, just use the game directly.
-        if (!$user || $user->is_globally_opted_out_of_subsets) {
+        // If there's no user, just use the game directly.
+        if (!$user) {
             return $this->buildPatchData($actualLoadedGame, null, $user, $flag, compatibility: $gameHash->compatibility);
         }
 
         // Resolve sets once - we'll use this for building the full patch data.
         $resolvedSets = (new ResolveAchievementSetsAction())->execute($gameHash, $user);
         if ($resolvedSets->isEmpty()) {
-            return $this->buildPatchData($actualLoadedGame, null, $user, $flag, compatibility: $gameHash->compatibility);
+            /**
+             * Check if the game actually has achievement sets. If not, return an empty Sets
+             * list (not a warning due to manual opt out). Only show a warning if the user
+             * has opted out of existing sets.
+             */
+            $doesGameHaveAnySets = GameAchievementSet::where('game_id', $actualLoadedGame->id)->exists();
+            if (!$doesGameHaveAnySets) {
+                return $this->buildPatchData($actualLoadedGame, null, $user, $flag, compatibility: $gameHash->compatibility);
+            }
+
+            return $this->buildAllSetsOptedOutPatchData($actualLoadedGame, $gameHash->compatibility);
         }
 
         // Get the core game from the first resolved set.
         $derivedCoreSet = $resolvedSets->first();
-        $derivedCoreGame = Game::find($derivedCoreSet->game_id) ?? $actualLoadedGame;
+
+        /**
+         * When the user is globally opted out and has no local preferences, use legacy
+         * behavior (treat the loaded game/hash as standalone, like pre-multiset).
+         *
+         * When the user has local preferences, use multiset behavior and derive the
+         * root game from resolved sets.
+         */
+        $hasLocalPreferences = $this->getDoesUserHaveLocalPreferences($user, $derivedCoreSet->game_id);
+        if ($user->is_globally_opted_out_of_subsets && !$hasLocalPreferences) {
+            $derivedCoreGame = $actualLoadedGame;
+        } else {
+            $derivedCoreGame = Game::find($derivedCoreSet->game_id) ?? $actualLoadedGame;
+        }
 
         // What type of set is the user loading? "core", "bonus", "specialty", or "exclusive".
         $loadedSetType = $this->determineLoadedHashSetType($gameHash, $derivedCoreGame->gameAchievementSets);
@@ -348,6 +372,49 @@ class BuildClientPatchDataV2Action
     }
 
     /**
+     * Returns patch data with a warning achievement when the user has opted out of all sets.
+     */
+    private function buildAllSetsOptedOutPatchData(
+        Game $game,
+        GameHashCompatibility $compatibility,
+    ): array {
+        $coreAchievementSet = GameAchievementSet::where('game_id', $game->id)
+            ->core()
+            ->first();
+        $achievementSetId = $coreAchievementSet ? $coreAchievementSet->achievement_set_id : 0;
+
+        $title = ($compatibility === GameHashCompatibility::Compatible)
+            ? $game->title
+            : "Unsupported Game Version ({$game->title})";
+
+        return [
+            'Success' => true,
+            'GameId' => $game->id,
+            'Title' => $title,
+            'ImageIconUrl' => media_asset($game->ImageIcon),
+            'RichPresenceGameId' => $game->id,
+            'RichPresencePatch' => $game->RichPresencePatch,
+            'ConsoleId' => $game->system->id,
+            'Sets' => [
+                [
+                    'Title' => $coreAchievementSet?->title ?? $game->title,
+                    'Type' => AchievementSetType::Core->value,
+                    'AchievementSetId' => $achievementSetId,
+                    'GameId' => $game->id,
+                    'ImageIconUrl' => media_asset($game->ImageIcon),
+                    'Achievements' => [
+                        (new CreateWarningAchievementAction())->execute(
+                            title: 'All Sets Opted Out',
+                            description: 'You have opted out of all achievement sets for this game. Visit the game page to change your preferences.',
+                        ),
+                    ],
+                    'Leaderboards' => [],
+                ],
+            ],
+        ];
+    }
+
+    /**
      * @param Collection<int, GameAchievementSet> $resolvedAchievementSets
      */
     private function determineLoadedHashSetType(
@@ -374,5 +441,17 @@ class BuildClientPatchDataV2Action
         }
 
         return $setType;
+    }
+
+    /**
+     * Checks if the user has any local preferences for the given game's achievement sets.
+     */
+    private function getDoesUserHaveLocalPreferences(User $user, int $gameId): bool
+    {
+        $gameAchievementSetIds = GameAchievementSet::where('game_id', $gameId)->pluck('id');
+
+        return UserGameAchievementSetPreference::where('user_id', $user->id)
+            ->whereIn('game_achievement_set_id', $gameAchievementSetIds)
+            ->exists();
     }
 }

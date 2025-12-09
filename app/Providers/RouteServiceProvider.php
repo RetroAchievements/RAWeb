@@ -118,6 +118,33 @@ class RouteServiceProvider extends ServiceProvider
                 Route::post('avatar', [UserController::class, 'uploadAvatar'])->name('api.user.avatar.store');
                 Route::delete('avatar', [UserController::class, 'deleteAvatar'])->name('api.user.avatar.destroy');
             });
+
+            /**
+             * OAuth test callback (non-production only).
+             * This is just for end-to-end testing of the OAuth2 client flow, eg:
+             * http://localhost:64000/oauth/authorize?client_id={CLIENT_ID}&redirect_uri=http://localhost:64000/auth/callback&response_type=code
+             */
+            if (!app()->isProduction()) {
+                // TODO eventually remove after we're happy with our OAuth2 implementation
+                Route::get('auth/callback', function () {
+                    $error = request()->get('error');
+
+                    if ($error) {
+                        return response()->json([
+                            'message' => 'OAuth authorization denied',
+                            'error' => $error,
+                            'error_description' => request()->get('error_description'),
+                            'state' => request()->get('state'),
+                        ]);
+                    }
+
+                    return response()->json([
+                        'message' => 'OAuth authorization successful',
+                        'code' => request()->get('code'),
+                        'state' => request()->get('state'),
+                    ]);
+                })->name('auth.callback.test');
+            }
         });
     }
 }

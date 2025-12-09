@@ -6,6 +6,7 @@ namespace App\Connect\Actions;
 
 use App\Community\Enums\ArticleType;
 use App\Connect\Support\BaseAuthenticatedApiAction;
+use App\Connect\Support\GeneratesLegacyAuditComment;
 use App\Models\Game;
 use App\Models\User;
 use App\Platform\Actions\UpsertTriggerVersionAction;
@@ -13,6 +14,8 @@ use Illuminate\Http\Request;
 
 class SubmitRichPresenceAction extends BaseAuthenticatedApiAction
 {
+    use GeneratesLegacyAuditComment;
+
     protected int $gameId;
     protected string $richPresence;
 
@@ -66,10 +69,7 @@ class SubmitRichPresenceAction extends BaseAuthenticatedApiAction
             user: $this->user,
         );
 
-        addArticleComment(
-            'Server',
-            ArticleType::GameModification,
-            $game->id,
+        $this->addLegacyAuditComment(ArticleType::GameModification, $game->id,
             "{$this->user->display_name} changed the rich presence script"
         );
 
