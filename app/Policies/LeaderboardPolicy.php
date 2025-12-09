@@ -83,7 +83,7 @@ class LeaderboardPolicy
             Role::DEVELOPER_JUNIOR => ['Title', 'Description', 'Format', 'LowerIsBetter', 'DisplayOrder'],
             Role::DEVELOPER => ['Title', 'Description', 'Format', 'LowerIsBetter', 'DisplayOrder'],
             Role::WRITER => ['Title', 'Description'],
-            Role::EVENT_MANAGER => ['Title', 'Description', 'DisplayOrder'],
+            Role::EVENT_MANAGER => ['Title', 'Description', 'DisplayOrder', 'state'],
         ];
 
         // Root can edit everything.
