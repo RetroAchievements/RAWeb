@@ -60,7 +60,7 @@ export const LeaderboardsListItem: FC<LeaderboardsListItemProps> = ({
             <BaseTooltip>
               {leaderboard.state === 'disabled' && (
                 <BaseTooltipTrigger asChild>
-                  <span className="cursor-pointer rounded-full bg-embed px-2.5 py-0.5 text-xs text-neutral-500 opacity-50">
+                  <span className="cursor-info rounded-full bg-embed px-2.5 py-0.5 text-xs text-neutral-500 opacity-50 light:border light:border-neutral-500 light:bg-white">
                     {t(`Disabled`)}
                     <BaseTooltipContent>
                       {t('This leaderboard is currently disabled and not accepting new entries.')}
