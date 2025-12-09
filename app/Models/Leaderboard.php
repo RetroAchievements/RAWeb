@@ -70,13 +70,13 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
         'DisplayOrder',
         'trigger_id',
         'state',
+        'GameID',
+        'Mem',
+        'author_id',
     ];
 
     protected $casts = [
         'state' => LeaderboardState::class,
-        'GameID',
-        'Mem',
-        'author_id',
     ];
 
     protected static function newFactory(): LeaderboardFactory
