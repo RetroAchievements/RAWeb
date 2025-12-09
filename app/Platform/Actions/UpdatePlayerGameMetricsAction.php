@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Community\Actions\AddToMessageThreadAction;
 use App\Models\Achievement;
 use App\Models\AchievementSet;
+use App\Models\Comment;
 use App\Models\GameAchievementSet;
+use App\Models\MessageThread;
+use App\Models\MessageThreadParticipant;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\AchievementType;
@@ -17,6 +22,7 @@ use App\Platform\Events\PlayerGameMetricsUpdated;
 use App\Platform\Jobs\UpdateGameBeatenMetricsJob;
 use App\Platform\Jobs\UpdateGamePlayerCountJob;
 use App\Platform\Services\PlayerGameActivityService;
+use Carbon\CarbonInterval;
 use ErrorException;
 use Illuminate\Support\Collection;
 
@@ -189,6 +195,16 @@ class UpdatePlayerGameMetricsAction
         }
 
         if ($beatenChanged) {
+            // if there's at least 20 beaten metrics (reasonable sample size), and the user beat the game 95% faster than the median, flag them
+            if ($playerGame->time_to_beat_hardcore && $game->times_beaten_hardcore > 20) {
+                if ($playerGame->time_to_beat_hardcore < $game->median_time_to_beat_hardcore / 20) {
+                    $beatTime = CarbonInterval::seconds($playerGame->time_to_beat_hardcore)->cascade()->forHumans();
+                    $medianBeatTime = CarbonInterval::seconds($game->median_time_to_beat_hardcore)->cascade()->forHumans();
+                    $this->createPotentialCheaterMessageThread($user,
+                        "[user={$user->ID}] beat [game={$game->ID}] in hardcore in {$beatTime} - much faster than the median beat time of {$medianBeatTime}.");
+                }
+            }
+
             dispatch(new UpdateGameBeatenMetricsJob($game->ID))->onQueue('game-beaten-metrics');
         }
 
@@ -313,26 +329,26 @@ class UpdatePlayerGameMetricsAction
         $beatenDates = $playerGame->beaten_dates ?? [];
         $beatenDatesHardcore = $playerGame->beaten_dates_hardcore ?? [];
 
-        if (!$beatenAt && $isBeatenSoftcore) {
+        if ($isBeatenSoftcore) {
             $beatenAt = collect([
                 $progressionUnlocks->max('unlocked_at'),
                 $winConditionUnlocks->min('unlocked_at'),
             ])
                 ->filter()
                 ->max();
-            if ($beatenAt !== null) {
+            if ($beatenAt !== null && $beatenAt !== $playerGame->beaten_at) {
                 array_push($beatenDates, $beatenAt->toJSON());
             }
         }
 
-        if (!$beatenHardcoreAt && $isBeatenHardcore) {
+        if ($isBeatenHardcore) {
             $beatenHardcoreAt = collect([
                 $progressionUnlocksHardcore->max('unlocked_hardcore_at'),
                 $winConditionUnlocksHardcore->min('unlocked_hardcore_at'),
             ])
                 ->filter()
                 ->max();
-            if ($beatenHardcoreAt !== null) {
+            if ($beatenHardcoreAt !== null && $beatenHardcoreAt !== $playerGame->beaten_hardcore_at) {
                 array_push($beatenDatesHardcore, $beatenHardcoreAt->toJSON());
             }
         }
@@ -343,5 +359,31 @@ class UpdatePlayerGameMetricsAction
             'beaten_at' => $beatenAt,
             'beaten_hardcore_at' => $beatenHardcoreAt,
         ];
+    }
+
+    private function createPotentialCheaterMessageThread(User $user, string $message): void
+    {
+        $systemUser = User::find(Comment::SYSTEM_USER_ID);
+        $raCheats = User::whereName('RACheats')->first();
+        if (!$systemUser || !$raCheats) {
+            Log::info($message);
+            return;
+        }
+
+        $threadTitle = "Suspicious User: $user->display_name";
+
+        foreach (Message)
+
+        $thread = new MessageThread(['title' => $threadTitle]);
+        $thread->save();
+
+        $participantTo = new MessageThreadParticipant([
+            'user_id' => $raCheats->ID,
+            'thread_id' => $thread->id,
+        ]);
+        $participantTo->save();
+
+        $action = new AddToMessageThreadAction();
+        $action->execute($thread, $systemUser, $systemUser, $message);
     }
 }
