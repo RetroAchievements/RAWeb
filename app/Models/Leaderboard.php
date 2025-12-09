@@ -113,6 +113,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
                 'Description',
                 'Format',
                 'LowerIsBetter',
+                'state',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
