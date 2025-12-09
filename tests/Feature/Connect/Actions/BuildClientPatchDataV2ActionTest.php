@@ -20,6 +20,7 @@ use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\LeaderboardState;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
@@ -262,7 +263,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
             'GameID' => $game->id,
             'DisplayOrder' => 1,
             'Format' => 'VALUE',
-            'state' => 'disabled',
+            'state' => LeaderboardState::Disabled,
         ]);
 
         // Act

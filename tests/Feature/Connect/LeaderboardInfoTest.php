@@ -6,6 +6,7 @@ namespace Tests\Feature\Connect;
 
 use App\Models\Leaderboard;
 use App\Models\User;
+use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -115,7 +116,7 @@ class LeaderboardInfoTest extends TestCase
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
             'GameID' => $game->id,
-            'state' => 'disabled',
+            'state' => LeaderboardState::Disabled,
         ]);
 
         $this->get($this->apiUrl('lbinfo', ['i' => $leaderboard->id]))

@@ -14,6 +14,7 @@ use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\LeaderboardState;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
 use Tests\TestCase;
@@ -241,7 +242,7 @@ class BuildClientPatchDataActionTest extends TestCase
             'GameID' => $game->id,
             'DisplayOrder' => 1,
             'Format' => 'VALUE',
-            'state' => 'disabled',
+            'state' => LeaderboardState::Disabled,
         ]);
 
         // Act
