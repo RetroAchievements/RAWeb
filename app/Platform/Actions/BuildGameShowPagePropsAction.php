@@ -343,7 +343,7 @@ class BuildGameShowPagePropsAction
             ),
 
             claimData: $claimData,
-            featuredLeaderboards: Lazy::create(fn () => $this->buildFeaturedLeaderboards($backingGame, $user, 5)),
+            featuredLeaderboards: Lazy::create(fn () => $this->buildLeaderboards($backingGame, $user, 5, true, false)), // Only show active leaderboards in the featured list
             hasMatureContent: $backingGame->hasMatureContent,
             hubs: $relatedHubs,
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
@@ -726,25 +726,17 @@ class BuildGameShowPagePropsAction
     /**
      * @return Collection<int, LeaderboardData>
      */
-    private function buildFeaturedLeaderboards(Game $game, ?User $user = null, ?int $limit = null): Collection
-    {
-        return $this->buildLeaderboards($game, $user, $limit, activeOnly: true, showUnofficial: false);
-    }
-
-    /**
-     * @return Collection<int, LeaderboardData>
-     */
     private function buildAllLeaderboards(Game $game, ?User $user = null): Collection
     {
-        $showUnofficial = request()->boolean('unpublished');
+        $showUnpublished = request()->boolean('unpublished');
 
-        return $this->buildLeaderboards($game, $user, null, activeOnly: false, showUnofficial: $showUnofficial);
+        return $this->buildLeaderboards($game, $user, null, activeOnly: false, showUnpublished: $showUnpublished);
     }
 
     /**
      * @return Collection<int, LeaderboardData>
      */
-    private function buildLeaderboards(Game $game, ?User $user = null, ?int $limit = null, bool $activeOnly = false, bool $showUnofficial = false): Collection
+    private function buildLeaderboards(Game $game, ?User $user = null, ?int $limit = null, bool $activeOnly = false, bool $showUnpublished = false): Collection
     {
         // Only show leaderboards if the system is active and it's not an event game.
         if (!$game->system->active || $game->system->id === System::Events) {
@@ -760,10 +752,10 @@ class BuildGameShowPagePropsAction
             })->values();
         } else {
             // Filter based on showUnofficial flag
-            $leaderboards = $leaderboards->filter(function ($leaderboard) use ($showUnofficial) {
-                if ($showUnofficial) {
-                    // On the unpublished page: ONLY show Unofficial
-                    return $leaderboard->state === LeaderboardState::Unofficial;
+            $leaderboards = $leaderboards->filter(function ($leaderboard) use ($showUnpublished) {
+                if ($showUnpublished) {
+                    // On the unpublished page: ONLY show Unpublished
+                    return $leaderboard->state === LeaderboardState::Unpublished;
                 } else {
                     // On the normal page: Show Active and Disabled
                     return $leaderboard->state === LeaderboardState::Active
@@ -779,7 +771,7 @@ class BuildGameShowPagePropsAction
 
                     return match ($state) {
                         LeaderboardState::Active => 0,
-                        LeaderboardState::Unofficial => 0,  // Same priority as Active
+                        LeaderboardState::Unpublished => 0,  // Same priority as Active
                         LeaderboardState::Disabled => 1,
                     };
                 },
@@ -838,7 +830,7 @@ class BuildGameShowPagePropsAction
 
         if (request()->boolean('unpublished')) {
             return $game->leaderboards
-                ->where('state', LeaderboardState::Unofficial)
+                ->where('state', LeaderboardState::Unpublished)
                 ->count();
         } else {
             return $game->leaderboards
