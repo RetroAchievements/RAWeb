@@ -36,7 +36,7 @@ class CloneLeaderboardAction extends Action
                     ->maxLength(255),
                 Forms\Components\TextInput::make('description')
                     ->label('Description')
-                    ->maxLength(1000),
+                    ->maxLength(255),
             ])
             ->action(function (Leaderboard $leaderboard, array $data) use ($user) {
                 if (!$user->can('create', Leaderboard::class)) {
