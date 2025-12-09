@@ -19,7 +19,7 @@
                     CASE state
                         WHEN '" . \App\Platform\Enums\LeaderboardState::Active->value . "' THEN 0
                         WHEN '" . \App\Platform\Enums\LeaderboardState::Disabled->value . "' THEN 1
-                        ElSE 2
+                        ELSE 2
                     END
                 ")
                 ->orderBy('DisplayOrder')
