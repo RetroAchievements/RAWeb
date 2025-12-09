@@ -45,6 +45,7 @@ use App\Platform\Enums\AchievementSetAuthorTask;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GamePageListSort;
 use App\Platform\Enums\GamePageListView;
+use App\Platform\Enums\LeaderboardState;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
@@ -260,8 +261,8 @@ class BuildGameShowPagePropsAction
             achievementSetClaims: $achievementSetClaims,
 
             allLeaderboards: request()->inertia() || $initialView === GamePageListView::Leaderboards
-                ? $this->buildLeaderboards($backingGame, $user)
-                : Lazy::inertiaDeferred(fn () => $this->buildLeaderboards($backingGame, $user)),
+                ? $this->buildAllLeaderboards($backingGame, $user)
+                : Lazy::inertiaDeferred(fn () => $this->buildAllLeaderboards($backingGame, $user)),
 
             can: UserPermissionsData::fromUser($user, game: $backingGame, claim: $primaryClaim)->include(
                 'createAchievementSetClaims',
@@ -340,7 +341,7 @@ class BuildGameShowPagePropsAction
             ),
 
             claimData: $claimData,
-            featuredLeaderboards: Lazy::create(fn () => $this->buildLeaderboards($backingGame, $user, 5)),
+            featuredLeaderboards: Lazy::create(fn () => $this->buildFeaturedLeaderboards($backingGame, $user, 5)),
             hasMatureContent: $backingGame->hasMatureContent,
             hubs: $relatedHubs,
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
@@ -698,14 +699,60 @@ class BuildGameShowPagePropsAction
         );
     }
 
+    private function buildFeaturedLeaderboards(Game $game, ?User $user = null, ?int $limit = null): Collection
+    {
+        return $this->buildLeaderboards($game, $user, $limit, activeOnly: true, showUnofficial: false);
+    }
+
+    private function buildAllLeaderboards(Game $game, ?User $user = null): Collection
+    {
+        $showUnofficial = request()->boolean('unpublished');
+
+        return $this->buildLeaderboards($game, $user, null, activeOnly: false, showUnofficial: $showUnofficial);
+    }
+
     /**
      * @return Collection<int, LeaderboardData>
      */
-    private function buildLeaderboards(Game $game, ?User $user = null, ?int $limit = null): Collection
+    private function buildLeaderboards(Game $game, ?User $user = null, ?int $limit = null, bool $activeOnly = false, bool $showUnofficial = false): Collection
     {
         // Only show leaderboards if the system is active and it's not an event game.
         if (!$game->system->active || $game->system->id === System::Events) {
             return collect();
+        }
+
+        $leaderboards = $game->leaderboards;
+
+        if ($activeOnly) {
+            // Filter to only active leaderboards (for featured in the sidebar)
+            $leaderboards = $leaderboards->filter(function ($leaderboard) {
+                return $leaderboard->state === LeaderboardState::Active;
+            })->values();
+        } else {
+            // Filter based on showUnofficial flag
+            $leaderboards = $leaderboards->filter(function ($leaderboard) use ($showUnofficial) {
+                if ($showUnofficial) {
+                    // On the unpublished page: ONLY show Unofficial and Disabled
+                    return $leaderboard->state === LeaderboardState::Unofficial 
+                        || $leaderboard->state === LeaderboardState::Disabled;
+                } else {
+                    // On the normal page: Show Active and Disabled
+                    return $leaderboard->state === LeaderboardState::Active 
+                        || $leaderboard->state === LeaderboardState::Disabled;
+                }
+            })->values();
+            
+            // Sort: Active/Unofficial first, Disabled last
+            $leaderboards = $leaderboards->sortBy([
+                function ($leaderboard) {
+                    return match ($leaderboard->state) {
+                        LeaderboardState::Active => 0,
+                        LeaderboardState::Unofficial => 0,  // Same priority as Active
+                        LeaderboardState::Disabled => 1,
+                    };
+                },
+                fn ($a, $b) => $a->DisplayOrder <=> $b->DisplayOrder,
+            ])->values();
         }
 
         // If the user is authenticated, fetch all their leaderboard entries for the game.
@@ -718,7 +765,6 @@ class BuildGameShowPagePropsAction
             $userEntriesByLeaderboardId = $userEntries->keyBy('leaderboard_id');
         }
 
-        $leaderboards = $game->leaderboards;
         if ($limit !== null) {
             $leaderboards = $leaderboards->take($limit);
         }
@@ -746,6 +792,7 @@ class BuildGameShowPagePropsAction
                 'topEntry.user.avatarUrl',
                 'topEntry.user.displayName',
                 'userEntry',
+                'state',
             );
         });
     }
@@ -757,7 +804,9 @@ class BuildGameShowPagePropsAction
             return 0;
         }
 
-        return $game->leaderboards->count();
+        return $game->leaderboards
+        ->where('state', LeaderboardState::Active)
+        ->count();
     }
 
     private function getInterestedDevelopersCount(Game $game, ?User $user): ?int
