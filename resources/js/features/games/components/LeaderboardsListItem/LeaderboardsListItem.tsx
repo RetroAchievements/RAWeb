@@ -1,7 +1,7 @@
 import * as motion from 'motion/react-m';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuChartBar, LuCrown } from 'react-icons/lu';
+import { LuChartBar, LuCrown, LuX } from 'react-icons/lu';
 
 import {
   BaseTooltip,
@@ -40,9 +40,22 @@ export const LeaderboardsListItem: FC<LeaderboardsListItemProps> = ({
         {/* Icon */}
         <a
           href={`/leaderboardinfo.php?i=${leaderboard.id}`}
-          className="flex size-16 items-center justify-center rounded bg-embed light:border light:border-neutral-300 light:bg-white"
+          className="group flex size-16 flex-col items-center justify-center gap-0.5 rounded bg-embed light:border light:border-neutral-300 light:bg-white"
         >
-          <LuChartBar className="size-6" />
+          {leaderboard.state === 'active' ? (
+            <LuChartBar className="size-6" />
+          ) : (
+            <BaseTooltip>
+              <BaseTooltipTrigger asChild>
+                <LuX className="size-6 text-neutral-500 transition-colors group-hover:text-white light:text-neutral-400 light:group-hover:text-black" />
+              </BaseTooltipTrigger>
+              <BaseTooltipContent>
+                <div className="max-w-xs items-center text-center">
+                  {t('This leaderboard is currently disabled and not accepting new entries.')}
+                </div>
+              </BaseTooltipContent>
+            </BaseTooltip>
+          )}
         </a>
       </div>
 
@@ -55,20 +68,6 @@ export const LeaderboardsListItem: FC<LeaderboardsListItemProps> = ({
                 {leaderboard.title}
               </a>
             </span>
-
-            {/* State badge */}
-            <BaseTooltip>
-              {leaderboard.state === 'disabled' && (
-                <BaseTooltipTrigger asChild>
-                  <span className="cursor-info rounded-full bg-embed px-2.5 py-0.5 text-xs text-neutral-500 opacity-50 light:border light:border-neutral-500 light:bg-white">
-                    {t(`Disabled`)}
-                    <BaseTooltipContent>
-                      {t('This leaderboard is currently disabled and not accepting new entries.')}
-                    </BaseTooltipContent>
-                  </span>
-                </BaseTooltipTrigger>
-              )}
-            </BaseTooltip>
           </div>
 
           {/* Description */}

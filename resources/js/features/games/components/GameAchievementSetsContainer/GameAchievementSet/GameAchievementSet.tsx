@@ -3,6 +3,7 @@ import { AnimatePresence } from 'motion/react';
 import * as motion from 'motion/react-m';
 import { type FC, useMemo } from 'react';
 
+import { BaseSeparator } from '@/common/components/+vendor/BaseSeparator';
 import { AchievementsListItem } from '@/common/components/AchievementsListItem';
 import { useIsHydrated } from '@/common/hooks/useIsHydrated';
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -165,14 +166,62 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
 
             {currentListView === 'leaderboards' ? (
               <>
-                {sortedLeaderboards.map((leaderboard, index) => (
-                  <LeaderboardsListItem
-                    key={`lbd-${leaderboard.id}`}
-                    index={index}
-                    isLargeList={isLargeLeaderboardsList}
-                    leaderboard={leaderboard}
-                  />
-                ))}
+                {(() => {
+                  const activeStateLeaderboards = sortedLeaderboards.filter(
+                    (leaderboard) =>
+                      leaderboard.state === 'active' || leaderboard.state === 'unpublished',
+                  );
+                  const disabledLeaderboards = sortedLeaderboards.filter(
+                    (leaderboard) => leaderboard.state === 'disabled',
+                  );
+
+                  // Check if the user is viewing unpublished leaderboards
+                  const isUnpublishedView = sortedLeaderboards.some(
+                    (leaderboard) => leaderboard.state === 'unpublished',
+                  );
+
+                  const hasMultipleSections =
+                    activeStateLeaderboards.length > 0 &&
+                    disabledLeaderboards.length > 0 &&
+                    !isUnpublishedView;
+
+                  return (
+                    <>
+                      {/* Active/Unpublished Leaderboards */}
+                      {activeStateLeaderboards.map((leaderboard, index) => (
+                        <LeaderboardsListItem
+                          key={`lbd-${leaderboard.id}`}
+                          index={index}
+                          isLargeList={isLargeLeaderboardsList}
+                          leaderboard={leaderboard}
+                        />
+                      ))}
+
+                      {/* Separator */}
+                      {hasMultipleSections && (
+                        <motion.li
+                          className="my-4"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: activeStateLeaderboards.length * 0.015 }}
+                        >
+                          <BaseSeparator />
+                        </motion.li>
+                      )}
+
+                      {/* Disabled Leaderboards */}
+                      {!isUnpublishedView &&
+                        disabledLeaderboards.map((leaderboard, index) => (
+                          <LeaderboardsListItem
+                            key={`lbd-${leaderboard.id}`}
+                            index={activeStateLeaderboards.length + index}
+                            isLargeList={isLargeLeaderboardsList}
+                            leaderboard={leaderboard}
+                          />
+                        ))}
+                    </>
+                  );
+                })()}
               </>
             ) : null}
           </motion.ul>

@@ -96,15 +96,14 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
         echo "<td class='px-3'>";
         echo "<div class='flex justify-between'>";
         echo "<div>";
-        echo "<a href='/leaderboard/$lbID'><strong>$lbTitle</strong></a>";
-
-        if ($leaderboard->state === LeaderboardState::Disabled) {
-            echo " <span class='rounded-full bg-embed px-2.5 py-0.5 text-xs text-neutral-500 opacity-50'>Disabled</span>";
-        }
-
-        echo "<br/>";
+        echo "<a href='/leaderboard/$lbID'><strong>$lbTitle</strong></a><br/>";
         echo "$lbDescription";
         echo "<br><span class='smalltext'>$totalEntries entries</span>";
+
+        if ($leaderboard->state === LeaderboardState::Disabled) {
+            echo " <span class='smalltext'> · Disabled</span>";
+        }
+
         echo "</div>";
         echo "</div>";
         echo "</td>";
