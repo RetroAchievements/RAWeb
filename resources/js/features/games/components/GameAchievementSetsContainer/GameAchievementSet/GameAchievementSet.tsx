@@ -205,7 +205,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
                           animate={{ opacity: 1 }}
                           transition={{ delay: activeStateLeaderboards.length * 0.015 }}
                         >
-                          <BaseSeparator />
+                          <BaseSeparator data-testid="disabled-separator" />
                         </motion.li>
                       )}
 

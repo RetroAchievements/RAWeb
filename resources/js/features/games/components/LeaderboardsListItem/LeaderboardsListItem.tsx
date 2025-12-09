@@ -46,7 +46,7 @@ export const LeaderboardsListItem: FC<LeaderboardsListItemProps> = ({
             <LuChartBar className="size-6" />
           ) : (
             <BaseTooltip>
-              <BaseTooltipTrigger asChild>
+              <BaseTooltipTrigger asChild data-testid="disabled-tooltip-trigger">
                 <LuX className="size-6 text-neutral-500 transition-colors group-hover:text-white light:text-neutral-400 light:group-hover:text-black" />
               </BaseTooltipTrigger>
               <BaseTooltipContent>

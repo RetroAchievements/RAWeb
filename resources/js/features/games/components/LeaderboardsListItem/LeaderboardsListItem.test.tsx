@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@/test';
 import { createLeaderboard, createLeaderboardEntry, createUser } from '@/test/factories';
+import userEvent from '@testing-library/user-event';
 
 import { LeaderboardsListItem } from './LeaderboardsListItem';
 
@@ -128,15 +129,22 @@ describe('Component: LeaderboardsListItem', () => {
     expect(screen.getByText(/200/i)).toBeVisible();
   });
 
-  it('given the state of the leaderboard is disabled, displays the disabled badge', async () => {
+  it('given the leaderboard is disabled, shows a tooltip', async () => {
     // ARRANGE
-    const leaderboard = createLeaderboard({ state: 'disabled' });
+    const user = userEvent.setup();
+    const leaderboard = createLeaderboard({
+      state: 'disabled',
+    });
 
     render(<LeaderboardsListItem index={0} isLargeList={false} leaderboard={leaderboard} />);
 
+    // ACT
+    await user.hover(screen.getByTestId('disabled-tooltip-trigger'));
+
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByText(/disabled/i)).toBeVisible();
+      expect(screen.getByRole('tooltip')).toBeVisible();
+      expect(screen.getByRole('tooltip')).toHaveTextContent(/this leaderboard is currently disabled and not accepting new entries/i);
     });
   });
 });
