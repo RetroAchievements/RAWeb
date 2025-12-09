@@ -18,6 +18,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -25,30 +26,76 @@ use Illuminate\Support\Facades\DB;
 class SubscriptionService
 {
     /**
+     * Gets all users who are explicitly or implicitly subscribed to the subject.
+     *
      * @return Collection<int, User>
      */
     public function getSubscribers(SubscriptionSubjectType $subjectType, int $subjectId): Collection
+    {
+        [$explicitSubscriberIds, $implicitSubscriberIds] = $this->getSubscriberIds($subjectType, $subjectId);
+
+        $allSubscriberIds = array_merge($explicitSubscriberIds, $implicitSubscriberIds);
+
+        return User::whereIn('ID', $allSubscriberIds)->get();
+    }
+
+    /**
+     * Gets all users who are explicitly or implicitly subscribed to the subject separated into three categories.
+     *
+     * @param SubscriptionSubjectType $subjectType the type of object to get subscribers of
+     * @param int $subjectId the unique identifier of the object to get subscribers of
+     * @param ?int $subjectAuthorUserId Optionally specifies the user who originally created the object.
+     *                                  Ensures they get returned in the `implicitlySubscribedNotifyNow` bucket if they are only implicitly subscribed.
+     *
+     * @return array containing the following:
+     *   'explicitlySubscribed': Users who are explicitly subscribed to the content.
+     *   'implicitlySubscribedNotifyNow': Users who are implicitly subscribed to the content and should be notified immediately.
+     *   'implicitlySubscribedNotifyLater': Users who are implicitly subscribed to the content and should be notified when convienent.
+     */
+    public function getSegmentedSubscriberIds(SubscriptionSubjectType $subjectType, int $subjectId, ?int $subjectAuthorUserId): array
+    {
+        [$explicitSubscriberIds, $implicitSubscriberIds] = $this->getSubscriberIds($subjectType, $subjectId);
+
+        // split implicit subscriptions into recent and older
+        $recentActivityCutoff = now()->subDays(7);
+        $handler = $this->getHandler($subjectType);
+        $recentUserIds = $handler->getRecentParticipants($subjectId, $recentActivityCutoff);
+
+        if ($subjectAuthorUserId) {
+            // if the author is implicitly subscribed, ensure they get classified as "notify now"
+            $recentUserIds[] = $subjectAuthorUserId;
+        }
+
+        return [
+            'explicitlySubscribed' => $explicitSubscriberIds,
+            'implicitlySubscribedNotifyNow' => array_filter($implicitSubscriberIds, fn ($id) => in_array($id, $recentUserIds)),
+            'implicitlySubscribedNotifyLater' => array_filter($implicitSubscriberIds, fn ($id) => !in_array($id, $recentUserIds)),
+        ];
+    }
+
+    private function getSubscriberIds(SubscriptionSubjectType $subjectType, int $subjectId): array
     {
         // get explicit subscriptions (including explicitly unsubscribed so we don't fetch their implicit subscription)
         $subscribers = Subscription::query()
             ->where('subject_type', $subjectType)
             ->where('subject_id', $subjectId)
             ->get();
-        $explicitSubcriberIds = $subscribers->pluck('user_id')->toArray();
+        $explicitSubscriberIds = $subscribers->pluck('user_id')->toArray();
 
+        // get implicit subscriptions
         $handler = $this->getHandler($subjectType);
-        $implicitSubscriptionsQuery = $handler->getImplicitSubscriptionQuery($subjectId, null, null, $explicitSubcriberIds);
+        $implicitSubscriptionsQuery = $handler->getImplicitSubscriptionQuery($subjectId, null, null, $explicitSubscriberIds);
+        $implicitSubscriberIds = $implicitSubscriptionsQuery->get()->pluck('user_id')->toArray();
 
         // discard explicitly unsubscribed
-        $subscriberIds = $subscribers->filter(fn ($s) => $s->state === true)->pluck('user_id')->toArray();
+        $explicitSubscriberIds = $subscribers->filter(fn ($s) => $s->state === true)->pluck('user_id')->toArray();
 
-        // merge in implicit subscriptions
-        $implicitSubscriberIds = $implicitSubscriptionsQuery->get()->pluck('user_id')->toArray();
-        $subscriberIds = array_merge($subscriberIds, $implicitSubscriberIds);
-
-        return User::whereIn('ID', $subscriberIds)->get();
+        return [$explicitSubscriberIds, $implicitSubscriberIds];
     }
 
+    /**
+     * Determines if the user is subscribed to the subject (either implicitly or explicity).
+     */
     public function isSubscribed(User $user, SubscriptionSubjectType $subjectType, int $subjectId): bool
     {
         $subscription = Subscription::query()
@@ -67,6 +114,9 @@ class SubscriptionService
         return $handler->getImplicitSubscriptionQuery($subjectId, $user->id, null, null)->exists();
     }
 
+    /**
+     * Sets the explicit subscription state of a subject for a user.
+     */
     public function updateSubscription(User $user, SubscriptionSubjectType $subjectType, int $subjectId, bool $isSubscribed): Subscription
     {
         $subscription = Subscription::updateOrCreate([
@@ -82,6 +132,9 @@ class SubscriptionService
         return $subscription;
     }
 
+    /**
+     * Gets the number of subscriptions (explicit or implicit) a user has.
+     */
     public function getSubscriptionCount(User $user, array $subjectTypes): int
     {
         $count = 0;
@@ -94,6 +147,10 @@ class SubscriptionService
     }
 
     /**
+     * Gets all of the subscriptions (explicit or implicit) a user has.
+     *
+     * Use "subscription->exists()" to detect implicit subscriptions.
+     *
      * @return Collection<int, Subscription>
      */
     public function getSubscriptions(User $user, array $subjectTypes, int $offset = 0, int $count = 100): Collection
@@ -247,6 +304,11 @@ abstract class BaseSubscriptionHandler
     {
         return true;
     }
+
+    /**
+     * Returns IDs of users who have contributed to the subject since the provided time.
+     */
+    abstract public function getRecentParticipants(int $subjectId, Carbon $since): array;
 }
 
 abstract class CommentSubscriptionHandler extends BaseSubscriptionHandler
@@ -280,6 +342,17 @@ abstract class CommentSubscriptionHandler extends BaseSubscriptionHandler
         $query->select(['user_id', DB::raw('ArticleId as subject_id')])->distinct();
 
         return $query;
+    }
+
+    public function getRecentParticipants(int $subjectId, Carbon $since): array
+    {
+        return Comment::query()
+            ->where('ArticleType', $this->getArticleType())
+            ->where('ArticleId', $subjectId)
+            ->where('Submitted', '>=', $since)
+            ->distinct()
+            ->pluck('user_id')
+            ->toArray();
     }
 }
 
@@ -526,6 +599,16 @@ class ForumTopicSubscriptionHandler extends BaseSubscriptionHandler
 
         return $query;
     }
+
+    public function getRecentParticipants(int $subjectId, Carbon $since): array
+    {
+        return ForumTopicComment::query()
+            ->where('forum_topic_id', $subjectId)
+            ->where('created_at', '>=', $since)
+            ->distinct()
+            ->pluck('author_id')
+            ->toArray();
+    }
 }
 
 class GameAchievementsSubscriptionHandler extends BaseSubscriptionHandler
@@ -550,6 +633,11 @@ class GameAchievementsSubscriptionHandler extends BaseSubscriptionHandler
     {
         return false;
     }
+
+    public function getRecentParticipants(int $subjectId, Carbon $since): array
+    {
+        return [];
+    }
 }
 
 class GameTicketsSubscriptionHandler extends BaseSubscriptionHandler
@@ -573,6 +661,11 @@ class GameTicketsSubscriptionHandler extends BaseSubscriptionHandler
     public function includeImplicitSubscriptionsInList(): bool
     {
         return false;
+    }
+
+    public function getRecentParticipants(int $subjectId, Carbon $since): array
+    {
+        return [];
     }
 }
 

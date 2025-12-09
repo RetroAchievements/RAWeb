@@ -1,3 +1,4 @@
+import { useAtomValue } from 'jotai';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -19,6 +20,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
 import { useGameShowTabs } from '../../hooks/useGameShowTabs';
 import type { GameShowTab } from '../../models';
+import { currentListViewAtom } from '../../state/games.atoms';
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
 import { getSidebarExcludedHubIds } from '../../utils/getSidebarExcludedHubIds';
 import { AchievementSetEmptyState } from '../AchievementSetEmptyState';
@@ -57,6 +59,8 @@ export const GameShowMobileRoot: FC = () => {
   const allMetaRowElements = useAllMetaRowElements(game, hubs);
 
   const { currentTab, setCurrentTab } = useGameShowTabs();
+
+  const currentListView = useAtomValue(currentListViewAtom);
 
   if (!game.badgeUrl || !game.system?.iconUrl) {
     return null;
@@ -110,7 +114,9 @@ export const GameShowMobileRoot: FC = () => {
         >
           <GameAchievementSetsContainer game={game} />
 
-          {!allPageAchievements.length ? <AchievementSetEmptyState /> : null}
+          {!allPageAchievements.length && currentListView === 'achievements' ? (
+            <AchievementSetEmptyState />
+          ) : null}
 
           {isViewingPublishedAchievements ? (
             <div className="mt-6">
