@@ -10,6 +10,7 @@ use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\User;
+use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\ValueFormat;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -90,6 +91,10 @@ class LeaderboardsRelationManager extends RelationManager
                     ->label('Display Order')
                     ->color(fn ($record) => $record->DisplayOrder < 0 ? 'danger' : null)
                     ->toggleable(),
+
+                Tables\Columns\TextColumn::make('state')
+                    ->label('State')
+                    ->formatStateUsing(fn (LeaderboardState $state): string => ucfirst($state->value)),
             ])
             ->searchPlaceholder('Search (ID, Title)')
             ->filters([
