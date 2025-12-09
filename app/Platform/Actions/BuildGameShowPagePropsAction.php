@@ -700,16 +700,16 @@ class BuildGameShowPagePropsAction
     }
 
     /**
-    * @return Collection<int, LeaderboardData>
-    */
+     * @return Collection<int, LeaderboardData>
+     */
     private function buildFeaturedLeaderboards(Game $game, ?User $user = null, ?int $limit = null): Collection
     {
         return $this->buildLeaderboards($game, $user, $limit, activeOnly: true, showUnofficial: false);
     }
 
     /**
-    * @return Collection<int, LeaderboardData>
-    */
+     * @return Collection<int, LeaderboardData>
+     */
     private function buildAllLeaderboards(Game $game, ?User $user = null): Collection
     {
         $showUnofficial = request()->boolean('unpublished');
@@ -753,6 +753,7 @@ class BuildGameShowPagePropsAction
                 function ($leaderboard) {
                     /** @var LeaderboardState $state */
                     $state = $leaderboard->state;
+
                     return match ($state) {
                         LeaderboardState::Active => 0,
                         LeaderboardState::Unofficial => 0,  // Same priority as Active
