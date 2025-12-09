@@ -733,15 +733,15 @@ class BuildGameShowPagePropsAction
             $leaderboards = $leaderboards->filter(function ($leaderboard) use ($showUnofficial) {
                 if ($showUnofficial) {
                     // On the unpublished page: ONLY show Unofficial and Disabled
-                    return $leaderboard->state === LeaderboardState::Unofficial 
+                    return $leaderboard->state === LeaderboardState::Unofficial
                         || $leaderboard->state === LeaderboardState::Disabled;
                 } else {
                     // On the normal page: Show Active and Disabled
-                    return $leaderboard->state === LeaderboardState::Active 
+                    return $leaderboard->state === LeaderboardState::Active
                         || $leaderboard->state === LeaderboardState::Disabled;
                 }
             })->values();
-            
+
             // Sort: Active/Unofficial first, Disabled last
             $leaderboards = $leaderboards->sortBy([
                 function ($leaderboard) {
