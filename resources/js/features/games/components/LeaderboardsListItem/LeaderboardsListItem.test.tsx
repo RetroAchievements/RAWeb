@@ -127,4 +127,16 @@ describe('Component: LeaderboardsListItem', () => {
     });
     expect(screen.getByText(/200/i)).toBeVisible();
   });
+
+  it('given the state of the leaderboard is disabled, displays the disabled badge', async () => {
+    // ARRANGE
+    const leaderboard = createLeaderboard({ state: 'disabled' });
+
+    render(<LeaderboardsListItem index={0} isLargeList={false} leaderboard={leaderboard} />);
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/disabled/i)).toBeVisible();
+    });
+  });
 });

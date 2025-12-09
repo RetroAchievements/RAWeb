@@ -50,6 +50,13 @@ export const LeaderboardsListItem: FC<LeaderboardsListItemProps> = ({
                 {leaderboard.title}
               </a>
             </span>
+
+            {/* State badge */}
+            {leaderboard.state === 'disabled' && (
+              <span className="rounded-full bg-embed px-2.5 py-0.5 text-xs text-neutral-400">
+                {t(`Disabled`)}
+              </span>
+            )}
           </div>
 
           {/* Description */}
