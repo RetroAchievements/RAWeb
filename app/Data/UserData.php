@@ -51,8 +51,9 @@ class UserData extends Data
         public Lazy|int|null $websitePrefs = null,
 
         #[TypeScriptType([
-            'shouldAlwaysBypassContentWarnings' => 'boolean',
+            'isGloballyOptedOutOfSubsets' => 'boolean',
             'prefersAbsoluteDates' => 'boolean',
+            'shouldAlwaysBypassContentWarnings' => 'boolean',
         ])]
         public Lazy|array|null $preferences = [],
         #[LiteralTypeScriptType('App.Models.UserRole[]')]
@@ -98,8 +99,9 @@ class UserData extends Data
             motto: Lazy::create(fn () => $user->Motto),
             preferences: Lazy::create(
                 fn () => [
-                    'shouldAlwaysBypassContentWarnings' => $user->should_always_bypass_content_warnings,
+                    'isGloballyOptedOutOfSubsets' => $user->is_globally_opted_out_of_subsets,
                     'prefersAbsoluteDates' => $user->prefers_absolute_dates,
+                    'shouldAlwaysBypassContentWarnings' => $user->should_always_bypass_content_warnings,
                 ]
             ),
             playerPreferredMode: Lazy::create(fn () => $user->player_preferred_mode),
