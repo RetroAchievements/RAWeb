@@ -13,8 +13,8 @@ use App\Filament\Resources\LeaderboardResource\RelationManagers;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\User;
-use App\Platform\Enums\ValueFormat;
 use App\Platform\Enums\LeaderboardState;
+use App\Platform\Enums\ValueFormat;
 use BackedEnum;
 use Filament\Actions;
 use Filament\Forms;
@@ -155,7 +155,7 @@ class LeaderboardResource extends Resource
                             ])
                             ->required()
                             ->disabled(!$user->can('updateField', [$schema->model, 'state'])),
-                        
+
                         Forms\Components\TextInput::make('DisplayOrder')
                             ->numeric()
                             ->helperText("If set to less than 0, the leaderboard will be invisible to regular players.")
@@ -240,8 +240,8 @@ class LeaderboardResource extends Resource
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('state')
                     ->label('State')
-                    ->formatStateUsing(fn (LeaderboardState $state) => ucfirst($state->value))
-                    
+                    ->formatStateUsing(fn (LeaderboardState $state) => ucfirst($state->value)),
+
             ])
             ->searchPlaceholder('(ID, Title, Game, Dev)')
             ->filters([

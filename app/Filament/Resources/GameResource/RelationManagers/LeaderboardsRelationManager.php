@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\RelationManagers;
 
+use App\Filament\Actions\CloneLeaderboardAction;
 use App\Filament\Actions\DeleteLeaderboardAction;
 use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
-use App\Filament\Actions\CloneLeaderboardAction;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\User;
@@ -115,7 +115,6 @@ class LeaderboardsRelationManager extends RelationManager
                             return $user->can('update', $leaderboard);
                         }),
 
-                    
                     CloneLeaderboardAction::make('clone_leaderboard'),
                     ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
                     DeleteLeaderboardAction::make('delete_leaderboard'),
