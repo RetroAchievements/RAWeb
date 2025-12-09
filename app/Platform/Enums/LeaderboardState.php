@@ -15,6 +15,6 @@ enum LeaderboardState: string
     /** The leaderboard is disabled and not accepting new entries. */
     case Disabled = "disabled";
 
-    /** The leaderboard is unofficial and not counted in official stats. */
-    case Unofficial = "unofficial";
+    /** The leaderboard is unpublished and not counted in official stats. */
+    case Unpublished = "unpublished";
 }

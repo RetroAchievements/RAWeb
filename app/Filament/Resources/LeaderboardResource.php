@@ -151,7 +151,7 @@ class LeaderboardResource extends Resource
                             ->options([
                                 LeaderboardState::Active->value => 'Active',
                                 LeaderboardState::Disabled->value => 'Disabled',
-                                LeaderboardState::Unofficial->value => 'Unofficial',
+                                LeaderboardState::Unpublished->value => 'Unpublished',
                             ])
                             ->required()
                             ->disabled(!$user->can('updateField', [$schema->model, 'state'])),
