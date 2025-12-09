@@ -12,8 +12,6 @@ class UserDelayedSubscription extends Model
 {
     protected $table = 'user_delayed_subscriptions';
 
-    public const UPDATED_AT = null; // We only track created_at.
-
     protected $fillable = [
         'user_id',
         'subject_type',
@@ -24,6 +22,8 @@ class UserDelayedSubscription extends Model
     protected $casts = [
         'subject_type' => SubscriptionSubjectType::class,
     ];
+
+    public $timestamps = false;
 
     // == accessors
 
