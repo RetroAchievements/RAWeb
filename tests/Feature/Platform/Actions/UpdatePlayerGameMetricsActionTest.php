@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Actions;
 
+use App\Community\Enums\ModerationReportableType;
 use App\Models\Achievement;
 use App\Models\Message;
 use App\Models\MessageThread;
@@ -12,6 +13,7 @@ use App\Models\PlayerAchievement;
 use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\User;
+use App\Models\UserModerationReport;
 use App\Platform\Actions\UpdateGameMetricsAction;
 use App\Platform\Actions\UpdatePlayerGameMetricsAction;
 use App\Platform\Enums\AchievementSetType;
@@ -274,14 +276,13 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         Carbon::setTestNow($now);
         $this->addHardcoreUnlock($user, $achievement3);
 
+        // player beats game way too fast
         $playerGame = PlayerGame::first();
         (new UpdatePlayerGameMetricsAction())->execute($playerGame);
-
-        $game->refresh();
         $playerGame->refresh();
 
         $this->assertNotNull($playerGame->beaten_hardcore_at);
-        $this->assertEquals(14*60, $playerGame->time_to_beat_hardcore);
+        $this->assertEquals(14 * 60, $playerGame->time_to_beat_hardcore);
 
         $thread = MessageThread::first();
         $this->assertNotNull($thread);
@@ -297,6 +298,68 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         $this->assertEquals($thread->id, $message->thread_id);
         $this->assertEquals($this->serverUser->ID, $message->author_id);
         $this->assertNull($message->sent_by_id);
-        $this->assertEquals("{$user->display_name} beat {$game->Title} in hardcore in 14 minutes - much faster than the median beat time of 6 hours 30 minutes 56 seconds.", $message->body);
+        $this->assertEquals("[user={$user->ID}] beat [game={$game->ID}] in hardcore in 14 minutes - much faster than the median beat time of 6 hours 30 minutes 56 seconds.", $message->body);
+
+        $moderationReport = UserModerationReport::first();
+        $this->assertNotNull($moderationReport);
+        $this->assertEquals($this->serverUser->ID, $moderationReport->reporter_user_id);
+        $this->assertEquals($user->ID, $moderationReport->reported_user_id);
+        $this->assertEquals(ModerationReportableType::PlayerBeatTime->value, $moderationReport->reportable_type);
+        $this->assertEquals($playerGame->id, $moderationReport->reportable_id);
+        $this->assertEquals($thread->id, $moderationReport->message_thread_id);
+
+        // player beats another game way too fast
+        $game2 = $this->seedGame(achievements: 5, withHash: false);
+        $game2->median_time_to_beat_hardcore = 76543;
+        $game2->times_beaten_hardcore = 81;
+        $game2->save();
+
+        $achievement1 = $game2->achievements->get(0);
+        $achievement1->type = AchievementType::Progression;
+        $achievement1->save();
+        $achievement2 = $game2->achievements->get(1);
+        $achievement2->type = AchievementType::Progression;
+        $achievement2->save();
+        $achievement3 = $game2->achievements->get(2);
+        $achievement3->type = AchievementType::WinCondition;
+        $achievement3->save();
+
+        $this->addHardcoreUnlock($user, $achievement1);
+        $now = $now->addSeconds(3);
+        Carbon::setTestNow($now);
+        $this->addHardcoreUnlock($user, $achievement2);
+        $now = $now->addSeconds(4);
+        Carbon::setTestNow($now);
+        $this->addHardcoreUnlock($user, $achievement3);
+
+        $playerGame2 = PlayerGame::where('game_id', $game2->id)->first();
+        (new UpdatePlayerGameMetricsAction())->execute($playerGame2);
+        $playerGame2->refresh();
+
+        $this->assertNotNull($playerGame2->beaten_hardcore_at);
+        $this->assertEquals(7, $playerGame2->time_to_beat_hardcore);
+
+        // existing thread should be reused
+        $this->assertEquals(1, MessageThread::count());
+        $this->assertEquals(1, MessageThreadParticipant::count());
+
+        // new message should be appended to thread
+        $this->assertEquals(2, Message::count());
+        $message = Message::find(2);
+        $this->assertNotNull($message);
+        $this->assertEquals($thread->id, $message->thread_id);
+        $this->assertEquals($this->serverUser->ID, $message->author_id);
+        $this->assertNull($message->sent_by_id);
+        $this->assertEquals("[user={$user->ID}] beat [game={$game2->ID}] in hardcore in 7 seconds - much faster than the median beat time of 21 hours 15 minutes 43 seconds.", $message->body);
+
+        // new report should be generated for alternate game
+        $this->assertEquals(2, UserModerationReport::count());
+        $moderationReport = UserModerationReport::find(2);
+        $this->assertNotNull($moderationReport);
+        $this->assertEquals($this->serverUser->ID, $moderationReport->reporter_user_id);
+        $this->assertEquals($user->ID, $moderationReport->reported_user_id);
+        $this->assertEquals(ModerationReportableType::PlayerBeatTime->value, $moderationReport->reportable_type);
+        $this->assertEquals($playerGame2->id, $moderationReport->reportable_id);
+        $this->assertEquals($thread->id, $moderationReport->message_thread_id);
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Community\Actions\AddToMessageThreadAction;
+use App\Community\Enums\ModerationReportableType;
 use App\Models\Achievement;
 use App\Models\AchievementSet;
 use App\Models\Comment;
@@ -15,6 +16,7 @@ use App\Models\PlayerAchievement;
 use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\User;
+use App\Models\UserModerationReport;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\AchievementType;
@@ -200,7 +202,7 @@ class UpdatePlayerGameMetricsAction
                 if ($playerGame->time_to_beat_hardcore < $game->median_time_to_beat_hardcore / 20) {
                     $beatTime = CarbonInterval::seconds($playerGame->time_to_beat_hardcore)->cascade()->forHumans();
                     $medianBeatTime = CarbonInterval::seconds($game->median_time_to_beat_hardcore)->cascade()->forHumans();
-                    $this->createPotentialCheaterMessageThread($user,
+                    $this->createPotentialCheaterMessageThread($user, $playerGame,
                         "[user={$user->ID}] beat [game={$game->ID}] in hardcore in {$beatTime} - much faster than the median beat time of {$medianBeatTime}.");
                 }
             }
@@ -361,29 +363,40 @@ class UpdatePlayerGameMetricsAction
         ];
     }
 
-    private function createPotentialCheaterMessageThread(User $user, string $message): void
+    private function createPotentialCheaterMessageThread(User $user, PlayerGame $playerGame, string $message): void
     {
         $systemUser = User::find(Comment::SYSTEM_USER_ID);
         $raCheats = User::whereName('RACheats')->first();
         if (!$systemUser || !$raCheats) {
             Log::info($message);
+
             return;
         }
 
-        $threadTitle = "Suspicious User: $user->display_name";
+        $thread = null;
 
-        foreach (Message)
+        $moderationReport = UserModerationReport::query()
+            ->where('reportable_type', ModerationReportableType::PlayerBeatTime)
+            ->where('reported_user_id', $user->id)
+            ->where('reporter_user_id', $systemUser->id)
+            ->first();
+        if ($moderationReport) {
+            $thread = MessageThread::find($moderationReport->message_thread_id);
+        }
 
-        $thread = new MessageThread(['title' => $threadTitle]);
-        $thread->save();
+        if (!$thread) {
+            $thread = new MessageThread(['title' => "Suspicious Beat Time for User: $user->display_name"]);
+            $thread->save();
 
-        $participantTo = new MessageThreadParticipant([
-            'user_id' => $raCheats->ID,
-            'thread_id' => $thread->id,
-        ]);
-        $participantTo->save();
+            $participantTo = new MessageThreadParticipant([
+                'user_id' => $raCheats->ID,
+                'thread_id' => $thread->id,
+            ]);
+            $participantTo->save();
+        }
 
         $action = new AddToMessageThreadAction();
-        $action->execute($thread, $systemUser, $systemUser, $message);
+        $action->execute($thread, $systemUser, $systemUser, $message,
+            ModerationReportableType::PlayerBeatTime, $playerGame->id);
     }
 }

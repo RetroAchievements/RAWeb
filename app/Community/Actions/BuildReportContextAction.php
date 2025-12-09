@@ -29,6 +29,11 @@ class BuildReportContextAction
         int $reportableId,
         bool $forDiscord = false,
     ): string {
+        // player beat time message already has all the context in it.
+        if ($reportableType === ModerationReportableType::PlayerBeatTime) {
+            return $messageBody;
+        }
+
         $reportedItem = $reportableType->getReportedItem($reportableId);
         if (!$reportedItem) {
             return $messageBody;

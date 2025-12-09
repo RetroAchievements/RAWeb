@@ -7,6 +7,7 @@ namespace App\Community\Enums;
 use App\Models\Comment;
 use App\Models\ForumTopicComment;
 use App\Models\Message;
+use App\Models\PlayerGame;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -18,6 +19,7 @@ enum ModerationReportableType: string
     case DirectMessage = 'DirectMessage';
     case ForumTopicComment = 'ForumTopicComment';
     case UserProfile = 'UserProfile';
+    case PlayerBeatTime = 'PlayerBeatTime';
 
     public function getModelClass(): string
     {
@@ -26,6 +28,7 @@ enum ModerationReportableType: string
             self::DirectMessage => Message::class,
             self::ForumTopicComment => ForumTopicComment::class,
             self::UserProfile => User::class,
+            self::PlayerBeatTime => PlayerGame::class,
         };
     }
 
