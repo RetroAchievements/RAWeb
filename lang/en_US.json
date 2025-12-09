@@ -1285,5 +1285,7 @@
     "Bonus Subset": "Bonus Subset",
     "Specialty Subset": "Specialty Subset",
     "Exclusive Subset": "Exclusive Subset",
-    "Save": "Save"
+    "Save": "Save",
+    "Disabled": "Disabled",
+    "Active Leaderboards": "Active Leaderboards"
 }

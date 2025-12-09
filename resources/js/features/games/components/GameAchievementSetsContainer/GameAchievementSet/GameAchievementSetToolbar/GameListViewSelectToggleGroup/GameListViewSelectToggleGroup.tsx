@@ -39,7 +39,7 @@ export const GameListViewSelectToggleGroup: FC = () => {
         <BaseToggleGroupItem
           size="sm"
           value="leaderboards"
-          aria-label={t('Leaderboards')}
+          aria-label={t('Active Leaderboards')}
           variant="outline"
           className={cn(
             'game-set__toggle group w-full rounded-l-none',
@@ -62,7 +62,7 @@ export const GameListViewSelectToggleGroup: FC = () => {
           </BaseTooltipTrigger>
         </BaseToggleGroupItem>
 
-        <BaseTooltipContent>{t('Leaderboards')}</BaseTooltipContent>
+        <BaseTooltipContent>{t('Active Leaderboards')}</BaseTooltipContent>
       </BaseTooltip>
 
       <BaseTooltip>
