@@ -286,7 +286,7 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
 
         $thread = MessageThread::first();
         $this->assertNotNull($thread);
-        $this->assertEquals("Suspicious User: $user->display_name", $thread->title);
+        $this->assertEquals("Suspicious Beat Time for User: $user->display_name", $thread->title);
 
         $participant = MessageThreadParticipant::first();
         $this->assertNotNull($participant);
