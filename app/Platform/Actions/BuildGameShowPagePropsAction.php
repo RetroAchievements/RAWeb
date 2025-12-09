@@ -762,9 +762,8 @@ class BuildGameShowPagePropsAction
             // Filter based on showUnofficial flag
             $leaderboards = $leaderboards->filter(function ($leaderboard) use ($showUnofficial) {
                 if ($showUnofficial) {
-                    // On the unpublished page: ONLY show Unofficial and Disabled
-                    return $leaderboard->state === LeaderboardState::Unofficial
-                        || $leaderboard->state === LeaderboardState::Disabled;
+                    // On the unpublished page: ONLY show Unofficial
+                    return $leaderboard->state === LeaderboardState::Unofficial;
                 } else {
                     // On the normal page: Show Active and Disabled
                     return $leaderboard->state === LeaderboardState::Active
@@ -837,9 +836,15 @@ class BuildGameShowPagePropsAction
             return 0;
         }
 
-        return $game->leaderboards
-        ->where('state', LeaderboardState::Active)
-        ->count();
+        if (request()->boolean('unpublished')) {
+            return $game->leaderboards
+                ->where('state', LeaderboardState::Unofficial)
+                ->count();
+        } else {
+            return $game->leaderboards
+                ->where('state', LeaderboardState::Active)
+                ->count();
+    }
     }
 
     private function getInterestedDevelopersCount(Game $game, ?User $user): ?int
