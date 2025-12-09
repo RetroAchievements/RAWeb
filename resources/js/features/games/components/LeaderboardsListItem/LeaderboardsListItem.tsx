@@ -4,6 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { LuChartBar, LuCrown } from 'react-icons/lu';
 
 import { UserAvatar } from '@/common/components/UserAvatar';
+import { BaseTooltipProvider } from '@/common/components/+vendor/BaseTooltip';
+import {
+  BaseTooltip,
+  BaseTooltipContent,
+  BaseTooltipTrigger,
+} from '@/common/components/+vendor/BaseTooltip';
 
 interface LeaderboardsListItemProps {
   index: number;
@@ -52,11 +58,16 @@ export const LeaderboardsListItem: FC<LeaderboardsListItemProps> = ({
             </span>
 
             {/* State badge */}
-            {leaderboard.state === 'disabled' && (
-              <span className="rounded-full bg-embed px-2.5 py-0.5 text-xs text-neutral-400">
-                {t(`Disabled`)}
-              </span>
-            )}
+            <BaseTooltip>
+              {leaderboard.state === 'disabled' && (
+                <BaseTooltipTrigger asChild>  
+                  <span className="rounded-full cursor-pointer bg-embed px-2.5 py-0.5 text-xs text-neutral-500 opacity-50">
+                    {t(`Disabled`)}
+                      <BaseTooltipContent>{t('This leaderboard is currently disabled and not accepting new entries.')}</BaseTooltipContent> 
+                  </span>
+                </BaseTooltipTrigger>
+              )}
+            </BaseTooltip>
           </div>
 
           {/* Description */}
