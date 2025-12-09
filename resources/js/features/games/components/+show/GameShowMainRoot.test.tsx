@@ -12,6 +12,7 @@ import {
   createZiggyProps,
 } from '@/test/factories';
 
+import { currentListViewAtom } from '../../state/games.atoms';
 import { GameShowMainRoot } from './GameShowMainRoot';
 
 describe('Component: GameShowMainRoot', () => {
@@ -226,23 +227,20 @@ describe('Component: GameShowMainRoot', () => {
     expect(screen.queryByRole('alertdialog', { name: /content warning/i })).not.toBeInTheDocument();
   });
 
-  it('given the game has no achievements, renders an empty state', () => {
+  it('given the game has no achievements and the user is viewing achievements, renders an empty state', () => {
     // ARRANGE
     const game = createGame({
-      badgeUrl: 'badge.jpg',
       gameAchievementSets: [
         createGameAchievementSet({ achievementSet: createAchievementSet({ achievements: [] }) }), // !!
       ],
-      imageBoxArtUrl: faker.internet.url(),
       imageTitleUrl: faker.internet.url(),
-      imageIngameUrl: faker.internet.url(),
-      system: createSystem({
-        iconUrl: 'icon.jpg',
-      }),
-      title: 'Test Game',
     });
 
     render(<GameShowMainRoot />, {
+      jotaiAtoms: [
+        [currentListViewAtom, 'achievements'], // !!
+        //
+      ],
       pageProps: {
         game,
         achievementSetClaims: [],
@@ -265,6 +263,44 @@ describe('Component: GameShowMainRoot', () => {
 
     // ASSERT
     expect(screen.getByText(/no achievements yet/i)).toBeVisible();
+  });
+
+  it('given the game has no achievements and the user is viewing leaderboards, does not render an empty state', () => {
+    // ARRANGE
+    const game = createGame({
+      gameAchievementSets: [
+        createGameAchievementSet({ achievementSet: createAchievementSet({ achievements: [] }) }), // !!
+      ],
+      imageTitleUrl: faker.internet.url(),
+    });
+
+    render(<GameShowMainRoot />, {
+      jotaiAtoms: [
+        [currentListViewAtom, 'leaderboards'], // !!
+        //
+      ],
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: true,
+        recentPlayers: [],
+        recentVisibleComments: [],
+        setRequestData: {
+          hasUserRequestedSet: false,
+          totalRequests: 0,
+          userRequestsRemaining: 0,
+        },
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/no achievements yet/i)).not.toBeInTheDocument();
   });
 
   it('given the game has achievements, does not render an empty state', () => {
