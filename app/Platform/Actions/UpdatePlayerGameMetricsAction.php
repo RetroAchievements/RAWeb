@@ -27,6 +27,7 @@ use App\Platform\Services\PlayerGameActivityService;
 use Carbon\CarbonInterval;
 use ErrorException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class UpdatePlayerGameMetricsAction
 {
@@ -331,26 +332,26 @@ class UpdatePlayerGameMetricsAction
         $beatenDates = $playerGame->beaten_dates ?? [];
         $beatenDatesHardcore = $playerGame->beaten_dates_hardcore ?? [];
 
-        if ($isBeatenSoftcore) {
+        if (!$beatenAt && $isBeatenSoftcore) {
             $beatenAt = collect([
                 $progressionUnlocks->max('unlocked_at'),
                 $winConditionUnlocks->min('unlocked_at'),
             ])
                 ->filter()
                 ->max();
-            if ($beatenAt !== null && $beatenAt !== $playerGame->beaten_at) {
+            if ($beatenAt !== null) {
                 array_push($beatenDates, $beatenAt->toJSON());
             }
         }
 
-        if ($isBeatenHardcore) {
+        if (!$beatenHardcoreAt && $isBeatenHardcore) {
             $beatenHardcoreAt = collect([
                 $progressionUnlocksHardcore->max('unlocked_hardcore_at'),
                 $winConditionUnlocksHardcore->min('unlocked_hardcore_at'),
             ])
                 ->filter()
                 ->max();
-            if ($beatenHardcoreAt !== null && $beatenHardcoreAt !== $playerGame->beaten_hardcore_at) {
+            if ($beatenHardcoreAt !== null) {
                 array_push($beatenDatesHardcore, $beatenHardcoreAt->toJSON());
             }
         }
