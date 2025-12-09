@@ -575,7 +575,7 @@ describe('Component: GameAchievementSet', () => {
     expect(screen.getByText('Active Leaderboard 1')).toBeVisible();
     expect(screen.getByText('Active Leaderboard 2')).toBeVisible();
     expect(screen.getByText('Disabled Leaderboard')).toBeVisible();
-    
+
     expect(screen.getByTestId('disabled-separator')).toBeVisible();
   });
 
@@ -616,7 +616,7 @@ describe('Component: GameAchievementSet', () => {
     expect(screen.getByText('Unpublished Leaderboard 1')).toBeVisible();
     expect(screen.getByText('Unpublished Leaderboard 2')).toBeVisible();
     expect(screen.queryByText('Disabled Leaderboard')).not.toBeInTheDocument();
-    
+
     expect(screen.queryByTestId('disabled-separator')).not.toBeInTheDocument();
   });
 
@@ -655,7 +655,7 @@ describe('Component: GameAchievementSet', () => {
     // ... only disabled leaderboards should be visible with no separator ...
     expect(screen.getByText('Disabled Leaderboard 1')).toBeVisible();
     expect(screen.getByText('Disabled Leaderboard 2')).toBeVisible();
-    
+
     expect(screen.queryByTestId('disabled-separator')).not.toBeInTheDocument();
   });
 });

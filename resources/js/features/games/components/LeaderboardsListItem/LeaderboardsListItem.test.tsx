@@ -1,6 +1,7 @@
+import userEvent from '@testing-library/user-event';
+
 import { render, screen, waitFor } from '@/test';
 import { createLeaderboard, createLeaderboardEntry, createUser } from '@/test/factories';
-import userEvent from '@testing-library/user-event';
 
 import { LeaderboardsListItem } from './LeaderboardsListItem';
 
@@ -144,7 +145,10 @@ describe('Component: LeaderboardsListItem', () => {
     // ASSERT
     await waitFor(() => {
       expect(screen.getByRole('tooltip')).toBeVisible();
-      expect(screen.getByRole('tooltip')).toHaveTextContent(/this leaderboard is currently disabled and not accepting new entries/i);
     });
+
+    expect(screen.getByRole('tooltip')).toHaveTextContent(
+      /this leaderboard is currently disabled and not accepting new entries/i,
+    );
   });
 });
