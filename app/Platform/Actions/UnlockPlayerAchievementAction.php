@@ -52,7 +52,7 @@ class UnlockPlayerAchievementAction
         } else {
             // make sure to resume the player session which will attach the game to the player, too
             $playerSession = app()->make(ResumePlayerSessionAction::class)
-                ->execute($user, $achievement->game, gameHash: $gameHash, timestamp: $timestamp);
+                ->execute($user, $gameHash?->game ?? $achievement->game, gameHash: $gameHash, timestamp: $timestamp);
         }
 
         $unlock = $user->playerAchievements()->firstOrCreate([

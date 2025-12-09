@@ -8,6 +8,15 @@ use Inertia\ResponseFactory;
 class InertiaResponseFactory extends ResponseFactory
 {
     /**
+     * The root template that's loaded on the first page visit.
+     *
+     * @see https://inertiajs.com/server-side-setup#root-template
+     *
+     * @var string
+     */
+    protected $rootView = 'layouts/app';
+
+    /**
      * @param array|Arrayable<array-key, mixed> $props
      */
     public function render(string $component, $props = []): InertiaResponse
