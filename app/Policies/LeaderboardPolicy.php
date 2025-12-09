@@ -59,7 +59,7 @@ class LeaderboardPolicy
             Role::WRITER,
 
             /*
-             * event managers may update title, description, and display order to facilitate leaderboards for events
+             * event managers may update title, description, state and display order to facilitate leaderboards for events
              */
             Role::EVENT_MANAGER,
         ]);

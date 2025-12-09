@@ -14,6 +14,7 @@ use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\User;
 use App\Platform\Enums\ValueFormat;
+use App\Platform\Enums\LeaderboardState;
 use BackedEnum;
 use Filament\Actions;
 use Filament\Forms;
@@ -99,7 +100,12 @@ class LeaderboardResource extends Resource
 
                         Infolists\Components\TextEntry::make('Description'),
 
+                        Infolists\Components\TextEntry::make('state')
+                            ->label('State')
+                            ->formatStateUsing(fn (LeaderboardState $state): string => ucfirst($state->value)),
+
                         Infolists\Components\TextEntry::make('DisplayOrder'),
+
                     ]),
 
                 Schemas\Components\Section::make('Rules')
@@ -138,6 +144,18 @@ class LeaderboardResource extends Resource
                             ->maxLength(255)
                             ->disabled(!$user->can('updateField', [$schema->model, 'Description'])),
 
+                        Forms\Components\Select::make('state')
+                            ->label('State')
+                            ->selectablePlaceholder(false)
+                            ->helperText('If set to Disabled, the leaderboard be prevented from activating. If set to Unofficial, the leaderboard will additionally be removed from public listings.')
+                            ->options([
+                                LeaderboardState::Active->value => 'Active',
+                                LeaderboardState::Disabled->value => 'Disabled',
+                                LeaderboardState::Unofficial->value => 'Unofficial',
+                            ])
+                            ->required()
+                            ->disabled(!$user->can('updateField', [$schema->model, 'state'])),
+                        
                         Forms\Components\TextInput::make('DisplayOrder')
                             ->numeric()
                             ->helperText("If set to less than 0, the leaderboard will be invisible to regular players.")
@@ -220,14 +238,10 @@ class LeaderboardResource extends Resource
                     ->label('Display Order')
                     ->sortable()
                     ->toggleable(),
-                Tables\Columns\SelectColumn::make('state')
+                Tables\Columns\TextColumn::make('state')
                     ->label('State')
-                    ->options([
-                        'active' => 'Active',
-                        'disabled' => 'Disabled',
-                        'unofficial' => 'Unofficial',
-                    ])
-                    ->selectablePlaceholder(false),
+                    ->formatStateUsing(fn (LeaderboardState $state) => ucfirst($state->value))
+                    
             ])
             ->searchPlaceholder('(ID, Title, Game, Dev)')
             ->filters([
