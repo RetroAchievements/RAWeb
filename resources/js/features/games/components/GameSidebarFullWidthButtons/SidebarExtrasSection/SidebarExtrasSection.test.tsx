@@ -66,7 +66,7 @@ describe('Component: SidebarExtrasSection', () => {
     expect(screen.queryByRole('link', { name: /tickets/i })).not.toBeInTheDocument();
   });
 
-  it('given the game and backing game are different, shows subset indicator on Tickets button', () => {
+  it('given the game and backing game are different, shows subset indicator on Memory and Tickets buttons', () => {
     // ARRANGE
     const game = createGame({ id: 1, system: createSystem({ active: true }) }); // !!
     const backingGame = createGame({ id: 2 }); // !!
@@ -80,7 +80,8 @@ describe('Component: SidebarExtrasSection', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('img', { name: /subset/i })).toBeVisible();
+    expect(screen.getAllByRole('img', { name: /subset/i })[0]).toBeVisible();
+    expect(screen.getAllByRole('img', { name: /subset/i })[1]).toBeVisible();
   });
 
   it('given the game and backing game are the same, does not show subset indicator on Tickets button', () => {
