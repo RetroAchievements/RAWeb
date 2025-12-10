@@ -8,6 +8,11 @@ import dayjs from 'dayjs';
 export async function loadDayjsLocale(userLocale: string) {
   try {
     switch (userLocale) {
+      case 'az_AZ':
+        await import('dayjs/locale/az.js');
+        dayjs.locale('az');
+        break;
+
       case 'en':
       case 'en_US':
         break;
@@ -37,9 +42,19 @@ export async function loadDayjsLocale(userLocale: string) {
         dayjs.locale('es');
         break;
 
+      case 'fi_FI':
+        await import('dayjs/locale/fi.js');
+        dayjs.locale('fi');
+        break;
+
       case 'fr_FR':
         await import('dayjs/locale/fr.js');
         dayjs.locale('fr');
+        break;
+
+      case 'id_ID':
+        await import('dayjs/locale/id.js');
+        dayjs.locale('id');
         break;
 
       case 'it_IT':
@@ -65,6 +80,11 @@ export async function loadDayjsLocale(userLocale: string) {
       case 'tr_TR':
         await import('dayjs/locale/tr.js');
         dayjs.locale('tr');
+        break;
+
+      case 'uk_UA':
+        await import('dayjs/locale/uk.js');
+        dayjs.locale('uk');
         break;
 
       case 'pl_PL':
