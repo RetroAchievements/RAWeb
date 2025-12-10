@@ -14,6 +14,7 @@ import { PlayableBoxArtImage } from '@/common/components/PlayableBoxArtImage';
 import { PlayableCompareProgress } from '@/common/components/PlayableCompareProgress';
 import { PlayableHubsList } from '@/common/components/PlayableHubsList';
 import { PlayableMainMedia } from '@/common/components/PlayableMainMedia';
+import { PlayableOfficialForumTopicButton } from '@/common/components/PlayableOfficialForumTopicButton';
 import { PlayableTopPlayers } from '@/common/components/PlayableTopPlayers';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
@@ -190,6 +191,10 @@ export const GameShowMobileRoot: FC = () => {
         {/* Community tab content */}
         {isViewingPublishedAchievements ? (
           <BaseTabsContent value="community" className="mt-0 flex flex-col gap-8">
+            {backingGame.forumTopicId ? (
+              <PlayableOfficialForumTopicButton backingGame={backingGame} game={game} />
+            ) : null}
+
             <GameRecentPlayers />
             <GameCommentList />
           </BaseTabsContent>

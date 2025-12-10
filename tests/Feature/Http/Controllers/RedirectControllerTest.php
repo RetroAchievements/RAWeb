@@ -262,4 +262,34 @@ class RedirectControllerTest extends TestCase
         // Assert
         $response->assertRedirect('https://GitHub.com/retroachievements');
     }
+
+    public function testRedirectEncodesAmpersandFollowedBySpace(): void
+    {
+        // Arrange
+        $url = 'https://www.google.com/search?q=site:www.gamefaqs.com+Mario+&+Sonic';
+
+        // Act
+        $response = $this->get('/redirect?url=' . urlencode($url));
+
+        // Assert
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('redirect')
+            ->where('url', 'https://www.google.com/search?q=site:www.gamefaqs.com+Mario+%26+Sonic')
+        );
+    }
+
+    public function testRedirectPreservesLegitimateQueryParameterSeparators(): void
+    {
+        // Arrange
+        $url = 'https://example.com/search?q=test&page=2';
+
+        // Act
+        $response = $this->get('/redirect?url=' . urlencode($url));
+
+        // Assert
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('redirect')
+            ->where('url', 'https://example.com/search?q=test&page=2')
+        );
+    }
 }
