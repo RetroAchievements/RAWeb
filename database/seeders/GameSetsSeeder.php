@@ -126,7 +126,6 @@ class GameSetsSeeder extends Seeder
             $publisherHubIds[] = [$genre->id, $publisherName];
         }
 
-
         $publisherCount = count($publisherHubIds);
         $developerCount = count($developerHubIds);
         $genreCount = count($genreHubIds);
@@ -138,7 +137,7 @@ class GameSetsSeeder extends Seeder
                     'game_id' => $game->ID,
                 ]);
                 $game->Developer = $developerHubIds[$index][1];
-            } else if ($index > $developerCount) {
+            } elseif ($index > $developerCount) {
                 $game->Developer = ucwords($faker->words(random_int(1, 3), true));
             }
 
@@ -149,7 +148,7 @@ class GameSetsSeeder extends Seeder
                     'game_id' => $game->ID,
                 ]);
                 $game->Publisher = $publisherHubIds[$index][1];
-            } else if ($index > $publisherCount) {
+            } elseif ($index > $publisherCount) {
                 $game->Publisher = ucwords($faker->words(random_int(1, 3), true));
             }
 

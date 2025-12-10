@@ -4,21 +4,14 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameRelease;
-use App\Models\Leaderboard;
-use App\Models\Role;
-use App\Models\System;
-use App\Models\User;
-use App\Platform\Actions\UpdateGameMetricsAction;
+use App\Platform\Enums\GameReleaseRegion;
 use App\Platform\Enums\ReleasedAtGranularity;
-use App\Platform\Enums\AchievementType;
 use Carbon\Carbon;
 use Faker\Factory as Faker;
 use Faker\Generator as FakerGenerator;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class GameReleasesSeeder extends Seeder
 {
@@ -36,6 +29,7 @@ class GameReleasesSeeder extends Seeder
             }
 
             $year = 0;
+            $range = [1976, 2012];
             switch ($game->ConsoleID) {
                 case 57: // channel F
                     $range = [1976, 1979];
@@ -83,24 +77,22 @@ class GameReleasesSeeder extends Seeder
                     $range = [2004, 2014];
                     break;
                 default:
-                    // unspecified, weight towards the newest date
-                    $year = (int)sqrt(random_int(1976*1976, 2012*2012));
+                    // unhandled. weight towards the newest date
+                    $year = (int) sqrt(random_int(1976 * 1976, 2012 * 2012));
                     break;
             }
             if ($year === 0) {
                 // weight ranged releases towards the initial date
-                $year = $range[1] - (int)sqrt(random_int(0, pow($range[1] - $range[0] + 1, 2)));
+                $year = $range[1] - (int) sqrt(random_int(0, pow($range[1] - $range[0] + 1, 2)));
             }
 
             $release->released_at = Carbon::createFromDate($year, 1, 1);
             if ($year < 1985 && random_int(0, (1986 - $year) * (1987 - $year)) > 5) {
                 $release->released_at_granularity = ReleasedAtGranularity::Year;
-            }
-            else if ($year < 1988 && random_int(0, (1990 - $year) * (1991 - $year)) > 9) {
+            } elseif ($year < 1988 && random_int(0, (1990 - $year) * (1991 - $year)) > 9) {
                 $release->released_at = $release->released_at->addMonths(rand(0, 11));
                 $release->released_at_granularity = ReleasedAtGranularity::Month;
-            }
-            else {
+            } else {
                 $release->released_at = $release->released_at->addDays(rand(0, 364));
                 $release->released_at_granularity = ReleasedAtGranularity::Day;
             }
@@ -108,32 +100,32 @@ class GameReleasesSeeder extends Seeder
             switch (random_int(1, 10)) {
                 case 1:
                 case 2:
-                    $release->region = 'na';
+                    $release->region = GameReleaseRegion::NorthAmerica;
                     break;
                 case 3:
-                    $release->region = 'eu';
+                    $release->region = GameReleaseRegion::Europe;
                     break;
                 case 4:
-                    $release->region = 'jp';
+                    $release->region = GameReleaseRegion::Japan;
                     break;
                 case 5:
-                    $release->region = 'worldwide';
+                    $release->region = GameReleaseRegion::Worldwide;
                     break;
                 case 6: // jp+na
-                    $release->region = 'jp';
-                    $this->addSecondaryRelease($game->id, $release->released_at, $faker, 'na');
+                    $release->region = GameReleaseRegion::Japan;
+                    $this->addSecondaryRelease($game->id, $release->released_at, $faker, GameReleaseRegion::NorthAmerica);
                     break;
                 case 7: // jp+eu+na
-                    $release->region = 'jp';
-                    $this->addSecondaryRelease($game->id, $release->released_at, $faker, 'eu');
-                    $this->addSecondaryRelease($game->id, $release->released_at, $faker, 'na');
+                    $release->region = GameReleaseRegion::Japan;
+                    $this->addSecondaryRelease($game->id, $release->released_at, $faker, GameReleaseRegion::Europe);
+                    $this->addSecondaryRelease($game->id, $release->released_at, $faker, GameReleaseRegion::NorthAmerica);
                     break;
                 case 8: // na+eu
-                    $release->region = 'na';
-                    $this->addSecondaryRelease($game->id, $release->released_at, $faker, 'eu');
+                    $release->region = GameReleaseRegion::NorthAmerica;
+                    $this->addSecondaryRelease($game->id, $release->released_at, $faker, GameReleaseRegion::Europe);
                     break;
                 case 9:
-                    $additionalRegions = ['au', 'ch', 'other'];
+                    $additionalRegions = [GameReleaseRegion::Australia, GameReleaseRegion::China, GameReleaseRegion::Other];
                     $release->region = $additionalRegions[array_rand($additionalRegions)];
                     break;
             }
@@ -142,7 +134,7 @@ class GameReleasesSeeder extends Seeder
         }
     }
 
-    private function addSecondaryRelease(int $gameId, Carbon $primaryReleaseDate, FakerGenerator $faker, string $region): void
+    private function addSecondaryRelease(int $gameId, Carbon $primaryReleaseDate, FakerGenerator $faker, GameReleaseRegion $region): void
     {
         GameRelease::create([
             'game_id' => $gameId,
