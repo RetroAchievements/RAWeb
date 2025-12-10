@@ -29,7 +29,11 @@ export const SidebarExtrasSection: FC<SidebarExtrasSectionProps> = ({ game }) =>
 
       {can.manageGames || game.system?.active ? (
         <div className="grid grid-cols-2 gap-1">
-          <PlayableSidebarButton href={`/codenotes.php?g=${game.id}`} IconComponent={LuFileCode}>
+          <PlayableSidebarButton
+            href={`/codenotes.php?g=${backingGame.id}`}
+            IconComponent={LuFileCode}
+            showSubsetIndicator={showSubsetIndicator}
+          >
             {t('Memory')}
           </PlayableSidebarButton>
 
