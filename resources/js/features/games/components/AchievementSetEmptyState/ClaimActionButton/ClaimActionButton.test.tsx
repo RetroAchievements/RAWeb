@@ -137,4 +137,20 @@ describe('Component: ClaimActionButton', () => {
     // ASSERT
     expect(screen.getByRole('button', { name: /claim/i })).toBeVisible();
   });
+
+  it('given the user already has a claim, does not show a claim button', () => {
+    // ARRANGE
+    render(<ClaimActionButton />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        backingGame: createGame(),
+        claimData: createGamePageClaimData({
+          userClaim: createAchievementSetClaim({ isExtendable: false, isDroppable: true }), // !!
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /claim/i })).not.toBeInTheDocument();
+  });
 });

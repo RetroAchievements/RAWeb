@@ -23,19 +23,23 @@ export const ClaimActionButton: FC = () => {
     return null;
   }
 
-  if (claimData?.userClaim?.isExtendable) {
-    return (
-      <ClaimConfirmationDialog
-        data-testid="claim-button"
-        action="extend"
-        trigger={
-          <BaseButton className="gap-1.5">
-            <LuWrench />
-            {t('Extend Claim')}
-          </BaseButton>
-        }
-      />
-    );
+  if (claimData?.userClaim) {
+    if (claimData.userClaim.isExtendable) {
+      return (
+        <ClaimConfirmationDialog
+          data-testid="claim-button"
+          action="extend"
+          trigger={
+            <BaseButton className="gap-1.5">
+              <LuWrench />
+              {t('Extend Claim')}
+            </BaseButton>
+          }
+        />
+      );
+    }
+
+    return null;
   }
 
   if (!claimData?.numClaimsRemaining && !claimData?.isSoleAuthor) {
