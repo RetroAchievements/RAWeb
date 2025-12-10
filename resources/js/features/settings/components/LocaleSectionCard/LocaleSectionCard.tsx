@@ -57,6 +57,12 @@ export const LocaleSectionCard: FC = () => {
                       {/* These labels should not be localized. */}
                       <BaseSelectItem value="en_US">{'English (US)'}</BaseSelectItem>
                       <BaseSelectItem value="en_GB">{'English (UK)'}</BaseSelectItem>
+                      <BaseSelectItem value="az_AZ">
+                        {'Azərbaycan dili (Azərbaycan)'}
+                      </BaseSelectItem>
+                      <BaseSelectItem value="id_ID">
+                        {'Bahasa Indonesia (Indonesia)'}
+                      </BaseSelectItem>
                       <BaseSelectItem value="ca_ES">{'Català (Espanya)'}</BaseSelectItem>
                       <BaseSelectItem value="cy_GB">{'Cymraeg (Cymru)'}</BaseSelectItem>
                       <BaseSelectItem value="de_DE">{'Deutsch (Deutschland)'}</BaseSelectItem>
@@ -68,9 +74,11 @@ export const LocaleSectionCard: FC = () => {
                       <BaseSelectItem value="pt_BR">{'Português (Brasil)'}</BaseSelectItem>
                       <BaseSelectItem value="pt_PT">{'Português (Portugal)'}</BaseSelectItem>
                       <BaseSelectItem value="ru_RU">{'Русский (Россия)'}</BaseSelectItem>
+                      <BaseSelectItem value="fi_FI">{'Suomi (Suomi)'}</BaseSelectItem>
                       <BaseSelectItem value="sv_SE">{'Svenska (Sverige)'}</BaseSelectItem>
-                      <BaseSelectItem value="tr_TR">{'Türkçe (Türkiye)'}</BaseSelectItem>
                       <BaseSelectItem value="vi_VN">{'Tiếng Việt (Việt Nam)'}</BaseSelectItem>
+                      <BaseSelectItem value="tr_TR">{'Türkçe (Türkiye)'}</BaseSelectItem>
+                      <BaseSelectItem value="uk_UA">{'Українська (Україна)'}</BaseSelectItem>
                     </BaseSelectContent>
                   </BaseSelect>
                 </BaseFormControl>
