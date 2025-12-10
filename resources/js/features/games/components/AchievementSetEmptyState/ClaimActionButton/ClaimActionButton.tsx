@@ -23,45 +23,15 @@ export const ClaimActionButton: FC = () => {
     return null;
   }
 
-  if (claimData?.userClaim) {
-    if (claimData.userClaim.isExtendable) {
-      return (
-        <ClaimConfirmationDialog
-          data-testid="claim-button"
-          action="extend"
-          trigger={
-            <BaseButton className="gap-1.5">
-              <LuWrench />
-              {t('Extend Claim')}
-            </BaseButton>
-          }
-        />
-      );
-    }
-
-    // Check if the claim can be dropped (not in review).
-    // Only show on XS breakpoint since the sidebar has drop claim for larger screens.
-    if (!claimData.userClaim.isDroppable) {
-      return (
-        <BaseTooltip>
-          <BaseTooltipTrigger>
-            <DisabledButton className="sm:hidden">{t('Drop Claim')}</DisabledButton>
-          </BaseTooltipTrigger>
-          <BaseTooltipContent>
-            {t("You can't drop this claim while it's in review")}
-          </BaseTooltipContent>
-        </BaseTooltip>
-      );
-    }
-
+  if (claimData?.userClaim?.isExtendable) {
     return (
       <ClaimConfirmationDialog
         data-testid="claim-button"
-        action="drop"
+        action="extend"
         trigger={
-          <BaseButton className="gap-1.5 sm:hidden">
+          <BaseButton className="gap-1.5">
             <LuWrench />
-            {t('Drop Claim')}
+            {t('Extend Claim')}
           </BaseButton>
         }
       />
