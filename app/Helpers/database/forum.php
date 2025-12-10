@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Services\SubscriptionNotificationService;
 use App\Community\Services\SubscriptionService;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
@@ -9,7 +10,6 @@ use App\Models\Forum;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
-use App\Models\Subscription;
 use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Collection;
@@ -219,6 +219,10 @@ function submitTopicComment(
     setLatestCommentInForumTopic($topic, $newComment->id);
 
     if ($user->ManuallyVerified ?? false) {
+        // if user has any notifications pending for this post, assume they're no longer needed
+        $notificationService = new SubscriptionNotificationService();
+        $notificationService->resetNotification($user->id, SubscriptionSubjectType::ForumTopic, $topic->id);
+
         notifyUsersAboutForumActivity($topic, $user, $newComment);
     }
 
@@ -227,71 +231,31 @@ function submitTopicComment(
 
 function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTopicComment $newComment): void
 {
-    // TODO remove this when digest emails are ready
-    // Event topics are blocked from sending email notifications entirely.
-    // We'll remove this TODO when digest emails are ready to go.
-    if ($topic->forum_id === 25) {
-        return;
-    }
-    // ENDTODO
-
     $subscriptionService = new SubscriptionService();
-    $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::ForumTopic, $topic->id)
-        ->filter(fn ($s) => isset($s->EmailAddress) && BitSet($s->websitePrefs, UserPreference::EmailOn_ForumReply));
+    $subscribers = $subscriptionService->getSegmentedSubscriberIds(SubscriptionSubjectType::ForumTopic, $topic->id, $topic->author_id);
 
-    if ($subscribers->isEmpty()) {
-        return;
-    }
+    $notificationService = new SubscriptionNotificationService();
+    $notificationService->queueNotifications($subscribers['implicitlySubscribedNotifyLater'], SubscriptionSubjectType::ForumTopic, $topic->id, $newComment->id, UserPreference::EmailOn_ForumReply);
 
-    /**
-     * For threads with many subscribers (130+), we filter out implicit subscribers
-     * who haven't posted recently, unless they explicitly subscribed or are the OP.
-     * This targets high-volume threads where each comment triggers hundreds of emails.
-     */
-    if ($subscribers->count() >= 130) {
-        $threadActivityCutoff = now()->subDays(21);
+    $emailTargets = $notificationService->getEmailTargets(
+        array_merge($subscribers['explicitlySubscribed'], $subscribers['implicitlySubscribedNotifyNow']),
+        UserPreference::EmailOn_ForumReply);
 
-        $explicitSubscriberIds = Subscription::where('subject_type', SubscriptionSubjectType::ForumTopic)
-            ->where('subject_id', $topic->id)
-            ->where('state', true)
-            ->pluck('user_id')
-            ->toArray();
+    if (!$emailTargets->isEmpty()) {
+        $payload = nl2br(Shortcode::stripAndClamp($newComment->body, previewLength: 1000, preserveWhitespace: true));
+        $urlTarget = route('forum-topic.show', ['topic' => $topic->id, 'comment' => $newComment->id]) . '#' . $newComment->id;
 
-        $recentlyActiveUserIds = ForumTopicComment::where('forum_topic_id', $topic->id)
-            ->where('created_at', '>=', $threadActivityCutoff)
-            ->distinct()
-            ->pluck('author_id')
-            ->toArray();
-
-        $subscribers = $subscribers->filter(function ($subscriber) use ($topic, $explicitSubscriberIds, $recentlyActiveUserIds) {
-            // Explicit subscribers always get notified.
-            if (in_array($subscriber->id, $explicitSubscriberIds)) {
-                return true;
-            }
-
-            // OP always gets notified about their thread.
-            if ($subscriber->id === $topic->author_id) {
-                return true;
-            }
-
-            // Other implicit subscribers only get notified if they've posted in this thread recently.
-            return in_array($subscriber->id, $recentlyActiveUserIds);
-        });
-    }
-
-    $payload = nl2br(Shortcode::stripAndClamp($newComment->body, previewLength: 1000, preserveWhitespace: true));
-    $urlTarget = route('forum-topic.show', ['topic' => $topic->id, 'comment' => $newComment->id]) . '#' . $newComment->id;
-
-    foreach ($subscribers as $subscriber) {
-        sendActivityEmail(
-            $subscriber,
-            $topic->id,
-            $author,
-            ArticleType::Forum,
-            $topic->title ?? '',
-            $urlTarget,
-            payload: $payload
-        );
+        foreach ($emailTargets as $subscriber) {
+            sendActivityEmail(
+                $subscriber,
+                $topic->id,
+                $author,
+                ArticleType::Forum,
+                $topic->title ?? '',
+                $urlTarget,
+                payload: $payload
+            );
+        }
     }
 }
 

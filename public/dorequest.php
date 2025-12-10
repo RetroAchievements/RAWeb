@@ -9,6 +9,7 @@ use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\GetCodeNotesAction;
 use App\Connect\Actions\GetFriendListAction;
 use App\Connect\Actions\GetGameIdFromHashAction;
+use App\Connect\Actions\GetGameInfosAction;
 use App\Connect\Actions\GetHashLibraryAction;
 use App\Connect\Actions\GetLatestClientVersionAction;
 use App\Connect\Actions\GetLatestIntegrationVersionAction;
@@ -45,6 +46,7 @@ $handler = match ($requestType) {
     'badgeiter' => new GetBadgeIdRangeAction(),
     'codenotes2' => new GetCodeNotesAction(),
     'gameid' => new GetGameIdFromHashAction(),
+    'gameinfolist' => new GetGameInfosAction(),
     'getfriendlist' => new GetFriendListAction(),
     'hashlibrary' => new GetHashLibraryAction(),
     'latestclient' => new GetLatestClientVersionAction(),
@@ -230,15 +232,6 @@ switch ($requestType) {
     case "officialgameslist": // TODO: is this used anymore? It's not used by the DLL.
         $consoleID = (int) request()->input('c', 0);
         $response['Response'] = getGamesListDataNamesOnly($consoleID, true);
-        break;
-
-    case "gameinfolist":
-        $gamesCSV = request()->input('g', '');
-        if (empty($gamesCSV)) {
-            return DoRequestError("You must specify which games to retrieve info for", 400);
-        }
-        $response['Response'] = Game::whereIn('ID', explode(',', $gamesCSV, 100))
-            ->select('Title', 'ID', 'ImageIcon')->get()->toArray();
         break;
 
     /*
