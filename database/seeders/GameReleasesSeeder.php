@@ -31,13 +31,13 @@ class GameReleasesSeeder extends Seeder
             $year = 0;
             $range = [1976, 2012];
             switch ($game->ConsoleID) {
-                case 57: // channel F
+                case 57: // Channel F
                     $range = [1976, 1979];
                     break;
-                case 25: // atari 2600
+                case 25: // Atari 2600
                     $range = [1977, 1992];
                     break;
-                case 45: // intellivision
+                case 45: // Intellivision
                     $range = [1979, 1990];
                     break;
                 case 7: // NES
@@ -88,8 +88,15 @@ class GameReleasesSeeder extends Seeder
 
             $release->released_at = Carbon::createFromDate($year, 1, 1);
             if ($year < 1985 && random_int(0, (1986 - $year) * (1987 - $year)) > 5) {
+                // 17% (1/6) chance of only being year for 1984
+                // 75% (15/20) chance of only being year for 1982
+                // 91% (51/56) chance of only being year for 1980
+                // 95% (105/110) chance of only being year for 1976
                 $release->released_at_granularity = ReleasedAtGranularity::Year;
             } elseif ($year < 1988 && random_int(0, (1990 - $year) * (1991 - $year)) > 9) {
+                // 25% (3/12) chance of month granularity for 1987
+                // 70% (21/30) chance of month granularity for 1985
+                // 87% (61/70) chance of month granularity for 1982 (after 25% chance of it not being year only)
                 $release->released_at = $release->released_at->addMonths(rand(0, 11));
                 $release->released_at_granularity = ReleasedAtGranularity::Month;
             } else {
