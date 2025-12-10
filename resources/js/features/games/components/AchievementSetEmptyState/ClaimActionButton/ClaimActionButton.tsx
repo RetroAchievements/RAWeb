@@ -9,6 +9,7 @@ import {
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { cn } from '@/common/utils/cn';
 import { ClaimConfirmationDialog } from '@/features/games/components/ClaimConfirmationDialog';
 
 export const ClaimActionButton: FC = () => {
@@ -39,11 +40,12 @@ export const ClaimActionButton: FC = () => {
     }
 
     // Check if the claim can be dropped (not in review).
+    // Only show on XS breakpoint since the sidebar has drop claim for larger screens.
     if (!claimData.userClaim.isDroppable) {
       return (
         <BaseTooltip>
           <BaseTooltipTrigger>
-            <DisabledButton>{t('Drop Claim')}</DisabledButton>
+            <DisabledButton className="sm:hidden">{t('Drop Claim')}</DisabledButton>
           </BaseTooltipTrigger>
           <BaseTooltipContent>
             {t("You can't drop this claim while it's in review")}
@@ -57,7 +59,7 @@ export const ClaimActionButton: FC = () => {
         data-testid="claim-button"
         action="drop"
         trigger={
-          <BaseButton className="gap-1.5">
+          <BaseButton className="gap-1.5 sm:hidden">
             <LuWrench />
             {t('Drop Claim')}
           </BaseButton>
@@ -122,9 +124,10 @@ export const ClaimActionButton: FC = () => {
 
 interface DisabledButtonProps {
   children?: ReactNode;
+  className?: string;
 }
 
-const DisabledButton: FC<DisabledButtonProps> = ({ children }) => {
+const DisabledButton: FC<DisabledButtonProps> = ({ children, className }) => {
   const { t } = useTranslation();
 
   return (
@@ -133,7 +136,7 @@ const DisabledButton: FC<DisabledButtonProps> = ({ children }) => {
       aria-disabled={true}
       className={baseButtonVariants({
         variant: 'defaultDisabled',
-        className: 'cursor-not-allowed gap-1.5',
+        className: cn('cursor-not-allowed gap-1.5', className),
       })}
     >
       <LuWrench />
