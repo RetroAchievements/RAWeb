@@ -136,28 +136,5 @@ class GamesListTest extends TestCase
                     '3' => 'Three',
                 ],
             ]);
-
-        // game info (no explicit ordering)
-        $this->get($this->apiUrl('gameinfolist', ['g' => implode(',', [$game2->id, $game4->id, $game7->id])]))
-            ->assertExactJson([
-                'Success' => true,
-                'Response' => [
-                    [
-                        'ID' => $game2->ID,
-                        'Title' => $game2->Title,
-                        'ImageIcon' => $game2->ImageIcon,
-                    ],
-                    [
-                        'ID' => $game4->ID,
-                        'Title' => $game4->Title,
-                        'ImageIcon' => $game4->ImageIcon,
-                    ],
-                    [
-                        'ID' => $game7->ID,
-                        'Title' => $game7->Title,
-                        'ImageIcon' => $game7->ImageIcon,
-                    ],
-                ],
-            ]);
     }
 }

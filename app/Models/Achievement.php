@@ -12,6 +12,7 @@ use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\AchievementCreated;
+use App\Platform\Events\AchievementDeleted;
 use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPublished;
@@ -180,6 +181,12 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         // When restoring an achievement, restore its tickets.
         static::restoring(function (Achievement $achievement) {
             $achievement->tickets()->restore();
+        });
+
+        // When an achievement is deleted, dispatch an event so game metrics can be recalculated.
+        // Otherwise, the denormalized unpublished achievement count will be wrong.
+        static::deleted(function (Achievement $achievement) {
+            AchievementDeleted::dispatch($achievement);
         });
     }
 
