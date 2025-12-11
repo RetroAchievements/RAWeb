@@ -1,6 +1,6 @@
 import { type FC, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuWrench } from 'react-icons/lu';
+import { LuFlagTriangleRight } from 'react-icons/lu';
 
 import { BaseButton, baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import {
@@ -9,6 +9,7 @@ import {
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { cn } from '@/common/utils/cn';
 import { ClaimConfirmationDialog } from '@/features/games/components/ClaimConfirmationDialog';
 
 export const ClaimActionButton: FC = () => {
@@ -30,7 +31,7 @@ export const ClaimActionButton: FC = () => {
           action="extend"
           trigger={
             <BaseButton className="gap-1.5">
-              <LuWrench />
+              <LuFlagTriangleRight />
               {t('Extend Claim')}
             </BaseButton>
           }
@@ -38,32 +39,7 @@ export const ClaimActionButton: FC = () => {
       );
     }
 
-    // Check if the claim can be dropped (not in review).
-    if (!claimData.userClaim.isDroppable) {
-      return (
-        <BaseTooltip>
-          <BaseTooltipTrigger>
-            <DisabledButton>{t('Drop Claim')}</DisabledButton>
-          </BaseTooltipTrigger>
-          <BaseTooltipContent>
-            {t("You can't drop this claim while it's in review")}
-          </BaseTooltipContent>
-        </BaseTooltip>
-      );
-    }
-
-    return (
-      <ClaimConfirmationDialog
-        data-testid="claim-button"
-        action="drop"
-        trigger={
-          <BaseButton className="gap-1.5">
-            <LuWrench />
-            {t('Drop Claim')}
-          </BaseButton>
-        }
-      />
-    );
+    return null;
   }
 
   if (!claimData?.numClaimsRemaining && !claimData?.isSoleAuthor) {
@@ -112,7 +88,7 @@ export const ClaimActionButton: FC = () => {
       action="create"
       trigger={
         <BaseButton className="gap-1.5">
-          <LuWrench />
+          <LuFlagTriangleRight />
           {t('Claim')}
         </BaseButton>
       }
@@ -122,9 +98,10 @@ export const ClaimActionButton: FC = () => {
 
 interface DisabledButtonProps {
   children?: ReactNode;
+  className?: string;
 }
 
-const DisabledButton: FC<DisabledButtonProps> = ({ children }) => {
+const DisabledButton: FC<DisabledButtonProps> = ({ children, className }) => {
   const { t } = useTranslation();
 
   return (
@@ -133,10 +110,10 @@ const DisabledButton: FC<DisabledButtonProps> = ({ children }) => {
       aria-disabled={true}
       className={baseButtonVariants({
         variant: 'defaultDisabled',
-        className: 'cursor-not-allowed gap-1.5',
+        className: cn('cursor-not-allowed gap-1.5', className),
       })}
     >
-      <LuWrench />
+      <LuFlagTriangleRight />
       {children ?? t('Claim')}
     </span>
   );

@@ -40,7 +40,6 @@ createInertiaApp({
   resolve: (name) =>
     resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
 
-  // @ts-expect-error -- async setup() breaks type rules, but is actually supported.
   async setup({ el, App, props }) {
     const globalProps = props.initialPage.props as unknown as AppGlobalProps;
     const userLocale = globalProps.auth?.user.locale ?? 'en_US';

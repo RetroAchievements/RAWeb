@@ -35,18 +35,22 @@ import { join } from 'path';
  * ADD NEW LANGUAGES HERE!
  */
 const LANGUAGES = {
+  az_AZ: 'az',
   ca_ES: 'ca',
   cy_GB: 'cy',
   de_DE: 'de',
   en_GB: 'en-GB',
   es_ES: 'es-ES',
+  fi_FI: 'fi',
   fr_FR: 'fr',
+  id_ID: 'id',
   it_IT: 'it',
   nl_BE: 'nl-BE',
   pl_PL: 'pl',
   ru_RU: 'ru',
   sv_SE: 'sv-SE',
   tr_TR: 'tr',
+  uk_UA: 'uk',
   pt_BR: 'pt-BR',
   pt_PT: 'pt-PT',
   vi_VN: 'vi',

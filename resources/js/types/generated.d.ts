@@ -270,6 +270,12 @@ declare namespace App.Data {
     created: string;
     finished: string;
   };
+  export type AuthorizeDevicePageProps = {
+    client: App.Data.OAuthClient;
+    scopes: Array<string>;
+    request: App.Data.DeviceAuthorizationRequest;
+    authToken: string;
+  };
   export type CreateForumTopicPageProps = {
     forum: App.Data.Forum;
     accessibleTeamAccounts: Array<App.Data.User> | null;
@@ -280,8 +286,18 @@ declare namespace App.Data {
     allTimeHighPlayers: number;
     allTimeHighDate: string | null;
   };
+  export type DeviceAuthorizationRequest = {
+    userCode: string;
+    state: string | null;
+  };
+  export type DeviceCodeRequest = {
+    clientId: string | null;
+  };
   export type EditForumTopicCommentPageProps = {
     forumTopicComment: App.Data.ForumTopicComment;
+  };
+  export type EnterDeviceCodePageProps = {
+    request: App.Data.DeviceCodeRequest;
   };
   export type ForumCategory = {
     id: number;
@@ -336,6 +352,28 @@ declare namespace App.Data {
     publishAt: string | null;
     unpublishAt: string | null;
     pinnedAt: string | null;
+  };
+  export type OAuthAuthorizePageProps = {
+    client: App.Data.OAuthClient;
+    scopes: Array<string>;
+    request: App.Data.OAuthRequest;
+    authToken: string;
+  };
+  export type OAuthClient = {
+    id: string;
+    name: string;
+    redirectUris: Array<string>;
+    grantTypes: Array<string>;
+    revoked: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+  export type OAuthRequest = {
+    clientId: string;
+    redirectUri: string;
+    responseType: string;
+    scope: string | null;
+    state: string | null;
   };
   export type PaginatedData<TItems> = {
     currentPage: number;
@@ -409,7 +447,11 @@ declare namespace App.Data {
     userWallActive?: boolean | null;
     visibleRole?: App.Data.Role | null;
     websitePrefs?: number | null;
-    preferences?: { shouldAlwaysBypassContentWarnings: boolean; prefersAbsoluteDates: boolean };
+    preferences?: {
+      isGloballyOptedOutOfSubsets: boolean;
+      prefersAbsoluteDates: boolean;
+      shouldAlwaysBypassContentWarnings: boolean;
+    };
     roles?: App.Models.UserRole[];
   };
   export type UserPermissions = {
@@ -881,6 +923,7 @@ declare namespace App.Platform.Data {
     targetAchievementSetId: number | null;
     targetAchievementSetPlayersTotal: number | null;
     targetAchievementSetPlayersHardcore: number | null;
+    userGameAchievementSetPreferences: Array<App.Platform.Data.UserGameAchievementSetPreference>;
   };
   export type GameSuggestPageProps<TItems = App.Platform.Data.GameSuggestionEntry> = {
     paginatedGameListEntries: App.Data.PaginatedData<TItems>;
@@ -1106,6 +1149,10 @@ declare namespace App.Platform.Data {
     count: number;
     dateCredited: string | null;
     isGone?: boolean;
+  };
+  export type UserGameAchievementSetPreference = {
+    gameAchievementSetId: number;
+    optedIn: boolean;
   };
   export type UserSetRequestInfo = {
     total: number;
