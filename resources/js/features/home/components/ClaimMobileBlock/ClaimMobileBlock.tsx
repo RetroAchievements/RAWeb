@@ -5,6 +5,7 @@ import { route } from 'ziggy-js';
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { GameTitle } from '@/common/components/GameTitle';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import type { AvatarSize } from '@/common/models';
 import { ClaimSetType } from '@/common/utils/generatedAppConstants';
@@ -25,9 +26,13 @@ export const ClaimMobileBlock: FC<ClaimMobileBlockProps> = ({ claim, variant }) 
         <GameAvatar {...game} showLabel={false} size={48} />
 
         <div className="flex w-full flex-col gap-y-0.5">
-          <a href={route('game.show', { game: game.id })} className="cursor-pointer leading-4">
+          <InertiaLink
+            href={route('game.show', { game: game.id })}
+            prefetch="desktop-hover-only"
+            className="cursor-pointer leading-4"
+          >
             <GameTitle title={game.title} />
-          </a>
+          </InertiaLink>
 
           {game.system ? (
             <div

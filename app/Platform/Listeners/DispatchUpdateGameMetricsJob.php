@@ -4,6 +4,7 @@ namespace App\Platform\Listeners;
 
 use App\Models\Game;
 use App\Platform\Events\AchievementCreated;
+use App\Platform\Events\AchievementDeleted;
 use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPublished;
@@ -38,6 +39,10 @@ class DispatchUpdateGameMetricsJob implements ShouldQueue
                 $game = $achievement->game;
                 break;
             case AchievementCreated::class:
+                $achievement = $event->achievement;
+                $game = $achievement->game;
+                break;
+            case AchievementDeleted::class:
                 $achievement = $event->achievement;
                 $game = $achievement->game;
                 break;

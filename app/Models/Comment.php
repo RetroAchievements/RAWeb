@@ -141,7 +141,7 @@ class Comment extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID')->withDefault(['username' => 'Deleted User']);
+        return $this->belongsTo(User::class, 'user_id', 'ID')->withDefault(['username' => 'Deleted User', 'display_name' => 'Deleted User']);
     }
 
     /**
@@ -151,7 +151,7 @@ class Comment extends BaseModel
     {
         return $this->belongsTo(User::class, 'user_id', 'ID')
             ->withTrashed()
-            ->withDefault(['username' => 'Deleted User']);
+            ->withDefault(['username' => 'Deleted User', 'display_name' => 'Deleted User']);
     }
 
     // == scopes

@@ -1,3 +1,4 @@
+import { useAtomValue } from 'jotai';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -13,15 +14,18 @@ import { PlayableBoxArtImage } from '@/common/components/PlayableBoxArtImage';
 import { PlayableCompareProgress } from '@/common/components/PlayableCompareProgress';
 import { PlayableHubsList } from '@/common/components/PlayableHubsList';
 import { PlayableMainMedia } from '@/common/components/PlayableMainMedia';
+import { PlayableOfficialForumTopicButton } from '@/common/components/PlayableOfficialForumTopicButton';
 import { PlayableTopPlayers } from '@/common/components/PlayableTopPlayers';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { useAllMetaRowElements } from '../../hooks/useAllMetaRowElements';
 import { useGameShowTabs } from '../../hooks/useGameShowTabs';
 import type { GameShowTab } from '../../models';
+import { currentListViewAtom } from '../../state/games.atoms';
 import { getAllPageAchievements } from '../../utils/getAllPageAchievements';
 import { getSidebarExcludedHubIds } from '../../utils/getSidebarExcludedHubIds';
 import { AchievementSetEmptyState } from '../AchievementSetEmptyState';
+import { CommentsPreviewCard } from '../CommentsPreviewCard';
 import { GameAchievementSetsContainer } from '../GameAchievementSetsContainer';
 import { GameCommentList } from '../GameCommentList';
 import { GameContentWarnings } from '../GameContentWarnings';
@@ -56,6 +60,8 @@ export const GameShowMobileRoot: FC = () => {
   const allMetaRowElements = useAllMetaRowElements(game, hubs);
 
   const { currentTab, setCurrentTab } = useGameShowTabs();
+
+  const currentListView = useAtomValue(currentListViewAtom);
 
   if (!game.badgeUrl || !game.system?.iconUrl) {
     return null;
@@ -108,7 +114,16 @@ export const GameShowMobileRoot: FC = () => {
           className="data-[state=inactive]:hidden"
         >
           <GameAchievementSetsContainer game={game} />
-          {!allPageAchievements.length ? <AchievementSetEmptyState /> : null}
+
+          {!allPageAchievements.length && currentListView === 'achievements' ? (
+            <AchievementSetEmptyState />
+          ) : null}
+
+          {isViewingPublishedAchievements ? (
+            <div className="mt-6">
+              <CommentsPreviewCard />
+            </div>
+          ) : null}
         </BaseTabsContent>
 
         {/* Info tab content */}
@@ -176,6 +191,10 @@ export const GameShowMobileRoot: FC = () => {
         {/* Community tab content */}
         {isViewingPublishedAchievements ? (
           <BaseTabsContent value="community" className="mt-0 flex flex-col gap-8">
+            {backingGame.forumTopicId ? (
+              <PlayableOfficialForumTopicButton backingGame={backingGame} game={game} />
+            ) : null}
+
             <GameRecentPlayers />
             <GameCommentList />
           </BaseTabsContent>

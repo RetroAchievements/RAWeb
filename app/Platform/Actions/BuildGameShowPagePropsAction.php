@@ -25,7 +25,7 @@ use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Models\UserBetaFeedbackSubmission;
+use App\Models\UserGameAchievementSetPreference;
 use App\Models\UserGameListEntry;
 use App\Platform\Data\AchievementSetClaimData;
 use App\Platform\Data\AggregateAchievementSetCreditsData;
@@ -40,16 +40,15 @@ use App\Platform\Data\PlayerAchievementSetData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
 use App\Platform\Data\UserCreditsData;
+use App\Platform\Data\UserGameAchievementSetPreferenceData;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetAuthorTask;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GamePageListSort;
 use App\Platform\Enums\GamePageListView;
-use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
 use Spatie\LaravelData\Lazy;
@@ -234,9 +233,6 @@ class BuildGameShowPagePropsAction
         $isLockedOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_unlocked_achievements_games', $game->id);
         $isMissableOnlyFilterEnabled = $this->getIsGameIdInCookie('hide_nonmissable_achievements_games', $game->id);
 
-        // Track the beta visit for authenticated users.
-        $this->trackBetaVisit($user, 'react-game-page');
-
         // Get the primary claim from the already-loaded claims for permission checking.
         $primaryClaim = $backingGame->achievementSetClaims
             ->where('ClaimType', ClaimType::Primary)
@@ -282,7 +278,6 @@ class BuildGameShowPagePropsAction
                 'viewDeveloperInterest',
             ),
 
-            canSubmitBetaFeedback: $this->getCanSubmitBetaFeedback($user, 'react-game-page'),
             defaultSort: $defaultSort,
             initialSort: $initialSort ?? $defaultSort,
             initialView: $initialView,
@@ -417,6 +412,8 @@ class BuildGameShowPagePropsAction
                 })
                 ->values()
                 ->all(),
+
+            userGameAchievementSetPreferences: $this->buildUserAchievementSetPreferences($game, $user),
         );
 
         // Only include featured leaderboards for non-mobile devices.
@@ -626,6 +623,26 @@ class BuildGameShowPagePropsAction
     }
 
     /**
+     * @return Collection<int, UserGameAchievementSetPreferenceData>
+     */
+    private function buildUserAchievementSetPreferences(Game $game, ?User $user): Collection
+    {
+        $userGameAchievementSetPreferences = collect();
+        if ($user) {
+            $gameAchievementSetIds = $game->selectableGameAchievementSets()->pluck('id');
+
+            $userGameAchievementSetPreferences = UserGameAchievementSetPreference::where('user_id', $user->id)
+                ->whereIn('game_achievement_set_id', $gameAchievementSetIds)
+                ->get()
+                ->mapWithKeys(fn ($preference) => [
+                    $preference->game_achievement_set_id => UserGameAchievementSetPreferenceData::fromUserGameAchievementSetPreference($preference),
+                ]);
+        }
+
+        return $userGameAchievementSetPreferences;
+    }
+
+    /**
      * TODO also support set requests
      */
     private function getInitialUserGameListState(Game $game, ?User $user): array
@@ -777,59 +794,6 @@ class BuildGameShowPagePropsAction
         return UserGameListEntry::where('type', UserGameListType::Develop)
             ->where('GameID', $game->id)
             ->count();
-    }
-
-    /**
-     * @deprecated remove after the beta has ended
-     */
-    private function trackBetaVisit(?User $user, string $betaName): void
-    {
-        if (!$user) {
-            return;
-        }
-
-        $cacheKey = CacheKey::buildUserBetaVisitsCacheKey($user->username, $betaName);
-
-        // Get existing data, or initialize with new data.
-        $data = Cache::get($cacheKey, [
-            'visit_count' => 0,
-            'first_visited_at' => now()->timestamp,
-            'last_visited_at' => null,
-        ]);
-
-        // Update visit data.
-        $data['visit_count']++;
-        $data['last_visited_at'] = now()->timestamp;
-
-        // Store for 30 days from now (the TTL resets on each visit).
-        Cache::put($cacheKey, $data, Carbon::now()->addDays(30));
-    }
-
-    /**
-     * @deprecated remove after the beta has ended
-     */
-    private function getCanSubmitBetaFeedback(?User $user, string $betaName): bool
-    {
-        if (!$user || !$user->can('create', UserBetaFeedbackSubmission::class)) {
-            return false;
-        }
-
-        $cacheKey = CacheKey::buildUserBetaVisitsCacheKey($user->username, $betaName);
-        $data = Cache::get($cacheKey);
-
-        if (!$data) {
-            return false;
-        }
-
-        // Check if user meets the requirements: 10+ visits over 2+ days.
-        $requiredVisits = 10;
-        $requiredDays = 2;
-
-        $daysSinceFirst = $data['first_visited_at']
-            ? Carbon::createFromTimestamp($data['first_visited_at'])->diffInDays(now())
-            : 0;
-
-        return $data['visit_count'] >= $requiredVisits && $daysSinceFirst >= $requiredDays;
     }
 
     private function getDefaultSort(Game $backingGame, ?PlayerGame $playerGame): GamePageListSort

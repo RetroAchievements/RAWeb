@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import dayjs from 'dayjs';
 
-import { createAuthenticatedUser } from '@/common/models';
+import { createAuthenticatedUser, createAuthenticatedUserPreferences } from '@/common/models';
 import { render, screen, waitFor } from '@/test';
 import { createForumTopicComment } from '@/test/factories';
 
@@ -40,10 +40,10 @@ describe('Component: ForumPostCardTimestamps', () => {
         pageProps: {
           auth: {
             user: createAuthenticatedUser({
-              preferences: {
+              preferences: createAuthenticatedUserPreferences({
                 prefersAbsoluteDates: false,
                 shouldAlwaysBypassContentWarnings: false,
-              },
+              }),
             }),
           },
         },
@@ -66,10 +66,10 @@ describe('Component: ForumPostCardTimestamps', () => {
         pageProps: {
           auth: {
             user: createAuthenticatedUser({
-              preferences: {
+              preferences: createAuthenticatedUserPreferences({
                 prefersAbsoluteDates: false,
                 shouldAlwaysBypassContentWarnings: false,
-              },
+              }),
             }),
           },
         },
@@ -97,10 +97,10 @@ describe('Component: ForumPostCardTimestamps', () => {
         pageProps: {
           auth: {
             user: createAuthenticatedUser({
-              preferences: {
+              preferences: createAuthenticatedUserPreferences({
                 prefersAbsoluteDates: true, // !!
                 shouldAlwaysBypassContentWarnings: false,
-              },
+              }),
             }),
           },
         },

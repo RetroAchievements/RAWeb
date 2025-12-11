@@ -79,9 +79,6 @@ class ResumePlayerSessionAction
         $doesUserNeedsUpdate = false;
 
         if ($user->LastGameID !== $game->id) {
-            expireRecentlyPlayedGames($user->User);
-
-            // TODO deprecated, read from last player_sessions entry where needed
             $user->LastGameID = $game->id;
             $doesUserNeedsUpdate = true;
         }

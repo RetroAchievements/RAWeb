@@ -260,7 +260,7 @@ describe('Component: SetSelectionTabs', () => {
 
     // ASSERT
     expect(route).toHaveBeenCalledWith(
-      'game2.show',
+      'game.show',
       expect.objectContaining({
         view: 'leaderboards',
       }),
