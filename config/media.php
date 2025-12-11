@@ -79,6 +79,6 @@ return [
      * used for user-related media
      */
     'user' => [
-        //
+
     ],
 ];
