@@ -121,6 +121,10 @@ class Handler extends ExceptionHandler
             return $e->redirect;
         }
 
+        if ($request->is('api/v2/*')) {
+            return $this->renderWebApiV2Exception($e);
+        }
+
         if ($request->expectsJson()) {
             if ($e instanceof JsonApiException) {
                 $errors = $e->getErrors()->toArray();
@@ -242,5 +246,38 @@ class Handler extends ExceptionHandler
         }
 
         return parent::render($request, $e);
+    }
+
+    private function renderWebApiV2Exception(Throwable $e): Response
+    {
+        if ($e instanceof JsonApiException) {
+            $errors = $e->getErrors()->toArray();
+
+            return response()->json([
+                'message' => $errors[0]['title'] ?? 'JSON:API error',
+                'errors' => $errors,
+            ], $e->getStatusCode());
+        }
+
+        $status = match (true) {
+            $e instanceof AuthenticationException => 401,
+            $e instanceof AuthorizationException => 403,
+            $e instanceof HttpExceptionInterface => $e->getStatusCode(),
+            default => 500,
+        };
+
+        $statusText = Response::$statusTexts[$status] ?? 'Error';
+        $title = $e->getMessage() ?: $statusText;
+
+        return response()->json([
+            'message' => $title,
+            'errors' => [
+                [
+                    'status' => (string) $status,
+                    'code' => Str::snake($statusText),
+                    'title' => $title,
+                ],
+            ],
+        ], $status);
     }
 }

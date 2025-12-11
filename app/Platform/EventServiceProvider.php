@@ -6,6 +6,7 @@ namespace App\Platform;
 
 use App\Events\UserDeleted;
 use App\Platform\Events\AchievementCreated;
+use App\Platform\Events\AchievementDeleted;
 use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPublished;
@@ -47,6 +48,9 @@ class EventServiceProvider extends ServiceProvider
 {
     protected $listen = [
         AchievementCreated::class => [
+            DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+        ],
+        AchievementDeleted::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
         AchievementMoved::class => [

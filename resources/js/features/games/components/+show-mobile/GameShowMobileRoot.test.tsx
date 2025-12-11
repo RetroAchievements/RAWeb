@@ -16,7 +16,7 @@ import {
   createZiggyProps,
 } from '@/test/factories';
 
-import { currentTabAtom } from '../../state/games.atoms';
+import { currentListViewAtom, currentTabAtom } from '../../state/games.atoms';
 import { GameShowMobileRoot } from './GameShowMobileRoot';
 
 describe('Component: GameShowMobileRoot', () => {
@@ -199,24 +199,19 @@ describe('Component: GameShowMobileRoot', () => {
     expect(screen.getByRole('alertdialog', { name: /content warning/i })).toBeVisible();
   });
 
-  it('given the game has no achievements, renders an empty state', () => {
+  it('given the game has no achievements and the user is viewing achievements, renders an empty state', () => {
     // ARRANGE
     const game = createGame({
-      badgeUrl: 'badge.jpg',
       gameAchievementSets: [
         createGameAchievementSet({ achievementSet: createAchievementSet({ achievements: [] }) }), // !!
       ],
-      imageBoxArtUrl: faker.internet.url(),
       imageTitleUrl: faker.internet.url(),
-      imageIngameUrl: faker.internet.url(),
-      system: createSystem({
-        iconUrl: 'icon.jpg',
-      }),
     });
 
     render(<GameShowMobileRoot />, {
       jotaiAtoms: [
         [currentTabAtom, 'achievements'],
+        [currentListViewAtom, 'achievements'], // !!
         //
       ],
       pageProps: {
@@ -243,6 +238,47 @@ describe('Component: GameShowMobileRoot', () => {
 
     // ASSERT
     expect(screen.getByText(/no achievements yet/i)).toBeVisible();
+  });
+
+  it('given the game has no achievements and the user is viewing leaderboards, does not render an empty state', () => {
+    // ARRANGE
+    const game = createGame({
+      gameAchievementSets: [
+        createGameAchievementSet({ achievementSet: createAchievementSet({ achievements: [] }) }), // !!
+      ],
+      imageTitleUrl: faker.internet.url(),
+    });
+
+    render(<GameShowMobileRoot />, {
+      jotaiAtoms: [
+        [currentTabAtom, 'achievements'],
+        [currentListViewAtom, 'leaderboards'], // !!
+        //
+      ],
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: true,
+        playerAchievementChartBuckets: [],
+        recentPlayers: [],
+        recentVisibleComments: [],
+        setRequestData: {
+          hasUserRequestedSet: false,
+          totalRequests: 0,
+          userRequestsRemaining: 0,
+        },
+        topAchievers: [],
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/no achievements yet/i)).not.toBeInTheDocument();
   });
 
   it('given the game has achievements, does not render an empty state', () => {
@@ -671,5 +707,85 @@ describe('Component: GameShowMobileRoot', () => {
 
     // ASSERT
     expect(screen.queryByRole('button', { name: /view recent comments/i })).not.toBeInTheDocument();
+  });
+
+  it('given the backing game has a forum topic ID and the user is on the community tab, shows the official forum topic button', () => {
+    // ARRANGE
+    (window.location as any).href = 'https://retroachievements.org/game/123?tab=community';
+    window.location.search = '?tab=community';
+
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      forumTopicId: 12345, // !!
+      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+    });
+
+    render(<GameShowMobileRoot />, {
+      jotaiAtoms: [[currentTabAtom, 'community']],
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: true,
+        playerAchievementChartBuckets: [],
+        recentPlayers: [],
+        recentVisibleComments: [],
+        topAchievers: [],
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /official forum topic/i })).toBeVisible();
+  });
+
+  it('given the backing game does not have a forum topic ID and the user is on the community tab, does not show the official forum topic button', () => {
+    // ARRANGE
+    (window.location as any).href = 'https://retroachievements.org/game/123?tab=community';
+    window.location.search = '?tab=community';
+
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      gameAchievementSets: [createGameAchievementSet({ achievementSet: createAchievementSet() })],
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+      }),
+    });
+    const backingGame = createGame({ forumTopicId: undefined }); // !!
+
+    render(<GameShowMobileRoot />, {
+      jotaiAtoms: [[currentTabAtom, 'community']],
+      pageProps: {
+        game,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame, // !!
+        can: {},
+        hubs: [],
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: true,
+        playerAchievementChartBuckets: [],
+        recentPlayers: [],
+        recentVisibleComments: [],
+        topAchievers: [],
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /official forum topic/i })).not.toBeInTheDocument();
   });
 });

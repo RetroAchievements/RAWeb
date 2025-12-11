@@ -63,39 +63,6 @@ describe('Component: ClaimActionButton', () => {
     expect(screen.getByRole('button', { name: /extend claim/i })).toBeVisible();
   });
 
-  it('given the user has a claim that is not droppable, shows a fake disabled drop claim button', () => {
-    // ARRANGE
-    render(<ClaimActionButton />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
-        backingGame: createGame(),
-        claimData: createGamePageClaimData({
-          userClaim: createAchievementSetClaim({ isExtendable: false, isDroppable: false }), // !!
-        }),
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByText(/drop claim/i)).toBeVisible();
-    expect(screen.queryByTestId('claim-button')).not.toBeInTheDocument();
-  });
-
-  it('given the user has a droppable claim, shows the real drop claim button', () => {
-    // ARRANGE
-    render(<ClaimActionButton />, {
-      pageProps: {
-        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
-        backingGame: createGame(),
-        claimData: createGamePageClaimData({
-          userClaim: createAchievementSetClaim({ isExtendable: false, isDroppable: true }), // !!
-        }),
-      },
-    });
-
-    // ASSERT
-    expect(screen.getByRole('button', { name: /drop claim/i })).toBeVisible();
-  });
-
   it('given the user has no claims remaining and is not the sole author, shows a fake disabled claim button', () => {
     // ARRANGE
     render(<ClaimActionButton />, {
@@ -169,5 +136,21 @@ describe('Component: ClaimActionButton', () => {
 
     // ASSERT
     expect(screen.getByRole('button', { name: /claim/i })).toBeVisible();
+  });
+
+  it('given the user already has a claim, does not show a claim button', () => {
+    // ARRANGE
+    render(<ClaimActionButton />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        backingGame: createGame(),
+        claimData: createGamePageClaimData({
+          userClaim: createAchievementSetClaim({ isExtendable: false, isDroppable: true }), // !!
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('button', { name: /claim/i })).not.toBeInTheDocument();
   });
 });
