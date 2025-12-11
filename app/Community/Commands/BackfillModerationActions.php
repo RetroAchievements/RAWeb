@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Commands;
 
+use App\Community\Enums\ArticleType;
 use App\Community\Enums\ModerationActionType;
+use App\Models\Comment;
 use App\Models\UserModerationAction;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -129,6 +131,8 @@ class BackfillModerationActions extends Command
         $progressBar->finish();
         $this->newLine();
         $this->info("Backfill complete. Created {$actionsCreated} moderation action records.");
+
+        $this->correlateModeratorNotes();
     }
 
     /**
@@ -203,5 +207,43 @@ class BackfillModerationActions extends Command
         }
 
         return null;
+    }
+
+    /**
+     * Correlate moderator notes from the Comment table with action records.
+     * This tries to populate the reason field with explanations moderators left.
+     * This only works for stuff that has some correlated activitylog record (2024-03-31+).
+     */
+    private function correlateModeratorNotes(): void
+    {
+        $this->info('Correlating moderator notes from Comment table...');
+
+        $notes = Comment::where('ArticleType', ArticleType::UserModeration)
+            ->notAutomated()
+            ->whereNotNull('user_id')
+            ->where('Submitted', '>=', '2024-03-31')
+            ->get();
+
+        $numCorrelated = 0;
+        foreach ($notes as $note) {
+            /** @var Carbon $noteTimestamp */
+            $noteTimestamp = $note->Submitted;
+
+            $action = UserModerationAction::where('user_id', $note->ArticleID)
+                ->where('actioned_by_id', $note->user_id)
+                ->whereBetween('created_at', [
+                    $noteTimestamp->copy()->subMinutes(5),
+                    $noteTimestamp->copy()->addMinutes(5),
+                ])
+                ->whereNull('reason')
+                ->first();
+
+            if ($action) {
+                $action->update(['reason' => $note->Payload]);
+                $numCorrelated++;
+            }
+        }
+
+        $this->info("Correlated {$numCorrelated} moderator notes with action records.");
     }
 }
