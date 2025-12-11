@@ -89,6 +89,9 @@ importers:
       radix-ui:
         specifier: ^1.4.2
         version: 1.4.2(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      rcheevos:
+        specifier: ^0.1
+        version: 0.1.0
       react:
         specifier: ^19.2.0
         version: 19.2.0
@@ -5034,6 +5037,9 @@ packages:
         optional: true
       '@types/react-dom':
         optional: true
+
+  rcheevos@0.1.0:
+    resolution: {integrity: sha512-CNhv2DiRw5s8MFG05zQCVH8qhSSg89V2m/WI7EYYoyKI7oH+V3SieR2T0AUjhqlF0HTekbQkp0ybKfXgNHkMbQ==}
 
   react-dom@19.2.0:
     resolution: {integrity: sha512-UlbRu4cAiGaIewkPyiRGJk0imDN2T3JjieT6spoL2UeSf5od4n5LB/mQ4ejmxhCFT1tYe8IvaFulzynWovsEFQ==}
@@ -11320,6 +11326,8 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.0
       '@types/react-dom': 19.1.1(@types/react@19.1.0)
+
+  rcheevos@0.1.0: {}
 
   react-dom@19.2.0(react@19.2.0):
     dependencies:

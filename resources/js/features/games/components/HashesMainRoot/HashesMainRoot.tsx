@@ -10,6 +10,7 @@ import { GameHeading } from '@/common/components/GameHeading/GameHeading';
 import { InertiaLink } from '@/common/components/InertiaLink';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
+import { HashCheckerSection } from './HashCheckerSection';
 import { HashesList } from './HashesList';
 import { OtherHashesSection } from './OtherHashesSection';
 
@@ -52,7 +53,13 @@ export const HashesMainRoot: FC = memo(() => {
               <Trans
                 i18nKey="Additional information for these hashes may be listed on <1>the game's official forum topic</1>."
                 components={{
-                  1: <InertiaLink href={route('forum-topic.show', { topic: game.forumTopicId })} />,
+                  1: (
+                    <InertiaLink
+                      href={route('forum-topic.show', {
+                        topic: game.forumTopicId,
+                      })}
+                    />
+                  ),
                 }}
               />
             ) : null}{' '}
@@ -70,6 +77,8 @@ export const HashesMainRoot: FC = memo(() => {
             />
           </p>
         </Embed>
+
+        {game.system && <HashCheckerSection systemID={game.system.id} />}
 
         <div className="flex flex-col gap-1">
           <p>
