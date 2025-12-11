@@ -28,7 +28,14 @@ export const HashCheckerSection: FC<HashCheckerSection> = memo(({ systemID }) =>
 
   return (
     <div>
-      <input type="file" ref={fileRef} max="1" onChange={onFileSelected} />
+      <input
+        max="1"
+        type="file"
+        ref={fileRef}
+        onChange={onFileSelected}
+        aria-label="Upload game file"
+        data-testid="hash-file-input"
+      />
       {hash && (
         <div>
           <p>
