@@ -47,7 +47,7 @@ export const SearchResultsContainer: FC<SearchResultsContainerProps> = ({
     return (
       <div
         className={cn(
-          '-mx-2.5 flex flex-1 items-center justify-center sm:mx-auto sm:w-full sm:rounded-lg',
+          '-mx-2.5 flex flex-1 items-center justify-center sm:mx-0 sm:w-full sm:rounded-lg',
           'border-y border-neutral-800 bg-neutral-950/80 p-2 text-neutral-400 sm:border-x',
           'light:border-neutral-200 light:bg-white',
         )}
@@ -61,7 +61,7 @@ export const SearchResultsContainer: FC<SearchResultsContainerProps> = ({
     return (
       <div
         className={cn(
-          '-mx-2.5 sm:mx-auto sm:w-full',
+          '-mx-2.5 sm:mx-0 sm:w-full',
           'flex flex-col gap-4 border-y border-neutral-800 bg-neutral-950/80 p-2 sm:rounded-lg sm:border-x',
           'light:border-neutral-200 light:bg-white',
         )}
@@ -77,7 +77,7 @@ export const SearchResultsContainer: FC<SearchResultsContainerProps> = ({
     return (
       <div
         className={cn(
-          '-mx-2.5 flex flex-1 items-center justify-center sm:mx-auto sm:w-full sm:rounded-lg',
+          '-mx-2.5 flex flex-1 items-center justify-center sm:mx-0 sm:w-full sm:rounded-lg',
           'border-y border-neutral-800 bg-neutral-950/80 p-2 text-neutral-400 sm:border-x',
           'light:border-neutral-200 light:bg-white',
         )}
@@ -95,7 +95,7 @@ export const SearchResultsContainer: FC<SearchResultsContainerProps> = ({
     <div
       className={cn(
         '-mx-2.5 flex flex-col gap-6 border-y border-neutral-700 bg-neutral-950/80 p-2',
-        'sm:mx-auto sm:rounded-lg sm:border-x',
+        'sm:mx-0 sm:rounded-lg sm:border-x',
         'light:border-neutral-200 light:bg-white',
       )}
     >
