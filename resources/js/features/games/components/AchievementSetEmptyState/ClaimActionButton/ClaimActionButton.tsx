@@ -1,6 +1,6 @@
 import { type FC, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuWrench } from 'react-icons/lu';
+import { LuFlagTriangleRight } from 'react-icons/lu';
 
 import { BaseButton, baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import {
@@ -31,7 +31,7 @@ export const ClaimActionButton: FC = () => {
           action="extend"
           trigger={
             <BaseButton className="gap-1.5">
-              <LuWrench />
+              <LuFlagTriangleRight />
               {t('Extend Claim')}
             </BaseButton>
           }
@@ -88,7 +88,7 @@ export const ClaimActionButton: FC = () => {
       action="create"
       trigger={
         <BaseButton className="gap-1.5">
-          <LuWrench />
+          <LuFlagTriangleRight />
           {t('Claim')}
         </BaseButton>
       }
@@ -113,7 +113,7 @@ const DisabledButton: FC<DisabledButtonProps> = ({ children, className }) => {
         className: cn('cursor-not-allowed gap-1.5', className),
       })}
     >
-      <LuWrench />
+      <LuFlagTriangleRight />
       {children ?? t('Claim')}
     </span>
   );
