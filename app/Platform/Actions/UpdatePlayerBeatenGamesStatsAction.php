@@ -147,12 +147,12 @@ class UpdatePlayerBeatenGamesStatsAction
             if (str_contains($sanitizedTitle, $keyword)) {
                 return $kind;
             }
+        }
 
-            // Some consoles were never sold in stores and are considered "homebrew".
-            // Their games fall back to "homebrew" rather than "retail".
-            if (System::isHomebrewSystem($gameConsoleId)) {
-                return 'homebrew';
-            }
+        // Some consoles were never sold in stores and are considered "homebrew".
+        // Their games fall back to "homebrew" rather than "retail".
+        if (System::isHomebrewSystem($gameConsoleId)) {
+            return 'homebrew';
         }
 
         return 'retail';
