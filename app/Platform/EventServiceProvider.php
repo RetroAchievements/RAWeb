@@ -42,6 +42,7 @@ use App\Platform\Listeners\RecalculateLeaderboardTopEntriesForUser;
 use App\Platform\Listeners\ResetPlayerProgress;
 use App\Platform\Listeners\ResumePlayerSession;
 use App\Platform\Listeners\UpdateTotalGamesCount;
+use App\Support\Alerts\Listeners\TriggerSuspiciousBeatTimeAlert;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -121,6 +122,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         PlayerGameMetricsUpdated::class => [
             DispatchUpdatePlayerMetricsJob::class, // dispatches PlayerMetricsUpdated
+            TriggerSuspiciousBeatTimeAlert::class,
         ],
         PlayerMetricsUpdated::class => [
             DispatchUpdatePlayerPointsStatsJob::class,
