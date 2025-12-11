@@ -110,6 +110,10 @@ class RedirectController extends Controller
             }
         }
 
+        // Encode & when followed by a space (+ or %20) to prevent it being
+        // misinterpreted by the target URL as a query parameter separator.
+        $url = preg_replace('/&(\+|%20| )/', '%26$1', $url);
+
         $props = new RedirectPagePropsData($url);
 
         return Inertia::render('redirect', $props);
