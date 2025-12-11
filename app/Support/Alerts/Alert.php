@@ -12,7 +12,7 @@ abstract class Alert
     /**
      * Get the alert type identifier, derived from class name.
      * "SuspiciousBeatTimeAlert" -> "suspicious_beat_time"
-     * 
+     *
      * @see config/services.php
      */
     public static function type(): string
