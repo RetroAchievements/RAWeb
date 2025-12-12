@@ -112,7 +112,7 @@ function SubmitLeaderboardEntry(
             ->limit(10)
             ->get()
             ->map(fn ($entry) => [
-                'User' => $entry->user->User,
+                'User' => $entry->user->display_name,
                 'Score' => $entry->score,
                 'DateSubmitted' => $entry->updated_at->unix(),
             ])
