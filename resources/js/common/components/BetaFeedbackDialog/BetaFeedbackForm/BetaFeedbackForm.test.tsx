@@ -1,8 +1,10 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
+// eslint-disable-next-line no-restricted-imports -- needed for toast cleanup in tests
+import { toast } from 'sonner';
 import { route } from 'ziggy-js';
 
-import { render, screen, waitFor } from '@/test';
+import { act, render, screen, waitFor } from '@/test';
 
 import { BaseDialog } from '../../+vendor/BaseDialog';
 import { BetaFeedbackForm } from './BetaFeedbackForm';
@@ -10,6 +12,13 @@ import { BetaFeedbackForm } from './BetaFeedbackForm';
 describe('Component: BetaFeedbackForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    // Clean up any residual toast elements to mitigate test flake.
+    await act(async () => {
+      toast.dismiss();
+    });
   });
 
   it('renders without crashing', () => {

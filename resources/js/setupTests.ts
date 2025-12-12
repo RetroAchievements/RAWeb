@@ -6,7 +6,6 @@ import { cleanup } from '@testing-library/react';
 
 import { loadFaker } from './test/createFactory';
 // @ts-expect-error -- this isn't a real ts module
-// eslint-disable-next-line import/no-unresolved
 import { Ziggy } from './ziggy';
 
 // @ts-expect-error -- we're injecting this on purpose
