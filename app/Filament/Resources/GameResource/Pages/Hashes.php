@@ -85,10 +85,11 @@ class Hashes extends ManageRelatedRecords
 
             ])
             ->headerActions([
-                Actions\Action::make('view-comments')
+                Actions\Action::make('view-legacy-comments')
                     ->color($nonAutomatedCommentsCount > 0 ? 'info' : 'gray')
                     ->label("View Comments ({$nonAutomatedCommentsCount})")
-                    ->url(route('game.hashes.comment.index', ['game' => $this->getOwnerRecord()->id])),
+                    ->url(route('game.hashes.comment.index', ['game' => $this->getOwnerRecord()->id]))
+                    ->openUrlInNewTab(),
             ])
             ->recordActions([
                 Actions\Action::make('audit-log')

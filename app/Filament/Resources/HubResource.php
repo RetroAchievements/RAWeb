@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Community\Enums\ArticleType;
 use App\Filament\Components\BreadcrumbPreview;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\HubResource\Pages;
 use App\Filament\Resources\HubResource\RelationManagers\GamesRelationManager;
 use App\Filament\Resources\HubResource\RelationManagers\ParentHubsRelationManager;
 use App\Filament\Rules\ExistsInForumTopics;
+use App\Models\Comment;
 use App\Models\GameSet;
 use App\Models\Role;
 use App\Models\User;
@@ -57,6 +59,27 @@ class HubResource extends Resource
                 Schemas\Components\Section::make('Primary Details')
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->headerActions([
+                        Action::make('view-legacy-comments')
+                            ->color('gray')
+                            ->label(function (GameSet $record) {
+                                $count = Comment::where('ArticleType', ArticleType::GameModification)
+                                    ->where('ArticleID', $record->game_id)
+                                    ->count();
+
+                                return "View Legacy Comments ({$count})";
+                            })
+                            ->url(function (GameSet $record) {
+                                return route('game.modification-comment.index', ['game' => $record->game_id]);
+                            })
+                            ->openUrlInNewTab()
+                            ->visible(function (GameSet $record) {
+                                return $record->game_id
+                                    && Comment::where('ArticleType', ArticleType::GameModification)
+                                        ->where('ArticleID', $record->game_id)
+                                        ->exists();
+                            }),
+                    ])
                     ->schema([
                         Infolists\Components\TextEntry::make('permalink')
                             ->url(fn (GameSet $record): string => $record->getPermalinkAttribute())
