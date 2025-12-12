@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
@@ -30,16 +30,29 @@ export function useGameBacklogState({
    * for us (needing to actually query/load all that data quickly).
    * To avoid this, we actually support this being optimistic state
    * via the `shouldUpdateOptimistically` option.
+   *
+   * We track both the optimistic state and the game ID that the state belongs to.
+   * When the game changes during client-side navigation (eg: switching between
+   * base game and subset), we need to reset the optimistic state to the new
+   * game's initial value.
    */
-  const [isInBacklogMaybeOptimistic, setIsInBacklogMaybeOptimistic] =
-    useState(isInitiallyInBacklog);
+  const [backlogState, setBacklogState] = useState({
+    gameId: game.id,
+    isInBacklog: isInitiallyInBacklog,
+  });
 
   const { addToGameList, removeFromGameList, isPending } = useAddOrRemoveFromUserGameList();
 
-  // Keep state in sync with prop changes.
-  useEffect(() => {
-    setIsInBacklogMaybeOptimistic(isInitiallyInBacklog);
-  }, [isInitiallyInBacklog]);
+  // Derive the current optimistic state, resetting when the game changes.
+  const isInBacklogMaybeOptimistic =
+    backlogState.gameId === game.id ? backlogState.isInBacklog : isInitiallyInBacklog;
+
+  const setIsInBacklogMaybeOptimistic = useCallback(
+    (value: boolean) => {
+      setBacklogState({ gameId: game.id, isInBacklog: value });
+    },
+    [game.id],
+  );
 
   const toggleBacklog = useCallback(
     async (options?: { shouldHideToasts: boolean }) => {
@@ -108,6 +121,7 @@ export function useGameBacklogState({
       game.title,
       isInBacklogMaybeOptimistic,
       removeFromGameList,
+      setIsInBacklogMaybeOptimistic,
       shouldUpdateOptimistically,
       t,
       userGameListType,

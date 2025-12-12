@@ -53,24 +53,26 @@ class UploadLeaderboardTest extends TestCase
 
         // ----------------------------
         // new leaderboard for unclaimed game
-        $this->post('dorequest.php', $this->checksumParams([
-            'g' => $game->ID,
-            'n' => 'Title',
-            'd' => 'Description',
-            's' => '1=0',
-            'b' => '2=0',
-            'c' => '3=0',
-            'l' => '4=0',
-            'w' => 1,
-            'f' => 'VALUE',
-        ]))
-            ->assertStatus(403)
-            ->assertExactJson([
-                'Status' => 403,
-                'Code' => 'access_denied',
-                'Success' => false,
-                'Error' => 'You must have an active claim on this game to perform this action.',
-            ]);
+        // TODO: temporarily disabled and duplicated below. when the claim check is restored,
+        //       re-enable this code and remove the duplicated code.
+        // $this->post('dorequest.php', $this->checksumParams([
+        //     'g' => $game->ID,
+        //     'n' => 'Title',
+        //     'd' => 'Description',
+        //     's' => '1=0',
+        //     'b' => '2=0',
+        //     'c' => '3=0',
+        //     'l' => '4=0',
+        //     'w' => 1,
+        //     'f' => 'VALUE',
+        // ]))
+        //     ->assertStatus(403)
+        //     ->assertExactJson([
+        //         'Status' => 403,
+        //         'Code' => 'access_denied',
+        //         'Success' => false,
+        //         'Error' => 'You must have an active claim on this game to perform this action.',
+        //     ]);
 
         // ----------------------------
         // new leaderboard for valid game with claim
@@ -339,6 +341,39 @@ class UploadLeaderboardTest extends TestCase
         $this->assertEquals(3, Leaderboard::count());
         $leaderboard2->refresh();
         $this->assertEquals('Title4', $leaderboard2->Title);
+
+        // TODO: this is a duplicate of the first commented out subtest above. it was
+        //       commented out to avoid updating all of the intermediate IDs given that
+        //       the intent is to re-enable the claim requirement for new leaderboards.
+        //       when that happens, this should be removed and the above subtest uncommented.
+
+        // ----------------------------
+        // new leaderboard for unclaimed game
+        $game2 = $this->seedGame();
+        $this->post('dorequest.php', $this->checksumParams([
+            'g' => $game2->ID,
+            'n' => 'Title',
+            'd' => 'Description',
+            's' => '1=0',
+            'b' => '2=0',
+            'c' => '3=0',
+            'l' => '4=0',
+            'w' => 1,
+            'f' => 'VALUE',
+        ]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'LeaderboardID' => 4,
+            ]);
+
+        $leaderboard4 = Leaderboard::find(4);
+        $this->assertEquals('Title', $leaderboard4->Title);
+        $this->assertEquals('Description', $leaderboard4->Description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard4->Mem);
+        $this->assertEquals(true, $leaderboard4->LowerIsBetter);
+        $this->assertEquals('VALUE', $leaderboard4->Format);
+        $this->assertEquals(1, $leaderboard4->DisplayOrder);
    }
 
     public function testUploadLeaderboardJuniorDeveloper(): void
