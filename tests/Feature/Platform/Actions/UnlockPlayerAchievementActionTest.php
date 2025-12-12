@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Actions;
 
 use App\Models\Game;
+use App\Models\PlayerGame;
 use App\Models\PlayerSession;
 use App\Models\User;
 use App\Platform\Actions\ResumePlayerSessionAction;
@@ -162,5 +163,10 @@ class UnlockPlayerAchievementActionTest extends TestCase
         // subset session should not be created
         $subsetPlayerSession = PlayerSession::where('user_id', $user->id)->where('game_id', $subsetGame->id)->first();
         $this->assertNull($subsetPlayerSession);
+
+        // subset player_games record should be created and have points from the unlock
+        $subsetPlayerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $subsetGame->id)->first();
+        $this->assertNotNull($subsetPlayerGame);
+        $this->assertEquals($subsetAchievement->Points, $subsetPlayerGame->points_hardcore);
     }
 }
