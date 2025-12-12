@@ -1453,16 +1453,6 @@ class UploadAchievementTest extends TestCase
         $achievement3 = $game->achievements->get(2);
         $achievement3->type = AchievementType::WinCondition;
         $achievement3->save();
-
-        $achievement1 = $game->achievements->get(0);
-        $achievement1->type = AchievementType::Progression;
-        $achievement1->save();
-        $achievement2 = $game->achievements->get(1);
-        $achievement2->type = AchievementType::Progression;
-        $achievement2->save();
-        $achievement3 = $game->achievements->get(2);
-        $achievement3->type = AchievementType::WinCondition;
-        $achievement3->save();
         $achievement4 = $game->achievements->get(3);
 
         $user = User::factory()->create();

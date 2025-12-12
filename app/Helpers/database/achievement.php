@@ -378,11 +378,11 @@ function UploadNewAchievement(
             $fields[] = "description";
         }
 
-        $recalcuateBeatTimes = false;
+        $recalculateBeatTimes = false;
         $changingType = ($achievement->type != $type && $type !== 'not-given');
         if ($changingType) {
             // if changing to/from Progression/WinCondition, recalculate all beat times
-            $recalcuateBeatTimes = AchievementType::isProgression($type) || AchievementType::isProgression($achievement->type);
+            $recalculateBeatTimes = AchievementType::isProgression($type) || AchievementType::isProgression($achievement->type);
 
             $achievement->type = $type;
             $fields[] = "type";
@@ -473,7 +473,7 @@ function UploadNewAchievement(
                 expireGameTopAchievers($gameID);
 
                 // if promoting/demoting a progression achievement, we need to recalculate beat times
-                $recalcuateBeatTimes |= AchievementType::isProgression($achievement->type);
+                $recalculateBeatTimes |= AchievementType::isProgression($achievement->type);
             } else {
                 $editString = implode(', ', $fields);
 
@@ -488,7 +488,7 @@ function UploadNewAchievement(
                 }
             }
 
-            if ($recalcuateBeatTimes) {
+            if ($recalculateBeatTimes) {
                 // changing the type of an achievement or promoting/demoting it can affect
                 // the time to beat a game. recalculate them for anyone who has beaten the game.
                 $affectedUserIds = PlayerGame::query()
