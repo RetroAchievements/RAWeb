@@ -15,6 +15,11 @@ if ($hardcorePointsClause && $softcorePointsClause) {
     $softcorePointsClause = ' and ' . $softcorePointsClause;
 }
 
+$achievementsClause = '';
+if ($recapData['achievementsUnlocked'] > 0) {
+    $achievementsClause = ' and unlocked ' . $countThing($recapData['achievementsUnlocked'], 'achievement') . ', earning you ' . $hardcorePointsClause . $softcorePointsClause;
+}
+
 $subsetHardcorePointsClause = $countThing($recapData['subsetHardcorePointsEarned'], 'hardcore point');
 $subsetSoftcorePointsClause = $countThing($recapData['subsetSoftcorePointsEarned'], 'softcore point');
 
@@ -63,7 +68,7 @@ if ($numCompletions) {
 <x-mail::message>
 Congratulations {{ $user->display_name }}!
 
-In {{ $recapData['year'] }}, you played {{ $countThing($recapData['gamesPlayed'], 'game') }} on <a href="{{ route('home') }}">retroachievements.org</a> and unlocked {{ $countThing($recapData['achievementsUnlocked'], 'achievement') }}, earning you {{ $hardcorePointsClause }}{{ $softcorePointsClause }}. {{ $leaderboardsSubmittedClause }}
+In {{ $recapData['year'] }}, you played {{ $countThing($recapData['gamesPlayed'], 'game') }} on <a href="{{ route('home') }}">retroachievements.org</a>{{ $achievementsClause }}. {{ $leaderboardsSubmittedClause }}
 
 You spent {{ $recapData['totalPlaytime'] }} playing games {{ $playedSystemsClause }}.
 
