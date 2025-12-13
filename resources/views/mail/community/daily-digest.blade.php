@@ -11,7 +11,7 @@ The following conversations that you have participated in were updated recently:
             $postType = 'post';
             break;
         default:
-            $lowerType = tolower($notificationItem['type']);
+            $lowerType = strtolower($notificationItem['type']);
             $clause = "on [${notificationItem['title']}](${notificationItem['link']}) ($lowerType)";
             $postType = 'comment';
             break;

@@ -101,7 +101,8 @@ class SendDailyDigestAction
             // inject the summaries into the notification items
             foreach ($singleItems as $singleItem) {
                 [$delayedSubscription, $index] = $singleItem;
-                $post = $posts[$delayedSubscription->subject_type->value][$delayedSubscription->subject_id] ?? null;
+                $type = $delayedSubscription->subject_type->value;
+                $post = $posts[$type][$delayedSubscription->subject_id] ?? null;
                 if ($post) {
                     $summary = match ($type) {
                         SubscriptionSubjectType::ForumTopic->value => nl2br(Shortcode::stripAndClamp($post->latestComment->body, previewLength: 200, preserveWhitespace: true)),
