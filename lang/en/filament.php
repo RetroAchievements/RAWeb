@@ -11,6 +11,7 @@ return [
         'events' => [
             'created' => 'Created',
             'deleted' => 'Deleted',
+            'linkedHash' => 'Linked Hash',
             'pivotAttached' => 'Attached',
             'pivotDetached' => 'Detached',
             'releaseCreated' => 'Release Added',
@@ -20,8 +21,9 @@ return [
             'reorderedLeaderboards' => 'Reordered leaderboards',
             'resetAllLeaderboardEntries' => 'Reset all leaderboard entries',
             'restored' => 'Restored',
-            'unlinkedHash' => 'Unlinked hash',
+            'unlinkedHash' => 'Unlinked Hash',
             'updated' => 'Updated',
+            'updatedHash' => 'Updated Hash',
         ],
     ],
 ];
