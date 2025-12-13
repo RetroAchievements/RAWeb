@@ -137,8 +137,9 @@ class GamesRelationManager extends RelationManager
                                 return Game::whereNotIn('ID', $this->getOwnerRecord()->games->pluck('ID'))
                                     ->where('ConsoleID', '!=', System::Hubs)
                                     ->limit(50)
+                                    ->with('system')
                                     ->get()
-                                    ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title}"]);
+                                    ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title} ({$game->system->name})"]);
                             })
                             ->searchable()
                             ->getSearchResultsUsing(function (string $search) {
@@ -149,13 +150,15 @@ class GamesRelationManager extends RelationManager
                                             ->orWhere('Title', 'LIKE', "%{$search}%");
                                     })
                                     ->limit(50)
+                                    ->with('system')
                                     ->get()
-                                    ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title}"]);
+                                    ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title} ({$game->system->name})"]);
                             })
                             ->getOptionLabelsUsing(function (array $values): array {
                                 return Game::whereIn('ID', $values)
+                                    ->with('system')
                                     ->get()
-                                    ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title}"])
+                                    ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title} ({$game->system->name})"])
                                     ->toArray();
                             })
                             ->hidden(fn (Get $get): bool => filled($get('game_ids_csv')))
