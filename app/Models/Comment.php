@@ -127,14 +127,7 @@ class Comment extends BaseModel
 
     public function getUrlAttribute(): ?string
     {
-        $redirectableCommentableTypes = [
-            ArticleType::Game,
-            ArticleType::Achievement,
-            ArticleType::User,
-            ArticleType::Leaderboard,
-        ];
-
-        if (in_array($this->ArticleType, $redirectableCommentableTypes, true)) {
+        if (ArticleType::supportsCommentRedirect($this->ArticleType)) {
             return route('comment.show', ['comment' => $this->ID]);
         }
 
