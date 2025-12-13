@@ -48,4 +48,10 @@ class Edit extends EditRecord
 
         return $data;
     }
+
+    protected function afterSave(): void
+    {
+        $this->record->refresh();
+        $this->refreshFormData(['sort_title']);
+    }
 }
