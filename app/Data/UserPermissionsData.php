@@ -100,7 +100,7 @@ class UserPermissionsData extends Data
             manageEvents: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\Event::class) : false),
             manageGameHashes: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\GameHash::class) : false),
             manageGames: Lazy::create(fn () => $user ? $user->can('manage', Game::class) : false),
-            manageGameSets: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\GameSet::class) : false),
+            manageGameSets: Lazy::create(fn () => $user ? $user->can('manage', GameSet::class) : false),
             manipulateApiKeys: Lazy::create(fn () => $user ? $user->can('manipulateApiKeys', $user) : false),
             resetEntireAccount: Lazy::create(fn () => $user ? $user->can('resetEntireAccount', $user) : false),
             reviewAchievementSetClaims: Lazy::create(fn () => $user && $claim
