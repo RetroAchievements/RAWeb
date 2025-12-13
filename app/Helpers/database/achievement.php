@@ -4,6 +4,7 @@ use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\GameAchievementSet;
+use App\Models\PlayerGame;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrdersAction;
@@ -13,6 +14,7 @@ use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Spatie\Activitylog\Facades\CauserResolver;
@@ -376,8 +378,12 @@ function UploadNewAchievement(
             $fields[] = "description";
         }
 
+        $recalculateBeatTimes = false;
         $changingType = ($achievement->type != $type && $type !== 'not-given');
         if ($changingType) {
+            // if changing to/from Progression/WinCondition, recalculate all beat times
+            $recalculateBeatTimes = AchievementType::isProgression($type) || AchievementType::isProgression($achievement->type);
+
             $achievement->type = $type;
             $fields[] = "type";
         }
@@ -465,6 +471,9 @@ function UploadNewAchievement(
                     );
                 }
                 expireGameTopAchievers($gameID);
+
+                // if promoting/demoting a progression achievement, we need to recalculate beat times
+                $recalculateBeatTimes |= AchievementType::isProgression($achievement->type);
             } else {
                 $editString = implode(', ', $fields);
 
@@ -476,6 +485,19 @@ function UploadNewAchievement(
                         "{$author->display_name} edited this achievement's $editString.",
                         $author->display_name
                     );
+                }
+            }
+
+            if ($recalculateBeatTimes) {
+                // changing the type of an achievement or promoting/demoting it can affect
+                // the time to beat a game. recalculate them for anyone who has beaten the game.
+                $affectedUserIds = PlayerGame::query()
+                    ->where('game_id', $achievement->GameID)
+                    ->whereNotNull('beaten_at')
+                    ->select(['user_id'])
+                    ->pluck('user_id');
+                foreach ($affectedUserIds as $userId) {
+                    dispatch(new UpdatePlayerGameMetricsJob($userId, $achievement->GameID));
                 }
             }
         }

@@ -25,4 +25,9 @@ abstract class AchievementType
     {
         return in_array($type, self::cases());
     }
+
+    public static function isProgression(?string $type): bool
+    {
+        return $type === AchievementType::Progression || $type === AchievementType::WinCondition;
+    }
 }
