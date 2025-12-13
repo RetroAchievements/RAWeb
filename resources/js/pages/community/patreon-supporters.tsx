@@ -15,11 +15,9 @@ const PatreonSupporters: AppPage = () => {
         description="A list of all our Patreon supporters who help keep RetroAchievements running."
       />
 
-      <div className="container">
-        <AppLayout.Main className="min-h-[4000px]">
-          <PatreonSupportersRoot />
-        </AppLayout.Main>
-      </div>
+      <AppLayout.Main className="min-h-[4000px]">
+        <PatreonSupportersRoot />
+      </AppLayout.Main>
     </>
   );
 };
