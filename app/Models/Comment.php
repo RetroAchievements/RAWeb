@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Community\Enums\ArticleType;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\CommentFactory;
 use Exception;
@@ -122,6 +123,26 @@ class Comment extends BaseModel
     public function getIsAutomatedAttribute(): bool
     {
         return $this->user_id === self::SYSTEM_USER_ID;
+    }
+
+    public function getUrlAttribute(): ?string
+    {
+        $redirectableCommentableTypes = [
+            ArticleType::Game,
+            ArticleType::Achievement,
+            ArticleType::User,
+            ArticleType::Leaderboard,
+        ];
+
+        if (in_array($this->ArticleType, $redirectableCommentableTypes, true)) {
+            return route('comment.show', ['comment' => $this->ID]);
+        }
+
+        if ($this->ArticleType === ArticleType::AchievementTicket) {
+            return route('ticket.show', ['ticket' => $this->ArticleID]) . "#comment_{$this->ID}";
+        }
+
+        return null;
     }
 
     // == mutators
