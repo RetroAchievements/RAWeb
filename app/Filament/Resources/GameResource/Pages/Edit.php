@@ -26,7 +26,7 @@ class Edit extends EditRecord
         /** @var Game $game */
         $game = $this->getRecord();
 
-        return "Edit {$game->title} ({$game->system->name_short})";
+        return "{$game->title} ({$game->system->name_short}) - Edit";
     }
 
     public function getBreadcrumb(): string

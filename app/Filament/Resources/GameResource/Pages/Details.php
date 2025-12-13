@@ -19,7 +19,7 @@ class Details extends ViewRecord
         /** @var Game $game */
         $game = $this->getRecord();
 
-        return "View {$game->title} ({$game->system->name_short})";
+        return "{$game->title} ({$game->system->name_short}) - View";
     }
 
     public function getBreadcrumb(): string
