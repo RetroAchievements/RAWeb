@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
         if (app()->environment('local')) {
             $this->call(UsersTableSeeder::class);
             $this->call(GamesTableSeeder::class);
+            $this->call(GameReleasesSeeder::class);
             $this->call(GameSetsSeeder::class);
             $this->call(PlayerAchievementsSeeder::class);
             $this->call(NewsTableSeeder::class);
