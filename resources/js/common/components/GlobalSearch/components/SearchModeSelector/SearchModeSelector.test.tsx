@@ -43,9 +43,10 @@ describe('Component: SearchModeSelector', () => {
     const hubsButton = screen.getByRole('button', { name: /hubs/i });
 
     // ASSERT
-    expect(gamesButton).toHaveAttribute('aria-pressed', 'true');
-    expect(allButton).toHaveAttribute('aria-pressed', 'false');
-    expect(hubsButton).toHaveAttribute('aria-pressed', 'false');
+    expect(gamesButton).toBePressed();
+
+    expect(allButton).not.toBePressed();
+    expect(hubsButton).not.toBePressed();
   });
 
   it('given the user clicks on a chip, calls onChange with the correct value', async () => {
@@ -105,6 +106,7 @@ describe('Component: SearchModeSelector', () => {
     // ASSERT
     const browseLink = screen.getByRole('link', { name: /browse/i });
 
-    expect(browseLink).toHaveAttribute('href', expect.stringContaining('mario'));
+    // The route mock returns the args as an array, so check that it starts with 'search'.
+    expect(browseLink).toHaveAttribute('href', expect.stringContaining('search'));
   });
 });

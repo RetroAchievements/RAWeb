@@ -8,8 +8,8 @@ import { LuCalendar, LuNetwork, LuUsers } from 'react-icons/lu';
 
 import { BaseCommandGroup, BaseCommandItem } from '@/common/components/+vendor/BaseCommand';
 import type { useSearchQuery } from '@/common/hooks/queries/useSearchQuery';
+import type { SearchMode } from '@/common/models';
 
-import type { SearchMode } from '../../models/search-mode.model';
 import { AchievementResultDisplay } from './AchievementResultDisplay';
 import { EventResultDisplay } from './EventResultDisplay';
 import { GameResultDisplay } from './GameResultDisplay';

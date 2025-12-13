@@ -38,7 +38,10 @@ return [
         '/APIDemo.php' => '/docs',
         '/RA_API.php' => '/docs',
         '/download.php' => '/downloads',
-        '/searchresults.php' => '/search',
+        '/searchresults.php' => [
+            's' => '/search?query={s}',
+            '' => '/search',
+        ],
 
         /*
          * auth

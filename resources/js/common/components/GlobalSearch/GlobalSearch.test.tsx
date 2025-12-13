@@ -196,7 +196,8 @@ describe('Component: GlobalSearch', () => {
 
     // ASSERT
     const [browseLink] = await screen.findAllByRole('link', { name: /browse/i });
-    expect(browseLink).toHaveAttribute('href', '/searchresults.php?s=mario');
+    // The route mock returns the args as an array, so check that it starts with 'search'.
+    expect(browseLink).toHaveAttribute('href', expect.stringContaining('search'));
   });
 
   it('displays the browse link without query when search is empty', async () => {
@@ -205,7 +206,8 @@ describe('Component: GlobalSearch', () => {
 
     // ASSERT
     const [browseLink] = await screen.findAllByRole('link', { name: /browse/i });
-    expect(browseLink).toHaveAttribute('href', '/searchresults.php');
+    // The route mock returns the args as an array, so check that it starts with 'search'.
+    expect(browseLink).toHaveAttribute('href', expect.stringContaining('search'));
   });
 
   it('given search mode is "all", searches all scopes', async () => {

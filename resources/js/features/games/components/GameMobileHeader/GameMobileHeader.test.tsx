@@ -116,7 +116,7 @@ describe('Component: GameMobileHeader', () => {
 
     // ASSERT
     const button = screen.getByRole('button', { name: /want to play/i });
-    expect(button).toHaveAttribute('aria-pressed', 'true');
+    expect(button).toBePressed();
   });
 
   it('given the game is not on the want to play list, shows the button as not pressed', () => {
@@ -133,7 +133,7 @@ describe('Component: GameMobileHeader', () => {
 
     // ASSERT
     const button = screen.getByRole('button', { name: /want to play/i });
-    expect(button).toHaveAttribute('aria-pressed', 'false');
+    expect(button).not.toBePressed();
   });
 
   it('given the game is for the Nintendo DS, applies special background image styling', () => {

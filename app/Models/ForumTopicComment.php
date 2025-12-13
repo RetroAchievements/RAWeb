@@ -76,6 +76,12 @@ class ForumTopicComment extends BaseModel
             return false;
         }
 
+        // Don't index comments from topics that require permissions.
+        $this->loadMissing('forumTopic');
+        if ($this->forumTopic && $this->forumTopic->required_permissions !== 0) {
+            return false;
+        }
+
         return true;
     }
 

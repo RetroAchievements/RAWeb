@@ -26,6 +26,7 @@ use App\Data\UserPermissionsData;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
 use App\Http\Controller;
+use App\Models\Comment;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserUsername;
@@ -163,7 +164,20 @@ class UserSettingsController extends Controller
         /** @var User $user */
         $user = $request->user();
 
+        $oldWallActiveValue = $user->UserWallActive;
+
         $user->update($data->toArray());
+
+        // Re-index the user's wall comments if they changed the
+        // setting for whether their comment wall is visible.
+        if ($oldWallActiveValue !== $user->UserWallActive) {
+            $allUserWallComments = Comment::query()
+                ->where('ArticleType', ArticleType::User)
+                ->where('ArticleID', $user->id)
+                ->get();
+
+            $allUserWallComments->searchable();
+        }
 
         return response()->json(['success' => true]);
     }

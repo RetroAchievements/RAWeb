@@ -31,12 +31,13 @@ class ForumTopicCommentData extends Data
     {
         return new self(
             id: $comment->id,
-            body: html_entity_decode($comment->body),
+            body: $comment->body,
             createdAt: $comment->created_at,
             updatedAt: $comment->updated_at,
             user: UserData::from($comment->user),
             isAuthorized: $comment->is_authorized,
-            forumTopic: Lazy::create(fn () => ForumTopicData::from($comment->forumTopic)),
+            forumTopicId: $comment->forum_topic_id,
+            forumTopic: Lazy::create(fn () => $comment->forumTopic ? ForumTopicData::fromForumTopic($comment->forumTopic) : null),
             sentBy: Lazy::create(fn () => $comment->sent_by_id ? UserData::from($comment->sentBy) : null),
             editedBy: Lazy::create(fn () => $comment->edited_by_id ? UserData::from($comment->editedBy) : null),
         );

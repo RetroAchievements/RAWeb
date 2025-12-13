@@ -7,5 +7,6 @@ export * from './laravel-validation-error.model';
 export * from './link-prefetch-behavior.model';
 export * from './play-mode.model';
 export * from './playable-list-sort-order.model';
+export * from './search';
 export * from './shortcode';
 export * from './ziggy-props.model';

@@ -29,7 +29,7 @@ describe('Component: SelectableChip', () => {
     const chipButton = screen.getByRole('button', { name: /test chip/i });
 
     expect(chipButton).toBeVisible();
-    expect(chipButton).toHaveAttribute('aria-pressed', 'false');
+    expect(chipButton).not.toBePressed();
   });
 
   it('given the chip is selected, communicates that in an accessible way', () => {
@@ -44,7 +44,7 @@ describe('Component: SelectableChip', () => {
     const chipButton = screen.getByRole('button', { name: /test chip/i });
 
     expect(chipButton).toBeVisible();
-    expect(chipButton).toHaveAttribute('aria-pressed', 'true');
+    expect(chipButton).toBePressed();
   });
 
   it('given the user clicks the chip, calls the onClick handler', async () => {

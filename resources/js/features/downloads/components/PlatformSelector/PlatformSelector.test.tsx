@@ -82,7 +82,7 @@ describe('Component: PlatformSelector', () => {
 
     // ASSERT
     const linuxButton = screen.getByRole('button', { name: /linux/i });
-    expect(linuxButton.getAttribute('aria-pressed')).toEqual('true');
+    expect(linuxButton).toBePressed();
   });
 
   it('given the user selects a platform after auto-detection, hides the detection message', async () => {
@@ -126,7 +126,7 @@ describe('Component: PlatformSelector', () => {
 
     // ASSERT
     const allPlatformsButton = screen.getByRole('button', { name: /all platforms/i });
-    expect(allPlatformsButton.getAttribute('aria-pressed')).toEqual('true');
+    expect(allPlatformsButton).toBePressed();
   });
 
   it('given a platform has no execution environment, renders without an environment icon', () => {
@@ -177,6 +177,6 @@ describe('Component: PlatformSelector', () => {
     await userEvent.click(mobileDetectedButton);
 
     // ASSERT
-    expect(mobileDetectedButton.getAttribute('aria-pressed')).toEqual('true');
+    expect(mobileDetectedButton).toBePressed();
   });
 });
