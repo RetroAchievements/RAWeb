@@ -7,5 +7,6 @@ export const createLeaderboard = createFactory<App.Platform.Data.Leaderboard>((f
     title: faker.word.words(3),
     description: faker.word.words(12),
     game: createGame(),
+    state: 'active',
   };
 });

@@ -1311,5 +1311,7 @@
     "Continue to external site": "Continue to external site",
     "Bonus Subset": "Bonus Subset",
     "Specialty Subset": "Specialty Subset",
-    "Exclusive Subset": "Exclusive Subset"
+    "Exclusive Subset": "Exclusive Subset",
+    "Disabled": "Disabled",
+    "This leaderboard is currently disabled and not accepting new entries.": "This leaderboard is currently disabled and not accepting new entries."
 }

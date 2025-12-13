@@ -970,6 +970,7 @@ declare namespace App.Platform.Data {
     topEntry?: App.Platform.Data.LeaderboardEntry | null;
     userEntry?: App.Platform.Data.LeaderboardEntry | null;
     rankAsc?: boolean | null;
+    state?: App.Platform.Enums.LeaderboardState | null;
   };
   export type LeaderboardEntry = {
     id: number;
@@ -1167,8 +1168,8 @@ declare namespace App.Platform.Enums {
     | 'will_be_bonus'
     | 'will_be_specialty'
     | 'will_be_exclusive';
-  export type EventState = 'active' | 'concluded' | 'evergreen';
   export type UnlockMode = 0 | 1;
+  export type EventState = 'active' | 'concluded' | 'evergreen';
   export type GameListProgressFilterValue =
     | 'unstarted'
     | 'unfinished'
@@ -1233,6 +1234,7 @@ declare namespace App.Platform.Enums {
     | 'shared-hub'
     | 'similar-game'
     | 'want-to-play';
+  export type LeaderboardState = 'active' | 'disabled' | 'unpublished';
   export type PlatformExecutionEnvironment =
     | 'desktop'
     | 'mobile'
