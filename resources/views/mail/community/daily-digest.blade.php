@@ -4,17 +4,29 @@ Hello {{ $user->display_name }},
 The following conversations that you have participated in were updated recently:
 
 @foreach ($notificationItems as $notificationItem)
-@switch ($notificationItem['type'])
+@php
+    switch ($notificationItem['type']) {
+        case 'ForumTopic':
+            $clause = "in [${notificationItem['title']}](${notificationItem['link']}) (forum topic)";
+            $postType = 'post';
+            break;
+        default:
+            $lowerType = tolower($notificationItem['type']);
+            $clause = "on [${notificationItem['title']}](${notificationItem['link']}) ($lowerType)";
+            $postType = 'comment';
+            break;
+    }
+@endphp
 
-@case('ForumTopic')
-* Forum Topic [{{ $notificationItem['title'] }}]({{ $notificationItem['link'] }}) ({{ $notificationItem['count'] }} new {{ Str::plural('post', $notificationItem['count']) }})
-@break
+@if ($notificationItem['summary'] ?? null)
+{{ $notificationItem['author']}} wrote {{ $clause }}:
+<x-mail::panel>
+{{ $notificationItem['summary'] }}
+</x-mail::panel>
+@else
+{{ $notificationItem['count'] }} new {{ Str::plural($postType, $notificationItem['count']) }} {{ $clause }}.
+@endif
 
-@default
-* {{ $notificationItem['type'] }} [{{ $notificationItem['title'] }}]({{ $notificationItem['link'] }}) ({{ $notificationItem['count'] }} new {{ Str::plural('comment', $notificationItem['count']) }})
-@break
-
-@endswitch
 @endforeach
 
 — Your friends at RetroAchievements.org
