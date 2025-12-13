@@ -123,6 +123,7 @@ class SimilarGames extends ManageRelatedRecords
                             ->multiple()
                             ->options(function () {
                                 return Game::whereNot('ID', $this->getOwnerRecord()->id)
+                                    ->whereNotIn('ID', $this->getOwnerRecord()->similarGamesList->pluck('ID'))
                                     ->where('ConsoleID', '!=', System::Hubs)
                                     ->limit(50)
                                     ->with('system')
@@ -140,6 +141,7 @@ class SimilarGames extends ManageRelatedRecords
                             ->searchable()
                             ->getSearchResultsUsing(function (string $search) {
                                 return Game::whereNot('ID', $this->getOwnerRecord()->id)
+                                    ->whereNotIn('ID', $this->getOwnerRecord()->similarGamesList->pluck('ID'))
                                     ->where('ConsoleID', '!=', System::Hubs)
                                     ->where(function ($query) use ($search) {
                                         $query->where('ID', 'LIKE', "%{$search}%")
