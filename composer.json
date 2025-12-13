@@ -181,9 +181,9 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "platform": {
-            "ext-pcntl": "8.2",
-            "ext-posix": "8.2",
-            "php": "8.2.8"
+            "ext-pcntl": "8.4",
+            "ext-posix": "8.4",
+            "php": "8.4"
         },
         "process-timeout": 0,
         "sort-packages": true,
