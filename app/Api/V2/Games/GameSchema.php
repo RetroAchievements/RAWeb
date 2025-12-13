@@ -55,7 +55,6 @@ class GameSchema extends Schema
             Str::make('imageTitleUrl')->readOnly(),
             Str::make('imageIngameUrl')->readOnly(),
 
-            Number::make('forumTopicId', 'ForumTopicID'),
             DateTime::make('releasedAt', 'released_at')->sortable(),
             Str::make('releasedAtGranularity', 'released_at_granularity'),
 
@@ -99,7 +98,8 @@ class GameSchema extends Schema
 
     /**
      * Build an index query for this resource.
-     * Excludes Hub games (ConsoleID=100) and Event games (ConsoleID=101).
+     * Excludes Hub games (ConsoleID=100), Event games (ConsoleID=101),
+     * and subset games (titles containing "[Subset -").
      *
      * @param Builder<Game> $query
      * @return Builder<Game>
@@ -107,6 +107,7 @@ class GameSchema extends Schema
     public function indexQuery(?object $model, Builder $query): Builder
     {
         return $query->where('ConsoleID', '!=', System::Hubs)
-            ->where('ConsoleID', '!=', System::Events);
+            ->where('ConsoleID', '!=', System::Events)
+            ->where('Title', 'NOT LIKE', '%[Subset -%');
     }
 }

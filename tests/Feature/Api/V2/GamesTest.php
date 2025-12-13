@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V2;
 
+use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
@@ -144,6 +145,31 @@ class GamesTest extends JsonApiResourceTestCase
         $this->assertNotContains((string) $eventGame->id, $ids);
     }
 
+    public function testItExcludesSubsetGames(): void
+    {
+        // Arrange
+        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $system = System::factory()->create();
+
+        $normalGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        $subsetGame = Game::factory()->create([
+            'ConsoleID' => $system->id,
+            'Title' => 'Pokemon Red [Subset - Professor Oak Challenge]',
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('games')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/games');
+
+        // Assert
+        $response->assertSuccessful();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        $this->assertContains((string) $normalGame->id, $ids);
+        $this->assertNotContains((string) $subsetGame->id, $ids);
+    }
+
     public function testItSortsByTitle(): void
     {
         // Arrange
@@ -247,5 +273,55 @@ class GamesTest extends JsonApiResourceTestCase
         $this->assertArrayHasKey('imageBoxArtUrl', $attributes);
         $this->assertArrayHasKey('imageTitleUrl', $attributes);
         $this->assertArrayHasKey('imageIngameUrl', $attributes);
+    }
+
+    public function testItIncludesForumTopicLinkWhenPresent(): void
+    {
+        // Arrange
+        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $system = System::factory()->create();
+        $forumTopic = ForumTopic::factory()->create();
+        $game = Game::factory()->create([
+            'ConsoleID' => $system->id,
+            'ForumTopicID' => $forumTopic->id,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('games')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/games/{$game->id}");
+
+        // Assert
+        $response->assertSuccessful();
+        $links = $response->json('data.links');
+
+        $this->assertArrayHasKey('self', $links);
+        $this->assertArrayHasKey('forumTopic', $links);
+        $this->assertStringContainsString("/forums/topic/{$forumTopic->id}", $links['forumTopic']);
+    }
+
+    public function testItOmitsForumTopicLinkWhenNotPresent(): void
+    {
+        // Arrange
+        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create([
+            'ConsoleID' => $system->id,
+            'ForumTopicID' => null,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('games')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/games/{$game->id}");
+
+        // Assert
+        $response->assertSuccessful();
+        $links = $response->json('data.links');
+
+        $this->assertArrayHasKey('self', $links);
+        $this->assertArrayNotHasKey('forumTopic', $links);
     }
 }

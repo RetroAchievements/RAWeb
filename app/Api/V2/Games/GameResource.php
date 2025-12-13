@@ -7,6 +7,8 @@ namespace App\Api\V2\Games;
 use App\Api\V2\BaseJsonApiResource;
 use App\Models\Game;
 use Illuminate\Http\Request;
+use LaravelJsonApi\Core\Document\Link;
+use LaravelJsonApi\Core\Document\Links;
 
 /**
  * @property Game $resource
@@ -29,7 +31,6 @@ class GameResource extends BaseJsonApiResource
             'imageTitleUrl' => $this->resource->image_title_url,
             'imageIngameUrl' => $this->resource->image_ingame_url,
 
-            'forumTopicId' => $this->resource->ForumTopicID,
             'releasedAt' => $this->resource->released_at,
             'releasedAtGranularity' => $this->resource->released_at_granularity?->value,
 
@@ -59,5 +60,26 @@ class GameResource extends BaseJsonApiResource
         return [
             'system' => $this->relation('system'),
         ];
+    }
+
+    /**
+     * Get the resource's links.
+     *
+     * @param Request|null $request
+     */
+    public function links($request): Links
+    {
+        $links = [
+            $this->selfLink(),
+        ];
+
+        if ($this->resource->ForumTopicID) {
+            $links[] = new Link(
+                'forumTopic',
+                route('forum-topic.show', ['topic' => $this->resource->ForumTopicID])
+            );
+        }
+
+        return new Links(...$links);
     }
 }
