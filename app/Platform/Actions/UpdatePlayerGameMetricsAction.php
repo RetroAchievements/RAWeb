@@ -181,12 +181,11 @@ class UpdatePlayerGameMetricsAction
         $playerGame->time_to_beat = $beatSummary['beatPlaytimeSoftcore'];
         $playerGame->time_to_beat_hardcore = $beatSummary['beatPlaytimeHardcore'];
         $beatenChanged = $playerGame->isDirty(['time_to_beat', 'time_to_beat_hardcore']);
-        $beatenHardcoreChanged = $playerGame->isDirty('time_to_beat_hardcore');
 
         $playerGame->save();
 
         if (!$silent) {
-            PlayerGameMetricsUpdated::dispatch($user, $game, $beatenHardcoreChanged);
+            PlayerGameMetricsUpdated::dispatch($user, $game);
         }
 
         if ($beatenChanged) {

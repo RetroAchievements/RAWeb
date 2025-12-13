@@ -113,6 +113,7 @@ class EventServiceProvider extends ServiceProvider
         PlayerGameBeaten::class => [
             // TODO Refactor to AchievementSetBeaten
             // TODO Notify player
+            TriggerSuspiciousBeatTimeAlert::class,
         ],
         PlayerGameCompleted::class => [
             // TODO Refactor to AchievementSetCompleted
@@ -122,7 +123,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         PlayerGameMetricsUpdated::class => [
             DispatchUpdatePlayerMetricsJob::class, // dispatches PlayerMetricsUpdated
-            TriggerSuspiciousBeatTimeAlert::class,
         ],
         PlayerMetricsUpdated::class => [
             DispatchUpdatePlayerPointsStatsJob::class,

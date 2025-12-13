@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Support\Alerts\Listeners;
 
 use App\Models\PlayerGame;
-use App\Platform\Events\PlayerGameMetricsUpdated;
+use App\Platform\Events\PlayerGameBeaten;
 use App\Support\Alerts\SuspiciousBeatTimeAlert;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -17,9 +17,9 @@ class TriggerSuspiciousBeatTimeAlert implements ShouldQueue
 {
     public string $queue = 'alerts';
 
-    public function handle(PlayerGameMetricsUpdated $event): void
+    public function handle(PlayerGameBeaten $event): void
     {
-        if (!$event->beatenHardcoreChanged) {
+        if (!$event->hardcore) {
             return;
         }
 

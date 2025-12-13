@@ -20,7 +20,6 @@ class PlayerGameMetricsUpdated
     public function __construct(
         public User $user,
         public Game $game,
-        public bool $beatenHardcoreChanged = false,
     ) {
     }
 
