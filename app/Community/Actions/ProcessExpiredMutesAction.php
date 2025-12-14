@@ -24,7 +24,9 @@ class ProcessExpiredMutesAction
                 (new RemoveUserDiscordRolesAction())->execute($user, [$mutedRoleId]);
             }
 
-            // Set muted_until to null.
+            // Clear muted_until. We don't record this as a moderation action
+            // because it's not a decision - just a timer expiring. The original
+            // mute record's expires_at field shows when the mute ended naturally.
             $user->muted_until = null;
             $user->saveQuietly();
         }
