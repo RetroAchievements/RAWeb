@@ -7,7 +7,9 @@ namespace Tests\Feature\Platform;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Actions\UpdateBeatenGamesLeaderboardAction;
 use App\Platform\Actions\UpdatePlayerBeatenGamesStatsAction;
+use App\Platform\Enums\PlayerStatRankingKind;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
@@ -17,6 +19,25 @@ class BeatenGamesLeaderboardTest extends TestCase
 {
     use RefreshDatabase;
     use TestsPlayerBadges;
+
+    /**
+     * Rebuilds the pre-computed leaderboard rankings from player_stats.
+     * This just simulates what the recurring scheduled job does.
+     */
+    private function rebuildLeaderboardRankings(?int $systemId = null): void
+    {
+        $action = new UpdateBeatenGamesLeaderboardAction();
+
+        // If a specific system is provided, only rebuild stats for that system.
+        // Otherwise, rebuild stats for the overall metrics.
+        $systemIds = $systemId !== null ? [$systemId] : [null];
+
+        foreach ($systemIds as $sysId) {
+            foreach (PlayerStatRankingKind::beatenCases() as $kind) {
+                $action->execute($sysId, $kind);
+            }
+        }
+    }
 
     public function testItRendersWithoutCrashing(): void
     {
@@ -48,6 +69,8 @@ class BeatenGamesLeaderboardTest extends TestCase
         (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(1));
         (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(2));
 
+        $this->rebuildLeaderboardRankings();
+
         // Act
         $view = $this->get('/ranking/beaten-games');
 
@@ -77,6 +100,8 @@ class BeatenGamesLeaderboardTest extends TestCase
         (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(0));
         (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(1));
         (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(2));
+
+        $this->rebuildLeaderboardRankings();
 
         // Act
         $view = $this->get('/ranking/beaten-games');
@@ -115,6 +140,8 @@ class BeatenGamesLeaderboardTest extends TestCase
         (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(1));
         (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(2));
 
+        $this->rebuildLeaderboardRankings($systems->get(1)->ID);
+
         // Act
         $view = $this->get('/ranking/beaten-games?filter[system]=' . $systems->get(1)->ID);
 
@@ -138,6 +165,8 @@ class BeatenGamesLeaderboardTest extends TestCase
         $this->addGameBeatenAward($user, $retail);
 
         (new UpdatePlayerBeatenGamesStatsAction())->execute($user);
+
+        $this->rebuildLeaderboardRankings();
 
         // Act
         $view = $this->get('/ranking/beaten-games?filter[kind]=retail');
