@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Actions\GetUrlToCommentDestinationAction;
 use App\Community\Concerns\IndexesComments;
 use App\Community\Data\AchievementCommentsPagePropsData;
 use App\Community\Data\CommentData;
-use App\Community\Requests\StoreCommentRequest;
 use App\Data\PaginatedData;
 use App\Models\Achievement;
 use App\Models\AchievementComment;
@@ -64,17 +62,8 @@ class AchievementCommentController extends CommentController
             ->with('comment', $comment);
     }
 
-    protected function update(
-        StoreCommentRequest $request,
-        AchievementComment $comment,
-        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction,
-    ): RedirectResponse {
-        $this->authorize('update', $comment);
-
-        $comment->fill($request->validated())->save();
-
-        return redirect($getUrlToCommentDestinationAction->execute($comment))
-            ->with('success', $this->resourceActionSuccessMessage('achievement.comment', 'update'));
+    protected function update(): void
+    {
     }
 
     protected function destroy(AchievementComment $comment): RedirectResponse
