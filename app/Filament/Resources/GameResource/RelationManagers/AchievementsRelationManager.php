@@ -42,6 +42,11 @@ class AchievementsRelationManager extends RelationManager
 
     protected static string|BackedEnum|null $icon = 'fas-trophy';
 
+    public bool $isEditingDisplayOrders = false;
+
+    /** @var array<int, string> */
+    public array $pendingDisplayOrders = [];
+
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
         /** @var User $user */
@@ -123,7 +128,8 @@ class AchievementsRelationManager extends RelationManager
                     ->date()
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('DisplayOrder')
+                Tables\Columns\ViewColumn::make('DisplayOrder')
+                    ->view('filament.tables.columns.display-order-column')
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('activeMaintainer')
@@ -177,10 +183,35 @@ class AchievementsRelationManager extends RelationManager
                     ),
             ])
             ->headerActions([
+                Actions\Action::make('cancel-edit-display-orders')
+                    ->label('Cancel')
+                    ->icon('heroicon-o-x-mark')
+                    ->color('gray')
+                    ->button()
+                    ->action(fn () => $this->cancelEditingDisplayOrders())
+                    ->visible(fn () => $this->isEditingDisplayOrders),
 
+                Actions\Action::make('save-display-orders')
+                    ->label('Save changes')
+                    ->color('primary')
+                    ->button()
+                    ->action(fn () => $this->saveDisplayOrders())
+                    ->visible(fn () => $this->isEditingDisplayOrders),
             ])
             ->recordActions([
                 ActionGroup::make([
+                    Actions\Action::make('move-to-top')
+                        ->label('Move to Top')
+                        ->icon('heroicon-o-arrow-up')
+                        ->action(fn (Achievement $record) => $this->moveAchievementToPosition($record, 'top'))
+                        ->visible(fn () => $this->canReorderAchievements() && !$this->isEditingDisplayOrders),
+
+                    Actions\Action::make('move-to-bottom')
+                        ->label('Move to Bottom')
+                        ->icon('heroicon-o-arrow-down')
+                        ->action(fn (Achievement $record) => $this->moveAchievementToPosition($record, 'bottom'))
+                        ->visible(fn () => $this->canReorderAchievements() && !$this->isEditingDisplayOrders),
+
                     Actions\Action::make('assign-maintainer')
                         ->label('Assign Maintainer')
                         ->icon('heroicon-o-user')
@@ -200,6 +231,14 @@ class AchievementsRelationManager extends RelationManager
                 ]),
             ])
             ->toolbarActions([
+                Actions\Action::make('edit-display-orders')
+                    ->label('Edit order values')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('gray')
+                    ->button()
+                    ->action(fn () => $this->startEditingDisplayOrders())
+                    ->visible(fn () => !$this->isEditingDisplayOrders && $this->canReorderAchievements()),
+
                 BulkActionGroup::make([
                     BulkAction::make('flags-core')
                         ->label('Promote selected')
@@ -405,7 +444,11 @@ class AchievementsRelationManager extends RelationManager
                     })
                     ->visible(fn (): bool => $user->can('assignMaintainer', [Achievement::class])),
             ])
-            ->recordUrl(function (Achievement $record): string {
+            ->recordUrl(function (Achievement $record): ?string {
+                if ($this->isEditingDisplayOrders) {
+                    return null;
+                }
+
                 /** @var User $user */
                 $user = Auth::user();
 
@@ -415,8 +458,8 @@ class AchievementsRelationManager extends RelationManager
 
                 return route('filament.admin.resources.achievements.view', ['record' => $record]);
             })
-            ->paginated([50, 100, 150])
-            ->defaultPaginationPageOption(50)
+            ->paginated([400])
+            ->defaultPaginationPageOption(400)
             ->defaultSort(function (Builder $query): Builder {
                 return $query
                     ->orderBy('DisplayOrder')
@@ -425,15 +468,67 @@ class AchievementsRelationManager extends RelationManager
             ->reorderRecordsTriggerAction(
                 fn (Actions\Action $action, bool $isReordering) => $action
                     ->button()
-                    ->label($isReordering ? 'Stop reordering' : 'Start reordering'),
+                    ->label($isReordering ? 'Done dragging' : 'Drag to reorder')
+                    ->visible(fn () => !$this->isEditingDisplayOrders),
             )
-            ->reorderable('DisplayOrder', $this->canReorderAchievements());
+            ->reorderable('DisplayOrder', $this->canReorderAchievements() && !$this->isEditingDisplayOrders)
+            ->checkIfRecordIsSelectableUsing(fn (): bool => !$this->isEditingDisplayOrders);
     }
 
     public function reorderTable(array $order, string|int|null $draggedRecordKey = null): void
     {
         parent::reorderTable($order, $draggedRecordKey);
 
+        $this->syncAndLogReorder($order);
+    }
+
+    private function syncAndLogReorder(array $order): void
+    {
+        $this->logReorderingActivity();
+
+        $firstAchievementId = (int) $order[0];
+        $firstAchievement = Achievement::find($firstAchievementId);
+        if ($firstAchievement) {
+            (new SyncAchievementSetOrderColumnsFromDisplayOrdersAction())->execute($firstAchievement);
+        }
+    }
+
+    private function moveAchievementToPosition(Achievement $record, string $position): void
+    {
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        $achievements = $game->achievements()->orderBy('DisplayOrder')->get();
+
+        if ($position === 'top') {
+            $minOrder = $achievements->min('DisplayOrder') ?? 0;
+
+            if ($minOrder > 0) {
+                $newOrder = $minOrder - 1;
+            } else {
+                $game->achievements()->where('ID', '!=', $record->id)->increment('DisplayOrder');
+                $newOrder = 0;
+            }
+        } else {
+            $maxOrder = $achievements->max('DisplayOrder') ?? 0;
+            $newOrder = $maxOrder + 1;
+        }
+
+        $record->DisplayOrder = $newOrder;
+        $record->save();
+
+        (new SyncAchievementSetOrderColumnsFromDisplayOrdersAction())->execute($record);
+        $this->logReorderingActivity();
+
+        Notification::make()
+            ->title('Success')
+            ->body("Achievement moved to {$position}.")
+            ->success()
+            ->send();
+    }
+
+    private function logReorderingActivity(): void
+    {
         /** @var User $user */
         $user = Auth::user();
         /** @var Game $game */
@@ -458,11 +553,77 @@ class AchievementsRelationManager extends RelationManager
                 ->event('reorderedAchievements')
                 ->log('Reordered Achievements');
         }
+    }
 
-        // Double write to achievement_set_achievements to ensure it remains in sync.
-        $firstAchievementId = (int) $order[0];
-        $firstAchievement = Achievement::find($firstAchievementId);
-        (new SyncAchievementSetOrderColumnsFromDisplayOrdersAction())->execute($firstAchievement);
+    public function startEditingDisplayOrders(): void
+    {
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        // Pre-populate with current values so inputs have initial values.
+        $this->pendingDisplayOrders = $game->achievements()
+            ->pluck('DisplayOrder', 'ID')
+            ->map(fn ($value) => (string) $value)
+            ->toArray();
+
+        $this->isEditingDisplayOrders = true;
+
+        $this->resetTable();
+    }
+
+    public function saveDisplayOrders(): void
+    {
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        // Get original values to detect actual changes.
+        $originalOrders = $game->achievements()->pluck('DisplayOrder', 'ID')->toArray();
+
+        $changedAchievements = [];
+        foreach ($this->pendingDisplayOrders as $id => $newOrder) {
+            $newOrderInt = (int) $newOrder;
+            if (!isset($originalOrders[$id]) || $originalOrders[$id] !== $newOrderInt) {
+                $changedAchievements[$id] = $newOrderInt;
+            }
+        }
+
+        if (empty($changedAchievements)) {
+            $this->cancelEditingDisplayOrders();
+
+            return;
+        }
+
+        // Update all changed achievements in a single query.
+        $updates = [];
+        foreach ($changedAchievements as $id => $newOrder) {
+            $updates[] = ['ID' => $id, 'DisplayOrder' => $newOrder];
+        }
+        Achievement::upsert($updates, ['ID'], ['DisplayOrder']);
+
+        // Be sure we also sync the achievement set order column values.
+        $firstAchievement = Achievement::find(array_key_first($changedAchievements));
+        if ($firstAchievement) {
+            (new SyncAchievementSetOrderColumnsFromDisplayOrdersAction())->execute($firstAchievement);
+        }
+
+        $this->logReorderingActivity();
+
+        $this->isEditingDisplayOrders = false;
+        $this->pendingDisplayOrders = [];
+        $this->resetTable();
+
+        Notification::make()
+            ->title('Display orders updated')
+            ->success()
+            ->send();
+    }
+
+    public function cancelEditingDisplayOrders(): void
+    {
+        $this->isEditingDisplayOrders = false;
+        $this->pendingDisplayOrders = [];
+
+        $this->resetTable();
     }
 
     private function canReorderAchievements(): bool
