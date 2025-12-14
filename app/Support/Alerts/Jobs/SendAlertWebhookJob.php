@@ -24,6 +24,11 @@ class SendAlertWebhookJob implements ShouldQueue
     public int $tries = 3;
     public array $backoff = [10, 30, 60];
 
+    /**
+     * Optional HTTP client for testing. Not serialized with the job.
+     */
+    public ?Client $client = null;
+
     public function __construct(
         public readonly Alert $alert,
         public readonly string $webhookUrl,
@@ -32,7 +37,7 @@ class SendAlertWebhookJob implements ShouldQueue
 
     public function handle(): void
     {
-        $client = new Client();
+        $client = $this->client ?? new Client();
 
         $payload = [
             'content' => $this->alert->toDiscordMessage(),
