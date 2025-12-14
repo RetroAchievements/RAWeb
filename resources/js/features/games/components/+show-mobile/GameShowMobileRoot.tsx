@@ -166,7 +166,7 @@ export const GameShowMobileRoot: FC = () => {
             {allPageAchievements.length ? (
               <PlayableCompareProgress
                 followedPlayerCompletions={followedPlayerCompletions}
-                game={game}
+                game={backingGame}
                 variant="game"
               />
             ) : null}
