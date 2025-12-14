@@ -31,6 +31,29 @@ class ForumTopic extends BaseModel
     // TODO populate body from the first forum topic comment
     protected $table = 'forum_topics';
 
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        /**
+         * Re-index topic posts when required_permissions changes so
+         * they are added/removed from the search index appropriately.
+         */
+        static::updated(function (ForumTopic $forumTopic) {
+            if ($forumTopic->wasChanged('required_permissions')) {
+                $forumTopic->comments()->get()->searchable();
+            }
+        });
+
+        static::deleted(function (ForumTopic $forumTopic) {
+            $forumTopic->comments()->get()->searchable();
+        });
+
+        static::restored(function (ForumTopic $forumTopic) {
+            $forumTopic->comments()->get()->searchable();
+        });
+    }
+
     protected $fillable = [
         'forum_id',
         'title',

@@ -55,8 +55,8 @@ export const CommentResultDisplay: FC<CommentResultDisplayProps> = ({ comment })
       />
 
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <div className="flex items-center gap-2">
-          <span className="font-medium text-link">{comment.user.displayName}</span>
+        <div className="-mt-1 flex items-center gap-2">
+          <span className="text-text">{comment.user.displayName}</span>
 
           <span className="text-xs text-neutral-400">
             {t('posted {{when}}', { when: diffForHumans(comment.createdAt) })}

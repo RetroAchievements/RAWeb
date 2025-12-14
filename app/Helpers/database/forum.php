@@ -420,10 +420,16 @@ function authorizeAllForumPostsForUser(User $user): bool
     }
 
     // Set all unauthorized forum posts by the user to authorized.
+    $postIds = $user->forumPosts()->unauthorized()->pluck('id');
     $user->forumPosts()->unauthorized()->update([
         'is_authorized' => 1,
         'authorized_at' => now(),
     ]);
+
+    // Re-index the newly authorized posts so they appear in search results.
+    if ($postIds->isNotEmpty()) {
+        ForumTopicComment::whereIn('id', $postIds)->get()->searchable();
+    }
 
     return true;
 }
