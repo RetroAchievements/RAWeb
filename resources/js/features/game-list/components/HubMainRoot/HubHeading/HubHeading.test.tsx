@@ -103,6 +103,34 @@ describe('Component: HubHeading', () => {
     expect(screen.getByRole('link', { name: /manage/i })).toBeVisible();
   });
 
+  it('given the user can manage hubs but cannot actually update the hub, links to the hub manage page without the /edit path', () => {
+    // ARRANGE
+    const hub = createGameSet({ type: 'hub', id: 123 });
+
+    render<App.Platform.Data.HubPageProps>(<HubHeading />, {
+      pageProps: { hub, can: { manageGameSets: true, updateGameSet: false } },
+    });
+
+    // ASSERT
+    const linkEl = screen.getByRole('link', { name: /manage/i });
+
+    expect(linkEl).toHaveAttribute('href', '/manage/hubs/123');
+  });
+
+  it('given the user can both manage hubs and update the given hub, links to the hub manage page with the /edit path', () => {
+    // ARRANGE
+    const hub = createGameSet({ type: 'hub', id: 456 });
+
+    render<App.Platform.Data.HubPageProps>(<HubHeading />, {
+      pageProps: { hub, can: { manageGameSets: true, updateGameSet: true } },
+    });
+
+    // ASSERT
+    const linkEl = screen.getByRole('link', { name: /manage/i });
+
+    expect(linkEl).toHaveAttribute('href', '/manage/hubs/456/edit');
+  });
+
   it('given the user can manage hubs and there is no associated forum topic, does not show a View Forum Topic button', () => {
     // ARRANGE
     const hub = createGameSet({ type: 'hub', title: '[Series - Sonic the Hedgehog]' });
