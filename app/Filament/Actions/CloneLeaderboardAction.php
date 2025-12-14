@@ -39,10 +39,6 @@ class CloneLeaderboardAction extends Action
                     ->maxLength(255),
             ])
             ->action(function (Leaderboard $leaderboard, array $data) use ($user) {
-                if (!$user->can('create', Leaderboard::class)) {
-                    return;
-                }
-
                 $clonedLeaderboard = $leaderboard->replicate([
                     'entries_count', // Excludes computed attribute
                     'top_entry_id',  // Also excludes this since it's specific to the original leaderboard
@@ -52,7 +48,8 @@ class CloneLeaderboardAction extends Action
                 $clonedLeaderboard->author_id = $user->id;
 
                 // Set DisplayOrder to be last
-                $maxDisplayOrder = Leaderboard::max('DisplayOrder') ?? 0;
+                $maxDisplayOrder = Leaderboard::where('GameID', $leaderboard->GameID)
+                    ->max('DisplayOrder') ?? 0;
                 $clonedLeaderboard->DisplayOrder = $maxDisplayOrder + 1;
 
                 $clonedLeaderboard->push();
