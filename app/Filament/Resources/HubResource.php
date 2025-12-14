@@ -48,6 +48,9 @@ class HubResource extends Resource
 
     public static function infolist(Schema $schema): Schema
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $schema
             ->components([
                 Infolists\Components\ImageEntry::make('badge_url')
@@ -78,6 +81,10 @@ class HubResource extends Resource
 
                                 return null;
                             }),
+
+                        Infolists\Components\TextEntry::make('sort_title')
+                            ->label('Sort Title')
+                            ->visible(fn (GameSet $record): bool => $user->can('updateField', [$record, 'sort_title']) ?? false),
 
                         Infolists\Components\TextEntry::make('forumTopic.id')
                             ->label('Forum Topic ID')
@@ -141,6 +148,13 @@ class HubResource extends Resource
                             ->maxLength(80)
                             ->helperText('Be sure to wrap the hub title in square brackets like "[Genre - Action]".')
                             ->rules([new NoEmoji()]),
+
+                        Forms\Components\TextInput::make('sort_title')
+                            ->label('Sort Title')
+                            ->required()
+                            ->minLength(2)
+                            ->visible(fn () => $user->can('updateField', [$schema->model, 'sort_title']))
+                            ->helperText('Normalized title for sorting. DON\'T CHANGE UNLESS YOU KNOW WHAT YOU\'RE DOING.'),
 
                         Forms\Components\TextInput::make('forum_topic_id')
                             ->label('Forum Topic ID')

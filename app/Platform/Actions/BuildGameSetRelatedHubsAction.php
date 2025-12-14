@@ -38,7 +38,7 @@ class BuildGameSetRelatedHubsAction
                     $query->whereNull('game_sets.deleted_at');
                 },
             ])
-            ->orderBy('title')
+            ->orderBy('sort_title')
             ->get();
 
         /**

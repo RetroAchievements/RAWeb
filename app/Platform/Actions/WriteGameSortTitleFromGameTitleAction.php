@@ -14,7 +14,7 @@ class WriteGameSortTitleFromGameTitleAction
         bool $shouldRespectCustomSortTitle = true,
         bool $shouldSaveGame = true,
     ): ?string {
-        $computeAction = new ComputeGameSortTitleAction();
+        $computeAction = new ComputeSortTitleAction();
 
         // Compute the original sort title based on the original game title.
         // We do this to determine if a developer has given the game a custom sort title, because
