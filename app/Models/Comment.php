@@ -147,30 +147,15 @@ class Comment extends BaseModel
 
     public function getUrlAttribute(): ?string
     {
-        switch ($this->ArticleType) {
-            case ArticleType::Game:
-                return route('game.show', ['game' => $this->ArticleID, 'tab' => 'community']) . "#comment_{$this->ID}";
-
-            case ArticleType::Achievement:
-                return route('achievement.show', ['achievementId' => $this->ArticleID]) . "#comment_{$this->ID}";
-
-            case ArticleType::User:
-                $wallOwner = User::find($this->ArticleID);
-                if (!$wallOwner) {
-                    return null;
-                }
-
-                return route('user.show', $wallOwner) . "#comment_{$this->ID}";
-
-            case ArticleType::Leaderboard:
-                return route('leaderboard.show', ['leaderboard' => $this->ArticleID]) . "#comment_{$this->ID}";
-
-            case ArticleType::AchievementTicket:
-                return route('ticket.show', ['ticket' => $this->ArticleID]) . "#comment_{$this->ID}";
-
-            default:
-                return null;
+        if (ArticleType::supportsCommentRedirect($this->ArticleType)) {
+            return route('comment.show', ['comment' => $this->ID]);
         }
+
+        if ($this->ArticleType === ArticleType::AchievementTicket) {
+            return route('ticket.show', ['ticket' => $this->ArticleID]) . "#comment_{$this->ID}";
+        }
+
+        return null;
     }
 
     // == mutators

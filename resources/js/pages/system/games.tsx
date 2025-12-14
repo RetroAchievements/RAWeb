@@ -27,11 +27,9 @@ const SystemGames: AppPage = () => {
         description={buildSystemGamesMetaDescription(paginatedGameListEntries.total, system.name)}
       />
 
-      <div className="container">
-        <AppLayout.Main>
-          <SystemGamesMainRoot />
-        </AppLayout.Main>
-      </div>
+      <AppLayout.Main>
+        <SystemGamesMainRoot />
+      </AppLayout.Main>
     </>
   );
 };
