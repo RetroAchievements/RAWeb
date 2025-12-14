@@ -23,11 +23,9 @@ const Settings: AppPage = () => {
     <>
       <SEO title={t('Settings')} description="Adjust your account's settings and preferences." />
 
-      <div className="container">
-        <AppLayout.Main>
-          <SettingsRoot />
-        </AppLayout.Main>
-      </div>
+      <AppLayout.Main>
+        <SettingsRoot />
+      </AppLayout.Main>
 
       <AppLayout.Sidebar>
         <SettingsSidebar />

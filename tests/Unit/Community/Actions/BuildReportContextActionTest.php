@@ -182,7 +182,7 @@ class BuildReportContextActionTest extends TestCase
         // Assert
         $this->assertStringContainsString('[b]Reported Content:[/b]', $result);
         $this->assertStringContainsString('[url=', $result);
-        $this->assertStringContainsString('#comment_' . $comment->ID, $result);
+        $this->assertStringContainsString('/comment/' . $comment->ID, $result);
         $this->assertStringContainsString('[b]Author:[/b] [user=' . $author->id . ']', $result);
         $this->assertStringContainsString('[b]Posted:[/b]', $result);
         $this->assertStringContainsString('[b]Report Details:[/b]', $result);
@@ -215,7 +215,7 @@ class BuildReportContextActionTest extends TestCase
 
         // Assert
         $this->assertStringContainsString('**Reported Content:**', $result);
-        $this->assertStringContainsString('#comment_' . $comment->ID, $result);
+        $this->assertStringContainsString('/comment/' . $comment->ID, $result);
         $this->assertStringContainsString('**Author:** [SomeGuy](', $result);
 
         $this->assertStringContainsString('**Posted:** <t:', $result); // discord timestamp format

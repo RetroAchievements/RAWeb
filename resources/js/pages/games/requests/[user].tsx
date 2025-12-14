@@ -26,11 +26,9 @@ const UserRequestedGames: AppPage = () => {
         ogImage={targetUser!.avatarUrl}
       />
 
-      <div className="container">
-        <AppLayout.Main>
-          <RequestedGamesMainRoot />
-        </AppLayout.Main>
-      </div>
+      <AppLayout.Main>
+        <RequestedGamesMainRoot />
+      </AppLayout.Main>
     </>
   );
 };

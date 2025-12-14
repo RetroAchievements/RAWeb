@@ -22,11 +22,9 @@ const WantToPlayGames: AppPage = () => {
     <>
       <SEO title={t('Want to Play Games')} description="A list of your Want to Play Games" />
 
-      <div className="container">
-        <AppLayout.Main>
-          <WantToPlayGamesMainRoot />
-        </AppLayout.Main>
-      </div>
+      <AppLayout.Main>
+        <WantToPlayGamesMainRoot />
+      </AppLayout.Main>
     </>
   );
 };
