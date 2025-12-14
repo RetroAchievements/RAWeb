@@ -1,7 +1,7 @@
 import { createAchievement, createAchievementSetGroup } from '@/test/factories';
 
-import { UNGROUPED_BUCKET_ID } from './UNGROUPED_BUCKET_ID';
 import { bucketAchievementsByGroup } from './bucketAchievementsByGroup';
+import { UNGROUPED_BUCKET_ID } from './UNGROUPED_BUCKET_ID';
 
 describe('Util: bucketAchievementsByGroup', () => {
   it('is defined', () => {
