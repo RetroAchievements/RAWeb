@@ -9,7 +9,6 @@ use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\GameTopAchieversService;
-use Illuminate\Database\Eloquent\Collection;
 
 function getGameRankAndScore(int $gameID, User $user): array
 {
@@ -322,40 +321,6 @@ function reactivateUserEventAchievements(User $user, array $userUnlocks): array
     }
 
     return $userUnlocks;
-}
-
-function GetAllUserProgress(User $user, int $consoleID): array
-{
-    /** @var Collection<int, Game> $games */
-    $games = Game::where('ConsoleID', $consoleID)
-        ->where('achievements_published', '>', 0)
-        ->get();
-
-    /** @var Collection<int, PlayerGame> $playerGames */
-    $playerGames = $user->playerGames()
-        ->whereIn('game_id', $games->pluck('id'))
-        ->get()
-        ->keyBy('game_id');
-
-    $result = [];
-    foreach ($games as $game) {
-        /** @var ?PlayerGame $playerGame */
-        $playerGame = $playerGames->get($game->id);
-
-        $gameDetails = ['Achievements' => $game->achievements_published];
-
-        if ($unlocked = $playerGame?->achievements_unlocked) {
-            $gameDetails['Unlocked'] = $unlocked;
-
-            if ($hardcore = $playerGame->achievements_unlocked_hardcore) {
-                $gameDetails['UnlockedHardcore'] = $hardcore;
-            }
-        }
-
-        $result[$game->id] = $gameDetails;
-    }
-
-    return $result;
 }
 
 function getUsersCompletedGamesAndMax(string $user): array

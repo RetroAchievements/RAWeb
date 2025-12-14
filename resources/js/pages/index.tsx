@@ -13,11 +13,9 @@ const Home: AppPage = () => {
         description="Earn and track achievements in classic games. We add custom challenges to retro titles, letting you revisit old favorites in new ways."
       />
 
-      <div className="container">
-        <AppLayout.Main>
-          <HomeRoot />
-        </AppLayout.Main>
-      </div>
+      <AppLayout.Main>
+        <HomeRoot />
+      </AppLayout.Main>
 
       <AppLayout.Sidebar>
         <HomeSidebar />

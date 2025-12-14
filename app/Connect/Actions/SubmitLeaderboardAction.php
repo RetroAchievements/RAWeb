@@ -207,10 +207,13 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
             return $this->accessDenied();
         }
 
+        // TODO: re-enable this check. was interfering with DQ14 (adding leaderboards to a game) specifically
+        //       in regards to a dev-rolled task in Devember (add 3 leaderboards to a game for DQ14 credit).
+
         // Make sure the user has a claim on the game.
-        if (!hasSetClaimed($this->user, $game->ID, false)) {
-            return $this->accessDenied('You must have an active claim on this game to perform this action.');
-        }
+        // if (!hasSetClaimed($this->user, $game->ID, false)) {
+        //     return $this->accessDenied('You must have an active claim on this game to perform this action.');
+        // }
 
         if (!ValueFormat::isValid($this->format)) {
             return $this->invalidParameter('Unknown format: ' . $this->format);

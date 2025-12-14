@@ -106,26 +106,28 @@ $associatedGames = Game::with('system')->whereIn('ID', $gameAwardGameIds)
 $systemIds = $associatedGames->pluck('ConsoleID')->unique()->filter();
 $associatedSystems = System::whereIn('ID', $systemIds)->get(['ID', 'Name'])->keyBy('ID');
 
-$mappedGameAwards = $fetchedGameAwards->map(function ($gameAward) use ($associatedGames, $associatedSystems) {
-    $associatedGame = $associatedGames->get($gameAward->AwardData);
+$mappedGameAwards = $fetchedGameAwards
+    ->filter(fn ($gameAward) => $gameAward->user !== null)
+    ->map(function ($gameAward) use ($associatedGames, $associatedSystems) {
+        $associatedGame = $associatedGames->get($gameAward->AwardData);
 
-    $awardKind = $gameAward->AwardType === AwardType::GameBeaten
-        ? ($gameAward->AwardDataExtra ? 'beaten-hardcore' : 'beaten-softcore')
-        : ($gameAward->AwardDataExtra ? 'mastered' : 'completed');
+        $awardKind = $gameAward->AwardType === AwardType::GameBeaten
+            ? ($gameAward->AwardDataExtra ? 'beaten-hardcore' : 'beaten-softcore')
+            : ($gameAward->AwardDataExtra ? 'mastered' : 'completed');
 
-    $mappedAward = [
-        'User' => $gameAward->user->display_name,
-        'ULID' => $gameAward->user->ulid,
-        'AwardKind' => $awardKind,
-        'AwardDate' => $gameAward->AwardDate->toIso8601String(),
-        'GameID' => $gameAward->AwardData,
-        'GameTitle' => $associatedGame->Title ?? null,
-        'ConsoleID' => $associatedGame->ConsoleID ?? null,
-        'ConsoleName' => $associatedSystems[$associatedGame->ConsoleID]->Name ?? null,
-    ];
+        $mappedAward = [
+            'User' => $gameAward->user->display_name,
+            'ULID' => $gameAward->user->ulid,
+            'AwardKind' => $awardKind,
+            'AwardDate' => $gameAward->AwardDate->toIso8601String(),
+            'GameID' => $gameAward->AwardData,
+            'GameTitle' => $associatedGame->Title ?? null,
+            'ConsoleID' => $associatedGame->ConsoleID ?? null,
+            'ConsoleName' => $associatedSystems[$associatedGame->ConsoleID]->Name ?? null,
+        ];
 
-    return $mappedAward;
-});
+        return $mappedAward;
+    });
 
 return response()->json([
     'Count' => $mappedGameAwards->count(),

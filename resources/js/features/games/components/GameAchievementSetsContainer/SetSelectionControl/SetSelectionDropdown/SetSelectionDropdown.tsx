@@ -35,7 +35,7 @@ export const SetSelectionDropdown: FC<SetSelectionDropdownProps> = ({ activeTab 
     );
 
     router.visit(
-      route('game2.show', {
+      route('game.show', {
         game: game.id,
         set: selectedSet!.type === 'core' ? undefined : selectedSet!.achievementSet.id,
         view: currentListView === 'leaderboards' ? 'leaderboards' : undefined,
