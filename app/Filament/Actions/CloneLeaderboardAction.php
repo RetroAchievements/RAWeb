@@ -22,7 +22,7 @@ class CloneLeaderboardAction extends Action
         $this->label('Clone leaderboard')
             ->icon('heroicon-s-clipboard-document-list')
             ->color('success')
-            ->modalDescription('Cloning a leaderboard will create a new leaderboard with the same settings as the original, but with a new title and description. It will also be placed at the bottom of the display order. You can modify these fields below. Entries will not be cloned.')
+            ->modalDescription('This creates a duplicate of this leaderboard with the same settings, placed at the bottom of the display order. Entries will not be copied to the new leaderboard.')
             ->fillForm(function (Leaderboard $leaderboard) {
                 return [
                     'title' => $leaderboard->Title . ' (Clone)',
