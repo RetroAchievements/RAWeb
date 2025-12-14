@@ -26,11 +26,9 @@ const AllGames: AppPage = () => {
         description={`Browse our catalog of ${(Math.floor(paginatedGameListEntries.total / 100) * 100).toLocaleString()}+ retro games with achievements. View detailed listings with achievement counts, points, rarity scores, and release dates.`}
       />
 
-      <div className="container">
-        <AppLayout.Main>
-          <AllGamesMainRoot />
-        </AppLayout.Main>
-      </div>
+      <AppLayout.Main>
+        <AllGamesMainRoot />
+      </AppLayout.Main>
     </>
   );
 };
