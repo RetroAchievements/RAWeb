@@ -152,9 +152,10 @@ class AchievementSetsRelationManager extends RelationManager
                                                 $query->core()->whereIn('achievement_set_id', $attachedAchievementSetIds);
                                             })
                                             ->orderBy('Title')
+                                            ->with('system')
                                             ->get()
                                             ->mapWithKeys(function ($game) {
-                                                return [$game->id => $game->title];
+                                                return [$game->id => "[{$game->id}] {$game->title} ({$game->system->name})"];
                                             })
                                             ->toArray()
                                     )
@@ -317,7 +318,7 @@ class AchievementSetsRelationManager extends RelationManager
                             ->title('Achievement set updated successfully')
                             ->send();
                     })
-                    ->visible(fn () => $user->can('manage', AchievementSet::class))
+                    ->visible(fn () => $user->can('manage', GameAchievementSet::class))
                     ->hidden(fn (AchievementSet $record): bool => $record->type === AchievementSetType::Core->value),
 
                 Actions\Action::make('details')
@@ -325,7 +326,7 @@ class AchievementSetsRelationManager extends RelationManager
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->url(fn (AchievementSet $record): string => AchievementSetResource::getUrl('view', ['record' => $record]))
                     ->openUrlInNewTab()
-                    ->visible(fn () => $user->can('manage', GameAchievementSet::class)),
+                    ->visible(fn () => $user->can('manage', AchievementSet::class)),
 
                 DetachAction::make()
                     ->visible(fn () => $user->can('delete', [GameAchievementSet::class, null]))
