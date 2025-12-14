@@ -405,7 +405,7 @@ function authorizeAllForumPostsForUser(User $user): bool
     $userUnauthorizedPosts = $user->forumPosts()
         ->unauthorized()
         ->with(['forumTopic' => function ($query) {
-            $query->select('id', 'title');
+            $query->select('id', 'title', 'author_id');
         }])
         ->get();
 
