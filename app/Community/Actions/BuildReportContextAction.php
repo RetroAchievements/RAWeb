@@ -6,11 +6,7 @@ namespace App\Community\Actions;
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ModerationReportableType;
-use App\Models\Achievement;
 use App\Models\Comment;
-use App\Models\Game;
-use App\Models\Leaderboard;
-use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 
 class BuildReportContextAction
@@ -119,25 +115,14 @@ class BuildReportContextAction
             return null;
         }
 
+        // For supported types, use the intelligent redirect route that handles pagination.
+        if (ArticleType::supportsCommentRedirect($comment->ArticleType)) {
+            return route('comment.show', ['comment' => $comment->ID]);
+        }
+
         $anchor = '#comment_' . $comment->ID;
 
         return match ($comment->ArticleType) {
-            ArticleType::Game => ($game = Game::find($comment->ArticleID))
-                ? route('game.show', ['game' => $game, 'tab' => 'community']) . $anchor
-                : null,
-
-            ArticleType::Achievement => ($achievement = Achievement::find($comment->ArticleID))
-                ? route('achievement.show', $achievement) . $anchor
-                : null,
-
-            ArticleType::User, ArticleType::UserModeration => ($user = User::find($comment->ArticleID))
-                ? route('user.show', $user) . $anchor
-                : null,
-
-            ArticleType::Leaderboard => ($leaderboard = Leaderboard::find($comment->ArticleID))
-                ? route('leaderboard.show', $leaderboard) . $anchor
-                : null,
-
             ArticleType::AchievementTicket => route('ticket.show', ['ticket' => $comment->ArticleID]) . $anchor,
 
             default => null,

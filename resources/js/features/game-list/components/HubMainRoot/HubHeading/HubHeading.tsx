@@ -57,7 +57,9 @@ export const HubHeading: FC = () => {
               </InertiaLink>
             ) : null}
 
-            {can.manageGameSets ? <ManageButton href={`/manage/hubs/${hub.id}`} /> : null}
+            {can.manageGameSets ? (
+              <ManageButton href={`/manage/hubs/${hub.id}${can.updateGameSet ? '/edit' : ''}`} />
+            ) : null}
           </div>
         ) : null}
       </h1>
