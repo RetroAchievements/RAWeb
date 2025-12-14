@@ -4,7 +4,7 @@ use \Illuminate\Support\Js;
 <x-filament-panels::page>
     <div class="space-y-6">
         @foreach($this->getAuditLog() as $auditLogItem)
-            <div class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+            <div class="fi-section overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
                 <div class="flex justify-between p-2">
                     <div class="flex items-center gap-4">
                         @if ($auditLogItem->causer)
@@ -32,15 +32,38 @@ use \Illuminate\Support\Js;
                     $changes = collect($properties);
 
                     $releaseIdentifier = data_get($properties, 'release_identifier');
+                    $hashIdentifier = data_get($properties, 'hash_identifier');
+
+                    // Pre-filter to only the fields that actually have changes.
+                    $displayableFields = collect(data_get($changes, 'attributes', []))->filter(function ($value, $field) use ($changes) {
+                        $oldValue = data_get($changes, "old.{$field}");
+                        $newValue = $value;
+
+                        return $oldValue !== $newValue && !(empty($oldValue) && empty($newValue));
+                    });
+
+                    $identifierBaseClasses = 'px-4 py-2 text-sm text-gray-600 bg-gray-50 dark:text-gray-400 dark:bg-gray-800';
                 @endphp
 
                 @if ($releaseIdentifier)
-                    <div class="px-4 py-2 text-sm text-gray-600 bg-gray-50 border-b dark:text-gray-400 dark:bg-gray-800 dark:border-gray-700">
+                    <div @class([
+                        $identifierBaseClasses,
+                        'border-b dark:border-gray-700' => $hashIdentifier || $displayableFields->isNotEmpty(),
+                    ])>
                         <strong>Release:</strong> {{ $releaseIdentifier }}
                     </div>
                 @endif
-                
-                @if ($changes->isNotEmpty())
+
+                @if ($hashIdentifier)
+                    <div @class([
+                        $identifierBaseClasses,
+                        'border-b dark:border-gray-700' => $displayableFields->isNotEmpty(),
+                    ])>
+                        <strong>Hash:</strong> <code class="font-mono text-xs">{{ $hashIdentifier }}</code>
+                    </div>
+                @endif
+
+                @if ($displayableFields->isNotEmpty())
                     <table class="fi-ta-table w-full overflow-hidden text-sm">
                         <thead>
                             <tr>
@@ -59,7 +82,7 @@ use \Illuminate\Support\Js;
                         </thead>
                         <tbody>
 
-                        @foreach (data_get($changes, 'attributes', []) as $field => $change)
+                        @foreach ($displayableFields as $field => $change)
                             @php
                                 $oldValue = data_get($changes, "old.{$field}");
                                 $newValue = data_get($changes, "attributes.{$field}");
@@ -137,3 +160,4 @@ use \Illuminate\Support\Js;
         />
     </div>
 </x-filament-panels::page>
+
