@@ -15,6 +15,9 @@ use App\Platform\Enums\ValueFormat;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -126,7 +129,56 @@ class LeaderboardsRelationManager extends RelationManager
                 ]),
             ])
             ->toolbarActions([
+                BulkActionGroup::make([
+                    BulkAction::make('promote_leaderboards')
+                        ->label('Promote selected leaderboards')
+                        ->icon('heroicon-s-arrow-up-right')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (Builder $query) use ($user) {
+                            $leaderboards = $query->get();
 
+                            foreach ($leaderboards as $leaderboard) {
+                                if (!$user->can('updateField', [$leaderboard, 'state'])) {
+                                    return;
+                                }
+
+                                $leaderboard->state = LeaderboardState::Active;
+                                $leaderboard->push();
+                            }
+
+                            Notification::make()
+                                ->success()
+                                ->title('Leaderboards promoted')
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    BulkAction::make('demote_leaderboards')
+                        ->label('Demote selected leaderboards')
+                        ->icon('heroicon-s-arrow-down-left')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->action(function (Builder $query) use ($user) {
+                            $leaderboards = $query->get();
+
+                            foreach ($leaderboards as $leaderboard) {
+                                if (!$user->can('updateField', [$leaderboard, 'state'])) {
+                                    return;
+                                }
+
+                                $leaderboard->state = LeaderboardState::Unpublished;
+                                $leaderboard->push();
+                            }
+
+                            Notification::make()
+                                ->success()
+                                ->title('Leaderboards demoted')
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                ])
+                ->label('Bulk promote or demote')
+                ->visible(fn (): bool => $user->can('updateField', [Leaderboard::class, null, 'state'])),
             ])
             ->paginated([25, 50, 100])
             ->defaultSort(function (Builder $query): Builder {
