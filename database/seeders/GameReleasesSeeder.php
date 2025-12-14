@@ -78,22 +78,22 @@ class GameReleasesSeeder extends Seeder
                     break;
                 default:
                     // unhandled. weight towards the newest date
-                    $year = (int) sqrt(random_int(1976 * 1976, 2012 * 2012));
+                    $year = (int) sqrt(rand(1976 * 1976, 2012 * 2012));
                     break;
             }
             if ($year === 0) {
                 // weight ranged releases towards the initial date
-                $year = $range[1] - (int) sqrt(random_int(0, pow($range[1] - $range[0] + 1, 2)));
+                $year = $range[1] - (int) sqrt(rand(0, pow($range[1] - $range[0] + 1, 2) - 1));
             }
 
             $release->released_at = Carbon::createFromDate($year, 1, 1);
-            if ($year < 1985 && random_int(0, (1986 - $year) * (1987 - $year)) > 5) {
+            if ($year < 1985 && rand(0, (1986 - $year) * (1987 - $year)) > 5) {
                 // 17% (1/6) chance of only being year for 1984
                 // 75% (15/20) chance of only being year for 1982
                 // 91% (51/56) chance of only being year for 1980
                 // 95% (105/110) chance of only being year for 1976
                 $release->released_at_granularity = ReleasedAtGranularity::Year;
-            } elseif ($year < 1988 && random_int(0, (1990 - $year) * (1991 - $year)) > 9) {
+            } elseif ($year < 1988 && rand(0, (1990 - $year) * (1991 - $year)) > 9) {
                 // 25% (3/12) chance of month granularity for 1987
                 // 70% (21/30) chance of month granularity for 1985
                 // 87% (61/70) chance of month granularity for 1982 (after 25% chance of it not being year only)
@@ -104,7 +104,7 @@ class GameReleasesSeeder extends Seeder
                 $release->released_at_granularity = ReleasedAtGranularity::Day;
             }
 
-            switch (random_int(1, 10)) {
+            switch (rand(1, 10)) {
                 case 1:
                 case 2:
                     $release->region = GameReleaseRegion::NorthAmerica;
@@ -145,9 +145,9 @@ class GameReleasesSeeder extends Seeder
     {
         GameRelease::create([
             'game_id' => $gameId,
-            'title' => ucwords($faker->words(random_int(1, 3), true)),
+            'title' => ucwords($faker->words(rand(1, 3), true)),
             'region' => $region,
-            'released_at' => $primaryReleaseDate->clone()->addDays(random_int(0, 200)),
+            'released_at' => $primaryReleaseDate->clone()->addDays(rand(0, 200)),
             'released_at_granularity' => ReleasedAtGranularity::Day,
             'is_canonical_game_title' => false,
         ]);
