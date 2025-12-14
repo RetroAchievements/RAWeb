@@ -94,7 +94,11 @@ class HubController extends Controller
             ->values()
             ->all();
 
-        $can = UserPermissionsData::fromUser($user)->include('develop', 'manageGameSets');
+        $can = UserPermissionsData::fromUser($user, gameSet: $gameSet)->include(
+            'develop',
+            'manageGameSets',
+            'updateGameSet',
+        );
 
         $props = new HubPagePropsData(
             hub: GameSetData::from($gameSet)->include(
