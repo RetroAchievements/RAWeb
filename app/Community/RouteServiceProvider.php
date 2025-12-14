@@ -27,6 +27,7 @@ use App\Community\Controllers\Api\UserGameListApiController;
 use App\Community\Controllers\Api\UserModerationCommentApiController;
 use App\Community\Controllers\Api\UserSetRequestListApiController;
 use App\Community\Controllers\Api\ViewableApiController;
+use App\Community\Controllers\CommentController;
 use App\Community\Controllers\ForumTopicCommentController;
 use App\Community\Controllers\ForumTopicController;
 use App\Community\Controllers\GameClaimsCommentController;
@@ -151,6 +152,8 @@ class RouteServiceProvider extends ServiceProvider
                 Route::middleware(['inertia'])->group(function () {
                     Route::get('achievement/{achievement}/comments', [AchievementCommentController::class, 'index'])->name('achievement.comment.index');
 
+                    Route::get('comment/{comment}', [CommentController::class, 'show'])->name('comment.show');
+
                     Route::get('community/patreon-supporters', [PatreonSupportersController::class, 'index'])->name('patreon-supporter.index');
 
                     Route::get('forums/topic/{topic}', [ForumTopicController::class, 'show'])->name('forum-topic.show');
@@ -198,10 +201,6 @@ class RouteServiceProvider extends ServiceProvider
                 // });
                 // Route::group(['prefix' => 'games'], function () {
                 //     Route::resource('comment', GameCommentController::class)->only('show')->names(['show' => 'game.comment.show'])->shallow();
-                // });
-                // Route::resource('news.comments', NewsCommentController::class)->only('index')->names(['index' => 'news.comment.index']);
-                // Route::group(['prefix' => 'news'], function () {
-                //     Route::resource('comment', NewsCommentController::class)->only('show')->names(['show' => 'news.comment.show'])->shallow();
                 // });
                 // Route::resource('user.comments', UserCommentController::class)->only('index')->names(['index' => 'user.comment.index']);
                 // Route::group(['prefix' => 'users'], function () {
@@ -330,21 +329,6 @@ class RouteServiceProvider extends ServiceProvider
                 //                 'edit' => 'game.comment.edit',
                 //                 'update' => 'game.comment.update',
                 //                 'destroy' => 'game.comment.destroy',
-                //             ])
-                //             ->shallow();
-                //     });
-                //     Route::resource('news.comment', NewsCommentController::class)->only('store');
-                //     Route::group(['prefix' => 'news'], function () {
-                //         Route::resource('news.comment', NewsCommentController::class)
-                //             ->only(
-                //                 'edit',
-                //                 'update',
-                //                 'destroy'
-                //             )
-                //             ->names([
-                //                 'edit' => 'news.comment.edit',
-                //                 'update' => 'news.comment.update',
-                //                 'destroy' => 'news.comment.destroy',
                 //             ])
                 //             ->shallow();
                 //     });
