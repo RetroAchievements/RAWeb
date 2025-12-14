@@ -54,4 +54,18 @@ abstract class ArticleType
     {
         return in_array($value, self::cases());
     }
+
+    /**
+     * Check if this article type supports the intelligent comment redirect route.
+     * These types can use route('comment.show') for proper pagination handling.
+     */
+    public static function supportsCommentRedirect(int $value): bool
+    {
+        return in_array($value, [
+            self::Game,
+            self::Achievement,
+            self::User,
+            self::Leaderboard,
+        ], true);
+    }
 }
