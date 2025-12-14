@@ -15,17 +15,15 @@ const Rss: AppPage = () => {
         description="Access our RSS feed for real-time updates on achievements, news, and community events."
       />
 
-      <div className="container">
-        <AppLayout.Main>
-          {/* TODO as more feeds are added here, consider breaking this out to a component in a feature module */}
-          <h1 className="mb-4">{'RSS'}</h1>
+      <AppLayout.Main>
+        {/* TODO as more feeds are added here, consider breaking this out to a component in a feature module */}
+        <h1 className="mb-4">{'RSS'}</h1>
 
-          <a href="/rss-news" className="flex items-center gap-1">
-            <LuRss />
-            {t('News')}
-          </a>
-        </AppLayout.Main>
-      </div>
+        <a href="/rss-news" className="flex items-center gap-1">
+          <LuRss />
+          {t('News')}
+        </a>
+      </AppLayout.Main>
     </>
   );
 };
