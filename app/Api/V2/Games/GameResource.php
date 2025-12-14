@@ -58,7 +58,7 @@ class GameResource extends BaseJsonApiResource
     public function relationships($request): iterable
     {
         return [
-            'system' => $this->relation('system'),
+            'system' => $this->relation('system')->withoutLinks(),
         ];
     }
 
