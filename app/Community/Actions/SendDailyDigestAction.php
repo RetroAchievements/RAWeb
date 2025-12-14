@@ -10,6 +10,7 @@ use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\User;
 use App\Models\UserDelayedSubscription;
+use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Facades\Mail;
 use InvalidArgumentException;
 
@@ -55,6 +56,7 @@ class SendDailyDigestAction
         }
 
         // build the data to pass to the mail script
+        $singleItems = [];
         $notificationItems = [];
         foreach ($delayedSubscriptions as $delayedSubscription) {
             // if all the new posts have been deleted or aren't visible, ignore it
@@ -67,11 +69,56 @@ class SendDailyDigestAction
                     'link' => $handler->getLink($delayedSubscription->subject_id, $delayedSubscription->first_update_id),
                     'count' => $count,
                 ];
+
+                if ($count === 1) {
+                    $singleItems[] = [$delayedSubscription, count($notificationItems) - 1];
+                }
             }
         }
 
         if (empty($notificationItems)) {
             return;
+        }
+
+        if (!empty($singleItems)) {
+            // build a map of ids for each type
+            $ids = [];
+            foreach ($singleItems as $singleItem) {
+                $delayedSubscription = $singleItem[0];
+                if (!isset($ids[$delayedSubscription->subject_type->value])) {
+                    $ids[$delayedSubscription->subject_type->value] = [];
+                }
+                $ids[$delayedSubscription->subject_type->value][] = $delayedSubscription->subject_id;
+            }
+            // load the posts for the associated records
+            $posts = [];
+            foreach ($ids as $type => $typeIds) {
+                $posts[$type] = match ($type) {
+                    SubscriptionSubjectType::ForumTopic->value => ForumTopic::whereIn('id', $typeIds)->with('latestComment.user')->get()->keyBy('id'),
+                    default => [],
+                };
+            }
+            // inject the summaries into the notification items
+            foreach ($singleItems as $singleItem) {
+                [$delayedSubscription, $index] = $singleItem;
+                $type = $delayedSubscription->subject_type->value;
+                $post = $posts[$type][$delayedSubscription->subject_id] ?? null;
+                if ($post) {
+                    $summary = match ($type) {
+                        SubscriptionSubjectType::ForumTopic->value => nl2br(Shortcode::stripAndClamp($post->latestComment->body, previewLength: 200, preserveWhitespace: true)),
+                        default => null,
+                    };
+                    $displayName = match ($type) {
+                        SubscriptionSubjectType::ForumTopic->value => $post->latestComment->user->display_name,
+                        default => null,
+                    };
+
+                    if ($summary && $displayName) {
+                        $notificationItems[$index]['summary'] = $summary;
+                        $notificationItems[$index]['author'] = $displayName;
+                    }
+                }
+            }
         }
 
         // send the mail
