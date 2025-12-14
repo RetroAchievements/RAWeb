@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Community\Enums\ClaimStatus;
+use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\AchievementType;
+use Illuminate\Support\Collection;
 
 class LoadGameWithRelationsAction
 {
@@ -65,13 +68,89 @@ class LoadGameWithRelationsAction
             },
 
             'achievementSet.achievements.developer',
+            'achievementSet.achievementGroups' => fn ($query) => $query->withCount('achievements'),
             'achievementSet.achievementSetAuthors.user',
         ]);
+
+        $this->computeGroupRepresentativeBadges($game);
 
         // Load all selectable achievement sets for navigation purposes only.
         // We'll pass this along as a custom attribute for the props building action.
         $game->setAttribute('selectableGameAchievementSets', $game->selectableGameAchievementSets()->get());
 
         return $game;
+    }
+
+    /**
+     * Compute and attach representative badge URLs for each achievement group.
+     *
+     * Priority rules:
+     * 1. The last win condition achievement in the list.
+     * 2. (if no win conditions) The last progression achievement in the list.
+     * 3. (if no progression achievements) The highest value achievement (by points) in the list.
+     * 4. (if all the same points) The first achievement in the list.
+     */
+    private function computeGroupRepresentativeBadges(Game $game): void
+    {
+        foreach ($game->gameAchievementSets as $gameAchievementSet) {
+            $achievementSet = $gameAchievementSet->achievementSet;
+            $achievements = $achievementSet->achievements;
+
+            if ($achievements->isEmpty()) {
+                continue;
+            }
+
+            // Group achievements by their group ID.
+            $achievementsByGroup = $achievements->groupBy(fn (Achievement $a) => $a->pivot->achievement_group_id ?? -1);
+
+            foreach ($achievementSet->achievementGroups as $group) {
+                $groupAchievements = $achievementsByGroup->get($group->id, collect());
+                $representative = $this->findRepresentativeAchievement($groupAchievements);
+                $group->representative_badge_url = $representative?->badge_unlocked_url;
+            }
+
+            // Also compute the representative badge for ungrouped achievements.
+            $ungroupedAchievements = $achievementsByGroup->get(-1, collect());
+            $ungroupedRepresentative = $this->findRepresentativeAchievement($ungroupedAchievements);
+            $achievementSet->ungrouped_badge_url = $ungroupedRepresentative?->badge_unlocked_url;
+        }
+    }
+
+    /**
+     * Find the representative achievement for a group based on priority rules.
+     *
+     * @param Collection<int, Achievement> $achievements
+     */
+    private function findRepresentativeAchievement(Collection $achievements): ?Achievement
+    {
+        if ($achievements->isEmpty()) {
+            return null;
+        }
+
+        $sortedAchievements = $achievements->sortBy(fn (Achievement $a) => $a->pivot->order_column ?? $a->DisplayOrder);
+
+        // Priority 1: Last win condition achievement.
+        $winConditions = $sortedAchievements->filter(fn (Achievement $a) => $a->type === AchievementType::WinCondition);
+        if ($winConditions->isNotEmpty()) {
+            return $winConditions->last();
+        }
+
+        // Priority 2: Last progression achievement.
+        $progressions = $sortedAchievements->filter(fn (Achievement $a) => $a->type === AchievementType::Progression);
+        if ($progressions->isNotEmpty()) {
+            return $progressions->last();
+        }
+
+        // Priority 3: Highest value achievement (by points).
+        $maxPoints = $sortedAchievements->max(fn (Achievement $a) => $a->points);
+        $highestPointAchievements = $sortedAchievements->filter(fn (Achievement $a) => $a->points === $maxPoints);
+
+        if ($highestPointAchievements->count() === 1) {
+            return $highestPointAchievements->first();
+        }
+
+        // Priority 4: If they're all same points (or multiple with the highest), return the first achievement in the list.
+        // This is very likely an edge case.
+        return $sortedAchievements->first();
     }
 }

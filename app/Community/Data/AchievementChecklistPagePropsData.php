@@ -14,7 +14,7 @@ class AchievementChecklistPagePropsData extends Data
     public function __construct(
         public UserData $player,
 
-        /** @var AchievementGroupData[] */
+        /** @var AchievementChecklistGroupData[] */
         public array $groups,
     ) {
     }

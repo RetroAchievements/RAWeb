@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Data\AchievementGroupData;
+use App\Community\Data\AchievementChecklistGroupData;
 use App\Models\Achievement;
 use App\Models\PlayerAchievement;
 use App\Models\User;
@@ -49,7 +49,7 @@ class BuildAchievementChecklistAction
     }
 
     /**
-     * @return AchievementGroupData[]
+     * @return AchievementChecklistGroupData[]
      */
     private function fillData(array $groups, User $user): array
     {
@@ -85,7 +85,7 @@ class BuildAchievementChecklistAction
                 }
             }
 
-            $result[] = new AchievementGroupData($group['header'], $achievementList);
+            $result[] = new AchievementChecklistGroupData($group['header'], $achievementList);
         }
 
         return $result;

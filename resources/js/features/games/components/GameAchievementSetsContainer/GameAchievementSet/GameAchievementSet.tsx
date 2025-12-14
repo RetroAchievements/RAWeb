@@ -2,6 +2,7 @@ import { useAtomValue } from 'jotai';
 import { AnimatePresence } from 'motion/react';
 import * as motion from 'motion/react-m';
 import { type FC, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { AchievementsListItem } from '@/common/components/AchievementsListItem';
 import { useIsHydrated } from '@/common/hooks/useIsHydrated';
@@ -9,6 +10,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { sortAchievements } from '@/common/utils/sortAchievements';
 import { sortLeaderboards } from '@/common/utils/sortLeaderboards';
+import { useAchievementGrouping } from '@/features/games/hooks/useAchievementGrouping';
 import {
   currentListViewAtom,
   currentPlayableListSortAtom,
@@ -17,10 +19,12 @@ import {
   userAchievementListChangeCounterAtom,
 } from '@/features/games/state/games.atoms';
 import { filterAchievements } from '@/features/games/utils/filterAchievements';
+import { UNGROUPED_BUCKET_ID } from '@/features/games/utils/UNGROUPED_BUCKET_ID';
 
 import { AchievementSetCredits } from '../../AchievementSetCredits';
 import { BeatenCreditDialog } from '../../BeatenCreditDialog';
 import { LeaderboardsListItem } from '../../LeaderboardsListItem';
+import { AchievementGroupSection } from './AchievementGroupSection';
 import { GameAchievementSetHeader } from './GameAchievementSetHeader';
 import { GameAchievementSetProgress } from './GameAchievementSetProgress';
 import { GameAchievementSetToolbar } from './GameAchievementSetToolbar';
@@ -36,6 +40,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
 }) => {
   const { allLeaderboards, auth, isViewingPublishedAchievements, numLeaderboards } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { t } = useTranslation();
 
   const currentAchievementSort = useAtomValue(currentPlayableListSortAtom);
   const currentListView = useAtomValue(currentListViewAtom);
@@ -86,6 +91,13 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   const achievementsToRender = isHydrated
     ? filteredAndSortedAchievements
     : filteredAndSortedAchievements.slice(0, 20);
+
+  const { achievementGroups, bucketedAchievements, hasGroups, ungroupedAchievementCount } =
+    useAchievementGrouping({
+      allAchievements: achievements,
+      ssrLimitedAchievements: achievementsToRender,
+      rawAchievementGroups: gameAchievementSet.achievementSet.achievementGroups,
+    });
 
   /**
    * It's also important to reserve space for the remaining achievements that aren't
@@ -140,26 +152,92 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
           >
             {currentListView === 'achievements' ? (
               <>
-                {achievementsToRender.map((achievement, index) => (
-                  <AchievementsListItem
-                    key={`ach-${achievement.id}`}
-                    achievement={achievement}
-                    beatenDialogContent={<BeatenCreditDialog />}
-                    index={index}
-                    isLargeList={isLargeAchievementsList}
-                    shouldShowAuthor={!isViewingPublishedAchievements}
-                    playersTotal={gameAchievementSet.achievementSet.playersTotal}
-                  />
-                ))}
+                {hasGroups && bucketedAchievements ? (
+                  <>
+                    {achievementGroups.map((group) => {
+                      const groupAchievements = bucketedAchievements[group.id];
+                      if (groupAchievements.length === 0 && group.achievementCount === 0) {
+                        return null;
+                      }
 
-                {/* This placeholder reserves space during SSR to prevent a layout shift. */}
-                {!isHydrated && remainingAchievementsCount > 0 ? (
-                  <li
-                    aria-hidden="true"
-                    style={{ height: remainingAchievementsCount * 96 - 10 }}
-                    data-testid="invisible-placeholder"
-                  />
-                ) : null}
+                      return (
+                        <AchievementGroupSection
+                          key={`group-${group.id}`}
+                          achievementCount={group.achievementCount}
+                          iconUrl={group.badgeUrl ?? undefined}
+                          isInitiallyOpened={true}
+                          title={group.label}
+                        >
+                          {groupAchievements.map((achievement, index) => (
+                            <AchievementsListItem
+                              key={`ach-${achievement.id}`}
+                              achievement={achievement}
+                              beatenDialogContent={<BeatenCreditDialog />}
+                              index={index}
+                              isLargeList={isLargeAchievementsList}
+                              shouldShowAuthor={!isViewingPublishedAchievements}
+                              playersTotal={gameAchievementSet.achievementSet.playersTotal}
+                            />
+                          ))}
+                        </AchievementGroupSection>
+                      );
+                    })}
+
+                    {/* Render ungrouped achievements at the end if any exist. */}
+                    {ungroupedAchievementCount > 0 ? (
+                      <AchievementGroupSection
+                        achievementCount={ungroupedAchievementCount}
+                        iconUrl={gameAchievementSet.achievementSet.ungroupedBadgeUrl ?? undefined}
+                        isInitiallyOpened={true}
+                        title={t('otherAchievements')}
+                      >
+                        {bucketedAchievements[UNGROUPED_BUCKET_ID]?.map((achievement, index) => (
+                          <AchievementsListItem
+                            key={`ach-${achievement.id}`}
+                            achievement={achievement}
+                            beatenDialogContent={<BeatenCreditDialog />}
+                            index={index}
+                            isLargeList={isLargeAchievementsList}
+                            shouldShowAuthor={!isViewingPublishedAchievements}
+                            playersTotal={gameAchievementSet.achievementSet.playersTotal}
+                          />
+                        ))}
+                      </AchievementGroupSection>
+                    ) : null}
+
+                    {/* This placeholder reserves space during SSR to prevent a layout shift. */}
+                    {!isHydrated && remainingAchievementsCount > 0 ? (
+                      <li
+                        aria-hidden="true"
+                        style={{ height: remainingAchievementsCount * 96 - 10 }}
+                        data-testid="invisible-placeholder"
+                      />
+                    ) : null}
+                  </>
+                ) : (
+                  <>
+                    {achievementsToRender.map((achievement, index) => (
+                      <AchievementsListItem
+                        key={`ach-${achievement.id}`}
+                        achievement={achievement}
+                        beatenDialogContent={<BeatenCreditDialog />}
+                        index={index}
+                        isLargeList={isLargeAchievementsList}
+                        shouldShowAuthor={!isViewingPublishedAchievements}
+                        playersTotal={gameAchievementSet.achievementSet.playersTotal}
+                      />
+                    ))}
+
+                    {/* This placeholder reserves space during SSR to prevent a layout shift. */}
+                    {!isHydrated && remainingAchievementsCount > 0 ? (
+                      <li
+                        aria-hidden="true"
+                        style={{ height: remainingAchievementsCount * 96 - 10 }}
+                        data-testid="invisible-placeholder"
+                      />
+                    ) : null}
+                  </>
+                )}
               </>
             ) : null}
 
