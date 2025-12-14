@@ -18,6 +18,7 @@ export * from './createForumTopic';
 export * from './createForumTopicComment';
 export * from './createGame';
 export * from './createGameAchievementSet';
+export * from './createGameBanner';
 export * from './createGameClaimant';
 export * from './createGameHash';
 export * from './createGameHashLabel';
