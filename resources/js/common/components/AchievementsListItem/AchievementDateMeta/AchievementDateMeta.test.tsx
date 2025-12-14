@@ -219,4 +219,37 @@ describe('AchievementDateMeta', () => {
     expect(screen.queryByText(/Unavailable/)).not.toBeInTheDocument();
     expect(screen.queryByTestId('warning-icon')).not.toBeInTheDocument();
   });
+
+  it('should show unavailable warning for demoted achievement if flags provided.', () => {
+    // ARRANGE
+    const achievement = createAchievement({ flags: 5 });
+
+    render(<AchievementDateMeta achievement={achievement} />);
+
+    // ASSERT
+    expect(screen.getByText(/Unavailable/)).toBeInTheDocument();
+    expect(screen.getByTestId('warning-icon')).toBeVisible();
+  });
+
+  it('should not show unavailable warning for published achievement if flags provided.', () => {
+    // ARRANGE
+    const achievement = createAchievement({ flags: 3 });
+
+    render(<AchievementDateMeta achievement={achievement} />);
+
+    // ASSERT
+    expect(screen.queryByText(/Unavailable/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('warning-icon')).not.toBeInTheDocument();
+  });
+
+  it('should not show unavailable warning for demoted achievement if flags not provided.', () => {
+    // ARRANGE
+    const achievement = createAchievement(); // simulates real achievement with flags=5 but flags not included in AchievementData
+
+    render(<AchievementDateMeta achievement={achievement} />);
+
+    // ASSERT
+    expect(screen.queryByText(/Unavailable/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('warning-icon')).not.toBeInTheDocument();
+  });
 });

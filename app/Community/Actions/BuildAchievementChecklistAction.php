@@ -78,6 +78,7 @@ class BuildAchievementChecklistAction
                         'unlocksHardcoreTotal',
                         'unlockHardcorePercentage',
                         'unlockPercentage',
+                        'flags',
                         'game.badgeUrl',
                         'game.playersTotal',
                         'game.system.nameShort',

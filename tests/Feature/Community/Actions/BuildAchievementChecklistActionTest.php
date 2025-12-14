@@ -244,6 +244,7 @@ class BuildAchievementChecklistActionTest extends TestCase
             'unlocksHardcoreTotal' => $achievement->unlocks_hardcore_total,
             'unlockPercentage' => $achievement->unlock_percentage,
             'unlockHardcorePercentage' => $achievement->unlock_hardcore_percentage,
+            'flags' => $achievement->Flags,
             'game' => [
                 'id' => $achievement->game->id,
                 'title' => $achievement->game->title,
