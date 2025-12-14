@@ -37,19 +37,17 @@ class WriteGameSetSortTitleAction
     }
 
     /**
-     * Strip brackets and remove leading articles from the inner content.
-     * eg: "[Series - The Legend of Zelda]" -> "Series - Legend of Zelda"
+     * Remove leading articles from the inner content of hub titles.
+     * eg: "[Series - The Legend of Zelda]" -> "[Series - Legend of Zelda]"
      *
      * This ultimately allows us to have sort titles that are a bit better,
      * eg: "[Series - The Legend of Zelda]" becomes "series - legend of zelda".
      */
     private function prepareHubTitle(string $title): string
     {
-        $title = trim($title, '[]');
-
         if (str_contains($title, ' - ')) {
             [$category, $innerTitle] = explode(' - ', $title, 2);
-            $innerTitle = preg_replace('/^(the|a|an)\s+/i', '', $innerTitle);
+            $innerTitle = preg_replace('/^(a|an|the)\s+/i', '', $innerTitle);
             $title = $category . ' - ' . $innerTitle;
         }
 
