@@ -17,6 +17,7 @@ use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
@@ -101,9 +102,9 @@ class Hubs extends ManageRelatedRecords
                             ->label('Hub IDs (CSV)')
                             ->placeholder('729,2204,3987,53')
                             ->helperText('Enter hub IDs separated by commas or spaces. URLs are also supported.')
-                            ->hidden(fn (Get $get): bool => filled($get('hub_ids')))
                             ->disabled(fn (Get $get): bool => filled($get('hub_ids')))
-                            ->live(debounce: 200),
+                            ->live(debounce: 200)
+                            ->afterStateUpdated(fn (Set $set) => $set('hub_ids', null)),
 
                         Forms\Components\Select::make('hub_ids')
                             ->label('Hubs')
@@ -139,9 +140,9 @@ class Hubs extends ManageRelatedRecords
 
                                 return !$user->can('update', $hub);
                             })
-                            ->hidden(fn (Get $get): bool => filled($get('hub_ids_csv')))
                             ->disabled(fn (Get $get): bool => filled($get('hub_ids_csv')))
                             ->live()
+                            ->afterStateUpdated(fn (Set $set) => $set('hub_ids_csv', null))
                             ->helperText('... or search and select hubs to add.'),
                     ])
                     ->modalHeading('Add hubs to game')

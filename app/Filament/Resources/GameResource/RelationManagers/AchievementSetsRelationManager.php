@@ -152,9 +152,10 @@ class AchievementSetsRelationManager extends RelationManager
                                                 $query->core()->whereIn('achievement_set_id', $attachedAchievementSetIds);
                                             })
                                             ->orderBy('Title')
+                                            ->with('system')
                                             ->get()
                                             ->mapWithKeys(function ($game) {
-                                                return [$game->id => $game->title];
+                                                return [$game->id => "[{$game->id}] {$game->title} ({$game->system->name})"];
                                             })
                                             ->toArray()
                                     )
