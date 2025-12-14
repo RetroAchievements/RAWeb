@@ -23,7 +23,7 @@ class WriteGameSetSortTitleActionTest extends TestCase
         $gameSet->refresh();
 
         // Assert
-        $this->assertEquals('series - the legend of zelda', $gameSet->sort_title);
+        $this->assertEquals('series - legend of zelda', $gameSet->sort_title);
     }
 
     public function testItPreservesCustomSortTitlesByDefault(): void
