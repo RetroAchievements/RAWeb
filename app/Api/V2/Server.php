@@ -25,6 +25,7 @@ class Server extends BaseServer
     protected function allSchemas(): array
     {
         return [
+            Games\GameSchema::class,
             Systems\SystemSchema::class,
         ];
     }
