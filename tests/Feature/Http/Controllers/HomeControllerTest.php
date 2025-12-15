@@ -263,6 +263,47 @@ class HomeControllerTest extends TestCase
         );
     }
 
+    public function testItExcludesCompletedClaimsForGamesWithZeroPublishedAchievements(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['active' => true]);
+
+        $gameWithAchievements = Game::factory()->create([
+            'ConsoleID' => $system->id,
+            'achievements_published' => 6,
+        ]);
+        $gameWithoutAchievements = Game::factory()->create([
+            'ConsoleID' => $system->id,
+            'achievements_published' => 0, // !! should be filtered out
+        ]);
+
+        $user = User::factory()->create();
+
+        AchievementSetClaim::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $gameWithAchievements->id,
+            'ClaimType' => ClaimType::Primary,
+            'Status' => ClaimStatus::Complete,
+            'Finished' => now(),
+        ]);
+        AchievementSetClaim::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $gameWithoutAchievements->id,
+            'ClaimType' => ClaimType::Primary,
+            'Status' => ClaimStatus::Complete,
+            'Finished' => now()->subHour(),
+        ]);
+
+        // Act
+        $response = $this->get(route('home'));
+
+        // ... only the game with published achievements should appear ...
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('completedClaims', 1)
+            ->where('completedClaims.0.game.id', $gameWithAchievements->id)
+        );
+    }
+
     public function testItSendsSingleCompletedClaimCorrectly(): void
     {
         // Arrange
@@ -270,6 +311,7 @@ class HomeControllerTest extends TestCase
         $game = Game::factory()->create([
             'ConsoleID' => $system->id,
             'title' => 'Sonic the Hedgehog',
+            'achievements_published' => 6,
         ]);
         $user = User::factory()->create([
             'User' => 'Scott',
@@ -311,6 +353,7 @@ class HomeControllerTest extends TestCase
         $game = Game::factory()->create([
             'ConsoleID' => $system->id,
             'title' => 'Sonic the Hedgehog',
+            'achievements_published' => 6,
         ]);
         $user = User::factory()->create([
             'User' => 'Scott',
@@ -363,6 +406,7 @@ class HomeControllerTest extends TestCase
         $game = Game::factory()->create([
             'ConsoleID' => $system->id,
             'title' => 'Sonic the Hedgehog',
+            'achievements_published' => 6,
         ]);
         $userOne = User::factory()->create([
             'User' => 'Scott',

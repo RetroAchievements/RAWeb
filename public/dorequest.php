@@ -15,6 +15,7 @@ use App\Connect\Actions\GetLatestClientVersionAction;
 use App\Connect\Actions\GetLatestIntegrationVersionAction;
 use App\Connect\Actions\GetLeaderboardEntriesAction;
 use App\Connect\Actions\GetPlayerGameUnlocksAction;
+use App\Connect\Actions\GetUserProgressForConsoleAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\LegacyLoginAction;
 use App\Connect\Actions\LoginAction;
@@ -43,6 +44,7 @@ use Illuminate\Support\Carbon;
 $requestType = request()->input('r');
 $handler = match ($requestType) {
     'achievementwondata' => new GetAchievementUnlocksAction(),
+    'allprogress' => new GetUserProgressForConsoleAction(),
     'badgeiter' => new GetBadgeIdRangeAction(),
     'codenotes2' => new GetCodeNotesAction(),
     'gameid' => new GetGameIdFromHashAction(),
@@ -219,11 +221,6 @@ switch ($requestType) {
     /*
      * Global, no permissions required
      */
-    case "allprogress":
-        $consoleID = (int) request()->input('c');
-        $response['Response'] = GetAllUserProgress($user, $consoleID);
-        break;
-
     case "gameslist":
         $consoleID = (int) request()->input('c', 0);
         $response['Response'] = getGamesListDataNamesOnly($consoleID);

@@ -101,6 +101,10 @@ jobs:
         if: ${{ needs.changes.outputs.php == 'true' }}
         run: composer install --prefer-dist
 
+      - name: Generate Passport keys
+        if: ${{ needs.changes.outputs.php == 'true' && matrix.check == 'test' }}
+        run: php artisan passport:keys --force
+
       - name: Restore PHPStan result cache
         if: ${{ needs.changes.outputs.php == 'true' && matrix.check == 'analyse' }}
         uses: actions/cache/restore@v4
