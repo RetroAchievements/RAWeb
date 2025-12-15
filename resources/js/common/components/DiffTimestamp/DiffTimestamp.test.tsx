@@ -67,8 +67,6 @@ describe('Component: DiffTimestamp', () => {
 
   it('displays a formatted timestamp on hover', async () => {
     // ARRANGE
-    const user = userEvent.setup();
-
     const mockCurrentDate = dayjs.utc('2024-05-08').toDate();
     vi.setSystemTime(mockCurrentDate);
 
@@ -77,7 +75,7 @@ describe('Component: DiffTimestamp', () => {
     render(<DiffTimestamp asAbsoluteDate={false} at={mockPostDate.toISOString()} />);
 
     // ACT
-    await user.hover(screen.getByText(/3 days ago/i));
+    await userEvent.hover(screen.getByText(/3 days ago/i));
 
     // ASSERT
     expect(await screen.findByRole('tooltip', { name: /may 4, 2024/i })).toBeVisible();

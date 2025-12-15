@@ -59,7 +59,6 @@ describe('Component: ResponsiveTooltip', () => {
       await userEvent.hover(screen.getByText(/hover me/i));
 
       // ASSERT
-      // Radix renders the content twice (visible + screen-reader span).
       const tooltipContents = await screen.findAllByText(/tooltip content/i);
       expect(tooltipContents.length).toBeGreaterThanOrEqual(1);
       expect(tooltipContents[0]).toBeInTheDocument();
@@ -117,7 +116,6 @@ describe('Component: ResponsiveTooltip', () => {
         },
       );
 
-      // Open the popover.
       await userEvent.click(screen.getByText(/tap me/i));
       expect(await screen.findByText(/popover content/i)).toBeVisible();
 
