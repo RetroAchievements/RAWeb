@@ -20,6 +20,7 @@ use Filament\Schemas;
 use Filament\Support\Enums\FontFamily;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
 
@@ -30,6 +31,19 @@ class Hashes extends ManageRelatedRecords
     protected static string $relationship = 'hashes';
 
     protected static string|BackedEnum|null $navigationIcon = 'fas-file-archive';
+
+    public function getTitle(): string|Htmlable
+    {
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        return "{$game->title} ({$game->system->name_short}) - " . static::getRelationshipTitle();
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return static::getRelationshipTitle();
+    }
 
     public static function canAccess(array $arguments = []): bool
     {

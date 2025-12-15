@@ -11,11 +11,25 @@ use App\Models\Comment;
 use App\Models\Game;
 use Filament\Actions;
 use Filament\Support\Enums\IconPosition;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Collection;
 
 class AuditLog extends ResourceAuditLog
 {
     protected static string $resource = GameResource::class;
+
+    public function getTitle(): string|Htmlable
+    {
+        /** @var Game $game */
+        $game = $this->getRecord();
+
+        return "{$game->title} ({$game->system->name_short}) - Audit Log";
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Audit Log';
+    }
 
     protected function getHeaderActions(): array
     {

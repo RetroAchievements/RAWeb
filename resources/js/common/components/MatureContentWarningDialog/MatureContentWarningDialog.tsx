@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import { type FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
@@ -53,7 +54,12 @@ export const MatureContentWarningDialog: FC<MatureContentWarningDialogProps> = (
     // Add the "mature_content_accepted" parameter to the current URL.
     const url = new URL(window.location.href);
     url.searchParams.set('mature_content_accepted', '1');
-    window.history.replaceState({}, '', url.href);
+
+    router.replace({
+      url: url.href,
+      preserveScroll: true,
+      preserveState: true,
+    });
 
     setIsOpen(false);
   };

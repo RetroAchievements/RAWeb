@@ -253,7 +253,13 @@ function informAllSubscribersAboutActivity(
 
     $payload = null;
     if ($commentID > 0) {
-        $urlTarget .= "#comment_$commentID";
+        // For supported comment types, use the intelligent redirect route that
+        // handles pagination correctly. For other types (like tickets), append the anchor directly.
+        if (ArticleType::supportsCommentRedirect($articleType)) {
+            $urlTarget = route('comment.show', ['comment' => $commentID]);
+        } else {
+            $urlTarget .= "#comment_$commentID";
+        }
 
         $comment = Comment::find($commentID);
         if ($comment) {
