@@ -743,38 +743,20 @@ class BuildGameShowPagePropsAction
             return collect();
         }
 
-        $leaderboards = $game->leaderboards;
+        $allowedLeaderboardStates = match (true) {
+            $activeOnly => [LeaderboardState::Active],
+            $showUnpublished => [LeaderboardState::Unpublished],
+            default => [LeaderboardState::Active, LeaderboardState::Disabled],
+        };
 
-        if ($activeOnly) {
-            // Filter to only active leaderboards (for featured in the sidebar)
-            $leaderboards = $leaderboards->filter(function ($leaderboard) {
-                return $leaderboard->state === LeaderboardState::Active;
-            })->values();
-        } else {
-            // Filter based on showUnofficial flag
-            $leaderboards = $leaderboards->filter(function ($leaderboard) use ($showUnpublished) {
-                if ($showUnpublished) {
-                    // On the unpublished page: ONLY show Unpublished
-                    return $leaderboard->state === LeaderboardState::Unpublished;
-                } else {
-                    // On the normal page: Show Active and Disabled
-                    return $leaderboard->state === LeaderboardState::Active
-                        || $leaderboard->state === LeaderboardState::Disabled;
-                }
-            })->values();
+        $leaderboards = $game->leaderboards
+            ->filter(fn ($leaderboard) => in_array($leaderboard->state, $allowedLeaderboardStates))
+            ->values();
 
-            // Sort: Active/Unofficial first, Disabled last
+        if (!$activeOnly) {
+            // Sort: Active/Unpublished first, Disabled last, then by DisplayOrder.
             $leaderboards = $leaderboards->sortBy([
-                function ($leaderboard) {
-                    /** @var LeaderboardState $state */
-                    $state = $leaderboard->state;
-
-                    return match ($state) {
-                        LeaderboardState::Active => 0,
-                        LeaderboardState::Unpublished => 0,  // Same priority as Active
-                        LeaderboardState::Disabled => 1,
-                    };
-                },
+                fn ($leaderboard) => $leaderboard->state === LeaderboardState::Disabled ? 1 : 0,
                 fn ($active, $notActive) => $active->DisplayOrder <=> $notActive->DisplayOrder,
             ])->values();
         }
@@ -828,7 +810,7 @@ class BuildGameShowPagePropsAction
             return 0;
         }
 
-            return $game->leaderboards
+        return $game->leaderboards
                 ->where('state', $isViewingPublishedAchievements ? LeaderboardState::Active : LeaderboardState::Unpublished)
                 ->count();
     }
