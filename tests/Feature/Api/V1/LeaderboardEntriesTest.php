@@ -9,6 +9,7 @@ use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -241,6 +242,60 @@ class LeaderboardEntriesTest extends TestCase
                             'DateSubmitted' => $timedLeaderboardEntryOne->updated_at->toIso8601String(),
                         ],
                     ],
+                    'state' => LeaderboardState::Active->value,
                 ]);
+    }
+
+    public function testGetLeaderboardEntriesReturnsCorrectState(): void
+    {
+        // Setup leaderboards with different states
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var Leaderboard $activeLeaderboard */
+        $activeLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Active Leaderboard ",
+            'Description' => "I am an active leaderboard",
+            'state' => 'active',
+        ]);
+
+        /** @var Leaderboard $disabledLeaderboard */
+        $disabledLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Disabled Leaderboard ",
+            'Description' => "I am a disabled leaderboard",
+            'state' => 'disabled',
+        ]);
+
+        /** @var Leaderboard $unpublishedLeaderboard */
+        $unpublishedLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Unpublished Leaderboard ",
+            'Description' => "I am an unpublished leaderboard",
+            'state' => 'unpublished',
+        ]);
+
+        $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $activeLeaderboard->ID]))
+            ->assertSuccessful()
+            ->assertJson([
+                'state' => LeaderboardState::Active->value,
+            ]);
+
+        $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $disabledLeaderboard->ID]))
+            ->assertSuccessful()
+            ->assertJson([
+                'state' => LeaderboardState::Disabled->value,
+            ]);
+
+        $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $unpublishedLeaderboard->ID]))
+            ->assertSuccessful()
+            ->assertJson([
+                'state' => LeaderboardState::Unpublished->value,
+            ]);
     }
 }

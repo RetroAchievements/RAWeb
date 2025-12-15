@@ -15,6 +15,7 @@
  *    int        Score                      raw value of the leaderboard entry's score
  *    string     FormattedScore             string value of the formatted leaderboard entry's score (reference GetGameLeaderboard for Format type)
  *    string     DateSubmitted              an ISO8601 timestamp string for when the entry was submitted
+ *  string      state                       the state of the leaderboard (active, disabled, unpublished)
  */
 
 use App\Models\Leaderboard;
@@ -58,4 +59,5 @@ return response()->json([
     'Count' => count($results),
     'Total' => $leaderboard->entries()->count(),
     'Results' => $results,
+    'state' => $leaderboard->state,
 ]);
