@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\Pages;
 
+use App\Community\Enums\ArticleType;
 use App\Filament\Pages\ResourceAuditLog;
 use App\Filament\Resources\GameResource;
+use App\Models\Comment;
 use App\Models\Game;
+use Filament\Actions;
+use Filament\Support\Enums\IconPosition;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Collection;
 
@@ -25,6 +29,30 @@ class AuditLog extends ResourceAuditLog
     public function getBreadcrumb(): string
     {
         return 'Audit Log';
+    }
+
+    protected function getHeaderActions(): array
+    {
+        /** @var Game $record */
+        $record = $this->record;
+
+        $legacyCommentsCount = Comment::where('ArticleType', ArticleType::GameModification)
+            ->where('ArticleID', $record->id)
+            ->count();
+
+        if ($legacyCommentsCount === 0) {
+            return [];
+        }
+
+        return [
+            Actions\Action::make('view-legacy-comments')
+                ->icon('heroicon-o-arrow-top-right-on-square')
+                ->iconPosition(IconPosition::After)
+                ->color('gray')
+                ->label("View Legacy Audit Comments ({$legacyCommentsCount})")
+                ->url(route('game.modification-comment.index', ['game' => $record->id]))
+                ->openUrlInNewTab(),
+        ];
     }
 
     /**
