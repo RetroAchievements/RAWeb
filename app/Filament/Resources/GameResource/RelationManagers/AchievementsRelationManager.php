@@ -96,6 +96,11 @@ class AchievementsRelationManager extends RelationManager
                     ->label('')
                     ->size(config('media.icon.md.width')),
 
+                Tables\Columns\TextColumn::make('ID')
+                    ->label('ID')
+                    ->searchable()
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('title')
                     ->description(fn (Achievement $record): string => $record->description)
                     ->wrap(),

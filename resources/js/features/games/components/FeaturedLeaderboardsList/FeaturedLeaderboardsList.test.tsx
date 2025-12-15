@@ -188,7 +188,11 @@ describe('Component: FeaturedLeaderboardsList', () => {
     });
 
     // ... URL should be updated with leaderboards view ...
-    expect(window.location.search).toContain('view=leaderboards');
+    expect(InertiajsReact.router.replace).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: expect.stringContaining('view=leaderboards'),
+      }),
+    );
 
     vi.useRealTimers();
   });

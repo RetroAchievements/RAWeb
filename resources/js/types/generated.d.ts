@@ -481,6 +481,7 @@ declare namespace App.Data {
     updateAnyAchievementSetClaim?: boolean;
     updateAvatar?: boolean;
     updateGame?: boolean;
+    updateGameSet?: boolean;
     updateForumTopic?: boolean;
     updateMotto?: boolean;
     viewAnyAchievementSetClaim?: boolean;
