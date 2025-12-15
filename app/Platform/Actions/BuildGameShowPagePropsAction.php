@@ -366,7 +366,7 @@ class BuildGameShowPagePropsAction
             numBeaten: $numBeaten,
             numBeatenSoftcore: $numBeatenSoftcore,
             numInterestedDevelopers: $this->getInterestedDevelopersCount($backingGame, $user),
-            numLeaderboards: $this->getLeaderboardsCount($backingGame),
+            numLeaderboards: $this->getLeaderboardsCount($backingGame, $targetAchievementFlag === AchievementFlag::OfficialCore),
             numMasters: $numMasters,
 
             numOpenTickets: $targetAchievementFlag === AchievementFlag::OfficialCore
@@ -821,22 +821,16 @@ class BuildGameShowPagePropsAction
         });
     }
 
-    private function getLeaderboardsCount(Game $game): int
+    private function getLeaderboardsCount(Game $game, bool $isViewingPublishedAchievements): int
     {
         // Only count leaderboards if the system is active and it's not an event game.
         if (!$game->system->active || $game->system->id === System::Events) {
             return 0;
         }
 
-        if (request()->boolean('unpublished')) {
             return $game->leaderboards
-                ->where('state', LeaderboardState::Unpublished)
+                ->where('state', $isViewingPublishedAchievements ? LeaderboardState::Active : LeaderboardState::Unpublished)
                 ->count();
-        } else {
-            return $game->leaderboards
-                ->where('state', LeaderboardState::Active)
-                ->count();
-    }
     }
 
     private function getInterestedDevelopersCount(Game $game, ?User $user): ?int
