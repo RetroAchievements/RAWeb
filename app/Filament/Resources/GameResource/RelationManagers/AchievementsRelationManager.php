@@ -13,6 +13,7 @@ use App\Models\AchievementSet;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Actions\LogAchievementGroupActivityAction;
 use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrdersAction;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
@@ -232,32 +233,112 @@ class AchievementsRelationManager extends RelationManager
             ])
             ->recordActions([
                 ActionGroup::make([
-                    Actions\Action::make('move-to-top')
-                        ->label('Move to Top')
-                        ->icon('heroicon-o-arrow-up')
-                        ->action(fn (Achievement $record) => $this->moveAchievementToPosition($record, 'top'))
-                        ->visible(fn () => $this->canReorderAchievements() && !$this->isEditingDisplayOrders),
+                    ActionGroup::make([
+                        Actions\Action::make('move-to-top')
+                            ->label('Move to Top')
+                            ->icon('heroicon-o-arrow-up')
+                            ->action(fn (Achievement $record) => $this->moveAchievementToPosition($record, 'top'))
+                            ->visible(fn () => $this->canReorderAchievements() && !$this->isEditingDisplayOrders),
 
-                    Actions\Action::make('move-to-bottom')
-                        ->label('Move to Bottom')
-                        ->icon('heroicon-o-arrow-down')
-                        ->action(fn (Achievement $record) => $this->moveAchievementToPosition($record, 'bottom'))
-                        ->visible(fn () => $this->canReorderAchievements() && !$this->isEditingDisplayOrders),
+                        Actions\Action::make('move-to-bottom')
+                            ->label('Move to Bottom')
+                            ->icon('heroicon-o-arrow-down')
+                            ->action(fn (Achievement $record) => $this->moveAchievementToPosition($record, 'bottom'))
+                            ->visible(fn () => $this->canReorderAchievements() && !$this->isEditingDisplayOrders),
+                    ])->dropdown(false),
 
-                    Actions\Action::make('assign-maintainer')
-                        ->label('Assign Maintainer')
-                        ->icon('heroicon-o-user')
-                        ->schema(fn (Achievement $record) => AchievementResource::buildMaintainerForm($record))
-                        ->action(function (Achievement $record, array $data): void {
-                            AchievementResource::handleSetMaintainer($record, $data);
+                    ActionGroup::make([
+                        Actions\Action::make('assign-maintainer')
+                            ->label('Assign Maintainer')
+                            ->icon('heroicon-o-user')
+                            ->schema(fn (Achievement $record) => AchievementResource::buildMaintainerForm($record))
+                            ->action(function (Achievement $record, array $data): void {
+                                AchievementResource::handleSetMaintainer($record, $data);
 
-                            Notification::make()
-                                ->title('Success')
-                                ->body('Successfully assigned maintainer to selected achievement.')
-                                ->success()
-                                ->send();
-                        })
-                        ->visible(fn () => $user->can('assignMaintainer', Achievement::class)),
+                                Notification::make()
+                                    ->title('Success')
+                                    ->body('Successfully assigned maintainer to selected achievement.')
+                                    ->success()
+                                    ->send();
+                            })
+                            ->visible(fn () => $user->can('assignMaintainer', Achievement::class)),
+
+                        Actions\Action::make('assign-to-group')
+                            ->label('Assign to Group')
+                            ->icon('heroicon-o-folder')
+                            ->schema(function (Achievement $record): array {
+                                $coreSet = $this->getCoreAchievementSet(withGroups: true);
+                                if (!$coreSet || $coreSet->achievementGroups->isEmpty()) {
+                                    return [
+                                        Text::make('No achievement groups have been created. Use the "Manage groups" button to create groups first.'),
+                                    ];
+                                }
+
+                                $currentGroupId = $coreSet->achievements()
+                                    ->where('achievement_id', $record->id)
+                                    ->first()
+                                    ?->pivot
+                                    ?->achievement_group_id ?? 0;
+
+                                $options = $coreSet->achievementGroups->pluck('label', 'id')->toArray();
+                                $options[0] = '(No Group)';
+
+                                return [
+                                    Forms\Components\Select::make('achievement_group_id')
+                                        ->label('Group')
+                                        ->options($options)
+                                        ->default($currentGroupId)
+                                        ->required()
+                                        ->helperText('Select a group to assign this achievement to, or select "(No Group)" to unassign it.'),
+                                ];
+                            })
+                            ->action(function (Achievement $record, array $data): void {
+                                if (!isset($data['achievement_group_id'])) {
+                                    return;
+                                }
+
+                                $coreSet = $this->getCoreAchievementSet(withGroups: true);
+                                if (!$coreSet) {
+                                    return;
+                                }
+
+                                $groupId = $data['achievement_group_id'] === 0 ? null : $data['achievement_group_id'];
+                                $coreSet->achievements()->updateExistingPivot(
+                                    $record->id,
+                                    ['achievement_group_id' => $groupId]
+                                );
+
+                                // Log the assignment.
+                                /** @var Game $game */
+                                $game = $this->getOwnerRecord();
+                                $groupLabel = $groupId
+                                    ? $coreSet->achievementGroups->firstWhere('id', $groupId)?->label
+                                    : null;
+                                (new LogAchievementGroupActivityAction())->execute(
+                                    'assignAchievements',
+                                    $game,
+                                    context: [
+                                        'group_label' => $groupLabel,
+                                        'achievement_ids' => [$record->id],
+                                    ]
+                                );
+
+                                Notification::make()
+                                    ->title('Success')
+                                    ->body('Successfully assigned achievement to group.')
+                                    ->success()
+                                    ->send();
+                            })
+                            ->visible(function () use ($user): bool {
+                                if (!$user->can('manage', AchievementGroup::class)) {
+                                    return false;
+                                }
+
+                                $coreSet = $this->getCoreAchievementSet(withGroups: true);
+
+                                return $coreSet && $coreSet->achievementGroups->isNotEmpty();
+                            }),
+                    ])->dropdown(false),
 
                     DeleteAction::make(),
                 ]),
@@ -324,18 +405,35 @@ class AchievementsRelationManager extends RelationManager
                             return;
                         }
 
-                        $existingGroupIds = $coreSet->achievementGroups->pluck('id')->toArray();
+                        /** @var Game $game */
+                        $game = $this->getOwnerRecord();
+
+                        $existingGroups = $coreSet->achievementGroups->keyBy('id')->toArray();
+                        $existingGroupIds = array_keys($existingGroups);
                         $submittedGroupIds = [];
+
+                        $logAction = new LogAchievementGroupActivityAction();
 
                         foreach ($data['groups'] ?? [] as $index => $groupData) {
                             if (!empty($groupData['id'])) {
                                 // Update an existing group.
                                 $group = AchievementGroup::find($groupData['id']);
                                 if ($group) {
+                                    $originalData = $existingGroups[$group->id] ?? [];
+
                                     $group->update([
                                         'label' => $groupData['label'],
                                         'order_column' => $index,
                                     ]);
+
+                                    $logAction->execute(
+                                        'update',
+                                        $game,
+                                        $group,
+                                        $originalData,
+                                        ['label' => $groupData['label'], 'order_column' => $index]
+                                    );
+
                                     $submittedGroupIds[] = $group->id;
                                 }
                             } else {
@@ -345,6 +443,9 @@ class AchievementsRelationManager extends RelationManager
                                     'label' => $groupData['label'],
                                     'order_column' => $index,
                                 ]);
+
+                                $logAction->execute('create', $game, $group);
+
                                 $submittedGroupIds[] = $group->id;
                             }
                         }
@@ -352,6 +453,10 @@ class AchievementsRelationManager extends RelationManager
                         // Delete groups that were removed.
                         // This will implicitly also unassign achievements due to the DB using ON DELETE SET NULL.
                         $groupsToDelete = array_diff($existingGroupIds, $submittedGroupIds);
+                        foreach ($groupsToDelete as $groupIdToDelete) {
+                            $originalData = $existingGroups[$groupIdToDelete] ?? [];
+                            $logAction->execute('delete', $game, null, $originalData);
+                        }
                         if (!empty($groupsToDelete)) {
                             AchievementGroup::whereIn('id', $groupsToDelete)->delete();
                         }
@@ -376,6 +481,7 @@ class AchievementsRelationManager extends RelationManager
                         ->icon('heroicon-o-arrow-up-right')
                         ->color('success')
                         ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
                         ->action(function (Collection $records) use ($user) {
                             $records->each(function (Achievement $record) use ($user) {
                                 if (!$user->can('updateField', [$record, 'Flags'])) {
@@ -398,6 +504,7 @@ class AchievementsRelationManager extends RelationManager
                         ->icon('heroicon-o-arrow-down-right')
                         ->color('danger')
                         ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
                         ->action(function (Collection $records) use ($user) {
                             $records->each(function (Achievement $record) use ($user) {
                                 if (!$user->can('updateField', [$record, 'Flags'])) {
@@ -423,6 +530,7 @@ class AchievementsRelationManager extends RelationManager
                         ->label('Set selected to Progression')
                         ->color('info')
                         ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
                         ->action(function (Collection $records) use ($user) {
                             $records->each(function (Achievement $record) use ($user) {
                                 if (!$user->can('updateField', [$record, 'type'])) {
@@ -444,6 +552,7 @@ class AchievementsRelationManager extends RelationManager
                         ->label('Set selected to Win Condition')
                         ->color('success')
                         ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
                         ->action(function (Collection $records) use ($user) {
                             $records->each(function (Achievement $record) use ($user) {
                                 if (!$user->can('updateField', [$record, 'type'])) {
@@ -465,6 +574,7 @@ class AchievementsRelationManager extends RelationManager
                         ->label('Set selected to Missable')
                         ->color('warning')
                         ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
                         ->action(function (Collection $records) use ($user) {
                             $records->each(function (Achievement $record) use ($user) {
                                 if (!$user->can('updateField', [$record, 'type'])) {
@@ -485,6 +595,7 @@ class AchievementsRelationManager extends RelationManager
                     BulkAction::make('type-null')
                         ->label('Remove type from selected')
                         ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
                         ->action(function (Collection $records) use ($user) {
                             $records->each(function (Achievement $record) use ($user) {
                                 if (!$user->can('updateField', [$record, 'type'])) {
@@ -516,6 +627,7 @@ class AchievementsRelationManager extends RelationManager
                     ->modalHeading('Bulk add credit')
                     ->color('gray')
                     ->schema(AchievementAuthorshipCreditFormSchema::getSchema())
+                    ->deselectRecordsAfterCompletion()
                     ->action(function (Collection $records, array $data) use ($user) {
                         if (!$user->can('create', [AchievementAuthor::class])) {
                             return false;
@@ -562,6 +674,7 @@ class AchievementsRelationManager extends RelationManager
                     ->label('Assign maintainer')
                     ->color('gray')
                     ->schema(fn () => AchievementResource::buildMaintainerForm(null))
+                    ->deselectRecordsAfterCompletion()
                     ->action(function (Collection $records, array $data) {
                         $records->each(function (Achievement $record) use ($data) {
                             AchievementResource::handleSetMaintainer($record, $data);
@@ -598,24 +711,41 @@ class AchievementsRelationManager extends RelationManager
                                 ->helperText('Select a group to assign the selected achievements to, or select "(No Group)" to unassign them.'),
                         ];
                     })
+                    ->deselectRecordsAfterCompletion()
                     ->action(function (Collection $records, array $data) {
                         if (!isset($data['achievement_group_id'])) {
                             return;
                         }
 
-                        $coreSet = $this->getCoreAchievementSet();
+                        $coreSet = $this->getCoreAchievementSet(withGroups: true);
                         if (!$coreSet) {
                             return;
                         }
 
                         $groupId = $data['achievement_group_id'] === 0 ? null : $data['achievement_group_id'];
 
-                        $records->each(function (Achievement $record) use ($coreSet, $groupId) {
+                        $achievementIds = [];
+                        $records->each(function (Achievement $record) use ($coreSet, $groupId, &$achievementIds) {
                             $coreSet->achievements()->updateExistingPivot(
                                 $record->id,
                                 ['achievement_group_id' => $groupId]
                             );
+                            $achievementIds[] = $record->id;
                         });
+
+                        /** @var Game $game */
+                        $game = $this->getOwnerRecord();
+                        $groupLabel = $groupId
+                            ? $coreSet->achievementGroups->firstWhere('id', $groupId)?->label
+                            : null;
+                        (new LogAchievementGroupActivityAction())->execute(
+                            'assignAchievements',
+                            $game,
+                            context: [
+                                'group_label' => $groupLabel,
+                                'achievement_ids' => $achievementIds,
+                            ]
+                        );
 
                         Notification::make()
                             ->title('Success')

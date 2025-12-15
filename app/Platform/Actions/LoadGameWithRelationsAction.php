@@ -68,7 +68,9 @@ class LoadGameWithRelationsAction
             },
 
             'achievementSet.achievements.developer',
-            'achievementSet.achievementGroups' => fn ($query) => $query->withCount('achievements'),
+            'achievementSet.achievementGroups' => fn ($query) => $query->withCount([
+                'achievements' => fn ($q) => $q->where('Flags', $flag->value),
+            ]),
             'achievementSet.achievementSetAuthors.user',
         ]);
 
@@ -149,8 +151,7 @@ class LoadGameWithRelationsAction
             return $highestPointAchievements->first();
         }
 
-        // Priority 4: If they're all same points (or multiple with the highest), return the first achievement in the list.
-        // This is very likely an edge case.
-        return $sortedAchievements->first();
+        // Priority 4: If they're all same points (or multiple with the highest), return the last achievement in the list.
+        return $sortedAchievements->last();
     }
 }
