@@ -300,20 +300,11 @@ class UpdatePlayerGameMetricsAction
         $neededWinConditionAchievements = !empty($winConditionIds) ? 1 : 0;
         $totalProgressions = count($progressionAchievementIds);
 
+        $beatenDates = $playerGame->beaten_dates ?? [];
         $isBeatenSoftcore =
             $progressionUnlocksSoftcoreCount === $totalProgressions
             && $winConditionUnlocksSoftcoreCount >= $neededWinConditionAchievements;
-
-        $isBeatenHardcore =
-            $progressionUnlocksHardcoreCount === $totalProgressions
-            && $winConditionUnlocksHardcoreCount >= $neededWinConditionAchievements;
-
-        $beatenAt = $isBeatenSoftcore ? $playerGame->beaten_at : null;
-        $beatenHardcoreAt = $isBeatenHardcore ? $playerGame->beaten_hardcore_at : null;
-        $beatenDates = $playerGame->beaten_dates ?? [];
-        $beatenDatesHardcore = $playerGame->beaten_dates_hardcore ?? [];
-
-        if (!$beatenAt && $isBeatenSoftcore) {
+        if ($isBeatenSoftcore) {
             $beatenAt = collect([
                 $progressionUnlocks->max('unlocked_at'),
                 $winConditionUnlocks->min('unlocked_at'),
@@ -323,9 +314,15 @@ class UpdatePlayerGameMetricsAction
             if ($beatenAt !== null) {
                 array_push($beatenDates, $beatenAt->toJSON());
             }
+        } else {
+            $beatenAt = null;
         }
 
-        if (!$beatenHardcoreAt && $isBeatenHardcore) {
+        $beatenDatesHardcore = $playerGame->beaten_dates_hardcore ?? [];
+        $isBeatenHardcore =
+            $progressionUnlocksHardcoreCount === $totalProgressions
+            && $winConditionUnlocksHardcoreCount >= $neededWinConditionAchievements;
+        if ($isBeatenHardcore) {
             $beatenHardcoreAt = collect([
                 $progressionUnlocksHardcore->max('unlocked_hardcore_at'),
                 $winConditionUnlocksHardcore->min('unlocked_hardcore_at'),
@@ -335,6 +332,8 @@ class UpdatePlayerGameMetricsAction
             if ($beatenHardcoreAt !== null) {
                 array_push($beatenDatesHardcore, $beatenHardcoreAt->toJSON());
             }
+        } else {
+            $beatenHardcoreAt = null;
         }
 
         return [
