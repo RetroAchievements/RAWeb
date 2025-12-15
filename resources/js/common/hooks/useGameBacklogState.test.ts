@@ -100,4 +100,43 @@ describe('Hook: useGameBacklogState', () => {
     // ... verify the state remained unchanged since we're not using optimistic updates ...
     expect(result.current.isInBacklogMaybeOptimistic).toBe(false);
   });
+
+  it('given the game changes, resets to the new initial backlog state', async () => {
+    // ARRANGE
+    const game1 = createGame({ id: 1, title: 'Game One' });
+    const game2 = createGame({ id: 2, title: 'Game Two' });
+
+    const addToGameList = vi.fn().mockResolvedValue({});
+
+    (useAddOrRemoveFromUserGameList as Mock).mockReturnValue({
+      addToGameList,
+      removeFromGameList: vi.fn(),
+      isPending: false,
+    });
+
+    const { result, rerender } = renderHook(
+      (props: { game: App.Platform.Data.Game; isInitiallyInBacklog: boolean }) =>
+        useGameBacklogState({
+          game: props.game,
+          isInitiallyInBacklog: props.isInitiallyInBacklog,
+          shouldUpdateOptimistically: true,
+        }),
+      { initialProps: { game: game1, isInitiallyInBacklog: false } },
+    );
+
+    // ACT
+    // ... toggle backlog so the optimistic state differs from the initial state ...
+    await act(async () => {
+      await result.current.toggleBacklog();
+    });
+
+    // ... verify the optimistic state changed ...
+    expect(result.current.isInBacklogMaybeOptimistic).toEqual(true);
+
+    // ... now simulate navigating to a different game ...
+    rerender({ game: game2, isInitiallyInBacklog: true });
+
+    // ASSERT
+    expect(result.current.isInBacklogMaybeOptimistic).toEqual(true);
+  });
 });

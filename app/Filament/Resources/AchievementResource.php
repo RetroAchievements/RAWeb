@@ -229,17 +229,6 @@ class AchievementResource extends Resource
                                 ->maxLength(255)
                                 ->disabled(!$user->can('updateField', [$schema->model, 'Description'])),
 
-                            Forms\Components\Select::make('GameID')
-                                ->label('Game')
-                                ->relationship(
-                                    name: 'game',
-                                    titleAttribute: 'Title',
-                                )
-                                ->searchable(['ID', 'Title'])
-                                ->getOptionLabelFromRecordUsing(fn (Model $record) => "[{$record->ID}] {$record->Title}")
-                                ->required()
-                                ->disabled(!$user->can('updateField', [$schema->model, 'GameID'])),
-
                             Schemas\Components\Section::make('Maintainer')
                                 ->schema([
                                     Forms\Components\Placeholder::make('current_maintainer')

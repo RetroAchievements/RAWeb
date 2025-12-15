@@ -36,9 +36,10 @@ class BuildHomePageClaimsDataAction
             ->whereIn('ClaimType', [ClaimType::Primary, ClaimType::Collaboration])
             ->where('Status', $status);
 
-        // For completed claims, only show games from valid consoles.
+        // For completed claims, only show games from valid consoles with published achievements.
         if ($status === ClaimStatus::Complete) {
             $query->whereHas('game.system', fn ($q) => $q->whereIn('ID', getValidConsoleIds()));
+            $query->whereHas('game', fn ($q) => $q->whereHasPublishedAchievements());
         }
 
         $orderByField = $status === ClaimStatus::Complete ? 'Finished' : 'Created';
