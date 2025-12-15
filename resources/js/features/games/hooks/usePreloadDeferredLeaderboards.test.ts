@@ -7,16 +7,16 @@ import { createLeaderboard } from '@/test/factories';
 import { usePreloadDeferredLeaderboards } from './usePreloadDeferredLeaderboards';
 
 describe('Hook: usePreloadDeferredLeaderboards', () => {
-  let mockGetEntriesByType: ReturnType<typeof vi.fn>;
-  let mockRouterReload: ReturnType<typeof vi.fn>;
+  let mockGetEntriesByType: ReturnType<typeof vi.fn<(type: string) => PerformanceEntryList>>;
+  let mockRouterReload: ReturnType<typeof vi.fn<() => void>>;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    mockGetEntriesByType = vi.fn();
+    mockGetEntriesByType = vi.fn<(type: string) => PerformanceEntryList>();
     global.performance.getEntriesByType = mockGetEntriesByType;
 
-    mockRouterReload = vi.fn();
+    mockRouterReload = vi.fn<() => void>();
     vi.spyOn(InertiajsReact.router, 'reload').mockImplementation(mockRouterReload);
   });
 
@@ -111,7 +111,7 @@ describe('Hook: usePreloadDeferredLeaderboards', () => {
 
   it('given performance.getEntriesByType returns undefined, does not fetch the leaderboards', () => {
     // ARRANGE
-    mockGetEntriesByType.mockReturnValue(undefined);
+    mockGetEntriesByType.mockReturnValue(undefined as unknown as PerformanceEntryList);
 
     // ACT
     renderHook(() => usePreloadDeferredLeaderboards(10, undefined));
