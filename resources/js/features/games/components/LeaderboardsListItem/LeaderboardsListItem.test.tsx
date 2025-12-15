@@ -132,7 +132,6 @@ describe('Component: LeaderboardsListItem', () => {
 
   it('given the leaderboard is disabled, shows a tooltip', async () => {
     // ARRANGE
-    const user = userEvent.setup();
     const leaderboard = createLeaderboard({
       state: 'disabled',
     });
@@ -140,7 +139,7 @@ describe('Component: LeaderboardsListItem', () => {
     render(<LeaderboardsListItem index={0} isLargeList={false} leaderboard={leaderboard} />);
 
     // ACT
-    await user.hover(screen.getByTestId('disabled-tooltip-trigger'));
+    await userEvent.hover(screen.getByTestId('disabled-tooltip-trigger'));
 
     // ASSERT
     await waitFor(() => {
