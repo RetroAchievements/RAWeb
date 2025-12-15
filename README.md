@@ -9,7 +9,7 @@ It is a Laravel application ([TALL stack](https://tallstack.dev/)).
 - [PHP 8.4](http://php.net/manual/en/)
 - [Composer](https://getcomposer.org/) PHP dependency manager
 - [MariaDB 10](https://mariadb.com/docs/server/)
-- [Node.js 20](https://nodejs.org/)
+- [Node.js 22](https://nodejs.org/)
 - [pnpm 10](https://pnpm.io/)
  
 Validated to run on Windows, macOS, and Linux with any of the setup options below (Docker via Laravel Sail, VM with either nginx or Apache, Laravel Valet on macOS).
