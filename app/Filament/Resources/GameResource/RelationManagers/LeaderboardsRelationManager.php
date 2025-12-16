@@ -33,6 +33,11 @@ class LeaderboardsRelationManager extends RelationManager
 
     protected static string|BackedEnum|null $icon = 'fas-bars-staggered';
 
+    public bool $isEditingDisplayOrders = false;
+
+    /** @var array<int, string> */
+    public array $pendingDisplayOrders = [];
+
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
         /** @var User $user */
@@ -90,9 +95,8 @@ class LeaderboardsRelationManager extends RelationManager
                     ->label('Lower Is Better')
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('DisplayOrder')
-                    ->label('Display Order')
-                    ->color(fn ($record) => $record->DisplayOrder < 0 ? 'danger' : null)
+                Tables\Columns\ViewColumn::make('DisplayOrder')
+                    ->view('filament.tables.columns.display-order-column')
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('state')
@@ -100,11 +104,36 @@ class LeaderboardsRelationManager extends RelationManager
                     ->formatStateUsing(fn (LeaderboardState $state): string => ucfirst($state->value)),
             ])
             ->searchPlaceholder('Search (ID, Title)')
+            ->recordUrl(function (Leaderboard $record): ?string {
+                if ($this->isEditingDisplayOrders) {
+                    return null;
+                }
+
+                /** @var User $user */
+                $user = Auth::user();
+
+                if ($user->can('update', $record)) {
+                    return route('filament.admin.resources.leaderboards.edit', ['record' => $record]);
+                }
+
+                return route('filament.admin.resources.leaderboards.view', ['record' => $record]);
+            })
             ->filters([
 
             ])
             ->headerActions([
+                Action::make('cancel-edit-display-orders')
+                    ->label('Cancel')
+                    ->icon('heroicon-o-x-mark')
+                    ->color('gray')
+                    ->action(fn () => $this->cancelEditingDisplayOrders())
+                    ->visible(fn () => $this->isEditingDisplayOrders),
 
+                Action::make('save-display-orders')
+                    ->label('Save changes')
+                    ->color('primary')
+                    ->action(fn () => $this->saveDisplayOrders())
+                    ->visible(fn () => $this->isEditingDisplayOrders),
             ])
             ->recordActions([
                 ActionGroup::make([
@@ -122,7 +151,17 @@ class LeaderboardsRelationManager extends RelationManager
                         ->visible(function (Leaderboard $leaderboard) use ($user) {
                             return $user->can('update', $leaderboard);
                         }),
+                    Action::make('move-to-top')
+                        ->label('Move to Top')
+                        ->icon('heroicon-o-arrow-up')
+                        ->action(fn (Leaderboard $leaderboard) => $this->moveLeaderboardToPosition($leaderboard, 'top'))
+                        ->visible(fn () => $this->canReorderLeaderboards() && !$this->isEditingDisplayOrders),
 
+                    Action::make('move-to-bottom')
+                        ->label('Move to Bottom')
+                        ->icon('heroicon-o-arrow-down')
+                        ->action(fn (Leaderboard $leaderboard) => $this->moveLeaderboardToPosition($leaderboard, 'bottom'))
+                        ->visible(fn () => $this->canReorderLeaderboards() && !$this->isEditingDisplayOrders),
                     CloneLeaderboardAction::make('clone_leaderboard'),
                     ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
                     DeleteLeaderboardAction::make('delete_leaderboard'),
@@ -179,8 +218,15 @@ class LeaderboardsRelationManager extends RelationManager
                 ])
                 ->label('Bulk promote or demote')
                 ->visible(fn (): bool => $user->can('updateField', [Leaderboard::class, null, 'state'])),
+                Action::make('edit-display-orders')
+                    ->label('Edit order values')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('gray')
+                    ->action(fn () => $this->startEditingDisplayOrders())
+                    ->visible(fn () => !$this->isEditingDisplayOrders && $this->canReorderLeaderboards()),
             ])
-            ->paginated([25, 50, 100])
+            ->paginated([400])
+            ->defaultPaginationPageOption(400)
             ->defaultSort(function (Builder $query): Builder {
                 return $query
                     ->orderBy('DisplayOrder')
@@ -189,11 +235,12 @@ class LeaderboardsRelationManager extends RelationManager
             ->reorderRecordsTriggerAction(
                 fn (Action $action, bool $isReordering) => $action
                     ->button()
-                    ->label($isReordering ? 'Stop reordering' : 'Start reordering'),
+                    ->label($isReordering ? 'Done dragging' : 'Drag to reorder')
+                    ->visible(!$this->isEditingDisplayOrders),
             )
-            ->reorderable('DisplayOrder', $this->canReorderLeaderboards())
+            ->reorderable('DisplayOrder', $this->canReorderLeaderboards() && !$this->isEditingDisplayOrders)
             ->checkIfRecordIsSelectableUsing(
-                fn (Model $record): bool => $user->can('update', $record->loadMissing('game')),
+                fn (Model $record): bool => !$this->isEditingDisplayOrders && $user->can('update', $record->loadMissing('game')),
             );
     }
 
@@ -208,6 +255,120 @@ class LeaderboardsRelationManager extends RelationManager
 
         parent::reorderTable($order, $draggedRecordKey);
 
+        $this->logReorderingActivity();
+    }
+
+    public function startEditingDisplayOrders(): void
+    {
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        $leaderboards = $game->leaderboards()
+            ->where('DisplayOrder', '>=', 0)
+            ->get();
+
+        $this->pendingDisplayOrders = $leaderboards
+            ->mapWithKeys(fn (Leaderboard $lb) => [$lb->ID => (string) $lb->DisplayOrder])
+            ->all();
+
+        $this->isEditingDisplayOrders = true;
+        $this->resetTable();
+    }
+
+    public function saveDisplayOrders(): void
+    {
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        $leaderboards = $game->leaderboards()
+            ->where('DisplayOrder', '>=', 0)
+            ->get()
+            ->keyBy('ID');
+
+        $leaderboardsToUpdate = [];
+        foreach ($this->pendingDisplayOrders as $leaderboardId => $newOrder) {
+            $leaderboard = $leaderboards->get($leaderboardId);
+            if ($leaderboard && (int) $newOrder !== $leaderboard->DisplayOrder) {
+                $leaderboardsToUpdate[] = [
+                    'ID' => $leaderboardId,
+                    'DisplayOrder' => (int) $newOrder,
+                ];
+            }
+        }
+
+        if (!empty($leaderboardsToUpdate)) {
+            foreach ($leaderboardsToUpdate as $update) {
+                Leaderboard::where('ID', $update['ID'])->update(['DisplayOrder' => $update['DisplayOrder']]);
+            }
+            $this->logReorderingActivity();
+        }
+
+        $this->isEditingDisplayOrders = false;
+        $this->pendingDisplayOrders = [];
+        $this->resetTable();
+
+        Notification::make()
+            ->title('Display orders updated')
+            ->success()
+            ->send();
+    }
+
+    public function cancelEditingDisplayOrders(): void
+    {
+        $this->isEditingDisplayOrders = false;
+        $this->pendingDisplayOrders = [];
+        $this->resetTable();
+    }
+
+    private function moveLeaderboardToPosition(Leaderboard $leaderboard, string $position): void
+    {
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        $visibleLeaderboards = $game->leaderboards()
+            ->where('DisplayOrder', '>=', 0)
+            ->orderBy('DisplayOrder')
+            ->get();
+
+        if ($position === 'top') {
+            $minOrder = $visibleLeaderboards->min('DisplayOrder');
+            if ($minOrder > 0) {
+                $leaderboard->update(['DisplayOrder' => $minOrder - 1]);
+            } else {
+                foreach ($visibleLeaderboards as $lb) {
+                    if ($lb->ID !== $leaderboard->ID) {
+                        $lb->increment('DisplayOrder');
+                    }
+                }
+                $leaderboard->update(['DisplayOrder' => 0]);
+            }
+        } else {
+            $maxOrder = $visibleLeaderboards->max('DisplayOrder');
+            $leaderboard->update(['DisplayOrder' => $maxOrder + 1]);
+        }
+
+        $this->logReorderingActivity();
+        $this->resetTable();
+
+        Notification::make()
+            ->title('Leaderboard moved to ' . $position)
+            ->success()
+            ->send();
+    }
+
+    private function canReorderLeaderboards(): bool
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        return $user->can('update', $game);
+    }
+
+    private function logReorderingActivity(): void
+    {
         /** @var User $user */
         $user = Auth::user();
         /** @var Game $game */
@@ -232,16 +393,5 @@ class LeaderboardsRelationManager extends RelationManager
                 ->event('reorderedLeaderboards')
                 ->log('Reordered Leaderboards');
         }
-    }
-
-    private function canReorderLeaderboards(): bool
-    {
-        /** @var User $user */
-        $user = Auth::user();
-
-        /** @var Leaderboard $game */
-        $game = $this->getOwnerRecord();
-
-        return $user->can('update', $game);
     }
 }
