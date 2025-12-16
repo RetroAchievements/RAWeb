@@ -176,7 +176,7 @@ $ sudo npm install -g pnpm
 $ sudo add-apt-repository ppa:ondrej/php 
 $ sudo apt dist-upgrade -y
 $ sudo apt install php8.2 php8.2-curl php8.2-dom php8.2-gmp php8.2-intl php8.2-zip php8.2-sqlite3 php8.2-mbstring php8.2-mysql php8.2-gd
-$ curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+$ curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
 $ sudo apt-get install -y nodejs
 $ curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
 $ sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer

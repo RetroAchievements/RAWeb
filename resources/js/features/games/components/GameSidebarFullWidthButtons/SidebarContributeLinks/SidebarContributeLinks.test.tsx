@@ -81,8 +81,6 @@ describe('Component: SidebarContributeLinks', () => {
 
   it('given the user clicks the Contribute button, expands to show child sections', async () => {
     // ARRANGE
-    const user = userEvent.setup();
-
     render(
       <SidebarContributeLinks
         canShowDevelopmentAndSubscribe={true} // !!
@@ -104,7 +102,7 @@ describe('Component: SidebarContributeLinks', () => {
     );
 
     // ACT
-    await user.click(screen.getByRole('button', { name: 'Contribute' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Contribute' }));
 
     // ASSERT
     await waitFor(() => {
@@ -116,8 +114,6 @@ describe('Component: SidebarContributeLinks', () => {
 
   it('given canShowManagement is true and canShowDevelopmentAndSubscribe is false, only renders the Management section when expanded', async () => {
     // ARRANGE
-    const user = userEvent.setup();
-
     render(
       <SidebarContributeLinks
         canShowDevelopmentAndSubscribe={false} // !!
@@ -139,7 +135,7 @@ describe('Component: SidebarContributeLinks', () => {
     );
 
     // ACT
-    await user.click(screen.getByRole('button', { name: 'Contribute' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Contribute' }));
 
     // ASSERT
     await waitFor(() => {
@@ -152,8 +148,6 @@ describe('Component: SidebarContributeLinks', () => {
 
   it('given canShowDevelopmentAndSubscribe is true and canShowManagement is false, only renders Development and Subscribe sections when expanded', async () => {
     // ARRANGE
-    const user = userEvent.setup();
-
     render(
       <SidebarContributeLinks
         canShowDevelopmentAndSubscribe={true} // !!
@@ -175,7 +169,7 @@ describe('Component: SidebarContributeLinks', () => {
     );
 
     // ACT
-    await user.click(screen.getByRole('button', { name: 'Contribute' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Contribute' }));
 
     // ASSERT
     await waitFor(() => {
@@ -188,8 +182,6 @@ describe('Component: SidebarContributeLinks', () => {
 
   it('given both props are true, renders all three child sections when expanded', async () => {
     // ARRANGE
-    const user = userEvent.setup();
-
     render(
       <SidebarContributeLinks
         canShowDevelopmentAndSubscribe={true} // !!
@@ -211,7 +203,7 @@ describe('Component: SidebarContributeLinks', () => {
     );
 
     // ACT
-    await user.click(screen.getByRole('button', { name: 'Contribute' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Contribute' }));
 
     // ASSERT
     await waitFor(() => {

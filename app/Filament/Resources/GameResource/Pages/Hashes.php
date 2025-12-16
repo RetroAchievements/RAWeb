@@ -20,6 +20,7 @@ use Filament\Schemas;
 use Filament\Support\Enums\FontFamily;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
 
@@ -30,6 +31,19 @@ class Hashes extends ManageRelatedRecords
     protected static string $relationship = 'hashes';
 
     protected static string|BackedEnum|null $navigationIcon = 'fas-file-archive';
+
+    public function getTitle(): string|Htmlable
+    {
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        return "{$game->title} ({$game->system->name_short}) - " . static::getRelationshipTitle();
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return static::getRelationshipTitle();
+    }
 
     public static function canAccess(array $arguments = []): bool
     {
@@ -85,10 +99,12 @@ class Hashes extends ManageRelatedRecords
 
             ])
             ->headerActions([
-                Actions\Action::make('view-comments')
-                    ->color($nonAutomatedCommentsCount > 0 ? 'info' : 'gray')
-                    ->label("View Comments ({$nonAutomatedCommentsCount})")
-                    ->url(route('game.hashes.comment.index', ['game' => $this->getOwnerRecord()->id])),
+                Actions\Action::make('view-legacy-comments')
+                    ->color('info')
+                    ->label("View Legacy Hash Maintenance Comments ({$nonAutomatedCommentsCount})")
+                    ->url(route('game.hashes.comment.index', ['game' => $this->getOwnerRecord()->id]))
+                    ->openUrlInNewTab()
+                    ->visible($nonAutomatedCommentsCount > 0),
             ])
             ->recordActions([
                 Actions\Action::make('audit-log')

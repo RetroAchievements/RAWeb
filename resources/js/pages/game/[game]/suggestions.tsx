@@ -21,11 +21,9 @@ const SimilarGameSuggestions: AppPage = () => {
         ogImage={sourceGame?.badgeUrl}
       />
 
-      <div className="container">
-        <AppLayout.Main>
-          <SimilarGameSuggestionsMainRoot />
-        </AppLayout.Main>
-      </div>
+      <AppLayout.Main>
+        <SimilarGameSuggestionsMainRoot />
+      </AppLayout.Main>
     </>
   );
 };

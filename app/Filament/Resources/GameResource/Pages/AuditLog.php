@@ -1,16 +1,61 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\GameResource\Pages;
 
+use App\Community\Enums\ArticleType;
 use App\Filament\Pages\ResourceAuditLog;
 use App\Filament\Resources\GameResource;
+use App\Models\Comment;
+use App\Models\Game;
 use App\Models\User;
 use Closure;
+use Filament\Actions;
+use Filament\Support\Enums\IconPosition;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Collection;
 
 class AuditLog extends ResourceAuditLog
 {
     protected static string $resource = GameResource::class;
+
+    public function getTitle(): string|Htmlable
+    {
+        /** @var Game $game */
+        $game = $this->getRecord();
+
+        return "{$game->title} ({$game->system->name_short}) - Audit Log";
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Audit Log';
+    }
+
+    protected function getHeaderActions(): array
+    {
+        /** @var Game $record */
+        $record = $this->record;
+
+        $legacyCommentsCount = Comment::where('ArticleType', ArticleType::GameModification)
+            ->where('ArticleID', $record->id)
+            ->count();
+
+        if ($legacyCommentsCount === 0) {
+            return [];
+        }
+
+        return [
+            Actions\Action::make('view-legacy-comments')
+                ->icon('heroicon-o-arrow-top-right-on-square')
+                ->iconPosition(IconPosition::After)
+                ->color('gray')
+                ->label("View Legacy Audit Comments ({$legacyCommentsCount})")
+                ->url(route('game.modification-comment.index', ['game' => $record->id]))
+                ->openUrlInNewTab(),
+        ];
+    }
 
     /**
      * @return Collection<string, mixed>
