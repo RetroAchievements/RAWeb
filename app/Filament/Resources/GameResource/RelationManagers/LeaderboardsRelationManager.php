@@ -168,9 +168,15 @@ class LeaderboardsRelationManager extends RelationManager
                 ]),
             ])
             ->toolbarActions([
+                Action::make('edit-display-orders')
+                    ->label('Edit order values')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('gray')
+                    ->action(fn () => $this->startEditingDisplayOrders())
+                    ->visible(fn () => !$this->isEditingDisplayOrders && $this->canReorderLeaderboards()),
                 BulkActionGroup::make([
                     BulkAction::make('promote_leaderboards')
-                        ->label('Promote selected leaderboards')
+                        ->label('Promote selected')
                         ->icon('heroicon-s-arrow-up-right')
                         ->color('success')
                         ->requiresConfirmation()
@@ -193,7 +199,7 @@ class LeaderboardsRelationManager extends RelationManager
                         })
                         ->deselectRecordsAfterCompletion(),
                     BulkAction::make('demote_leaderboards')
-                        ->label('Demote selected leaderboards')
+                        ->label('Demote selected')
                         ->icon('heroicon-s-arrow-down-left')
                         ->color('danger')
                         ->requiresConfirmation()
@@ -218,12 +224,6 @@ class LeaderboardsRelationManager extends RelationManager
                 ])
                 ->label('Bulk promote or demote')
                 ->visible(fn (): bool => $user->can('updateField', [Leaderboard::class, null, 'state'])),
-                Action::make('edit-display-orders')
-                    ->label('Edit order values')
-                    ->icon('heroicon-o-pencil-square')
-                    ->color('gray')
-                    ->action(fn () => $this->startEditingDisplayOrders())
-                    ->visible(fn () => !$this->isEditingDisplayOrders && $this->canReorderLeaderboards()),
             ])
             ->paginated([400])
             ->defaultPaginationPageOption(400)
