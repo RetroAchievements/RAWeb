@@ -90,7 +90,7 @@ class LoadGameWithRelationsAction
      * 1. The last win condition achievement in the list.
      * 2. (if no win conditions) The last progression achievement in the list.
      * 3. (if no progression achievements) The highest value achievement (by points) in the list.
-     * 4. (if all the same points) The first achievement in the list.
+     * 4. (if all the same points) The last achievement in the list.
      */
     private function computeGroupRepresentativeBadges(Game $game): void
     {
