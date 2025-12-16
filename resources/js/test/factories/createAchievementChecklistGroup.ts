@@ -1,11 +1,10 @@
 import { createFactory } from '../createFactory';
 import { createAchievement } from './createAchievement';
 
-export const createAchievementGroup = createFactory<App.Community.Data.AchievementGroup>(
-  (faker) => {
+export const createAchievementChecklistGroup =
+  createFactory<App.Community.Data.AchievementChecklistGroup>((faker) => {
     return {
       header: faker.word.words(2),
       achievements: [createAchievement(), createAchievement()],
     };
-  },
-);
+  });

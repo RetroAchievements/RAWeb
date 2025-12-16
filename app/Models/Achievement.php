@@ -388,8 +388,14 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function achievementSets(): BelongsToMany
     {
-        return $this->belongsToMany(AchievementSet::class, 'achievement_set_achievements', 'achievement_id', 'achievement_set_id', 'ID', 'id')
-            ->withPivot('order_column', 'created_at', 'updated_at');
+        return $this->belongsToMany(
+            AchievementSet::class,
+            'achievement_set_achievements',
+            'achievement_id',
+            'achievement_set_id',
+            'ID',
+            'id'
+        )->withPivot('order_column', 'achievement_group_id', 'created_at', 'updated_at');
     }
 
     /**
