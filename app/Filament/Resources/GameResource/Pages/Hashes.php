@@ -9,6 +9,7 @@ use App\Enums\GameHashCompatibility;
 use App\Filament\Resources\GameHashResource;
 use App\Filament\Resources\GameResource;
 use App\Models\Comment;
+use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\User;
 use App\Platform\Actions\LogGameHashActivityAction;
