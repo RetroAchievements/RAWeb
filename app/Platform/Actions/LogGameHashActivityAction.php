@@ -117,6 +117,11 @@ class LogGameHashActivityAction
                 'hash_md5' => $gameHash->md5,
                 'hash_labels' => $gameHash->labels,
             ])
+            ->withProperty('attributes', [
+                'hash_name' => '',
+                'hash_md5' => '',
+                'hash_labels' => '',
+            ])
             ->withProperty('hash_id', $gameHash->id)
             ->withProperty('hash_identifier', $gameHash->md5)
             ->event('unlinkedHash')
