@@ -28,7 +28,8 @@ class UserRepository extends Repository
     {
         $user = app(FindUserByIdentifierAction::class)->execute($resourceId);
 
-        if ($user) {
+        // Exclude banned and unverified users from the show endpoint.
+        if ($user && !$user->isBanned && $user->email_verified_at !== null) {
             return $this->userParser->parseNullable($user);
         }
 
@@ -37,6 +38,8 @@ class UserRepository extends Repository
 
     public function exists(string $resourceId): bool
     {
-        return app(FindUserByIdentifierAction::class)->execute($resourceId) !== null;
+        $user = app(FindUserByIdentifierAction::class)->execute($resourceId);
+
+        return $user !== null && !$user->isBanned && $user->email_verified_at !== null;
     }
 }

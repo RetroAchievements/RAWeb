@@ -321,6 +321,22 @@ class UsersTest extends JsonApiResourceTestCase
         $response->assertNotFound();
     }
 
+    public function testItReturns404ForUnverifiedUser(): void
+    {
+        // Arrange
+        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['display_name' => 'UnverifiedUser', 'email_verified_at' => null]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users/UnverifiedUser');
+
+        // Assert
+        $response->assertNotFound();
+    }
+
     public function testItReturnsCorrectAttributes(): void
     {
         // Arrange
