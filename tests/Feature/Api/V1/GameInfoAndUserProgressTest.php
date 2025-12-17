@@ -120,7 +120,7 @@ class GameInfoAndUserProgressTest extends TestCase
                 'NumAwardedToUserHardcore' => 1,
                 'UserCompletion' => '100.00%',
                 'UserCompletionHardcore' => '33.33%',
-                'TotalPlaytime' => 60,
+                'UserTotalPlaytime' => 60,
                 'Achievements' => [
                     $achievement1->ID => [
                         'ID' => $achievement1->ID,
@@ -255,7 +255,7 @@ class GameInfoAndUserProgressTest extends TestCase
                 'NumAwardedToUserHardcore' => 1,
                 'UserCompletion' => '100.00%',
                 'UserCompletionHardcore' => '33.33%',
-                'TotalPlaytime' => 60,
+                'UserTotalPlaytime' => 60,
                 'Achievements' => [
                     $achievement1->ID => [
                         'ID' => $achievement1->ID,
@@ -358,7 +358,7 @@ class GameInfoAndUserProgressTest extends TestCase
                 'NumAwardedToUserHardcore' => 0,
                 'UserCompletion' => '0.00%',
                 'UserCompletionHardcore' => '0.00%',
-                'TotalPlaytime' => 0,
+                'UserTotalPlaytime' => 0,
             ])
             ->assertSee('"Achievements":{}', false);
     }
@@ -453,7 +453,7 @@ class GameInfoAndUserProgressTest extends TestCase
                 'NumAwardedToUserHardcore' => 3,
                 'UserCompletion' => '100.00%',
                 'UserCompletionHardcore' => '100.00%',
-                'TotalPlaytime' => 60,
+                'UserTotalPlaytime' => 60,
                 'Achievements' => [
                     $achievement1->ID => [
                         'ID' => $achievement1->ID,
@@ -529,7 +529,7 @@ class GameInfoAndUserProgressTest extends TestCase
                 'NumAwardedToUserHardcore' => 0,
                 'UserCompletion' => '100.00%',
                 'UserCompletionHardcore' => '0.00%',
-                'TotalPlaytime' => 60,
+                'UserTotalPlaytime' => 60,
                 'Achievements' => [
                     $achievement1->ID => [
                         'ID' => $achievement1->ID,
@@ -605,7 +605,7 @@ class GameInfoAndUserProgressTest extends TestCase
                 'NumAwardedToUserHardcore' => 1,
                 'UserCompletion' => '33.33%',
                 'UserCompletionHardcore' => '33.33%',
-                'TotalPlaytime' => 60,
+                'UserTotalPlaytime' => 60,
                 'Achievements' => [
                     $achievement1->ID => [
                         'ID' => $achievement1->ID,
@@ -681,7 +681,7 @@ class GameInfoAndUserProgressTest extends TestCase
                 'NumAwardedToUserHardcore' => 1,
                 'UserCompletion' => '33.33%',
                 'UserCompletionHardcore' => '33.33%',
-                'TotalPlaytime' => 60,
+                'UserTotalPlaytime' => 60,
                 'Achievements' => [
                     $achievement1->ID => [
                         'ID' => $achievement1->ID,

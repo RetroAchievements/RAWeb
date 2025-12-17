@@ -19,7 +19,7 @@
  *  int        NumAwardedToUserHardcore   number of achievements earned by the user in hardcore
  *  string     UserCompletion             percentage of achievements earned by the user
  *  string     UserCompletionHardcore     percentage of achievements earned by the user in hardcore
- *  int        TotalPlaytime              total time the user has spent playing the game, in seconds
+ *  int        UserTotalPlaytime          total time the user has spent playing the game, in seconds
  *  map        Achievements
  *   string     [key]                     unique identifier of the achievement
  *    int        ID                       unique identifier of the achievement
@@ -97,7 +97,7 @@ $gameData = [
     'NumAwardedToUserHardcore' => $playerGame->achievements_unlocked_hardcore ?? 0,
     'UserCompletion' => sprintf("%01.2f%%", ($playerGame->completion_percentage ?? 0) * 100),
     'UserCompletionHardcore' => sprintf("%01.2f%%", ($playerGame->completion_percentage_hardcore ?? 0) * 100),
-    'TotalPlaytime' => $playerGame->playtime_total ?? 0,
+    'UserTotalPlaytime' => $playerGame->playtime_total ?? 0,
     'ForumTopicID' => $game->ForumTopicID,
     'Flags' => 0,
     'ImageIcon' => $game->ImageIcon,
