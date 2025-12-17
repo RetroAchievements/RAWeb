@@ -5,4 +5,6 @@ export interface AchievementSectionProps {
   children: ReactNode;
   isInitiallyOpened: boolean;
   title: string;
+
+  iconUrl?: string;
 }
