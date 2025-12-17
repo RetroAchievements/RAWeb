@@ -538,6 +538,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
      */
     public function scopeVerified(Builder $query): Builder
     {
-        return $query->where('Permissions', '>', 0);
+        return $query->whereNotNull('email_verified_at');
     }
 }
