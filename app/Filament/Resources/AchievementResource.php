@@ -287,7 +287,7 @@ class AchievementResource extends Resource
                     ->icon('heroicon-s-photo')
                     ->schema([
                         Forms\Components\FileUpload::make('BadgeName')
-                            ->label('Badge')
+                            ->label('Icon')
                             ->disk('livewire-tmp')
                             ->image()
                             ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/gif'])
