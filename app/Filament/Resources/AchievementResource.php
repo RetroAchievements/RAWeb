@@ -79,11 +79,11 @@ class AchievementResource extends Resource
                 Schemas\Components\Flex::make([
                     Infolists\Components\ImageEntry::make('badge_url')
                         ->label('Icon')
-                        ->size(config('media.icon.lg.width')),
+                        ->size(config('media.icon.md.width')),
 
                     Infolists\Components\ImageEntry::make('badge_locked_url')
                         ->label('Icon (Locked)')
-                        ->size(config('media.icon.lg.width')),
+                        ->size(config('media.icon.md.width')),
                 ])->from('md'),
 
                 Schemas\Components\Section::make('Primary Details')
@@ -254,7 +254,7 @@ class AchievementResource extends Resource
 
                         Forms\Components\Select::make('type')
                             ->label('Type')
-                            ->placeholder('none')
+                            ->placeholder('None')
                             ->options(function (?Achievement $record) {
                                 $canHaveBeatenTypes = $record?->getCanHaveBeatenTypes() ?? true;
 
