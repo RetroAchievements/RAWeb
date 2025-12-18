@@ -128,7 +128,7 @@ class AchievementPolicy
     {
         $roleFieldPermissions = [
             Role::DEVELOPER_JUNIOR => ['Title', 'Description', 'type', 'Points', 'DisplayOrder'],
-            Role::DEVELOPER => ['Title', 'Description', 'Flags', 'type', 'Points', 'DisplayOrder'],
+            Role::DEVELOPER => ['Title', 'Description', 'Flags', 'type', 'Points', 'DisplayOrder', 'AssocVideo'],
             Role::WRITER => ['Title', 'Description'],
         ];
 

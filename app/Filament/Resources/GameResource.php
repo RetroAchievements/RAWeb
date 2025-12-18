@@ -81,7 +81,7 @@ class GameResource extends Resource
         return $schema
             ->components([
                 Infolists\Components\ImageEntry::make('badge_url')
-                    ->label('')
+                    ->label('Badge')
                     ->size(config('media.icon.lg.width')),
 
                 Schemas\Components\Section::make('Primary Details')

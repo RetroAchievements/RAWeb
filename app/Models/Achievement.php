@@ -91,6 +91,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
+        'AssocVideo',
         'BadgeName',
         'Description',
         'DisplayOrder',
@@ -116,6 +117,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     ];
 
     protected $visible = [
+        'AssocVideo',
         'BadgeName',
         'DateCreated',
         'DateModified',
