@@ -255,12 +255,18 @@ class AchievementResource extends Resource
                         Forms\Components\Select::make('type')
                             ->label('Type')
                             ->placeholder('none')
-                            ->options(
-                                collect(AchievementType::cases())
-                                    ->mapWithKeys(fn ($value) => [$value => __('achievement-type.' . $value)])
-                            )
+                            ->options(function (?Achievement $record) {
+                                $canHaveBeatenTypes = $record?->getCanHaveBeatenTypes() ?? true;
+
+                                $types = collect(AchievementType::cases());
+                                if (!$canHaveBeatenTypes) {
+                                    $types = $types->filter(fn ($type) => $type === AchievementType::Missable);
+                                }
+
+                                return $types->mapWithKeys(fn ($value) => [$value => __('achievement-type.' . $value)]);
+                            })
                             ->helperText('A game is considered beaten if ALL Progression achievements are unlocked and ANY Win Condition achievements are unlocked.')
-                            ->hidden(fn (?Achievement $record) => $record?->game?->system?->id === System::Events)
+                            ->hidden(fn (?Achievement $record) => !System::isGameSystem($record?->game?->system?->id ?? 0))
                             ->disabled(!$user->can('updateField', [$schema->model, 'type'])),
                     ]),
 
