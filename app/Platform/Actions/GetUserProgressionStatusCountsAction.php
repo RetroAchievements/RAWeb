@@ -25,17 +25,32 @@ class GetUserProgressionStatusCountsAction
      */
     public function execute(User $user, ?int $recentSystemId = null): array
     {
+        $subsetExistsSubquery = "EXISTS (
+            SELECT 1 FROM game_achievement_sets gas1
+            INNER JOIN game_achievement_sets gas2 ON gas2.achievement_set_id = gas1.achievement_set_id
+            WHERE gas1.game_id = player_games.game_id
+            AND gas1.type = '" . AchievementSetType::Core->value . "'
+            AND gas2.game_id != gas1.game_id
+            AND gas2.type != '" . AchievementSetType::Core->value . "'
+        )";
+
         $results = PlayerGame::query()
-            ->selectRaw('
+            ->selectRaw("
                 GameData.ConsoleID,
-                COUNT(*) as total_games,
                 SUM(player_games.achievements_unlocked_hardcore) as total_hc_achievements,
                 SUM(player_games.achievements_unlocked - player_games.achievements_unlocked_hardcore) as total_sc_achievements,
                 SUM(player_games.completed_hardcore_at IS NOT NULL) as mastered_count,
                 SUM(player_games.completed_hardcore_at IS NULL AND player_games.completed_at IS NOT NULL) as completed_count,
                 SUM(player_games.beaten_hardcore_at IS NOT NULL AND player_games.completed_at IS NULL) as beaten_hc_count,
-                SUM(player_games.beaten_at IS NOT NULL AND player_games.beaten_hardcore_at IS NULL AND player_games.completed_at IS NULL) as beaten_sc_count
-            ')
+                SUM(player_games.beaten_at IS NOT NULL AND player_games.beaten_hardcore_at IS NULL AND player_games.completed_at IS NULL) as beaten_sc_count,
+                SUM(
+                    player_games.completed_hardcore_at IS NULL
+                    AND player_games.completed_at IS NULL
+                    AND player_games.beaten_hardcore_at IS NULL
+                    AND player_games.beaten_at IS NULL
+                    AND NOT {$subsetExistsSubquery}
+                ) as unfinished_count
+            ")
             ->join('GameData', 'GameData.ID', '=', 'player_games.game_id')
             ->join('Console', 'Console.ID', '=', 'GameData.ConsoleID')
             ->where('player_games.user_id', $user->id)
@@ -57,8 +72,7 @@ class GetUserProgressionStatusCountsAction
             $completed = (int) $row->completed_count;
             $beatenHc = (int) $row->beaten_hc_count;
             $beatenSc = (int) $row->beaten_sc_count;
-            $total = (int) $row->total_games;
-            $unfinished = $total - $mastered - $completed - $beatenHc - $beatenSc;
+            $unfinished = (int) $row->unfinished_count;
 
             $systemProgress[$systemId] = [
                 'unfinishedCount' => $unfinished,
