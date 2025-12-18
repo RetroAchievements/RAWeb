@@ -143,7 +143,6 @@ class LeaderboardsRelationManager extends RelationManager
                         ->visible(function (Leaderboard $leaderboard) use ($user) {
                             return $user->can('manage', $leaderboard) && !$user->can('update', $leaderboard);
                         }),
-
                     Action::make('edit')
                         ->label('Edit')
                         ->icon('heroicon-s-pencil')
@@ -162,6 +161,39 @@ class LeaderboardsRelationManager extends RelationManager
                         ->icon('heroicon-o-arrow-down')
                         ->action(fn (Leaderboard $leaderboard) => $this->moveLeaderboardToPosition($leaderboard, 'bottom'))
                         ->visible(fn () => $this->canReorderLeaderboards() && !$this->isEditingDisplayOrders),
+                    Action::make('promote-leaderboard')
+                        ->label('Promote')
+                        ->icon('heroicon-s-arrow-up-right')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (Leaderboard $leaderboard) {
+                            $leaderboard->state = LeaderboardState::Active;
+                            $leaderboard->push();
+
+                            Notification::make()
+                                ->success()
+                                ->title('Leaderboard promoted')
+                                ->send();
+                        })
+                        ->visible(function (Leaderboard $leaderboard) use ($user) {
+                            return $user->can('updateField', [$leaderboard, 'state']) && $leaderboard->state !== LeaderboardState::Active;
+                        }),
+                    Action::make('demote-leaderboard')
+                        ->label('Demote')
+                        ->icon('heroicon-s-arrow-down-left')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->action(function (Leaderboard $leaderboard) {
+                            $leaderboard->state = LeaderboardState::Unpublished;
+                            $leaderboard->push();
+                            Notification::make()
+                                ->success()
+                                ->title('Leaderboard demoted')
+                                ->send();
+                        })
+                        ->visible(function (Leaderboard $leaderboard) use ($user) {
+                            return $user->can('updateField', [$leaderboard, 'state']) && $leaderboard->state !== LeaderboardState::Unpublished;
+                        }),
                     CloneLeaderboardAction::make('clone_leaderboard'),
                     ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
                     DeleteLeaderboardAction::make('delete_leaderboard'),
