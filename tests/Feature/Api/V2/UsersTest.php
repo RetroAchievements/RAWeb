@@ -122,46 +122,6 @@ class UsersTest extends JsonApiResourceTestCase
         $this->assertNotContains($unverifiedUser->ulid, $ids);
     }
 
-    public function testItFiltersByDisplayName(): void
-    {
-        // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
-        $user1 = User::factory()->create(['display_name' => 'AlphaUser']);
-        $user2 = User::factory()->create(['display_name' => 'BetaUser']);
-
-        // Act
-        $response = $this->jsonApi('v2')
-            ->expects('users')
-            ->withHeader('X-API-Key', 'test-key')
-            ->get('/api/v2/users?filter[displayName]=AlphaUser');
-
-        // Assert
-        $response->assertSuccessful();
-        $ids = collect($response->json('data'))->pluck('id')->toArray();
-        $this->assertContains($user1->ulid, $ids);
-        $this->assertNotContains($user2->ulid, $ids);
-    }
-
-    public function testItFiltersByUsername(): void
-    {
-        // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
-        $user1 = User::factory()->create(['User' => 'LegacyName1', 'display_name' => 'CurrentName1']);
-        $user2 = User::factory()->create(['User' => 'LegacyName2', 'display_name' => 'CurrentName2']);
-
-        // Act
-        $response = $this->jsonApi('v2')
-            ->expects('users')
-            ->withHeader('X-API-Key', 'test-key')
-            ->get('/api/v2/users?filter[username]=LegacyName1');
-
-        // Assert
-        $response->assertSuccessful();
-        $ids = collect($response->json('data'))->pluck('id')->toArray();
-        $this->assertContains($user1->ulid, $ids);
-        $this->assertNotContains($user2->ulid, $ids);
-    }
-
     public function testItSortsByPointsByDefault(): void
     {
         // Arrange
@@ -365,7 +325,6 @@ class UsersTest extends JsonApiResourceTestCase
         $attributes = $response->json('data.attributes');
 
         $this->assertEquals('TestPlayer', $attributes['displayName']);
-        $this->assertEquals('TestPlayer', $attributes['username']);
         $this->assertEquals('Test motto', $attributes['motto']);
         $this->assertEquals(5000, $attributes['points']);
         $this->assertEquals(100, $attributes['pointsSoftcore']);
@@ -447,6 +406,55 @@ class UsersTest extends JsonApiResourceTestCase
         $this->assertIsArray($displayableRoles);
         $this->assertContains('developer', $displayableRoles);
         $this->assertContains('artist', $displayableRoles);
+    }
+
+    public function testItFiltersByDisplayableRole(): void
+    {
+        // Arrange
+        User::factory()->create(['APIKey' => 'test-key']);
+        $developer = User::factory()->create();
+        $artist = User::factory()->create();
+
+        $developerRole = Role::create(['name' => 'developer', 'display' => 1]);
+        $artistRole = Role::create(['name' => 'artist', 'display' => 2]);
+        $developer->assignRole($developerRole);
+        $artist->assignRole($artistRole);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users?filter[role]=developer');
+
+        // Assert
+        $response->assertSuccessful();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        $this->assertContains($developer->ulid, $ids);
+        $this->assertNotContains($artist->ulid, $ids);
+    }
+
+    public function testItDoesNotExposeHiddenRolesViaFilter(): void
+    {
+        // Arrange
+        User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create();
+
+        $hiddenRole = Role::create([
+            'name' => 'root',
+            'display' => 0, // !!
+        ]);
+        $user->assignRole($hiddenRole);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('users')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/users?filter[role]=root');
+
+        // Assert
+        $response->assertSuccessful();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        $this->assertNotContains($user->ulid, $ids);
     }
 
     public function testItReturnsUnrankedStatus(): void

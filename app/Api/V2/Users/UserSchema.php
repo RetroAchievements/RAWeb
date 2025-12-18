@@ -13,7 +13,7 @@ use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Str;
-use LaravelJsonApi\Eloquent\Filters\Where;
+use LaravelJsonApi\Eloquent\Filters\Scope;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
 
@@ -66,27 +66,26 @@ class UserSchema extends Schema
             // The actual lookup is handled by UserRepository using FindUserByIdentifierAction.
             ID::make('ulid')->matchAs('.+'),
 
-            Str::make('displayName', 'display_name'),
-            Str::make('username', 'User'),
+            Str::make('displayName', 'display_name')->readOnly(),
 
             Str::make('avatarUrl')->readOnly(),
-            Str::make('motto', 'Motto'),
+            Str::make('motto', 'Motto')->readOnly(),
 
-            Number::make('points', 'RAPoints')->sortable(),
-            Number::make('pointsSoftcore', 'RASoftcorePoints'),
-            Number::make('pointsWeighted', 'TrueRAPoints')->sortable(),
+            Number::make('points', 'RAPoints')->sortable()->readOnly(),
+            Number::make('pointsSoftcore', 'RASoftcorePoints')->sortable()->readOnly(),
+            Number::make('pointsWeighted', 'TrueRAPoints')->sortable()->readOnly(),
 
-            Number::make('yieldUnlocks', 'ContribCount'),
-            Number::make('yieldPoints', 'ContribYield'),
+            Number::make('yieldUnlocks', 'ContribCount')->sortable()->readOnly(),
+            Number::make('yieldPoints', 'ContribYield')->sortable()->readOnly(),
 
-            DateTime::make('joinedAt', 'Created')->sortable(),
-            DateTime::make('lastActivityAt', 'LastLogin')->sortable(),
+            DateTime::make('joinedAt', 'Created')->sortable()->readOnly(),
+            DateTime::make('lastActivityAt', 'LastLogin')->sortable()->readOnly(),
 
             Boolean::make('isUnranked')->readOnly(),
-            Boolean::make('isUserWallActive', 'UserWallActive'),
+            Boolean::make('isUserWallActive', 'UserWallActive')->readOnly(),
 
-            Str::make('richPresenceMessage', 'RichPresenceMsg'),
-            DateTime::make('richPresenceUpdatedAt', 'RichPresenceMsgDate'),
+            Str::make('richPresenceMessage', 'RichPresenceMsg')->readOnly(),
+            DateTime::make('richPresenceUpdatedAt', 'RichPresenceMsgDate')->readOnly(),
 
             Str::make('visibleRole')->readOnly(),
             ArrayList::make('displayableRoles')->readOnly(),
@@ -101,6 +100,7 @@ class UserSchema extends Schema
             // - followers (BelongsToMany User) - users following this user
             // - authoredAchievements (HasMany Achievement)
             // - claims (HasMany AchievementSetClaim)
+            // - wall comments (HasMany Comment, ArticleType=3 ArticleID=self)
         ];
     }
 
@@ -110,8 +110,7 @@ class UserSchema extends Schema
     public function filters(): array
     {
         return [
-            Where::make('displayName', 'display_name'),
-            Where::make('username', 'User'),
+            Scope::make('role', 'withRole'),
         ];
     }
 

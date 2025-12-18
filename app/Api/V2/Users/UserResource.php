@@ -31,7 +31,6 @@ class UserResource extends JsonApiResource
     {
         return [
             'displayName' => $this->resource->display_name,
-            'username' => $this->resource->User,
 
             'avatarUrl' => $this->resource->avatarUrl,
             'motto' => $this->resource->Motto,

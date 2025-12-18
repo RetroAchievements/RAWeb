@@ -540,4 +540,13 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     {
         return $query->whereNotNull('email_verified_at');
     }
+
+    /**
+     * @param Builder<User> $query
+     * @return Builder<User>
+     */
+    public function scopeWithRole(Builder $query, string $role): Builder
+    {
+        return $query->whereHas('displayableRoles', fn ($q) => $q->where('name', $role));
+    }
 }
