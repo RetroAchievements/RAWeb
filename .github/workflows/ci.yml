@@ -160,7 +160,7 @@ jobs:
 
       - name: Run tests with sharding
         if: ${{ needs.changes.outputs.php == 'true' }}
-        run: ./vendor/bin/pest --parallel --processes=$(nproc) --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        run: ./vendor/bin/pest --parallel --processes=$(nproc) --shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
   node-checks:
     needs: [changes, node-setup]
