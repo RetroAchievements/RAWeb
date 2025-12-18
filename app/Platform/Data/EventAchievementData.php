@@ -43,15 +43,16 @@ class EventAchievementData extends Data
             return new self(
                 achievement: Lazy::create(fn () => new AchievementData(
                     badgeLockedUrl: media_asset('Badge/00000_lock.png'),
-                    developer: Lazy::create(fn () => null),
                     badgeUnlockedUrl: media_asset('Badge/00000.png'),
                     id: $eventAchievement->achievement->id,
                     title: 'Upcoming Challenge',
                     createdAt: Lazy::create(fn () => $eventAchievement->achievement->DateCreated),
                     description: Lazy::create(fn () => '?????'),
                     decorator: Lazy::create(fn () => $eventAchievement->decorator),
+                    developer: Lazy::create(fn () => null),
                     flags: Lazy::create(fn () => AchievementFlag::from($eventAchievement->achievement->Flags)),
                     game: Lazy::create(fn () => GameData::fromGame($eventAchievement->achievement->game)),
+                    groupId: Lazy::create(fn () => null),
                     orderColumn: Lazy::create(fn () => $eventAchievement->achievement->DisplayOrder),
                     points: Lazy::create(fn () => $eventAchievement->achievement->points),
                     pointsWeighted: Lazy::create(fn () => $eventAchievement->achievement->points_weighted),

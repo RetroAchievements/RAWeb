@@ -125,6 +125,15 @@ class AchievementSet extends BaseModel
     // == relations
 
     /**
+     * @return HasMany<AchievementGroup, $this>
+     */
+    public function achievementGroups(): HasMany
+    {
+        return $this->hasMany(AchievementGroup::class)
+            ->orderBy('order_column');
+    }
+
+    /**
      * @return HasMany<GameAchievementSet, $this>
      */
     public function gameAchievementSets(): HasMany
@@ -147,7 +156,7 @@ class AchievementSet extends BaseModel
     public function achievements(): BelongsToMany
     {
         return $this->belongsToMany(Achievement::class, 'achievement_set_achievements', 'achievement_set_id', 'achievement_id', 'id', 'ID')
-            ->withPivot('order_column')
+            ->withPivot('order_column', 'achievement_group_id')
             ->withTimestamps();
     }
 
