@@ -33,7 +33,11 @@ export function useCurrentListView() {
       url.searchParams.delete('view');
     }
 
-    window.history.replaceState({}, '', url.toString());
+    router.replace({
+      url: url.toString(),
+      preserveScroll: true,
+      preserveState: true,
+    });
 
     /**
      * FALLBACK: If we're switching to leaderboards and that deferred data

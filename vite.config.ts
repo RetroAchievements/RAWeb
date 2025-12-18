@@ -95,8 +95,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
       include: ['resources/js/**/*.{test,spec}.{ts,tsx}'],
       globals: true,
 
-      /** @see https://vitest.dev/guide/improving-performance.html#pool */
-      pool: 'threads',
+      pool: 'forks',
 
       // Filter out harmless happy-dom errors from stderr.
       onConsoleLog(log, type) {
