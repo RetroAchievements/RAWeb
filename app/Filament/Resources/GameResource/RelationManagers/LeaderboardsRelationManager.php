@@ -162,6 +162,7 @@ class LeaderboardsRelationManager extends RelationManager
                         ->icon('heroicon-o-arrow-down')
                         ->action(fn (Leaderboard $leaderboard) => $this->moveLeaderboardToPosition($leaderboard, 'bottom'))
                         ->visible(fn () => $this->canReorderLeaderboards() && !$this->isEditingDisplayOrders),
+                    CloneLeaderboardAction::make('clone_leaderboard'),
                     Action::make('promote-leaderboard')
                         ->label('Promote')
                         ->icon('heroicon-s-arrow-up-right')
@@ -195,7 +196,6 @@ class LeaderboardsRelationManager extends RelationManager
                         ->visible(function (Leaderboard $leaderboard) use ($user) {
                             return $user->can('updateField', [$leaderboard, 'state']) && $leaderboard->state !== LeaderboardState::Unpublished;
                         }),
-                    CloneLeaderboardAction::make('clone_leaderboard'),
                     ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
                     DeleteLeaderboardAction::make('delete_leaderboard'),
                 ]),
