@@ -68,6 +68,7 @@ class LeaderboardsRelationManager extends RelationManager
 
         return $table
             ->recordTitleAttribute('title')
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['developer', 'game']))
             ->columns([
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
