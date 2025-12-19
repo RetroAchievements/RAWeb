@@ -9,6 +9,10 @@ return [
             'relationship' => 'Relationship',
         ],
         'events' => [
+            'achievementGroupCreated' => 'Achievement group created',
+            'achievementGroupDeleted' => 'Achievement group deleted',
+            'achievementGroupUpdated' => 'Achievement group updated',
+            'achievementsAssignedToGroup' => 'Achievements assigned to group',
             'created' => 'Created',
             'deleted' => 'Deleted',
             'linkedHash' => 'Linked Hash',

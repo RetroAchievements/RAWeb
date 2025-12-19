@@ -8,8 +8,8 @@ use App\Platform\Data\AchievementData;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript('AchievementGroup')]
-class AchievementGroupData extends Data
+#[TypeScript('AchievementChecklistGroup')]
+class AchievementChecklistGroupData extends Data
 {
     public function __construct(
         public string $header,

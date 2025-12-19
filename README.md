@@ -53,10 +53,6 @@ composer install
 composer setup
 ```
 
-> **Note**
-> In case you want to rely on the shipped `composer.phar` instead of a global installation read all mentions of `composer` within commands as `php composer.phar`.
-> I.e. run `php composer.phar setup` if you haven't aliased it.
-
 ### Configure
 
 The environment configuration file (`.env`) contains a sensible set of default values.
