@@ -180,7 +180,7 @@ class LeaderboardsRelationManager extends RelationManager
                         }),
                     Action::make('demote-leaderboard')
                         ->label('Demote')
-                        ->icon('heroicon-s-arrow-down-left')
+                        ->icon('heroicon-s-arrow-down-right')
                         ->color('danger')
                         ->requiresConfirmation()
                         ->action(function (Leaderboard $leaderboard) {
@@ -232,7 +232,7 @@ class LeaderboardsRelationManager extends RelationManager
                         ->deselectRecordsAfterCompletion(),
                     BulkAction::make('demote_leaderboards')
                         ->label('Demote selected')
-                        ->icon('heroicon-s-arrow-down-left')
+                        ->icon('heroicon-s-arrow-down-right')
                         ->color('danger')
                         ->requiresConfirmation()
                         ->action(function (Builder $query) use ($user) {
