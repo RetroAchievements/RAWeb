@@ -7,6 +7,7 @@ namespace App\Community\Components;
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
 use App\Enums\Permissions;
+use App\Models\Achievement;
 use App\Models\PlayerStat;
 use App\Models\User;
 use App\Platform\Enums\PlayerStatType;
@@ -48,8 +49,6 @@ class UserProfileMeta extends Component
         if ($this->userMassData['ContribCount'] > 0 || $this->user->getAttribute('Permissions') >= Permissions::JuniorDeveloper) {
             $developerStats = $this->buildDeveloperStats($this->user, $this->userMassData);
         }
-
-        $this->calculateRecentPointsEarned($this->user);
 
         return view('components.user.profile-meta', [
             'developerStats' => $developerStats,
@@ -463,30 +462,27 @@ class UserProfileMeta extends Component
 
     private function calculateRecentPointsEarned(User $user, string $preferredMode = 'hardcore'): array
     {
-        $thirtyDaysAgo = now()->subDays(30)->startOfDay();
-
         $dateColumn = $preferredMode === 'hardcore' ? 'unlocked_hardcore_at' : 'unlocked_at';
 
-        $achievements = $user->playerAchievements()
-            ->with('achievement')
-            ->where($dateColumn, '>=', $thirtyDaysAgo)
-            ->get();
+        $pointsLast7Days = (int) Achievement::query()
+            ->whereIn('ID', function ($query) use ($user, $dateColumn) {
+                $sevenDaysAgo = now()->subDays(7)->startOfDay();
+                $query->select('achievement_id')
+                    ->from('player_achievements')
+                    ->where($dateColumn, '>=', $sevenDaysAgo)
+                    ->where('user_id', $user->id);
+            })
+            ->sum('Points');
 
-        $pointsLast30Days = 0;
-        $pointsLast7Days = 0;
-
-        $now = now();
-
-        foreach ($achievements as $playerAchievement) {
-            $achievementDate = $playerAchievement->{$dateColumn};
-            $daysAgo = $now->diffInDays($achievementDate, true);
-
-            if ($daysAgo <= 7) {
-                $pointsLast7Days += $playerAchievement->achievement->points;
-            }
-
-            $pointsLast30Days += $playerAchievement->achievement->points;
-        }
+        $pointsLast30Days = (int) Achievement::query()
+            ->whereIn('ID', function ($query) use ($user, $dateColumn) {
+                $thirtyDaysAgo = now()->subDays(30)->startOfDay();
+                $query->select('achievement_id')
+                    ->from('player_achievements')
+                    ->where($dateColumn, '>=', $thirtyDaysAgo)
+                    ->where('user_id', $user->id);
+            })
+            ->sum('Points');
 
         return compact('pointsLast30Days', 'pointsLast7Days');
     }
