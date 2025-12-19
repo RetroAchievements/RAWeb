@@ -1006,7 +1006,6 @@ class StartSessionTest extends TestCase
 
     public function testExclusiveHashReturnsOnlyExclusiveUnlocks(): void
     {
-        // Arrange
         config(['feature.enable_multiset' => true]);
 
         $now = Carbon::create(2020, 3, 4, 16, 40, 13);
