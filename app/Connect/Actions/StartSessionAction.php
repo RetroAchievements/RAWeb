@@ -74,7 +74,15 @@ class StartSessionAction extends BaseAuthenticatedApiAction
             $gameHash = GameHash::whereMd5($this->gameHashMd5)->first();
         }
 
-        // if multiset is enabled, redirect the heartbeat to the root game.
+        // Resolve achievement sets for multiset. This determines which sets we should
+        // query for unlocks. If empty (no hash, multiset disabled, or no sets found),
+        // we fall back to the resolved game ID.
+        $resolvedSets = collect();
+        if (config('feature.enable_multiset') && $gameHash) {
+            $resolvedSets = (new ResolveAchievementSetsAction())->execute($gameHash, $this->user);
+        }
+
+        // If multiset is enabled, redirect the heartbeat to the root game.
         if (config('feature.enable_multiset')) {
             $this->game = (new ResolveRootGameFromGameAndGameHashAction())->execute($gameHash, $this->game, $this->user);
         }
@@ -83,8 +91,14 @@ class StartSessionAction extends BaseAuthenticatedApiAction
 
         $response = $this->emptyResponse();
 
-        // split the unlocks into hardcore and non-hardcore
-        $userUnlocks = getUserAchievementUnlocksForGame($this->user, $this->game->id);
+        // Extract achievement set IDs from resolved sets for the unlock query.
+        // When null, getUserAchievementUnlocksForGame falls back to game ID filtering.
+        $achievementSetIds = $resolvedSets->isNotEmpty()
+            ? $resolvedSets->pluck('achievement_set_id')->unique()->values()->all()
+            : null;
+
+        // Split the unlocks into hardcore and non-hardcore.
+        $userUnlocks = getUserAchievementUnlocksForGame($this->user, $this->game->id, achievementSetIds: $achievementSetIds);
         $userUnlocks = reactivateUserEventAchievements($this->user, $userUnlocks);
         foreach ($userUnlocks as $achId => $unlock) {
             if (array_key_exists('DateEarnedHardcore', $unlock)) {

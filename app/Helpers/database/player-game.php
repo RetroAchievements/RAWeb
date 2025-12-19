@@ -245,8 +245,12 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
     return $libraryOut;
 }
 
-function getUserAchievementUnlocksForGame(User|string $user, int $gameID, AchievementFlag $flag = AchievementFlag::OfficialCore): array
-{
+function getUserAchievementUnlocksForGame(
+    User|string $user,
+    int $gameID,
+    AchievementFlag $flag = AchievementFlag::OfficialCore,
+    ?array $achievementSetIds = null,
+): array {
     $user = is_string($user) ? User::whereName($user)->first() : $user;
 
     $playerAchievements = $user
@@ -255,7 +259,17 @@ function getUserAchievementUnlocksForGame(User|string $user, int $gameID, Achiev
         ->join('achievement_set_achievements', 'Achievements.ID', '=', 'achievement_set_achievements.achievement_id')
         ->join('achievement_sets', 'achievement_sets.id', '=', 'achievement_set_achievements.achievement_set_id')
         ->join('game_achievement_sets', 'game_achievement_sets.achievement_set_id', '=', 'achievement_sets.id')
-        ->where('game_achievement_sets.game_id', $gameID)
+
+        /**
+         * When achievement set IDs are provided, filter unlocks for content from those specific sets.
+         * Otherwise, fall back to filtering by game ID.
+         */
+        ->when(
+            !empty($achievementSetIds),
+            fn ($q) => $q->whereIn('achievement_sets.id', $achievementSetIds),
+            fn ($q) => $q->where('game_achievement_sets.game_id', $gameID)
+        )
+
         ->where('Flags', $flag->value)
         ->orderBy('player_achievements.achievement_id')
         ->get([
