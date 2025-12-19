@@ -80,10 +80,8 @@ class StartSessionAction extends BaseAuthenticatedApiAction
         $resolvedSets = collect();
         if (config('feature.enable_multiset') && $gameHash) {
             $resolvedSets = (new ResolveAchievementSetsAction())->execute($gameHash, $this->user);
-        }
 
-        // If multiset is enabled, redirect the heartbeat to the root game.
-        if (config('feature.enable_multiset')) {
+            // Redirect the heartbeat to the root game.
             $this->game = (new ResolveRootGameFromGameAndGameHashAction())->execute($gameHash, $this->game, $this->user);
         }
 
