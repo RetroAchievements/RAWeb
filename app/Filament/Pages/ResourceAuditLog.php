@@ -152,6 +152,7 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
         return match ($event) {
             'created' => 'success',
             'deleted' => 'danger',
+            'linkedHash' => 'success',
             'pivotAttached' => 'info',
             'pivotDetached' => 'warning',
             'releaseCreated' => 'success',
@@ -159,12 +160,13 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
             'releaseUpdated' => 'info',
             'resetAllLeaderboardEntries' => 'danger',
             'unlinkedHash' => 'danger',
+            'updatedHash' => 'info',
             default => 'info',
         };
     }
 
     protected function getTableRecordsPerPageSelectOptions(): array
     {
-        return config('filament.default_page_options');
+        return [50];
     }
 }
