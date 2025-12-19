@@ -813,8 +813,8 @@ class BuildGameShowPagePropsAction
         }
 
         return $game->leaderboards
-                ->where('state', $isViewingPublishedAchievements ? LeaderboardState::Active : LeaderboardState::Unpublished)
-                ->count();
+            ->where('state', $isViewingPublishedAchievements ? LeaderboardState::Active : LeaderboardState::Unpublished)
+            ->count();
     }
 
     private function getInterestedDevelopersCount(Game $game, ?User $user): ?int
