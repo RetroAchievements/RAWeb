@@ -323,13 +323,14 @@ function reactivateUserEventAchievements(User $user, array $userUnlocks): array
     return $userUnlocks;
 }
 
-function getUsersCompletedGamesAndMax(string $user): array
+function getUsersCompletedGamesAndMax(string $user, ?int $limit = null): array
 {
     if (!isValidUsername($user)) {
         return [];
     }
 
     $minAchievementsForCompletion = 5;
+    $limitClause = $limit !== null ? "LIMIT $limit" : "";
 
     $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID,
             gd.ImageIcon, gd.Title, gd.sort_title as SortTitle, gd.achievements_published as MaxPossible,
@@ -343,7 +344,8 @@ function getUsersCompletedGamesAndMax(string $user): array
             LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
             WHERE (ua.User = :user OR ua.display_name = :user2)
             AND gd.achievements_published > $minAchievementsForCompletion
-            ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.Title";
+            ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.Title
+            $limitClause";
 
     return legacyDbFetchAll($query, ['user' => $user, 'user2' => $user])->toArray();
 }
