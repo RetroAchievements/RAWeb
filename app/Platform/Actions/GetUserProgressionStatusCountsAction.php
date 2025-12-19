@@ -48,7 +48,7 @@ class GetUserProgressionStatusCountsAction
             ->selectRaw("
                 GameData.ConsoleID,
                 SUM(player_games.achievements_unlocked_hardcore) as total_hc_achievements,
-                SUM(player_games.achievements_unlocked - player_games.achievements_unlocked_hardcore) as total_sc_achievements,
+                SUM(GREATEST(0, CAST(player_games.achievements_unlocked AS SIGNED) - CAST(player_games.achievements_unlocked_hardcore AS SIGNED))) as total_sc_achievements,
                 SUM(mastery_hc.id IS NOT NULL) as mastered_count,
                 SUM(mastery_hc.id IS NULL AND mastery_sc.id IS NOT NULL) as completed_count,
                 SUM(mastery_hc.id IS NULL AND mastery_sc.id IS NULL AND beaten_hc.id IS NOT NULL) as beaten_hc_count,
