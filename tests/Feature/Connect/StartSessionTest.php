@@ -950,4 +950,115 @@ class StartSessionTest extends TestCase
         $playerSession = PlayerSession::firstWhere('user_id', $this->user->id);
         $this->assertNull($playerSession);
     }
+
+    public function testSpecialtyHashReturnsCoreUnlocks(): void
+    {
+        config(['feature.enable_multiset' => true]);
+
+        $now = Carbon::create(2020, 3, 4, 16, 40, 13);
+        Carbon::setTestNow($now);
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        // ... create a game with a core achievement ...
+        /** @var Game $baseGame */
+        $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        /** @var Achievement $coreAchievement */
+        $coreAchievement = Achievement::factory()->published()->create(['GameID' => $baseGame->id]);
+        $this->upsertGameCoreSetAction->execute($baseGame);
+
+        // ... create a specialty "subset game" with an achievement ...
+        /** @var Game $specialtyGame */
+        $specialtyGame = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => $baseGame->title . ' [Subset - Specialty]']);
+        /** @var Achievement $specialtyAchievement */
+        $specialtyAchievement = Achievement::factory()->published()->create(['GameID' => $specialtyGame->id]);
+        $this->upsertGameCoreSetAction->execute($specialtyGame);
+
+        // ... associate the specialty "subset game"'s achievement set as a Specialty set on the base game ...
+        $this->associateAchievementSetToGameAction->execute($baseGame, $specialtyGame, AchievementSetType::Specialty, 'Specialty');
+
+        // ... create a hash for the specialty game ...
+        /** @var GameHash $specialtyGameHash */
+        $specialtyGameHash = GameHash::factory()->create(['game_id' => $specialtyGame->id]);
+
+        // ... have the user unlock the core achievement ...
+        $coreUnlockDate = $now->clone()->subMinutes(30);
+        $this->addHardcoreUnlock($this->user, $coreAchievement, $coreUnlockDate);
+
+        $this->seedEmulatorUserAgents();
+
+        // ... start a session with with specialty hash. it should return core unlocks too ...
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('startsession', ['g' => $specialtyGame->id, 'm' => $specialtyGameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'HardcoreUnlocks' => [
+                    [
+                        'ID' => $coreAchievement->id,
+                        'When' => $coreUnlockDate->timestamp,
+                    ],
+                ],
+                'Unlocks' => [],
+                'ServerNow' => Carbon::now()->timestamp,
+            ]);
+    }
+
+    public function testExclusiveHashReturnsOnlyExclusiveUnlocks(): void
+    {
+        config(['feature.enable_multiset' => true]);
+
+        $now = Carbon::create(2020, 3, 4, 16, 40, 13);
+        Carbon::setTestNow($now);
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        // ... create a game with a core achievement ...
+        /** @var Game $baseGame */
+        $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        /** @var Achievement $coreAchievement */
+        $coreAchievement = Achievement::factory()->published()->create(['GameID' => $baseGame->id]);
+        $this->upsertGameCoreSetAction->execute($baseGame);
+
+        // ... create an exclusive "subset game" with an achievement ...
+        /** @var Game $exclusiveGame */
+        $exclusiveGame = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => $baseGame->title . ' [Subset - Exclusive]']);
+        /** @var Achievement $exclusiveAchievement */
+        $exclusiveAchievement = Achievement::factory()->published()->create(['GameID' => $exclusiveGame->id]);
+        $this->upsertGameCoreSetAction->execute($exclusiveGame);
+
+        // ... associate the exclusive "subset game"'s achievement set as an Exclusive set on the base game ...
+        $this->associateAchievementSetToGameAction->execute($baseGame, $exclusiveGame, AchievementSetType::Exclusive, 'Exclusive');
+
+        // ... create a hash for the exclusive game ...
+        /** @var GameHash $exclusiveGameHash */
+        $exclusiveGameHash = GameHash::factory()->create(['game_id' => $exclusiveGame->id]);
+
+        // ... have the user unlock both achievements ...
+        $coreUnlockDate = $now->clone()->subMinutes(30);
+        $this->addHardcoreUnlock($this->user, $coreAchievement, $coreUnlockDate);
+        $exclusiveUnlockDate = $now->clone()->subMinutes(15);
+        $this->addHardcoreUnlock($this->user, $exclusiveAchievement, $exclusiveUnlockDate);
+
+        $this->seedEmulatorUserAgents();
+
+        /**
+         * Start a session with the exclusive hash. This should return ONLY exclusive set unlocks,
+         * not unlocks from the base set. Exclusive sets are standalone content.
+         */
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('startsession', ['g' => $exclusiveGame->id, 'm' => $exclusiveGameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'HardcoreUnlocks' => [
+                    [
+                        'ID' => $exclusiveAchievement->id,
+                        'When' => $exclusiveUnlockDate->timestamp,
+                    ],
+                ],
+                'Unlocks' => [],
+                'ServerNow' => Carbon::now()->timestamp,
+            ]);
+    }
 }
