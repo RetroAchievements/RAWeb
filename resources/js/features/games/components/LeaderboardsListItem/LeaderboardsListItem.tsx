@@ -42,12 +42,14 @@ export const LeaderboardsListItem: FC<LeaderboardsListItemProps> = ({
           href={`/leaderboardinfo.php?i=${leaderboard.id}`}
           className="group flex size-16 flex-col items-center justify-center gap-0.5 rounded bg-embed light:border light:border-neutral-300 light:bg-white"
         >
-          {leaderboard.state === 'active' ? (
+          {leaderboard.state === 'active' || leaderboard.state === 'unpublished' ? (
             <LuChartBar className="size-6" />
           ) : (
             <BaseTooltip>
               <BaseTooltipTrigger asChild data-testid="disabled-tooltip-trigger">
-                <LuX className="size-6 text-neutral-500 transition-colors group-hover:text-white light:text-neutral-400 light:group-hover:text-black" />
+                <span className="flex size-16 cursor-pointer flex-col items-center justify-center gap-0.5 rounded">
+                  <LuX className="size-6 text-neutral-500 transition-colors group-hover:text-white light:text-neutral-400 light:group-hover:text-black" />
+                </span>
               </BaseTooltipTrigger>
               <BaseTooltipContent>
                 <div className="max-w-xs items-center text-center">
