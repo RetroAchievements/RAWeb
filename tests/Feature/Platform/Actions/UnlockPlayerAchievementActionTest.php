@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Actions;
 
 use App\Models\Game;
+use App\Models\PlayerGame;
+use App\Models\PlayerSession;
 use App\Models\User;
+use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Actions\UnlockPlayerAchievementAction;
 use App\Platform\Enums\AchievementType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -129,5 +132,41 @@ class UnlockPlayerAchievementActionTest extends TestCase
         // there still shouldn't be any player sessions
         $user1->refresh();
         $this->assertEquals(0, $user1->playerSessions()->count());
+    }
+
+    public function testSubsetAchievementThroughCoreSetDoesntCreateSubsetSession(): void
+    {
+        $coreGame = $this->seedGame(achievements: 6);
+        $coreGameHash = $coreGame->hashes()->first();
+        $subsetGame = $this->seedGame(achievements: 2);
+        $subsetAchievement = $subsetGame->achievements->get(0);
+
+        $user = User::factory()->create();
+
+        $now = Carbon::now()->startOfSecond();
+        Carbon::setTestNow($now);
+
+        // create a session for the core game
+        $sessionLength = 10;
+        (new ResumePlayerSessionAction())->execute($user, $coreGame, timestamp: $now->clone()->subMinutes($sessionLength), presence: 'Doing things');
+
+        // unlock an achievement from the subset using the core game's hash
+        $action = new UnlockPlayerAchievementAction();
+        $action->execute($user, $subsetAchievement, true, gameHash: $coreGameHash);
+
+        // core session should be extended
+        $corePlayerSession = PlayerSession::where('user_id', $user->id)->where('game_id', $coreGame->id)->first();
+        $this->assertNotNull($corePlayerSession);
+        $this->assertEquals('Doing things', $corePlayerSession->rich_presence);
+        $this->assertEquals($sessionLength, $corePlayerSession->duration);
+
+        // subset session should not be created
+        $subsetPlayerSession = PlayerSession::where('user_id', $user->id)->where('game_id', $subsetGame->id)->first();
+        $this->assertNull($subsetPlayerSession);
+
+        // subset player_games record should be created and have points from the unlock
+        $subsetPlayerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $subsetGame->id)->first();
+        $this->assertNotNull($subsetPlayerGame);
+        $this->assertEquals($subsetAchievement->Points, $subsetPlayerGame->points_hardcore);
     }
 }

@@ -9,7 +9,6 @@ use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\GameTopAchieversService;
-use Illuminate\Database\Eloquent\Collection;
 
 function getGameRankAndScore(int $gameID, User $user): array
 {
@@ -246,8 +245,12 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
     return $libraryOut;
 }
 
-function getUserAchievementUnlocksForGame(User|string $user, int $gameID, AchievementFlag $flag = AchievementFlag::OfficialCore): array
-{
+function getUserAchievementUnlocksForGame(
+    User|string $user,
+    int $gameID,
+    AchievementFlag $flag = AchievementFlag::OfficialCore,
+    ?array $achievementSetIds = null,
+): array {
     $user = is_string($user) ? User::whereName($user)->first() : $user;
 
     $playerAchievements = $user
@@ -256,7 +259,17 @@ function getUserAchievementUnlocksForGame(User|string $user, int $gameID, Achiev
         ->join('achievement_set_achievements', 'Achievements.ID', '=', 'achievement_set_achievements.achievement_id')
         ->join('achievement_sets', 'achievement_sets.id', '=', 'achievement_set_achievements.achievement_set_id')
         ->join('game_achievement_sets', 'game_achievement_sets.achievement_set_id', '=', 'achievement_sets.id')
-        ->where('game_achievement_sets.game_id', $gameID)
+
+        /**
+         * When achievement set IDs are provided, filter unlocks for content from those specific sets.
+         * Otherwise, fall back to filtering by game ID.
+         */
+        ->when(
+            !empty($achievementSetIds),
+            fn ($q) => $q->whereIn('achievement_sets.id', $achievementSetIds),
+            fn ($q) => $q->where('game_achievement_sets.game_id', $gameID)
+        )
+
         ->where('Flags', $flag->value)
         ->orderBy('player_achievements.achievement_id')
         ->get([
@@ -324,47 +337,14 @@ function reactivateUserEventAchievements(User $user, array $userUnlocks): array
     return $userUnlocks;
 }
 
-function GetAllUserProgress(User $user, int $consoleID): array
-{
-    /** @var Collection<int, Game> $games */
-    $games = Game::where('ConsoleID', $consoleID)
-        ->where('achievements_published', '>', 0)
-        ->get();
-
-    /** @var Collection<int, PlayerGame> $playerGames */
-    $playerGames = $user->playerGames()
-        ->whereIn('game_id', $games->pluck('id'))
-        ->get()
-        ->keyBy('game_id');
-
-    $result = [];
-    foreach ($games as $game) {
-        /** @var ?PlayerGame $playerGame */
-        $playerGame = $playerGames->get($game->id);
-
-        $gameDetails = ['Achievements' => $game->achievements_published];
-
-        if ($unlocked = $playerGame?->achievements_unlocked) {
-            $gameDetails['Unlocked'] = $unlocked;
-
-            if ($hardcore = $playerGame->achievements_unlocked_hardcore) {
-                $gameDetails['UnlockedHardcore'] = $hardcore;
-            }
-        }
-
-        $result[$game->id] = $gameDetails;
-    }
-
-    return $result;
-}
-
-function getUsersCompletedGamesAndMax(string $user): array
+function getUsersCompletedGamesAndMax(string $user, ?int $limit = null): array
 {
     if (!isValidUsername($user)) {
         return [];
     }
 
     $minAchievementsForCompletion = 5;
+    $limitClause = $limit !== null ? "LIMIT $limit" : "";
 
     $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID,
             gd.ImageIcon, gd.Title, gd.sort_title as SortTitle, gd.achievements_published as MaxPossible,
@@ -378,7 +358,8 @@ function getUsersCompletedGamesAndMax(string $user): array
             LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
             WHERE (ua.User = :user OR ua.display_name = :user2)
             AND gd.achievements_published > $minAchievementsForCompletion
-            ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.Title";
+            ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.Title
+            $limitClause";
 
     return legacyDbFetchAll($query, ['user' => $user, 'user2' => $user])->toArray();
 }

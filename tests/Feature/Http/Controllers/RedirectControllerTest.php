@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Http\Controllers;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class RedirectControllerTest extends TestCase
@@ -17,9 +18,10 @@ class RedirectControllerTest extends TestCase
         $response = $this->get('/redirect?url=https://example.com');
 
         // Assert
-        $response->assertStatus(200);
-        $response->assertViewIs('pages.redirect');
-        $response->assertViewHas('url', 'https://example.com');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('redirect')
+            ->where('url', 'https://example.com')
+        );
     }
 
     public function testRedirectWithAllowedDomain(): void
@@ -73,9 +75,10 @@ class RedirectControllerTest extends TestCase
         $response = $this->get('/redirect?url=example.com');
 
         // Assert
-        $response->assertStatus(200);
-        $response->assertViewIs('pages.redirect');
-        $response->assertViewHas('url', 'https://example.com');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('redirect')
+            ->where('url', 'https://example.com')
+        );
     }
 
     public function testRedirectWithAllowedDomainMissingProtocol(): void
@@ -93,9 +96,10 @@ class RedirectControllerTest extends TestCase
         $response = $this->get('/redirect?url=//example.com/path');
 
         // Assert
-        $response->assertStatus(200);
-        $response->assertViewIs('pages.redirect');
-        $response->assertViewHas('url', 'https://example.com/path');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('redirect')
+            ->where('url', 'https://example.com/path')
+        );
     }
 
     public function testRedirectWithProtocolRelativeAllowedDomain(): void
@@ -113,9 +117,10 @@ class RedirectControllerTest extends TestCase
         $response = $this->get('/redirect?url=http://example.com');
 
         // Assert
-        $response->assertStatus(200);
-        $response->assertViewIs('pages.redirect');
-        $response->assertViewHas('url', 'http://example.com');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('redirect')
+            ->where('url', 'http://example.com')
+        );
     }
 
     public function testRedirectWithXssAttempt(): void
@@ -124,14 +129,15 @@ class RedirectControllerTest extends TestCase
         $response = $this->get('/redirect?url=https://example.com/<script>alert(1)</script>');
 
         // Assert
-        $response->assertStatus(200);
-        $response->assertViewIs('pages.redirect');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('redirect')
+            ->where('url', 'https://example.com/<script>alert(1)</script>')
+        );
 
-        $response->assertViewHas('url', 'https://example.com/<script>alert(1)</script>');
         $response->assertDontSee('<script>alert(1)</script>', false);
 
         $content = $response->getContent();
-        $this->assertStringContainsString('https://example.com/&lt;script&gt;alert(1)&lt;/script&gt;', $content);
+        $this->assertStringContainsString('https:\/\/example.com\/&lt;script&gt;alert(1)&lt;\/script&gt;', $content);
     }
 
     public function testRedirectBlocksDangerousProtocols(): void
@@ -185,9 +191,10 @@ class RedirectControllerTest extends TestCase
         $response = $this->get('/redirect?url=https://github-evil.com/malicious');
 
         // Assert
-        $response->assertStatus(200);
-        $response->assertViewIs('pages.redirect');
-        $response->assertViewHas('url', 'https://github-evil.com/malicious');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('redirect')
+            ->where('url', 'https://github-evil.com/malicious')
+        );
     }
 
     public function testRedirectHandlesExactDomainMatch(): void
@@ -214,9 +221,10 @@ class RedirectControllerTest extends TestCase
         $response = $this->get('/redirect?url=https://malicious.github.com/evil');
 
         // Assert
-        $response->assertStatus(200);
-        $response->assertViewIs('pages.redirect');
-        $response->assertViewHas('url', 'https://malicious.github.com/evil');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('redirect')
+            ->where('url', 'https://malicious.github.com/evil')
+        );
     }
 
     public function testRedirectAllowsGithubGist(): void
@@ -253,5 +261,35 @@ class RedirectControllerTest extends TestCase
 
         // Assert
         $response->assertRedirect('https://GitHub.com/retroachievements');
+    }
+
+    public function testRedirectEncodesAmpersandFollowedBySpace(): void
+    {
+        // Arrange
+        $url = 'https://www.google.com/search?q=site:www.gamefaqs.com+Mario+&+Sonic';
+
+        // Act
+        $response = $this->get('/redirect?url=' . urlencode($url));
+
+        // Assert
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('redirect')
+            ->where('url', 'https://www.google.com/search?q=site:www.gamefaqs.com+Mario+%26+Sonic')
+        );
+    }
+
+    public function testRedirectPreservesLegitimateQueryParameterSeparators(): void
+    {
+        // Arrange
+        $url = 'https://example.com/search?q=test&page=2';
+
+        // Act
+        $response = $this->get('/redirect?url=' . urlencode($url));
+
+        // Assert
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('redirect')
+            ->where('url', 'https://example.com/search?q=test&page=2')
+        );
     }
 }

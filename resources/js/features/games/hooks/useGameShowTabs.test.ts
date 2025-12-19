@@ -184,4 +184,76 @@ describe('Hook: useGameShowTabs', () => {
       preserveState: true,
     });
   });
+
+  it('given shouldPushHistory is true, uses router.visit instead of router.replace', () => {
+    // ARRANGE
+    vi.spyOn(router, 'visit').mockImplementation(() => {});
+
+    const { result } = renderHook(() => useGameShowTabs(), {
+      jotaiAtoms: [
+        [currentTabAtom, 'achievements'],
+        //
+      ],
+    });
+
+    // ACT
+    act(() => {
+      result.current.setCurrentTab('community', { shouldPushHistory: true });
+    });
+
+    // ASSERT
+    expect(router.visit).toHaveBeenCalledWith(
+      'https://retroachievements.org/game/123?tab=community',
+      {
+        preserveScroll: true,
+        preserveState: true,
+      },
+    );
+    expect(router.replace).not.toHaveBeenCalled();
+  });
+
+  it('given the URL has a tab param on mount, syncs the atom to match the URL', () => {
+    // ARRANGE
+    (window.location as any).href = 'https://retroachievements.org/game/123?tab=community';
+    window.location.search = '?tab=community';
+
+    // ACT
+    const { result } = renderHook(() => useGameShowTabs(), {
+      jotaiAtoms: [
+        [currentTabAtom, 'achievements'], // !! starts as achievements
+        //
+      ],
+    });
+
+    // ASSERT
+    expect(result.current.currentTab).toEqual('community'); // synced to URL
+  });
+
+  it('given a popstate event fires, syncs the atom to match the new URL', () => {
+    // ARRANGE
+    (window.location as any).href = 'https://retroachievements.org/game/123?tab=community';
+    window.location.search = '?tab=community';
+
+    const { result } = renderHook(() => useGameShowTabs(), {
+      jotaiAtoms: [
+        [currentTabAtom, 'achievements'],
+        //
+      ],
+    });
+
+    // ... sanity check - should have synced on mount ...
+    expect(result.current.currentTab).toEqual('community');
+
+    // ACT
+    // ... simulate a browser back navigation by changing the URL and firing popstate ...
+    (window.location as any).href = 'https://retroachievements.org/game/123';
+    window.location.search = '';
+
+    act(() => {
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    // ASSERT
+    expect(result.current.currentTab).toEqual('achievements');
+  });
 });

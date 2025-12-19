@@ -13,6 +13,7 @@ class AchievementSetAchievement extends BasePivot
     protected $fillable = [
         'achievement_set_id',
         'achievement_id',
+        'achievement_group_id',
         'order_column',
         'created_at',
         'updated_at',

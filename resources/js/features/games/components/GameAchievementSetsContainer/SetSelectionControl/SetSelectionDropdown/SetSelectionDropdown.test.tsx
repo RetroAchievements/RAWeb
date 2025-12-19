@@ -135,7 +135,7 @@ describe('Component: SetSelectionDropdown', () => {
     // ASSERT
     expect(router.visit).toHaveBeenCalledWith(
       [
-        'game2.show',
+        'game.show',
         {
           game: 999,
           set: 456,
@@ -178,7 +178,7 @@ describe('Component: SetSelectionDropdown', () => {
     // ASSERT
     expect(router.visit).toHaveBeenCalledWith(
       [
-        'game2.show',
+        'game.show',
         {
           game: 777,
           set: undefined, // !!
@@ -221,7 +221,7 @@ describe('Component: SetSelectionDropdown', () => {
     // ASSERT
     expect(router.visit).toHaveBeenCalledWith(
       [
-        'game2.show',
+        'game.show',
         {
           game: 888,
           set: 456,

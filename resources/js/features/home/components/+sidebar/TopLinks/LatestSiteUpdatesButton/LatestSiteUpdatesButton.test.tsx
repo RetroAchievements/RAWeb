@@ -49,8 +49,6 @@ describe('Component: LatestSiteUpdatesButton', () => {
 
   it('given the user clicks the button, hides the unread indicator', async () => {
     // ARRANGE
-    const user = userEvent.setup();
-
     render(<LatestSiteUpdatesButton />, {
       pageProps: {
         deferredSiteReleaseNotes: [],
@@ -61,7 +59,7 @@ describe('Component: LatestSiteUpdatesButton', () => {
     expect(screen.getByLabelText(/unread/i)).toBeVisible();
 
     // ACT
-    await user.click(screen.getByRole('button', { name: /latest site updates/i }));
+    await userEvent.click(screen.getByRole('button', { name: /latest site updates/i }));
 
     // ASSERT
     expect(screen.queryByLabelText(/unread/i)).not.toBeInTheDocument();
@@ -69,7 +67,6 @@ describe('Component: LatestSiteUpdatesButton', () => {
 
   it('given the user opens the dialog when authenticated with an unread note, marks it as viewed', async () => {
     // ARRANGE
-    const user = userEvent.setup();
     const axiosPostSpy = vi.spyOn(axios, 'post').mockResolvedValue({});
 
     render(<LatestSiteUpdatesButton />, {
@@ -81,7 +78,7 @@ describe('Component: LatestSiteUpdatesButton', () => {
     });
 
     // ACT
-    await user.click(screen.getByRole('button', { name: /latest site updates/i }));
+    await userEvent.click(screen.getByRole('button', { name: /latest site updates/i }));
 
     // ASSERT
     await waitFor(() => {
@@ -91,7 +88,6 @@ describe('Component: LatestSiteUpdatesButton', () => {
 
   it('given the user opens the dialog when not authenticated, does not mark the note as viewed', async () => {
     // ARRANGE
-    const user = userEvent.setup();
     const axiosPostSpy = vi.spyOn(axios, 'post').mockResolvedValue({});
 
     render(<LatestSiteUpdatesButton />, {
@@ -103,7 +99,7 @@ describe('Component: LatestSiteUpdatesButton', () => {
     });
 
     // ACT
-    await user.click(screen.getByRole('button', { name: /latest site updates/i }));
+    await userEvent.click(screen.getByRole('button', { name: /latest site updates/i }));
 
     // ASSERT
     await waitFor(() => {
@@ -113,7 +109,6 @@ describe('Component: LatestSiteUpdatesButton', () => {
 
   it('given the user opens the dialog when there is no unread note, does not mark anything as viewed', async () => {
     // ARRANGE
-    const user = userEvent.setup();
     const axiosPostSpy = vi.spyOn(axios, 'post').mockResolvedValue({});
 
     render(<LatestSiteUpdatesButton />, {
@@ -125,7 +120,7 @@ describe('Component: LatestSiteUpdatesButton', () => {
     });
 
     // ACT
-    await user.click(screen.getByRole('button', { name: /latest site updates/i }));
+    await userEvent.click(screen.getByRole('button', { name: /latest site updates/i }));
 
     // ASSERT
     await waitFor(() => {
@@ -135,7 +130,6 @@ describe('Component: LatestSiteUpdatesButton', () => {
 
   it('given the user opens the dialog when there are no release notes loaded, does not mark anything as viewed', async () => {
     // ARRANGE
-    const user = userEvent.setup();
     const axiosPostSpy = vi.spyOn(axios, 'post').mockResolvedValue({});
 
     render(<LatestSiteUpdatesButton />, {
@@ -147,7 +141,7 @@ describe('Component: LatestSiteUpdatesButton', () => {
     });
 
     // ACT
-    await user.click(screen.getByRole('button', { name: /latest site updates/i }));
+    await userEvent.click(screen.getByRole('button', { name: /latest site updates/i }));
 
     // ASSERT
     await waitFor(() => {

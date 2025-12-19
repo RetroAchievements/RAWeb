@@ -32,7 +32,7 @@
         "laravel/framework": "^12.0",
         "laravel/horizon": "^5.39",
         "laravel/octane": "^2.13",
-        "laravel/passport": "^13.0",
+        "laravel/passport": "^13.4",
         "laravel/pulse": "^1.4",
         "laravel/scout": "^10.21",
         "laravel/socialite": "^5.23",
@@ -181,9 +181,9 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "platform": {
-            "ext-pcntl": "8.2",
-            "ext-posix": "8.2",
-            "php": "8.2.8"
+            "ext-pcntl": "8.4",
+            "ext-posix": "8.4",
+            "php": "8.4"
         },
         "process-timeout": 0,
         "sort-packages": true,

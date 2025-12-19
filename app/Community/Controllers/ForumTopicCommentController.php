@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Community\Controllers;
 
 use App\Community\Actions\AddCommentAction;
-use App\Community\Actions\GetUrlToCommentDestinationAction;
 use App\Community\Actions\ReplaceBackingGameShortcodesWithGameUrlsAction;
 use App\Community\Actions\ReplaceUserShortcodesWithUsernamesAction;
 use App\Community\Requests\ForumTopicCommentRequest;
@@ -34,7 +33,6 @@ class ForumTopicCommentController extends CommentController
         ForumTopicCommentRequest $request,
         ForumTopic $topic,
         AddCommentAction $addCommentAction,
-        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction,
     ): RedirectResponse {
         $this->authorize('create', [ForumTopicComment::class, $topic]);
 
@@ -56,7 +54,7 @@ class ForumTopicCommentController extends CommentController
         // "[user=1]" -> "[user=Scott]"
         $comment->body = (new ReplaceUserShortcodesWithUsernamesAction())->execute($comment->body);
 
-        // "[game=backingGameId]" -> "https://retroachievements.org/game2/1?set=9534"
+        // "[game=backingGameId]" -> "https://retroachievements.org/game/1?set=9534"
         $comment->body = (new ReplaceBackingGameShortcodesWithGameUrlsAction())->execute($comment->body);
 
         $props = new EditForumTopicCommentPagePropsData(
@@ -70,19 +68,8 @@ class ForumTopicCommentController extends CommentController
         return Inertia::render('forums/post/[comment]/edit', $props);
     }
 
-    protected function update(
-        ForumTopicCommentRequest $request,
-        ForumTopicComment $comment,
-        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction,
-    ): RedirectResponse {
-        $this->authorize('update', $comment);
-
-        // $comment->fill($request->validated())->save();
-
-        // TODO replace with similar logic for ForumTopicComment, not a commentable morph anymore
-        return back();
-        // return redirect($getUrlToCommentDestinationAction->execute($comment))
-        //     ->with('success', $this->resourceActionSuccessMessage('comment', 'update'));
+    protected function update(): void
+    {
     }
 
     protected function destroy(ForumTopicComment $comment): RedirectResponse

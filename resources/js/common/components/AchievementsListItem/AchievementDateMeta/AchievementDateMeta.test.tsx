@@ -172,4 +172,84 @@ describe('AchievementDateMeta', () => {
     // ASSERT
     expect(container.firstChild).toHaveClass('custom-class');
   });
+
+  it('should not show unavailable warning for non-demoted event achievement.', () => {
+    // ARRANGE
+    const eventAchievement = createEventAchievement();
+
+    render(
+      <AchievementDateMeta achievement={createAchievement()} eventAchievement={eventAchievement} />,
+    );
+
+    // ASSERT
+    expect(screen.queryByText(/Unavailable/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('warning-icon')).not.toBeInTheDocument();
+  });
+
+  it('should show unavailable warning for demoted event achievement.', () => {
+    // ARRANGE
+    const eventAchievement = createEventAchievement({
+      sourceAchievement: createAchievement({ flags: 5 }),
+    });
+
+    render(
+      <AchievementDateMeta achievement={createAchievement()} eventAchievement={eventAchievement} />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/Unavailable/)).toBeInTheDocument();
+    expect(screen.getByTestId('warning-icon')).toBeVisible();
+  });
+
+  it('should not show unavailable warning for demoted past event achievement.', () => {
+    // ARRANGE
+    const now = dayjs.utc();
+    const eventAchievement = createEventAchievement({
+      sourceAchievement: createAchievement({ flags: 5 }),
+      activeFrom: now.subtract(2, 'day').toISOString(),
+      activeThrough: now.subtract(1, 'day').toISOString(),
+      activeUntil: now.toISOString(),
+    });
+
+    render(
+      <AchievementDateMeta achievement={createAchievement()} eventAchievement={eventAchievement} />,
+    );
+
+    // ASSERT
+    expect(screen.queryByText(/Unavailable/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('warning-icon')).not.toBeInTheDocument();
+  });
+
+  it('should show unavailable warning for demoted achievement if flags provided.', () => {
+    // ARRANGE
+    const achievement = createAchievement({ flags: 5 });
+
+    render(<AchievementDateMeta achievement={achievement} />);
+
+    // ASSERT
+    expect(screen.getByText(/Unavailable/)).toBeInTheDocument();
+    expect(screen.getByTestId('warning-icon')).toBeVisible();
+  });
+
+  it('should not show unavailable warning for published achievement if flags provided.', () => {
+    // ARRANGE
+    const achievement = createAchievement({ flags: 3 });
+
+    render(<AchievementDateMeta achievement={achievement} />);
+
+    // ASSERT
+    expect(screen.queryByText(/Unavailable/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('warning-icon')).not.toBeInTheDocument();
+  });
+
+  it('should not show unavailable warning for demoted achievement if flags not provided.', () => {
+    // ARRANGE
+    const achievement = createAchievement(); // simulates real achievement with flags=5 but flags not included in AchievementData
+
+    render(<AchievementDateMeta achievement={achievement} />);
+
+    // ASSERT
+    expect(screen.queryByText(/Unavailable/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('warning-icon')).not.toBeInTheDocument();
+  });
 });

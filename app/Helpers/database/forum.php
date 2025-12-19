@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Services\SubscriptionNotificationService;
 use App\Community\Services\SubscriptionService;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
@@ -218,6 +219,10 @@ function submitTopicComment(
     setLatestCommentInForumTopic($topic, $newComment->id);
 
     if ($user->ManuallyVerified ?? false) {
+        // if user has any notifications pending for this post, assume they're no longer needed
+        $notificationService = new SubscriptionNotificationService();
+        $notificationService->resetNotification($user->id, SubscriptionSubjectType::ForumTopic, $topic->id);
+
         notifyUsersAboutForumActivity($topic, $user, $newComment);
     }
 
@@ -227,15 +232,20 @@ function submitTopicComment(
 function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTopicComment $newComment): void
 {
     $subscriptionService = new SubscriptionService();
-    $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::ForumTopic, $topic->id)
-        ->filter(fn ($s) => isset($s->EmailAddress) && BitSet($s->websitePrefs, UserPreference::EmailOn_ForumReply));
+    $subscribers = $subscriptionService->getSegmentedSubscriberIds(SubscriptionSubjectType::ForumTopic, $topic->id, $topic->author_id);
 
-    if (!$subscribers->isEmpty()) {
+    $notificationService = new SubscriptionNotificationService();
+    $notificationService->queueNotifications($subscribers['implicitlySubscribedNotifyLater'], SubscriptionSubjectType::ForumTopic, $topic->id, $newComment->id, UserPreference::EmailOn_ForumReply);
+
+    $emailTargets = $notificationService->getEmailTargets(
+        array_merge($subscribers['explicitlySubscribed'], $subscribers['implicitlySubscribedNotifyNow']),
+        UserPreference::EmailOn_ForumReply);
+
+    if (!$emailTargets->isEmpty()) {
         $payload = nl2br(Shortcode::stripAndClamp($newComment->body, previewLength: 1000, preserveWhitespace: true));
-
         $urlTarget = route('forum-topic.show', ['topic' => $topic->id, 'comment' => $newComment->id]) . '#' . $newComment->id;
 
-        foreach ($subscribers as $subscriber) {
+        foreach ($emailTargets as $subscriber) {
             sendActivityEmail(
                 $subscriber,
                 $topic->id,
@@ -395,7 +405,7 @@ function authorizeAllForumPostsForUser(User $user): bool
     $userUnauthorizedPosts = $user->forumPosts()
         ->unauthorized()
         ->with(['forumTopic' => function ($query) {
-            $query->select('id', 'title');
+            $query->select('id', 'title', 'author_id');
         }])
         ->get();
 

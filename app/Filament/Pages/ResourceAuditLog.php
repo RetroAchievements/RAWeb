@@ -8,6 +8,7 @@ use Closure;
 use Filament\Forms;
 use Filament\Pages;
 use Filament\Schemas;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -29,6 +30,19 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     {
         $this->record = $this->resolveRecord($record);
         $this->tableRecordsPerPage = $this->getTableRecordsPerPageSelectOptions()[0];
+    }
+
+    public function getTitle(): string|Htmlable
+    {
+        $resourceClass = static::getResource();
+        $recordTitle = $resourceClass::getRecordTitle($this->record);
+
+        return "{$recordTitle} - Audit Log";
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Audit Log';
     }
 
     /**
@@ -138,6 +152,7 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
         return match ($event) {
             'created' => 'success',
             'deleted' => 'danger',
+            'linkedHash' => 'success',
             'pivotAttached' => 'info',
             'pivotDetached' => 'warning',
             'releaseCreated' => 'success',
@@ -145,12 +160,13 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
             'releaseUpdated' => 'info',
             'resetAllLeaderboardEntries' => 'danger',
             'unlinkedHash' => 'danger',
+            'updatedHash' => 'info',
             default => 'info',
         };
     }
 
     protected function getTableRecordsPerPageSelectOptions(): array
     {
-        return config('filament.default_page_options');
+        return [50];
     }
 }
