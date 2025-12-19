@@ -106,10 +106,10 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
 >
     <x-user-profile-meta
         :averageCompletionPercentage="$averageCompletionPercentage"
+        :totalCounts="$progressionCounts['totalCounts']"
         :totalHardcoreAchievements="$totalHardcoreAchievements"
         :totalSoftcoreAchievements="$totalSoftcoreAchievements"
         :user="$userPageModel"
-        :userJoinedGamesAndAwards="$userJoinedGamesAndAwards"
         :userMassData="$userMassData"
         :userClaims="$userClaimData?->toArray()"
     />

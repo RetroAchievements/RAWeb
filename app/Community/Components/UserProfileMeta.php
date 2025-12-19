@@ -21,7 +21,7 @@ class UserProfileMeta extends Component
     public function __construct(
         private User $user,
         private string $averageCompletionPercentage = '0.00',
-        private array $userJoinedGamesAndAwards = [],
+        private array $totalCounts = [],
         private array $userMassData = [],
         private int $totalHardcoreAchievements = 0,
         private int $totalSoftcoreAchievements = 0,
@@ -54,7 +54,7 @@ class UserProfileMeta extends Component
         return view('components.user.profile-meta', [
             'developerStats' => $developerStats,
             'hardcoreRankMeta' => $hardcoreRankMeta,
-            'playerStats' => $this->buildPlayerStats($this->user, $this->userMassData, $hardcoreRankMeta, $softcoreRankMeta, $this->userJoinedGamesAndAwards),
+            'playerStats' => $this->buildPlayerStats($this->user, $this->userMassData, $hardcoreRankMeta, $softcoreRankMeta),
             'socialStats' => $this->buildSocialStats($this->user),
             'softcoreRankMeta' => $softcoreRankMeta,
             'user' => $this->user,
@@ -206,7 +206,6 @@ class UserProfileMeta extends Component
         array $userMassData,
         array $hardcoreRankMeta,
         array $softcoreRankMeta,
-        array $userJoinedGamesAndAwards,
     ): array {
         $hardcorePoints = $userMassData['TotalPoints'] ?? 0;
         $softcorePoints = $userMassData['TotalSoftcorePoints'] ?? 0;
@@ -246,7 +245,12 @@ class UserProfileMeta extends Component
         ];
 
         // Started games beaten
-        $startedGamesBeatenPercentage = $this->calculateAverageFinishedGames($this->userJoinedGamesAndAwards);
+        $finishedGames = ($this->totalCounts['beatenSoftcore'] ?? 0) + ($this->totalCounts['beatenHardcore'] ?? 0)
+            + ($this->totalCounts['completed'] ?? 0) + ($this->totalCounts['mastered'] ?? 0);
+        $totalGames = $finishedGames + ($this->totalCounts['unfinished'] ?? 0);
+        $startedGamesBeatenPercentage = $totalGames > 0
+            ? number_format(($finishedGames / $totalGames) * 100, 2, '.', '')
+            : '0.00';
         $startedGamesBeatenPercentageStat = [
             'label' => 'Started games beaten',
             'value' => $startedGamesBeatenPercentage . '%',
@@ -405,35 +409,6 @@ class UserProfileMeta extends Component
             'softcorePointsStat',
             'softcoreSiteRankStat',
         );
-    }
-
-    private function calculateAverageFinishedGames(array $userJoinedGamesAndAwards): string
-    {
-        $totalGames = 0;
-        $finishedGames = 0;
-
-        // Iterate over each game to check if it is finished.
-        foreach ($userJoinedGamesAndAwards as $game) {
-            // Ignore subsets and test kits.
-            if (mb_strpos($game['Title'], '[Subset') !== false || mb_strpos($game['Title'], '~Test Kit~')) {
-                continue;
-            }
-
-            $totalGames++;
-
-            if (isset($game['HighestAwardKind'])) {
-                $finishedGames++;
-            }
-        }
-
-        // Calculate the average percentage of finished games.
-        $averageFinishedGames = 0;
-        if ($totalGames > 0) {
-            $averageFinishedGames = ($finishedGames / $totalGames) * 100;
-        }
-
-        // Format and return the result to 2 decimal places.
-        return number_format($averageFinishedGames, 2, '.', '');
     }
 
     private function calculateAveragePointsPerWeek(User $user, bool $doesUserPreferHardcore, int $points = 0): int
