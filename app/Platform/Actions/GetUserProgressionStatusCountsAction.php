@@ -49,10 +49,10 @@ class GetUserProgressionStatusCountsAction
                 GameData.ConsoleID,
                 SUM(player_games.achievements_unlocked_hardcore) as total_hc_achievements,
                 SUM(player_games.achievements_unlocked - player_games.achievements_unlocked_hardcore) as total_sc_achievements,
-                SUM(mastery_hc.id IS NOT NULL AND NOT {$subsetExistsSubquery}) as mastered_count,
-                SUM(mastery_hc.id IS NULL AND mastery_sc.id IS NOT NULL AND NOT {$subsetExistsSubquery}) as completed_count,
-                SUM(mastery_hc.id IS NULL AND mastery_sc.id IS NULL AND beaten_hc.id IS NOT NULL AND NOT {$subsetExistsSubquery}) as beaten_hc_count,
-                SUM(mastery_hc.id IS NULL AND mastery_sc.id IS NULL AND beaten_hc.id IS NULL AND beaten_sc.id IS NOT NULL AND NOT {$subsetExistsSubquery}) as beaten_sc_count,
+                SUM(mastery_hc.id IS NOT NULL) as mastered_count,
+                SUM(mastery_hc.id IS NULL AND mastery_sc.id IS NOT NULL) as completed_count,
+                SUM(mastery_hc.id IS NULL AND mastery_sc.id IS NULL AND beaten_hc.id IS NOT NULL) as beaten_hc_count,
+                SUM(mastery_hc.id IS NULL AND mastery_sc.id IS NULL AND beaten_hc.id IS NULL AND beaten_sc.id IS NOT NULL) as beaten_sc_count,
                 SUM(
                     mastery_hc.id IS NULL
                     AND mastery_sc.id IS NULL

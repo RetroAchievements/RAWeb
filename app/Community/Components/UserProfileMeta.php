@@ -21,7 +21,7 @@ class UserProfileMeta extends Component
     public function __construct(
         private User $user,
         private string $averageCompletionPercentage = '0.00',
-        private array $totalCounts = [],
+        private array $userJoinedGamesAndAwards = [],
         private array $userMassData = [],
         private int $totalHardcoreAchievements = 0,
         private int $totalSoftcoreAchievements = 0,
@@ -245,12 +245,7 @@ class UserProfileMeta extends Component
         ];
 
         // Started games beaten
-        $finishedGames = ($this->totalCounts['beatenSoftcore'] ?? 0) + ($this->totalCounts['beatenHardcore'] ?? 0)
-            + ($this->totalCounts['completed'] ?? 0) + ($this->totalCounts['mastered'] ?? 0);
-        $totalGames = $finishedGames + ($this->totalCounts['unfinished'] ?? 0);
-        $startedGamesBeatenPercentage = $totalGames > 0
-            ? number_format(($finishedGames / $totalGames) * 100, 2, '.', '')
-            : '0.00';
+        $startedGamesBeatenPercentage = $this->calculateStartedGamesBeaten($this->userJoinedGamesAndAwards);
         $startedGamesBeatenPercentageStat = [
             'label' => 'Started games beaten',
             'value' => $startedGamesBeatenPercentage . '%',
@@ -464,5 +459,30 @@ class UserProfileMeta extends Component
         }
 
         return compact('pointsLast30Days', 'pointsLast7Days');
+    }
+
+    private function calculateStartedGamesBeaten(array $userJoinedGamesAndAwards): string
+    {
+        $totalGames = 0;
+        $beatenGames = 0;
+
+        foreach ($userJoinedGamesAndAwards as $game) {
+            if (mb_strpos($game['Title'], '[Subset') !== false || mb_strpos($game['Title'], '~Test Kit~')) {
+                continue;
+            }
+
+            $totalGames++;
+
+            if (isset($game['HighestAwardKind'])) {
+                $beatenGames++;
+            }
+        }
+
+        $averageFinishedGames = 0;
+        if ($totalGames > 0) {
+            $averageFinishedGames = ($beatenGames / $totalGames) * 100;
+        }
+
+        return number_format($averageFinishedGames, 2, '.', '');
     }
 }

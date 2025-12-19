@@ -59,11 +59,17 @@ $totalHardcoreAchievements = $progressionCounts['totalHardcoreAchievements'];
 $totalSoftcoreAchievements = $progressionCounts['totalSoftcoreAchievements'];
 
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage, limit: 200);
+$userCompletedGamesListFull = getUsersCompletedGamesAndMax($userPage);
 $userAwards = getUsersSiteAwards($userPageModel);
 
 $playerProgressionService = new PlayerProgressionService();
 $userJoinedGamesAndAwards = $playerProgressionService->filterAndJoinGames(
     $userCompletedGamesList,
+    $userAwards,
+    $userPageID,
+);
+$userJoinedGamesAndAwardsFull = $playerProgressionService->filterAndJoinGames(
+    $userCompletedGamesListFull,
     $userAwards,
     $userPageID,
 );
@@ -106,10 +112,10 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
 >
     <x-user-profile-meta
         :averageCompletionPercentage="$averageCompletionPercentage"
-        :totalCounts="$progressionCounts['totalCounts']"
         :totalHardcoreAchievements="$totalHardcoreAchievements"
         :totalSoftcoreAchievements="$totalSoftcoreAchievements"
         :user="$userPageModel"
+        :userJoinedGamesAndAwards="$userJoinedGamesAndAwardsFull"
         :userMassData="$userMassData"
         :userClaims="$userClaimData?->toArray()"
     />
