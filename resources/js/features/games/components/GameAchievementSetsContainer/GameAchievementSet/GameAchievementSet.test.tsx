@@ -846,4 +846,500 @@ describe('Component: GameAchievementSet', () => {
     expect(screen.getByText('Story Achievements')).toBeVisible();
     expect(screen.getByText(/5 achievements/i)).toBeVisible();
   });
+
+  it('given a leaderboard view, shows active and disabled leaderboards with separator', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements = [createAchievement()];
+    const allLeaderboards = [
+      createLeaderboard({ id: 1, title: 'Active Leaderboard 1', state: 'active' }),
+      createLeaderboard({ id: 2, title: 'Active Leaderboard 2', state: 'active' }),
+      createLeaderboard({ id: 3, title: 'Disabled Leaderboard', state: 'disabled' }),
+    ];
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ achievements }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          [currentListViewAtom, 'leaderboards'],
+        ],
+        pageProps: {
+          allLeaderboards,
+          game,
+          numLeaderboards: 3,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          isViewingPublishedAchievements: true,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... active and disabled leaderboards should be visible with separator ...
+    expect(screen.getByText('Active Leaderboard 1')).toBeVisible();
+    expect(screen.getByText('Active Leaderboard 2')).toBeVisible();
+    expect(screen.getByText('Disabled Leaderboard')).toBeVisible();
+
+    expect(screen.getByTestId('disabled-separator')).toBeVisible();
+  });
+
+  it('given a leaderboard view, shows unpublished leaderboards without disabled leaderboards or separator', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements = [createAchievement()];
+    const allLeaderboards = [
+      createLeaderboard({ id: 1, title: 'Unpublished Leaderboard 1', state: 'unpublished' }),
+      createLeaderboard({ id: 2, title: 'Unpublished Leaderboard 2', state: 'unpublished' }),
+      createLeaderboard({ id: 3, title: 'Disabled Leaderboard', state: 'disabled' }),
+    ];
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ achievements }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          [currentListViewAtom, 'leaderboards'],
+        ],
+        pageProps: {
+          allLeaderboards,
+          game,
+          numLeaderboards: 3,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          isViewingPublishedAchievements: false,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... only unpublished leaderboards should be visible with no separator ...
+    expect(screen.getByText('Unpublished Leaderboard 1')).toBeVisible();
+    expect(screen.getByText('Unpublished Leaderboard 2')).toBeVisible();
+    expect(screen.queryByText('Disabled Leaderboard')).not.toBeInTheDocument();
+
+    expect(screen.queryByTestId('disabled-separator')).not.toBeInTheDocument();
+  });
+
+  it('given a leaderboard view, shows only disabled leaderboards when no active ones exist', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements = [createAchievement()];
+    const allLeaderboards = [
+      createLeaderboard({ id: 1, title: 'Disabled Leaderboard 1', state: 'disabled' }),
+      createLeaderboard({ id: 2, title: 'Disabled Leaderboard 2', state: 'disabled' }),
+    ];
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ achievements }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          [currentListViewAtom, 'leaderboards'],
+        ],
+        pageProps: {
+          allLeaderboards,
+          game,
+          numLeaderboards: 2,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          isViewingPublishedAchievements: true,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... only disabled leaderboards should be visible with no separator ...
+    expect(screen.getByText('Disabled Leaderboard 1')).toBeVisible();
+    expect(screen.getByText('Disabled Leaderboard 2')).toBeVisible();
+
+    expect(screen.queryByTestId('disabled-separator')).not.toBeInTheDocument();
+  });
+
+  it('given a leaderboard view, shows active and disabled leaderboards with separator', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements = [createAchievement()];
+    const allLeaderboards = [
+      createLeaderboard({ id: 1, title: 'Active Leaderboard 1', state: 'active' }),
+      createLeaderboard({ id: 2, title: 'Active Leaderboard 2', state: 'active' }),
+      createLeaderboard({ id: 3, title: 'Disabled Leaderboard', state: 'disabled' }),
+    ];
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ achievements }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          [currentListViewAtom, 'leaderboards'],
+        ],
+        pageProps: {
+          allLeaderboards,
+          game,
+          numLeaderboards: 3,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          isViewingPublishedAchievements: true,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... active and disabled leaderboards should be visible with separator ...
+    expect(screen.getByText('Active Leaderboard 1')).toBeVisible();
+    expect(screen.getByText('Active Leaderboard 2')).toBeVisible();
+    expect(screen.getByText('Disabled Leaderboard')).toBeVisible();
+
+    expect(screen.getByTestId('disabled-separator')).toBeVisible();
+  });
+
+  it('given a leaderboard view, shows unpublished leaderboards without disabled leaderboards or separator', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements = [createAchievement()];
+    const allLeaderboards = [
+      createLeaderboard({ id: 1, title: 'Unpublished Leaderboard 1', state: 'unpublished' }),
+      createLeaderboard({ id: 2, title: 'Unpublished Leaderboard 2', state: 'unpublished' }),
+      createLeaderboard({ id: 3, title: 'Disabled Leaderboard', state: 'disabled' }),
+    ];
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ achievements }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          [currentListViewAtom, 'leaderboards'],
+        ],
+        pageProps: {
+          allLeaderboards,
+          game,
+          numLeaderboards: 3,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          isViewingPublishedAchievements: false,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... only unpublished leaderboards should be visible with no separator ...
+    expect(screen.getByText('Unpublished Leaderboard 1')).toBeVisible();
+    expect(screen.getByText('Unpublished Leaderboard 2')).toBeVisible();
+    expect(screen.queryByText('Disabled Leaderboard')).not.toBeInTheDocument();
+
+    expect(screen.queryByTestId('disabled-separator')).not.toBeInTheDocument();
+  });
+
+  it('given a leaderboard view, shows only disabled leaderboards when no active ones exist', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements = [createAchievement()];
+    const allLeaderboards = [
+      createLeaderboard({ id: 1, title: 'Disabled Leaderboard 1', state: 'disabled' }),
+      createLeaderboard({ id: 2, title: 'Disabled Leaderboard 2', state: 'disabled' }),
+    ];
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ achievements }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          [currentListViewAtom, 'leaderboards'],
+        ],
+        pageProps: {
+          allLeaderboards,
+          game,
+          numLeaderboards: 2,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          isViewingPublishedAchievements: true,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... only disabled leaderboards should be visible with no separator ...
+    expect(screen.getByText('Disabled Leaderboard 1')).toBeVisible();
+    expect(screen.getByText('Disabled Leaderboard 2')).toBeVisible();
+
+    expect(screen.queryByTestId('disabled-separator')).not.toBeInTheDocument();
+  });
+
+  it('given a leaderboard view, shows active and disabled leaderboards with separator', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements = [createAchievement()];
+    const allLeaderboards = [
+      createLeaderboard({ id: 1, title: 'Active Leaderboard 1', state: 'active' }),
+      createLeaderboard({ id: 2, title: 'Active Leaderboard 2', state: 'active' }),
+      createLeaderboard({ id: 3, title: 'Disabled Leaderboard', state: 'disabled' }),
+    ];
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ achievements }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          [currentListViewAtom, 'leaderboards'],
+        ],
+        pageProps: {
+          allLeaderboards,
+          game,
+          numLeaderboards: 3,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          isViewingPublishedAchievements: true,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... active and disabled leaderboards should be visible with separator ...
+    expect(screen.getByText('Active Leaderboard 1')).toBeVisible();
+    expect(screen.getByText('Active Leaderboard 2')).toBeVisible();
+    expect(screen.getByText('Disabled Leaderboard')).toBeVisible();
+
+    expect(screen.getByTestId('disabled-separator')).toBeVisible();
+  });
+
+  it('given a leaderboard view, shows unpublished leaderboards without disabled leaderboards or separator', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements = [createAchievement()];
+    const allLeaderboards = [
+      createLeaderboard({ id: 1, title: 'Unpublished Leaderboard 1', state: 'unpublished' }),
+      createLeaderboard({ id: 2, title: 'Unpublished Leaderboard 2', state: 'unpublished' }),
+      createLeaderboard({ id: 3, title: 'Disabled Leaderboard', state: 'disabled' }),
+    ];
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ achievements }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          [currentListViewAtom, 'leaderboards'],
+        ],
+        pageProps: {
+          allLeaderboards,
+          game,
+          numLeaderboards: 3,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          isViewingPublishedAchievements: false,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... only unpublished leaderboards should be visible with no separator ...
+    expect(screen.getByText('Unpublished Leaderboard 1')).toBeVisible();
+    expect(screen.getByText('Unpublished Leaderboard 2')).toBeVisible();
+    expect(screen.queryByText('Disabled Leaderboard')).not.toBeInTheDocument();
+
+    expect(screen.queryByTestId('disabled-separator')).not.toBeInTheDocument();
+  });
+
+  it('given a leaderboard view, shows only disabled leaderboards when no active ones exist', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements = [createAchievement()];
+    const allLeaderboards = [
+      createLeaderboard({ id: 1, title: 'Disabled Leaderboard 1', state: 'disabled' }),
+      createLeaderboard({ id: 2, title: 'Disabled Leaderboard 2', state: 'disabled' }),
+    ];
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ achievements }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          [currentListViewAtom, 'leaderboards'],
+        ],
+        pageProps: {
+          allLeaderboards,
+          game,
+          numLeaderboards: 2,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          isViewingPublishedAchievements: true,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... only disabled leaderboards should be visible with no separator ...
+    expect(screen.getByText('Disabled Leaderboard 1')).toBeVisible();
+    expect(screen.getByText('Disabled Leaderboard 2')).toBeVisible();
+
+    expect(screen.queryByTestId('disabled-separator')).not.toBeInTheDocument();
+  });
+
+  it('given a leaderboard view, shows active and disabled leaderboards with separator', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements = [createAchievement()];
+    const allLeaderboards = [
+      createLeaderboard({ id: 1, title: 'Active Leaderboard 1', state: 'active' }),
+      createLeaderboard({ id: 2, title: 'Active Leaderboard 2', state: 'active' }),
+      createLeaderboard({ id: 3, title: 'Disabled Leaderboard', state: 'disabled' }),
+    ];
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ achievements }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          [currentListViewAtom, 'leaderboards'],
+        ],
+        pageProps: {
+          allLeaderboards,
+          game,
+          numLeaderboards: 3,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          isViewingPublishedAchievements: true,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... active and disabled leaderboards should be visible with separator ...
+    expect(screen.getByText('Active Leaderboard 1')).toBeVisible();
+    expect(screen.getByText('Active Leaderboard 2')).toBeVisible();
+    expect(screen.getByText('Disabled Leaderboard')).toBeVisible();
+
+    expect(screen.getByTestId('disabled-separator')).toBeVisible();
+  });
+
+  it('given a leaderboard view, shows unpublished leaderboards without disabled leaderboards or separator', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements = [createAchievement()];
+    const allLeaderboards = [
+      createLeaderboard({ id: 1, title: 'Unpublished Leaderboard 1', state: 'unpublished' }),
+      createLeaderboard({ id: 2, title: 'Unpublished Leaderboard 2', state: 'unpublished' }),
+      createLeaderboard({ id: 3, title: 'Disabled Leaderboard', state: 'disabled' }),
+    ];
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ achievements }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          [currentListViewAtom, 'leaderboards'],
+        ],
+        pageProps: {
+          allLeaderboards,
+          game,
+          numLeaderboards: 3,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          isViewingPublishedAchievements: false,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... only unpublished leaderboards should be visible with no separator ...
+    expect(screen.getByText('Unpublished Leaderboard 1')).toBeVisible();
+    expect(screen.getByText('Unpublished Leaderboard 2')).toBeVisible();
+    expect(screen.queryByText('Disabled Leaderboard')).not.toBeInTheDocument();
+
+    expect(screen.queryByTestId('disabled-separator')).not.toBeInTheDocument();
+  });
+
+  it('given a leaderboard view, shows only disabled leaderboards when no active ones exist', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements = [createAchievement()];
+    const allLeaderboards = [
+      createLeaderboard({ id: 1, title: 'Disabled Leaderboard 1', state: 'disabled' }),
+      createLeaderboard({ id: 2, title: 'Disabled Leaderboard 2', state: 'disabled' }),
+    ];
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ achievements }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          [currentListViewAtom, 'leaderboards'],
+        ],
+        pageProps: {
+          allLeaderboards,
+          game,
+          numLeaderboards: 2,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          isViewingPublishedAchievements: true,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... only disabled leaderboards should be visible with no separator ...
+    expect(screen.getByText('Disabled Leaderboard 1')).toBeVisible();
+    expect(screen.getByText('Disabled Leaderboard 2')).toBeVisible();
+
+    expect(screen.queryByTestId('disabled-separator')).not.toBeInTheDocument();
+  });
 });
