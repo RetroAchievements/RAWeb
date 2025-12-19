@@ -17,7 +17,7 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('LeaderboardDef', function (Blueprint $table) {
-            $table->dropIndex('state');
+            $table->dropIndex(['state']);
             $table->dropColumn('state');
         });
     }
