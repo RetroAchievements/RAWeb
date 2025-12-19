@@ -4,10 +4,10 @@ use App\Community\Enums\AwardType;
 use App\Models\Event;
 use App\Models\EventAward;
 use App\Models\PlayerBadge;
+use Illuminate\Database\Eloquent\Collection;
 
 function SeparateAwards(array $userAwards): array
 {
-    // TODO: add site_event flag to events table after converting existing events
     $awardEventGameIds = [];
     $awardEventIds = [];
     foreach ($userAwards as $award) {
@@ -25,14 +25,9 @@ function SeparateAwards(array $userAwards): array
         );
     }
 
-    $devEventIds = [];
+    $eventData = new Collection();
     if (!empty($awardEventIds)) {
-        $devEventIds = Event::query()
-            ->whereIn('id', $awardEventIds)
-            ->where('gives_site_award', true)
-            ->select('id')
-            ->pluck('id')
-            ->toArray();
+        $eventData = Event::whereIn('id', $awardEventIds)->with('legacyGame')->get()->keyBy('id');
     }
 
     $gameAwards = []; // Mastery awards that aren't Events.
@@ -50,7 +45,7 @@ function SeparateAwards(array $userAwards): array
                 $gameAwards[] = $award;
             }
         } elseif ($type === AwardType::Event) {
-            if (in_array($id, $devEventIds)) {
+            if ($eventData[$id]?->gives_site_award) {
                 $siteAwards[] = $award;
             } else {
                 $eventAwards[] = $award;
@@ -60,12 +55,12 @@ function SeparateAwards(array $userAwards): array
         }
     }
 
-    return [$gameAwards, $eventAwards, $siteAwards];
+    return [$gameAwards, $eventAwards, $siteAwards, $eventData];
 }
 
 function RenderSiteAwards(array $userAwards, string $awardsOwnerUsername): void
 {
-    [$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
+    [$gameAwards, $eventAwards, $siteAwards, $eventData] = SeparateAwards($userAwards);
 
     $groups = [];
 
@@ -107,11 +102,14 @@ function RenderSiteAwards(array $userAwards, string $awardsOwnerUsername): void
     usort($groups, fn ($a, $b) => $a[0] - $b[0]);
 
     foreach ($groups as $group) {
-        RenderAwardGroup($group[1], $group[2], $awardsOwnerUsername);
+        RenderAwardGroup($group[1], $group[2], $awardsOwnerUsername, $eventData);
     }
 }
 
-function RenderAwardGroup(array $awards, string $title, string $awardsOwnerUsername): void
+/**
+ * @param Collection<int, Event> $eventData
+ */
+function RenderAwardGroup(array $awards, string $title, string $awardsOwnerUsername, Collection $eventData): void
 {
     $numItems = count($awards);
     $numHidden = 0;
@@ -171,7 +169,7 @@ function RenderAwardGroup(array $awards, string $title, string $awardsOwnerUsern
     $imageSize = 48;
     foreach ($awards as $award) {
         if ($award['DisplayOrder'] >= 0) {
-            RenderAward($award, $imageSize, $awardsOwnerUsername);
+            RenderAward($award, $imageSize, $awardsOwnerUsername, $eventData);
         }
     }
     echo "</div>";
@@ -192,7 +190,10 @@ function RenderCounter(string $icon, string $text, int $numItems, int $numHidden
     return $counter;
 }
 
-function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $clickable = true): void
+/**
+ * @param Collection<int, Event> $eventData
+ */
+function RenderAward(array $award, int $imageSize, string $ownerUsername, Collection $eventData, bool $clickable = true): void
 {
     $awardType = $award['AwardType'];
     $awardType = (int) $awardType;
@@ -226,7 +227,7 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $
     }
 
     if ($awardType == AwardType::Event) {
-        $event = Event::find($awardData);
+        $event = $eventData->find($awardData);
         if ($event) {
             $tooltip = "Awarded for completing the {$event->title} event";
             $image = $event->image_asset_path;
@@ -303,6 +304,9 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $
     echo "<div><div>$displayable</div>$newOverlayDiv</div>";
 }
 
+/**
+ * @param Collection<int, Event> $eventData
+ */
 function RenderAwardOrderTable(
     string $title,
     array $awards,
@@ -311,6 +315,7 @@ function RenderAwardOrderTable(
     int $renderedSectionCount,
     bool $prefersSeeingSavedHiddenRows,
     int $initialSectionOrder,
+    Collection $eventData,
 ): void {
     // "Game Awards" -> "game"
     $humanReadableAwardKind = strtolower(strtok($title, " "));
@@ -394,7 +399,7 @@ function RenderAwardOrderTable(
         HTML;
 
         echo "<td class='$subduedOpacityClassName transition'>";
-        RenderAward($award, 32, $awardOwnerUsername, false);
+        RenderAward($award, 32, $awardOwnerUsername, $eventData, false);
         echo "</td>";
         echo "<td class='$subduedOpacityClassName transition'><span>$awardTitle</span></td>";
         echo "<td class='text-center !opacity-100'><input name='$awardCounter-is-hidden' onchange='reorderSiteAwards.handleRowHiddenCheckedChange(event, $awardCounter)' type='checkbox' " . ($isHiddenPreChecked ? "checked" : "") . "></td>";
