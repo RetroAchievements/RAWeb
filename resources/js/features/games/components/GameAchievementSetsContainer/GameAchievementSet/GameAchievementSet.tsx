@@ -269,7 +269,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
                 ))}
 
                 {/* Separator */}
-                {leaderboardHasMultipleSections && (
+                {leaderboardHasMultipleSections ? (
                   <motion.li
                     className="my-4"
                     initial={{ opacity: 0 }}
@@ -278,18 +278,21 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
                   >
                     <BaseSeparator data-testid="disabled-separator" />
                   </motion.li>
-                )}
+                ) : null}
 
                 {/* Disabled Leaderboards */}
-                {isViewingPublishedAchievements &&
-                  disabledLeaderboards.map((leaderboard, index) => (
-                    <LeaderboardsListItem
-                      key={`lbd-${leaderboard.id}`}
-                      index={visibleLeaderboards.length + index}
-                      isLargeList={isLargeLeaderboardsList}
-                      leaderboard={leaderboard}
-                    />
-                  ))}
+                {isViewingPublishedAchievements ? (
+                  <>
+                    {disabledLeaderboards.map((leaderboard, index) => (
+                      <LeaderboardsListItem
+                        key={`lbd-${leaderboard.id}`}
+                        index={visibleLeaderboards.length + index}
+                        isLargeList={isLargeLeaderboardsList}
+                        leaderboard={leaderboard}
+                      />
+                    ))}
+                  </>
+                ) : null}
               </>
             ) : null}
           </motion.ul>
