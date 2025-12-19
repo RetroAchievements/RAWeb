@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Data;
 
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -29,7 +29,10 @@ class AchievementSetData extends Data
         public ?Carbon $createdAt,
         public ?Carbon $updatedAt,
         /** @var AchievementData[] */
-        public array $achievements,
+        public array $achievements = [],
+        /** @var AchievementSetGroupData[] */
+        public Lazy|array $achievementGroups = [],
+        public ?string $ungroupedBadgeUrl = null,
     ) {
     }
 }
