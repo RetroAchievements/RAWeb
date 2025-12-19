@@ -759,7 +759,7 @@ class BuildGameShowPagePropsAction
             // Sort: Active/Unpublished first, Disabled last, then by DisplayOrder.
             $leaderboards = $leaderboards->sortBy([
                 fn ($leaderboard) => $leaderboard->state === LeaderboardState::Disabled ? 1 : 0,
-                fn ($active, $notActive) => $active->DisplayOrder <=> $notActive->DisplayOrder,
+                fn ($a, $b) => $a->DisplayOrder <=> $b->DisplayOrder,
             ])->values();
         }
 
