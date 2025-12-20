@@ -187,4 +187,58 @@ describe('Component: ClaimantsDisplay', () => {
 
     expect(screen.queryByText(/expir/i)).not.toBeInTheDocument();
   });
+
+  it('given a claim is In Review and the user can review claims, shows a lock icon instead of wrench', () => {
+    // ARRANGE
+    const achievementSetClaims = [
+      createAchievementSetClaim({
+        user: createUser({ displayName: 'Alice' }),
+        status: ClaimStatus.InReview, // !!
+      }),
+    ];
+
+    render(<ClaimantsDisplay achievementSetClaims={achievementSetClaims} />, {
+      pageProps: { can: { reviewAchievementSetClaims: true } },
+    });
+
+    // ASSERT
+    expect(screen.getByTestId('lock-icon')).toBeInTheDocument();
+    expect(screen.queryByTestId('wrench-icon')).not.toBeInTheDocument();
+  });
+
+  it('given a claim is In Review but the user cannot review claims, shows wrench icon', () => {
+    // ARRANGE
+    const achievementSetClaims = [
+      createAchievementSetClaim({
+        user: createUser({ displayName: 'Alice' }),
+        status: ClaimStatus.InReview, // !!
+      }),
+    ];
+
+    render(<ClaimantsDisplay achievementSetClaims={achievementSetClaims} />, {
+      pageProps: { can: { reviewAchievementSetClaims: false } }, // !!
+    });
+
+    // ASSERT
+    expect(screen.getByTestId('wrench-icon')).toBeInTheDocument();
+    expect(screen.queryByTestId('lock-icon')).not.toBeInTheDocument();
+  });
+
+  it('given no claims are In Review but the user can review claims, shows wrench icon', () => {
+    // ARRANGE
+    const achievementSetClaims = [
+      createAchievementSetClaim({
+        user: createUser({ displayName: 'Alice' }),
+        status: ClaimStatus.Active, // !! not In Review
+      }),
+    ];
+
+    render(<ClaimantsDisplay achievementSetClaims={achievementSetClaims} />, {
+      pageProps: { can: { reviewAchievementSetClaims: true } },
+    });
+
+    // ASSERT
+    expect(screen.getByTestId('wrench-icon')).toBeInTheDocument();
+    expect(screen.queryByTestId('lock-icon')).not.toBeInTheDocument();
+  });
 });
