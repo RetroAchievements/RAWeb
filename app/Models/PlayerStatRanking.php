@@ -4,34 +4,40 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Platform\Enums\PlayerStatRankingKind;
 use App\Support\Database\Eloquent\BaseModel;
-use Database\Factories\PlayerStatFactory;
+use Database\Factories\PlayerStatRankingFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class PlayerStat extends BaseModel
+class PlayerStatRanking extends BaseModel
 {
-    /** @use HasFactory<PlayerStatFactory> */
+    /** @use HasFactory<PlayerStatRankingFactory> */
     use HasFactory;
 
-    protected $table = 'player_stats';
+    protected $table = 'player_stat_rankings';
+
+    public const UPDATED_AT = null;
 
     protected $fillable = [
         'user_id',
         'system_id',
+        'kind',
+        'total',
+        'rank_number',
+        'row_number',
         'last_game_id',
-        'type',
-        'value',
-        'stat_updated_at',
+        'last_affected_at',
     ];
 
     protected $casts = [
-        'stat_updated_at' => 'datetime',
+        'kind' => PlayerStatRankingKind::class,
+        'last_affected_at' => 'datetime',
     ];
 
-    protected static function newFactory(): PlayerStatFactory
+    protected static function newFactory(): PlayerStatRankingFactory
     {
-        return PlayerStatFactory::new();
+        return PlayerStatRankingFactory::new();
     }
 
     // == accessors
@@ -39,6 +45,14 @@ class PlayerStat extends BaseModel
     // == mutators
 
     // == relations
+
+    /**
+     * @return BelongsTo<Game, $this>
+     */
+    public function lastGame(): BelongsTo
+    {
+        return $this->belongsTo(Game::class, 'last_game_id');
+    }
 
     /**
      * @return BelongsTo<System, $this>
