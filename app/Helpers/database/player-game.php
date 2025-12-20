@@ -1,10 +1,8 @@
 <?php
 
-use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\EventAchievement;
 use App\Models\Game;
-use App\Models\GameRecentPlayer;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
@@ -362,84 +360,6 @@ function getUsersCompletedGamesAndMax(string $user, ?int $limit = null): array
             $limitClause";
 
     return legacyDbFetchAll($query, ['user' => $user, 'user2' => $user])->toArray();
-}
-
-function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
-{
-    $retval = [];
-
-    $sessions = GameRecentPlayer::with('user')
-        ->where('game_id', $gameID)
-        ->whereHas('user', function ($query) {
-            $query->whereNull('banned_at');
-        })
-        ->orderBy('rich_presence_updated_at', 'DESC');
-
-    if ($maximum_results) {
-        $sessions = $sessions->limit($maximum_results);
-    }
-
-    foreach ($sessions->get() as $session) {
-        $retval[] = [
-            'UserID' => $session->user_id,
-            'User' => $session->user,
-            'Date' => $session->rich_presence_updated_at->__toString(),
-            'Activity' => $session->rich_presence,
-            'NumAwarded' => 0,
-            'NumAwardedHardcore' => 0,
-            'NumAchievements' => 0,
-        ];
-    }
-
-    $mergePlayerGames = function (array &$retval) use ($gameID): array {
-        $player_games = PlayerGame::where('game_id', $gameID)
-            ->whereIn('user_id', array_column($retval, 'UserID'))
-            ->select(['user_id', 'achievements_unlocked', 'achievements_unlocked_hardcore', 'achievements_total']);
-
-        foreach ($player_games->get() as $player_game) {
-            foreach ($retval as &$entry) {
-                if ($entry['UserID'] == $player_game->user_id) {
-                    $entry['NumAwarded'] = $player_game->achievements_unlocked;
-                    $entry['NumAwardedHardcore'] = $player_game->achievements_unlocked_hardcore;
-                    $entry['NumAchievements'] = $player_game->achievements_total;
-                    break;
-                }
-            }
-        }
-
-        return $retval;
-    };
-
-    if ($maximum_results) {
-        $maximum_results -= count($retval);
-        if ($maximum_results == 0) {
-            return $mergePlayerGames($retval);
-        }
-    }
-
-    $userFilter = '';
-    if (count($retval)) {
-        $userFilter = 'AND ua.ID NOT IN (' . implode(',', array_column($retval, 'UserID')) . ')';
-    }
-
-    $query = "SELECT ua.ID as UserID, ua.User, ua.RichPresenceMsgDate AS Date, ua.RichPresenceMsg AS Activity
-              FROM UserAccounts AS ua
-              WHERE ua.LastGameID = $gameID AND ua.Permissions >= " . Permissions::Unregistered . "
-              AND ua.RichPresenceMsgDate > TIMESTAMPADD(MONTH, -6, NOW()) $userFilter
-              ORDER BY ua.RichPresenceMsgDate DESC";
-
-    if ($maximum_results > 0) {
-        $query .= " LIMIT $maximum_results";
-    }
-
-    foreach (legacyDbFetchAll($query) as $data) {
-        $data['NumAwarded'] = 0;
-        $data['NumAwardedHardcore'] = 0;
-        $data['NumAchievements'] = 0;
-        $retval[] = $data;
-    }
-
-    return $mergePlayerGames($retval);
 }
 
 /**
