@@ -162,6 +162,24 @@ jobs:
         if: ${{ needs.changes.outputs.php == 'true' }}
         run: ./vendor/bin/pest --parallel --shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
+  merge-php-test-reports:
+    needs: [changes, php-tests]
+    runs-on: ubuntu-22.04
+    name: Merge PHP Test Reports
+    if: ${{ always() }}
+    steps:
+      - name: Check PHP test status
+        run: |
+          if [[ "${{ needs.changes.outputs.php }}" != "true" ]]; then
+            echo "No PHP changes - skipping"
+            exit 0
+          fi
+          if [[ "${{ needs.php-tests.result }}" != "success" ]]; then
+            echo "php-tests failed"
+            exit 1
+          fi
+          echo "All PHP tests passed"
+
   node-checks:
     needs: [changes, node-setup]
     runs-on: ubuntu-22.04
