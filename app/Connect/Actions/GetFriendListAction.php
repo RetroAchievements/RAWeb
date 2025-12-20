@@ -25,7 +25,7 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
 
     protected function process(): array
     {
-        // only return the 100 most recently active friends (some users have more than 1000)
+        // only return the 100 most recently active friends (some users have more than 1000!)
         $friends = $this->user->followedUsers()
             ->where(DB::raw('UserAccounts.Permissions'), '>=', Permissions::Unregistered)
             ->whereNull(DB::raw('UserAccounts.Deleted'))

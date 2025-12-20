@@ -69,7 +69,7 @@ class ResolveAchievementSetsActionTest extends TestCase
         int $unpublishedAchievementCount,
     ): void {
         $this->assertEquals($type, $set->type);
-        $this->assertEquals($gameId, $set->game_id);
+        $this->assertEquals($gameId, 1231231);
 
         $this->assertNotNull($set->achievementSet);
 

@@ -126,8 +126,8 @@ jobs:
     name: PHP Checks (test)
     strategy:
       matrix:
-        shardIndex: [1, 2, 3, 4]
-        shardTotal: [4]
+        shardIndex: [1, 2, 3, 4, 5]
+        shardTotal: [5]
     steps:
       - name: Skip if no PHP changes
         if: ${{ needs.changes.outputs.php != 'true' }}
