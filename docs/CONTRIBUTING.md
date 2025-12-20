@@ -50,7 +50,7 @@ Before submitting a pull request:
 
 ## Testing, Code Style, and Static Analysis
 
-**PHPUnit** is used for testing. Write feature and/or unit tests where applicable.  
+**Pest** is used for testing. Write feature and/or unit tests where applicable.  
 
 **PHP CS Fixer** comes as a dev dependency. Use it before you commit. See the [README](https://github.com/RetroAchievements/RAWeb/blob/master/README.md).
 
