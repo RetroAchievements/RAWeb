@@ -41,16 +41,24 @@ class ForumTopic extends BaseModel
          */
         static::updated(function (ForumTopic $forumTopic) {
             if ($forumTopic->wasChanged('required_permissions')) {
-                $forumTopic->comments()->get()->searchable();
+                $comments = $forumTopic->comments()->get();
+
+                if ($forumTopic->required_permissions === 0) {
+                    $comments->searchable();
+                } else {
+                    $comments->unsearchable();
+                }
             }
         });
 
         static::deleted(function (ForumTopic $forumTopic) {
-            $forumTopic->comments()->get()->searchable();
+            $forumTopic->comments()->get()->unsearchable();
         });
 
         static::restored(function (ForumTopic $forumTopic) {
-            $forumTopic->comments()->get()->searchable();
+            if ($forumTopic->required_permissions === 0) {
+                $forumTopic->comments()->get()->searchable();
+            }
         });
     }
 
