@@ -64,7 +64,7 @@ jobs:
     name: PHP Checks
     strategy:
       matrix:
-        check: ['lint', 'analyse', 'test']
+        check: ['lint', 'analyse']
         include:
           - check: lint
             command: composer lint
@@ -73,8 +73,6 @@ jobs:
             env:
               # PHPStan explodes if we're missing an APP_KEY. This is a value pulled from the Laravel docs.
               APP_KEY: 'base64:J63qRTDLub5NuZvP+kb8YIorGS6qFYHKVo6u7179stY='
-          - check: test
-            command: composer paratest -- --processes=$(nproc)
     steps:
       - name: Skip if no PHP changes
         if: ${{ needs.changes.outputs.php != 'true' }}
@@ -101,10 +99,6 @@ jobs:
         if: ${{ needs.changes.outputs.php == 'true' }}
         run: composer install --prefer-dist
 
-      - name: Generate Passport keys
-        if: ${{ needs.changes.outputs.php == 'true' && matrix.check == 'test' }}
-        run: php artisan passport:keys --force
-
       - name: Restore PHPStan result cache
         if: ${{ needs.changes.outputs.php == 'true' && matrix.check == 'analyse' }}
         uses: actions/cache/restore@v4
@@ -125,6 +119,48 @@ jobs:
         with:
           path: tmp
           key: phpstan-result-cache-${{ github.run_id }}
+
+  php-tests:
+    needs: changes
+    runs-on: ubuntu-22.04
+    name: PHP Checks (test)
+    strategy:
+      matrix:
+        shardIndex: [1, 2, 3, 4]
+        shardTotal: [4]
+    steps:
+      - name: Skip if no PHP changes
+        if: ${{ needs.changes.outputs.php != 'true' }}
+        run: |
+          echo "No PHP changes detected - skipping tests (shard ${{ matrix.shardIndex }})"
+          exit 0
+
+      - name: Checkout code
+        if: ${{ needs.changes.outputs.php == 'true' }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup PHP
+        if: ${{ needs.changes.outputs.php == 'true' }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          extensions: mbstring, :psr
+          coverage: none
+          ini-values: memory_limit=1G
+
+      - name: Install composer packages
+        if: ${{ needs.changes.outputs.php == 'true' }}
+        run: composer install --prefer-dist
+
+      - name: Generate Passport keys
+        if: ${{ needs.changes.outputs.php == 'true' }}
+        run: php artisan passport:keys --force
+
+      - name: Run tests with sharding
+        if: ${{ needs.changes.outputs.php == 'true' }}
+        run: ./vendor/bin/pest --parallel --shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
   node-checks:
     needs: [changes, node-setup]
@@ -194,8 +230,8 @@ jobs:
     name: Node.js Checks (test)
     strategy:
       matrix:
-        shardIndex: [1, 2, 3, 4, 5]
-        shardTotal: [5]
+        shardIndex: [1, 2, 3, 4, 5, 6, 7]
+        shardTotal: [7]
     steps:
       - name: Skip if no Node changes
         if: ${{ needs.changes.outputs.node != 'true' }}
