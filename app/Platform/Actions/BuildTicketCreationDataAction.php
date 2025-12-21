@@ -10,6 +10,7 @@ use App\Models\PlayerAchievement;
 use App\Models\User;
 use App\Platform\Data\CreateAchievementTicketPagePropsData;
 use App\Platform\Data\EmulatorData;
+use App\Platform\Data\GameHashData;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Services\UserAgentService;
 use Illuminate\Support\Collection;
@@ -24,6 +25,8 @@ class BuildTicketCreationDataAction
     public function execute(Achievement $achievement, User $user): CreateAchievementTicketPagePropsData
     {
         $props = CreateAchievementTicketPagePropsData::fromAchievement($achievement);
+
+        $this->addSessionRelatedMultisetHashes($props, $achievement, $user);
 
         $sessionData = $this->findRelevantSessionData($achievement, $user);
         if ($sessionData === null) {
@@ -133,5 +136,49 @@ class BuildTicketCreationDataAction
             $playerSession->gameHash?->id,
             null,
         ];
+    }
+
+    /**
+     * Adds hashes the user has actually used in their sessions,
+     * respecting whatever the game's multiset boundaries are.
+     */
+    private function addSessionRelatedMultisetHashes(
+        CreateAchievementTicketPagePropsData $props,
+        Achievement $achievement,
+        User $user,
+    ): void {
+        $achievementSet = $achievement->achievementSets()->first();
+        if (!$achievementSet) {
+            return;
+        }
+
+        $allPossibleHashes = (new ResolveAchievementSetGameHashesAction())
+            ->execute($achievementSet);
+
+        $existingHashIds = collect($props->gameHashes)->pluck('id')->toArray();
+
+        // Filter to hashes the user has actually used in their own play sessions.
+        $userSessionHashIds = $user->playerSessions()
+            ->whereIn('game_hash_id', $allPossibleHashes->pluck('id'))
+            ->where('duration', '>=', 5)
+            ->distinct()
+            ->pluck('game_hash_id');
+
+        $additionalHashes = $allPossibleHashes
+            ->whereIn('id', $userSessionHashIds)
+            ->whereNotIn('id', $existingHashIds);
+
+        // If we have nothing to append to the list of hashes, bail.
+        if ($additionalHashes->isEmpty()) {
+            return;
+        }
+
+        $allHashes = collect($props->gameHashes)
+            ->concat(GameHashData::fromCollection($additionalHashes))
+            ->sortBy('id')
+            ->values()
+            ->all();
+
+        $props->gameHashes = $allHashes;
     }
 }
