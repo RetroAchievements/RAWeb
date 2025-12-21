@@ -12,7 +12,6 @@ use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Services\TriggerDecoderService;
 use App\Support\Shortcode\Shortcode;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Blade;
@@ -248,33 +247,6 @@ if ($game->system->id === System::Events) {
         echo '<a class="btn mb-1" href="' . route('filament.admin.resources.achievements.edit', ['record' => $achievementModel->id]) . '">Manage</a>';
     } elseif ($userModel && $userModel->can('manage', $achievementModel)) {
         echo '<a class="btn mb-1" href="' . route('filament.admin.resources.achievements.view', ['record' => $achievementModel->id]) . '">Manage</a>';
-    }
-
-    if (isset($user) && $permissions >= Permissions::JuniorDeveloper && !$isEventGame) {
-        echo "<div class='devbox mb-3'>";
-        echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
-        echo "<div id='devboxcontent' style='display: none'>";
-
-        $len = strlen($achMem);
-        if ($len == 65535) {
-            echo "<li>Mem:<span class='text-danger'> ⚠️ Max length definition is likely truncated and may not function as expected ⚠️ </span></li>";
-        } else {
-            echo "<li>Mem:</li>";
-        }
-
-        echo "<code>" . htmlspecialchars($achMem) . "</code>";
-        echo "<li>Mem explained:</li>";
-
-        $triggerDecoderService = new TriggerDecoderService();
-        $groups = $triggerDecoderService->decode($achMem);
-        $triggerDecoderService->addCodeNotes($groups, $gameID);
-
-        echo Blade::render("<x-trigger.viewer :groups=\"\$groups\" />",
-            ['groups' => $groups]
-        );
-
-        echo "</div>"; // devboxcontent
-        echo "</div>"; // devbox
     }
 
     if (!empty($embedVidURL)) {
