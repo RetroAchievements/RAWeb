@@ -8,6 +8,8 @@ use Illuminate\Support\Str;
 
 class TriggerViewerService
 {
+    private const SCALABLE_FLAGS = ['AddSource', 'SubSource', 'AddAddress', 'Remember'];
+
     private const FLAG_COLORS = [
         'Reset If' => 'text-red-500 dark:text-red-400',
         'Reset Next If' => 'text-red-500 dark:text-red-400',
@@ -217,36 +219,95 @@ class TriggerViewerService
 
     /**
      * Generates a markdown representation of decoded trigger groups.
+     * Reverse-engineered from AutoCR's toMarkdown() output format for functional parity.
      *
      * @param array<int, array<string, mixed>> $groups the decoded groups from `TriggerDecoderService`
      */
     public function generateMarkdown(array $groups): string
     {
-        $output = '';
+        // Calculate dynamic column widths from actual data.
+        $maxFlagLen = 0;
+        $maxTypeLen = 3;
+        $maxSizeLen = 0;
+        $maxValueLen = 0;
 
         foreach ($groups as $group) {
-            $output .= "### {$group['Label']}\n```\n";
+            foreach ($group['Conditions'] as $c) {
+                $flag = str_replace(' ', '', $c['Flag'] ?? '');
+                $sourceType = $c['SourceType'] === 'Inverted' ? 'Invert' : ($c['SourceType'] ?? '');
+                $targetType = $c['TargetType'] === 'Inverted' ? 'Invert' : ($c['TargetType'] ?? '');
+                $sourceVal = $this->formatMarkdownValue($c['SourceType'] ?? '', $c['SourceAddress'] ?? '');
+                $targetVal = $this->formatMarkdownValue($c['TargetType'] ?? '', $c['TargetAddress'] ?? '');
+
+                $maxFlagLen = max($maxFlagLen, strlen($flag));
+                $maxTypeLen = max($maxTypeLen, strlen($sourceType), strlen($targetType));
+                $maxSizeLen = max($maxSizeLen, strlen($c['SourceSize'] ?? ''), strlen($c['TargetSize'] ?? ''));
+                $maxValueLen = max($maxValueLen, strlen($sourceVal), strlen($targetVal));
+            }
+        }
+
+        $output = '';
+        $groupIndex = 0;
+
+        foreach ($groups as $group) {
+            $label = $groupIndex === 0 ? 'Core' : "Alt {$groupIndex}";
+            $output .= "### {$label}\n```\n";
 
             foreach ($group['Conditions'] as $idx => $c) {
-                $output .= sprintf(
-                    "%3d: %-14s %-6s %-8s %-12s %-3s %-6s %-8s %-12s %s\n",
-                    $idx + 1,
-                    $c['Flag'] ?? '',
-                    $c['SourceType'] ?? '',
-                    $c['SourceSize'] ?? '',
-                    $c['SourceAddress'] ?? '',
-                    $c['Operator'] ?? '',
-                    $c['TargetType'] ?? '',
-                    $c['TargetSize'] ?? '',
-                    $c['TargetAddress'] ?? '',
-                    ($c['HitTarget'] ?? '') ? "({$c['HitTarget']})" : ''
-                );
+                $flag = str_replace(' ', '', $c['Flag'] ?? '');
+                $sourceType = $c['SourceType'] === 'Inverted' ? 'Invert' : ($c['SourceType'] ?? '');
+                $targetType = $c['TargetType'] === 'Inverted' ? 'Invert' : ($c['TargetType'] ?? '');
+                $sourceVal = $this->formatMarkdownValue($c['SourceType'] ?? '', $c['SourceAddress'] ?? '');
+                $targetVal = $this->formatMarkdownValue($c['TargetType'] ?? '', $c['TargetAddress'] ?? '');
+                $operator = $c['Operator'] ?? '';
+
+                // Show hits only for non-scalable flags with operators.
+                $showHits = !in_array($flag, self::SCALABLE_FLAGS, true) && $operator !== '';
+                $hitTarget = $c['HitTarget'] ?: '0';
+
+                $output .= sprintf("%3d: ", $idx + 1);
+                $output .= str_pad($flag, $maxFlagLen + 1);
+                $output .= str_pad($sourceType, $maxTypeLen + 1);
+                $output .= str_pad($c['SourceSize'] ?? '', $maxSizeLen + 1);
+                $output .= str_pad($sourceVal, $maxValueLen + 1);
+                $output .= str_pad($operator, 4);
+                $output .= str_pad($targetType, $maxTypeLen + 1);
+                $output .= str_pad($c['TargetSize'] ?? '', $maxSizeLen + 1);
+                $output .= str_pad($targetVal, $maxValueLen + 1);
+                $output .= $showHits ? "({$hitTarget})" : '';
+                $output .= "\n";
             }
 
             $output .= "```\n\n";
+            $groupIndex++;
         }
 
         return $output;
+    }
+
+    /**
+     * Formats an operand value for markdown output.
+     * - Recall type shows {recall}
+     * - Value/Float types show decimal
+     * - Address types show hex with 8-digit padding
+     */
+    private function formatMarkdownValue(string $type, string $address): string
+    {
+        if ($type === 'Recall') {
+            return '{recall}';
+        }
+
+        $isAddressType = !in_array($type, ['Value', 'Float', 'Recall', ''], true);
+
+        if (!$isAddressType && str_starts_with($address, '0x')) {
+            return (string) hexdec($address);
+        }
+
+        if ($isAddressType && str_starts_with($address, '0x')) {
+            return '0x' . str_pad(substr($address, 2), 8, '0', STR_PAD_LEFT);
+        }
+
+        return $address;
     }
 
     /**

@@ -445,8 +445,10 @@ class TriggerViewerServiceTest extends TestCase
 
         $result = $this->service->generateMarkdown($groups);
 
-        $this->assertStringContainsString('### Core Group', $result);
-        $this->assertStringContainsString('0x001234', $result);
+        $this->assertStringContainsString('### Core', $result);
+        $this->assertStringContainsString('0x00001234', $result);
+        $this->assertStringContainsString('1', $result);
+        $this->assertStringContainsString('(0)', $result);
         $this->assertStringContainsString('```', $result);
     }
 
@@ -476,7 +478,7 @@ class TriggerViewerServiceTest extends TestCase
         $this->assertStringContainsString('(10)', $result);
     }
 
-    public function testGenerateMarkdownOmitsEmptyHitTarget(): void
+    public function testGenerateMarkdownShowsZeroForEmptyHitTarget(): void
     {
         $groups = [
             [
@@ -500,6 +502,7 @@ class TriggerViewerServiceTest extends TestCase
         $result = $this->service->generateMarkdown($groups);
 
         $this->assertStringNotContainsString('()', $result);
+        $this->assertStringContainsString('(0)', $result);
     }
 
     public function testHasAddAddressFlagReturnsTrueWhenPresent(): void
@@ -699,5 +702,142 @@ class TriggerViewerServiceTest extends TestCase
         $result = $this->service->resolveValueAlias(3, '0x000003', '8-bit', $noteSection);
 
         $this->assertEquals('Co-op', $result);
+    }
+
+    public function testGenerateMarkdownUsesAutoCRGroupNames(): void
+    {
+        $groups = [
+            [
+                'Label' => 'Core Group',
+                'Conditions' => [
+                    ['Flag' => '', 'SourceType' => 'Mem', 'SourceSize' => '8-bit', 'SourceAddress' => '0x001234', 'Operator' => '=', 'TargetType' => 'Value', 'TargetSize' => '', 'TargetAddress' => '0x000001', 'HitTarget' => '0'],
+                ],
+            ],
+            [
+                'Label' => 'Alt Group 1',
+                'Conditions' => [
+                    ['Flag' => '', 'SourceType' => 'Mem', 'SourceSize' => '8-bit', 'SourceAddress' => '0x001234', 'Operator' => '=', 'TargetType' => 'Value', 'TargetSize' => '', 'TargetAddress' => '0x000002', 'HitTarget' => '0'],
+                ],
+            ],
+        ];
+
+        $result = $this->service->generateMarkdown($groups);
+
+        $this->assertStringContainsString('### Core', $result);
+        $this->assertStringContainsString('### Alt 1', $result);
+        $this->assertStringNotContainsString('Core Group', $result);
+        $this->assertStringNotContainsString('Alt Group 1', $result);
+    }
+
+    public function testGenerateMarkdownConvertsInvertedToInvert(): void
+    {
+        $groups = [
+            [
+                'Label' => 'Core',
+                'Conditions' => [
+                    ['Flag' => '', 'SourceType' => 'Inverted', 'SourceSize' => '8-bit', 'SourceAddress' => '0x001234', 'Operator' => '=', 'TargetType' => 'Inverted', 'TargetSize' => '8-bit', 'TargetAddress' => '0x005678', 'HitTarget' => '0'],
+                ],
+            ],
+        ];
+
+        $result = $this->service->generateMarkdown($groups);
+
+        $this->assertStringContainsString('Invert', $result);
+        $this->assertStringNotContainsString('Inverted', $result);
+    }
+
+    public function testGenerateMarkdownRemovesSpacesFromFlags(): void
+    {
+        $groups = [
+            [
+                'Label' => 'Core',
+                'Conditions' => [
+                    ['Flag' => 'Add Address', 'SourceType' => 'Mem', 'SourceSize' => '8-bit', 'SourceAddress' => '0x001234', 'Operator' => '', 'TargetType' => '', 'TargetSize' => '', 'TargetAddress' => '', 'HitTarget' => ''],
+                    ['Flag' => 'Reset If', 'SourceType' => 'Mem', 'SourceSize' => '8-bit', 'SourceAddress' => '0x001234', 'Operator' => '=', 'TargetType' => 'Value', 'TargetSize' => '', 'TargetAddress' => '0x000001', 'HitTarget' => '0'],
+                ],
+            ],
+        ];
+
+        $result = $this->service->generateMarkdown($groups);
+
+        $this->assertStringContainsString('AddAddress', $result);
+        $this->assertStringContainsString('ResetIf', $result);
+        $this->assertStringNotContainsString('Add Address', $result);
+        $this->assertStringNotContainsString('Reset If', $result);
+    }
+
+    public function testGenerateMarkdownPadsAddressesToEightDigits(): void
+    {
+        $groups = [
+            [
+                'Label' => 'Core',
+                'Conditions' => [
+                    ['Flag' => '', 'SourceType' => 'Mem', 'SourceSize' => '8-bit', 'SourceAddress' => '0x1234', 'Operator' => '=', 'TargetType' => 'Mem', 'TargetSize' => '8-bit', 'TargetAddress' => '0x5678', 'HitTarget' => '0'],
+                ],
+            ],
+        ];
+
+        $result = $this->service->generateMarkdown($groups);
+
+        $this->assertStringContainsString('0x00001234', $result);
+        $this->assertStringContainsString('0x00005678', $result);
+    }
+
+    public function testGenerateMarkdownShowsDecimalForValueType(): void
+    {
+        $groups = [
+            [
+                'Label' => 'Core',
+                'Conditions' => [
+                    ['Flag' => '', 'SourceType' => 'Mem', 'SourceSize' => '8-bit', 'SourceAddress' => '0x001234', 'Operator' => '=', 'TargetType' => 'Value', 'TargetSize' => '', 'TargetAddress' => '0x00000a', 'HitTarget' => '0'],
+                ],
+            ],
+        ];
+
+        $result = $this->service->generateMarkdown($groups);
+
+        $this->assertStringContainsString('10', $result);
+        $this->assertStringNotContainsString('0x00000a', $result);
+    }
+
+    public function testGenerateMarkdownShowsRecallCondition(): void
+    {
+        $groups = [
+            [
+                'Label' => 'Core',
+                'Conditions' => [
+                    ['Flag' => 'Remember', 'SourceType' => 'Mem', 'SourceSize' => '8-bit', 'SourceAddress' => '0x001234', 'Operator' => '', 'TargetType' => '', 'TargetSize' => '', 'TargetAddress' => '', 'HitTarget' => ''],
+                    ['Flag' => '', 'SourceType' => 'Recall', 'SourceSize' => '', 'SourceAddress' => '', 'Operator' => '=', 'TargetType' => 'Recall', 'TargetSize' => '', 'TargetAddress' => '', 'HitTarget' => '0'],
+                ],
+            ],
+        ];
+
+        $result = $this->service->generateMarkdown($groups);
+
+        $this->assertStringContainsString('{recall}', $result);
+    }
+
+    public function testGenerateMarkdownHidesHitCountForScalableFlags(): void
+    {
+        $groups = [
+            [
+                'Label' => 'Core',
+                'Conditions' => [
+                    ['Flag' => 'Add Source', 'SourceType' => 'Mem', 'SourceSize' => '8-bit', 'SourceAddress' => '0x001234', 'Operator' => '', 'TargetType' => '', 'TargetSize' => '', 'TargetAddress' => '', 'HitTarget' => ''],
+                    ['Flag' => 'Sub Source', 'SourceType' => 'Mem', 'SourceSize' => '8-bit', 'SourceAddress' => '0x001234', 'Operator' => '', 'TargetType' => '', 'TargetSize' => '', 'TargetAddress' => '', 'HitTarget' => ''],
+                    ['Flag' => 'Add Address', 'SourceType' => 'Mem', 'SourceSize' => '8-bit', 'SourceAddress' => '0x001234', 'Operator' => '', 'TargetType' => '', 'TargetSize' => '', 'TargetAddress' => '', 'HitTarget' => ''],
+                    ['Flag' => 'Remember', 'SourceType' => 'Mem', 'SourceSize' => '8-bit', 'SourceAddress' => '0x001234', 'Operator' => '', 'TargetType' => '', 'TargetSize' => '', 'TargetAddress' => '', 'HitTarget' => ''],
+                    ['Flag' => '', 'SourceType' => 'Mem', 'SourceSize' => '8-bit', 'SourceAddress' => '0x001234', 'Operator' => '=', 'TargetType' => 'Value', 'TargetSize' => '', 'TargetAddress' => '0x000001', 'HitTarget' => '5'],
+                ],
+            ],
+        ];
+
+        $result = $this->service->generateMarkdown($groups);
+
+        $lines = explode("\n", $result);
+        $hitCountLines = array_filter($lines, fn ($line) => preg_match('/\(\d+\)/', $line));
+
+        $this->assertCount(1, $hitCountLines);
+        $this->assertStringContainsString('(5)', $result);
     }
 }

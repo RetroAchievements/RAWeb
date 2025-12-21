@@ -36,13 +36,15 @@
                             @endif
 
                             <span class="text-neutral-950 dark:text-white font-medium">{{ $trigger->user?->display_name ?? 'Unknown' }}</span>
-                            <span class="text-neutral-400 dark:text-neutral-500">·</span>
-                            <span
-                                class="text-neutral-500 dark:text-neutral-400 cursor-help"
-                                x-tooltip="{ content: '{{ $trigger->created_at->format('M j, Y g:ia') }}', theme: $store.theme }"
-                            >
-                                {{ $trigger->created_at->diffForHumans() }}
-                            </span>
+                            @if ($trigger->created_at->year >= 2013)
+                                <span class="text-neutral-400 dark:text-neutral-500">·</span>
+                                <span
+                                    class="text-neutral-500 dark:text-neutral-400 cursor-help"
+                                    x-tooltip="{ content: '{{ $trigger->created_at->format('M j, Y g:ia') }}', theme: $store.theme }"
+                                >
+                                    {{ $trigger->created_at->diffForHumans() }}
+                                </span>
+                            @endif
                         </div>
 
                         {{-- Diff summary + version badge + chevron --}}
