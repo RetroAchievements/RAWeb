@@ -33,6 +33,9 @@ if (str_contains($gameData['Title'], "[Subset - ")) {
                 ->pluck('achievement_set_id')
         )
         ->where('type', '!=', AchievementSetType::Core)
+        // exclusive subsets can maintain their own notes
+        ->where('type', '!=', AchievementSetType::Exclusive)
+        ->where('type', '!=', AchievementSetType::WillBeExclusive)
         ->first();
 
     if ($subset && empty($codeNotes)) {
