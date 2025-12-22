@@ -12,6 +12,7 @@ export const createAchievementSet = createFactory<App.Platform.Data.AchievementS
     playersTotal: 0,
     pointsTotal: 0,
     pointsWeighted: 0,
+    ungroupedBadgeUrl: null,
     updatedAt: faker.date.recent().toISOString(),
   };
 });

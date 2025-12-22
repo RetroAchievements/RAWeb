@@ -12,6 +12,7 @@ use App\Models\Comment;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\User;
+use App\Platform\Actions\LogGameHashActivityAction;
 use BackedEnum;
 use Filament\Actions;
 use Filament\Forms;
@@ -99,10 +100,12 @@ class Hashes extends ManageRelatedRecords
 
             ])
             ->headerActions([
-                Actions\Action::make('view-comments')
-                    ->color($nonAutomatedCommentsCount > 0 ? 'info' : 'gray')
-                    ->label("View Comments ({$nonAutomatedCommentsCount})")
-                    ->url(route('game.hashes.comment.index', ['game' => $this->getOwnerRecord()->id])),
+                Actions\Action::make('view-legacy-comments')
+                    ->color('info')
+                    ->label("View Legacy Hash Maintenance Comments ({$nonAutomatedCommentsCount})")
+                    ->url(route('game.hashes.comment.index', ['game' => $this->getOwnerRecord()->id]))
+                    ->openUrlInNewTab()
+                    ->visible($nonAutomatedCommentsCount > 0),
             ])
             ->recordActions([
                 Actions\Action::make('audit-log')
@@ -190,8 +193,6 @@ class Hashes extends ManageRelatedRecords
                     ->action(function (GameHash $gameHash) {
                         /** @var User $user */
                         $user = Auth::user();
-                        /** @var Game $game */
-                        $game = $gameHash->game;
 
                         if (!$user->can('forceDelete', $gameHash)) {
                             return;
@@ -199,29 +200,10 @@ class Hashes extends ManageRelatedRecords
 
                         $gameId = $gameHash->game_id;
                         $md5 = $gameHash->md5;
-                        $name = $gameHash->name;
-                        $labels = $gameHash->labels;
+
+                        (new LogGameHashActivityAction())->execute('unlink', $gameHash);
 
                         $gameHash->forceDelete();
-
-                        activity()
-                            ->useLog('default')
-                            ->causedBy($user)
-                            ->performedOn($game)
-                            ->withProperties([
-                                'attributes' => [
-                                    'name' => '',
-                                    'md5' => '',
-                                    'labels' => '',
-                                ],
-                                'old' => [
-                                    'name' => $name,
-                                    'md5' => $md5,
-                                    'labels' => $labels,
-                                ],
-                            ])
-                            ->event('unlinkedHash')
-                            ->log('Unlinked hash');
 
                         addArticleComment(
                             "Server",

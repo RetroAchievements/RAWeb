@@ -2,7 +2,7 @@
 # exit on error
 set -e
 
-php composer.phar install
+composer install
 php artisan ziggy:generate --types
 pnpm install
 pnpm build

@@ -10,6 +10,7 @@ use App\Community\Enums\ArticleType;
 use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\AchievementCreated;
 use App\Platform\Events\AchievementDeleted;
@@ -91,6 +92,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
+        'AssocVideo',
         'BadgeName',
         'Description',
         'DisplayOrder',
@@ -116,6 +118,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     ];
 
     protected $visible = [
+        'AssocVideo',
         'BadgeName',
         'DateCreated',
         'DateModified',
@@ -288,6 +291,30 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         return $this->game->getIsStandalone() && $this->user_id === $user->id;
     }
 
+    public function getCanHaveBeatenTypes(): bool
+    {
+        // Non-game systems can't have beaten types.
+        if (!System::isGameSystem($this->game?->system?->id ?? 0)) {
+            return false;
+        }
+
+        // Check if achievement's sets are linked as non-core anywhere.
+        $achievementSetIds = AchievementSetAchievement::where('achievement_id', $this->ID)
+            ->pluck('achievement_set_id');
+
+        if ($achievementSetIds->isEmpty()) {
+            // No sets yet, fall back to the game's title-based legacy check.
+            return $this->game?->getCanHaveBeatenTypes() ?? true;
+        }
+
+        // If any set is linked as non-core, then the achievement can't have beaten types.
+        $hasNonCoreLink = GameAchievementSet::whereIn('achievement_set_id', $achievementSetIds)
+            ->where('type', '!=', AchievementSetType::Core)
+            ->exists();
+
+        return !$hasNonCoreLink;
+    }
+
     public function getPermalinkAttribute(): string
     {
         return route('achievement.show', $this);
@@ -388,8 +415,14 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function achievementSets(): BelongsToMany
     {
-        return $this->belongsToMany(AchievementSet::class, 'achievement_set_achievements', 'achievement_id', 'achievement_set_id', 'ID', 'id')
-            ->withPivot('order_column', 'created_at', 'updated_at');
+        return $this->belongsToMany(
+            AchievementSet::class,
+            'achievement_set_achievements',
+            'achievement_id',
+            'achievement_set_id',
+            'ID',
+            'id'
+        )->withPivot('order_column', 'achievement_group_id', 'created_at', 'updated_at');
     }
 
     /**

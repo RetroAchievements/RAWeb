@@ -99,7 +99,6 @@ describe('Component: GameRecentPlayersList', () => {
 
   it('given a rich presence message is truncated, clicking it expands the message', async () => {
     // ARRANGE
-    const user = userEvent.setup();
     const richPresenceMessage =
       'Playing Stage 3 - Boss Fight with a very long message that should be truncated';
     const player = createGameRecentPlayer({
@@ -119,7 +118,7 @@ describe('Component: GameRecentPlayersList', () => {
       name: /toggle rich presence details/i,
     });
 
-    await user.click(richPresenceElement);
+    await userEvent.click(richPresenceElement);
 
     // ASSERT
     expect(richPresenceElement).not.toHaveClass('truncate');
@@ -127,7 +126,6 @@ describe('Component: GameRecentPlayersList', () => {
 
   it('given a rich presence message is expanded, clicking it again collapses the message', async () => {
     // ARRANGE
-    const user = userEvent.setup();
     const richPresenceMessage = 'Playing Stage 3 - Boss Fight with a very long message';
     const player = createGameRecentPlayer({
       richPresence: richPresenceMessage,
@@ -146,8 +144,8 @@ describe('Component: GameRecentPlayersList', () => {
     });
 
     // ACT
-    await user.click(richPresenceElement); // !! expand first
-    await user.click(richPresenceElement); // !! then collapse
+    await userEvent.click(richPresenceElement); // !! expand first
+    await userEvent.click(richPresenceElement); // !! then collapse
 
     // ASSERT
     expect(richPresenceElement).toHaveClass('truncate'); // !! back to truncated state
@@ -155,7 +153,6 @@ describe('Component: GameRecentPlayersList', () => {
 
   it('given a rich presence message, pressing Enter key expands/collapses it', async () => {
     // ARRANGE
-    const user = userEvent.setup();
     const richPresenceMessage = 'Playing Stage 3 - Boss Fight';
     const player = createGameRecentPlayer({
       richPresence: richPresenceMessage,
@@ -175,7 +172,7 @@ describe('Component: GameRecentPlayersList', () => {
 
     // ACT
     richPresenceElement.focus();
-    await user.keyboard('{Enter}');
+    await userEvent.keyboard('{Enter}');
 
     // ASSERT
     expect(richPresenceElement).not.toHaveClass('truncate');
@@ -183,7 +180,6 @@ describe('Component: GameRecentPlayersList', () => {
 
   it('given a rich presence message, pressing Space key expands/collapses it', async () => {
     // ARRANGE
-    const user = userEvent.setup();
     const richPresenceMessage = 'Playing Stage 3 - Boss Fight';
     const player = createGameRecentPlayer({
       richPresence: richPresenceMessage,
@@ -203,7 +199,7 @@ describe('Component: GameRecentPlayersList', () => {
 
     // ACT
     richPresenceElement.focus();
-    await user.keyboard(' ');
+    await userEvent.keyboard(' ');
 
     // ASSERT
     expect(richPresenceElement).not.toHaveClass('truncate');
@@ -238,7 +234,6 @@ describe('Component: GameRecentPlayersList', () => {
 
   it('given a rich presence message is expanded, aria-expanded attribute updates', async () => {
     // ARRANGE
-    const user = userEvent.setup();
     const richPresenceMessage = 'Playing Stage 3 - Boss Fight';
     const player = createGameRecentPlayer({
       richPresence: richPresenceMessage,
@@ -257,7 +252,7 @@ describe('Component: GameRecentPlayersList', () => {
     });
 
     // ACT
-    await user.click(richPresenceElement);
+    await userEvent.click(richPresenceElement);
 
     // ASSERT
     expect(richPresenceElement).toHaveAttribute('aria-expanded', 'true');

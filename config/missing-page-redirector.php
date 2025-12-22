@@ -74,6 +74,8 @@ return [
         /*
          * games
          */
+        '/game1/{game}' => '/game/{game}',
+        '/game2/{game}' => '/game/{game}',
         '/gameInfo.php' => '/game/{ID}',
         '/gameList.php' => '/system/{c}/games',
         '/gameSearch.php' => '/games?sort=-retroRatio',
