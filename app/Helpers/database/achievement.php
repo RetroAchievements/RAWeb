@@ -551,21 +551,3 @@ function updateAchievementType(int|string|array $inputAchievementIds, ?string $n
         $achievement->save();
     }
 }
-
-function buildBeatenGameCreditDialogContext(array $achievements): string
-{
-    $softcoreUnlocks = [];
-    $hardcoreUnlocks = [];
-    foreach ($achievements as $achievementId => $achievement) {
-        if (isset($achievement['DateEarned'])) {
-            $softcoreUnlocks[] = $achievementId;
-        }
-        if (isset($achievement['DateEarnedHardcore'])) {
-            $hardcoreUnlocks[] = $achievementId;
-        }
-    }
-
-    $dialogContext = "s:" . implode(",", $softcoreUnlocks) . "|h:" . implode(",", $hardcoreUnlocks);
-
-    return $dialogContext;
-}
