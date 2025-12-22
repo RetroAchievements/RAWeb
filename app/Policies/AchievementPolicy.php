@@ -70,7 +70,7 @@ class AchievementPolicy
             /*
              * artists may update achievement badges if the respective achievements are open for editing
              */
-            // Role::ARTIST,
+            Role::ARTIST,
 
             /*
              * writers may update achievement title and description if the respective achievements are open for editing
@@ -130,6 +130,7 @@ class AchievementPolicy
             Role::DEVELOPER_JUNIOR => ['Title', 'Description', 'type', 'Points', 'DisplayOrder'],
             Role::DEVELOPER => ['Title', 'Description', 'Flags', 'type', 'Points', 'DisplayOrder', 'AssocVideo'],
             Role::WRITER => ['Title', 'Description'],
+            Role::ARTIST => ['BadgeName'],
         ];
 
         // Root can edit everything.
