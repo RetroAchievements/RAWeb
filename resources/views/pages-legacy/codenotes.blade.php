@@ -2,8 +2,10 @@
 
 use App\Enums\Permissions;
 use App\Models\GameAchievementSet;
+use App\Models\MemoryNote;
 use App\Models\User;
 use App\Platform\Enums\AchievementSetType;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -21,18 +23,74 @@ if ($user) {
 
 $codeNotes = [];
 getCodeNotes($gameID, $codeNotes);
-$codeNoteCount = count(array_filter($codeNotes, function ($x) { return $x['Note'] !== "" && $x['Note'] !== "''"; }));
 
-$subsets = GameAchievementSet::query()
-    ->whereIn('achievement_set_id',
-        GameAchievementSet::where('game_id', $gameID)
-            ->where('type', '!=', AchievementSetType::Core)
-            ->pluck('achievement_set_id')
-    )
-    ->where('type', AchievementSetType::Core)
-    ->with('game')
-    ->whereHas('game.memoryNotes')
-    ->get();
+$subset = null;
+if (str_contains($gameData['Title'], "[Subset - ")) {
+    $subset = GameAchievementSet::query()
+        ->whereIn('achievement_set_id',
+            GameAchievementSet::where('game_id', $gameID)
+                ->where('type', AchievementSetType::Core)
+                ->pluck('achievement_set_id')
+        )
+        ->where('type', '!=', AchievementSetType::Core)
+        ->first();
+
+    if ($subset && empty($codeNotes)) {
+        // no notes for subset. redirect to base set
+        abort_with(redirect('codenotes.php?g=' . $subset->game_id));
+    }
+}
+
+if ($permissions >= Permissions::Developer && $subset !== null) {
+    // empty collection for subset selector
+    $subsets = new Collection();
+
+    // codeNotes are for the subset. rename them and fetch the code notes for the base set
+    $subsetNotes = $codeNotes;
+    $codeNotes = [];
+    getCodeNotes($subset->game_id, $codeNotes);
+
+    // merge subset notes into the base set notes
+    foreach ($subsetNotes as $subsetNote) {
+        $found = false;
+        foreach ($codeNotes as &$codeNote) {
+            if ($codeNote['Address'] === $subsetNote['Address']) {
+                $codeNote['SubsetUser'] = $subsetNote['User'];
+                $codeNote['SubsetNote'] = $subsetNote['Note'];
+
+                $found = true;
+                break;
+            }
+        }
+        if (!$found) {
+            $codeNotes[] = [
+                'Address' => $subsetNote['Address'],
+                'User' => null,
+                'Note' => '',
+                'SubsetUser' => $subsetNote['User'],
+                'SubsetNote' => $subsetNote['Note'],
+            ];
+        }
+    }
+
+    usort($codeNotes, fn($a, $b) => strcmp($a['Address'], $b['Address']));
+    $hasSubsetNotes = true;
+} else {
+    $subsets = GameAchievementSet::query()
+        ->whereIn('achievement_set_id',
+            GameAchievementSet::where('game_id', $gameID)
+                ->where('type', '!=', AchievementSetType::Core)
+                ->pluck('achievement_set_id')
+        )
+        ->where('type', AchievementSetType::Core)
+        ->with('game')
+        ->whereHas('game.memoryNotes')
+        ->get();
+    $subsetNotes = new Collection();
+    $hasSubsetNotes = false;
+}
+
+$codeNoteCount = count(array_filter($codeNotes, function ($x) { return $x['Note'] !== "" && $x['Note'] !== "''"; }));
 
 $pageTitle = "Code Notes - {$gameData['Title']}";
 ?>
@@ -106,6 +164,66 @@ function beginEditMode(rowIndex) {
     // Set the textarea rows attribute, ensuring a minimum of 2 rows.
     noteEditEl.rows = Math.max(rowCount, 2);
 }
+
+<?php if ($hasSubsetNotes): ?>
+function keepBaseNote(rowIndex) {
+    const rowEl = document.getElementById(`row-${rowIndex}`);
+    const addressHex = rowEl.querySelector('td[data-address]').dataset.address;
+
+    showStatusMessage('Updating...');
+    $.post('/request/game/merge-code-note.php', {
+        address: parseInt(addressHex, 16),
+        gameId: <?= $gameID ?>,
+        keep: 0,
+    }).done(() => {
+        showStatusSuccess('Done!');
+
+        const rowEl = document.getElementById(`row-${rowIndex}`);
+        if (rowEl.querySelector('.keep-base-btn').classList.contains('btn-danger')) {
+            // hide the whole row
+            rowEl.classList.add('hidden');
+        } else {
+            // hide the merge UI and enable the edit button
+            rowEl.querySelector('.keep-base-btn').classList.add('hidden');
+            rowEl.querySelector('.keep-subset-btn').classList.add('hidden');
+            rowEl.querySelector('.subset-note-display').classList.add('hidden');
+            rowEl.querySelector('.subset-note-author').classList.add('hidden');
+            rowEl.querySelector('.edit-btn').classList.remove('hidden');
+        }
+    }).fail(() => {
+        showStatusFailure('There was a problem merging the code note.');
+    });
+}
+
+function keepSubsetNote(rowIndex) {
+    const rowEl = document.getElementById(`row-${rowIndex}`);
+    const addressHex = rowEl.querySelector('td[data-address]').dataset.address;
+
+    showStatusMessage('Updating...');
+    $.post('/request/game/merge-code-note.php', {
+        address: parseInt(addressHex, 16),
+        gameId: <?= $gameID ?>,
+        keep: 1,
+    }).done(() => {
+        showStatusSuccess('Done!');
+
+        // hide the merge UI and enable the edit button
+        const rowEl = document.getElementById(`row-${rowIndex}`);
+        rowEl.querySelector('.keep-base-btn').classList.add('hidden');
+        rowEl.querySelector('.keep-subset-btn').classList.add('hidden');
+        rowEl.querySelector('.subset-note-display').classList.add('hidden');
+        rowEl.querySelector('.subset-note-author').classList.add('hidden');
+        rowEl.querySelector('.edit-btn').classList.remove('hidden');
+
+        // move the subset UI into the base set UI
+        rowEl.querySelector('.note-display').innerHTML = rowEl.querySelector('.subset-note-display').innerHTML;
+        rowEl.querySelector('.note-edit').textContent = rowEl.querySelector('.subset-note-display').textContent;
+        rowEl.querySelector('.note-author-avatar').innerHTML = rowEl.querySelector('.subset-note-author').innerHTML;
+    }).fail(() => {
+        showStatusFailure('There was a problem merging the code note.');
+    });
+}
+<?php endif ?>
 
 /**
  * Cancel edit mode for a specific row.
@@ -203,7 +321,7 @@ function saveCodeNote(rowIndex, isDeleting = false) {
         note: isDeleting ? null : noteEditEl.value.replace(/\n/g, '\r\n'),
         // Addresses are stored as base 10 numbers in the DB, not base 16.
         address: parseInt(addressHex, 16),
-        gameId: <?= $gameID ?>,
+        gameId: <?= $subset?->game_id ?? $gameID ?>,
     }).done(() => {
         showStatusSuccess('Done!');
 
@@ -264,7 +382,7 @@ function saveCodeNote(rowIndex, isDeleting = false) {
     <p>There are currently <span class='font-bold code-note-count'><?= $codeNoteCount ?></span> code notes for this game.</p>
     <?php
     if (isset($user) && $permissions >= Permissions::Registered) {
-        RenderCodeNotes($codeNotes, $userModel, $permissions);
+        RenderCodeNotes($codeNotes, $userModel, $permissions, $hasSubsetNotes);
     }
     ?>
 </x-app-layout>
