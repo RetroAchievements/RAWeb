@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Actions;
 
-use App\Platform\Actions\ComputeGameSortTitleAction;
+use App\Platform\Actions\ComputeSortTitleAction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
-class ComputeGameSortTitleActionTest extends TestCase
+class ComputeSortTitleActionTest extends TestCase
 {
     #[DataProvider('titleProvider')]
-    public function testItGeneratesCorrectSortTitles(string $gameTitle, string $expectedSortTitle): void
+    public function testItGeneratesCorrectSortTitles(string $title, string $expectedSortTitle): void
     {
         // Act
-        $sortTitle = (new ComputeGameSortTitleAction())->execute($gameTitle);
+        $sortTitle = (new ComputeSortTitleAction())->execute($title);
 
         // Assert
         $this->assertEquals($expectedSortTitle, $sortTitle);

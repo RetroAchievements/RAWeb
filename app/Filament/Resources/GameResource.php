@@ -78,6 +78,9 @@ class GameResource extends Resource
 
     public static function infolist(Schema $schema): Schema
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $schema
             ->components([
                 Infolists\Components\ImageEntry::make('badge_url')
@@ -99,7 +102,8 @@ class GameResource extends Resource
                         Infolists\Components\TextEntry::make('title'),
 
                         Infolists\Components\TextEntry::make('sort_title')
-                            ->label('Sort Title'),
+                            ->label('Sort Title')
+                            ->visible(fn (Game $record): bool => $user->can('updateField', [$record, 'sort_title']) ?? false),
 
                         Infolists\Components\TextEntry::make('forumTopic.id')
                             ->label('Forum Topic ID')
@@ -233,15 +237,11 @@ class GameResource extends Resource
                             ->disabled(!$user->can('updateField', [$schema->model, 'Title'])),
 
                         Forms\Components\TextInput::make('sort_title')
-                            ->required()
                             ->label('Sort Title')
+                            ->required()
                             ->minLength(2)
-                            ->disabled(!$user->can('updateField', [$schema->model, 'sort_title']))
-                            ->helperText('Normalized title for sorting purposes. For example, "The Goonies II" would sort as "goonies 02". DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.')
-                            ->live()
-                            ->afterStateHydrated(function (callable $set, callable $get, ?string $state) {
-                                $set('original_sort_title', $state ?? '');
-                            }),
+                            ->visible(fn () => $user->can('updateField', [$schema->model, 'sort_title']))
+                            ->helperText('Normalized title for sorting. DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.'),
 
                         Forms\Components\TextInput::make('ForumTopicID')
                             ->label('Forum Topic ID')
@@ -360,7 +360,8 @@ class GameResource extends Resource
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('Title')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy('sort_title', $direction)),
 
                 Tables\Columns\TextColumn::make('system')
                     ->label('System')

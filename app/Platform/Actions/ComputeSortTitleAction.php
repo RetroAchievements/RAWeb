@@ -6,11 +6,11 @@ namespace App\Platform\Actions;
 
 use Transliterator;
 
-class ComputeGameSortTitleAction
+class ComputeSortTitleAction
 {
-    public function execute(string $gameTitle): string
+    public function execute(string $title): string
     {
-        $sortTitle = $this->replaceRomanNumerals($gameTitle);
+        $sortTitle = $this->replaceRomanNumerals($title);
         $sortTitle = $this->padNumbers($sortTitle);
         $sortTitle = $this->removeArticles($sortTitle);
         $sortTitle = mb_strtolower($sortTitle);
