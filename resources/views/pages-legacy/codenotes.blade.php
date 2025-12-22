@@ -1,7 +1,10 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\GameAchievementSet;
 use App\Models\User;
+use App\Platform\Enums\AchievementSetType;
+use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -19,6 +22,17 @@ if ($user) {
 $codeNotes = [];
 getCodeNotes($gameID, $codeNotes);
 $codeNoteCount = count(array_filter($codeNotes, function ($x) { return $x['Note'] !== "" && $x['Note'] !== "''"; }));
+
+$subsets = GameAchievementSet::query()
+    ->whereIn('achievement_set_id',
+        GameAchievementSet::where('game_id', $gameID)
+            ->where('type', '!=', AchievementSetType::Core)
+            ->pluck('achievement_set_id')
+    )
+    ->where('type', AchievementSetType::Core)
+    ->with('game')
+    ->whereHas('game.memoryNotes')
+    ->get();
 
 $pageTitle = "Code Notes - {$gameData['Title']}";
 ?>
@@ -228,6 +242,19 @@ function saveCodeNote(rowIndex, isDeleting = false) {
     </div>
     <h3>Code Notes</h3>
     <?= gameAvatar($gameData, iconSize: 64); ?>
+    <?php
+    if ($subsets->count() > 0)
+    {
+        echo "<br/><br/>Subset Notes:";
+        foreach ($subsets as $subset) {
+            echo "<br/>";
+            $icon = "<img decoding='async' width='24' height='24' src='{$subset->game->badgeUrl}' class='badgeimg'>";
+            $link = "codenotes.php?g=" . $subset->game_id;
+            $label = Blade::render("<x-game-title :rawTitle=\"\$rawTitle\" />", ['rawTitle' => $subset->game->Title]);
+            echo "<span class='inline'><a class='inline-block' href='$link'>$icon $label</a></span>";
+        }
+    }
+    ?>
     <br/>
     <br/>
     <p>The RetroAchievements addressing scheme for most systems is to access the system memory
