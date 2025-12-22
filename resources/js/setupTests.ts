@@ -4,6 +4,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { cleanup } from '@testing-library/react';
 
+import i18n from './i18n-client';
 import { loadFaker } from './test/createFactory';
 // @ts-expect-error -- this isn't a real ts module
 import { Ziggy } from './ziggy';
@@ -53,6 +54,16 @@ beforeAll(async () => {
    * assume faker is loaded in memory and will throw an error if it's not.
    */
   await loadFaker();
+
+  /**
+   * Wait for i18n to be initialized. Without this, tests using useTranslation
+   * may fail in CI due to a race condition where the hook runs before i18n is ready.
+   */
+  if (!i18n.isInitialized) {
+    await new Promise<void>((resolve) => {
+      i18n.on('initialized', resolve);
+    });
+  }
 });
 
 beforeAll(() => {

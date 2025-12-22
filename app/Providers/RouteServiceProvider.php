@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\DownloadsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RedirectController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\UserController;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -67,6 +68,7 @@ class RouteServiceProvider extends ServiceProvider
                 Route::get('/', [HomeController::class, 'index'])->name('home');
 
                 Route::get('downloads', [DownloadsController::class, 'index'])->name('download.index');
+                Route::get('search', [SearchController::class, 'index'])->name('search');
 
                 Route::get('contact', fn () => Inertia::render('contact'))->name('contact');
                 Route::get('redirect', [RedirectController::class, 'redirect'])->name('redirect');
