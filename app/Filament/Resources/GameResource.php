@@ -84,7 +84,7 @@ class GameResource extends Resource
         return $schema
             ->components([
                 Infolists\Components\ImageEntry::make('badge_url')
-                    ->label('')
+                    ->label('Badge')
                     ->size(config('media.icon.lg.width')),
 
                 Schemas\Components\Section::make('Primary Details')
@@ -277,6 +277,12 @@ class GameResource extends Resource
 
                 Schemas\Components\Section::make('Media')
                     ->icon('heroicon-s-photo')
+                    ->hidden(
+                        !$user->can('updateField', [$schema->model, 'ImageIcon'])
+                        && !$user->can('updateField', [$schema->model, 'ImageBoxArt'])
+                        && !$user->can('updateField', [$schema->model, 'ImageTitle'])
+                        && !$user->can('updateField', [$schema->model, 'ImageIngame'])
+                    )
                     ->schema([
                         // Store a temporary file on disk until the user submits.
                         // When the user submits, put in storage.
@@ -290,7 +296,8 @@ class GameResource extends Resource
                             ->acceptedFileTypes(['image/png', 'image/jpeg'])
                             ->maxSize(1024)
                             ->maxFiles(1)
-                            ->previewable(true),
+                            ->previewable(true)
+                            ->hidden(!$user->can('updateField', [$schema->model, 'ImageIcon'])),
 
                         Forms\Components\FileUpload::make('ImageBoxArt')
                             ->label('Box Art')
@@ -299,7 +306,8 @@ class GameResource extends Resource
                             ->acceptedFileTypes(['image/png', 'image/jpeg'])
                             ->maxSize(1024)
                             ->maxFiles(1)
-                            ->previewable(true),
+                            ->previewable(true)
+                            ->hidden(!$user->can('updateField', [$schema->model, 'ImageBoxArt'])),
 
                         Forms\Components\FileUpload::make('ImageTitle')
                             ->label('Title')
@@ -308,7 +316,8 @@ class GameResource extends Resource
                             ->acceptedFileTypes(['image/png', 'image/jpeg'])
                             ->maxSize(1024)
                             ->maxFiles(1)
-                            ->previewable(true),
+                            ->previewable(true)
+                            ->hidden(!$user->can('updateField', [$schema->model, 'ImageTitle'])),
 
                         Forms\Components\FileUpload::make('ImageIngame')
                             ->label('In Game')
@@ -317,7 +326,8 @@ class GameResource extends Resource
                             ->acceptedFileTypes(['image/png', 'image/jpeg'])
                             ->maxSize(1024)
                             ->maxFiles(1)
-                            ->previewable(true),
+                            ->previewable(true)
+                            ->hidden(!$user->can('updateField', [$schema->model, 'ImageIngame'])),
                     ])
                     ->columns(2),
 

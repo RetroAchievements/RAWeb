@@ -11,10 +11,10 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
 <div x-data="{ widthMode: '{{ $widthMode }}' }">
     <div class="flex flex-col-reverse gap-y-2 sm:gap-y-0 sm:flex-row sm:justify-between w-full mb-2">
         <x-user.progression-status.legend
-            :totalBeatenHardcoreCount="$totalBeatenHardcoreCount"
-            :totalBeatenSoftcoreCount="$totalBeatenSoftcoreCount"
-            :totalCompletedCount="$totalCompletedCount"
-            :totalMasteredCount="$totalMasteredCount"
+            :totalBeatenHardcoreCount="$totalCounts['beatenHardcore']"
+            :totalBeatenSoftcoreCount="$totalCounts['beatenSoftcore']"
+            :totalCompletedCount="$totalCounts['completed']"
+            :totalMasteredCount="$totalCounts['mastered']"
         />
 
         <label class="flex items-center gap-x-1 select-none cursor-pointer text-xs transition sm:-mt-[2px] md:active:scale-95">
@@ -29,46 +29,45 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
         </label>
     </div>
 
-    @if (count($consoleProgress) > 2)
+    @if (count($systemProgress) > 2)
         <div class="mb-4">
             <x-user.progression-status.console-progression-list-item
                 label="Total"
-                :unfinishedCount="$totalUnfinishedCount"
-                :beatenSoftcoreCount="$totalBeatenSoftcoreCount"
-                :beatenHardcoreCount="$totalBeatenHardcoreCount"
-                :completedCount="$totalCompletedCount"
-                :masteredCount="$totalMasteredCount"
+                :unfinishedCount="$totalCounts['unfinished']"
+                :beatenSoftcoreCount="$totalCounts['beatenSoftcore']"
+                :beatenHardcoreCount="$totalCounts['beatenHardcore']"
+                :completedCount="$totalCounts['completed']"
+                :masteredCount="$totalCounts['mastered']"
                 :systems="$systems"
             />
         </div>
     @endif
 
-    @if ($topConsole)
+    @if ($topSystem)
         <div class="mb-1.5">
             <p class="text-xs">Most Recent</p>
             <x-user.progression-status.console-progression-list-item
-                :consoleId="$topConsole"
-                :unfinishedCount="$consoleProgress[$topConsole]['unfinishedCount'] ?? 1"
-                :beatenSoftcoreCount="$consoleProgress[$topConsole]['beatenSoftcoreCount'] ?? 0"
-                :beatenHardcoreCount="$consoleProgress[$topConsole]['beatenHardcoreCount'] ?? 0"
-                :completedCount="$consoleProgress[$topConsole]['completedCount'] ?? 0"
-                :masteredCount="$consoleProgress[$topConsole]['masteredCount'] ?? 0"
+                :consoleId="$topSystem"
+                :unfinishedCount="$systemProgress[$topSystem]['unfinishedCount'] ?? 1"
+                :beatenSoftcoreCount="$systemProgress[$topSystem]['beatenSoftcoreCount'] ?? 0"
+                :beatenHardcoreCount="$systemProgress[$topSystem]['beatenHardcoreCount'] ?? 0"
+                :completedCount="$systemProgress[$topSystem]['completedCount'] ?? 0"
+                :masteredCount="$systemProgress[$topSystem]['masteredCount'] ?? 0"
                 :systems="$systems"
             />
         </div>
     @endif
 
     {{-- These items are hidden by default. --}}
-    {{-- TODO: Convert this to LiveWire so these rows aren't in the DOM until expanded by the user. --}}
-    @if (count($consoleProgress) > 1)
+    @if (count($systemProgress) > 1)
         <ol>
-            <x-user.progression-status.hidden-consoles totalConsoleCount="{{ count($consoleProgress) }}">
+            <x-user.progression-status.hidden-consoles totalConsoleCount="{{ count($systemProgress) }}">
                 <p class="text-xs mt-3 -mb-1.5 select-none">Sorted by Most Games Played</p>
 
-                @foreach ($consoleProgress as $consoleId => $progress)
-                    @if ($consoleId != $topConsole && isValidConsoleId($consoleId))
+                @foreach ($systemProgress as $systemId => $progress)
+                    @if ($systemId != $topSystem)
                         <x-user.progression-status.console-progression-list-item
-                            :consoleId="$consoleId"
+                            :consoleId="$systemId"
                             :unfinishedCount="$progress['unfinishedCount']"
                             :beatenSoftcoreCount="$progress['beatenSoftcoreCount']"
                             :beatenHardcoreCount="$progress['beatenHardcoreCount']"

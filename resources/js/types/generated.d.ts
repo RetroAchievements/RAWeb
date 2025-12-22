@@ -1,17 +1,17 @@
 declare namespace App.Community.Data {
+  export type AchievementChecklistGroup = {
+    header: string;
+    achievements: Array<App.Platform.Data.Achievement>;
+  };
   export type AchievementChecklistPageProps = {
     player: App.Data.User;
-    groups: Array<App.Community.Data.AchievementGroup>;
+    groups: Array<App.Community.Data.AchievementChecklistGroup>;
   };
   export type AchievementCommentsPageProps<TItems = App.Community.Data.Comment> = {
     achievement: App.Platform.Data.Achievement;
     paginatedComments: App.Data.PaginatedData<TItems>;
     isSubscribed: boolean;
     canComment: boolean;
-  };
-  export type AchievementGroup = {
-    header: string;
-    achievements: Array<App.Platform.Data.Achievement>;
   };
   export type ActivePlayer = {
     user: App.Data.User;
@@ -28,6 +28,7 @@ declare namespace App.Community.Data {
     canDelete: boolean;
     canReport: boolean;
     isAutomated: boolean;
+    url: string | null;
   };
   export type DeveloperFeedPageProps<TItems = App.Community.Data.ActivePlayer> = {
     developer: App.Data.User;
@@ -481,6 +482,7 @@ declare namespace App.Data {
     updateAnyAchievementSetClaim?: boolean;
     updateAvatar?: boolean;
     updateGame?: boolean;
+    updateGameSet?: boolean;
     updateForumTopic?: boolean;
     updateMotto?: boolean;
     viewAnyAchievementSetClaim?: boolean;
@@ -553,6 +555,11 @@ declare namespace App.Http.Data {
     hasUnreadSiteReleaseNote: boolean;
     deferredSiteReleaseNotes: Array<App.Data.News>;
   };
+  export type SearchPageProps = {
+    initialQuery: string;
+    initialScope: string;
+    initialPage: number;
+  };
 }
 declare namespace App.Models {
   export type UserRole =
@@ -594,6 +601,7 @@ declare namespace App.Platform.Data {
     developer?: App.Data.User;
     flags?: App.Platform.Enums.AchievementFlag;
     game?: App.Platform.Data.Game;
+    groupId?: number | null;
     orderColumn?: number;
     points?: number;
     pointsWeighted?: number;
@@ -639,6 +647,15 @@ declare namespace App.Platform.Data {
     createdAt: string | null;
     updatedAt: string | null;
     achievements: Array<App.Platform.Data.Achievement>;
+    achievementGroups?: Array<App.Platform.Data.AchievementSetGroup>;
+    ungroupedBadgeUrl: string | null;
+  };
+  export type AchievementSetGroup = {
+    id: number;
+    label: string;
+    orderColumn: number;
+    achievementCount: number;
+    badgeUrl: string | null;
   };
   export type AggregateAchievementSetCredits = {
     achievementsAuthors: Array<App.Platform.Data.UserCredits>;

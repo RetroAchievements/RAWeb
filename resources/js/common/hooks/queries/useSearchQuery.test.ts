@@ -115,7 +115,7 @@ describe('Hook: useSearchQuery', () => {
     await waitFor(() => {
       expect(axios.get).toHaveBeenCalledWith('/internal-api/search?q=test&scope=users');
     });
-    expect(route).not.toHaveBeenCalled();
+    expect(route).not.toHaveBeenCalledWith('api.search.index');
   });
 
   it('given no custom route is provided, uses the default ziggy route', async () => {
@@ -258,6 +258,56 @@ describe('Hook: useSearchQuery', () => {
     // ASSERT
     await waitFor(() => {
       expect(result.current.isLoading).toBe(true);
+    });
+  });
+
+  it('given a page is provided, includes it in the query params', async () => {
+    // ARRANGE
+    const mockResponse = {
+      data: {
+        results: { users: [] },
+        query: 'test',
+        scopes: ['users'],
+        scopeRelevance: { users: 0 },
+        pagination: { currentPage: 2, lastPage: 5, perPage: 25, total: 100 },
+      },
+    };
+    vi.mocked(axios.get).mockResolvedValueOnce(mockResponse as any);
+    const { result } = renderHook(() => useSearchQuery({ page: 2 }));
+
+    // ACT
+    act(() => {
+      result.current.setSearchTerm('test');
+    });
+
+    // ASSERT
+    await waitFor(() => {
+      expect(axios.get).toHaveBeenCalledWith('/api/search?q=test&scope=users&page=2');
+    });
+  });
+
+  it('given page and perPage are provided, includes both in the query params', async () => {
+    // ARRANGE
+    const mockResponse = {
+      data: {
+        results: { users: [] },
+        query: 'test',
+        scopes: ['users'],
+        scopeRelevance: { users: 0 },
+        pagination: { currentPage: 3, lastPage: 10, perPage: 10, total: 100 },
+      },
+    };
+    vi.mocked(axios.get).mockResolvedValueOnce(mockResponse as any);
+    const { result } = renderHook(() => useSearchQuery({ page: 3, perPage: 10 }));
+
+    // ACT
+    act(() => {
+      result.current.setSearchTerm('test');
+    });
+
+    // ASSERT
+    await waitFor(() => {
+      expect(axios.get).toHaveBeenCalledWith('/api/search?q=test&scope=users&page=3&perPage=10');
     });
   });
 });

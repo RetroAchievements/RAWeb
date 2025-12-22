@@ -176,114 +176,6 @@ function renderHubCard(int $hubId): string
     ]);
 }
 
-function RenderGameSort(
-    int $systemId,
-    ?int $flag,
-    int $officialFlag,
-    int $gameID,
-    ?int $sortBy,
-    bool $canSortByType = false,
-): void {
-    echo "<div><span>";
-    echo "Sort: ";
-
-    $flagParam = ($flag != $officialFlag) ? "f=$flag" : '';
-
-    $sortType = ($sortBy < 10) ? "^" : "<sup>v</sup>";
-    // Used for options which sort in Descending order on first click
-    $sortReverseType = ($sortBy >= 10) ? "^" : "<sup>v</sup>";
-
-    $sort1 = ($sortBy == 1) ? 11 : 1;
-    $sort2 = ($sortBy == 2) ? 12 : 2;
-    $sort3 = ($sortBy == 3) ? 13 : 3;
-    $sort4 = ($sortBy == 4) ? 14 : 4;
-    $sort5 = ($sortBy == 5) ? 15 : 5;
-    $sort6 = ($sortBy == 6) ? 16 : 6;
-
-    $mark1 = ($sortBy % 10 == 1) ? "&nbsp;$sortType" : "";
-    $mark2 = ($sortBy % 10 == 2) ? "&nbsp;$sortType" : "";
-    $mark3 = ($sortBy % 10 == 3) ? "&nbsp;$sortType" : "";
-    $mark4 = ($sortBy % 10 == 4) ? "&nbsp;$sortType" : "";
-    $mark5 = ($sortBy % 10 == 5) ? "&nbsp;$sortType" : "";
-    $mark6 = ($sortBy % 10 == 6) ? "&nbsp;$sortType" : "";
-
-    $reverseMark1 = ($sortBy % 10 == 1) ? "&nbsp;$sortReverseType" : "";
-    $reverseMark2 = ($sortBy % 10 == 2) ? "&nbsp;$sortReverseType" : "";
-    $reverseMark3 = ($sortBy % 10 == 3) ? "&nbsp;$sortReverseType" : "";
-    $reverseMark4 = ($sortBy % 10 == 4) ? "&nbsp;$sortReverseType" : "";
-    $reverseMark5 = ($sortBy % 10 == 5) ? "&nbsp;$sortReverseType" : "";
-    $reverseMark6 = ($sortBy % 10 == 6) ? "&nbsp;$sortReverseType" : "";
-
-    if ($systemId === System::Events) {
-        echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Default$mark1</a> - ";
-        echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Won By$mark2</a>";
-    } elseif ($systemId === System::Hubs) {
-        echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Default$mark1</a> - ";
-        echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Retro Points$reverseMark2</a>";
-    } else {
-        echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Normal$mark1</a> - ";
-        echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Won By$mark2</a> - ";
-        // TODO sorting by "date won" isn't implemented yet.
-        // if(isset($user)) {
-        //    echo "<a href='/game/$gameID?$flagParam&s=$sort3'>Date Won$mark3</a> - ";
-        // }
-        echo "<a href='/game/$gameID?$flagParam&s=$sort4'>Points$mark4</a> - ";
-        echo "<a href='/game/$gameID?$flagParam&s=$sort5'>Title$mark5</a>";
-        if ($canSortByType) {
-            echo " - ";
-            echo "<a href='/game/$gameID?$flagParam&s=$sort6'>Type$mark6</a>";
-        }
-    }
-
-    echo "<sup>&nbsp;</sup></span></div>";
-}
-
-function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
-{
-    echo "<div class='component gamealts'>";
-    if ($headerText) {
-        echo "<h2 class='text-h3'>$headerText</h2>";
-    }
-    echo "<table class='table-highlight'><tbody>";
-    foreach ($gameAlts as $nextGame) {
-        $consoleName = $nextGame['ConsoleName'];
-        $points = $nextGame['Points'];
-        $totalTP = $nextGame['TotalTruePoints'];
-        $points = (int) $points;
-        $totalTP = (int) $totalTP;
-
-        $isFullyFeaturedGame = $consoleName !== 'Hubs' && $consoleName !== 'Events';
-        if (!$isFullyFeaturedGame) {
-            $consoleName = null;
-        }
-
-        echo Blade::render('
-            <x-game.similar-game-table-row
-                :gameId="$gameId"
-                :gameTitle="$gameTitle"
-                :gameImageIcon="$gameImageIcon"
-                :gameSetId="$gameSetId"
-                :consoleName="$consoleName"
-                :totalPoints="$totalPoints"
-                :totalRetroPoints="$totalRetroPoints"
-                :isFullyFeaturedGame="$isFullyFeaturedGame"
-            />
-        ', [
-            'gameId' => $nextGame['gameIDAlt'],
-            'gameTitle' => $nextGame['Title'],
-            'gameImageIcon' => $nextGame['ImageIcon'],
-            'gameSetId' => isset($nextGame['GameSetID']) ? $nextGame['GameSetID'] : null,
-            'consoleName' => $consoleName,
-            'totalPoints' => $points,
-            'totalRetroPoints' => $totalTP,
-            'isFullyFeaturedGame' => $isFullyFeaturedGame,
-        ]);
-    }
-
-    echo "</tbody></table>";
-    echo "</div>";
-}
-
 function RenderLinkToGameForum(string $gameTitle, int $gameID, ?int $forumTopicID, int $permissions = Permissions::Unregistered): void
 {
     sanitize_outputs(
@@ -303,24 +195,6 @@ function RenderLinkToGameForum(string $gameTitle, int $gameID, ?int $forumTopicI
             echo "</form>";
         }
     }
-}
-
-function generateGameMetaDescription(
-    string $gameTitle,
-    string $consoleName,
-    int $numAchievements = 0,
-    int $gamePoints = 0,
-    bool $isEventGame = false,
-): string {
-    if ($isEventGame) {
-        return "$gameTitle: An event at RetroAchievements. Check out the page for more details on this unique challenge.";
-    } elseif ($numAchievements === 0) {
-        return "No achievements have been created yet for $gameTitle. Join RetroAchievements to request achievements for $gameTitle and earn achievements on many other classic games.";
-    }
-
-    $localizedPoints = localized_number($gamePoints);
-
-    return "There are $numAchievements achievements worth $localizedPoints points. $gameTitle for $consoleName - explore and compete on this classic game at RetroAchievements.";
 }
 
 function generateEmptyBucketsWithBounds(int $numAchievements): array
@@ -430,53 +304,6 @@ function handleAllAchievementsCase(int $numAchievements, array $softcoreUnlocks,
     );
 
     return $allAchievementsCount;
-}
-
-function printBucketIteration(int $bucketIteration, int $numAchievements, array $bucket, string $label): void
-{
-    echo "[ {v:$bucketIteration, f:\"$label\"}, {$bucket['hardcore']}, {$bucket['softcore']} ]";
-}
-
-function generateBucketLabelsAndValues(int $numAchievements, array $buckets): array
-{
-    $bucketLabels = [];
-    $hAxisValues = [];
-    $bucketIteration = 0;
-    $bucketCount = count($buckets);
-
-    // Loop through each bucket to generate their labels and values.
-    foreach ($buckets as $index => $bucket) {
-        if ($bucketIteration++ > 0) {
-            echo ", ";
-        }
-
-        // Is this the last bucket? If so, we only want it to include
-        // players who have earned all the achievements, not a range.
-        if ($index == $bucketCount - 1) {
-            $label = "Earned $numAchievements achievements";
-            printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
-
-            $hAxisValues[] = $numAchievements;
-        } else {
-            // For other buckets, the label indicates the range of achievements that
-            // the bucket represents.
-            $start = $bucket['start'];
-            $end = $bucket['end'];
-
-            // Pluralize 'achievement' if the range contains more than one achievement.
-            $plural = $end > 1 ? 's' : '';
-            $label = "Earned $start achievement$plural";
-            if ($start !== $end) {
-                $label = "Earned $start-$end achievement$plural";
-            }
-
-            printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
-
-            $hAxisValues[] = $start;
-        }
-    }
-
-    return $hAxisValues;
 }
 
 function ListGames(

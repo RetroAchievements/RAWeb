@@ -25,11 +25,9 @@ const RequestedGames: AppPage = () => {
         description="Browse games awaiting achievement sets on RetroAchievements. View community requests, filter by system and development status, and find unclaimed games to develop."
       />
 
-      <div className="container">
-        <AppLayout.Main>
-          <RequestedGamesMainRoot />
-        </AppLayout.Main>
-      </div>
+      <AppLayout.Main>
+        <RequestedGamesMainRoot />
+      </AppLayout.Main>
     </>
   );
 };

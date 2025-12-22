@@ -5,8 +5,6 @@ use Illuminate\Support\Carbon;
 
 @props([
     'achievement' => [],
-    'beatenGameCreditDialogContext' => 's:|h:',
-    'isCreditDialogEnabled' => true,
     'isUnlocked' => false,
     'isUnlockedHardcore' => false,
     'shouldHideUnlocked' => false,
@@ -75,8 +73,6 @@ $renderedAchievementAvatar = achievementAvatar(
                         <div class="-mt-1.5">
                             <x-game.achievements-list.type-indicator
                                 :achievementType="$achievement['type']"
-                                :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
-                                :isCreditDialogEnabled="$isCreditDialogEnabled"
                             />
                         </div>
                     </div>
@@ -109,8 +105,6 @@ $renderedAchievementAvatar = achievementAvatar(
                 <div class="hidden md:flex items-center justify-end gap-x-1">
                     <x-game.achievements-list.type-indicator
                         :achievementType="$achievement['type']"
-                        :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
-                        :isCreditDialogEnabled="$isCreditDialogEnabled"    
                     />
                 </div>
             @endif

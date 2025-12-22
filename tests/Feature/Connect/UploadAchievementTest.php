@@ -8,15 +8,19 @@ use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\AchievementSetClaim;
 use App\Models\GameAchievementSet;
+use App\Models\PlayerGame;
 use App\Models\System;
 use App\Models\Trigger;
 use App\Models\User;
+use App\Platform\Actions\UpdatePlayerGameMetricsAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\TriggerableType;
 use App\Platform\Events\AchievementCreated;
 use App\Platform\Events\AchievementPublished;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
@@ -1427,5 +1431,132 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals(1, $coreSet->achievements_published);
         $this->assertEquals(1, $coreSet->achievements_unpublished);
         $this->assertEquals(10, $coreSet->points_total);
+    }
+
+    public function testModifyingAfterEarnedUpdatesBeatenTimes(): void
+    {
+        /** @var User $author */
+        $author = User::factory()->create([
+            'Permissions' => Permissions::Developer,
+            'appToken' => Str::random(16),
+            'ContribCount' => 0,
+            'ContribYield' => 0,
+        ]);
+        $game = $this->seedGame(withHash: false, achievements: 6);
+
+        $achievement1 = $game->achievements->get(0);
+        $achievement1->type = AchievementType::Progression;
+        $achievement1->save();
+        $achievement2 = $game->achievements->get(1);
+        $achievement2->type = AchievementType::Progression;
+        $achievement2->save();
+        $achievement3 = $game->achievements->get(2);
+        $achievement3->type = AchievementType::WinCondition;
+        $achievement3->save();
+        $achievement4 = $game->achievements->get(3);
+
+        $user = User::factory()->create();
+        $now = Carbon::now()->subMinutes(15)->startOfSecond();
+        Carbon::setTestNow($now);
+        $this->addHardcoreUnlock($user, $achievement1);
+        $now = $now->addMinutes(6);
+        Carbon::setTestNow($now);
+        $this->addHardcoreUnlock($user, $achievement2);
+        $now = $now->addMinutes(8);
+        Carbon::setTestNow($now);
+        $this->addHardcoreUnlock($user, $achievement3);
+        $now = $now->addMinutes(2);
+        Carbon::setTestNow($now);
+        $this->addHardcoreUnlock($user, $achievement4);
+        $now = $now->addMinutes(5);
+        Carbon::setTestNow($now);
+
+        $playerGame = PlayerGame::first();
+        (new UpdatePlayerGameMetricsAction())->execute($playerGame);
+        $playerGame->refresh();
+        $this->assertNotNull($playerGame->beaten_hardcore_at);
+        $this->assertEquals(14 * 60, $playerGame->time_to_beat_hardcore);
+
+        AchievementSetClaim::factory()->create([
+            'user_id' => $author->id,
+            'game_id' => $game->id,
+        ]);
+
+        $params3 = [
+            'u' => $author->User,
+            't' => $author->appToken,
+            'g' => $game->ID,
+            'a' => $achievement3->ID,
+            'n' => $achievement3->Title,
+            'd' => $achievement3->Description,
+            'z' => $achievement3->Points,
+            'm' => $achievement3->MemAddr,
+            'f' => $achievement3->Flags,
+            'b' => $achievement3->BadgeName,
+        ];
+        $params4 = [
+            'u' => $author->User,
+            't' => $author->appToken,
+            'g' => $game->ID,
+            'a' => $achievement4->ID,
+            'n' => $achievement4->Title,
+            'd' => $achievement4->Description,
+            'z' => $achievement4->Points,
+            'm' => $achievement4->MemAddr,
+            'f' => $achievement4->Flags,
+            'b' => $achievement4->BadgeName,
+        ];
+
+        // ====================================================
+        // demoting win condition updates beat time
+        $params3['f'] = AchievementFlag::Unofficial->value;
+        $this->get($this->apiUrl('uploadachievement', $params3))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->ID,
+                'Error' => '',
+            ]);
+
+        $playerGame->refresh();
+        $this->assertEquals(6 * 60, $playerGame->time_to_beat_hardcore);
+
+        // ====================================================
+        // promoting win condition updates beat time
+        $params3['f'] = AchievementFlag::OfficialCore->value;
+        $this->get($this->apiUrl('uploadachievement', $params3))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->ID,
+                'Error' => '',
+            ]);
+
+        $playerGame->refresh();
+        $this->assertEquals(14 * 60, $playerGame->time_to_beat_hardcore);
+
+        // ====================================================
+        // changing non-progression achievement to progression updates beat time
+        $params4['x'] = AchievementType::Progression;
+        $this->get($this->apiUrl('uploadachievement', $params4))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement4->ID,
+                'Error' => '',
+            ]);
+
+        $playerGame->refresh();
+        $this->assertEquals(16 * 60, $playerGame->time_to_beat_hardcore);
+
+        // ====================================================
+        // changing progression achievement to non-progression updates beat time
+        $params4['x'] = '';
+        $this->get($this->apiUrl('uploadachievement', $params4))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement4->ID,
+                'Error' => '',
+            ]);
+
+        $playerGame->refresh();
+        $this->assertEquals(14 * 60, $playerGame->time_to_beat_hardcore);
     }
 }

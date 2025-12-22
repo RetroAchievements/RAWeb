@@ -26,11 +26,7 @@ class PlayerStat extends BaseModel
     ];
 
     protected $casts = [
-        'user_id' => 'integer',
-        'system_id' => 'integer',
-        'last_game_id' => 'integer',
         'stat_updated_at' => 'datetime',
-        'value' => 'integer',
     ];
 
     protected static function newFactory(): PlayerStatFactory
