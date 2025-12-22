@@ -24,9 +24,9 @@ if ($user) {
 $codeNotes = [];
 getCodeNotes($gameID, $codeNotes);
 
-$subset = null;
+$baseGameId = $gameID;
 if (str_contains($gameData['Title'], "[Subset - ")) {
-    $subset = GameAchievementSet::query()
+    $subsetGameAchievementSet = GameAchievementSet::query()
         ->whereIn('achievement_set_id',
             GameAchievementSet::where('game_id', $gameID)
                 ->where('type', AchievementSetType::Core)
@@ -38,20 +38,24 @@ if (str_contains($gameData['Title'], "[Subset - ")) {
         ->where('type', '!=', AchievementSetType::WillBeExclusive)
         ->first();
 
-    if ($subset && empty($codeNotes)) {
-        // no notes for subset. redirect to base set
-        abort_with(redirect('codenotes.php?g=' . $subset->game_id));
+    if ($subsetGameAchievementSet) {
+        $baseGameId = $subsetGameAchievementSet->game_id;
+        
+        if (empty($codeNotes)) {
+            // no notes for subset. redirect to base set
+            abort_with(redirect('codenotes.php?g=' . $baseGameId));
+        }
     }
 }
 
-if ($permissions >= Permissions::Developer && $subset !== null) {
+if ($permissions >= Permissions::Developer && $baseGameId !== $gameID) {
     // empty collection for subset selector
     $subsets = new Collection();
 
     // codeNotes are for the subset. rename them and fetch the code notes for the base set
     $subsetNotes = $codeNotes;
     $codeNotes = [];
-    getCodeNotes($subset->game_id, $codeNotes);
+    getCodeNotes($baseGameId, $codeNotes);
 
     // merge subset notes into the base set notes
     foreach ($subsetNotes as $subsetNote) {
@@ -324,7 +328,7 @@ function saveCodeNote(rowIndex, isDeleting = false) {
         note: isDeleting ? null : noteEditEl.value.replace(/\n/g, '\r\n'),
         // Addresses are stored as base 10 numbers in the DB, not base 16.
         address: parseInt(addressHex, 16),
-        gameId: <?= $subset?->game_id ?? $gameID ?>,
+        gameId: <?= $baseGameId ?>,
     }).done(() => {
         showStatusSuccess('Done!');
 
