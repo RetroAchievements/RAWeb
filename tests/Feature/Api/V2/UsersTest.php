@@ -137,7 +137,7 @@ class UsersTest extends JsonApiResourceTestCase
 
         // Assert
         $response->assertSuccessful();
-        $points = collect($response->json('data'))->pluck('attributes.points')->toArray();
+        $points = collect($response->json('data'))->pluck('attributes.pointsHardcore')->toArray();
         $this->assertGreaterThanOrEqual($points[1], $points[0]);
     }
 
@@ -326,8 +326,8 @@ class UsersTest extends JsonApiResourceTestCase
 
         $this->assertEquals('TestPlayer', $attributes['displayName']);
         $this->assertEquals('Test motto', $attributes['motto']);
-        $this->assertEquals(5000, $attributes['points']);
-        $this->assertEquals(100, $attributes['pointsSoftcore']);
+        $this->assertEquals(5000, $attributes['pointsHardcore']);
+        $this->assertEquals(100, $attributes['points']);
         $this->assertEquals(15000, $attributes['pointsWeighted']);
         $this->assertEquals(50, $attributes['yieldUnlocks']);
         $this->assertEquals(1000, $attributes['yieldPoints']);

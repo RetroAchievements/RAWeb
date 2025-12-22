@@ -34,7 +34,7 @@ class UserSchema extends Schema
      * Default sort order when client doesn't provide any.
      * Shows highest point users first for leaderboard-style results.
      */
-    protected $defaultSort = '-points';
+    protected $defaultSort = '-pointsHardcore';
 
     /**
      * Get the resource type.
@@ -71,8 +71,8 @@ class UserSchema extends Schema
             Str::make('avatarUrl')->readOnly(),
             Str::make('motto', 'Motto')->readOnly(),
 
-            Number::make('points', 'RAPoints')->sortable()->readOnly(),
-            Number::make('pointsSoftcore', 'RASoftcorePoints')->sortable()->readOnly(),
+            Number::make('points', 'RASoftcorePoints')->sortable()->readOnly(),
+            Number::make('pointsHardcore', 'RAPoints')->sortable()->readOnly(),
             Number::make('pointsWeighted', 'TrueRAPoints')->sortable()->readOnly(),
 
             Number::make('yieldUnlocks', 'ContribCount')->sortable()->readOnly(),

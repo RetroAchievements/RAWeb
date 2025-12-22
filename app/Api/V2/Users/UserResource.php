@@ -35,8 +35,8 @@ class UserResource extends JsonApiResource
             'avatarUrl' => $this->resource->avatarUrl,
             'motto' => $this->resource->Motto,
 
-            'points' => $this->resource->RAPoints,
-            'pointsSoftcore' => $this->resource->RASoftcorePoints,
+            'points' => $this->resource->RASoftcorePoints,
+            'pointsHardcore' => $this->resource->RAPoints,
             'pointsWeighted' => $this->resource->TrueRAPoints,
 
             'yieldUnlocks' => $this->resource->ContribCount,
