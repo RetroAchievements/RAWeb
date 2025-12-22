@@ -597,10 +597,16 @@ class UnsubscribeServiceTest extends TestCase
             UserPreference::EmailOn_Followed => 'unsubscribeSuccess-allFollowerNotifications',
             UserPreference::EmailOn_PrivateMessage => 'unsubscribeSuccess-allPrivateMessages',
             UserPreference::EmailOn_TicketActivity => 'unsubscribeSuccess-allTicketActivity',
+            UserPreference::EmailOff_DailyDigest => 'unsubscribeSuccess-dailyDigest',
         ];
 
         foreach ($testCases as $preference => $expectedKey) {
-            $user = $this->createUserWithPreferences(1 << $preference);
+            // For inverted preferences like EmailOff_DailyDigest, start with the bit unset.
+            // For regular preferences, start with the bit set.
+            $isInverted = $preference === UserPreference::EmailOff_DailyDigest;
+            $initialPrefs = $isInverted ? 0 : (1 << $preference);
+
+            $user = $this->createUserWithPreferences($initialPrefs);
             $token = $this->generateValidCategoryToken($user->id, $preference);
 
             $result = $this->service->processUnsubscribe($token);
@@ -826,5 +832,52 @@ class UnsubscribeServiceTest extends TestCase
 
         // ... verify the unsubscribe still worked ...
         $this->assertUserPreferenceBit($user, UserPreference::EmailOn_ForumReply, false);
+    }
+
+    public function testItProcessesCategoryUnsubscribeForDailyDigest(): void
+    {
+        // Arrange
+        $initialPrefs = 0; // unset because this is an inverted preference
+        $user = $this->createUserWithPreferences($initialPrefs);
+
+        $token = $this->generateValidCategoryToken(
+            $user->id,
+            UserPreference::EmailOff_DailyDigest
+        );
+
+        // Act
+        $result = $this->service->processUnsubscribe($token);
+
+        // Assert
+        $this->assertTrue($result['success']);
+        $this->assertEquals('unsubscribeSuccess-dailyDigest', $result['descriptionKey']);
+
+        // ... for inverted preferences, unsubscribing means setting the bit ...
+        $this->assertUserPreferenceBit($user, UserPreference::EmailOff_DailyDigest, true);
+    }
+
+    public function testItProcessesUndoForDailyDigestCategoryUnsubscribe(): void
+    {
+        // Arrange
+        $initialPrefs = (1 << UserPreference::EmailOff_DailyDigest); // start with the bit set
+        $user = $this->createUserWithPreferences($initialPrefs);
+
+        $data = new CategoryUnsubscribeData(
+            $user->id,
+            UserPreference::EmailOff_DailyDigest
+        );
+        $undoToken = $this->service->generateUndoToken($data);
+
+        // Act
+        $result = $this->service->processUndo($undoToken);
+
+        // Assert
+        $this->assertTrue($result['success']);
+
+        // ... for inverted preferences, undo means clearing the bit ...
+        $this->assertUserPreferenceBit($user, UserPreference::EmailOff_DailyDigest, false);
+
+        $cacheKey = CacheKey::buildUnsubscribeUndoTokenCacheKey($undoToken);
+        $this->assertFalse(Cache::has($cacheKey));
     }
 }

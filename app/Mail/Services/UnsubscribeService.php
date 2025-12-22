@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\URL;
  *
  * The temporary URLs aren't stored anywhere. They're generated on-demand and
  * validated cryptographically.
- * @see https://laravel.com/docs/11.x/urls
+ * @see https://laravel.com/docs/12.x/urls
  *
  * Two unsubscribe strategies are supported:
  *
@@ -142,7 +142,15 @@ class UnsubscribeService
             $descriptionData = $this->getGranularDescription($data->subjectType, $data->subjectId);
         } elseif ($data instanceof CategoryUnsubscribeData) {
             $currentPrefs = $user->websitePrefs;
-            $newPrefs = $currentPrefs & ~(1 << $data->preference);
+
+            // For "*Off_*" preferences, unsubscribing means setting the bit.
+            // For "*On_*" preferences, unsubscribing means clearing the bit.
+            if ($data->preference === UserPreference::EmailOff_DailyDigest) {
+                $newPrefs = $currentPrefs | (1 << $data->preference);
+            } else {
+                $newPrefs = $currentPrefs & ~(1 << $data->preference);
+            }
+
             $user->websitePrefs = $newPrefs;
             $user->save();
 
@@ -222,7 +230,15 @@ class UnsubscribeService
             }
         } elseif ($data instanceof CategoryUnsubscribeData) {
             $currentPrefs = $user->websitePrefs;
-            $newPrefs = $currentPrefs | (1 << $data->preference);
+
+            // For "*Off_*" preferences, undo means clearing the bit.
+            // For "EmailOn_*" preferences, undo means setting the bit.
+            if ($data->preference === UserPreference::EmailOff_DailyDigest) {
+                $newPrefs = $currentPrefs & ~(1 << $data->preference);
+            } else {
+                $newPrefs = $currentPrefs | (1 << $data->preference);
+            }
+
             $user->websitePrefs = $newPrefs;
             $user->save();
         }
@@ -307,6 +323,9 @@ class UnsubscribeService
 
             case UserPreference::EmailOn_TicketActivity:
                 return ['key' => 'unsubscribeSuccess-allTicketActivity'];
+
+            case UserPreference::EmailOff_DailyDigest:
+                return ['key' => 'unsubscribeSuccess-dailyDigest'];
 
             default:
                 return ['key' => 'unsubscribeSuccess-unknown'];
