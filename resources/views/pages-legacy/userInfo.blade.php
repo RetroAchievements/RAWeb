@@ -8,8 +8,9 @@ use App\Community\Enums\ClaimSorting;
 use App\Community\Enums\UserAction;
 use App\Enums\Permissions;
 use App\Exceptions\BannedUserException;
+use App\Models\System;
 use App\Models\User;
-use App\Platform\Actions\FilterGameIdsToSubsetGameIdsAction;
+use App\Platform\Actions\GetUserProgressionStatusCountsAction;
 use App\Platform\Services\PlayerProgressionService;
 
 $userPage = request('user');
@@ -42,24 +43,24 @@ $userSetRequestInformation = getUserRequestsInformation($userPageModel);
 $userWallActive = $userMassData['UserWallActive'];
 $userIsUntracked = $userMassData['Untracked'];
 
-// Get user's feed
-// $numFeedItems = getFeed( $userPage, 20, 0, $feedData, 0, 'individual' );
+$recentlyPlayedSystemId = collect($userMassData['RecentlyPlayed'] ?? [])
+    ->filter(fn ($game) => System::isGameSystem($game['ConsoleID'] ?? 0) && ($game['AchievementsTotal'] ?? 0) > 0)
+    ->sortByDesc('LastPlayed')
+    ->pluck('ConsoleID')
+    ->first();
 
-// Calc avg pcts:
-$totalPctWon = 0.0;
-$numGamesFound = 0;
-
-// Achievement totals
-$totalHardcoreAchievements = 0;
-$totalSoftcoreAchievements = 0;
-
-$userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
-$userAwards = getUsersSiteAwards($userPageModel);
-
-// Identify subset game IDs. We'll exclude these from the user's average completion %.
-$subsetGameIds = (new FilterGameIdsToSubsetGameIdsAction())->execute(
-    collect($userCompletedGamesList)->pluck('GameID')
+$progressionCounts = (new GetUserProgressionStatusCountsAction())->execute(
+    $userPageModel,
+    $recentlyPlayedSystemId
 );
+
+$averageCompletionPercentage = sprintf("%01.2f", $progressionCounts['avgCompletionPercentage']);
+$totalHardcoreAchievements = $progressionCounts['totalHardcoreAchievements'];
+$totalSoftcoreAchievements = $progressionCounts['totalSoftcoreAchievements'];
+
+$userCompletedGamesList = getUsersCompletedGamesAndMax($userPage, limit: 200);
+$userCompletedGamesListFull = getUsersCompletedGamesAndMax($userPage);
+$userAwards = getUsersSiteAwards($userPageModel);
 
 $playerProgressionService = new PlayerProgressionService();
 $userJoinedGamesAndAwards = $playerProgressionService->filterAndJoinGames(
@@ -67,28 +68,11 @@ $userJoinedGamesAndAwards = $playerProgressionService->filterAndJoinGames(
     $userAwards,
     $userPageID,
 );
-
-$excludedConsoles = ["Hubs", "Events"];
-
-foreach ($userCompletedGamesList as $nextGame) {
-    if ($nextGame['PctWon'] > 0) {
-        if (!in_array($nextGame['ConsoleName'], $excludedConsoles)) {
-            // Only include non-subset games in the average completion percentage calculation.
-            if (!in_array($nextGame['GameID'], $subsetGameIds)) {
-                $totalPctWon += $nextGame['PctWon'];
-                $numGamesFound++;
-            }
-
-            $totalHardcoreAchievements += $nextGame['NumAwardedHC'];
-            $totalSoftcoreAchievements += ($nextGame['NumAwarded'] - $nextGame['NumAwardedHC']);
-        }
-    }
-}
-
-$avgPctWon = "0.00";
-if ($numGamesFound > 0) {
-    $avgPctWon = sprintf("%01.2f", ($totalPctWon / $numGamesFound) * 100.0);
-}
+$userJoinedGamesAndAwardsFull = $playerProgressionService->filterAndJoinGames(
+    $userCompletedGamesListFull,
+    $userAwards,
+    $userPageID,
+);
 
 sanitize_outputs(
     $userMotto,
@@ -127,19 +111,16 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
     pageType="retroachievements:user"
 >
     <x-user-profile-meta
-        :averageCompletionPercentage="$avgPctWon"
+        :averageCompletionPercentage="$averageCompletionPercentage"
         :totalHardcoreAchievements="$totalHardcoreAchievements"
         :totalSoftcoreAchievements="$totalSoftcoreAchievements"
         :user="$userPageModel"
-        :userJoinedGamesAndAwards="$userJoinedGamesAndAwards"
+        :userJoinedGamesAndAwards="$userJoinedGamesAndAwardsFull"
         :userMassData="$userMassData"
         :userClaims="$userClaimData?->toArray()"
     />
     <?php
-    $canShowProgressionStatusComponent =
-        !empty($userCompletedGamesList)
-        // Needs at least one non-event game.
-        && count(array_filter($userCompletedGamesList, fn ($game) => $game['ConsoleID'] != 101)) > 0;
+    $canShowProgressionStatusComponent = !empty($progressionCounts['systemProgress']);
 
     if ($canShowProgressionStatusComponent) {
         echo "<hr class='border-neutral-700 black:border-embed-highlight light:border-embed-highlight my-4' />";
@@ -147,12 +128,10 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
         echo "<div class='mt-1 mb-8 bg-embed p-5 rounded sm:p-2.5 md:p-5 lg:p-3 xl:p-5'>";
         ?>
         <x-user-progression-status
-            :subsetGameIds="$subsetGameIds"
-            :userCompletionProgress="$userCompletedGamesList"
+            :systemProgress="$progressionCounts['systemProgress']"
+            :totalCounts="$progressionCounts['totalCounts']"
+            :topSystemId="$progressionCounts['topSystemId']"
             :userHardcorePoints="$userMassData['TotalPoints']"
-            :userJoinedGamesAndAwards="$userJoinedGamesAndAwards"
-            :userRecentlyPlayed="$userMassData['RecentlyPlayed']"
-            :userSiteAwards="$userAwards"
             :userSoftcorePoints="$userMassData['TotalSoftcorePoints']"
         />
         <?php

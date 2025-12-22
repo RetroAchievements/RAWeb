@@ -84,7 +84,7 @@
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.1",
-        "phpunit/phpunit": "^11.0",
+        "pestphp/pest": "^4.0",
         "predis/predis": "^2.0",
         "rector/rector": "^2.0",
         "spatie/laravel-ignition": "^2.9",
