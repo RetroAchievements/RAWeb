@@ -10,8 +10,6 @@ use App\Community\Enums\ArticleType;
 use App\Models\Comment;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 
 class UserObserver
 {
@@ -125,9 +123,6 @@ class UserObserver
         return !$oldBannedAt && $newBannedAt !== null;
     }
 
-    /**
-     * @param Model|Collection $searchable
-     */
     private function syncSearchIndex(mixed $searchable, bool $shouldIndex): void
     {
         if ($shouldIndex) {
