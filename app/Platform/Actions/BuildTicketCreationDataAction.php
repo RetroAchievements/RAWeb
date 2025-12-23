@@ -28,11 +28,12 @@ class BuildTicketCreationDataAction
 
         $this->addSessionRelatedMultisetHashes($props, $achievement, $user);
 
-        $sessionData = $this->findRelevantSessionData($achievement, $user);
+        $sessionGameIds = $achievement->getRelatedGameIds();
+        $sessionData = $this->findRelevantSessionData($achievement, $user, $sessionGameIds);
         if ($sessionData === null) {
-            // If there's no session data, check if the user has any hardcore unlocks for this game.
+            // If there's no session data, check if the user has any hardcore sessions.
             $hasHardcoreSession = $user->playerSessions()
-                ->whereGameId($achievement->game->id)
+                ->whereIn('game_id', $sessionGameIds)
                 ->whereHardcore(true)
                 ->exists();
 
@@ -54,12 +55,12 @@ class BuildTicketCreationDataAction
             $props->emulatorCore = $decoded['clientVariation'] ?? null;
         }
 
-        $this->addInactiveEmulators($props->emulators, $achievement, $user);
+        $this->addInactiveEmulators($props->emulators, $user, $sessionGameIds);
 
         // Set the unlock mode based on hardcore unlock or session preference.
         if ($playerAchievement?->unlocked_hardcore_at) {
             $props->selectedMode = UnlockMode::Hardcore;
-        } elseif ($user->playerSessions()->whereGameId($achievement->game->id)->whereHardcore(true)->exists()) {
+        } elseif ($user->playerSessions()->whereIn('game_id', $sessionGameIds)->whereHardcore(true)->exists()) {
             $props->selectedMode = UnlockMode::Hardcore;
         }
 
@@ -68,11 +69,12 @@ class BuildTicketCreationDataAction
 
     /**
      * @param Collection<int, EmulatorData> $emulators
+     * @param int[] $sessionGameIds
      */
-    private function addInactiveEmulators(Collection &$emulators, Achievement $achievement, User $user): void
+    private function addInactiveEmulators(Collection &$emulators, User $user, array $sessionGameIds): void
     {
         $userAgents = $user->playerSessions()
-            ->where('game_id', $achievement->game->id)
+            ->whereIn('game_id', $sessionGameIds)
             ->where('duration', '>=', 5)
             ->select('user_agent')
             ->distinct()
@@ -98,9 +100,10 @@ class BuildTicketCreationDataAction
     }
 
     /**
+     * @param int[] $sessionGameIds
      * @return array{string|null, int|null, PlayerAchievement|null}|null
      */
-    private function findRelevantSessionData(Achievement $achievement, User $user): ?array
+    private function findRelevantSessionData(Achievement $achievement, User $user, array $sessionGameIds): ?array
     {
         // First, try to find a session where the user has unlocked this achievement.
         $playerAchievement = $user->playerAchievements()
@@ -122,7 +125,7 @@ class BuildTicketCreationDataAction
 
         // If no unlock was found, find the player's most recent session.
         $playerSession = $user->playerSessions()
-            ->where('game_id', $achievement->game->id)
+            ->whereIn('game_id', $sessionGameIds)
             ->where('duration', '>=', 5)
             ->orderByDesc('updated_at')
             ->first();
