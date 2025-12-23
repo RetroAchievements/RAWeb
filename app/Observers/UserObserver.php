@@ -6,6 +6,8 @@ namespace App\Observers;
 
 use App\Community\Actions\AddUserDiscordRolesAction;
 use App\Community\Actions\RemoveUserDiscordRolesAction;
+use App\Community\Enums\ArticleType;
+use App\Models\Comment;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -43,6 +45,26 @@ class UserObserver
         // Handle banning - remove all roles if they're a Discord member.
         if ($this->isBeingBanned($user)) {
             (new RemoveUserDiscordRolesAction())->execute($user);
+        }
+    }
+
+    /**
+     * Use `updated` for search index changes. We only want to update the
+     * index after the save is successful - not prematurely.
+     */
+    public function updated(User $user): void
+    {
+        if ($user->wasChanged('banned_at')) {
+            $this->syncSearchIndex($user, shouldIndex: $user->banned_at === null);
+        }
+
+        if ($user->wasChanged('UserWallActive')) {
+            $wallComments = Comment::query()
+                ->where('ArticleType', ArticleType::User)
+                ->where('ArticleID', $user->id)
+                ->get();
+
+            $this->syncSearchIndex($wallComments, shouldIndex: $user->UserWallActive);
         }
     }
 
@@ -99,5 +121,14 @@ class UserObserver
         $newBannedAt = $user->banned_at;
 
         return !$oldBannedAt && $newBannedAt !== null;
+    }
+
+    private function syncSearchIndex(mixed $searchable, bool $shouldIndex): void
+    {
+        if ($shouldIndex) {
+            $searchable->searchable();
+        } else {
+            $searchable->unsearchable();
+        }
     }
 }

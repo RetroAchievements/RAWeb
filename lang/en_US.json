@@ -1315,5 +1315,15 @@
     "Specialty Subset": "Specialty Subset",
     "Exclusive Subset": "Exclusive Subset",
     "otherAchievements": "Other",
-    "There's a daily summary of my subscription activity": "There's a daily summary of my subscription activity"
+    "There's a daily summary of my subscription activity": "There's a daily summary of my subscription activity",
+    "Search for games, users, achievements, and more...": "Search for games, users, achievements, and more...",
+    "Search...": "Search...",
+    "Enter a search term to get started.": "Enter a search term to get started.",
+    "Game Comment": "Game Comment",
+    "Achievement Comment": "Achievement Comment",
+    "User Wall Comment": "User Wall Comment",
+    "Leaderboard Comment": "Leaderboard Comment",
+    "Ticket Comment": "Ticket Comment",
+    "posted {{when}}": "posted {{when}}",
+    "Unknown User": "Unknown User"
 }

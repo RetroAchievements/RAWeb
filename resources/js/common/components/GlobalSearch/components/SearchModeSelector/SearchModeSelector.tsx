@@ -2,10 +2,10 @@ import { motion } from 'motion/react';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronRight } from 'react-icons/lu';
+import { route } from 'ziggy-js';
 
 import { SelectableChip } from '@/common/components/SelectableChip';
-
-import type { SearchMode } from '../../models';
+import type { SearchMode } from '@/common/models';
 
 interface SearchModeSelectorProps {
   onChange: (value: SearchMode) => void;
@@ -57,11 +57,15 @@ export const SearchModeSelector: FC<SearchModeSelectorProps> = ({
         </motion.div>
       ))}
 
+      {/* Because this is a React island, we can't use InertiaLink. */}
       <motion.a
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.15, delay: (modes.length + 1) * 0.02 }}
-        href={rawQuery ? `/searchresults.php?s=${rawQuery}` : '/searchresults.php'}
+        href={route('search', {
+          query: rawQuery || undefined,
+          scope: selectedMode !== 'all' ? selectedMode : undefined,
+        })}
         className="flex items-center sm:hidden"
       >
         {t('Browse')} <LuChevronRight className="size-4" />
