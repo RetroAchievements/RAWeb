@@ -145,7 +145,7 @@ class AchievementSetsRelationManager extends RelationManager
                     ->requiresConfirmation()
                     ->modalHeading(fn () => $this->hasWillBeTypes($game) ? 'Enable Multiset' : 'Disable Multiset')
                     ->modalDescription(fn () => new HtmlString($this->hasWillBeTypes($game)
-                        ? 'Make absolutely sure the subset types are correct. If there are any incompatible hashes for the subsets, make sure those are configured correctly. Misconfiguration may result in a lot of tickets. If you need help, please reach out to a member of Developer Compliance, Quality Assurance, or RAdmin.<br><br>Are you sure you want to proceed?'
+                        ? 'This will allow multiple sets to be loaded at the same time in emulators that support the multiset feature.<br><br>Make absolutely sure the subset types are correct. If there are any incompatible hashes for the subsets, make sure those are configured correctly. Misconfiguration may result in a lot of tickets. If you need help, please reach out to a member of Developer Compliance, Quality Assurance, or RAdmin.<br><br>Are you sure you want to proceed?'
                         : 'This will make it only possible to load one achievement set at a time for the game. Any current players of the game are very likely to be affected by disabling multiset.<br><br>Are you sure you want to proceed?'))
                     ->action(fn () => $this->toggleMultisetTypes($game)),
 
