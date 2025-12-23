@@ -255,28 +255,40 @@ describe('Hook: useAllMetaRowElements', () => {
     expect(result.current.allUsedHubIds).toEqual([12345]);
   });
 
-  it('given Series Hacks and Unlicensed Games hubs, preserves their prefixes in misc row elements', () => {
+  it('given Clones, Fangames, Series Hacks, and Unlicensed Games hubs, preserves their prefixes in misc row elements', () => {
     // ARRANGE
     const game = createGame();
-    const seriesHacksHub = createGameSet({
+    const clonesHub = createGameSet({
       id: 123,
+      title: '[Clones - Pac-Man]',
+      type: 'hub',
+    });
+    const fangamesHub = createGameSet({
+      id: 124,
+      title: '[Fangames - Pac-Man]',
+      type: 'hub',
+    });
+    const seriesHacksHub = createGameSet({
+      id: 125,
       title: '[Series Hacks - Pokemon]',
       type: 'hub',
     });
     const unlicensedGamesHub = createGameSet({
-      id: 124,
+      id: 126,
       title: '[Unlicensed Games - Pokemon]',
       type: 'hub',
     });
-    const allGameHubs = [seriesHacksHub, unlicensedGamesHub];
+    const allGameHubs = [clonesHub, fangamesHub, seriesHacksHub, unlicensedGamesHub];
 
     // ACT
     const { result } = renderHook(() => useAllMetaRowElements(game, allGameHubs));
 
     // ASSERT
     expect(result.current.miscRowElements).toEqual([
-      { label: 'Series Hacks - Pokemon', hubId: 123, href: ['hub.show', 123] },
-      { label: 'Unlicensed Games - Pokemon', hubId: 124, href: ['hub.show', 124] },
+      { label: 'Clones - Pac-Man', hubId: 123, href: ['hub.show', 123] },
+      { label: 'Fangames - Pac-Man', hubId: 124, href: ['hub.show', 124] },
+      { label: 'Series Hacks - Pokemon', hubId: 125, href: ['hub.show', 125] },
+      { label: 'Unlicensed Games - Pokemon', hubId: 126, href: ['hub.show', 126] },
     ]);
   });
 });
