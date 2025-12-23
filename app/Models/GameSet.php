@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Platform\Actions\WriteGameSetSortTitleAction;
 use App\Platform\Enums\GameSetRolePermission;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Services\EventHubIdCacheService;
@@ -42,6 +43,7 @@ class GameSet extends BaseModel
         'internal_notes',
         'image_asset_path',
         'has_mature_content',
+        'sort_title',
         'title',
         'type',
         'updated_at',
@@ -77,6 +79,19 @@ class GameSet extends BaseModel
                 if (str_contains($oldTitle ?? '', 'Events -') || str_contains($newTitle ?? '', 'Events -')) {
                     EventHubIdCacheService::clearCache();
                 }
+            }
+        });
+
+        static::saved(function (GameSet $gameSet) {
+            $originalTitle = $gameSet->getOriginal('title');
+            $freshGameSet = $gameSet->fresh();
+
+            if ($originalTitle !== $freshGameSet->title || $gameSet->wasRecentlyCreated) {
+                (new WriteGameSetSortTitleAction())->execute(
+                    $freshGameSet,
+                    $freshGameSet->title,
+                    shouldRespectCustomSortTitle: false,
+                );
             }
         });
 
@@ -266,6 +281,7 @@ class GameSet extends BaseModel
                 'has_mature_content',
                 'image_asset_path',
                 'internal_notes',
+                'sort_title',
                 'title',
                 'viewRoles',
                 'updateRoles',

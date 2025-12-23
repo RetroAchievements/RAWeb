@@ -319,7 +319,7 @@ $commentData = [];
                                     }
                                 }
                             @endphp
-                            @if ($lastComment != null && ($lastComment['User'] === $user->User || $lastComment['User'] === $ticket->achievement->developer->display_name))
+                            @if ($lastComment != null && ($lastComment['User'] === $user->User || $lastComment['User'] === $ticket->achievement->developer->display_name) && !$ticket->reporter->trashed())
                                 <option value="{{ TicketAction::Request }}">Transfer to reporter - {{ $ticket->reporter->display_name }}</option>
                             @endif
                         @else

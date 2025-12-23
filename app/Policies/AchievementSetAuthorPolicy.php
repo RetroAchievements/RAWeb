@@ -7,6 +7,7 @@ namespace App\Policies;
 use App\Models\AchievementSetAuthor;
 use App\Models\Role;
 use App\Models\User;
+use App\Platform\Enums\AchievementSetAuthorTask;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class AchievementSetAuthorPolicy
@@ -40,31 +41,52 @@ class AchievementSetAuthorPolicy
         ]);
     }
 
-    public function update(User $user): bool
+    public function update(User $user, AchievementSetAuthor $achievementSetAuthor): bool
     {
-        return $user->hasAnyRole([
-            Role::DEVELOPER,
-            Role::ARTIST,
-        ]);
+        // Developers can update any credit.
+        if ($user->hasRole(Role::DEVELOPER)) {
+            return true;
+        }
+
+        // Artists can only update artwork credits.
+        if ($user->hasRole(Role::ARTIST)) {
+            return $achievementSetAuthor->task === AchievementSetAuthorTask::Artwork;
+        }
+
+        return false;
     }
 
-    public function delete(User $user): bool
+    public function delete(User $user, AchievementSetAuthor $achievementSetAuthor): bool
     {
-        return $user->hasAnyRole([
-            Role::DEVELOPER,
-            Role::ARTIST,
-        ]);
+        // Developers can delete any credit.
+        if ($user->hasRole(Role::DEVELOPER)) {
+            return true;
+        }
+
+        // Artists can only delete artwork credits.
+        if ($user->hasRole(Role::ARTIST)) {
+            return $achievementSetAuthor->task === AchievementSetAuthorTask::Artwork;
+        }
+
+        return false;
     }
 
-    public function restore(User $user): bool
+    public function restore(User $user, AchievementSetAuthor $achievementSetAuthor): bool
     {
-        return $user->hasAnyRole([
-            Role::DEVELOPER,
-            Role::ARTIST,
-        ]);
+        // Developers can restore any credit.
+        if ($user->hasRole(Role::DEVELOPER)) {
+            return true;
+        }
+
+        // Artists can only restore artwork credits.
+        if ($user->hasRole(Role::ARTIST)) {
+            return $achievementSetAuthor->task === AchievementSetAuthorTask::Artwork;
+        }
+
+        return false;
     }
 
-    public function forceDelete(User $user): bool
+    public function forceDelete(User $user, AchievementSetAuthor $achievementSetAuthor): bool
     {
         return false;
     }

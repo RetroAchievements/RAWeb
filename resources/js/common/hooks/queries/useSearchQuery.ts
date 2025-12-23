@@ -3,25 +3,37 @@ import axios from 'axios';
 import { useState } from 'react';
 import { route } from 'ziggy-js';
 
-type SearchScope = 'users' | 'games' | 'hubs' | 'achievements' | 'events';
+import type { SearchApiScope } from '@/common/models';
 
-interface SearchQueryResponse {
+interface SearchQueryPagination {
+  currentPage: number;
+  lastPage: number;
+  perPage: number;
+  total: number;
+}
+
+export interface SearchResults {
   results: {
     users?: App.Data.User[];
     games?: App.Platform.Data.Game[];
     hubs?: App.Platform.Data.GameSet[];
     achievements?: App.Platform.Data.Achievement[];
     events?: App.Platform.Data.Event[];
+    forum_comments?: App.Data.ForumTopicComment[];
+    comments?: App.Community.Data.Comment[];
   };
   query: string;
-  scopes: SearchScope[];
+  scopes: SearchApiScope[];
   scopeRelevance: {
     users?: number;
     games?: number;
     hubs?: number;
     achievements?: number;
     events?: number;
+    forum_comments?: number;
+    comments?: number;
   };
+  pagination?: SearchQueryPagination;
 }
 
 interface UseSearchQueryOptions {
@@ -30,11 +42,17 @@ interface UseSearchQueryOptions {
   /** Blade contexts don't have access to Ziggy routes. */
   route?: string;
 
-  scopes?: SearchScope[];
+  scopes?: SearchApiScope[];
+
+  /** Optional page for pagination (triggers paginated search when provided). */
+  page?: number;
+
+  /** Optional per page limit for pagination. */
+  perPage?: number;
 }
 
 export function useSearchQuery(options: UseSearchQueryOptions = {}) {
-  const { initialSearchTerm = '', scopes = ['users'], route: customRoute } = options;
+  const { initialSearchTerm = '', scopes = ['users'], route: customRoute, page, perPage } = options;
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [shouldUsePlaceholderData, setShouldUsePlaceholderData] = useState(true);
 
@@ -42,8 +60,8 @@ export function useSearchQuery(options: UseSearchQueryOptions = {}) {
     searchTerm,
     setSearchTerm,
     setShouldUsePlaceholderData,
-    ...useQuery<SearchQueryResponse>({
-      queryKey: ['search', searchTerm, scopes, customRoute],
+    ...useQuery<SearchResults>({
+      queryKey: ['search', searchTerm, scopes, customRoute, page, perPage],
 
       queryFn: async () => {
         const params = new URLSearchParams({
@@ -54,8 +72,16 @@ export function useSearchQuery(options: UseSearchQueryOptions = {}) {
           params.append('scope', scopes.join(','));
         }
 
+        // Add pagination params when a page is provided.
+        if (page !== undefined) {
+          params.append('page', String(page));
+          if (perPage !== undefined) {
+            params.append('perPage', String(perPage));
+          }
+        }
+
         const url = customRoute || route('api.search.index');
-        const response = await axios.get<SearchQueryResponse>(url + '?' + params.toString());
+        const response = await axios.get<SearchResults>(url + '?' + params.toString());
 
         return response.data;
       },
