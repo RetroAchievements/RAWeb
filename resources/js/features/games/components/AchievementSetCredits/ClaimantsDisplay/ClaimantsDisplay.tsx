@@ -9,7 +9,6 @@ import {
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
 import { UserAvatarStack } from '@/common/components/UserAvatarStack';
-import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { formatDate } from '@/common/utils/l10n/formatDate';
@@ -94,19 +93,16 @@ interface ClaimsIconProps {
 }
 
 const ClaimsIcon: FC<ClaimsIconProps> = ({ achievementSetClaims }) => {
-  const { can } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
   const hasInReviewClaim = achievementSetClaims.some(
     (claim) => claim.status === ClaimStatus.InReview,
   );
 
-  const shouldShowLockIcon = hasInReviewClaim && can?.reviewAchievementSetClaims;
-
   return (
     <BaseTooltip>
       <BaseTooltipTrigger className="flex items-center gap-1.5 px-2 py-[2.25px] text-neutral-300 light:text-neutral-700">
-        {shouldShowLockIcon ? (
+        {hasInReviewClaim ? (
           <LuLock data-testid="lock-icon" className="size-3.5" />
         ) : (
           <LuWrench data-testid="wrench-icon" className="size-3.5" />

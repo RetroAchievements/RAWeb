@@ -95,7 +95,7 @@ describe('Component: ClaimantsDisplay', () => {
 
     // ASSERT
     // ... should show calendar icon since at least one claim has userLastPlayedAt ...
-    expect(screen.getByRole('button', { name: '' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '' })).toBeVisible();
   });
 
   it('given no claims have userLastPlayedAt, does not show the calendar icon', () => {
@@ -163,7 +163,7 @@ describe('Component: ClaimantsDisplay', () => {
     render(<ClaimantsDisplay achievementSetClaims={achievementSetClaims} />);
 
     // ASSERT
-    expect(screen.getByText(/claimed by/i)).toBeInTheDocument();
+    expect(screen.getByText(/claimed by/i)).toBeVisible();
   });
 
   it('given the claim has the In Review status, shows the correct label', async () => {
@@ -188,7 +188,7 @@ describe('Component: ClaimantsDisplay', () => {
     expect(screen.queryByText(/expir/i)).not.toBeInTheDocument();
   });
 
-  it('given a claim is In Review and the user can review claims, shows a lock icon instead of wrench', () => {
+  it('given a claim is In Review, shows a lock icon instead of wrench', () => {
     // ARRANGE
     const achievementSetClaims = [
       createAchievementSetClaim({
@@ -197,34 +197,14 @@ describe('Component: ClaimantsDisplay', () => {
       }),
     ];
 
-    render(<ClaimantsDisplay achievementSetClaims={achievementSetClaims} />, {
-      pageProps: { can: { reviewAchievementSetClaims: true } },
-    });
+    render(<ClaimantsDisplay achievementSetClaims={achievementSetClaims} />);
 
     // ASSERT
-    expect(screen.getByTestId('lock-icon')).toBeInTheDocument();
+    expect(screen.getByTestId('lock-icon')).toBeVisible();
     expect(screen.queryByTestId('wrench-icon')).not.toBeInTheDocument();
   });
 
-  it('given a claim is In Review but the user cannot review claims, shows wrench icon', () => {
-    // ARRANGE
-    const achievementSetClaims = [
-      createAchievementSetClaim({
-        user: createUser({ displayName: 'Alice' }),
-        status: ClaimStatus.InReview, // !!
-      }),
-    ];
-
-    render(<ClaimantsDisplay achievementSetClaims={achievementSetClaims} />, {
-      pageProps: { can: { reviewAchievementSetClaims: false } }, // !!
-    });
-
-    // ASSERT
-    expect(screen.getByTestId('wrench-icon')).toBeInTheDocument();
-    expect(screen.queryByTestId('lock-icon')).not.toBeInTheDocument();
-  });
-
-  it('given no claims are In Review but the user can review claims, shows wrench icon', () => {
+  it('given no claims are In Review, shows a wrench icon', () => {
     // ARRANGE
     const achievementSetClaims = [
       createAchievementSetClaim({
@@ -233,12 +213,10 @@ describe('Component: ClaimantsDisplay', () => {
       }),
     ];
 
-    render(<ClaimantsDisplay achievementSetClaims={achievementSetClaims} />, {
-      pageProps: { can: { reviewAchievementSetClaims: true } },
-    });
+    render(<ClaimantsDisplay achievementSetClaims={achievementSetClaims} />);
 
     // ASSERT
-    expect(screen.getByTestId('wrench-icon')).toBeInTheDocument();
+    expect(screen.getByTestId('wrench-icon')).toBeVisible();
     expect(screen.queryByTestId('lock-icon')).not.toBeInTheDocument();
   });
 });
