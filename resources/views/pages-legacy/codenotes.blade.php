@@ -196,6 +196,11 @@ function keepBaseNote(rowIndex) {
             rowEl.querySelector('.subset-note-display').classList.add('hidden');
             rowEl.querySelector('.subset-note-author').classList.add('hidden');
             rowEl.querySelector('.edit-btn').classList.remove('hidden');
+
+            // update the counter
+            const codeNoteCountEl = document.querySelector('.subset-code-note-count');
+            const currentDisplayCount = Number(codeNoteCountEl.textContent);
+            codeNoteCountEl.textContent = currentDisplayCount - 1;
         }
     }).fail(() => {
         showStatusFailure('There was a problem merging the code note.');
@@ -226,6 +231,11 @@ function keepSubsetNote(rowIndex) {
         rowEl.querySelector('.note-display').innerHTML = rowEl.querySelector('.subset-note-display').innerHTML;
         rowEl.querySelector('.note-edit').textContent = rowEl.querySelector('.subset-note-display').textContent;
         rowEl.querySelector('.note-author-avatar').innerHTML = rowEl.querySelector('.subset-note-author').innerHTML;
+
+        // update the counter
+        const codeNoteCountEl = document.querySelector('.subset-code-note-count');
+        const currentDisplayCount = Number(codeNoteCountEl.textContent);
+        codeNoteCountEl.textContent = currentDisplayCount - 1;
     }).fail(() => {
         showStatusFailure('There was a problem merging the code note.');
     });
@@ -388,6 +398,12 @@ function saveCodeNote(rowIndex, isDeleting = false) {
     <br/>
     <p>There are currently <span class='font-bold code-note-count'><?= $codeNoteCount ?></span> code notes for this game.</p>
     <?php
+    if ($hasSubsetNotes) {
+        $numSubsetNotes = count($subsetNotes);
+        if ($numSubsetNotes > 0) {
+            echo "<p><span class='font-bold subset-code-note-count'>$numSubsetNotes</span> subset notes beed to be merged.</p>";
+        }
+    }
     if (isset($user) && $permissions >= Permissions::Registered) {
         RenderCodeNotes($codeNotes, $userModel, $permissions, $hasSubsetNotes);
     }
