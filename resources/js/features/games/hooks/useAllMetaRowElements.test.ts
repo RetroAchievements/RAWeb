@@ -254,4 +254,29 @@ describe('Hook: useAllMetaRowElements', () => {
     ]);
     expect(result.current.allUsedHubIds).toEqual([12345]);
   });
+
+  it('given Series Hacks and Unlicensed Games hubs, preserves their prefixes in misc row elements', () => {
+    // ARRANGE
+    const game = createGame();
+    const seriesHacksHub = createGameSet({
+      id: 123,
+      title: '[Series Hacks - Pokemon]',
+      type: 'hub',
+    });
+    const unlicensedGamesHub = createGameSet({
+      id: 124,
+      title: '[Unlicensed Games - Pokemon]',
+      type: 'hub',
+    });
+    const allGameHubs = [seriesHacksHub, unlicensedGamesHub];
+
+    // ACT
+    const { result } = renderHook(() => useAllMetaRowElements(game, allGameHubs));
+
+    // ASSERT
+    expect(result.current.miscRowElements).toEqual([
+      { label: 'Series Hacks - Pokemon', hubId: 123, href: ['hub.show', 123] },
+      { label: 'Unlicensed Games - Pokemon', hubId: 124, href: ['hub.show', 124] },
+    ]);
+  });
 });
