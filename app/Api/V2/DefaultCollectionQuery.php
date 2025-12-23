@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Api\V2\Systems;
+namespace App\Api\V2;
 
 use LaravelJsonApi\Laravel\Http\Requests\ResourceQuery;
 use LaravelJsonApi\Validation\Rule as JsonApiRule;
 
-class SystemCollectionQuery extends ResourceQuery
+class DefaultCollectionQuery extends ResourceQuery
 {
     /**
      * Get the validation rules for the request.
