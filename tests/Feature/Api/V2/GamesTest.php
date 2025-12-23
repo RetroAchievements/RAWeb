@@ -9,9 +9,12 @@ use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Tests\Feature\Api\V2\Concerns\TestsJsonApiIndex;
 
 class GamesTest extends JsonApiResourceTestCase
 {
+    use TestsJsonApiIndex;
+
     protected function resourceType(): string
     {
         return 'games';

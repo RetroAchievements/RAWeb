@@ -68,7 +68,6 @@ class Achievement extends BaseModel implements HasVersionedTrigger
 
     // TODO rename ID to id, remove getIdAttribute()
     // TODO rename Achievements table to achievements
-    // TODO rename GameID column to game_id
     // TODO rename Title column to title, remove getTitleAttribute()
     // TODO rename Description column to description, remove getDescriptionAttribute()
     // TODO rename Points column to points, remove getPointsAttribute()
@@ -77,6 +76,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     // TODO rename DateCreated to created_at, make non-nullable, remove getCreatedAtAttribute()
     // TODO rename Updated to updated_at, make non-nullable, remove getUpdatedAtAttribute()
     // TODO drop AssocVideo, move to guides or something
+    // TODO drop GameID, the model should transition from Achievement->Game to Achievement->AchievementSet->Game
     // TODO drop MemAddr, migrate to triggerable morph
     // TODO drop Progress, ProgressMax, ProgressFormat migrate to triggerable morph
     // TODO drop Flags, derived from being included in an achievement set
