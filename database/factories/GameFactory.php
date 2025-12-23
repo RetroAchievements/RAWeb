@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\Game;
-use App\Platform\Actions\ComputeGameSortTitleAction;
+use App\Platform\Actions\ComputeSortTitleAction;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -40,11 +40,11 @@ class GameFactory extends Factory
 
         return $this->afterMaking(function (Game $game) {
             if ($game->sort_title === null) {
-                $game->sort_title = (new ComputeGameSortTitleAction())->execute($game->title);
+                $game->sort_title = (new ComputeSortTitleAction())->execute($game->title);
             }
         })->afterCreating(function (Game $game) {
             if ($game->sort_title === null) {
-                $game->sort_title = (new ComputeGameSortTitleAction())->execute($game->title);
+                $game->sort_title = (new ComputeSortTitleAction())->execute($game->title);
             }
 
             // Create a canonical title if one doesn't already exist.

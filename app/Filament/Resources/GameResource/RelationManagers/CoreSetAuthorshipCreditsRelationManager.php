@@ -142,11 +142,11 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
             ->recordActions([
                 EditAction::make()
                     ->modalHeading('Edit contribution credit')
-                    ->visible(fn () => $canManageContributionCredit),
+                    ->visible(fn (AchievementSetAuthor $record): bool => $user->can('update', $record)),
 
                 DeleteAction::make()
                     ->modalHeading('Delete contribution credit')
-                    ->visible(fn () => $canManageContributionCredit),
+                    ->visible(fn (AchievementSetAuthor $record): bool => $user->can('delete', $record)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

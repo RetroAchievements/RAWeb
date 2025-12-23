@@ -341,7 +341,12 @@ class AchievementsRelationManager extends RelationManager
                     ])->dropdown(false),
 
                     DeleteAction::make(),
-                ]),
+                ])
+                    ->visible(fn (Achievement $record): bool => $this->canReorderAchievements()
+                        || $user->can('assignMaintainer', Achievement::class)
+                        || $user->can('manage', AchievementGroup::class)
+                        || $user->can('delete', $record)
+                    ),
             ])
             ->toolbarActions([
                 Actions\Action::make('edit-display-orders')
@@ -788,7 +793,7 @@ class AchievementsRelationManager extends RelationManager
                 fn (Actions\Action $action, bool $isReordering) => $action
                     ->button()
                     ->label($isReordering ? 'Done dragging' : 'Drag to reorder')
-                    ->visible(fn () => !$this->isEditingDisplayOrders),
+                    ->visible(fn () => $this->canReorderAchievements() && !$this->isEditingDisplayOrders),
             )
             ->reorderable('DisplayOrder', $this->canReorderAchievements() && !$this->isEditingDisplayOrders)
             ->checkIfRecordIsSelectableUsing(fn (): bool => !$this->isEditingDisplayOrders);
@@ -950,10 +955,7 @@ class AchievementsRelationManager extends RelationManager
         /** @var User $user */
         $user = Auth::user();
 
-        /** @var Game $game */
-        $game = $this->getOwnerRecord();
-
-        return $user->can('update', $game);
+        return $user->can('updateField', [Achievement::class, null, 'DisplayOrder']);
     }
 
     private function getCoreAchievementSet(bool $withGroups = false): ?AchievementSet

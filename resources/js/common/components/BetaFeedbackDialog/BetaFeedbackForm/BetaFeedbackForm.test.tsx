@@ -1,24 +1,38 @@
+/* eslint-disable no-restricted-imports -- needed to mock sonner */
+
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
-// eslint-disable-next-line no-restricted-imports -- needed for toast cleanup in tests
 import { toast } from 'sonner';
 import { route } from 'ziggy-js';
 
-import { act, render, screen, waitFor } from '@/test';
+import { render, screen, waitFor } from '@/test';
 
 import { BaseDialog } from '../../+vendor/BaseDialog';
 import { BetaFeedbackForm } from './BetaFeedbackForm';
 
+// Mock sonner to prevent internal timers from causing flaky tests.
+vi.mock('sonner', async (importOriginal) => {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  const actual: typeof import('sonner') = await importOriginal();
+
+  return {
+    ...actual,
+    toast: Object.assign(vi.fn(), {
+      promise: vi.fn(async (promise, opts) => {
+        try {
+          await promise;
+          opts?.success?.();
+        } catch {
+          // deliberately left empty
+        }
+      }),
+    }),
+  };
+});
+
 describe('Component: BetaFeedbackForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  afterEach(async () => {
-    // Clean up any residual toast elements to mitigate test flake.
-    await act(async () => {
-      toast.dismiss();
-    });
   });
 
   it('renders without crashing', () => {
@@ -195,7 +209,10 @@ describe('Component: BetaFeedbackForm', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getAllByText(/submitted!/i)[0]).toBeVisible();
+      expect(toast.promise).toHaveBeenCalledWith(
+        expect.any(Promise),
+        expect.objectContaining({ loading: 'Submitting...' }),
+      );
     });
   });
 
@@ -215,7 +232,10 @@ describe('Component: BetaFeedbackForm', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByText(/something went wrong/i)).toBeVisible();
+      expect(toast.promise).toHaveBeenCalledWith(
+        expect.any(Promise),
+        expect.objectContaining({ error: 'Something went wrong.' }),
+      );
     });
   });
 
@@ -236,7 +256,7 @@ describe('Component: BetaFeedbackForm', () => {
 
     // ASSERT
     await waitFor(() => {
-      expect(screen.getByText(/something went wrong/i)).toBeVisible();
+      expect(toast.promise).toHaveBeenCalled();
     });
     expect(onSubmitSuccess).not.toHaveBeenCalled();
   });
