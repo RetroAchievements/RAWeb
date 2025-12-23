@@ -1202,6 +1202,7 @@
     "unsubscribeSuccess-allFollowerNotifications": "You've been unsubscribed from all follower notification emails.",
     "unsubscribeSuccess-allPrivateMessages": "You've been unsubscribed from all private message emails.",
     "unsubscribeSuccess-allTicketActivity": "You've been unsubscribed from all ticket activity emails.",
+    "unsubscribeSuccess-dailyDigest": "You've been unsubscribed from daily digest emails.",
     "unsubscribeError-expired": "This undo link has expired.",
     "unsubscribeError-invalid": "This undo link is invalid.",
     "unsubscribeError-already-undone": "This subscription has already been restored.",

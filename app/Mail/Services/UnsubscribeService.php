@@ -143,12 +143,16 @@ class UnsubscribeService
         } elseif ($data instanceof CategoryUnsubscribeData) {
             $currentPrefs = $user->websitePrefs;
 
-            // For "*Off_*" preferences, unsubscribing means setting the bit.
-            // For "*On_*" preferences, unsubscribing means clearing the bit.
-            if ($data->preference === UserPreference::EmailOff_DailyDigest) {
-                $newPrefs = $currentPrefs | (1 << $data->preference);
-            } else {
-                $newPrefs = $currentPrefs & ~(1 << $data->preference);
+            switch ($data->preference) {
+                case UserPreference::EmailOff_DailyDigest:
+                    // For "*Off_*" preferences, unsubscribing means setting the bit.
+                    $newPrefs = $currentPrefs | (1 << $data->preference);
+                    break;
+
+                default:
+                    // For "*On_*" preferences, unsubscribing means clearing the bit.
+                    $newPrefs = $currentPrefs & ~(1 << $data->preference);
+                    break;
             }
 
             $user->websitePrefs = $newPrefs;
@@ -231,12 +235,16 @@ class UnsubscribeService
         } elseif ($data instanceof CategoryUnsubscribeData) {
             $currentPrefs = $user->websitePrefs;
 
-            // For "*Off_*" preferences, undo means clearing the bit.
-            // For "EmailOn_*" preferences, undo means setting the bit.
-            if ($data->preference === UserPreference::EmailOff_DailyDigest) {
-                $newPrefs = $currentPrefs & ~(1 << $data->preference);
-            } else {
-                $newPrefs = $currentPrefs | (1 << $data->preference);
+            switch ($data->preference) {
+                case UserPreference::EmailOff_DailyDigest:
+                    // For "*Off_*" preferences, undo means clearing the bit.
+                    $newPrefs = $currentPrefs & ~(1 << $data->preference);
+                    break;
+
+                default:
+                    // For "*On_*" preferences, undo means setting the bit.
+                    $newPrefs = $currentPrefs | (1 << $data->preference);
+                    break;
             }
 
             $user->websitePrefs = $newPrefs;
