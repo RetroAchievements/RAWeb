@@ -1202,6 +1202,7 @@
     "unsubscribeSuccess-allFollowerNotifications": "You've been unsubscribed from all follower notification emails.",
     "unsubscribeSuccess-allPrivateMessages": "You've been unsubscribed from all private message emails.",
     "unsubscribeSuccess-allTicketActivity": "You've been unsubscribed from all ticket activity emails.",
+    "unsubscribeSuccess-dailyDigest": "You've been unsubscribed from daily digest emails.",
     "unsubscribeError-expired": "This undo link has expired.",
     "unsubscribeError-invalid": "This undo link is invalid.",
     "unsubscribeError-already-undone": "This subscription has already been restored.",
@@ -1313,6 +1314,8 @@
     "Bonus Subset": "Bonus Subset",
     "Specialty Subset": "Specialty Subset",
     "Exclusive Subset": "Exclusive Subset",
+    "otherAchievements": "Other",
+    "There's a daily summary of my subscription activity": "There's a daily summary of my subscription activity",
     "Search for games, users, achievements, and more...": "Search for games, users, achievements, and more...",
     "Search...": "Search...",
     "Enter a search term to get started.": "Enter a search term to get started.",
@@ -1322,6 +1325,5 @@
     "Leaderboard Comment": "Leaderboard Comment",
     "Ticket Comment": "Ticket Comment",
     "posted {{when}}": "posted {{when}}",
-    "Unknown User": "Unknown User",
-    "otherAchievements": "Other"
+    "Unknown User": "Unknown User"
 }
