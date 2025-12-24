@@ -27,6 +27,7 @@ class CommentData extends Data
         public bool $canDelete,
         public bool $canReport,
         public bool $isAutomated,
+        public ?string $url = null,
     ) {
     }
 
@@ -46,6 +47,7 @@ class CommentData extends Data
             canDelete: $currentUser ? $currentUser->can('delete', $comment) : false,
             canReport: $currentUser && $currentUser->can('createModerationReports', $currentUser) && $comment->user_id !== $currentUser->id,
             isAutomated: $comment->is_automated,
+            url: $comment->url,
         );
     }
 

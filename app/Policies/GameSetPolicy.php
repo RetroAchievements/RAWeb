@@ -108,4 +108,21 @@ class GameSetPolicy
             Role::ADMINISTRATOR,
         ]);
     }
+
+    public function updateField(User $user, GameSet $gameSet, string $fieldName): bool
+    {
+        // Some roles can edit everything.
+        if ($user->hasAnyRole([Role::ADMINISTRATOR, Role::GAME_EDITOR])) {
+            return true;
+        }
+
+        // sort_title is a sensitive field that affects ordering.
+        // Only the roles listed above are allowed to modify it.
+        if ($fieldName === 'sort_title') {
+            return false;
+        }
+
+        // For other fields, we'll fall back to the general update permission.
+        return $this->update($user, $gameSet);
+    }
 }

@@ -28,6 +28,7 @@ declare namespace App.Community.Data {
     canDelete: boolean;
     canReport: boolean;
     isAutomated: boolean;
+    url: string | null;
   };
   export type DeveloperFeedPageProps<TItems = App.Community.Data.ActivePlayer> = {
     developer: App.Data.User;
@@ -553,6 +554,11 @@ declare namespace App.Http.Data {
     hasSiteReleaseNotes: boolean;
     hasUnreadSiteReleaseNote: boolean;
     deferredSiteReleaseNotes: Array<App.Data.News>;
+  };
+  export type SearchPageProps = {
+    initialQuery: string;
+    initialScope: string;
+    initialPage: number;
   };
 }
 declare namespace App.Models {

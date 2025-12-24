@@ -24,6 +24,7 @@ class PlayerStatFactory extends Factory
             'user_id' => $user->id,
             'type' => PlayerStatType::GamesBeatenHardcoreRetail,
             'value' => rand(1, 100),
+            'stat_updated_at' => now(),
         ];
     }
 }

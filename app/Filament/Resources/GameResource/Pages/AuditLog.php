@@ -9,6 +9,8 @@ use App\Filament\Pages\ResourceAuditLog;
 use App\Filament\Resources\GameResource;
 use App\Models\Comment;
 use App\Models\Game;
+use App\Models\User;
+use Closure;
 use Filament\Actions;
 use Filament\Support\Enums\IconPosition;
 use Illuminate\Contracts\Support\Htmlable;
@@ -69,6 +71,34 @@ class AuditLog extends ResourceAuditLog
         $fieldLabelMap['release_date'] = 'Release Date';
         $fieldLabelMap['release_is_canonical'] = 'Is Canonical Title';
 
+        $fieldLabelMap['hash_name'] = 'File Name';
+        $fieldLabelMap['hash_md5'] = 'MD5';
+        $fieldLabelMap['hash_labels'] = 'Labels';
+        $fieldLabelMap['hash_compatibility'] = 'Compatibility';
+        $fieldLabelMap['hash_compatibility_tester_id'] = 'Compatibility Tester';
+        $fieldLabelMap['hash_patch_url'] = 'Patch URL';
+        $fieldLabelMap['hash_source'] = 'Resource Page URL';
+
         return $fieldLabelMap;
+    }
+
+    /**
+     * @return Collection<string, Closure(int): string>
+     */
+    protected function createFieldValueMap(): Collection
+    {
+        $fieldValueMap = parent::createFieldValueMap();
+
+        $fieldValueMap['hash_compatibility_tester_id'] = function (?int $userId): string {
+            if (!$userId) {
+                return '';
+            }
+
+            $user = User::find($userId);
+
+            return $user?->display_name ?? "User ID: {$userId}";
+        };
+
+        return $fieldValueMap;
     }
 }
