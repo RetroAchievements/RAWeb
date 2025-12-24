@@ -45,12 +45,24 @@ class GenerateAnnualRecap extends Command
 
             $users = User::where('LastLogin', '>=', $december)
                 ->where('Created', '<', $september)
+                ->whereNotNull('email_verified_at')
+                ->whereNull('banned_at')
                 ->orderByDesc('LastLogin')
                 ->pluck('ID');
 
+            $userCount = $users->count();
+            $this->info("Queueing {$userCount} annual recap emails.");
+
+            $progressBar = $this->output->createProgressBar($userCount);
+            $progressBar->start();
+
             foreach ($users as $userId) {
                 GenerateAnnualRecapJob::dispatch($userId)->onQueue('summary-emails');
+                $progressBar->advance();
             }
+
+            $progressBar->finish();
+            $this->newLine();
         }
     }
 }

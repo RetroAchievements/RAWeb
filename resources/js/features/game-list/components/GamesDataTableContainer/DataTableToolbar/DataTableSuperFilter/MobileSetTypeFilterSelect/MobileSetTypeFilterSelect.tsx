@@ -69,7 +69,7 @@ export function MobileSetTypeFilterSelect<TData>({
           </BaseSelectItem>
 
           <BaseSelectItem value="only-games" data-testid="only-games-option">
-            {t('Main Sets Only')}
+            {t('Base Sets Only')}
           </BaseSelectItem>
 
           <BaseSelectItem value="only-subsets" data-testid="only-subsets-option">

@@ -40,11 +40,7 @@ class ReleasesRelationManager extends RelationManager
         /** @var User $user */
         $user = Auth::user();
 
-        if ($ownerRecord instanceof Game) {
-            return $user->can('manage', $ownerRecord);
-        }
-
-        return false;
+        return $user->can('manage', GameRelease::class);
     }
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string

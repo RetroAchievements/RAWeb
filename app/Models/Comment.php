@@ -80,10 +80,10 @@ class Comment extends BaseModel
             return false;
         }
 
-        // Don't index comments from banned users.
+        // Don't index comments from banned or deleted users.
         $this->loadMissing('userWithTrashed');
         $user = $this->userWithTrashed;
-        if ($user->banned_at !== null) {
+        if ($user->isBanned() || $user->trashed()) {
             return false;
         }
 
@@ -91,6 +91,26 @@ class Comment extends BaseModel
         $trimmedPayload = trim($this->Payload);
         if (empty($trimmedPayload) || mb_strlen($trimmedPayload) <= 3) {
             return false;
+        }
+
+        // Don't index certain management comment types.
+        $excludedTypes = [
+            ArticleType::Forum,
+            ArticleType::UserModeration,
+            ArticleType::GameHash,
+            ArticleType::SetClaim,
+            ArticleType::GameModification,
+        ];
+        if (in_array($this->ArticleType, $excludedTypes, true)) {
+            return false;
+        }
+
+        // Don't index user wall comments if the wall owner has disabled their wall or is banned.
+        if ($this->ArticleType === ArticleType::User) {
+            $wallOwner = User::find($this->ArticleID);
+            if (!$wallOwner || !$wallOwner->UserWallActive || $wallOwner->isBanned()) {
+                return false;
+            }
         }
 
         return true;
