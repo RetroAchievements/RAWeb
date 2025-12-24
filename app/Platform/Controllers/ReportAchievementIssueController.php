@@ -45,7 +45,7 @@ class ReportAchievementIssueController extends Controller
 
         $props = new ReportAchievementIssuePagePropsData(
             achievement: $achievementData,
-            hasSession: $foundPlayerAchievement ? true : $user->hasPlayed($achievement->game),
+            hasSession: $foundPlayerAchievement ? true : $user->hasPlayedGameForAchievement($achievement),
             ticketType: $this->determineTicketType($foundPlayerAchievement, $allPlayerAchievements),
             extra: $request->input('extra'),
             can: $can,

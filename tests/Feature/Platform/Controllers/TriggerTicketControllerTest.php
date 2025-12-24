@@ -15,6 +15,9 @@ use App\Models\PlayerSession;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Actions\AssociateAchievementSetToGameAction;
+use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
+use App\Platform\Enums\AchievementSetType;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -446,5 +449,231 @@ class TriggerTicketControllerTest extends TestCase
         $response->assertInertia(fn (Assert $page) => $page
             ->where('emulatorVersion', '1.18.0') // this is from the older session where there was an unlock
         );
+    }
+
+    public function testCreateIncludesBaseGameHashForBonusAchievement(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
+        $emulator = Emulator::factory()->create(['active' => true]);
+        $system->emulators()->attach($emulator->id);
+
+        // ... create base game with a core set and bonus game with a bonus set ...
+        $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        $bonusGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        Achievement::factory()->published()->create(['GameID' => $baseGame->id]);
+        $bonusAchievement = Achievement::factory()->published()->create(['GameID' => $bonusGame->id]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($baseGame);
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($bonusGame);
+        (new AssociateAchievementSetToGameAction())->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
+
+        $baseHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
+        $bonusHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'Created' => Carbon::now()->subWeeks(2),
+            'email_verified_at' => Carbon::parse('2013-01-01'),
+            'UnreadMessageCount' => 0,
+        ]);
+        $this->actingAs($user);
+
+        PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $baseGame->id]);
+        PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $bonusGame->id]);
+
+        // ... user played using the base game hash (which also loads the bonus set) ...
+        PlayerSession::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $baseGame->id,
+            'game_hash_id' => $baseHash->id,
+            'duration' => 60,
+        ]);
+
+        // Act
+        $response = $this->get(route('achievement.tickets.create', ['achievement' => $bonusAchievement]));
+
+        // Assert
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('gameHashes', 2) // !!
+            ->where('gameHashes.0.id', $baseHash->id)
+            ->where('gameHashes.1.id', $bonusHash->id)
+        );
+    }
+
+    public function testCreateAutoSelectsBaseGameHashForBonusAchievement(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['active' => true]);
+        $emulator = Emulator::factory()->create(['name' => 'RetroArch', 'active' => true]);
+        $system->emulators()->attach($emulator->id);
+
+        $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        $bonusGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        Achievement::factory()->published()->create(['GameID' => $baseGame->id]);
+        $bonusAchievement = Achievement::factory()->published()->create(['GameID' => $bonusGame->id]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($baseGame);
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($bonusGame);
+        (new AssociateAchievementSetToGameAction())->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
+
+        $baseHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
+        GameHash::factory()->create(['game_id' => $bonusGame->id]);
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'Created' => Carbon::now()->subWeeks(2),
+            'email_verified_at' => Carbon::parse('2013-01-01'),
+            'UnreadMessageCount' => 0,
+        ]);
+        $this->actingAs($user);
+
+        // ... user only has a session with the base game hash ...
+        PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $baseGame->id]);
+        PlayerSession::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $baseGame->id,
+            'game_hash_id' => $baseHash->id,
+            'duration' => 60,
+            'hardcore' => true,
+            'user_agent' => 'RetroArch/1.19.1 (Windows) mupen64plus_next',
+        ]);
+
+        // Act
+        $response = $this->get(route('achievement.tickets.create', ['achievement' => $bonusAchievement]));
+
+        // Assert
+        // ... base game hash should be auto-selected with emulator info populated ...
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('selectedGameHashId', $baseHash->id)
+            ->where('selectedEmulator', 'RetroArch')
+            ->where('emulatorVersion', '1.19.1')
+            ->where('selectedMode', 1)
+        );
+    }
+
+    public function testCreateExcludesBaseGameHashForSpecialtyAchievement(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
+        $emulator = Emulator::factory()->create(['active' => true]);
+        $system->emulators()->attach($emulator->id);
+
+        // ... create base game with a core set and a specialty game with a specialty set ...
+        $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        $specialtyGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        Achievement::factory()->published()->create(['GameID' => $baseGame->id]);
+        $specialtyAchievement = Achievement::factory()->published()->create(['GameID' => $specialtyGame->id]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($baseGame);
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($specialtyGame);
+        (new AssociateAchievementSetToGameAction())->execute($baseGame, $specialtyGame, AchievementSetType::Specialty, 'Specialty');
+
+        $baseHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
+        $specialtyHash = GameHash::factory()->create(['game_id' => $specialtyGame->id]);
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'Created' => Carbon::now()->subWeeks(2),
+            'email_verified_at' => Carbon::parse('2013-01-01'),
+            'UnreadMessageCount' => 0,
+        ]);
+        $this->actingAs($user);
+
+        PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $baseGame->id]);
+        PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $specialtyGame->id]);
+
+        // ... user played using the base game hash ...
+        PlayerSession::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $baseGame->id,
+            'game_hash_id' => $baseHash->id,
+            'duration' => 60,
+        ]);
+
+        // Act
+        // ... user wants to open a ticket for something on the specialty set ...
+        $response = $this->get(route('achievement.tickets.create', ['achievement' => $specialtyAchievement]));
+
+        // Assert
+        // ... should not include any base game hash ...
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('gameHashes', 1) // !!
+            ->where('gameHashes.0.id', $specialtyHash->id)
+        );
+    }
+
+    public function testCreateAllowsUserWithOnlyBaseGamePlayerGameForBonusAchievement(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['active' => true]);
+        $emulator = Emulator::factory()->create(['active' => true]);
+        $system->emulators()->attach($emulator->id);
+
+        $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        $bonusGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        Achievement::factory()->published()->create(['GameID' => $baseGame->id]);
+        $bonusAchievement = Achievement::factory()->published()->create(['GameID' => $bonusGame->id]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($baseGame);
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($bonusGame);
+        (new AssociateAchievementSetToGameAction())->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
+
+        GameHash::factory()->create(['game_id' => $bonusGame->id]);
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'Created' => Carbon::now()->subWeeks(2),
+            'email_verified_at' => Carbon::parse('2013-01-01'),
+            'UnreadMessageCount' => 0,
+        ]);
+        $this->actingAs($user);
+
+        PlayerGame::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $baseGame->id, // !!
+        ]);
+
+        // Act
+        $response = $this->get(route('achievement.tickets.create', ['achievement' => $bonusAchievement]));
+
+        // Assert
+        $response->assertOk();
+    }
+
+    public function testCreateDoesNotAllowUserWithOnlyBaseGamePlayerGameForSpecialtyAchievement(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['active' => true]);
+        $emulator = Emulator::factory()->create(['active' => true]);
+        $system->emulators()->attach($emulator->id);
+
+        $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        $specialtyGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        Achievement::factory()->published()->create(['GameID' => $baseGame->id]);
+        $specialtyAchievement = Achievement::factory()->published()->create(['GameID' => $specialtyGame->id]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($baseGame);
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($specialtyGame);
+        (new AssociateAchievementSetToGameAction())->execute($baseGame, $specialtyGame, AchievementSetType::Specialty, 'Specialty');
+
+        GameHash::factory()->create(['game_id' => $specialtyGame->id]);
+
+        /** @var User $user */
+        $user = User::factory()->create([
+            'Created' => Carbon::now()->subWeeks(2),
+            'email_verified_at' => Carbon::parse('2013-01-01'),
+            'UnreadMessageCount' => 0,
+        ]);
+        $this->actingAs($user);
+
+        // ... specialty sets are isolated, so the base game alone should not grant access ...
+        PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $baseGame->id]);
+
+        // Act
+        $response = $this->get(route('achievement.tickets.create', ['achievement' => $specialtyAchievement]));
+
+        // Assert
+        $response->assertStatus(403);
     }
 }

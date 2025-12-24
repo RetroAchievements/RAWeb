@@ -38,7 +38,7 @@ export function SetTypeFilter<TData>({ table }: SetTypeFilterProps<TData>) {
         {
           options: [
             { t_label: t('All Sets'), isDefaultOption: true },
-            { t_label: t('Main Sets Only'), value: 'only-games' },
+            { t_label: t('Base Sets Only'), value: 'only-games' },
             { t_label: t('Subsets Only'), value: 'only-subsets' },
           ],
         },
