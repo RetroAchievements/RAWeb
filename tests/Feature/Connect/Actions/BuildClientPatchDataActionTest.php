@@ -228,14 +228,14 @@ class BuildClientPatchDataActionTest extends TestCase
         $game = $this->createGameWithAchievements($this->system, 'Dragon Quest III', publishedCount: 1);
 
         $leaderboard1 = Leaderboard::factory()->create([
-            'GameID' => $game->id,
-            'DisplayOrder' => 0,
-            'Format' => 'SCORE',
+            'game_id' => $game->id,
+            'order_column' => 0,
+            'format' => 'SCORE',
         ]);
         $leaderboard2 = Leaderboard::factory()->create([
-            'GameID' => $game->id,
-            'DisplayOrder' => -1, // !! hidden
-            'Format' => 'VALUE',
+            'game_id' => $game->id,
+            'order_column' => -1, // !! hidden
+            'format' => 'VALUE',
         ]);
 
         // Act

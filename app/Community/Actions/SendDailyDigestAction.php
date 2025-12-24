@@ -187,9 +187,9 @@ class SendDailyDigestAction
     {
         $result = [];
 
-        $leaderboards = Leaderboard::whereIn('ID', $ids)->with('game')->get();
+        $leaderboards = Leaderboard::whereIn('id', $ids)->with('game')->get();
         foreach ($leaderboards as $leaderboard) {
-            $result[$leaderboard->ID] = "{$leaderboard->Title} ({$leaderboard->game->Title})";
+            $result[$leaderboard->id] = "{$leaderboard->title} ({$leaderboard->game->Title})";
         }
 
         return $result;

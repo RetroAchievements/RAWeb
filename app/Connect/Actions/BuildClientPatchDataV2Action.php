@@ -255,19 +255,19 @@ class BuildClientPatchDataV2Action
 
         // TODO detach leaderboards from games
         $leaderboards = $game->leaderboards()
-            ->orderBy('DisplayOrder') // explicit display order
-            ->orderBy('ID')           // tiebreaker on creation sequence
+            ->orderBy('order_column') // explicit display order
+            ->orderBy('id')           // tiebreaker on creation sequence
             ->get();
 
         foreach ($leaderboards as $leaderboard) {
             $leaderboardsData[] = [
                 'ID' => $leaderboard->id,
-                'Mem' => $leaderboard->Mem,
-                'Format' => $leaderboard->Format,
-                'LowerIsBetter' => $leaderboard->LowerIsBetter,
+                'Mem' => $leaderboard->trigger_definition,
+                'Format' => $leaderboard->format,
+                'LowerIsBetter' => $leaderboard->rank_asc,
                 'Title' => $leaderboard->title,
-                'Description' => $leaderboard->Description,
-                'Hidden' => ($leaderboard->DisplayOrder < 0),
+                'Description' => $leaderboard->description,
+                'Hidden' => ($leaderboard->order_column < 0),
             ];
         }
 

@@ -44,7 +44,7 @@ class GameListTest extends TestCase
         $game1Points = $game1Achievements->get(0)->Points +
                        $game1Achievements->get(1)->Points +
                        $game1Achievements->get(2)->Points;
-        $game1Leaderboards = Leaderboard::factory()->count(8)->create(['GameID' => $game1->ID]);
+        $game1Leaderboards = Leaderboard::factory()->count(8)->create(['game_id' => $game1->id]);
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
             'Title' => 'Beta',

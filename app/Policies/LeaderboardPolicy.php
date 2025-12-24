@@ -73,9 +73,9 @@ class LeaderboardPolicy
     public function updateField(User $user, ?Leaderboard $leaderboard, string $fieldName): bool
     {
         $roleFieldPermissions = [
-            Role::DEVELOPER_JUNIOR => ['Title', 'Description', 'Format', 'LowerIsBetter', 'DisplayOrder'],
-            Role::DEVELOPER => ['Title', 'Description', 'Format', 'LowerIsBetter', 'DisplayOrder'],
-            Role::WRITER => ['Title', 'Description'],
+            Role::DEVELOPER_JUNIOR => ['title', 'description', 'format', 'rank_asc', 'order_column'],
+            Role::DEVELOPER => ['title', 'description', 'format', 'rank_asc', 'order_column'],
+            Role::WRITER => ['title', 'description'],
         ];
 
         // Root can edit everything.

@@ -24,9 +24,9 @@ class LeaderboardInfoTest extends TestCase
         $game = $this->seedGame();
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
-            'LowerIsBetter' => false,
-            'Format' => ValueFormat::Score,
+            'game_id' => $game->id,
+            'rank_asc' => false,
+            'format' => ValueFormat::Score,
         ]);
 
         $this->get($this->apiUrl('lbinfo', ['i' => $leaderboard->id]))
@@ -41,7 +41,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBDesc' => $leaderboard->description,
                     'LBFormat' => $leaderboard->format,
                     'LBID' => $leaderboard->id,
-                    'LBMem' => $leaderboard->Mem,
+                    'LBMem' => $leaderboard->trigger_definition,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
                     'LowerIsBetter' => (int) $leaderboard->rank_asc,
@@ -100,7 +100,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBDesc' => $leaderboard->description,
                     'LBFormat' => $leaderboard->format,
                     'LBID' => $leaderboard->id,
-                    'LBMem' => $leaderboard->Mem,
+                    'LBMem' => $leaderboard->trigger_definition,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
                     'LowerIsBetter' => (int) $leaderboard->rank_asc,
@@ -117,9 +117,9 @@ class LeaderboardInfoTest extends TestCase
         $game = $this->seedGame();
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
-            'LowerIsBetter' => 1,
-            'Format' => ValueFormat::Score,
+            'game_id' => $game->id,
+            'rank_asc' => 1,
+            'format' => ValueFormat::Score,
         ]);
 
         $this->get($this->apiUrl('lbinfo', ['i' => $leaderboard->id]))
@@ -134,7 +134,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBDesc' => $leaderboard->description,
                     'LBFormat' => $leaderboard->format,
                     'LBID' => $leaderboard->id,
-                    'LBMem' => $leaderboard->Mem,
+                    'LBMem' => $leaderboard->trigger_definition,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
                     'LowerIsBetter' => (int) $leaderboard->rank_asc,
@@ -221,7 +221,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBDesc' => $leaderboard->description,
                     'LBFormat' => $leaderboard->format,
                     'LBID' => $leaderboard->id,
-                    'LBMem' => $leaderboard->Mem,
+                    'LBMem' => $leaderboard->trigger_definition,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
                     'LowerIsBetter' => (int) $leaderboard->rank_asc,
@@ -270,7 +270,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBDesc' => $leaderboard->description,
                     'LBFormat' => $leaderboard->format,
                     'LBID' => $leaderboard->id,
-                    'LBMem' => $leaderboard->Mem,
+                    'LBMem' => $leaderboard->trigger_definition,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
                     'LowerIsBetter' => (int) $leaderboard->rank_asc,
@@ -318,7 +318,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBDesc' => $leaderboard->description,
                     'LBFormat' => $leaderboard->format,
                     'LBID' => $leaderboard->id,
-                    'LBMem' => $leaderboard->Mem,
+                    'LBMem' => $leaderboard->trigger_definition,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
                     'LowerIsBetter' => (int) $leaderboard->rank_asc,

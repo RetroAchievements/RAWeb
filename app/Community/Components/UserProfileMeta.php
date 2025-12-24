@@ -105,7 +105,7 @@ class UserProfileMeta extends Component
 
         // Leaderboards created
         $totalAuthoredLeaderboards = $user->authoredLeaderboards()
-            ->select(DB::raw('COUNT(LeaderboardDef.ID) AS TotalAuthoredLeaderboards'))
+            ->select(DB::raw('COUNT(leaderboards.id) AS TotalAuthoredLeaderboards'))
             ->value('TotalAuthoredLeaderboards');
         $leaderboardsCreatedStat = [
             'label' => 'Leaderboards created',
