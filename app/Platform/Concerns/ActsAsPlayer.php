@@ -32,9 +32,16 @@ trait ActsAsPlayer
 
     // == instance methods
 
-    public function hasPlayed(Game $game): bool
+    public function hasPlayedGame(Game $game): bool
     {
         return $this->playerGames()->where('game_id', $game->id)->exists();
+    }
+
+    public function hasPlayedGameForAchievement(Achievement $achievement): bool
+    {
+        return $this->playerGames()
+            ->whereIn('game_id', $achievement->getRelatedGameIds())
+            ->exists();
     }
 
     public function playerGame(Game $game): ?PlayerGame

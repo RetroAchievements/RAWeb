@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuCalendar, LuWrench } from 'react-icons/lu';
+import { LuCalendar, LuLock, LuWrench } from 'react-icons/lu';
 
 import {
   BaseTooltip,
@@ -95,10 +95,19 @@ interface ClaimsIconProps {
 const ClaimsIcon: FC<ClaimsIconProps> = ({ achievementSetClaims }) => {
   const { t } = useTranslation();
 
+  const hasInReviewClaim = achievementSetClaims.some(
+    (claim) => claim.status === ClaimStatus.InReview,
+  );
+
   return (
     <BaseTooltip>
       <BaseTooltipTrigger className="flex items-center gap-1.5 px-2 py-[2.25px] text-neutral-300 light:text-neutral-700">
-        <LuWrench className="size-3.5" />
+        {hasInReviewClaim ? (
+          <LuLock data-testid="lock-icon" className="size-3.5" />
+        ) : (
+          <LuWrench data-testid="wrench-icon" className="size-3.5" />
+        )}
+
         <span className="hidden pr-1 md:inline lg:hidden xl:inline">{t('Claimed by')}</span>
       </BaseTooltipTrigger>
 

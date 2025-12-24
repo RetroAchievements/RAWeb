@@ -28,6 +28,7 @@ declare namespace App.Community.Data {
     canDelete: boolean;
     canReport: boolean;
     isAutomated: boolean;
+    url: string | null;
   };
   export type DeveloperFeedPageProps<TItems = App.Community.Data.ActivePlayer> = {
     developer: App.Data.User;
@@ -518,7 +519,8 @@ declare namespace App.Enums {
     | 16
     | 17
     | 18
-    | 19;
+    | 19
+    | 20;
 }
 declare namespace App.Http.Data {
   export type AchievementOfTheWeekProps = {
@@ -553,6 +555,11 @@ declare namespace App.Http.Data {
     hasSiteReleaseNotes: boolean;
     hasUnreadSiteReleaseNote: boolean;
     deferredSiteReleaseNotes: Array<App.Data.News>;
+  };
+  export type SearchPageProps = {
+    initialQuery: string;
+    initialScope: string;
+    initialPage: number;
   };
 }
 declare namespace App.Models {
@@ -1178,8 +1185,8 @@ declare namespace App.Platform.Enums {
     | 'will_be_bonus'
     | 'will_be_specialty'
     | 'will_be_exclusive';
-  export type EventState = 'active' | 'concluded' | 'evergreen';
   export type UnlockMode = 0 | 1;
+  export type EventState = 'active' | 'concluded' | 'evergreen';
   export type GameListProgressFilterValue =
     | 'unstarted'
     | 'unfinished'
@@ -1254,6 +1261,11 @@ declare namespace App.Platform.Enums {
     | 'web';
   export type PlayerPreferredMode = 'softcore' | 'hardcore' | 'mixed';
   export type PlayerProgressResetType = 'account' | 'achievement' | 'achievement_set' | 'game';
+  export type PlayerStatRankingKind =
+    | 'retail_beaten'
+    | 'homebrew_beaten'
+    | 'hacks_beaten'
+    | 'all_beaten';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
   export type TicketableType = 'achievement' | 'leaderboard' | 'rich-presence';
   export type TriggerableType = 'achievement' | 'leaderboard' | 'game';

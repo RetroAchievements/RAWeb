@@ -174,7 +174,6 @@ if ($game->system->id === System::Events) {
     />
     <x-game.achievements-list.achievements-list-item
         :achievement="$dataOut"
-        :isCreditDialogEnabled="false"
         :totalPlayerCount="$numPossibleWinners"
         :isUnlocked="$achievedLocal"
     />

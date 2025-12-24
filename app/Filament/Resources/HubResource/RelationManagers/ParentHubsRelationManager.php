@@ -19,6 +19,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -67,7 +68,7 @@ class ParentHubsRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('title')
                     ->label('Title')
-                    ->sortable()
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy('sort_title', $direction))
                     ->searchable()
                     ->url(function (GameSet $record) {
                         if (request()->user()->can('manage', GameSet::class)) {

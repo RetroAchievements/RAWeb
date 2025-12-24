@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { type FC, Fragment, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuWrench } from 'react-icons/lu';
+import { LuLock, LuWrench } from 'react-icons/lu';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import {
@@ -15,6 +15,7 @@ import {
   BaseDialogTrigger,
 } from '@/common/components/+vendor/BaseDialog';
 import { UserAvatarStack } from '@/common/components/UserAvatarStack';
+import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { TooltipCreditRow } from '../TooltipCreditRow';
@@ -36,6 +37,10 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
   designCreditUsers,
 }) => {
   const { t } = useTranslation();
+
+  const hasInReviewClaim = achievementSetClaims.some(
+    (claim) => claim.status === ClaimStatus.InReview,
+  );
 
   const nonAuthorUniqueContributors = useMemo(() => {
     return (
@@ -80,7 +85,11 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
   if (achievementSetClaims.length) {
     buttonSections.push(
       <span key="claims" className="flex items-center gap-1">
-        <LuWrench className="size-4" />
+        {hasInReviewClaim ? (
+          <LuLock data-testid="lock-icon" className="size-4" />
+        ) : (
+          <LuWrench data-testid="wrench-icon" className="size-4" />
+        )}
         <span className={!canShowClaimants ? 'sr-only' : undefined}>{t('Claimed')}</span>
       </span>,
     );
@@ -157,9 +166,15 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
                       displayName: claim.user!.displayName,
                     }}
                   >
-                    {dayjs(claim.finishedAt!).isAfter(dayjs())
-                      ? t('Expires {{date}}', { date: formatDate(claim.finishedAt!, 'l') })
-                      : t('Expired {{date}}', { date: formatDate(claim.finishedAt!, 'l') })}
+                    {claim.status === ClaimStatus.InReview ? (
+                      t('In Review')
+                    ) : (
+                      <>
+                        {dayjs(claim.finishedAt!).isAfter(dayjs())
+                          ? t('Expires {{date}}', { date: formatDate(claim.finishedAt!, 'l') })
+                          : t('Expired {{date}}', { date: formatDate(claim.finishedAt!, 'l') })}
+                      </>
+                    )}
                   </TooltipCreditRow>
                 ))}
               </TooltipCreditsSection>

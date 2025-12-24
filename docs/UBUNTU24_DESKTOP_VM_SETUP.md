@@ -6,25 +6,27 @@ This guide will lead you step-by-step to setup an Ubuntu 24 desktop virtual mach
 In [Oracle VirtualBox Manager](https://www.virtualbox.org/wiki/Downloads), press the New button.
   - Set Name to `Ubuntu 24 - RAWeb`
   - Use the [Ubuntu 24.04 LTS iso](https://ubuntu.com/download/desktop)
-  - Check "Skip Unattended Installation"
-  - Recommended settings (adjust down if you need):
-    - Increase Memory to 8GB (8192MB)
-    - Increase Processors to 4
-    - Increase Hard Disk size to 32GB (this should be at least 24GB)
-  - Select "Try or Install Ubuntu" and press Enter
-  - Just click Next/Skip repeatedly until you reach the "Create your account" page:
-    * Enter your my RetroAchievements account name as "Your name".
-    * Set computer name to `ubuntu24`
-    * Set username and password to the lowercase version of your RetroAchievements account name
-      - username should be automatically set for you
-    * Uncheck "Require my password to log in"
-  - Continue to hit Next/Finish until installation begins.
-  - When the installation is finished, the VM will reboot and ask you to remove the installation media.
-    It should already be removed (you can check in the Devices menu) and press Enter.
-  - Another wizard will appear. Just click through it (declining auto-submitting to Ubuntu).
+  - Check "Proceed with Unattended Installation"
+* Expand the "Set up unattended guest OS installation" section
+  - Set user name and password to lowercase version of your RetroAchievements account name (i.e. "jamiras")
+  - Set host name to "ubuntu24"
+  - Check "Install Guest Additions"
+* Expand the "Specify virtual hardware" section
+  - Increase Memory to 8GB (8192MB) - 10GB (10240MB) if you can spare it.
+  - Increase Processors to 4
+* Expand the "Specify virtual hard disk" section
+  - Increase Hard Disk size to 32GB (this should be at least 24GB)
+* Press Finish
+  - Let the VM boot up.
+  - The installer will run for a while.
+  - Eventually, it will ask you to restart. I've had issues clicking the Restart button, but you can still restart
+    from the menu in the upper right corner.
+* After reboot
+  - A wizard will appear. Just click through it (declining auto-submitting to Ubuntu).
 
 #### Install Guest Additions
 Guest Additions provide drivers for interacting more directly with the host system. They're required to dynamically resize the screen when the host window is maximized, and are generally supposed to improve performance of the virtual machine.
+If you can maximize the host window and the VM contents resize to fit, this is already done. Power off the VM, and skip ahead to the next section.
 - Open a terminal window 
   - Click the Circle icon in the lower left corner, then select the Terminal icon
   - To make it easier to open the Terminal in the future, right click the icon in the left bar and select "Pin to Dash". I also like to Unpin the App Center and Help icons from the left bar.
@@ -38,20 +40,20 @@ Guest Additions provide drivers for interacting more directly with the host syst
 - Click on the CD in the sidebar, then the "Run Software" button and press "Run" on the popup dialog.
 - Enter your password again.
 - When the installation completes, right click on the CD icon and Eject it.
-- Power off the VM (Power button in upper right corner, Power button, Power Off, Power Off)  
+- Power off the VM (Power button in upper right corner, Power button, Power Off, Power Off)
 
 #### Configure the VM
 This enables the ability to copy/paste between the VM and the host machine, and sets up ports allowing access to the web server from the host machine.
 
 Go into the virtual machine settings 
-  * General > Advanced > Shared Clipboard = Bidirectional
+  * General > Features > Shared Clipboard = Bidirectional
   * Network > Adapter 1 > Port Forwarding > Add (four times)
       | Name | Protocol | Host IP | Host Port | Guest IP | Guest Port |
       | ---- | -------- | ------- | --------- | -------- | ---------- |
       | Web Server | TCP |  | 64000 | | 64000 |
       | Mailpit    | TCP |  | 64050 | | 64050 |
+      | MinIO      | TCP |  | 64040 | | 64040 |
       | VITE       | TCP |  | 64009 | | 64009 |
-      | VITE (alt) | TCP |  | 64009 | | 64009 |
 
 ## Set up the development environment
 Start the VM.  You should be able to maximize the VM window now to get a fullscreen Ubuntu desktop.
@@ -59,6 +61,9 @@ Start the VM.  You should be able to maximize the VM window now to get a fullscr
 Go into settings (Power button in upper right corner, gear icon)
 * Power > Screen Blank = Never
 * Appearance > Style = Dark
+* System > Users
+  - Click "Unlock" and enter your password.
+  - Enable "Automatic Login".
 * Close settings
 
 Everything after this point occurs in a terminal window, so open one.
@@ -105,6 +110,8 @@ $ git config --global user.name username
 #### Install docker
 ```
 $ sudo groupadd docker
+$ sudo usermod -aG docker $(whoami)
+$ newgrp docker
 $ sudo apt-get update
 $ sudo apt-get install ca-certificates curl gnupg
 $ sudo install -m 0755 -d /etc/apt/keyrings
@@ -116,10 +123,12 @@ $ echo \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 $ sudo apt-get update
 $ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-$ nano ~/.bash_aliases
+$ sudo systemctl enable docker
 $ sudo systemctl status docker
 ```
 If everything was successful, you should see "Active: active (running)" in the output.
+
+Reboot to ensure it's enabled for all terminals.
 
 #### Checkout the code
  If you haven't already, fork the RAWeb repository into your github space
@@ -147,14 +156,14 @@ $ git config --global --add safe.directory /home/username/source/RAWeb
 This prevents a "dubious ownership" warning after sail installs all its stuff
 
 #### Define an alias for sail
-Open the `.bashrc` file:
+Open the `.bash_aliases` file:
 ```
-$ nano .bashrc
+$ nano ~/.bash_aliases
 ```
 And add the following line:
 _Replace `username` with your local username._
 ```
-alias sail='sudo /home/username/source/RAWeb/vendor/bin/sail'
+alias sail='/home/username/source/RAWeb/vendor/bin/sail'
 ```
 Reload it to pick up the change.
 ```
@@ -166,8 +175,12 @@ $ . ~/.bashrc
 $ cp .env.example .env
 $ nano .env
 ```
+Find the commented out `APP_VERSION=DEV` setting and uncomment it
+
 Find the commented out `DEBUGBAR_ENABLED` setting and uncomment it and set it to `"true"`
+
 Find the commented out `QUEUE_CONNECTION` settings and add a new one that sets `QUEUE_CONNECTION` to `"sync"`
+
 Go to the end of the file and add `RA_PASSWORD_SALT=SaltySaltySaltFace`
 
 ```
@@ -175,7 +188,7 @@ $ sudo apt install npm
 $ sudo npm install -g pnpm
 $ sudo add-apt-repository ppa:ondrej/php 
 $ sudo apt dist-upgrade -y
-$ sudo apt install php8.2 php8.2-curl php8.2-dom php8.2-gmp php8.2-intl php8.2-zip php8.2-sqlite3 php8.2-mbstring php8.2-mysql php8.2-gd
+$ sudo apt install php8.4 php8.4-curl php8.4-dom php8.4-gmp php8.4-intl php8.4-zip php8.4-sqlite3 php8.4-mbstring php8.4-mysql php8.4-gd
 $ curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
 $ sudo apt-get install -y nodejs
 $ curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
@@ -184,16 +197,11 @@ $ composer update
 $ composer install
 $ composer setup
 $ sail up -d
-$ sail root-shell
- # cd ..
- # chown -R sail:sail html
- # exit
 $ sail artisan ra:storage:link
-$ php composer.phar install
+$ rm public/fi-build
 $ pnpm install
 $ pnpm build
-$ sudo chmod 777 bootstrap
-$ sudo chmod 777 bootstrap/cache
+$ sail artisan passport:keys --force
 ```
 
 #### Initialize the database
@@ -211,7 +219,15 @@ Change the `DB_DATABASE` line to point at the new database we just created.
 DB_DATABASE=raweb-seeded
 ```
 
-Now it's time to populate the database. This command will take at least 10 minutes. Just let it run.
+#### Start Horizon
+In a new terminal, run the following command:
+```
+sail artisan horizon
+```
+Horizon is a task dispatcher, and is required for many things within the website - most notably maintaining aggregated metrics. If you ever notice numbers not updating after doing things, it's probably because Horizon isn't running.
+
+#### Populate database
+Now it's time to populate the database. This command could take 15 minutes or a couple hours (depending on your machine). Just let it run.
 ```
 $ sail artisan migrate:fresh --seed
 ```
@@ -236,11 +252,11 @@ $ sudo dpkg -i code_*.deb
 $ rm code_*.deb
 $ code
 ```
-Enter your password for both prompts.
 
 Right click on the icon in the left bar and "Pin to Dash".
 * File > Open Folder... Browse to `source/RAWeb` and select "Open" in the upper right corner.
 * File > Preferences > Settings > Workspace > scroll down to Files: Exclude > Add Pattern
     `docker`
     `node_modules`
+    `storage`
     `vendor`

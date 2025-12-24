@@ -78,6 +78,9 @@ class GameResource extends Resource
 
     public static function infolist(Schema $schema): Schema
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $schema
             ->components([
                 Infolists\Components\ImageEntry::make('badge_url')
@@ -99,7 +102,8 @@ class GameResource extends Resource
                         Infolists\Components\TextEntry::make('title'),
 
                         Infolists\Components\TextEntry::make('sort_title')
-                            ->label('Sort Title'),
+                            ->label('Sort Title')
+                            ->visible(fn (Game $record): bool => $user->can('updateField', [$record, 'sort_title']) ?? false),
 
                         Infolists\Components\TextEntry::make('forumTopic.id')
                             ->label('Forum Topic ID')
@@ -233,15 +237,11 @@ class GameResource extends Resource
                             ->disabled(!$user->can('updateField', [$schema->model, 'Title'])),
 
                         Forms\Components\TextInput::make('sort_title')
-                            ->required()
                             ->label('Sort Title')
+                            ->required()
                             ->minLength(2)
-                            ->disabled(!$user->can('updateField', [$schema->model, 'sort_title']))
-                            ->helperText('Normalized title for sorting purposes. For example, "The Goonies II" would sort as "goonies 02". DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.')
-                            ->live()
-                            ->afterStateHydrated(function (callable $set, callable $get, ?string $state) {
-                                $set('original_sort_title', $state ?? '');
-                            }),
+                            ->visible(fn () => $user->can('updateField', [$schema->model, 'sort_title']))
+                            ->helperText('Normalized title for sorting. DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.'),
 
                         Forms\Components\TextInput::make('ForumTopicID')
                             ->label('Forum Topic ID')
@@ -277,6 +277,12 @@ class GameResource extends Resource
 
                 Schemas\Components\Section::make('Media')
                     ->icon('heroicon-s-photo')
+                    ->hidden(
+                        !$user->can('updateField', [$schema->model, 'ImageIcon'])
+                        && !$user->can('updateField', [$schema->model, 'ImageBoxArt'])
+                        && !$user->can('updateField', [$schema->model, 'ImageTitle'])
+                        && !$user->can('updateField', [$schema->model, 'ImageIngame'])
+                    )
                     ->schema([
                         // Store a temporary file on disk until the user submits.
                         // When the user submits, put in storage.
@@ -290,7 +296,8 @@ class GameResource extends Resource
                             ->acceptedFileTypes(['image/png', 'image/jpeg'])
                             ->maxSize(1024)
                             ->maxFiles(1)
-                            ->previewable(true),
+                            ->previewable(true)
+                            ->hidden(!$user->can('updateField', [$schema->model, 'ImageIcon'])),
 
                         Forms\Components\FileUpload::make('ImageBoxArt')
                             ->label('Box Art')
@@ -299,7 +306,8 @@ class GameResource extends Resource
                             ->acceptedFileTypes(['image/png', 'image/jpeg'])
                             ->maxSize(1024)
                             ->maxFiles(1)
-                            ->previewable(true),
+                            ->previewable(true)
+                            ->hidden(!$user->can('updateField', [$schema->model, 'ImageBoxArt'])),
 
                         Forms\Components\FileUpload::make('ImageTitle')
                             ->label('Title')
@@ -308,7 +316,8 @@ class GameResource extends Resource
                             ->acceptedFileTypes(['image/png', 'image/jpeg'])
                             ->maxSize(1024)
                             ->maxFiles(1)
-                            ->previewable(true),
+                            ->previewable(true)
+                            ->hidden(!$user->can('updateField', [$schema->model, 'ImageTitle'])),
 
                         Forms\Components\FileUpload::make('ImageIngame')
                             ->label('In Game')
@@ -317,7 +326,8 @@ class GameResource extends Resource
                             ->acceptedFileTypes(['image/png', 'image/jpeg'])
                             ->maxSize(1024)
                             ->maxFiles(1)
-                            ->previewable(true),
+                            ->previewable(true)
+                            ->hidden(!$user->can('updateField', [$schema->model, 'ImageIngame'])),
                     ])
                     ->columns(2),
 
@@ -350,7 +360,8 @@ class GameResource extends Resource
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('Title')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy('sort_title', $direction)),
 
                 Tables\Columns\TextColumn::make('system')
                     ->label('System')
