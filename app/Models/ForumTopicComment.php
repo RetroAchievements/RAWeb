@@ -66,13 +66,19 @@ class ForumTopicComment extends BaseModel
 
     public function shouldBeSearchable(): bool
     {
-        // Don't index deleted comments.
+        // Don't index deleted posts.
         if ($this->deleted_at) {
             return false;
         }
 
-        // Don't index unauthorized comments.
+        // Don't index unauthorized posts.
         if (!$this->is_authorized) {
+            return false;
+        }
+
+        // Don't index posts from deleted topics or topics that require permissions.
+        $this->loadMissing('forumTopic');
+        if (!$this->forumTopic || $this->forumTopic->required_permissions !== 0) {
             return false;
         }
 

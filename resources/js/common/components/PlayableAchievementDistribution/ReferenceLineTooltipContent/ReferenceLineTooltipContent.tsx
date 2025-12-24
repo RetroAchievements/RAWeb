@@ -59,7 +59,7 @@ export const ReferenceLineTooltipContent: FC<ReferenceLineTooltipContentProps> =
 
       {/* Add reference line information. */}
       <div className="mt-1.5 grid gap-1.5 border-t border-neutral-600/50 pt-1.5">
-        {hasHardcoreLine && userAchievementCounts?.hardcore !== undefined && (
+        {hasHardcoreLine && userAchievementCounts?.hardcore !== undefined ? (
           <div className="flex items-center gap-1.5">
             <div
               className="my-0.5 h-3 w-0 shrink-0 border-[1.5px] border-dashed"
@@ -70,9 +70,9 @@ export const ReferenceLineTooltipContent: FC<ReferenceLineTooltipContentProps> =
               {variant === 'event' ? t('Your progress') : null}
             </span>
           </div>
-        )}
+        ) : null}
 
-        {hasSoftcoreLine && userAchievementCounts?.softcore !== undefined && (
+        {hasSoftcoreLine && userAchievementCounts?.softcore !== undefined ? (
           <div className="flex items-center gap-1.5">
             <div
               className="my-0.5 h-3 w-0 shrink-0 border-[1.5px] border-dashed"
@@ -80,7 +80,7 @@ export const ReferenceLineTooltipContent: FC<ReferenceLineTooltipContentProps> =
             />
             <span>{t('Your softcore progress')}</span>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
