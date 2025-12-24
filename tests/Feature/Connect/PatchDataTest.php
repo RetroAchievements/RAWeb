@@ -107,7 +107,7 @@ class PatchDataTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'ImageIcon' => '/Images/000011.png',
             'ImageTitle' => '/Images/000021.png',
             'ImageIngame' => '/Images/000031.png',
@@ -152,7 +152,7 @@ class PatchDataTest extends TestCase
 
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'ImageIcon' => '/Images/000051.png',
             'ImageTitle' => '/Images/000061.png',
             'ImageIngame' => '/Images/000071.png',
@@ -304,7 +304,7 @@ class PatchDataTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'ImageIcon' => '/Images/000011.png',
         ]);
         /** @var Achievement $achievement1 */
@@ -392,7 +392,7 @@ class PatchDataTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'ImageIcon' => '/Images/000011.png',
             'ImageTitle' => '/Images/000021.png',
             'ImageIngame' => '/Images/000031.png',
@@ -563,7 +563,7 @@ class PatchDataTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'ImageIcon' => '/Images/000011.png',
             'ImageTitle' => '/Images/000021.png',
             'ImageIngame' => '/Images/000031.png',

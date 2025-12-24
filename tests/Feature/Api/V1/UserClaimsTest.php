@@ -41,7 +41,7 @@ class UserClaimsTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         /** @var AchievementSetClaim $claim */
         $claim = AchievementSetClaim::factory()->create([
@@ -59,7 +59,7 @@ class UserClaimsTest extends TestCase
                     'GameID' => $game->ID,
                     'GameTitle' => $game->Title,
                     'GameIcon' => $game->ImageIcon,
-                    'ConsoleName' => $system->Name,
+                    'ConsoleName' => $system->name,
                     'ClaimType' => ClaimType::Primary,
                     'SetType' => ClaimSetType::NewSet,
                     'Status' => ClaimStatus::Active,
@@ -83,7 +83,7 @@ class UserClaimsTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         /** @var AchievementSetClaim $claim */
         $claim = AchievementSetClaim::factory()->create([
@@ -101,7 +101,7 @@ class UserClaimsTest extends TestCase
                     'GameID' => $game->ID,
                     'GameTitle' => $game->Title,
                     'GameIcon' => $game->ImageIcon,
-                    'ConsoleName' => $system->Name,
+                    'ConsoleName' => $system->name,
                     'ClaimType' => ClaimType::Primary,
                     'SetType' => ClaimSetType::NewSet,
                     'Status' => ClaimStatus::Active,

@@ -201,7 +201,7 @@ class UnlocksTest extends TestCase
             ]);
 
         // not-unlocked event achievement hides hardcore unlock when active
-        System::factory()->create(['ID' => System::Events]);
+        System::factory()->create(['id' => System::Events]);
         /** @var Game $eventGame */
         $eventGame = Game::factory()->create(['ConsoleID' => System::Events]);
         /** @var Achievement $eventAchievement1 */

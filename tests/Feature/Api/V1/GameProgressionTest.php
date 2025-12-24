@@ -110,8 +110,8 @@ class GameProgressionTest extends TestCase
             ->assertExactJson([
                 'ID' => $game->ID,
                 'Title' => $game->Title,
-                'ConsoleID' => $game->system->ID,
-                'ConsoleName' => $game->system->Name,
+                'ConsoleID' => $game->system->id,
+                'ConsoleName' => $game->system->name,
                 'ImageIcon' => $game->ImageIcon,
                 'NumAchievements' => 4,
                 'NumDistinctPlayers' => 1,
@@ -149,8 +149,8 @@ class GameProgressionTest extends TestCase
             ->assertExactJson([
                 'ID' => $game->ID,
                 'Title' => $game->Title,
-                'ConsoleID' => $game->system->ID,
-                'ConsoleName' => $game->system->Name,
+                'ConsoleID' => $game->system->id,
+                'ConsoleName' => $game->system->name,
                 'ImageIcon' => $game->ImageIcon,
                 'NumAchievements' => 4,
                 'NumDistinctPlayers' => 2,
@@ -192,8 +192,8 @@ class GameProgressionTest extends TestCase
             ->assertExactJson([
                 'ID' => $game->ID,
                 'Title' => $game->Title,
-                'ConsoleID' => $game->system->ID,
-                'ConsoleName' => $game->system->Name,
+                'ConsoleID' => $game->system->id,
+                'ConsoleName' => $game->system->name,
                 'ImageIcon' => $game->ImageIcon,
                 'NumAchievements' => 4,
                 'NumDistinctPlayers' => 3,
@@ -219,8 +219,8 @@ class GameProgressionTest extends TestCase
             ->assertExactJson([
                 'ID' => $game->ID,
                 'Title' => $game->Title,
-                'ConsoleID' => $game->system->ID,
-                'ConsoleName' => $game->system->Name,
+                'ConsoleID' => $game->system->id,
+                'ConsoleName' => $game->system->name,
                 'ImageIcon' => $game->ImageIcon,
                 'NumAchievements' => 4,
                 'NumDistinctPlayers' => 3,

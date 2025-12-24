@@ -159,7 +159,7 @@ class HomeControllerTest extends TestCase
             'GameID' => $game->id,
         ]);
 
-        System::factory()->create(['ID' => System::Events]);
+        System::factory()->create(['id' => System::Events]);
         /** @var Game $eventGame */
         $eventGame = Game::factory()->create(['ConsoleID' => System::Events, 'Title' => 'Achievement of the Week', 'ForumTopicId' => 14029]);
         /** @var Achievement $eventAchievement */
@@ -201,7 +201,7 @@ class HomeControllerTest extends TestCase
     public function testItHandlesAotwEventAchievementsWithoutSourceAchievement(): void
     {
         // Arrange
-        System::factory()->create(['ID' => System::Events]);
+        System::factory()->create(['id' => System::Events]);
         $eventGame = Game::factory()->create([
             'ConsoleID' => System::Events,
             'Title' => 'Achievement of the Week',

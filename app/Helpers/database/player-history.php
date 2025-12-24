@@ -67,11 +67,11 @@ function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, User $
                      ach.BadgeName, ach.Points, ach.TrueRatio, ach.type as Type,
                      COALESCE(ua.display_name, ua.User) AS Author, ua.ulid AS AuthorULID,
                      gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, ach.GameID,
-                     c.Name AS ConsoleName
+                     s.name AS ConsoleName
               FROM player_achievements pa
               INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
               INNER JOIN GameData AS gd ON gd.ID = ach.GameID
-              INNER JOIN Console AS c ON c.ID = gd.ConsoleID
+              INNER JOIN systems AS s ON s.id = gd.ConsoleID
               INNER JOIN UserAccounts AS ua on ua.ID = ach.user_id
               WHERE pa.user_id = :userid AND ach.Flags = :achievementFlag
               AND COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) BETWEEN :dateStart AND :dateEnd

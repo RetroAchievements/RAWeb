@@ -13,7 +13,7 @@ $achievement->loadMissing('game.system');
 
     &raquo;
 
-    <a href="{{ route('system.game.index', ['system' => $achievement->game->ConsoleID]) }}">{{ $achievement->game->system->Name }}</a>
+    <a href="{{ route('system.game.index', ['system' => $achievement->game->ConsoleID]) }}">{{ $achievement->game->system->name }}</a>
 
     &raquo;
 

@@ -20,7 +20,7 @@ class GameHashesCommentControllerTest extends TestCase
     public function testIndexDoesNotAuthorizeGuests(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
 
         // Act
@@ -40,7 +40,7 @@ class GameHashesCommentControllerTest extends TestCase
         $user->assignRole(Role::DEVELOPER_JUNIOR);
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
 
         // Act
@@ -60,7 +60,7 @@ class GameHashesCommentControllerTest extends TestCase
         $user->assignRole(Role::DEVELOPER);
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
 
         // Act
@@ -80,7 +80,7 @@ class GameHashesCommentControllerTest extends TestCase
         $user->assignRole(Role::DEVELOPER);
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['ID' => 1, 'Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
 
         // Act

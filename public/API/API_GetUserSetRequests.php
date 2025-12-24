@@ -41,10 +41,10 @@ $query = UserGameListEntry::select([
     'GameData.Title',
     'GameData.ImageIcon',
     'GameData.ConsoleID',
-    'Console.Name as ConsoleName',
+    'systems.name as ConsoleName',
 ])
     ->join('GameData', 'SetRequest.GameID', '=', 'GameData.ID')
-    ->join('Console', 'GameData.ConsoleID', '=', 'Console.ID')
+    ->join('systems', 'GameData.ConsoleID', '=', 'systems.id')
     ->where(DB::raw('SetRequest.user_id'), $user->id)
     ->where('type', UserGameListType::AchievementSetRequest);
 

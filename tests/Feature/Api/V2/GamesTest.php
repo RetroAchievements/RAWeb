@@ -104,7 +104,7 @@ class GamesTest extends JsonApiResourceTestCase
         // Arrange
         $user = User::factory()->create(['APIKey' => 'test-key']);
         $gameSystem = System::factory()->create();
-        System::factory()->create(['ID' => System::Hubs]);
+        System::factory()->create(['id' => System::Hubs]);
 
         $normalGame = Game::factory()->create(['ConsoleID' => $gameSystem->id]);
         $hubGame = Game::factory()->create(['ConsoleID' => System::Hubs]);
@@ -127,7 +127,7 @@ class GamesTest extends JsonApiResourceTestCase
         // Arrange
         $user = User::factory()->create(['APIKey' => 'test-key']);
         $gameSystem = System::factory()->create();
-        System::factory()->create(['ID' => System::Events]);
+        System::factory()->create(['id' => System::Events]);
 
         $normalGame = Game::factory()->create(['ConsoleID' => $gameSystem->id]);
         $eventGame = Game::factory()->create(['ConsoleID' => System::Events]);
@@ -215,7 +215,7 @@ class GamesTest extends JsonApiResourceTestCase
     {
         // Arrange
         $user = User::factory()->create(['APIKey' => 'test-key']);
-        $system = System::factory()->create(['Name' => 'Nintendo 64']);
+        $system = System::factory()->create(['name' => 'Nintendo 64']);
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         // Act

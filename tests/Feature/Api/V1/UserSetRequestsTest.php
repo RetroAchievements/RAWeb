@@ -34,14 +34,14 @@ class UserSetRequestsTest extends TestCase
     {
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'ImageIcon' => '/Images/001234.png',
             'achievements_published' => 0,
 
         ]);
         $game2 = Game::factory()->create([
             'Title' => '~Hack~ Test Case',
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'ImageIcon' => '/Images/001235.png',
             'achievements_published' => 12,
         ]);
@@ -71,14 +71,14 @@ class UserSetRequestsTest extends TestCase
                         'GameID' => $game->ID,
                         'Title' => $game->Title,
                         'ConsoleID' => $game->ConsoleID,
-                        'ConsoleName' => $system->Name,
+                        'ConsoleName' => $system->name,
                         'ImageIcon' => $game->ImageIcon,
                     ],
                     [
                         'GameID' => $game2->ID,
                         'Title' => $game2->Title,
                         'ConsoleID' => $game2->ConsoleID,
-                        'ConsoleName' => $system->Name,
+                        'ConsoleName' => $system->name,
                         'ImageIcon' => $game2->ImageIcon,
                     ],
                 ],
@@ -94,13 +94,13 @@ class UserSetRequestsTest extends TestCase
     {
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'ImageIcon' => '/Images/001234.png',
             'achievements_published' => 4,
         ]);
         $game2 = Game::factory()->create([
             'Title' => '~Hack~ Test Case',
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'ImageIcon' => '/Images/001235.png',
             'achievements_published' => 0,
         ]);
@@ -131,7 +131,7 @@ class UserSetRequestsTest extends TestCase
                         'GameID' => $game2->ID,
                         'Title' => $game2->Title,
                         'ConsoleID' => $game2->ConsoleID,
-                        'ConsoleName' => $system->Name,
+                        'ConsoleName' => $system->name,
                         'ImageIcon' => $game2->ImageIcon,
                     ],
                 ],

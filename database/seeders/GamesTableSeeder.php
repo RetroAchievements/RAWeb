@@ -33,7 +33,7 @@ class GamesTableSeeder extends Seeder
          */
         System::all()->each(function (System $system) {
             $num_to_create = random_int(0, 10) + random_int(0, 2) + random_int(0, 2) + random_int(0, 2);
-            $system->games()->saveMany(Game::factory()->count($num_to_create)->create(['ConsoleID' => $system->ID]));
+            $system->games()->saveMany(Game::factory()->count($num_to_create)->create(['ConsoleID' => $system->id]));
         });
 
         /*

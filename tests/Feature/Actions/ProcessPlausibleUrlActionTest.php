@@ -183,7 +183,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
     public function testItCorrectlyHandlesSystemUrls(): void
     {
         // Arrange
-        System::factory()->create(['ID' => 1, 'Name' => 'Game Boy']);
+        System::factory()->create(['id' => 1, 'name' => 'Game Boy']);
 
         // Act
         $result = $this->action->execute('system/1-game-boy', [], $this->defaultProps);

@@ -54,7 +54,7 @@ class AchievementOfTheWeekTest extends TestCase
             'Event_AOTW_ForumID' => 2,
         ]);
 
-        System::factory()->create(['ID' => System::Events]);
+        System::factory()->create(['id' => System::Events]);
         /** @var Game $eventGame */
         $eventGame = Game::factory()->create(['ConsoleID' => System::Events, 'Title' => 'Achievement of the Week', 'ForumTopicId' => 1]);
         Event::factory()->create([

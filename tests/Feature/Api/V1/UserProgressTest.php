@@ -30,16 +30,16 @@ class UserProgressTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
         $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(0));
         $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(1));
         /** @var Game $game2 */
-        $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game2 = Game::factory()->create(['ConsoleID' => $system->id]);
         $publishedAchievements2 = Achievement::factory()->published()->count(5)->create(['GameID' => $game2->ID]);
         (new UpdateGameMetricsAction())->execute($game2);
         /** @var Game $game3 */
-        $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game3 = Game::factory()->create(['ConsoleID' => $system->id]);
 
         $csv = $game->ID . ',' . $game2->ID . ',' . $game3->ID . ',15934';
 
@@ -93,16 +93,16 @@ class UserProgressTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
         $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(0));
         $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(1));
         /** @var Game $game2 */
-        $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game2 = Game::factory()->create(['ConsoleID' => $system->id]);
         $publishedAchievements2 = Achievement::factory()->published()->count(5)->create(['GameID' => $game2->ID]);
         (new UpdateGameMetricsAction())->execute($game2);
         /** @var Game $game3 */
-        $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game3 = Game::factory()->create(['ConsoleID' => $system->id]);
 
         $csv = $game->ID . ',' . $game2->ID . ',' . $game3->ID . ',15934';
 

@@ -109,7 +109,7 @@ class UserSetRequestListController extends Controller
 
             $filterableSystemOptions = System::query()
                 ->gameSystems()
-                ->whereIn('ID', $systemIds)
+                ->whereIn('id', $systemIds)
                 ->get()
                 ->map(fn ($system) => SystemData::fromSystem($system)->include('nameShort'))
                 ->values()
