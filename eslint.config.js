@@ -121,6 +121,7 @@ export default tseslint.config(
       ...react.configs.recommended.rules,
       ...reactHooks.configs['recommended-latest'].rules,
       'react/display-name': 'off',
+      'react/jsx-no-leaked-render': 'error',
       'react/jsx-no-literals': 'error', // Enforces i18n by preventing hardcoded text.
       'react/jsx-no-target-blank': 'off', // We don't support browsers old enough to need this.
       'react/no-unescaped-entities': 'off',

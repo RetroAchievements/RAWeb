@@ -33,7 +33,8 @@ class GenerateAnnualRecapAction
 {
     public function execute(User $user): void
     {
-        if (!$user->EmailAddress) {
+        // user must have a verified email address, and not be banned.
+        if (!$user->EmailAddress || !$user->isEmailVerified() || $user->isBanned()) {
             return;
         }
 
@@ -44,14 +45,20 @@ class GenerateAnnualRecapAction
         $gameData = $this->getGameData($user, $startDate, $endDate);
 
         // don't bother generating recap if the player has less than 10 hours of playtime for the year
+        // or has only played standalone games.
         $totalDuration = 0;
+        $hasPlayedNonStandaloneGame = false;
         foreach ($gameData as $game) {
             $totalDuration += $game['totalDuration'];
+
+            $hasPlayedNonStandaloneGame |= ($game['ConsoleID'] !== System::Standalones);
         }
-        if ($totalDuration < 600) {
+
+        if ($totalDuration < 600 || !$hasPlayedNonStandaloneGame) {
             return;
         }
 
+        // build recap data
         $recapData = [
             'year' => $year,
         ];
@@ -69,6 +76,7 @@ class GenerateAnnualRecapAction
         $this->summarizePosts($recapData, $user, $startDate, $endDate);
         $this->summarizeDevelopment($recapData, $user, $startDate, $endDate);
 
+        // send email
         Mail::to($user->EmailAddress)->queue(
             new AnnualRecapMail($user, $recapData)
         );

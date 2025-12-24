@@ -50,7 +50,7 @@ describe('Component: SetTypeFilter', () => {
 
     // ASSERT
     expect(screen.getByText(/all sets/i)).toBeVisible();
-    expect(screen.getByText(/main sets only/i)).toBeVisible();
+    expect(screen.getByText(/base sets only/i)).toBeVisible();
     expect(screen.getByText(/subsets only/i)).toBeVisible();
   });
 
@@ -65,7 +65,7 @@ describe('Component: SetTypeFilter', () => {
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /set type/i }));
-    await userEvent.click(screen.getByText(/main sets only/i));
+    await userEvent.click(screen.getByText(/base sets only/i));
 
     // ASSERT
     expect(setFiltersSpy).toHaveBeenCalledWith(expect.any(Function));
@@ -85,7 +85,7 @@ describe('Component: SetTypeFilter', () => {
     await userEvent.click(screen.getByRole('button', { name: /set type/i }));
 
     // ASSERT
-    expect(screen.getByText(/main sets only/i)).toBeVisible();
+    expect(screen.getByText(/base sets only/i)).toBeVisible();
   });
 
   it('given a filter option is selected, updates the table filters correctly', async () => {
@@ -99,7 +99,7 @@ describe('Component: SetTypeFilter', () => {
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /set type/i }));
-    await userEvent.click(screen.getByText(/main sets only/i));
+    await userEvent.click(screen.getByText(/base sets only/i));
 
     // ASSERT
     expect(setFiltersSpy).toHaveBeenCalledWith(expect.any(Function));
@@ -124,7 +124,7 @@ describe('Component: SetTypeFilter', () => {
     // ACT
     await userEvent.click(screen.getByRole('button', { name: /set type/i }));
 
-    await userEvent.click(screen.getByText(/main sets only/i));
+    await userEvent.click(screen.getByText(/base sets only/i));
     await userEvent.click(screen.getByText(/all sets/i));
 
     // ASSERT

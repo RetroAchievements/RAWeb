@@ -140,9 +140,10 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
               ),
             )}
           >
-            {playerGame?.highestAward && !getIsEventGame(game) && (
+            {playerGame?.highestAward && !getIsEventGame(game) ? (
               <PlayerBadgeIndicator playerBadge={playerGame.highestAward} />
-            )}
+            ) : null}
+
             {!isComplete &&
               formatPercentage(playerGame.achievementsUnlocked / game.achievementsPublished, {
                 maximumFractionDigits: 0,
