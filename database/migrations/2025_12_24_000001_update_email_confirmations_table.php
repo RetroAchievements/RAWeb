@@ -37,10 +37,14 @@ return new class extends Migration {
         Schema::rename('email_confirmations', 'EmailConfirmations');
 
         Schema::table('EmailConfirmations', function (Blueprint $table) {
-            $table->date('Expires')->after('email_cookie');
+            $table->date('Expires')->nullable()->after('email_cookie');
         });
 
         DB::statement('UPDATE EmailConfirmations SET Expires = DATE(expires_at)');
+
+        Schema::table('EmailConfirmations', function (Blueprint $table) {
+            $table->date('Expires')->nullable(false)->change();
+        });
 
         Schema::table('EmailConfirmations', function (Blueprint $table) {
             $table->dropColumn('expires_at');
