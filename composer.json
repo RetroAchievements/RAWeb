@@ -148,7 +148,9 @@
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate --ansi",
             "@php -r \"copy('storage/app/releases.dist.php', 'storage/app/releases.php');\"",
-            "@php -r \"file_exists('storage/app/settings.json') || copy('storage/app/settings.dist.json', 'storage/app/settings.json');\""
+            "@php -r \"file_exists('storage/app/settings.json') || copy('storage/app/settings.dist.json', 'storage/app/settings.json');\"",
+            "echo 'Setting up Passport keys (if they already exist it will show an error which can be ignored)'",
+            "@php artisan passport:keys || true"
         ],
         "stan": "@php vendor/bin/phpstan analyse --memory-limit 768M --ansi",
         "stan-baseline": "@php vendor/bin/phpstan analyse --generate-baseline --memory-limit 1G",
