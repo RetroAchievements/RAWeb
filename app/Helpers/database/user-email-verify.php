@@ -9,13 +9,11 @@ use Illuminate\Support\Str;
 function generateEmailVerificationToken(User $user): string
 {
     $emailCookie = Str::random(16);
-    $expiry = date('Y-m-d', time() + 60 * 60 * 24 * 7);
 
     EmailConfirmation::create([
-        'User' => $user->username,
         'user_id' => $user->id,
-        'EmailCookie' => $emailCookie,
-        'Expires' => $expiry,
+        'email_cookie' => $emailCookie,
+        'expires_at' => Carbon::now()->addWeek(),
     ]);
 
     // Clear permissions til they validate their email.
@@ -31,19 +29,13 @@ function generateEmailVerificationToken(User $user): string
  */
 function validateEmailVerificationToken(string $emailCookie, ?User &$user): bool
 {
-    $emailConfirmation = EmailConfirmation::firstWhere('EmailCookie', $emailCookie);
+    $emailConfirmation = EmailConfirmation::firstWhere('email_cookie', $emailCookie);
 
     if (!$emailConfirmation) {
         return false;
     }
 
     $user = User::find($emailConfirmation->user_id);
-    // TODO delete after dropping User from EmailConfirmations
-    if (!$user) {
-        $user = User::whereName($emailConfirmation->User)->first();
-    }
-    // ENDTODO delete after dropping User from EmailConfirmations
-
     if (!$user) {
         return false;
     }
@@ -72,7 +64,7 @@ function validateEmailVerificationToken(string $emailCookie, ?User &$user): bool
 
 function deleteExpiredEmailVerificationTokens(): bool
 {
-    EmailConfirmation::where('Expires', '<=', Carbon::today())->delete();
+    EmailConfirmation::where('expires_at', '<=', Carbon::now())->delete();
 
     return true;
 }
