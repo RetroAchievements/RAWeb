@@ -335,14 +335,14 @@ const FilterOption: FC<FilterOptionProps> = ({
         )}
         data-testid="filter-option-indicator"
       >
-        {isSelected && (
+        {isSelected ? (
           <HiOutlineCheck
             role="img"
             data-testid={`checked-${option.t_label}`}
             aria-hidden={true}
             className="size-4"
           />
-        )}
+        ) : null}
       </div>
 
       {option.icon ? (
@@ -362,11 +362,11 @@ const FilterOption: FC<FilterOptionProps> = ({
         ) : null}
       </span>
 
-      {facets?.get(option.value) && (
+      {facets?.get(option.value) ? (
         <span className="ml-auto flex size-4 items-center justify-center font-mono text-xs">
           {facets.get(option.value)}
         </span>
-      )}
+      ) : null}
     </BaseCommandItem>
   );
 };

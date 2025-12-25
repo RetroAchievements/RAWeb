@@ -41,7 +41,10 @@ class AchievementSetsRelationManager extends RelationManager
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
-        return !$ownerRecord->is_subset_game;
+        /** @var User $user */
+        $user = Auth::user();
+
+        return !$ownerRecord->is_subset_game && $user->can('manage', GameAchievementSet::class);
     }
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
@@ -122,7 +125,9 @@ class AchievementSetsRelationManager extends RelationManager
 
                         return $state;
                     })
-                    ->disabled(fn ($record) => $record->type === AchievementSetType::Core->value),
+                    ->disabled(fn ($record) => $record->type === AchievementSetType::Core->value
+                        || !$user->can('update', GameAchievementSet::class)
+                    ),
             ])
             ->filters([
 

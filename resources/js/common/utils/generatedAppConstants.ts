@@ -33,6 +33,7 @@ export const UserPreference = {
     User_OnlyContactFromFollowing: 17,
     Game_OptOutOfAllSubsets: 18,
     User_EnableBetaFeatures: 19,
+    EmailOff_DailyDigest: 20,
 } as const;
 
 
@@ -57,6 +58,7 @@ export const StringifiedUserPreference = {
     User_OnlyContactFromFollowing: '17',
     Game_OptOutOfAllSubsets: '18',
     User_EnableBetaFeatures: '19',
+    EmailOff_DailyDigest: '20',
 } as const;
 
 
