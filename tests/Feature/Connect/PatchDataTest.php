@@ -91,13 +91,13 @@ class PatchDataTest extends TestCase
     private function getLeaderboardPatchData(Leaderboard $leaderboard): array
     {
         return [
-            'ID' => $leaderboard->ID,
-            'Mem' => $leaderboard->Mem,
-            'Format' => $leaderboard->Format,
-            'LowerIsBetter' => $leaderboard->LowerIsBetter,
-            'Title' => $leaderboard->Title,
-            'Description' => $leaderboard->Description,
-            'Hidden' => ($leaderboard->DisplayOrder == -1),
+            'ID' => $leaderboard->id,
+            'Mem' => $leaderboard->trigger_definition,
+            'Format' => $leaderboard->format,
+            'LowerIsBetter' => $leaderboard->rank_asc,
+            'Title' => $leaderboard->title,
+            'Description' => $leaderboard->description,
+            'Hidden' => ($leaderboard->order_column == -1),
         ];
     }
 
@@ -142,11 +142,11 @@ class PatchDataTest extends TestCase
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
 
         /** @var Leaderboard $leaderboard1 */
-        $leaderboard1 = Leaderboard::factory()->create(['GameID' => $game->ID, 'DisplayOrder' => 2]);
+        $leaderboard1 = Leaderboard::factory()->create(['game_id' => $game->ID, 'order_column' => 2]);
         /** @var Leaderboard $leaderboard2 */
-        $leaderboard2 = Leaderboard::factory()->create(['GameID' => $game->ID, 'DisplayOrder' => 1, 'Format' => 'SCORE']);
+        $leaderboard2 = Leaderboard::factory()->create(['game_id' => $game->ID, 'order_column' => 1, 'format' => 'SCORE']);
         /** @var Leaderboard $leaderboard3 */
-        $leaderboard3 = Leaderboard::factory()->create(['GameID' => $game->ID, 'DisplayOrder' => -1, 'Format' => 'SECS']);
+        $leaderboard3 = Leaderboard::factory()->create(['game_id' => $game->ID, 'order_column' => -1, 'format' => 'SECS']);
 
         $this->seedEmulatorUserAgents();
 

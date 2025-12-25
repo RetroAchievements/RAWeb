@@ -65,18 +65,18 @@ class LeaderboardsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('title')
             ->columns([
-                Tables\Columns\TextColumn::make('ID')
+                Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->searchable()
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('Title')
+                Tables\Columns\TextColumn::make('title')
                     ->label('Title')
                     ->description(fn (Leaderboard $record): string => $record->description)
                     ->placeholder(fn (Leaderboard $record): string => $record->description)
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('Format')
+                Tables\Columns\TextColumn::make('format')
                     ->label('Format')
                     ->formatStateUsing(fn (string $state) => ValueFormat::toString($state))
                     ->toggleable(),
@@ -87,11 +87,11 @@ class LeaderboardsRelationManager extends RelationManager
                     ->numeric()
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('LowerIsBetter')
+                Tables\Columns\TextColumn::make('rank_asc')
                     ->label('Lower Is Better')
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\ViewColumn::make('DisplayOrder')
+                Tables\Columns\ViewColumn::make('order_column')
                     ->view('filament.tables.columns.display-order-column')
                     ->toggleable(),
             ])
@@ -172,8 +172,8 @@ class LeaderboardsRelationManager extends RelationManager
             ->defaultPaginationPageOption(400)
             ->defaultSort(function (Builder $query): Builder {
                 return $query
-                    ->orderBy('DisplayOrder')
-                    ->orderBy('Created', 'asc');
+                    ->orderBy('order_column')
+                    ->orderBy('created_at', 'asc');
             })
             ->reorderRecordsTriggerAction(
                 fn (Action $action, bool $isReordering) => $action
@@ -181,7 +181,7 @@ class LeaderboardsRelationManager extends RelationManager
                     ->label($isReordering ? 'Done dragging' : 'Drag to reorder')
                     ->visible(!$this->isEditingDisplayOrders),
             )
-            ->reorderable('DisplayOrder', $this->canReorderLeaderboards() && !$this->isEditingDisplayOrders)
+            ->reorderable('order_column', $this->canReorderLeaderboards() && !$this->isEditingDisplayOrders)
             ->checkIfRecordIsSelectableUsing(
                 fn (Model $record): bool => !$this->isEditingDisplayOrders && $user->can('update', $record->loadMissing('game')),
             );
@@ -189,11 +189,11 @@ class LeaderboardsRelationManager extends RelationManager
 
     public function reorderTable(array $order, string|int|null $draggedRecordKey = null): void
     {
-        // Do not automatically adjust the DisplayOrder of hidden leaderboards (DisplayOrder < 0).
+        // Do not automatically adjust the order_column of hidden leaderboards (order_column < 0).
         $order = array_filter($order, function (string $leaderboardId) {
             $leaderboard = Leaderboard::find((int) $leaderboardId);
 
-            return $leaderboard && $leaderboard->DisplayOrder >= 0;
+            return $leaderboard && $leaderboard->order_column >= 0;
         });
 
         parent::reorderTable($order, $draggedRecordKey);
@@ -207,11 +207,11 @@ class LeaderboardsRelationManager extends RelationManager
         $game = $this->getOwnerRecord();
 
         $leaderboards = $game->leaderboards()
-            ->where('DisplayOrder', '>=', 0)
+            ->where('order_column', '>=', 0)
             ->get();
 
         $this->pendingDisplayOrders = $leaderboards
-            ->mapWithKeys(fn (Leaderboard $lb) => [$lb->ID => (string) $lb->DisplayOrder])
+            ->mapWithKeys(fn (Leaderboard $lb) => [$lb->id => (string) $lb->order_column])
             ->all();
 
         $this->isEditingDisplayOrders = true;
@@ -224,24 +224,24 @@ class LeaderboardsRelationManager extends RelationManager
         $game = $this->getOwnerRecord();
 
         $leaderboards = $game->leaderboards()
-            ->where('DisplayOrder', '>=', 0)
+            ->where('order_column', '>=', 0)
             ->get()
-            ->keyBy('ID');
+            ->keyBy('id');
 
         $leaderboardsToUpdate = [];
         foreach ($this->pendingDisplayOrders as $leaderboardId => $newOrder) {
             $leaderboard = $leaderboards->get($leaderboardId);
-            if ($leaderboard && (int) $newOrder !== $leaderboard->DisplayOrder) {
+            if ($leaderboard && (int) $newOrder !== $leaderboard->order_column) {
                 $leaderboardsToUpdate[] = [
-                    'ID' => $leaderboardId,
-                    'DisplayOrder' => (int) $newOrder,
+                    'id' => $leaderboardId,
+                    'order_column' => (int) $newOrder,
                 ];
             }
         }
 
         if (!empty($leaderboardsToUpdate)) {
             foreach ($leaderboardsToUpdate as $update) {
-                Leaderboard::where('ID', $update['ID'])->update(['DisplayOrder' => $update['DisplayOrder']]);
+                Leaderboard::where('id', $update['id'])->update(['order_column' => $update['order_column']]);
             }
             $this->logReorderingActivity();
         }
@@ -269,25 +269,25 @@ class LeaderboardsRelationManager extends RelationManager
         $game = $this->getOwnerRecord();
 
         $visibleLeaderboards = $game->leaderboards()
-            ->where('DisplayOrder', '>=', 0)
-            ->orderBy('DisplayOrder')
+            ->where('order_column', '>=', 0)
+            ->orderBy('order_column')
             ->get();
 
         if ($position === 'top') {
-            $minOrder = $visibleLeaderboards->min('DisplayOrder');
+            $minOrder = $visibleLeaderboards->min('order_column');
             if ($minOrder > 0) {
-                $leaderboard->update(['DisplayOrder' => $minOrder - 1]);
+                $leaderboard->update(['order_column' => $minOrder - 1]);
             } else {
                 foreach ($visibleLeaderboards as $lb) {
-                    if ($lb->ID !== $leaderboard->ID) {
-                        $lb->increment('DisplayOrder');
+                    if ($lb->id !== $leaderboard->id) {
+                        $lb->increment('order_column');
                     }
                 }
-                $leaderboard->update(['DisplayOrder' => 0]);
+                $leaderboard->update(['order_column' => 0]);
             }
         } else {
-            $maxOrder = $visibleLeaderboards->max('DisplayOrder');
-            $leaderboard->update(['DisplayOrder' => $maxOrder + 1]);
+            $maxOrder = $visibleLeaderboards->max('order_column');
+            $leaderboard->update(['order_column' => $maxOrder + 1]);
         }
 
         $this->logReorderingActivity();

@@ -41,6 +41,7 @@ use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 // TODO implements HasComments
+// TODO rename MemAddr column to trigger_definition for consistency with Leaderboard
 
 /**
  * @implements HasVersionedTrigger<Achievement>

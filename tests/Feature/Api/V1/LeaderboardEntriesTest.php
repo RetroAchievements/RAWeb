@@ -48,61 +48,61 @@ class LeaderboardEntriesTest extends TestCase
 
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->ID,
-            'Title' => "Test leaderboard 1",
-            'Description' => "I am the first leaderboard",
+            'game_id' => $game->ID,
+            'title' => "Test leaderboard 1",
+            'description' => "I am the first leaderboard",
         ]);
 
         $userOne = User::factory()->create(['User' => 'myUser1']);
         $leaderboardEntryOne = LeaderboardEntry::factory()->create([
-            'leaderboard_id' => $leaderboard->ID,
+            'leaderboard_id' => $leaderboard->id,
             'user_id' => $userOne->ID,
             'score' => 1,
         ]);
 
         $userTwo = User::factory()->create(['User' => 'myUser2']);
         $leaderboardEntryTwo = LeaderboardEntry::factory()->create([
-            'leaderboard_id' => $leaderboard->ID,
+            'leaderboard_id' => $leaderboard->id,
             'user_id' => $userTwo->ID,
             'score' => 1,
         ]);
 
         $userThree = User::factory()->create(['User' => 'myUser3']);
         $leaderboardEntryThree = LeaderboardEntry::factory()->create([
-            'leaderboard_id' => $leaderboard->ID,
+            'leaderboard_id' => $leaderboard->id,
             'user_id' => $userThree->ID,
             'score' => 100,
         ]);
 
         $userFour = User::factory()->create(['User' => 'myUser4']);
         $leaderboardEntryFour = LeaderboardEntry::factory()->create([
-            'leaderboard_id' => $leaderboard->ID,
+            'leaderboard_id' => $leaderboard->id,
             'user_id' => $userFour->ID,
             'score' => 300,
         ]);
 
         $userFive = User::factory()->create(['User' => 'myUser5']);
         $leaderboardEntryFive = LeaderboardEntry::factory()->create([
-            'leaderboard_id' => $leaderboard->ID,
+            'leaderboard_id' => $leaderboard->id,
             'user_id' => $userFive->ID,
             'score' => 200,
         ]);
 
         /** @var Leaderboard $timedLeaderboard */
         $timedLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->ID,
-            'Title' => "Test leaderboard 2",
-            'Description' => "I am a timed leaderboard",
-            'Format' => "TIME",
+            'game_id' => $game->ID,
+            'title' => "Test leaderboard 2",
+            'description' => "I am a timed leaderboard",
+            'format' => "TIME",
         ]);
 
         $timedLeaderboardEntryOne = LeaderboardEntry::factory()->create([
-            'leaderboard_id' => $timedLeaderboard->ID,
+            'leaderboard_id' => $timedLeaderboard->id,
             'user_id' => $userOne->ID,
             'score' => 123,
         ]);
 
-        $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $leaderboard->ID]))
+        $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $leaderboard->id]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 5,
@@ -113,7 +113,7 @@ class LeaderboardEntriesTest extends TestCase
                         'User' => $userFour->User,
                         'ULID' => $userFour->ulid,
                         'Score' => $leaderboardEntryFour->score,
-                        'FormattedScore' => ValueFormat::format($leaderboardEntryFour->score, $leaderboard->Format),
+                        'FormattedScore' => ValueFormat::format($leaderboardEntryFour->score, $leaderboard->format),
                         'DateSubmitted' => $leaderboardEntryFour->updated_at->toIso8601String(),
                     ],
                     [
@@ -121,7 +121,7 @@ class LeaderboardEntriesTest extends TestCase
                         'User' => $userFive->User,
                         'ULID' => $userFive->ulid,
                         'Score' => $leaderboardEntryFive->score,
-                        'FormattedScore' => ValueFormat::format($leaderboardEntryFive->score, $leaderboard->Format),
+                        'FormattedScore' => ValueFormat::format($leaderboardEntryFive->score, $leaderboard->format),
                         'DateSubmitted' => $leaderboardEntryFive->updated_at->toIso8601String(),
                     ],
                     [
@@ -129,7 +129,7 @@ class LeaderboardEntriesTest extends TestCase
                         'User' => $userThree->User,
                         'ULID' => $userThree->ulid,
                         'Score' => $leaderboardEntryThree->score,
-                        'FormattedScore' => ValueFormat::format($leaderboardEntryThree->score, $leaderboard->Format),
+                        'FormattedScore' => ValueFormat::format($leaderboardEntryThree->score, $leaderboard->format),
                         'DateSubmitted' => $leaderboardEntryThree->updated_at->toIso8601String(),
                     ],
                     [
@@ -137,7 +137,7 @@ class LeaderboardEntriesTest extends TestCase
                         'User' => $userOne->User,
                         'ULID' => $userOne->ulid,
                         'Score' => $leaderboardEntryOne->score,
-                        'FormattedScore' => ValueFormat::format($leaderboardEntryOne->score, $leaderboard->Format),
+                        'FormattedScore' => ValueFormat::format($leaderboardEntryOne->score, $leaderboard->format),
                         'DateSubmitted' => $leaderboardEntryOne->updated_at->toIso8601String(),
                     ],
                     [
@@ -145,13 +145,13 @@ class LeaderboardEntriesTest extends TestCase
                         'User' => $userTwo->User,
                         'ULID' => $userTwo->ulid,
                         'Score' => $leaderboardEntryTwo->score,
-                        'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->Format),
+                        'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->format),
                         'DateSubmitted' => $leaderboardEntryTwo->updated_at->toIso8601String(),
                     ],
                 ],
             ]);
 
-            $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $leaderboard->ID, 'o' => 3]))
+            $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $leaderboard->id, 'o' => 3]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -162,7 +162,7 @@ class LeaderboardEntriesTest extends TestCase
                             'User' => $userOne->User,
                             'ULID' => $userOne->ulid,
                             'Score' => $leaderboardEntryOne->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardEntryOne->score, $leaderboard->Format),
+                            'FormattedScore' => ValueFormat::format($leaderboardEntryOne->score, $leaderboard->format),
                             'DateSubmitted' => $leaderboardEntryOne->updated_at->toIso8601String(),
                         ],
                         [
@@ -170,13 +170,13 @@ class LeaderboardEntriesTest extends TestCase
                             'User' => $userTwo->User,
                             'ULID' => $userTwo->ulid,
                             'Score' => $leaderboardEntryTwo->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->Format),
+                            'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->format),
                             'DateSubmitted' => $leaderboardEntryTwo->updated_at->toIso8601String(),
                         ],
                     ],
                 ]);
 
-            $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $leaderboard->ID, 'c' => 2]))
+            $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $leaderboard->id, 'c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -187,7 +187,7 @@ class LeaderboardEntriesTest extends TestCase
                             'User' => $userFour->User,
                             'ULID' => $userFour->ulid,
                             'Score' => $leaderboardEntryFour->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardEntryFour->score, $leaderboard->Format),
+                            'FormattedScore' => ValueFormat::format($leaderboardEntryFour->score, $leaderboard->format),
                             'DateSubmitted' => $leaderboardEntryFour->updated_at->toIso8601String(),
                         ],
                         [
@@ -195,13 +195,13 @@ class LeaderboardEntriesTest extends TestCase
                             'User' => $userFive->User,
                             'ULID' => $userFive->ulid,
                             'Score' => $leaderboardEntryFive->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardEntryFive->score, $leaderboard->Format),
+                            'FormattedScore' => ValueFormat::format($leaderboardEntryFive->score, $leaderboard->format),
                             'DateSubmitted' => $leaderboardEntryFive->updated_at->toIso8601String(),
                         ],
                     ],
                 ]);
 
-            $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $leaderboard->ID, 'o' => 1, 'c' => 2]))
+            $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $leaderboard->id, 'o' => 1, 'c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -212,7 +212,7 @@ class LeaderboardEntriesTest extends TestCase
                             'User' => $userFive->User,
                             'ULID' => $userFive->ulid,
                             'Score' => $leaderboardEntryFive->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardEntryFive->score, $leaderboard->Format),
+                            'FormattedScore' => ValueFormat::format($leaderboardEntryFive->score, $leaderboard->format),
                             'DateSubmitted' => $leaderboardEntryFive->updated_at->toIso8601String(),
                         ],
                         [
@@ -220,13 +220,13 @@ class LeaderboardEntriesTest extends TestCase
                             'User' => $userThree->User,
                             'ULID' => $userThree->ulid,
                             'Score' => $leaderboardEntryThree->score,
-                            'FormattedScore' => ValueFormat::format($leaderboardEntryThree->score, $leaderboard->Format),
+                            'FormattedScore' => ValueFormat::format($leaderboardEntryThree->score, $leaderboard->format),
                             'DateSubmitted' => $leaderboardEntryThree->updated_at->toIso8601String(),
                         ],
                     ],
                 ]);
 
-                $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $timedLeaderboard->ID]))
+                $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $timedLeaderboard->id]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 1,
@@ -237,7 +237,7 @@ class LeaderboardEntriesTest extends TestCase
                             'User' => $userOne->User,
                             'ULID' => $userOne->ulid,
                             'Score' => $timedLeaderboardEntryOne->score,
-                            'FormattedScore' => ValueFormat::format($timedLeaderboardEntryOne->score, $timedLeaderboard->Format),
+                            'FormattedScore' => ValueFormat::format($timedLeaderboardEntryOne->score, $timedLeaderboard->format),
                             'DateSubmitted' => $timedLeaderboardEntryOne->updated_at->toIso8601String(),
                         ],
                     ],

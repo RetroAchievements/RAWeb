@@ -49,13 +49,13 @@ class DeveloperSetsService
             ->toArray();
 
         $gameAuthoredLeaderboardsList = $user->authoredLeaderboards()
-            ->select(['GameID',
-                DB::raw('COUNT(LeaderboardDef.ID) AS NumAuthoredLeaderboards'),
+            ->select(['game_id',
+                DB::raw('COUNT(leaderboards.id) AS NumAuthoredLeaderboards'),
             ])
-            ->groupBy('GameID')
+            ->groupBy('game_id')
             ->get()
             ->mapWithKeys(function ($row, $key) {
-                return [$row['GameID'] => (int) $row['NumAuthoredLeaderboards']];
+                return [$row['game_id'] => (int) $row['NumAuthoredLeaderboards']];
             })
             ->toArray();
 

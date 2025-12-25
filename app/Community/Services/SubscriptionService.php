@@ -706,10 +706,10 @@ class LeaderboardWallSubscriptionHandler extends CommentSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = Leaderboard::whereIn('ID', $subjectIds)
+        $query = Leaderboard::whereIn('id', $subjectIds)
             ->select([
-                DB::raw('ID as subject_id'),
-                DB::raw('Title as title'),
+                DB::raw('id as subject_id'),
+                DB::raw('title as title'),
             ])
             ->orderBy('title');
 

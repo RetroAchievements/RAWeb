@@ -56,9 +56,9 @@ $achievementsSubquery = Achievement::query()
     ->groupBy('GameID');
 
 $leaderboardsSubquery = Leaderboard::query()
-    ->selectRaw('GameID, COUNT(*) as NumLBs')
-    ->whereIn('GameID', $gameIdsSubquery)
-    ->groupBy('GameID');
+    ->selectRaw('game_id, COUNT(*) as NumLBs')
+    ->whereIn('game_id', $gameIdsSubquery)
+    ->groupBy('game_id');
 
 $query = DB::table('GameData')
     ->leftJoin('Console AS c', 'c.ID', '=', 'GameData.ConsoleID')
@@ -66,7 +66,7 @@ $query = DB::table('GameData')
         $join->on('ach_data.GameID', '=', 'GameData.ID');
     })
     ->leftJoinSub($leaderboardsSubquery, 'lb_data', function ($join) {
-        $join->on('lb_data.GameID', '=', 'GameData.ID');
+        $join->on('lb_data.game_id', '=', 'GameData.ID');
     })
     ->select(
         'GameData.*',

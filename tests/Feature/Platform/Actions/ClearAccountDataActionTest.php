@@ -83,7 +83,7 @@ class ClearAccountDataActionTest extends TestCase
         ]);
 
         $game = Game::factory()->create();
-        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
         $leaderboardEntry = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->id,
             'user_id' => $user2->id,

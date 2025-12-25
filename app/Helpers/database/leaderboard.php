@@ -31,14 +31,14 @@ function SubmitLeaderboardEntry(
     }
 
     $retVal['LBData'] = [
-        'Format' => $leaderboard->Format,
+        'Format' => $leaderboard->format,
         'LeaderboardID' => $leaderboard->id,
-        'GameID' => $leaderboard->GameID,
-        'Title' => $leaderboard->Title,
-        'LowerIsBetter' => $leaderboard->LowerIsBetter,
+        'GameID' => $leaderboard->game_id,
+        'Title' => $leaderboard->title,
+        'LowerIsBetter' => $leaderboard->rank_asc,
     ];
     $retVal['Score'] = $newEntry;
-    $retVal['ScoreFormatted'] = ValueFormat::format($newEntry, $leaderboard->Format);
+    $retVal['ScoreFormatted'] = ValueFormat::format($newEntry, $leaderboard->format);
 
     $timestamp ??= Carbon::now();
     $playerSession = app()->make(ResumePlayerSessionAction::class)->execute(

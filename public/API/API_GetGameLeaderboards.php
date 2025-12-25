@@ -68,16 +68,16 @@ foreach ($leaderboards as $leaderboard) {
             'User' => $leaderboard->topEntry->user->display_name,
             'ULID' => $leaderboard->topEntry->user->ulid,
             'Score' => $leaderboard->topEntry->score,
-            'FormattedScore' => ValueFormat::format($leaderboard->topEntry->score, $leaderboard->Format),
+            'FormattedScore' => ValueFormat::format($leaderboard->topEntry->score, $leaderboard->format),
         ];
     }
 
     $results[] = [
-        'ID' => $leaderboard->ID,
-        'RankAsc' => boolval($leaderboard->LowerIsBetter),
-        'Title' => $leaderboard->Title,
-        'Description' => $leaderboard->Description,
-        'Format' => $leaderboard->Format,
+        'ID' => $leaderboard->id,
+        'RankAsc' => boolval($leaderboard->rank_asc),
+        'Title' => $leaderboard->title,
+        'Description' => $leaderboard->description,
+        'Format' => $leaderboard->format,
         'TopEntry' => $topEntry,
         'Author' => $leaderboard->developer?->display_name,
         'AuthorULID' => $leaderboard->developer?->ulid,

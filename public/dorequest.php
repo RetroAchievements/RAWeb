@@ -504,7 +504,7 @@ switch ($requestType) {
         $maxOffset = 14 * 24 * 60 * 60; // 14 days
         $offset = min(max((int) request()->input('o', 0), 0), $maxOffset);
 
-        $foundLeaderboard = Leaderboard::where('ID', $lbID)->first();
+        $foundLeaderboard = Leaderboard::where('id', $lbID)->first();
         if (!$foundLeaderboard) {
             $response['Success'] = false;
             $response['Error'] = "Cannot find the leaderboard with ID: $lbID";

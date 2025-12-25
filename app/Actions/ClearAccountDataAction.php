@@ -41,7 +41,7 @@ class ClearAccountDataAction
         // We'll need to reset those denormalized top entries.
         $affectedLeaderboardIds = Leaderboard::whereHas('topEntry', function ($query) use ($user) {
             $query->where('user_id', $user->id);
-        })->pluck('ID');
+        })->pluck('id');
 
         $user->leaderboardEntries()->delete();
         $user->subscriptions()->delete();

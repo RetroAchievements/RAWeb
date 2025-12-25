@@ -97,8 +97,8 @@ class BuildDeveloperFeedDataAction
         // most efficient way to combine the tables. This reduces query time by ~10x.
 
         return DB::table('leaderboard_entries')
-            ->join('LeaderboardDef', 'LeaderboardDef.ID', '=', 'leaderboard_entries.leaderboard_id')
-            ->where('LeaderboardDef.author_id', $user->id)
+            ->join('leaderboards', 'leaderboards.id', '=', 'leaderboard_entries.leaderboard_id')
+            ->where('leaderboards.author_id', $user->id)
             ->count();
     }
 
@@ -178,7 +178,7 @@ class BuildDeveloperFeedDataAction
     {
         return LeaderboardEntry::select('leaderboard_entries.*')
             ->with(['leaderboard.game.system', 'user'])
-            ->join('LeaderboardDef as ld', 'ld.ID', '=', 'leaderboard_entries.leaderboard_id')
+            ->join('leaderboards as ld', 'ld.id', '=', 'leaderboard_entries.leaderboard_id')
             ->where(DB::raw('ld.author_id'), $targetUser->id)
             ->whereNull('ld.deleted_at')
             ->whereNull('leaderboard_entries.deleted_at')

@@ -11,7 +11,7 @@
         @php
             $gameLeaderboards = $game->visibleLeaderboards()
                 ->withTopEntry()
-                ->orderBy('DisplayOrder')
+                ->orderBy('order_column')
                 ->get();
         @endphp
 

@@ -227,7 +227,7 @@ function informAllSubscribersAboutActivity(
                 return;
             }
 
-            $articleTitle = "{$leaderboard->Title} ({$leaderboard->game->Title})";
+            $articleTitle = "{$leaderboard->title} ({$leaderboard->game->Title})";
             $urlTarget = "leaderboardinfo.php?i=$articleID";
             $articleEmailPreference = UserPreference::EmailOn_AchievementComment;
             $subscriptionSubjectType = SubscriptionSubjectType::Leaderboard;
