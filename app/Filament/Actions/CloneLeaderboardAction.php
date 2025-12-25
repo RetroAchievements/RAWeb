@@ -6,6 +6,7 @@ namespace App\Filament\Actions;
 
 use App\Models\Leaderboard;
 use App\Models\User;
+use App\Platform\Enums\TriggerableType;
 use Filament\Actions\Action;
 use Filament\Forms;
 use Illuminate\Support\Facades\Auth;
@@ -42,6 +43,7 @@ class CloneLeaderboardAction extends Action
                 $clonedLeaderboard = $leaderboard->replicate([
                     'entries_count', // Excludes computed attribute
                     'top_entry_id',  // Also excludes this since it's specific to the original leaderboard
+                    'trigger_id', // Exclude original trigger association
                 ]);
                 $clonedLeaderboard->Title = $data['title'];
                 $clonedLeaderboard->Description = $data['description'];
@@ -53,6 +55,21 @@ class CloneLeaderboardAction extends Action
                 $clonedLeaderboard->DisplayOrder = $maxDisplayOrder + 1;
 
                 $clonedLeaderboard->push();
+
+                if ($leaderboard->trigger) {
+                    $clonedTrigger = $leaderboard->trigger->replicate([
+                        'parent_id', // Exclude original parent association
+                    ]);
+
+                    $clonedTrigger->version = 1;
+                    $clonedTrigger->triggerable_type = TriggerableType::Leaderboard;
+                    $clonedTrigger->triggerable_id = $clonedLeaderboard->id;
+                    $clonedTrigger->user_id = $user->id;
+                    $clonedTrigger->push();
+
+                    $clonedLeaderboard->trigger_id = $clonedTrigger->id;
+                    $clonedLeaderboard->push();
+                }
             })
             ->visible(function (Leaderboard $leaderboard) use ($user) {
                 return $user->can('clone', $leaderboard);
