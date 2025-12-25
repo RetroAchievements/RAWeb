@@ -157,7 +157,7 @@ class DownloadsControllerTest extends TestCase
         // Arrange
         Cache::forget('top-systems');
 
-        System::factory()->create(['ID' => 3, 'active' => true]); // SNES/Super Famicom
+        System::factory()->create(['id' => 3, 'active' => true]); // SNES/Super Famicom
 
         // Act
         $response = $this->get(route('download.index'));

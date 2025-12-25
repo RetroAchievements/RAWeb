@@ -8,7 +8,7 @@
 use App\Models\System;
 
 $systems = System::active()
-    ->whereIn('ID', $availableConsoleIds)
+    ->whereIn('id', $availableConsoleIds)
     ->orderBy('name')
     ->get();
 ?>

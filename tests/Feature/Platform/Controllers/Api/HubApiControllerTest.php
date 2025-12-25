@@ -23,7 +23,7 @@ class HubApiControllerTest extends TestCase
             'type' => GameSetType::Hub,
         ]);
 
-        $system = System::factory()->create(['ID' => 4, 'name' => 'Game Boy', 'name_short' => 'GB', 'active' => true]);
+        $system = System::factory()->create(['id' => 4, 'name' => 'Game Boy', 'name_short' => 'GB', 'active' => true]);
 
         $gameOne = Game::factory()->create(['Title' => 'Test Game 1', 'ConsoleID' => $system->id, 'achievements_published' => 50]);
         $gameTwo = Game::factory()->create(['Title' => 'Test Game 2', 'ConsoleID' => $system->id, 'achievements_published' => 0]);
@@ -68,7 +68,7 @@ class HubApiControllerTest extends TestCase
             'type' => GameSetType::Hub,
         ]);
 
-        $system = System::factory()->create(['ID' => 4, 'name' => 'Game Boy', 'name_short' => 'GB', 'active' => true]);
+        $system = System::factory()->create(['id' => 4, 'name' => 'Game Boy', 'name_short' => 'GB', 'active' => true]);
         $game = Game::factory()->create(['Title' => 'Test Game', 'ConsoleID' => $system->id, 'achievements_published' => 50]);
 
         $hub->games()->attach($game->id);

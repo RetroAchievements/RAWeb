@@ -5,7 +5,7 @@ use App\Enums\Permissions;
 use App\Models\StaticData;
 use App\Models\System;
 
-$consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
+$consoleList = System::get(['id', 'name'])->keyBy('id')->map(fn ($system) => $system['name']);
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
 $filter = requestInputSanitized('f', 0, 'integer'); // 0 = with achievements, 1 = without achievements, 2 = all
 $sortBy = requestInputSanitized('s', 1, 'integer');

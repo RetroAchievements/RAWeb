@@ -26,7 +26,7 @@ class AchievementSetClaimTest extends TestCase
     {
         /** @var System $system */
         $system = System::factory()->create();
-        Game::factory()->create(['ConsoleID' => $system->ID]);
+        Game::factory()->create(['ConsoleID' => $system->id]);
         AchievementSetClaim::factory()->count(51)->create();
 
         $response = $this->get($this->apiUrl('GetActiveClaims'))
@@ -43,7 +43,7 @@ class AchievementSetClaimTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::Developer]);
         /** @var AchievementSetClaim $claim */
@@ -58,7 +58,7 @@ class AchievementSetClaimTest extends TestCase
             ->assertJson([
                 [
                     'ClaimType' => ClaimType::Primary,
-                    'ConsoleName' => $system->Name,
+                    'ConsoleName' => $system->name,
                     'Created' => $claim->Created->__toString(),
                     'DoneTime' => $claim->Finished->__toString(),
                     'Extension' => 0,
@@ -101,7 +101,7 @@ class AchievementSetClaimTest extends TestCase
             ->assertJson([
                 [
                     'ClaimType' => ClaimType::Primary,
-                    'ConsoleName' => $system->Name,
+                    'ConsoleName' => $system->name,
                     'Created' => $claim->Created->__toString(),
                     'DoneTime' => $claim->Finished->__toString(),
                     'Extension' => 0,
@@ -125,7 +125,7 @@ class AchievementSetClaimTest extends TestCase
     {
         /** @var System $system */
         $system = System::factory()->create();
-        Game::factory()->create(['ConsoleID' => $system->ID]);
+        Game::factory()->create(['ConsoleID' => $system->id]);
 
         AchievementSetClaim::factory()->create();
         AchievementSetClaim::factory()->create([
@@ -147,7 +147,7 @@ class AchievementSetClaimTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::Developer]);
         /** @var AchievementSetClaim $claim */
@@ -161,7 +161,7 @@ class AchievementSetClaimTest extends TestCase
             ->assertJson([
                 [
                     'ClaimType' => ClaimType::Primary,
-                    'ConsoleName' => $system->Name,
+                    'ConsoleName' => $system->name,
                     'Created' => $claim->Created->__toString(),
                     'DoneTime' => $claim->Finished->__toString(),
                     'Extension' => 0,

@@ -47,7 +47,7 @@ class DownloadsController extends Controller
         $allPlatforms = Platform::get();
         $platformsData = $allPlatforms->map(fn (Platform $platform) => PlatformData::from($platform));
 
-        $allSystems = System::where('active', true)->whereNotIn('ID', [System::Events, System::Hubs, System::Standalones])->get();
+        $allSystems = System::where('active', true)->whereNotIn('id', [System::Events, System::Hubs, System::Standalones])->get();
         $systemsData = $allSystems->map(function (System $system) {
             return SystemData::fromSystem($system)->include('nameShort', 'iconUrl');
         });

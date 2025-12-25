@@ -58,37 +58,37 @@ class UserCompletionProgressTest extends TestCase
         $me = User::factory()->create(['User' => 'myUser']);
 
         /** @var System $system */
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
 
         /** @var Game $gameOne */
-        $gameOne = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameOne = Game::factory()->create(['ConsoleID' => $system->id]);
         $gameOneAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameOne->ID]);
         /** @var Game $gameTwo */
-        $gameTwo = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameTwo = Game::factory()->create(['ConsoleID' => $system->id]);
         $gameTwoAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameTwo->ID]);
         /** @var Game $gameThree */
-        $gameThree = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameThree = Game::factory()->create(['ConsoleID' => $system->id]);
         $gameThreeAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameThree->ID]);
         /** @var Game $gameFour */
-        $gameFour = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameFour = Game::factory()->create(['ConsoleID' => $system->id]);
         $gameFourAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameFour->ID]);
         /** @var Game $gameFive */
-        $gameFive = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameFive = Game::factory()->create(['ConsoleID' => $system->id]);
         $gameFiveAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameFive->ID]);
         /** @var Game $gameSix */
-        $gameSix = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameSix = Game::factory()->create(['ConsoleID' => $system->id]);
         $gameSixAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameSix->ID]);
         /** @var Game $gameSeven */
-        $gameSeven = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameSeven = Game::factory()->create(['ConsoleID' => $system->id]);
         $gameSevenAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameSeven->ID]);
         /** @var Game $gameEight */
-        $gameEight = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameEight = Game::factory()->create(['ConsoleID' => $system->id]);
         $gameEightAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameEight->ID]);
         /** @var Game $gameNine */
-        $gameNine = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameNine = Game::factory()->create(['ConsoleID' => $system->id]);
         $gameNineAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameNine->ID]);
         /** @var Game $gameTen */
-        $gameTen = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameTen = Game::factory()->create(['ConsoleID' => $system->id]);
         $gameTenAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameTen->ID]);
 
         // Unlocks on every game to be sure we have some progress.
@@ -144,8 +144,8 @@ class UserCompletionProgressTest extends TestCase
                         "GameID" => $gameOne->ID,
                         "Title" => $gameOne->Title,
                         "ImageIcon" => $gameOne->ImageIcon,
-                        "ConsoleID" => $system->ID,
-                        "ConsoleName" => $system->Name,
+                        "ConsoleID" => $system->id,
+                        "ConsoleName" => $system->name,
                         "MaxPossible" => 6,
                         "NumAwarded" => 1,
                         "NumAwardedHardcore" => 1,
@@ -157,8 +157,8 @@ class UserCompletionProgressTest extends TestCase
                         "GameID" => $gameTwo->ID,
                         "Title" => $gameTwo->Title,
                         "ImageIcon" => $gameTwo->ImageIcon,
-                        "ConsoleID" => $system->ID,
-                        "ConsoleName" => $system->Name,
+                        "ConsoleID" => $system->id,
+                        "ConsoleName" => $system->name,
                         "MaxPossible" => 6,
                         "NumAwarded" => 1,
                         "NumAwardedHardcore" => 1,
@@ -170,8 +170,8 @@ class UserCompletionProgressTest extends TestCase
                         "GameID" => $gameThree->ID,
                         "Title" => $gameThree->Title,
                         "ImageIcon" => $gameThree->ImageIcon,
-                        "ConsoleID" => $system->ID,
-                        "ConsoleName" => $system->Name,
+                        "ConsoleID" => $system->id,
+                        "ConsoleName" => $system->name,
                         "MaxPossible" => 6,
                         "NumAwarded" => 1,
                         "NumAwardedHardcore" => 1,
@@ -183,8 +183,8 @@ class UserCompletionProgressTest extends TestCase
                         "GameID" => $gameFour->ID,
                         "Title" => $gameFour->Title,
                         "ImageIcon" => $gameFour->ImageIcon,
-                        "ConsoleID" => $system->ID,
-                        "ConsoleName" => $system->Name,
+                        "ConsoleID" => $system->id,
+                        "ConsoleName" => $system->name,
                         "MaxPossible" => 6,
                         "NumAwarded" => 1,
                         "NumAwardedHardcore" => 1,
@@ -196,8 +196,8 @@ class UserCompletionProgressTest extends TestCase
                         "GameID" => $gameFive->ID,
                         "Title" => $gameFive->Title,
                         "ImageIcon" => $gameFive->ImageIcon,
-                        "ConsoleID" => $system->ID,
-                        "ConsoleName" => $system->Name,
+                        "ConsoleID" => $system->id,
+                        "ConsoleName" => $system->name,
                         "MaxPossible" => 6,
                         "NumAwarded" => 1,
                         "NumAwardedHardcore" => 1,
@@ -209,8 +209,8 @@ class UserCompletionProgressTest extends TestCase
                         "GameID" => $gameSix->ID,
                         "Title" => $gameSix->Title,
                         "ImageIcon" => $gameSix->ImageIcon,
-                        "ConsoleID" => $system->ID,
-                        "ConsoleName" => $system->Name,
+                        "ConsoleID" => $system->id,
+                        "ConsoleName" => $system->name,
                         "MaxPossible" => 6,
                         "NumAwarded" => 1,
                         "NumAwardedHardcore" => 1,
@@ -222,8 +222,8 @@ class UserCompletionProgressTest extends TestCase
                         "GameID" => $gameSeven->ID,
                         "Title" => $gameSeven->Title,
                         "ImageIcon" => $gameSeven->ImageIcon,
-                        "ConsoleID" => $system->ID,
-                        "ConsoleName" => $system->Name,
+                        "ConsoleID" => $system->id,
+                        "ConsoleName" => $system->name,
                         "MaxPossible" => 6,
                         "NumAwarded" => 1,
                         "NumAwardedHardcore" => 1,
@@ -235,8 +235,8 @@ class UserCompletionProgressTest extends TestCase
                         "GameID" => $gameEight->ID,
                         "Title" => $gameEight->Title,
                         "ImageIcon" => $gameEight->ImageIcon,
-                        "ConsoleID" => $system->ID,
-                        "ConsoleName" => $system->Name,
+                        "ConsoleID" => $system->id,
+                        "ConsoleName" => $system->name,
                         "MaxPossible" => 6,
                         "NumAwarded" => 1,
                         "NumAwardedHardcore" => 1,
@@ -248,8 +248,8 @@ class UserCompletionProgressTest extends TestCase
                         "GameID" => $gameNine->ID,
                         "Title" => $gameNine->Title,
                         "ImageIcon" => $gameNine->ImageIcon,
-                        "ConsoleID" => $system->ID,
-                        "ConsoleName" => $system->Name,
+                        "ConsoleID" => $system->id,
+                        "ConsoleName" => $system->name,
                         "MaxPossible" => 6,
                         "NumAwarded" => 1,
                         "NumAwardedHardcore" => 1,
@@ -261,8 +261,8 @@ class UserCompletionProgressTest extends TestCase
                         "GameID" => $gameTen->ID,
                         "Title" => $gameTen->Title,
                         "ImageIcon" => $gameTen->ImageIcon,
-                        "ConsoleID" => $system->ID,
-                        "ConsoleName" => $system->Name,
+                        "ConsoleID" => $system->id,
+                        "ConsoleName" => $system->name,
                         "MaxPossible" => 6,
                         "NumAwarded" => 1,
                         "NumAwardedHardcore" => 1,

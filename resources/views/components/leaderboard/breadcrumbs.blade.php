@@ -13,7 +13,7 @@ $leaderboard->loadMissing('game.system');
 
     &raquo;
 
-    <a href="{{ route('system.game.index', ['system' => $leaderboard->game->ConsoleID]) }}">{{ $leaderboard->game->system->Name }}</a>
+    <a href="{{ route('system.game.index', ['system' => $leaderboard->game->ConsoleID]) }}">{{ $leaderboard->game->system->name }}</a>
 
     &raquo;
 

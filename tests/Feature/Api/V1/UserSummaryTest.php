@@ -267,8 +267,8 @@ class UserSummaryTest extends TestCase
                 'LastGame' => [
                     'ID' => $game->ID,
                     'Title' => $game->Title,
-                    'ConsoleID' => $game->system->ID,
-                    'ConsoleName' => $game->system->Name,
+                    'ConsoleID' => $game->system->id,
+                    'ConsoleName' => $game->system->name,
                     'ForumTopicID' => $game->ForumTopicID,
                     'Flags' => 0,
                     'ImageIcon' => $game->ImageIcon,
@@ -288,8 +288,8 @@ class UserSummaryTest extends TestCase
                     [
                         'GameID' => $game2->ID,
                         'Title' => $game2->Title,
-                        'ConsoleID' => $game2->system->ID,
-                        'ConsoleName' => $game2->system->Name,
+                        'ConsoleID' => $game2->system->id,
+                        'ConsoleName' => $game2->system->name,
                         'ImageIcon' => $game2->ImageIcon,
                         'ImageTitle' => $game2->ImageTitle,
                         'ImageIngame' => $game2->ImageIngame,
@@ -300,8 +300,8 @@ class UserSummaryTest extends TestCase
                     [
                         'GameID' => $game->ID,
                         'Title' => $game->Title,
-                        'ConsoleID' => $game->system->ID,
-                        'ConsoleName' => $game->system->Name,
+                        'ConsoleID' => $game->system->id,
+                        'ConsoleName' => $game->system->name,
                         'ImageIcon' => $game->ImageIcon,
                         'ImageTitle' => $game->ImageTitle,
                         'ImageIngame' => $game->ImageIngame,
@@ -381,8 +381,8 @@ class UserSummaryTest extends TestCase
                 'LastGame' => [
                     'ID' => $game->ID,
                     'Title' => $game->Title,
-                    'ConsoleID' => $game->system->ID,
-                    'ConsoleName' => $game->system->Name,
+                    'ConsoleID' => $game->system->id,
+                    'ConsoleName' => $game->system->name,
                     'ForumTopicID' => $game->ForumTopicID,
                     'Flags' => 0,
                     'ImageIcon' => $game->ImageIcon,
@@ -402,8 +402,8 @@ class UserSummaryTest extends TestCase
                     [
                         'GameID' => $game2->ID,
                         'Title' => $game2->Title,
-                        'ConsoleID' => $game2->system->ID,
-                        'ConsoleName' => $game2->system->Name,
+                        'ConsoleID' => $game2->system->id,
+                        'ConsoleName' => $game2->system->name,
                         'ImageIcon' => $game2->ImageIcon,
                         'ImageTitle' => $game2->ImageTitle,
                         'ImageIngame' => $game2->ImageIngame,
@@ -457,11 +457,11 @@ class UserSummaryTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
         $publishedAchievements = Achievement::factory()->published()->count(7)->create(['GameID' => $game->ID]);
 
         /** @var Game $game2 */
-        $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game2 = Game::factory()->create(['ConsoleID' => $system->id]);
         $publishedAchievements2 = Achievement::factory()->published()->count(4)->create(['GameID' => $game2->ID]);
 
         $now = Carbon::now();

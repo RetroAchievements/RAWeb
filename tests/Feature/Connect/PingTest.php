@@ -244,9 +244,9 @@ class PingTest extends TestCase
     public function testPingDelegatedByName(): void
     {
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $gameOne */
-        $gameOne = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $gameOne = Game::factory()->create(['ConsoleID' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
         $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
@@ -305,7 +305,7 @@ class PingTest extends TestCase
         // Next, try to delegate on a non-standalone game.
         // This is not allowed and should fail.
         /** @var System $normalSystem */
-        $normalSystem = System::factory()->create(['ID' => 1]);
+        $normalSystem = System::factory()->create(['id' => 1]);
         /** @var Game $gameTwo */
         $gameTwo = Game::factory()->create(['ConsoleID' => $normalSystem->ID]);
 
@@ -343,7 +343,7 @@ class PingTest extends TestCase
     public function testPingDelegatedByUlid(): void
     {
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $gameOne */
         $gameOne = $this->seedGame(system: $standalonesSystem);
 
@@ -393,7 +393,7 @@ class PingTest extends TestCase
         // Next, try to delegate on a non-standalone game.
         // This is not allowed and should fail.
         /** @var System $normalSystem */
-        $normalSystem = System::factory()->create(['ID' => 1]);
+        $normalSystem = System::factory()->create(['id' => 1]);
         /** @var Game $gameTwo */
         $gameTwo = Game::factory()->create(['ConsoleID' => $normalSystem->ID]);
 

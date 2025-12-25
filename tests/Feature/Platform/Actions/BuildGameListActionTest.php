@@ -190,8 +190,8 @@ class BuildGameListActionTest extends TestCase
         // Arrange
         $user = User::factory()->create();
 
-        $systemGb = System::factory()->create(['ID' => 1, 'name' => 'Game Boy', 'name_short' => 'GB']);
-        $systemNes = System::factory()->create(['ID' => 2, 'name' => 'NES/Famicom', 'name_short' => 'NES']);
+        $systemGb = System::factory()->create(['id' => 1, 'name' => 'Game Boy', 'name_short' => 'GB']);
+        $systemNes = System::factory()->create(['id' => 2, 'name' => 'NES/Famicom', 'name_short' => 'NES']);
 
         Game::factory()->create([
             'ID' => 1000,
@@ -956,8 +956,8 @@ class BuildGameListActionTest extends TestCase
     public function testItReturnsCorrectGamesForAllGamesList(): void
     {
         // Arrange
-        $activeGameSystem = System::factory()->create(['ID' => 1, 'name' => 'NES/Famicom', 'name_short' => 'NES', 'active' => true]);
-        $inactiveGameSystem = System::factory()->create(['ID' => 2, 'name' => 'PlayStation 5', 'name_short' => 'PS5', 'active' => false]);
+        $activeGameSystem = System::factory()->create(['id' => 1, 'name' => 'NES/Famicom', 'name_short' => 'NES', 'active' => true]);
+        $inactiveGameSystem = System::factory()->create(['id' => 2, 'name' => 'PlayStation 5', 'name_short' => 'PS5', 'active' => false]);
 
         Game::factory()->create(['Title' => 'AAAAAAA', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
         Game::factory()->create(['Title' => 'BBBBBBB', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
@@ -981,8 +981,8 @@ class BuildGameListActionTest extends TestCase
 
     private function seedGamesForLists(): void
     {
-        $systemGb = System::factory()->create(['ID' => 1, 'name' => 'Game Boy', 'name_short' => 'GB']);
-        $systemNes = System::factory()->create(['ID' => 2, 'name' => 'NES/Famicom', 'name_short' => 'NES']);
+        $systemGb = System::factory()->create(['id' => 1, 'name' => 'Game Boy', 'name_short' => 'GB']);
+        $systemNes = System::factory()->create(['id' => 2, 'name' => 'NES/Famicom', 'name_short' => 'NES']);
 
         $game1000 = Game::factory()->create([
             'ID' => 1000,

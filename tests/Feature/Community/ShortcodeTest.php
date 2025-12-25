@@ -526,12 +526,12 @@ final class ShortcodeTest extends TestCase
     {
         // Arrange
         /** @var System $system */
-        $system = System::factory()->create(['ID' => 1, 'Name' => 'Mega Drive']);
+        $system = System::factory()->create(['id' => 1, 'name' => 'Mega Drive']);
 
         /** @var Game $game */
         $game = Game::factory()->create([
             'ID' => 1,
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'Title' => 'Sonic the Hedgehog',
         ]);
 
@@ -551,12 +551,12 @@ final class ShortcodeTest extends TestCase
     {
         // Arrange
         /** @var System $system */
-        $system = System::factory()->create(['ID' => 1, 'Name' => 'Mega Drive']);
+        $system = System::factory()->create(['id' => 1, 'name' => 'Mega Drive']);
 
         /** @var Game $game */
         $game = Game::factory()->create([
             'ID' => 1,
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'Title' => 'Sonic the Hedgehog',
         ]);
 
@@ -677,12 +677,12 @@ final class ShortcodeTest extends TestCase
     {
         // Arrange
         /** @var System $system */
-        $system = System::factory()->create(['ID' => System::Events]);
+        $system = System::factory()->create(['id' => System::Events]);
 
         /** @var Game $legacyGame */
         $legacyGame = Game::factory()->create([
             'ID' => 999,
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'Title' => 'Achievement of the Week 2025',
         ]);
 
@@ -708,12 +708,12 @@ final class ShortcodeTest extends TestCase
     {
         // Arrange
         /** @var System $system */
-        $system = System::factory()->create(['ID' => 1, 'Name' => 'Mega Drive']);
+        $system = System::factory()->create(['id' => 1, 'name' => 'Mega Drive']);
 
         /** @var Game $game */
         $game = Game::factory()->create([
             'ID' => 1,
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'Title' => 'Sonic the Hedgehog',
         ]);
 
@@ -768,12 +768,12 @@ final class ShortcodeTest extends TestCase
     {
         // Arrange
         /** @var System $system */
-        $system = System::factory()->create(['ID' => 1, 'Name' => 'NES']);
+        $system = System::factory()->create(['id' => 1, 'name' => 'NES']);
 
         /** @var Game $game */
         $game = Game::factory()->create([
             'ID' => 1,
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'Title' => 'Super Mario Bros.',
         ]);
 
@@ -810,12 +810,12 @@ final class ShortcodeTest extends TestCase
     {
         // Arrange
         /** @var System $system */
-        $system = System::factory()->create(['ID' => 1, 'Name' => 'SNES']);
+        $system = System::factory()->create(['id' => 1, 'name' => 'SNES']);
 
         /** @var Game $game */
         $game = Game::factory()->create([
             'ID' => 1,
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'Title' => 'Chrono Trigger',
         ]);
 
@@ -851,12 +851,12 @@ final class ShortcodeTest extends TestCase
     {
         // Arrange
         /** @var System $system */
-        $system = System::factory()->create(['ID' => 1, 'Name' => 'PS1']);
+        $system = System::factory()->create(['id' => 1, 'name' => 'PS1']);
 
         /** @var Game $game */
         $game = Game::factory()->create([
             'ID' => 100,
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'Title' => 'Final Fantasy VII',
         ]);
 

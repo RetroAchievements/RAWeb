@@ -23,7 +23,7 @@ class EventControllerTest extends TestCase
     public function testShowReturnsCorrectPageForUnauthenticatedUsers(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => System::Events]);
+        $system = System::factory()->create(['id' => System::Events]);
         $game = Game::factory()->create([
             'Title' => 'Event 001',
             'ConsoleID' => $system->id,
@@ -54,7 +54,7 @@ class EventControllerTest extends TestCase
         // Arrange
         $this->seed(RolesTableSeeder::class);
 
-        $system = System::factory()->create(['ID' => System::Events]);
+        $system = System::factory()->create(['id' => System::Events]);
         $game = Game::factory()->create([
             'Title' => 'Event 001',
             'ConsoleID' => $system->id,
@@ -84,7 +84,7 @@ class EventControllerTest extends TestCase
     public function testPreventsAccessForFutureEventsForNonEventManagers(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => System::Events]);
+        $system = System::factory()->create(['id' => System::Events]);
         $game = Game::factory()->create([
             'Title' => 'Event 001',
             'ConsoleID' => $system->id,
@@ -111,7 +111,7 @@ class EventControllerTest extends TestCase
         // Arrange
         $this->seed(RolesTableSeeder::class);
 
-        $system = System::factory()->create(['ID' => System::Events]);
+        $system = System::factory()->create(['id' => System::Events]);
         $game = Game::factory()->create([
             'Title' => 'Event 001',
             'ConsoleID' => $system->id,
@@ -137,7 +137,7 @@ class EventControllerTest extends TestCase
     public function testShowIncludesHubsAssociatedWithEventGame(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => System::Events]);
+        $system = System::factory()->create(['id' => System::Events]);
         $game = Game::factory()->create([
             'Title' => 'Event 001',
             'ConsoleID' => $system->id,

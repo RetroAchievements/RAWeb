@@ -54,7 +54,7 @@ class CacheMostPopularEmulators extends Command
         // Process all active systems.
         $this->info('Calculating emulator popularity for all active systems...');
 
-        $activeSystems = System::active()->whereNotIn('ID', [System::Hubs, System::Events, System::Standalones])->get();
+        $activeSystems = System::active()->whereNotIn('id', [System::Hubs, System::Events, System::Standalones])->get();
 
         foreach ($activeSystems as $system) {
             try {

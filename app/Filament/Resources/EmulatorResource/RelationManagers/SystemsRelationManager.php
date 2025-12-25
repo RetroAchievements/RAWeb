@@ -49,18 +49,18 @@ class SystemsRelationManager extends RelationManager
                     ->label('')
                     ->size(config('media.icon.sm.width')),
 
-                Tables\Columns\TextColumn::make('ID')
+                Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->sortable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->where(DB::raw('Console.ID'), 'like', "%{$search}%");
+                        return $query->where(DB::raw('systems.id'), 'like', "%{$search}%");
                     }),
 
                 Tables\Columns\TextColumn::make('name_full')
                     ->label('Full name')
                     ->description(fn (System $record): ?string => $record->name_short)
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->where(DB::raw('Console.name_full'), 'like', "%{$search}%");
+                        return $query->where(DB::raw('systems.name_full'), 'like', "%{$search}%");
                     })
                     ->sortable()
                     ->grow(true),

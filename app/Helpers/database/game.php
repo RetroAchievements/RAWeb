@@ -17,8 +17,8 @@ function getGameData(int $gameID): ?array
     $game = Game::with('system')->find($gameID);
 
     return !$game ? null : array_merge($game->toArray(), [
-        'ConsoleID' => $game->system->ID,
-        'ConsoleName' => $game->system->Name,
+        'ConsoleID' => $game->system->id,
+        'ConsoleName' => $game->system->name,
         'NumDistinctPlayers' => $game->players_total ?? 0,
     ]);
 }
@@ -192,9 +192,9 @@ function getGamesListByDev(
     if ($consoleID !== 0) {
         $whereClause = "AND gd.ConsoleID = $consoleID";
     } elseif ($sortBy < 10) {
-        $titleSort .= ", c.Name ";
+        $titleSort .= ", s.name ";
     } else {
-        $titleSort .= ", c.Name DESC";
+        $titleSort .= ", s.name DESC";
     }
 
     if ($dev === null) {
@@ -240,14 +240,14 @@ function getGamesListByDev(
     if ($sortBy === 4 || $sortBy === 14) { // NumLBs
         $query = "SELECT $foundRows gd.ID, gd.points_total AS MaxPointsAvailable, SUM(!ISNULL(lb.ID)) AS NumLBs
                   FROM GameData gd
-                  INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
+                  INNER JOIN systems s ON s.id = gd.ConsoleID $listJoin
                   LEFT JOIN LeaderboardDef lb ON lb.GameID = gd.ID
                   WHERE 1=1 $whereClause
                   GROUP BY gd.ID, gd.points_total $orderBy";
     } elseif ($sortBy === 5 || $sortBy === 15) { // OpenTickets
         $query = "SELECT $foundRows gd.ID, SUM(!ISNULL(tick.ID)) AS OpenTickets
                   FROM GameData gd
-                  INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
+                  INNER JOIN systems s ON s.id = gd.ConsoleID $listJoin
                   LEFT JOIN Achievements ach ON ach.GameID=gd.ID
                   LEFT JOIN Ticket tick ON tick.AchievementID=ach.ID AND tick.ReportState IN (1,3)
                   WHERE 1=1 $whereClause
@@ -255,7 +255,7 @@ function getGamesListByDev(
     } elseif ($sortBy === 6 || $sortBy === 16) { // DateModified
         $query = "SELECT $foundRows gd.ID, MAX(ach.DateModified) AS DateModified
                   FROM GameData gd
-                  INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
+                  INNER JOIN systems s ON s.id = gd.ConsoleID $listJoin
                   LEFT JOIN Achievements ach ON ach.GameID=gd.ID AND ach.Flags=" . AchievementFlag::OfficialCore->value . "
                   WHERE 1=1 $whereClause
                   GROUP BY gd.ID $orderBy";
@@ -297,7 +297,7 @@ function getGamesListByDev(
                      gd.points_total AS MaxPointsAvailable,
                      CASE WHEN LENGTH(gd.RichPresencePatch) > 0 THEN 1 ELSE 0 END AS RichPresence,
                      CASE WHEN gd.points_total > 0 THEN ROUND(gd.TotalTruePoints/gd.points_total, 2) ELSE 0.00 END AS RetroRatio,
-                     gd.ForumTopicID, gd.ConsoleID, c.Name as ConsoleName';
+                     gd.ForumTopicID, gd.ConsoleID, s.name as ConsoleName';
 
     $games = [];
     if ($dev !== null) {
@@ -306,7 +306,7 @@ function getGamesListByDev(
                          SUM(ach.Points) AS MyPoints, SUM(ach.TrueRatio) AS MyTrueRatio
                   FROM Achievements ach
                   INNER JOIN GameData gd ON gd.ID = ach.GameID
-                  INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
+                  INNER JOIN systems s ON s.id = gd.ConsoleID $listJoin
                   WHERE ach.user_id = :userId AND ach.Flags = " . AchievementFlag::OfficialCore->value . " $whereClause
                   GROUP BY ach.GameID $orderBy";
         foreach (legacyDbFetchAll($query, ['userId' => $dev->id]) as $row) {
@@ -337,7 +337,7 @@ function getGamesListByDev(
     } else {
         $query = "SELECT $foundRows $commonFields
                   FROM GameData gd
-                  INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
+                  INNER JOIN systems s ON s.id = gd.ConsoleID $listJoin
                   WHERE 1=1 $whereClause
                   GROUP BY gd.ID $orderBy";
         foreach (legacyDbFetchAll($query, $bindings) as $row) {
@@ -467,9 +467,9 @@ function getGamesListData(?int $consoleID = null, bool $officialFlag = false): a
         $whereClause .= "ConsoleID=$consoleID ";
     }
 
-    $query = "SELECT DISTINCT gd.Title, gd.ID, gd.ConsoleID, gd.ImageIcon, c.Name as ConsoleName
+    $query = "SELECT DISTINCT gd.Title, gd.ID, gd.ConsoleID, gd.ImageIcon, s.name as ConsoleName
               FROM GameData AS gd
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              LEFT JOIN systems AS s ON s.id = gd.ConsoleID
               $leftJoinAch
               $whereClause
               ORDER BY ConsoleName, Title";
@@ -494,14 +494,14 @@ function getGamesList(?int $consoleID, array &$dataOut, bool $officialFlag = fal
 
 function getGamesListDataNamesOnly(int $consoleId, bool $officialFlag = false): array
 {
-    return Game::join('Console', 'GameData.ConsoleID', '=', 'Console.ID')
+    return Game::join('systems', 'GameData.ConsoleID', '=', 'systems.id')
         ->when($consoleId !== 0, function ($query) use ($consoleId) {
             return $query->where(DB::raw('GameData.ConsoleID'), '=', $consoleId);
         })
         ->when($officialFlag === true, function ($query) {
             return $query->where(DB::raw('GameData.achievements_published'), '>', 0);
         })
-        ->orderBy('Console.Name')
+        ->orderBy('systems.name')
         ->orderBy(DB::raw('GameData.Title'))
         ->select(DB::raw('GameData.Title'), DB::raw('GameData.ID'))
         ->pluck(DB::raw('GameData.Title'), 'GameData.ID') // return mapping of ID => Title

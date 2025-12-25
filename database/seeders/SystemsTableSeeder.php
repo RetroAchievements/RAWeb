@@ -16,10 +16,8 @@ class SystemsTableSeeder extends Seeder
          * System IDs: https://github.com/RetroAchievements/RAIntegration/blob/master/src/RA_Interface.h
          */
         (new Collection(config('systems')))->each(function ($systemData, $systemId) {
-            $systemData['Name'] = $systemData['name'];
             unset($systemData['ID']);
-            unset($systemData['name']);
-            System::updateOrCreate(['ID' => $systemId], $systemData);
+            System::updateOrCreate(['id' => $systemId], $systemData);
         });
     }
 }

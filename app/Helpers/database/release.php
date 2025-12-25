@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 function getValidConsoleIds(): array
 {
     return Cache::store('array')->rememberForever('system:active-ids', function () {
-        return System::active()->pluck('ID')->toArray();
+        return System::active()->pluck('id')->toArray();
     });
 }
 

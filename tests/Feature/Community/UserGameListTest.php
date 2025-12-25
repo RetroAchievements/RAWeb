@@ -57,7 +57,7 @@ class UserGameListTest extends TestCase
         $user = User::factory()->create(['RAPoints' => 0, 'RASoftcorePoints' => 0]);
 
         /** @var System $system */
-        $system = System::factory()->create(['ID' => System::Events]);
+        $system = System::factory()->create(['id' => System::Events]);
 
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->id]);

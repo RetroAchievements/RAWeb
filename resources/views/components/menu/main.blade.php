@@ -37,7 +37,7 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
     }
 
     if (!empty($otherManufacturers)) {
-        usort($otherManufacturers, fn ($a, $b) => strcasecmp($a['Name'], $b['Name']));
+        usort($otherManufacturers, fn ($a, $b) => strcasecmp($a['name'], $b['name']));
         $menuSystemsList[] = ['Others' => $otherManufacturers];
     }
 
@@ -66,8 +66,8 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
                     <x-dropdown-header>{{ $manufacturer }}</x-dropdown-header>
                     @foreach ($manufacturerSystems as $system)
                         <x-dropdown-item :href="route('system.game.index', ['system' => $system])">
-                            <img src="{!! getSystemIconUrl($system) !!}" loading="lazy" width="16" height="16" alt='{{ $system->Name }}'>
-                            <span>{{ $system->Name }}</span>
+                            <img src="{!! getSystemIconUrl($system) !!}" loading="lazy" width="16" height="16" alt='{{ $system->name }}'>
+                            <span>{{ $system->name }}</span>
                         </x-dropdown-item>
                     @endforeach
             @endforeach

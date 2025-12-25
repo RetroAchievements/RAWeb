@@ -177,11 +177,11 @@ class GetUserProgressionStatusCountsAction
                 'GameData.ConsoleID',
             ])
             ->join('GameData', 'GameData.ID', '=', 'SiteAwards.AwardData')
-            ->join('Console', 'Console.ID', '=', 'GameData.ConsoleID')
+            ->join('systems', 'systems.id', '=', 'GameData.ConsoleID')
             ->where('SiteAwards.user_id', $user->id)
             ->whereIn('SiteAwards.AwardType', [AwardType::Mastery, AwardType::GameBeaten])
             ->whereNotIn('SiteAwards.AwardData', $countedGameIds)
-            ->whereRaw('Console.active = true')
+            ->whereRaw('systems.active = true')
             ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
             ->get();
 
@@ -244,8 +244,8 @@ class GetUserProgressionStatusCountsAction
         return PlayerGame::where('player_games.user_id', $user->id)
             ->where('player_games.achievements_unlocked', '>', 0)
             ->join('GameData', 'GameData.ID', '=', 'player_games.game_id')
-            ->join('Console', 'Console.ID', '=', 'GameData.ConsoleID')
-            ->whereRaw('Console.active = true')
+            ->join('systems', 'systems.id', '=', 'GameData.ConsoleID')
+            ->whereRaw('systems.active = true')
             ->whereRaw('GameData.achievements_published >= ?', [PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY])
             ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems());
     }
@@ -262,10 +262,10 @@ class GetUserProgressionStatusCountsAction
                 COUNT(*) as game_count
             ')
             ->join('GameData', 'GameData.ID', '=', 'player_games.game_id')
-            ->join('Console', 'Console.ID', '=', 'GameData.ConsoleID')
+            ->join('systems', 'systems.id', '=', 'GameData.ConsoleID')
             ->where('player_games.user_id', $user->id)
             ->where('player_games.achievements_unlocked', '>', 0)
-            ->whereRaw('Console.active = true')
+            ->whereRaw('systems.active = true')
             ->whereRaw('GameData.achievements_published >= ?', [PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY])
             ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
             ->whereNotExists(function ($query) {

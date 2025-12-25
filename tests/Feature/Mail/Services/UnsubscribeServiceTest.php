@@ -34,7 +34,7 @@ class UnsubscribeServiceTest extends TestCase
 
         $this->service = new UnsubscribeService();
         $this->user = User::factory()->create();
-        $this->system = System::factory()->create(['ID' => 1, 'Name' => 'NES/Famicom']);
+        $this->system = System::factory()->create(['id' => 1, 'name' => 'NES/Famicom']);
     }
 
     /**

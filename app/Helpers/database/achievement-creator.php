@@ -13,13 +13,13 @@ function getUserAchievementsPerConsole(User $user): array
     $userAuthoredAchievements = $user->authoredAchievements()
         ->published()
         ->whereHas('game.system', function ($query) {
-            $query->whereNotIn('ID', [System::Hubs, System::Events]);
+            $query->whereNotIn('id', [System::Hubs, System::Events]);
         })
         ->with('game.system')
         ->get();
 
     return $userAuthoredAchievements
-        ->groupBy('game.system.Name')
+        ->groupBy('game.system.name')
         ->map(function ($achievements, $systemName) {
             return [
                 'ConsoleName' => $systemName,
@@ -38,10 +38,10 @@ function getUserAchievementsPerConsole(User $user): array
  */
 function getUserSetsPerConsole(User $user): array
 {
-    $query = "SELECT COUNT(DISTINCT(a.GameID)) AS SetCount, c.Name AS ConsoleName
+    $query = "SELECT COUNT(DISTINCT(a.GameID)) AS SetCount, s.name AS ConsoleName
               FROM Achievements AS a
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              LEFT JOIN systems AS s ON s.id = gd.ConsoleID
               WHERE a.user_id = :userId
               AND a.Flags = :achievementFlag
               AND gd.ConsoleID NOT IN (100, 101)
@@ -62,14 +62,14 @@ function getUserAchievementInformation(User $user): array
     $userAuthoredAchievements = $user->authoredAchievements()
         ->published()
         ->whereHas('game.system', function ($query) {
-            $query->whereNotIn('ID', [System::Hubs, System::Events]);
+            $query->whereNotIn('id', [System::Hubs, System::Events]);
         })
         ->with('game.system')
         ->get();
 
     $mappedValue = $userAuthoredAchievements->map(function (Achievement $achievement) {
         return [
-            'ConsoleName' => $achievement->game->system->Name,
+            'ConsoleName' => $achievement->game->system->name,
             'GameTitle' => $achievement->game->title,
             'ID' => $achievement->id,
             'GameID' => $achievement->game->id,
@@ -146,11 +146,11 @@ function getRecentUnlocksForDev(User $user, int $offset = 0, int $count = 200): 
                      CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode,
                      ach.ID AS AchievementID, ach.GameID, ach.Title, ach.Description,
                      ach.BadgeName, ach.Points, ach.TrueRatio,
-                     gd.Title AS GameTitle, gd.ImageIcon as GameIcon, c.Name AS ConsoleName
+                     gd.Title AS GameTitle, gd.ImageIcon as GameIcon, s.name AS ConsoleName
               FROM player_achievements pa
               INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
               INNER JOIN GameData AS gd ON gd.ID = ach.GameID
-              INNER JOIN Console AS c ON c.ID = gd.ConsoleID
+              INNER JOIN systems AS s ON s.id = gd.ConsoleID
               INNER JOIN UserAccounts AS ua ON ua.ID = pa.user_id
               WHERE ach.user_id = :authorId
               AND gd.ConsoleID NOT IN (100, 101)

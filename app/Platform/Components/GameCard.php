@@ -84,7 +84,7 @@ class GameCard extends Component
                 return null;
             }
 
-            $foundGameConsoleId = $foundGame->system->ID;
+            $foundGameConsoleId = $foundGame->system->id;
             $foundGameAchievements = $foundGame->achievements->toArray();
 
             $foundClaims = AchievementSetClaim::with('user')->where('game_id', $gameId)->get();
@@ -100,7 +100,7 @@ class GameCard extends Component
             return array_merge(
                 $foundGame->toArray(), [
                     'ConsoleID' => $foundGameConsoleId,
-                    'ConsoleName' => $foundGame->system->Name,
+                    'ConsoleName' => $foundGame->system->name,
                     'Achievements' => $foundGameAchievements,
                     'Claims' => $processedClaims,
                 ]

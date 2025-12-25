@@ -24,7 +24,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
     public function testCreateEmpty(): void
     {
         /** @var System $eventSystem */
-        $eventSystem = System::factory()->create(['ID' => System::Events]);
+        $eventSystem = System::factory()->create(['id' => System::Events]);
 
         $event = (new CreateAchievementOfTheWeek())->execute(Carbon::parse('2023-01-02'))->legacyGame;
 
@@ -99,7 +99,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var System $eventSystem */
-        $eventSystem = System::factory()->create(['ID' => System::Events]);
+        $eventSystem = System::factory()->create(['id' => System::Events]);
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
         /** @var Achievement $sourceAchievement1 */

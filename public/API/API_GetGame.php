@@ -37,8 +37,8 @@ return response()->json([
     'Title' => $game->Title,
     'GameTitle' => $game->Title,
     'ConsoleID' => $game->ConsoleID,
-    'ConsoleName' => $game->system->Name,
-    'Console' => $game->system->Name,
+    'ConsoleName' => $game->system->name,
+    'Console' => $game->system->name,
     'ForumTopicID' => $game->ForumTopicID,
     'Flags' => 0, // Always '0'
     'GameIcon' => $game->ImageIcon,

@@ -20,7 +20,7 @@ class SystemFactory extends Factory
         $manufacturer = ucwords(fake()->word());
 
         return [
-            'Name' => $name,
+            'name' => $name,
             'name_short' => strtoupper(substr($name, 0, 3)),
             'name_full' => "$manufacturer $name",
             'manufacturer' => $manufacturer,

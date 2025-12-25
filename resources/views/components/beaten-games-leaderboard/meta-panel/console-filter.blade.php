@@ -9,10 +9,10 @@
 
     @foreach ($allSystems as $system)
         <option
-            value="{{ $system['ID'] }}"
-            @if ($system['ID'] == $selectedConsoleId) selected @endif
+            value="{{ $system['id'] }}"
+            @if ($system['id'] == $selectedConsoleId) selected @endif
         >
-            {{ $system->Name }}
+            {{ $system->name }}
         </option>
     @endforeach 
 </select>

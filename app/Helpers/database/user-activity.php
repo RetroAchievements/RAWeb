@@ -166,10 +166,10 @@ function getLatestRichPresenceUpdates(): array
     $timestampStatement = timestampAddMinutesStatement(-$recentMinutes);
 
     $query = "SELECT ua.User, $ifRAPoints as RAPoints, $ifRASoftcorePoints as RASoftcorePoints,
-                     ua.RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
+                     ua.RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, s.name AS ConsoleName
               FROM UserAccounts AS ua
               LEFT JOIN GameData AS gd ON gd.ID = ua.LastGameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              LEFT JOIN systems AS s ON s.id = gd.ConsoleID
               WHERE ua.RichPresenceMsgDate > $timestampStatement
                 AND ua.LastGameID != 0
                 AND ua.Permissions >= $permissionsCutoff

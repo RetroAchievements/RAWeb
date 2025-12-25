@@ -29,9 +29,9 @@ class AwardAchievementsTest extends TestCase
         Carbon::setTestNow($now);
 
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
         $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
@@ -166,9 +166,9 @@ class AwardAchievementsTest extends TestCase
     public function testNotStandaloneSystem(): void
     {
         /** @var System $system */
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         /** @var User $integrationUser */
         $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
@@ -218,9 +218,9 @@ class AwardAchievementsTest extends TestCase
     public function testWrongValidationHash(): void
     {
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
         $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
@@ -270,9 +270,9 @@ class AwardAchievementsTest extends TestCase
     public function testNotAuthor(): void
     {
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
         $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
@@ -322,9 +322,9 @@ class AwardAchievementsTest extends TestCase
     public function testNoDelegatedUser(): void
     {
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
         $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
@@ -356,9 +356,9 @@ class AwardAchievementsTest extends TestCase
     public function testInvalidDelegatedUser(): void
     {
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
         $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
@@ -392,9 +392,9 @@ class AwardAchievementsTest extends TestCase
     public function testGetCall(): void
     {
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
         $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);

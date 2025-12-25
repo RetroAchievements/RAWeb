@@ -88,8 +88,8 @@ class UserRecentlyPlayedGamesTest extends TestCase
                 [
                     'GameID' => $game2->ID,
                     'Title' => $game2->Title,
-                    'ConsoleID' => $game2->system->ID,
-                    'ConsoleName' => $game2->system->Name,
+                    'ConsoleID' => $game2->system->id,
+                    'ConsoleName' => $game2->system->name,
                     'ImageIcon' => $game2->ImageIcon,
                     'ImageTitle' => $game2->ImageTitle,
                     'ImageIngame' => $game2->ImageIngame,
@@ -105,8 +105,8 @@ class UserRecentlyPlayedGamesTest extends TestCase
                 [
                     'GameID' => $game->ID,
                     'Title' => $game->Title,
-                    'ConsoleID' => $game->system->ID,
-                    'ConsoleName' => $game->system->Name,
+                    'ConsoleID' => $game->system->id,
+                    'ConsoleName' => $game->system->name,
                     'ImageIcon' => $game->ImageIcon,
                     'ImageTitle' => $game->ImageTitle,
                     'ImageIngame' => $game->ImageIngame,

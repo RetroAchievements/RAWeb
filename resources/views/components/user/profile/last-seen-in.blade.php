@@ -37,8 +37,8 @@ $richPresenceDate = $user?->RichPresenceMsgDate;
                 :gameId="$sessionGame->ID"
                 :gameTitle="$sessionGame->Title"
                 :gameImageIcon="$sessionGame->ImageIcon"
-                :consoleId="$sessionGame->system->ID"
-                :consoleName="$sessionGame->system->Name"
+                :consoleId="$sessionGame->system->id"
+                :consoleName="$sessionGame->system->name"
             />
 
             @if (

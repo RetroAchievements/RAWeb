@@ -24,7 +24,7 @@ class UserGameListApiControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $games = Game::factory()->count(3)->create(['ConsoleID' => $system->id, 'achievements_published' => 20]);
 
         $addGameToListAction = new AddGameToListAction();
@@ -65,7 +65,7 @@ class UserGameListApiControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         // Act
@@ -99,7 +99,7 @@ class UserGameListApiControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         $addGameToListAction = new AddGameToListAction();

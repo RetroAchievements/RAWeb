@@ -19,7 +19,7 @@ class SystemResource extends BaseJsonApiResource
     public function attributes($request): iterable
     {
         return [
-            'name' => $this->resource->Name,
+            'name' => $this->resource->name,
             'nameFull' => $this->resource->name_full,
             'nameShort' => $this->resource->name_short,
             'manufacturer' => $this->resource->manufacturer,

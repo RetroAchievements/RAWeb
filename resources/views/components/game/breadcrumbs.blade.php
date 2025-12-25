@@ -24,9 +24,9 @@ $gameListHref = System::isGameSystem($game->system->id)
 
     {{-- If there's game metadata, then show console metadata as a URL. Otherwise, it's plain text. --}}
     @if ($gameListHref)
-        <a href="{{ $gameListHref }}">{{ $game->system->Name }}</a>
+        <a href="{{ $gameListHref }}">{{ $game->system->name }}</a>
     @else
-        <span class="font-bold">{{ $game->system->Name }}</span>
+        <span class="font-bold">{{ $game->system->name }}</span>
     @endif
 
     &raquo;
