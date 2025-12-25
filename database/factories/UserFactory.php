@@ -41,6 +41,7 @@ class UserFactory extends Factory
             'ContribCount' => 0,
             'TrueRAPoints' => 0,
             'DeleteRequested' => null,
+            'UnreadMessageCount' => 0,
             'Untracked' => 0,
             'UserWallActive' => 1,
             'muted_until' => null,
