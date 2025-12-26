@@ -32,20 +32,14 @@ enum AchievementSetType: string
     case Exclusive = "exclusive";
 
     /**
-     * TODO
-     *
-     * 1- These values will be set by developers using a new Filament-based tool,
-     *    likely a wizard of some kind. Any will_be_* value will logically function
-     *    the same as "core".
-     *
-     * 2- A gradual rollout/pilot phase can be run with a few games, if desired.
-     *    This can be done by changing a few game sets' will_be_[type] values to just [type].
-     *
-     * 3- When it's time to make multiset generally-available to all players, all will_be_*
-     *    values can transition to the real thing and these enum values can be removed.
+     * These values are set by developers using AchievementSetsRelationManager.
+     * Any will_be_* value will logically function the same as "core" until
+     * multiset is enabled for the game.
      */
     case WillBeBonus = "will_be_bonus";
     case WillBeSpecialty = "will_be_specialty";
+
+    // TODO this is redundant. remove it and only have "exclusive", maybe with a note explaining why.
     case WillBeExclusive = "will_be_exclusive";
 
     public function label(): string
@@ -57,7 +51,7 @@ enum AchievementSetType: string
             self::Exclusive => 'Exclusive',
             self::WillBeBonus => 'Bonus*',
             self::WillBeSpecialty => 'Specialty*',
-            self::WillBeExclusive => 'Exclusive*',
+            self::WillBeExclusive => 'Exclusive*', // TODO remove
         };
     }
 }

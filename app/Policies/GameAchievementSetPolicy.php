@@ -71,4 +71,9 @@ class GameAchievementSetPolicy
     {
         return false;
     }
+
+    public function toggleMultiset(User $user): bool
+    {
+        return $user->hasRole(Role::DEVELOPER);
+    }
 }
