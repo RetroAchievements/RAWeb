@@ -12,7 +12,6 @@ use App\Console\Commands\CleanupAvatars;
 use App\Console\Commands\DeleteExpiredEmailVerificationTokens;
 use App\Console\Commands\DeleteExpiredPasswordResetTokens;
 use App\Console\Commands\DeleteOverdueUserAccounts;
-use App\Console\Commands\EnsurePassportKeys;
 use App\Console\Commands\GenerateTypeScript;
 use App\Console\Commands\LogUsersOnlineCount;
 use App\Console\Commands\PruneApiLogs;
@@ -68,7 +67,6 @@ class AppServiceProvider extends ServiceProvider
                 LogUsersOnlineCount::class,
                 PruneApiLogs::class,
                 SquashMigrations::class,
-                EnsurePassportKeys::class,
 
                 // User Accounts
                 CleanupAvatars::class,
