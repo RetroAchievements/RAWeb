@@ -752,7 +752,7 @@ class BuildGameShowPagePropsAction
         };
 
         $leaderboards = $game->leaderboards
-            ->filter(fn ($leaderboard) => in_array($leaderboard->state, $allowedLeaderboardStates))
+            ->whereIn('state', $allowedLeaderboardStates)
             ->values();
 
         if (!$activeOnly) {
