@@ -190,10 +190,10 @@ class PlayerCompletionProgressTest extends TestCase
 
         PlayerBadge::factory()->create([
             'user_id' => $me->id,
-            'AwardData' => $gameOne->id,
-            'AwardType' => AwardType::Mastery,
-            'AwardDataExtra' => UnlockMode::Hardcore,
-            'AwardDate' => Carbon::now(),
+            'award_data' => $gameOne->id,
+            'award_type' => AwardType::Mastery,
+            'award_data_extra' => UnlockMode::Hardcore,
+            'awarded_at' => Carbon::now(),
         ]);
 
         // Act

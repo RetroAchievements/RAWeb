@@ -81,9 +81,9 @@ class UpdateDeveloperContributionYieldAction
         ];
     }
 
-    private function getChronologicalUnlocks(User $user, int $type, int $offset = 0, int $limit = 10000): array
+    private function getChronologicalUnlocks(User $user, AwardType $type, int $offset = 0, int $limit = 10000): array
     {
-        $pointsField = ($type == AwardType::AchievementPointsYield) ? 'a.Points' : '1';
+        $pointsField = ($type === AwardType::AchievementPointsYield) ? 'a.Points' : '1';
 
         // Get the unlocks in chronological order.
         $unlocksSql = <<<SQL
@@ -129,7 +129,7 @@ class UpdateDeveloperContributionYieldAction
         return $unlocks;
     }
 
-    private function ensureBadge(User $user, int $type, int $newContrib): void
+    private function ensureBadge(User $user, AwardType $type, int $newContrib): void
     {
         $tier = PlayerBadge::getNewBadgeTier($type, 0, $newContrib);
         if ($tier === null) {
@@ -139,19 +139,19 @@ class UpdateDeveloperContributionYieldAction
 
         $badge = PlayerBadge::query()
             ->where('user_id', $user->id)
-            ->where('AwardType', '=', $type)
-            ->orderBy('AwardData', 'DESC')
+            ->where('award_type', '=', $type)
+            ->orderBy('award_data', 'DESC')
             ->first();
 
-        if ($badge && $badge->AwardData >= $tier) {
+        if ($badge && $badge->award_data >= $tier) {
             // badge already awarded
             return;
         }
 
-        $displayOrder = $badge ? $badge->DisplayOrder : PlayerBadge::getNextDisplayOrder($user);
+        $displayOrder = $badge ? $badge->order_column : PlayerBadge::getNextDisplayOrder($user);
 
         // if there's a gap between tiers, backfill the missing awards
-        $oldTier = $badge ? $badge->AwardData : -1;
+        $oldTier = $badge ? $badge->award_data : -1;
         if ($tier - $oldTier > 1) {
             $this->backfillMissingBadges($user, $type, $oldTier, $tier, $displayOrder);
         }
@@ -159,15 +159,15 @@ class UpdateDeveloperContributionYieldAction
         // add new award
         $badge = PlayerBadge::create([
             'user_id' => $user->id,
-            'AwardType' => $type,
-            'AwardData' => $tier,
-            'DisplayOrder' => $displayOrder,
+            'award_type' => $type,
+            'award_data' => $tier,
+            'order_column' => $displayOrder,
         ]);
 
         SiteBadgeAwarded::dispatch($badge);
     }
 
-    private function backfillMissingBadges(User $user, int $type, int $lastAwardedTier, int $newTier, int $displayOrder): void
+    private function backfillMissingBadges(User $user, AwardType $type, int $lastAwardedTier, int $newTier, int $displayOrder): void
     {
         $total = 0;
         $tier = 0;
@@ -182,7 +182,7 @@ class UpdateDeveloperContributionYieldAction
             }
 
             foreach ($unlocks as $unlock) {
-                if ($type == AwardType::AchievementPointsYield) {
+                if ($type === AwardType::AchievementPointsYield) {
                     $total += $unlock->Points;
                 } else {
                     $total++;
@@ -192,10 +192,10 @@ class UpdateDeveloperContributionYieldAction
                     if ($tier > $lastAwardedTier) {
                         PlayerBadge::create([
                             'user_id' => $user->id,
-                            'AwardType' => $type,
-                            'AwardData' => $tier,
-                            'AwardDate' => $unlock->unlock_date,
-                            'DisplayOrder' => $displayOrder,
+                            'award_type' => $type,
+                            'award_data' => $tier,
+                            'awarded_at' => $unlock->unlock_date,
+                            'order_column' => $displayOrder,
                         ]);
                     }
 

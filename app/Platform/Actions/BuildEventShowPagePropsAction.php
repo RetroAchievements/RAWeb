@@ -35,8 +35,8 @@ class BuildEventShowPagePropsAction
         // If this is the case, we need to make an extra query to get the real
         // mastery count of the event.
         if ($numMasters === 0 && !$event->awards->count()) {
-            $numMasters = PlayerBadge::where('AwardType', AwardType::Event)
-                ->where('AwardData', $event->id)
+            $numMasters = PlayerBadge::where('award_type', AwardType::Event)
+                ->where('award_data', $event->id)
                 ->count();
         }
 

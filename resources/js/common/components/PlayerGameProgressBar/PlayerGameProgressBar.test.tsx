@@ -1,6 +1,5 @@
 import userEvent from '@testing-library/user-event';
 
-import { AwardType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
 import { createGame, createPlayerBadge, createPlayerGame, createSystem } from '@/test/factories';
 
@@ -101,7 +100,7 @@ describe('Component: PlayerGameProgressBar', () => {
       achievementsUnlocked: 8,
       achievementsUnlockedHardcore: 8,
       achievementsUnlockedSoftcore: 0,
-      highestAward: createPlayerBadge({ awardType: AwardType.Mastery, awardDataExtra: 1 }),
+      highestAward: createPlayerBadge({ awardType: 'mastery', awardDataExtra: 1 }),
     });
 
     render(<PlayerGameProgressBar game={game} playerGame={playerGame} />);
@@ -118,7 +117,7 @@ describe('Component: PlayerGameProgressBar', () => {
       achievementsUnlocked: 8,
       achievementsUnlockedHardcore: 8,
       achievementsUnlockedSoftcore: 0,
-      highestAward: createPlayerBadge({ awardType: AwardType.Mastery, awardDataExtra: 0 }),
+      highestAward: createPlayerBadge({ awardType: 'mastery', awardDataExtra: 0 }),
     });
 
     render(<PlayerGameProgressBar game={game} playerGame={playerGame} />);
@@ -135,7 +134,7 @@ describe('Component: PlayerGameProgressBar', () => {
       achievementsUnlocked: 8,
       achievementsUnlockedHardcore: 8,
       achievementsUnlockedSoftcore: 0,
-      highestAward: createPlayerBadge({ awardType: AwardType.GameBeaten, awardDataExtra: 1 }),
+      highestAward: createPlayerBadge({ awardType: 'game_beaten', awardDataExtra: 1 }),
     });
 
     render(<PlayerGameProgressBar game={game} playerGame={playerGame} />);
@@ -153,7 +152,7 @@ describe('Component: PlayerGameProgressBar', () => {
       achievementsUnlocked: 8,
       achievementsUnlockedHardcore: 0,
       achievementsUnlockedSoftcore: 8,
-      highestAward: createPlayerBadge({ awardType: AwardType.GameBeaten, awardDataExtra: 0 }),
+      highestAward: createPlayerBadge({ awardType: 'game_beaten', awardDataExtra: 0 }),
     });
 
     render(<PlayerGameProgressBar game={game} playerGame={playerGame} />);
@@ -172,7 +171,7 @@ describe('Component: PlayerGameProgressBar', () => {
       achievementsUnlockedSoftcore: 0,
       pointsHardcore: 285,
       highestAward: createPlayerBadge({
-        awardType: AwardType.Mastery,
+        awardType: 'mastery',
         awardDataExtra: 1,
         awardDate: new Date('2023-05-06').toISOString(),
       }),
@@ -201,7 +200,7 @@ describe('Component: PlayerGameProgressBar', () => {
       achievementsUnlockedSoftcore: 0,
       pointsHardcore: 285,
       highestAward: createPlayerBadge({
-        awardType: AwardType.Mastery,
+        awardType: 'mastery',
         awardDataExtra: 1,
         awardDate: new Date('2023-05-06').toISOString(),
       }),
@@ -228,7 +227,7 @@ describe('Component: PlayerGameProgressBar', () => {
       achievementsUnlockedSoftcore: 0,
       pointsHardcore: game.pointsTotal,
       highestAward: createPlayerBadge({
-        awardType: AwardType.Mastery,
+        awardType: 'mastery',
         awardDataExtra: 1,
         awardDate: new Date('2023-05-06').toISOString(),
       }),
@@ -257,7 +256,7 @@ describe('Component: PlayerGameProgressBar', () => {
       achievementsUnlockedSoftcore: 0,
       pointsHardcore: game.pointsTotal,
       highestAward: createPlayerBadge({
-        awardType: AwardType.Mastery,
+        awardType: 'mastery',
         awardDataExtra: 1,
         awardDate: new Date('2023-05-06').toISOString(),
       }),
@@ -282,7 +281,7 @@ describe('Component: PlayerGameProgressBar', () => {
       achievementsUnlockedSoftcore: 0,
       pointsHardcore: game.pointsTotal,
       highestAward: createPlayerBadge({
-        awardType: AwardType.GameBeaten,
+        awardType: 'game_beaten',
         awardDataExtra: 1,
         awardDate: new Date('2023-05-06').toISOString(),
       }),

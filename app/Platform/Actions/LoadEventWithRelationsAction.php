@@ -42,7 +42,7 @@ class LoadEventWithRelationsAction
                     $query->with(['playerBadges' => function ($query) use ($user, $event) {
                         $query
                             ->where('user_id', $user->id)
-                            ->where('AwardData', $event->id);
+                            ->where('award_data', $event->id);
                     }]);
                 }
             },

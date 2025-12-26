@@ -83,7 +83,7 @@ class IncrementDeveloperContributionYieldAction
         $this->checkAndAwardBadge($developer, AwardType::AchievementUnlocksYield, $oldContribCount, $developer->ContribCount);
     }
 
-    private function checkAndAwardBadge(User $developer, int $type, int $oldValue, int $currentValue): void
+    private function checkAndAwardBadge(User $developer, AwardType $type, int $oldValue, int $currentValue): void
     {
         $tier = PlayerBadge::getNewBadgeTier($type, $oldValue, $currentValue);
         if ($tier === null) {
@@ -93,8 +93,8 @@ class IncrementDeveloperContributionYieldAction
         // Check if badge already awarded.
         $existingBadge = PlayerBadge::query()
             ->where('user_id', $developer->id)
-            ->where('AwardType', '=', $type)
-            ->where('AwardData', '=', $tier)
+            ->where('award_type', '=', $type)
+            ->where('award_data', '=', $tier)
             ->exists();
 
         if ($existingBadge) {
@@ -104,18 +104,18 @@ class IncrementDeveloperContributionYieldAction
         // Get the display order from the highest existing badge.
         $lastBadge = PlayerBadge::query()
             ->where('user_id', $developer->id)
-            ->where('AwardType', '=', $type)
-            ->orderBy('AwardData', 'DESC')
+            ->where('award_type', '=', $type)
+            ->orderBy('award_data', 'DESC')
             ->first();
 
-        $displayOrder = $lastBadge ? $lastBadge->DisplayOrder : PlayerBadge::getNextDisplayOrder($developer);
+        $displayOrder = $lastBadge ? $lastBadge->order_column : PlayerBadge::getNextDisplayOrder($developer);
 
         // Award the new badge.
         $badge = PlayerBadge::create([
             'user_id' => $developer->id,
-            'AwardType' => $type,
-            'AwardData' => $tier,
-            'DisplayOrder' => $displayOrder,
+            'award_type' => $type,
+            'award_data' => $tier,
+            'order_column' => $displayOrder,
         ]);
 
         SiteBadgeAwarded::dispatch($badge);

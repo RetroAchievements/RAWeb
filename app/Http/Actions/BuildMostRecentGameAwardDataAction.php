@@ -16,8 +16,10 @@ use InvalidArgumentException;
 
 class BuildMostRecentGameAwardDataAction
 {
-    public function execute(?StaticData $staticData, int $type = AwardType::Mastery): ?StaticGameAwardData
-    {
+    public function execute(
+        ?StaticData $staticData,
+        AwardType $type = AwardType::Mastery
+    ): ?StaticGameAwardData {
         if (!$staticData) {
             return null;
         }

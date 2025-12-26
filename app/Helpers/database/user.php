@@ -373,15 +373,17 @@ function getMostAwardedUsers(array $gameIDs): array
         return $retVal;
     }
 
+    $gameAwardValues = implode("','", AwardType::gameValues());
+
     $query = "SELECT ua.User,
-              SUM(IF(AwardType LIKE " . AwardType::GameBeaten . " AND AwardDataExtra LIKE '0', 1, 0)) AS BeatenSoftcore,
-              SUM(IF(AwardType LIKE " . AwardType::GameBeaten . " AND AwardDataExtra LIKE '1', 1, 0)) AS BeatenHardcore,
-              SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '0', 1, 0)) AS Completed,
-              SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '1', 1, 0)) AS Mastered
-              FROM SiteAwards AS sa
+              SUM(IF(award_type = '" . AwardType::GameBeaten->value . "' AND award_data_extra = 0, 1, 0)) AS BeatenSoftcore,
+              SUM(IF(award_type = '" . AwardType::GameBeaten->value . "' AND award_data_extra = 1, 1, 0)) AS BeatenHardcore,
+              SUM(IF(award_type = '" . AwardType::Mastery->value . "' AND award_data_extra = 0, 1, 0)) AS Completed,
+              SUM(IF(award_type = '" . AwardType::Mastery->value . "' AND award_data_extra = 1, 1, 0)) AS Mastered
+              FROM user_awards AS sa
               LEFT JOIN UserAccounts AS ua ON ua.ID = sa.user_id
-              WHERE sa.AwardType IN (" . implode(',', AwardType::game()) . ")
-              AND AwardData IN (" . implode(",", $gameIDs) . ")
+              WHERE sa.award_type IN ('{$gameAwardValues}')
+              AND award_data IN (" . implode(",", $gameIDs) . ")
               AND Untracked = 0
               GROUP BY User
               ORDER BY User";
@@ -406,18 +408,20 @@ function getMostAwardedGames(array $gameIDs): array
         return $retVal;
     }
 
-    $query = "SELECT gd.Title, sa.AwardData AS ID, c.Name AS ConsoleName, gd.ImageIcon as GameIcon,
-              SUM(IF(AwardType LIKE " . AwardType::GameBeaten . " AND AwardDataExtra LIKE '0' AND Untracked = 0, 1, 0)) AS BeatenSoftcore,
-              SUM(IF(AwardType LIKE " . AwardType::GameBeaten . " AND AwardDataExtra LIKE '1' AND Untracked = 0, 1, 0)) AS BeatenHardcore,
-              SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '0' AND Untracked = 0, 1, 0)) AS Completed,
-              SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '1' AND Untracked = 0, 1, 0)) AS Mastered
-              FROM SiteAwards AS sa
-              LEFT JOIN GameData AS gd ON gd.ID = sa.AwardData
+    $gameAwardValues = implode("','", AwardType::gameValues());
+
+    $query = "SELECT gd.Title, sa.award_data AS ID, c.Name AS ConsoleName, gd.ImageIcon as GameIcon,
+              SUM(IF(award_type = '" . AwardType::GameBeaten->value . "' AND award_data_extra = 0 AND Untracked = 0, 1, 0)) AS BeatenSoftcore,
+              SUM(IF(award_type = '" . AwardType::GameBeaten->value . "' AND award_data_extra = 1 AND Untracked = 0, 1, 0)) AS BeatenHardcore,
+              SUM(IF(award_type = '" . AwardType::Mastery->value . "' AND award_data_extra = 0 AND Untracked = 0, 1, 0)) AS Completed,
+              SUM(IF(award_type = '" . AwardType::Mastery->value . "' AND award_data_extra = 1 AND Untracked = 0, 1, 0)) AS Mastered
+              FROM user_awards AS sa
+              LEFT JOIN GameData AS gd ON gd.ID = sa.award_data
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.ID = sa.user_id
-              WHERE sa.AwardType IN (" . implode(',', AwardType::game()) . ")
-              AND AwardData IN(" . implode(",", $gameIDs) . ")
-              GROUP BY sa.AwardData, gd.Title
+              WHERE sa.award_type IN ('{$gameAwardValues}')
+              AND award_data IN(" . implode(",", $gameIDs) . ")
+              GROUP BY sa.award_data, gd.Title
               ORDER BY Title";
 
     $dbResult = s_mysql_query($query);

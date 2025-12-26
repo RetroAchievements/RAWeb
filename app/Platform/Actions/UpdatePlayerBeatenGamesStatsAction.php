@@ -32,14 +32,14 @@ class UpdatePlayerBeatenGamesStatsAction
 
         $playerBeatenHardcoreGames = $user
             ->playerBadges()
-            ->where('AwardType', AwardType::GameBeaten)
-            ->where('AwardDataExtra', UnlockMode::Hardcore)
-            ->join('GameData', 'GameData.ID', '=', 'AwardData')
+            ->where('award_type', AwardType::GameBeaten)
+            ->where('award_data_extra', UnlockMode::Hardcore)
+            ->join('GameData', 'GameData.ID', '=', 'award_data')
             ->select(
                 'GameData.ID as game_id',
                 'GameData.ConsoleID',
                 'GameData.Title',
-                'SiteAwards.AwardDate as beaten_hardcore_at'
+                'user_awards.awarded_at as beaten_hardcore_at'
             )
             ->where(DB::raw('GameData.Title'), 'not like', '%[Subset%')
             ->where(DB::raw('GameData.Title'), 'not like', '~Test Kit~%')
