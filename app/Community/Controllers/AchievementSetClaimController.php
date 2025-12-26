@@ -48,7 +48,7 @@ class AchievementSetClaimController extends Controller
             $statusInt = (int) $status;
 
             if (
-                in_array($statusInt, [ClaimStatus::InReview, ClaimStatus::Active])
+                ($statusInt === ClaimStatus::InReview || $claim->Status === ClaimStatus::InReview)
                 && $claim->Status !== $statusInt
             ) {
                 $this->authorize('review', $claim);
