@@ -151,7 +151,7 @@ class BuildGameListAction
             ->whereIn('game_id', $gameIds)
             ->with(['badges' => function ($query) use ($user) {
                 $query->where('user_id', $user->id)
-                    ->whereIn('AwardType', [AwardType::GameBeaten, AwardType::Mastery]);
+                    ->whereIn('award_type', [AwardType::GameBeaten, AwardType::Mastery]);
             }])
             ->get()
             ->keyBy('game_id');

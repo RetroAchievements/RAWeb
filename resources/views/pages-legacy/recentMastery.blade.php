@@ -15,7 +15,7 @@ $offset = requestInputSanitized('o', 0, 'integer');
 $offset = max($offset, 0);
 $followed = requestInputSanitized('f', 0, 'integer');
 $date = requestInputSanitized('d', date("Y-m-d"));
-$awardType = requestInputSanitized('t');
+$awardTypeInput = requestInputSanitized('t');
 $unlockMode = requestInputSanitized('m');
 
 if ($unlockMode === 's') {
@@ -26,20 +26,26 @@ if ($unlockMode === 's') {
 
 $lbUsers = $followed === 1 ? 'Followed Users' : '';
 
-if ($awardType != AwardType::GameBeaten && $awardType != AwardType::Mastery) {
-    $awardType = null;
+$awardType = null;
+if ($awardTypeInput == AwardType::Mastery->toLegacyInteger()) {
+    $awardType = AwardType::Mastery;
+} elseif ($awardTypeInput == AwardType::GameBeaten->toLegacyInteger()) {
+    $awardType = AwardType::GameBeaten;
 }
+
 if ($unlockMode != UnlockMode::Hardcore && $unlockMode != UnlockMode::Softcore) {
     $unlockMode = null;
 }
 
 // Which award type filter should we default to?
 $awardTypes = [
-    AwardType::Mastery => ['mastered', 'completed'],
-    AwardType::GameBeaten => ['beaten-hardcore', 'beaten-softcore'],
+    AwardType::Mastery->value => ['mastered', 'completed'],
+    AwardType::GameBeaten->value => ['beaten-hardcore', 'beaten-softcore'],
 ];
 $index = $unlockMode == UnlockMode::Hardcore ? 0 : 1;
-$selectedAwardType = $awardTypes[$awardType][$index] ?? null;
+$selectedAwardType = $awardType ? ($awardTypes[$awardType->value][$index] ?? null) : null;
+
+$awardTypeUrlParam = $awardType?->toLegacyInteger() ?? '';
 
 if ($followed == 1) {
     $data = getRecentProgressionAwardData($date, $userModel, $offset, $maxCount + 1, $awardType, $unlockMode);
@@ -84,13 +90,13 @@ if ($followed == 1) {
             echo "</td>";
 
             echo "<td>";
-            if ($dataPoint['AwardType'] == AwardType::Mastery) {
+            if ($dataPoint['AwardType'] == AwardType::Mastery->toLegacyInteger()) {
                 if ($dataPoint['AwardDataExtra'] == 1) {
                     echo "Mastered";
                 } else {
                     echo "Completed";
                 }
-            } elseif ($dataPoint['AwardType'] == AwardType::GameBeaten) {
+            } elseif ($dataPoint['AwardType'] == AwardType::GameBeaten->toLegacyInteger()) {
                 if ($dataPoint['AwardDataExtra'] == 1) {
                     echo "Beaten";
                 } else {
@@ -124,25 +130,25 @@ if ($followed == 1) {
     echo "<div class='text-right'>";
     if ($date > $minDate) {
         $prevDate = date('Y-m-d', strtotime($date . "-1 days"));
-        echo "<a href='/recentMastery.php?d=$prevDate&f=$followed&o=0&t=$awardType&m=$unlockMode'>&lt; Prev Day </a>";
+        echo "<a href='/recentMastery.php?d=$prevDate&f=$followed&o=0&t=$awardTypeUrlParam&m=$unlockMode'>&lt; Prev Day </a>";
         if ($date < date("Y-m-d")) {
             echo " | ";
         }
     }
     if ($offset > 0) {
         $prevOffset = $offset - $maxCount;
-        echo "<a href='/recentMastery.php?d=$date&f=$followed&o=$prevOffset&t=$awardType&m=$unlockMode'>&lt; Prev $maxCount </a>";
+        echo "<a href='/recentMastery.php?d=$date&f=$followed&o=$prevOffset&t=$awardTypeUrlParam&m=$unlockMode'>&lt; Prev $maxCount </a>";
     }
     if ($userCount > $maxCount) {
         if ($offset > 0) {
             echo " - ";
         }
         $nextOffset = $offset + $maxCount;
-        echo "<a href='/recentMastery.php?d=$date&f=$followed&o=$nextOffset&t=$awardType&m=$unlockMode'>Next $maxCount &gt;</a>";
+        echo "<a href='/recentMastery.php?d=$date&f=$followed&o=$nextOffset&t=$awardTypeUrlParam&m=$unlockMode'>Next $maxCount &gt;</a>";
     }
     if ($date < date("Y-m-d")) {
         $nextDate = date('Y-m-d', strtotime($date . "+1 days"));
-        echo " | <a href='/recentMastery.php?d=$nextDate&f=$followed&o=0&t=$awardType&m=$unlockMode'>Next Day &gt;</a>";
+        echo " | <a href='/recentMastery.php?d=$nextDate&f=$followed&o=0&t=$awardTypeUrlParam&m=$unlockMode'>Next Day &gt;</a>";
     }
     echo "</div>";
     ?>

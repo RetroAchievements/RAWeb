@@ -52,13 +52,14 @@ $siteAwardsCount = count($siteAwards);
 $onlyVisibleUserAwards = [];
 
 foreach ($userAwards as $userAward) {
-    if ($userAward['AwardType'] == AwardType::Mastery) {
+    $awardType = (int) $userAward['AwardType'];
+    if ($awardType === AwardType::Mastery->toLegacyInteger()) {
         if ($userAward['AwardDataExtra'] == UnlockMode::Hardcore) {
             $masteryCount++;
         } else {
             $completionCount++;
         }
-    } elseif ($userAward['AwardType'] == AwardType::GameBeaten) {
+    } elseif ($awardType === AwardType::GameBeaten->toLegacyInteger()) {
         if ($userAward['AwardDataExtra'] == UnlockMode::Hardcore) {
             $beatenHardcoreCount++;
         } else {
@@ -71,8 +72,8 @@ foreach ($userAwards as &$userAward) {
     $userAward['AwardedAt'] = Carbon::createFromTimestampUTC($userAward['AwardedAt'])->toIso8601String();
 
     $awardType = (int) $userAward['AwardType'];
-    $userAward['AwardType'] = AwardType::toString($awardType);
-    if ($awardType === AwardType::Event) {
+    $userAward['AwardType'] = AwardType::fromLegacyInteger($awardType)->label();
+    if ($awardType === AwardType::Event->toLegacyInteger()) {
         foreach ($siteAwards as $siteAward) {
             if ($siteAward['AwardData'] === $userAward['AwardData']) {
                 $userAward['AwardType'] = 'Site Event';

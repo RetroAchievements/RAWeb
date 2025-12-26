@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
+use App\Community\Enums\AwardType;
 use App\Models\PlayerBadge;
 use Illuminate\Database\Eloquent\Builder;
 
 class AwardEarnersService
 {
-    private int $awardType;
+    private AwardType $awardType;
     private int $awardId;
     private int $awardExtra;
 
-    public function initialize(int $type, int $id, int $extra): void
+    public function initialize(AwardType $type, int $id, int $extra): void
     {
         $this->awardType = $type;
         $this->awardId = $id;
@@ -26,13 +27,13 @@ class AwardEarnersService
     private function baseQuery(): Builder
     {
         return PlayerBadge::query()
-            ->where('AwardType', $this->awardType)
-            ->where('AwardData', $this->awardId)
-            ->where('AwardDataExtra', $this->awardExtra)
+            ->where('award_type', $this->awardType)
+            ->where('award_data', $this->awardId)
+            ->where('award_data_extra', $this->awardExtra)
             ->whereNotExists(function ($query) {
                 $query->select('user_id')
                     ->from('unranked_users')
-                    ->whereColumn('unranked_users.user_id', 'SiteAwards.user_id');
+                    ->whereColumn('unranked_users.user_id', 'user_awards.user_id');
             });
     }
 
@@ -47,6 +48,6 @@ class AwardEarnersService
     public function allEarners(): Builder
     {
         return $this->baseQuery()->with('user')
-            ->orderBy('AwardDate');
+            ->orderBy('awarded_at');
     }
 }

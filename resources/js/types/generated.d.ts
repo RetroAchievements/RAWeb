@@ -222,12 +222,22 @@ declare namespace App.Community.Data {
   };
 }
 declare namespace App.Community.Enums {
+  export type ClaimSetType = 0 | 1;
   export type MessageThreadTemplateKind =
     | 'achievement-issue'
     | 'manual-unlock'
     | 'misclassification'
     | 'unwelcome-concept'
     | 'writing-error';
+  export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+  export type AwardType =
+    | 'mastery'
+    | 'achievement_unlocks_yield'
+    | 'achievement_points_yield'
+    | 'patreon_supporter'
+    | 'certified_legend'
+    | 'game_beaten'
+    | 'event';
   export type ModerationReportableType =
     | 'Comment'
     | 'DirectMessage'
@@ -251,9 +261,6 @@ declare namespace App.Community.Enums {
     | 'GameAchievements'
     | 'AchievementTicket';
   export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
-  export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
-  export type AwardType = 1 | 2 | 3 | 6 | 7 | 8 | 9;
-  export type ClaimSetType = 0 | 1;
   export type ClaimStatus = 0 | 1 | 2 | 3;
   export type ClaimType = 0 | 1;
   export type TicketState = 0 | 1 | 2 | 3 | 'Demoted';
@@ -1024,7 +1031,7 @@ declare namespace App.Platform.Data {
     timeTakenHardcore?: number | null;
   };
   export type PlayerBadge = {
-    awardType: number;
+    awardType: App.Community.Enums.AwardType;
     awardData: number;
     awardDataExtra: number;
     awardDate: string;

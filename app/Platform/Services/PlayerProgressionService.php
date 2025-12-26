@@ -77,11 +77,11 @@ class PlayerProgressionService
             $key = $award['AwardData']; // Game ID
 
             $awardKinds = [
-                AwardType::GameBeaten => [
+                AwardType::GameBeaten->toLegacyInteger() => [
                     UnlockMode::Softcore => 'beaten-softcore',
                     UnlockMode::Hardcore => 'beaten-hardcore',
                 ],
-                AwardType::Mastery => [
+                AwardType::Mastery->toLegacyInteger() => [
                     UnlockMode::Softcore => 'completed',
                     UnlockMode::Hardcore => 'mastered',
                 ],

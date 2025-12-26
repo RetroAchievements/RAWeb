@@ -12,7 +12,7 @@ function SeparateAwards(array $userAwards): array
     $awardEventIds = [];
     foreach ($userAwards as $award) {
         $type = (int) $award['AwardType'];
-        if ($type === AwardType::Event) {
+        if ($type === AwardType::Event->toLegacyInteger()) {
             $awardEventIds[] = (int) $award['AwardData'];
         } elseif (AwardType::isGame($type) && $award['ConsoleName'] === 'Events') {
             $awardEventGameIds[] = (int) $award['AwardData'];
@@ -41,10 +41,10 @@ function SeparateAwards(array $userAwards): array
         if (AwardType::isGame($type)) {
             if ($award['ConsoleName'] === 'Events') {
                 $eventAwards[] = $award;
-            } elseif ($award['AwardType'] !== AwardType::GameBeaten) {
+            } elseif ($type !== AwardType::GameBeaten->toLegacyInteger()) {
                 $gameAwards[] = $award;
             }
-        } elseif ($type === AwardType::Event) {
+        } elseif ($type === AwardType::Event->toLegacyInteger()) {
             if ($eventData[$id]?->gives_site_award) {
                 $siteAwards[] = $award;
             } else {
@@ -206,7 +206,7 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, Collec
     $awardButGameIsIncomplete = (isset($award['Incomplete']) && $award['Incomplete'] == 1);
     $imgclass = 'badgeimg siteawards';
 
-    if ($awardType == AwardType::Mastery) {
+    if ($awardType === AwardType::Mastery->toLegacyInteger()) {
         if ($awardDataExtra == '1') {
             $awarded = "Mastered on $awardDate";
             $imgclass = 'goldimage';
@@ -226,7 +226,7 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, Collec
         return;
     }
 
-    if ($awardType == AwardType::Event) {
+    if ($awardType === AwardType::Event->toLegacyInteger()) {
         $event = $eventData->find($awardData);
         if ($event) {
             $tooltip = "Awarded for completing the {$event->title} event";
@@ -259,29 +259,31 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, Collec
         return;
     }
 
-    if ($awardType == AwardType::AchievementUnlocksYield) {
+    $awardTypeEnum = AwardType::fromLegacyInteger($awardType);
+
+    if ($awardTypeEnum === AwardType::AchievementUnlocksYield) {
         // Developed a number of earned achievements
-        $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . PlayerBadge::getBadgeThreshold($awardType, $awardData) . " times!";
+        $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . PlayerBadge::getBadgeThreshold($awardTypeEnum, $awardData) . " times!";
         $imagepath = asset("/assets/images/badge/contribYield-$awardData.png");
         $imgclass = 'goldimage';
         $linkdest = '';
         // TBD: developer sets page?
-    } elseif ($awardType == AwardType::AchievementPointsYield) {
+    } elseif ($awardTypeEnum === AwardType::AchievementPointsYield) {
         // Yielded an amount of points earned by players
-        $tooltip = "Awarded for producing many valuable achievements, providing over " . PlayerBadge::getBadgeThreshold($awardType, $awardData) . " points to the community!";
+        $tooltip = "Awarded for producing many valuable achievements, providing over " . PlayerBadge::getBadgeThreshold($awardTypeEnum, $awardData) . " points to the community!";
         $imagepath = asset("/assets/images/badge/contribPoints-$awardData.png");
         $imgclass = 'goldimage';
         $linkdest = ''; // TBD: developer sets page?
-    // } elseif ($awardType == AwardType::Referrals) {
+    // } elseif ($awardTypeEnum === AwardType::Referrals) {
     //     $tooltip = "Referred $awardData members";
     //     $imagepath = "/Badge/00083.png";
     //     $linkdest = ''; // TBD: referrals page?
-    } elseif ($awardType == AwardType::PatreonSupporter) {
+    } elseif ($awardTypeEnum === AwardType::PatreonSupporter) {
         $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
         $imagepath = asset('/assets/images/badge/patreon.png');
         $imgclass = 'goldimage';
         $linkdest = route('patreon-supporter.index');
-    } elseif ($awardType == AwardType::CertifiedLegend) {
+    } elseif ($awardTypeEnum === AwardType::CertifiedLegend) {
         $tooltip = 'Specially Awarded to a Certified RetroAchievements Legend';
         $imagepath = asset('/assets/images/badge/legend.png');
         $imgclass = 'goldimage';
@@ -360,15 +362,17 @@ function RenderAwardOrderTable(
             $awardDataExtra,
         );
 
-        if ($awardType == AwardType::Mastery) {
+        $awardTypeEnum = AwardType::fromLegacyInteger((int) $awardType);
+
+        if ($awardTypeEnum === AwardType::Mastery) {
             $awardTitle = Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $awardTitle]);
-        } elseif ($awardType == AwardType::AchievementUnlocksYield) {
+        } elseif ($awardTypeEnum === AwardType::AchievementUnlocksYield) {
             $awardTitle = "Achievements Earned by Others";
-        } elseif ($awardType == AwardType::AchievementPointsYield) {
+        } elseif ($awardTypeEnum === AwardType::AchievementPointsYield) {
             $awardTitle = "Achievement Points Earned by Others";
-        } elseif ($awardType == AwardType::PatreonSupporter) {
+        } elseif ($awardTypeEnum === AwardType::PatreonSupporter) {
             $awardTitle = "Patreon Supporter";
-        } elseif ($awardType == AwardType::CertifiedLegend) {
+        } elseif ($awardTypeEnum === AwardType::CertifiedLegend) {
             $awardTitle = "Certified Legend";
         }
 

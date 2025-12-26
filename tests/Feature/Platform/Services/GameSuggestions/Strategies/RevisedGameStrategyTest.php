@@ -27,8 +27,8 @@ class RevisedGameStrategyTest extends TestCase
         // ... user has a mastery badge for the game ...
         PlayerBadge::factory()->create([
             'user_id' => $user->id,
-            'AwardType' => AwardType::Mastery,
-            'AwardData' => $game->id,
+            'award_type' => AwardType::Mastery,
+            'award_data' => $game->id,
         ]);
 
         // ... but their completion is now less than 100% due to revisions! ...
@@ -61,8 +61,8 @@ class RevisedGameStrategyTest extends TestCase
         // ... user has mastery badge AND 100% completion ...
         PlayerBadge::factory()->create([
             'user_id' => $user->id,
-            'AwardType' => AwardType::Mastery,
-            'AwardData' => $game->id,
+            'award_type' => AwardType::Mastery,
+            'award_data' => $game->id,
         ]);
 
         PlayerGame::factory()->create([

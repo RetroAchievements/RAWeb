@@ -1,7 +1,5 @@
 import { useTranslation } from 'react-i18next';
 
-import { AwardType } from '../utils/generatedAppConstants';
-
 export function useGetAwardLabelFromPlayerBadge() {
   const { t } = useTranslation();
 
@@ -10,9 +8,9 @@ export function useGetAwardLabelFromPlayerBadge() {
 
     const { awardType, awardDataExtra } = playerBadge;
 
-    if (awardType === AwardType.Mastery) {
+    if (awardType === 'mastery') {
       awardLabel = awardDataExtra ? t('Mastered') : t('Completed');
-    } else if (awardType === AwardType.GameBeaten) {
+    } else if (awardType === 'game_beaten') {
       awardLabel = awardDataExtra ? t('Beaten') : t('Beaten (softcore)');
     }
 

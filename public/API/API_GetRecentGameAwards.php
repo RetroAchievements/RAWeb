@@ -62,21 +62,21 @@ if (!empty($awardKindsCsv) && empty($awardKinds)) {
 
 // Construct the initial base query, which pulls beaten and mastery awards.
 $baseQuery = PlayerBadge::with('user')->where(function ($query) {
-    $query->where('AwardType', AwardType::Mastery)
-        ->orWhere('AwardType', AwardType::GameBeaten);
+    $query->where('award_type', AwardType::Mastery)
+        ->orWhere('award_type', AwardType::GameBeaten);
 });
 
 // If the consumer is trying to filter by a start date, add that filtering to the query.
 if ($targetDate !== null) {
-    $baseQuery->whereDate('AwardDate', '<=', $targetDate);
+    $baseQuery->whereDate('awarded_at', '<=', $targetDate);
 }
 
 // If the consumer is trying to filter by specific award kinds, add that filtering to the query.
 $kindMapping = [
-    'beaten-softcore' => ['AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => false],
-    'beaten-hardcore' => ['AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => true],
-    'completed' => ['AwardType' => AwardType::Mastery, 'AwardDataExtra' => false],
-    'mastered' => ['AwardType' => AwardType::Mastery, 'AwardDataExtra' => true],
+    'beaten-softcore' => ['award_type' => AwardType::GameBeaten, 'award_data_extra' => false],
+    'beaten-hardcore' => ['award_type' => AwardType::GameBeaten, 'award_data_extra' => true],
+    'completed' => ['award_type' => AwardType::Mastery, 'award_data_extra' => false],
+    'mastered' => ['award_type' => AwardType::Mastery, 'award_data_extra' => true],
 ];
 if (!empty($awardKinds)) {
     $baseQuery->where(function ($query) use ($awardKinds, $kindMapping) {
@@ -84,8 +84,8 @@ if (!empty($awardKinds)) {
             if (isset($kindMapping[$awardKind])) {
                 $mapping = $kindMapping[$awardKind];
                 $query->orWhere(function ($q) use ($mapping) {
-                    $q->where('AwardType', $mapping['AwardType'])
-                        ->where('AwardDataExtra', $mapping['AwardDataExtra']);
+                    $q->where('award_type', $mapping['award_type'])
+                        ->where('award_data_extra', $mapping['award_data_extra']);
                 });
             }
         }
@@ -93,12 +93,12 @@ if (!empty($awardKinds)) {
 }
 
 // Now, actually make the fetch, which includes both a limit and the offset.
-$fetchedGameAwards = (clone $baseQuery)->orderBy('AwardDate', 'desc')
+$fetchedGameAwards = (clone $baseQuery)->orderBy('awarded_at', 'desc')
     ->skip($offset)
     ->limit($count)
     ->get();
 
-$gameAwardGameIds = $fetchedGameAwards->pluck('AwardData')->unique()->filter();
+$gameAwardGameIds = $fetchedGameAwards->pluck('award_data')->unique()->filter();
 $associatedGames = Game::with('system')->whereIn('ID', $gameAwardGameIds)
     ->get()
     ->keyBy('ID');
@@ -109,18 +109,18 @@ $associatedSystems = System::whereIn('ID', $systemIds)->get(['ID', 'Name'])->key
 $mappedGameAwards = $fetchedGameAwards
     ->filter(fn ($gameAward) => $gameAward->user !== null)
     ->map(function ($gameAward) use ($associatedGames, $associatedSystems) {
-        $associatedGame = $associatedGames->get($gameAward->AwardData);
+        $associatedGame = $associatedGames->get($gameAward->award_data);
 
-        $awardKind = $gameAward->AwardType === AwardType::GameBeaten
-            ? ($gameAward->AwardDataExtra ? 'beaten-hardcore' : 'beaten-softcore')
-            : ($gameAward->AwardDataExtra ? 'mastered' : 'completed');
+        $awardKind = $gameAward->award_type === AwardType::GameBeaten
+            ? ($gameAward->award_data_extra ? 'beaten-hardcore' : 'beaten-softcore')
+            : ($gameAward->award_data_extra ? 'mastered' : 'completed');
 
         $mappedAward = [
             'User' => $gameAward->user->display_name,
             'ULID' => $gameAward->user->ulid,
             'AwardKind' => $awardKind,
-            'AwardDate' => $gameAward->AwardDate->toIso8601String(),
-            'GameID' => $gameAward->AwardData,
+            'AwardDate' => $gameAward->awarded_at->toIso8601String(),
+            'GameID' => $gameAward->award_data,
             'GameTitle' => $associatedGame->Title ?? null,
             'ConsoleID' => $associatedGame->ConsoleID ?? null,
             'ConsoleName' => $associatedSystems[$associatedGame->ConsoleID]->Name ?? null,

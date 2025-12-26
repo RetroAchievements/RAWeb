@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Events;
 
+use App\Community\Enums\AwardType;
 use App\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -18,7 +19,7 @@ class PlayerBadgeLost
 
     public function __construct(
         public User $user,
-        public int $awardType,
+        public AwardType $awardType,
         public int $awardData,
         public int $awardDataExtra,
     ) {

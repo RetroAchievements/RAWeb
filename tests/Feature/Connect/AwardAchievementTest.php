@@ -195,10 +195,10 @@ class AwardAchievementTest extends TestCase
 
         // verify badge was awarded
         $this->assertNotNull(PlayerBadge::where('user_id', $this->user->id)
-            ->where('AwardType', AwardType::Mastery)
-            ->where('AwardData', $game->ID)
-            ->where('AwardDataExtra', UnlockMode::Hardcore)
-            ->where('AwardDate', $newNow)
+            ->where('award_type', AwardType::Mastery)
+            ->where('award_data', $game->ID)
+            ->where('award_data_extra', UnlockMode::Hardcore)
+            ->where('awarded_at', $newNow)
             ->first()
         );
     }
@@ -359,10 +359,10 @@ class AwardAchievementTest extends TestCase
 
         // verify badge was awarded
         $this->assertNotNull(PlayerBadge::where('user_id', $this->user->id)
-            ->where('AwardType', AwardType::Mastery)
-            ->where('AwardData', $game->ID)
-            ->where('AwardDataExtra', UnlockMode::Softcore)
-            ->where('AwardDate', $newNow)
+            ->where('award_type', AwardType::Mastery)
+            ->where('award_data', $game->ID)
+            ->where('award_data_extra', UnlockMode::Softcore)
+            ->where('awarded_at', $newNow)
             ->first()
         );
     }

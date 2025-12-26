@@ -163,7 +163,7 @@ if ($includeAwardMetadata == '1') {
 
     if ($highestAwardMetadata) {
         $gameData['HighestAwardKind'] = $highestAwardMetadata['highestAwardKind'];
-        $gameData['HighestAwardDate'] = $highestAwardMetadata['highestAward']->AwardDate->toIso8601String();
+        $gameData['HighestAwardDate'] = $highestAwardMetadata['highestAward']->awarded_at->toIso8601String();
     } else {
         $gameData['HighestAwardKind'] = null;
         $gameData['HighestAwardDate'] = null;

@@ -330,7 +330,7 @@ class GameListService
                 continue;
             }
 
-            if ($award['AwardType'] == AwardType::GameBeaten) {
+            if ($award['AwardType'] == AwardType::GameBeaten->toLegacyInteger()) {
                 // Check if a higher-ranked award ('completed' or 'mastered') is already present.
                 if (!isset($awardsLookup[$gameId]) || ($awardsLookup[$gameId] != 'completed' && $awardsLookup[$gameId] != 'mastered')) {
                     $awardsLookup[$gameId] =
@@ -340,7 +340,7 @@ class GameListService
 
                     $awardsDateLookup[$gameId] = $award['AwardedAt'];
                 }
-            } elseif ($award['AwardType'] == AwardType::Mastery) {
+            } elseif ($award['AwardType'] == AwardType::Mastery->toLegacyInteger()) {
                 $awardsLookup[$gameId] =
                     $award['AwardDataExtra'] == UnlockMode::Softcore
                         ? 'completed'

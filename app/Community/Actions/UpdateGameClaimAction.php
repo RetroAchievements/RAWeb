@@ -112,8 +112,8 @@ class UpdateGameClaimAction
         if ($claim->SetType === ClaimSetType::Revision) {
             // Send email to users who had previously mastered the set
             $userAwards = PlayerBadge::with('user')
-                ->where('AwardData', $game->ID)
-                ->where('AwardType', AwardType::Mastery)
+                ->where('award_data', $game->ID)
+                ->where('award_type', AwardType::Mastery)
                 ->get();
 
             foreach ($userAwards as $userAward) {
@@ -121,7 +121,7 @@ class UpdateGameClaimAction
                     Mail::to($userAward->user)->queue(new SetRevisionNotificationMail(
                         $userAward->user,
                         $game,
-                        $userAward->AwardDataExtra === 1
+                        $userAward->award_data_extra === 1
                     ));
                 }
             }

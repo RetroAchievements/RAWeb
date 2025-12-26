@@ -1,4 +1,3 @@
-import { AwardType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
 import { createPlayerBadge } from '@/test/factories';
 
@@ -16,7 +15,7 @@ describe('Component: PlayerBadgeIndicator', () => {
   it('renders an accessible label for mastery', () => {
     // ARRANGE
     const playerBadge = createPlayerBadge({
-      awardType: AwardType.Mastery,
+      awardType: 'mastery',
       awardDataExtra: 1,
     });
 
@@ -29,7 +28,7 @@ describe('Component: PlayerBadgeIndicator', () => {
   it('renders an accessible label for completion', () => {
     // ARRANGE
     const playerBadge = createPlayerBadge({
-      awardType: AwardType.Mastery,
+      awardType: 'mastery',
       awardDataExtra: 0,
     });
 
@@ -42,7 +41,7 @@ describe('Component: PlayerBadgeIndicator', () => {
   it('renders an accessible label for beaten', () => {
     // ARRANGE
     const playerBadge = createPlayerBadge({
-      awardType: AwardType.GameBeaten,
+      awardType: 'game_beaten',
       awardDataExtra: 1,
     });
 
@@ -55,7 +54,7 @@ describe('Component: PlayerBadgeIndicator', () => {
   it('renders an accessible label for beaten softcore', () => {
     // ARRANGE
     const playerBadge = createPlayerBadge({
-      awardType: AwardType.GameBeaten,
+      awardType: 'game_beaten',
       awardDataExtra: 0,
     });
 

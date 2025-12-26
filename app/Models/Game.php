@@ -757,7 +757,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function playerBadges(): HasMany
     {
-        return $this->hasMany(PlayerBadge::class, 'AwardData', 'ID');
+        return $this->hasMany(PlayerBadge::class, 'award_data', 'ID');
     }
 
     /**

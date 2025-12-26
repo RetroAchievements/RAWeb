@@ -1,6 +1,5 @@
 import { BaseDialog } from '@/common/components/+vendor/BaseDialog';
 import { createAuthenticatedUser } from '@/common/models';
-import { AwardType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
 import {
   createGame,
@@ -581,7 +580,7 @@ describe('Component: GameListItemDialogContent', () => {
       const playerGame = createPlayerGame({
         achievementsUnlocked: 30,
         highestAward: createPlayerBadge({
-          awardType: AwardType.Mastery,
+          awardType: 'mastery',
           awardDataExtra: 1,
         }),
       });

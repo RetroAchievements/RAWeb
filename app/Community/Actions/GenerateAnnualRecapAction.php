@@ -312,9 +312,9 @@ class GenerateAnnualRecapAction
     private function summarizeAwards(array &$recapData, User $user, Carbon $startDate, Carbon $endDate): void
     {
         $awards = PlayerBadge::where('user_id', $user->id)
-            ->where('AwardDate', '>=', $startDate)
-            ->where('AwardDate', '<', $endDate)
-            ->whereIn('AwardType', [
+            ->where('awarded_at', '>=', $startDate)
+            ->where('awarded_at', '<', $endDate)
+            ->whereIn('award_type', [
                 AwardType::Mastery,
                 AwardType::GameBeaten,
                 AwardType::Event,
@@ -322,7 +322,7 @@ class GenerateAnnualRecapAction
                 AwardType::AchievementPointsYield,
                 AwardType::CertifiedLegend,
             ])
-            ->join('GameData', 'GameData.ID', '=', 'AwardData')
+            ->join('GameData', 'GameData.ID', '=', 'award_data')
             ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
             ->get();
 
@@ -339,17 +339,17 @@ class GenerateAnnualRecapAction
         // determine best award for each game
         $bestAwards = [];
         foreach ($awards as $award) {
-            switch ($award->AwardType) {
+            switch ($award->award_type) {
                 case AwardType::Mastery:
-                    $awardType = ($award->AwardDataExtra === 1) ? $MASTERED : $COMPLETED;
+                    $awardType = ($award->award_data_extra === 1) ? $MASTERED : $COMPLETED;
                     break;
 
                 case AwardType::GameBeaten:
-                    $awardType = ($award->AwardDataExtra === 1) ? $BEATEN : $BEATENSOFTCORE;
+                    $awardType = ($award->award_data_extra === 1) ? $BEATEN : $BEATENSOFTCORE;
                     break;
 
                 case AwardType::Event:
-                    $eventIds[] = $award->AwardData;
+                    $eventIds[] = $award->award_data;
                     $awardType = $OTHER;
                     break;
 
@@ -360,8 +360,8 @@ class GenerateAnnualRecapAction
             }
 
             if ($awardType !== $OTHER) {
-                if (!array_key_exists($award->AwardData, $bestAwards) || $awardType < $bestAwards[$award->AwardData]) {
-                    $bestAwards[$award->AwardData] = $awardType;
+                if (!array_key_exists($award->award_data, $bestAwards) || $awardType < $bestAwards[$award->award_data]) {
+                    $bestAwards[$award->award_data] = $awardType;
                 }
             }
         }

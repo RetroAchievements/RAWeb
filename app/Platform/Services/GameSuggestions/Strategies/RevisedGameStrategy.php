@@ -33,7 +33,7 @@ class RevisedGameStrategy implements GameSuggestionStrategy
                 $query->whereUserId($this->user->id)->whereNotAllAchievementsUnlocked();
             })
             ->whereHas('playerBadges', function ($query) {
-                $query->whereUserId($this->user->id)->where('AwardType', AwardType::Mastery);
+                $query->whereUserId($this->user->id)->where('award_type', AwardType::Mastery);
             })
             ->whereHasPublishedAchievements()
             ->inRandomOrder()

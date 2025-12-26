@@ -88,9 +88,9 @@ class UserRecentlyPlayed extends Component
     private function determineAwardKind(array $userAward): ?string
     {
         switch ($userAward['AwardType']) {
-            case AwardType::Mastery:
+            case AwardType::Mastery->toLegacyInteger():
                 return $userAward['AwardDataExtra'] == 1 ? 'mastered' : 'completed';
-            case AwardType::GameBeaten:
+            case AwardType::GameBeaten->toLegacyInteger():
                 return $userAward['AwardDataExtra'] == 1 ? 'beaten-hardcore' : 'beaten-softcore';
             default:
                 return null;
