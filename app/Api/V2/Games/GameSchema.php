@@ -12,6 +12,7 @@ use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
+use LaravelJsonApi\Eloquent\Fields\Relations\BelongsToMany;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
@@ -73,6 +74,8 @@ class GameSchema extends Schema
             Number::make('medianTimeToBeatHardcoreMinutes', 'median_time_to_beat_hardcore'),
 
             BelongsTo::make('system')->readOnly(),
+
+            BelongsToMany::make('achievementSets')->readOnly(),
         ];
     }
 

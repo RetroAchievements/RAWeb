@@ -58,6 +58,7 @@ class GameResource extends BaseJsonApiResource
     public function relationships($request): iterable
     {
         return [
+            'achievementSets' => $this->relation('achievementSets')->withoutLinks(),
             'system' => $this->relation('system')->withoutLinks(),
         ];
     }

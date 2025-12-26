@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Platform\Enums\AchievementSetType;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\AchievementSetFactory;
 use Fico7489\Laravel\Pivot\Traits\PivotEventTrait;
@@ -174,6 +175,30 @@ class AchievementSet extends BaseModel
     public function games(): BelongsToMany
     {
         return $this->belongsToMany(Game::class, 'game_achievement_sets', 'achievement_set_id', 'game_id', 'id', 'ID');
+    }
+
+    /**
+     * Returns games linked to this achievement set, excluding legacy "subset backing games".
+     * A backing game is one where the set is attached as type=core but also exists
+     * as non-core on another game (the actual subset parent).
+     *
+     * @return BelongsToMany<Game, $this>
+     */
+    public function linkedGames(): BelongsToMany
+    {
+        return $this->belongsToMany(Game::class, 'game_achievement_sets', 'achievement_set_id', 'game_id', 'id', 'ID')
+            ->where(function ($query) {
+                $query->where('game_achievement_sets.type', '!=', AchievementSetType::Core->value)
+                    ->orWhere(function ($subQuery) {
+                        $subQuery->where('game_achievement_sets.type', AchievementSetType::Core->value)
+                            ->whereNotExists(function ($existsQuery) {
+                                $existsQuery->selectRaw('1')
+                                    ->from('game_achievement_sets as gas_check')
+                                    ->whereColumn('gas_check.achievement_set_id', 'game_achievement_sets.achievement_set_id')
+                                    ->where('gas_check.type', '!=', AchievementSetType::Core->value);
+                            });
+                    });
+            });
     }
 
     /**

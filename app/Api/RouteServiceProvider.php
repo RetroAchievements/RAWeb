@@ -12,6 +12,7 @@ use App\Api\Middleware\LogApiRequest;
 use App\Api\Middleware\LogLegacyApiUsage;
 use App\Api\Middleware\ServiceAccountOnly;
 use App\Api\V1\Controllers\WebApiV1Controller;
+use App\Api\V2\Controllers\AchievementSetController;
 use App\Api\V2\Controllers\GameController;
 use App\Api\V2\Controllers\SystemController;
 use App\Api\V2\Controllers\UserController;
@@ -99,6 +100,10 @@ class RouteServiceProvider extends ServiceProvider
                             'throttle:' . $rateLimit
                         )
                         ->resources(function ($server) {
+                            $server->resource('achievement-sets', AchievementSetController::class)
+                                ->only('show')
+                                ->readOnly();
+
                             $server->resource('games', GameController::class)
                                 ->only('index', 'show')
                                 ->readOnly();

@@ -29,6 +29,7 @@ class Server extends BaseServer
     protected function allSchemas(): array
     {
         return [
+            AchievementSets\AchievementSetSchema::class,
             Games\GameSchema::class,
             Systems\SystemSchema::class,
             Users\UserSchema::class,
