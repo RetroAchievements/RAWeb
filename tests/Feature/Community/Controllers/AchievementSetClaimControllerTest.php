@@ -955,4 +955,67 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertEquals($reviewDate, $claim->Updated);
         $this->assertEquals(1, $claim->Extension);
     }
+
+    public function testModeratorCanReactivateCompletedClaim(): void
+    {
+        $this->seed(RolesTableSeeder::class);
+
+        /** @var User $developer */
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+
+        /** @var User $moderator */
+        $moderator = User::factory()->create();
+        $moderator->assignRole(Role::MODERATOR);
+
+        /** @var Game $game */
+        $game = $this->seedGame(withHash: false);
+
+        Forum::factory()->create(['id' => 10, 'title' => 'Default']);
+
+        // ... developer creates a claim ...
+        $claimDate = Carbon::now()->startOfSecond();
+        Carbon::setTestNow($claimDate);
+
+        $response = $this->actingAs($developer)->postJson(route('achievement-set-claim.create', $game->id));
+        $response->assertStatus(302);
+        $response->assertSessionHas('success', 'Claim created successfully');
+
+        $claim = $game->achievementSetClaims()->first();
+        $this->assertNotNull($claim);
+        $this->assertEquals(ClaimStatus::Active, $claim->Status);
+
+        // ... add achievements so the claim can be completed ...
+        $this->seedAchievements(amount: 6, game: $game);
+
+        // ... developer completes the claim ...
+        $completeDate = $claimDate->clone()->addDays(30);
+        Carbon::setTestNow($completeDate);
+
+        Session::flush();
+        $response = $this->actingAs($developer)->postJson(route('achievement-set-claim.update', $claim->ID), [
+            'status' => ClaimStatus::Complete,
+        ]);
+        $response->assertStatus(302);
+        $response->assertSessionHas('success', 'Claim updated successfully');
+
+        $claim->refresh();
+        $this->assertEquals(ClaimStatus::Complete, $claim->Status);
+
+        // ... moderator reactivates the claim ...
+        $reactivateDate = $completeDate->clone()->addDays(7);
+        Carbon::setTestNow($reactivateDate);
+
+        Session::flush();
+        $response = $this->actingAs($moderator)->postJson(route('achievement-set-claim.update', $claim->ID), [
+            'status' => ClaimStatus::Active,
+        ]);
+
+        $response->assertStatus(302);
+        $response->assertSessionHas('success', 'Claim updated successfully');
+
+        $claim->refresh();
+        $this->assertEquals(ClaimStatus::Active, $claim->Status);
+        $this->assertEquals($reactivateDate, $claim->Updated);
+    }
 }
