@@ -135,9 +135,9 @@ class BuildGameListAction
     private function getBacklogGames(User $user, Collection $gameIds): Collection
     {
         return $user->gameListEntries()
-            ->whereIn('GameID', $gameIds)
+            ->whereIn('game_id', $gameIds)
             ->where('type', UserGameListType::Play)
-            ->pluck('GameID')
+            ->pluck('game_id')
             ->flip(); // We flip the pluck results to use game IDs as keys for faster lookup.
     }
 

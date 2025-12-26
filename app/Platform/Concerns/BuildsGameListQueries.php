@@ -66,8 +66,8 @@ trait BuildsGameListQueries
         if ($listType === GameListType::SetRequests) {
             $query->addSelect([
                 'num_requests' => UserGameListEntry::selectRaw('COUNT(*)')
-                    ->whereColumn('SetRequest.GameID', 'GameData.ID')
-                    ->where(DB::raw('SetRequest.type'), UserGameListType::AchievementSetRequest),
+                    ->whereColumn('user_game_list_entries.game_id', 'GameData.ID')
+                    ->where(DB::raw('user_game_list_entries.type'), UserGameListType::AchievementSetRequest),
             ]);
         }
 
@@ -104,9 +104,9 @@ trait BuildsGameListQueries
                 $query->whereIn(DB::raw('GameData.ConsoleID'), $validSystemIds)
                     ->whereExists(function ($subquery) {
                         $subquery->select(DB::raw(1))
-                            ->from('SetRequest')
-                            ->whereColumn('SetRequest.GameID', 'GameData.ID')
-                            ->where(DB::raw('SetRequest.type'), UserGameListType::AchievementSetRequest);
+                            ->from('user_game_list_entries')
+                            ->whereColumn('user_game_list_entries.game_id', 'GameData.ID')
+                            ->where(DB::raw('user_game_list_entries.type'), UserGameListType::AchievementSetRequest);
                     });
                 break;
 
@@ -251,10 +251,10 @@ trait BuildsGameListQueries
             if ($filterKey === 'user' && !empty($filterValues[0])) {
                 $query->whereExists(function ($subquery) use ($filterValues) {
                     $subquery->select(DB::raw(1))
-                        ->from('SetRequest')
-                        ->join('UserAccounts', 'UserAccounts.ID', '=', 'SetRequest.user_id')
-                        ->whereColumn('SetRequest.GameID', 'GameData.ID')
-                        ->where(DB::raw('SetRequest.type'), UserGameListType::AchievementSetRequest)
+                        ->from('user_game_list_entries')
+                        ->join('UserAccounts', 'UserAccounts.ID', '=', 'user_game_list_entries.user_id')
+                        ->whereColumn('user_game_list_entries.game_id', 'GameData.ID')
+                        ->where(DB::raw('user_game_list_entries.type'), UserGameListType::AchievementSetRequest)
                         ->where('UserAccounts.display_name', $filterValues[0]);
                 });
                 continue;

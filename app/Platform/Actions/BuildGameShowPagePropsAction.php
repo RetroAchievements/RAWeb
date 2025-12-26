@@ -656,8 +656,7 @@ class BuildGameShowPagePropsAction
         }
 
         $results = UserGameListEntry::where('user_id', $user->id)
-            ->where('GameID', $game->id)
-            ->get(['type'])
+            ->where('game_id', $game->id)
             ->pluck('type')
             ->toArray();
 
@@ -793,7 +792,7 @@ class BuildGameShowPagePropsAction
         }
 
         return UserGameListEntry::where('type', UserGameListType::Develop)
-            ->where('GameID', $game->id)
+            ->where('game_id', $game->id)
             ->count();
     }
 

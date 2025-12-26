@@ -78,7 +78,7 @@ trait ActsAsCommunityMember
         $query = $this->hasMany(UserGameListEntry::class, 'user_id', 'ID');
 
         if ($type !== null) {
-            $query->where(DB::raw('SetRequest.type'), $type);
+            $query->where(DB::raw('user_game_list_entries.type'), $type);
         }
 
         return $query;
