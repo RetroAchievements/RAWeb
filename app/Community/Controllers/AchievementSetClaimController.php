@@ -33,7 +33,7 @@ class AchievementSetClaimController extends Controller
         }
 
         return back()->with('success', $this->resourceActionSuccessMessage('claim',
-            $claim->Created->equalTo($claim->Updated) ? 'create' : 'update'));
+            $claim->created_at->equalTo($claim->updated_at) ? 'create' : 'update'));
     }
 
     public function update(
@@ -45,14 +45,14 @@ class AchievementSetClaimController extends Controller
 
         // Determine which policy to use based on the status change.
         if (isset($status)) {
-            $statusInt = (int) $status;
+            $statusValue = is_string($status) ? $status : $status->value;
 
             if (
-                in_array($statusInt, [ClaimStatus::InReview, ClaimStatus::Active])
-                && $claim->Status !== $statusInt
+                in_array($statusValue, [ClaimStatus::InReview->value, ClaimStatus::Active->value])
+                && $claim->status->value !== $statusValue
             ) {
                 $this->authorize('review', $claim);
-            } elseif ($statusInt === ClaimStatus::Complete) {
+            } elseif ($statusValue === ClaimStatus::Complete->value) {
                 $this->authorize('complete', $claim);
             } else {
                 $this->authorize('update', $claim);

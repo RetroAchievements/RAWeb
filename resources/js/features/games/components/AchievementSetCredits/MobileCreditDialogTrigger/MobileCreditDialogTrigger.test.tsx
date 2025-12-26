@@ -1,7 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import dayjs from 'dayjs';
 
-import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { render, screen, waitFor } from '@/test';
 import {
   createAchievementSetClaim,
@@ -605,7 +604,7 @@ describe('Component: MobileCreditDialogTrigger', () => {
     const achievementSetClaims = [
       createAchievementSetClaim({
         user: createUser({ displayName: 'Alice' }),
-        status: ClaimStatus.InReview, // !!
+        status: 'in_review', // !!
       }),
     ];
 
@@ -629,7 +628,7 @@ describe('Component: MobileCreditDialogTrigger', () => {
     const achievementSetClaims = [
       createAchievementSetClaim({
         user: createUser({ displayName: 'Alice' }),
-        status: ClaimStatus.Active, // !! not In Review
+        status: 'active', // !! not In Review
       }),
     ];
 
@@ -653,7 +652,7 @@ describe('Component: MobileCreditDialogTrigger', () => {
     const achievementSetClaims = [
       createAchievementSetClaim({
         user: createUser({ displayName: 'Alice' }),
-        status: ClaimStatus.InReview, // !!
+        status: 'in_review', // !!
         finishedAt: dayjs().add(1, 'month').toISOString(),
       }),
     ];

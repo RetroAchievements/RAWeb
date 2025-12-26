@@ -282,16 +282,16 @@ class HomeControllerTest extends TestCase
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $gameWithAchievements->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Complete,
-            'Finished' => now(),
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Complete,
+            'finished_at' => now(),
         ]);
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $gameWithoutAchievements->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Complete,
-            'Finished' => now()->subHour(),
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Complete,
+            'finished_at' => now()->subHour(),
         ]);
 
         // Act
@@ -320,11 +320,11 @@ class HomeControllerTest extends TestCase
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Status' => ClaimStatus::Complete,
-            'Finished' => now(),
-            'Created' => now()->subDay(),
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'status' => ClaimStatus::Complete,
+            'finished_at' => now(),
+            'created_at' => now()->subDay(),
         ]);
 
         // Act
@@ -334,7 +334,7 @@ class HomeControllerTest extends TestCase
         $response->assertInertia(fn (Assert $page) => $page
             ->has('completedClaims', 1)
 
-            ->where('completedClaims.0.setType', ClaimSetType::NewSet)
+            ->where('completedClaims.0.setType', ClaimSetType::NewSet->value)
 
             ->where('completedClaims.0.game.id', $game->id)
             ->where('completedClaims.0.game.title', $game->title)
@@ -363,21 +363,21 @@ class HomeControllerTest extends TestCase
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Status' => ClaimStatus::Complete,
-            'Finished' => now()->subDays(2), // older claim
-            'Created' => now()->subDays(3),
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'status' => ClaimStatus::Complete,
+            'finished_at' => now()->subDays(2), // older claim
+            'created_at' => now()->subDays(3),
         ]);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetTYpe' => ClaimSetType::NewSet,
-            'Status' => ClaimStatus::Complete,
-            'Finished' => now()->subDay(), // newer claim
-            'Created' => now()->subDays(2),
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'status' => ClaimStatus::Complete,
+            'finished_at' => now()->subDay(), // newer claim
+            'created_at' => now()->subDays(2),
         ]);
 
         // Act
@@ -387,7 +387,7 @@ class HomeControllerTest extends TestCase
         $response->assertInertia(fn (Assert $page) => $page
             ->has('completedClaims', 1)
 
-            ->where('completedClaims.0.setType', ClaimSetType::NewSet)
+            ->where('completedClaims.0.setType', ClaimSetType::NewSet->value)
 
             ->where('completedClaims.0.game.id', $game->id)
             ->where('completedClaims.0.game.title', $game->title)
@@ -419,18 +419,18 @@ class HomeControllerTest extends TestCase
         AchievementSetClaim::factory()->create([
             'user_id' => $userOne->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Complete,
-            'Finished' => now()->subHour(),
-            'Created' => now()->subHours(3),
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Complete,
+            'finished_at' => now()->subHour(),
+            'created_at' => now()->subHours(3),
         ]);
         AchievementSetClaim::factory()->create([
             'user_id' => $userTwo->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Collaboration,
-            'Status' => ClaimStatus::Complete,
-            'Finished' => now()->subHours(2),
-            'Created' => now()->subDay(),
+            'claim_type' => ClaimType::Collaboration,
+            'status' => ClaimStatus::Complete,
+            'finished_at' => now()->subHours(2),
+            'created_at' => now()->subDay(),
         ]);
 
         // Act
@@ -521,11 +521,11 @@ class HomeControllerTest extends TestCase
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Status' => ClaimStatus::Active,
-            'Finished' => now(),
-            'Created' => now()->subDay(),
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'status' => ClaimStatus::Active,
+            'finished_at' => now(),
+            'created_at' => now()->subDay(),
         ]);
 
         // Act
@@ -536,7 +536,7 @@ class HomeControllerTest extends TestCase
             ->has('completedClaims', 0)
             ->has('newClaims', 1)
 
-            ->where('newClaims.0.setType', ClaimSetType::NewSet)
+            ->where('newClaims.0.setType', ClaimSetType::NewSet->value)
 
             ->where('newClaims.0.game.id', $game->id)
             ->where('newClaims.0.game.title', $game->title)
@@ -564,21 +564,21 @@ class HomeControllerTest extends TestCase
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Status' => ClaimStatus::Active,
-            'Finished' => now()->subDays(2), // older claim
-            'Created' => now()->subDays(3),
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'status' => ClaimStatus::Active,
+            'finished_at' => now()->subDays(2), // older claim
+            'created_at' => now()->subDays(3),
         ]);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetTYpe' => ClaimSetType::NewSet,
-            'Status' => ClaimStatus::Active,
-            'Finished' => now()->subDay(), // newer claim
-            'Created' => now()->subDays(2),
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'status' => ClaimStatus::Active,
+            'finished_at' => now()->subDay(), // newer claim
+            'created_at' => now()->subDays(2),
         ]);
 
         // Act
@@ -588,7 +588,7 @@ class HomeControllerTest extends TestCase
         $response->assertInertia(fn (Assert $page) => $page
             ->has('newClaims', 1)
 
-            ->where('newClaims.0.setType', ClaimSetType::NewSet)
+            ->where('newClaims.0.setType', ClaimSetType::NewSet->value)
 
             ->where('newClaims.0.game.id', $game->id)
             ->where('newClaims.0.game.title', $game->title)
@@ -619,18 +619,18 @@ class HomeControllerTest extends TestCase
         AchievementSetClaim::factory()->create([
             'user_id' => $userOne->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Active,
-            'Finished' => now()->subHour(),
-            'Created' => now()->subHours(3),
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Active,
+            'finished_at' => now()->subHour(),
+            'created_at' => now()->subHours(3),
         ]);
         AchievementSetClaim::factory()->create([
             'user_id' => $userTwo->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Collaboration,
-            'Status' => ClaimStatus::Active,
-            'Finished' => now()->subHours(2),
-            'Created' => now()->subDay(),
+            'claim_type' => ClaimType::Collaboration,
+            'status' => ClaimStatus::Active,
+            'finished_at' => now()->subHours(2),
+            'created_at' => now()->subDay(),
         ]);
 
         // Act

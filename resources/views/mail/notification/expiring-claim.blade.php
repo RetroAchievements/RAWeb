@@ -1,11 +1,10 @@
-@use('App\Community\Enums\ClaimType')
 @use('Illuminate\Support\Carbon')
 @use('Illuminate\Support\Str')
 
 @php
     $gameUrl = route('game.show', ['game' => $claim->game]);
-    $claimType = Str::lower(ClaimType::toString($claim->ClaimType));
-    $expireTime = $claim->Finished->diffForHumans(Carbon::now(), ['syntax' => Carbon::DIFF_RELATIVE_TO_NOW]);
+    $claimType = Str::lower($claim->claim_type->label());
+    $expireTime = $claim->finished_at->diffForHumans(Carbon::now(), ['syntax' => Carbon::DIFF_RELATIVE_TO_NOW]);
 @endphp
 
 <x-mail::message>

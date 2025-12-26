@@ -4,31 +4,38 @@ declare(strict_types=1);
 
 namespace App\Community\Enums;
 
-abstract class ClaimSpecial
-{
-    public const None = 0;
-    public const OwnRevision = 1;
-    public const FreeRollout = 2;
-    public const ScheduledRelease = 3;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-    public static function cases(): array
+#[TypeScript]
+enum ClaimSpecial: string
+{
+    case None = 'none';
+    case OwnRevision = 'own_revision';
+    case FreeRollout = 'free_rollout';
+    case ScheduledRelease = 'scheduled_release';
+
+    public function label(): string
     {
-        return [
-            self::None,
-            self::OwnRevision,
-            self::FreeRollout,
-            self::ScheduledRelease,
-        ];
+        return match ($this) {
+            self::None => 'None',
+            self::OwnRevision => 'Own Revision',
+            self::FreeRollout => 'Free Rollout',
+            self::ScheduledRelease => 'Release Scheduled',
+        };
     }
 
-    public static function toString(int $type): string
+    /**
+     * Returns the legacy integer value for V1 API backwards compatibility.
+     * These values were used when ClaimSpecial was an integer-backed enum
+     * and must remain stable for existing API consumers.
+     */
+    public function toLegacyInteger(): int
     {
-        return match ($type) {
-            self::None => "None",
-            self::OwnRevision => "Own Revision",
-            self::FreeRollout => "Free Rollout",
-            self::ScheduledRelease => "Release Scheduled",
-            default => "Invalid special",
+        return match ($this) {
+            self::None => 0,
+            self::OwnRevision => 1,
+            self::FreeRollout => 2,
+            self::ScheduledRelease => 3,
         };
     }
 }

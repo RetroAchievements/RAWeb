@@ -33,32 +33,32 @@ class UpdateGameClaimAction
         $auditMessage = "{$currentUser->display_name} updated {$claim->user->display_name}'s claim.";
 
         if (array_key_exists('type', $newValues)) {
-            $newType = (int) $newValues['type'];
-            if ($claim->ClaimType !== $newType) {
-                $claim->ClaimType = $newType;
+            $newType = ClaimType::from($newValues['type']);
+            if ($claim->claim_type !== $newType) {
+                $claim->claim_type = $newType;
 
-                $auditMessage .= " Claim Type: " . ClaimType::toString($newType) . '.';
+                $auditMessage .= " Claim Type: " . $newType->label() . '.';
             }
         }
 
         if (array_key_exists('set_type', $newValues)) {
-            $newType = (int) $newValues['set_type'];
-            if ($claim->SetType !== $newType) {
-                $claim->SetType = $newType;
+            $newSetType = ClaimSetType::from($newValues['set_type']);
+            if ($claim->set_type !== $newSetType) {
+                $claim->set_type = $newSetType;
 
-                $auditMessage .= " Set Type: " . ClaimSetType::toString($newType) . '.';
+                $auditMessage .= " Set Type: " . $newSetType->label() . '.';
             }
         }
 
         if (array_key_exists('status', $newValues)) {
-            $newStatus = (int) $newValues['status'];
-            if ($claim->Status !== $newStatus) {
-                $claim->Status = $newStatus;
+            $newStatus = ClaimStatus::from($newValues['status']);
+            if ($claim->status !== $newStatus) {
+                $claim->status = $newStatus;
 
-                $auditMessage .= " Claim Status: " . ClaimStatus::toString($newStatus) . '.';
+                $auditMessage .= " Claim Status: " . $newStatus->label() . '.';
 
-                if (!ClaimStatus::isActive($newStatus)) {
-                    $claim->Finished = Carbon::now();
+                if (!$newStatus->isActive()) {
+                    $claim->finished_at = Carbon::now();
 
                     if ($newStatus === ClaimStatus::Complete) {
                         $this->processCompletedClaim($claim, $currentUser);
@@ -68,18 +68,18 @@ class UpdateGameClaimAction
         }
 
         if (array_key_exists('special', $newValues)) {
-            $newSpecial = (int) $newValues['special'];
-            if ($claim->Special !== $newSpecial) {
-                $claim->Special = $newSpecial;
+            $newSpecial = ClaimSpecial::from($newValues['special']);
+            if ($claim->special_type !== $newSpecial) {
+                $claim->special_type = $newSpecial;
 
-                $auditMessage .= " Special: " . ClaimSpecial::toString($newSpecial) . '.';
+                $auditMessage .= " Special: " . $newSpecial->label() . '.';
             }
         }
 
         if (array_key_exists('claimed', $newValues)) {
             $newDate = $newValues['claimed'];
-            if ($claim->Created->notEqualTo($newDate)) {
-                $claim->Created = $newDate;
+            if ($claim->created_at->notEqualTo($newDate)) {
+                $claim->created_at = $newDate;
 
                 $auditMessage .= " Claim Date: $newDate.";
             }
@@ -87,8 +87,8 @@ class UpdateGameClaimAction
 
         if (array_key_exists('finished', $newValues)) {
             $newDate = $newValues['finished'];
-            if ($claim->Finished->notEqualTo($newDate)) {
-                $claim->Finished = $newDate;
+            if ($claim->finished_at->notEqualTo($newDate)) {
+                $claim->finished_at = $newDate;
 
                 $auditMessage .= " End Date: $newDate.";
             }
@@ -105,12 +105,12 @@ class UpdateGameClaimAction
     {
         addArticleComment("Server", ArticleType::SetClaim, $claim->game_id, "Claim completed by {$currentUser->display_name}");
 
-        // also complete any collaboration claims
+        // Also complete any collaboration claims.
         $game = Game::find($claim->game_id);
-        $game->achievementSetClaims()->active()->update(['Status' => $claim->Status, 'Finished' => $claim->Finished]);
+        $game->achievementSetClaims()->active()->update(['status' => $claim->status, 'finished_at' => $claim->finished_at]);
 
-        if ($claim->SetType === ClaimSetType::Revision) {
-            // Send email to users who had previously mastered the set
+        if ($claim->set_type === ClaimSetType::Revision) {
+            // Send email to users who had previously mastered the set.
             $userAwards = PlayerBadge::with('user')
                 ->where('AwardData', $game->ID)
                 ->where('AwardType', AwardType::Mastery)

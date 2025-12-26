@@ -5,15 +5,14 @@ import { route } from 'ziggy-js';
 
 interface Variables {
   claimId: number;
-  /** @see ClaimStatus */
-  status: number;
+  status: App.Community.Enums.ClaimStatus;
 }
 
 export function useUpdateClaimStatusMutation() {
   return useMutation({
     mutationFn: ({ claimId, status }: Variables) => {
       const formData = new FormData();
-      formData.append('status', status.toString());
+      formData.append('status', status);
 
       return axios.post<unknown>(
         route('achievement-set-claim.update', { claim: claimId }),

@@ -7,40 +7,43 @@ namespace App\Community\Enums;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
-abstract class ClaimStatus
+enum ClaimStatus: string
 {
-    public const Active = 0;
-    public const Complete = 1;
-    public const Dropped = 2;
-    public const InReview = 3;
+    case Active = 'active';
+    case Complete = 'complete';
+    case Dropped = 'dropped';
+    case InReview = 'in_review';
 
-    public static function cases(): array
+    public function label(): string
     {
-        return [
-            self::Active,
-            self::Complete,
-            self::Dropped,
-            self::InReview,
-        ];
-    }
-
-    public static function toString(int $type): string
-    {
-        return match ($type) {
-            self::Active => "Active",
-            self::Complete => "Complete",
-            self::Dropped => "Dropped",
-            self::InReview => "In Review",
-            default => "Invalid status",
+        return match ($this) {
+            self::Active => 'Active',
+            self::Complete => 'Complete',
+            self::Dropped => 'Dropped',
+            self::InReview => 'In Review',
         };
     }
 
-    public static function isActive(int $type): bool
+    public function isActive(): bool
     {
-        return match ($type) {
-            self::Active => true,
-            self::InReview => true,
+        return match ($this) {
+            self::Active, self::InReview => true,
             default => false,
+        };
+    }
+
+    /**
+     * Returns the legacy integer value for V1 API backwards compatibility.
+     * These values were used when ClaimStatus was an integer-backed enum
+     * and must remain stable for existing API consumers.
+     */
+    public function toLegacyInteger(): int
+    {
+        return match ($this) {
+            self::Active => 0,
+            self::Complete => 1,
+            self::Dropped => 2,
+            self::InReview => 3,
         };
     }
 }

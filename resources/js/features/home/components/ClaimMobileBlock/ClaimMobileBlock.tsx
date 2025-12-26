@@ -8,7 +8,6 @@ import { GameTitle } from '@/common/components/GameTitle';
 import { InertiaLink } from '@/common/components/InertiaLink';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import type { AvatarSize } from '@/common/models';
-import { ClaimSetType } from '@/common/utils/generatedAppConstants';
 
 interface ClaimMobileBlockProps {
   claim: App.Data.AchievementSetClaimGroup;
@@ -46,8 +45,8 @@ export const ClaimMobileBlock: FC<ClaimMobileBlockProps> = ({ claim, variant }) 
           <div className="flex justify-between text-xs">
             <UserAvatar {...users[0]} size={14 as AvatarSize} />
             <span className="text-xs tracking-tighter">
-              {claim.setType === ClaimSetType.NewSet && t('New')}
-              {claim.setType === ClaimSetType.Revision && t('Revision')}
+              {claim.setType === 'new_set' && t('New')}
+              {claim.setType === 'revision' && t('Revision')}
               {', '}
               <DiffTimestamp at={variant === 'completed' ? claim.finished : claim.created} />
             </span>

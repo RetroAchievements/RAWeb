@@ -93,7 +93,7 @@ class GameData extends Data
             claimants: Lazy::create(fn () => $game->achievementSetClaims->map(
                 fn ($claim) => GameClaimantData::fromUser(
                     $claim->user,
-                    $claim->ClaimType === ClaimType::Primary ? 'primary' : 'collaboration'
+                    $claim->claim_type === ClaimType::Primary ? 'primary' : 'collaboration'
                 )
             )->all()),
 

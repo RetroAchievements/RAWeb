@@ -25,10 +25,10 @@ class AchievementSetClaimListService
 
     public string $sortOrder = '-enddate';
     public array $defaultFilters = [
-        'type' => ClaimType::Primary,
-        'setType' => -1,
+        'type' => 'all',
+        'setType' => 'all',
         'status' => 'active',
-        'special' => -1,
+        'special' => 'all',
         'developerType' => 'all',
         'system' => 0,
     ];
@@ -42,12 +42,16 @@ class AchievementSetClaimListService
             $this->pageNumber = (int) ($validatedData['page']['number'] ?? 1);
         }
 
+        $claimTypeValues = implode(',', array_map(fn ($case) => $case->value, ClaimType::cases()));
+        $setTypeValues = implode(',', array_map(fn ($case) => $case->value, ClaimSetType::cases()));
+        $specialValues = implode(',', array_map(fn ($case) => $case->value, ClaimSpecial::cases()));
+
         $validatedData = $request->validate([
             'sort' => 'sometimes|string|in:console,title,developer,-claimdate,-enddate,-expiring,claimdate,enddate,expiring',
-            'filter.type' => 'sometimes|integer|min:-1|max:2',
-            'filter.setType' => 'sometimes|integer|min:-1|max:2',
+            'filter.type' => "sometimes|string|in:all,{$claimTypeValues}",
+            'filter.setType' => "sometimes|string|in:all,{$setTypeValues}",
             'filter.status' => 'sometimes|string|in:all,active,review,complete,dropped,activeOrInReview',
-            'filter.special' => 'sometimes|integer|min:-1|max:3',
+            'filter.special' => "sometimes|string|in:all,{$specialValues}",
             'filter.developerType' => 'sometimes|string|in:all,full,junior',
             'filter.system' => 'sometimes|integer|min:0',
         ]);
@@ -55,10 +59,10 @@ class AchievementSetClaimListService
         $this->sortOrder = $validatedData['sort'] ?? $this->sortOrder;
 
         return [
-            'type' => (int) ($validatedData['filter']['type'] ?? $this->defaultFilters['type']),
-            'setType' => (int) ($validatedData['filter']['setType'] ?? $this->defaultFilters['setType']),
+            'type' => $validatedData['filter']['type'] ?? $this->defaultFilters['type'],
+            'setType' => $validatedData['filter']['setType'] ?? $this->defaultFilters['setType'],
             'status' => $validatedData['filter']['status'] ?? $this->defaultFilters['status'],
-            'special' => (int) ($validatedData['filter']['special'] ?? $this->defaultFilters['special']),
+            'special' => $validatedData['filter']['special'] ?? $this->defaultFilters['special'],
             'developerType' => $validatedData['filter']['developerType'] ?? $this->defaultFilters['developerType'],
             'system' => (int) ($validatedData['filter']['system'] ?? $this->defaultFilters['system']),
         ];
@@ -70,9 +74,9 @@ class AchievementSetClaimListService
             'kind' => 'type',
             'label' => 'Claim Type',
             'options' => [
-                -1 => 'All Claims',
-                ClaimType::Primary => ClaimType::toString(ClaimType::Primary),
-                ClaimType::Collaboration => ClaimType::toString(ClaimType::Collaboration),
+                'all' => 'All Claims',
+                ClaimType::Primary->value => ClaimType::Primary->label(),
+                ClaimType::Collaboration->value => ClaimType::Collaboration->label(),
             ],
         ];
     }
@@ -83,9 +87,9 @@ class AchievementSetClaimListService
             'kind' => 'setType',
             'label' => 'Set Type',
             'options' => [
-                -1 => 'All',
-                ClaimSetType::NewSet => ClaimSetType::toString(ClaimSetType::NewSet),
-                ClaimSetType::Revision => ClaimSetType::toString(ClaimSetType::Revision),
+                'all' => 'All',
+                ClaimSetType::NewSet->value => ClaimSetType::NewSet->label(),
+                ClaimSetType::Revision->value => ClaimSetType::Revision->label(),
             ],
         ];
     }
@@ -97,8 +101,8 @@ class AchievementSetClaimListService
             'label' => 'Status',
             'options' => [
                 'activeOrInReview' => 'All',
-                'active' => ClaimStatus::toString(ClaimStatus::Active),
-                'review' => ClaimStatus::toString(ClaimStatus::InReview),
+                'active' => ClaimStatus::Active->label(),
+                'review' => ClaimStatus::InReview->label(),
             ],
         ];
     }
@@ -111,8 +115,8 @@ class AchievementSetClaimListService
             'options' => [
                 'all' => 'All',
                 'activeOrInReview' => 'In Progress',
-                'complete' => ClaimStatus::toString(ClaimStatus::Complete),
-                'dropped' => ClaimStatus::toString(ClaimStatus::Dropped),
+                'complete' => ClaimStatus::Complete->label(),
+                'dropped' => ClaimStatus::Dropped->label(),
             ],
         ];
     }
@@ -124,10 +128,10 @@ class AchievementSetClaimListService
             'label' => 'Status',
             'options' => [
                 'all' => 'All',
-                'active' => ClaimStatus::toString(ClaimStatus::Active),
-                'review' => ClaimStatus::toString(ClaimStatus::InReview),
-                'complete' => ClaimStatus::toString(ClaimStatus::Complete),
-                'dropped' => ClaimStatus::toString(ClaimStatus::Dropped),
+                'active' => ClaimStatus::Active->label(),
+                'review' => ClaimStatus::InReview->label(),
+                'complete' => ClaimStatus::Complete->label(),
+                'dropped' => ClaimStatus::Dropped->label(),
             ],
         ];
     }
@@ -138,11 +142,11 @@ class AchievementSetClaimListService
             'kind' => 'special',
             'label' => 'Special',
             'options' => [
-                -1 => 'All',
-                ClaimSpecial::None => ClaimSpecial::toString(ClaimSpecial::None),
-                ClaimSpecial::OwnRevision => ClaimSpecial::toString(ClaimSpecial::OwnRevision),
-                ClaimSpecial::FreeRollout => ClaimSpecial::toString(ClaimSpecial::FreeRollout),
-                ClaimSpecial::ScheduledRelease => ClaimSpecial::toString(ClaimSpecial::ScheduledRelease),
+                'all' => 'All',
+                ClaimSpecial::None->value => ClaimSpecial::None->label(),
+                ClaimSpecial::OwnRevision->value => ClaimSpecial::OwnRevision->label(),
+                ClaimSpecial::FreeRollout->value => ClaimSpecial::FreeRollout->label(),
+                ClaimSpecial::ScheduledRelease->value => ClaimSpecial::ScheduledRelease->label(),
             ],
         ];
     }
@@ -250,16 +254,16 @@ class AchievementSetClaimListService
                 break;
         }
 
-        if ($filterOptions['type'] !== -1) {
-            $claims->where('ClaimType', $filterOptions['type']);
+        if ($filterOptions['type'] !== 'all') {
+            $claims->where('claim_type', $filterOptions['type']);
         }
 
-        if ($filterOptions['setType'] !== -1) {
-            $claims->where('SetType', $filterOptions['setType']);
+        if ($filterOptions['setType'] !== 'all') {
+            $claims->where('set_type', $filterOptions['setType']);
         }
 
-        if ($filterOptions['special'] !== -1) {
-            $claims->where('Special', $filterOptions['special']);
+        if ($filterOptions['special'] !== 'all') {
+            $claims->where('special_type', $filterOptions['special']);
         }
 
         switch ($filterOptions['developerType']) {
@@ -296,45 +300,45 @@ class AchievementSetClaimListService
 
         switch ($this->sortOrder) {
             case 'title':
-                $claims->join('GameData', 'GameData.ID', '=', 'SetClaim.game_id')
-                       ->orderByRaw(ifStatement("GameData.Title LIKE '~%'", 1, 0))
-                       ->orderBy('GameData.Title')
-                       ->orderByDesc('SetClaim.Finished')
-                       ->select('SetClaim.*');
+                $claims->join('GameData', 'GameData.ID', '=', 'achievement_set_claims.game_id')
+                    ->orderByRaw(ifStatement("GameData.Title LIKE '~%'", 1, 0))
+                    ->orderBy('GameData.Title')
+                    ->orderByDesc('achievement_set_claims.finished_at')
+                    ->select('achievement_set_claims.*');
                 break;
 
             case 'developer':
-                $claims->join('UserAccounts', 'UserAccounts.ID', '=', 'SetClaim.user_id')
-                       ->orderBy('UserAccounts.User')
-                       ->orderByDesc('SetClaim.Finished')
-                       ->select('SetClaim.*');
+                $claims->join('UserAccounts', 'UserAccounts.ID', '=', 'achievement_set_claims.user_id')
+                    ->orderBy('UserAccounts.User')
+                    ->orderByDesc('achievement_set_claims.finished_at')
+                    ->select('achievement_set_claims.*');
                 break;
 
             case '-claimdate':
-                $claims->orderByDesc('Created');
+                $claims->orderByDesc('created_at');
                 break;
 
             case 'claimdate':
-                $claims->orderBy('Created');
+                $claims->orderBy('created_at');
                 break;
 
             default:
             case '-enddate':
-                $claims->orderByDesc('Finished');
+                $claims->orderByDesc('finished_at');
                 break;
 
             case 'enddate':
-                $claims->orderBy('Finished');
+                $claims->orderBy('finished_at');
                 break;
 
             case '-expiring':
-                $claims->orderByRaw(ifStatement("SetClaim.Status IN(" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")", 0, 1))
-                       ->orderBy('Finished');
+                $claims->orderByRaw(ifStatement("achievement_set_claims.status IN('" . ClaimStatus::Active->value . "','" . ClaimStatus::InReview->value . "')", 0, 1))
+                    ->orderBy('finished_at');
                 break;
 
             case 'expiring':
-                $claims->orderByRaw(ifStatement("SetClaim.Status IN(" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")", 0, 1))
-                       ->orderByDesc('Finished');
+                $claims->orderByRaw(ifStatement("achievement_set_claims.status IN('" . ClaimStatus::Active->value . "','" . ClaimStatus::InReview->value . "')", 0, 1))
+                    ->orderByDesc('finished_at');
                 break;
         }
 
@@ -364,7 +368,7 @@ class AchievementSetClaimListService
         return [
             'header' => 'Claim Type',
             'type' => 'text',
-            'value' => fn ($claim) => ClaimType::toString($claim->ClaimType),
+            'value' => fn ($claim) => $claim->claim_type->label(),
         ];
     }
 
@@ -373,7 +377,7 @@ class AchievementSetClaimListService
         return [
             'header' => 'Set Type',
             'type' => 'text',
-            'value' => fn ($claim) => ClaimSetType::toString($claim->SetType),
+            'value' => fn ($claim) => $claim->set_type->label(),
         ];
     }
 
@@ -382,7 +386,7 @@ class AchievementSetClaimListService
         return [
             'header' => 'Status',
             'type' => 'text',
-            'value' => fn ($claim) => ClaimStatus::toString($claim->Status),
+            'value' => fn ($claim) => $claim->status->label(),
         ];
     }
 
@@ -391,7 +395,7 @@ class AchievementSetClaimListService
         return [
             'header' => 'Special',
             'type' => 'text',
-            'value' => fn ($claim) => ClaimSpecial::toString($claim->Special),
+            'value' => fn ($claim) => $claim->special_type->label(),
         ];
     }
 
@@ -400,7 +404,7 @@ class AchievementSetClaimListService
         return [
             'header' => 'Claimed At',
             'type' => 'date',
-            'value' => fn ($claim) => $claim->Created ? getNiceDate($claim->Created->unix()) : 'Unknown',
+            'value' => fn ($claim) => $claim->created_at ? getNiceDate($claim->created_at->unix()) : 'Unknown',
         ];
     }
 
@@ -409,7 +413,7 @@ class AchievementSetClaimListService
         return [
             'header' => 'Expires/Finished At',
             'type' => 'date',
-            'value' => fn ($claim) => $claim->Finished ? getNiceDate($claim->Finished->unix()) : 'Unknown',
+            'value' => fn ($claim) => $claim->finished_at ? getNiceDate($claim->finished_at->unix()) : 'Unknown',
         ];
     }
 
@@ -418,7 +422,7 @@ class AchievementSetClaimListService
         return [
             'header' => 'Finished At',
             'type' => 'date',
-            'value' => fn ($claim) => $claim->Finished ? getNiceDate($claim->Finished->unix()) : 'Unknown',
+            'value' => fn ($claim) => $claim->finished_at ? getNiceDate($claim->finished_at->unix()) : 'Unknown',
         ];
     }
 
@@ -427,7 +431,7 @@ class AchievementSetClaimListService
         return [
             'header' => 'Expires At',
             'type' => 'date',
-            'value' => fn ($claim) => $claim->Finished ? getNiceDate($claim->Finished->unix()) : 'Unknown',
+            'value' => fn ($claim) => $claim->finished_at ? getNiceDate($claim->finished_at->unix()) : 'Unknown',
         ];
     }
 
@@ -437,7 +441,7 @@ class AchievementSetClaimListService
             'header' => 'Expiration Status',
             'type' => 'expiration',
             'value' => function ($claim) {
-                if (!ClaimStatus::isActive($claim->Status)) {
+                if (!$claim->status->isActive()) {
                     return [
                         'isExpired' => false,
                         'value' => '',
@@ -446,8 +450,8 @@ class AchievementSetClaimListService
                     $now = Carbon::now();
 
                     return [
-                        'isExpired' => ($claim->Finished < $now),
-                        'value' => $claim->Finished->diffForHumans($now, ['syntax' => Carbon::DIFF_RELATIVE_TO_NOW]),
+                        'isExpired' => ($claim->finished_at < $now),
+                        'value' => $claim->finished_at->diffForHumans($now, ['syntax' => Carbon::DIFF_RELATIVE_TO_NOW]),
                     ];
                 }
             },

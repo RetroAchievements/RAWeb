@@ -4,7 +4,6 @@ import { LuFlagTriangleRight } from 'react-icons/lu';
 
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { ClaimConfirmationDialog } from '@/features/games/components/ClaimConfirmationDialog';
 import { getAllPageAchievements } from '@/features/games/utils/getAllPageAchievements';
 
@@ -13,7 +12,7 @@ export const SidebarClaimButtons: FC = () => {
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
-  const areAnyClaimsInReview = achievementSetClaims.some((c) => c.status === ClaimStatus.InReview);
+  const areAnyClaimsInReview = achievementSetClaims.some((c) => c.status === 'in_review');
   if (areAnyClaimsInReview) {
     return null;
   }

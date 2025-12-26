@@ -16,10 +16,10 @@ class UpdateGameClaimRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['sometimes', 'integer', Rule::in(ClaimStatus::cases())],
-            'special' => ['sometimes', 'integer', Rule::in(ClaimSpecial::cases())],
-            'type' => ['sometimes', 'integer', Rule::in(ClaimType::cases())],
-            'set_type' => ['sometimes', 'integer', Rule::in(ClaimSetType::cases())],
+            'status' => ['sometimes', Rule::enum(ClaimStatus::class)],
+            'special' => ['sometimes', Rule::enum(ClaimSpecial::class)],
+            'type' => ['sometimes', Rule::enum(ClaimType::class)],
+            'set_type' => ['sometimes', Rule::enum(ClaimSetType::class)],
             'claimed' => 'sometimes|date',
             'finished' => 'sometimes|date',
         ];

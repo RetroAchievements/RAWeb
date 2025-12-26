@@ -1,6 +1,5 @@
 import userEvent from '@testing-library/user-event';
 
-import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { render, screen, waitFor } from '@/test';
 import { createAchievementSetClaim, createUser } from '@/test/factories';
 
@@ -171,7 +170,7 @@ describe('Component: ClaimantsDisplay', () => {
     const achievementSetClaims = [
       createAchievementSetClaim({
         user: createUser({ displayName: 'Alice' }),
-        status: ClaimStatus.InReview, // !!
+        status: 'in_review', // !!
       }),
     ];
 
@@ -193,7 +192,7 @@ describe('Component: ClaimantsDisplay', () => {
     const achievementSetClaims = [
       createAchievementSetClaim({
         user: createUser({ displayName: 'Alice' }),
-        status: ClaimStatus.InReview, // !!
+        status: 'in_review', // !!
       }),
     ];
 
@@ -209,7 +208,7 @@ describe('Component: ClaimantsDisplay', () => {
     const achievementSetClaims = [
       createAchievementSetClaim({
         user: createUser({ displayName: 'Alice' }),
-        status: ClaimStatus.Active, // !! not In Review
+        status: 'active', // !! not In Review
       }),
     ];
 

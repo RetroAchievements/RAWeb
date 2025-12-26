@@ -124,8 +124,8 @@ class GameControllerTest extends TestCase
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Active,
         ]);
 
         // Act
@@ -151,8 +151,8 @@ class GameControllerTest extends TestCase
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Collaboration,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Collaboration,
+            'status' => ClaimStatus::Active,
         ]);
 
         // Act
@@ -178,7 +178,7 @@ class GameControllerTest extends TestCase
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'Status' => ClaimStatus::Active,
+            'status' => ClaimStatus::Active,
         ]);
 
         // Act

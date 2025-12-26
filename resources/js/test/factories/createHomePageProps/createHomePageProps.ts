@@ -1,4 +1,3 @@
-import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { createFactory } from '@/test/createFactory';
 
 import { createAchievementSetClaimGroup } from '../createAchievementSetClaimGroup';
@@ -20,20 +19,20 @@ export const createHomePageProps = createFactory<App.Http.Data.HomePageProps>((f
     recentNews: [createNews(), createNews(), createNews()],
 
     completedClaims: [
-      createAchievementSetClaimGroup({ status: ClaimStatus.Complete }),
-      createAchievementSetClaimGroup({ status: ClaimStatus.Complete }),
-      createAchievementSetClaimGroup({ status: ClaimStatus.Complete }),
-      createAchievementSetClaimGroup({ status: ClaimStatus.Complete }),
-      createAchievementSetClaimGroup({ status: ClaimStatus.Complete }),
-      createAchievementSetClaimGroup({ status: ClaimStatus.Complete }),
+      createAchievementSetClaimGroup({ status: 'complete' }),
+      createAchievementSetClaimGroup({ status: 'complete' }),
+      createAchievementSetClaimGroup({ status: 'complete' }),
+      createAchievementSetClaimGroup({ status: 'complete' }),
+      createAchievementSetClaimGroup({ status: 'complete' }),
+      createAchievementSetClaimGroup({ status: 'complete' }),
     ],
 
     newClaims: [
-      createAchievementSetClaimGroup({ status: ClaimStatus.Active }),
-      createAchievementSetClaimGroup({ status: ClaimStatus.Active }),
-      createAchievementSetClaimGroup({ status: ClaimStatus.Active }),
-      createAchievementSetClaimGroup({ status: ClaimStatus.Active }),
-      createAchievementSetClaimGroup({ status: ClaimStatus.Active }),
+      createAchievementSetClaimGroup({ status: 'active' }),
+      createAchievementSetClaimGroup({ status: 'active' }),
+      createAchievementSetClaimGroup({ status: 'active' }),
+      createAchievementSetClaimGroup({ status: 'active' }),
+      createAchievementSetClaimGroup({ status: 'active' }),
     ],
 
     activePlayers: createPaginatedData(

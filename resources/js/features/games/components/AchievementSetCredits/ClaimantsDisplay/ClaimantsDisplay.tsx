@@ -10,7 +10,6 @@ import {
 } from '@/common/components/+vendor/BaseTooltip';
 import { UserAvatarStack } from '@/common/components/UserAvatarStack';
 import { cn } from '@/common/utils/cn';
-import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { formatDate } from '@/common/utils/l10n/formatDate';
 import { useDiffForHumans } from '@/common/utils/l10n/useDiffForHumans';
 
@@ -95,9 +94,7 @@ interface ClaimsIconProps {
 const ClaimsIcon: FC<ClaimsIconProps> = ({ achievementSetClaims }) => {
   const { t } = useTranslation();
 
-  const hasInReviewClaim = achievementSetClaims.some(
-    (claim) => claim.status === ClaimStatus.InReview,
-  );
+  const hasInReviewClaim = achievementSetClaims.some((claim) => claim.status === 'in_review');
 
   return (
     <BaseTooltip>
@@ -124,7 +121,7 @@ const ClaimsIcon: FC<ClaimsIconProps> = ({ achievementSetClaims }) => {
                   displayName: claim.user!.displayName,
                 }}
               >
-                {claim.status === ClaimStatus.InReview ? (
+                {claim.status === 'in_review' ? (
                   t('In Review')
                 ) : (
                   <>

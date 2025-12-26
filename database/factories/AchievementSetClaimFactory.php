@@ -30,12 +30,12 @@ class AchievementSetClaimFactory extends Factory
         return [
             'user_id' => $user?->id ?? 1,
             'game_id' => 0,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Status' => ClaimStatus::Active,
-            'Extension' => 0,
-            'Special' => ClaimSpecial::None,
-            'Finished' => Carbon::now()->addMonths(3),
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'status' => ClaimStatus::Active,
+            'extensions_count' => 0,
+            'special_type' => ClaimSpecial::None,
+            'finished_at' => Carbon::now()->addMonths(3),
         ];
     }
 }

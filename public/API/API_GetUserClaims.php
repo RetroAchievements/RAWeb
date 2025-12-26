@@ -43,6 +43,7 @@ if (!$user) {
 
 return response()->json(
     getFilteredClaims(
-        username: $user->username
+        username: $user->username,
+        useLegacyIntegers: true,
     )
 );
