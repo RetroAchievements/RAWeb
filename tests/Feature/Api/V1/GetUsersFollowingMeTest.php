@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\User;
 use App\Models\UserRelation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -44,12 +44,12 @@ class GetUsersFollowingMeTest extends TestCase
         UserRelation::create([
             'user_id' => $followerUser1->id,
             'related_user_id' => $this->user->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $followerUser1->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         /** @var User $followerUser2 */
@@ -57,7 +57,7 @@ class GetUsersFollowingMeTest extends TestCase
         UserRelation::create([
             'user_id' => $followerUser2->id,
             'related_user_id' => $this->user->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         /** @var User $followerUser3 */
@@ -65,7 +65,7 @@ class GetUsersFollowingMeTest extends TestCase
         UserRelation::create([
             'user_id' => $followerUser3->id,
             'related_user_id' => $this->user->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         /** @var User $followerUser4 */
@@ -73,7 +73,7 @@ class GetUsersFollowingMeTest extends TestCase
         UserRelation::create([
             'user_id' => $followerUser4->id,
             'related_user_id' => $this->user->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         /** @var User $followerUser5 */
@@ -81,7 +81,7 @@ class GetUsersFollowingMeTest extends TestCase
         UserRelation::create([
             'user_id' => $followerUser5->id,
             'related_user_id' => $this->user->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         $this->get($this->apiUrl($api))

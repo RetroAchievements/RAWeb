@@ -251,6 +251,7 @@ declare namespace App.Community.Enums {
     | 'GameAchievements'
     | 'AchievementTicket';
   export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
+  export type UserRelationStatus = 'blocked' | 'not_following' | 'following';
   export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
   export type AwardType = 1 | 2 | 3 | 6 | 7 | 8 | 9;
   export type ClaimSetType = 0 | 1;

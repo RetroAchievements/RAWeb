@@ -7,7 +7,7 @@ namespace Tests\Feature\Platform\Actions;
 use App\Actions\ClearAccountDataAction;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
@@ -44,13 +44,13 @@ class ClearAccountDataActionTest extends TestCase
         UserRelation::create([
             'user_id' => $user1->id,
             'related_user_id' => $user2->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         UserRelation::create([
             'user_id' => $user2->id,
             'related_user_id' => $user1->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         UserGameListEntry::create([

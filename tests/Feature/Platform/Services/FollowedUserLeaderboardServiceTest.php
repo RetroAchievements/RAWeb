@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Services;
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\User;
 use App\Models\UserRelation;
 use App\Platform\Enums\PlayerStatType;
@@ -24,7 +24,7 @@ class FollowedUserLeaderboardServiceTest extends TestCase
         UserRelation::create([
             'user_id' => $user->id,
             'related_user_id' => $followedUser->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         // Act
@@ -62,7 +62,7 @@ class FollowedUserLeaderboardServiceTest extends TestCase
             UserRelation::create([
                 'user_id' => $user->id,
                 'related_user_id' => $followedUser->id,
-                'Friendship' => UserRelationship::Following,
+                'status' => UserRelationStatus::Following,
             ]);
         }
 

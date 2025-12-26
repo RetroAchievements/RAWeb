@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
@@ -208,7 +208,7 @@ class SubmitLeaderboardEntryTest extends TestCase
             UserRelation::create([
                 'user_id' => $this->user->ID,
                 'related_user_id' => $id,
-                'Friendship' => UserRelationship::Following,
+                'status' => UserRelationStatus::Following,
             ]);
         };
         $addFollowing(2);

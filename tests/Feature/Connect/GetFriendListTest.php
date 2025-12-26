@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Enums\Permissions;
 use App\Models\Game;
 use App\Models\PlayerSession;
@@ -57,7 +57,7 @@ class GetFriendListTest extends TestCase
         $user2->save();
 
         // user is following user2 (legacy RP - no session)
-        changeFriendStatus($this->user, $user2, UserRelationship::Following);
+        changeFriendStatus($this->user, $user2, UserRelationStatus::Following);
 
         $this->get($this->apiUrl('getfriendlist'))
             ->assertStatus(200)
@@ -98,10 +98,10 @@ class GetFriendListTest extends TestCase
         $user4->save();
 
         // user is following user3 (RP from session)
-        changeFriendStatus($this->user, $user3, UserRelationship::Following);
+        changeFriendStatus($this->user, $user3, UserRelationStatus::Following);
 
         // user is following user4 (banned - should not be returned)
-        changeFriendStatus($this->user, $user4, UserRelationship::Following);
+        changeFriendStatus($this->user, $user4, UserRelationStatus::Following);
 
         $this->get($this->apiUrl('getfriendlist'))
             ->assertStatus(200)
@@ -138,14 +138,14 @@ class GetFriendListTest extends TestCase
         $user5->save();
 
         // user5 is following user (inverse relationship)
-        changeFriendStatus($user5, $this->user, UserRelationship::Following);
+        changeFriendStatus($user5, $this->user, UserRelationStatus::Following);
 
         // user6 has no activity
         $user6->LastLogin = $date3;
         $user6->save();
 
         // user is following user6 (legacy RP - no session)
-        changeFriendStatus($this->user, $user6, UserRelationship::Following);
+        changeFriendStatus($this->user, $user6, UserRelationStatus::Following);
 
         $this->get($this->apiUrl('getfriendlist'))
             ->assertStatus(200)
@@ -192,10 +192,10 @@ class GetFriendListTest extends TestCase
         $user6->save();
 
         // user has stopped following user2
-        changeFriendStatus($this->user, $user2, UserRelationship::NotFollowing);
+        changeFriendStatus($this->user, $user2, UserRelationStatus::NotFollowing);
 
         // user has blocked user3
-        changeFriendStatus($this->user, $user3, UserRelationship::NotFollowing);
+        changeFriendStatus($this->user, $user3, UserRelationStatus::NotFollowing);
 
         $this->get($this->apiUrl('getfriendlist'))
             ->assertStatus(200)
