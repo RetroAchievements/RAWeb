@@ -82,6 +82,14 @@ class Trigger extends BaseModel
         return $this->morphTo();
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id', 'ID')->withTrashed();
+    }
+
     // == scopes
 
     /**

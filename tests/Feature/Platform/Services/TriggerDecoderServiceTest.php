@@ -404,4 +404,46 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertConditionTargetTooltip($condition, '6');
         $this->assertConditionHitTarget($condition, '0');
     }
+
+    public function testMergeCodeNotesWithRedirect(): void
+    {
+        $service = new TriggerDecoderService();
+        $groups = $service->decode("0xH1234=6_0xH5678=7");
+        $service->mergeCodeNotes($groups, [
+            0x001234 => 'Player Health',
+            0x005678 => 'refer to $0x001234',
+        ]);
+
+        $this->assertEquals(1, count($groups));
+        $this->assertEquals(2, count($groups[0]['Conditions']));
+
+        // ... the first condition should have a direct note ...
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionSourceTooltip($condition, 'Player Health');
+
+        // ... the second condition should follow the redirect to the first note ...
+        $condition = $groups[0]['Conditions'][1];
+        $this->assertConditionSourceTooltip($condition, 'Player Health');
+    }
+
+    public function testMergeCodeNotesWithChainedRedirect(): void
+    {
+        $service = new TriggerDecoderService();
+        $groups = $service->decode("0xH1234=6_0xH5678=7_0xH9ABC=8");
+        $service->mergeCodeNotes($groups, [
+            0x001234 => 'Player Health', // A
+            0x005678 => 'refer to $0x009ABC', // B, resolves to C, resolves to A
+            0x009ABC => 'refer to $0x001234', // C, resolves to A
+        ]);
+
+        // ... all notes should resolve to "Player Health" through the chain ...
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionSourceTooltip($condition, 'Player Health');
+
+        $condition = $groups[0]['Conditions'][1];
+        $this->assertConditionSourceTooltip($condition, 'Player Health');
+
+        $condition = $groups[0]['Conditions'][2];
+        $this->assertConditionSourceTooltip($condition, 'Player Health');
+    }
 }
