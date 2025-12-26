@@ -207,8 +207,8 @@ function getGamesListByDev(
 
     $listJoin = '';
     if ($listType !== null) {
-        $listJoin = "INNER JOIN SetRequest sr ON sr.GameID = gd.ID";
-        $whereClause .= " AND sr.user_id = " . request()->user()->ID . " AND sr.type = :listType";
+        $listJoin = "INNER JOIN user_game_list_entries ugle ON ugle.game_id = gd.ID";
+        $whereClause .= " AND ugle.user_id = " . request()->user()->ID . " AND ugle.type = :listType";
         $bindings['listType'] = $listType;
     }
 

@@ -19,7 +19,7 @@ class BuildGameInterestedDevelopersDataAction
     public function execute(Game $game): Collection
     {
         $users = UserGameListEntry::whereType(UserGameListType::Develop)
-            ->where('GameID', $game->id)
+            ->where('game_id', $game->id)
             ->with(['user' => function ($query) {
                 $query->orderBy('User');
             }])

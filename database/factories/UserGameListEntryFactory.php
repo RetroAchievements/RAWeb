@@ -21,7 +21,7 @@ class UserGameListEntryFactory extends Factory
         return [
             'user_id' => User::factory(),
             'type' => 'achievement_set_request',
-            'GameID' => Game::factory(),
+            'game_id' => Game::factory(),
         ];
     }
 }

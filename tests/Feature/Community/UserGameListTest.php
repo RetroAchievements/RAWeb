@@ -149,9 +149,9 @@ class UserGameListTest extends TestCase
 
         $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
         $this->assertCount(3, $entries);
-        $this->assertEquals($game1->ID, $entries[0]->GameID);
-        $this->assertEquals($game2->ID, $entries[1]->GameID);
-        $this->assertEquals($game3->ID, $entries[2]->GameID);
+        $this->assertEquals($game1->ID, $entries[0]->game_id);
+        $this->assertEquals($game2->ID, $entries[1]->game_id);
+        $this->assertEquals($game3->ID, $entries[2]->game_id);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[2]->type);
@@ -161,8 +161,8 @@ class UserGameListTest extends TestCase
 
         $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
         $this->assertCount(2, $entries);
-        $this->assertEquals($game1->ID, $entries[0]->GameID);
-        $this->assertEquals($game3->ID, $entries[1]->GameID);
+        $this->assertEquals($game1->ID, $entries[0]->game_id);
+        $this->assertEquals($game3->ID, $entries[1]->game_id);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
 
@@ -175,9 +175,9 @@ class UserGameListTest extends TestCase
 
         $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
         $this->assertCount(3, $entries);
-        $this->assertEquals($game1->ID, $entries[0]->GameID);
-        $this->assertEquals($game2->ID, $entries[1]->GameID);
-        $this->assertEquals($game3->ID, $entries[2]->GameID);
+        $this->assertEquals($game1->ID, $entries[0]->game_id);
+        $this->assertEquals($game2->ID, $entries[1]->game_id);
+        $this->assertEquals($game3->ID, $entries[2]->game_id);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[2]->type);
@@ -206,8 +206,8 @@ class UserGameListTest extends TestCase
 
         $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
         $this->assertCount(2, $entries);
-        $this->assertEquals($game1->ID, $entries[0]->GameID);
-        $this->assertEquals($game2->ID, $entries[1]->GameID);
+        $this->assertEquals($game1->ID, $entries[0]->game_id);
+        $this->assertEquals($game2->ID, $entries[1]->game_id);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
     }
@@ -233,7 +233,7 @@ class UserGameListTest extends TestCase
 
         $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
         $this->assertCount(1, $entries);
-        $this->assertEquals($game1->ID, $entries[0]->GameID);
+        $this->assertEquals($game1->ID, $entries[0]->game_id);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
     }
 
@@ -263,17 +263,17 @@ class UserGameListTest extends TestCase
 
         $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
         $this->assertCount(3, $entries);
-        $this->assertEquals($game1->ID, $entries[0]->GameID);
-        $this->assertEquals($game2->ID, $entries[1]->GameID);
-        $this->assertEquals($game3->ID, $entries[2]->GameID);
+        $this->assertEquals($game1->ID, $entries[0]->game_id);
+        $this->assertEquals($game2->ID, $entries[1]->game_id);
+        $this->assertEquals($game3->ID, $entries[2]->game_id);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[2]->type);
 
         $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->withoutAchievements()->get();
         $this->assertCount(2, $entries);
-        $this->assertEquals($game1->ID, $entries[0]->GameID);
-        $this->assertEquals($game3->ID, $entries[1]->GameID);
+        $this->assertEquals($game1->ID, $entries[0]->game_id);
+        $this->assertEquals($game3->ID, $entries[1]->game_id);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
     }

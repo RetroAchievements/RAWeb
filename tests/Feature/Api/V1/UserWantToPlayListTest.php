@@ -93,22 +93,22 @@ class UserWantToPlayListTest extends TestCase
         $gameOne = Game::factory()->create(['ConsoleID' => $system->ID]);
         UserGameListEntry::create([
             'user_id' => $this->user->id,
-            'GameID' => $gameOne->ID,
+            'game_id' => $gameOne->ID,
             'type' => UserGameListType::Play,
         ]);
         UserGameListEntry::create([
             'user_id' => $followedUser->id,
-            'GameID' => $gameOne->ID,
+            'game_id' => $gameOne->ID,
             'type' => UserGameListType::Play,
         ]);
         UserGameListEntry::create([
             'user_id' => $followingUser->id,
-            'GameID' => $gameOne->ID,
+            'game_id' => $gameOne->ID,
             'type' => UserGameListType::Play,
         ]);
         UserGameListEntry::create([
             'user_id' => $friend->id,
-            'GameID' => $gameOne->ID,
+            'game_id' => $gameOne->ID,
             'type' => UserGameListType::Play,
         ]);
 
@@ -116,7 +116,7 @@ class UserWantToPlayListTest extends TestCase
         $gameTwo = Game::factory()->create(['ConsoleID' => $system->ID]);
         UserGameListEntry::create([
             'user_id' => $this->user->id,
-            'GameID' => $gameTwo->ID,
+            'game_id' => $gameTwo->ID,
             'type' => UserGameListType::Play,
         ]);
 
@@ -124,7 +124,7 @@ class UserWantToPlayListTest extends TestCase
         $gameThree = Game::factory()->create(['ConsoleID' => $system->ID]);
         UserGameListEntry::create([
             'user_id' => $this->user->id,
-            'GameID' => $gameThree->ID,
+            'game_id' => $gameThree->ID,
             'type' => UserGameListType::Play,
         ]);
 
@@ -132,7 +132,7 @@ class UserWantToPlayListTest extends TestCase
         $gameFour = Game::factory()->create(['ConsoleID' => $system->ID]);
         UserGameListEntry::create([
             'user_id' => $this->user->id,
-            'GameID' => $gameFour->ID,
+            'game_id' => $gameFour->ID,
             'type' => UserGameListType::Play,
         ]);
 
@@ -140,7 +140,7 @@ class UserWantToPlayListTest extends TestCase
         $gameFive = Game::factory()->create(['ConsoleID' => $system->ID]);
         UserGameListEntry::create([
             'user_id' => $this->user->id,
-            'GameID' => $gameFive->ID,
+            'game_id' => $gameFive->ID,
             'type' => UserGameListType::Play,
         ]);
 

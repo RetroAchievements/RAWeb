@@ -54,13 +54,13 @@ class UserSetRequestsTest extends TestCase
         UserGameListEntry::factory()->create([
             'user_id' => $user->ID,
             'type' => UserGameListType::AchievementSetRequest,
-            'GameID' => $game->ID,
+            'game_id' => $game->ID,
         ]);
         // Create the second user game list entry for the set request
         UserGameListEntry::factory()->create([
             'user_id' => $user->ID,
             'type' => UserGameListType::AchievementSetRequest,
-            'GameID' => $game2->ID,
+            'game_id' => $game2->ID,
         ]);
 
         $this->get($this->apiUrl('GetUserSetRequests', ['u' => $user->User, 't' => 1]))
@@ -113,13 +113,13 @@ class UserSetRequestsTest extends TestCase
         UserGameListEntry::factory()->create([
             'user_id' => $user->ID,
             'type' => UserGameListType::AchievementSetRequest,
-            'GameID' => $game->ID,
+            'game_id' => $game->ID,
         ]);
         // Create the second user game list entry for the set request
         UserGameListEntry::factory()->create([
             'user_id' => $user->ID,
             'type' => UserGameListType::AchievementSetRequest,
-            'GameID' => $game2->ID,
+            'game_id' => $game2->ID,
         ]);
 
         // Note that only the second game is present in the assert. The code will find the first game as well but only return the game with no published achievements.
