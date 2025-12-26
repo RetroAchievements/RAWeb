@@ -18,7 +18,7 @@ class BuildMostRecentGameAwardDataAction
 {
     public function execute(
         ?StaticData $staticData,
-        AwardType $type = AwardType::Mastery
+        AwardType $type = AwardType::Mastery,
     ): ?StaticGameAwardData {
         if (!$staticData) {
             return null;
