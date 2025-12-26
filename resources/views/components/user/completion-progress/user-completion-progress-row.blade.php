@@ -10,17 +10,6 @@ $maxPossible = $completionProgressEntity['MaxPossible'];
 $isBeatenHardcore = in_array('beaten-hardcore', $completionProgressEntity['AllAwardKinds'] ?? []);
 $isBeatenSoftcore = in_array('beaten-softcore', $completionProgressEntity['AllAwardKinds'] ?? []);
 
-$prefersHiddenUserCompletedSets = request()->cookie('prefers_hidden_user_completed_sets') === 'true';
-
-$rowClassNames = 'w-full';
-if ($numAwarded === $maxPossible) {
-    $rowClassNames .= ' completion-progress-completed-row';
-
-    if ($prefersHiddenUserCompletedSets) {
-        $rowClassNames .= ' hidden';
-    }
-}
-
 $highestAwardKind = $completionProgressEntity['HighestAwardKind'] ?? 'unfinished';
 if ($highestAwardKind === 'mastered' && $numAwardedHardcore !== $maxPossible) {
     if ($numAwarded === $maxPossible) {
@@ -44,7 +33,7 @@ if ($highestAwardKind === 'completed' && $numAwarded !== $maxPossible) {
 }
 ?>
 
-<tr class="{{ $rowClassNames }}">
+<tr class="w-full">
     <td class="py-2">
         <x-game.multiline-avatar
             :gameId="$completionProgressEntity['GameID']"

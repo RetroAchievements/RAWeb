@@ -1,5 +1,6 @@
 @props([
     'userJoinedGamesAndAwards' => [],
+    'userJoinedIncompleteGames' => [],
     'username' => '', // this is display_name
 ])
 
@@ -28,18 +29,38 @@ $prefersHiddenUserCompletedSets = request()->cookie('prefers_hidden_user_complet
     </div>
 
     <div id="usercompletedgamescomponent">
-        <table class="table-highlight">
-            <tbody>
-                @foreach ($userJoinedGamesAndAwards as $completionProgressEntity)
-                    @if (!$completionProgressEntity['NumAwarded'])
-                        @continue
-                    @endif
+        {{-- All games list (visible when checkbox is unchecked) --}}
+        <div id="completion-progress-all" @class(['hidden' => $prefersHiddenUserCompletedSets])>
+            <table class="table-highlight">
+                <tbody>
+                    @foreach ($userJoinedGamesAndAwards as $completionProgressEntity)
+                        @if (!$completionProgressEntity['NumAwarded'])
+                            @continue
+                        @endif
 
-                    <x-user.completion-progress.user-completion-progress-row
-                        :completionProgressEntity="$completionProgressEntity"
-                    />
-                @endforeach
-            </tbody>
-        </table>
+                        <x-user.completion-progress.user-completion-progress-row
+                            :completionProgressEntity="$completionProgressEntity"
+                        />
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        {{-- Incomplete games only (visible when checkbox is checked) --}}
+        <div id="completion-progress-incomplete" @class(['hidden' => !$prefersHiddenUserCompletedSets])>
+            <table class="table-highlight">
+                <tbody>
+                    @foreach ($userJoinedIncompleteGames as $completionProgressEntity)
+                        @if (!$completionProgressEntity['NumAwarded'])
+                            @continue
+                        @endif
+
+                        <x-user.completion-progress.user-completion-progress-row
+                            :completionProgressEntity="$completionProgressEntity"
+                        />
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

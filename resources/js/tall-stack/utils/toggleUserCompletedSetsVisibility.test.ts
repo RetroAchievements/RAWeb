@@ -1,3 +1,5 @@
+/* eslint-disable testing-library/no-node-access */
+
 import { screen } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
@@ -12,31 +14,39 @@ function render() {
         <input type="checkbox" id="hide-user-completed-sets-checkbox" />
         Hide user completed sets
       </label>
-      <table id="usercompletedgamescomponent">
-        <tr class="completion-progress-completed-row"></tr>
-        <tr class="completion-progress-completed-row"></tr>
-        <tr class=""></tr>
-      </table>
+      <div id="usercompletedgamescomponent">
+        <div id="completion-progress-all">
+          <table>
+            <tr><td>Game 1 (completed)</td></tr>
+            <tr><td>Game 2 (completed)</td></tr>
+            <tr><td>Game 3 (incomplete)</td></tr>
+          </table>
+        </div>
+        <div id="completion-progress-incomplete" class="hidden">
+          <table>
+            <tr><td>Game 3 (incomplete)</td></tr>
+          </table>
+        </div>
+      </div>
     </div>
   `;
 
-  // eslint-disable-next-line testing-library/no-node-access -- needed for this test using dom manipulation
   const checkbox = document.getElementById('hide-user-completed-sets-checkbox');
   checkbox?.addEventListener('change', toggleUserCompletedSetsVisibility);
 }
 
 describe('Util: toggleUserCompletedSetsVisibility', () => {
-  it('is defined #sanity', () => {
+  it('is defined', () => {
     expect(toggleUserCompletedSetsVisibility).toBeDefined();
   });
 
-  it('renders without crashing #sanity', () => {
+  it('renders without crashing', () => {
     render();
 
     expect(screen.getByRole('checkbox', { name: /hide user completed sets/i })).toBeInTheDocument();
   });
 
-  it('given the checkbox is checked, hides completed rows', async () => {
+  it('given the checkbox is checked, shows the incomplete games list and hides the all games list', async () => {
     // ARRANGE
     render();
 
@@ -44,10 +54,11 @@ describe('Util: toggleUserCompletedSetsVisibility', () => {
     await userEvent.click(screen.getByRole('checkbox', { name: /hide/i }));
 
     // ASSERT
-    const allRows = screen.getAllByRole('row');
-    const visibleRows = allRows.filter((row) => !row.classList.contains('hidden'));
+    const allGamesEl = document.getElementById('completion-progress-all');
+    const incompleteGamesEl = document.getElementById('completion-progress-incomplete');
 
-    expect(visibleRows.length).toEqual(1);
+    expect(allGamesEl?.classList.contains('hidden')).toEqual(true);
+    expect(incompleteGamesEl?.classList.contains('hidden')).toEqual(false);
   });
 
   it('given the checkbox is checked, sets a cookie value to "true"', async () => {
@@ -63,7 +74,7 @@ describe('Util: toggleUserCompletedSetsVisibility', () => {
     expect(setCookieSpy).toHaveBeenCalledWith(cookieName, 'true');
   });
 
-  it('given the checkbox is unchecked, causes the completed rows to reappear', async () => {
+  it('given the checkbox is unchecked, shows the all games list and hides the incomplete games list', async () => {
     // ARRANGE
     render();
 
@@ -72,10 +83,11 @@ describe('Util: toggleUserCompletedSetsVisibility', () => {
     await userEvent.click(screen.getByRole('checkbox', { name: /hide/i }));
 
     // ASSERT
-    const allRows = screen.getAllByRole('row');
-    const visibleRows = allRows.filter((row) => !row.classList.contains('hidden'));
+    const allGamesEl = document.getElementById('completion-progress-all');
+    const incompleteGamesEl = document.getElementById('completion-progress-incomplete');
 
-    expect(visibleRows.length).toEqual(3);
+    expect(allGamesEl?.classList.contains('hidden')).toEqual(false);
+    expect(incompleteGamesEl?.classList.contains('hidden')).toEqual(true);
   });
 
   it('given the checkbox is unchecked, sets a cookie value to "false"', async () => {
