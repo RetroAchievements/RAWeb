@@ -74,14 +74,14 @@ class ComputeAchievementsSetPublishedAtAction
             ->newSet()
             ->primaryClaim()
             ->complete()
-            ->whereNotNull('Finished')
-            ->orderBy('Finished');
+            ->whereNotNull('finished_at')
+            ->orderBy('finished_at');
         if ($publishedAt) {
-            $claims->where('Finished', '<', $publishedAt);
+            $claims->where('finished_at', '<', $publishedAt);
         }
         $firstClaim = $claims->first();
         if ($firstClaim) {
-            $publishedAt = $firstClaim->Finished;
+            $publishedAt = $firstClaim->finished_at;
         }
 
         return $publishedAt;

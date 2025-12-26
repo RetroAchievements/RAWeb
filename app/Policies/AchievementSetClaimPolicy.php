@@ -93,7 +93,7 @@ class AchievementSetClaimPolicy
         // User can't update their own claim if the claim is in review status.
         return
             $achievementSetClaim->user_id === $user->id
-            && $achievementSetClaim->Status !== ClaimStatus::InReview;
+            && $achievementSetClaim->status !== ClaimStatus::InReview;
     }
 
     public function delete(User $user, AchievementSetClaim $achievementSetClaim): bool
@@ -101,7 +101,7 @@ class AchievementSetClaimPolicy
         // Users can only drop their own claims (as long as they're not in review status).
         return
             $achievementSetClaim->user_id === $user->id
-            && $achievementSetClaim->Status !== ClaimStatus::InReview;
+            && $achievementSetClaim->status !== ClaimStatus::InReview;
     }
 
     public function review(User $user, AchievementSetClaim $achievementSetClaim): bool
@@ -115,7 +115,7 @@ class AchievementSetClaimPolicy
         return
             $user->hasAnyRole([Role::CODE_REVIEWER, Role::MODERATOR])
             && $achievementSetClaim->user_id !== $user->id
-            && $achievementSetClaim->ClaimType === ClaimType::Primary
+            && $achievementSetClaim->claim_type === ClaimType::Primary
             && $achievementSetClaim->user->hasRole(Role::DEVELOPER_JUNIOR);
     }
 
@@ -127,7 +127,7 @@ class AchievementSetClaimPolicy
         }
 
         // The claim cannot be in review status.
-        if ($achievementSetClaim->Status === ClaimStatus::InReview) {
+        if ($achievementSetClaim->status === ClaimStatus::InReview) {
             return false;
         }
 

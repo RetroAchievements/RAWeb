@@ -266,9 +266,9 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
                   ORDER BY total DESC, ua.display_name";
         $buildDevList($query);
     } elseif ($sortBy == 7) { // ActiveClaims DESC
-        $query = "SELECT ua.ID, SUM(!ISNULL(sc.ID)) AS ActiveClaims
+        $query = "SELECT ua.ID, SUM(!ISNULL(sc.id)) AS ActiveClaims
                   FROM UserAccounts ua
-                  LEFT JOIN SetClaim sc ON sc.user_id=ua.ID AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
+                  LEFT JOIN achievement_set_claims sc ON sc.user_id=ua.ID AND sc.status IN ('" . ClaimStatus::Active->value . "','" . ClaimStatus::InReview->value . "')
                   WHERE $stateCond
                   GROUP BY ua.ID
                   ORDER BY ActiveClaims DESC, ua.display_name";
@@ -329,9 +329,9 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
 
     // merge in active claims
     $query = "SELECT ua.ID, COUNT(*) AS ActiveClaims
-              FROM SetClaim sc
+              FROM achievement_set_claims sc
               INNER JOIN UserAccounts ua ON ua.ID=sc.user_id
-              WHERE sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
+              WHERE sc.status IN ('" . ClaimStatus::Active->value . "','" . ClaimStatus::InReview->value . "')
               AND ua.ID IN ($devList)
               GROUP BY ua.ID";
     foreach (legacyDbFetchAll($query) as $row) {

@@ -95,7 +95,7 @@ class BuildGameShowPagePropsAction
             // Load the achievement set claim and visible comment relationships for the backing game.
             $backingGame->load([
                 'achievementSetClaims' => function ($query) {
-                    $query->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
+                    $query->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])
                         ->with('user');
                 },
                 'leaderboards' => function ($query) {
@@ -235,8 +235,8 @@ class BuildGameShowPagePropsAction
 
         // Get the primary claim from the already-loaded claims for permission checking.
         $primaryClaim = $backingGame->achievementSetClaims
-            ->where('ClaimType', ClaimType::Primary)
-            ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
+            ->where('claim_type', ClaimType::Primary)
+            ->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])
             ->first();
 
         // Detect if the user is on mobile to conditionally include some props.
