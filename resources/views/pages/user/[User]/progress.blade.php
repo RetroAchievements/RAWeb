@@ -114,7 +114,7 @@ render(function (View $view, User $user, PlayerCompletionProgressPageService $pa
             :milestones="$milestones"
             :isFiltering="$isFiltering"
             :isMe="$isMe"
-            :targetUsername="$targetUsername"
+            :user="$user"
         />
     </x-slot>
 </x-app-layout>
