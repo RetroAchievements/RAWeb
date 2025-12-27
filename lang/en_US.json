@@ -1325,5 +1325,7 @@
     "Leaderboard Comment": "Leaderboard Comment",
     "Ticket Comment": "Ticket Comment",
     "posted {{when}}": "posted {{when}}",
-    "Unknown User": "Unknown User"
+    "Unknown User": "Unknown User",
+    "Disabled": "Disabled",
+    "This leaderboard is currently disabled and not accepting new entries.": "This leaderboard is currently disabled and not accepting new entries."
 }

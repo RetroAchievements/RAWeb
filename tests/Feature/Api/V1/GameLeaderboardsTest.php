@@ -10,6 +10,7 @@ use App\Models\LeaderboardEntry;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\RecalculateLeaderboardTopEntryAction;
+use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -197,6 +198,7 @@ class GameLeaderboardsTest extends TestCase
                         ],
                         "Author" => $leaderboardOne->developer->display_name,
                         "AuthorULID" => $leaderboardOne->developer->ulid,
+                        "State" => LeaderboardState::Active->value,
                     ],
                     [
                         "ID" => $leaderboardTwo->ID,
@@ -212,6 +214,7 @@ class GameLeaderboardsTest extends TestCase
                         ],
                         "Author" => $leaderboardTwo->developer->display_name,
                         "AuthorULID" => $leaderboardTwo->developer->ulid,
+                        "State" => LeaderboardState::Active->value,
                     ],
                     [
                         "ID" => $leaderboardThree->ID,
@@ -227,6 +230,7 @@ class GameLeaderboardsTest extends TestCase
                         ],
                         "Author" => $leaderboardThree->developer->display_name,
                         "AuthorULID" => $leaderboardThree->developer->ulid,
+                        "State" => LeaderboardState::Active->value,
                     ],
                     [
                         "ID" => $leaderboardFour->ID,
@@ -237,6 +241,7 @@ class GameLeaderboardsTest extends TestCase
                         "TopEntry" => [],
                         "Author" => $leaderboardFour->developer->display_name,
                         "AuthorULID" => $leaderboardFour->developer->ulid,
+                        "State" => LeaderboardState::Active->value,
                     ],
                     [
                         "ID" => $leaderboardFive->ID,
@@ -252,6 +257,7 @@ class GameLeaderboardsTest extends TestCase
                         ],
                         "Author" => $leaderboardFive->developer->display_name,
                         "AuthorULID" => $leaderboardFive->developer->ulid,
+                        "State" => LeaderboardState::Active->value,
                     ],
                 ],
             ]);
@@ -271,6 +277,7 @@ class GameLeaderboardsTest extends TestCase
                             "TopEntry" => [],
                             "Author" => $leaderboardFour->developer->display_name,
                             "AuthorULID" => $leaderboardFour->developer->ulid,
+                            "State" => LeaderboardState::Active->value,
                         ],
                         [
                             "ID" => $leaderboardFive->ID,
@@ -286,6 +293,7 @@ class GameLeaderboardsTest extends TestCase
                             ],
                             "Author" => $leaderboardFive->developer->display_name,
                             "AuthorULID" => $leaderboardFive->developer->ulid,
+                            "State" => LeaderboardState::Active->value,
                         ],
                     ],
                 ]);
@@ -310,6 +318,7 @@ class GameLeaderboardsTest extends TestCase
                             ],
                             "Author" => $leaderboardOne->developer->display_name,
                             "AuthorULID" => $leaderboardOne->developer->ulid,
+                            "State" => LeaderboardState::Active->value,
                         ],
                         [
                             "ID" => $leaderboardTwo->ID,
@@ -325,6 +334,7 @@ class GameLeaderboardsTest extends TestCase
                             ],
                             "Author" => $leaderboardTwo->developer->display_name,
                             "AuthorULID" => $leaderboardTwo->developer->ulid,
+                            "State" => LeaderboardState::Active->value,
                         ],
                     ],
                 ]);
@@ -349,6 +359,7 @@ class GameLeaderboardsTest extends TestCase
                             ],
                             "Author" => $leaderboardTwo->developer->display_name,
                             "AuthorULID" => $leaderboardTwo->developer->ulid,
+                            "State" => LeaderboardState::Active->value,
                         ],
                         [
                             "ID" => $leaderboardThree->ID,
@@ -364,8 +375,65 @@ class GameLeaderboardsTest extends TestCase
                             ],
                             "Author" => $leaderboardThree->developer->display_name,
                             "AuthorULID" => $leaderboardThree->developer->ulid,
+                            "State" => LeaderboardState::Active->value,
                         ],
                     ],
                 ]);
+    }
+
+    public function testGetLeaderboardEntriesReturnsCorrectState(): void
+    {
+        // Setup leaderboards with different states
+
+        /** @var System $system */
+        $system = System::factory()->create();
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var Leaderboard $activeLeaderboard */
+        $activeLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Active Leaderboard ",
+            'Description' => "I am an active leaderboard",
+            'State' => LeaderboardState::Active->value,
+        ]);
+
+        /** @var Leaderboard $disabledLeaderboard */
+        $disabledLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Disabled Leaderboard ",
+            'Description' => "I am a disabled leaderboard",
+            'State' => LeaderboardState::Disabled->value,
+        ]);
+
+        /** @var Leaderboard $unpublishedLeaderboard */
+        $unpublishedLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Unpublished Leaderboard ",
+            'Description' => "I am an unpublished leaderboard",
+            'State' => LeaderboardState::Unpublished->value,
+        ]);
+
+        $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->ID]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Count' => 3,
+                'Total' => 3,
+                'Results' => [
+                    [
+                        'ID' => $activeLeaderboard->ID,
+                        'State' => LeaderboardState::Active->value,
+                    ],
+                    [
+                        'ID' => $disabledLeaderboard->ID,
+                        'State' => LeaderboardState::Disabled->value,
+                    ],
+                    [
+                        'ID' => $unpublishedLeaderboard->ID,
+                        'State' => LeaderboardState::Unpublished->value,
+                    ],
+                ],
+            ]);
     }
 }

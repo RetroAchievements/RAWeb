@@ -4,6 +4,7 @@ import * as motion from 'motion/react-m';
 import { type FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { BaseSeparator } from '@/common/components/+vendor/BaseSeparator';
 import { AchievementsListItem } from '@/common/components/AchievementsListItem';
 import { useIsHydrated } from '@/common/hooks/useIsHydrated';
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -107,6 +108,20 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
    */
   const remainingAchievementsCount =
     filteredAndSortedAchievements.length - achievementsToRender.length;
+
+  const visibleLeaderboards = sortedLeaderboards.filter(
+    (leaderboard) =>
+      leaderboard.state === 'active' ||
+      (!isViewingPublishedAchievements && leaderboard.state === 'unpublished'),
+  );
+  const disabledLeaderboards = sortedLeaderboards.filter(
+    (leaderboard) => leaderboard.state === 'disabled',
+  );
+
+  const leaderboardHasMultipleSections =
+    visibleLeaderboards.length > 0 &&
+    disabledLeaderboards.length > 0 &&
+    isViewingPublishedAchievements;
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -243,7 +258,8 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
 
             {currentListView === 'leaderboards' ? (
               <>
-                {sortedLeaderboards.map((leaderboard, index) => (
+                {/* Active/Unpublished Leaderboards */}
+                {visibleLeaderboards.map((leaderboard, index) => (
                   <LeaderboardsListItem
                     key={`lbd-${leaderboard.id}`}
                     index={index}
@@ -251,6 +267,32 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
                     leaderboard={leaderboard}
                   />
                 ))}
+
+                {/* Separator */}
+                {leaderboardHasMultipleSections ? (
+                  <motion.li
+                    className="my-4"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: visibleLeaderboards.length * 0.015 }}
+                  >
+                    <BaseSeparator data-testid="disabled-separator" />
+                  </motion.li>
+                ) : null}
+
+                {/* Disabled Leaderboards */}
+                {isViewingPublishedAchievements ? (
+                  <>
+                    {disabledLeaderboards.map((leaderboard, index) => (
+                      <LeaderboardsListItem
+                        key={`lbd-${leaderboard.id}`}
+                        index={visibleLeaderboards.length + index}
+                        isLargeList={isLargeLeaderboardsList}
+                        leaderboard={leaderboard}
+                      />
+                    ))}
+                  </>
+                ) : null}
               </>
             ) : null}
           </motion.ul>
