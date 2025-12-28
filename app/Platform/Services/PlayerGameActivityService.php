@@ -150,6 +150,7 @@ class PlayerGameActivityService
                 'achievements.title',
                 'achievements.description',
                 'achievements.points',
+                'achievements.points_weighted',
                 'achievements.image_name',
                 'achievements.type',
             ]);
@@ -218,6 +219,7 @@ class PlayerGameActivityService
                 'Title' => $playerAchievement->title,
                 'Description' => $playerAchievement->description,
                 'Points' => $playerAchievement->points,
+                'TrueRatio' => $playerAchievement->points_weighted,
                 'BadgeName' => $playerAchievement->image_name,
                 'Flags' => $playerAchievement->is_published ? Achievement::FLAG_PUBLISHED : Achievement::FLAG_UNPUBLISHED,
                 'HardcoreMode' => $hardcore,
