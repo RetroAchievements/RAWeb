@@ -29,7 +29,6 @@ use App\Models\UserGameListEntry;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementAuthorTask;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameSetRolePermission;
 use App\Platform\Enums\GameSetType;
@@ -59,11 +58,11 @@ function createGameWithAchievements(
 
     $game = Game::factory()->create(['Title' => $title, 'ConsoleID' => $system->id]);
     Achievement::factory()->published()->count($publishedCount)->create([
-        'GameID' => $game->id,
+        'game_id' => $game->id,
         'user_id' => $developer->id,
     ]);
     Achievement::factory()->count($unpublishedCount)->create([
-        'GameID' => $game->id,
+        'game_id' => $game->id,
         'user_id' => $developer->id,
     ]);
 
@@ -1284,14 +1283,14 @@ describe('Open Tickets Props', function () {
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         $publishedAchievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
 
         $unpublishedAchievement = Achievement::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::Unofficial->value,
+            'is_published' => false,
         ]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
@@ -1329,14 +1328,14 @@ describe('Open Tickets Props', function () {
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         $publishedAchievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
 
         $unpublishedAchievement = Achievement::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::Unofficial->value,
+            'is_published' => false,
         ]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
@@ -1379,7 +1378,7 @@ describe('Open Tickets Props', function () {
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
 
@@ -1517,7 +1516,7 @@ describe('Aggregate Credits Props', function () {
 
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
         $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $originalAuthor->id,
         ]);
 
@@ -1546,7 +1545,7 @@ describe('Aggregate Credits Props', function () {
 
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
         $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $originalAuthor->id,
         ]);
 
@@ -1575,7 +1574,7 @@ describe('Aggregate Credits Props', function () {
 
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
         $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
 
@@ -1632,7 +1631,7 @@ describe('Achievement Groups Props', function () {
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
 
