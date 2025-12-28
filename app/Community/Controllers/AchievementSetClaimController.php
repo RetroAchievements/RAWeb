@@ -52,7 +52,7 @@ class AchievementSetClaimController extends Controller
                 && $claim->Status !== $statusInt
             ) {
                 $this->authorize('review', $claim);
-            } elseif ($statusInt === ClaimStatus::Complete) {
+            } elseif ($statusInt === ClaimStatus::Complete && $claim->user_id === Auth::id()) {
                 $this->authorize('complete', $claim);
             } else {
                 $this->authorize('update', $claim);
