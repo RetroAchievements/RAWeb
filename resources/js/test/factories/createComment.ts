@@ -13,5 +13,6 @@ export const createComment = createFactory<App.Community.Data.Comment>((faker) =
     updatedAt: faker.date.recent().toISOString(),
     user: createUser(),
     isAutomated: false,
+    url: null,
   };
 });

@@ -10,6 +10,7 @@ use App\Community\Enums\ArticleType;
 use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\AchievementCreated;
 use App\Platform\Events\AchievementDeleted;
@@ -91,6 +92,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
+        'AssocVideo',
         'BadgeName',
         'Description',
         'DisplayOrder',
@@ -116,6 +118,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     ];
 
     protected $visible = [
+        'AssocVideo',
         'BadgeName',
         'DateCreated',
         'DateModified',
@@ -270,6 +273,37 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         return md5($data);
     }
 
+    /**
+     * Returns game IDs that are related to this achievement for multiset purposes.
+     * For bonus sets: includes the base game.
+     * For specialty/exclusive sets: only includes this achievement's game.
+     *
+     * @return int[]
+     */
+    public function getRelatedGameIds(): array
+    {
+        $achievementSet = $this->achievementSets()->first();
+        if (!$achievementSet) {
+            return [$this->game_id];
+        }
+
+        $links = GameAchievementSet::where('achievement_set_id', $achievementSet->id)->get();
+        if ($links->isEmpty()) {
+            return [$this->game_id];
+        }
+
+        // Specialty and exclusive sets are isolated, so only their own game counts.
+        if (
+            $links->contains('type', AchievementSetType::Specialty)
+            || $links->contains('type', AchievementSetType::Exclusive)
+        ) {
+            return [$this->game_id];
+        }
+
+        // For core and bonus sets, include all related games.
+        return $links->pluck('game_id')->unique()->values()->toArray();
+    }
+
     // == accessors
 
     public function getCanonicalUrlAttribute(): string
@@ -286,6 +320,30 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     public function getCanDelegateUnlocks(User $user): bool
     {
         return $this->game->getIsStandalone() && $this->user_id === $user->id;
+    }
+
+    public function getCanHaveBeatenTypes(): bool
+    {
+        // Non-game systems can't have beaten types.
+        if (!System::isGameSystem($this->game?->system?->id ?? 0)) {
+            return false;
+        }
+
+        // Check if achievement's sets are linked as non-core anywhere.
+        $achievementSetIds = AchievementSetAchievement::where('achievement_id', $this->ID)
+            ->pluck('achievement_set_id');
+
+        if ($achievementSetIds->isEmpty()) {
+            // No sets yet, fall back to the game's title-based legacy check.
+            return $this->game?->getCanHaveBeatenTypes() ?? true;
+        }
+
+        // If any set is linked as non-core, then the achievement can't have beaten types.
+        $hasNonCoreLink = GameAchievementSet::whereIn('achievement_set_id', $achievementSetIds)
+            ->where('type', '!=', AchievementSetType::Core)
+            ->exists();
+
+        return !$hasNonCoreLink;
     }
 
     public function getPermalinkAttribute(): string

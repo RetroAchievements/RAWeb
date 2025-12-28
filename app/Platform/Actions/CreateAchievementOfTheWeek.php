@@ -29,7 +29,7 @@ class CreateAchievementOfTheWeek
         if (!$eventGame) {
             $eventGame = new Game([
                 'Title' => $eventTitle,
-                'sort_title' => (new ComputeGameSortTitleAction())->execute($eventTitle),
+                'sort_title' => (new ComputeSortTitleAction())->execute($eventTitle),
                 'Publisher' => 'RetroAchievements',
                 'ConsoleID' => System::Events,
             ]);

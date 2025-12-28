@@ -6,6 +6,7 @@ namespace App\Community\Actions;
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Enums\UserPreference;
 use App\Mail\DailyDigestMail;
 use App\Models\Achievement;
 use App\Models\Comment;
@@ -38,9 +39,9 @@ class SendDailyDigestAction
             ->where('id', '<=', $last->id)
             ->delete();
 
-        // if the user doesn't have an email address, bail.
+        // if the user doesn't have an email address or is opted out, bail.
         // do this after deleting the pending subscriptions.
-        if (!$user->EmailAddress) {
+        if (!$user->EmailAddress || BitSet($user->websitePrefs, UserPreference::EmailOff_DailyDigest)) {
             return;
         }
 
@@ -122,8 +123,8 @@ class SendDailyDigestAction
                 $post = $posts[$type][$delayedSubscription->subject_id] ?? null;
                 if ($post) {
                     $summary = match ($type) {
-                        SubscriptionSubjectType::ForumTopic->value => nl2br(Shortcode::stripAndClamp($post->latestComment->body, previewLength: 200, preserveWhitespace: true)),
-                        default => nl2br(mb_strlen($post->Payload) > 200 ? mb_substr($post->Payload, 0, 200) . '...' : $post->Payload),
+                        SubscriptionSubjectType::ForumTopic->value => Shortcode::stripAndClamp($post->latestComment->body, previewLength: 200, preserveWhitespace: true),
+                        default => mb_strlen($post->Payload) > 200 ? mb_substr($post->Payload, 0, 200) . '...' : $post->Payload,
                     };
                     $displayName = match ($type) {
                         SubscriptionSubjectType::ForumTopic->value => $post->latestComment->user->display_name,

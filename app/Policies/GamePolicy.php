@@ -22,6 +22,8 @@ class GamePolicy
             Role::DEVELOPER_JUNIOR,
 
             Role::ARTIST,
+
+            Role::EVENT_MANAGER, // requires manage access to view leaderboards for games
         ]);
     }
 
@@ -50,6 +52,7 @@ class GamePolicy
         $canAlwaysUpdate = $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
             Role::DEVELOPER,
+            Role::ARTIST,
         ]);
 
         if ($canAlwaysUpdate) {
@@ -117,6 +120,10 @@ class GamePolicy
                 'released_at',
                 'released_at_granularity',
                 'RichPresencePatch',
+            ],
+
+            Role::ARTIST => [
+                'ImageIcon',
             ],
         ];
 
