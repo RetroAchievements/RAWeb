@@ -351,7 +351,7 @@ describe('User State Props', function () {
 
         UserGameListEntry::create([
             'user_id' => $user->id,
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'type' => UserGameListType::Play,
         ]);
 
@@ -375,7 +375,7 @@ describe('User State Props', function () {
 
         UserGameListEntry::create([
             'user_id' => $user->id,
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'type' => UserGameListType::Develop,
         ]);
 
@@ -1751,7 +1751,7 @@ describe('Subset Context Props', function () {
         // ... add the "subset game" (backing game) to the user's Want to Play list, but not the base game ...
         UserGameListEntry::create([
             'user_id' => $user->id,
-            'GameID' => $subsetGame->id,
+            'game_id' => $subsetGame->id,
             'type' => UserGameListType::Play,
         ]);
 
