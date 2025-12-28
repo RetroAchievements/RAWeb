@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\User;
@@ -42,7 +42,7 @@ $userModel = User::whereName($user)->first();
 
 addArticleComment(
     'Server',
-    ArticleType::Achievement,
+    CommentableType::Achievement,
     $achievementId,
     "{$userModel->display_name} edited this achievement's badge.",
     $userModel->display_name

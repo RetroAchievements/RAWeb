@@ -141,36 +141,6 @@ export const StringifiedAwardType = {
 } as const;
 
 
-export const ArticleType = {
-    Game: 1,
-    Achievement: 2,
-    User: 3,
-    News: 4,
-    Leaderboard: 6,
-    AchievementTicket: 7,
-    Forum: 8,
-    UserModeration: 9,
-    GameHash: 10,
-    SetClaim: 11,
-    GameModification: 12,
-} as const;
-
-
-export const StringifiedArticleType = {
-    Game: '1',
-    Achievement: '2',
-    User: '3',
-    News: '4',
-    Leaderboard: '6',
-    AchievementTicket: '7',
-    Forum: '8',
-    UserModeration: '9',
-    GameHash: '10',
-    SetClaim: '11',
-    GameModification: '12',
-} as const;
-
-
 export const TicketType = {
     TriggeredAtWrongTime: 1,
     DidNotTrigger: 2,

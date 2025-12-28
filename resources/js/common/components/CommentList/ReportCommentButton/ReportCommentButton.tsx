@@ -4,7 +4,6 @@ import { LuFlag } from 'react-icons/lu';
 import { route } from 'ziggy-js';
 
 import { cn } from '@/common/utils/cn';
-import { ArticleType } from '@/common/utils/generatedAppConstants';
 
 import { baseButtonVariants } from '../../+vendor/BaseButton';
 
@@ -38,16 +37,16 @@ export const ReportCommentButton: FC<ReportCommentButtonProps> = ({ comment, cla
 };
 
 /**
- * Map ArticleType numeric values to readable labels for report subjects.
+ * Map CommentableType values to readable labels for report subjects.
  */
-function getCommentTypeLabel(articleType: number): string {
-  const labels: Record<number, string> = {
-    [ArticleType.Game]: 'Game Wall Comment',
-    [ArticleType.Achievement]: 'Achievement Wall Comment',
-    [ArticleType.User]: 'User Wall Comment',
-    [ArticleType.Leaderboard]: 'Leaderboard Comment',
-    [ArticleType.AchievementTicket]: 'Ticket Comment',
+function getCommentTypeLabel(commentableType: App.Community.Enums.CommentableType): string {
+  const labels: Partial<Record<App.Community.Enums.CommentableType, string>> = {
+    'game.comment': 'Game Wall Comment',
+    'achievement.comment': 'Achievement Wall Comment',
+    'user.comment': 'User Wall Comment',
+    'leaderboard.comment': 'Leaderboard Comment',
+    'trigger.ticket.comment': 'Ticket Comment',
   };
 
-  return labels[articleType] ?? 'Wall Comment';
+  return labels[commentableType] ?? 'Wall Comment';
 }

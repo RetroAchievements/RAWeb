@@ -1,12 +1,12 @@
 <?php
 
-use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimFilters;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimSorting;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
@@ -56,7 +56,7 @@ function updateClaimsForPermissionChange(User $user, int $permissionsAfter, int 
             $claim->Status = ClaimStatus::Active;
             $claim->save();
 
-            addArticleComment('Server', ArticleType::SetClaim, $claim->game_id, $comment);
+            addArticleComment('Server', CommentableType::SetClaim, $claim->game_id, $comment);
         }
     }
 
@@ -76,7 +76,7 @@ function updateClaimsForPermissionChange(User $user, int $permissionsAfter, int 
                 $comment = "{$user->display_name}'s " . ClaimType::toString($claim->ClaimType) . " claim dropped via demotion to {$permissionsString}.";
             }
 
-            addArticleComment('Server', ArticleType::SetClaim, $claim->game_id, $comment);
+            addArticleComment('Server', CommentableType::SetClaim, $claim->game_id, $comment);
         }
     }
 }

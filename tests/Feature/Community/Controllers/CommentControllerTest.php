@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Community\Controllers;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Game;
@@ -26,10 +26,10 @@ class CommentControllerTest extends TestCase
         $user = User::factory()->create();
 
         $comment = Comment::factory()->create([
-            'ArticleType' => ArticleType::Game,
-            'ArticleID' => $game->id,
+            'commentable_type' => CommentableType::Game,
+            'commentable_id' => $game->id,
             'user_id' => $user->id,
-            'Submitted' => now(),
+            'created_at' => now(),
         ]);
 
         // Act
@@ -41,7 +41,7 @@ class CommentControllerTest extends TestCase
 
         $this->assertStringContainsString("game/{$game->id}", $location);
         $this->assertStringContainsString('tab=community', $location);
-        $this->assertStringContainsString("#comment_{$comment->ID}", $location);
+        $this->assertStringContainsString("#comment_{$comment->id}", $location);
     }
 
     public function testRedirectsToCommentsPageWhenCommentIsOld(): void
@@ -52,19 +52,19 @@ class CommentControllerTest extends TestCase
         $user = User::factory()->create();
 
         $oldComment = Comment::factory()->create([
-            'ArticleType' => ArticleType::Game,
-            'ArticleID' => $game->id,
+            'commentable_type' => CommentableType::Game,
+            'commentable_id' => $game->id,
             'user_id' => $user->id,
-            'Submitted' => now()->subDays(30),
+            'created_at' => now()->subDays(30),
         ]);
 
         // ... create 20 newer comments to push the old one out of the recent list ...
         for ($i = 0; $i < 20; $i++) {
             Comment::factory()->create([
-                'ArticleType' => ArticleType::Game,
-                'ArticleID' => $game->id,
+                'commentable_type' => CommentableType::Game,
+                'commentable_id' => $game->id,
                 'user_id' => $user->id,
-                'Submitted' => now()->subDays(29 - $i),
+                'created_at' => now()->subDays(29 - $i),
             ]);
         }
 
@@ -76,7 +76,7 @@ class CommentControllerTest extends TestCase
         $location = $response->headers->get('Location');
 
         $this->assertStringContainsString("/game/{$game->id}/comments", $location);
-        $this->assertStringContainsString("#comment_{$oldComment->ID}", $location);
+        $this->assertStringContainsString("#comment_{$oldComment->id}", $location);
     }
 
     public function testCorrectlyCalculatesPageNumberForOldComment(): void
@@ -88,19 +88,19 @@ class CommentControllerTest extends TestCase
 
         // ... create the old comment that will be on page 2 (there are 50 comments per page) ...
         $oldComment = Comment::factory()->create([
-            'ArticleType' => ArticleType::Game,
-            'ArticleID' => $game->id,
+            'commentable_type' => CommentableType::Game,
+            'commentable_id' => $game->id,
             'user_id' => $user->id,
-            'Submitted' => now()->subDays(100),
+            'created_at' => now()->subDays(100),
         ]);
 
         // ... create 50 newer comments (this fills page 1 completely) ...
         for ($i = 0; $i < 50; $i++) {
             Comment::factory()->create([
-                'ArticleType' => ArticleType::Game,
-                'ArticleID' => $game->id,
+                'commentable_type' => CommentableType::Game,
+                'commentable_id' => $game->id,
                 'user_id' => $user->id,
-                'Submitted' => now()->subDays(50 - $i),
+                'created_at' => now()->subDays(50 - $i),
             ]);
         }
 
@@ -125,28 +125,28 @@ class CommentControllerTest extends TestCase
         $user = User::factory()->create();
 
         $comment = Comment::factory()->create([
-            'ArticleType' => ArticleType::Game,
-            'ArticleID' => $game->id,
+            'commentable_type' => CommentableType::Game,
+            'commentable_id' => $game->id,
             'user_id' => $user->id,
         ]);
 
         $comment->delete();
 
         // Act
-        $response = $this->get(route('comment.show', ['comment' => $comment->ID]));
+        $response = $this->get(route('comment.show', ['comment' => $comment->id]));
 
         // Assert
         $response->assertNotFound();
     }
 
-    public function testReturns404ForUnsupportedArticleType(): void
+    public function testReturns404ForUnsupportedCommentableType(): void
     {
         // Arrange
         $user = User::factory()->create();
 
         $comment = Comment::factory()->create([
-            'ArticleType' => ArticleType::Forum,
-            'ArticleID' => 1,
+            'commentable_type' => CommentableType::Forum,
+            'commentable_id' => 1,
             'user_id' => $user->id,
         ]);
 
@@ -164,8 +164,8 @@ class CommentControllerTest extends TestCase
         $commenter = User::factory()->create();
 
         $comment = Comment::factory()->create([
-            'ArticleType' => ArticleType::User,
-            'ArticleID' => $wallOwner->id,
+            'commentable_type' => CommentableType::User,
+            'commentable_id' => $wallOwner->id,
             'user_id' => $commenter->id,
         ]);
 
@@ -183,10 +183,10 @@ class CommentControllerTest extends TestCase
         $commenter = User::factory()->create();
 
         $comment = Comment::factory()->create([
-            'ArticleType' => ArticleType::User,
-            'ArticleID' => $wallOwner->id,
+            'commentable_type' => CommentableType::User,
+            'commentable_id' => $wallOwner->id,
             'user_id' => $commenter->id,
-            'Submitted' => now(),
+            'created_at' => now(),
         ]);
 
         // Act
@@ -197,7 +197,7 @@ class CommentControllerTest extends TestCase
         $location = $response->headers->get('Location');
 
         $this->assertStringContainsString("user/{$wallOwner->username}", $location);
-        $this->assertStringContainsString("#comment_{$comment->ID}", $location);
+        $this->assertStringContainsString("#comment_{$comment->id}", $location);
     }
 
     public function testRedirectsToAchievementPageForRecentComment(): void
@@ -209,10 +209,10 @@ class CommentControllerTest extends TestCase
         $user = User::factory()->create();
 
         $comment = Comment::factory()->create([
-            'ArticleType' => ArticleType::Achievement,
-            'ArticleID' => $achievement->id,
+            'commentable_type' => CommentableType::Achievement,
+            'commentable_id' => $achievement->id,
             'user_id' => $user->id,
-            'Submitted' => now(),
+            'created_at' => now(),
         ]);
 
         // Act
@@ -223,7 +223,7 @@ class CommentControllerTest extends TestCase
         $location = $response->headers->get('Location');
 
         $this->assertStringContainsString("achievement/{$achievement->id}", $location);
-        $this->assertStringContainsString("#comment_{$comment->ID}", $location);
+        $this->assertStringContainsString("#comment_{$comment->id}", $location);
     }
 
     public function testRedirectsToLeaderboardPageForRecentComment(): void
@@ -235,10 +235,10 @@ class CommentControllerTest extends TestCase
         $user = User::factory()->create();
 
         $comment = Comment::factory()->create([
-            'ArticleType' => ArticleType::Leaderboard,
-            'ArticleID' => $leaderboard->id,
+            'commentable_type' => CommentableType::Leaderboard,
+            'commentable_id' => $leaderboard->id,
             'user_id' => $user->id,
-            'Submitted' => now(),
+            'created_at' => now(),
         ]);
 
         // Act
@@ -249,7 +249,7 @@ class CommentControllerTest extends TestCase
         $location = $response->headers->get('Location');
 
         $this->assertStringContainsString("leaderboard/{$leaderboard->id}", $location);
-        $this->assertStringContainsString("#comment_{$comment->ID}", $location);
+        $this->assertStringContainsString("#comment_{$comment->id}", $location);
     }
 
     public function testReturns404ForNonExistentResource(): void
@@ -258,8 +258,8 @@ class CommentControllerTest extends TestCase
         $user = User::factory()->create();
 
         $comment = Comment::factory()->create([
-            'ArticleType' => ArticleType::Game,
-            'ArticleID' => 99999999, // !! doesn't exist
+            'commentable_type' => CommentableType::Game,
+            'commentable_id' => 99999999, // !! doesn't exist
             'user_id' => $user->id,
         ]);
 
@@ -279,19 +279,19 @@ class CommentControllerTest extends TestCase
         $user = User::factory()->create();
 
         $oldComment = Comment::factory()->create([
-            'ArticleType' => ArticleType::Achievement,
-            'ArticleID' => $achievement->id,
+            'commentable_type' => CommentableType::Achievement,
+            'commentable_id' => $achievement->id,
             'user_id' => $user->id,
-            'Submitted' => now()->subDays(30),
+            'created_at' => now()->subDays(30),
         ]);
 
         // ... create 20 newer comments to push the old one out of the recent list ...
         for ($i = 0; $i < 20; $i++) {
             Comment::factory()->create([
-                'ArticleType' => ArticleType::Achievement,
-                'ArticleID' => $achievement->id,
+                'commentable_type' => CommentableType::Achievement,
+                'commentable_id' => $achievement->id,
                 'user_id' => $user->id,
-                'Submitted' => now()->subDays(29 - $i),
+                'created_at' => now()->subDays(29 - $i),
             ]);
         }
 
@@ -303,7 +303,7 @@ class CommentControllerTest extends TestCase
         $location = $response->headers->get('Location');
 
         $this->assertStringContainsString("/achievement/{$achievement->id}/comments", $location);
-        $this->assertStringContainsString("#comment_{$oldComment->ID}", $location);
+        $this->assertStringContainsString("#comment_{$oldComment->id}", $location);
     }
 
     public function testRedirectsToUserCommentsPageWhenCommentIsOld(): void
@@ -313,19 +313,19 @@ class CommentControllerTest extends TestCase
         $commenter = User::factory()->create();
 
         $oldComment = Comment::factory()->create([
-            'ArticleType' => ArticleType::User,
-            'ArticleID' => $wallOwner->id,
+            'commentable_type' => CommentableType::User,
+            'commentable_id' => $wallOwner->id,
             'user_id' => $commenter->id,
-            'Submitted' => now()->subDays(30),
+            'created_at' => now()->subDays(30),
         ]);
 
         // ... create 20 newer comments to push the old one out of the recent list ...
         for ($i = 0; $i < 20; $i++) {
             Comment::factory()->create([
-                'ArticleType' => ArticleType::User,
-                'ArticleID' => $wallOwner->id,
+                'commentable_type' => CommentableType::User,
+                'commentable_id' => $wallOwner->id,
                 'user_id' => $commenter->id,
-                'Submitted' => now()->subDays(29 - $i),
+                'created_at' => now()->subDays(29 - $i),
             ]);
         }
 
@@ -337,7 +337,7 @@ class CommentControllerTest extends TestCase
         $location = $response->headers->get('Location');
 
         $this->assertStringContainsString("/user/{$wallOwner->username}/comments", $location);
-        $this->assertStringContainsString("#comment_{$oldComment->ID}", $location);
+        $this->assertStringContainsString("#comment_{$oldComment->id}", $location);
     }
 
     public function testRedirectsToLeaderboardCommentsPageWhenCommentIsOld(): void
@@ -349,19 +349,19 @@ class CommentControllerTest extends TestCase
         $user = User::factory()->create();
 
         $oldComment = Comment::factory()->create([
-            'ArticleType' => ArticleType::Leaderboard,
-            'ArticleID' => $leaderboard->id,
+            'commentable_type' => CommentableType::Leaderboard,
+            'commentable_id' => $leaderboard->id,
             'user_id' => $user->id,
-            'Submitted' => now()->subDays(30),
+            'created_at' => now()->subDays(30),
         ]);
 
         // ... create 20 newer comments to push the old one out of the recent list ...
         for ($i = 0; $i < 20; $i++) {
             Comment::factory()->create([
-                'ArticleType' => ArticleType::Leaderboard,
-                'ArticleID' => $leaderboard->id,
+                'commentable_type' => CommentableType::Leaderboard,
+                'commentable_id' => $leaderboard->id,
                 'user_id' => $user->id,
-                'Submitted' => now()->subDays(29 - $i),
+                'created_at' => now()->subDays(29 - $i),
             ]);
         }
 
@@ -373,6 +373,6 @@ class CommentControllerTest extends TestCase
         $location = $response->headers->get('Location');
 
         $this->assertStringContainsString("/leaderboard/{$leaderboard->id}/comments", $location);
-        $this->assertStringContainsString("#comment_{$oldComment->ID}", $location);
+        $this->assertStringContainsString("#comment_{$oldComment->id}", $location);
     }
 }

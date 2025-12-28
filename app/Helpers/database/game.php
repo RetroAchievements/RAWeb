@@ -1,12 +1,13 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\User;
 use App\Platform\Actions\TrimGameMetadataAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\AchievementFlag;
+use Illuminate\Support\Facades\DB;
 
 function getGameData(int $gameID): ?array
 {
@@ -571,7 +572,7 @@ function modifyGameData(
     $game->save();
     addArticleComment(
         "Server",
-        ArticleType::GameModification,
+        CommentableType::GameModification,
         $gameId,
         "{$user->display_name} changed the " .
             implode(", ", $modifications) .
@@ -616,7 +617,7 @@ function modifyGameTitle(string $username, int $gameId, string $value): bool
             $canonicalTitle->save();
         }
 
-        addArticleComment('Server', ArticleType::GameModification, $gameId, "{$user->display_name} changed the game name");
+        addArticleComment('Server', CommentableType::GameModification, $gameId, "{$user->display_name} changed the game name");
     }
 
     return true;
@@ -641,7 +642,7 @@ function modifyGameForumTopic(string $username, int $gameId, int $newForumTopicI
     $game->ForumTopicID = $newForumTopicId;
     $game->save();
 
-    addArticleComment('Server', ArticleType::GameModification, $gameId, "{$user->display_name} changed the forum topic");
+    addArticleComment('Server', CommentableType::GameModification, $gameId, "{$user->display_name} changed the forum topic");
 
     return true;
 }

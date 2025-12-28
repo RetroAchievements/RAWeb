@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Models\AchievementSetClaim;
 use App\Models\User;
 use App\Support\Cache\CacheKey;
@@ -20,7 +20,7 @@ class ExtendGameClaimAction
         $claim->save();
 
         Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($claim->user->User));
-        addArticleComment("Server", ArticleType::SetClaim, $claim->game->ID, "Claim extended by " . $actingUser->display_name);
+        addArticleComment("Server", CommentableType::SetClaim, $claim->game->ID, "Claim extended by " . $actingUser->display_name);
 
         $webhookUrl = config('services.discord.webhook.claims');
         if (!empty($webhookUrl)) {
@@ -44,7 +44,7 @@ class ExtendGameClaimAction
             $collaborationClaim->save();
 
             Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($collaborationClaim->user->User));
-            addArticleComment("Server", ArticleType::SetClaim, $claim->game->ID,
+            addArticleComment("Server", CommentableType::SetClaim, $claim->game->ID,
                 $collaborationClaim->user->display_name . "'s collaboration claim extended by " . $actingUser->display_name);
         }
     }

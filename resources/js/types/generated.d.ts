@@ -20,7 +20,7 @@ declare namespace App.Community.Data {
   export type Comment = {
     id: number;
     commentableId: number;
-    commentableType: number;
+    commentableType: App.Community.Enums.CommentableType;
     payload: string;
     createdAt: string;
     updatedAt: string | null;
@@ -222,6 +222,18 @@ declare namespace App.Community.Data {
   };
 }
 declare namespace App.Community.Enums {
+  export type CommentableType =
+    | 'achievement.comment'
+    | 'trigger.ticket.comment'
+    | 'forum.comment'
+    | 'game.comment'
+    | 'game-hash.comment'
+    | 'game-modification.comment'
+    | 'leaderboard.comment'
+    | 'achievement-set-claim.comment'
+    | 'user.comment'
+    | 'user-activity.comment'
+    | 'user-moderation.comment';
   export type MessageThreadTemplateKind =
     | 'achievement-issue'
     | 'manual-unlock'
@@ -251,7 +263,6 @@ declare namespace App.Community.Enums {
     | 'GameAchievements'
     | 'AchievementTicket';
   export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
-  export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
   export type AwardType = 1 | 2 | 3 | 6 | 7 | 8 | 9;
   export type ClaimSetType = 0 | 1;
   export type ClaimStatus = 0 | 1 | 2 | 3;

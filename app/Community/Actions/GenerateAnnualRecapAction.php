@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Enums\ArticleType;
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimStatus;
+use App\Community\Enums\CommentableType;
 use App\Mail\AnnualRecapMail;
 use App\Models\Achievement;
 use App\Models\AchievementSet;
@@ -500,9 +500,9 @@ class GenerateAnnualRecapAction
             ->where('created_at', '<', $endDate)
             ->count();
         $recapData['numComments'] = Comment::where('user_id', $user->id)
-            ->whereIn('ArticleType', [ArticleType::Game, ArticleType::Achievement, ArticleType::Leaderboard])
-            ->where('Submitted', '>=', $startDate)
-            ->where('Submitted', '<', $endDate)
+            ->whereIn('commentable_type', [CommentableType::Game, CommentableType::Achievement, CommentableType::Leaderboard])
+            ->where('created_at', '>=', $startDate)
+            ->where('created_at', '<', $endDate)
             ->count();
     }
 

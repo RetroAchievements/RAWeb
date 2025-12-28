@@ -4,7 +4,6 @@ import { FaGamepad, FaTicketAlt } from 'react-icons/fa';
 import { ImTrophy } from 'react-icons/im';
 import { LuMessageSquare, LuTrophy, LuUser } from 'react-icons/lu';
 
-import { ArticleType } from '@/common/utils/generatedAppConstants';
 import { useDiffForHumans } from '@/common/utils/l10n/useDiffForHumans';
 
 interface CommentResultDisplayProps {
@@ -24,19 +23,19 @@ export const CommentResultDisplay: FC<CommentResultDisplayProps> = ({ comment })
 
   const getCommentTypeInfo = (): { label: string; icon: React.ReactNode } => {
     switch (comment.commentableType) {
-      case ArticleType.Game:
+      case 'game.comment':
         return { label: t('Game Comment'), icon: <FaGamepad className="size-3" /> };
 
-      case ArticleType.Achievement:
+      case 'achievement.comment':
         return { label: t('Achievement Comment'), icon: <ImTrophy className="size-3" /> };
 
-      case ArticleType.User:
+      case 'user.comment':
         return { label: t('User Wall Comment'), icon: <LuUser className="size-3" /> };
 
-      case ArticleType.Leaderboard:
+      case 'leaderboard.comment':
         return { label: t('Leaderboard Comment'), icon: <LuTrophy className="size-3" /> };
 
-      case ArticleType.AchievementTicket:
+      case 'trigger.ticket.comment':
         return { label: t('Ticket Comment'), icon: <FaTicketAlt className="size-3" /> };
 
       default:

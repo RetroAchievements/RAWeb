@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Leaderboard;
 use App\Models\User;
@@ -314,8 +314,8 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
         echo "</div>";
 
         // Render article comments
-        echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
-            ['articleType' => ArticleType::Leaderboard, 'articleId' => $leaderboard->id]
+        echo Blade::render("<x-comment.list :commentableType=\"\$commentableType\" :commentableId=\"\$commentableId\" />",
+            ['commentableType' => CommentableType::Leaderboard, 'commentableId' => $leaderboard->id]
         );
 
         RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);

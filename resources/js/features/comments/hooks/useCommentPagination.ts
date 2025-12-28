@@ -3,11 +3,26 @@ import { useCallback } from 'react';
 import type { RouteName } from 'ziggy-js';
 import { route } from 'ziggy-js';
 
-import type { ArticleType } from '@/common/utils/generatedAppConstants';
+/**
+ * Maps CommentableType enum values to the route parameter names.
+ */
+const commentableTypeToRouteParam: Record<App.Community.Enums.CommentableType, string> = {
+  'achievement.comment': 'achievement',
+  'trigger.ticket.comment': 'ticket',
+  'forum.comment': 'forum',
+  'game.comment': 'game',
+  'game-hash.comment': 'game',
+  'game-modification.comment': 'game',
+  'leaderboard.comment': 'leaderboard',
+  'achievement-set-claim.comment': 'game',
+  'user.comment': 'user',
+  'user-activity.comment': 'activity',
+  'user-moderation.comment': 'user',
+};
 
 interface UseCommentPaginationProps {
   entityId: number;
-  entityType: keyof typeof ArticleType;
+  commentableType: App.Community.Enums.CommentableType;
   routeName: RouteName;
   paginatedComments: App.Data.PaginatedData<App.Community.Data.Comment>;
 
@@ -16,43 +31,45 @@ interface UseCommentPaginationProps {
 
 export function useCommentPagination({
   entityId,
-  entityType,
+  commentableType,
   paginatedComments,
   routeName,
   displayName,
 }: UseCommentPaginationProps) {
+  const routeParamName = commentableTypeToRouteParam[commentableType];
+
   const handleCommentDeleteSuccess = useCallback(() => {
     // If there are no comments left on the current page and we're not on
     // the 1st page, go back one page.
     router.visit(
       route(routeName, {
-        [entityType.toLowerCase()]: displayName ?? entityId,
+        [routeParamName]: displayName ?? entityId,
         _query: { page: getNewLastPageOnItemDelete(paginatedComments) },
       }),
       { preserveScroll: true },
     );
-  }, [displayName, entityId, entityType, paginatedComments, routeName]);
+  }, [displayName, entityId, paginatedComments, routeName, routeParamName]);
 
   const handleCommentSubmitSuccess = useCallback(() => {
     router.visit(
       route(routeName, {
-        [entityType.toLowerCase()]: displayName ?? entityId,
+        [routeParamName]: displayName ?? entityId,
         _query: { page: getNewLastPageOnItemAdd(paginatedComments) },
       }),
       { preserveScroll: true },
     );
-  }, [displayName, entityId, entityType, paginatedComments, routeName]);
+  }, [displayName, entityId, paginatedComments, routeName, routeParamName]);
 
   const handlePageSelectValueChange = useCallback(
     (newPageValue: number) => {
       router.visit(
         route(routeName, {
-          [entityType.toLowerCase()]: displayName ?? entityId,
+          [routeParamName]: displayName ?? entityId,
           _query: { page: newPageValue },
         }),
       );
     },
-    [displayName, entityId, entityType, routeName],
+    [displayName, entityId, routeName, routeParamName],
   );
 
   return { handleCommentDeleteSuccess, handleCommentSubmitSuccess, handlePageSelectValueChange };

@@ -6,7 +6,7 @@ namespace App\Models;
 
 use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\GameHashCompatibility;
 use App\Platform\Actions\ComputeGameSearchTitlesAction;
 use App\Platform\Actions\SyncAchievementSetImageAssetPathFromGameAction;
@@ -623,7 +623,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function comments(): HasMany
     {
-        return $this->hasMany(Comment::class, 'ArticleID')->where('ArticleType', ArticleType::Game);
+        return $this->hasMany(Comment::class, 'commentable_id')->where('commentable_type', CommentableType::Game);
     }
 
     /**
@@ -646,7 +646,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function claimsComments(): HasMany
     {
-        return $this->hasMany(Comment::class, 'ArticleID')->where('ArticleType', ArticleType::SetClaim);
+        return $this->hasMany(Comment::class, 'commentable_id')->where('commentable_type', CommentableType::SetClaim);
     }
 
     /**
@@ -669,7 +669,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function hashesComments(): HasMany
     {
-        return $this->hasMany(Comment::class, 'ArticleID')->where('ArticleType', ArticleType::GameHash);
+        return $this->hasMany(Comment::class, 'commentable_id')->where('commentable_type', CommentableType::GameHash);
     }
 
     /**
@@ -692,7 +692,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function modificationsComments(): HasMany
     {
-        return $this->hasMany(Comment::class, 'ArticleID')->where('ArticleType', ArticleType::GameModification);
+        return $this->hasMany(Comment::class, 'commentable_id')->where('commentable_type', CommentableType::GameModification);
     }
 
     /**

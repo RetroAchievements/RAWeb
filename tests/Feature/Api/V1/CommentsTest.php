@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Community\Enums\CommentableType;
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Game;
@@ -67,25 +68,25 @@ class CommentsTest extends TestCase
 
         $achievement = Achievement::factory()->create(['GameID' => $game->ID, 'user_id' => $user1->ID]);
         $comment1 = Comment::factory()->create([
-            'ArticleID' => $achievement->ID,
-            'ArticleType' => 2,
+            'commentable_id' => $achievement->ID,
+            'commentable_type' => CommentableType::Achievement,
             'user_id' => $user1->ID,
-            'Payload' => 'This is a great achievement!',
-            'Submitted' => "2024-01-18T15:01:04.000000Z",
+            'body' => 'This is a great achievement!',
+            'created_at' => "2024-01-18T15:01:04.000000Z",
         ]);
         $comment2 = Comment::factory()->create([
-            'ArticleID' => $achievement->ID,
-            'ArticleType' => 2,
+            'commentable_id' => $achievement->ID,
+            'commentable_type' => CommentableType::Achievement,
             'user_id' => $user2->ID,
-            'Payload' => 'I agree, this is awesome!',
-            'Submitted' => "2024-01-19T15:01:04.000000Z",
+            'body' => 'I agree, this is awesome!',
+            'created_at' => "2024-01-19T15:01:04.000000Z",
         ]);
         $comment3 = Comment::factory()->create([
-            'ArticleID' => $achievement->ID,
-            'ArticleType' => 2,
+            'commentable_id' => $achievement->ID,
+            'commentable_type' => CommentableType::Achievement,
             'user_id' => $bannedUser->ID,
-            'Payload' => 'This comment is from a banned user!',
-            'Submitted' => "2024-01-20T15:01:04.000000Z",
+            'body' => 'This comment is from a banned user!',
+            'created_at' => "2024-01-20T15:01:04.000000Z",
         ]);
 
         // Act
@@ -101,14 +102,14 @@ class CommentsTest extends TestCase
                 [
                     'User' => $user1->User,
                     'ULID' => $user1->ulid,
-                    'Submitted' => $comment1->Submitted->toISOString(),
-                    'CommentText' => $comment1->Payload,
+                    'Submitted' => $comment1->created_at->toISOString(),
+                    'CommentText' => $comment1->body,
                 ],
                 [
                     'User' => $user2->User,
                     'ULID' => $user2->ulid,
-                    'Submitted' => $comment2->Submitted->toISOString(),
-                    'CommentText' => $comment2->Payload,
+                    'Submitted' => $comment2->created_at->toISOString(),
+                    'CommentText' => $comment2->body,
                 ],
             ],
         ]);
@@ -125,24 +126,24 @@ class CommentsTest extends TestCase
 
         $achievement = Achievement::factory()->create(['GameID' => $game->ID, 'user_id' => $user1->ID]);
         $comment1 = Comment::factory()->create([
-            'ArticleID' => $achievement->ID,
-            'ArticleType' => 2,
+            'commentable_id' => $achievement->ID,
+            'commentable_type' => CommentableType::Achievement,
             'user_id' => $user1->ID,
-            'Payload' => 'This is a great achievement!',
-            'Submitted' => "2024-01-18T15:01:04.000000Z",
+            'body' => 'This is a great achievement!',
+            'created_at' => "2024-01-18T15:01:04.000000Z",
         ]);
         $comment2 = Comment::factory()->create([
-            'ArticleID' => $achievement->ID,
-            'ArticleType' => 2,
+            'commentable_id' => $achievement->ID,
+            'commentable_type' => CommentableType::Achievement,
             'user_id' => $user2->ID,
-            'Payload' => 'I agree, this is awesome!',
-            'Submitted' => "2024-12-18T15:01:04.000000Z",
+            'body' => 'I agree, this is awesome!',
+            'created_at' => "2024-12-18T15:01:04.000000Z",
         ]);
         $comment3 = Comment::factory()->create([
-            'ArticleID' => $achievement->ID,
-            'ArticleType' => 2,
+            'commentable_id' => $achievement->ID,
+            'commentable_type' => CommentableType::Achievement,
             'user_id' => $bannedUser->ID,
-            'Payload' => 'This comment is from a banned user!',
+            'body' => 'This comment is from a banned user!',
         ]);
 
         // Act
@@ -157,13 +158,13 @@ class CommentsTest extends TestCase
             'Results' => [
                 [
                     'User' => $user2->User,
-                    'Submitted' => $comment2->Submitted->toISOString(),
-                    'CommentText' => $comment2->Payload,
+                    'Submitted' => $comment2->created_at->toISOString(),
+                    'CommentText' => $comment2->body,
                 ],
                 [
                     'User' => $user1->User,
-                    'Submitted' => $comment1->Submitted->toISOString(),
-                    'CommentText' => $comment1->Payload,
+                    'Submitted' => $comment1->created_at->toISOString(),
+                    'CommentText' => $comment1->body,
                 ],
             ],
         ]);
@@ -179,32 +180,32 @@ class CommentsTest extends TestCase
         $bannedUser = User::factory()->create(['banned_at' => Carbon::now()]);
 
         $comment1 = Comment::factory()->create([
-            'ArticleID' => $game->ID,
-            'ArticleType' => 1,
+            'commentable_id' => $game->ID,
+            'commentable_type' => CommentableType::Game,
             'user_id' => $user1->ID,
-            'Payload' => 'This is a great achievement!',
-            'Submitted' => "2024-01-18T15:01:04.000000Z",
+            'body' => 'This is a great achievement!',
+            'created_at' => "2024-01-18T15:01:04.000000Z",
         ]);
         $comment2 = Comment::factory()->create([
-            'ArticleID' => $game->ID,
-            'ArticleType' => 1,
+            'commentable_id' => $game->ID,
+            'commentable_type' => CommentableType::Game,
             'user_id' => $user2->ID,
-            'Payload' => 'I agree, this is awesome!',
-            'Submitted' => "2024-01-19T15:01:04.000000Z",
+            'body' => 'I agree, this is awesome!',
+            'created_at' => "2024-01-19T15:01:04.000000Z",
         ]);
         $comment3 = Comment::factory()->create([
-            'ArticleID' => $game->ID,
-            'ArticleType' => 2,
+            'commentable_id' => $game->ID,
+            'commentable_type' => CommentableType::Achievement,
             'user_id' => $bannedUser->ID,
-            'Payload' => 'This comment is from a banned user!',
-            'Submitted' => "2024-01-20T15:01:04.000000Z",
+            'body' => 'This comment is from a banned user!',
+            'created_at' => "2024-01-20T15:01:04.000000Z",
         ]);
         $deletedComment = Comment::factory()->create([
-            'ArticleID' => $game->ID,
-            'ArticleType' => 2,
+            'commentable_id' => $game->ID,
+            'commentable_type' => CommentableType::Achievement,
             'user_id' => $user1->ID,
-            'Payload' => 'This comment has been deleted!',
-            'Submitted' => "2024-01-21T15:01:04.000000Z",
+            'body' => 'This comment has been deleted!',
+            'created_at' => "2024-01-21T15:01:04.000000Z",
             'deleted_at' => Carbon::now(),
         ]);
 
@@ -221,14 +222,14 @@ class CommentsTest extends TestCase
                 [
                     'User' => $user1->User,
                     'ULID' => $user1->ulid,
-                    'Submitted' => $comment1->Submitted->toISOString(),
-                    'CommentText' => $comment1->Payload,
+                    'Submitted' => $comment1->created_at->toISOString(),
+                    'CommentText' => $comment1->body,
                 ],
                 [
                     'User' => $user2->User,
                     'ULID' => $user2->ulid,
-                    'Submitted' => $comment2->Submitted->toISOString(),
-                    'CommentText' => $comment2->Payload,
+                    'Submitted' => $comment2->created_at->toISOString(),
+                    'CommentText' => $comment2->body,
                 ],
             ],
         ]);
@@ -242,25 +243,25 @@ class CommentsTest extends TestCase
         $bannedUser = User::factory()->create(['banned_at' => Carbon::now()]);
 
         $comment1 = Comment::factory()->create([
-            'ArticleID' => $user->ID,
-            'ArticleType' => 3,
+            'commentable_id' => $user->ID,
+            'commentable_type' => CommentableType::User,
             'user_id' => $user2->ID,
-            'Payload' => 'This is my first comment.',
-            'Submitted' => "2024-01-18T15:01:04.000000Z",
+            'body' => 'This is my first comment.',
+            'created_at' => "2024-01-18T15:01:04.000000Z",
         ]);
         $comment2 = Comment::factory()->create([
-            'ArticleID' => $user->ID,
-            'ArticleType' => 3,
+            'commentable_id' => $user->ID,
+            'commentable_type' => CommentableType::User,
             'user_id' => $user2->ID,
-            'Payload' => 'This is my second comment.',
-            'Submitted' => "2024-01-19T15:01:04.000000Z",
+            'body' => 'This is my second comment.',
+            'created_at' => "2024-01-19T15:01:04.000000Z",
         ]);
         $comment3 = Comment::factory()->create([
-            'ArticleID' => $user->ID,
-            'ArticleType' => 2,
+            'commentable_id' => $user->ID,
+            'commentable_type' => CommentableType::Achievement,
             'user_id' => $bannedUser->ID,
-            'Payload' => 'This comment is from a banned user!',
-            'Submitted' => "2024-01-20T15:01:04.000000Z",
+            'body' => 'This comment is from a banned user!',
+            'created_at' => "2024-01-20T15:01:04.000000Z",
         ]);
 
         // Act
@@ -276,14 +277,14 @@ class CommentsTest extends TestCase
                 [
                     'User' => $user2->User,
                     'ULID' => $user2->ulid,
-                    'Submitted' => $comment1->Submitted->toISOString(),
-                    'CommentText' => $comment1->Payload,
+                    'Submitted' => $comment1->created_at->toISOString(),
+                    'CommentText' => $comment1->body,
                 ],
                 [
                     'User' => $user2->User,
                     'ULID' => $user2->ulid,
-                    'Submitted' => $comment2->Submitted->toISOString(),
-                    'CommentText' => $comment2->Payload,
+                    'Submitted' => $comment2->created_at->toISOString(),
+                    'CommentText' => $comment2->body,
                 ],
             ],
         ]);
@@ -297,25 +298,25 @@ class CommentsTest extends TestCase
         $bannedUser = User::factory()->create(['banned_at' => Carbon::now()]);
 
         $comment1 = Comment::factory()->create([
-            'ArticleID' => $user->ID,
-            'ArticleType' => 3,
+            'commentable_id' => $user->ID,
+            'commentable_type' => CommentableType::User,
             'user_id' => $user2->ID,
-            'Payload' => 'This is my first comment.',
-            'Submitted' => "2024-01-19T15:01:04.000000Z",
+            'body' => 'This is my first comment.',
+            'created_at' => "2024-01-19T15:01:04.000000Z",
         ]);
         $comment2 = Comment::factory()->create([
-            'ArticleID' => $user->ID,
-            'ArticleType' => 3,
+            'commentable_id' => $user->ID,
+            'commentable_type' => CommentableType::User,
             'user_id' => $user2->ID,
-            'Payload' => 'This is my second comment.',
-            'Submitted' => "2024-01-19T15:01:04.000000Z",
+            'body' => 'This is my second comment.',
+            'created_at' => "2024-01-19T15:01:04.000000Z",
         ]);
         $comment3 = Comment::factory()->create([
-            'ArticleID' => $user->ID,
-            'ArticleType' => 2,
+            'commentable_id' => $user->ID,
+            'commentable_type' => CommentableType::Achievement,
             'user_id' => $bannedUser->ID,
-            'Payload' => 'This comment is from a banned user!',
-            'Submitted' => "2024-01-19T15:01:04.000000Z",
+            'body' => 'This comment is from a banned user!',
+            'created_at' => "2024-01-19T15:01:04.000000Z",
         ]);
 
         // Act
@@ -331,14 +332,14 @@ class CommentsTest extends TestCase
                 [
                     'User' => $user2->User,
                     'ULID' => $user2->ulid,
-                    'Submitted' => $comment1->Submitted->toISOString(),
-                    'CommentText' => $comment1->Payload,
+                    'Submitted' => $comment1->created_at->toISOString(),
+                    'CommentText' => $comment1->body,
                 ],
                 [
                     'User' => $user2->User,
                     'ULID' => $user2->ulid,
-                    'Submitted' => $comment2->Submitted->toISOString(),
-                    'CommentText' => $comment2->Payload,
+                    'Submitted' => $comment2->created_at->toISOString(),
+                    'CommentText' => $comment2->body,
                 ],
             ],
         ]);
@@ -350,18 +351,18 @@ class CommentsTest extends TestCase
         $user = User::factory()->create(['UserWallActive' => false]);
         $user2 = User::factory()->create();
         $comment1 = Comment::factory()->create([
-            'ArticleID' => $user->ID,
-            'ArticleType' => 3,
+            'commentable_id' => $user->ID,
+            'commentable_type' => CommentableType::User,
             'user_id' => $user2->ID,
-            'Payload' => 'This is my first comment.',
-            'Submitted' => "2024-01-18T15:01:04.000000Z",
+            'body' => 'This is my first comment.',
+            'created_at' => "2024-01-18T15:01:04.000000Z",
         ]);
         $comment2 = Comment::factory()->create([
-            'ArticleID' => $user->ID,
-            'ArticleType' => 3,
+            'commentable_id' => $user->ID,
+            'commentable_type' => CommentableType::User,
             'user_id' => $user2->ID,
-            'Payload' => 'This is my second comment.',
-            'Submitted' => "2024-01-19T15:01:04.000000Z",
+            'body' => 'This is my second comment.',
+            'created_at' => "2024-01-19T15:01:04.000000Z",
         ]);
 
         // Act

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Data\UserData;
 use App\Http\Controller;
 use App\Models\Game;
@@ -118,7 +118,7 @@ class PlayerGameController extends Controller
 
         addArticleComment(
             'Server',
-            ArticleType::UserModeration,
+            CommentableType::UserModeration,
             $user->id,
             "{$user->display_name} performed a full account reset"
         );

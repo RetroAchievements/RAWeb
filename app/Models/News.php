@@ -6,7 +6,6 @@ namespace App\Models;
 
 use App\Community\Concerns\HasAuthor;
 use App\Community\Concerns\HasViews;
-use App\Community\Contracts\HasComments;
 use App\Community\Contracts\HasViewTracking;
 use App\Community\Enums\NewsCategory;
 use App\Support\Database\Eloquent\BaseModel;
@@ -14,7 +13,6 @@ use Carbon\Carbon;
 use Database\Factories\NewsFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Spatie\Image\Enums\Fit;
@@ -22,7 +20,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class News extends BaseModel implements HasComments, HasMedia, HasViewTracking
+class News extends BaseModel implements HasMedia, HasViewTracking
 {
     use HasAuthor;
     /** @use HasFactory<NewsFactory> */
@@ -123,14 +121,6 @@ class News extends BaseModel implements HasComments, HasMedia, HasViewTracking
     // == mutators
 
     // == relations
-
-    /**
-     * @return MorphMany<NewsComment, $this>
-     */
-    public function comments(): MorphMany
-    {
-        return $this->morphMany(NewsComment::class, 'commentable');
-    }
 
     /**
      * @return BelongsTo<User, $this>

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\AchievementSet;
 use App\Models\AchievementSetClaim;
@@ -160,7 +160,7 @@ class UploadLeaderboardTest extends TestCase
         $this->assertEquals(true, $leaderboard1->LowerIsBetter);
         $this->assertEquals('VALUE', $leaderboard1->Format);
         $this->assertEquals(1, $leaderboard1->DisplayOrder);
-        $this->assertAuditComment(ArticleType::Leaderboard, $leaderboard1->id,
+        $this->assertAuditComment(CommentableType::Leaderboard, $leaderboard1->id,
             "{$this->user->display_name} edited this leaderboard's title.");
 
         // ----------------------------
@@ -190,7 +190,7 @@ class UploadLeaderboardTest extends TestCase
         $this->assertEquals(true, $leaderboard2->LowerIsBetter);
         $this->assertEquals('TIMESECS', $leaderboard2->Format);
         $this->assertEquals(2, $leaderboard2->DisplayOrder);
-        $this->assertAuditComment(ArticleType::Leaderboard, $leaderboard2->id,
+        $this->assertAuditComment(CommentableType::Leaderboard, $leaderboard2->id,
             "{$this->user->display_name} edited this leaderboard's title, description, format, order, logic.");
 
         // ----------------------------
@@ -463,7 +463,7 @@ class UploadLeaderboardTest extends TestCase
         $this->assertEquals('STA:11=0::CAN:13=0::SUB:12=0::VAL:14=0', $leaderboard1->Mem);
         $this->assertEquals(false, $leaderboard1->LowerIsBetter);
         $this->assertEquals('SCORE', $leaderboard1->Format);
-        $this->assertAuditComment(ArticleType::Leaderboard, $leaderboard1->id,
+        $this->assertAuditComment(CommentableType::Leaderboard, $leaderboard1->id,
             "{$this->user->display_name} edited this leaderboard's title, description, format, order, logic.");
 
         // ----------------------------

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connect\Actions;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Connect\Support\BaseAuthenticatedApiAction;
 use App\Connect\Support\GeneratesLegacyAuditComment;
 use App\Models\Game;
@@ -172,7 +172,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
 
             $editString = implode(', ', $fields);
             if (!empty($editString)) {
-                $this->addLegacyAuditComment(ArticleType::Leaderboard, $leaderboard->id,
+                $this->addLegacyAuditComment(CommentableType::Leaderboard, $leaderboard->id,
                     "{$this->user->display_name} edited this leaderboard's $editString."
                 );
             }

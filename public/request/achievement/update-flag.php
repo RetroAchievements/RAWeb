@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
@@ -36,7 +36,7 @@ if ($flag === AchievementFlag::OfficialCore) {
 if ($flag === AchievementFlag::Unofficial) {
     $commentText = 'demoted this achievement to Unofficial';
 }
-addArticleComment("Server", ArticleType::Achievement, $achievementIds, "{$userModel->display_name} $commentText.", $userModel->display_name);
+addArticleComment("Server", CommentableType::Achievement, $achievementIds, "{$userModel->display_name} $commentText.", $userModel->display_name);
 expireGameTopAchievers($achievement['GameID']);
 
 return response()->json(['message' => __('legacy.success.ok')]);

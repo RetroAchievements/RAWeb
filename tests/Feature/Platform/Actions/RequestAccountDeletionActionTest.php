@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Actions;
 
-use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Mail\RequestAccountDeleteMail;
 use App\Models\AchievementSetClaim;
@@ -42,7 +42,7 @@ class RequestAccountDeletionActionTest extends TestCase
         $this->assertEquals(Permissions::Unregistered, $user->getAttribute('Permissions'));
         $this->assertEquals($now, $user->DeleteRequested);
 
-        $this->assertAuditComment(ArticleType::UserModeration, $user->ID, $user->User . ' requested account deletion');
+        $this->assertAuditComment(CommentableType::UserModeration, $user->ID, $user->User . ' requested account deletion');
 
         Mail::assertQueued(RequestAccountDeleteMail::class, $user->EmailAddress);
 
@@ -96,18 +96,18 @@ class RequestAccountDeletionActionTest extends TestCase
         $this->assertEquals(Permissions::Registered, $user->getAttribute('Permissions'));
         $this->assertEquals($now, $user->DeleteRequested);
 
-        $this->assertAuditComment(ArticleType::UserModeration, $user->ID, $user->User . ' requested account deletion');
+        $this->assertAuditComment(CommentableType::UserModeration, $user->ID, $user->User . ' requested account deletion');
 
         Mail::assertQueued(RequestAccountDeleteMail::class, $user->EmailAddress);
 
         // non-completed claims should be dropped
         $claim1->refresh();
         $this->assertEquals(ClaimStatus::Dropped, $claim1->Status);
-        $this->assertAuditComment(ArticleType::SetClaim, $claim1->ID, $user->User . "'s Primary claim dropped via demotion to Registered.");
+        $this->assertAuditComment(CommentableType::SetClaim, $claim1->ID, $user->User . "'s Primary claim dropped via demotion to Registered.");
 
         $claim2->refresh();
         $this->assertEquals(ClaimStatus::Dropped, $claim2->Status);
-        $this->assertAuditComment(ArticleType::SetClaim, $claim2->ID, $user->User . "'s Collaboration claim dropped via demotion to Registered.");
+        $this->assertAuditComment(CommentableType::SetClaim, $claim2->ID, $user->User . "'s Collaboration claim dropped via demotion to Registered.");
 
         $claim3->refresh();
         $this->assertEquals(ClaimStatus::Complete, $claim3->Status);

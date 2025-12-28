@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\UserGameListType;
 use App\Enums\GameHashCompatibility;
@@ -763,8 +764,8 @@ describe('Count Props', function () {
         $user = User::factory()->create();
 
         Comment::factory()->count(3)->create([
-            'ArticleID' => $game->id,
-            'ArticleType' => 1,
+            'commentable_id' => $game->id,
+            'commentable_type' => CommentableType::Game,
             'user_id' => $user->id,
         ]);
 

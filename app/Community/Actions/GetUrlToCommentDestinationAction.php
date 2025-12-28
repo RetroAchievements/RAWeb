@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Game;
@@ -26,7 +26,7 @@ class GetUrlToCommentDestinationAction
      */
     public function execute(Comment $comment): string
     {
-        $commentable = $this->resolveCommentable($comment->ArticleType, $comment->ArticleID);
+        $commentable = $this->resolveCommentable($comment->commentable_type, $comment->commentable_id);
 
         abort_if($commentable === null, 404);
 
@@ -36,19 +36,19 @@ class GetUrlToCommentDestinationAction
         $isVisibleOnResourcePage = $this->getIsCommentVisibleOnResourcePage($comment, $commentable);
 
         if ($isVisibleOnResourcePage) {
-            return $this->buildResourcePageUrl($comment->ArticleType, $commentable, $comment->ID);
+            return $this->buildResourcePageUrl($comment->commentable_type, $commentable, $comment->id);
         }
 
         return $this->buildFullCommentsPageUrl($comment, $commentable);
     }
 
-    private function resolveCommentable(int $articleType, int $articleId): Game|Achievement|User|Leaderboard|null
+    private function resolveCommentable(CommentableType $commentableType, int $commentableId): Game|Achievement|User|Leaderboard|null
     {
-        return match ($articleType) {
-            ArticleType::Game => Game::find($articleId),
-            ArticleType::Achievement => Achievement::find($articleId),
-            ArticleType::User => User::find($articleId),
-            ArticleType::Leaderboard => Leaderboard::find($articleId),
+        return match ($commentableType) {
+            CommentableType::Game => Game::find($commentableId),
+            CommentableType::Achievement => Achievement::find($commentableId),
+            CommentableType::User => User::find($commentableId),
+            CommentableType::Leaderboard => Leaderboard::find($commentableId),
             default => null,
         };
     }
@@ -61,26 +61,26 @@ class GetUrlToCommentDestinationAction
         $currentUser = Auth::user();
 
         $mostRecentCommentIds = $commentable->visibleComments($currentUser)
-            ->latest('Submitted')
+            ->latest('created_at')
             ->limit(self::EMBEDDED_COMMENTS_LIMIT)
-            ->pluck('ID')
+            ->pluck('id')
             ->toArray();
 
-        return in_array($comment->ID, $mostRecentCommentIds, true);
+        return in_array($comment->id, $mostRecentCommentIds, true);
     }
 
     private function buildResourcePageUrl(
-        int $articleType,
+        CommentableType $commentableType,
         Game|Achievement|User|Leaderboard $commentable,
         int $commentId,
     ): string {
         $hashAnchor = "#comment_{$commentId}";
 
-        return match ($articleType) {
-            ArticleType::Game => route('game.show', ['game' => $commentable, 'tab' => 'community']) . $hashAnchor,
-            ArticleType::Achievement => route('achievement.show', ['achievementId' => $commentable->id]) . $hashAnchor,
-            ArticleType::User => route('user.show', $commentable) . $hashAnchor,
-            ArticleType::Leaderboard => route('leaderboard.show', ['leaderboard' => $commentable]) . $hashAnchor,
+        return match ($commentableType) {
+            CommentableType::Game => route('game.show', ['game' => $commentable, 'tab' => 'community']) . $hashAnchor,
+            CommentableType::Achievement => route('achievement.show', ['achievementId' => $commentable->id]) . $hashAnchor,
+            CommentableType::User => route('user.show', $commentable) . $hashAnchor,
+            CommentableType::Leaderboard => route('leaderboard.show', ['leaderboard' => $commentable]) . $hashAnchor,
             default => abort(404),
         };
     }
@@ -90,21 +90,21 @@ class GetUrlToCommentDestinationAction
         Game|Achievement|User|Leaderboard $commentable,
     ): string {
         $page = $this->calculateCommentPage($comment, $commentable);
-        $hashAnchor = "#comment_{$comment->ID}";
+        $hashAnchor = "#comment_{$comment->id}";
 
-        $routeName = match ($comment->ArticleType) {
-            ArticleType::Game => 'game.comment.index',
-            ArticleType::Achievement => 'achievement.comment.index',
-            ArticleType::User => 'user.comment.index',
-            ArticleType::Leaderboard => 'leaderboard.comment.index',
+        $routeName = match ($comment->commentable_type) {
+            CommentableType::Game => 'game.comment.index',
+            CommentableType::Achievement => 'achievement.comment.index',
+            CommentableType::User => 'user.comment.index',
+            CommentableType::Leaderboard => 'leaderboard.comment.index',
             default => abort(404),
         };
 
-        $routeParam = match ($comment->ArticleType) {
-            ArticleType::Game => ['game' => $commentable, 'page' => $page],
-            ArticleType::Achievement => ['achievement' => $commentable, 'page' => $page],
-            ArticleType::User => ['user' => $commentable, 'page' => $page],
-            ArticleType::Leaderboard => ['leaderboard' => $commentable, 'page' => $page],
+        $routeParam = match ($comment->commentable_type) {
+            CommentableType::Game => ['game' => $commentable, 'page' => $page],
+            CommentableType::Achievement => ['achievement' => $commentable, 'page' => $page],
+            CommentableType::User => ['user' => $commentable, 'page' => $page],
+            CommentableType::Leaderboard => ['leaderboard' => $commentable, 'page' => $page],
             default => abort(404),
         };
 
@@ -118,10 +118,10 @@ class GetUrlToCommentDestinationAction
         /** @var ?User $currentUser */
         $currentUser = Auth::user();
 
-        // Comments are displayed in ascending order by Submitted (oldest first).
+        // Comments are displayed in ascending order by created_at (oldest first).
         // Count how many comments come before this one.
         $positionFromStart = $commentable->visibleComments($currentUser)
-            ->where('Submitted', '<', $comment->Submitted)
+            ->where('created_at', '<', $comment->created_at)
             ->count();
 
         // Position is 0-indexed, so add 1 for the comment itself.

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
+use App\Community\Enums\CommentableType;
 use App\Models\AchievementSetClaim;
 use App\Models\User;
 use App\Support\Cache\CacheKey;
@@ -36,9 +36,9 @@ class DropGameClaimAction
 
             Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($firstCollabClaim->user->User));
 
-            addArticleComment("Server", ArticleType::SetClaim, $claim->game->ID, "Primary claim dropped by {$actingUser->display_name}, transferred to {$firstCollabClaim->user->display_name}");
+            addArticleComment("Server", CommentableType::SetClaim, $claim->game->ID, "Primary claim dropped by {$actingUser->display_name}, transferred to {$firstCollabClaim->user->display_name}");
         } else {
-            addArticleComment("Server", ArticleType::SetClaim, $claim->game->ID, ClaimType::toString($claim->ClaimType) . " claim dropped by {$actingUser->display_name}");
+            addArticleComment("Server", CommentableType::SetClaim, $claim->game->ID, ClaimType::toString($claim->ClaimType) . " claim dropped by {$actingUser->display_name}");
         }
 
         $webhookUrl = config('services.discord.webhook.claims');

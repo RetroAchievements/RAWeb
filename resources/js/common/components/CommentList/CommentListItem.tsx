@@ -2,7 +2,6 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { ArticleType } from '@/common/utils/generatedAppConstants';
 
 import { BaseTooltip, BaseTooltipContent, BaseTooltipTrigger } from '../+vendor/BaseTooltip';
 import { DiffTimestamp } from '../DiffTimestamp';
@@ -20,18 +19,18 @@ export const CommentListItem: FC<CommentListItemProps> = ({ ...comment }) => {
 
   const { onDeleteSuccess } = useCommentListContext();
 
-  const excludedArticleTypes: number[] = [
-    ArticleType.News,
-    ArticleType.UserModeration,
-    ArticleType.GameHash,
-    ArticleType.SetClaim,
-    ArticleType.GameModification,
+  // These comment types don't support the report button.
+  const excludedCommentableTypes: App.Community.Enums.CommentableType[] = [
+    'user-moderation.comment',
+    'game-hash.comment',
+    'achievement-set-claim.comment',
+    'game-modification.comment',
   ];
 
   const canShowReportButton =
     comment.canReport &&
     !comment.isAutomated &&
-    !excludedArticleTypes.includes(comment.commentableType);
+    !excludedCommentableTypes.includes(comment.commentableType);
 
   return (
     <li

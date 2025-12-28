@@ -1,5 +1,5 @@
 <?php
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\UserAction;
 use App\Enums\Permissions;
 ?>
@@ -119,7 +119,7 @@ $hasCertifiedLegendBadge = HasCertifiedLegendBadge($targetUser);
         <tr>
             <td colspan="2">
                 <div class="commentscomponent left">
-                    <x-comment.list articleType="{{ ArticleType::UserModeration }}" articleId="{{ $targetUser->id }}" :article="$targetUser" />
+                    <x-comment.list :commentableType="CommentableType::UserModeration" :commentableId="$targetUser->id" :article="$targetUser" />
                 </div>
             </td>
         </tr>

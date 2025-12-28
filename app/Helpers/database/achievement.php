@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\GameAchievementSet;
@@ -343,7 +343,7 @@ function UploadNewAchievement(
         static_addnewachievement($idInOut);
         addArticleComment(
             "Server",
-            ArticleType::Achievement,
+            CommentableType::Achievement,
             $idInOut,
             "{$author->display_name} uploaded this achievement.",
             $author->display_name
@@ -456,7 +456,7 @@ function UploadNewAchievement(
                 if ($flag === AchievementFlag::OfficialCore->value) {
                     addArticleComment(
                         "Server",
-                        ArticleType::Achievement,
+                        CommentableType::Achievement,
                         $idInOut,
                         "{$author->display_name} promoted this achievement to the Core set.",
                         $author->display_name
@@ -464,7 +464,7 @@ function UploadNewAchievement(
                 } elseif ($flag === AchievementFlag::Unofficial->value) {
                     addArticleComment(
                         "Server",
-                        ArticleType::Achievement,
+                        CommentableType::Achievement,
                         $idInOut,
                         "{$author->display_name} demoted this achievement to Unofficial.",
                         $author->display_name
@@ -480,7 +480,7 @@ function UploadNewAchievement(
                 if (!empty($editString)) {
                     addArticleComment(
                         "Server",
-                        ArticleType::Achievement,
+                        CommentableType::Achievement,
                         $idInOut,
                         "{$author->display_name} edited this achievement's $editString.",
                         $author->display_name

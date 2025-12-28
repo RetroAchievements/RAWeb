@@ -11,7 +11,7 @@ use App\Community\Data\UpdatePasswordData;
 use App\Community\Data\UpdateProfileData;
 use App\Community\Data\UpdateWebsitePrefsData;
 use App\Community\Data\UserSettingsPagePropsData;
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Requests\ResetConnectApiKeyRequest;
 use App\Community\Requests\ResetWebApiKeyRequest;
 use App\Community\Requests\StoreUsernameChangeRequest;
@@ -148,7 +148,7 @@ class UserSettingsController extends Controller
 
         addArticleComment(
             'Server',
-            ArticleType::UserModeration,
+            CommentableType::UserModeration,
             $user->id,
             "{$user->display_name} changed their email address"
         );

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Mail\RequestAccountDeleteMail;
 use App\Models\User;
@@ -34,7 +34,7 @@ class RequestAccountDeletionAction
         $user->DeleteRequested = Carbon::now();
         $user->saveQuietly();
 
-        addArticleComment('Server', ArticleType::UserModeration, $user->ID,
+        addArticleComment('Server', CommentableType::UserModeration, $user->ID,
             $user->display_name . ' requested account deletion'
         );
 

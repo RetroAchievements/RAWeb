@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketState;
 use App\Community\Services\SubscriptionService;
@@ -227,7 +227,7 @@ function updateTicket(User $userModel, int $ticketID, int $ticketVal, ?string $r
         case TicketState::Closed:
             if ($reason == TicketState::REASON_DEMOTED && $ticket->achievement) {
                 updateAchievementFlag($ticket->achievement->id, AchievementFlag::Unofficial);
-                addArticleComment("Server", ArticleType::Achievement, $ticket->achievement->id, "{$userModel->display_name} demoted this achievement to Unofficial.", $userModel->display_name);
+                addArticleComment("Server", CommentableType::Achievement, $ticket->achievement->id, "{$userModel->display_name} demoted this achievement to Unofficial.", $userModel->display_name);
             }
             $comment = "Ticket closed by {$userModel->display_name}. Reason: \"$reason\".";
             break;
@@ -253,9 +253,9 @@ function updateTicket(User $userModel, int $ticketID, int $ticketVal, ?string $r
     $serverUserId = getUserIDFromUser('Server');
     if ($serverUserId > 0) {
         Comment::create([
-            'ArticleType' => ArticleType::AchievementTicket,
-            'ArticleID' => $ticketID,
-            'Payload' => $comment,
+            'commentable_type' => CommentableType::AchievementTicket,
+            'commentable_id' => $ticketID,
+            'body' => $comment,
             'user_id' => $serverUserId,
         ]);
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Community\Controllers;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Models\Comment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -66,8 +66,8 @@ class UserCommentControllerTest extends TestCase
         $otherUser = User::factory()->create();
 
         Comment::factory()->create([
-            'ArticleType' => ArticleType::User,
-            'ArticleID' => $otherUser->id,
+            'commentable_type' => CommentableType::User,
+            'commentable_id' => $otherUser->id,
         ]);
 
         // Act
@@ -75,9 +75,9 @@ class UserCommentControllerTest extends TestCase
 
         // Assert
         $response->assertStatus(403);
-        $this->assertDatabaseHas('Comment', [
-            'ArticleType' => ArticleType::User,
-            'ArticleID' => $otherUser->id,
+        $this->assertDatabaseHas('comments', [
+            'commentable_type' => CommentableType::User->value,
+            'commentable_id' => $otherUser->id,
         ]);
     }
 
@@ -92,8 +92,8 @@ class UserCommentControllerTest extends TestCase
         ]);
 
         Comment::factory()->create([
-            'ArticleType' => ArticleType::User,
-            'ArticleID' => $user->id,
+            'commentable_type' => CommentableType::User,
+            'commentable_id' => $user->id,
         ]);
 
         // Act
@@ -101,9 +101,9 @@ class UserCommentControllerTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
-        $this->assertDatabaseHas('Comment', [
-            'ArticleType' => ArticleType::User,
-            'ArticleID' => $user->id,
+        $this->assertDatabaseHas('comments', [
+            'commentable_type' => CommentableType::User->value,
+            'commentable_id' => $user->id,
         ]);
     }
 }

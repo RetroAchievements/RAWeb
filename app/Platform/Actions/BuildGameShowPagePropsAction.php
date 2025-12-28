@@ -105,7 +105,7 @@ class BuildGameShowPagePropsAction
                         ->with(['topEntry.user']);
                 },
                 'visibleComments' => function ($query) {
-                    $query->latest('Submitted')
+                    $query->latest('created_at')
                         ->limit(20)
                         ->with(['user' => function ($userQuery) {
                             $userQuery->withTrashed();
