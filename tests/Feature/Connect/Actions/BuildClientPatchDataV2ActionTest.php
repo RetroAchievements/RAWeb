@@ -20,6 +20,7 @@ use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\LeaderboardState;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
@@ -258,6 +259,12 @@ class BuildClientPatchDataV2ActionTest extends TestCase
             'DisplayOrder' => -1, // !! hidden
             'Format' => 'VALUE',
         ]);
+        $leaderboard3 = Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'DisplayOrder' => 1,
+            'Format' => 'VALUE',
+            'state' => LeaderboardState::Disabled,
+        ]);
 
         // Act
         $result = (new BuildClientPatchDataV2Action())->execute(game: $game);
@@ -276,6 +283,9 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $this->assertEquals($leaderboard1->id, $leaderboardData[1]['ID']);
         $this->assertEquals($leaderboard1->title, $leaderboardData[1]['Title']);
         $this->assertFalse($leaderboardData[1]['Hidden']);
+
+        // Disabled leaderboards should not be included
+        $this->assertNotContains($leaderboard3->id, array_column($leaderboardData, 'ID'));
     }
 
     public function testItFiltersAchievementsByFlag(): void
