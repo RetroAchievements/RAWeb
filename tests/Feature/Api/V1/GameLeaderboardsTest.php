@@ -393,44 +393,44 @@ class GameLeaderboardsTest extends TestCase
 
         /** @var Leaderboard $activeLeaderboard */
         $activeLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->ID,
-            'Title' => "Active Leaderboard ",
-            'Description' => "I am an active leaderboard",
-            'State' => LeaderboardState::Active->value,
+            'game_id' => $game->id,
+            'title' => "Active Leaderboard ",
+            'description' => "I am an active leaderboard",
+            'state' => LeaderboardState::Active,
         ]);
 
         /** @var Leaderboard $disabledLeaderboard */
         $disabledLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->ID,
-            'Title' => "Disabled Leaderboard ",
-            'Description' => "I am a disabled leaderboard",
-            'State' => LeaderboardState::Disabled->value,
+            'game_id' => $game->id,
+            'title' => "Disabled Leaderboard ",
+            'description' => "I am a disabled leaderboard",
+            'state' => LeaderboardState::Disabled,
         ]);
 
         /** @var Leaderboard $unpublishedLeaderboard */
         $unpublishedLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->ID,
-            'Title' => "Unpublished Leaderboard ",
-            'Description' => "I am an unpublished leaderboard",
-            'State' => LeaderboardState::Unpublished->value,
+            'game_id' => $game->id,
+            'title' => "Unpublished Leaderboard ",
+            'description' => "I am an unpublished leaderboard",
+            'state' => LeaderboardState::Unpublished,
         ]);
 
-        $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->ID]))
+        $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->id]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 3,
                 'Total' => 3,
                 'Results' => [
                     [
-                        'ID' => $activeLeaderboard->ID,
+                        'ID' => $activeLeaderboard->id,
                         'State' => LeaderboardState::Active->value,
                     ],
                     [
-                        'ID' => $disabledLeaderboard->ID,
+                        'ID' => $disabledLeaderboard->id,
                         'State' => LeaderboardState::Disabled->value,
                     ],
                     [
-                        'ID' => $unpublishedLeaderboard->ID,
+                        'ID' => $unpublishedLeaderboard->id,
                         'State' => LeaderboardState::Unpublished->value,
                     ],
                 ],

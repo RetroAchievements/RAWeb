@@ -260,9 +260,9 @@ class BuildClientPatchDataV2ActionTest extends TestCase
             'format' => 'VALUE',
         ]);
         $leaderboard3 = Leaderboard::factory()->create([
-            'GameID' => $game->id,
-            'DisplayOrder' => 1,
-            'Format' => 'VALUE',
+            'game_id' => $game->id,
+            'order_column' => 1,
+            'format' => 'VALUE',
             'state' => LeaderboardState::Disabled,
         ]);
 
