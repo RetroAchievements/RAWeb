@@ -114,7 +114,7 @@ class UpdateAchievementMetricsAction
             $this->performBulkUpdate($bulkUpdates);
         }
 
-        $game->TotalTruePoints = $game->achievements()->published()->sum('points_weighted');
+        $game->TotalTruePoints = $game->achievements()->promoted()->sum('points_weighted');
         if ($game->isDirty()) {
             $game->saveQuietly();
 

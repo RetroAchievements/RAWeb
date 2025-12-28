@@ -119,10 +119,10 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $user = User::factory()->create();
         System::factory()->create(['ID' => System::Events]);
         $game = Game::factory()->create(['ConsoleID' => System::Events, 'achievements_published' => 3, 'points_total' => 6]);
-        $achievement1 = Achievement::factory()->published()->create(['game_id' => $game->id, 'points' => 1]);
-        $achievement2 = Achievement::factory()->published()->create(['game_id' => $game->id, 'points' => 1]);
-        $achievement3 = Achievement::factory()->published()->create(['game_id' => $game->id, 'points' => 2]);
-        $achievement4 = Achievement::factory()->published()->create(['game_id' => $game->id, 'points' => 2]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 1]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 1]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 2]);
+        $achievement4 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 2]);
         $event = Event::create(['legacy_game_id' => $game->id]);
         EventAward::create(['event_id' => $event->id, 'tier_index' => 1, 'label' => 'Bronze', 'points_required' => 2, 'image_asset_path' => '/Images/000001.png']);
         EventAward::create(['event_id' => $event->id, 'tier_index' => 2, 'label' => 'Silver', 'points_required' => 4, 'image_asset_path' => '/Images/000002.png']);

@@ -40,7 +40,7 @@ class GameListTest extends TestCase
             'ImageIcon' => '/Images/123456.png',
             'ForumTopicID' => 123,
         ]);
-        $game1Achievements = Achievement::factory()->published()->count(3)->create(['game_id' => $game1->id, 'modified_at' => '2024-02-03 11:10:09']);
+        $game1Achievements = Achievement::factory()->promoted()->count(3)->create(['game_id' => $game1->id, 'modified_at' => '2024-02-03 11:10:09']);
         $game1Points = $game1Achievements->get(0)->points +
                        $game1Achievements->get(1)->points +
                        $game1Achievements->get(2)->points;
@@ -57,7 +57,7 @@ class GameListTest extends TestCase
             'ConsoleID' => $system2->ID,
             'ImageIcon' => '/Images/327584.png',
         ]);
-        $game3Achievements = Achievement::factory()->published()->count(5)->create(['game_id' => $game3->id, 'modified_at' => '2024-09-27 03:06:09']);
+        $game3Achievements = Achievement::factory()->promoted()->count(5)->create(['game_id' => $game3->id, 'modified_at' => '2024-09-27 03:06:09']);
         $game3Points = $game3Achievements->get(0)->points +
                        $game3Achievements->get(1)->points +
                        $game3Achievements->get(2)->points +
@@ -69,7 +69,7 @@ class GameListTest extends TestCase
             'ConsoleID' => $system2->ID,
             'ImageIcon' => '/Images/051283.png',
         ]);
-        $game4Achievements = Achievement::factory()->published()->count(4)->create(['game_id' => $game4->id, 'modified_at' => '2024-07-18 23:45:17']);
+        $game4Achievements = Achievement::factory()->promoted()->count(4)->create(['game_id' => $game4->id, 'modified_at' => '2024-07-18 23:45:17']);
         $game4Points = $game4Achievements->get(0)->points +
                        $game4Achievements->get(1)->points +
                        $game4Achievements->get(2)->points +

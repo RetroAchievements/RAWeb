@@ -39,7 +39,7 @@ class UpdatePlayerGameMetricsAction
 
         $gameAchievementSetsQuery = GameAchievementSet::where('game_id', $game->id)
             ->with(['achievementSet.achievements' => function ($q) {
-                $q->where('is_published', true)
+                $q->where('is_promoted', true)
                     ->select(['achievements.id', 'type', 'points', 'points_weighted']);
             }]);
         $gameAchievementSets = $gameAchievementSetsQuery->get();

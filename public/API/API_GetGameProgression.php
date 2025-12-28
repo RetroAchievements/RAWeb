@@ -75,7 +75,7 @@ $response = [
     'Achievements' => [],
 ];
 
-$achievements = $game->achievements()->published()->get();
+$achievements = $game->achievements()->promoted()->get();
 $achievementIds = $achievements->pluck('id');
 $unlock_times = [];
 $unlock_hardcore_times = [];

@@ -14,9 +14,9 @@ use App\Platform\Events\AchievementCreated;
 use App\Platform\Events\AchievementDeleted;
 use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
-use App\Platform\Events\AchievementPublished;
+use App\Platform\Events\AchievementPromoted;
 use App\Platform\Events\AchievementTypeChanged;
-use App\Platform\Events\AchievementUnpublished;
+use App\Platform\Events\AchievementUnpromoted;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\AchievementFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -71,7 +71,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         'embed_url',
         'game_id',
         'image_name',
-        'is_published',
+        'is_promoted',
         'order_column',
         'points',
         'title',
@@ -84,7 +84,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     protected $casts = [
         'modified_at' => 'datetime',
         'game_id' => 'integer',
-        'is_published' => 'boolean',
+        'is_promoted' => 'boolean',
         'points' => 'integer',
         'points_weighted' => 'integer',
         'unlock_percentage' => 'double',
@@ -99,7 +99,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         'game_id',
         'id',
         'image_name',
-        'is_published',
+        'is_promoted',
         'order_column',
         'points',
         'points_weighted',
@@ -113,11 +113,11 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     /**
      * @deprecated only here for legacy API backwards compatibility
      */
-    public const FLAG_PUBLISHED = 3;
+    public const FLAG_PROMOTED = 3;
     /**
      * @deprecated only here for legacy API backwards compatibility
      */
-    public const FLAG_UNPUBLISHED = 5;
+    public const FLAG_UNPROMOTED = 5;
 
     public static function boot()
     {
@@ -136,11 +136,11 @@ class Achievement extends BaseModel implements HasVersionedTrigger
                 AchievementTypeChanged::dispatch($achievement);
             }
 
-            if ($achievement->wasChanged('is_published')) {
-                if ($achievement->is_published) {
-                    AchievementPublished::dispatch($achievement);
+            if ($achievement->wasChanged('is_promoted')) {
+                if ($achievement->is_promoted) {
+                    AchievementPromoted::dispatch($achievement);
                 } else {
-                    AchievementUnpublished::dispatch($achievement);
+                    AchievementUnpromoted::dispatch($achievement);
                 }
             }
 
@@ -182,27 +182,27 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * Convert is_published boolean to the legacy Flags integer value.
+     * Convert is_promoted boolean to the legacy Flags integer value.
      * For backwards compatibility with legacy code.
      */
     public function getFlagsAttribute(): int
     {
-        return $this->is_published ? self::FLAG_PUBLISHED : self::FLAG_UNPUBLISHED;
+        return $this->is_promoted ? self::FLAG_PROMOTED : self::FLAG_UNPROMOTED;
     }
 
     /**
-     * Convert a legacy Flags integer value to an is_published boolean.
+     * Convert a legacy Flags integer value to an is_promoted boolean.
      * For backwards compatibility with legacy code.
      */
-    public static function isPublishedFromLegacyFlags(int $flags): ?bool
+    public static function isPromotedFromLegacyFlags(int $flags): ?bool
     {
         // Return null for invalid flag values (0, etc.) to skip filtering.
-        // Only explicit 3 (published) or 5 (unpublished) should apply a filter.
-        if ($flags === self::FLAG_PUBLISHED) {
+        // Only explicit 3 (promoted) or 5 (unpromoted) should apply a filter.
+        if ($flags === self::FLAG_PROMOTED) {
             return true;
         }
 
-        if ($flags === self::FLAG_UNPUBLISHED) {
+        if ($flags === self::FLAG_UNPROMOTED) {
             return false;
         }
 
@@ -219,7 +219,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
                 'embed_url',
                 'game_id',
                 'image_name',
-                'is_published',
+                'is_promoted',
                 'points',
                 'title',
                 'type',
@@ -242,7 +242,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
 
     public function shouldBeSearchable(): bool
     {
-        return $this->is_published;
+        return $this->is_promoted;
     }
 
     // == helpers
@@ -542,18 +542,18 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      * @param Builder<Achievement> $query
      * @return Builder<Achievement>
      */
-    public function scopePublished(Builder $query): Builder
+    public function scopePromoted(Builder $query): Builder
     {
-        return $query->where('is_published', true);
+        return $query->where('is_promoted', true);
     }
 
     /**
      * @param Builder<Achievement> $query
      * @return Builder<Achievement>
      */
-    public function scopeUnpublished(Builder $query): Builder
+    public function scopeUnpromoted(Builder $query): Builder
     {
-        return $query->where('is_published', false);
+        return $query->where('is_promoted', false);
     }
 
     /**

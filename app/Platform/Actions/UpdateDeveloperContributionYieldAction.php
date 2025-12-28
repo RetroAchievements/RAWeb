@@ -39,7 +39,7 @@ class UpdateDeveloperContributionYieldAction
             FROM achievements a
             JOIN player_achievements pa ON pa.achievement_id = a.id
             WHERE a.user_id = :user_id
-                AND a.is_published = 1
+                AND a.is_promoted = 1
                 AND pa.user_id != :user_id2
                 AND NOT EXISTS (
                     SELECT 1
@@ -60,7 +60,7 @@ class UpdateDeveloperContributionYieldAction
             FROM achievement_maintainer_unlocks amu
             JOIN achievements a ON a.id = amu.achievement_id
             WHERE amu.maintainer_id = :user_id
-                AND a.is_published = 1
+                AND a.is_promoted = 1
         SQL;
         $maintainerResults = DB::select($maintainerSql, [
             'user_id' => $user->id,
@@ -91,7 +91,7 @@ class UpdateDeveloperContributionYieldAction
             FROM achievements a
             JOIN player_achievements pa ON pa.achievement_id = a.id
             WHERE a.user_id = :user_id
-            AND a.is_published = 1
+            AND a.is_promoted = 1
             AND pa.user_id != :user_id2
             AND NOT EXISTS (
                 SELECT 1
@@ -108,7 +108,7 @@ class UpdateDeveloperContributionYieldAction
             JOIN player_achievements pa ON pa.id = amu.player_achievement_id
             JOIN achievements a ON a.id = amu.achievement_id
             WHERE amu.maintainer_id = :user_id3
-                AND a.is_published = 1
+                AND a.is_promoted = 1
             ORDER BY unlock_date
             LIMIT :limit OFFSET :offset
         SQL;

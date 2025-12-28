@@ -26,7 +26,7 @@ class IncrementDeveloperContributionYieldAction
         bool $isHardcore = false,
     ): void {
         // If we somehow made it here for an unofficial achievement, bail.
-        if (!$achievement->is_published) {
+        if (!$achievement->is_promoted) {
             return;
         }
 

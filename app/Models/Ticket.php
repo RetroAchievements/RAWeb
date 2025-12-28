@@ -199,7 +199,7 @@ class Ticket extends BaseModel
     public function scopeOfficialCore(Builder $query): Builder
     {
         return $query->whereHas('achievement', function ($query) {
-            $query->where('is_published', true);
+            $query->where('is_promoted', true);
         });
     }
 
@@ -210,7 +210,7 @@ class Ticket extends BaseModel
     public function scopeUnofficial(Builder $query): Builder
     {
         return $query->whereHas('achievement', function ($query) {
-            $query->where('is_published', false);
+            $query->where('is_promoted', false);
         });
     }
 }

@@ -18,7 +18,7 @@ class ComputeAchievementsSetPublishedAtAction
 {
     public function execute(AchievementSet $achievementSet): ?Carbon
     {
-        $achievementIds = $achievementSet->achievements()->where('is_published', true)->pluck(DB::raw('achievements.id'))->toArray();
+        $achievementIds = $achievementSet->achievements()->where('is_promoted', true)->pluck(DB::raw('achievements.id'))->toArray();
 
         if (count($achievementIds) === 0) {
             return null;
@@ -40,8 +40,8 @@ class ComputeAchievementsSetPublishedAtAction
             ->where('subject_type', (new Achievement())->getMorphClass())
             ->whereIn('subject_id', $achievementIds)
             ->where(function ($query) {
-                $query->where('properties', 'like', '%"is_published":true%"is_published":false%')
-                    ->orWhere('properties', 'like', '%"is_published":1%"is_published":0%')
+                $query->where('properties', 'like', '%"is_promoted":true%"is_promoted":false%')
+                    ->orWhere('properties', 'like', '%"is_promoted":1%"is_promoted":0%')
                     ->orWhere('properties', 'like', '%"Flags":3%"Flags":5%');
             })
             ->orderBy('created_at')

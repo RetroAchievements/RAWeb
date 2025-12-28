@@ -62,11 +62,11 @@ class GameInfoAndUserProgressTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['game_id' => $game->id, 'image_name' => '23456', 'order_column' => 3]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '23456', 'order_column' => 3]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['game_id' => $game->id, 'image_name' => '34567', 'order_column' => 2]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '34567', 'order_column' => 2]);
 
         /** @var User $user2 */
         $user2 = User::factory()->create();
@@ -197,11 +197,11 @@ class GameInfoAndUserProgressTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['game_id' => $game->id, 'image_name' => '23456', 'order_column' => 3]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '23456', 'order_column' => 3]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['game_id' => $game->id, 'image_name' => '34567', 'order_column' => 2]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '34567', 'order_column' => 2]);
 
         /** @var User $user2 */
         $user2 = User::factory()->create();
@@ -394,11 +394,11 @@ class GameInfoAndUserProgressTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1, 'type' => AchievementType::Progression]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1, 'type' => AchievementType::Progression]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['game_id' => $game->id, 'image_name' => '23456', 'order_column' => 3]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '23456', 'order_column' => 3]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['game_id' => $game->id, 'image_name' => '34567', 'order_column' => 2]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '34567', 'order_column' => 2]);
 
         /** @var User $user2 */
         $user2 = User::factory()->create();

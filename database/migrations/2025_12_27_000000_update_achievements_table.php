@@ -10,21 +10,21 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        // 1. Add is_published column as nullable.
+        // 1. Add is_promoted column as nullable.
         Schema::table('Achievements', function (Blueprint $table) {
-            $table->boolean('is_published')->nullable()->after('Flags');
+            $table->boolean('is_promoted')->nullable()->after('Flags');
         });
 
-        // 2. Migrate Flags data to is_published (3 = OfficialCore = true, 5 = Unofficial = false).
-        DB::statement("UPDATE Achievements SET is_published = CASE
+        // 2. Migrate Flags data to is_promoted (3 = OfficialCore = true, 5 = Unofficial = false).
+        DB::statement("UPDATE Achievements SET is_promoted = CASE
             WHEN Flags = 3 THEN TRUE
             WHEN Flags = 5 THEN FALSE
             ELSE FALSE
         END");
 
-        // 3. Make is_published non-nullable with a default of false.
+        // 3. Make is_promoted non-nullable with a default of false.
         Schema::table('Achievements', function (Blueprint $table) {
-            $table->boolean('is_published')->default(false)->nullable(false)->change();
+            $table->boolean('is_promoted')->default(false)->nullable(false)->change();
         });
 
         // 4. Drop index that includes Flags before dropping the column.
@@ -46,7 +46,7 @@ return new class extends Migration {
 
         // 6. Recreate index with new column name.
         Schema::table('Achievements', function (Blueprint $table) {
-            $table->index(['GameID', 'is_published'], 'achievements_game_id_is_published_index');
+            $table->index(['GameID', 'is_promoted'], 'achievements_game_id_is_promoted_index');
         });
 
         // 7. Rename columns.
@@ -165,21 +165,21 @@ return new class extends Migration {
             $table->tinyInteger('Flags')->unsigned()->default(5)->after('type');
         });
 
-        // 10. Convert is_published back to Flags.
+        // 10. Convert is_promoted back to Flags.
         DB::statement("UPDATE Achievements SET Flags = CASE
-            WHEN is_published = TRUE THEN 3
-            WHEN is_published = FALSE THEN 5
+            WHEN is_promoted = TRUE THEN 3
+            WHEN is_promoted = FALSE THEN 5
             ELSE 5
         END");
 
-        // 11. Drop the is_published index.
+        // 11. Drop the is_promoted index.
         Schema::table('Achievements', function (Blueprint $table) {
-            $table->dropIndex('achievements_game_id_is_published_index');
+            $table->dropIndex('achievements_game_id_is_promoted_index');
         });
 
-        // 12. Add back remaining dropped columns and remove is_published.
+        // 12. Add back remaining dropped columns and remove is_promoted.
         Schema::table('Achievements', function (Blueprint $table) {
-            $table->dropColumn('is_published');
+            $table->dropColumn('is_promoted');
 
             $table->string('Progress', 255)->nullable()->after('MemAddr');
             $table->string('ProgressMax', 255)->nullable()->after('Progress');

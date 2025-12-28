@@ -14,23 +14,23 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'achievements' => 'required',
-    'flag' => ['required', 'integer', Rule::in([Achievement::FLAG_PUBLISHED, Achievement::FLAG_UNPUBLISHED])],
+    'flag' => ['required', 'integer', Rule::in([Achievement::FLAG_PROMOTED, Achievement::FLAG_UNPROMOTED])],
 ]);
 
 $achievementIds = $input['achievements'];
-$isPublished = Achievement::isPublishedFromLegacyFlags((int) $input['flag']);
+$isPromoted = Achievement::isPromotedFromLegacyFlags((int) $input['flag']);
 
 $achievement = GetAchievementData((int) (is_array($achievementIds) ? $achievementIds[0] : $achievementIds));
-if ($isPublished && !isValidConsoleId($achievement['ConsoleID'])) {
+if ($isPromoted && !isValidConsoleId($achievement['ConsoleID'])) {
     abort(400, 'Invalid console');
 }
 
-updateAchievementPublishedStatus($achievementIds, $isPublished);
+updateAchievementPromotedStatus($achievementIds, $isPromoted);
 
 $userModel = User::whereName($user)->first();
 
 $commentText = '';
-if ($isPublished) {
+if ($isPromoted) {
     $commentText = 'promoted this achievement to the Core set';
 } else {
     $commentText = 'demoted this achievement to Unofficial';

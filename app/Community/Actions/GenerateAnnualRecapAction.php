@@ -251,7 +251,7 @@ class GenerateAnnualRecapAction
             ->where('unlocked_hardcore_at', '<', $endDate)
             ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
             ->whereIn(DB::raw('achievements.game_id'), $gameIds)
-            ->where(DB::raw('achievements.is_published'), true)
+            ->where(DB::raw('achievements.is_promoted'), true)
             ->select(
                 DB::raw('count(*) as count'),
                 DB::raw('sum(achievements.points) as points'),
@@ -264,7 +264,7 @@ class GenerateAnnualRecapAction
             ->where('unlocked_at', '<', $endDate)
             ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
             ->whereIn(DB::raw('achievements.game_id'), $gameIds)
-            ->where(DB::raw('achievements.is_published'), true)
+            ->where(DB::raw('achievements.is_promoted'), true)
             ->select(
                 DB::raw('count(*) as count'),
                 DB::raw('sum(achievements.points) as points'),
@@ -436,7 +436,7 @@ class GenerateAnnualRecapAction
             ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
             ->join('GameData', 'GameData.ID', '=', 'achievements.game_id')
             ->whereIn('achievements.game_id', $gameIds)
-            ->where(DB::raw('achievements.is_published'), true)
+            ->where(DB::raw('achievements.is_promoted'), true)
             ->select('achievements.id', DB::raw('achievements.unlocks_hardcore/GameData.players_total as EarnRate'))
             ->orderBy('EarnRate')
             ->first();
@@ -453,7 +453,7 @@ class GenerateAnnualRecapAction
             ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
             ->join('GameData', 'GameData.ID', '=', 'achievements.game_id')
             ->whereIn('achievements.game_id', $gameIds)
-            ->where(DB::raw('achievements.is_published'), true)
+            ->where(DB::raw('achievements.is_promoted'), true)
             ->select('achievements.id', DB::raw('achievements.unlocks_total/GameData.players_total as EarnRate'))
             ->orderBy('EarnRate')
             ->first();
@@ -515,7 +515,7 @@ class GenerateAnnualRecapAction
         }
 
         $recapData['achievementsCreated'] = Achievement::where('user_id', $user->id)
-            ->where('is_published', true)
+            ->where('is_promoted', true)
             ->where('created_at', '>=', $startDate)
             ->where('created_at', '<', $endDate)
             ->count();

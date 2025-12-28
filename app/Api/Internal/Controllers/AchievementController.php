@@ -66,9 +66,9 @@ class AchievementController extends Controller
     {
         $username = $request->getActingUser();
         $newTitle = $request->getTitle();
-        $published = $request->getPublished();
+        $promoted = $request->getPromoted();
 
-        $newIsPublished = $published;
+        $newIsPromoted = $promoted;
 
         $user = User::whereName($username)->first();
 
@@ -83,7 +83,7 @@ class AchievementController extends Controller
 
         // Validate that we're actually making changes.
         $hasChanges = false;
-        if ($newIsPublished !== null && $newIsPublished !== $achievement->is_published) {
+        if ($newIsPromoted !== null && $newIsPromoted !== $achievement->is_promoted) {
             $hasChanges = true;
         }
         if ($newTitle !== null && $newTitle !== $achievement->title) {
@@ -100,16 +100,16 @@ class AchievementController extends Controller
 
         $updatedFields = [];
 
-        DB::transaction(function () use ($achievement, $user, $newTitle, $newIsPublished, &$updatedFields) {
-            // Update is_published if `published` is provided.
-            if ($newIsPublished !== null && $newIsPublished !== $achievement->is_published) {
-                $wasPublished = $achievement->is_published;
-                updateAchievementPublishedStatus($achievement->id, $newIsPublished);
-                $updatedFields[] = 'published';
+        DB::transaction(function () use ($achievement, $user, $newTitle, $newIsPromoted, &$updatedFields) {
+            // Update is_promoted if `promoted` is provided.
+            if ($newIsPromoted !== null && $newIsPromoted !== $achievement->is_promoted) {
+                $wasPromoted = $achievement->is_promoted;
+                updateAchievementPromotedStatus($achievement->id, $newIsPromoted);
+                $updatedFields[] = 'promoted';
 
-                // Add the appropriate comment based on the publish state change.
+                // Add the appropriate comment based on the promotion state change.
                 $comment = "{$user->display_name} demoted this achievement to Unofficial.";
-                if ($newIsPublished && !$wasPublished) {
+                if ($newIsPromoted && !$wasPromoted) {
                     $comment = "{$user->display_name} promoted this achievement to the Core set.";
                 }
                 addArticleComment(
@@ -149,7 +149,7 @@ class AchievementController extends Controller
                     'title' => $achievement->title,
                     'description' => $achievement->description,
                     'points' => $achievement->points,
-                    'published' => $achievement->is_published,
+                    'promoted' => $achievement->is_promoted,
                     'gameId' => $achievement->game_id,
                 ],
                 'meta' => [

@@ -64,7 +64,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
             'RichPresencePatch' => $richPresencePatch,
         ]);
 
-        Achievement::factory()->published()->count($publishedCount)->create(['game_id' => $game->id]);
+        Achievement::factory()->promoted()->count($publishedCount)->create(['game_id' => $game->id]);
         Achievement::factory()->count($unpublishedCount)->create(['game_id' => $game->id]);
 
         return $game;
@@ -301,7 +301,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         // Act
         $result = (new BuildClientPatchDataV2Action())->execute(
             game: $game,
-            isPublished: true // !!
+            isPromoted: true // !!
         );
 
         // Assert
@@ -309,7 +309,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $this->assertCount(2, $result['Sets'][0]['Achievements']);
 
         foreach ($result['Sets'][0]['Achievements'] as $achievementData) {
-            $this->assertEquals(Achievement::FLAG_PUBLISHED, $achievementData['Flags']);
+            $this->assertEquals(Achievement::FLAG_PROMOTED, $achievementData['Flags']);
         }
     }
 

@@ -100,10 +100,10 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     protected function createFieldValueMap(): Collection
     {
         return collect([
-            'is_published' => fn (mixed $value): string => $value ? __('Published') : __('Unpublished'),
+            'is_promoted' => fn (mixed $value): string => $value ? __('Published') : __('Unpublished'),
 
             // Support legacy audit log records that used the Flags column.
-            'Flags' => fn (mixed $value): string => $value === Achievement::FLAG_PUBLISHED ? __('Published') : __('Unpublished'),
+            'Flags' => fn (mixed $value): string => $value === Achievement::FLAG_PROMOTED ? __('Published') : __('Unpublished'),
         ]);
     }
 

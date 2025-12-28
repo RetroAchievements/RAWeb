@@ -33,7 +33,7 @@ function getGameMetadata(
     ?array &$gameDataOut,
     int $sortBy = 1,
     ?User $user2 = null,
-    bool $isPublished = true,
+    bool $isPromoted = true,
     bool $metrics = false,
 ): int {
     $orderBy = match ($sortBy) {
@@ -106,12 +106,12 @@ function getGameMetadata(
         ach.type
     FROM achievements AS ach
     LEFT JOIN UserAccounts AS ua ON ach.user_id = ua.ID
-    WHERE ach.game_id = :gameId AND ach.is_published = :isPublished AND ach.deleted_at IS NULL
+    WHERE ach.game_id = :gameId AND ach.is_promoted = :isPromoted AND ach.deleted_at IS NULL
     $orderBy";
 
     $achievementDataOut = legacyDbFetchAll($query, [
         'gameId' => $gameID,
-        'isPublished' => $isPublished,
+        'isPromoted' => $isPromoted,
     ])
         ->keyBy('ID')
         ->toArray();
@@ -129,7 +129,7 @@ function getGameMetadata(
     }
 
     if ($user) {
-        $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID, $isPublished);
+        $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID, $isPromoted);
         foreach ($userUnlocks as $achID => $userUnlock) {
             if (array_key_exists($achID, $achievementDataOut)) {
                 if (array_key_exists('DateEarnedHardcore', $userUnlock)) {
@@ -143,7 +143,7 @@ function getGameMetadata(
     }
 
     if ($user2) {
-        $friendUnlocks = getUserAchievementUnlocksForGame($user2, $gameID, $isPublished);
+        $friendUnlocks = getUserAchievementUnlocksForGame($user2, $gameID, $isPromoted);
         foreach ($friendUnlocks as $achID => $friendUnlock) {
             if (array_key_exists($achID, $achievementDataOut)) {
                 if (array_key_exists('DateEarnedHardcore', $friendUnlock)) {
@@ -254,7 +254,7 @@ function getGamesListByDev(
         $query = "SELECT $foundRows gd.ID, MAX(ach.modified_at) AS DateModified
                   FROM GameData gd
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
-                  LEFT JOIN achievements ach ON ach.game_id=gd.ID AND ach.is_published=1
+                  LEFT JOIN achievements ach ON ach.game_id=gd.ID AND ach.is_promoted=1
                   WHERE 1=1 $whereClause
                   GROUP BY gd.ID $orderBy";
     } else {
@@ -305,7 +305,7 @@ function getGamesListByDev(
                   FROM achievements ach
                   INNER JOIN GameData gd ON gd.ID = ach.game_id
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
-                  WHERE ach.user_id = :userId AND ach.is_published = 1 $whereClause
+                  WHERE ach.user_id = :userId AND ach.is_promoted = 1 $whereClause
                   GROUP BY ach.game_id $orderBy";
         foreach (legacyDbFetchAll($query, ['userId' => $dev->id]) as $row) {
             if (!$initialQuery) {
@@ -401,7 +401,7 @@ function getGamesListByDev(
     $query = "SELECT game_id AS GameID, MAX(modified_at) AS DateModified
               FROM achievements
               WHERE game_id IN ($gameList)
-              AND is_published=1
+              AND is_promoted=1
               GROUP BY game_id";
     foreach (legacyDbFetchAll($query) as $row) {
         $games[$row['GameID']]['DateModified'] = $row['DateModified'];
@@ -456,7 +456,7 @@ function getGamesListData(?int $consoleID = null, bool $officialFlag = false): a
     $whereClause = "";
     if ($officialFlag) {
         $leftJoinAch = "LEFT JOIN achievements AS ach ON ach.game_id = gd.ID ";
-        $whereClause = "WHERE ach.is_published=1 ";
+        $whereClause = "WHERE ach.is_promoted=1 ";
     }
 
     // Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console

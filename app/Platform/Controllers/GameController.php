@@ -142,7 +142,7 @@ class GameController extends Controller
         }
 
         // Get whether to show published or unpublished achievements from query params.
-        $isPublished = $request->query('unpublished') !== 'true';
+        $isPromoted = $request->query('unpublished') !== 'true';
 
         // Load the target achievement set if requested.
         $targetAchievementSet = null;
@@ -164,11 +164,11 @@ class GameController extends Controller
         // Get the initial sort from query params.
         $initialSort = $request->query('sort') ? GamePageListSort::tryFrom($request->query('sort')) : null;
 
-        $game = $loadGameWithRelationsAction->execute($game, $isPublished, $targetAchievementSet);
+        $game = $loadGameWithRelationsAction->execute($game, $isPromoted, $targetAchievementSet);
         $props = $buildGameShowPagePropsAction->execute(
             $game,
             $user,
-            $isPublished,
+            $isPromoted,
             $targetAchievementSet,
             $initialView,
             $initialSort

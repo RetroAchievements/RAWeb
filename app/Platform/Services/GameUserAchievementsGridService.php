@@ -13,10 +13,10 @@ class GameUserAchievementsGridService
     {
         $gameAchievements = $game->achievements()
             ->orderBy('order_column')
-            ->published()
+            ->promoted()
             ->get();
 
-        $userUnlocks = getUserAchievementUnlocksForGame($user, $game->id, isPublished: true);
+        $userUnlocks = getUserAchievementUnlocksForGame($user, $game->id, isPromoted: true);
 
         $entities = [];
         foreach ($gameAchievements as $gameAchievement) {

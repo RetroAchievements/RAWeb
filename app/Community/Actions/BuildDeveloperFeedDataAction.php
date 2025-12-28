@@ -31,7 +31,7 @@ class BuildDeveloperFeedDataAction
         $achievementInfo = DB::table('achievements')
             ->select(['id', 'game_id'])
             ->where('user_id', $targetUser->id)
-            ->where('is_published', true)
+            ->where('is_promoted', true)
             ->get();
 
         $allUserAchievementIds = $achievementInfo->pluck('id');

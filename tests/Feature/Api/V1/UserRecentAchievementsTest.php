@@ -30,11 +30,11 @@ class UserRecentAchievementsTest extends TestCase
         /** @var Game $game2 */
         $game2 = Game::factory()->create(['ConsoleID' => $system2->ID]);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['game_id' => $game1->id, 'image_name' => '12345']);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game1->id, 'image_name' => '12345']);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['game_id' => $game2->id, 'image_name' => '23456']);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game2->id, 'image_name' => '23456']);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->progression()->create(['game_id' => $game2->id, 'image_name' => '34567']);
+        $achievement3 = Achievement::factory()->promoted()->progression()->create(['game_id' => $game2->id, 'image_name' => '34567']);
 
         $now = Carbon::now()->subSeconds(15); // 15-second offset so times aren't on the boundaries being queried
         $unlock1Date = $now->clone()->subMinutes(65);

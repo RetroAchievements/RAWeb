@@ -100,7 +100,7 @@ if ($canSeeOpenTickets) {
         </x-game.link-buttons.game-link-button>
     @endif
 
-    @if (in_array('set-requestors', $allowedLinks) && !$game->achievements()->published()->exists())
+    @if (in_array('set-requestors', $allowedLinks) && !$game->achievements()->promoted()->exists())
         @can('viewAny', App\Models\Game::class)
             <x-game.link-buttons.game-link-button
                 icon="📜"

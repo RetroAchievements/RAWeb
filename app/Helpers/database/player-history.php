@@ -30,7 +30,7 @@ function getUserBestDaysList(User $user, int $offset, int $limit, int $sortBy): 
                 INNER JOIN achievements AS ach ON ach.id = pa.achievement_id
                 INNER JOIN GameData AS gd ON gd.ID = ach.game_id
                 WHERE pa.user_id={$user->id}
-                AND ach.is_published = 1
+                AND ach.is_promoted = 1
                 AND gd.ConsoleID != " . System::Events . "
                 GROUP BY Date
                 $orderCond
@@ -57,7 +57,7 @@ function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, User $
         'dateStart' => $dateStart,
         'dateEnd' => $dateEnd,
         'userid' => $user->id,
-        'isPublished' => 1,
+        'isPromoted' => 1,
     ];
 
     $query = "SELECT COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS Date,
@@ -72,7 +72,7 @@ function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, User $
               INNER JOIN GameData AS gd ON gd.ID = ach.game_id
               INNER JOIN Console AS c ON c.ID = gd.ConsoleID
               INNER JOIN UserAccounts AS ua on ua.ID = ach.user_id
-              WHERE pa.user_id = :userid AND ach.is_published = :isPublished
+              WHERE pa.user_id = :userid AND ach.is_promoted = :isPromoted
               AND COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) BETWEEN :dateStart AND :dateEnd
               ORDER BY Date, HardcoreMode DESC
               LIMIT 500";
@@ -138,7 +138,7 @@ function getAwardedList(
                 INNER JOIN achievements AS ach ON ach.id = pa.achievement_id
                 INNER JOIN GameData AS gd ON gd.ID = ach.game_id
                 WHERE pa.user_id = {$user->id}
-                AND ach.is_published = 1
+                AND ach.is_promoted = 1
                 " . ($excludeEvents ? "AND gd.ConsoleID != " . System::Events : "") . "
                 $dateCondition
                 GROUP BY Date

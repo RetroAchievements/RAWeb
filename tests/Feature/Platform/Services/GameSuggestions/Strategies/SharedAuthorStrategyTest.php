@@ -30,17 +30,17 @@ class SharedAuthorStrategyTest extends TestCase
         Achievement::factory()->create([
             'game_id' => $sourceGame->id,
             'user_id' => $author->id,
-            'is_published' => true,
+            'is_promoted' => true,
         ]);
         Achievement::factory()->create([
             'game_id' => $authoredGame->id,
             'user_id' => $author->id,
-            'is_published' => true,
+            'is_promoted' => true,
         ]);
         Achievement::factory()->create([
             'game_id' => $unrelatedGame->id,
             'user_id' => User::factory()->create()->id,
-            'is_published' => true,
+            'is_promoted' => true,
         ]);
 
         // Act
@@ -70,7 +70,7 @@ class SharedAuthorStrategyTest extends TestCase
         Achievement::factory()->create([
             'game_id' => $sourceGame->id,
             'user_id' => $author->id,
-            'is_published' => true,
+            'is_promoted' => true,
         ]);
 
         // Act
@@ -92,12 +92,12 @@ class SharedAuthorStrategyTest extends TestCase
         Achievement::factory()->create([
             'game_id' => $sourceGame->id,
             'user_id' => $author->id,
-            'is_published' => true,
+            'is_promoted' => true,
         ]);
         Achievement::factory()->create([
             'game_id' => $unofficialGame->id,
             'user_id' => $author->id,
-            'is_published' => false, // !!
+            'is_promoted' => false, // !!
         ]);
 
         // Act

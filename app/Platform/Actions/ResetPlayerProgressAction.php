@@ -38,7 +38,7 @@ class ResetPlayerProgressAction
             FROM player_achievements pa
             INNER JOIN achievements ach ON ach.id = pa.achievement_id
             INNER JOIN UserAccounts ua ON ua.ID = ach.user_id
-            WHERE ach.is_published = 1
+            WHERE ach.is_promoted = 1
             AND pa.user_id = {$user->id} $clause
             GROUP BY ach.user_id, ach.game_id, HardcoreMode
         ");
@@ -58,7 +58,7 @@ class ResetPlayerProgressAction
             INNER JOIN achievements ach ON ach.id = pa.achievement_id
             INNER JOIN achievement_maintainers m ON m.achievement_id = ach.id
             INNER JOIN UserAccounts ua ON ua.ID = m.user_id
-            WHERE ach.is_published = 1
+            WHERE ach.is_promoted = 1
                 AND pa.user_id = :user_id
                 " . $clause . "
                 AND COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) >= m.effective_from
@@ -86,7 +86,7 @@ class ResetPlayerProgressAction
             $achievement = $playerAchievement->achievement;
 
             // Handle decrement for developer contribution credit before player_achievement deletion.
-            if ($achievement->is_published) {
+            if ($achievement->is_promoted) {
                 // Check if there's a maintainer unlock record.
                 $maintainerUnlock = AchievementMaintainerUnlock::query()
                     ->where('player_achievement_id', $playerAchievement->id)
@@ -116,7 +116,7 @@ class ResetPlayerProgressAction
             // Delete any maintainer unlock records related to this player_achievement entity.
             AchievementMaintainerUnlock::where('player_achievement_id', $playerAchievement->id)->delete();
 
-            if ($achievement->is_published) {
+            if ($achievement->is_promoted) {
                 // resetting a published achievement removes the completion/mastery badge.
                 // RevalidateAchievementSetBadgeEligibilityAction will be called indirectly
                 // from the UpdatePlayerGameMetricsJob, but it does not revoke badges unless
@@ -139,7 +139,7 @@ class ResetPlayerProgressAction
             $remainingAchievements = $user->playerAchievements()
                 ->join('achievements', 'player_achievements.achievement_id', '=', 'achievements.id')
                 ->where(DB::raw('achievements.game_id'), $achievement->game_id)
-                ->where(DB::raw('achievements.is_published'), true)
+                ->where(DB::raw('achievements.is_promoted'), true)
                 ->count();
 
             if ($remainingAchievements === 0) {

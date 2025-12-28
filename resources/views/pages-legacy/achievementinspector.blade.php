@@ -15,8 +15,8 @@ $userModel = Auth::user();
 $fullModifyOK = $permissions >= Permissions::Developer;
 
 $gameID = requestInputSanitized('g', null, 'integer');
-$flag = requestInputSanitized('f', Achievement::FLAG_PUBLISHED, 'integer');
-$isPublished = $flag === Achievement::FLAG_PUBLISHED;
+$flag = requestInputSanitized('f', Achievement::FLAG_PROMOTED, 'integer');
+$isPromoted = $flag === Achievement::FLAG_PROMOTED;
 
 // TODO use a policy
 $partialModifyOK =
@@ -38,7 +38,7 @@ $gameTitle = null;
 $gameIDSpecified = isset($gameID) && $gameID != 0;
 $canHaveBeatenTypes = false;
 if ($gameIDSpecified) {
-    getGameMetadata($gameID, null, $achievementData, $gameData, 0, null, $isPublished);
+    getGameMetadata($gameID, null, $achievementData, $gameData, 0, null, $isPromoted);
     $gameTitle = $gameData['Title'];
     $consoleName = $gameData['ConsoleName'];
     $gameIcon = $gameData['ImageIcon'];
@@ -80,10 +80,10 @@ function updateDisplayOrder(objID) {
 }
 </script>
 <?php
-if ($flag === Achievement::FLAG_UNPUBLISHED) {
+if ($flag === Achievement::FLAG_UNPROMOTED) {
     echo "<h2>Unofficial Achievement Inspector</h2>";
 }
-if ($flag === Achievement::FLAG_PUBLISHED) {
+if ($flag === Achievement::FLAG_PROMOTED) {
     echo "<h2>Core Achievement Inspector</h2>";
 }
 
@@ -125,8 +125,8 @@ if ($gameIDSpecified) {
         }
 
         if ($fullModifyOK) {
-            echo "<p>You can " . ($flag === Achievement::FLAG_UNPUBLISHED ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
-                "the desired checkboxes in the far left column and clicking the '" . ($flag === Achievement::FLAG_UNPUBLISHED ? "Promote" : "Demote") . " Selected' " .
+            echo "<p>You can " . ($flag === Achievement::FLAG_UNPROMOTED ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
+                "the desired checkboxes in the far left column and clicking the '" . ($flag === Achievement::FLAG_UNPROMOTED ? "Promote" : "Demote") . " Selected' " .
                 "link. You can check or uncheck all checkboxes by clicking the 'All' or 'None' links in the first row of the table.</p>";
         }
     }
@@ -259,7 +259,7 @@ if ($gameIDSpecified) {
         <x-developer.inspector-toolbox
             :canHaveBeatenTypes="$canHaveBeatenTypes"
             :gameId="$gameID"
-            :isManagingCoreAchievements="$isPublished"
+            :isManagingCoreAchievements="$isPromoted"
             :modificationLevel="$modificationLevel"
         />
     </div>

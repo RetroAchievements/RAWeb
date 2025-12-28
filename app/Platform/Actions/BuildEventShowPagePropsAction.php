@@ -64,7 +64,7 @@ class BuildEventShowPagePropsAction
                 'eventAchievements.achievement.unlocksHardcore',
                 'eventAchievements.achievement.unlocksTotal',
                 'eventAchievements.achievement',
-                'eventAchievements.sourceAchievement.isPublished',
+                'eventAchievements.sourceAchievement.isPromoted',
                 'eventAchievements.sourceAchievement.game',
                 'eventAchievements.sourceAchievement.game.system',
                 'eventAchievements.sourceAchievement.game.system.nameShort',

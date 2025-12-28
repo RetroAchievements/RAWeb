@@ -18,11 +18,11 @@ class LoadGameWithRelationsAction
      * Efficiently load a game for the game show page with all its required relations.
      *
      * @param Game $game the game to load relations for
-     * @param bool $isPublished whether to load published or unpublished assets
+     * @param bool $isPromoted whether to load published or unpublished assets
      * @param GameAchievementSet|null $targetAchievementSet if provided, only load this specific achievement set
      * @return Game the game with properly loaded relations
      */
-    public function execute(Game $game, bool $isPublished = true, ?GameAchievementSet $targetAchievementSet = null): Game
+    public function execute(Game $game, bool $isPromoted = true, ?GameAchievementSet $targetAchievementSet = null): Game
     {
         // First, load all the missing relations.
         $game->loadMissing([
@@ -62,13 +62,13 @@ class LoadGameWithRelationsAction
 
         // Then, load the related achievements for the filtered sets.
         $game->gameAchievementSets->load([
-            'achievementSet.achievements' => function ($query) use ($isPublished) {
-                $query->where('is_published', $isPublished);
+            'achievementSet.achievements' => function ($query) use ($isPromoted) {
+                $query->where('is_promoted', $isPromoted);
             },
 
             'achievementSet.achievements.developer',
             'achievementSet.achievementGroups' => fn ($query) => $query->withCount([
-                'achievements' => fn ($q) => $q->where('is_published', $isPublished),
+                'achievements' => fn ($q) => $q->where('is_promoted', $isPromoted),
             ]),
             'achievementSet.achievementSetAuthors.user',
         ]);

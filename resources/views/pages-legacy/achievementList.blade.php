@@ -26,7 +26,7 @@ if ($user == null) {
     $params = 3;
 }
 $flags = match ($params) {
-    Achievement::FLAG_UNPUBLISHED => false,
+    Achievement::FLAG_UNPROMOTED => false,
     default => true,
 };
 
@@ -70,15 +70,15 @@ if ($consoleIDInput !== 0) {
     echo "<div class='flex flex-wrap justify-between'>";
     echo "<div>";
 
-    echo $params !== Achievement::FLAG_PUBLISHED ? "<a href='/achievementList.php?s=$sortBy&p=" . Achievement::FLAG_PUBLISHED . "$dev_param'>" : "<b>";
+    echo $params !== Achievement::FLAG_PROMOTED ? "<a href='/achievementList.php?s=$sortBy&p=" . Achievement::FLAG_PROMOTED . "$dev_param'>" : "<b>";
     echo "Achievements in Core Sets";
-    echo $params !== Achievement::FLAG_PUBLISHED ? "</a>" : "</b>";
+    echo $params !== Achievement::FLAG_PROMOTED ? "</a>" : "</b>";
     echo "<br>";
 
     if ($user !== null) {
-        echo $params !== Achievement::FLAG_UNPUBLISHED ? "<a href='/achievementList.php?s=$sortBy&p=" . Achievement::FLAG_UNPUBLISHED . "$dev_param'>" : "<b>";
+        echo $params !== Achievement::FLAG_UNPROMOTED ? "<a href='/achievementList.php?s=$sortBy&p=" . Achievement::FLAG_UNPROMOTED . "$dev_param'>" : "<b>";
         echo "Achievements in Unofficial Sets";
-        echo $params !== Achievement::FLAG_UNPUBLISHED ? "</a>" : "</b>";
+        echo $params !== Achievement::FLAG_UNPROMOTED ? "</a>" : "</b>";
         echo "<br>";
 
         echo $params !== 1 ? "<a href='/achievementList.php?s=$sortBy&p=1$dev_param'>" : "<b>";

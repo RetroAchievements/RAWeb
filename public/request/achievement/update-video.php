@@ -26,7 +26,7 @@ $currentVideoUrl = $achievement->embed_url;
 // Only allow jr. devs to update achievement embed if they are the author and the achievement is not core/official
 if (
     $permissions === Permissions::JuniorDeveloper
-    && ($user !== $achievement->developer?->User || $achievement->is_published)
+    && ($user !== $achievement->developer?->User || $achievement->is_promoted)
 ) {
     abort(403);
 }

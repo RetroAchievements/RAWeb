@@ -579,7 +579,7 @@ class GameResource extends Resource
                             $subquery->selectRaw('1')
                                 ->from('achievements')
                                 ->whereColumn('achievements.game_id', 'GameData.ID')
-                                ->where('achievements.is_published', true)
+                                ->where('achievements.is_promoted', true)
                                 ->whereNull('achievements.deleted_at')
                                 ->groupBy('achievements.game_id', 'achievements.image_name')
                                 ->havingRaw('COUNT(*) > 1');
@@ -588,7 +588,7 @@ class GameResource extends Resource
                             $subquery->selectRaw('1')
                                 ->from('achievements')
                                 ->whereColumn('achievements.game_id', 'GameData.ID')
-                                ->where('achievements.is_published', true)
+                                ->where('achievements.is_promoted', true)
                                 ->whereNull('achievements.deleted_at')
                                 ->groupBy('achievements.game_id', 'achievements.image_name')
                                 ->havingRaw('COUNT(*) > 1');

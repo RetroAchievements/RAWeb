@@ -73,7 +73,7 @@ class AchievementsRelationManager extends RelationManager
         /** @var Game $game */
         $game = $ownerRecord;
 
-        $count = $game->achievements()->published()->count();
+        $count = $game->achievements()->promoted()->count();
 
         return $count > 0 ? "{$count}" : null;
     }
@@ -172,7 +172,7 @@ class AchievementsRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\TernaryFilter::make('is_published')
+                Tables\Filters\TernaryFilter::make('is_promoted')
                     ->label('Published Status')
                     ->placeholder('All')
                     ->trueLabel('Published')
@@ -478,11 +478,11 @@ class AchievementsRelationManager extends RelationManager
                         ->deselectRecordsAfterCompletion()
                         ->action(function (Collection $records) use ($user) {
                             $records->each(function (Achievement $record) use ($user) {
-                                if (!$user->can('updateField', [$record, 'is_published'])) {
+                                if (!$user->can('updateField', [$record, 'is_promoted'])) {
                                     return;
                                 }
 
-                                $record->is_published = true;
+                                $record->is_promoted = true;
                                 $record->save();
                             });
 
@@ -501,11 +501,11 @@ class AchievementsRelationManager extends RelationManager
                         ->deselectRecordsAfterCompletion()
                         ->action(function (Collection $records) use ($user) {
                             $records->each(function (Achievement $record) use ($user) {
-                                if (!$user->can('updateField', [$record, 'is_published'])) {
+                                if (!$user->can('updateField', [$record, 'is_promoted'])) {
                                     return;
                                 }
 
-                                $record->is_published = false;
+                                $record->is_promoted = false;
                                 $record->save();
                             });
 
@@ -517,7 +517,7 @@ class AchievementsRelationManager extends RelationManager
                         }),
                 ])
                     ->label('Bulk promote or demote')
-                    ->visible(fn (): bool => $user->can('updateField', [Achievement::class, null, 'is_published'])),
+                    ->visible(fn (): bool => $user->can('updateField', [Achievement::class, null, 'is_promoted'])),
 
                 BulkActionGroup::make([
                     BulkAction::make('type-progression')

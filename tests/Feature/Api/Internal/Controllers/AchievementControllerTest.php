@@ -27,7 +27,7 @@ class AchievementControllerTest extends TestCase
                 'type' => 'achievements',
                 'id' => $achievement->id,
                 'attributes' => [
-                    'published' => false,
+                    'promoted' => false,
                 ],
                 'meta' => [
                     'actingUser' => 'DevCompliance',
@@ -60,7 +60,7 @@ class AchievementControllerTest extends TestCase
                 'type' => 'achievements',
                 'id' => $achievement->id,
                 'attributes' => [
-                    'published' => false,
+                    'promoted' => false,
                 ],
                 'meta' => [
                     'actingUser' => 'DevCompliance',
@@ -104,7 +104,7 @@ class AchievementControllerTest extends TestCase
         $demotingUser->assignRole(Role::TEAM_ACCOUNT);
 
         $game = Game::factory()->create();
-        $achievement = Achievement::factory()->published()->create([
+        $achievement = Achievement::factory()->promoted()->create([
             'game_id' => $game->id,
         ]);
 
@@ -114,7 +114,7 @@ class AchievementControllerTest extends TestCase
                 'type' => 'achievements',
                 'id' => $achievement->id,
                 'attributes' => [
-                    'published' => false,
+                    'promoted' => false,
                 ],
                 'meta' => [
                     'actingUser' => $demotingUser->username,
@@ -134,7 +134,7 @@ class AchievementControllerTest extends TestCase
                     'title',
                     'description',
                     'points',
-                    'published',
+                    'promoted',
                     'gameId',
                 ],
                 'meta' => [
@@ -146,12 +146,12 @@ class AchievementControllerTest extends TestCase
         ]);
         $response->assertJsonPath('data.type', 'achievements');
         $response->assertJsonPath('data.id', (string) $achievement->id);
-        $response->assertJsonPath('data.attributes.published', false);
+        $response->assertJsonPath('data.attributes.promoted', false);
         $response->assertJsonPath('data.meta.updatedBy', 'DevCompliance');
-        $response->assertJsonPath('data.meta.updatedFields', ['published']);
+        $response->assertJsonPath('data.meta.updatedFields', ['promoted']);
 
         $achievement->refresh();
-        $this->assertFalse($achievement->is_published); // !! demoted
+        $this->assertFalse($achievement->is_promoted); // !! demoted
     }
 
     public function testItSuccessfullyDemotesAnAchievementWithTitleChange(): void
@@ -172,7 +172,7 @@ class AchievementControllerTest extends TestCase
         $demotingUser->assignRole(Role::TEAM_ACCOUNT);
 
         $game = Game::factory()->create();
-        $achievement = Achievement::factory()->published()->create([
+        $achievement = Achievement::factory()->promoted()->create([
             'game_id' => $game->id,
             'title' => 'Original Title',
         ]);
@@ -183,7 +183,7 @@ class AchievementControllerTest extends TestCase
                 'type' => 'achievements',
                 'id' => $achievement->id,
                 'attributes' => [
-                    'published' => false,
+                    'promoted' => false,
                     'title' => 'DEMOTED AS UNWELCOME CONCEPT - Original Title', // !! new title
                 ],
                 'meta' => [
@@ -197,10 +197,10 @@ class AchievementControllerTest extends TestCase
         // Assert
         $response->assertOk();
         $response->assertJsonPath('data.attributes.title', 'DEMOTED AS UNWELCOME CONCEPT - Original Title');
-        $response->assertJsonPath('data.meta.updatedFields', ['published', 'title']);
+        $response->assertJsonPath('data.meta.updatedFields', ['promoted', 'title']);
 
         $achievement->refresh();
-        $this->assertFalse($achievement->is_published);
+        $this->assertFalse($achievement->is_promoted);
         $this->assertEquals('DEMOTED AS UNWELCOME CONCEPT - Original Title', $achievement->title); // !!
     }
 
@@ -226,7 +226,7 @@ class AchievementControllerTest extends TestCase
                 'type' => 'achievements',
                 // ... no id ...
                 'attributes' => [
-                    'published' => false,
+                    'promoted' => false,
                 ],
                 'meta' => [
                     'actingUser' => 'DevCompliance',
@@ -261,7 +261,7 @@ class AchievementControllerTest extends TestCase
                 'type' => 'achievements',
                 'id' => $achievement->id,
                 'attributes' => [
-                    'published' => false,
+                    'promoted' => false,
                 ],
                 'meta' => [
                     // ... no actingUser ...
@@ -296,7 +296,7 @@ class AchievementControllerTest extends TestCase
                 'type' => 'achievements',
                 'id' => 999999,
                 'attributes' => [
-                    'published' => false,
+                    'promoted' => false,
                 ],
                 'meta' => [
                     'actingUser' => $demotingUser->username,
@@ -340,7 +340,7 @@ class AchievementControllerTest extends TestCase
                 'type' => 'achievements',
                 'id' => $achievement->id,
                 'attributes' => [
-                    'published' => false,
+                    'promoted' => false,
                 ],
                 'meta' => [
                     'actingUser' => 'NonExistentUser', // !!
@@ -378,7 +378,7 @@ class AchievementControllerTest extends TestCase
         $game = Game::factory()->create();
         $achievement = Achievement::factory()->create([
             'game_id' => $game->id,
-            'is_published' => false, // !! already unofficial
+            'is_promoted' => false, // !! already unofficial
         ]);
 
         // Act
@@ -387,7 +387,7 @@ class AchievementControllerTest extends TestCase
                 'type' => 'achievements',
                 'id' => $achievement->id,
                 'attributes' => [
-                    'published' => false,
+                    'promoted' => false,
                 ],
                 'meta' => [
                     'actingUser' => $demotingUser->username,
@@ -403,7 +403,7 @@ class AchievementControllerTest extends TestCase
         $response->assertJsonPath('errors.0.detail', 'No changes to apply.');
 
         $achievement->refresh();
-        $this->assertFalse($achievement->is_published); // still unofficial
+        $this->assertFalse($achievement->is_promoted); // still demoted
     }
 
     public function testItRejectsInvalidJsonApiType(): void
@@ -428,7 +428,7 @@ class AchievementControllerTest extends TestCase
                 'type' => 'wrong-type', // !!
                 'id' => $achievement->id,
                 'attributes' => [
-                    'published' => false,
+                    'promoted' => false,
                 ],
                 'meta' => [
                     'actingUser' => 'DevCompliance',

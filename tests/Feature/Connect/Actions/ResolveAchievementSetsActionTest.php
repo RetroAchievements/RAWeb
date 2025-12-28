@@ -51,7 +51,7 @@ class ResolveAchievementSetsActionTest extends TestCase
         int $unpublishedCount = 0,
     ): Game {
         $game = Game::factory()->create(['Title' => $title, 'ConsoleID' => $system->id]);
-        Achievement::factory()->published()->count($publishedCount)->create(['game_id' => $game->id]);
+        Achievement::factory()->promoted()->count($publishedCount)->create(['game_id' => $game->id]);
         Achievement::factory()->count($unpublishedCount)->create(['game_id' => $game->id]);
 
         return $game;
@@ -75,8 +75,8 @@ class ResolveAchievementSetsActionTest extends TestCase
         $achievements = $set->achievementSet->achievements;
         $this->assertCount($publishedAchievementCount + $unpublishedAchievementCount, $achievements);
 
-        $publishedCount = $achievements->where('is_published', true)->count();
-        $unpublishedCount = $achievements->where('is_published', false)->count();
+        $publishedCount = $achievements->where('is_promoted', true)->count();
+        $unpublishedCount = $achievements->where('is_promoted', false)->count();
         $this->assertEquals($publishedAchievementCount, $publishedCount);
         $this->assertEquals($unpublishedAchievementCount, $unpublishedCount);
     }

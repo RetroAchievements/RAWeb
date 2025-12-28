@@ -77,7 +77,7 @@ use App\Models\Achievement;
                                 @if ($event['type'] === PlayerGameActivityEventType::Unlock)
                                     @php $achievement = $event['achievement'] @endphp
                                     {!! achievementAvatar($achievement) !!}
-                                    @if ($achievement['Flags'] != Achievement::FLAG_PUBLISHED)
+                                    @if ($achievement['Flags'] != Achievement::FLAG_PROMOTED)
                                         (Unofficial)
                                     @endif
                                     @if ($event['hardcoreLater'] ?? false)

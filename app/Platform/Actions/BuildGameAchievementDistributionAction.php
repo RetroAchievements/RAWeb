@@ -26,14 +26,14 @@ class BuildGameAchievementDistributionAction
             $game->id,
             UnlockMode::Softcore,
             $user?->username,
-            isPublished: true,
+            isPromoted: true,
             numPlayers: $numDistinctPlayers
         );
         $hardcoreUnlocks = getAchievementDistribution(
             $game->id,
             UnlockMode::Hardcore,
             $user?->username,
-            isPublished: true,
+            isPromoted: true,
             numPlayers: $numDistinctPlayers
         );
 

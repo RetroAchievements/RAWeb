@@ -458,11 +458,11 @@ class UserSummaryTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $publishedAchievements = Achievement::factory()->published()->count(7)->create(['game_id' => $game->id]);
+        $publishedAchievements = Achievement::factory()->promoted()->count(7)->create(['game_id' => $game->id]);
 
         /** @var Game $game2 */
         $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $publishedAchievements2 = Achievement::factory()->published()->count(4)->create(['game_id' => $game2->id]);
+        $publishedAchievements2 = Achievement::factory()->promoted()->count(4)->create(['game_id' => $game2->id]);
 
         $now = Carbon::now();
 

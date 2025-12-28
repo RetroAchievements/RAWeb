@@ -35,7 +35,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals('Week 1', $achievement->title);
         $this->assertEquals('TBD', $achievement->description);
         $this->assertEquals('0=1', $achievement->trigger_definition);
-        $this->assertEquals(Achievement::FLAG_PUBLISHED, $achievement->flags);
+        $this->assertEquals(Achievement::FLAG_PROMOTED, $achievement->flags);
         $this->assertEquals(EventAchievement::RAEVENTS_USER_ID, $achievement->user_id);
         $this->assertEquals('00000', $achievement->image_name);
         $this->assertEquals(1, $achievement->order_column);
@@ -47,7 +47,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals('Week 52', $achievement->title);
         $this->assertEquals('TBD', $achievement->description);
         $this->assertEquals('0=1', $achievement->trigger_definition);
-        $this->assertEquals(Achievement::FLAG_PUBLISHED, $achievement->flags);
+        $this->assertEquals(Achievement::FLAG_PROMOTED, $achievement->flags);
         $this->assertEquals(EventAchievement::RAEVENTS_USER_ID, $achievement->user_id);
         $this->assertEquals('00000', $achievement->image_name);
         $this->assertEquals(52, $achievement->order_column);
@@ -59,7 +59,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals('January Achievement of the Month', $achievement->title);
         $this->assertEquals('TBD', $achievement->description);
         $this->assertEquals('0=1', $achievement->trigger_definition);
-        $this->assertEquals(Achievement::FLAG_PUBLISHED, $achievement->flags);
+        $this->assertEquals(Achievement::FLAG_PROMOTED, $achievement->flags);
         $this->assertEquals(EventAchievement::RAEVENTS_USER_ID, $achievement->user_id);
         $this->assertEquals('00000', $achievement->image_name);
         $this->assertEquals(53, $achievement->order_column);
@@ -71,7 +71,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals('December Achievement of the Month', $achievement->title);
         $this->assertEquals('TBD', $achievement->description);
         $this->assertEquals('0=1', $achievement->trigger_definition);
-        $this->assertEquals(Achievement::FLAG_PUBLISHED, $achievement->flags);
+        $this->assertEquals(Achievement::FLAG_PROMOTED, $achievement->flags);
         $this->assertEquals(EventAchievement::RAEVENTS_USER_ID, $achievement->user_id);
         $this->assertEquals('00000', $achievement->image_name);
         $this->assertEquals(64, $achievement->order_column);
@@ -102,9 +102,9 @@ class CreateAchievementOfTheWeekTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
         /** @var Achievement $sourceAchievement1 */
-        $sourceAchievement1 = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $sourceAchievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Achievement $sourceAchievement2 */
-        $sourceAchievement2 = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $sourceAchievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         $time1 = Carbon::parse('2024-01-04 03:15:47');
         $time2 = Carbon::parse('2024-01-06 17:13:02');
@@ -132,7 +132,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals($sourceAchievement1->title, $achievement->title);
         $this->assertEquals($sourceAchievement1->description, $achievement->description);
         $this->assertEquals('0=1', $achievement->trigger_definition);
-        $this->assertEquals(Achievement::FLAG_PUBLISHED, $achievement->flags);
+        $this->assertEquals(Achievement::FLAG_PROMOTED, $achievement->flags);
         $this->assertEquals(EventAchievement::RAEVENTS_USER_ID, $achievement->user_id);
         $this->assertEquals($sourceAchievement1->image_name, $achievement->image_name);
         $this->assertEquals(1, $achievement->order_column);
@@ -146,7 +146,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals($sourceAchievement2->title, $achievement->title);
         $this->assertEquals($sourceAchievement2->description, $achievement->description);
         $this->assertEquals('0=1', $achievement->trigger_definition);
-        $this->assertEquals(Achievement::FLAG_PUBLISHED, $achievement->flags);
+        $this->assertEquals(Achievement::FLAG_PROMOTED, $achievement->flags);
         $this->assertEquals(EventAchievement::RAEVENTS_USER_ID, $achievement->user_id);
         $this->assertEquals($sourceAchievement2->image_name, $achievement->image_name);
         $this->assertEquals(2, $achievement->order_column);
@@ -160,7 +160,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals('Week 52', $achievement->title);
         $this->assertEquals('TBD', $achievement->description);
         $this->assertEquals('0=1', $achievement->trigger_definition);
-        $this->assertEquals(Achievement::FLAG_PUBLISHED, $achievement->flags);
+        $this->assertEquals(Achievement::FLAG_PROMOTED, $achievement->flags);
         $this->assertEquals(EventAchievement::RAEVENTS_USER_ID, $achievement->user_id);
         $this->assertEquals('00000', $achievement->image_name);
         $this->assertEquals(52, $achievement->order_column);
@@ -172,7 +172,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals('January Achievement of the Month', $achievement->title);
         $this->assertEquals('TBD', $achievement->description);
         $this->assertEquals('0=1', $achievement->trigger_definition);
-        $this->assertEquals(Achievement::FLAG_PUBLISHED, $achievement->flags);
+        $this->assertEquals(Achievement::FLAG_PROMOTED, $achievement->flags);
         $this->assertEquals(EventAchievement::RAEVENTS_USER_ID, $achievement->user_id);
         $this->assertEquals('00000', $achievement->image_name);
         $this->assertEquals(53, $achievement->order_column);

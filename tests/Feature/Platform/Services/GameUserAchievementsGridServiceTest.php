@@ -22,7 +22,7 @@ class GameUserAchievementsGridServiceTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
-        $publishedAchievement = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $publishedAchievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $unofficialAchievement = Achievement::factory()->create(['game_id' => $game->id]);
 
         $service = new GameUserAchievementsGridService();
@@ -58,7 +58,7 @@ class GameUserAchievementsGridServiceTest extends TestCase
 
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
-        $publishedAchievement = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $publishedAchievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         $this->addHardcoreUnlock($user, $publishedAchievement);
 

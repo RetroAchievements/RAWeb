@@ -533,7 +533,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
         // Check if any achievement is authored by the given user.
         return $this->achievements->some(function ($achievement) use ($user) {
-            return $achievement->is_published && $achievement->developer->id === $user->id;
+            return $achievement->is_promoted && $achievement->developer->id === $user->id;
         });
     }
 

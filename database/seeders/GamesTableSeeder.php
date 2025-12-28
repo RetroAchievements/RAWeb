@@ -97,7 +97,7 @@ class GamesTableSeeder extends Seeder
 
                     $game->achievements()->saveMany(Achievement::factory()->count(random_int(1, 5))->create([
                         'game_id' => $game->ID,
-                        'is_published' => false,
+                        'is_promoted' => false,
                         'user_id' => $user_id,
                     ]));
                 }
@@ -109,14 +109,14 @@ class GamesTableSeeder extends Seeder
             $user_id = $developers[array_rand($developers)];
             $game->achievements()->saveMany(Achievement::factory()->count(random_int(5, 20))->create([
                 'game_id' => $game->ID,
-                'is_published' => true,
+                'is_promoted' => true,
                 'user_id' => $user_id,
             ]));
 
             if (random_int(0, 100) <= 10) { // 10% chance to create unofficial achievements
                 $game->achievements()->saveMany(Achievement::factory()->count(random_int(0, 5))->create([
                     'game_id' => $game->ID,
-                    'is_published' => false,
+                    'is_promoted' => false,
                     'user_id' => $user_id,
                 ]));
             }
@@ -126,13 +126,13 @@ class GamesTableSeeder extends Seeder
 
                 $game->achievements()->saveMany(Achievement::factory()->count(random_int(0, 10))->create([
                     'game_id' => $game->ID,
-                    'is_published' => true,
+                    'is_promoted' => true,
                     'user_id' => $user_id,
                 ]));
             }
 
             /* assign display order and type */
-            $num_achievements = $game->achievements()->published()->count();
+            $num_achievements = $game->achievements()->promoted()->count();
             $num_progression = random_int(3, max(3, (int) floor($num_achievements / 2)));
             $num_win = 1;
             if ($num_achievements > 7 && random_int(1, 30) === 1) {
@@ -147,7 +147,7 @@ class GamesTableSeeder extends Seeder
             $num_remaining -= $num_missable;
 
             $index = 1;
-            foreach ($game->achievements()->published()->get() as $achievement) {
+            foreach ($game->achievements()->promoted()->get() as $achievement) {
                 $achievement->order_column = $index++;
 
                 $type = random_int(0, 2);

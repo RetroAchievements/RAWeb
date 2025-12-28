@@ -65,14 +65,14 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
     'i' => ['required', 'integer', 'min:1'],
     'f' => [
         'nullable',
-        Rule::in([(string) Achievement::FLAG_PUBLISHED, (string) Achievement::FLAG_UNPUBLISHED]),
+        Rule::in([(string) Achievement::FLAG_PROMOTED, (string) Achievement::FLAG_UNPROMOTED]),
     ],
 ], [
-    'f.in' => 'Invalid flag parameter. Valid values are ' . Achievement::FLAG_PUBLISHED . ' (published) or ' . Achievement::FLAG_UNPUBLISHED . ' (unpublished).',
+    'f.in' => 'Invalid flag parameter. Valid values are ' . Achievement::FLAG_PROMOTED . ' (published) or ' . Achievement::FLAG_UNPROMOTED . ' (unpublished).',
 ]);
 
 $gameId = (int) $input['i'];
-$isPublished = Achievement::isPublishedFromLegacyFlags((int) ($input['f'] ?? (string) Achievement::FLAG_PUBLISHED));
+$isPromoted = Achievement::isPromotedFromLegacyFlags((int) ($input['f'] ?? (string) Achievement::FLAG_PROMOTED));
 
 $game = Game::with('system')->find($gameId);
 
@@ -81,7 +81,7 @@ if (!$game) {
 }
 
 $gameAchievementSetClaims = AchievementSetClaim::with('user')->where('game_id', $gameId)->get();
-$gameAchievements = Achievement::where('game_id', $gameId)->where('is_published', $isPublished)->findMany($game->achievements);
+$gameAchievements = Achievement::where('game_id', $gameId)->where('is_promoted', $isPromoted)->findMany($game->achievements);
 
 $gameData = [
     'ID' => $game->ID,

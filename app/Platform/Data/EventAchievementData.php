@@ -50,7 +50,7 @@ class EventAchievementData extends Data
                     game: Lazy::create(fn () => GameData::fromGame($eventAchievement->achievement->game)),
                     groupId: Lazy::create(fn () => null),
                     id: $eventAchievement->achievement->id,
-                    isPublished: Lazy::create(fn () => $eventAchievement->achievement->is_published),
+                    isPromoted: Lazy::create(fn () => $eventAchievement->achievement->is_promoted),
                     orderColumn: Lazy::create(fn () => $eventAchievement->achievement->order_column),
                     points: Lazy::create(fn () => $eventAchievement->achievement->points),
                     pointsWeighted: Lazy::create(fn () => $eventAchievement->achievement->points_weighted),

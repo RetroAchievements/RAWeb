@@ -64,11 +64,11 @@ class BuildPlayerGameActivityDataAction
                         'points' => $event['achievement']['Points'],
                         'points_weighted' => $event['achievement']['TrueRatio'],
                         'image_name' => $event['achievement']['BadgeName'],
-                        'is_published' => $event['achievement']['Flags'] === Achievement::FLAG_PUBLISHED,
+                        'is_promoted' => $event['achievement']['Flags'] === Achievement::FLAG_PROMOTED,
                     ]);
 
                     $event['achievement'] = AchievementData::fromAchievement($achievement)->include(
-                        'isPublished',
+                        'isPromoted',
                         'points',
                     );
                 }

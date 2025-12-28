@@ -29,7 +29,7 @@ class PlayerGameActivityService
     public function initialize(User $user, Game $game, bool $withSubsets = false): void
     {
         $query = GameAchievementSet::where('game_id', $game->id)
-            ->with(['achievementSet.achievements' => fn ($q) => $q->where('is_published', true)
+            ->with(['achievementSet.achievements' => fn ($q) => $q->where('is_promoted', true)
                 ->select(['achievements.id', 'type', 'points', 'points_weighted']),
             ]);
 
@@ -146,7 +146,7 @@ class PlayerGameActivityService
             ->orderBy('player_achievements.unlocked_at')
             ->select([
                 'player_achievements.*',
-                'achievements.is_published',
+                'achievements.is_promoted',
                 'achievements.title',
                 'achievements.description',
                 'achievements.points',
@@ -221,7 +221,7 @@ class PlayerGameActivityService
                 'Points' => $playerAchievement->points,
                 'TrueRatio' => $playerAchievement->points_weighted,
                 'BadgeName' => $playerAchievement->image_name,
-                'Flags' => $playerAchievement->is_published ? Achievement::FLAG_PUBLISHED : Achievement::FLAG_UNPUBLISHED,
+                'Flags' => $playerAchievement->is_promoted ? Achievement::FLAG_PROMOTED : Achievement::FLAG_UNPROMOTED,
                 'HardcoreMode' => $hardcore,
             ],
         ];

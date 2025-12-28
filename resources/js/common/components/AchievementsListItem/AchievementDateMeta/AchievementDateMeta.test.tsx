@@ -189,7 +189,7 @@ describe('AchievementDateMeta', () => {
   it('should show unavailable warning for demoted event achievement.', () => {
     // ARRANGE
     const eventAchievement = createEventAchievement({
-      sourceAchievement: createAchievement({ isPublished: false }),
+      sourceAchievement: createAchievement({ isPromoted: false }),
     });
 
     render(
@@ -205,7 +205,7 @@ describe('AchievementDateMeta', () => {
     // ARRANGE
     const now = dayjs.utc();
     const eventAchievement = createEventAchievement({
-      sourceAchievement: createAchievement({ isPublished: false }),
+      sourceAchievement: createAchievement({ isPromoted: false }),
       activeFrom: now.subtract(2, 'day').toISOString(),
       activeThrough: now.subtract(1, 'day').toISOString(),
       activeUntil: now.toISOString(),
@@ -222,7 +222,7 @@ describe('AchievementDateMeta', () => {
 
   it('given an unpublished achievement, should show unavailable warning', () => {
     // ARRANGE
-    const achievement = createAchievement({ isPublished: false });
+    const achievement = createAchievement({ isPromoted: false });
 
     render(<AchievementDateMeta achievement={achievement} />);
 
@@ -233,7 +233,7 @@ describe('AchievementDateMeta', () => {
 
   it('given a published achievement, should not show unavailable warning', () => {
     // ARRANGE
-    const achievement = createAchievement({ isPublished: true });
+    const achievement = createAchievement({ isPromoted: true });
 
     render(<AchievementDateMeta achievement={achievement} />);
 
@@ -242,9 +242,9 @@ describe('AchievementDateMeta', () => {
     expect(screen.queryByTestId('warning-icon')).not.toBeInTheDocument();
   });
 
-  it('given isPublished is not provided, should not show unavailable warning', () => {
+  it('given isPromoted is not provided, should not show unavailable warning', () => {
     // ARRANGE
-    const achievement = createAchievement({ isPublished: undefined });
+    const achievement = createAchievement({ isPromoted: undefined });
 
     render(<AchievementDateMeta achievement={achievement} />);
 

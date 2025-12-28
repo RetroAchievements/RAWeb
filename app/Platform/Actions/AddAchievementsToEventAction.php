@@ -24,7 +24,7 @@ class AddAchievementsToEventAction
                 'description' => 'TBD',
                 'trigger_definition' => '0=1',
                 'points' => 1,
-                'is_published' => true,
+                'is_promoted' => true,
                 'game_id' => $event->legacyGame->id,
                 'user_id' => $user_id,
                 'image_name' => '00000',

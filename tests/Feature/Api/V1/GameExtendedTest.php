@@ -60,11 +60,11 @@ class GameExtendedTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['game_id' => $game->id, 'image_name' => '23456', 'order_column' => 3]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '23456', 'order_column' => 3]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['game_id' => $game->id, 'image_name' => '34567', 'order_column' => 2]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '34567', 'order_column' => 2]);
         /** @var Achievement $achievement4 */
         $achievement4 = Achievement::factory()->create(['game_id' => $game->id]); // unofficial
 
@@ -162,7 +162,7 @@ class GameExtendedTest extends TestCase
                 ],
             ]);
 
-        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID, 'f' => Achievement::FLAG_UNPUBLISHED]))
+        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID, 'f' => Achievement::FLAG_UNPROMOTED]))
             ->assertSuccessful()
             ->assertJson([
                 'Achievements' => [

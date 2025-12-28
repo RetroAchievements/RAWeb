@@ -57,7 +57,7 @@ function createGameWithAchievements(
     $developer = User::factory()->create();
 
     $game = Game::factory()->create(['Title' => $title, 'ConsoleID' => $system->id]);
-    Achievement::factory()->published()->count($publishedCount)->create([
+    Achievement::factory()->promoted()->count($publishedCount)->create([
         'game_id' => $game->id,
         'user_id' => $developer->id,
     ]);
@@ -1282,7 +1282,7 @@ describe('Open Tickets Props', function () {
         $developer = User::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        $publishedAchievement = Achievement::factory()->published()->create([
+        $publishedAchievement = Achievement::factory()->promoted()->create([
             'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
@@ -1290,7 +1290,7 @@ describe('Open Tickets Props', function () {
         $unpublishedAchievement = Achievement::factory()->create([
             'game_id' => $game->id,
             'user_id' => $developer->id,
-            'is_published' => false,
+            'is_promoted' => false,
         ]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
@@ -1327,7 +1327,7 @@ describe('Open Tickets Props', function () {
         $developer = User::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        $publishedAchievement = Achievement::factory()->published()->create([
+        $publishedAchievement = Achievement::factory()->promoted()->create([
             'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
@@ -1335,7 +1335,7 @@ describe('Open Tickets Props', function () {
         $unpublishedAchievement = Achievement::factory()->create([
             'game_id' => $game->id,
             'user_id' => $developer->id,
-            'is_published' => false,
+            'is_promoted' => false,
         ]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
@@ -1377,7 +1377,7 @@ describe('Open Tickets Props', function () {
         $developer = User::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        $achievement = Achievement::factory()->published()->create([
+        $achievement = Achievement::factory()->promoted()->create([
             'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
@@ -1515,7 +1515,7 @@ describe('Aggregate Credits Props', function () {
         $maintainer = User::factory()->create();
 
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create([
+        $achievement = Achievement::factory()->promoted()->create([
             'game_id' => $game->id,
             'user_id' => $originalAuthor->id,
         ]);
@@ -1544,7 +1544,7 @@ describe('Aggregate Credits Props', function () {
         $originalAuthor = User::factory()->create();
 
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create([
+        $achievement = Achievement::factory()->promoted()->create([
             'game_id' => $game->id,
             'user_id' => $originalAuthor->id,
         ]);
@@ -1573,7 +1573,7 @@ describe('Aggregate Credits Props', function () {
         $artworkAuthor = User::factory()->create();
 
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create([
+        $achievement = Achievement::factory()->promoted()->create([
             'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
@@ -1630,7 +1630,7 @@ describe('Achievement Groups Props', function () {
         $developer = User::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        $achievement = Achievement::factory()->published()->create([
+        $achievement = Achievement::factory()->promoted()->create([
             'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);

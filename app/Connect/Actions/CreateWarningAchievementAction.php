@@ -21,7 +21,7 @@ class CreateWarningAchievementAction
             'Modified' => Carbon::now()->unix(),
             'Created' => Carbon::now()->unix(),
             'BadgeName' => '00000',
-            'Flags' => Achievement::FLAG_PUBLISHED,
+            'Flags' => Achievement::FLAG_PROMOTED,
             'Type' => null,
             'Rarity' => 0.0,
             'RarityHardcore' => 0.0,

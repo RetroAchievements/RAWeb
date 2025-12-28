@@ -91,12 +91,12 @@ class AchievementPolicy
     {
         // If the user has a DEVELOPER_JUNIOR role, they need to have a claim
         // on the game and the achievement must not be promoted to Core/Official.
-        return !$achievement->is_published && $user->hasActiveClaimOnGameId($achievement->game->id);
+        return !$achievement->is_promoted && $user->hasActiveClaimOnGameId($achievement->game->id);
     }
 
     public function delete(User $user, Achievement $achievement): bool
     {
-        if ($achievement->is_published || $achievement->unlocks_total) {
+        if ($achievement->is_promoted || $achievement->unlocks_total) {
             return false;
         }
 
@@ -124,7 +124,7 @@ class AchievementPolicy
     {
         $roleFieldPermissions = [
             Role::DEVELOPER_JUNIOR => ['title', 'description', 'type', 'points', 'order_column'],
-            Role::DEVELOPER => ['title', 'description', 'is_published', 'type', 'points', 'order_column', 'embed_url'],
+            Role::DEVELOPER => ['title', 'description', 'is_promoted', 'type', 'points', 'order_column', 'embed_url'],
             Role::WRITER => ['title', 'description'],
             Role::ARTIST => ['image_name'],
         ];

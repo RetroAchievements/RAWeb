@@ -97,7 +97,7 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
 
     if ($numRecentAchievements >= 0) {
         $achievementsQuery = Achievement::query()
-            ->published()
+            ->promoted()
             ->whereIn('game_id', $gameIDs)
             ->with(['game'])
             ->leftJoin('player_achievements', function ($join) use ($user) {
@@ -246,7 +246,7 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
 function getUserAchievementUnlocksForGame(
     User|string $user,
     int $gameID,
-    bool $isPublished = true,
+    bool $isPromoted = true,
     ?array $achievementSetIds = null,
 ): array {
     $user = is_string($user) ? User::whereName($user)->first() : $user;
@@ -268,7 +268,7 @@ function getUserAchievementUnlocksForGame(
             fn ($q) => $q->where(DB::raw('game_achievement_sets.game_id'), $gameID)
         )
 
-        ->where('is_published', $isPublished)
+        ->where('is_promoted', $isPromoted)
         ->orderBy('player_achievements.achievement_id')
         ->get([
             DB::raw('player_achievements.achievement_id'),
@@ -304,7 +304,7 @@ function reactivateUserEventAchievements(User $user, array $userUnlocks): array
     $activeEventAchievementMap = EventAchievement::active()
         ->whereIn('source_achievement_id', array_keys($userUnlocks))
         ->whereHas('achievement', function ($query) {
-            $query->where('is_published', true);
+            $query->where('is_promoted', true);
         })
         ->get(['source_achievement_id', 'achievement_id'])
         ->mapWithKeys(function ($eventAchievement, int $key) {

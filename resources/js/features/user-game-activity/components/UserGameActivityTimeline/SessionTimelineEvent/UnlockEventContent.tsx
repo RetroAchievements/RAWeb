@@ -26,7 +26,7 @@ export const UnlockEventContent: FC<UnlockEventContentProps> = ({
   return (
     <AchievementAvatar
       {...achievement}
-      imgClassName={cn(achievement.isPublished ? null : 'grayscale')}
+      imgClassName={cn(achievement.isPromoted ? null : 'grayscale')}
       displayLockedStatus={sessionEvent.hardcore ? 'unlocked-hardcore' : 'locked'}
       showPointsInTitle={true}
       size={32}
@@ -121,7 +121,7 @@ const AchievementTimingLabel: FC<AchievementTimingLabelProps> = ({
           <span className="text-neutral-500">{t('(Softcore)')}</span>
         ) : null}
 
-        {!achievement.isPublished ? (
+        {!achievement.isPromoted ? (
           <span className="font-semibold text-neutral-500">{t('Unofficial Achievement.')}</span>
         ) : null}
 

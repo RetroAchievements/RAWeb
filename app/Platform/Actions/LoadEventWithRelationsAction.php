@@ -22,7 +22,7 @@ class LoadEventWithRelationsAction
             'legacyGame',
             'achievements' => function ($query) use ($user) {
                 $query->with(['sourceAchievement.game.system'])
-                    ->where('is_published', true);
+                    ->where('is_promoted', true);
 
                 if ($user) {
                     $query->with(['achievement.playerAchievements' => function ($query) use ($user) {

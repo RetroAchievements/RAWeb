@@ -14,8 +14,8 @@ use App\Platform\Enums\AchievementType;
 $progressionType = AchievementType::Progression;
 $winConditionType = AchievementType::WinCondition;
 $missableType = AchievementType::Missable;
-$officialFlag = Achievement::FLAG_PUBLISHED;
-$unofficialFlag = Achievement::FLAG_UNPUBLISHED;
+$officialFlag = Achievement::FLAG_PROMOTED;
+$unofficialFlag = Achievement::FLAG_UNPROMOTED;
 ?>
 
 @if ($modificationLevel !== 'none')

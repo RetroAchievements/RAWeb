@@ -163,7 +163,7 @@ class GameCardTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
-        Achievement::factory()->published()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
+        Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
 
         $view = $this->blade('<x-game-card gameId="1" />');
 
@@ -183,7 +183,7 @@ class GameCardTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
-        Achievement::factory()->published()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
+        Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
 
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'AAA']);
@@ -234,7 +234,7 @@ class GameCardTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
-        Achievement::factory()->published()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
+        Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
 
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
@@ -262,7 +262,7 @@ class GameCardTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
-        Achievement::factory()->published()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
+        Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
 
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
@@ -290,7 +290,7 @@ class GameCardTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
-        Achievement::factory()->published()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
+        Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
 
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
@@ -318,7 +318,7 @@ class GameCardTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
-        Achievement::factory()->published()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
+        Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
 
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
@@ -346,7 +346,7 @@ class GameCardTest extends TestCase
         $system = System::factory()->create(['ID' => 101, 'Name' => 'Events']);
         /** @var Game $game */
         $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
-        Achievement::factory()->published()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
+        Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
 
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([

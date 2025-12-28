@@ -11,9 +11,9 @@ use App\Platform\Enums\AchievementType;
 use App\Platform\Events\AchievementCreated;
 use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
-use App\Platform\Events\AchievementPublished;
+use App\Platform\Events\AchievementPromoted;
 use App\Platform\Events\AchievementTypeChanged;
-use App\Platform\Events\AchievementUnpublished;
+use App\Platform\Events\AchievementUnpromoted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
@@ -31,8 +31,8 @@ class AchievementTest extends TestCase
     {
         Event::fake([
             AchievementCreated::class,
-            AchievementPublished::class,
-            AchievementUnpublished::class,
+            AchievementPromoted::class,
+            AchievementUnpromoted::class,
             AchievementPointsChanged::class,
             AchievementTypeChanged::class,
             AchievementMoved::class,
@@ -45,13 +45,13 @@ class AchievementTest extends TestCase
         ]);
         Event::assertDispatched(AchievementCreated::class);
 
-        $achievement->is_published = true;
+        $achievement->is_promoted = true;
         $achievement->save();
-        Event::assertDispatched(AchievementPublished::class);
+        Event::assertDispatched(AchievementPromoted::class);
 
-        $achievement->is_published = false;
+        $achievement->is_promoted = false;
         $achievement->save();
-        Event::assertDispatched(AchievementUnpublished::class);
+        Event::assertDispatched(AchievementUnpromoted::class);
 
         $achievement->points = AchievementPoints::cases()[4];
         $achievement->save();

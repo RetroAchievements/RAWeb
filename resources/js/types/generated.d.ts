@@ -600,7 +600,7 @@ declare namespace App.Platform.Data {
     description?: string;
     decorator?: string | null;
     developer?: App.Data.User;
-    isPublished?: boolean;
+    isPromoted?: boolean;
     game?: App.Platform.Data.Game;
     groupId?: number | null;
     orderColumn?: number;
@@ -1177,6 +1177,7 @@ declare namespace App.Platform.Data {
 declare namespace App.Platform.Enums {
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
   export type AchievementSetAuthorTask = 'artwork';
+  export type UnlockMode = 0 | 1;
   export type AchievementSetType =
     | 'core'
     | 'bonus'
@@ -1185,7 +1186,6 @@ declare namespace App.Platform.Enums {
     | 'will_be_bonus'
     | 'will_be_specialty'
     | 'will_be_exclusive';
-  export type UnlockMode = 0 | 1;
   export type EventState = 'active' | 'concluded' | 'evergreen';
   export type GameListProgressFilterValue =
     | 'unstarted'

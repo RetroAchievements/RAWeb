@@ -133,7 +133,7 @@ class AchievementSetClaimPolicy
 
         $game = $achievementSetClaim->game;
 
-        // For valid/active systems, require published/official achievements to complete the claim.
+        // For valid/active systems, require promoted/official achievements to complete the claim.
         if (isValidConsoleId($game->ConsoleID)) {
             return $game->achievements_published > 0; // TODO this probably needs to use achievement sets at some point in the future
         }

@@ -59,13 +59,13 @@ class StartSessionTest extends TestCase
 
         // Create core set achievements.
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $achievement4 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         $this->upsertGameCoreSetAction->execute($game);
 
@@ -73,11 +73,11 @@ class StartSessionTest extends TestCase
         /** @var Game $bonusGame */
         $bonusGame = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => $game->Title . ' [Subset - Bonus]']);
         /** @var Achievement $bonusAchievement1 */
-        $bonusAchievement1 = Achievement::factory()->published()->create(['game_id' => $bonusGame->id]);
+        $bonusAchievement1 = Achievement::factory()->promoted()->create(['game_id' => $bonusGame->id]);
         /** @var Achievement $bonusAchievement2 */
-        $bonusAchievement2 = Achievement::factory()->published()->create(['game_id' => $bonusGame->id]);
+        $bonusAchievement2 = Achievement::factory()->promoted()->create(['game_id' => $bonusGame->id]);
         /** @var Achievement $bonusAchievement3 */
-        $bonusAchievement3 = Achievement::factory()->published()->create(['game_id' => $bonusGame->id]);
+        $bonusAchievement3 = Achievement::factory()->promoted()->create(['game_id' => $bonusGame->id]);
 
         // Set up the bonus achievement set and associate it with the core game.
         $this->upsertGameCoreSetAction->execute($bonusGame);
@@ -173,12 +173,12 @@ class StartSessionTest extends TestCase
         $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var GameHash $gameHash */
         $gameHash2 = GameHash::factory()->create(['game_id' => $game2->id]);
-        Achievement::factory()->published()->count(6)->create(['game_id' => $game->id]);
+        Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id]);
         $this->upsertGameCoreSetAction->execute($game2);
 
         /** @var Game $bonusGame2 */
         $bonusGame2 = Game::factory()->create(['ConsoleID' => $system->ID, 'Title' => $game2->Title . ' [Subset - Bonus 2]']);
-        Achievement::factory()->published()->count(4)->create(['game_id' => $bonusGame2->id]);
+        Achievement::factory()->promoted()->count(4)->create(['game_id' => $bonusGame2->id]);
         $this->upsertGameCoreSetAction->execute($bonusGame2);
         $this->associateAchievementSetToGameAction->execute($game2, $bonusGame2, AchievementSetType::Bonus, 'Bonus 2');
 
@@ -256,7 +256,7 @@ class StartSessionTest extends TestCase
         /** @var Game $eventGame */
         $eventGame = Game::factory()->create(['ConsoleID' => System::Events]);
         /** @var Achievement $eventAchievement1 */
-        $eventAchievement1 = Achievement::factory()->published()->create(['game_id' => $eventGame->id]);
+        $eventAchievement1 = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
 
         $this->upsertGameCoreSetAction->execute($eventGame);
 
@@ -335,7 +335,7 @@ class StartSessionTest extends TestCase
         // ----------------------------
         // if multiple event achievements are active for a single source achievement, all must be unlocked to keep hardcore unlock
         /** @var Achievement $eventAchievement2 */
-        $eventAchievement2 = Achievement::factory()->published()->create(['game_id' => $eventGame->id]);
+        $eventAchievement2 = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
         EventAchievement::create([
             'achievement_id' => $eventAchievement2->id,
             'source_achievement_id' => $achievement1->id,
@@ -410,7 +410,7 @@ class StartSessionTest extends TestCase
         // ----------------------------
         // event achievement outside of active range is ignored
         /** @var Achievement $eventAchievement3 */
-        $eventAchievement3 = Achievement::factory()->published()->create(['game_id' => $eventGame->id]);
+        $eventAchievement3 = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
         EventAchievement::create([
             'achievement_id' => $eventAchievement2->id,
             'source_achievement_id' => $achievement1->id,
@@ -452,7 +452,7 @@ class StartSessionTest extends TestCase
         // ----------------------------
         // demoted event achievement is ignored
         /** @var Achievement $eventAchievement4 */
-        $eventAchievement4 = Achievement::factory()->create(['game_id' => $eventGame->id, 'is_published' => false]);
+        $eventAchievement4 = Achievement::factory()->create(['game_id' => $eventGame->id, 'is_promoted' => false]);
         EventAchievement::create([
             'achievement_id' => $eventAchievement4->id,
             'source_achievement_id' => $achievement1->id,
@@ -655,7 +655,7 @@ class StartSessionTest extends TestCase
         $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
 
         // The integration user is the sole author of all the set's achievements.
-        $coreAchievements = Achievement::factory()->published()->count(3)->create([
+        $coreAchievements = Achievement::factory()->promoted()->count(3)->create([
             'game_id' => $gameOne->id,
             'user_id' => $integrationUser->id,
         ]);
@@ -666,7 +666,7 @@ class StartSessionTest extends TestCase
             'ConsoleID' => $standalonesSystem->ID,
             'Title' => $gameOne->Title . ' [Subset - Bonus]',
         ]);
-        $bonusAchievements = Achievement::factory()->published()->count(3)->create([
+        $bonusAchievements = Achievement::factory()->promoted()->count(3)->create([
             'game_id' => $bonusGameOne->id,
             'user_id' => $integrationUser->id,
         ]);
@@ -773,7 +773,7 @@ class StartSessionTest extends TestCase
         // This is not allowed and should fail.
         /** @var Game $gameThree */
         $gameThree = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
-        Achievement::factory()->published()->count(6)->create(['game_id' => $gameThree->id]);
+        Achievement::factory()->promoted()->count(6)->create(['game_id' => $gameThree->id]);
         $params['g'] = $gameThree->id;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -822,7 +822,7 @@ class StartSessionTest extends TestCase
         $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
 
         // The integration user is the sole author of all the set's achievements.
-        $coreAchievements = Achievement::factory()->published()->count(3)->create([
+        $coreAchievements = Achievement::factory()->promoted()->count(3)->create([
             'game_id' => $gameOne->id,
             'user_id' => $integrationUser->id,
         ]);
@@ -833,7 +833,7 @@ class StartSessionTest extends TestCase
             'ConsoleID' => $standalonesSystem->ID,
             'Title' => $gameOne->Title . ' [Subset - Bonus]',
         ]);
-        $bonusAchievements = Achievement::factory()->published()->count(3)->create([
+        $bonusAchievements = Achievement::factory()->promoted()->count(3)->create([
             'game_id' => $bonusGameOne->id,
             'user_id' => $integrationUser->id,
         ]);
@@ -930,7 +930,7 @@ class StartSessionTest extends TestCase
         $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
 
         // Create core set achievements.
-        $coreAchievements = Achievement::factory()->published()->count(3)->create([
+        $coreAchievements = Achievement::factory()->promoted()->count(3)->create([
             'game_id' => $game->id,
         ]);
         $this->upsertGameCoreSetAction->execute($game);
@@ -964,14 +964,14 @@ class StartSessionTest extends TestCase
         /** @var Game $baseGame */
         $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
         /** @var Achievement $coreAchievement */
-        $coreAchievement = Achievement::factory()->published()->create(['game_id' => $baseGame->id]);
+        $coreAchievement = Achievement::factory()->promoted()->create(['game_id' => $baseGame->id]);
         $this->upsertGameCoreSetAction->execute($baseGame);
 
         // ... create a specialty "subset game" with an achievement ...
         /** @var Game $specialtyGame */
         $specialtyGame = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => $baseGame->title . ' [Subset - Specialty]']);
         /** @var Achievement $specialtyAchievement */
-        $specialtyAchievement = Achievement::factory()->published()->create(['game_id' => $specialtyGame->id]);
+        $specialtyAchievement = Achievement::factory()->promoted()->create(['game_id' => $specialtyGame->id]);
         $this->upsertGameCoreSetAction->execute($specialtyGame);
 
         // ... associate the specialty "subset game"'s achievement set as a Specialty set on the base game ...
@@ -1017,14 +1017,14 @@ class StartSessionTest extends TestCase
         /** @var Game $baseGame */
         $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
         /** @var Achievement $coreAchievement */
-        $coreAchievement = Achievement::factory()->published()->create(['game_id' => $baseGame->id]);
+        $coreAchievement = Achievement::factory()->promoted()->create(['game_id' => $baseGame->id]);
         $this->upsertGameCoreSetAction->execute($baseGame);
 
         // ... create an exclusive "subset game" with an achievement ...
         /** @var Game $exclusiveGame */
         $exclusiveGame = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => $baseGame->title . ' [Subset - Exclusive]']);
         /** @var Achievement $exclusiveAchievement */
-        $exclusiveAchievement = Achievement::factory()->published()->create(['game_id' => $exclusiveGame->id]);
+        $exclusiveAchievement = Achievement::factory()->promoted()->create(['game_id' => $exclusiveGame->id]);
         $this->upsertGameCoreSetAction->execute($exclusiveGame);
 
         // ... associate the exclusive "subset game"'s achievement set as an Exclusive set on the base game ...

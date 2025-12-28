@@ -50,7 +50,7 @@ function performSearch(
                    ELSE 2
                END AS SecondarySort
         FROM GameData AS gd
-        LEFT JOIN achievements AS ach ON ach.game_id = gd.ID AND ach.is_published = 1
+        LEFT JOIN achievements AS ach ON ach.game_id = gd.ID AND ach.is_promoted = 1
         LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
         WHERE gd.ConsoleID != 100
         AND gd.Title LIKE '%$searchQuery%'
@@ -84,7 +84,7 @@ function performSearch(
                CASE WHEN ach.title LIKE '$searchQuery%' THEN 0 ELSE 1 END AS SecondarySort
         FROM achievements AS ach
         LEFT JOIN GameData AS gd ON gd.ID = ach.game_id
-        WHERE ach.is_published = 1 AND ach.title LIKE '%$searchQuery%'
+        WHERE ach.is_promoted = 1 AND ach.title LIKE '%$searchQuery%'
         ORDER BY SecondarySort, ach.title";
     }
 

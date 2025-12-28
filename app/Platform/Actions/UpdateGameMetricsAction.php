@@ -16,16 +16,16 @@ class UpdateGameMetricsAction
 {
     public function execute(Game $game): void
     {
-        $game->achievements_published = $game->achievements()->published()->count();
-        $game->achievements_unpublished = $game->achievements()->unpublished()->count();
+        $game->achievements_published = $game->achievements()->promoted()->count();
+        $game->achievements_unpublished = $game->achievements()->unpromoted()->count();
 
-        $game->points_total = $game->achievements()->published()->sum('points');
+        $game->points_total = $game->achievements()->promoted()->sum('points');
         // NOTE $game->TotalTruePoints are updated separately
 
         $achievementSetVersionChanged = false;
         if ($game->achievements_published || $game->achievements_unpublished) {
             $versionHashFields = ['id', 'trigger_definition', 'type', 'points'];
-            $achievementSetVersionHashPayload = $game->achievements()->published()
+            $achievementSetVersionHashPayload = $game->achievements()->promoted()
                 ->orderBy('id')
                 ->get($versionHashFields)
                 ->map(function ($achievement) use ($versionHashFields) {

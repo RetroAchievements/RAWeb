@@ -25,7 +25,7 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?Ga
         return $retVal;
     }
 
-    if (!$achievement->is_published) { // do not award Unofficial achievements
+    if (!$achievement->is_promoted) { // do not award Unofficial achievements
         $retVal['Error'] = "Unofficial achievements cannot be unlocked";
 
         return $retVal;
@@ -229,11 +229,11 @@ function getAchievementDistribution(
     int $gameID,
     int $isHardcore,
     ?string $requestedBy = null,
-    bool $isPublished = true,
+    bool $isPromoted = true,
     int $numPlayers = 0,
 ): array {
     /** @var Game $game */
-    $game = Game::withCount(['achievements' => fn ($query) => $query->where('is_published', $isPublished)])->find($gameID);
+    $game = Game::withCount(['achievements' => fn ($query) => $query->where('is_promoted', $isPromoted)])->find($gameID);
     $results = null;
 
     if (!$game || !$game->achievements_count) {
@@ -246,7 +246,7 @@ function getAchievementDistribution(
     $shouldJoinUsers = $numPlayers < 100;
 
     // Returns an array of the number of players who have achieved each total, up to the max.
-    if ($isPublished) {
+    if ($isPromoted) {
         $countColumn = $isHardcore ? 'player_games.achievements_unlocked_hardcore' : 'player_games.achievements_unlocked_softcore';
 
         $countQuery = DB::table("player_games")
@@ -276,7 +276,7 @@ function getAchievementDistribution(
             )
             ->join("achievements", "player_achievements.achievement_id", "=", "achievements.id")
             ->where(DB::raw("achievements.game_id"), $gameID)
-            ->where(DB::raw("achievements.is_published"), 0)
+            ->where(DB::raw("achievements.is_promoted"), 0)
             ->groupBy("player_achievements.user_id");
 
         if ($shouldJoinUsers) {

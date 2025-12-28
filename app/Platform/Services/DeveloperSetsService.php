@@ -33,7 +33,7 @@ class DeveloperSetsService
             'sole' => ($validatedData['filter']['sole'] ?? 'false') !== 'false',
         ];
 
-        $gameAuthoredAchievementsList = $user->authoredAchievements()->published()
+        $gameAuthoredAchievementsList = $user->authoredAchievements()->promoted()
             ->select(['game_id',
                 DB::raw('COUNT(achievements.id) AS NumAuthoredAchievements'),
                 DB::raw('SUM(achievements.points) AS NumAuthoredPoints'),

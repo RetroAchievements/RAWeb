@@ -76,7 +76,7 @@ class GameCard extends Component
             $foundGame = Game::with([
                 'system',
                 'achievements' => function ($query) {
-                    $query->published();
+                    $query->promoted();
                 },
             ])->find($gameId);
 

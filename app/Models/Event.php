@@ -219,7 +219,7 @@ class Event extends BaseModel
      */
     public function publishedAchievements(): HasManyThrough
     {
-        return $this->achievements()->published();
+        return $this->achievements()->promoted();
     }
 
     /**

@@ -80,7 +80,7 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         $points = [1, 999, 1500, 2500, 2500];
         $achievements = [];
         foreach ($points as $pointValue) {
-            $achievements[] = Achievement::factory()->published()->create([
+            $achievements[] = Achievement::factory()->promoted()->create([
                 'game_id' => $game->id,
                 'points' => $pointValue,
                 'user_id' => $author->id,
@@ -137,7 +137,7 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         $this->assertPointBadgeTier($author, 2, 1);
 
         // demoted achievement removes contributions, but not badge.
-        $achievements[3]->is_published = false;
+        $achievements[3]->is_promoted = false;
         $achievements[3]->save();
         $action->execute($author);
         $this->assertEquals(2, $author->ContribCount);
@@ -152,7 +152,7 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         $this->assertPointBadgeTier($author, 2);
 
         // promoted achievement restores contributions, crosses tier, and awards new badge.
-        $achievements[3]->is_published = true;
+        $achievements[3]->is_promoted = true;
         $achievements[3]->save();
         $action->execute($author);
         $this->assertEquals(4, $author->ContribCount);
@@ -172,7 +172,7 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         $points = [1000, 1500, 2500, 5000];
         $achievements = [];
         foreach ($points as $pointValue) {
-            $achievements[] = Achievement::factory()->published()->create([
+            $achievements[] = Achievement::factory()->promoted()->create([
                 'game_id' => $game->id,
                 'points' => $pointValue,
                 'user_id' => $author->id,

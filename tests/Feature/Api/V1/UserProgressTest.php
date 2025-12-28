@@ -31,12 +31,12 @@ class UserProgressTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['game_id' => $game->id]);
+        $publishedAchievements = Achievement::factory()->promoted()->count(3)->create(['game_id' => $game->id]);
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(0));
         $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(1));
         /** @var Game $game2 */
         $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $publishedAchievements2 = Achievement::factory()->published()->count(5)->create(['game_id' => $game2->id]);
+        $publishedAchievements2 = Achievement::factory()->promoted()->count(5)->create(['game_id' => $game2->id]);
         (new UpdateGameMetricsAction())->execute($game2);
         /** @var Game $game3 */
         $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
@@ -94,12 +94,12 @@ class UserProgressTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['game_id' => $game->id]);
+        $publishedAchievements = Achievement::factory()->promoted()->count(3)->create(['game_id' => $game->id]);
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(0));
         $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(1));
         /** @var Game $game2 */
         $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $publishedAchievements2 = Achievement::factory()->published()->count(5)->create(['game_id' => $game2->id]);
+        $publishedAchievements2 = Achievement::factory()->promoted()->count(5)->create(['game_id' => $game2->id]);
         (new UpdateGameMetricsAction())->execute($game2);
         /** @var Game $game3 */
         $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);

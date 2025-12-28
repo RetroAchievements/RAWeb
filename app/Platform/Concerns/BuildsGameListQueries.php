@@ -77,7 +77,7 @@ trait BuildsGameListQueries
                 'num_unresolved_tickets' => Ticket::selectRaw('COUNT(*)')
                     ->join('achievements', 'Ticket.AchievementID', '=', 'achievements.id')
                     ->whereColumn('achievements.game_id', 'GameData.ID')
-                    ->where(DB::raw('achievements.is_published'), true)
+                    ->where(DB::raw('achievements.is_promoted'), true)
                     ->whereIn('Ticket.ReportState', [TicketState::Open, TicketState::Request]),
             ]);
         }

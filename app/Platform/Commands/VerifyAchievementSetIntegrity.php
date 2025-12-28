@@ -89,8 +89,8 @@ class VerifyAchievementSetIntegrity extends Command
 
         // Basic metrics comparison
         $comparisons = [
-            ['field' => 'achievements_published', 'game' => $game->achievements()->published()->count(), 'set' => $set->achievements_published],
-            ['field' => 'achievements_unpublished', 'game' => $game->achievements()->unpublished()->count(), 'set' => $set->achievements_unpublished],
+            ['field' => 'achievements_published', 'game' => $game->achievements()->promoted()->count(), 'set' => $set->achievements_published],
+            ['field' => 'achievements_unpublished', 'game' => $game->achievements()->unpromoted()->count(), 'set' => $set->achievements_unpublished],
             ['field' => 'players_total', 'game' => $game->players_total, 'set' => $set->players_total],
             ['field' => 'players_hardcore', 'game' => $game->players_hardcore, 'set' => $set->players_hardcore],
             ['field' => 'points_total', 'game' => $game->points_total, 'set' => $set->points_total],

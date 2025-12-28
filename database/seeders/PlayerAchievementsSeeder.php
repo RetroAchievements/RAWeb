@@ -30,8 +30,8 @@ class PlayerAchievementsSeeder extends Seeder
         $faker = Faker::create();
 
         Game::where('achievements_published', '>', 0)->each(function (Game $game) use ($maxPlayers, $faker) {
-            $numWinConditions = $game->achievements()->published()->where('type', AchievementType::WinCondition)->count();
-            $numAchievements = $game->achievements()->published()->count();
+            $numWinConditions = $game->achievements()->promoted()->where('type', AchievementType::WinCondition)->count();
+            $numAchievements = $game->achievements()->promoted()->count();
 
             $updatePlayerGameMetricsAction = new UpdatePlayerGameMetricsAction();
             $resumePlayerSessionAction = new ResumePlayerSessionAction();
@@ -56,7 +56,7 @@ class PlayerAchievementsSeeder extends Seeder
 
                 $date = $date->addSeconds(random_int(100, 2000));
 
-                foreach ($game->achievements()->published()->get() as $achievement) {
+                foreach ($game->achievements()->promoted()->get() as $achievement) {
                     if ($achievement->type !== AchievementType::Progression) {
                         if ($achievement->type === AchievementType::WinCondition) {
                             if (random_int(1, $numWinConditions) !== 1) {

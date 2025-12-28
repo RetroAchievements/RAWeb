@@ -20,7 +20,7 @@ new class extends Component implements HasForms {
         $this->form->getState();
 
         $this->foundAchievementIds = Achievement::whereIn('game_id', $this->gameIds)
-            ->published()
+            ->promoted()
             ->pluck('id')
             ->toArray();
 

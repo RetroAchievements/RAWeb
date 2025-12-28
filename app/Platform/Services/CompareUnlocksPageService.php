@@ -21,7 +21,7 @@ class CompareUnlocksPageService
         $sortOrder = $validatedData['sort'] ?? 'display';
 
         $achievements = [];
-        foreach ($game->achievements()->published()->get() as $achievement) {
+        foreach ($game->achievements()->promoted()->get() as $achievement) {
             $achievements[$achievement->id] = $achievement->toArray();
         }
 

@@ -42,7 +42,7 @@ class AchievementFactory extends Factory
             'description' => fake()->sentence(),
             'trigger_definition' => '0x000000',
             'user_id' => $user?->id ?? 1,
-            'is_published' => false,
+            'is_promoted' => false,
             'type' => null,
             'points' => fake()->randomElement($pointValues),
             'points_weighted' => rand(1, 1000),
@@ -52,10 +52,10 @@ class AchievementFactory extends Factory
         ];
     }
 
-    public function published(): static
+    public function promoted(): static
     {
         return $this->state(fn (array $attributes) => [
-            'is_published' => true,
+            'is_promoted' => true,
         ]);
     }
 

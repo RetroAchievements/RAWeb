@@ -71,7 +71,7 @@ class BuildGameShowPagePropsAction
     public function execute(
         Game $game,
         ?User $user,
-        bool $isPublished = true,
+        bool $isPromoted = true,
         ?GameAchievementSet $targetAchievementSet = null,
         GamePageListView $initialView = GamePageListView::Achievements,
         ?GamePageListSort $initialSort = null,
@@ -355,10 +355,10 @@ class BuildGameShowPagePropsAction
             isSubscribedToTickets: $user ? $subscriptionService->isSubscribed($user, SubscriptionSubjectType::GameTickets, $backingGame->id) : false,
             isLockedOnlyFilterEnabled: $isLockedOnlyFilterEnabled,
             isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
-            isViewingPublishedAchievements: $isPublished,
+            isViewingPublishedAchievements: $isPromoted,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
 
-            playerAchievementChartBuckets: $isPublished
+            playerAchievementChartBuckets: $isPromoted
                 ? $this->buildGameAchievementDistributionAction->execute($backingGame, $user)
                 : collect(),
 
@@ -368,10 +368,10 @@ class BuildGameShowPagePropsAction
             numBeaten: $numBeaten,
             numBeatenSoftcore: $numBeatenSoftcore,
             numInterestedDevelopers: $this->getInterestedDevelopersCount($backingGame, $user),
-            numLeaderboards: $this->getLeaderboardsCount($backingGame, $isPublished),
+            numLeaderboards: $this->getLeaderboardsCount($backingGame, $isPromoted),
             numMasters: $numMasters,
 
-            numOpenTickets: $isPublished
+            numOpenTickets: $isPromoted
                 ? Ticket::forGame($backingGame)->unresolved()->officialCore()->count()
                 : Ticket::forGame($backingGame)->unresolved()->unofficial()->count(),
 

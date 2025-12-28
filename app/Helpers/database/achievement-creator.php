@@ -10,7 +10,7 @@ use App\Models\User;
 function getUserAchievementsPerConsole(User $user): array
 {
     $userAuthoredAchievements = $user->authoredAchievements()
-        ->published()
+        ->promoted()
         ->whereHas('game.system', function ($query) {
             $query->whereNotIn('ID', [System::Hubs, System::Events]);
         })
@@ -42,14 +42,14 @@ function getUserSetsPerConsole(User $user): array
               LEFT JOIN GameData AS gd ON gd.ID = a.game_id
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.user_id = :userId
-              AND a.is_published = :isPublished
+              AND a.is_promoted = :isPromoted
               AND gd.ConsoleID NOT IN (100, 101)
               GROUP BY ConsoleName
               ORDER BY SetCount DESC, ConsoleName";
 
     return legacyDbFetchAll($query, [
         'userId' => $user->id,
-        'isPublished' => 1,
+        'isPromoted' => 1,
     ])->toArray();
 }
 
@@ -59,7 +59,7 @@ function getUserSetsPerConsole(User $user): array
 function getUserAchievementInformation(User $user): array
 {
     $userAuthoredAchievements = $user->authoredAchievements()
-        ->published()
+        ->promoted()
         ->whereHas('game.system', function ($query) {
             $query->whereNotIn('ID', [System::Hubs, System::Events]);
         })
@@ -98,13 +98,13 @@ function getOwnAchievementsObtained(User $user): array
               INNER JOIN GameData AS gd ON gd.ID = ach.game_id
               WHERE ach.user_id = :authorId
               AND pa.user_id = :userId
-              AND ach.is_published = :isPublished
+              AND ach.is_promoted = :isPromoted
               AND gd.ConsoleID NOT IN (100, 101)";
 
     return legacyDbFetch($query, [
         'authorId' => $user->id,
         'userId' => $user->id,
-        'isPublished' => 1,
+        'isPromoted' => 1,
     ]);
 }
 
@@ -122,7 +122,7 @@ function getObtainersOfSpecificUser(User $user): array
               INNER JOIN UserAccounts AS ua ON ua.ID = pa.user_id
               WHERE ach.user_id = :authorId
               AND pa.user_id != :userId
-              AND ach.is_published = :isPublished
+              AND ach.is_promoted = :isPromoted
               AND gd.ConsoleID NOT IN (100, 101)
               AND ua.Untracked = 0
               GROUP BY ua.User
@@ -131,7 +131,7 @@ function getObtainersOfSpecificUser(User $user): array
     return legacyDbFetchAll($query, [
         'authorId' => $user->id,
         'userId' => $user->id,
-        'isPublished' => 1,
+        'isPromoted' => 1,
     ])->toArray();
 }
 
@@ -167,7 +167,7 @@ function getRecentUnlocksForDev(User $user, int $offset = 0, int $count = 200): 
 function checkIfSoleDeveloper(User $user, int $gameId): bool
 {
     $developerUserIdsForGame = Achievement::where('game_id', $gameId)
-        ->where('is_published', true)
+        ->where('is_promoted', true)
         ->distinct()
         ->pluck('user_id');
 

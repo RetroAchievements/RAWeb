@@ -118,10 +118,10 @@ class AchievementResource extends Resource
                     ->icon('heroicon-o-tag')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('is_published')
-                            ->label('Published Status')
+                        Infolists\Components\TextEntry::make('is_promoted')
+                            ->label('Promotion Status')
                             ->badge()
-                            ->formatStateUsing(fn (bool $state): string => $state ? 'Published' : 'Unpublished')
+                            ->formatStateUsing(fn (bool $state): string => $state ? 'Promoted' : 'Unpromoted')
                             ->color(fn (bool $state): string => $state ? 'success' : 'info'),
 
                         Infolists\Components\TextEntry::make('type')
@@ -226,9 +226,9 @@ class AchievementResource extends Resource
                     ->icon('heroicon-o-tag')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Forms\Components\Toggle::make('is_published')
-                            ->label('Published')
-                            ->disabled(!$user->can('updateField', [$schema->model, 'is_published'])),
+                        Forms\Components\Toggle::make('is_promoted')
+                            ->label('Promoted')
+                            ->disabled(!$user->can('updateField', [$schema->model, 'is_promoted'])),
 
                         Forms\Components\Select::make('points')
                             ->required()
@@ -356,11 +356,11 @@ class AchievementResource extends Resource
                     ->formatStateUsing(fn (Game $state) => "[{$state->id}] {$state->title}")
                     ->url(fn (Game $state) => GameResource::getUrl('view', ['record' => $state->id])),
 
-                Tables\Columns\TextColumn::make('is_published')
+                Tables\Columns\TextColumn::make('is_promoted')
                     ->label('Status')
                     ->badge()
                     ->wrap()
-                    ->formatStateUsing(fn (bool $state): string => $state ? 'Published' : 'Unpublished')
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'Promoted' : 'Unpromoted')
                     ->color(fn (bool $state): string => $state ? 'success' : 'info'),
 
                 Tables\Columns\TextColumn::make('type')

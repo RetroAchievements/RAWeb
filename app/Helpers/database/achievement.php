@@ -27,13 +27,13 @@ function getAchievementsList(
     int $params,
     int $limit,
     int $offset,
-    ?bool $isPublished = null,
+    ?bool $isPromoted = null,
     ?User $developer = null,
 ): Collection {
     $bindings = [
         'offset' => $offset,
         'limit' => $limit,
-        'isPublished' => $isPublished ?? true,
+        'isPromoted' => $isPromoted ?? true,
     ];
 
     $selectAwardedDate = ", NULL AS AwardedDate";
@@ -88,7 +88,7 @@ function getAchievementsList(
             INNER JOIN GameData AS gd ON gd.ID = ach.game_id
             INNER JOIN Console AS c ON c.ID = gd.ConsoleID
             WHERE gd.ConsoleID != " . System::Events . "
-            AND ach.is_published = :isPublished
+            AND ach.is_promoted = :isPromoted
             AND ach.deleted_at IS NULL ";
 
     if ($developer) {
@@ -189,7 +189,7 @@ function GetAchievementData(int $achievementId): ?array
         'Description' => $achievement->description,
         'Points' => $achievement->points,
         'TrueRatio' => $achievement->points_weighted,
-        'Flags' => $achievement->is_published ? Achievement::FLAG_PUBLISHED : Achievement::FLAG_UNPUBLISHED,
+        'Flags' => $achievement->is_promoted ? Achievement::FLAG_PROMOTED : Achievement::FLAG_UNPROMOTED,
         'type' => $achievement->type,
         'Author' => $achievement->developer?->display_name,
         'AuthorULID' => $achievement->developer?->ulid,
@@ -257,14 +257,14 @@ function UploadNewAchievement(
         return false;
     }
 
-    $isPublished = $flag === Achievement::FLAG_PUBLISHED;
-    if ($flag !== Achievement::FLAG_PUBLISHED && $flag !== Achievement::FLAG_UNPUBLISHED) {
+    $isPromoted = $flag === Achievement::FLAG_PROMOTED;
+    if ($flag !== Achievement::FLAG_PROMOTED && $flag !== Achievement::FLAG_UNPROMOTED) {
         $errorOut = "Invalid achievement flag";
 
         return false;
     }
 
-    if ($isPublished && !isValidConsoleId($consoleID)) {
+    if ($isPromoted && !isValidConsoleId($consoleID)) {
         $errorOut = "You cannot promote achievements for a game from an unsupported console (console ID: " . $consoleID . ").";
 
         return false;
@@ -320,7 +320,7 @@ function UploadNewAchievement(
         $achievement->description = $desc;
         $achievement->trigger_definition = $mem;
         $achievement->points = $points;
-        $achievement->is_published = $isPublished;
+        $achievement->is_promoted = $isPromoted;
         $achievement->type = ($typeValue == 'NULL') ? null : $type;
         $achievement->user_id = $author->id;
         $achievement->image_name = $badge;
@@ -334,7 +334,7 @@ function UploadNewAchievement(
         (new UpsertTriggerVersionAction())->execute(
             $achievement,
             $mem,
-            versioned: $isPublished,
+            versioned: $isPromoted,
             user: $author
         );
 
@@ -394,17 +394,17 @@ function UploadNewAchievement(
             $fields[] = "logic";
         }
 
-        $changingPublishedStatus = ($achievement->is_published != $isPublished);
-        if ($changingPublishedStatus) {
-            $achievement->is_published = $isPublished;
+        $changingPromotedStatus = ($achievement->is_promoted != $isPromoted);
+        if ($changingPromotedStatus) {
+            $achievement->is_promoted = $isPromoted;
         }
 
-        if ($isPublished || $changingPublishedStatus) { // If modifying core or changing achievement state.
+        if ($isPromoted || $changingPromotedStatus) { // If modifying core or changing achievement state.
             // changing ach set detected; user is $author, permissions is $authorPermissions, target set is $flag
 
             // Only allow jr. devs to modify core achievements if they are the author and not updating logic or state
             // TODO use a policy
-            if ($authorPermissions < Permissions::Developer && ($changingLogic || $changingPublishedStatus || $achievement->user_id !== $author->id)) {
+            if ($authorPermissions < Permissions::Developer && ($changingLogic || $changingPromotedStatus || $achievement->user_id !== $author->id)) {
                 // Must be developer to modify core logic!
                 $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
@@ -412,7 +412,7 @@ function UploadNewAchievement(
             }
         }
 
-        if (!$isPublished) { // If modifying unofficial
+        if (!$isPromoted) { // If modifying unofficial
             // Only allow jr. devs to modify unofficial if they are the author
             // TODO use a policy
             if ($authorPermissions == Permissions::JuniorDeveloper && $achievement->user_id !== $author->id) {
@@ -439,10 +439,10 @@ function UploadNewAchievement(
                 (new UpsertTriggerVersionAction())->execute(
                     $achievement,
                     $achievement->trigger_definition,
-                    versioned: $achievement->is_published,
+                    versioned: $achievement->is_promoted,
                     user: $author
                 );
-            } elseif ($changingPublishedStatus && $achievement->trigger && $achievement->is_published) {
+            } elseif ($changingPromotedStatus && $achievement->trigger && $achievement->is_promoted) {
                 // If only published status changed, re-version the existing trigger (if it exists).
                 (new UpsertTriggerVersionAction())->execute(
                     $achievement,
@@ -452,8 +452,8 @@ function UploadNewAchievement(
                 );
             }
 
-            if ($changingPublishedStatus) {
-                if ($isPublished) {
+            if ($changingPromotedStatus) {
+                if ($isPromoted) {
                     addArticleComment(
                         "Server",
                         ArticleType::Achievement,
@@ -525,16 +525,16 @@ function updateAchievementDisplayOrder(int $achievementId, int $newDisplayOrder)
     return true;
 }
 
-function updateAchievementPublishedStatus(int|string|array $inputAchievementIds, bool $isPublished): void
+function updateAchievementPromotedStatus(int|string|array $inputAchievementIds, bool $isPromoted): void
 {
     $achievementIds = is_array($inputAchievementIds) ? $inputAchievementIds : [$inputAchievementIds];
 
     $achievements = Achievement::whereIn('id', $achievementIds)
-        ->where('is_published', '!=', $isPublished)
+        ->where('is_promoted', '!=', $isPromoted)
         ->get();
 
     foreach ($achievements as $achievement) {
-        $achievement->is_published = $isPublished;
+        $achievement->is_promoted = $isPromoted;
         $achievement->save();
     }
 }

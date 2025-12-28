@@ -30,7 +30,7 @@ class SharedAuthorStrategy implements GameSuggestionStrategy
     {
         // First, find the main author of the source game's achievement set
         $author = Achievement::where('game_id', $this->sourceGame->id)
-            ->where('is_published', true)
+            ->where('is_promoted', true)
             ->select('user_id')
             ->selectRaw('COUNT(*) as achievement_count')
             ->with(['developer:ID,User'])
@@ -49,7 +49,7 @@ class SharedAuthorStrategy implements GameSuggestionStrategy
             ->whereNotIn('ConsoleID', System::getNonGameSystems())
             ->whereHas('achievements', function ($query) use ($author) {
                 $query->where('user_id', $author->user_id)
-                    ->where('is_published', true);
+                    ->where('is_promoted', true);
             })
             ->where('ID', '!=', $this->sourceGame->id)
             ->whereHasPublishedAchievements()

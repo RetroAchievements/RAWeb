@@ -46,13 +46,13 @@ class UnlocksTest extends TestCase
     {
         $game = $this->seedGame(withHash: false);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $achievement4 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         $this->upsertGameCoreSetAction->execute($game);
 
@@ -62,9 +62,9 @@ class UnlocksTest extends TestCase
             'Title' => $game->title . ' [Subset - Bonus]',
         ]);
         /** @var Achievement $bonusAchievement1 */
-        $bonusAchievement1 = Achievement::factory()->published()->create(['game_id' => $bonusGame->id]);
+        $bonusAchievement1 = Achievement::factory()->promoted()->create(['game_id' => $bonusGame->id]);
         /** @var Achievement $bonusAchievement2 */
-        $bonusAchievement2 = Achievement::factory()->published()->create(['game_id' => $bonusGame->id]);
+        $bonusAchievement2 = Achievement::factory()->promoted()->create(['game_id' => $bonusGame->id]);
 
         $this->upsertGameCoreSetAction->execute($bonusGame);
         $this->associateAchievementSetToGameAction->execute($game, $bonusGame, AchievementSetType::Bonus, 'Bonus');
@@ -205,7 +205,7 @@ class UnlocksTest extends TestCase
         /** @var Game $eventGame */
         $eventGame = Game::factory()->create(['ConsoleID' => System::Events]);
         /** @var Achievement $eventAchievement1 */
-        $eventAchievement1 = Achievement::factory()->published()->create(['game_id' => $eventGame->id]);
+        $eventAchievement1 = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
 
         $this->upsertGameCoreSetAction->execute($eventGame);
 

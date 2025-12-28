@@ -460,7 +460,7 @@ switch ($requestType) {
                 gameHash: $gameHash,
                 game: $game,
                 user: $user,
-                isPublished: Achievement::isPublishedFromLegacyFlags($flag),
+                isPromoted: Achievement::isPromotedFromLegacyFlags($flag),
             );
 
             // Based on the user's current client support level, we may want to attach
@@ -566,7 +566,7 @@ switch ($requestType) {
             points: (int) request()->input('z', 0),
             type: request()->input('x', 'not-given'), // `null` is a valid achievement type value, so we use a different fallback value.
             mem: request()->input('m'),
-            flag: (int) request()->input('f', Achievement::FLAG_UNPUBLISHED),
+            flag: (int) request()->input('f', Achievement::FLAG_UNPROMOTED),
             idInOut: $achievementID,
             badge: request()->input('b'),
             errorOut: $errorOut,

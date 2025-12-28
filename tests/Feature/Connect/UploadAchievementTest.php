@@ -17,7 +17,7 @@ use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\TriggerableType;
 use App\Platform\Events\AchievementCreated;
-use App\Platform\Events\AchievementPublished;
+use App\Platform\Events\AchievementPromoted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
@@ -72,7 +72,7 @@ class UploadAchievementTest extends TestCase
     public function testItPublishesAchievementAndDispatchesEvent(): void
     {
         Event::fake([
-            AchievementPublished::class,
+            AchievementPromoted::class,
         ]);
 
         /** @var User $author */
@@ -99,7 +99,7 @@ class UploadAchievementTest extends TestCase
             'd' => 'Description1',
             'z' => 5,
             'm' => '0xH0000=1',
-            'f' => Achievement::FLAG_PUBLISHED, // Publish - hardcode for test to prevent false success if enum changes
+            'f' => Achievement::FLAG_PROMOTED, // Publish - hardcode for test to prevent false success if enum changes
             'b' => '001234',
         ]))
             ->assertExactJson([
@@ -108,7 +108,7 @@ class UploadAchievementTest extends TestCase
                 'Error' => '',
             ]);
 
-        Event::assertDispatched(AchievementPublished::class);
+        Event::assertDispatched(AchievementPromoted::class);
     }
 
     public function testAchievementLifetime(): void
@@ -157,7 +157,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title1');
         $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
         $this->assertEquals($achievement2->points, 5);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPROMOTED);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->user_id, $author->id);
         $this->assertEquals($achievement2->image_name, '001234');
@@ -183,7 +183,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title1');
         $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
         $this->assertEquals($achievement2->points, 5);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PROMOTED);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->image_name, '001234');
 
@@ -212,7 +212,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PROMOTED);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->image_name, '002345');
 
@@ -250,7 +250,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 5);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PROMOTED);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->image_name, '002345');
 
@@ -280,7 +280,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 5);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPROMOTED);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->image_name, '002345');
 
@@ -310,7 +310,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPROMOTED);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->image_name, '002345');
 
@@ -340,7 +340,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PROMOTED);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->image_name, '002345');
 
@@ -443,7 +443,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title1');
         $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
         $this->assertEquals($achievement2->points, 5);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPROMOTED);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->image_name, '001234');
 
@@ -468,7 +468,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPROMOTED);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->image_name, '002345');
 
@@ -486,7 +486,7 @@ class UploadAchievementTest extends TestCase
         $this->assertNotEquals($achievement1->title, 'Title2');
         $this->assertNotEquals($achievement1->trigger_definition, '0xH0001=1');
         $this->assertNotEquals($achievement1->points, 10);
-        $this->assertEquals($achievement1->flags, Achievement::FLAG_UNPUBLISHED);
+        $this->assertEquals($achievement1->flags, Achievement::FLAG_UNPROMOTED);
         $this->assertNotEquals($achievement1->type, 'progression');
         $this->assertNotEquals($achievement1->image_name, '002345');
 
@@ -506,13 +506,13 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPROMOTED);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->image_name, '002345');
 
         // ====================================================
         // junior developer cannot demote their own achievement
-        $achievement2->is_published = true;
+        $achievement2->is_promoted = true;
         $achievement2->save();
         $params['f'] = 5;
         $this->get($this->apiUrl('uploadachievement', $params))
@@ -527,7 +527,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PROMOTED);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->image_name, '002345');
 
@@ -547,7 +547,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PROMOTED);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->image_name, '002345');
 
@@ -571,7 +571,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title3');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 5);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PROMOTED);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->image_name, '003456');
     }
@@ -629,7 +629,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title1');
         $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
         $this->assertEquals($achievement2->points, 5);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPROMOTED);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->image_name, '001234');
 
@@ -654,7 +654,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPROMOTED);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->image_name, '002345');
 
@@ -673,7 +673,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PROMOTED);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->image_name, '002345');
 
@@ -697,7 +697,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title3');
         $this->assertEquals($achievement2->trigger_definition, '0xH0002=1');
         $this->assertEquals($achievement2->points, 5);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PROMOTED);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->image_name, '003456');
 
@@ -716,7 +716,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title3');
         $this->assertEquals($achievement2->trigger_definition, '0xH0002=1');
         $this->assertEquals($achievement2->points, 5);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPROMOTED);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->image_name, '003456');
 
@@ -740,7 +740,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement1->title, 'Title2');
         $this->assertEquals($achievement1->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement1->points, 10);
-        $this->assertEquals($achievement1->flags, Achievement::FLAG_UNPUBLISHED);
+        $this->assertEquals($achievement1->flags, Achievement::FLAG_UNPROMOTED);
         $this->assertEquals($achievement1->type, 'progression');
         $this->assertEquals($achievement1->image_name, '002345');
 
@@ -759,7 +759,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement1->title, 'Title2');
         $this->assertEquals($achievement1->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement1->points, 10);
-        $this->assertEquals($achievement1->flags, Achievement::FLAG_PUBLISHED);
+        $this->assertEquals($achievement1->flags, Achievement::FLAG_PROMOTED);
         $this->assertEquals($achievement1->type, 'progression');
         $this->assertEquals($achievement1->image_name, '002345');
 
@@ -783,7 +783,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement1->title, 'Title3');
         $this->assertEquals($achievement1->trigger_definition, '0xH0002=1');
         $this->assertEquals($achievement1->points, 5);
-        $this->assertEquals($achievement1->flags, Achievement::FLAG_PUBLISHED);
+        $this->assertEquals($achievement1->flags, Achievement::FLAG_PROMOTED);
         $this->assertNull($achievement1->type);
         $this->assertEquals($achievement1->image_name, '003456');
 
@@ -802,7 +802,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement1->title, 'Title3');
         $this->assertEquals($achievement1->trigger_definition, '0xH0002=1');
         $this->assertEquals($achievement1->points, 5);
-        $this->assertEquals($achievement1->flags, Achievement::FLAG_UNPUBLISHED);
+        $this->assertEquals($achievement1->flags, Achievement::FLAG_UNPROMOTED);
         $this->assertNull($achievement1->type);
         $this->assertEquals($achievement1->image_name, '003456');
     }
@@ -853,7 +853,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title1');
         $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
         $this->assertEquals($achievement2->points, 5);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPROMOTED);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->user_id, $author->id);
         $this->assertEquals($achievement2->image_name, '001234');
@@ -879,7 +879,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title1');
         $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
         $this->assertEquals($achievement2->points, 5);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PROMOTED);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->image_name, '001234');
 
@@ -918,7 +918,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PROMOTED);
         $this->assertEquals($achievement2->type, null);
         $this->assertEquals($achievement2->image_name, '002345');
 
@@ -974,7 +974,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title1');
         $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
         $this->assertEquals($achievement2->points, 5);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPROMOTED);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->user_id, $author->id);
         $this->assertEquals($achievement2->image_name, '001234');
@@ -1005,7 +1005,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPROMOTED);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->image_name, '002345');
 
@@ -1029,7 +1029,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
-        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPROMOTED);
         $this->assertEquals($achievement2->type, 'progression');
         $this->assertEquals($achievement2->image_name, '002345');
     }
@@ -1116,7 +1116,7 @@ class UploadAchievementTest extends TestCase
             'd' => 'Test Description',
             'z' => 5,
             'm' => '0xH0000=1',
-            'f' => Achievement::FLAG_UNPUBLISHED,
+            'f' => Achievement::FLAG_UNPROMOTED,
             'b' => 'test-badge',
         ]));
 
@@ -1146,7 +1146,7 @@ class UploadAchievementTest extends TestCase
         $achievement = Achievement::factory()->create([
             'game_id' => $game->id,
             'user_id' => $author->id,
-            'is_published' => false,
+            'is_promoted' => false,
             'trigger_definition' => '0xH0000=1',
         ]);
         $trigger = Trigger::factory()->create([
@@ -1171,7 +1171,7 @@ class UploadAchievementTest extends TestCase
             'd' => 'Test Description',
             'z' => 5,
             'm' => '0xHaaaa=1', // !! the dev is updating the achievement's logic
-            'f' => Achievement::FLAG_UNPUBLISHED, // !! still unofficial, though.
+            'f' => Achievement::FLAG_UNPROMOTED, // !! still unofficial, though.
             'b' => 'test-badge',
             'a' => $achievement->id,
         ]));
@@ -1202,7 +1202,7 @@ class UploadAchievementTest extends TestCase
         $achievement = Achievement::factory()->create([
             'game_id' => $game->id,
             'user_id' => $author->id,
-            'is_published' => false, // !! currently sitting in unofficial.
+            'is_promoted' => false, // !! currently sitting in unofficial.
             'trigger_definition' => '0xH0000=1',
         ]);
         $trigger = Trigger::factory()->create([
@@ -1227,7 +1227,7 @@ class UploadAchievementTest extends TestCase
             'd' => 'Test Description',
             'z' => 5,
             'm' => '0xH0000=1', // the logic didn't change!
-            'f' => Achievement::FLAG_PUBLISHED, // promoted to core!
+            'f' => Achievement::FLAG_PROMOTED, // promoted to core!
             'b' => 'test-badge',
             'a' => $achievement->id,
         ]));
@@ -1255,7 +1255,7 @@ class UploadAchievementTest extends TestCase
         $achievement = Achievement::factory()->create([
             'game_id' => $game->id,
             'user_id' => $author->id,
-            'is_published' => true,
+            'is_promoted' => true,
             'trigger_definition' => '0xH0000=1',
         ]);
 
@@ -1271,7 +1271,7 @@ class UploadAchievementTest extends TestCase
             'd' => 'Test Description',
             'z' => 5,
             'm' => '0xHaaaa=1',
-            'f' => Achievement::FLAG_PUBLISHED,
+            'f' => Achievement::FLAG_PROMOTED,
             'b' => 'test-badge',
             'a' => $achievement->id,
             's' => $gameAchievementSet->id, // !! game achievement set id given
@@ -1297,7 +1297,7 @@ class UploadAchievementTest extends TestCase
         $achievement = Achievement::factory()->create([
             'game_id' => $game->id,
             'user_id' => $author->id,
-            'is_published' => true, // !!
+            'is_promoted' => true, // !!
             'trigger_definition' => '0xH0000=1',
         ]);
         $trigger = Trigger::factory()->create([
@@ -1317,7 +1317,7 @@ class UploadAchievementTest extends TestCase
             'd' => 'Test Description',
             'z' => 5,
             'm' => '0xHaaaa=1', // logic changed!
-            'f' => Achievement::FLAG_PUBLISHED,
+            'f' => Achievement::FLAG_PROMOTED,
             'b' => 'test-badge',
             'a' => $achievement->id,
         ]));
@@ -1508,7 +1508,7 @@ class UploadAchievementTest extends TestCase
 
         // ====================================================
         // demoting win condition updates beat time
-        $params3['f'] = Achievement::FLAG_UNPUBLISHED;
+        $params3['f'] = Achievement::FLAG_UNPROMOTED;
         $this->get($this->apiUrl('uploadachievement', $params3))
             ->assertExactJson([
                 'Success' => true,
@@ -1521,7 +1521,7 @@ class UploadAchievementTest extends TestCase
 
         // ====================================================
         // promoting win condition updates beat time
-        $params3['f'] = Achievement::FLAG_PUBLISHED;
+        $params3['f'] = Achievement::FLAG_PROMOTED;
         $this->get($this->apiUrl('uploadachievement', $params3))
             ->assertExactJson([
                 'Success' => true,

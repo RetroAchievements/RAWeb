@@ -37,9 +37,9 @@ class AchievementOfTheWeekTest extends TestCase
         $user3 = User::factory()->create();
         $game = $this->seedGame(withHash: false);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $now = Carbon::now();
         $time1 = $now->clone()->startOfSecond();
         $this->addHardcoreUnlock($this->user, $achievement1, $time1);
@@ -63,7 +63,7 @@ class AchievementOfTheWeekTest extends TestCase
             'active_until' => $now->clone()->addDays(2),
         ]);
         /** @var Achievement $eventAchievement1 */
-        $eventAchievement1 = Achievement::factory()->published()->create(['game_id' => $eventGame->id]);
+        $eventAchievement1 = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
 
         $ev = EventAchievement::create([
             'achievement_id' => $eventAchievement1->id,

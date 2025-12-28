@@ -49,11 +49,11 @@ class EventAchievementObserverTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
         /** @var Achievement $sourceAchievement */
-        $sourceAchievement = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $sourceAchievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Game $eventGame */
         $eventGame = Game::factory()->create(['ConsoleID' => $eventSystem->id]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->create(['game_id' => $eventGame->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
 
         $day1 = Carbon::now()->subDays(3)->startOfDay();
         $day2 = $day1->clone()->addDays(1);
@@ -81,7 +81,7 @@ class EventAchievementObserverTest extends TestCase
 
         // bounded attachment should only copy hardcore unlocks in range
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['game_id' => $eventGame->id]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
         $this->copyAchievementUnlocksToEventAchievement($achievement2, $sourceAchievement, $day2, null); // anything on day2 or later
 
         $this->assertEquals(3, $sourceAchievement->playerAchievements()->count());
@@ -91,7 +91,7 @@ class EventAchievementObserverTest extends TestCase
 
         // bounded attachment should only copy hardcore unlocks in range
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['game_id' => $eventGame->id]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
         $this->copyAchievementUnlocksToEventAchievement($achievement3, $sourceAchievement, null, $day2); // anything before day2
 
         $this->assertEquals(3, $sourceAchievement->playerAchievements()->count());
@@ -101,7 +101,7 @@ class EventAchievementObserverTest extends TestCase
 
         // bounded attachment should only copy hardcore unlocks in range
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['game_id' => $eventGame->id]);
+        $achievement4 = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
         $this->copyAchievementUnlocksToEventAchievement($achievement4, $sourceAchievement, $day2, $day3); // anything on day2
 
         $this->assertEquals(3, $sourceAchievement->playerAchievements()->count());
@@ -111,7 +111,7 @@ class EventAchievementObserverTest extends TestCase
 
         // bounded attachment should only copy hardcore unlocks in range
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['game_id' => $eventGame->id]);
+        $achievement5 = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
         $this->copyAchievementUnlocksToEventAchievement($achievement5, $sourceAchievement, $day3, $day4); // anything on day3
 
         $this->assertEquals(3, $sourceAchievement->playerAchievements()->count());

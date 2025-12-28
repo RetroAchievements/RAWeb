@@ -24,14 +24,14 @@ class BuildClientPatchDataV2Action
         ?GameHash $gameHash = null,
         ?Game $game = null,
         ?User $user = null,
-        ?bool $isPublished = null,
+        ?bool $isPromoted = null,
     ): array {
         if (!$gameHash && !$game) {
             throw new InvalidArgumentException('Either gameHash or game must be provided to build achievementsets data.');
         }
 
         if (!$gameHash) {
-            return $this->buildPatchData($game, null, $user, $isPublished);
+            return $this->buildPatchData($game, null, $user, $isPromoted);
         }
 
         // If the hash is not marked as compatible, and the current user is not flagged to
@@ -50,7 +50,7 @@ class BuildClientPatchDataV2Action
 
         // If there's no user, just use the game directly.
         if (!$user) {
-            return $this->buildPatchData($actualLoadedGame, null, $user, $isPublished, compatibility: $gameHash->compatibility);
+            return $this->buildPatchData($actualLoadedGame, null, $user, $isPromoted, compatibility: $gameHash->compatibility);
         }
 
         // Resolve sets once - we'll use this for building the full patch data.
@@ -63,7 +63,7 @@ class BuildClientPatchDataV2Action
              */
             $doesGameHaveAnySets = GameAchievementSet::where('game_id', $actualLoadedGame->id)->exists();
             if (!$doesGameHaveAnySets) {
-                return $this->buildPatchData($actualLoadedGame, null, $user, $isPublished, compatibility: $gameHash->compatibility);
+                return $this->buildPatchData($actualLoadedGame, null, $user, $isPromoted, compatibility: $gameHash->compatibility);
             }
 
             return $this->buildAllSetsOptedOutPatchData($actualLoadedGame, $gameHash->compatibility);
@@ -99,7 +99,7 @@ class BuildClientPatchDataV2Action
             $derivedCoreGame,
             $resolvedSets,
             $user,
-            $isPublished,
+            $isPromoted,
             $richPresenceGameId,
             $richPresencePatch,
             $gameHash->compatibility,
@@ -110,7 +110,7 @@ class BuildClientPatchDataV2Action
      * @param Game $game The game to build root-level data for
      * @param Collection<int, GameAchievementSet>|null $resolvedSets The sets to send to the client/emulator
      * @param User|null $user The current user requesting the patch data (for player count calculations)
-     * @param bool|null $isPublished Optional flag to filter the assets by (eg: only published assets)
+     * @param bool|null $isPromoted Optional flag to filter the assets by (eg: only published assets)
      * @param int|null $richPresenceGameId the game ID where the RP patch code comes from
      * @param string|null $richPresencePatch the RP patch code that the client should use
      * @param GameHashCompatibility $compatibility Indicates the compatibility of the hash being loaded (affects game title)
@@ -119,7 +119,7 @@ class BuildClientPatchDataV2Action
         Game $game,
         ?Collection $resolvedSets,
         ?User $user,
-        ?bool $isPublished,
+        ?bool $isPromoted,
         ?int $richPresenceGameId = null,
         ?string $richPresencePatch = null,
         GameHashCompatibility $compatibility = GameHashCompatibility::Compatible,
@@ -135,7 +135,7 @@ class BuildClientPatchDataV2Action
             foreach ($resolvedSets as $resolvedSet) {
                 $setGame = $games[$resolvedSet->core_game_id];
 
-                $achievements = $this->buildAchievementsData($resolvedSet, $gamePlayerCount, $isPublished);
+                $achievements = $this->buildAchievementsData($resolvedSet, $gamePlayerCount, $isPromoted);
                 $leaderboards = $this->buildLeaderboardsData($setGame);
 
                 $sets[] = [
@@ -155,7 +155,7 @@ class BuildClientPatchDataV2Action
                 ->first();
 
             $achievements = $coreAchievementSet
-                ? $this->buildAchievementsData($coreAchievementSet, $gamePlayerCount, $isPublished)
+                ? $this->buildAchievementsData($coreAchievementSet, $gamePlayerCount, $isPromoted)
                 : [];
             $leaderboards = $coreAchievementSet
                 ? $this->buildLeaderboardsData($coreAchievementSet->game)
@@ -193,12 +193,12 @@ class BuildClientPatchDataV2Action
      *
      * @param GameAchievementSet $gameAchievementSet The achievement set to build achievement data for
      * @param int $gamePlayerCount The total number of players (minimum of 1 to prevent division by zero)
-     * @param bool|null $isPublished Optional flag to filter the assets by (eg: only published assets)
+     * @param bool|null $isPromoted Optional flag to filter the assets by (eg: only published assets)
      */
     private function buildAchievementsData(
         GameAchievementSet $gameAchievementSet,
         int $gamePlayerCount,
-        ?bool $isPublished,
+        ?bool $isPromoted,
     ): array {
         /** @var Collection<int, Achievement> $achievements */
         $achievements = $gameAchievementSet->achievementSet
@@ -208,8 +208,8 @@ class BuildClientPatchDataV2Action
             ->orderBy('id')           // tiebreaker on creation sequence
             ->get();
 
-        if ($isPublished !== null) {
-            $achievements = $achievements->where('is_published', '=', $isPublished);
+        if ($isPromoted !== null) {
+            $achievements = $achievements->where('is_promoted', '=', $isPromoted);
         }
 
         $achievementsData = [];
@@ -229,7 +229,7 @@ class BuildClientPatchDataV2Action
                 'Modified' => $achievement->modified_at->unix(),
                 'Created' => $achievement->created_at->unix(),
                 'BadgeName' => $achievement->image_name,
-                'Flags' => $achievement->is_published ? Achievement::FLAG_PUBLISHED : Achievement::FLAG_UNPUBLISHED,
+                'Flags' => $achievement->is_promoted ? Achievement::FLAG_PROMOTED : Achievement::FLAG_UNPROMOTED,
                 'Type' => $achievement->type,
                 'Rarity' => $rarity,
                 'RarityHardcore' => $rarityHardcore,

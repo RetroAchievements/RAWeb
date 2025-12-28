@@ -26,9 +26,9 @@ class Index extends ListRecords
         return [
             'all' => Schemas\Components\Tabs\Tab::make(),
             'published' => Schemas\Components\Tabs\Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_published', true)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_promoted', true)),
             'unpublished' => Schemas\Components\Tabs\Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_published', false)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_promoted', false)),
         ];
     }
 }

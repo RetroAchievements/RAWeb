@@ -75,11 +75,11 @@ class AchievementsRelationManager extends RelationManager
                     ->toggleable(),
             ])
             ->filters([
-                Tables\Filters\TernaryFilter::make('is_published')
-                    ->label('Published Status')
+                Tables\Filters\TernaryFilter::make('is_promoted')
+                    ->label('Promoted Status')
                     ->placeholder('All')
-                    ->trueLabel('Published')
-                    ->falseLabel('Unpublished')
+                    ->trueLabel('Promoted')
+                    ->falseLabel('Unpromoted')
                     ->default(true),
             ])
             ->headerActions([

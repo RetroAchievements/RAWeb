@@ -238,7 +238,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
         $query = "SELECT ua.ID, ua.display_name, ua.Permissions, ua.ContribCount, ua.ContribYield,
                          ua.LastLogin, SUM(!ISNULL(ach.id)) AS NumAchievements
                   FROM UserAccounts ua
-                  LEFT JOIN achievements ach ON ach.user_id = ua.ID AND ach.is_published = 1
+                  LEFT JOIN achievements ach ON ach.user_id = ua.ID AND ach.is_promoted = 1
                   WHERE ua.ID IN ($devList)
                   GROUP BY ua.ID";
         $buildData($query);
@@ -259,7 +259,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
         $query = "SELECT ua.ID, SUM(!ISNULL(ach.id)) as total
                   FROM UserAccounts as ua
                   LEFT JOIN Ticket tick ON tick.resolver_id = ua.ID AND tick.ReportState = 2 AND tick.resolver_id != tick.reporter_id
-                  LEFT JOIN achievements as ach ON ach.id = tick.AchievementID AND ach.is_published = 1 AND ach.user_id != ua.ID
+                  LEFT JOIN achievements as ach ON ach.id = tick.AchievementID AND ach.is_promoted = 1 AND ach.user_id != ua.ID
                   WHERE $stateCond
                   GROUP BY ua.ID
                   ORDER BY total DESC, ua.display_name";
@@ -288,7 +288,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
         $query = "SELECT ua.ID, ua.display_name, ua.Permissions, ua.ContribCount, ua.ContribYield,
                          ua.LastLogin, COUNT(*) AS NumAchievements
                   FROM UserAccounts ua
-                  INNER JOIN achievements ach ON ach.user_id = ua.ID AND ach.is_published = 1
+                  INNER JOIN achievements ach ON ach.user_id = ua.ID AND ach.is_promoted = 1
                   WHERE $stateCond
                   GROUP BY ua.ID
                   ORDER BY $order
@@ -318,7 +318,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
               INNER JOIN achievements as ach ON ach.id = tick.AchievementID
               WHERE tick.resolver_id != tick.reporter_id
               AND ach.user_id != tick.resolver_id
-              AND ach.is_published = 1
+              AND ach.is_promoted = 1
               AND tick.ReportState = " . TicketState::Resolved . "
               AND tick.resolver_id IN ($devList)
               GROUP BY tick.resolver_id";

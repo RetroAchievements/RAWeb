@@ -48,11 +48,11 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         $game1 = Game::factory()->create(['ConsoleID' => $system->id]);
         $game2 = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        Achievement::factory()->count(5)->published()->create([
+        Achievement::factory()->count(5)->promoted()->create([
             'game_id' => $game1->id,
             'user_id' => $developer->id,
         ]);
-        Achievement::factory()->count(3)->published()->create([
+        Achievement::factory()->count(3)->promoted()->create([
             'game_id' => $game2->id,
             'user_id' => $developer->id,
         ]);
@@ -114,7 +114,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        $achievement = Achievement::factory()->published()->create([
+        $achievement = Achievement::factory()->promoted()->create([
             'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
@@ -145,7 +145,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        $achievement = Achievement::factory()->published()->create([
+        $achievement = Achievement::factory()->promoted()->create([
             'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
@@ -175,7 +175,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        $achievement = Achievement::factory()->published()->create([
+        $achievement = Achievement::factory()->promoted()->create([
             'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);

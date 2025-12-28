@@ -196,7 +196,7 @@ if ($game->system->id === System::Events) {
 
         echo "<p class='embedded smalldata mb-3'>";
         echo "<small>";
-        if ($achFlags === Achievement::FLAG_UNPUBLISHED) {
+        if ($achFlags === Achievement::FLAG_UNPROMOTED) {
             echo "<b>Unofficial Achievement</b><br>";
         }
         echo "Created by " . userAvatar($author, icon: false) . " on: $niceDateCreated<br>";

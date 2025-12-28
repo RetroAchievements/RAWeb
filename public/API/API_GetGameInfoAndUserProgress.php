@@ -117,13 +117,13 @@ if (!$game->achievements_published) {
 } else {
     $achievements = [];
 
-    $publishedAchievements = Achievement::query()
+    $promotedAchievements = Achievement::query()
         ->where('game_id', $gameId)
-        ->where('is_published', true)
+        ->where('is_promoted', true)
         ->with('developer')
         ->orderBy('order_column')
         ->get();
-    foreach ($publishedAchievements as $achievement) {
+    foreach ($promotedAchievements as $achievement) {
         $achievements[strval($achievement->id)] = [
             'ID' => $achievement->id,
             'Title' => $achievement->title,

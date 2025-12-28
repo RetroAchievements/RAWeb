@@ -92,7 +92,7 @@ class BuildGamePageClaimDataAction
         // Check if any achievement for the set is published.
         foreach ($game->gameAchievementSets as $gameAchievementSet) {
             foreach ($gameAchievementSet->achievementSet->achievements as $achievement) {
-                if ($achievement->is_published) {
+                if ($achievement->is_promoted) {
                     return true;
                 }
             }

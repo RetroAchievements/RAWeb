@@ -31,11 +31,11 @@ class AchievementWonDataTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['game_id' => $game->id]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         $users = [];
         $unlocks = [];
