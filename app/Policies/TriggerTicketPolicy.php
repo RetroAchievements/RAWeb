@@ -76,19 +76,14 @@ class TriggerTicketPolicy
 
     private function createAchievementTicket(User $user, Achievement $achievement): bool
     {
-        /*
-         * users must have played the game to be able to create tickets for its achievements
-         */
-
-        return $user->hasPlayed($achievement->game);
+        // Users must have played the game to be able to create tickets for its achievements.
+        return $user->hasPlayedGameForAchievement($achievement);
     }
 
     private function createLeaderboardTicket(User $user, Leaderboard $leaderboard): bool
     {
-        /*
-         * users must have played the game to be able to create tickets for its leaderboards
-         */
-
-        return $user->hasPlayed($leaderboard->game);
+        // Users must have played the game to be able to create tickets for its leaderboards.
+        // TODO $user->hasPlayedGameForLeaderboard ?
+        return $user->hasPlayedGame($leaderboard->game);
     }
 }

@@ -6,6 +6,7 @@ namespace App\Community\Actions;
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Enums\UserPreference;
 use App\Mail\DailyDigestMail;
 use App\Models\Achievement;
 use App\Models\Comment;
@@ -38,9 +39,9 @@ class SendDailyDigestAction
             ->where('id', '<=', $last->id)
             ->delete();
 
-        // if the user doesn't have an email address, bail.
+        // if the user doesn't have an email address or is opted out, bail.
         // do this after deleting the pending subscriptions.
-        if (!$user->EmailAddress) {
+        if (!$user->EmailAddress || BitSet($user->websitePrefs, UserPreference::EmailOff_DailyDigest)) {
             return;
         }
 
