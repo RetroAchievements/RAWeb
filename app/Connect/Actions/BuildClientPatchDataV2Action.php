@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\UserGameAchievementSetPreference;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\LeaderboardState;
 use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
@@ -255,6 +256,7 @@ class BuildClientPatchDataV2Action
 
         // TODO detach leaderboards from games
         $leaderboards = $game->leaderboards()
+            ->where('state', LeaderboardState::Active) // only active leaderboards
             ->orderBy('DisplayOrder') // explicit display order
             ->orderBy('ID')           // tiebreaker on creation sequence
             ->get();

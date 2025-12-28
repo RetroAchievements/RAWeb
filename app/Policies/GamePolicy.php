@@ -22,6 +22,8 @@ class GamePolicy
             Role::DEVELOPER_JUNIOR,
 
             Role::ARTIST,
+
+            Role::EVENT_MANAGER, // requires manage access to view leaderboards for games
         ]);
     }
 
