@@ -288,6 +288,7 @@ class BuildGameShowPagePropsAction
                 'developer',
                 'forumTopicId',
                 'gameAchievementSets.achievementSet.achievementGroups',
+                'gameAchievementSets.achievementSet.achievements.createdAt',
                 'gameAchievementSets.achievementSet.achievements.description',
                 'gameAchievementSets.achievementSet.achievements.developer',
                 'gameAchievementSets.achievementSet.achievements.groupId',
