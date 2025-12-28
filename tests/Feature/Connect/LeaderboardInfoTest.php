@@ -6,6 +6,7 @@ namespace Tests\Feature\Connect;
 
 use App\Models\Leaderboard;
 use App\Models\User;
+use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -27,6 +28,7 @@ class LeaderboardInfoTest extends TestCase
             'GameID' => $game->id,
             'LowerIsBetter' => false,
             'Format' => ValueFormat::Score,
+            'state' => LeaderboardState::Active,
         ]);
 
         $this->get($this->apiUrl('lbinfo', ['i' => $leaderboard->id]))
@@ -44,6 +46,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBMem' => $leaderboard->Mem,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
+                    'LBState' => $leaderboard->state->value,
                     'LowerIsBetter' => (int) $leaderboard->rank_asc,
                     'TotalEntries' => 0,
                 ],
@@ -103,13 +106,14 @@ class LeaderboardInfoTest extends TestCase
                     'LBMem' => $leaderboard->Mem,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
+                    'LBState' => $leaderboard->state->value,
                     'LowerIsBetter' => (int) $leaderboard->rank_asc,
                     'TotalEntries' => 3,
                 ],
             ]);
     }
 
-    public function testLeaderboardInfoNearUser(): void
+    public function testDisabledLeaderboardInfo(): void
     {
         $now = Carbon::now();
         Carbon::setTestNow($now);
@@ -118,8 +122,7 @@ class LeaderboardInfoTest extends TestCase
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
             'GameID' => $game->id,
-            'LowerIsBetter' => 1,
-            'Format' => ValueFormat::Score,
+            'state' => LeaderboardState::Disabled,
         ]);
 
         $this->get($this->apiUrl('lbinfo', ['i' => $leaderboard->id]))
@@ -137,6 +140,43 @@ class LeaderboardInfoTest extends TestCase
                     'LBMem' => $leaderboard->Mem,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
+                    'LBState' => $leaderboard->state->value,
+                    'LowerIsBetter' => (int) $leaderboard->rank_asc,
+                    'TotalEntries' => 0,
+                ],
+            ]);
+    }
+
+    public function testLeaderboardInfoNearUser(): void
+    {
+        $now = Carbon::now();
+        Carbon::setTestNow($now);
+
+        $game = $this->seedGame();
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'LowerIsBetter' => 1,
+            'Format' => ValueFormat::Score,
+            'state' => LeaderboardState::Active,
+        ]);
+
+        $this->get($this->apiUrl('lbinfo', ['i' => $leaderboard->id]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'LeaderboardData' => [
+                    'Entries' => [],
+                    'GameID' => $game->id,
+                    'LBAuthor' => $leaderboard->developer?->User,
+                    'LBCreated' => $now->format('Y-m-d H:i:s'),
+                    'LBDesc' => $leaderboard->description,
+                    'LBFormat' => $leaderboard->format,
+                    'LBID' => $leaderboard->id,
+                    'LBMem' => $leaderboard->Mem,
+                    'LBTitle' => $leaderboard->title,
+                    'LBUpdated' => $now->format('Y-m-d H:i:s'),
+                    'LBState' => $leaderboard->state->value,
                     'LowerIsBetter' => (int) $leaderboard->rank_asc,
                     'TotalEntries' => 0,
                 ],
@@ -224,6 +264,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBMem' => $leaderboard->Mem,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
+                    'LBState' => $leaderboard->state->value,
                     'LowerIsBetter' => (int) $leaderboard->rank_asc,
                     'TotalEntries' => 8,
                 ],
@@ -273,6 +314,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBMem' => $leaderboard->Mem,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
+                    'LBState' => $leaderboard->state->value,
                     'LowerIsBetter' => (int) $leaderboard->rank_asc,
                     'TotalEntries' => 8,
                 ],
@@ -321,6 +363,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBMem' => $leaderboard->Mem,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
+                    'LBState' => $leaderboard->state->value,
                     'LowerIsBetter' => (int) $leaderboard->rank_asc,
                     'TotalEntries' => 8,
                 ],

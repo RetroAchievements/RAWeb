@@ -46,6 +46,7 @@ use App\Platform\Enums\AchievementSetAuthorTask;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GamePageListSort;
 use App\Platform\Enums\GamePageListView;
+use App\Platform\Enums\LeaderboardState;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
@@ -261,8 +262,8 @@ class BuildGameShowPagePropsAction
             achievementSetClaims: $achievementSetClaims,
 
             allLeaderboards: request()->inertia() || $initialView === GamePageListView::Leaderboards
-                ? $this->buildLeaderboards($backingGame, $user)
-                : Lazy::inertiaDeferred(fn () => $this->buildLeaderboards($backingGame, $user)),
+                ? $this->buildAllLeaderboards($backingGame, $user)
+                : Lazy::inertiaDeferred(fn () => $this->buildAllLeaderboards($backingGame, $user)),
 
             can: UserPermissionsData::fromUser($user, game: $backingGame, claim: $primaryClaim)->include(
                 'createAchievementSetClaims',
@@ -343,7 +344,7 @@ class BuildGameShowPagePropsAction
             ),
 
             claimData: $claimData,
-            featuredLeaderboards: Lazy::create(fn () => $this->buildLeaderboards($backingGame, $user, 5)),
+            featuredLeaderboards: Lazy::create(fn () => $this->buildLeaderboards($backingGame, $user, 5, true, false)), // Only show active leaderboards in the featured list
             hasMatureContent: $backingGame->hasMatureContent,
             hubs: $relatedHubs,
             isOnWantToDevList: $initialUserGameListState['isOnWantToDevList'],
@@ -366,7 +367,7 @@ class BuildGameShowPagePropsAction
             numBeaten: $numBeaten,
             numBeatenSoftcore: $numBeatenSoftcore,
             numInterestedDevelopers: $this->getInterestedDevelopersCount($backingGame, $user),
-            numLeaderboards: $this->getLeaderboardsCount($backingGame),
+            numLeaderboards: $this->getLeaderboardsCount($backingGame, $isPublished),
             numMasters: $numMasters,
 
             numOpenTickets: $isPublished
@@ -726,11 +727,39 @@ class BuildGameShowPagePropsAction
     /**
      * @return Collection<int, LeaderboardData>
      */
-    private function buildLeaderboards(Game $game, ?User $user = null, ?int $limit = null): Collection
+    private function buildAllLeaderboards(Game $game, ?User $user = null): Collection
+    {
+        $showUnpublished = request()->boolean('unpublished');
+
+        return $this->buildLeaderboards($game, $user, null, activeOnly: false, showUnpublished: $showUnpublished);
+    }
+
+    /**
+     * @return Collection<int, LeaderboardData>
+     */
+    private function buildLeaderboards(Game $game, ?User $user = null, ?int $limit = null, bool $activeOnly = false, bool $showUnpublished = false): Collection
     {
         // Only show leaderboards if the system is active and it's not an event game.
         if (!$game->system->active || $game->system->id === System::Events) {
             return collect();
+        }
+
+        $allowedLeaderboardStates = match (true) {
+            $activeOnly => [LeaderboardState::Active],
+            $showUnpublished => [LeaderboardState::Unpublished],
+            default => [LeaderboardState::Active, LeaderboardState::Disabled],
+        };
+
+        $leaderboards = $game->leaderboards
+            ->whereIn('state', $allowedLeaderboardStates)
+            ->values();
+
+        if (!$activeOnly) {
+            // Sort: Active/Unpublished first, Disabled last, then by DisplayOrder.
+            $leaderboards = $leaderboards->sortBy([
+                fn ($leaderboard) => $leaderboard->state === LeaderboardState::Disabled ? 1 : 0,
+                fn ($a, $b) => $a->DisplayOrder <=> $b->DisplayOrder,
+            ])->values();
         }
 
         // If the user is authenticated, fetch all their leaderboard entries for the game.
@@ -743,7 +772,6 @@ class BuildGameShowPagePropsAction
             $userEntriesByLeaderboardId = $userEntries->keyBy('leaderboard_id');
         }
 
-        $leaderboards = $game->leaderboards;
         if ($limit !== null) {
             $leaderboards = $leaderboards->take($limit);
         }
@@ -771,18 +799,21 @@ class BuildGameShowPagePropsAction
                 'topEntry.user.avatarUrl',
                 'topEntry.user.displayName',
                 'userEntry',
+                'state',
             );
         });
     }
 
-    private function getLeaderboardsCount(Game $game): int
+    private function getLeaderboardsCount(Game $game, bool $isViewingPublishedAchievements): int
     {
         // Only count leaderboards if the system is active and it's not an event game.
         if (!$game->system->active || $game->system->id === System::Events) {
             return 0;
         }
 
-        return $game->leaderboards->count();
+        return $game->leaderboards
+            ->where('state', $isViewingPublishedAchievements ? LeaderboardState::Active : LeaderboardState::Unpublished)
+            ->count();
     }
 
     private function getInterestedDevelopersCount(Game $game, ?User $user): ?int
