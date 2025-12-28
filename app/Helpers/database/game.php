@@ -6,7 +6,7 @@ use App\Models\Game;
 use App\Models\User;
 use App\Platform\Actions\TrimGameMetadataAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
-use App\Platform\Enums\AchievementFlag;
+use Illuminate\Support\Facades\DB;
 
 function getGameData(int $gameID): ?array
 {
@@ -33,23 +33,21 @@ function getGameMetadata(
     ?array &$gameDataOut,
     int $sortBy = 1,
     ?User $user2 = null,
-    AchievementFlag $flag = AchievementFlag::OfficialCore,
+    bool $isPublished = true,
     bool $metrics = false,
 ): int {
-    $flag = $flag !== AchievementFlag::Unofficial ? AchievementFlag::OfficialCore : AchievementFlag::Unofficial;
-
     $orderBy = match ($sortBy) {
-        11 => "ORDER BY ach.DisplayOrder DESC, ach.ID DESC ",
-        2 => "ORDER BY NumAwarded, ach.ID ASC ",
-        12 => "ORDER BY NumAwarded DESC, ach.ID DESC ",
+        11 => "ORDER BY ach.order_column DESC, ach.id DESC ",
+        2 => "ORDER BY NumAwarded, ach.id ASC ",
+        12 => "ORDER BY NumAwarded DESC, ach.id DESC ",
         // 3 and 13 should sort by the date the user unlocked the achievement
         // however, it's not trivial to implement (requires SQL tweaks)
         // 3 => "",
         // 13 => "",
-        4 => "ORDER BY ach.Points, ach.ID ASC ",
-        14 => "ORDER BY ach.Points DESC, ach.ID DESC ",
-        5 => "ORDER BY ach.Title, ach.ID ASC ",
-        15 => "ORDER BY ach.Title DESC, ach.ID DESC ",
+        4 => "ORDER BY ach.points, ach.id ASC ",
+        14 => "ORDER BY ach.points DESC, ach.id DESC ",
+        5 => "ORDER BY ach.title, ach.id ASC ",
+        15 => "ORDER BY ach.title DESC, ach.id DESC ",
 
         6 => "ORDER BY
             CASE
@@ -59,8 +57,8 @@ function getGameMetadata(
                 WHEN ach.type IS NULL THEN 3
                 ELSE 4
             END,
-            ach.DisplayOrder,
-            ach.ID ASC ",
+            ach.order_column,
+            ach.id ASC ",
 
         16 => "ORDER BY
             CASE
@@ -70,11 +68,11 @@ function getGameMetadata(
                 WHEN ach.type IS NULL THEN 3
                 ELSE 4
             END DESC,
-            ach.DisplayOrder DESC,
-            ach.ID DESC ",
+            ach.order_column DESC,
+            ach.id DESC ",
 
         // 1
-        default => "ORDER BY ach.DisplayOrder, ach.ID ASC ",
+        default => "ORDER BY ach.order_column, ach.id ASC ",
     };
 
     $gameDataOut = getGameData($gameID);
@@ -87,33 +85,33 @@ function getGameMetadata(
 
     $metricsColumns = '';
     if ($metrics) {
-        $metricsColumns = 'ach.unlocks_total AS NumAwarded, ach.unlocks_hardcore_total AS NumAwardedHardcore,';
+        $metricsColumns = 'ach.unlocks_total AS NumAwarded, ach.unlocks_hardcore AS NumAwardedHardcore,';
     }
 
     $query = "
     SELECT
-        ach.ID,
+        ach.id AS ID,
         $metricsColumns
-        ach.Title,
-        ach.Description,
-        ach.Points,
-        ach.TrueRatio,
+        ach.title AS Title,
+        ach.description AS Description,
+        ach.points AS Points,
+        ach.points_weighted AS TrueRatio,
         COALESCE(ua.display_name, ua.User) AS Author,
         ua.ulid AS AuthorULID,
-        ach.DateModified,
-        ach.DateCreated,
-        ach.BadgeName,
-        ach.DisplayOrder,
-        ach.MemAddr,
+        ach.modified_at AS DateModified,
+        ach.created_at AS DateCreated,
+        ach.image_name AS BadgeName,
+        ach.order_column AS DisplayOrder,
+        ach.trigger_definition AS MemAddr,
         ach.type
-    FROM Achievements AS ach
+    FROM achievements AS ach
     LEFT JOIN UserAccounts AS ua ON ach.user_id = ua.ID
-    WHERE ach.GameID = :gameId AND ach.Flags = :achievementFlag AND ach.deleted_at IS NULL
+    WHERE ach.game_id = :gameId AND ach.is_published = :isPublished AND ach.deleted_at IS NULL
     $orderBy";
 
     $achievementDataOut = legacyDbFetchAll($query, [
         'gameId' => $gameID,
-        'achievementFlag' => $flag->value,
+        'isPublished' => $isPublished,
     ])
         ->keyBy('ID')
         ->toArray();
@@ -131,7 +129,7 @@ function getGameMetadata(
     }
 
     if ($user) {
-        $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID, $flag);
+        $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID, $isPublished);
         foreach ($userUnlocks as $achID => $userUnlock) {
             if (array_key_exists($achID, $achievementDataOut)) {
                 if (array_key_exists('DateEarnedHardcore', $userUnlock)) {
@@ -145,7 +143,7 @@ function getGameMetadata(
     }
 
     if ($user2) {
-        $friendUnlocks = getUserAchievementUnlocksForGame($user2, $gameID, $flag);
+        $friendUnlocks = getUserAchievementUnlocksForGame($user2, $gameID, $isPublished);
         foreach ($friendUnlocks as $achID => $friendUnlock) {
             if (array_key_exists($achID, $achievementDataOut)) {
                 if (array_key_exists('DateEarnedHardcore', $friendUnlock)) {
@@ -248,15 +246,15 @@ function getGamesListByDev(
         $query = "SELECT $foundRows gd.ID, SUM(!ISNULL(tick.ID)) AS OpenTickets
                   FROM GameData gd
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
-                  LEFT JOIN Achievements ach ON ach.GameID=gd.ID
-                  LEFT JOIN Ticket tick ON tick.AchievementID=ach.ID AND tick.ReportState IN (1,3)
+                  LEFT JOIN achievements ach ON ach.game_id=gd.ID
+                  LEFT JOIN Ticket tick ON tick.AchievementID=ach.id AND tick.ReportState IN (1,3)
                   WHERE 1=1 $whereClause
                   GROUP BY gd.ID $orderBy";
     } elseif ($sortBy === 6 || $sortBy === 16) { // DateModified
-        $query = "SELECT $foundRows gd.ID, MAX(ach.DateModified) AS DateModified
+        $query = "SELECT $foundRows gd.ID, MAX(ach.modified_at) AS DateModified
                   FROM GameData gd
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
-                  LEFT JOIN Achievements ach ON ach.GameID=gd.ID AND ach.Flags=" . AchievementFlag::OfficialCore->value . "
+                  LEFT JOIN achievements ach ON ach.game_id=gd.ID AND ach.is_published=1
                   WHERE 1=1 $whereClause
                   GROUP BY gd.ID $orderBy";
     } else {
@@ -303,12 +301,12 @@ function getGamesListByDev(
     if ($dev !== null) {
         $query = "SELECT $foundRows $commonFields,
                          COUNT(*) AS MyAchievements,
-                         SUM(ach.Points) AS MyPoints, SUM(ach.TrueRatio) AS MyTrueRatio
-                  FROM Achievements ach
-                  INNER JOIN GameData gd ON gd.ID = ach.GameID
+                         SUM(ach.points) AS MyPoints, SUM(ach.points_weighted) AS MyTrueRatio
+                  FROM achievements ach
+                  INNER JOIN GameData gd ON gd.ID = ach.game_id
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
-                  WHERE ach.user_id = :userId AND ach.Flags = " . AchievementFlag::OfficialCore->value . " $whereClause
-                  GROUP BY ach.GameID $orderBy";
+                  WHERE ach.user_id = :userId AND ach.is_published = 1 $whereClause
+                  GROUP BY ach.game_id $orderBy";
         foreach (legacyDbFetchAll($query, ['userId' => $dev->id]) as $row) {
             if (!$initialQuery) {
                 $gameIds[] = $row['ID'];
@@ -400,11 +398,11 @@ function getGamesListByDev(
     }
 
     // calculate last updated
-    $query = "SELECT GameID, MAX(DateModified) AS DateModified
-              FROM Achievements
-              WHERE GameID IN ($gameList)
-              AND Flags=" . AchievementFlag::OfficialCore->value . "
-              GROUP BY GameID";
+    $query = "SELECT game_id AS GameID, MAX(modified_at) AS DateModified
+              FROM achievements
+              WHERE game_id IN ($gameList)
+              AND is_published=1
+              GROUP BY game_id";
     foreach (legacyDbFetchAll($query) as $row) {
         $games[$row['GameID']]['DateModified'] = $row['DateModified'];
     }
@@ -418,23 +416,23 @@ function getGamesListByDev(
             }
         }
         if ($dev === null) {
-            $query = "SELECT ach.GameID, COUNT(*) AS OpenTickets
+            $query = "SELECT ach.game_id AS GameID, COUNT(*) AS OpenTickets
                       FROM Ticket tick
-                      INNER JOIN Achievements ach ON ach.ID=tick.AchievementID
-                      WHERE ach.GameID IN ($gameList)
+                      INNER JOIN achievements ach ON ach.id=tick.AchievementID
+                      WHERE ach.game_id IN ($gameList)
                       AND tick.ReportState IN (1,3)
-                      GROUP BY ach.GameID";
+                      GROUP BY ach.game_id";
             foreach (legacyDbFetchAll($query) as $row) {
                 $games[$row['GameID']]['OpenTickets'] = $row['OpenTickets'];
             }
         } else {
-            $query = "SELECT ach.GameID, ua.User as Author, COUNT(*) AS OpenTickets
+            $query = "SELECT ach.game_id AS GameID, ua.User as Author, COUNT(*) AS OpenTickets
                       FROM Ticket tick
-                      INNER JOIN Achievements ach ON ach.ID = tick.AchievementID
+                      INNER JOIN achievements ach ON ach.id = tick.AchievementID
                       LEFT JOIN UserAccounts ua ON ach.user_id = ua.ID
-                      WHERE ach.GameID IN ($gameList)
+                      WHERE ach.game_id IN ($gameList)
                       AND tick.ReportState IN (1,3)
-                      GROUP BY ach.GameID, Author";
+                      GROUP BY ach.game_id, Author";
             foreach (legacyDbFetchAll($query) as $row) {
                 if ($row['Author'] === $dev) {
                     $games[$row['GameID']]['MyOpenTickets'] += (int) $row['OpenTickets'];
@@ -457,8 +455,8 @@ function getGamesListData(?int $consoleID = null, bool $officialFlag = false): a
     $leftJoinAch = "";
     $whereClause = "";
     if ($officialFlag) {
-        $leftJoinAch = "LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID ";
-        $whereClause = "WHERE ach.Flags=" . AchievementFlag::OfficialCore->value . ' ';
+        $leftJoinAch = "LEFT JOIN achievements AS ach ON ach.game_id = gd.ID ";
+        $whereClause = "WHERE ach.is_published=1 ";
     }
 
     // Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console

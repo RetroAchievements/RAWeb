@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Community\Concerns\HasAchievementCommunityFeatures;
-use App\Community\Contracts\HasComments;
 use App\Community\Enums\ArticleType;
 use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Enums\AchievementAuthorTask;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\AchievementCreated;
@@ -40,8 +38,6 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-// TODO implements HasComments
-
 /**
  * @implements HasVersionedTrigger<Achievement>
  */
@@ -66,73 +62,62 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         LogsActivity::activities as auditLog;
     }
 
-    // TODO rename ID to id, remove getIdAttribute()
-    // TODO rename Achievements table to achievements
-    // TODO rename GameID column to game_id
-    // TODO rename Title column to title, remove getTitleAttribute()
-    // TODO rename Description column to description, remove getDescriptionAttribute()
-    // TODO rename Points column to points, remove getPointsAttribute()
-    // TODO rename TrueRation column to points_weighted, remove getPointsWeightedAttribute()
-    // TODO rename unlocks_hardcore_total to unlocks_hardcore
-    // TODO rename DateCreated to created_at, make non-nullable, remove getCreatedAtAttribute()
-    // TODO rename Updated to updated_at, make non-nullable, remove getUpdatedAtAttribute()
-    // TODO drop AssocVideo, move to guides or something
-    // TODO drop MemAddr, migrate to triggerable morph
-    // TODO drop Progress, ProgressMax, ProgressFormat migrate to triggerable morph
-    // TODO drop Flags, derived from being included in an achievement set
-    // TODO drop VotesPos, migrate to votable/ratable morph
-    // TODO drop VotesNeg, migrate to votable/ratable morph
-    // TODO drop BadgeName, derived from badge set
-    // TODO drop DisplayOrder, derive from achievement_set_achievements.order_column
-    protected $table = 'Achievements';
-
-    protected $primaryKey = 'ID';
-
-    public const CREATED_AT = 'DateCreated';
-    public const UPDATED_AT = 'Updated';
+    // TODO drop game_id, achievements should be attached to achievement_sets, not games
+    // TODO drop order_column, derive from achievement_set_achievements.order_column
+    protected $table = 'achievements';
 
     protected $fillable = [
-        'AssocVideo',
-        'BadgeName',
-        'Description',
-        'DisplayOrder',
-        'Flags',
-        'GameID',
-        'Points',
-        'Title',
-        'type',
-        'MemAddr',
-        'user_id',
+        'description',
+        'embed_url',
+        'game_id',
+        'image_name',
+        'is_published',
+        'order_column',
+        'points',
+        'title',
+        'trigger_definition',
         'trigger_id',
+        'type',
+        'user_id',
     ];
 
-    // TODO cast Flags to AchievementFlag if it isn't dropped from the table
     protected $casts = [
-        'DateModified' => 'datetime',
-        'Flags' => 'integer',
-        'GameID' => 'integer',
-        'Points' => 'integer',
-        'TrueRatio' => 'integer',
+        'modified_at' => 'datetime',
+        'game_id' => 'integer',
+        'is_published' => 'boolean',
+        'points' => 'integer',
+        'points_weighted' => 'integer',
         'unlock_percentage' => 'double',
         'unlock_hardcore_percentage' => 'double',
     ];
 
     protected $visible = [
-        'AssocVideo',
-        'BadgeName',
-        'DateCreated',
-        'DateModified',
-        'Description',
-        'DisplayOrder',
-        'Flags',
-        'GameID',
-        'ID',
-        'Points',
-        'Title',
-        'TrueRatio',
+        'created_at',
+        'modified_at',
+        'description',
+        'embed_url',
+        'game_id',
+        'id',
+        'image_name',
+        'is_published',
+        'order_column',
+        'points',
+        'points_weighted',
+        'title',
         'type',
         'user_id',
     ];
+
+    public const CLIENT_WARNING_ID = 101000001;
+
+    /**
+     * @deprecated only here for legacy API backwards compatibility
+     */
+    public const FLAG_PUBLISHED = 3;
+    /**
+     * @deprecated only here for legacy API backwards compatibility
+     */
+    public const FLAG_UNPUBLISHED = 5;
 
     public static function boot()
     {
@@ -143,7 +128,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         });
 
         static::updated(function (Achievement $achievement) {
-            if ($achievement->wasChanged('Points')) {
+            if ($achievement->wasChanged('points')) {
                 AchievementPointsChanged::dispatch($achievement);
             }
 
@@ -151,18 +136,16 @@ class Achievement extends BaseModel implements HasVersionedTrigger
                 AchievementTypeChanged::dispatch($achievement);
             }
 
-            if ($achievement->wasChanged('Flags')) {
-                if ($achievement->Flags === AchievementFlag::OfficialCore->value) {
+            if ($achievement->wasChanged('is_published')) {
+                if ($achievement->is_published) {
                     AchievementPublished::dispatch($achievement);
-                }
-
-                if ($achievement->Flags === AchievementFlag::Unofficial->value) {
+                } else {
                     AchievementUnpublished::dispatch($achievement);
                 }
             }
 
-            if ($achievement->wasChanged('GameID')) {
-                $originalGame = Game::find($achievement->getOriginal('GameID'));
+            if ($achievement->wasChanged('game_id')) {
+                $originalGame = Game::find($achievement->getOriginal('game_id'));
                 if ($originalGame) {
                     AchievementMoved::dispatch($achievement, $originalGame);
                 }
@@ -198,7 +181,33 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         return AchievementFactory::new();
     }
 
-    public const CLIENT_WARNING_ID = 101000001;
+    /**
+     * Convert is_published boolean to the legacy Flags integer value.
+     * For backwards compatibility with legacy code.
+     */
+    public function getFlagsAttribute(): int
+    {
+        return $this->is_published ? self::FLAG_PUBLISHED : self::FLAG_UNPUBLISHED;
+    }
+
+    /**
+     * Convert a legacy Flags integer value to an is_published boolean.
+     * For backwards compatibility with legacy code.
+     */
+    public static function isPublishedFromLegacyFlags(int $flags): ?bool
+    {
+        // Return null for invalid flag values (0, etc.) to skip filtering.
+        // Only explicit 3 (published) or 5 (unpublished) should apply a filter.
+        if ($flags === self::FLAG_PUBLISHED) {
+            return true;
+        }
+
+        if ($flags === self::FLAG_UNPUBLISHED) {
+            return false;
+        }
+
+        return null;
+    }
 
     // == logging
 
@@ -206,13 +215,13 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     {
         return LogOptions::defaults()
             ->logOnly([
-                'AssocVideo',
-                'BadgeName',
-                'Description',
-                'Flags',
-                'GameID',
-                'Points',
-                'Title',
+                'description',
+                'embed_url',
+                'game_id',
+                'image_name',
+                'is_published',
+                'points',
+                'title',
                 'type',
             ])
             ->logOnlyDirty()
@@ -224,7 +233,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     public function toSearchableArray(): array
     {
         return [
-            'id' => (int) $this->ID,
+            'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
             'unlocks_total' => $this->unlocks_total,
@@ -233,11 +242,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
 
     public function shouldBeSearchable(): bool
     {
-        if ($this->Flags !== AchievementFlag::OfficialCore->value) {
-            return false;
-        }
-
-        return true;
+        return $this->is_published;
     }
 
     // == helpers
@@ -311,12 +316,6 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         return route('achievement.show', [$this, $this->getSlugAttribute()]);
     }
 
-    // TODO remove after rename
-    public function getCreatedAtAttribute(): ?Carbon
-    {
-        return $this->attributes['DateCreated'] ? Carbon::parse($this->attributes['DateCreated']) : null;
-    }
-
     public function getCanDelegateUnlocks(User $user): bool
     {
         return $this->game->getIsStandalone() && $this->user_id === $user->id;
@@ -330,7 +329,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         }
 
         // Check if achievement's sets are linked as non-core anywhere.
-        $achievementSetIds = AchievementSetAchievement::where('achievement_id', $this->ID)
+        $achievementSetIds = AchievementSetAchievement::where('achievement_id', $this->id)
             ->pluck('achievement_set_id');
 
         if ($achievementSetIds->isEmpty()) {
@@ -365,68 +364,14 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     {
         // TODO: read from media library
 
-        return media_asset('Badge/' . $this->badge_name . '_lock.png');
+        return media_asset('Badge/' . $this->image_name . '_lock.png');
     }
 
     public function getBadgeUnlockedUrlAttribute(): string
     {
         // TODO: read from media library
 
-        return media_asset('Badge/' . $this->badge_name . '.png');
-    }
-
-    public function getIsPublishedAttribute(): bool
-    {
-        return $this->Flags === AchievementFlag::OfficialCore->value;
-    }
-
-    // TODO remove after rename
-    public function getIdAttribute(): int
-    {
-        return $this->attributes['ID'];
-    }
-
-    // TODO remove after rename
-    public function getBadgeNameAttribute(): string
-    {
-        return $this->attributes['BadgeName'];
-    }
-
-    public function getGameIdAttribute(): ?int
-    {
-        $gameId = $this->attributes['GameID'] ?? null;
-
-        return $gameId ? (int) $gameId : null;
-    }
-
-    // TODO remove after rename
-    public function getTitleAttribute(): ?string
-    {
-        return $this->attributes['Title'] ?? null;
-    }
-
-    // TODO remove after rename
-    public function getDescriptionAttribute(): ?string
-    {
-        return $this->attributes['Description'] ?? null;
-    }
-
-    // TODO remove after rename
-    public function getPointsAttribute(): int
-    {
-        return (int) $this->attributes['Points'];
-    }
-
-    // TODO remove after rename
-    public function getUpdatedAtAttribute(): ?Carbon
-    {
-        return $this->attributes['Updated'] ? Carbon::parse($this->attributes['Updated']) : null;
-    }
-
-    // TODO remove after rename
-    public function getPointsWeightedAttribute(): int
-    {
-        return (int) $this->attributes['TrueRatio'];
+        return media_asset('Badge/' . $this->image_name . '.png');
     }
 
     // == mutators
@@ -438,7 +383,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function authorshipCredits(): HasMany
     {
-        return $this->hasMany(AchievementAuthor::class, 'achievement_id', 'ID');
+        return $this->hasMany(AchievementAuthor::class, 'achievement_id');
     }
 
     /**
@@ -450,9 +395,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
             AchievementSet::class,
             'achievement_set_achievements',
             'achievement_id',
-            'achievement_set_id',
-            'ID',
-            'id'
+            'achievement_set_id'
         )->withPivot('order_column', 'achievement_group_id', 'created_at', 'updated_at');
     }
 
@@ -471,7 +414,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function game(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'GameID');
+        return $this->belongsTo(Game::class, 'game_id');
     }
 
     /**
@@ -482,7 +425,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function legacyComments(): HasMany
     {
-        return $this->hasMany(Comment::class, 'ArticleID', 'ID')
+        return $this->hasMany(Comment::class, 'ArticleID')
             ->where('ArticleType', ArticleType::Achievement);
     }
 
@@ -491,7 +434,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function maintainers(): HasMany
     {
-        return $this->hasMany(AchievementMaintainer::class, 'achievement_id', 'ID');
+        return $this->hasMany(AchievementMaintainer::class, 'achievement_id');
     }
 
     /**
@@ -499,7 +442,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function activeMaintainer(): HasOne
     {
-        return $this->hasOne(AchievementMaintainer::class, 'achievement_id', 'ID')
+        return $this->hasOne(AchievementMaintainer::class, 'achievement_id')
             ->where('is_active', true);
     }
 
@@ -517,7 +460,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function playerAchievements(): HasMany
     {
-        return $this->hasMany(PlayerAchievement::class, 'achievement_id', 'ID');
+        return $this->hasMany(PlayerAchievement::class, 'achievement_id');
     }
 
     /**
@@ -525,7 +468,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function eventAchievements(): HasMany
     {
-        return $this->hasMany(EventAchievement::class, 'source_achievement_id', 'ID');
+        return $this->hasMany(EventAchievement::class, 'source_achievement_id');
     }
 
     /**
@@ -599,18 +542,9 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      * @param Builder<Achievement> $query
      * @return Builder<Achievement>
      */
-    public function scopeFlag(Builder $query, AchievementFlag $flag): Builder
-    {
-        return $query->where('Flags', $flag->value);
-    }
-
-    /**
-     * @param Builder<Achievement> $query
-     * @return Builder<Achievement>
-     */
     public function scopePublished(Builder $query): Builder
     {
-        return $this->scopeFlag($query, AchievementFlag::OfficialCore);
+        return $query->where('is_published', true);
     }
 
     /**
@@ -619,7 +553,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function scopeUnpublished(Builder $query): Builder
     {
-        return $this->scopeFlag($query, AchievementFlag::Unofficial);
+        return $query->where('is_published', false);
     }
 
     /**
@@ -665,10 +599,10 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     public function scopeWithUnlocksByUser(Builder $query, User $user): Builder
     {
         $query->leftJoin('player_achievements', function ($join) use ($user) {
-            $join->on('player_achievements.achievement_id', '=', 'Achievements.ID');
+            $join->on('player_achievements.achievement_id', '=', 'achievements.id');
             $join->where(DB::raw('player_achievements.user_id'), '=', $user->id);
         });
-        $query->addSelect('Achievements.*');
+        $query->addSelect('achievements.*');
         $query->addSelect('player_achievements.unlocked_at');
         $query->addSelect('player_achievements.unlocked_hardcore_at');
         $query->addSelect(DB::raw('player_achievements.id as player_achievement_id'));

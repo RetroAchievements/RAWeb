@@ -12,7 +12,6 @@ use App\Models\GameHash;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Models\UserGameAchievementSetPreference;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Support\Collection;
@@ -24,14 +23,14 @@ class BuildClientPatchDataV2Action
         ?GameHash $gameHash = null,
         ?Game $game = null,
         ?User $user = null,
-        ?AchievementFlag $flag = null,
+        ?bool $isPublished = null,
     ): array {
         if (!$gameHash && !$game) {
             throw new InvalidArgumentException('Either gameHash or game must be provided to build achievementsets data.');
         }
 
         if (!$gameHash) {
-            return $this->buildPatchData($game, null, $user, $flag);
+            return $this->buildPatchData($game, null, $user, $isPublished);
         }
 
         // If the hash is not marked as compatible, and the current user is not flagged to
@@ -50,7 +49,7 @@ class BuildClientPatchDataV2Action
 
         // If there's no user, just use the game directly.
         if (!$user) {
-            return $this->buildPatchData($actualLoadedGame, null, $user, $flag, compatibility: $gameHash->compatibility);
+            return $this->buildPatchData($actualLoadedGame, null, $user, $isPublished, compatibility: $gameHash->compatibility);
         }
 
         // Resolve sets once - we'll use this for building the full patch data.
@@ -63,7 +62,7 @@ class BuildClientPatchDataV2Action
              */
             $doesGameHaveAnySets = GameAchievementSet::where('game_id', $actualLoadedGame->id)->exists();
             if (!$doesGameHaveAnySets) {
-                return $this->buildPatchData($actualLoadedGame, null, $user, $flag, compatibility: $gameHash->compatibility);
+                return $this->buildPatchData($actualLoadedGame, null, $user, $isPublished, compatibility: $gameHash->compatibility);
             }
 
             return $this->buildAllSetsOptedOutPatchData($actualLoadedGame, $gameHash->compatibility);
@@ -99,7 +98,7 @@ class BuildClientPatchDataV2Action
             $derivedCoreGame,
             $resolvedSets,
             $user,
-            $flag,
+            $isPublished,
             $richPresenceGameId,
             $richPresencePatch,
             $gameHash->compatibility,
@@ -110,7 +109,7 @@ class BuildClientPatchDataV2Action
      * @param Game $game The game to build root-level data for
      * @param Collection<int, GameAchievementSet>|null $resolvedSets The sets to send to the client/emulator
      * @param User|null $user The current user requesting the patch data (for player count calculations)
-     * @param AchievementFlag|null $flag Optional flag to filter the achievements by (eg: only official achievements)
+     * @param bool|null $isPublished Optional flag to filter the assets by (eg: only published assets)
      * @param int|null $richPresenceGameId the game ID where the RP patch code comes from
      * @param string|null $richPresencePatch the RP patch code that the client should use
      * @param GameHashCompatibility $compatibility Indicates the compatibility of the hash being loaded (affects game title)
@@ -119,7 +118,7 @@ class BuildClientPatchDataV2Action
         Game $game,
         ?Collection $resolvedSets,
         ?User $user,
-        ?AchievementFlag $flag,
+        ?bool $isPublished,
         ?int $richPresenceGameId = null,
         ?string $richPresencePatch = null,
         GameHashCompatibility $compatibility = GameHashCompatibility::Compatible,
@@ -135,7 +134,7 @@ class BuildClientPatchDataV2Action
             foreach ($resolvedSets as $resolvedSet) {
                 $setGame = $games[$resolvedSet->core_game_id];
 
-                $achievements = $this->buildAchievementsData($resolvedSet, $gamePlayerCount, $flag);
+                $achievements = $this->buildAchievementsData($resolvedSet, $gamePlayerCount, $isPublished);
                 $leaderboards = $this->buildLeaderboardsData($setGame);
 
                 $sets[] = [
@@ -155,7 +154,7 @@ class BuildClientPatchDataV2Action
                 ->first();
 
             $achievements = $coreAchievementSet
-                ? $this->buildAchievementsData($coreAchievementSet, $gamePlayerCount, $flag)
+                ? $this->buildAchievementsData($coreAchievementSet, $gamePlayerCount, $isPublished)
                 : [];
             $leaderboards = $coreAchievementSet
                 ? $this->buildLeaderboardsData($coreAchievementSet->game)
@@ -193,48 +192,43 @@ class BuildClientPatchDataV2Action
      *
      * @param GameAchievementSet $gameAchievementSet The achievement set to build achievement data for
      * @param int $gamePlayerCount The total number of players (minimum of 1 to prevent division by zero)
-     * @param AchievementFlag|null $flag Optional flag to filter the achievements by (eg: only official achievements)
+     * @param bool|null $isPublished Optional flag to filter the assets by (eg: only published assets)
      */
     private function buildAchievementsData(
         GameAchievementSet $gameAchievementSet,
         int $gamePlayerCount,
-        ?AchievementFlag $flag,
+        ?bool $isPublished,
     ): array {
         /** @var Collection<int, Achievement> $achievements */
         $achievements = $gameAchievementSet->achievementSet
             ->achievements()
             ->with('developer')
-            ->orderBy('DisplayOrder') // explicit display order
-            ->orderBy('ID')           // tiebreaker on creation sequence
+            ->orderBy('order_column') // explicit display order
+            ->orderBy('id')           // tiebreaker on creation sequence
             ->get();
 
-        if ($flag) {
-            $achievements = $achievements->where('Flags', '=', $flag->value);
+        if ($isPublished !== null) {
+            $achievements = $achievements->where('is_published', '=', $isPublished);
         }
 
         $achievementsData = [];
         foreach ($achievements as $achievement) {
-            // If an achievement has an invalid flag, skip it.
-            if (!AchievementFlag::tryFrom($achievement->Flags)) {
-                continue;
-            }
-
             // Calculate rarity assuming it will be used when the player unlocks the achievement,
             // which implies they haven't already unlocked it.
             $rarity = min(100.0, round((float) ($achievement->unlocks_total + 1) * 100 / $gamePlayerCount, 2));
-            $rarityHardcore = min(100.0, round((float) ($achievement->unlocks_hardcore_total + 1) * 100 / $gamePlayerCount, 2));
+            $rarityHardcore = min(100.0, round((float) ($achievement->unlocks_hardcore + 1) * 100 / $gamePlayerCount, 2));
 
             $achievementsData[] = [
                 'ID' => $achievement->id,
-                'MemAddr' => $achievement->MemAddr,
+                'MemAddr' => $achievement->trigger_definition,
                 'Title' => $achievement->title,
                 'Description' => $achievement->description,
                 'Points' => $achievement->points,
                 'Author' => $achievement->developer->display_name ?? '',
-                'Modified' => $achievement->DateModified->unix(),
-                'Created' => $achievement->DateCreated->unix(),
-                'BadgeName' => $achievement->BadgeName,
-                'Flags' => $achievement->Flags,
+                'Modified' => $achievement->modified_at->unix(),
+                'Created' => $achievement->created_at->unix(),
+                'BadgeName' => $achievement->image_name,
+                'Flags' => $achievement->is_published ? Achievement::FLAG_PUBLISHED : Achievement::FLAG_UNPUBLISHED,
                 'Type' => $achievement->type,
                 'Rarity' => $rarity,
                 'RarityHardcore' => $rarityHardcore,

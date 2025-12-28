@@ -100,10 +100,10 @@ class EventAchievement extends BaseModel
         return $this->hasOneThrough(
             Event::class,
             Achievement::class,
-            'ID',             // Achievements.ID
+            'id',             // achievements.id
             'legacy_game_id', // events.legacy_game_id
             'achievement_id', // event_achievements.achievement_id
-            'GameID'          // Achievements.GameID
+            'game_id'         // achievements.game_id
         );
     }
 
@@ -112,7 +112,7 @@ class EventAchievement extends BaseModel
      */
     public function achievement(): BelongsTo
     {
-        return $this->belongsTo(Achievement::class, 'achievement_id', 'ID');
+        return $this->belongsTo(Achievement::class, 'achievement_id', 'id');
     }
 
     /**
@@ -120,7 +120,7 @@ class EventAchievement extends BaseModel
      */
     public function sourceAchievement(): BelongsTo
     {
-        return $this->belongsTo(Achievement::class, 'source_achievement_id', 'ID');
+        return $this->belongsTo(Achievement::class, 'source_achievement_id', 'id');
     }
 
     // == scopes

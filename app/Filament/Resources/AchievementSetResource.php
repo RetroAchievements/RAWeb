@@ -79,7 +79,7 @@ class AchievementSetResource extends Resource
                                     ->numeric(),
 
                                 Infolists\Components\TextEntry::make('achievements_unpublished')
-                                    ->label('Unofficial')
+                                    ->label('Unpublished')
                                     ->numeric(),
                             ])
                             ->columns(2)
@@ -184,7 +184,7 @@ class AchievementSetResource extends Resource
                     ->alignEnd(),
 
                 Tables\Columns\TextColumn::make('achievements_unpublished')
-                    ->label('Achievements (Unofficial)')
+                    ->label('Achievements (Unpublished)')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()

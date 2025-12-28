@@ -6,6 +6,7 @@ namespace App\Platform\Services;
 
 use App\Enums\PlayerGameActivityEventType;
 use App\Enums\PlayerGameActivitySessionType;
+use App\Models\Achievement;
 use App\Models\AchievementSet;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
@@ -13,7 +14,6 @@ use App\Models\PlayerGame;
 use App\Models\PlayerProgressReset;
 use App\Models\User;
 use App\Platform\Actions\ComputeAchievementsSetPublishedAtAction;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\PlayerProgressResetType;
 use App\Platform\Enums\UnlockMode;
@@ -29,8 +29,8 @@ class PlayerGameActivityService
     public function initialize(User $user, Game $game, bool $withSubsets = false): void
     {
         $query = GameAchievementSet::where('game_id', $game->id)
-            ->with(['achievementSet.achievements' => fn ($q) => $q->where('Flags', AchievementFlag::OfficialCore)
-                            ->select(['Achievements.ID', 'type', 'Points', 'TrueRatio']),
+            ->with(['achievementSet.achievements' => fn ($q) => $q->where('is_published', true)
+                ->select(['achievements.id', 'type', 'points', 'points_weighted']),
             ]);
 
         if (!$withSubsets) {
@@ -141,17 +141,17 @@ class PlayerGameActivityService
         }
 
         $playerAchievementsQuery = $user->playerAchievements()
-            ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
-            ->whereIn('Achievements.ID', $achievementIds)
+            ->join('achievements', 'player_achievements.achievement_id', '=', 'achievements.id')
+            ->whereIn('achievements.id', $achievementIds)
             ->orderBy('player_achievements.unlocked_at')
             ->select([
                 'player_achievements.*',
-                'Achievements.Flags',
-                'Achievements.Title',
-                'Achievements.Description',
-                'Achievements.Points',
-                'Achievements.BadgeName',
-                'Achievements.type',
+                'achievements.is_published',
+                'achievements.title',
+                'achievements.description',
+                'achievements.points',
+                'achievements.image_name',
+                'achievements.type',
             ]);
 
         $playerAchievements = $playerAchievementsQuery->get();
@@ -215,11 +215,11 @@ class PlayerGameActivityService
             'when' => $when,
             'achievement' => [ // fields necessary for generating tooltip
                 'ID' => $playerAchievement->achievement_id,
-                'Title' => $playerAchievement->Title,
-                'Description' => $playerAchievement->Description,
-                'Points' => $playerAchievement->Points,
-                'BadgeName' => $playerAchievement->BadgeName,
-                'Flags' => $playerAchievement->Flags,
+                'Title' => $playerAchievement->title,
+                'Description' => $playerAchievement->description,
+                'Points' => $playerAchievement->points,
+                'BadgeName' => $playerAchievement->image_name,
+                'Flags' => $playerAchievement->is_published ? Achievement::FLAG_PUBLISHED : Achievement::FLAG_UNPUBLISHED,
                 'HardcoreMode' => $hardcore,
             ],
         ];
@@ -536,7 +536,7 @@ class PlayerGameActivityService
                     continue;
                 }
 
-                if (!$achievementSet->achievements->contains('ID', $event['id'])) {
+                if (!$achievementSet->achievements->contains('id', $event['id'])) {
                     // achievement not part of set, ignore
                     continue;
                 }

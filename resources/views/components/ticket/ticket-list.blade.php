@@ -63,8 +63,8 @@ $gameCache = [];
                             <td>{!! achievementAvatar($ticket->achievement) !!}</td>
                             <td>
                                 @php
-                                    $game = $gameCache[$ticket->achievement->GameID] ??=
-                                        Game::where('ID', $ticket->achievement->GameID)->with('system')->first();
+                                    $game = $gameCache[$ticket->achievement->game_id] ??=
+                                        Game::where('ID', $ticket->achievement->game_id)->with('system')->first();
                                 @endphp
                                 <x-game.multiline-avatar
                                     :gameId="$game->ID"

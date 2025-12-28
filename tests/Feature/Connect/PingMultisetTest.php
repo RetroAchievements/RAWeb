@@ -53,8 +53,8 @@ class PingMultisetTest extends TestCase
         $baseGame = $this->seedGame(system: $system);
         $bonusGame = $this->seedGame(system: $system);
 
-        Achievement::factory()->published()->count(2)->create(['GameID' => $baseGame->id]);
-        Achievement::factory()->published()->count(2)->create(['GameID' => $bonusGame->id]);
+        Achievement::factory()->published()->count(2)->create(['game_id' => $baseGame->id]);
+        Achievement::factory()->published()->count(2)->create(['game_id' => $bonusGame->id]);
 
         $upsertGameCoreSetAction = new UpsertGameCoreAchievementSetFromLegacyFlagsAction();
         $associateAchievementSetToGameAction = new AssociateAchievementSetToGameAction();
@@ -104,8 +104,8 @@ class PingMultisetTest extends TestCase
         $baseGame = $this->seedGame(system: $system);
         $specialtyGame = $this->seedGame(system: $system);
 
-        Achievement::factory()->published()->count(2)->create(['GameID' => $baseGame->id]);
-        Achievement::factory()->published()->count(2)->create(['GameID' => $specialtyGame->id]);
+        Achievement::factory()->published()->count(2)->create(['game_id' => $baseGame->id]);
+        Achievement::factory()->published()->count(2)->create(['game_id' => $specialtyGame->id]);
 
         $upsertGameCoreSetAction = new UpsertGameCoreAchievementSetFromLegacyFlagsAction();
         $associateAchievementSetToGameAction = new AssociateAchievementSetToGameAction();

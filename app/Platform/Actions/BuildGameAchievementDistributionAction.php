@@ -7,7 +7,6 @@ namespace App\Platform\Actions;
 use App\Models\Game;
 use App\Models\User;
 use App\Platform\Data\PlayerAchievementChartBucketData;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Support\Collection;
 
@@ -27,15 +26,15 @@ class BuildGameAchievementDistributionAction
             $game->id,
             UnlockMode::Softcore,
             $user?->username,
-            AchievementFlag::OfficialCore,
-            $numDistinctPlayers
+            isPublished: true,
+            numPlayers: $numDistinctPlayers
         );
         $hardcoreUnlocks = getAchievementDistribution(
             $game->id,
             UnlockMode::Hardcore,
             $user?->username,
-            AchievementFlag::OfficialCore,
-            $numDistinctPlayers
+            isPublished: true,
+            numPlayers: $numDistinctPlayers
         );
 
         [$buckets, $isDynamicBucketingEnabled] = generateEmptyBucketsWithBounds($numAchievements);

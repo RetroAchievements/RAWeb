@@ -3,9 +3,9 @@
 // TODO migrate to AchievementController::index()
 
 use App\Actions\GetUserDeviceKindAction;
+use App\Models\Achievement;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleIDInput = (int) request()->input('z', 0);
@@ -26,8 +26,8 @@ if ($user == null) {
     $params = 3;
 }
 $flags = match ($params) {
-    5 => AchievementFlag::Unofficial,
-    default => AchievementFlag::OfficialCore,
+    Achievement::FLAG_UNPUBLISHED => false,
+    default => true,
 };
 
 $dev_param = null;
@@ -70,15 +70,15 @@ if ($consoleIDInput !== 0) {
     echo "<div class='flex flex-wrap justify-between'>";
     echo "<div>";
 
-    echo $params !== AchievementFlag::OfficialCore->value ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementFlag::OfficialCore->value . "$dev_param'>" : "<b>";
+    echo $params !== Achievement::FLAG_PUBLISHED ? "<a href='/achievementList.php?s=$sortBy&p=" . Achievement::FLAG_PUBLISHED . "$dev_param'>" : "<b>";
     echo "Achievements in Core Sets";
-    echo $params !== AchievementFlag::OfficialCore->value ? "</a>" : "</b>";
+    echo $params !== Achievement::FLAG_PUBLISHED ? "</a>" : "</b>";
     echo "<br>";
 
     if ($user !== null) {
-        echo $params !== AchievementFlag::Unofficial->value ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementFlag::Unofficial->value . "$dev_param'>" : "<b>";
+        echo $params !== Achievement::FLAG_UNPUBLISHED ? "<a href='/achievementList.php?s=$sortBy&p=" . Achievement::FLAG_UNPUBLISHED . "$dev_param'>" : "<b>";
         echo "Achievements in Unofficial Sets";
-        echo $params !== AchievementFlag::Unofficial->value ? "</a>" : "</b>";
+        echo $params !== Achievement::FLAG_UNPUBLISHED ? "</a>" : "</b>";
         echo "<br>";
 
         echo $params !== 1 ? "<a href='/achievementList.php?s=$sortBy&p=1$dev_param'>" : "<b>";

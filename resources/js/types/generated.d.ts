@@ -600,7 +600,7 @@ declare namespace App.Platform.Data {
     description?: string;
     decorator?: string | null;
     developer?: App.Data.User;
-    flags?: App.Platform.Enums.AchievementFlag;
+    isPublished?: boolean;
     game?: App.Platform.Data.Game;
     groupId?: number | null;
     orderColumn?: number;
@@ -611,7 +611,7 @@ declare namespace App.Platform.Data {
     unlockedHardcoreAt?: string;
     unlockHardcorePercentage?: string;
     unlockPercentage?: string;
-    unlocksHardcoreTotal?: number;
+    unlocksHardcore?: number;
     unlocksTotal?: number;
   };
   export type AchievementSetClaim = {
@@ -1175,7 +1175,6 @@ declare namespace App.Platform.Data {
 }
 declare namespace App.Platform.Enums {
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
-  export type AchievementFlag = 3 | 5;
   export type AchievementSetAuthorTask = 'artwork';
   export type AchievementSetType =
     | 'core'

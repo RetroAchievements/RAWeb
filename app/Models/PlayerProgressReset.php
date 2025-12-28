@@ -37,7 +37,7 @@ class PlayerProgressReset extends BaseModel
      */
     public function achievement(): BelongsTo
     {
-        return $this->belongsTo(Achievement::class, 'type_id', 'ID');
+        return $this->belongsTo(Achievement::class, 'type_id', 'id');
     }
 
     /**

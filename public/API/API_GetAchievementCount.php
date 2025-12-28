@@ -15,8 +15,8 @@ $gameID = (int) request()->query('i');
 
 return response()->json([
     'GameID' => $gameID,
-    'AchievementIDs' => Achievement::where('GameID', $gameID)
+    'AchievementIDs' => Achievement::where('game_id', $gameID)
         ->published()
-        ->orderBy('ID')
-        ->pluck('ID'),
+        ->orderBy('id')
+        ->pluck('id'),
 ]);

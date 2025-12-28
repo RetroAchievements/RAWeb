@@ -249,7 +249,7 @@ class UserGameListTest extends TestCase
         $game1 = Game::factory()->create();
         /** @var Game $game2 */
         $game2 = Game::factory()->create();
-        Achievement::factory()->published()->create(['GameID' => $game2->ID]);
+        Achievement::factory()->published()->create(['game_id' => $game2->id]);
         /** @var Game $game3 */
         $game3 = Game::factory()->create();
 

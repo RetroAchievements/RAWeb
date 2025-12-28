@@ -121,20 +121,20 @@ class CrawlPlayerWeightedPoints extends Command
     private function updateUserWeightedPoints(User $user): void
     {
         // Update all player_games.points_weighted values in a single query.
-        // This calculates the sum of TrueRatio for all hardcore achievements per game.
+        // This calculates the sum of points_weighted for all hardcore achievements per game.
         $updatedRows = DB::update(<<<SQL
             UPDATE player_games pg
             LEFT JOIN (
                 SELECT
                     pa.user_id,
-                    ach.GameID as game_id,
-                    SUM(ach.TrueRatio) as weighted_points
+                    ach.game_id,
+                    SUM(ach.points_weighted) as weighted_points
                 FROM player_achievements pa
-                INNER JOIN Achievements ach ON ach.ID = pa.achievement_id
+                INNER JOIN achievements ach ON ach.id = pa.achievement_id
                 WHERE
                     pa.user_id = ?
                     AND pa.unlocked_hardcore_at IS NOT NULL
-                GROUP BY pa.user_id, ach.GameID
+                GROUP BY pa.user_id, ach.game_id
             ) AS calculated ON pg.user_id = calculated.user_id AND pg.game_id = calculated.game_id
             SET pg.points_weighted = COALESCE(calculated.weighted_points, 0)
             WHERE

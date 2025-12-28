@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Filament\Resources\AchievementResource\Pages;
 
 use App\Filament\Resources\AchievementResource;
-use App\Platform\Enums\AchievementFlag;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas;
@@ -27,9 +26,9 @@ class Index extends ListRecords
         return [
             'all' => Schemas\Components\Tabs\Tab::make(),
             'published' => Schemas\Components\Tabs\Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('Flags', AchievementFlag::OfficialCore->value)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_published', true)),
             'unpublished' => Schemas\Components\Tabs\Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('Flags', AchievementFlag::Unofficial->value)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_published', false)),
         ];
     }
 }

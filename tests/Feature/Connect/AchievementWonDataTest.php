@@ -31,11 +31,11 @@ class AchievementWonDataTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
+        $achievement1 = Achievement::factory()->published()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
+        $achievement2 = Achievement::factory()->published()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
+        $achievement3 = Achievement::factory()->published()->create(['game_id' => $game->id]);
 
         $users = [];
         $unlocks = [];
@@ -69,14 +69,14 @@ class AchievementWonDataTest extends TestCase
         }
 
         // first achievement - 5 most recent
-        $this->get($this->apiUrl('achievementwondata', ['a' => $achievement1->ID, 'c' => 5]))
+        $this->get($this->apiUrl('achievementwondata', ['a' => $achievement1->id, 'c' => 5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Offset' => 0,
                 'Count' => 5,
                 'FriendsOnly' => false,
-                'AchievementID' => $achievement1->ID,
+                'AchievementID' => $achievement1->id,
                 'Response' => [
                     'NumEarned' => 14,
                     'GameID' => $game->ID,
@@ -92,14 +92,14 @@ class AchievementWonDataTest extends TestCase
             ]);
 
         // first achievement - offset and ask for more than available
-        $this->get($this->apiUrl('achievementwondata', ['a' => $achievement1->ID, 'o' => 12, 'c' => 6]))
+        $this->get($this->apiUrl('achievementwondata', ['a' => $achievement1->id, 'o' => 12, 'c' => 6]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Offset' => 12,
                 'Count' => 6,
                 'FriendsOnly' => false,
-                'AchievementID' => $achievement1->ID,
+                'AchievementID' => $achievement1->id,
                 'Response' => [
                     'NumEarned' => 14,
                     'GameID' => $game->ID,
@@ -112,14 +112,14 @@ class AchievementWonDataTest extends TestCase
             ]);
 
         // other achievement - different earn rate/winners
-        $this->get($this->apiUrl('achievementwondata', ['a' => $achievement2->ID, 'o' => 3, 'c' => 4]))
+        $this->get($this->apiUrl('achievementwondata', ['a' => $achievement2->id, 'o' => 3, 'c' => 4]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Offset' => 3,
                 'Count' => 4,
                 'FriendsOnly' => false,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Response' => [
                     'NumEarned' => 7,
                     'GameID' => $game->ID,
@@ -134,14 +134,14 @@ class AchievementWonDataTest extends TestCase
             ]);
 
         // third achievement - no unlocks
-        $this->get($this->apiUrl('achievementwondata', ['a' => $achievement3->ID]))
+        $this->get($this->apiUrl('achievementwondata', ['a' => $achievement3->id]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Offset' => 0,
                 'Count' => 10,
                 'FriendsOnly' => false,
-                'AchievementID' => $achievement3->ID,
+                'AchievementID' => $achievement3->id,
                 'Response' => [
                     'NumEarned' => 0,
                     'GameID' => $game->ID,
@@ -174,14 +174,14 @@ class AchievementWonDataTest extends TestCase
             'Friendship' => UserRelationship::Following,
         ]);
 
-        $this->get($this->apiUrl('achievementwondata', ['a' => $achievement2->ID, 'f' => 1]))
+        $this->get($this->apiUrl('achievementwondata', ['a' => $achievement2->id, 'f' => 1]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Offset' => 0,
                 'Count' => 10,
                 'FriendsOnly' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Response' => [
                     'NumEarned' => 7,
                     'GameID' => $game->ID,

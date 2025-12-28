@@ -18,7 +18,6 @@ use App\Models\User;
 use App\Models\UserGameAchievementSetPreference;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -64,8 +63,8 @@ class BuildClientPatchDataV2ActionTest extends TestCase
             'RichPresencePatch' => $richPresencePatch,
         ]);
 
-        Achievement::factory()->published()->count($publishedCount)->create(['GameID' => $game->id]);
-        Achievement::factory()->count($unpublishedCount)->create(['GameID' => $game->id]);
+        Achievement::factory()->published()->count($publishedCount)->create(['game_id' => $game->id]);
+        Achievement::factory()->count($unpublishedCount)->create(['game_id' => $game->id]);
 
         return $game;
     }
@@ -95,13 +94,13 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $this->assertEquals($achievement->id, $achievementData['ID']);
         $this->assertEquals($achievement->title, $achievementData['Title']);
         $this->assertEquals($achievement->description, $achievementData['Description']);
-        $this->assertEquals($achievement->MemAddr, $achievementData['MemAddr']);
+        $this->assertEquals($achievement->trigger_definition, $achievementData['MemAddr']);
         $this->assertEquals($achievement->points, $achievementData['Points']);
         $this->assertEquals($achievement->developer->display_name ?? '', $achievementData['Author']);
-        $this->assertEquals($achievement->DateModified->unix(), $achievementData['Modified']);
-        $this->assertEquals($achievement->DateCreated->unix(), $achievementData['Created']);
-        $this->assertEquals($achievement->BadgeName, $achievementData['BadgeName']);
-        $this->assertEquals($achievement->Flags, $achievementData['Flags']);
+        $this->assertEquals($achievement->modified_at->unix(), $achievementData['Modified']);
+        $this->assertEquals($achievement->created_at->unix(), $achievementData['Created']);
+        $this->assertEquals($achievement->image_name, $achievementData['BadgeName']);
+        $this->assertEquals($achievement->flags, $achievementData['Flags']);
         $this->assertEquals($achievement->type, $achievementData['Type']);
         $this->assertEquals($expectedRarity, $achievementData['Rarity']);
         $this->assertEquals($expectedRarityHardcore, $achievementData['RarityHardcore']);
@@ -144,9 +143,9 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $game = $this->createGameWithAchievements($this->system, 'Dragon Quest III', publishedCount: 1);
         $this->upsertGameCoreSetAction->execute($game);
 
-        $achievement = Achievement::where('GameID', $game->id)->first();
+        $achievement = Achievement::where('game_id', $game->id)->first();
         $achievement->unlocks_total = 49;
-        $achievement->unlocks_hardcore_total = 24;
+        $achievement->unlocks_hardcore = 24;
         $achievement->save();
 
         $game->players_total = 100;
@@ -178,9 +177,9 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $game = $this->createGameWithAchievements($this->system, 'Dragon Quest III', publishedCount: 1);
         $this->upsertGameCoreSetAction->execute($game);
 
-        $achievement = Achievement::where('GameID', $game->id)->first();
+        $achievement = Achievement::where('game_id', $game->id)->first();
         $achievement->unlocks_total = 49;
-        $achievement->unlocks_hardcore_total = 24;
+        $achievement->unlocks_hardcore = 24;
         $achievement->save();
 
         $game->players_total = 100;
@@ -216,9 +215,9 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $game = $this->createGameWithAchievements($this->system, 'Zero Player Game', publishedCount: 1);
         $this->upsertGameCoreSetAction->execute($game);
 
-        $achievement = Achievement::firstWhere('GameID', $game->id);
+        $achievement = Achievement::firstWhere('game_id', $game->id);
         $achievement->unlocks_total = 0;
-        $achievement->unlocks_hardcore_total = 0;
+        $achievement->unlocks_hardcore = 0;
         $achievement->save();
 
         $game->players_total = 0; // !!
@@ -292,7 +291,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         // Act
         $result = (new BuildClientPatchDataV2Action())->execute(
             game: $game,
-            flag: AchievementFlag::OfficialCore // !!
+            isPublished: true // !!
         );
 
         // Assert
@@ -300,7 +299,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $this->assertCount(2, $result['Sets'][0]['Achievements']);
 
         foreach ($result['Sets'][0]['Achievements'] as $achievementData) {
-            $this->assertEquals(AchievementFlag::OfficialCore->value, $achievementData['Flags']);
+            $this->assertEquals(Achievement::FLAG_PUBLISHED, $achievementData['Flags']);
         }
     }
 

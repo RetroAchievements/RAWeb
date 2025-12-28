@@ -11,7 +11,6 @@ use App\Models\PlayerAchievement;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\TriggerDecoderService;
 use App\Support\Shortcode\Shortcode;
 use Carbon\Carbon;
@@ -136,7 +135,7 @@ if ($game->system->id === System::Events) {
             $dataOut['SourceGameId'] = null;
         } else {
             // update the ID of the dataOut so the link goes to the source achievement
-            $dataOut['ID'] = $eventAchievement->sourceAchievement->ID;
+            $dataOut['ID'] = $eventAchievement->sourceAchievement->id;
         }
     }
 }
@@ -197,7 +196,7 @@ if ($game->system->id === System::Events) {
 
         echo "<p class='embedded smalldata mb-3'>";
         echo "<small>";
-        if ($achFlags === AchievementFlag::Unofficial->value) {
+        if ($achFlags === Achievement::FLAG_UNPUBLISHED) {
             echo "<b>Unofficial Achievement</b><br>";
         }
         echo "Created by " . userAvatar($author, icon: false) . " on: $niceDateCreated<br>";

@@ -13,7 +13,6 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Data\AchievementSetClaimData;
 use App\Platform\Data\GamePageClaimData;
-use App\Platform\Enums\AchievementFlag;
 use Illuminate\Support\Collection;
 
 class BuildGamePageClaimDataAction
@@ -93,7 +92,7 @@ class BuildGamePageClaimDataAction
         // Check if any achievement for the set is published.
         foreach ($game->gameAchievementSets as $gameAchievementSet) {
             foreach ($gameAchievementSet->achievementSet->achievements as $achievement) {
-                if ($achievement->Flags === AchievementFlag::OfficialCore->value) {
+                if ($achievement->is_published) {
                     return true;
                 }
             }

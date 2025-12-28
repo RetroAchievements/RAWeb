@@ -197,7 +197,7 @@ function informAllSubscribersAboutActivity(
                 return;
             }
 
-            $articleTitle = "{$achievement->Title} ({$achievement->game->Title})";
+            $articleTitle = "{$achievement->title} ({$achievement->game->Title})";
             $urlTarget = route('achievement.show', $achievement);
             $subjectAuthor = $achievement->developer;
             $articleEmailPreference = UserPreference::EmailOn_AchievementComment;
@@ -239,7 +239,7 @@ function informAllSubscribersAboutActivity(
                 return;
             }
 
-            $articleTitle = "{$ticket->achievement->Title} ({$ticket->achievement->game->Title})";
+            $articleTitle = "{$ticket->achievement->title} ({$ticket->achievement->game->Title})";
             $urlTarget = route('ticket.show', ['ticket' => $ticket->ID]);
             $subjectAuthor = $ticket->reporter;
             $articleEmailPreference = UserPreference::EmailOn_TicketActivity;

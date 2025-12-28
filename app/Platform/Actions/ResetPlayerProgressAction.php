@@ -7,7 +7,6 @@ use App\Models\Achievement;
 use App\Models\AchievementMaintainerUnlock;
 use App\Models\PlayerProgressReset;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\PlayerProgressResetType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeLost;
@@ -24,24 +23,24 @@ class ResetPlayerProgressAction
     {
         $clause = '';
         if ($achievementID !== null) {
-            $clause = "AND ach.ID=$achievementID";
+            $clause = "AND ach.id=$achievementID";
         } elseif ($gameID !== null) {
-            $clause = "AND ach.GameID=$gameID";
+            $clause = "AND ach.game_id=$gameID";
         }
 
         $affectedAchievements = legacyDbFetchAll("
             SELECT
                 COALESCE(ua.display_name, ua.User) AS Author,
-                ach.GameID,
+                ach.game_id AS GameID,
                 CASE WHEN pa.unlocked_hardcore_at THEN 1 ELSE 0 END AS HardcoreMode,
-                COUNT(ach.ID) AS Count, SUM(ach.Points) AS Points,
-                SUM(ach.TrueRatio) AS TruePoints
+                COUNT(ach.id) AS Count, SUM(ach.points) AS Points,
+                SUM(ach.points_weighted) AS TruePoints
             FROM player_achievements pa
-            INNER JOIN Achievements ach ON ach.ID = pa.achievement_id
+            INNER JOIN achievements ach ON ach.id = pa.achievement_id
             INNER JOIN UserAccounts ua ON ua.ID = ach.user_id
-            WHERE ach.Flags = " . AchievementFlag::OfficialCore->value . "
+            WHERE ach.is_published = 1
             AND pa.user_id = {$user->id} $clause
-            GROUP BY ach.user_id, ach.GameID, HardcoreMode
+            GROUP BY ach.user_id, ach.game_id, HardcoreMode
         ");
 
         $affectedGames = collect();
@@ -56,20 +55,19 @@ class ResetPlayerProgressAction
         $maintainers = DB::select("
             SELECT DISTINCT COALESCE(ua.display_name, ua.User) AS Username
             FROM player_achievements pa
-            INNER JOIN Achievements ach ON ach.ID = pa.achievement_id
-            INNER JOIN achievement_maintainers m ON m.achievement_id = ach.ID
+            INNER JOIN achievements ach ON ach.id = pa.achievement_id
+            INNER JOIN achievement_maintainers m ON m.achievement_id = ach.id
             INNER JOIN UserAccounts ua ON ua.ID = m.user_id
-            WHERE ach.Flags = :flags
+            WHERE ach.is_published = 1
                 AND pa.user_id = :user_id
                 " . $clause . "
                 AND COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) >= m.effective_from
                 AND (
-                    m.effective_until IS NULL 
+                    m.effective_until IS NULL
                     OR COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) < m.effective_until
                 )
                 AND ua.ID != :user_id2
         ", [
-            'flags' => AchievementFlag::OfficialCore->value,
             'user_id' => $user->id,
             'user_id2' => $user->id,
         ]);
@@ -139,9 +137,9 @@ class ResetPlayerProgressAction
             // If it is, we'll create a game reset record.
             // If it's not, we'll create an achievement reset record.
             $remainingAchievements = $user->playerAchievements()
-                ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
-                ->where(DB::raw('Achievements.GameID'), $achievement->game_id)
-                ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore->value)
+                ->join('achievements', 'player_achievements.achievement_id', '=', 'achievements.id')
+                ->where(DB::raw('achievements.game_id'), $achievement->game_id)
+                ->where(DB::raw('achievements.is_published'), true)
                 ->count();
 
             if ($remainingAchievements === 0) {
@@ -158,7 +156,7 @@ class ResetPlayerProgressAction
                 ]);
             }
         } elseif ($gameID !== null) {
-            $achievementIds = Achievement::where('GameID', $gameID)->pluck('ID');
+            $achievementIds = Achievement::where('game_id', $gameID)->pluck('id');
 
             // Delete any maintainer unlock records related to these player_achievement entities.
             $playerAchievementIds = $user->playerAchievements()->whereIn('achievement_id', $achievementIds)->pluck('id');

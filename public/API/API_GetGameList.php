@@ -51,9 +51,9 @@ $gameIdsSubquery = Game::query()
     });
 
 $achievementsSubquery = Achievement::query()
-    ->selectRaw('GameID, MAX(DateModified) as DateModified')
-    ->whereIn('GameID', $gameIdsSubquery)
-    ->groupBy('GameID');
+    ->selectRaw('game_id as GameID, MAX(modified_at) as DateModified')
+    ->whereIn('game_id', $gameIdsSubquery)
+    ->groupBy('game_id');
 
 $leaderboardsSubquery = Leaderboard::query()
     ->selectRaw('GameID, COUNT(*) as NumLBs')

@@ -12,7 +12,6 @@ use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserGameListEntry;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Blade;
@@ -44,16 +43,16 @@ class GameListService
     {
         if ($this->withTicketCounts) {
             $gameTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
-                ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
-                ->whereIn('Achievements.GameID', $gameIds)
-                ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore->value)
-                ->select(['GameID',
+                ->join('achievements', 'achievements.id', '=', 'Ticket.AchievementID')
+                ->whereIn('achievements.game_id', $gameIds)
+                ->where(DB::raw('achievements.is_published'), true)
+                ->select(['game_id',
                     DB::raw('COUNT(Ticket.ID) AS NumTickets'),
                 ])
-                ->groupBy('GameID')
+                ->groupBy('game_id')
                 ->get()
                 ->mapWithKeys(function ($row, $key) {
-                    return [$row['GameID'] => [
+                    return [$row['game_id'] => [
                         'NumTickets' => $row['NumTickets'],
                     ]];
                 })

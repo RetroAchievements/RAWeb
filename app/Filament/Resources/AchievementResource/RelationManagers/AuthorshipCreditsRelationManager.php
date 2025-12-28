@@ -139,7 +139,7 @@ class AuthorshipCreditsRelationManager extends RelationManager
                                         'task' => $task,
                                     ],
                                     [
-                                        'created_at' => $backdate ?? $achievement->DateCreated,
+                                        'created_at' => $backdate ?? $achievement->created_at,
                                     ]
                                 );
                             }

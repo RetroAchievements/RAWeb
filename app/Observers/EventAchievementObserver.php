@@ -34,7 +34,7 @@ class EventAchievementObserver
                 // make the event achievement look like the source achievement
                 $achievement->title = $sourceAchievement->title;
                 $achievement->description = $sourceAchievement->description;
-                $achievement->BadgeName = $sourceAchievement->BadgeName;
+                $achievement->image_name = $sourceAchievement->image_name;
                 $achievement->save();
 
                 // copy any unlocks during the active period from the source achievement to the event achievement

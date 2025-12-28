@@ -7,7 +7,6 @@ namespace App\Platform\Data;
 use App\Data\UserData;
 use App\Models\Achievement;
 use App\Models\PlayerAchievement;
-use App\Platform\Enums\AchievementFlag;
 use Carbon\Carbon;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
@@ -27,7 +26,7 @@ class AchievementData extends Data
         public Lazy|string $description,
         public Lazy|string|null $decorator,
         public Lazy|UserData $developer,
-        public Lazy|AchievementFlag $flags,
+        public Lazy|bool $isPublished,
         public Lazy|GameData $game,
         public Lazy|int|null $groupId,
         public Lazy|int $orderColumn,
@@ -41,7 +40,7 @@ class AchievementData extends Data
         public Lazy|float $unlockHardcorePercentage,
         #[LiteralTypeScriptType('string')]
         public Lazy|float $unlockPercentage,
-        public Lazy|int $unlocksHardcoreTotal,
+        public Lazy|int $unlocksHardcore,
         public Lazy|int $unlocksTotal,
     ) {
     }
@@ -56,14 +55,14 @@ class AchievementData extends Data
             id: $achievement->id,
             title: $achievement->title,
 
-            createdAt: Lazy::create(fn () => $achievement->DateCreated),
+            createdAt: Lazy::create(fn () => $achievement->created_at),
             description: Lazy::create(fn () => $achievement->description),
             decorator: Lazy::create(fn () => null),
             developer: Lazy::create(fn () => UserData::from($achievement->developer)),
-            flags: Lazy::create(fn () => AchievementFlag::from($achievement->Flags)),
+            isPublished: Lazy::create(fn () => $achievement->is_published),
             game: Lazy::create(fn () => GameData::fromGame($achievement->game)),
             groupId: Lazy::create(fn () => $achievement->pivot?->achievement_group_id),
-            orderColumn: Lazy::create(fn () => $achievement->DisplayOrder),
+            orderColumn: Lazy::create(fn () => $achievement->order_column),
             points: Lazy::create(fn () => $achievement->points),
             pointsWeighted: Lazy::create(fn () => $achievement->points_weighted),
             type: Lazy::create(fn () => $achievement->type),
@@ -71,7 +70,7 @@ class AchievementData extends Data
             unlockedHardcoreAt: Lazy::create(fn () => $playerAchievement?->unlocked_hardcore_at ?? $achievement->player_unlocked_hardcore_at ?? null),
             unlockHardcorePercentage: Lazy::create(fn () => $achievement->unlock_hardcore_percentage),
             unlockPercentage: Lazy::create(fn () => $achievement->unlock_percentage),
-            unlocksHardcoreTotal: Lazy::create(fn () => $achievement->unlocks_hardcore_total),
+            unlocksHardcore: Lazy::create(fn () => $achievement->unlocks_hardcore),
             unlocksTotal: Lazy::create(fn () => $achievement->unlocks_total),
         );
     }

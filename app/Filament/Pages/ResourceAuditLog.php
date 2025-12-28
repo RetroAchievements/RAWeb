@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages;
 
-use App\Platform\Enums\AchievementFlag;
+use App\Models\Achievement;
 use BackedEnum;
 use Closure;
 use Filament\Forms;
@@ -95,12 +95,15 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     }
 
     /**
-     * @return Collection<string, Closure(int): string>
+     * @return Collection<string, Closure(mixed): string>
      */
     protected function createFieldValueMap(): Collection
     {
         return collect([
-            'Flags' => fn (int $flag): string => AchievementFlag::tryFrom($flag)?->label() ?? 'Invalid flag',
+            'is_published' => fn (mixed $value): string => $value ? __('Published') : __('Unpublished'),
+
+            // Support legacy audit log records that used the Flags column.
+            'Flags' => fn (mixed $value): string => $value === Achievement::FLAG_PUBLISHED ? __('Published') : __('Unpublished'),
         ]);
     }
 
@@ -124,7 +127,7 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     protected function getIsImageField(string $fieldName): bool
     {
         return in_array($fieldName, [
-            'BadgeName',
+            'image_name',
             'image_asset_path',
             'ImageIcon',
             'ImageBoxArt',
@@ -136,7 +139,7 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     protected function getImageUrl(string $fieldName, string $path): string
     {
         switch ($fieldName) {
-            case 'BadgeName':
+            case 'image_name':
                 return media_asset("/Badge/{$path}.png");
 
             case 'ImageIcon':

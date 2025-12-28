@@ -6,7 +6,6 @@ import { LuArrowRight } from 'react-icons/lu';
 import { AchievementAvatar } from '@/common/components/AchievementAvatar';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { cn } from '@/common/utils/cn';
-import { getIsAchievementPublished } from '@/common/utils/getIsAchievementPublished';
 import { useFormatDuration } from '@/common/utils/l10n/useFormatDuration';
 
 interface UnlockEventContentProps {
@@ -24,12 +23,10 @@ export const UnlockEventContent: FC<UnlockEventContentProps> = ({
 }) => {
   const achievement = sessionEvent.achievement as App.Platform.Data.Achievement;
 
-  const isOfficialAchievement = getIsAchievementPublished(achievement);
-
   return (
     <AchievementAvatar
       {...achievement}
-      imgClassName={cn(isOfficialAchievement ? null : 'grayscale')}
+      imgClassName={cn(achievement.isPublished ? null : 'grayscale')}
       displayLockedStatus={sessionEvent.hardcore ? 'unlocked-hardcore' : 'locked'}
       showPointsInTitle={true}
       size={32}
@@ -63,7 +60,6 @@ const AchievementTimingLabel: FC<AchievementTimingLabelProps> = ({
   const { formatDuration } = useFormatDuration();
 
   const achievement = sessionEvent.achievement as App.Platform.Data.Achievement;
-  const isOfficialAchievement = getIsAchievementPublished(achievement);
 
   // How long ago was the previous event in the session compared to this one?
   const diffInSeconds =
@@ -125,7 +121,7 @@ const AchievementTimingLabel: FC<AchievementTimingLabelProps> = ({
           <span className="text-neutral-500">{t('(Softcore)')}</span>
         ) : null}
 
-        {!isOfficialAchievement ? (
+        {!achievement.isPublished ? (
           <span className="font-semibold text-neutral-500">{t('Unofficial Achievement.')}</span>
         ) : null}
 

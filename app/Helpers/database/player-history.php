@@ -2,7 +2,6 @@
 
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 
 function getUserBestDaysList(User $user, int $offset, int $limit, int $sortBy): array
 {
@@ -26,12 +25,12 @@ function getUserBestDaysList(User $user, int $offset, int $limit, int $sortBy): 
         $orderCond = "ORDER BY TotalPointsEarned ASC ";
     }
 
-    $query = "SELECT DATE(pa.unlocked_at) AS Date, COUNT(*) AS NumAwarded, SUM(Points) AS TotalPointsEarned
+    $query = "SELECT DATE(pa.unlocked_at) AS Date, COUNT(*) AS NumAwarded, SUM(points) AS TotalPointsEarned
                 FROM player_achievements pa
-                INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
-                INNER JOIN GameData AS gd ON gd.ID = ach.GameID
+                INNER JOIN achievements AS ach ON ach.id = pa.achievement_id
+                INNER JOIN GameData AS gd ON gd.ID = ach.game_id
                 WHERE pa.user_id={$user->id}
-                AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
+                AND ach.is_published = 1
                 AND gd.ConsoleID != " . System::Events . "
                 GROUP BY Date
                 $orderCond
@@ -58,22 +57,22 @@ function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, User $
         'dateStart' => $dateStart,
         'dateEnd' => $dateEnd,
         'userid' => $user->id,
-        'achievementFlag' => AchievementFlag::OfficialCore->value,
+        'isPublished' => 1,
     ];
 
     $query = "SELECT COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS Date,
                      CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode,
-                     ach.ID AS AchievementID, ach.Title, ach.Description,
-                     ach.BadgeName, ach.Points, ach.TrueRatio, ach.type as Type,
+                     ach.id AS AchievementID, ach.title AS Title, ach.description AS Description,
+                     ach.image_name AS BadgeName, ach.points AS Points, ach.points_weighted AS TrueRatio, ach.type as Type,
                      COALESCE(ua.display_name, ua.User) AS Author, ua.ulid AS AuthorULID,
-                     gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, ach.GameID,
+                     gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, ach.game_id AS GameID,
                      c.Name AS ConsoleName
               FROM player_achievements pa
-              INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
-              INNER JOIN GameData AS gd ON gd.ID = ach.GameID
+              INNER JOIN achievements AS ach ON ach.id = pa.achievement_id
+              INNER JOIN GameData AS gd ON gd.ID = ach.game_id
               INNER JOIN Console AS c ON c.ID = gd.ConsoleID
               INNER JOIN UserAccounts AS ua on ua.ID = ach.user_id
-              WHERE pa.user_id = :userid AND ach.Flags = :achievementFlag
+              WHERE pa.user_id = :userid AND ach.is_published = :isPublished
               AND COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) BETWEEN :dateStart AND :dateEnd
               ORDER BY Date, HardcoreMode DESC
               LIMIT 500";
@@ -133,13 +132,13 @@ function getAwardedList(
     }
 
     $query = "SELECT DATE(COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at)) AS Date,
-                SUM(IF(pa.unlocked_hardcore_at IS NOT NULL, ach.Points, 0)) AS HardcorePoints,
-                SUM(ach.Points) AS SoftcorePoints
+                SUM(IF(pa.unlocked_hardcore_at IS NOT NULL, ach.points, 0)) AS HardcorePoints,
+                SUM(ach.points) AS SoftcorePoints
                 FROM player_achievements pa
-                INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
-                INNER JOIN GameData AS gd ON gd.ID = ach.GameID
+                INNER JOIN achievements AS ach ON ach.id = pa.achievement_id
+                INNER JOIN GameData AS gd ON gd.ID = ach.game_id
                 WHERE pa.user_id = {$user->id}
-                AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
+                AND ach.is_published = 1
                 " . ($excludeEvents ? "AND gd.ConsoleID != " . System::Events : "") . "
                 $dateCondition
                 GROUP BY Date

@@ -369,10 +369,10 @@ class AchievementWallSubscriptionHandler extends CommentSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = Achievement::whereIn('ID', $subjectIds)
+        $query = Achievement::whereIn('id', $subjectIds)
             ->select([
-                DB::raw('ID as subject_id'),
-                DB::raw('Title as title'),
+                DB::raw('id as subject_id'),
+                'title',
             ])
             ->orderBy('title');
 
@@ -394,7 +394,7 @@ class AchievementWallSubscriptionHandler extends CommentSubscriptionHandler
                 /** @var Builder<Model> $query2 */
                 $query2 = Subscription::query()
                     ->where('subject_type', SubscriptionSubjectType::GameAchievements)
-                    ->where('subject_id', $achievement->GameID)
+                    ->where('subject_id', $achievement->game_id)
                     ->where('state', true)
                     ->select(['user_id', 'subject_id']);
 
@@ -420,10 +420,10 @@ class AchievementWallSubscriptionHandler extends CommentSubscriptionHandler
                 if ($includeMaintainer) {
                     /** @var Builder<Model> $query3 */
                     $query3 = Achievement::query()
-                        ->where('ID', $achievement->ID)
+                        ->where('id', $achievement->id)
                         ->select([
                             DB::raw($maintainer->id . ' as user_id'),
-                            DB::raw('ID as subject_id'),
+                            DB::raw('id as subject_id'),
                         ]);
 
                     $query->union($query3);
@@ -452,10 +452,10 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
     {
         /** @var Builder<Model> $query */
         $query = Ticket::whereIn('Ticket.ID', $subjectIds)
-            ->join('Achievements', 'Ticket.AchievementID', '=', 'Achievements.ID')
+            ->join('achievements', 'Ticket.AchievementID', '=', 'achievements.id')
             ->select([
                 DB::raw('Ticket.ID as subject_id'),
-                DB::raw('Achievements.Title as title'),
+                DB::raw('achievements.title as title'),
             ])
             ->orderBy('title');
 
@@ -477,7 +477,7 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
                 /** @var Builder<Model> $query2 */
                 $query2 = Subscription::query()
                     ->where('subject_type', SubscriptionSubjectType::GameTickets)
-                    ->where('subject_id', $ticket->achievement->GameID)
+                    ->where('subject_id', $ticket->achievement->game_id)
                     ->where('state', true)
                     ->select(['user_id', 'subject_id']);
 

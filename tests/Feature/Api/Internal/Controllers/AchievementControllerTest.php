@@ -8,7 +8,6 @@ use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\Role;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -105,9 +104,8 @@ class AchievementControllerTest extends TestCase
         $demotingUser->assignRole(Role::TEAM_ACCOUNT);
 
         $game = Game::factory()->create();
-        $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
+        $achievement = Achievement::factory()->published()->create([
+            'game_id' => $game->id,
         ]);
 
         // Act
@@ -153,7 +151,7 @@ class AchievementControllerTest extends TestCase
         $response->assertJsonPath('data.meta.updatedFields', ['published']);
 
         $achievement->refresh();
-        $this->assertEquals(AchievementFlag::Unofficial->value, $achievement->Flags); // !! demoted
+        $this->assertFalse($achievement->is_published); // !! demoted
     }
 
     public function testItSuccessfullyDemotesAnAchievementWithTitleChange(): void
@@ -174,10 +172,9 @@ class AchievementControllerTest extends TestCase
         $demotingUser->assignRole(Role::TEAM_ACCOUNT);
 
         $game = Game::factory()->create();
-        $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
-            'Title' => 'Original Title',
-            'Flags' => AchievementFlag::OfficialCore->value,
+        $achievement = Achievement::factory()->published()->create([
+            'game_id' => $game->id,
+            'title' => 'Original Title',
         ]);
 
         // Act
@@ -203,7 +200,7 @@ class AchievementControllerTest extends TestCase
         $response->assertJsonPath('data.meta.updatedFields', ['published', 'title']);
 
         $achievement->refresh();
-        $this->assertEquals(AchievementFlag::Unofficial->value, $achievement->Flags);
+        $this->assertFalse($achievement->is_published);
         $this->assertEquals('DEMOTED AS UNWELCOME CONCEPT - Original Title', $achievement->title); // !!
     }
 
@@ -380,8 +377,8 @@ class AchievementControllerTest extends TestCase
 
         $game = Game::factory()->create();
         $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
-            'Flags' => AchievementFlag::Unofficial->value, // !! already unofficial
+            'game_id' => $game->id,
+            'is_published' => false, // !! already unofficial
         ]);
 
         // Act
@@ -406,7 +403,7 @@ class AchievementControllerTest extends TestCase
         $response->assertJsonPath('errors.0.detail', 'No changes to apply.');
 
         $achievement->refresh();
-        $this->assertEquals(AchievementFlag::Unofficial->value, $achievement->Flags); // still unofficial
+        $this->assertFalse($achievement->is_published); // still unofficial
     }
 
     public function testItRejectsInvalidJsonApiType(): void

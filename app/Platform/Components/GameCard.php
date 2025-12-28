@@ -209,12 +209,12 @@ class GameCard extends Component
         $lastUpdated = Carbon::parse($gameLastUpdated);
 
         if (!empty($rawAchievements)) {
-            $lastUpdated = Carbon::parse($rawAchievements[0]['DateModified']);
+            $lastUpdated = Carbon::parse($rawAchievements[0]['modified_at']);
 
             foreach ($rawAchievements as $achievement) {
-                $pointsSum += $achievement['Points'];
-                $retroPointsSum += $achievement['TrueRatio'];
-                $achievementDate = Carbon::parse($achievement['DateModified']);
+                $pointsSum += $achievement['points'];
+                $retroPointsSum += $achievement['points_weighted'];
+                $achievementDate = Carbon::parse($achievement['modified_at']);
                 if ($achievementDate->gt($lastUpdated)) {
                     $lastUpdated = $achievementDate;
                 }

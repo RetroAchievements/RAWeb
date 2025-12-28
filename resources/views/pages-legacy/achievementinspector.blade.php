@@ -1,7 +1,7 @@
 <?php
 
 use App\Enums\Permissions;
-use App\Platform\Enums\AchievementFlag;
+use App\Models\Achievement;
 use App\Platform\Enums\AchievementType;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,9 +15,8 @@ $userModel = Auth::user();
 $fullModifyOK = $permissions >= Permissions::Developer;
 
 $gameID = requestInputSanitized('g', null, 'integer');
-$flag = AchievementFlag::tryFrom(
-    requestInputSanitized('f', AchievementFlag::OfficialCore->value, 'integer')
-) ?? AchievementFlag::OfficialCore;
+$flag = requestInputSanitized('f', Achievement::FLAG_PUBLISHED, 'integer');
+$isPublished = $flag === Achievement::FLAG_PUBLISHED;
 
 // TODO use a policy
 $partialModifyOK =
@@ -39,7 +38,7 @@ $gameTitle = null;
 $gameIDSpecified = isset($gameID) && $gameID != 0;
 $canHaveBeatenTypes = false;
 if ($gameIDSpecified) {
-    getGameMetadata($gameID, null, $achievementData, $gameData, 0, null, $flag);
+    getGameMetadata($gameID, null, $achievementData, $gameData, 0, null, $isPublished);
     $gameTitle = $gameData['Title'];
     $consoleName = $gameData['ConsoleName'];
     $gameIcon = $gameData['ImageIcon'];
@@ -81,10 +80,10 @@ function updateDisplayOrder(objID) {
 }
 </script>
 <?php
-if ($flag === AchievementFlag::Unofficial->value) {
+if ($flag === Achievement::FLAG_UNPUBLISHED) {
     echo "<h2>Unofficial Achievement Inspector</h2>";
 }
-if ($flag === AchievementFlag::OfficialCore->value) {
+if ($flag === Achievement::FLAG_PUBLISHED) {
     echo "<h2>Core Achievement Inspector</h2>";
 }
 
@@ -126,8 +125,8 @@ if ($gameIDSpecified) {
         }
 
         if ($fullModifyOK) {
-            echo "<p>You can " . ($flag === AchievementFlag::Unofficial->value ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
-                "the desired checkboxes in the far left column and clicking the '" . ($flag === AchievementFlag::Unofficial->value ? "Promote" : "Demote") . " Selected' " .
+            echo "<p>You can " . ($flag === Achievement::FLAG_UNPUBLISHED ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
+                "the desired checkboxes in the far left column and clicking the '" . ($flag === Achievement::FLAG_UNPUBLISHED ? "Promote" : "Demote") . " Selected' " .
                 "link. You can check or uncheck all checkboxes by clicking the 'All' or 'None' links in the first row of the table.</p>";
         }
     }
@@ -260,7 +259,7 @@ if ($gameIDSpecified) {
         <x-developer.inspector-toolbox
             :canHaveBeatenTypes="$canHaveBeatenTypes"
             :gameId="$gameID"
-            :isManagingCoreAchievements="$flag === AchievementFlag::OfficialCore"
+            :isManagingCoreAchievements="$isPublished"
             :modificationLevel="$modificationLevel"
         />
     </div>

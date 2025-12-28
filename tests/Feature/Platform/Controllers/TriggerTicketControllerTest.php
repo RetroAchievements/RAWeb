@@ -32,7 +32,7 @@ class TriggerTicketControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
         $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
+        $achievement = Achievement::factory()->published()->create(['game_id' => $game->id]);
 
         /** @var User $user */
         $user = User::factory()->create([
@@ -55,7 +55,7 @@ class TriggerTicketControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
         $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
+        $achievement = Achievement::factory()->published()->create(['game_id' => $game->id]);
 
         /** @var User $user */
         $user = User::factory()->create([
@@ -78,7 +78,7 @@ class TriggerTicketControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
         $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
+        $achievement = Achievement::factory()->published()->create(['game_id' => $game->id]);
 
         /** @var User $user */
         $user = User::factory()->create([
@@ -100,7 +100,7 @@ class TriggerTicketControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
         $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
+        $achievement = Achievement::factory()->published()->create(['game_id' => $game->id]);
 
         /** @var User $user */
         $user = User::factory()->create([
@@ -124,7 +124,7 @@ class TriggerTicketControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
         $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
+        $achievement = Achievement::factory()->published()->create(['game_id' => $game->id]);
 
         /** @var User $user */
         $user = User::factory()->create([
@@ -156,7 +156,7 @@ class TriggerTicketControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
         $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
+        $achievement = Achievement::factory()->published()->create(['game_id' => $game->id]);
 
         $emulators = Emulator::factory()->count(3)->create();
         $system->emulators()->attach($emulators->pluck('id'));
@@ -185,7 +185,7 @@ class TriggerTicketControllerTest extends TestCase
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
         $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
         $gameHashes = GameHash::factory()->count(5)->create(['game_id' => $game->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
+        $achievement = Achievement::factory()->published()->create(['game_id' => $game->id]);
 
         /** @var User $user */
         $user = User::factory()->create([
@@ -211,7 +211,7 @@ class TriggerTicketControllerTest extends TestCase
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
         $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
         $gameHashes = GameHash::factory()->count(5)->create(['game_id' => $game->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
+        $achievement = Achievement::factory()->published()->create(['game_id' => $game->id]);
 
         $emulators = Emulator::factory()->count(3)->create();
         $system->emulators()->attach($emulators->pluck('id'));
@@ -255,7 +255,7 @@ class TriggerTicketControllerTest extends TestCase
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
         $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
         $gameHashes = GameHash::factory()->count(5)->create(['game_id' => $game->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
+        $achievement = Achievement::factory()->published()->create(['game_id' => $game->id]);
 
         $emulatorOne = Emulator::factory()->create(['name' => 'RALibRetro']);
         $emulatorTwo = Emulator::factory()->create(['name' => 'RetroArch']);
@@ -322,7 +322,7 @@ class TriggerTicketControllerTest extends TestCase
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
         $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
         $gameHashes = GameHash::factory()->count(5)->create(['game_id' => $game->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
+        $achievement = Achievement::factory()->published()->create(['game_id' => $game->id]);
 
         $emulatorOne = Emulator::factory()->create(['name' => 'RALibRetro']);
         $system->emulators()->attach($emulatorOne->id);
@@ -361,7 +361,7 @@ class TriggerTicketControllerTest extends TestCase
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
         $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
         $gameHashes = GameHash::factory()->count(5)->create(['game_id' => $game->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
+        $achievement = Achievement::factory()->published()->create(['game_id' => $game->id]);
 
         $emulatorOne = Emulator::factory()->create(['name' => 'RALibRetro']);
         $system->emulators()->attach($emulatorOne->id);
@@ -403,7 +403,7 @@ class TriggerTicketControllerTest extends TestCase
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
         $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
         $gameHashes = GameHash::factory()->count(5)->create(['game_id' => $game->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
+        $achievement = Achievement::factory()->published()->create(['game_id' => $game->id]);
 
         $emulatorOne = Emulator::factory()->create(['name' => 'RALibRetro']);
         $system->emulators()->attach($emulatorOne->id);
@@ -461,8 +461,8 @@ class TriggerTicketControllerTest extends TestCase
         // ... create base game with a core set and bonus game with a bonus set ...
         $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
         $bonusGame = Game::factory()->create(['ConsoleID' => $system->id]);
-        Achievement::factory()->published()->create(['GameID' => $baseGame->id]);
-        $bonusAchievement = Achievement::factory()->published()->create(['GameID' => $bonusGame->id]);
+        Achievement::factory()->published()->create(['game_id' => $baseGame->id]);
+        $bonusAchievement = Achievement::factory()->published()->create(['game_id' => $bonusGame->id]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($baseGame);
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($bonusGame);
@@ -510,8 +510,8 @@ class TriggerTicketControllerTest extends TestCase
 
         $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
         $bonusGame = Game::factory()->create(['ConsoleID' => $system->id]);
-        Achievement::factory()->published()->create(['GameID' => $baseGame->id]);
-        $bonusAchievement = Achievement::factory()->published()->create(['GameID' => $bonusGame->id]);
+        Achievement::factory()->published()->create(['game_id' => $baseGame->id]);
+        $bonusAchievement = Achievement::factory()->published()->create(['game_id' => $bonusGame->id]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($baseGame);
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($bonusGame);
@@ -562,8 +562,8 @@ class TriggerTicketControllerTest extends TestCase
         // ... create base game with a core set and a specialty game with a specialty set ...
         $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
         $specialtyGame = Game::factory()->create(['ConsoleID' => $system->id]);
-        Achievement::factory()->published()->create(['GameID' => $baseGame->id]);
-        $specialtyAchievement = Achievement::factory()->published()->create(['GameID' => $specialtyGame->id]);
+        Achievement::factory()->published()->create(['game_id' => $baseGame->id]);
+        $specialtyAchievement = Achievement::factory()->published()->create(['game_id' => $specialtyGame->id]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($baseGame);
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($specialtyGame);
@@ -612,8 +612,8 @@ class TriggerTicketControllerTest extends TestCase
 
         $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
         $bonusGame = Game::factory()->create(['ConsoleID' => $system->id]);
-        Achievement::factory()->published()->create(['GameID' => $baseGame->id]);
-        $bonusAchievement = Achievement::factory()->published()->create(['GameID' => $bonusGame->id]);
+        Achievement::factory()->published()->create(['game_id' => $baseGame->id]);
+        $bonusAchievement = Achievement::factory()->published()->create(['game_id' => $bonusGame->id]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($baseGame);
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($bonusGame);
@@ -650,8 +650,8 @@ class TriggerTicketControllerTest extends TestCase
 
         $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
         $specialtyGame = Game::factory()->create(['ConsoleID' => $system->id]);
-        Achievement::factory()->published()->create(['GameID' => $baseGame->id]);
-        $specialtyAchievement = Achievement::factory()->published()->create(['GameID' => $specialtyGame->id]);
+        Achievement::factory()->published()->create(['game_id' => $baseGame->id]);
+        $specialtyAchievement = Achievement::factory()->published()->create(['game_id' => $specialtyGame->id]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($baseGame);
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($specialtyGame);

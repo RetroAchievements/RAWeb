@@ -101,7 +101,7 @@ class SubmitRichPresenceTest extends TestCase
 
         // ... make the Junior Developer the sole author of all achievements ...
         Achievement::factory()->count(3)->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $user->id,
         ]);
 
@@ -168,11 +168,11 @@ class SubmitRichPresenceTest extends TestCase
 
         // ... create achievements with mixed authorship ...
         Achievement::factory()->count(3)->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $juniorDev->id, // !! junior dev authored some achievements
         ]);
         Achievement::factory()->count(3)->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $otherDev->id, // !! but another dev also authored achievements
         ]);
 

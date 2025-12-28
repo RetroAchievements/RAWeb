@@ -32,7 +32,7 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
 
-        Achievement::factory()->published()->count(1)->create(['GameID' => $game->id, 'Points' => 3]);
+        Achievement::factory()->published()->count(1)->create(['game_id' => $game->id, 'points' => 3]);
         $achievements = $game->achievements()->published()->get();
         $achievementSet = $game->achievementSets()->where('type', AchievementSetType::Core)->first();
 
@@ -101,9 +101,9 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         $this->assertEquals(0, $playerAchievementSet->points_hardcore);
         $this->assertEquals(0, $playerAchievementSet->points_weighted);
 
-        Achievement::factory()->published()->count(3)->create(['GameID' => $game->id, 'Points' => 4]);
-        Achievement::factory()->published()->count(1)->create(['GameID' => $game->id, 'Points' => 5, 'type' => AchievementType::Progression]);
-        Achievement::factory()->published()->count(1)->create(['GameID' => $game->id, 'Points' => 10, 'type' => AchievementType::WinCondition]);
+        Achievement::factory()->published()->count(3)->create(['game_id' => $game->id, 'points' => 4]);
+        Achievement::factory()->published()->count(1)->create(['game_id' => $game->id, 'points' => 5, 'type' => AchievementType::Progression]);
+        Achievement::factory()->published()->count(1)->create(['game_id' => $game->id, 'points' => 10, 'type' => AchievementType::WinCondition]);
         $achievements = $game->achievements()->published()->get();
 
         $this->addSoftcoreUnlock($user, $achievements->get(1));

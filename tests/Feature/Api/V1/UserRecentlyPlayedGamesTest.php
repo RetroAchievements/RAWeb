@@ -113,13 +113,13 @@ class UserRecentlyPlayedGamesTest extends TestCase
                     'ImageBoxArt' => $game->ImageBoxArt,
                     'LastPlayed' => $playerGame->last_played_at->__toString(),
                     'NumPossibleAchievements' => 3,
-                    'PossibleScore' => $publishedAchievements->get(0)->Points +
-                                       $publishedAchievements->get(1)->Points +
-                                       $publishedAchievements->get(2)->Points,
+                    'PossibleScore' => $publishedAchievements->get(0)->points +
+                                       $publishedAchievements->get(1)->points +
+                                       $publishedAchievements->get(2)->points,
                     'NumAchieved' => 2, // hardcore also unlocks softcore
-                    'ScoreAchieved' => $softcoreAchievement->Points + $hardcoreAchievement->Points,
+                    'ScoreAchieved' => $softcoreAchievement->points + $hardcoreAchievement->points,
                     'NumAchievedHardcore' => 1,
-                    'ScoreAchievedHardcore' => $hardcoreAchievement->Points,
+                    'ScoreAchievedHardcore' => $hardcoreAchievement->points,
                 ],
             ]);
     }

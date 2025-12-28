@@ -9,16 +9,16 @@ use App\Models\Achievement;
 use App\Models\AchievementSet;
 use App\Models\Comment;
 use App\Models\PlayerGame;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\Models\Activity;
 
 class ComputeAchievementsSetPublishedAtAction
 {
     public function execute(AchievementSet $achievementSet): ?Carbon
     {
-        $achievementIds = $achievementSet->achievements()->where('Flags', AchievementFlag::OfficialCore)->get()->pluck('id')->toArray();
+        $achievementIds = $achievementSet->achievements()->where('is_published', true)->pluck(DB::raw('achievements.id'))->toArray();
 
         if (count($achievementIds) === 0) {
             return null;
@@ -39,7 +39,11 @@ class ComputeAchievementsSetPublishedAtAction
         $promotionLogs = Activity::query()
             ->where('subject_type', (new Achievement())->getMorphClass())
             ->whereIn('subject_id', $achievementIds)
-            ->whereLike('properties', '%"Flags":3%"Flags":5%') // Flags changed from 5 (unofficial) to 3 (core)
+            ->where(function ($query) {
+                $query->where('properties', 'like', '%"is_published":true%"is_published":false%')
+                    ->orWhere('properties', 'like', '%"is_published":1%"is_published":0%')
+                    ->orWhere('properties', 'like', '%"Flags":3%"Flags":5%');
+            })
             ->orderBy('created_at')
             ->select('created_at');
         if ($publishedAt) {

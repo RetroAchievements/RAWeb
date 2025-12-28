@@ -86,7 +86,7 @@ class FetchDynamicShortcodeContentAction
             return collect();
         }
 
-        return Achievement::whereIn('ID', $achievementIds)
+        return Achievement::whereIn('id', $achievementIds)
             ->get()
             ->map(fn (Achievement $achievement) => AchievementData::fromAchievement($achievement)->include(
                 'points'

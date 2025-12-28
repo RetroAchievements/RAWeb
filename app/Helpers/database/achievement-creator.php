@@ -3,7 +3,6 @@
 use App\Models\Achievement;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 
 /**
  * Gets the number of achievements made by the user for each console they have worked on.
@@ -38,19 +37,19 @@ function getUserAchievementsPerConsole(User $user): array
  */
 function getUserSetsPerConsole(User $user): array
 {
-    $query = "SELECT COUNT(DISTINCT(a.GameID)) AS SetCount, c.Name AS ConsoleName
-              FROM Achievements AS a
-              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
+    $query = "SELECT COUNT(DISTINCT(a.game_id)) AS SetCount, c.Name AS ConsoleName
+              FROM achievements AS a
+              LEFT JOIN GameData AS gd ON gd.ID = a.game_id
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.user_id = :userId
-              AND a.Flags = :achievementFlag
+              AND a.is_published = :isPublished
               AND gd.ConsoleID NOT IN (100, 101)
               GROUP BY ConsoleName
               ORDER BY SetCount DESC, ConsoleName";
 
     return legacyDbFetchAll($query, [
         'userId' => $user->id,
-        'achievementFlag' => AchievementFlag::OfficialCore->value,
+        'isPublished' => 1,
     ])->toArray();
 }
 
@@ -75,11 +74,11 @@ function getUserAchievementInformation(User $user): array
             'GameID' => $achievement->game->id,
             'Title' => $achievement->title,
             'Description' => $achievement->description,
-            'BadgeName' => $achievement->badge_name,
+            'BadgeName' => $achievement->image_name,
             'Points' => $achievement->points,
             'TrueRatio' => $achievement->points_weighted,
-            'DateCreated' => $achievement->DateCreated->format('Y-m-d H:i:s'),
-            'MemLength' => strlen($achievement->MemAddr ?? ''),
+            'DateCreated' => $achievement->created_at->format('Y-m-d H:i:s'),
+            'MemLength' => strlen($achievement->trigger_definition ?? ''),
         ];
     });
 
@@ -95,17 +94,17 @@ function getOwnAchievementsObtained(User $user): array
               SUM(CASE WHEN pa.unlocked_hardcore_at IS NULL THEN 1 ELSE 0 END) AS SoftcoreCount,
               SUM(CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END) AS HardcoreCount
               FROM player_achievements AS pa
-              INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
-              INNER JOIN GameData AS gd ON gd.ID = ach.GameID
+              INNER JOIN achievements AS ach ON ach.id = pa.achievement_id
+              INNER JOIN GameData AS gd ON gd.ID = ach.game_id
               WHERE ach.user_id = :authorId
               AND pa.user_id = :userId
-              AND ach.Flags = :achievementFlag
+              AND ach.is_published = :isPublished
               AND gd.ConsoleID NOT IN (100, 101)";
 
     return legacyDbFetch($query, [
         'authorId' => $user->id,
         'userId' => $user->id,
-        'achievementFlag' => AchievementFlag::OfficialCore->value,
+        'isPublished' => 1,
     ]);
 }
 
@@ -118,12 +117,12 @@ function getObtainersOfSpecificUser(User $user): array
               SUM(CASE WHEN pa.unlocked_hardcore_at IS NULL THEN 1 ELSE 0 END) AS SoftcoreCount,
               SUM(CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END) AS HardcoreCount
               FROM player_achievements AS pa
-              INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
-              INNER JOIN GameData AS gd ON gd.ID = ach.GameID
+              INNER JOIN achievements AS ach ON ach.id = pa.achievement_id
+              INNER JOIN GameData AS gd ON gd.ID = ach.game_id
               INNER JOIN UserAccounts AS ua ON ua.ID = pa.user_id
               WHERE ach.user_id = :authorId
               AND pa.user_id != :userId
-              AND ach.Flags = :achievementFlag
+              AND ach.is_published = :isPublished
               AND gd.ConsoleID NOT IN (100, 101)
               AND ua.Untracked = 0
               GROUP BY ua.User
@@ -132,7 +131,7 @@ function getObtainersOfSpecificUser(User $user): array
     return legacyDbFetchAll($query, [
         'authorId' => $user->id,
         'userId' => $user->id,
-        'achievementFlag' => AchievementFlag::OfficialCore->value,
+        'isPublished' => 1,
     ])->toArray();
 }
 
@@ -144,12 +143,12 @@ function getRecentUnlocksForDev(User $user, int $offset = 0, int $count = 200): 
     $query = "SELECT ua.User,
                      COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS Date,
                      CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode,
-                     ach.ID AS AchievementID, ach.GameID, ach.Title, ach.Description,
-                     ach.BadgeName, ach.Points, ach.TrueRatio,
+                     ach.id AS AchievementID, ach.game_id AS GameID, ach.title AS Title, ach.description AS Description,
+                     ach.image_name AS BadgeName, ach.points AS Points, ach.points_weighted AS TrueRatio,
                      gd.Title AS GameTitle, gd.ImageIcon as GameIcon, c.Name AS ConsoleName
               FROM player_achievements pa
-              INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
-              INNER JOIN GameData AS gd ON gd.ID = ach.GameID
+              INNER JOIN achievements AS ach ON ach.id = pa.achievement_id
+              INNER JOIN GameData AS gd ON gd.ID = ach.game_id
               INNER JOIN Console AS c ON c.ID = gd.ConsoleID
               INNER JOIN UserAccounts AS ua ON ua.ID = pa.user_id
               WHERE ach.user_id = :authorId
@@ -167,8 +166,8 @@ function getRecentUnlocksForDev(User $user, int $offset = 0, int $count = 200): 
  */
 function checkIfSoleDeveloper(User $user, int $gameId): bool
 {
-    $developerUserIdsForGame = Achievement::where('GameID', $gameId)
-        ->where('Flags', AchievementFlag::OfficialCore->value)
+    $developerUserIdsForGame = Achievement::where('game_id', $gameId)
+        ->where('is_published', true)
         ->distinct()
         ->pluck('user_id');
 

@@ -231,65 +231,65 @@ class SubscriptionServiceTest extends TestCase
         // user1 implicitly subscribed to achievement via comment
         Comment::create([
             'ArticleType' => ArticleType::Achievement,
-            'ArticleID' => $achievement->ID,
+            'ArticleID' => $achievement->id,
             'user_id' => $user1->id,
             'Payload' => 'Test',
             'Submitted' => Carbon::now()->subDays(8),
         ]);
 
         // user2 explicitly subscribed to achievement
-        $this->updateSubscription($user2, SubscriptionSubjectType::Achievement, $achievement->ID, true);
+        $this->updateSubscription($user2, SubscriptionSubjectType::Achievement, $achievement->id, true);
 
         // user3 implicitly subscribed to achievement via comment, but explicitly unsubscribed
         Comment::create([
             'ArticleType' => ArticleType::Achievement,
-            'ArticleID' => $achievement->ID,
+            'ArticleID' => $achievement->id,
             'user_id' => $user3->id,
             'Payload' => 'Test',
             'Submitted' => Carbon::now()->subDays(4),
         ]);
-        $this->updateSubscription($user3, SubscriptionSubjectType::Achievement, $achievement->ID, false);
+        $this->updateSubscription($user3, SubscriptionSubjectType::Achievement, $achievement->id, false);
 
         // user4 implicitly subscribed via explicit subscription to GameAchievements
-        $this->updateSubscription($user4, SubscriptionSubjectType::GameAchievements, $achievement->game->ID, true);
+        $this->updateSubscription($user4, SubscriptionSubjectType::GameAchievements, $achievement->game->id, true);
 
         // user5 implicitly subscribed to achievement via comment, but explicitly unsubscribed from GameAchievements - implicit achievement subscription wins
         Comment::create([
             'ArticleType' => ArticleType::Achievement,
-            'ArticleID' => $achievement->ID,
+            'ArticleID' => $achievement->id,
             'user_id' => $user5->id,
             'Payload' => 'Test',
             'Submitted' => Carbon::now()->subDays(2),
         ]);
-        $this->updateSubscription($user5, SubscriptionSubjectType::GameAchievements, $achievement->game->ID, false);
+        $this->updateSubscription($user5, SubscriptionSubjectType::GameAchievements, $achievement->game->id, false);
 
         // user6 implicitly subscribed to achievement via subscription to GameAchievements, but explicitly unsubscribed from achievement - explicit achievement subscription wins
-        $this->updateSubscription($user6, SubscriptionSubjectType::GameAchievements, $achievement->game->ID, true);
-        $this->updateSubscription($user6, SubscriptionSubjectType::Achievement, $achievement->ID, false);
+        $this->updateSubscription($user6, SubscriptionSubjectType::GameAchievements, $achievement->game->id, true);
+        $this->updateSubscription($user6, SubscriptionSubjectType::Achievement, $achievement->id, false);
 
         // user7 implicitly subscribed to achievement as author
 
         // user8 has explicit unsubscription to GameAchievements
-        $this->updateSubscription($user8, SubscriptionSubjectType::GameAchievements, $achievement->game->ID, false);
+        $this->updateSubscription($user8, SubscriptionSubjectType::GameAchievements, $achievement->game->id, false);
 
         $service = new SubscriptionService();
 
-        $this->assertTrue($service->isSubscribed($user1, SubscriptionSubjectType::Achievement, $achievement->ID));
-        $this->assertTrue($service->isSubscribed($user2, SubscriptionSubjectType::Achievement, $achievement->ID));
-        $this->assertFalse($service->isSubscribed($user3, SubscriptionSubjectType::Achievement, $achievement->ID));
-        $this->assertTrue($service->isSubscribed($user4, SubscriptionSubjectType::Achievement, $achievement->ID));
-        $this->assertTrue($service->isSubscribed($user5, SubscriptionSubjectType::Achievement, $achievement->ID));
-        $this->assertFalse($service->isSubscribed($user6, SubscriptionSubjectType::Achievement, $achievement->ID));
-        $this->assertTrue($service->isSubscribed($user7, SubscriptionSubjectType::Achievement, $achievement->ID));
-        $this->assertFalse($service->isSubscribed($user8, SubscriptionSubjectType::Achievement, $achievement->ID));
+        $this->assertTrue($service->isSubscribed($user1, SubscriptionSubjectType::Achievement, $achievement->id));
+        $this->assertTrue($service->isSubscribed($user2, SubscriptionSubjectType::Achievement, $achievement->id));
+        $this->assertFalse($service->isSubscribed($user3, SubscriptionSubjectType::Achievement, $achievement->id));
+        $this->assertTrue($service->isSubscribed($user4, SubscriptionSubjectType::Achievement, $achievement->id));
+        $this->assertTrue($service->isSubscribed($user5, SubscriptionSubjectType::Achievement, $achievement->id));
+        $this->assertFalse($service->isSubscribed($user6, SubscriptionSubjectType::Achievement, $achievement->id));
+        $this->assertTrue($service->isSubscribed($user7, SubscriptionSubjectType::Achievement, $achievement->id));
+        $this->assertFalse($service->isSubscribed($user8, SubscriptionSubjectType::Achievement, $achievement->id));
 
-        $subscribers = $service->getSubscribers(SubscriptionSubjectType::Achievement, $achievement->ID);
+        $subscribers = $service->getSubscribers(SubscriptionSubjectType::Achievement, $achievement->id);
         $subscribedUserIds = $subscribers->pluck('id')->toArray();
         $this->assertEqualsCanonicalizing([1, 2, 4, 5, 7], $subscribedUserIds);
 
         // user2 is explicitly subscribed. user 7 is the author. user 5 has a recent comments.
         // user1 has an old comment. user4 is only implicitly subscribed via GameAchievements.
-        $segmentedSubscribers = $service->getSegmentedSubscriberIds(SubscriptionSubjectType::Achievement, $achievement->ID, $achievement->user_id);
+        $segmentedSubscribers = $service->getSegmentedSubscriberIds(SubscriptionSubjectType::Achievement, $achievement->id, $achievement->user_id);
         $this->assertEqualsCanonicalizing([2], $segmentedSubscribers['explicitlySubscribed']);
         $this->assertEqualsCanonicalizing([5, 7], $segmentedSubscribers['implicitlySubscribedNotifyNow']);
         $this->assertEqualsCanonicalizing([1, 4], $segmentedSubscribers['implicitlySubscribedNotifyLater']);
@@ -324,12 +324,12 @@ class SubscriptionServiceTest extends TestCase
         $achievement->user_id = $user8->id;
         $achievement->save();
         /** @var Ticket $ticket */
-        $ticket = Ticket::factory()->create(['AchievementID' => $achievement->ID, 'reporter_id' => $user7->id]);
+        $ticket = Ticket::factory()->create(['AchievementID' => $achievement->id, 'reporter_id' => $user7->id]);
 
         // user1 implicitly subscribed to achievement via comment
         Comment::create([
             'ArticleType' => ArticleType::AchievementTicket,
-            'ArticleID' => $achievement->ID,
+            'ArticleID' => $achievement->id,
             'user_id' => $user1->id,
             'Payload' => 'Test',
         ]);
@@ -347,7 +347,7 @@ class SubscriptionServiceTest extends TestCase
         $this->updateSubscription($user3, SubscriptionSubjectType::AchievementTicket, $ticket->ID, false);
 
         // user4 implicitly subscribed to ticket via explicit subscription to GameTickets
-        $this->updateSubscription($user4, SubscriptionSubjectType::GameTickets, $achievement->game->ID, true);
+        $this->updateSubscription($user4, SubscriptionSubjectType::GameTickets, $achievement->game->id, true);
 
         // user5 implicitly subscribed to ticket via comment, but explicitly unsubscribed from GameTickets - implicit ticket subscription wins
         Comment::create([
@@ -356,10 +356,10 @@ class SubscriptionServiceTest extends TestCase
             'user_id' => $user5->id,
             'Payload' => 'Test',
         ]);
-        $this->updateSubscription($user5, SubscriptionSubjectType::GameTickets, $achievement->game->ID, false);
+        $this->updateSubscription($user5, SubscriptionSubjectType::GameTickets, $achievement->game->id, false);
 
         // user6 implicitly subscribed to ticket via subscription to GameTickets, but explicitly unsubscribed from ticket - explicit ticket subscription wins
-        $this->updateSubscription($user6, SubscriptionSubjectType::GameTickets, $achievement->game->ID, true);
+        $this->updateSubscription($user6, SubscriptionSubjectType::GameTickets, $achievement->game->id, true);
         $this->updateSubscription($user6, SubscriptionSubjectType::AchievementTicket, $ticket->ID, false);
 
         // user7 implicitly subscribed to ticket via being the reporter
@@ -367,7 +367,7 @@ class SubscriptionServiceTest extends TestCase
         // user8 implicitly subscribed to ticket via being the achievement author
 
         // user9 has explicit unsubscription to GameTickets
-        $this->updateSubscription($user9, SubscriptionSubjectType::GameTickets, $achievement->game->ID, false);
+        $this->updateSubscription($user9, SubscriptionSubjectType::GameTickets, $achievement->game->id, false);
 
         $service = new SubscriptionService();
 
@@ -495,32 +495,32 @@ class SubscriptionServiceTest extends TestCase
         // user2 implicitly subscribed to wall via comment
         Comment::create([
             'ArticleType' => ArticleType::User,
-            'ArticleID' => $user1->ID,
+            'ArticleID' => $user1->id,
             'user_id' => $user2->id,
             'Payload' => 'Test',
         ]);
 
         // user4 explicitly subscribed to wall
-        $this->updateSubscription($user4, SubscriptionSubjectType::UserWall, $user1->ID, true);
+        $this->updateSubscription($user4, SubscriptionSubjectType::UserWall, $user1->id, true);
 
         // user5 implicitly subscribed to achievement via comment, but explicitly unsubscribed
         Comment::create([
             'ArticleType' => ArticleType::User,
-            'ArticleID' => $user1->ID,
+            'ArticleID' => $user1->id,
             'user_id' => $user5->id,
             'Payload' => 'Test',
         ]);
-        $this->updateSubscription($user5, SubscriptionSubjectType::UserWall, $user1->ID, false);
+        $this->updateSubscription($user5, SubscriptionSubjectType::UserWall, $user1->id, false);
 
         $service = new SubscriptionService();
 
-        $this->assertTrue($service->isSubscribed($user1, SubscriptionSubjectType::UserWall, $user1->ID));
-        $this->assertTrue($service->isSubscribed($user2, SubscriptionSubjectType::UserWall, $user1->ID));
-        $this->assertFalse($service->isSubscribed($user3, SubscriptionSubjectType::UserWall, $user1->ID));
-        $this->assertTrue($service->isSubscribed($user4, SubscriptionSubjectType::UserWall, $user1->ID));
-        $this->assertFalse($service->isSubscribed($user5, SubscriptionSubjectType::UserWall, $user1->ID));
+        $this->assertTrue($service->isSubscribed($user1, SubscriptionSubjectType::UserWall, $user1->id));
+        $this->assertTrue($service->isSubscribed($user2, SubscriptionSubjectType::UserWall, $user1->id));
+        $this->assertFalse($service->isSubscribed($user3, SubscriptionSubjectType::UserWall, $user1->id));
+        $this->assertTrue($service->isSubscribed($user4, SubscriptionSubjectType::UserWall, $user1->id));
+        $this->assertFalse($service->isSubscribed($user5, SubscriptionSubjectType::UserWall, $user1->id));
 
-        $subscribers = $service->getSubscribers(SubscriptionSubjectType::UserWall, $user1->ID);
+        $subscribers = $service->getSubscribers(SubscriptionSubjectType::UserWall, $user1->id);
         $subscribedUserIds = $subscribers->pluck('id')->toArray();
         $this->assertEqualsCanonicalizing([1, 2, 4], $subscribedUserIds);
     }

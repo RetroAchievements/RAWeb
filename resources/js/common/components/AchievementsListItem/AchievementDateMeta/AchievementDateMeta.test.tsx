@@ -189,7 +189,7 @@ describe('AchievementDateMeta', () => {
   it('should show unavailable warning for demoted event achievement.', () => {
     // ARRANGE
     const eventAchievement = createEventAchievement({
-      sourceAchievement: createAchievement({ flags: 5 }),
+      sourceAchievement: createAchievement({ isPublished: false }),
     });
 
     render(
@@ -205,7 +205,7 @@ describe('AchievementDateMeta', () => {
     // ARRANGE
     const now = dayjs.utc();
     const eventAchievement = createEventAchievement({
-      sourceAchievement: createAchievement({ flags: 5 }),
+      sourceAchievement: createAchievement({ isPublished: false }),
       activeFrom: now.subtract(2, 'day').toISOString(),
       activeThrough: now.subtract(1, 'day').toISOString(),
       activeUntil: now.toISOString(),
@@ -220,9 +220,9 @@ describe('AchievementDateMeta', () => {
     expect(screen.queryByTestId('warning-icon')).not.toBeInTheDocument();
   });
 
-  it('should show unavailable warning for demoted achievement if flags provided.', () => {
+  it('given an unpublished achievement, should show unavailable warning', () => {
     // ARRANGE
-    const achievement = createAchievement({ flags: 5 });
+    const achievement = createAchievement({ isPublished: false });
 
     render(<AchievementDateMeta achievement={achievement} />);
 
@@ -231,9 +231,9 @@ describe('AchievementDateMeta', () => {
     expect(screen.getByTestId('warning-icon')).toBeVisible();
   });
 
-  it('should not show unavailable warning for published achievement if flags provided.', () => {
+  it('given a published achievement, should not show unavailable warning', () => {
     // ARRANGE
-    const achievement = createAchievement({ flags: 3 });
+    const achievement = createAchievement({ isPublished: true });
 
     render(<AchievementDateMeta achievement={achievement} />);
 
@@ -242,9 +242,9 @@ describe('AchievementDateMeta', () => {
     expect(screen.queryByTestId('warning-icon')).not.toBeInTheDocument();
   });
 
-  it('should not show unavailable warning for demoted achievement if flags not provided.', () => {
+  it('given isPublished is not provided, should not show unavailable warning', () => {
     // ARRANGE
-    const achievement = createAchievement(); // simulates real achievement with flags=5 but flags not included in AchievementData
+    const achievement = createAchievement({ isPublished: undefined });
 
     render(<AchievementDateMeta achievement={achievement} />);
 

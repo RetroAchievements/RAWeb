@@ -16,7 +16,6 @@ use App\Models\Game;
 use App\Models\Role;
 use App\Models\Subscription;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -756,7 +755,7 @@ class AchievementSetClaimControllerTest extends TestCase
 
         /** @var Game $game */
         $game = $this->seedGame(withHash: false);
-        Achievement::factory()->create(['GameID' => $game->id, 'user_id' => $user->id, 'Flags' => AchievementFlag::OfficialCore->value]);
+        Achievement::factory()->published()->create(['game_id' => $game->id, 'user_id' => $user->id]);
         $game->achievements_published = 40;
         $game->save();
 

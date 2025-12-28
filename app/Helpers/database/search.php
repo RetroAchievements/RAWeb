@@ -50,7 +50,7 @@ function performSearch(
                    ELSE 2
                END AS SecondarySort
         FROM GameData AS gd
-        LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID AND ach.Flags = 3
+        LEFT JOIN achievements AS ach ON ach.game_id = gd.ID AND ach.is_published = 1
         LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
         WHERE gd.ConsoleID != 100
         AND gd.Title LIKE '%$searchQuery%'
@@ -77,15 +77,15 @@ function performSearch(
     }
 
     if (in_array(SearchType::Achievement, $searchType)) {
-        $counts[] = "SELECT COUNT(*) AS Count FROM Achievements WHERE Title LIKE '%$searchQuery%'";
+        $counts[] = "SELECT COUNT(*) AS Count FROM achievements WHERE title LIKE '%$searchQuery%'";
         $parts[] = "
-        SELECT " . SearchType::Achievement . " AS Type, ach.ID, CONCAT( '/achievement/', ach.ID ) AS Target,
-               CONCAT(ach.Title, ' (', gd.Title, ')') AS Title,
-               CASE WHEN ach.Title LIKE '$searchQuery%' THEN 0 ELSE 1 END AS SecondarySort
-        FROM Achievements AS ach
-        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        WHERE ach.Flags = 3 AND ach.Title LIKE '%$searchQuery%'
-        ORDER BY SecondarySort, ach.Title";
+        SELECT " . SearchType::Achievement . " AS Type, ach.id, CONCAT( '/achievement/', ach.id ) AS Target,
+               CONCAT(ach.title, ' (', gd.Title, ')') AS Title,
+               CASE WHEN ach.title LIKE '$searchQuery%' THEN 0 ELSE 1 END AS SecondarySort
+        FROM achievements AS ach
+        LEFT JOIN GameData AS gd ON gd.ID = ach.game_id
+        WHERE ach.is_published = 1 AND ach.title LIKE '%$searchQuery%'
+        ORDER BY SecondarySort, ach.title";
     }
 
     if (in_array(SearchType::User, $searchType)) {

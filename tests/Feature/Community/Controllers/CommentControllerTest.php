@@ -205,7 +205,7 @@ class CommentControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['ID' => 1]);
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->create(['GameID' => $game->id]);
+        $achievement = Achievement::factory()->create(['game_id' => $game->id]);
         $user = User::factory()->create();
 
         $comment = Comment::factory()->create([
@@ -275,7 +275,7 @@ class CommentControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['ID' => 1]);
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->create(['GameID' => $game->id]);
+        $achievement = Achievement::factory()->create(['game_id' => $game->id]);
         $user = User::factory()->create();
 
         $oldComment = Comment::factory()->create([

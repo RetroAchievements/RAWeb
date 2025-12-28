@@ -84,8 +84,8 @@ new class extends Component implements HasForms, HasTable, HasActions {
         return (
             Ticket::unresolved()
                 ->officialCore()
-                ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
-                ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
+                ->join('achievements', 'achievements.id', '=', 'Ticket.AchievementID')
+                ->join('GameData', 'GameData.ID', '=', 'achievements.game_id')
                 ->join('Console', 'Console.ID', '=', 'GameData.ConsoleID')
                 ->leftJoinSub($oldestTicketSubquery, 'oldest_tickets', function ($join) {
                     $join->on('Ticket.AchievementID', '=', 'oldest_tickets.AchievementID');

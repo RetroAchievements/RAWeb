@@ -17,7 +17,6 @@ use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use BackedEnum;
 use Filament\Actions;
 use Filament\Actions\ActionGroup;
@@ -187,7 +186,7 @@ class GameResource extends Resource
                                     ->numeric(),
 
                                 Infolists\Components\TextEntry::make('achievements_unpublished')
-                                    ->label('Unofficial')
+                                    ->label('Unpublished')
                                     ->numeric(),
                             ])
                             ->columns(2)
@@ -415,7 +414,7 @@ class GameResource extends Resource
                     ->alignEnd(),
 
                 Tables\Columns\TextColumn::make('achievements_unpublished')
-                    ->label('Achievements (Unofficial)')
+                    ->label('Achievements (Unpublished)')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
@@ -578,20 +577,20 @@ class GameResource extends Resource
                     ->queries(
                         true: fn (Builder $query): Builder => $query->whereExists(function ($subquery) {
                             $subquery->selectRaw('1')
-                                ->from('Achievements')
-                                ->whereColumn('Achievements.GameID', 'GameData.ID')
-                                ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
-                                ->whereNull('Achievements.deleted_at')
-                                ->groupBy('Achievements.GameID', 'Achievements.BadgeName')
+                                ->from('achievements')
+                                ->whereColumn('achievements.game_id', 'GameData.ID')
+                                ->where('achievements.is_published', true)
+                                ->whereNull('achievements.deleted_at')
+                                ->groupBy('achievements.game_id', 'achievements.image_name')
                                 ->havingRaw('COUNT(*) > 1');
                         }),
                         false: fn (Builder $query): Builder => $query->whereNotExists(function ($subquery) {
                             $subquery->selectRaw('1')
-                                ->from('Achievements')
-                                ->whereColumn('Achievements.GameID', 'GameData.ID')
-                                ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
-                                ->whereNull('Achievements.deleted_at')
-                                ->groupBy('Achievements.GameID', 'Achievements.BadgeName')
+                                ->from('achievements')
+                                ->whereColumn('achievements.game_id', 'GameData.ID')
+                                ->where('achievements.is_published', true)
+                                ->whereNull('achievements.deleted_at')
+                                ->groupBy('achievements.game_id', 'achievements.image_name')
                                 ->havingRaw('COUNT(*) > 1');
                         }),
                         blank: fn (Builder $query): Builder => $query,

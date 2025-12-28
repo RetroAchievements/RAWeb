@@ -12,7 +12,6 @@ use App\Models\Game;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
 use BackedEnum;
@@ -66,7 +65,7 @@ class AchievementResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['ID', 'Title', 'Description'];
+        return ['id', 'title', 'description'];
     }
 
     public static function infolist(Schema $schema): Schema
@@ -93,9 +92,9 @@ class AchievementResource extends Resource
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
 
-                        Infolists\Components\TextEntry::make('Title'),
+                        Infolists\Components\TextEntry::make('title'),
 
-                        Infolists\Components\TextEntry::make('Description'),
+                        Infolists\Components\TextEntry::make('description'),
 
                         Infolists\Components\TextEntry::make('game')
                             ->label('Game')
@@ -119,19 +118,11 @@ class AchievementResource extends Resource
                     ->icon('heroicon-o-tag')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('Flags')
+                        Infolists\Components\TextEntry::make('is_published')
                             ->label('Published Status')
                             ->badge()
-                            ->formatStateUsing(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
-                                AchievementFlag::OfficialCore => AchievementFlag::OfficialCore->label(),
-                                AchievementFlag::Unofficial => AchievementFlag::Unofficial->label(),
-                                default => '',
-                            })
-                            ->color(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
-                                AchievementFlag::OfficialCore => 'success',
-                                AchievementFlag::Unofficial => 'info',
-                                default => '',
-                            }),
+                            ->formatStateUsing(fn (bool $state): string => $state ? 'Published' : 'Unpublished')
+                            ->color(fn (bool $state): string => $state ? 'success' : 'info'),
 
                         Infolists\Components\TextEntry::make('type')
                             ->label('Type')
@@ -146,9 +137,10 @@ class AchievementResource extends Resource
                             })
                             ->hidden(fn ($record) => $record->game->system->id === System::Events),
 
-                        Infolists\Components\TextEntry::make('Points'),
+                        Infolists\Components\TextEntry::make('points'),
 
-                        Infolists\Components\TextEntry::make('DisplayOrder'),
+                        Infolists\Components\TextEntry::make('order_column')
+                            ->label('Display Order'),
                     ]),
 
                 Schemas\Components\Section::make('Maintainer')
@@ -219,38 +211,33 @@ class AchievementResource extends Resource
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 2])
                     ->schema([
-                        Forms\Components\TextInput::make('Title')
+                        Forms\Components\TextInput::make('title')
                             ->required()
                             ->maxLength(64)
-                            ->disabled(!$user->can('updateField', [$schema->model, 'Title'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'title'])),
 
-                        Forms\Components\TextInput::make('Description')
+                        Forms\Components\TextInput::make('description')
                             ->required()
                             ->maxLength(255)
-                            ->disabled(!$user->can('updateField', [$schema->model, 'Description'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'description'])),
                     ]),
 
                 Schemas\Components\Section::make('Classification')
                     ->icon('heroicon-o-tag')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Forms\Components\Select::make('Flags')
-                            ->label('Published Status')
-                            ->options([
-                                AchievementFlag::OfficialCore->value => AchievementFlag::OfficialCore->label(),
-                                AchievementFlag::Unofficial->value => AchievementFlag::Unofficial->label(),
-                            ])
-                            ->required()
-                            ->disabled(!$user->can('updateField', [$schema->model, 'Flags'])),
+                        Forms\Components\Toggle::make('is_published')
+                            ->label('Published')
+                            ->disabled(!$user->can('updateField', [$schema->model, 'is_published'])),
 
-                        Forms\Components\Select::make('Points')
+                        Forms\Components\Select::make('points')
                             ->required()
                             ->default(0)
                             ->options(
                                 collect(AchievementPoints::cases())
                                     ->mapWithKeys(fn ($value) => [$value => $value])
                             )
-                            ->disabled(!$user->can('updateField', [$schema->model, 'Points'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'points'])),
 
                         Forms\Components\Select::make('type')
                             ->label('Type')
@@ -274,25 +261,25 @@ class AchievementResource extends Resource
                     ->icon('heroicon-o-video-camera')
                     ->description(new HtmlString('This field is deprecated and will be replaced with on-site guides. <a href="https://github.com/RetroAchievements/RAWeb/discussions/4196" target="_blank" class="underline">See RFC</a>'))
                     ->schema([
-                        Forms\Components\TextInput::make('AssocVideo')
+                        Forms\Components\TextInput::make('embed_url')
                             ->label('Video URL')
                             ->maxLength(255)
-                            ->disabled(!$user->can('updateField', [$schema->model, 'AssocVideo']))
+                            ->disabled(!$user->can('updateField', [$schema->model, 'embed_url']))
                             ->rules([
                                 fn (?Achievement $record): Closure => function (string $attribute, $value, Closure $fail) use ($record) {
                                     // Only allow clearing the field, not changing to a different value.
-                                    if (!empty($value) && $value !== $record?->AssocVideo) {
+                                    if (!empty($value) && $value !== $record?->embed_url) {
                                         $fail('This field is deprecated. You can only clear it, not change it to a different URL.');
                                     }
                                 },
                             ]),
                     ])
-                    ->visible(fn (?Achievement $record): bool => !empty($record?->AssocVideo)),
+                    ->visible(fn (?Achievement $record): bool => !empty($record?->embed_url)),
 
                 Schemas\Components\Section::make('Media')
                     ->icon('heroicon-s-photo')
                     ->schema([
-                        Forms\Components\FileUpload::make('BadgeName')
+                        Forms\Components\FileUpload::make('image_name')
                             ->label('Icon')
                             ->disk('livewire-tmp')
                             ->image()
@@ -302,7 +289,7 @@ class AchievementResource extends Resource
                             ->previewable(true),
                     ])
                     ->columns(2)
-                    ->hidden(!$user->can('updateField', [$schema->model, 'BadgeName'])),
+                    ->hidden(!$user->can('updateField', [$schema->model, 'image_name'])),
 
                 Schemas\Components\Section::make('Maintainer')
                     ->icon('heroicon-o-user')
@@ -348,18 +335,18 @@ class AchievementResource extends Resource
                     ->label('')
                     ->size(config('media.icon.sm.width')),
 
-                Tables\Columns\TextColumn::make('ID')
+                Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('Title')
+                Tables\Columns\TextColumn::make('title')
                     ->label('Achievement')
                     ->wrap()
                     ->description(fn (Achievement $record): string => $record->description)
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('Description')
+                Tables\Columns\TextColumn::make('description')
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
@@ -369,19 +356,12 @@ class AchievementResource extends Resource
                     ->formatStateUsing(fn (Game $state) => "[{$state->id}] {$state->title}")
                     ->url(fn (Game $state) => GameResource::getUrl('view', ['record' => $state->id])),
 
-                Tables\Columns\TextColumn::make('Flags')
+                Tables\Columns\TextColumn::make('is_published')
+                    ->label('Status')
                     ->badge()
                     ->wrap()
-                    ->formatStateUsing(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
-                        AchievementFlag::OfficialCore => AchievementFlag::OfficialCore->label(),
-                        AchievementFlag::Unofficial => AchievementFlag::Unofficial->label(),
-                        default => '',
-                    })
-                    ->color(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
-                        AchievementFlag::OfficialCore => 'success',
-                        AchievementFlag::Unofficial => 'info',
-                        default => '',
-                    }),
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'Published' : 'Unpublished')
+                    ->color(fn (bool $state): string => $state ? 'success' : 'info'),
 
                 Tables\Columns\TextColumn::make('type')
                     ->formatStateUsing(fn (string $state): string => match ($state) {
@@ -399,13 +379,13 @@ class AchievementResource extends Resource
                     ->badge()
                     ->wrap(),
 
-                Tables\Columns\TextColumn::make('Points')
+                Tables\Columns\TextColumn::make('points')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('TrueRatio')
+                Tables\Columns\TextColumn::make('points_weighted')
                     ->label('RetroPoints')
                     ->numeric()
                     ->sortable()
@@ -418,7 +398,7 @@ class AchievementResource extends Resource
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('unlocks_hardcore_total')
+                Tables\Columns\TextColumn::make('unlocks_hardcore')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
@@ -436,27 +416,28 @@ class AchievementResource extends Resource
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('BadgeName')
+                Tables\Columns\TextColumn::make('image_name')
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('DisplayOrder')
+                Tables\Columns\TextColumn::make('order_column')
+                    ->label('Display Order')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('DateCreated')
+                Tables\Columns\TextColumn::make('created_at')
                     ->label('Created at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('DateModified')
+                Tables\Columns\TextColumn::make('modified_at')
                     ->label('Modified at')
                     ->dateTime()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('Updated')
+                Tables\Columns\TextColumn::make('updated_at')
                     ->label('Updated at')
                     ->dateTime()
                     ->sortable()
@@ -467,7 +448,7 @@ class AchievementResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('DateModified', 'desc')
+            ->defaultSort('modified_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
                     ->multiple()

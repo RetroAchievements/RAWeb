@@ -14,7 +14,6 @@ use App\Models\Trigger;
 use App\Models\User;
 use App\Platform\Actions\UpdatePlayerGameMetricsAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\TriggerableType;
 use App\Platform\Events\AchievementCreated;
@@ -100,7 +99,7 @@ class UploadAchievementTest extends TestCase
             'd' => 'Description1',
             'z' => 5,
             'm' => '0xH0000=1',
-            'f' => AchievementFlag::OfficialCore->value, // Unofficial - hardcode for test to prevent false success if enum changes
+            'f' => Achievement::FLAG_PUBLISHED, // Publish - hardcode for test to prevent false success if enum changes
             'b' => '001234',
         ]))
             ->assertExactJson([
@@ -148,20 +147,20 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement1->ID + 1,
+                'AchievementID' => $achievement1->id + 1,
                 'Error' => '',
             ]);
 
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::findOrFail($achievement1->ID + 1);
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title1');
-        $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
-        $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
+        $achievement2 = Achievement::findOrFail($achievement1->id + 1);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title1');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
+        $this->assertEquals($achievement2->points, 5);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->user_id, $author->id);
-        $this->assertEquals($achievement2->BadgeName, '001234');
+        $this->assertEquals($achievement2->image_name, '001234');
 
         $game->refresh();
         $this->assertEquals($game->achievements_published, 0);
@@ -170,23 +169,23 @@ class UploadAchievementTest extends TestCase
 
         // ====================================================
         // publish achievement
-        $params['a'] = $achievement2->ID;
+        $params['a'] = $achievement2->id;
         $params['f'] = 3; // Official - hardcode for test to prevent false success if enum changes
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => '',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title1');
-        $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
-        $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title1');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
+        $this->assertEquals($achievement2->points, 5);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
         $this->assertNull($achievement2->type);
-        $this->assertEquals($achievement2->BadgeName, '001234');
+        $this->assertEquals($achievement2->image_name, '001234');
 
         $game->refresh();
         $this->assertEquals($game->achievements_published, 1);
@@ -204,18 +203,18 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => '',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title2');
-        $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title2');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement2->points, 10);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
         $this->assertEquals($achievement2->type, 'progression');
-        $this->assertEquals($achievement2->BadgeName, '002345');
+        $this->assertEquals($achievement2->image_name, '002345');
 
         $game->refresh();
         $this->assertEquals($game->achievements_published, 1);
@@ -242,18 +241,18 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => '',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title2');
-        $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title2');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement2->points, 5);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
         $this->assertEquals($achievement2->type, 'progression');
-        $this->assertEquals($achievement2->BadgeName, '002345');
+        $this->assertEquals($achievement2->image_name, '002345');
 
         $game->refresh();
         $this->assertEquals($game->achievements_published, 1);
@@ -272,18 +271,18 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => '',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title2');
-        $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title2');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement2->points, 5);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
         $this->assertEquals($achievement2->type, 'progression');
-        $this->assertEquals($achievement2->BadgeName, '002345');
+        $this->assertEquals($achievement2->image_name, '002345');
 
         $game->refresh();
         $this->assertEquals($game->achievements_published, 0);
@@ -302,18 +301,18 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => '',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title2');
-        $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title2');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement2->points, 10);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
         $this->assertEquals($achievement2->type, 'progression');
-        $this->assertEquals($achievement2->BadgeName, '002345');
+        $this->assertEquals($achievement2->image_name, '002345');
 
         $game->refresh();
         $this->assertEquals($game->achievements_published, 0);
@@ -332,18 +331,18 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => '',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title2');
-        $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title2');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement2->points, 10);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
         $this->assertEquals($achievement2->type, 'progression');
-        $this->assertEquals($achievement2->BadgeName, '002345');
+        $this->assertEquals($achievement2->image_name, '002345');
 
         $game->refresh();
         $this->assertEquals($game->achievements_published, 1);
@@ -367,7 +366,7 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->create(['game_id' => $game->id, 'user_id' => $author->id]);
 
         $params = [
             'u' => $author->User,
@@ -401,7 +400,7 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID, 'user_id' => $this->user->id, 'Points' => 5]);
+        $achievement1 = Achievement::factory()->create(['game_id' => $game->id, 'user_id' => $this->user->id, 'points' => 5]);
 
         $params = [
             'u' => $author->User,
@@ -434,23 +433,23 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement1->ID + 1,
+                'AchievementID' => $achievement1->id + 1,
                 'Error' => '',
             ]);
 
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::findOrFail($achievement1->ID + 1);
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title1');
-        $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
-        $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
+        $achievement2 = Achievement::findOrFail($achievement1->id + 1);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title1');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
+        $this->assertEquals($achievement2->points, 5);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
         $this->assertNull($achievement2->type);
-        $this->assertEquals($achievement2->BadgeName, '001234');
+        $this->assertEquals($achievement2->image_name, '001234');
 
         // ====================================================
         // junior developer can modify their own achievement
-        $params['a'] = $achievement2->ID;
+        $params['a'] = $achievement2->id;
         $params['n'] = 'Title2';
         $params['d'] = 'Description2';
         $params['z'] = 10;
@@ -460,77 +459,77 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement1->ID + 1,
+                'AchievementID' => $achievement1->id + 1,
                 'Error' => '',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title2');
-        $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title2');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement2->points, 10);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
         $this->assertEquals($achievement2->type, 'progression');
-        $this->assertEquals($achievement2->BadgeName, '002345');
+        $this->assertEquals($achievement2->image_name, '002345');
 
         // ====================================================
         // junior developer cannot modify an achievement owned by someone else
-        $params['a'] = $achievement1->ID;
+        $params['a'] = $achievement1->id;
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => false,
-                'AchievementID' => $achievement1->ID,
+                'AchievementID' => $achievement1->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
         $achievement1->refresh();
-        $this->assertNotEquals($achievement1->Title, 'Title2');
-        $this->assertNotEquals($achievement1->MemAddr, '0xH0001=1');
-        $this->assertNotEquals($achievement1->Points, 10);
-        $this->assertEquals($achievement1->Flags, AchievementFlag::Unofficial->value);
+        $this->assertNotEquals($achievement1->title, 'Title2');
+        $this->assertNotEquals($achievement1->trigger_definition, '0xH0001=1');
+        $this->assertNotEquals($achievement1->points, 10);
+        $this->assertEquals($achievement1->flags, Achievement::FLAG_UNPUBLISHED);
         $this->assertNotEquals($achievement1->type, 'progression');
-        $this->assertNotEquals($achievement1->BadgeName, '002345');
+        $this->assertNotEquals($achievement1->image_name, '002345');
 
         // ====================================================
         // junior developer cannot promote their own achievement
-        $params['a'] = $achievement2->ID;
+        $params['a'] = $achievement2->id;
         $params['f'] = 3;
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => false,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title2');
-        $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title2');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement2->points, 10);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
         $this->assertEquals($achievement2->type, 'progression');
-        $this->assertEquals($achievement2->BadgeName, '002345');
+        $this->assertEquals($achievement2->image_name, '002345');
 
         // ====================================================
         // junior developer cannot demote their own achievement
-        $achievement2->Flags = AchievementFlag::OfficialCore->value;
+        $achievement2->is_published = true;
         $achievement2->save();
         $params['f'] = 5;
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => false,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title2');
-        $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title2');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement2->points, 10);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
         $this->assertEquals($achievement2->type, 'progression');
-        $this->assertEquals($achievement2->BadgeName, '002345');
+        $this->assertEquals($achievement2->image_name, '002345');
 
         // ====================================================
         // junior developer cannot change logic of their own achievement in core
@@ -539,18 +538,18 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => false,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => 'You must be a developer to perform this action! Please drop a message in the forums to apply.',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title2');
-        $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title2');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement2->points, 10);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
         $this->assertEquals($achievement2->type, 'progression');
-        $this->assertEquals($achievement2->BadgeName, '002345');
+        $this->assertEquals($achievement2->image_name, '002345');
 
         // ====================================================
         // junior developer can change all non-logic of their own achievement in core
@@ -563,18 +562,18 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => '',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title3');
-        $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title3');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement2->points, 5);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
         $this->assertNull($achievement2->type);
-        $this->assertEquals($achievement2->BadgeName, '003456');
+        $this->assertEquals($achievement2->image_name, '003456');
     }
 
     public function testDevPermissions(): void
@@ -587,7 +586,7 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID, 'user_id' => $this->user->id]);
+        $achievement1 = Achievement::factory()->create(['game_id' => $game->id, 'user_id' => $this->user->id]);
 
         $params = [
             'u' => $author->User,
@@ -620,23 +619,23 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement1->ID + 1,
+                'AchievementID' => $achievement1->id + 1,
                 'Error' => '',
             ]);
 
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::findOrFail($achievement1->ID + 1);
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title1');
-        $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
-        $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
+        $achievement2 = Achievement::findOrFail($achievement1->id + 1);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title1');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
+        $this->assertEquals($achievement2->points, 5);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
         $this->assertNull($achievement2->type);
-        $this->assertEquals($achievement2->BadgeName, '001234');
+        $this->assertEquals($achievement2->image_name, '001234');
 
         // ====================================================
         // developer can modify their own achievement
-        $params['a'] = $achievement2->ID;
+        $params['a'] = $achievement2->id;
         $params['n'] = 'Title2';
         $params['d'] = 'Description2';
         $params['z'] = 10;
@@ -646,18 +645,18 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement1->ID + 1,
+                'AchievementID' => $achievement1->id + 1,
                 'Error' => '',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title2');
-        $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title2');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement2->points, 10);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
         $this->assertEquals($achievement2->type, 'progression');
-        $this->assertEquals($achievement2->BadgeName, '002345');
+        $this->assertEquals($achievement2->image_name, '002345');
 
         // ====================================================
         // developer can promote their own achievement
@@ -665,18 +664,18 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => '',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title2');
-        $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title2');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement2->points, 10);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
         $this->assertEquals($achievement2->type, 'progression');
-        $this->assertEquals($achievement2->BadgeName, '002345');
+        $this->assertEquals($achievement2->image_name, '002345');
 
         // ====================================================
         // developer can change all properties of their own achievement in core
@@ -689,18 +688,18 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => '',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title3');
-        $this->assertEquals($achievement2->MemAddr, '0xH0002=1');
-        $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title3');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0002=1');
+        $this->assertEquals($achievement2->points, 5);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
         $this->assertNull($achievement2->type);
-        $this->assertEquals($achievement2->BadgeName, '003456');
+        $this->assertEquals($achievement2->image_name, '003456');
 
         // ====================================================
         // developer can demote their own achievement
@@ -708,22 +707,22 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => '',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title3');
-        $this->assertEquals($achievement2->MemAddr, '0xH0002=1');
-        $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title3');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0002=1');
+        $this->assertEquals($achievement2->points, 5);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
         $this->assertNull($achievement2->type);
-        $this->assertEquals($achievement2->BadgeName, '003456');
+        $this->assertEquals($achievement2->image_name, '003456');
 
         // ====================================================
         // developer can modify an achievement owned by someone else
-        $params['a'] = $achievement1->ID;
+        $params['a'] = $achievement1->id;
         $params['n'] = 'Title2';
         $params['d'] = 'Description2';
         $params['z'] = 10;
@@ -733,17 +732,17 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement1->ID,
+                'AchievementID' => $achievement1->id,
                 'Error' => '',
             ]);
 
         $achievement1->refresh();
-        $this->assertEquals($achievement1->Title, 'Title2');
-        $this->assertEquals($achievement1->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement1->Points, 10);
-        $this->assertEquals($achievement1->Flags, AchievementFlag::Unofficial->value);
+        $this->assertEquals($achievement1->title, 'Title2');
+        $this->assertEquals($achievement1->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement1->points, 10);
+        $this->assertEquals($achievement1->flags, Achievement::FLAG_UNPUBLISHED);
         $this->assertEquals($achievement1->type, 'progression');
-        $this->assertEquals($achievement1->BadgeName, '002345');
+        $this->assertEquals($achievement1->image_name, '002345');
 
         // ====================================================
         // developer can promote someone else's achievement
@@ -751,18 +750,18 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement1->ID,
+                'AchievementID' => $achievement1->id,
                 'Error' => '',
             ]);
 
         $achievement1->refresh();
-        $this->assertEquals($achievement1->GameID, $game->ID);
-        $this->assertEquals($achievement1->Title, 'Title2');
-        $this->assertEquals($achievement1->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement1->Points, 10);
-        $this->assertEquals($achievement1->Flags, AchievementFlag::OfficialCore->value);
+        $this->assertEquals($achievement1->game_id, $game->ID);
+        $this->assertEquals($achievement1->title, 'Title2');
+        $this->assertEquals($achievement1->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement1->points, 10);
+        $this->assertEquals($achievement1->flags, Achievement::FLAG_PUBLISHED);
         $this->assertEquals($achievement1->type, 'progression');
-        $this->assertEquals($achievement1->BadgeName, '002345');
+        $this->assertEquals($achievement1->image_name, '002345');
 
         // ====================================================
         // developer can change all properties of someone else's achievement in core
@@ -775,18 +774,18 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement1->ID,
+                'AchievementID' => $achievement1->id,
                 'Error' => '',
             ]);
 
         $achievement1->refresh();
-        $this->assertEquals($achievement1->GameID, $game->ID);
-        $this->assertEquals($achievement1->Title, 'Title3');
-        $this->assertEquals($achievement1->MemAddr, '0xH0002=1');
-        $this->assertEquals($achievement1->Points, 5);
-        $this->assertEquals($achievement1->Flags, AchievementFlag::OfficialCore->value);
+        $this->assertEquals($achievement1->game_id, $game->ID);
+        $this->assertEquals($achievement1->title, 'Title3');
+        $this->assertEquals($achievement1->trigger_definition, '0xH0002=1');
+        $this->assertEquals($achievement1->points, 5);
+        $this->assertEquals($achievement1->flags, Achievement::FLAG_PUBLISHED);
         $this->assertNull($achievement1->type);
-        $this->assertEquals($achievement1->BadgeName, '003456');
+        $this->assertEquals($achievement1->image_name, '003456');
 
         // ====================================================
         // developer can demote someone else's achievement
@@ -794,18 +793,18 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement1->ID,
+                'AchievementID' => $achievement1->id,
                 'Error' => '',
             ]);
 
         $achievement1->refresh();
-        $this->assertEquals($achievement1->GameID, $game->ID);
-        $this->assertEquals($achievement1->Title, 'Title3');
-        $this->assertEquals($achievement1->MemAddr, '0xH0002=1');
-        $this->assertEquals($achievement1->Points, 5);
-        $this->assertEquals($achievement1->Flags, AchievementFlag::Unofficial->value);
+        $this->assertEquals($achievement1->game_id, $game->ID);
+        $this->assertEquals($achievement1->title, 'Title3');
+        $this->assertEquals($achievement1->trigger_definition, '0xH0002=1');
+        $this->assertEquals($achievement1->points, 5);
+        $this->assertEquals($achievement1->flags, Achievement::FLAG_UNPUBLISHED);
         $this->assertNull($achievement1->type);
-        $this->assertEquals($achievement1->BadgeName, '003456');
+        $this->assertEquals($achievement1->image_name, '003456');
     }
 
     public function testSubset(): void
@@ -825,7 +824,7 @@ class UploadAchievementTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID + 1, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->create(['game_id' => $game->id + 1, 'user_id' => $author->id]);
 
         $params = [
             'u' => $author->User,
@@ -844,20 +843,20 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement1->ID + 1,
+                'AchievementID' => $achievement1->id + 1,
                 'Error' => '',
             ]);
 
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::findOrFail($achievement1->ID + 1);
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title1');
-        $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
-        $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
+        $achievement2 = Achievement::findOrFail($achievement1->id + 1);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title1');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
+        $this->assertEquals($achievement2->points, 5);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->user_id, $author->id);
-        $this->assertEquals($achievement2->BadgeName, '001234');
+        $this->assertEquals($achievement2->image_name, '001234');
 
         $game->refresh();
         $this->assertEquals($game->achievements_published, 0);
@@ -866,23 +865,23 @@ class UploadAchievementTest extends TestCase
 
         // ====================================================
         // publish achievement
-        $params['a'] = $achievement2->ID;
+        $params['a'] = $achievement2->id;
         $params['f'] = 3; // Official - hardcode for test to prevent false success if enum changes
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => '',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title1');
-        $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
-        $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title1');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
+        $this->assertEquals($achievement2->points, 5);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
         $this->assertNull($achievement2->type);
-        $this->assertEquals($achievement2->BadgeName, '001234');
+        $this->assertEquals($achievement2->image_name, '001234');
 
         $game->refresh();
         $this->assertEquals($game->achievements_published, 1);
@@ -900,7 +899,7 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => false,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => 'Cannot set progression or win condition type on achievement in subset, test kit, or event.',
             ]);
 
@@ -910,18 +909,18 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => '',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title2');
-        $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title2');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement2->points, 10);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_PUBLISHED);
         $this->assertEquals($achievement2->type, null);
-        $this->assertEquals($achievement2->BadgeName, '002345');
+        $this->assertEquals($achievement2->image_name, '002345');
 
         $game->refresh();
         $this->assertEquals($game->achievements_published, 1);
@@ -946,7 +945,7 @@ class UploadAchievementTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID + 1, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->create(['game_id' => $game->id + 1, 'user_id' => $author->id]);
 
         $params = [
             'u' => $author->User,
@@ -965,20 +964,20 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement1->ID + 1,
+                'AchievementID' => $achievement1->id + 1,
                 'Error' => '',
             ]);
 
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::findOrFail($achievement1->ID + 1);
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title1');
-        $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
-        $this->assertEquals($achievement2->Points, 5);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
+        $achievement2 = Achievement::findOrFail($achievement1->id + 1);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title1');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
+        $this->assertEquals($achievement2->points, 5);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->user_id, $author->id);
-        $this->assertEquals($achievement2->BadgeName, '001234');
+        $this->assertEquals($achievement2->image_name, '001234');
 
         $game->refresh();
         $this->assertEquals($game->achievements_published, 0);
@@ -987,7 +986,7 @@ class UploadAchievementTest extends TestCase
 
         // ====================================================
         // can modify in unofficial
-        $params['a'] = $achievement2->ID;
+        $params['a'] = $achievement2->id;
         $params['n'] = 'Title2';
         $params['d'] = 'Description2';
         $params['z'] = 10;
@@ -997,18 +996,18 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => '',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title2');
-        $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title2');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement2->points, 10);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
         $this->assertEquals($achievement2->type, 'progression');
-        $this->assertEquals($achievement2->BadgeName, '002345');
+        $this->assertEquals($achievement2->image_name, '002345');
 
         $game->refresh();
         $this->assertEquals($game->achievements_published, 0);
@@ -1021,18 +1020,18 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => false,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'Error' => 'You cannot promote achievements for a game from an unsupported console (console ID: 500).',
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
-        $this->assertEquals($achievement2->Title, 'Title2');
-        $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
-        $this->assertEquals($achievement2->Points, 10);
-        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial->value);
+        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->title, 'Title2');
+        $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
+        $this->assertEquals($achievement2->points, 10);
+        $this->assertEquals($achievement2->flags, Achievement::FLAG_UNPUBLISHED);
         $this->assertEquals($achievement2->type, 'progression');
-        $this->assertEquals($achievement2->BadgeName, '002345');
+        $this->assertEquals($achievement2->image_name, '002345');
     }
 
     public function testOtherErrors(): void
@@ -1117,7 +1116,7 @@ class UploadAchievementTest extends TestCase
             'd' => 'Test Description',
             'z' => 5,
             'm' => '0xH0000=1',
-            'f' => AchievementFlag::Unofficial->value,
+            'f' => Achievement::FLAG_UNPUBLISHED,
             'b' => 'test-badge',
         ]));
 
@@ -1145,10 +1144,10 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $author->id,
-            'Flags' => AchievementFlag::Unofficial->value,
-            'MemAddr' => '0xH0000=1',
+            'is_published' => false,
+            'trigger_definition' => '0xH0000=1',
         ]);
         $trigger = Trigger::factory()->create([
             'triggerable_id' => $achievement->id,
@@ -1172,7 +1171,7 @@ class UploadAchievementTest extends TestCase
             'd' => 'Test Description',
             'z' => 5,
             'm' => '0xHaaaa=1', // !! the dev is updating the achievement's logic
-            'f' => AchievementFlag::Unofficial->value, // !! still unofficial, though.
+            'f' => Achievement::FLAG_UNPUBLISHED, // !! still unofficial, though.
             'b' => 'test-badge',
             'a' => $achievement->id,
         ]));
@@ -1182,7 +1181,7 @@ class UploadAchievementTest extends TestCase
         $this->assertTrue($response['Success']);
 
         $achievement->refresh();
-        $this->assertEquals('0xHaaaa=1', $achievement->MemAddr);
+        $this->assertEquals('0xHaaaa=1', $achievement->trigger_definition);
 
         $newTrigger = $achievement->trigger;
         $this->assertNotNull($newTrigger);
@@ -1201,10 +1200,10 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $author->id,
-            'Flags' => AchievementFlag::Unofficial->value, // !! currently sitting in unofficial.
-            'MemAddr' => '0xH0000=1',
+            'is_published' => false, // !! currently sitting in unofficial.
+            'trigger_definition' => '0xH0000=1',
         ]);
         $trigger = Trigger::factory()->create([
             'triggerable_id' => $achievement->id,
@@ -1228,7 +1227,7 @@ class UploadAchievementTest extends TestCase
             'd' => 'Test Description',
             'z' => 5,
             'm' => '0xH0000=1', // the logic didn't change!
-            'f' => AchievementFlag::OfficialCore->value, // promoted to core!
+            'f' => Achievement::FLAG_PUBLISHED, // promoted to core!
             'b' => 'test-badge',
             'a' => $achievement->id,
         ]));
@@ -1254,10 +1253,10 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $author->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
-            'MemAddr' => '0xH0000=1',
+            'is_published' => true,
+            'trigger_definition' => '0xH0000=1',
         ]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
@@ -1272,7 +1271,7 @@ class UploadAchievementTest extends TestCase
             'd' => 'Test Description',
             'z' => 5,
             'm' => '0xHaaaa=1',
-            'f' => AchievementFlag::OfficialCore->value,
+            'f' => Achievement::FLAG_PUBLISHED,
             'b' => 'test-badge',
             'a' => $achievement->id,
             's' => $gameAchievementSet->id, // !! game achievement set id given
@@ -1296,10 +1295,10 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $author->id,
-            'Flags' => AchievementFlag::OfficialCore->value, // !!
-            'MemAddr' => '0xH0000=1',
+            'is_published' => true, // !!
+            'trigger_definition' => '0xH0000=1',
         ]);
         $trigger = Trigger::factory()->create([
             'triggerable_id' => $achievement->id,
@@ -1318,7 +1317,7 @@ class UploadAchievementTest extends TestCase
             'd' => 'Test Description',
             'z' => 5,
             'm' => '0xHaaaa=1', // logic changed!
-            'f' => AchievementFlag::OfficialCore->value,
+            'f' => Achievement::FLAG_PUBLISHED,
             'b' => 'test-badge',
             'a' => $achievement->id,
         ]));
@@ -1372,14 +1371,14 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement1->ID + 1,
+                'AchievementID' => $achievement1->id + 1,
                 'Error' => '',
             ]);
 
         $game->refresh();
         $coreSet = $game->gameAchievementSets()->core()->first()->achievementSet;
         $this->assertEquals(1, $coreSet->achievements()->count());
-        $this->assertEquals($achievement1->ID + 1, $coreSet->achievements()->first()->ID);
+        $this->assertEquals($achievement1->id + 1, $coreSet->achievements()->first()->id);
         $this->assertEquals(0, $coreSet->achievements_published);
         $this->assertEquals(1, $coreSet->achievements_unpublished);
         $this->assertEquals(0, $coreSet->points_total);
@@ -1401,33 +1400,33 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement1->ID + 2,
+                'AchievementID' => $achievement1->id + 2,
                 'Error' => '',
             ]);
 
         $coreSet->refresh();
         $this->assertEquals(2, $coreSet->achievements()->count());
-        $this->assertEquals($achievement1->ID + 1, $coreSet->achievements()->first()->ID);
-        $this->assertEquals($achievement1->ID + 2, $coreSet->achievements()->skip(1)->first()->ID);
+        $this->assertEquals($achievement1->id + 1, $coreSet->achievements()->first()->id);
+        $this->assertEquals($achievement1->id + 2, $coreSet->achievements()->skip(1)->first()->id);
         $this->assertEquals(0, $coreSet->achievements_published);
         $this->assertEquals(2, $coreSet->achievements_unpublished);
         $this->assertEquals(0, $coreSet->points_total);
 
         // ====================================================
         // publish achievement
-        $params['a'] = $achievement1->ID + 2;
+        $params['a'] = $achievement1->id + 2;
         $params['f'] = 3; // Official - hardcode for test to prevent false success if enum changes
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement1->ID + 2,
+                'AchievementID' => $achievement1->id + 2,
                 'Error' => '',
             ]);
 
         $coreSet->refresh();
         $this->assertEquals(2, $coreSet->achievements()->count());
-        $this->assertEquals($achievement1->ID + 1, $coreSet->achievements()->first()->ID);
-        $this->assertEquals($achievement1->ID + 2, $coreSet->achievements()->skip(1)->first()->ID);
+        $this->assertEquals($achievement1->id + 1, $coreSet->achievements()->first()->id);
+        $this->assertEquals($achievement1->id + 2, $coreSet->achievements()->skip(1)->first()->id);
         $this->assertEquals(1, $coreSet->achievements_published);
         $this->assertEquals(1, $coreSet->achievements_unpublished);
         $this->assertEquals(10, $coreSet->points_total);
@@ -1486,34 +1485,34 @@ class UploadAchievementTest extends TestCase
             'u' => $author->User,
             't' => $author->appToken,
             'g' => $game->ID,
-            'a' => $achievement3->ID,
-            'n' => $achievement3->Title,
-            'd' => $achievement3->Description,
-            'z' => $achievement3->Points,
-            'm' => $achievement3->MemAddr,
-            'f' => $achievement3->Flags,
-            'b' => $achievement3->BadgeName,
+            'a' => $achievement3->id,
+            'n' => $achievement3->title,
+            'd' => $achievement3->description,
+            'z' => $achievement3->points,
+            'm' => $achievement3->trigger_definition,
+            'f' => $achievement3->flags,
+            'b' => $achievement3->image_name,
         ];
         $params4 = [
             'u' => $author->User,
             't' => $author->appToken,
             'g' => $game->ID,
-            'a' => $achievement4->ID,
-            'n' => $achievement4->Title,
-            'd' => $achievement4->Description,
-            'z' => $achievement4->Points,
-            'm' => $achievement4->MemAddr,
-            'f' => $achievement4->Flags,
-            'b' => $achievement4->BadgeName,
+            'a' => $achievement4->id,
+            'n' => $achievement4->title,
+            'd' => $achievement4->description,
+            'z' => $achievement4->points,
+            'm' => $achievement4->trigger_definition,
+            'f' => $achievement4->flags,
+            'b' => $achievement4->image_name,
         ];
 
         // ====================================================
         // demoting win condition updates beat time
-        $params3['f'] = AchievementFlag::Unofficial->value;
+        $params3['f'] = Achievement::FLAG_UNPUBLISHED;
         $this->get($this->apiUrl('uploadachievement', $params3))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement3->ID,
+                'AchievementID' => $achievement3->id,
                 'Error' => '',
             ]);
 
@@ -1522,11 +1521,11 @@ class UploadAchievementTest extends TestCase
 
         // ====================================================
         // promoting win condition updates beat time
-        $params3['f'] = AchievementFlag::OfficialCore->value;
+        $params3['f'] = Achievement::FLAG_PUBLISHED;
         $this->get($this->apiUrl('uploadachievement', $params3))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement3->ID,
+                'AchievementID' => $achievement3->id,
                 'Error' => '',
             ]);
 
@@ -1539,7 +1538,7 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params4))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement4->ID,
+                'AchievementID' => $achievement4->id,
                 'Error' => '',
             ]);
 
@@ -1552,7 +1551,7 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', $params4))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement4->ID,
+                'AchievementID' => $achievement4->id,
                 'Error' => '',
             ]);
 

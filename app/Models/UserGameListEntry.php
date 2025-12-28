@@ -119,8 +119,8 @@ class UserGameListEntry extends BaseModel
     {
         return $query
             ->select('SetRequest.*')
-            ->leftJoin('Achievements', 'SetRequest.GameID', '=', 'Achievements.GameID')
+            ->leftJoin('achievements', 'SetRequest.GameID', '=', 'achievements.game_id')
             ->groupBy('SetRequest.GameID')
-            ->havingRaw('count(Achievements.ID) = 0');
+            ->havingRaw('count(achievements.id) = 0');
     }
 }

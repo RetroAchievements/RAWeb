@@ -222,10 +222,10 @@ function getGlobalRankingData(
     if ($info == 1) {
         return legacyDbFetchAll("
             SELECT ua.User AS User,
-            SUM(ach.Points) AS Points,
-            SUM(ach.TrueRatio) AS RetroPoints
+            SUM(ach.points) AS Points,
+            SUM(ach.points_weighted) AS RetroPoints
             FROM player_achievements AS aw
-            INNER JOIN Achievements AS ach ON ach.ID = aw.achievement_id
+            INNER JOIN achievements AS ach ON ach.id = aw.achievement_id
             INNER JOIN UserAccounts AS ua ON ua.ID = aw.user_id
             WHERE TRUE $whereDateAchievement $typeCond
             $friendCondAchievement
@@ -240,11 +240,11 @@ function getGlobalRankingData(
     // All ranking stats
 
     if ($unlockMode == UnlockMode::Hardcore) {
-        $achPoints = "CASE WHEN aw.unlocked_hardcore_at IS NOT NULL THEN ach.Points ELSE 0 END";
+        $achPoints = "CASE WHEN aw.unlocked_hardcore_at IS NOT NULL THEN ach.points ELSE 0 END";
         $achCount = "CASE WHEN aw.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END";
-        $achTruePoints = "CASE WHEN aw.unlocked_hardcore_at IS NOT NULL THEN ach.TrueRatio ELSE 0 END";
+        $achTruePoints = "CASE WHEN aw.unlocked_hardcore_at IS NOT NULL THEN ach.points_weighted ELSE 0 END";
     } else {
-        $achPoints = "CASE WHEN aw.unlocked_at IS NOT NULL THEN ach.Points ELSE -ach.Points END";
+        $achPoints = "CASE WHEN aw.unlocked_at IS NOT NULL THEN ach.points ELSE -ach.points END";
         $achCount = "CASE WHEN aw.unlocked_at IS NOT NULL THEN 1 ELSE -1 END";
         $achTruePoints = 0;
     }
@@ -267,7 +267,7 @@ function getGlobalRankingData(
                     SUM($achTruePoints) AS RetroPoints,
                     NULL AS TotalAwards
                 FROM player_achievements AS aw
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.achievement_id
+                LEFT JOIN achievements AS ach ON ach.id = aw.achievement_id
                 LEFT JOIN UserAccounts AS ua ON ua.ID = aw.user_id
                 WHERE TRUE $whereDateAchievement $typeCond
                     $friendCondAchievement

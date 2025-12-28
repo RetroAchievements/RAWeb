@@ -123,10 +123,10 @@ class AchievementPolicy
     public function updateField(User $user, ?Achievement $achievement, string $fieldName): bool
     {
         $roleFieldPermissions = [
-            Role::DEVELOPER_JUNIOR => ['Title', 'Description', 'type', 'Points', 'DisplayOrder'],
-            Role::DEVELOPER => ['Title', 'Description', 'Flags', 'type', 'Points', 'DisplayOrder', 'AssocVideo'],
-            Role::WRITER => ['Title', 'Description'],
-            Role::ARTIST => ['BadgeName'],
+            Role::DEVELOPER_JUNIOR => ['title', 'description', 'type', 'points', 'order_column'],
+            Role::DEVELOPER => ['title', 'description', 'is_published', 'type', 'points', 'order_column', 'embed_url'],
+            Role::WRITER => ['title', 'description'],
+            Role::ARTIST => ['image_name'],
         ];
 
         // Root can edit everything.

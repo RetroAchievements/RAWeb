@@ -10,7 +10,6 @@ use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\Role;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\GameTopAchieversService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +19,7 @@ class AchievementController extends Controller
 {
     /**
      * This endpoint allows authorized service accounts to update achievements,
-     * including demoting them to Unofficial status and/or updating the title.
+     * including demoting them to unpublished status and/or updating the title.
      *
      * @example Request payload:
      * ```json
@@ -69,11 +68,7 @@ class AchievementController extends Controller
         $newTitle = $request->getTitle();
         $published = $request->getPublished();
 
-        // Map the published boolean to flag values.
-        $newFlags = null;
-        if ($published !== null) {
-            $newFlags = $published ? AchievementFlag::OfficialCore->value : AchievementFlag::Unofficial->value;
-        }
+        $newIsPublished = $published;
 
         $user = User::whereName($username)->first();
 
@@ -88,7 +83,7 @@ class AchievementController extends Controller
 
         // Validate that we're actually making changes.
         $hasChanges = false;
-        if ($newFlags !== null && $newFlags !== $achievement->Flags) {
+        if ($newIsPublished !== null && $newIsPublished !== $achievement->is_published) {
             $hasChanges = true;
         }
         if ($newTitle !== null && $newTitle !== $achievement->title) {
@@ -105,22 +100,22 @@ class AchievementController extends Controller
 
         $updatedFields = [];
 
-        DB::transaction(function () use ($achievement, $user, $newTitle, $newFlags, &$updatedFields) {
-            // Update flags if `published` is provided.
-            if ($newFlags !== null && $newFlags !== $achievement->Flags) {
-                $oldFlags = $achievement->Flags;
-                updateAchievementFlag($achievement->id, AchievementFlag::from($newFlags));
+        DB::transaction(function () use ($achievement, $user, $newTitle, $newIsPublished, &$updatedFields) {
+            // Update is_published if `published` is provided.
+            if ($newIsPublished !== null && $newIsPublished !== $achievement->is_published) {
+                $wasPublished = $achievement->is_published;
+                updateAchievementPublishedStatus($achievement->id, $newIsPublished);
                 $updatedFields[] = 'published';
 
-                // Add the appropriate comment based on the flag change.
+                // Add the appropriate comment based on the publish state change.
                 $comment = "{$user->display_name} demoted this achievement to Unofficial.";
-                if ($newFlags === AchievementFlag::OfficialCore->value && $oldFlags === AchievementFlag::Unofficial->value) {
+                if ($newIsPublished && !$wasPublished) {
                     $comment = "{$user->display_name} promoted this achievement to the Core set.";
                 }
                 addArticleComment(
                     "Server",
                     ArticleType::Achievement,
-                    $achievement->ID,
+                    $achievement->id,
                     $comment,
                     $user->display_name
                 );
@@ -135,27 +130,27 @@ class AchievementController extends Controller
                 addArticleComment(
                     "Server",
                     ArticleType::Achievement,
-                    $achievement->ID,
+                    $achievement->id,
                     "{$user->display_name} edited this achievement's title.",
                     $user->display_name,
                 );
             }
         });
 
-        GameTopAchieversService::expireTopAchieversComponentData($achievement->GameID);
+        GameTopAchieversService::expireTopAchieversComponentData($achievement->game_id);
 
         $achievement->refresh();
 
         return response()->json([
             'data' => [
                 'type' => 'achievements',
-                'id' => (string) $achievement->ID,
+                'id' => (string) $achievement->id,
                 'attributes' => [
                     'title' => $achievement->title,
                     'description' => $achievement->description,
                     'points' => $achievement->points,
-                    'published' => $achievement->Flags === AchievementFlag::OfficialCore->value,
-                    'gameId' => $achievement->GameID,
+                    'published' => $achievement->is_published,
+                    'gameId' => $achievement->game_id,
                 ],
                 'meta' => [
                     'updatedAt' => now()->toIso8601String(),

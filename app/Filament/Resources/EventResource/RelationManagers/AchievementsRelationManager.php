@@ -66,15 +66,15 @@ class AchievementsRelationManager extends RelationManager
                     ->date()
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('DateCreated')
+                Tables\Columns\TextColumn::make('achievement.created_at')
                     ->date()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('DateModified')
+                Tables\Columns\TextColumn::make('achievement.modified_at')
                     ->date()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('achievement.DisplayOrder')
+                Tables\Columns\TextColumn::make('achievement.order_column')
                     ->label('Display Order')
                     ->toggleable(),
             ])
@@ -123,7 +123,7 @@ class AchievementsRelationManager extends RelationManager
                         })
                         ->action(function (array $data, EventAchievement $eventAchievement): void {
                             /** @var User $unlockedBy */
-                            $unlockedBy = auth()->user();
+                            $unlockedBy = Auth::user();
 
                             $foundCount = 0;
                             $unknown = [];
@@ -187,8 +187,8 @@ class AchievementsRelationManager extends RelationManager
             ->defaultPaginationPageOption(50)
             ->defaultSort(function (Builder $query): Builder {
                 return $query
-                    ->orderBy('DisplayOrder')
-                    ->orderBy('DateCreated', 'asc');
+                    ->orderBy('achievements.order_column')
+                    ->orderBy('achievements.created_at', 'asc');
             });
     }
 }

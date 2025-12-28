@@ -155,7 +155,7 @@ class AchievementSet extends BaseModel
      */
     public function achievements(): BelongsToMany
     {
-        return $this->belongsToMany(Achievement::class, 'achievement_set_achievements', 'achievement_set_id', 'achievement_id', 'id', 'ID')
+        return $this->belongsToMany(Achievement::class, 'achievement_set_achievements', 'achievement_set_id', 'achievement_id', 'id', 'id')
             ->withPivot('order_column', 'achievement_group_id')
             ->withTimestamps();
     }

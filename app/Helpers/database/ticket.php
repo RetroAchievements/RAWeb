@@ -14,7 +14,6 @@ use App\Models\GameHash;
 use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -182,12 +181,12 @@ function getExistingTicketID(User $user, int $achievementID): int
 
 function getTicket(int $ticketID): ?array
 {
-    $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.type AS AchievementType, ach.Points, ach.BadgeName,
-                COALESCE(ua3.display_name, ua3.User) AS AchievementAuthor, ua3.ulid AS AchievementAuthorULID, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
+    $query = "SELECT tick.ID, tick.AchievementID, ach.title AS AchievementTitle, ach.description AS AchievementDesc, ach.type AS AchievementType, ach.points AS Points, ach.image_name AS BadgeName,
+                COALESCE(ua3.display_name, ua3.User) AS AchievementAuthor, ua3.ulid AS AchievementAuthorULID, ach.game_id AS GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
                 tick.ReportedAt, tick.ReportType, tick.ReportState, tick.Hardcore, tick.ReportNotes, COALESCE(ua.display_name, ua.User) AS ReportedBy, ua.ulid AS ReportedByULID, tick.ResolvedAt, COALESCE(ua2.display_name, ua2.User) AS ResolvedBy, ua2.ulid AS ResolvedByULID
               FROM Ticket AS tick
-              LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
-              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+              LEFT JOIN achievements AS ach ON ach.id = tick.AchievementID
+              LEFT JOIN GameData AS gd ON gd.ID = ach.game_id
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.ID = tick.reporter_id
               LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.resolver_id
@@ -226,7 +225,7 @@ function updateTicket(User $userModel, int $ticketID, int $ticketVal, ?string $r
     switch ($ticketVal) {
         case TicketState::Closed:
             if ($reason == TicketState::REASON_DEMOTED && $ticket->achievement) {
-                updateAchievementFlag($ticket->achievement->id, AchievementFlag::Unofficial);
+                updateAchievementPublishedStatus($ticket->achievement->id, false);
                 addArticleComment("Server", ArticleType::Achievement, $ticket->achievement->id, "{$userModel->display_name} demoted this achievement to Unofficial.", $userModel->display_name);
             }
             $comment = "Ticket closed by {$userModel->display_name}. Reason: \"$reason\".";
@@ -302,9 +301,7 @@ function countOpenTicketsByDev(User $dev): array
 
     $counts = Ticket::with('achievement')
         ->where('ticketable_author_id', $dev->id)
-        ->whereHas('achievement', function ($query) {
-            $query->whereIn('Flags', [AchievementFlag::OfficialCore->value, AchievementFlag::Unofficial->value]);
-        })
+        ->whereHas('achievement')
         ->whereIn('ReportState', [TicketState::Open, TicketState::Request])
         ->select('ReportState', DB::raw('count(*) as Count'))
         ->groupBy('ReportState')
@@ -357,13 +354,13 @@ function gamesSortedByOpenTickets(int $count): array
         FROM
             Ticket AS tick
         LEFT JOIN
-            Achievements AS ach ON ach.ID = tick.AchievementID
+            achievements AS ach ON ach.id = tick.AchievementID
         LEFT JOIN
-            GameData AS gd ON gd.ID = ach.GameID
+            GameData AS gd ON gd.ID = ach.game_id
         LEFT JOIN
             Console AS cons ON cons.ID = gd.ConsoleID
         WHERE
-            tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ") AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
+            tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ") AND ach.is_published = 1
         GROUP BY
             gd.ID
         ORDER BY
@@ -383,7 +380,7 @@ function getTicketsForUser(User $user): array
             $query->where('ID', $user->id);
         })
         ->whereHas('achievement', function ($query) {
-            $query->where('Flags', AchievementFlag::OfficialCore->value);
+            $query->where('is_published', true);
         })
         ->groupBy('AchievementID', 'ReportState')
         ->orderBy('AchievementID')
@@ -399,11 +396,11 @@ function getUserGameWithMostTickets(User $user): ?array
 {
     $query = "SELECT gd.ID as GameID, gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, COUNT(*) as TicketCount
               FROM Ticket AS t
-              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
-              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+              LEFT JOIN achievements as ach ON ach.id = t.AchievementID
+              LEFT JOIN GameData AS gd ON gd.ID = ach.game_id
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE t.ticketable_author_id = {$user->id}
-              AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
+              AND ach.is_published = 1
               AND t.ReportState != " . TicketState::Closed . "
               GROUP BY gd.Title
               ORDER BY TicketCount DESC
@@ -422,15 +419,15 @@ function getUserGameWithMostTickets(User $user): ?array
  */
 function getUserAchievementWithMostTickets(User $user): ?array
 {
-    $query = "SELECT ach.ID, ach.Title, ach.Description, ach.Points, ach.BadgeName, gd.Title AS GameTitle, COUNT(*) as TicketCount
+    $query = "SELECT ach.id AS ID, ach.title AS Title, ach.description AS Description, ach.points AS Points, ach.image_name AS BadgeName, gd.Title AS GameTitle, COUNT(*) as TicketCount
               FROM Ticket AS t
-              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
-              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+              LEFT JOIN achievements as ach ON ach.id = t.AchievementID
+              LEFT JOIN GameData AS gd ON gd.ID = ach.game_id
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE t.ticketable_author_id = {$user->id}
-              AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
+              AND ach.is_published = 1
               AND t.ReportState != " . TicketState::Closed . "
-              GROUP BY ach.ID
+              GROUP BY ach.id
               ORDER BY TicketCount DESC
               LIMIT 1";
 
@@ -450,7 +447,7 @@ function getUserWhoCreatedMostTickets(User $user): ?array
     $query = "SELECT ua.User as TicketCreator, COUNT(*) as TicketCount
               FROM Ticket AS t
               LEFT JOIN UserAccounts as ua ON ua.ID = t.reporter_id
-              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
+              LEFT JOIN achievements as ach ON ach.id = t.AchievementID
               WHERE t.ticketable_author_id = {$user->id}
               AND t.ReportState != " . TicketState::Closed . "
               GROUP BY t.reporter_id
@@ -477,13 +474,13 @@ function getNumberOfTicketsClosedForOthers(User $user): array
               FROM Ticket AS t
               LEFT JOIN UserAccounts as ua ON ua.ID = t.reporter_id
               LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.resolver_id
-              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
+              LEFT JOIN achievements as ach ON ach.id = t.AchievementID
               LEFT JOIN UserAccounts as ua3 ON ua3.ID = t.ticketable_author_id
               WHERE t.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")
               AND ua.ID != {$user->id}
               AND t.ticketable_author_id != {$user->id}
               AND ua2.ID = {$user->id}
-              AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
+              AND ach.is_published = 1
               GROUP BY t.ticketable_author_id
               ORDER BY TicketCount DESC, Author";
 
@@ -508,11 +505,11 @@ function getNumberOfTicketsClosed(User $user): array
               SUM(CASE WHEN t.ReportState = " . TicketState::Resolved . " THEN 1 ELSE 0 END) AS ResolvedCount
               FROM Ticket AS t
               LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.resolver_id
-              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
+              LEFT JOIN achievements as ach ON ach.id = t.AchievementID
               WHERE t.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")
               AND t.reporter_id != {$user->id}
               AND t.ticketable_author_id = {$user->id}
-              AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
+              AND ach.is_published = 1
               GROUP BY ResolvedByUser
               ORDER BY TicketCount DESC, ResolvedByUser";
 

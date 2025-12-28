@@ -12,7 +12,6 @@ use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\UpdateGameMetricsAction;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
@@ -97,8 +96,8 @@ class GamesTableSeeder extends Seeder
                     $user_id = $developers[array_rand($developers)];
 
                     $game->achievements()->saveMany(Achievement::factory()->count(random_int(1, 5))->create([
-                        'GameID' => $game->ID,
-                        'Flags' => AchievementFlag::Unofficial->value,
+                        'game_id' => $game->ID,
+                        'is_published' => false,
                         'user_id' => $user_id,
                     ]));
                 }
@@ -109,15 +108,15 @@ class GamesTableSeeder extends Seeder
             /* create published achievements */
             $user_id = $developers[array_rand($developers)];
             $game->achievements()->saveMany(Achievement::factory()->count(random_int(5, 20))->create([
-                'GameID' => $game->ID,
-                'Flags' => AchievementFlag::OfficialCore->value,
+                'game_id' => $game->ID,
+                'is_published' => true,
                 'user_id' => $user_id,
             ]));
 
             if (random_int(0, 100) <= 10) { // 10% chance to create unofficial achievements
                 $game->achievements()->saveMany(Achievement::factory()->count(random_int(0, 5))->create([
-                    'GameID' => $game->ID,
-                    'Flags' => AchievementFlag::Unofficial->value,
+                    'game_id' => $game->ID,
+                    'is_published' => false,
                     'user_id' => $user_id,
                 ]));
             }
@@ -126,8 +125,8 @@ class GamesTableSeeder extends Seeder
                 $user_id = $developers[array_rand($developers)];
 
                 $game->achievements()->saveMany(Achievement::factory()->count(random_int(0, 10))->create([
-                    'GameID' => $game->ID,
-                    'Flags' => AchievementFlag::OfficialCore->value,
+                    'game_id' => $game->ID,
+                    'is_published' => true,
                     'user_id' => $user_id,
                 ]));
             }
@@ -149,7 +148,7 @@ class GamesTableSeeder extends Seeder
 
             $index = 1;
             foreach ($game->achievements()->published()->get() as $achievement) {
-                $achievement->DisplayOrder = $index++;
+                $achievement->order_column = $index++;
 
                 $type = random_int(0, 2);
                   while (true) {

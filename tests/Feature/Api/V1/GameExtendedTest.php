@@ -11,7 +11,6 @@ use App\Models\Game;
 use App\Models\GameRelease;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\GameReleaseRegion;
 use App\Platform\Enums\ReleasedAtGranularity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -61,13 +60,13 @@ class GameExtendedTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
+        $achievement1 = Achievement::factory()->published()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '23456', 'DisplayOrder' => 3]);
+        $achievement2 = Achievement::factory()->published()->create(['game_id' => $game->id, 'image_name' => '23456', 'order_column' => 3]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '34567', 'DisplayOrder' => 2]);
+        $achievement3 = Achievement::factory()->published()->create(['game_id' => $game->id, 'image_name' => '34567', 'order_column' => 2]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->create(['GameID' => $game->ID]); // unofficial
+        $achievement4 = Achievement::factory()->create(['game_id' => $game->id]); // unofficial
 
         /** @var User $user2 */
         $user2 = User::factory()->create();
@@ -118,66 +117,66 @@ class GameExtendedTest extends TestCase
                 'NumDistinctPlayersCasual' => 4,
                 'NumDistinctPlayersHardcore' => 4,
                 'Achievements' => [
-                    $achievement1->ID => [
-                        'ID' => $achievement1->ID,
-                        'Title' => $achievement1->Title,
-                        'Description' => $achievement1->Description,
-                        'Points' => $achievement1->Points,
-                        'BadgeName' => $achievement1->BadgeName,
-                        'DisplayOrder' => $achievement1->DisplayOrder,
+                    $achievement1->id => [
+                        'ID' => $achievement1->id,
+                        'Title' => $achievement1->title,
+                        'Description' => $achievement1->description,
+                        'Points' => $achievement1->points,
+                        'BadgeName' => $achievement1->image_name,
+                        'DisplayOrder' => $achievement1->order_column,
                         'Author' => $achievement1->developer->User,
                         'AuthorULID' => $achievement1->developer->ulid,
-                        'DateCreated' => $achievement1->DateCreated->__toString(),
-                        'DateModified' => $achievement1->DateModified->__toString(),
+                        'DateCreated' => $achievement1->created_at->__toString(),
+                        'DateModified' => $achievement1->modified_at->__toString(),
                         'NumAwarded' => 4,
                         'NumAwardedHardcore' => 3,
                     ],
-                    $achievement3->ID => [
-                        'ID' => $achievement3->ID,
-                        'Title' => $achievement3->Title,
-                        'Description' => $achievement3->Description,
-                        'Points' => $achievement3->Points,
-                        'BadgeName' => $achievement3->BadgeName,
-                        'DisplayOrder' => $achievement3->DisplayOrder,
+                    $achievement3->id => [
+                        'ID' => $achievement3->id,
+                        'Title' => $achievement3->title,
+                        'Description' => $achievement3->description,
+                        'Points' => $achievement3->points,
+                        'BadgeName' => $achievement3->image_name,
+                        'DisplayOrder' => $achievement3->order_column,
                         'Author' => $achievement3->developer->User,
                         'AuthorULID' => $achievement3->developer->ulid,
-                        'DateCreated' => $achievement3->DateCreated->__toString(),
-                        'DateModified' => $achievement3->DateModified->__toString(),
+                        'DateCreated' => $achievement3->created_at->__toString(),
+                        'DateModified' => $achievement3->modified_at->__toString(),
                         'NumAwarded' => 3,
                         'NumAwardedHardcore' => 1,
                     ],
-                    $achievement2->ID => [
-                        'ID' => $achievement2->ID,
-                        'Title' => $achievement2->Title,
-                        'Description' => $achievement2->Description,
-                        'Points' => $achievement2->Points,
-                        'BadgeName' => $achievement2->BadgeName,
-                        'DisplayOrder' => $achievement2->DisplayOrder,
+                    $achievement2->id => [
+                        'ID' => $achievement2->id,
+                        'Title' => $achievement2->title,
+                        'Description' => $achievement2->description,
+                        'Points' => $achievement2->points,
+                        'BadgeName' => $achievement2->image_name,
+                        'DisplayOrder' => $achievement2->order_column,
                         'Author' => $achievement2->developer->User,
                         'AuthorULID' => $achievement2->developer->ulid,
-                        'DateCreated' => $achievement2->DateCreated->__toString(),
-                        'DateModified' => $achievement2->DateModified->__toString(),
+                        'DateCreated' => $achievement2->created_at->__toString(),
+                        'DateModified' => $achievement2->modified_at->__toString(),
                         'NumAwarded' => 4,
                         'NumAwardedHardcore' => 2,
                     ],
                 ],
             ]);
 
-        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID, 'f' => AchievementFlag::Unofficial->value]))
+        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID, 'f' => Achievement::FLAG_UNPUBLISHED]))
             ->assertSuccessful()
             ->assertJson([
                 'Achievements' => [
-                    $achievement4->ID => [
-                        'ID' => $achievement4->ID,
-                        'Title' => $achievement4->Title,
-                        'Description' => $achievement4->Description,
-                        'Points' => $achievement4->Points,
-                        'BadgeName' => $achievement4->BadgeName,
-                        'DisplayOrder' => $achievement4->DisplayOrder,
+                    $achievement4->id => [
+                        'ID' => $achievement4->id,
+                        'Title' => $achievement4->title,
+                        'Description' => $achievement4->description,
+                        'Points' => $achievement4->points,
+                        'BadgeName' => $achievement4->image_name,
+                        'DisplayOrder' => $achievement4->order_column,
                         'Author' => $achievement4->developer->User,
                         'AuthorULID' => $achievement4->developer->ulid,
-                        'DateCreated' => $achievement4->DateCreated->__toString(),
-                        'DateModified' => $achievement4->DateModified->__toString(),
+                        'DateCreated' => $achievement4->created_at->__toString(),
+                        'DateModified' => $achievement4->modified_at->__toString(),
                         'NumAwarded' => 0,
                         'NumAwardedHardcore' => 0,
                     ],

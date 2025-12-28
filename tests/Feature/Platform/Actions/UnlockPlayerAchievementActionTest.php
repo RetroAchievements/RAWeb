@@ -167,6 +167,6 @@ class UnlockPlayerAchievementActionTest extends TestCase
         // subset player_games record should be created and have points from the unlock
         $subsetPlayerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $subsetGame->id)->first();
         $this->assertNotNull($subsetPlayerGame);
-        $this->assertEquals($subsetAchievement->Points, $subsetPlayerGame->points_hardcore);
+        $this->assertEquals($subsetAchievement->points, $subsetPlayerGame->points_hardcore);
     }
 }

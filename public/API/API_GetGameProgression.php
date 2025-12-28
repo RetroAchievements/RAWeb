@@ -76,7 +76,7 @@ $response = [
 ];
 
 $achievements = $game->achievements()->published()->get();
-$achievementIds = $achievements->pluck('ID');
+$achievementIds = $achievements->pluck('id');
 $unlock_times = [];
 $unlock_hardcore_times = [];
 foreach ($achievementIds as $achievementId) {
@@ -227,19 +227,19 @@ $get_median = function (array $a): int {
 
 foreach ($achievements as $achievement) {
     $response['Achievements'][] = [
-        'ID' => $achievement->ID,
-        'Title' => $achievement->Title,
-        'Description' => $achievement->Description,
-        'Points' => $achievement->Points,
-        'TrueRatio' => $achievement->TrueRatio,
+        'ID' => $achievement->id,
+        'Title' => $achievement->title,
+        'Description' => $achievement->description,
+        'Points' => $achievement->points,
+        'TrueRatio' => $achievement->points_weighted,
         'Type' => $achievement->type,
-        'BadgeName' => $achievement->BadgeName,
+        'BadgeName' => $achievement->image_name,
         'NumAwarded' => $achievement->unlocks_total,
-        'NumAwardedHardcore' => $achievement->unlocks_hardcore_total,
-        'TimesUsedInUnlockMedian' => count($unlock_times[$achievement->ID]),
-        'TimesUsedInHardcoreUnlockMedian' => count($unlock_hardcore_times[$achievement->ID]),
-        'MedianTimeToUnlock' => $get_median($unlock_times[$achievement->ID]),
-        'MedianTimeToUnlockHardcore' => $get_median($unlock_hardcore_times[$achievement->ID]),
+        'NumAwardedHardcore' => $achievement->unlocks_hardcore,
+        'TimesUsedInUnlockMedian' => count($unlock_times[$achievement->id]),
+        'TimesUsedInHardcoreUnlockMedian' => count($unlock_hardcore_times[$achievement->id]),
+        'MedianTimeToUnlock' => $get_median($unlock_times[$achievement->id]),
+        'MedianTimeToUnlockHardcore' => $get_median($unlock_hardcore_times[$achievement->id]),
     ];
 }
 

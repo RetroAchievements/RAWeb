@@ -117,14 +117,14 @@ class VerifyAchievementSetIntegrity extends Command
 
         // Get all achievements from both sources.
         $gameAchievements = $game->achievements()
-            ->whereNull('Achievements.deleted_at')
+            ->whereNull('achievements.deleted_at')
             ->get()
-            ->keyBy('ID');
+            ->keyBy('id');
 
         $setAchievements = $set->achievements()
-            ->whereNull('Achievements.deleted_at')
+            ->whereNull('achievements.deleted_at')
             ->get()
-            ->keyBy('ID');
+            ->keyBy('id');
 
         // Check for missing achievements in either direction.
         $missingInSet = $gameAchievements->diffKeys($setAchievements);
@@ -133,29 +133,29 @@ class VerifyAchievementSetIntegrity extends Command
         if ($missingInSet->isNotEmpty()) {
             $errors[] = sprintf(
                 "Achievements missing from set: %s",
-                $missingInSet->pluck('Title')->join(', ')
+                $missingInSet->pluck('title')->join(', ')
             );
         }
 
         if ($missingInGame->isNotEmpty()) {
             $errors[] = sprintf(
                 "Achievements missing from game: %s",
-                $missingInGame->pluck('Title')->join(', ')
+                $missingInGame->pluck('title')->join(', ')
             );
         }
 
         // Get ordering from game achievements.
         $gameOrder = $game->achievements()
-            ->whereNull('Achievements.deleted_at')
-            ->orderBy('DisplayOrder')
-            ->pluck(DB::raw('Achievements.ID'))
+            ->whereNull('achievements.deleted_at')
+            ->orderBy('order_column')
+            ->pluck(DB::raw('achievements.id'))
             ->toArray();
 
         // Get ordering from set achievements using the pivot table's order_column.
         $setOrder = $set->achievements()
-            ->whereNull('Achievements.deleted_at')
+            ->whereNull('achievements.deleted_at')
             ->orderBy('achievement_set_achievements.order_column')
-            ->pluck(DB::raw('Achievements.ID'))
+            ->pluck(DB::raw('achievements.id'))
             ->toArray();
 
         if ($gameOrder !== $setOrder) {

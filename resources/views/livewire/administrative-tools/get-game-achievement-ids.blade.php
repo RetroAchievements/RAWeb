@@ -19,9 +19,9 @@ new class extends Component implements HasForms {
         // Validate.
         $this->form->getState();
 
-        $this->foundAchievementIds = Achievement::whereIn('GameID', $this->gameIds)
+        $this->foundAchievementIds = Achievement::whereIn('game_id', $this->gameIds)
             ->published()
-            ->pluck('ID')
+            ->pluck('id')
             ->toArray();
 
         $this->dispatch('open-modal', id: 'achievement-ids-results');

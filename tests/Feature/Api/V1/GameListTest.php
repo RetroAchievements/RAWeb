@@ -40,11 +40,11 @@ class GameListTest extends TestCase
             'ImageIcon' => '/Images/123456.png',
             'ForumTopicID' => 123,
         ]);
-        $game1Achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game1->ID, 'DateModified' => '2024-02-03 11:10:09']);
-        $game1Points = $game1Achievements->get(0)->Points +
-                       $game1Achievements->get(1)->Points +
-                       $game1Achievements->get(2)->Points;
-        $game1Leaderboards = Leaderboard::factory()->count(8)->create(['GameID' => $game1->ID]);
+        $game1Achievements = Achievement::factory()->published()->count(3)->create(['game_id' => $game1->id, 'modified_at' => '2024-02-03 11:10:09']);
+        $game1Points = $game1Achievements->get(0)->points +
+                       $game1Achievements->get(1)->points +
+                       $game1Achievements->get(2)->points;
+        $game1Leaderboards = Leaderboard::factory()->count(8)->create(['GameID' => $game1->id]);
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
             'Title' => 'Beta',
@@ -57,23 +57,23 @@ class GameListTest extends TestCase
             'ConsoleID' => $system2->ID,
             'ImageIcon' => '/Images/327584.png',
         ]);
-        $game3Achievements = Achievement::factory()->published()->count(5)->create(['GameID' => $game3->ID, 'DateModified' => '2024-09-27 03:06:09']);
-        $game3Points = $game3Achievements->get(0)->Points +
-                       $game3Achievements->get(1)->Points +
-                       $game3Achievements->get(2)->Points +
-                       $game3Achievements->get(3)->Points +
-                       $game3Achievements->get(4)->Points;
+        $game3Achievements = Achievement::factory()->published()->count(5)->create(['game_id' => $game3->id, 'modified_at' => '2024-09-27 03:06:09']);
+        $game3Points = $game3Achievements->get(0)->points +
+                       $game3Achievements->get(1)->points +
+                       $game3Achievements->get(2)->points +
+                       $game3Achievements->get(3)->points +
+                       $game3Achievements->get(4)->points;
         /** @var Game $game4 */
         $game4 = Game::factory()->create([
             'Title' => 'Delta',
             'ConsoleID' => $system2->ID,
             'ImageIcon' => '/Images/051283.png',
         ]);
-        $game4Achievements = Achievement::factory()->published()->count(4)->create(['GameID' => $game4->ID, 'DateModified' => '2024-07-18 23:45:17']);
-        $game4Points = $game4Achievements->get(0)->Points +
-                       $game4Achievements->get(1)->Points +
-                       $game4Achievements->get(2)->Points +
-                       $game4Achievements->get(3)->Points;
+        $game4Achievements = Achievement::factory()->published()->count(4)->create(['game_id' => $game4->id, 'modified_at' => '2024-07-18 23:45:17']);
+        $game4Points = $game4Achievements->get(0)->points +
+                       $game4Achievements->get(1)->points +
+                       $game4Achievements->get(2)->points +
+                       $game4Achievements->get(3)->points;
         $hash1 = new GameHash(['game_id' => $game4->ID, 'md5' => 'abcdef0123456789', 'compatibility' => GameHashCompatibility::Compatible]);
         $game4->hashes()->save($hash1);
         $hash2 = new GameHash(['game_id' => $game4->ID, 'md5' => 'deadbeefdeadbeef', 'compatibility' => GameHashCompatibility::Compatible]);

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Connect\Actions;
 
 use App\Models\Achievement;
-use App\Platform\Enums\AchievementFlag;
 use Carbon\Carbon;
 
 class CreateWarningAchievementAction
@@ -22,7 +21,7 @@ class CreateWarningAchievementAction
             'Modified' => Carbon::now()->unix(),
             'Created' => Carbon::now()->unix(),
             'BadgeName' => '00000',
-            'Flags' => AchievementFlag::OfficialCore->value,
+            'Flags' => Achievement::FLAG_PUBLISHED,
             'Type' => null,
             'Rarity' => 0.0,
             'RarityHardcore' => 0.0,

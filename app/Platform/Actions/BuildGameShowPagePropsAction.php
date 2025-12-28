@@ -42,7 +42,6 @@ use App\Platform\Data\PlayerGameProgressionAwardsData;
 use App\Platform\Data\UserCreditsData;
 use App\Platform\Data\UserGameAchievementSetPreferenceData;
 use App\Platform\Enums\AchievementAuthorTask;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetAuthorTask;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GamePageListSort;
@@ -71,7 +70,7 @@ class BuildGameShowPagePropsAction
     public function execute(
         Game $game,
         ?User $user,
-        AchievementFlag $targetAchievementFlag = AchievementFlag::OfficialCore,
+        bool $isPublished = true,
         ?GameAchievementSet $targetAchievementSet = null,
         GamePageListView $initialView = GamePageListView::Achievements,
         ?GamePageListSort $initialSort = null,
@@ -298,7 +297,7 @@ class BuildGameShowPagePropsAction
                 'gameAchievementSets.achievementSet.achievements.unlockedAt',
                 'gameAchievementSets.achievementSet.achievements.unlockedHardcoreAt',
                 'gameAchievementSets.achievementSet.achievements.unlockPercentage',
-                'gameAchievementSets.achievementSet.achievements.unlocksHardcoreTotal',
+                'gameAchievementSets.achievementSet.achievements.unlocksHardcore',
                 'gameAchievementSets.achievementSet.achievements.unlocksTotal',
                 'gameAchievementSets.achievementSet.medianTimeToComplete',
                 'gameAchievementSets.achievementSet.medianTimeToCompleteHardcore',
@@ -354,10 +353,10 @@ class BuildGameShowPagePropsAction
             isSubscribedToTickets: $user ? $subscriptionService->isSubscribed($user, SubscriptionSubjectType::GameTickets, $backingGame->id) : false,
             isLockedOnlyFilterEnabled: $isLockedOnlyFilterEnabled,
             isMissableOnlyFilterEnabled: $isMissableOnlyFilterEnabled,
-            isViewingPublishedAchievements: $targetAchievementFlag === AchievementFlag::OfficialCore,
+            isViewingPublishedAchievements: $isPublished,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $backingGame),
 
-            playerAchievementChartBuckets: $targetAchievementFlag === AchievementFlag::OfficialCore
+            playerAchievementChartBuckets: $isPublished
                 ? $this->buildGameAchievementDistributionAction->execute($backingGame, $user)
                 : collect(),
 
@@ -370,7 +369,7 @@ class BuildGameShowPagePropsAction
             numLeaderboards: $this->getLeaderboardsCount($backingGame),
             numMasters: $numMasters,
 
-            numOpenTickets: $targetAchievementFlag === AchievementFlag::OfficialCore
+            numOpenTickets: $isPublished
                 ? Ticket::forGame($backingGame)->unresolved()->officialCore()->count()
                 : Ticket::forGame($backingGame)->unresolved()->unofficial()->count(),
 
@@ -456,7 +455,7 @@ class BuildGameShowPagePropsAction
 
         // Collect all achievement IDs for subsequent aggregation queries.
         $achievementIds = $game->gameAchievementSets
-            ->pluck('achievementSet.achievements.*.ID')
+            ->pluck('achievementSet.achievements.*.id')
             ->flatten()
             ->unique()
             ->filter()
@@ -521,10 +520,10 @@ class BuildGameShowPagePropsAction
         // Use aggregation query for active maintainers.
         if ($achievementIds->isNotEmpty()) {
             $maintainerStats = AchievementMaintainer::query()
-                ->join('Achievements', 'achievement_maintainers.achievement_id', '=', 'Achievements.ID')
+                ->join('achievements', 'achievement_maintainers.achievement_id', '=', 'achievements.id')
                 ->whereIn('achievement_maintainers.achievement_id', $achievementIds)
                 ->where('achievement_maintainers.is_active', true)
-                ->whereColumn('achievement_maintainers.user_id', '!=', 'Achievements.user_id')
+                ->whereColumn('achievement_maintainers.user_id', '!=', 'achievements.user_id')
                 ->select('achievement_maintainers.user_id', DB::raw('COUNT(*) as count'), DB::raw('MAX(achievement_maintainers.effective_from) as latest_date'))
                 ->with('user')
                 ->groupBy('achievement_maintainers.user_id')

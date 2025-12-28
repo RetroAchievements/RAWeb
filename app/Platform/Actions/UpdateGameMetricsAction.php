@@ -24,9 +24,9 @@ class UpdateGameMetricsAction
 
         $achievementSetVersionChanged = false;
         if ($game->achievements_published || $game->achievements_unpublished) {
-            $versionHashFields = ['ID', 'MemAddr', 'type', 'Points'];
+            $versionHashFields = ['id', 'trigger_definition', 'type', 'points'];
             $achievementSetVersionHashPayload = $game->achievements()->published()
-                ->orderBy('ID')
+                ->orderBy('id')
                 ->get($versionHashFields)
                 ->map(function ($achievement) use ($versionHashFields) {
                     // Exclude missable type from hash calculation, but include progression and win_condition.

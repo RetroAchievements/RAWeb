@@ -52,7 +52,7 @@ class PlayerGame extends BasePivot
      */
     public function achievements(): HasMany
     {
-        return $this->hasMany(Achievement::class, 'GameID', 'game_id');
+        return $this->hasMany(Achievement::class, 'game_id', 'game_id');
     }
 
     /**

@@ -40,7 +40,8 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
   const activeFrom = eventAchievement?.activeFrom;
   const activeThrough = eventAchievement?.activeThrough;
 
-  let isDemoted = achievement.flags === 5 || eventAchievement?.sourceAchievement?.flags === 5;
+  let isDemoted =
+    achievement.isPublished === false || eventAchievement?.sourceAchievement?.isPublished === false;
   let isActive = false;
   let isExpired = false;
   let isUpcoming = false;
@@ -90,7 +91,7 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
           </BaseTooltipTrigger>
           <BaseTooltipPortal>
             <BaseTooltipContent>
-              {achievement.flags === 5
+              {achievement.isPublished === false
                 ? t('This achievement cannot currently be earned because it has been demoted.')
                 : t(
                     'This achievement cannot currently be earned because the source achievement has been demoted.',

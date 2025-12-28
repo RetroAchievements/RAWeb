@@ -18,7 +18,7 @@ if ($user->getAttribute('Permissions') < Permissions::Moderator) {
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'user' => 'required|string|exists:UserAccounts,display_name',
-    'achievement' => 'required|integer|exists:Achievements,ID',
+    'achievement' => 'required|integer|exists:achievements,id',
     'hardcore' => 'required|integer|min:0|max:1',
 ]);
 

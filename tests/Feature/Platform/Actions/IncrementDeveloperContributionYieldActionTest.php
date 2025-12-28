@@ -11,7 +11,6 @@ use App\Models\PlayerAchievement;
 use App\Models\PlayerBadge;
 use App\Models\User;
 use App\Platform\Actions\IncrementDeveloperContributionYieldAction;
-use App\Platform\Enums\AchievementFlag;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
@@ -39,8 +38,8 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
 
         $game = $this->seedGame(withHash: false);
         $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
         ]);
 
@@ -67,8 +66,8 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
 
         $game = $this->seedGame(withHash: false);
         $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
         ]);
 
@@ -95,10 +94,10 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
 
         $game = $this->seedGame(withHash: false);
         $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::Unofficial->value,
+            'is_published' => false,
         ]);
 
         $playerAchievement = PlayerAchievement::create([
@@ -123,8 +122,8 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
 
         $game = $this->seedGame(withHash: false);
         $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
         ]);
 
@@ -151,8 +150,8 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
 
         $game = $this->seedGame(withHash: false);
         $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 100, // this will bring the total to 1050, crossing the 1000 badge requirement threshold
+            'game_id' => $game->id,
+            'points' => 100, // this will bring the total to 1050, crossing the 1000 badge requirement threshold
             'user_id' => $developer->id,
         ]);
 
@@ -201,8 +200,8 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
 
         $game = $this->seedGame(withHash: false);
         $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
         ]);
 
@@ -234,8 +233,8 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
 
         $game = $this->seedGame(withHash: false);
         $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $author->id,
         ]);
 
@@ -274,8 +273,8 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
 
         $game = $this->seedGame(withHash: false);
         $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
         ]);
 
@@ -304,8 +303,8 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
 
         $game = $this->seedGame(withHash: false);
         $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
         ]);
 
@@ -346,15 +345,15 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
 
         // ... an achievement worth 100 points which will soon be reset ...
         $achievement1 = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 100,
+            'game_id' => $game->id,
+            'points' => 100,
             'user_id' => $developer->id,
         ]);
 
         // ... an achievement worth 50 points that will be unlocked later ...
         $achievement2 = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
         ]);
 
@@ -401,8 +400,8 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
 
         $game = $this->seedGame(withHash: false);
         $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50,
+            'game_id' => $game->id,
+            'points' => 50,
             'user_id' => $developer->id,
         ]);
 
@@ -429,8 +428,8 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
 
         $game = $this->seedGame(withHash: false);
         $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
-            'Points' => 50, // !! more points than current yield
+            'game_id' => $game->id,
+            'points' => 50, // !! more points than current yield
             'user_id' => $developer->id,
         ]);
 
