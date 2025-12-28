@@ -5,6 +5,7 @@ use App\Enums\Permissions;
 use App\Models\Leaderboard;
 use App\Models\User;
 use App\Platform\Actions\GetRankedLeaderboardEntriesAction;
+use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\ValueFormat;
 use App\Platform\Services\TriggerDecoderService;
 use Illuminate\Support\Facades\Blade;
@@ -95,9 +96,14 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
         echo "<td class='px-3'>";
         echo "<div class='flex justify-between'>";
         echo "<div>";
-        echo "<a href='/leaderboard/$lbID'><strong>$lbTitle</strong></a><br>";
+        echo "<a href='/leaderboard/$lbID'><strong>$lbTitle</strong></a><br/>";
         echo "$lbDescription";
         echo "<br><span class='smalltext'>$totalEntries entries</span>";
+
+        if ($leaderboard->state === LeaderboardState::Disabled) {
+            echo " <span class='smalltext'> · Disabled</span>";
+        }
+
         echo "</div>";
         echo "</div>";
         echo "</td>";

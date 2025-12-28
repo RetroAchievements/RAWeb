@@ -273,6 +273,37 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         return md5($data);
     }
 
+    /**
+     * Returns game IDs that are related to this achievement for multiset purposes.
+     * For bonus sets: includes the base game.
+     * For specialty/exclusive sets: only includes this achievement's game.
+     *
+     * @return int[]
+     */
+    public function getRelatedGameIds(): array
+    {
+        $achievementSet = $this->achievementSets()->first();
+        if (!$achievementSet) {
+            return [$this->game_id];
+        }
+
+        $links = GameAchievementSet::where('achievement_set_id', $achievementSet->id)->get();
+        if ($links->isEmpty()) {
+            return [$this->game_id];
+        }
+
+        // Specialty and exclusive sets are isolated, so only their own game counts.
+        if (
+            $links->contains('type', AchievementSetType::Specialty)
+            || $links->contains('type', AchievementSetType::Exclusive)
+        ) {
+            return [$this->game_id];
+        }
+
+        // For core and bonus sets, include all related games.
+        return $links->pluck('game_id')->unique()->values()->toArray();
+    }
+
     // == accessors
 
     public function getCanonicalUrlAttribute(): string
