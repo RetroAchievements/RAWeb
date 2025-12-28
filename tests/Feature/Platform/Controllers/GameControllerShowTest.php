@@ -33,6 +33,7 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameSetRolePermission;
 use App\Platform\Enums\GameSetType;
+use App\Platform\Enums\LeaderboardState;
 use App\Platform\Services\EventHubIdCacheService;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -902,6 +903,131 @@ describe('Achievement Set Props', function () {
         $response->assertInertia(fn (Assert $page) => $page
             ->has('targetAchievementSetPlayersTotal')
             ->has('targetAchievementSetPlayersHardcore')
+        );
+    });
+});
+
+describe('Leaderboard State Props', function () {
+    it('given leaderboards with mixed states, by default shows active and disabled, counts only active, and excludes unpublished', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        $activeLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'state' => LeaderboardState::Active,
+            'DisplayOrder' => 2,
+        ]);
+        $disabledLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'state' => LeaderboardState::Disabled,
+            'DisplayOrder' => 1,
+        ]);
+        $unpublishedLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'state' => LeaderboardState::Unpublished,
+            'DisplayOrder' => 0,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game, 'view' => 'leaderboards']));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            // ... only active leaderboards count toward numLeaderboards when viewing published ...
+            ->where('numLeaderboards', 1)
+
+            // ... both active and disabled are in the listing, but not unpublished ...
+            ->has('allLeaderboards', 2)
+            ->where('allLeaderboards.0.id', $activeLeaderboard->id)
+            ->where('allLeaderboards.1.id', $disabledLeaderboard->id)
+        );
+    });
+
+    it('given the unpublished query param, shows only unpublished leaderboards and counts them', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game', 5, 2);
+
+        Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'state' => LeaderboardState::Active,
+            'DisplayOrder' => 1,
+        ]);
+        Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'state' => LeaderboardState::Disabled,
+            'DisplayOrder' => 2,
+        ]);
+        $unpublishedLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'state' => LeaderboardState::Unpublished,
+            'DisplayOrder' => 0,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game, 'view' => 'leaderboards', 'unpublished' => 'true']));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            // ... only unpublished leaderboards count when viewing unpublished ...
+            ->where('numLeaderboards', 1)
+
+            // ... only unpublished leaderboards are in the listing ...
+            ->has('allLeaderboards', 1)
+            ->where('allLeaderboards.0.id', $unpublishedLeaderboard->id)
+        );
+    });
+
+    it('given featured leaderboards, only active leaderboards are included', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        $activeLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'state' => LeaderboardState::Active,
+            'DisplayOrder' => 1,
+        ]);
+        Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'state' => LeaderboardState::Disabled,
+            'DisplayOrder' => 2,
+        ]);
+        Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'state' => LeaderboardState::Unpublished,
+            'DisplayOrder' => 0,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('featuredLeaderboards', 1)
+            ->where('featuredLeaderboards.0.id', $activeLeaderboard->id)
+        );
+    });
+
+    it('each leaderboard includes its state in the response', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'state' => LeaderboardState::Disabled,
+            'DisplayOrder' => 1,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game, 'view' => 'leaderboards']));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('allLeaderboards', 1)
+            ->where('allLeaderboards.0.state', 'disabled')
         );
     });
 });
