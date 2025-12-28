@@ -14,11 +14,18 @@ interface NotificationsTableRowProps {
   t_label: TranslatedString;
 
   emailFieldName?: UserPreferenceValue;
+
+  /**
+   * When true, the checkbox value is inverted. This is useful for "opt-out"
+   * preferences where the bit being set means the user does not want emails.
+   */
+  isInverted?: boolean;
 }
 
 export const NotificationsTableRow: FC<NotificationsTableRowProps> = ({
   t_label,
   emailFieldName,
+  isInverted = false,
 }) => {
   const { t } = useTranslation();
 
@@ -35,20 +42,28 @@ export const NotificationsTableRow: FC<NotificationsTableRowProps> = ({
           <BaseFormField
             control={control}
             name={emailFieldName}
-            render={({ field }) => (
-              <>
-                <BaseFormControl>
-                  <BaseCheckbox
-                    id={emailId}
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    data-testid={`email-checkbox-${t_label.replace(/\s+/g, '-').toLowerCase()}`}
-                  />
-                </BaseFormControl>
+            render={({ field }) => {
+              const displayValue = isInverted ? !field.value : field.value;
 
-                <BaseLabel htmlFor={emailId}>{t('Email me')}</BaseLabel>
-              </>
-            )}
+              const handleChange = (checked: boolean) => {
+                field.onChange(isInverted ? !checked : checked);
+              };
+
+              return (
+                <>
+                  <BaseFormControl>
+                    <BaseCheckbox
+                      id={emailId}
+                      checked={displayValue}
+                      onCheckedChange={handleChange}
+                      data-testid={`email-checkbox-${t_label.replace(/\s+/g, '-').toLowerCase()}`}
+                    />
+                  </BaseFormControl>
+
+                  <BaseLabel htmlFor={emailId}>{t('Email me')}</BaseLabel>
+                </>
+              );
+            }}
           />
         ) : null}
       </td>

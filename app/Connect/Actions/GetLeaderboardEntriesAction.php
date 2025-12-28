@@ -114,6 +114,7 @@ class GetLeaderboardEntriesAction extends BaseApiAction
                 'LBAuthor' => $leaderboard->developer?->User,
                 'LBCreated' => $leaderboard->created_at?->format('Y-m-d H:i:s'),
                 'LBUpdated' => $leaderboard->updated_at?->format('Y-m-d H:i:s'),
+                'LBState' => $leaderboard->state->value,
                 'TotalEntries' => $totalEntries,
                 'Entries' => $entries,
             ],

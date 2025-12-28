@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\RelationManagers;
 
+use App\Filament\Actions\CloneLeaderboardAction;
 use App\Filament\Actions\DeleteLeaderboardAction;
 use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\User;
+use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\ValueFormat;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -64,6 +68,7 @@ class LeaderboardsRelationManager extends RelationManager
 
         return $table
             ->recordTitleAttribute('title')
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['developer', 'game']))
             ->columns([
                 Tables\Columns\TextColumn::make('id')
                     ->label('ID')
@@ -94,6 +99,10 @@ class LeaderboardsRelationManager extends RelationManager
                 Tables\Columns\ViewColumn::make('order_column')
                     ->view('filament.tables.columns.display-order-column')
                     ->toggleable(),
+
+                Tables\Columns\TextColumn::make('state')
+                    ->label('State')
+                    ->formatStateUsing(fn (LeaderboardState $state): string => ucfirst($state->value)),
             ])
             ->searchPlaceholder('Search (ID, Title)')
             ->recordUrl(function (Leaderboard $record): ?string {
@@ -135,7 +144,6 @@ class LeaderboardsRelationManager extends RelationManager
                         ->visible(function (Leaderboard $leaderboard) use ($user) {
                             return $user->can('manage', $leaderboard) && !$user->can('update', $leaderboard);
                         }),
-
                     Action::make('edit')
                         ->label('Edit')
                         ->icon('heroicon-s-pencil')
@@ -143,7 +151,6 @@ class LeaderboardsRelationManager extends RelationManager
                         ->visible(function (Leaderboard $leaderboard) use ($user) {
                             return $user->can('update', $leaderboard);
                         }),
-
                     Action::make('move-to-top')
                         ->label('Move to Top')
                         ->icon('heroicon-o-arrow-up')
@@ -155,7 +162,40 @@ class LeaderboardsRelationManager extends RelationManager
                         ->icon('heroicon-o-arrow-down')
                         ->action(fn (Leaderboard $leaderboard) => $this->moveLeaderboardToPosition($leaderboard, 'bottom'))
                         ->visible(fn () => $this->canReorderLeaderboards() && !$this->isEditingDisplayOrders),
+                    CloneLeaderboardAction::make('clone_leaderboard'),
+                    Action::make('promote-leaderboard')
+                        ->label('Promote')
+                        ->icon('heroicon-s-arrow-up-right')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (Leaderboard $leaderboard) {
+                            $leaderboard->state = LeaderboardState::Active;
+                            $leaderboard->push();
 
+                            Notification::make()
+                                ->success()
+                                ->title('Leaderboard promoted')
+                                ->send();
+                        })
+                        ->visible(function (Leaderboard $leaderboard) use ($user) {
+                            return $user->can('updateField', [$leaderboard, 'state']) && $leaderboard->state !== LeaderboardState::Active;
+                        }),
+                    Action::make('demote-leaderboard')
+                        ->label('Demote')
+                        ->icon('heroicon-s-arrow-down-right')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->action(function (Leaderboard $leaderboard) {
+                            $leaderboard->state = LeaderboardState::Unpublished;
+                            $leaderboard->push();
+                            Notification::make()
+                                ->success()
+                                ->title('Leaderboard demoted')
+                                ->send();
+                        })
+                        ->visible(function (Leaderboard $leaderboard) use ($user) {
+                            return $user->can('updateField', [$leaderboard, 'state']) && $leaderboard->state !== LeaderboardState::Unpublished;
+                        }),
                     ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
                     DeleteLeaderboardAction::make('delete_leaderboard'),
                 ]),
@@ -167,6 +207,56 @@ class LeaderboardsRelationManager extends RelationManager
                     ->color('gray')
                     ->action(fn () => $this->startEditingDisplayOrders())
                     ->visible(fn () => !$this->isEditingDisplayOrders && $this->canReorderLeaderboards()),
+                BulkActionGroup::make([
+                    BulkAction::make('promote_leaderboards')
+                        ->label('Promote selected')
+                        ->icon('heroicon-s-arrow-up-right')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (Builder $query) use ($user) {
+                            $leaderboards = $query->get();
+
+                            foreach ($leaderboards as $leaderboard) {
+                                if (!$user->can('updateField', [$leaderboard, 'state'])) {
+                                    return;
+                                }
+
+                                $leaderboard->state = LeaderboardState::Active;
+                                $leaderboard->push();
+                            }
+
+                            Notification::make()
+                                ->success()
+                                ->title('Leaderboards promoted')
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    BulkAction::make('demote_leaderboards')
+                        ->label('Demote selected')
+                        ->icon('heroicon-s-arrow-down-right')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->action(function (Builder $query) use ($user) {
+                            $leaderboards = $query->get();
+
+                            foreach ($leaderboards as $leaderboard) {
+                                if (!$user->can('updateField', [$leaderboard, 'state'])) {
+                                    return;
+                                }
+
+                                $leaderboard->state = LeaderboardState::Unpublished;
+                                $leaderboard->push();
+                            }
+
+                            Notification::make()
+                                ->success()
+                                ->title('Leaderboards demoted')
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                ])
+                ->label('Bulk promote or demote')
+                ->visible(fn (): bool => $user->can('updateField', [Leaderboard::class, null, 'state'])),
             ])
             ->paginated([400])
             ->defaultPaginationPageOption(400)

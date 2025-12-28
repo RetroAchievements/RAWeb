@@ -22,6 +22,7 @@
  *      string     FormattedScore           formatted string value of current leader's score
  *    string     Author                     user responsible for the leaderboard's trigger code
  *    string     AuthorULID                 queryable stable unique identifier of the author
+ *    string     State                      the state of the leaderboard (active, disabled, unpublished)
  */
 
 use App\Models\Game;
@@ -81,6 +82,7 @@ foreach ($leaderboards as $leaderboard) {
         'TopEntry' => $topEntry,
         'Author' => $leaderboard->developer?->display_name,
         'AuthorULID' => $leaderboard->developer?->ulid,
+        'State' => $leaderboard->state,
     ];
 }
 

@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Community\Enums\ArticleType;
 use App\Platform\Actions\RecalculateLeaderboardTopEntryAction;
 use App\Platform\Contracts\HasVersionedTrigger;
+use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\ValueFormat;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\LeaderboardFactory;
@@ -50,7 +51,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
         'rank_asc',
         'order_column',
         'trigger_id',
-
+        'state',
         'game_id',
         'trigger_definition',
         'author_id',
@@ -58,6 +59,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
 
     protected $casts = [
         'rank_asc' => 'boolean',
+        'state' => LeaderboardState::class,
     ];
 
     protected static function newFactory(): LeaderboardFactory
@@ -94,6 +96,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
                 'description',
                 'format',
                 'rank_asc',
+                'state',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
