@@ -50,9 +50,9 @@ class UserGameListController extends Controller
 
         // Only allow filtering by systems the user has games on their list for.
         $filterableSystemIds = $user->gameListEntries(UserGameListType::Play)
-            ->join('GameData', DB::raw('SetRequest.GameID'), '=', 'GameData.ID')
+            ->join('games', DB::raw('SetRequest.GameID'), '=', 'games.id')
             ->distinct()
-            ->pluck(DB::raw('GameData.ConsoleID'));
+            ->pluck(DB::raw('games.system_id'));
         $filterableSystemOptions = System::whereIn('ID', $filterableSystemIds)
             ->get()
             ->map(fn ($system) => SystemData::fromSystem($system)->include('nameShort'))

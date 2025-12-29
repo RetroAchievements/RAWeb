@@ -67,11 +67,11 @@ $results = UserGameListEntry::where('user_id', $targetUser->id)
         $game = $entry->game;
 
         return [
-            'ID' => $game->ID,
-            'Title' => $game->Title,
-            'ConsoleID' => $game->ConsoleID,
+            'ID' => $game->id,
+            'Title' => $game->title,
+            'ConsoleID' => $game->system_id,
             'ConsoleName' => $game->system->name,
-            'ImageIcon' => $game->ImageIcon,
+            'ImageIcon' => $game->image_icon_asset_path,
             'PointsTotal' => $game->points_total,
             'AchievementsPublished' => $game->achievements_published,
         ];

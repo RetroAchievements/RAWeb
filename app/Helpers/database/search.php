@@ -40,22 +40,22 @@ function performSearch(
     $parts = [];
 
     if (in_array(SearchType::Game, $searchType)) {
-        $counts[] = "SELECT COUNT(*) AS Count FROM GameData WHERE Title LIKE '%$searchQuery%'";
+        $counts[] = "SELECT COUNT(*) AS Count FROM games WHERE title LIKE '%$searchQuery%'";
         $parts[] = "
-        SELECT " . SearchType::Game . " AS Type, gd.ID, CONCAT( '/game/', gd.ID ) AS Target,
-               CONCAT(gd.Title, ' (', c.Name, ')') AS Title,
+        SELECT " . SearchType::Game . " AS Type, gd.id AS ID, CONCAT( '/game/', gd.id ) AS Target,
+               CONCAT(gd.title, ' (', c.Name, ')') AS Title,
                CASE
-                   WHEN gd.Title LIKE '$searchQuery%' THEN 0
-                   WHEN gd.Title LIKE '%~ $searchQuery%' THEN 1
+                   WHEN gd.title LIKE '$searchQuery%' THEN 0
+                   WHEN gd.title LIKE '%~ $searchQuery%' THEN 1
                    ELSE 2
                END AS SecondarySort
-        FROM GameData AS gd
-        LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID AND ach.Flags = 3
-        LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
-        WHERE gd.ConsoleID != 100
-        AND gd.Title LIKE '%$searchQuery%'
-        GROUP BY gd.ID, gd.Title
-        ORDER BY SecondarySort, REPLACE(gd.Title, '|', ''), gd.Title";
+        FROM games AS gd
+        LEFT JOIN Achievements AS ach ON ach.GameID = gd.id AND ach.Flags = 3
+        LEFT JOIN Console AS c ON gd.system_id = c.ID
+        WHERE gd.system_id != 100
+        AND gd.title LIKE '%$searchQuery%'
+        GROUP BY gd.id, gd.title
+        ORDER BY SecondarySort, REPLACE(gd.title, '|', ''), gd.title";
     }
 
     if (in_array(SearchType::Hub, $searchType)) {
@@ -80,10 +80,10 @@ function performSearch(
         $counts[] = "SELECT COUNT(*) AS Count FROM Achievements WHERE Title LIKE '%$searchQuery%'";
         $parts[] = "
         SELECT " . SearchType::Achievement . " AS Type, ach.ID, CONCAT( '/achievement/', ach.ID ) AS Target,
-               CONCAT(ach.Title, ' (', gd.Title, ')') AS Title,
+               CONCAT(ach.Title, ' (', gd.title, ')') AS Title,
                CASE WHEN ach.Title LIKE '$searchQuery%' THEN 0 ELSE 1 END AS SecondarySort
         FROM Achievements AS ach
-        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+        LEFT JOIN games AS gd ON gd.id = ach.GameID
         WHERE ach.Flags = 3 AND ach.Title LIKE '%$searchQuery%'
         ORDER BY SecondarySort, ach.Title";
     }

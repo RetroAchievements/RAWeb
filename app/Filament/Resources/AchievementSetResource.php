@@ -155,8 +155,8 @@ class AchievementSetResource extends Resource
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         // Search by game ID, game title, or set title.
                         return $query->whereHas('gameAchievementSets.game', function (Builder $gameQuery) use ($search) {
-                            $gameQuery->where(DB::raw('GameData.ID'), 'LIKE', "%{$search}%")
-                                ->orWhere(DB::raw('GameData.Title'), 'LIKE', "%{$search}%")
+                            $gameQuery->where(DB::raw('games.id'), 'LIKE', "%{$search}%")
+                                ->orWhere(DB::raw('games.title'), 'LIKE', "%{$search}%")
                                 ->orWhereHas('gameAchievementSets', function (Builder $setQuery) use ($search) {
                                     $setQuery->where('title', 'LIKE', "%{$search}%");
                                 });

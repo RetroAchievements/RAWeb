@@ -61,35 +61,35 @@ class UserCompletionProgressTest extends TestCase
         $system = System::factory()->create(['ID' => 1]);
 
         /** @var Game $gameOne */
-        $gameOne = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $gameOneAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameOne->ID]);
+        $gameOne = Game::factory()->create(['system_id' => $system->ID]);
+        $gameOneAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameOne->id]);
         /** @var Game $gameTwo */
-        $gameTwo = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $gameTwoAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameTwo->ID]);
+        $gameTwo = Game::factory()->create(['system_id' => $system->ID]);
+        $gameTwoAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameTwo->id]);
         /** @var Game $gameThree */
-        $gameThree = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $gameThreeAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameThree->ID]);
+        $gameThree = Game::factory()->create(['system_id' => $system->ID]);
+        $gameThreeAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameThree->id]);
         /** @var Game $gameFour */
-        $gameFour = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $gameFourAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameFour->ID]);
+        $gameFour = Game::factory()->create(['system_id' => $system->ID]);
+        $gameFourAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameFour->id]);
         /** @var Game $gameFive */
-        $gameFive = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $gameFiveAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameFive->ID]);
+        $gameFive = Game::factory()->create(['system_id' => $system->ID]);
+        $gameFiveAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameFive->id]);
         /** @var Game $gameSix */
-        $gameSix = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $gameSixAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameSix->ID]);
+        $gameSix = Game::factory()->create(['system_id' => $system->ID]);
+        $gameSixAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameSix->id]);
         /** @var Game $gameSeven */
-        $gameSeven = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $gameSevenAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameSeven->ID]);
+        $gameSeven = Game::factory()->create(['system_id' => $system->ID]);
+        $gameSevenAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameSeven->id]);
         /** @var Game $gameEight */
-        $gameEight = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $gameEightAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameEight->ID]);
+        $gameEight = Game::factory()->create(['system_id' => $system->ID]);
+        $gameEightAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameEight->id]);
         /** @var Game $gameNine */
-        $gameNine = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $gameNineAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameNine->ID]);
+        $gameNine = Game::factory()->create(['system_id' => $system->ID]);
+        $gameNineAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameNine->id]);
         /** @var Game $gameTen */
-        $gameTen = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $gameTenAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameTen->ID]);
+        $gameTen = Game::factory()->create(['system_id' => $system->ID]);
+        $gameTenAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameTen->id]);
 
         // Unlocks on every game to be sure we have some progress.
         $this->addHardcoreUnlock($me, $gameOneAchievements->get(0), Carbon::now()->subMinutes(5));
@@ -141,9 +141,9 @@ class UserCompletionProgressTest extends TestCase
                 'Total' => 10,
                 'Results' => [
                     [
-                        "GameID" => $gameOne->ID,
-                        "Title" => $gameOne->Title,
-                        "ImageIcon" => $gameOne->ImageIcon,
+                        "GameID" => $gameOne->id,
+                        "Title" => $gameOne->title,
+                        "ImageIcon" => $gameOne->image_icon_asset_path,
                         "ConsoleID" => $system->ID,
                         "ConsoleName" => $system->Name,
                         "MaxPossible" => 6,
@@ -154,9 +154,9 @@ class UserCompletionProgressTest extends TestCase
                         "HighestAwardDate" => Carbon::now()->subMinutes(1)->toIso8601String(),
                     ],
                     [
-                        "GameID" => $gameTwo->ID,
-                        "Title" => $gameTwo->Title,
-                        "ImageIcon" => $gameTwo->ImageIcon,
+                        "GameID" => $gameTwo->id,
+                        "Title" => $gameTwo->title,
+                        "ImageIcon" => $gameTwo->image_icon_asset_path,
                         "ConsoleID" => $system->ID,
                         "ConsoleName" => $system->Name,
                         "MaxPossible" => 6,
@@ -167,9 +167,9 @@ class UserCompletionProgressTest extends TestCase
                         "HighestAwardDate" => Carbon::now()->subMinutes(2)->toIso8601String(),
                     ],
                     [
-                        "GameID" => $gameThree->ID,
-                        "Title" => $gameThree->Title,
-                        "ImageIcon" => $gameThree->ImageIcon,
+                        "GameID" => $gameThree->id,
+                        "Title" => $gameThree->title,
+                        "ImageIcon" => $gameThree->image_icon_asset_path,
                         "ConsoleID" => $system->ID,
                         "ConsoleName" => $system->Name,
                         "MaxPossible" => 6,
@@ -180,9 +180,9 @@ class UserCompletionProgressTest extends TestCase
                         "HighestAwardDate" => Carbon::now()->subMinutes(12)->toIso8601String(),
                     ],
                     [
-                        "GameID" => $gameFour->ID,
-                        "Title" => $gameFour->Title,
-                        "ImageIcon" => $gameFour->ImageIcon,
+                        "GameID" => $gameFour->id,
+                        "Title" => $gameFour->title,
+                        "ImageIcon" => $gameFour->image_icon_asset_path,
                         "ConsoleID" => $system->ID,
                         "ConsoleName" => $system->Name,
                         "MaxPossible" => 6,
@@ -193,9 +193,9 @@ class UserCompletionProgressTest extends TestCase
                         "HighestAwardDate" => Carbon::now()->subMinutes(5)->toIso8601String(),
                     ],
                     [
-                        "GameID" => $gameFive->ID,
-                        "Title" => $gameFive->Title,
-                        "ImageIcon" => $gameFive->ImageIcon,
+                        "GameID" => $gameFive->id,
+                        "Title" => $gameFive->title,
+                        "ImageIcon" => $gameFive->image_icon_asset_path,
                         "ConsoleID" => $system->ID,
                         "ConsoleName" => $system->Name,
                         "MaxPossible" => 6,
@@ -206,9 +206,9 @@ class UserCompletionProgressTest extends TestCase
                         "HighestAwardDate" => Carbon::now()->subMinutes(10)->toIso8601String(),
                     ],
                     [
-                        "GameID" => $gameSix->ID,
-                        "Title" => $gameSix->Title,
-                        "ImageIcon" => $gameSix->ImageIcon,
+                        "GameID" => $gameSix->id,
+                        "Title" => $gameSix->title,
+                        "ImageIcon" => $gameSix->image_icon_asset_path,
                         "ConsoleID" => $system->ID,
                         "ConsoleName" => $system->Name,
                         "MaxPossible" => 6,
@@ -219,9 +219,9 @@ class UserCompletionProgressTest extends TestCase
                         "HighestAwardDate" => Carbon::now()->subMinutes(15)->toIso8601String(),
                     ],
                     [
-                        "GameID" => $gameSeven->ID,
-                        "Title" => $gameSeven->Title,
-                        "ImageIcon" => $gameSeven->ImageIcon,
+                        "GameID" => $gameSeven->id,
+                        "Title" => $gameSeven->title,
+                        "ImageIcon" => $gameSeven->image_icon_asset_path,
                         "ConsoleID" => $system->ID,
                         "ConsoleName" => $system->Name,
                         "MaxPossible" => 6,
@@ -232,9 +232,9 @@ class UserCompletionProgressTest extends TestCase
                         "HighestAwardDate" => Carbon::now()->subMinutes(3)->toIso8601String(),
                     ],
                     [
-                        "GameID" => $gameEight->ID,
-                        "Title" => $gameEight->Title,
-                        "ImageIcon" => $gameEight->ImageIcon,
+                        "GameID" => $gameEight->id,
+                        "Title" => $gameEight->title,
+                        "ImageIcon" => $gameEight->image_icon_asset_path,
                         "ConsoleID" => $system->ID,
                         "ConsoleName" => $system->Name,
                         "MaxPossible" => 6,
@@ -245,9 +245,9 @@ class UserCompletionProgressTest extends TestCase
                         "HighestAwardDate" => Carbon::now()->subMinutes(4)->toIso8601String(),
                     ],
                     [
-                        "GameID" => $gameNine->ID,
-                        "Title" => $gameNine->Title,
-                        "ImageIcon" => $gameNine->ImageIcon,
+                        "GameID" => $gameNine->id,
+                        "Title" => $gameNine->title,
+                        "ImageIcon" => $gameNine->image_icon_asset_path,
                         "ConsoleID" => $system->ID,
                         "ConsoleName" => $system->Name,
                         "MaxPossible" => 6,
@@ -258,9 +258,9 @@ class UserCompletionProgressTest extends TestCase
                         "HighestAwardDate" => null,
                     ],
                     [
-                        "GameID" => $gameTen->ID,
-                        "Title" => $gameTen->Title,
-                        "ImageIcon" => $gameTen->ImageIcon,
+                        "GameID" => $gameTen->id,
+                        "Title" => $gameTen->title,
+                        "ImageIcon" => $gameTen->image_icon_asset_path,
                         "ConsoleID" => $system->ID,
                         "ConsoleName" => $system->Name,
                         "MaxPossible" => 6,

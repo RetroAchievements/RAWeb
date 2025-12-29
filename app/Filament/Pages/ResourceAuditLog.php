@@ -126,6 +126,14 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
         return in_array($fieldName, [
             'BadgeName',
             'image_asset_path',
+
+            // New column names.
+            'image_icon_asset_path',
+            'image_box_art_asset_path',
+            'image_title_asset_path',
+            'image_ingame_asset_path',
+
+            // Legacy column names for historical audit log entries.
             'ImageIcon',
             'ImageBoxArt',
             'ImageTitle',
@@ -138,9 +146,6 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
         switch ($fieldName) {
             case 'BadgeName':
                 return media_asset("/Badge/{$path}.png");
-
-            case 'ImageIcon':
-                return media_asset($path);
 
             default:
                 return media_asset($path);

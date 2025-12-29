@@ -33,11 +33,11 @@ class BuildTrendingGamesActionTest extends TestCase
         $system = System::factory()->create();
 
         // deliberately inserted out-of-order to verify sorting
-        $game3 = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => 'third_most_popular']);
-        $game1 = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => 'most_popular']);
-        $game4 = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => 'fourth_most_popular']);
-        $game2 = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => 'second_most_popular']);
-        $game5 = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => 'fifth_most_popular']);
+        $game3 = Game::factory()->create(['system_id' => $system->id, 'title' => 'third_most_popular']);
+        $game1 = Game::factory()->create(['system_id' => $system->id, 'title' => 'most_popular']);
+        $game4 = Game::factory()->create(['system_id' => $system->id, 'title' => 'fourth_most_popular']);
+        $game2 = Game::factory()->create(['system_id' => $system->id, 'title' => 'second_most_popular']);
+        $game5 = Game::factory()->create(['system_id' => $system->id, 'title' => 'fifth_most_popular']);
 
         $game4User = User::factory()->create([
             'LastGameID' => $game4->id,

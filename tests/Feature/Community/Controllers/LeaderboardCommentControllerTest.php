@@ -20,8 +20,8 @@ class LeaderboardCommentControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
-        $leaderboard = Leaderboard::factory()->create(['Title' => 'Any%', 'GameID' => $game->id]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
+        $leaderboard = Leaderboard::factory()->create(['title' => 'Any%', 'GameID' => $game->id]);
 
         // Act
         $response = $this->get(route('leaderboard.comment.index', ['leaderboard' => $leaderboard]));
@@ -38,8 +38,8 @@ class LeaderboardCommentControllerTest extends TestCase
         $this->actingAs($user);
 
         $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
-        $leaderboard = Leaderboard::factory()->create(['Title' => 'Any%', 'GameID' => $game->id]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
+        $leaderboard = Leaderboard::factory()->create(['title' => 'Any%', 'GameID' => $game->id]);
 
         // Act
         $response = $this->get(route('leaderboard.comment.index', ['leaderboard' => $leaderboard]));

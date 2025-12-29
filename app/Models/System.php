@@ -218,7 +218,7 @@ class System extends BaseModel implements HasMedia
      */
     public function games(): HasMany
     {
-        return $this->hasMany(Game::class, 'ConsoleID');
+        return $this->hasMany(Game::class, 'system_id');
     }
 
     /**
@@ -228,7 +228,7 @@ class System extends BaseModel implements HasMedia
      */
     public function achievementGames(): HasMany
     {
-        return $this->hasMany(Game::class)->where('achievements_published', '>', 0);
+        return $this->hasMany(Game::class, 'system_id')->where('achievements_published', '>', 0);
     }
 
     /**
@@ -236,7 +236,7 @@ class System extends BaseModel implements HasMedia
      */
     public function achievements(): HasManyThrough
     {
-        return $this->hasManyThrough(Achievement::class, Game::class);
+        return $this->hasManyThrough(Achievement::class, Game::class, 'system_id');
     }
 
     // == scopes

@@ -30,23 +30,23 @@ class UserProgressTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
+        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->id]);
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(0));
         $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(1));
         /** @var Game $game2 */
-        $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $publishedAchievements2 = Achievement::factory()->published()->count(5)->create(['GameID' => $game2->ID]);
+        $game2 = Game::factory()->create(['system_id' => $system->ID]);
+        $publishedAchievements2 = Achievement::factory()->published()->count(5)->create(['GameID' => $game2->id]);
         (new UpdateGameMetricsAction())->execute($game2);
         /** @var Game $game3 */
-        $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game3 = Game::factory()->create(['system_id' => $system->ID]);
 
-        $csv = $game->ID . ',' . $game2->ID . ',' . $game3->ID . ',15934';
+        $csv = $game->id . ',' . $game2->id . ',' . $game3->id . ',15934';
 
         $this->get($this->apiUrl('GetUserProgress', ['u' => $this->user->User, 'i' => $csv]))
             ->assertSuccessful()
             ->assertJson([
-                $game->ID => [
+                $game->id => [
                     'NumPossibleAchievements' => 3,
                     'PossibleScore' => $publishedAchievements->get(0)->Points +
                                        $publishedAchievements->get(1)->Points +
@@ -57,7 +57,7 @@ class UserProgressTest extends TestCase
                     'ScoreAchieved' => $publishedAchievements->get(0)->Points +
                                        $publishedAchievements->get(1)->Points,
                 ],
-                $game2->ID => [
+                $game2->id => [
                     'NumPossibleAchievements' => 5,
                     'PossibleScore' => $publishedAchievements2->get(0)->Points +
                                        $publishedAchievements2->get(1)->Points +
@@ -69,7 +69,7 @@ class UserProgressTest extends TestCase
                     'NumAchieved' => 0,
                     'ScoreAchieved' => 0,
                 ],
-                $game3->ID => [
+                $game3->id => [
                     'NumPossibleAchievements' => 0,
                     'PossibleScore' => 0,
                     'NumAchievedHardcore' => 0,
@@ -93,23 +93,23 @@ class UserProgressTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
+        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->id]);
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(0));
         $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(1));
         /** @var Game $game2 */
-        $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $publishedAchievements2 = Achievement::factory()->published()->count(5)->create(['GameID' => $game2->ID]);
+        $game2 = Game::factory()->create(['system_id' => $system->ID]);
+        $publishedAchievements2 = Achievement::factory()->published()->count(5)->create(['GameID' => $game2->id]);
         (new UpdateGameMetricsAction())->execute($game2);
         /** @var Game $game3 */
-        $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game3 = Game::factory()->create(['system_id' => $system->ID]);
 
-        $csv = $game->ID . ',' . $game2->ID . ',' . $game3->ID . ',15934';
+        $csv = $game->id . ',' . $game2->id . ',' . $game3->id . ',15934';
 
         $this->get($this->apiUrl('GetUserProgress', ['u' => $this->user->ulid, 'i' => $csv]))
             ->assertSuccessful()
             ->assertJson([
-                $game->ID => [
+                $game->id => [
                     'NumPossibleAchievements' => 3,
                     'PossibleScore' => $publishedAchievements->get(0)->Points +
                                        $publishedAchievements->get(1)->Points +
@@ -120,7 +120,7 @@ class UserProgressTest extends TestCase
                     'ScoreAchieved' => $publishedAchievements->get(0)->Points +
                                        $publishedAchievements->get(1)->Points,
                 ],
-                $game2->ID => [
+                $game2->id => [
                     'NumPossibleAchievements' => 5,
                     'PossibleScore' => $publishedAchievements2->get(0)->Points +
                                        $publishedAchievements2->get(1)->Points +
@@ -132,7 +132,7 @@ class UserProgressTest extends TestCase
                     'NumAchieved' => 0,
                     'ScoreAchieved' => 0,
                 ],
-                $game3->ID => [
+                $game3->id => [
                     'NumPossibleAchievements' => 0,
                     'PossibleScore' => 0,
                     'NumAchievedHardcore' => 0,

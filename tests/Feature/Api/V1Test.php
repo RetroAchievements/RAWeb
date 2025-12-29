@@ -46,11 +46,11 @@ class V1Test extends TestCase
             ->has(Achievement::factory()->published()->count(3))
             ->create();
 
-        $this->get($this->apiUrl('GetAchievementCount', ['i' => $game->ID]))
+        $this->get($this->apiUrl('GetAchievementCount', ['i' => $game->id]))
             ->assertSuccessful()
             ->assertJsonFragment([
                 'AchievementIDs' => $game->achievements->pluck('ID'),
-                'GameID' => $game->ID,
+                'GameID' => $game->id,
             ]);
     }
 
@@ -59,13 +59,13 @@ class V1Test extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->ID]);
 
-        $publishedAchievements = Achievement::factory()->published()->count(5)->create(['GameID' => $game->ID]);
+        $publishedAchievements = Achievement::factory()->published()->count(5)->create(['GameID' => $game->id]);
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(0));
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(1));
 
-        $unpublishedAchievements = Achievement::factory()->count(5)->create(['GameID' => $game->ID]);
+        $unpublishedAchievements = Achievement::factory()->count(5)->create(['GameID' => $game->id]);
         $this->addHardcoreUnlock($this->user, $unpublishedAchievements->get(0));
         $this->addSoftcoreUnlock($this->user, $unpublishedAchievements->get(1));
         $this->addSoftcoreUnlock($this->user, $unpublishedAchievements->get(2));
@@ -75,7 +75,7 @@ class V1Test extends TestCase
             ->assertSuccessful()
             ->assertJson([]);
 
-        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Hardcore]))
+        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->id, 'h' => UnlockMode::Hardcore]))
             ->assertSuccessful()
             ->assertExactJson([
                 '1' => 0,
@@ -85,7 +85,7 @@ class V1Test extends TestCase
                 '5' => 0,
             ]);
 
-        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Softcore]))
+        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->id, 'h' => UnlockMode::Softcore]))
             ->assertSuccessful()
             ->assertExactJson([
                 '1' => 0,
@@ -98,7 +98,7 @@ class V1Test extends TestCase
         $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(2));
         $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(3));
 
-        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Softcore]))
+        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->id, 'h' => UnlockMode::Softcore]))
             ->assertSuccessful()
             ->assertExactJson([
                 '1' => 0,
@@ -113,7 +113,7 @@ class V1Test extends TestCase
         $publishedAchievements->get(4)->Flags = AchievementFlag::Unofficial->value;
         $publishedAchievements->get(4)->save();
 
-        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Hardcore, 'f' => AchievementFlag::Unofficial->value]))
+        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->id, 'h' => UnlockMode::Hardcore, 'f' => AchievementFlag::Unofficial->value]))
             ->assertSuccessful()
             ->assertExactJson([
                 '1' => 1,
@@ -124,7 +124,7 @@ class V1Test extends TestCase
                 '6' => 0,
             ]);
 
-        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Softcore, 'f' => AchievementFlag::Unofficial->value]))
+        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->id, 'h' => UnlockMode::Softcore, 'f' => AchievementFlag::Unofficial->value]))
             ->assertSuccessful()
             ->assertExactJson([
                 '1' => 0,
@@ -157,9 +157,9 @@ class V1Test extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'Points' => 100]);
+        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->id, 'Points' => 100]);
 
         $unlockTime = Carbon::now()->subMinutes(5);
         $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
@@ -182,10 +182,10 @@ class V1Test extends TestCase
                     'CumulScore' => 100,
                     'Date' => $unlockTime->format('Y-m-d H:i:s'),
                     'Description' => $achievement->Description,
-                    'GameID' => $game->ID,
-                    'GameIcon' => $game->ImageIcon,
-                    'GameTitle' => $game->Title,
-                    'GameURL' => '/game/' . $game->ID,
+                    'GameID' => $game->id,
+                    'GameIcon' => $game->image_icon_asset_path,
+                    'GameTitle' => $game->title,
+                    'GameURL' => '/game/' . $game->id,
                     'HardcoreMode' => UnlockMode::Softcore,
                     'Points' => $achievement->Points,
                     'TrueRatio' => $achievement->points_weighted,
@@ -200,9 +200,9 @@ class V1Test extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'Points' => 100]);
+        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->id, 'Points' => 100]);
 
         $unlockTime = Carbon::now()->subMinutes(5);
         $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
@@ -225,10 +225,10 @@ class V1Test extends TestCase
                     'CumulScore' => 100,
                     'Date' => $unlockTime->format('Y-m-d H:i:s'),
                     'Description' => $achievement->Description,
-                    'GameID' => $game->ID,
-                    'GameIcon' => $game->ImageIcon,
-                    'GameTitle' => $game->Title,
-                    'GameURL' => '/game/' . $game->ID,
+                    'GameID' => $game->id,
+                    'GameIcon' => $game->image_icon_asset_path,
+                    'GameTitle' => $game->title,
+                    'GameURL' => '/game/' . $game->id,
                     'HardcoreMode' => UnlockMode::Softcore,
                     'Points' => $achievement->Points,
                     'TrueRatio' => $achievement->points_weighted,
@@ -243,9 +243,9 @@ class V1Test extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'Points' => 100, 'user_id' => $this->user->id]);
+        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->id, 'Points' => 100, 'user_id' => $this->user->id]);
 
         $unlockTime = Carbon::now()->subMinutes(5);
         $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
@@ -269,10 +269,10 @@ class V1Test extends TestCase
                     'CumulScore' => 100,
                     'Date' => $unlockTime->format('Y-m-d H:i:s'),
                     'Description' => $achievement->Description,
-                    'GameID' => $game->ID,
-                    'GameIcon' => $game->ImageIcon,
-                    'GameTitle' => $game->Title,
-                    'GameURL' => '/game/' . $game->ID,
+                    'GameID' => $game->id,
+                    'GameIcon' => $game->image_icon_asset_path,
+                    'GameTitle' => $game->title,
+                    'GameURL' => '/game/' . $game->id,
                     'HardcoreMode' => UnlockMode::Softcore,
                     'Points' => $achievement->Points,
                     'Type' => AchievementType::Progression,
@@ -286,9 +286,9 @@ class V1Test extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'Points' => 100, 'user_id' => $this->user->id]);
+        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->id, 'Points' => 100, 'user_id' => $this->user->id]);
 
         $unlockTime = Carbon::now()->subMinutes(5);
         $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
@@ -312,10 +312,10 @@ class V1Test extends TestCase
                     'CumulScore' => 100,
                     'Date' => $unlockTime->format('Y-m-d H:i:s'),
                     'Description' => $achievement->Description,
-                    'GameID' => $game->ID,
-                    'GameIcon' => $game->ImageIcon,
-                    'GameTitle' => $game->Title,
-                    'GameURL' => '/game/' . $game->ID,
+                    'GameID' => $game->id,
+                    'GameIcon' => $game->image_icon_asset_path,
+                    'GameTitle' => $game->title,
+                    'GameURL' => '/game/' . $game->id,
                     'HardcoreMode' => UnlockMode::Softcore,
                     'Points' => $achievement->Points,
                     'Type' => AchievementType::Progression,
@@ -335,7 +335,7 @@ class V1Test extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->ID]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->progression()->create([
             'GameID' => $game->id,
@@ -360,7 +360,7 @@ class V1Test extends TestCase
                     'ID' => $system->ID,
                 ],
                 'Game' => [
-                    'ID' => $game->ID,
+                    'ID' => $game->id,
                 ],
                 'TotalPlayers' => 1,
                 'Unlocks' => [

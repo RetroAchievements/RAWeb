@@ -28,7 +28,7 @@ class RevisedGameStrategy implements GameSuggestionStrategy
          * - The user has a prior mastery award for.
          */
         return Game::query()
-            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+            ->whereNotIn('system_id', System::getNonGameSystems())
             ->whereHas('playerGames', function (Builder $query) {
                 $query->whereUserId($this->user->id)->whereNotAllAchievementsUnlocked();
             })

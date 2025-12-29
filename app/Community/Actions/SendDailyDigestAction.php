@@ -164,9 +164,9 @@ class SendDailyDigestAction
     {
         $result = [];
 
-        $games = Game::whereIn('ID', $ids)->with('system')->get();
+        $games = Game::whereIn('id', $ids)->with('system')->get();
         foreach ($games as $game) {
-            $result[$game->ID] = "{$game->Title} ({$game->system->Name})";
+            $result[$game->id] = "{$game->title} ({$game->system->Name})";
         }
 
         return $result;
@@ -178,7 +178,7 @@ class SendDailyDigestAction
 
         $achievements = Achievement::whereIn('ID', $ids)->with('game')->get();
         foreach ($achievements as $achievement) {
-            $result[$achievement->ID] = "{$achievement->Title} ({$achievement->game->Title})";
+            $result[$achievement->ID] = "{$achievement->Title} ({$achievement->game->title})";
         }
 
         return $result;
@@ -190,7 +190,7 @@ class SendDailyDigestAction
 
         $leaderboards = Leaderboard::whereIn('ID', $ids)->with('game')->get();
         foreach ($leaderboards as $leaderboard) {
-            $result[$leaderboard->ID] = "{$leaderboard->Title} ({$leaderboard->game->Title})";
+            $result[$leaderboard->ID] = "{$leaderboard->Title} ({$leaderboard->game->title})";
         }
 
         return $result;

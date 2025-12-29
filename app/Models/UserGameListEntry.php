@@ -106,7 +106,7 @@ class UserGameListEntry extends BaseModel
      */
     public function game(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'GameID', 'ID');
+        return $this->belongsTo(Game::class, 'GameID', 'id');
     }
 
     // == scopes

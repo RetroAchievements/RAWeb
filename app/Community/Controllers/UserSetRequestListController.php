@@ -103,9 +103,9 @@ class UserSetRequestListController extends Controller
             $systemIds = UserGameListEntry::query()
                 ->where('user_id', $targetUser->id)
                 ->where('type', UserGameListType::AchievementSetRequest)
-                ->join('GameData', DB::raw('SetRequest.GameID'), '=', 'GameData.ID')
+                ->join('games', DB::raw('SetRequest.GameID'), '=', 'games.id')
                 ->distinct()
-                ->pluck(DB::raw('GameData.ConsoleID'));
+                ->pluck(DB::raw('games.system_id'));
 
             $filterableSystemOptions = System::query()
                 ->gameSystems()

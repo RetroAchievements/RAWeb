@@ -25,8 +25,8 @@ class EventControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['ID' => System::Events]);
         $game = Game::factory()->create([
-            'Title' => 'Event 001',
-            'ConsoleID' => $system->id,
+            'title' => 'Event 001',
+            'system_id' => $system->id,
             'players_total' => 0,
             'achievements_published' => 0,
         ]);
@@ -56,8 +56,8 @@ class EventControllerTest extends TestCase
 
         $system = System::factory()->create(['ID' => System::Events]);
         $game = Game::factory()->create([
-            'Title' => 'Event 001',
-            'ConsoleID' => $system->id,
+            'title' => 'Event 001',
+            'system_id' => $system->id,
             'players_total' => 0,
             'achievements_published' => 0,
         ]);
@@ -86,8 +86,8 @@ class EventControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['ID' => System::Events]);
         $game = Game::factory()->create([
-            'Title' => 'Event 001',
-            'ConsoleID' => $system->id,
+            'title' => 'Event 001',
+            'system_id' => $system->id,
             'players_total' => 0,
             'achievements_published' => 0,
         ]);
@@ -113,8 +113,8 @@ class EventControllerTest extends TestCase
 
         $system = System::factory()->create(['ID' => System::Events]);
         $game = Game::factory()->create([
-            'Title' => 'Event 001',
-            'ConsoleID' => $system->id,
+            'title' => 'Event 001',
+            'system_id' => $system->id,
             'players_total' => 0,
             'achievements_published' => 0,
         ]);
@@ -139,8 +139,8 @@ class EventControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['ID' => System::Events]);
         $game = Game::factory()->create([
-            'Title' => 'Event 001',
-            'ConsoleID' => $system->id,
+            'title' => 'Event 001',
+            'system_id' => $system->id,
             'players_total' => 0,
             'achievements_published' => 0,
         ]);

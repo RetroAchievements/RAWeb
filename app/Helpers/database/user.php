@@ -406,18 +406,18 @@ function getMostAwardedGames(array $gameIDs): array
         return $retVal;
     }
 
-    $query = "SELECT gd.Title, sa.AwardData AS ID, c.Name AS ConsoleName, gd.ImageIcon as GameIcon,
+    $query = "SELECT gd.title AS Title, sa.AwardData AS ID, c.Name AS ConsoleName, gd.image_icon_asset_path as GameIcon,
               SUM(IF(AwardType LIKE " . AwardType::GameBeaten . " AND AwardDataExtra LIKE '0' AND Untracked = 0, 1, 0)) AS BeatenSoftcore,
               SUM(IF(AwardType LIKE " . AwardType::GameBeaten . " AND AwardDataExtra LIKE '1' AND Untracked = 0, 1, 0)) AS BeatenHardcore,
               SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '0' AND Untracked = 0, 1, 0)) AS Completed,
               SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '1' AND Untracked = 0, 1, 0)) AS Mastered
               FROM SiteAwards AS sa
-              LEFT JOIN GameData AS gd ON gd.ID = sa.AwardData
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              LEFT JOIN games AS gd ON gd.id = sa.AwardData
+              LEFT JOIN Console AS c ON c.ID = gd.system_id
               LEFT JOIN UserAccounts AS ua ON ua.ID = sa.user_id
               WHERE sa.AwardType IN (" . implode(',', AwardType::game()) . ")
               AND AwardData IN(" . implode(",", $gameIDs) . ")
-              GROUP BY sa.AwardData, gd.Title
+              GROUP BY sa.AwardData, gd.title
               ORDER BY Title";
 
     $dbResult = s_mysql_query($query);

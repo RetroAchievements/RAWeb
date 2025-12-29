@@ -125,14 +125,14 @@ class EventResource extends Resource
                     ->relationship('legacyGame')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Forms\Components\TextInput::make('Title')
+                        Forms\Components\TextInput::make('title')
                             ->label('Title')
                             ->unique(ignoreRecord: true)
                             ->required()
                             ->minLength(2)
                             ->maxLength(80),
 
-                        Forms\Components\TextInput::make('ForumTopicID')
+                        Forms\Components\TextInput::make('forum_topic_id')
                             ->label('Forum Topic ID')
                             ->numeric()
                             ->rules([new ExistsInForumTopics()]),
@@ -205,7 +205,7 @@ class EventResource extends Resource
                     ->schema([
                         // Store a temporary file on disk until the user submits.
                         // When the user submits, put in storage.
-                        Forms\Components\FileUpload::make('ImageTitle')
+                        Forms\Components\FileUpload::make('image_title_asset_path')
                             ->label('Title')
                             ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
                             ->image()
@@ -214,7 +214,7 @@ class EventResource extends Resource
                             ->maxFiles(1)
                             ->previewable(true),
 
-                        Forms\Components\FileUpload::make('ImageIngame')
+                        Forms\Components\FileUpload::make('image_ingame_asset_path')
                             ->label('In Game')
                             ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
                             ->image()
@@ -223,7 +223,7 @@ class EventResource extends Resource
                             ->maxFiles(1)
                             ->previewable(true),
 
-                        Forms\Components\FileUpload::make('ImageBoxArt')
+                        Forms\Components\FileUpload::make('image_box_art_asset_path')
                             ->label('Box Art')
                             ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
                             ->image()
@@ -235,9 +235,9 @@ class EventResource extends Resource
                     ->mutateRelationshipDataBeforeSaveUsing(function (array $data): array {
                         $action = new ApplyUploadedImageToDataAction();
 
-                        $action->execute($data, 'ImageBoxArt', ImageUploadType::GameBoxArt);
-                        $action->execute($data, 'ImageTitle', ImageUploadType::GameTitle);
-                        $action->execute($data, 'ImageIngame', ImageUploadType::GameInGame);
+                        $action->execute($data, 'image_box_art_asset_path', ImageUploadType::GameBoxArt);
+                        $action->execute($data, 'image_title_asset_path', ImageUploadType::GameTitle);
+                        $action->execute($data, 'image_ingame_asset_path', ImageUploadType::GameInGame);
 
                         return $data;
                     })
@@ -250,8 +250,8 @@ class EventResource extends Resource
         return $table
             ->defaultSort(function (Builder $query) {
                 $query->orderBy('active_until', 'desc')
-                    ->join('GameData', 'events.legacy_game_id', '=', 'GameData.ID') // TODO: should be 'title' once it's moved out of GameData
-                    ->orderBy('GameData.title');
+                    ->join('games', 'events.legacy_game_id', '=', 'games.id')
+                    ->orderBy('games.title');
             })
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')

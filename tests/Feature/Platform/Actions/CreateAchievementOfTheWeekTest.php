@@ -101,7 +101,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         /** @var System $eventSystem */
         $eventSystem = System::factory()->create(['ID' => System::Events]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var Achievement $sourceAchievement1 */
         $sourceAchievement1 = Achievement::factory()->published()->create(['GameID' => $game->id]);
         /** @var Achievement $sourceAchievement2 */

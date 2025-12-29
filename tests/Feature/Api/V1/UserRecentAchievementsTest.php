@@ -26,15 +26,15 @@ class UserRecentAchievementsTest extends TestCase
         /** @var System $system2 */
         $system2 = System::factory()->create();
         /** @var Game $game1 */
-        $game1 = Game::factory()->create(['ConsoleID' => $system1->ID]);
+        $game1 = Game::factory()->create(['system_id' => $system1->ID]);
         /** @var Game $game2 */
-        $game2 = Game::factory()->create(['ConsoleID' => $system2->ID]);
+        $game2 = Game::factory()->create(['system_id' => $system2->ID]);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game1->ID, 'BadgeName' => '12345']);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game1->id, 'BadgeName' => '12345']);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'BadgeName' => '23456']);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->id, 'BadgeName' => '23456']);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->progression()->create(['GameID' => $game2->ID, 'BadgeName' => '34567']);
+        $achievement3 = Achievement::factory()->published()->progression()->create(['GameID' => $game2->id, 'BadgeName' => '34567']);
 
         $now = Carbon::now()->subSeconds(15); // 15-second offset so times aren't on the boundaries being queried
         $unlock1Date = $now->clone()->subMinutes(65);
@@ -77,9 +77,9 @@ class UserRecentAchievementsTest extends TestCase
                     'Points' => $achievement3->Points,
                     'TrueRatio' => $achievement3->points_weighted,
                     'Title' => $achievement3->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
             ]);
 
@@ -101,9 +101,9 @@ class UserRecentAchievementsTest extends TestCase
                     'TrueRatio' => $achievement3->points_weighted,
                     'Type' => $achievement3->type,
                     'Title' => $achievement3->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
                 [
                     'AchievementID' => $achievement2->ID,
@@ -118,9 +118,9 @@ class UserRecentAchievementsTest extends TestCase
                     'TrueRatio' => $achievement2->points_weighted,
                     'Type' => $achievement2->type,
                     'Title' => $achievement2->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
             ]);
 
@@ -142,9 +142,9 @@ class UserRecentAchievementsTest extends TestCase
                     'TrueRatio' => $achievement3->points_weighted,
                     'Type' => $achievement3->type,
                     'Title' => $achievement3->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
                 [
                     'AchievementID' => $achievement2->ID,
@@ -159,9 +159,9 @@ class UserRecentAchievementsTest extends TestCase
                     'TrueRatio' => $achievement2->points_weighted,
                     'Type' => $achievement2->type,
                     'Title' => $achievement2->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
             ]);
 
@@ -183,9 +183,9 @@ class UserRecentAchievementsTest extends TestCase
                     'TrueRatio' => $achievement3->points_weighted,
                     'Type' => $achievement3->type,
                     'Title' => $achievement3->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
                 [
                     'AchievementID' => $achievement2->ID,
@@ -200,9 +200,9 @@ class UserRecentAchievementsTest extends TestCase
                     'TrueRatio' => $achievement2->points_weighted,
                     'Type' => $achievement2->type,
                     'Title' => $achievement2->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
                 [
                     'AchievementID' => $achievement1->ID,
@@ -217,9 +217,9 @@ class UserRecentAchievementsTest extends TestCase
                     'TrueRatio' => $achievement1->points_weighted,
                     'Type' => $achievement1->type,
                     'Title' => $achievement1->Title,
-                    'GameID' => $game1->ID,
-                    'GameTitle' => $game1->Title,
-                    'GameURL' => '/game/' . $game1->ID,
+                    'GameID' => $game1->id,
+                    'GameTitle' => $game1->title,
+                    'GameURL' => '/game/' . $game1->id,
                 ],
             ]);
     }

@@ -62,15 +62,15 @@ class GameListService
             $gameTicketsList = [];
         }
 
-        $gameModelsQuery = Game::whereIn('ID', $gameIds)
+        $gameModelsQuery = Game::whereIn('id', $gameIds)
             ->orderBy('sort_title')
             ->select([
-                'ID', 'Title', 'sort_title', 'ImageIcon', 'ConsoleID', 'players_total',
-                'achievements_published', 'points_total', 'TotalTruePoints',
+                'id', 'title', 'sort_title', 'image_icon_asset_path', 'system_id', 'players_total',
+                'achievements_published', 'points_total', 'points_weighted',
             ]);
 
         if (!$allowNonGameSystems) {
-            $gameModelsQuery->whereNotIn('ConsoleID', System::getNonGameSystems());
+            $gameModelsQuery->whereNotIn('system_id', System::getNonGameSystems());
         }
 
         if ($this->withLeaderboardCounts) {
@@ -79,7 +79,7 @@ class GameListService
 
         $gameModels = $gameModelsQuery->get();
 
-        $this->consoles = System::whereIn('ID', $gameModels->pluck('ConsoleID')->unique())
+        $this->consoles = System::whereIn('ID', $gameModels->pluck('system_id')->unique())
             ->orderBy('Name')
             ->get()
             ->keyBy('ID');
@@ -101,16 +101,16 @@ class GameListService
             }
 
             if ($this->userProgress !== null) {
-                $gameProgress = $this->userProgress[$gameModel->ID]['achievements_unlocked_hardcore'] ?? 0;
+                $gameProgress = $this->userProgress[$gameModel->id]['achievements_unlocked_hardcore'] ?? 0;
                 $game['CompletionPercentage'] = $gameModel->achievements_published ?
                     ($gameProgress * 100 / $gameModel->achievements_published) : 0;
             } else {
                 $game['CompletionPercentage'] = 0;
             }
 
-            $game['RetroRatio'] = $gameModel->points_total ? $gameModel->TotalTruePoints / $gameModel->points_total : 0.0;
+            $game['RetroRatio'] = $gameModel->points_total ? $gameModel->points_weighted / $gameModel->points_total : 0.0;
 
-            $game['ConsoleName'] = $this->consoles[$gameModel->ConsoleID]->Name;
+            $game['ConsoleName'] = $this->consoles[$gameModel->system_id]->Name;
 
             $this->games[] = $game;
         }
@@ -125,7 +125,7 @@ class GameListService
         $countAfter = count($this->games);
 
         if ($countAfter < $countBefore) {
-            $allConsoleIds = collect($this->games)->pluck('ConsoleID')->unique();
+            $allConsoleIds = collect($this->games)->pluck('system_id')->unique();
 
             $this->consoles = $this->consoles->filter(function ($console) use ($allConsoleIds) {
                 return $allConsoleIds->contains($console->ID);

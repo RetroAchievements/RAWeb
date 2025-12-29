@@ -34,17 +34,17 @@ $richPresenceDate = $user?->RichPresenceMsgDate;
 
         <div class="w-full p-2 bg-embed flex flex-col gap-y-2 rounded">
             <x-game.multiline-avatar
-                :gameId="$sessionGame->ID"
-                :gameTitle="$sessionGame->Title"
-                :gameImageIcon="$sessionGame->ImageIcon"
-                :consoleId="$sessionGame->system->ID"
-                :consoleName="$sessionGame->system->Name"
+                :gameId="$sessionGame->id"
+                :gameTitle="$sessionGame->title"
+                :gameImageIcon="$sessionGame->image_icon_asset_path"
+                :consoleId="$sessionGame->system->id"
+                :consoleName="$sessionGame->system->name"
             />
 
             @if (
                 $richPresenceMessage
                 && $richPresenceMessage !== 'Unknown'
-                && $richPresenceMessage !== 'Playing ' . $sessionGame->Title
+                && $richPresenceMessage !== 'Playing ' . $sessionGame->title
             )
                 <p class="text-2xs" style="word-break: break-word;">
                     {{ $richPresenceMessage }}

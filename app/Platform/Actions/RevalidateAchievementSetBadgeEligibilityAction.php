@@ -25,7 +25,7 @@ class RevalidateAchievementSetBadgeEligibilityAction
             return;
         }
 
-        if ($playerGame->game->ConsoleID === System::Events) {
+        if ($playerGame->game->system_id === System::Events) {
             $playerGame->game->loadMissing('event');
             $this->revalidateEventBadgeEligibility($playerGame);
         } else {

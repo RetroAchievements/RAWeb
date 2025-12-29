@@ -119,20 +119,20 @@ class UserSummaryTest extends TestCase
 
         $game = $this->seedGame(achievements: 3);
         $game->fill([
-            'ForumTopicID' => 222334,
-            'Publisher' => 'WeSellGames',
-            'Developer' => 'WeMakeGames',
-            'Genre' => 'Simulation',
-            'ImageIcon' => '/Images/001234.png',
-            'ImageTitle' => '/Images/001235.png',
-            'ImageIngame' => '/Images/001236.png',
-            'ImageBoxArt' => '/Images/001237.png',
+            'forum_topic_id' => 222334,
+            'publisher' => 'WeSellGames',
+            'developer' => 'WeMakeGames',
+            'genre' => 'Simulation',
+            'image_icon_asset_path' => '/Images/001234.png',
+            'image_title_asset_path' => '/Images/001235.png',
+            'image_ingame_asset_path' => '/Images/001236.png',
+            'image_box_art_asset_path' => '/Images/001237.png',
         ]);
         $game->save();
 
         GameRelease::factory()->create([
-            'game_id' => $game->ID,
-            'title' => $game->Title,
+            'game_id' => $game->id,
+            'title' => $game->title,
             'released_at' => '1992-05-06',
             'released_at_granularity' => ReleasedAtGranularity::Day,
             'region' => GameReleaseRegion::NorthAmerica,
@@ -154,20 +154,20 @@ class UserSummaryTest extends TestCase
         ]);
         $game2 = $this->seedGame();
         $game2->fill([
-            'ForumTopicID' => 23543,
-            'Publisher' => 'WeAlsoSellGames',
-            'Developer' => 'WeAlsoMakeGames',
-            'Genre' => 'Platformer',
-            'ImageIcon' => '/Images/002345.png',
-            'ImageTitle' => '/Images/002346.png',
-            'ImageIngame' => '/Images/002347.png',
-            'ImageBoxArt' => '/Images/002348.png',
+            'forum_topic_id' => 23543,
+            'publisher' => 'WeAlsoSellGames',
+            'developer' => 'WeAlsoMakeGames',
+            'genre' => 'Platformer',
+            'image_icon_asset_path' => '/Images/002345.png',
+            'image_title_asset_path' => '/Images/002346.png',
+            'image_ingame_asset_path' => '/Images/002347.png',
+            'image_box_art_asset_path' => '/Images/002348.png',
         ]);
         $game2->save();
 
         GameRelease::factory()->create([
-            'game_id' => $game2->ID,
-            'title' => $game2->Title,
+            'game_id' => $game2->id,
+            'title' => $game2->title,
             'released_at' => '1994-05-07',
             'released_at_granularity' => ReleasedAtGranularity::Day,
             'region' => GameReleaseRegion::NorthAmerica,
@@ -191,7 +191,7 @@ class UserSummaryTest extends TestCase
         // addHardcoreUnlock will create a player_game for game. need to manually create one for game2
         $playerGame2 = new PlayerGame([
             'user_id' => $user->ID,
-            'game_id' => $game2->ID,
+            'game_id' => $game2->id,
             'created_at' => Carbon::now()->subDays(1),
             'last_played_at' => Carbon::now()->subMinutes(5),
         ]);
@@ -265,19 +265,19 @@ class UserSummaryTest extends TestCase
                 'TotalRanked' => 2, // $this->user and $user
                 'LastGameID' => $game->id,
                 'LastGame' => [
-                    'ID' => $game->ID,
-                    'Title' => $game->Title,
+                    'ID' => $game->id,
+                    'Title' => $game->title,
                     'ConsoleID' => $game->system->ID,
                     'ConsoleName' => $game->system->Name,
-                    'ForumTopicID' => $game->ForumTopicID,
+                    'ForumTopicID' => $game->forum_topic_id,
                     'Flags' => 0,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageTitle' => $game->ImageTitle,
-                    'ImageIngame' => $game->ImageIngame,
-                    'ImageBoxArt' => $game->ImageBoxArt,
-                    'Publisher' => $game->Publisher,
-                    'Developer' => $game->Developer,
-                    'Genre' => $game->Genre,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageTitle' => $game->image_title_asset_path,
+                    'ImageIngame' => $game->image_ingame_asset_path,
+                    'ImageBoxArt' => $game->image_box_art_asset_path,
+                    'Publisher' => $game->publisher,
+                    'Developer' => $game->developer,
+                    'Genre' => $game->genre,
                     'Released' => $game->released_at->format('Y-m-d'),
                     'ReleasedAtGranularity' => $game->released_at_granularity->value,
                 ],
@@ -286,26 +286,26 @@ class UserSummaryTest extends TestCase
                 'RecentlyPlayedCount' => 2,
                 'RecentlyPlayed' => [
                     [
-                        'GameID' => $game2->ID,
-                        'Title' => $game2->Title,
+                        'GameID' => $game2->id,
+                        'Title' => $game2->title,
                         'ConsoleID' => $game2->system->ID,
                         'ConsoleName' => $game2->system->Name,
-                        'ImageIcon' => $game2->ImageIcon,
-                        'ImageTitle' => $game2->ImageTitle,
-                        'ImageIngame' => $game2->ImageIngame,
-                        'ImageBoxArt' => $game2->ImageBoxArt,
+                        'ImageIcon' => $game2->image_icon_asset_path,
+                        'ImageTitle' => $game2->image_title_asset_path,
+                        'ImageIngame' => $game2->image_ingame_asset_path,
+                        'ImageBoxArt' => $game2->image_box_art_asset_path,
                         'LastPlayed' => $playerGame2->last_played_at->__toString(),
                         'AchievementsTotal' => 0,
                     ],
                     [
-                        'GameID' => $game->ID,
-                        'Title' => $game->Title,
+                        'GameID' => $game->id,
+                        'Title' => $game->title,
                         'ConsoleID' => $game->system->ID,
                         'ConsoleName' => $game->system->Name,
-                        'ImageIcon' => $game->ImageIcon,
-                        'ImageTitle' => $game->ImageTitle,
-                        'ImageIngame' => $game->ImageIngame,
-                        'ImageBoxArt' => $game->ImageBoxArt,
+                        'ImageIcon' => $game->image_icon_asset_path,
+                        'ImageTitle' => $game->image_title_asset_path,
+                        'ImageIngame' => $game->image_ingame_asset_path,
+                        'ImageBoxArt' => $game->image_box_art_asset_path,
                         'LastPlayed' => $playerGame->last_played_at->__toString(),
                         'AchievementsTotal' => 3,
                     ],
@@ -321,7 +321,7 @@ class UserSummaryTest extends TestCase
                 ],
                 'Status' => 'Offline',
                 'Awarded' => [
-                    $game->ID => [
+                    $game->id => [
                         'NumPossibleAchievements' => 3,
                         'PossibleScore' => $publishedAchievements->get(0)->Points +
                                            $publishedAchievements->get(1)->Points +
@@ -331,7 +331,7 @@ class UserSummaryTest extends TestCase
                         'NumAchieved' => 1,
                         'ScoreAchieved' => $earnedAchievement->Points,
                     ],
-                    $game2->ID => [
+                    $game2->id => [
                         'NumPossibleAchievements' => 0,
                         'PossibleScore' => 0,
                         'NumAchievedHardcore' => 0,
@@ -341,15 +341,15 @@ class UserSummaryTest extends TestCase
                     ],
                 ],
                 'RecentAchievements' => [
-                    $game->ID => [
+                    $game->id => [
                         $earnedAchievement->ID => [
                             'ID' => $earnedAchievement->ID,
                             'Title' => $earnedAchievement->Title,
                             'Description' => $earnedAchievement->Description,
                             'Points' => $earnedAchievement->Points,
                             'BadgeName' => $earnedAchievement->BadgeName,
-                            'GameID' => $game->ID,
-                            'GameTitle' => $game->Title,
+                            'GameID' => $game->id,
+                            'GameTitle' => $game->title,
                             'IsAwarded' => '1',
                             'DateAwarded' => $unlockTime->__toString(),
                             'HardcoreAchieved' => 1,
@@ -379,19 +379,19 @@ class UserSummaryTest extends TestCase
                 'TotalRanked' => 2, // $this->user and $user
                 'LastGameID' => $game->id,
                 'LastGame' => [
-                    'ID' => $game->ID,
-                    'Title' => $game->Title,
+                    'ID' => $game->id,
+                    'Title' => $game->title,
                     'ConsoleID' => $game->system->ID,
                     'ConsoleName' => $game->system->Name,
-                    'ForumTopicID' => $game->ForumTopicID,
+                    'ForumTopicID' => $game->forum_topic_id,
                     'Flags' => 0,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageTitle' => $game->ImageTitle,
-                    'ImageIngame' => $game->ImageIngame,
-                    'ImageBoxArt' => $game->ImageBoxArt,
-                    'Publisher' => $game->Publisher,
-                    'Developer' => $game->Developer,
-                    'Genre' => $game->Genre,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageTitle' => $game->image_title_asset_path,
+                    'ImageIngame' => $game->image_ingame_asset_path,
+                    'ImageBoxArt' => $game->image_box_art_asset_path,
+                    'Publisher' => $game->publisher,
+                    'Developer' => $game->developer,
+                    'Genre' => $game->genre,
                     'Released' => $game->released_at->format('Y-m-d'),
                     'ReleasedAtGranularity' => $game->released_at_granularity->value,
                 ],
@@ -400,14 +400,14 @@ class UserSummaryTest extends TestCase
                 'RecentlyPlayedCount' => 1,
                 'RecentlyPlayed' => [
                     [
-                        'GameID' => $game2->ID,
-                        'Title' => $game2->Title,
+                        'GameID' => $game2->id,
+                        'Title' => $game2->title,
                         'ConsoleID' => $game2->system->ID,
                         'ConsoleName' => $game2->system->Name,
-                        'ImageIcon' => $game2->ImageIcon,
-                        'ImageTitle' => $game2->ImageTitle,
-                        'ImageIngame' => $game2->ImageIngame,
-                        'ImageBoxArt' => $game2->ImageBoxArt,
+                        'ImageIcon' => $game2->image_icon_asset_path,
+                        'ImageTitle' => $game2->image_title_asset_path,
+                        'ImageIngame' => $game2->image_ingame_asset_path,
+                        'ImageBoxArt' => $game2->image_box_art_asset_path,
                         'LastPlayed' => $playerGame2->last_played_at->__toString(),
                     ],
                 ],
@@ -422,7 +422,7 @@ class UserSummaryTest extends TestCase
                 ],
                 'Status' => 'Offline',
                 'Awarded' => [
-                    $game->ID => [
+                    $game->id => [
                         'NumPossibleAchievements' => 3,
                         'PossibleScore' => $publishedAchievements->get(0)->Points +
                                            $publishedAchievements->get(1)->Points +
@@ -434,15 +434,15 @@ class UserSummaryTest extends TestCase
                     ],
                 ],
                 'RecentAchievements' => [
-                    $game->ID => [
+                    $game->id => [
                         $earnedAchievement->ID => [
                             'ID' => $earnedAchievement->ID,
                             'Title' => $earnedAchievement->Title,
                             'Description' => $earnedAchievement->Description,
                             'Points' => $earnedAchievement->Points,
                             'BadgeName' => $earnedAchievement->BadgeName,
-                            'GameID' => $game->ID,
-                            'GameTitle' => $game->Title,
+                            'GameID' => $game->id,
+                            'GameTitle' => $game->title,
                             'IsAwarded' => '1',
                             'DateAwarded' => $unlockTime->__toString(),
                             'HardcoreAchieved' => 1,
@@ -457,12 +457,12 @@ class UserSummaryTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $publishedAchievements = Achievement::factory()->published()->count(7)->create(['GameID' => $game->ID]);
+        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $publishedAchievements = Achievement::factory()->published()->count(7)->create(['GameID' => $game->id]);
 
         /** @var Game $game2 */
-        $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $publishedAchievements2 = Achievement::factory()->published()->count(4)->create(['GameID' => $game2->ID]);
+        $game2 = Game::factory()->create(['system_id' => $system->ID]);
+        $publishedAchievements2 = Achievement::factory()->published()->count(4)->create(['GameID' => $game2->id]);
 
         $now = Carbon::now();
 
@@ -479,19 +479,19 @@ class UserSummaryTest extends TestCase
             ->assertJson([
                 'ID' => $this->user->ID,
                 'Awarded' => [
-                    $game->ID => [
+                    $game->id => [
                         'NumPossibleAchievements' => 7,
                         'NumAchieved' => 5,
                         'NumAchievedHardcore' => 4,
                     ],
-                    $game2->ID => [
+                    $game2->id => [
                         'NumPossibleAchievements' => 4,
                         'NumAchieved' => 1,
                         'NumAchievedHardcore' => 1,
                     ],
                 ],
                 'RecentAchievements' => [
-                    $game->ID => [
+                    $game->id => [
                         $publishedAchievements->get(1)->ID => [
                             'HardcoreAchieved' => 1,
                         ],
@@ -504,7 +504,7 @@ class UserSummaryTest extends TestCase
             // only two recent achievements were requested - both should be in game 1
             // and nothing should be returned for game 2
             ->assertJsonCount(1, "RecentAchievements")
-            ->assertJsonCount(2, "RecentAchievements.{$game->ID}");
+            ->assertJsonCount(2, "RecentAchievements.{$game->id}");
 
         // user only has 6 unlocks, so return all of them, and nothing more
         $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->User, 'g' => 5, 'a' => 7]))
@@ -512,19 +512,19 @@ class UserSummaryTest extends TestCase
             ->assertJson([
                 'ID' => $this->user->ID,
                 'Awarded' => [
-                    $game->ID => [
+                    $game->id => [
                         'NumPossibleAchievements' => 7,
                         'NumAchieved' => 5,
                         'NumAchievedHardcore' => 4,
                     ],
-                    $game2->ID => [
+                    $game2->id => [
                         'NumPossibleAchievements' => 4,
                         'NumAchieved' => 1,
                         'NumAchievedHardcore' => 1,
                     ],
                 ],
                 'RecentAchievements' => [
-                    $game->ID => [
+                    $game->id => [
                         $publishedAchievements->get(1)->ID => [
                             'HardcoreAchieved' => 1,
                         ],
@@ -541,7 +541,7 @@ class UserSummaryTest extends TestCase
                             'HardcoreAchieved' => 1,
                         ],
                     ],
-                    $game2->ID => [
+                    $game2->id => [
                         $publishedAchievements2->get(2)->ID => [
                             'HardcoreAchieved' => 1,
                         ],
@@ -549,7 +549,7 @@ class UserSummaryTest extends TestCase
                 ],
             ])
             ->assertJsonCount(2, "RecentAchievements")
-            ->assertJsonCount(5, "RecentAchievements.{$game->ID}")
-            ->assertJsonCount(1, "RecentAchievements.{$game2->ID}");
+            ->assertJsonCount(5, "RecentAchievements.{$game->id}")
+            ->assertJsonCount(1, "RecentAchievements.{$game2->id}");
     }
 }

@@ -23,7 +23,7 @@ class ReportAchievementIssueControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
 
         /** @var User $user */

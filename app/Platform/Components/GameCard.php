@@ -152,8 +152,8 @@ class GameCard extends Component
      */
     private function buildAllCardViewValues(array $rawGameData, ?array $userHighestGameAward): array
     {
-        $rawTitle = $rawGameData['Title'];
-        $badgeUrl = media_asset($rawGameData['ImageIcon']);
+        $rawTitle = $rawGameData['title'];
+        $badgeUrl = media_asset($rawGameData['image_icon_asset_path']);
         $gameSystemIconSrc = getSystemIconUrl($rawGameData['ConsoleID']);
         $consoleName = $rawGameData['ConsoleName'];
         $achievementsCount = count($rawGameData['Achievements']);
@@ -161,7 +161,7 @@ class GameCard extends Component
 
         [$pointsSum, $retroPointsSum, $retroRatio, $lastUpdated] = $this->buildCardAchievementsData(
             $rawGameData['Achievements'],
-            $rawGameData['Updated'],
+            $rawGameData['updated_at'],
         );
 
         [$highestProgressionStatus, $highestProgressionAwardDate] = $this->buildCardUserProgressionData(

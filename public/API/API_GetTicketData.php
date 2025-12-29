@@ -251,10 +251,10 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
             'BadgeName' => $ticket->achievement->BadgeName,
             'AchievementAuthor' => $ticket->author?->display_name,
             'AchievementAuthorULID' => $ticket->author?->ulid,
-            'GameID' => $ticket->achievement->game->ID,
+            'GameID' => $ticket->achievement->game->id,
             'ConsoleName' => $ticket->achievement->game->system->name,
             'GameTitle' => $ticket->achievement->game->title,
-            'GameIcon' => $ticket->achievement->game->ImageIcon,
+            'GameIcon' => $ticket->achievement->game->image_icon_asset_path,
             'ReportedAt' => $ticket->ReportedAt->__toString(),
             'ReportType' => $ticket->ReportType,
             'ReportTypeDescription' => TicketType::toString($ticket->ReportType),
@@ -276,7 +276,7 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
 // getting data for a specific game
 $gameIDGiven = (int) request()->query('g');
 if ($gameIDGiven > 0) {
-    $game = Game::where('ID', $gameIDGiven)->with('system')->first();
+    $game = Game::where('id', $gameIDGiven)->with('system')->first();
     if ($game) {
         $tickets = Ticket::forGame($game);
         if ($gamesTableFlag === AchievementFlag::Unofficial->value) {
@@ -285,8 +285,8 @@ if ($gameIDGiven > 0) {
             $tickets->officialCore();
         }
 
-        $ticketData['GameID'] = $game->ID;
-        $ticketData['GameTitle'] = $game->Title;
+        $ticketData['GameID'] = $game->id;
+        $ticketData['GameTitle'] = $game->title;
         $ticketData['ConsoleName'] = $game->system->Name;
         $ticketData['OpenTickets'] = $tickets->count();
         $ticketData['URL'] = route('game.tickets', ['game' => $game]);

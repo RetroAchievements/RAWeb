@@ -34,15 +34,15 @@ class UserSetRequestsTest extends TestCase
     {
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/001234.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/001234.png',
             'achievements_published' => 0,
 
         ]);
         $game2 = Game::factory()->create([
-            'Title' => '~Hack~ Test Case',
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/001235.png',
+            'title' => '~Hack~ Test Case',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/001235.png',
             'achievements_published' => 12,
         ]);
 
@@ -52,15 +52,15 @@ class UserSetRequestsTest extends TestCase
 
         // Create the first user game list entry for the set request
         UserGameListEntry::factory()->create([
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'type' => UserGameListType::AchievementSetRequest,
-            'GameID' => $game->ID,
+            'GameID' => $game->id,
         ]);
         // Create the second user game list entry for the set request
         UserGameListEntry::factory()->create([
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'type' => UserGameListType::AchievementSetRequest,
-            'GameID' => $game2->ID,
+            'GameID' => $game2->id,
         ]);
 
         $this->get($this->apiUrl('GetUserSetRequests', ['u' => $user->User, 't' => 1]))
@@ -68,18 +68,18 @@ class UserSetRequestsTest extends TestCase
             ->assertJson([
                 'RequestedSets' => [
                     [
-                        'GameID' => $game->ID,
-                        'Title' => $game->Title,
-                        'ConsoleID' => $game->ConsoleID,
-                        'ConsoleName' => $system->Name,
-                        'ImageIcon' => $game->ImageIcon,
+                        'GameID' => $game->id,
+                        'Title' => $game->title,
+                        'ConsoleID' => $game->system_id,
+                        'ConsoleName' => $system->name,
+                        'ImageIcon' => $game->image_icon_asset_path,
                     ],
                     [
-                        'GameID' => $game2->ID,
-                        'Title' => $game2->Title,
-                        'ConsoleID' => $game2->ConsoleID,
-                        'ConsoleName' => $system->Name,
-                        'ImageIcon' => $game2->ImageIcon,
+                        'GameID' => $game2->id,
+                        'Title' => $game2->title,
+                        'ConsoleID' => $game2->system_id,
+                        'ConsoleName' => $system->name,
+                        'ImageIcon' => $game2->image_icon_asset_path,
                     ],
                 ],
                 'TotalRequests' => 1,
@@ -94,14 +94,14 @@ class UserSetRequestsTest extends TestCase
     {
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/001234.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/001234.png',
             'achievements_published' => 4,
         ]);
         $game2 = Game::factory()->create([
-            'Title' => '~Hack~ Test Case',
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/001235.png',
+            'title' => '~Hack~ Test Case',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/001235.png',
             'achievements_published' => 0,
         ]);
 
@@ -111,15 +111,15 @@ class UserSetRequestsTest extends TestCase
 
         // Create the first user game list entry for the set request
         UserGameListEntry::factory()->create([
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'type' => UserGameListType::AchievementSetRequest,
-            'GameID' => $game->ID,
+            'GameID' => $game->id,
         ]);
         // Create the second user game list entry for the set request
         UserGameListEntry::factory()->create([
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'type' => UserGameListType::AchievementSetRequest,
-            'GameID' => $game2->ID,
+            'GameID' => $game2->id,
         ]);
 
         // Note that only the second game is present in the assert. The code will find the first game as well but only return the game with no published achievements.
@@ -128,11 +128,11 @@ class UserSetRequestsTest extends TestCase
             ->assertJson([
                 'RequestedSets' => [
                     [
-                        'GameID' => $game2->ID,
-                        'Title' => $game2->Title,
-                        'ConsoleID' => $game2->ConsoleID,
-                        'ConsoleName' => $system->Name,
-                        'ImageIcon' => $game2->ImageIcon,
+                        'GameID' => $game2->id,
+                        'Title' => $game2->title,
+                        'ConsoleID' => $game2->system_id,
+                        'ConsoleName' => $system->name,
+                        'ImageIcon' => $game2->image_icon_asset_path,
                     ],
                 ],
                 'TotalRequests' => 1,

@@ -58,7 +58,7 @@ class UpdateGameBeatenMetricsAction
 
     private function dispatchPlayerStatRankingJobs(Game $game): void
     {
-        $systemId = $game->ConsoleID;
+        $systemId = $game->system_id;
         $specificKind = $this->determineRankingKindForGame($game, $systemId);
 
         // Update system-specific leaderboards.

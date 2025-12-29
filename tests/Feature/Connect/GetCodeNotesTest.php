@@ -57,7 +57,7 @@ class GetCodeNotesTest extends TestCase
         // ----------------------------
         // valid notes returned
         $this->post('dorequest.php', $this->apiParams('codenotes2', [
-            'g' => $game->ID,
+            'g' => $game->id,
         ]))
             ->assertExactJson([
                 'Success' => true,
@@ -85,7 +85,7 @@ class GetCodeNotesTest extends TestCase
         $note1->body = '';
         $note1->save();
         $this->post('dorequest.php', $this->apiParams('codenotes2', [
-            'g' => $game->ID,
+            'g' => $game->id,
         ]))
             ->assertExactJson([
                 'Success' => true,
@@ -109,7 +109,7 @@ class GetCodeNotesTest extends TestCase
         $note1->save();
         $note1->delete();
         $this->post('dorequest.php', $this->apiParams('codenotes2', [
-            'g' => $game->ID,
+            'g' => $game->id,
         ]))
             ->assertExactJson([
                 'Success' => true,
@@ -131,7 +131,7 @@ class GetCodeNotesTest extends TestCase
         // user name still returned for deleted user
         $otherUser->delete();
         $this->post('dorequest.php', $this->apiParams('codenotes2', [
-            'g' => $game->ID,
+            'g' => $game->id,
         ]))
             ->assertExactJson([
                 'Success' => true,
@@ -152,7 +152,7 @@ class GetCodeNotesTest extends TestCase
         // ----------------------------
         // unauthenticated
         $this->post('dorequest.php', $this->apiParams('codenotes2', [
-            'g' => $game->ID,
+            'g' => $game->id,
         ], credentials: false))
             ->assertExactJson([
                 'Success' => true,
@@ -173,7 +173,7 @@ class GetCodeNotesTest extends TestCase
         // ----------------------------
         // virtualized game id
         $this->post('dorequest.php', $this->apiParams('codenotes2', [
-            'g' => VirtualGameIdService::encodeVirtualGameId($game->ID, GameHashCompatibility::Untested),
+            'g' => VirtualGameIdService::encodeVirtualGameId($game->id, GameHashCompatibility::Untested),
         ]))
             ->assertExactJson([
                 'Success' => true,

@@ -15,7 +15,7 @@ if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'game' => 'required|integer|exists:GameData,ID',
+    'game' => 'required|integer|exists:games,id',
     'type' => ['required', 'string', Rule::in(array_column(UserGameListType::cases(), 'value'))],
 ]);
 

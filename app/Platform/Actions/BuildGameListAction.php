@@ -67,7 +67,7 @@ class BuildGameListAction
 
         // The base query may not respect ->distinct() operations done by some filters.
         // We'll override its `total` value with the correct one.
-        $total = $query->count('GameData.ID');
+        $total = $query->count('games.id');
 
         // Automatically adjust the current page if it exceeds the last page.
         $page = $this->ensurePageWithinBounds(
@@ -167,7 +167,7 @@ class BuildGameListAction
     {
         $unfilteredTotal = null;
         if (!empty($filters)) {
-            $unfilteredTotal = (clone $query)->count('GameData.ID');
+            $unfilteredTotal = (clone $query)->count('games.id');
         }
 
         return $unfilteredTotal;

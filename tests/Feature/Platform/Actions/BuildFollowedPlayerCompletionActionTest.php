@@ -21,7 +21,7 @@ class BuildFollowedPlayerCompletionActionTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $action = new BuildFollowedPlayerCompletionAction();
 
@@ -36,7 +36,7 @@ class BuildFollowedPlayerCompletionActionTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $user = User::factory()->create();
 
         $action = new BuildFollowedPlayerCompletionAction();
@@ -52,7 +52,7 @@ class BuildFollowedPlayerCompletionActionTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $user = User::factory()->create();
         $followedUser = User::factory()->create();
 
@@ -81,7 +81,7 @@ class BuildFollowedPlayerCompletionActionTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $user = User::factory()->create();
         $followedUser = User::factory()->create();
 
@@ -121,7 +121,7 @@ class BuildFollowedPlayerCompletionActionTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $user = User::factory()->create();
 
         // ... create three followed users with different unlock patterns ...
@@ -191,7 +191,7 @@ class BuildFollowedPlayerCompletionActionTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $user = User::factory()->create();
 
         $followedUser = User::factory()->create();

@@ -25,16 +25,16 @@ class GameApiControllerTest extends TestCase
         $inactiveGameSystem = System::factory()->create(['ID' => 2, 'name' => 'PlayStation 5', 'name_short' => 'PS5', 'active' => false]);
 
         /** @var Game $gameOne */
-        $gameOne = Game::factory()->create(['Title' => 'AAAAAAA', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
+        $gameOne = Game::factory()->create(['title' => 'AAAAAAA', 'achievements_published' => 50, 'system_id' => $activeGameSystem->id]);
         /** @var Game $gameTwo */
-        $gameTwo = Game::factory()->create(['Title' => 'BBBBBBB', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
+        $gameTwo = Game::factory()->create(['title' => 'BBBBBBB', 'achievements_published' => 50, 'system_id' => $activeGameSystem->id]);
         /** @var Game $gameThree */
-        $gameThree = Game::factory()->create(['Title' => 'CCCCCCC [Subset - Bonus]', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
+        $gameThree = Game::factory()->create(['title' => 'CCCCCCC [Subset - Bonus]', 'achievements_published' => 50, 'system_id' => $activeGameSystem->id]);
 
         // Event, hub, and inactive system games should all be excluded from the "All Games" list.
-        Game::factory()->create(['Title' => 'CCCCCCC', 'achievements_published' => 50, 'ConsoleID' => System::Events]);
-        Game::factory()->create(['Title' => 'DDDDDDD', 'achievements_published' => 50, 'ConsoleID' => System::Hubs]);
-        Game::factory()->create(['Title' => 'EEEEEEE', 'achievements_published' => 50, 'ConsoleID' => $inactiveGameSystem->id]);
+        Game::factory()->create(['title' => 'CCCCCCC', 'achievements_published' => 50, 'system_id' => System::Events]);
+        Game::factory()->create(['title' => 'DDDDDDD', 'achievements_published' => 50, 'system_id' => System::Hubs]);
+        Game::factory()->create(['title' => 'EEEEEEE', 'achievements_published' => 50, 'system_id' => $inactiveGameSystem->id]);
 
         // Act
         $response = $this->get(route('api.game.index'));
@@ -91,9 +91,9 @@ class GameApiControllerTest extends TestCase
 
         $system = System::factory()->create(['ID' => 1, 'Name' => 'Sega Genesis/Mega Drive']);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'Title' => 'Sonic the Hedgehog',
-            'ForumTopicID' => null, // !! no existing topic
+            'system_id' => $system->id,
+            'title' => 'Sonic the Hedgehog',
+            'forum_topic_id' => null, // !! no existing topic
         ]);
 
         Forum::factory()->create(['id' => 10]); // need a forum to put the new topic in
@@ -105,9 +105,9 @@ class GameApiControllerTest extends TestCase
         $response->assertOk();
 
         $game->refresh();
-        $this->assertGreaterThan(0, $game->ForumTopicID);
+        $this->assertGreaterThan(0, $game->forum_topic_id);
 
-        $topic = ForumTopic::find($game->ForumTopicID);
+        $topic = ForumTopic::find($game->forum_topic_id);
         $this->assertNotNull($topic);
         $this->assertEquals($game->title, $topic->title);
         $this->assertEquals($user->id, $topic->author_id);
@@ -124,9 +124,9 @@ class GameApiControllerTest extends TestCase
 
         $system = System::factory()->create(['ID' => 1, 'Name' => 'Sega Genesis/Mega Drive']);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'Title' => 'Sonic the Hedgehog',
-            'ForumTopicID' => null, // !! no existing topic
+            'system_id' => $system->id,
+            'title' => 'Sonic the Hedgehog',
+            'forum_topic_id' => null, // !! no existing topic
         ]);
 
         Forum::factory()->create(['id' => 10]); // need a forum to put the new topic in

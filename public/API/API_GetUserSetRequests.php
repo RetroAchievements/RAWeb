@@ -37,22 +37,22 @@ if (!$user) {
 $type = (int) request()->query('t');
 
 $query = UserGameListEntry::select([
-    'GameData.id as GameID',
-    'GameData.Title',
-    'GameData.ImageIcon',
-    'GameData.ConsoleID',
+    'games.id as GameID',
+    'games.title as Title',
+    'games.image_icon_asset_path as ImageIcon',
+    'games.system_id as ConsoleID',
     'Console.Name as ConsoleName',
 ])
-    ->join('GameData', 'SetRequest.GameID', '=', 'GameData.ID')
-    ->join('Console', 'GameData.ConsoleID', '=', 'Console.ID')
+    ->join('games', 'SetRequest.GameID', '=', 'games.id')
+    ->join('Console', 'games.system_id', '=', 'Console.ID')
     ->where(DB::raw('SetRequest.user_id'), $user->id)
     ->where('type', UserGameListType::AchievementSetRequest);
 
 if ($type !== 1) {
-    $query->where(DB::raw('GameData.achievements_published'), '=', '0');
+    $query->where(DB::raw('games.achievements_published'), '=', '0');
 }
 
-$requestedSets = $query->orderBy('GameData.sort_title')->get()->toArray();
+$requestedSets = $query->orderBy('games.sort_title')->get()->toArray();
 
 $userRequestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 

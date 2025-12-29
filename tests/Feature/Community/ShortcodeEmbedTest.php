@@ -23,8 +23,8 @@ class ShortcodeEmbedTest extends TestCase
 
         Game::factory()->create([
             'ID' => 1,
-            'Title' => 'Sonic the Hedgehog',
-            'ConsoleID' => $system->ID,
+            'title' => 'Sonic the Hedgehog',
+            'system_id' => $system->ID,
         ]);
 
         $this->assertSame(
@@ -38,13 +38,13 @@ class ShortcodeEmbedTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->ID]);
         /** @var User $user */
         $user = User::factory()->create();
 
         Achievement::factory()->published()->create([
             'ID' => 1,
-            'GameID' => $game->ID,
+            'GameID' => $game->id,
             'Title' => 'Ring Collector',
             'Points' => 5,
             'user_id' => $user->id,
@@ -76,8 +76,8 @@ class ShortcodeEmbedTest extends TestCase
 
         Game::factory()->create([
             'ID' => 1,
-            'Title' => '[Series - Star Wars]',
-            'ConsoleID' => $system->ID,
+            'title' => '[Series - Star Wars]',
+            'system_id' => $system->ID,
         ]);
 
         $this->assertSame(
@@ -94,8 +94,8 @@ class ShortcodeEmbedTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create([
             'ID' => 1,
-            'Title' => '[Series - Star Wars]',
-            'ConsoleID' => $system->ID,
+            'title' => '[Series - Star Wars]',
+            'system_id' => $system->ID,
         ]);
 
         /** @var User $user */
@@ -103,7 +103,7 @@ class ShortcodeEmbedTest extends TestCase
 
         Achievement::factory()->published()->create([
             'ID' => 1,
-            'GameID' => $game->ID,
+            'GameID' => $game->id,
             'Title' => 'Finish the Game [100% Completion]',
             'Points' => 50,
             'user_id' => $user->id,

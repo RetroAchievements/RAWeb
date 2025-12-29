@@ -36,7 +36,7 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $system = System::factory()->create();
-        $games = Game::factory()->count(3)->create(['ConsoleID' => $system->ID]);
+        $games = Game::factory()->count(3)->create(['system_id' => $system->ID]);
 
         $this->addGameBeatenAward($user, $games->get(0), UnlockMode::Softcore);
         $this->addGameBeatenAward($user, $games->get(1), UnlockMode::Softcore);
@@ -55,7 +55,7 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->ID, 'Title' => 'Super Mario Bros.']);
+        $game = Game::factory()->create(['system_id' => $system->ID, 'title' => 'Super Mario Bros.']);
 
         $this->addGameBeatenAward($user, $game, UnlockMode::Hardcore, Carbon::create(2023, 1, 1));
 
@@ -90,9 +90,9 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         $users = User::factory()->count(3)->create();
         $systems = System::factory()->count(2)->create();
 
-        $gameRetail = Game::factory()->create(['ConsoleID' => $systems->get(0)->ID, 'Title' => 'Super Mario Bros.']);
-        $gameDemo = Game::factory()->create(['ConsoleID' => $systems->get(0)->ID, 'Title' => '~Demo~ Game']);
-        $gameHack = Game::factory()->create(['ConsoleID' => $systems->get(1)->ID, 'Title' => '~Hack~ Game']);
+        $gameRetail = Game::factory()->create(['system_id' => $systems->get(0)->ID, 'title' => 'Super Mario Bros.']);
+        $gameDemo = Game::factory()->create(['system_id' => $systems->get(0)->ID, 'title' => '~Demo~ Game']);
+        $gameHack = Game::factory()->create(['system_id' => $systems->get(1)->ID, 'title' => '~Hack~ Game']);
 
         foreach ($users as $index => $user) {
             $this->addGameBeatenAward($user, $gameRetail, UnlockMode::Hardcore, Carbon::create(2022, $index + 1, 1));
@@ -139,7 +139,7 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         // Arrange
         $untrackedUser = User::factory()->create(['Untracked' => true]);
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->ID, 'Title' => 'Super Mario Bros.']);
+        $game = Game::factory()->create(['system_id' => $system->ID, 'title' => 'Super Mario Bros.']);
 
         $this->addGameBeatenAward($untrackedUser, $game, UnlockMode::Hardcore, Carbon::create(2023, 1, 1));
 
@@ -156,7 +156,7 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         // Arrange
         $user = User::factory()->create(); // Initially tracked
         $system = System::factory()->create();
-        Game::factory()->create(['ConsoleID' => $system->ID]);
+        Game::factory()->create(['system_id' => $system->ID]);
 
         (new UpdatePlayerBeatenGamesStatsAction())->execute($user);
 
@@ -180,9 +180,9 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         $homebrewSystemTwo = System::factory()->create(['ID' => 72]);
         $homebrewSystemThree = System::factory()->create(['ID' => 80]);
 
-        $gameOne = Game::factory()->create(['ConsoleID' => $homebrewSystemOne->ID]);
-        $gameTwo = Game::factory()->create(['ConsoleID' => $homebrewSystemTwo->ID]);
-        $gameThree = Game::factory()->create(['ConsoleID' => $homebrewSystemThree->ID]);
+        $gameOne = Game::factory()->create(['system_id' => $homebrewSystemOne->ID]);
+        $gameTwo = Game::factory()->create(['system_id' => $homebrewSystemTwo->ID]);
+        $gameThree = Game::factory()->create(['system_id' => $homebrewSystemThree->ID]);
 
         $this->addGameBeatenAward($user, $gameOne, UnlockMode::Hardcore);
         $this->addGameBeatenAward($user, $gameTwo, UnlockMode::Hardcore);
@@ -205,8 +205,8 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         $user = User::factory()->create();
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'Title' => 'Super Mario Bros.',
+            'system_id' => $system->ID,
+            'title' => 'Super Mario Bros.',
         ]);
 
         // ... add a hardcore beaten game award ...

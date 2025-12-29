@@ -88,7 +88,7 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
         ]);
         $player = User::factory()->create();
 
@@ -119,7 +119,7 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
         ]);
         $player = User::factory()->create();
 
@@ -150,20 +150,20 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
         ]);
 
         $achievement = Achievement::factory()->create([
             'ID' => 9,
-            'Title' => 'That Was Easy',
+            'title' => 'That Was Easy',
             'GameID' => $game->id,
         ]);
 
         System::factory()->create(['ID' => System::Events]);
         /** @var Game $eventGame */
-        $eventGame = Game::factory()->create(['ConsoleID' => System::Events, 'Title' => 'Achievement of the Week', 'ForumTopicId' => 14029]);
+        $eventGame = Game::factory()->create(['system_id' => System::Events, 'title' => 'Achievement of the Week', 'forum_topic_id' => 14029]);
         /** @var Achievement $eventAchievement */
-        $eventAchievement = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
+        $eventAchievement = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
 
         EventAchievement::create([
             'achievement_id' => $eventAchievement->id,
@@ -203,9 +203,9 @@ class HomeControllerTest extends TestCase
         // Arrange
         System::factory()->create(['ID' => System::Events]);
         $eventGame = Game::factory()->create([
-            'ConsoleID' => System::Events,
-            'Title' => 'Achievement of the Week',
-            'ForumTopicId' => 14029,
+            'system_id' => System::Events,
+            'title' => 'Achievement of the Week',
+            'forum_topic_id' => 14029,
         ]);
 
         $eventAchievement = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
@@ -269,11 +269,11 @@ class HomeControllerTest extends TestCase
         $system = System::factory()->create(['active' => true]);
 
         $gameWithAchievements = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'achievements_published' => 6,
         ]);
         $gameWithoutAchievements = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'achievements_published' => 0, // !! should be filtered out
         ]);
 
@@ -309,7 +309,7 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
             'achievements_published' => 6,
         ]);
@@ -351,7 +351,7 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
             'achievements_published' => 6,
         ]);
@@ -404,7 +404,7 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
             'achievements_published' => 6,
         ]);
@@ -511,7 +511,7 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
         ]);
         $user = User::factory()->create([
@@ -553,7 +553,7 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
         ]);
         $user = User::factory()->create([
@@ -605,7 +605,7 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
         ]);
         $userOne = User::factory()->create([

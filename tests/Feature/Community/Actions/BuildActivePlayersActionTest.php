@@ -42,7 +42,7 @@ class BuildActivePlayersActionTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $users = User::factory()->count(5)->create([
             'LastGameID' => $game->id,
@@ -68,8 +68,8 @@ class BuildActivePlayersActionTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game1 = Game::factory()->create(['ConsoleID' => $system->id]);
-        $game2 = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game1 = Game::factory()->create(['system_id' => $system->id]);
+        $game2 = Game::factory()->create(['system_id' => $system->id]);
 
         $game1Users = User::factory()->count(5)->create([
             'LastGameID' => $game1->id, // !!
@@ -103,7 +103,7 @@ class BuildActivePlayersActionTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $user1 = User::factory()->create([
             'LastGameID' => $game->id,
@@ -135,7 +135,7 @@ class BuildActivePlayersActionTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $user1 = User::factory()->create([
             'LastGameID' => $game->id,
@@ -168,8 +168,8 @@ class BuildActivePlayersActionTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game1 = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => 'Sonic the Hedgehog']);
-        $game2 = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => 'Legend of Zelda']);
+        $game1 = Game::factory()->create(['system_id' => $system->id, 'title' => 'Sonic the Hedgehog']);
+        $game2 = Game::factory()->create(['system_id' => $system->id, 'title' => 'Legend of Zelda']);
 
         $user1 = User::factory()->create([
             'LastGameID' => $game1->id, // !!
@@ -200,7 +200,7 @@ class BuildActivePlayersActionTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $user1 = User::factory()->create([
             'LastGameID' => $game->id,
@@ -236,7 +236,7 @@ class BuildActivePlayersActionTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $activeUser = User::factory()->create([
             'LastGameID' => $game->id,
@@ -271,7 +271,7 @@ class BuildActivePlayersActionTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $trackedHighPoints = User::factory()->create([
             'LastGameID' => $game->id,

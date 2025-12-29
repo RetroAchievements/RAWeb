@@ -20,8 +20,8 @@ class AchievementCommentControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->create(['Title' => 'Ancient Steps Retraced', 'GameID' => $game->id]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
+        $achievement = Achievement::factory()->create(['title' => 'Ancient Steps Retraced', 'GameID' => $game->id]);
 
         // Act
         $response = $this->get(route('achievement.comment.index', ['achievement' => $achievement]));
@@ -38,8 +38,8 @@ class AchievementCommentControllerTest extends TestCase
         $this->actingAs($user);
 
         $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->create(['Title' => 'Ancient Steps Retraced', 'GameID' => $game->id]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
+        $achievement = Achievement::factory()->create(['title' => 'Ancient Steps Retraced', 'GameID' => $game->id]);
 
         // Act
         $response = $this->get(route('achievement.comment.index', ['achievement' => $achievement]));

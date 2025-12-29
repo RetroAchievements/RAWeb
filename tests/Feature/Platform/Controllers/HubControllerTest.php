@@ -46,8 +46,8 @@ class HubControllerTest extends TestCase
 
         $system = System::factory()->create(['ID' => 1, 'name' => 'Nintendo Entertainment System', 'name_short' => 'NES']);
         $hub2->games()->create([
-            'Title' => 'Test Game',
-            'ConsoleID' => $system->id,
+            'title' => 'Test Game',
+            'system_id' => $system->id,
         ]);
 
         // Act

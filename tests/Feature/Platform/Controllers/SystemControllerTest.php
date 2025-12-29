@@ -20,10 +20,10 @@ class SystemControllerTest extends TestCase
         $system = System::factory()->create(['ID' => 4, 'name' => 'Game Boy', 'name_short' => 'GB', 'active' => true]);
 
         /** @var Game $gameOne */
-        $gameOne = Game::factory()->create(['Title' => 'AAAAAAA', 'achievements_published' => 50, 'ConsoleID' => $system->id]);
+        $gameOne = Game::factory()->create(['title' => 'AAAAAAA', 'achievements_published' => 50, 'system_id' => $system->id]);
 
         // Subset games are currently included, pending a rework.
-        Game::factory()->create(['Title' => 'AAAAAAA [Subset - Bonus]', 'achievements_published' => 50, 'ConsoleID' => $system->id]);
+        Game::factory()->create(['title' => 'AAAAAAA [Subset - Bonus]', 'achievements_published' => 50, 'system_id' => $system->id]);
 
         // Act
         $response = $this->get(route('system.game.index', ['system' => $system]));

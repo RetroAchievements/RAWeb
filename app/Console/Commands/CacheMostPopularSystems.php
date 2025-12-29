@@ -22,23 +22,23 @@ class CacheMostPopularSystems extends Command
 
         // We use a raw query here because it's significantly faster than using Eloquent.
         $sql = <<<SQL
-            SELECT 
+            SELECT
                 c.ID AS system_id,
                 COUNT(DISTINCT pg.user_id) * (1 / {$sampleRate}) AS estimated_player_count
             FROM Console c
-            JOIN GameData g ON c.ID = g.ConsoleID
+            JOIN games g ON c.ID = g.system_id
             JOIN (
-                SELECT 
+                SELECT
                     game_id,
                     user_id,
                     last_played_at
                 FROM player_games
-                WHERE 
+                WHERE
                     deleted_at IS NULL
                     AND last_played_at >= DATE_SUB(NOW(), INTERVAL 1 YEAR)
                     AND RAND() < {$sampleRate}
-            ) pg ON g.ID = pg.game_id
-            WHERE 
+            ) pg ON g.id = pg.game_id
+            WHERE
                 g.deleted_at IS NULL
                 AND c.ID NOT IN (" . System::Hubs . ", " . System::Events . ", " . System::Standalones . ")
             GROUP BY c.ID
