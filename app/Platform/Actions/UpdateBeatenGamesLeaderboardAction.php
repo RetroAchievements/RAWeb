@@ -24,9 +24,10 @@ class UpdateBeatenGamesLeaderboardAction
             return;
         }
 
-        // Use a Redis lock per system to prevent deadlocks when
-        // multiple jobs for the same system run concurrently.
-        $lockKey = 'player-stat-rankings:' . ($systemId ?? 'overall');
+        // Use a Redis lock per system+kind to prevent deadlocks when
+        // multiple jobs for the same system and kind run concurrently.
+        // Different kinds can safely run in parallel since they operate on distinct rows.
+        $lockKey = 'player-stat-rankings:' . ($systemId ?? 'overall') . ':' . $kind->value;
         Cache::lock($lockKey, 120)->block(90, function () use ($systemId, $kind, $includedTypes) {
             $this->executeWithDirectInsert($systemId, $kind, $includedTypes);
         });
