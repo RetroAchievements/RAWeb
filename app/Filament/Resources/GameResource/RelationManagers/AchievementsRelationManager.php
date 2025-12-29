@@ -12,6 +12,7 @@ use App\Models\AchievementGroup;
 use App\Models\AchievementSet;
 use App\Models\AchievementSetAchievement;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\LogAchievementGroupActivityAction;
@@ -96,7 +97,7 @@ class AchievementsRelationManager extends RelationManager
 
         return $table
             ->recordTitleAttribute('title')
-            ->modifyQueryUsing(fn (Builder $query) => $query->with(['activeMaintainer.user', 'developer']))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['activeMaintainer.user', 'developer', 'game']))
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
@@ -951,7 +952,21 @@ class AchievementsRelationManager extends RelationManager
         /** @var User */
         $user = Auth::user();
 
-        return once(fn () => $user->can('updateField', [Achievement::class, null, 'DisplayOrder']));
+        return once(function () use ($user) {
+            if ($user->can('updateField', [Achievement::class, null, 'DisplayOrder'])) {
+                return true;
+            }
+
+            // Junior developers can reorder if they have an active claim on this game.
+            if ($user->hasRole(Role::DEVELOPER_JUNIOR)) {
+                /** @var Game $game */
+                $game = $this->getOwnerRecord();
+
+                return $user->hasActiveClaimOnGameId($game->id);
+            }
+
+            return false;
+        });
     }
 
     private function canAssignMaintainer(): bool
