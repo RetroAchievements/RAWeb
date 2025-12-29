@@ -34,7 +34,7 @@ class UserSchema extends Schema
      * Default sort order when client doesn't provide any.
      * Shows highest point users first for leaderboard-style results.
      */
-    protected $defaultSort = '-points';
+    protected $defaultSort = '-pointsHardcore';
 
     /**
      * Get the resource type.
