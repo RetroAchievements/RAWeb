@@ -335,7 +335,7 @@ function reactivateUserEventAchievements(User $user, array $userUnlocks): array
     return $userUnlocks;
 }
 
-function getUsersCompletedGamesAndMax(string $user, ?int $limit = null): array
+function getUsersCompletedGamesAndMax(string $user, ?int $limit = null, bool $isExcludingCompleted = false): array
 {
     if (!isValidUsername($user)) {
         return [];
@@ -343,6 +343,11 @@ function getUsersCompletedGamesAndMax(string $user, ?int $limit = null): array
 
     $minAchievementsForCompletion = 5;
     $limitClause = $limit !== null ? "LIMIT $limit" : "";
+
+    // When excluding completed games, filter out rows where user has unlocked all achievements.
+    $excludeCompletedClause = $isExcludingCompleted
+        ? "AND pg.achievements_unlocked < gd.achievements_published"
+        : "";
 
     $query = "SELECT gd.id AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID,
             gd.image_icon_asset_path AS ImageIcon, gd.title AS Title, gd.sort_title as SortTitle, gd.achievements_published as MaxPossible,
@@ -356,6 +361,7 @@ function getUsersCompletedGamesAndMax(string $user, ?int $limit = null): array
             LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
             WHERE (ua.User = :user OR ua.display_name = :user2)
             AND gd.achievements_published > $minAchievementsForCompletion
+            $excludeCompletedClause
             ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.title
             $limitClause";
 
