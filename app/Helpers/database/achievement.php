@@ -324,6 +324,7 @@ function UploadNewAchievement(
         $achievement->type = ($typeValue == 'NULL') ? null : $type;
         $achievement->user_id = $author->id;
         $achievement->image_name = $badge;
+        $achievement->modified_at = now();
 
         CauserResolver::setCauser($author);
 

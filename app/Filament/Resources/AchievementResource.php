@@ -228,6 +228,7 @@ class AchievementResource extends Resource
                     ->schema([
                         Forms\Components\Toggle::make('is_promoted')
                             ->label('Promoted')
+                            ->inline(false)
                             ->disabled(!$user->can('updateField', [$schema->model, 'is_promoted'])),
 
                         Forms\Components\Select::make('points')

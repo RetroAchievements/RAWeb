@@ -99,8 +99,8 @@ class AchievementsRelationManager extends RelationManager
             ->defaultPaginationPageOption(50)
             ->defaultSort(function (Builder $query): Builder {
                 return $query
-                    ->orderBy('order_column')
-                    ->orderBy('created_at', 'asc');
+                    ->orderBy('achievements.order_column')
+                    ->orderBy('achievements.created_at', 'asc');
             })
             ->checkIfRecordIsSelectableUsing(
                 fn (Model $record): bool => $user->can('update', $record->loadMissing('game')),

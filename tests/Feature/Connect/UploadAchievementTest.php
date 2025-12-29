@@ -161,6 +161,7 @@ class UploadAchievementTest extends TestCase
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->user_id, $author->id);
         $this->assertEquals($achievement2->image_name, '001234');
+        $this->assertNotNull($achievement2->modified_at);
 
         $game->refresh();
         $this->assertEquals($game->achievements_published, 0);

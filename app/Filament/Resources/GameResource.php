@@ -182,11 +182,11 @@ class GameResource extends Resource
                         Schemas\Components\Fieldset::make('Achievements')
                             ->schema([
                                 Infolists\Components\TextEntry::make('achievements_published')
-                                    ->label('Published')
+                                    ->label('Promoted')
                                     ->numeric(),
 
                                 Infolists\Components\TextEntry::make('achievements_unpublished')
-                                    ->label('Unpublished')
+                                    ->label('Unpromoted')
                                     ->numeric(),
                             ])
                             ->columns(2)
@@ -408,13 +408,13 @@ class GameResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('achievements_published')
-                    ->label('Achievements (Published)')
+                    ->label('Achievements (Promoted)')
                     ->numeric()
                     ->sortable()
                     ->alignEnd(),
 
                 Tables\Columns\TextColumn::make('achievements_unpublished')
-                    ->label('Achievements (Unpublished)')
+                    ->label('Achievements (Unpromoted)')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()

@@ -173,10 +173,10 @@ class AchievementsRelationManager extends RelationManager
             ])
             ->filters([
                 Tables\Filters\TernaryFilter::make('is_promoted')
-                    ->label('Published Status')
+                    ->label('Promoted Status')
                     ->placeholder('All')
-                    ->trueLabel('Published')
-                    ->falseLabel('Unpublished')
+                    ->trueLabel('Promoted')
+                    ->falseLabel('Unpromoted')
                     ->default(true),
 
                 Tables\Filters\TernaryFilter::make('duplicate_badges')
