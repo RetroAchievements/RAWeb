@@ -63,7 +63,7 @@ function userAvatar(
 
     return avatar(
         resource: 'user',
-        id: $username,
+        id: $displayName,
         label: $label !== false && ($label || !$icon) ? $displayName : null,
         link: $link ?: route('user.show', $displayName),
         tooltip: is_array($tooltip) ? renderUserCard($tooltip) : $tooltip,
