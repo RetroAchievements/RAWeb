@@ -71,8 +71,8 @@ class UserSchema extends Schema
             Str::make('avatarUrl')->readOnly(),
             Str::make('motto')->readOnly(),
 
-            Number::make('points')->sortable()->readOnly(),
-            Number::make('pointsSoftcore', 'points_softcore')->sortable()->readOnly(),
+            Number::make('points', 'points_softcore')->sortable()->readOnly(),
+            Number::make('pointsHardcore', 'points')->sortable()->readOnly(),
             Number::make('pointsWeighted', 'points_weighted')->sortable()->readOnly(),
 
             Number::make('yieldUnlocks', 'yield_unlocks')->sortable()->readOnly(),
@@ -84,7 +84,7 @@ class UserSchema extends Schema
             Boolean::make('isUnranked')->readOnly(),
             Boolean::make('isUserWallActive', 'is_user_wall_active')->readOnly(),
 
-            Str::make('richPresenceMessage', 'rich_presence')->readOnly(),
+            Str::make('richPresence', 'rich_presence')->readOnly(),
             DateTime::make('richPresenceUpdatedAt', 'rich_presence_updated_at')->readOnly(),
 
             Str::make('visibleRole')->readOnly(),

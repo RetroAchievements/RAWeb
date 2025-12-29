@@ -326,14 +326,14 @@ class UsersTest extends JsonApiResourceTestCase
 
         $this->assertEquals('TestPlayer', $attributes['displayName']);
         $this->assertEquals('Test motto', $attributes['motto']);
-        $this->assertEquals(5000, $attributes['points']);
-        $this->assertEquals(100, $attributes['pointsSoftcore']);
+        $this->assertEquals(100, $attributes['points']);
+        $this->assertEquals(5000, $attributes['pointsHardcore']);
         $this->assertEquals(15000, $attributes['pointsWeighted']);
         $this->assertEquals(50, $attributes['yieldUnlocks']);
         $this->assertEquals(1000, $attributes['yieldPoints']);
         $this->assertTrue($attributes['isUserWallActive']);
         $this->assertFalse($attributes['isUnranked']);
-        $this->assertEquals('Playing a game', $attributes['richPresenceMessage']);
+        $this->assertEquals('Playing a game', $attributes['richPresence']);
         $this->assertArrayHasKey('avatarUrl', $attributes);
         $this->assertArrayHasKey('joinedAt', $attributes);
         $this->assertArrayHasKey('lastActivityAt', $attributes);

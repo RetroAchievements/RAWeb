@@ -35,8 +35,8 @@ class UserResource extends JsonApiResource
             'avatarUrl' => $this->resource->avatarUrl,
             'motto' => $this->resource->motto,
 
-            'points' => $this->resource->points,
-            'pointsSoftcore' => $this->resource->points_softcore,
+            'points' => $this->resource->points_softcore,
+            'pointsHardcore' => $this->resource->points,
             'pointsWeighted' => $this->resource->points_weighted,
 
             'yieldUnlocks' => $this->resource->yield_unlocks,
@@ -48,7 +48,7 @@ class UserResource extends JsonApiResource
             'isUnranked' => $this->resource->unranked_at !== null,
             'isUserWallActive' => (bool) $this->resource->is_user_wall_active,
 
-            'richPresenceMessage' => $this->resource->rich_presence,
+            'richPresence' => $this->resource->rich_presence,
             'richPresenceUpdatedAt' => $this->resource->rich_presence_updated_at,
 
             'visibleRole' => $this->resource->visibleRole?->name,
