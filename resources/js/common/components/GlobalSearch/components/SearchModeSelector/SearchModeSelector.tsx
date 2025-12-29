@@ -2,10 +2,11 @@ import { motion } from 'motion/react';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronRight } from 'react-icons/lu';
-import { route } from 'ziggy-js';
 
 import { SelectableChip } from '@/common/components/SelectableChip';
 import type { SearchMode } from '@/common/models';
+
+import { buildSearchUrl } from '../../utils/buildSearchUrl';
 
 interface SearchModeSelectorProps {
   onChange: (value: SearchMode) => void;
@@ -62,10 +63,7 @@ export const SearchModeSelector: FC<SearchModeSelectorProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.15, delay: (modes.length + 1) * 0.02 }}
-        href={route('search', {
-          query: rawQuery || undefined,
-          scope: selectedMode !== 'all' ? selectedMode : undefined,
-        })}
+        href={buildSearchUrl(rawQuery, selectedMode)}
         className="flex items-center sm:hidden"
       >
         {t('Browse')} <LuChevronRight className="size-4" />
