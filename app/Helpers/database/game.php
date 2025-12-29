@@ -10,7 +10,7 @@ use App\Platform\Enums\AchievementFlag;
 use Illuminate\Support\Facades\DB;
 
 /**
- * @deprecated Use Eloquent.
+ * @deprecated use Eloquent
  */
 function getGameData(int $gameID): ?array
 {
