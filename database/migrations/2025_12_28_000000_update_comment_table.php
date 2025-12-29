@@ -77,6 +77,11 @@ return new class extends Migration {
         });
 
         Schema::rename('Comment', 'comments');
+
+        // Reorder commentable_type to appear after id (before commentable_id).
+        if ($driver !== 'sqlite') {
+            DB::statement('ALTER TABLE comments MODIFY COLUMN commentable_type VARCHAR(255) NOT NULL AFTER id');
+        }
     }
 
     public function down(): void
@@ -141,5 +146,8 @@ return new class extends Migration {
         Schema::table('Comment', function (Blueprint $table) {
             $table->index(['commentable_type', 'commentable_id'], 'comments_commentable_index');
         });
+
+        // Move commentable_type back to after user_id.
+        DB::statement('ALTER TABLE Comment MODIFY COLUMN commentable_type VARCHAR(255) NULL AFTER user_id');
     }
 };
