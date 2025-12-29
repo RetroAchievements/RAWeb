@@ -164,10 +164,10 @@ if ($consoleIDInput !== 0) {
     echo "</tr>";
 
     foreach ($achData as $achEntry) {
-        $achID = $achEntry['ID'];
+        $achID = $achEntry['id'];
         $achTitle = $achEntry['AchievementTitle'];
-        $achDesc = $achEntry['Description'];
-        $achPoints = $achEntry['Points'];
+        $achDesc = $achEntry['description'];
+        $achPoints = $achEntry['points'];
         $achTruePoints = $achEntry['TrueRatio'];
         $achAuthor = $achEntry['Author'];
         $achDateCreated = $achEntry['DateCreated'];
