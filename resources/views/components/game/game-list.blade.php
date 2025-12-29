@@ -99,7 +99,7 @@ $areGamesMaybePresent = (
 
                 <tbody>
                     @foreach ($games as $game)
-                        @if ($groupByConsole && $game['ConsoleID'] !== $console['ID'])
+                        @if ($groupByConsole && $game['system_id'] !== $console['ID'])
                             @continue
                         @endif
                         <tr>

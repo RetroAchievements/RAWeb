@@ -2033,7 +2033,7 @@ class ConvertToCollapsedTiered extends ConvertToTiered
         }
 
         $event->legacyGame->achievements_published = count($this->achievements);
-        $event->legacyGame->Title = $this->title;
+        $event->legacyGame->title = $this->title;
         $event->legacyGame->save();
 
         // delete any remaining badges
@@ -2159,7 +2159,7 @@ class ConvertAotWTiered extends ConvertGame
         $date = Carbon::parse($this->activeFrom);
         $year = $date->clone()->addWeeks(1)->year;
 
-        $event->legacyGame->Title = "Achievement of the Week $year";
+        $event->legacyGame->title = "Achievement of the Week $year";
         $event->legacyGame->save();
 
         $event->active_from = $date;

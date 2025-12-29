@@ -82,13 +82,13 @@ class DeveloperSetsService
         $this->gameListService->initializeGameList($gameIDs);
 
         foreach ($this->gameListService->games as &$game) {
-            $gameAuthoredAchievements = $gameAuthoredAchievementsList[$game['ID']] ?? null;
+            $gameAuthoredAchievements = $gameAuthoredAchievementsList[$game['id']] ?? null;
             $game['NumAuthoredAchievements'] = $gameAuthoredAchievements['NumAuthoredAchievements'] ?? 0;
             $game['NumAuthoredPoints'] = $gameAuthoredAchievements['NumAuthoredPoints'] ?? 0;
 
-            $game['NumAuthoredLeaderboards'] = $gameAuthoredLeaderboardsList[$game['ID']] ?? 0;
+            $game['NumAuthoredLeaderboards'] = $gameAuthoredLeaderboardsList[$game['id']] ?? 0;
 
-            $gameAuthoredTickets = $gameAuthoredTicketsList[$game['ID']] ?? null;
+            $gameAuthoredTickets = $gameAuthoredTicketsList[$game['id']] ?? null;
             $game['NumAuthoredTickets'] = $gameAuthoredTickets['NumAuthoredTickets'] ?? 0;
         }
 

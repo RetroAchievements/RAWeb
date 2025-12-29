@@ -96,7 +96,7 @@ class GameListService
             }
 
             if ($this->withTicketCounts) {
-                $gameTickets = $gameTicketsList[$gameModel->ID] ?? null;
+                $gameTickets = $gameTicketsList[$gameModel->id] ?? null;
                 $game['NumTickets'] = $gameTickets['NumTickets'] ?? 0;
             }
 
@@ -135,7 +135,7 @@ class GameListService
 
     public function useGameStatusFilter(array $game, string $statusValue): bool
     {
-        $foundProgress = $this->userProgress[$game['ID']] ?? null;
+        $foundProgress = $this->userProgress[$game['id']] ?? null;
 
         $hasAwardKind = function ($kind) use ($foundProgress) {
             return isset($foundProgress['HighestAwardKind']) && $foundProgress['HighestAwardKind'] === $kind;
@@ -199,7 +199,7 @@ class GameListService
             ->toArray();
 
         foreach ($this->games as &$game) {
-            $game['WantToPlay'] = in_array($game['ID'], $wantToPlayGames);
+            $game['WantToPlay'] = in_array($game['id'], $wantToPlayGames);
         }
     }
 
@@ -398,9 +398,9 @@ class GameListService
                 }
                 echo Blade::render('
                     <x-game.multiline-avatar
-                        :gameId="$ID"
-                        :gameTitle="$Title"
-                        :gameImageIcon="$ImageIcon"
+                        :gameId="$id"
+                        :gameTitle="$title"
+                        :gameImageIcon="$image_icon_asset_path"
                         :consoleName="$consoleName"
                     />', array_merge($game, ['consoleName' => $consoleName])
                 );
@@ -508,7 +508,7 @@ class GameListService
                     echo '<td></td>';
                 } else {
                     echo '<td class="text-right">';
-                    echo '<a href="' . route('game.tickets', ['game' => $game['ID']]) . '">';
+                    echo '<a href="' . route('game.tickets', ['game' => $game['id']]) . '">';
                     echo localized_number($game['NumTickets']);
                     echo '</a></td>';
                 }
@@ -527,7 +527,7 @@ class GameListService
                 if ($game['achievements_published'] == 0) {
                     echo '<td></td>';
                 } else {
-                    $gameProgress = $this->userProgress[$game['ID']] ?? null;
+                    $gameProgress = $this->userProgress[$game['id']] ?? null;
                     $softcoreProgress = $gameProgress['achievements_unlocked'] ?? 0;
                     $hardcoreProgress = $gameProgress['achievements_unlocked_hardcore'] ?? 0;
                     $highestAwardKind = $gameProgress['HighestAwardKind'] ?? 'unfinished';
@@ -569,7 +569,7 @@ class GameListService
                         :gameId="$gameId"
                         :isOnBacklog="$isOnBacklog"
                     />', [
-                    'gameId' => $game['ID'],
+                    'gameId' => $game['id'],
                     'isOnBacklog' => $game['WantToPlay'] ?? false,
                 ]);
                 echo '</td>';
