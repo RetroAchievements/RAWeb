@@ -59,26 +59,22 @@ class AchievementPolicy
         ]);
     }
 
-    public function update(User $user, Achievement $achievement): bool
+    /**
+     * Whether the user can update any achievement without per-record checks.
+     * Junior developers need per-record checks via update().
+     */
+    public function updateAny(User $user): bool
     {
-        $canEditAnyAchievement = $user->hasAnyRole([
-            /*
-             * developers may at least upload new achievements to the server, create code notes, etc
-             */
+        return $user->hasAnyRole([
             Role::DEVELOPER,
-
-            /*
-             * artists may update achievement badges if the respective achievements are open for editing
-             */
             Role::ARTIST,
-
-            /*
-             * writers may update achievement title and description if the respective achievements are open for editing
-             */
             Role::WRITER,
         ]);
+    }
 
-        if ($canEditAnyAchievement) {
+    public function update(User $user, Achievement $achievement): bool
+    {
+        if ($this->updateAny($user)) {
             return true;
         }
 

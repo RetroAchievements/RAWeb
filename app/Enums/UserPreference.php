@@ -48,4 +48,6 @@ abstract class UserPreference
     public const Game_OptOutOfAllSubsets = 18;
 
     public const User_EnableBetaFeatures = 19;
+
+    public const EmailOff_DailyDigest = 20;
 }
