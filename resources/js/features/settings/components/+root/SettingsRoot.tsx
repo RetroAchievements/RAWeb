@@ -27,11 +27,15 @@ export const SettingsRoot: FC = memo(() => {
       <div className="flex flex-col gap-4">
         <ProfileSectionCard />
 
-        <NotificationsSectionCard currentPreferencesBitfield={auth?.user.preferencesBitfield as number} />
+        <NotificationsSectionCard
+          currentPreferencesBitfield={auth?.user.preferencesBitfield as number}
+        />
 
         <LocaleSectionCard />
 
-        <PreferencesSectionCard currentPreferencesBitfield={auth?.user.preferencesBitfield as number} />
+        <PreferencesSectionCard
+          currentPreferencesBitfield={auth?.user.preferencesBitfield as number}
+        />
 
         <KeysSectionCard />
 

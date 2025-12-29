@@ -22,7 +22,9 @@ describe('Component: NotificationsSectionCard', () => {
     const userSettings = createUser();
 
     const { container } = render<App.Community.Data.UserSettingsPageProps>(
-      <NotificationsSectionCard currentPreferencesBitfield={userSettings.preferencesBitfield ?? 0} />,
+      <NotificationsSectionCard
+        currentPreferencesBitfield={userSettings.preferencesBitfield ?? 0}
+      />,
     );
 
     // ASSERT
@@ -46,7 +48,10 @@ describe('Component: NotificationsSectionCard', () => {
           can: {},
           userSettings: createUser(),
           auth: {
-            user: createAuthenticatedUser({ preferencesBitfield: mockWebsitePrefs, roles: ['developer'] }),
+            user: createAuthenticatedUser({
+              preferencesBitfield: mockWebsitePrefs,
+              roles: ['developer'],
+            }),
           },
         },
       },
