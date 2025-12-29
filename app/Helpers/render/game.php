@@ -93,8 +93,8 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
 
     // Retrieve separate IDs and titles for main game and subset (if any)
     $getSplitData = function ($data) use ($consoleID): array {
-        $gameID = $data['GameID'] ?? $data['ID'];
-        $gameTitle = $data['GameTitle'] ?? $data['Title'];
+        $gameID = $data['GameID'] ?? $data['ID'] ?? $data['id'];
+        $gameTitle = $data['GameTitle'] ?? $data['Title'] ?? $data['title'];
         // Match and possibly split main title and subset
         $mainID = $gameID;
         $mainTitle = $gameTitle;
