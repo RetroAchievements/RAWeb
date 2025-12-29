@@ -22,7 +22,7 @@ class GetCodeNotesTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::factory()->create(['appToken' => Str::random(16), 'display_name' => 'FirstUser']);
+        $this->user = User::factory()->create(['connect_token' => Str::random(16), 'display_name' => 'FirstUser']);
     }
 
     public function testGetCodeNotes(): void

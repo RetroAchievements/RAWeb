@@ -65,7 +65,7 @@ class CreateGameClaimAction
             'Finished' => $expiresAt,
         ]);
 
-        Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($currentUser->User));
+        Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($currentUser->username));
 
         addArticleComment("Server", ArticleType::SetClaim, $game->ID,
             ClaimType::toString($claimType) . " " . ($setType == ClaimSetType::Revision ? "revision" : "") . " claim made by " . $currentUser->display_name);

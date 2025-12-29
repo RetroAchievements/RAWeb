@@ -43,7 +43,7 @@ class UpdatePlayerPointsStatsBatchAction
             return;
         }
 
-        $trackedUserIds = $trackedUsers->pluck('ID')->toArray();
+        $trackedUserIds = $trackedUsers->pluck('id')->toArray();
 
         // Fetch all player achievements for tracked users in the time window.
         $allAchievements = PlayerAchievement::whereIn('player_achievements.user_id', $trackedUserIds)

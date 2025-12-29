@@ -30,7 +30,7 @@ function getHashList(int $offset, int $count, ?string $searchedHash): array
         return [
             'Hash' => $hash->md5,
             'GameID' => $hash->game_id,
-            'User' => $hash->user ? $hash->user->User : null,
+            'User' => $hash->user ? $hash->user->username : null,
             'DateAdded' => $hash->created_at,
             'GameTitle' => $hash->game ? $hash->game->Title : null,
             'GameIcon' => $hash->game ? $hash->game->ImageIcon : null,

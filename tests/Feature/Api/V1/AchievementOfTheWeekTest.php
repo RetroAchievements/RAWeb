@@ -95,18 +95,18 @@ class AchievementOfTheWeekTest extends TestCase
                 'TotalPlayers' => 2, // only the hardcore unlock applies (event achievements can't technically be unlocked in softcore)
                 'Unlocks' => [
                     [
-                        'User' => $user3->User,
+                        'User' => $user3->username,
                         'ULID' => $user3->ulid,
-                        'RAPoints' => $user3->RAPoints,
-                        'RASoftcorePoints' => $user3->RASoftcorePoints,
+                        'RAPoints' => $user3->points,
+                        'RASoftcorePoints' => $user3->points_softcore,
                         'HardcoreMode' => 1,
                         'DateAwarded' => $time3->jsonSerialize(),
                     ],
                     [
-                        'User' => $this->user->User,
+                        'User' => $this->user->username,
                         'ULID' => $this->user->ulid,
-                        'RAPoints' => $this->user->RAPoints,
-                        'RASoftcorePoints' => $this->user->RASoftcorePoints,
+                        'RAPoints' => $this->user->points,
+                        'RASoftcorePoints' => $this->user->points_softcore,
                         'HardcoreMode' => 1,
                         'DateAwarded' => $time1->jsonSerialize(),
                     ],

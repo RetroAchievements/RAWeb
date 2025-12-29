@@ -44,20 +44,20 @@ if (config('services.google.recaptcha_secret')) {
 }
 
 $userModel = new User([
-    'User' => $username,
+    'username' => $username,
     'display_name' => $username,
-    'EmailAddress' => $email,
+    'email' => $email,
     'Permissions' => Permissions::Unregistered,
-    'websitePrefs' => 127,
-    'RAPoints' => 0,
-    'RASoftcorePoints' => 0,
-    'TrueRAPoints' => 0,
+    'preferences_bitfield' => 127,
+    'points' => 0,
+    'points_softcore' => 0,
+    'points_weighted' => 0,
 ]);
 // these fields are not fillable, so we have to set them after initializing the User model
-$userModel->Password = Hash::make($pass);
+$userModel->password = Hash::make($pass);
 $userModel->ulid = (string) Str::ulid();
 $userModel->email_backup = $email;
-$userModel->UnreadMessageCount = 0;
+$userModel->unread_messages = 0;
 $userModel->save();
 
 // TODO let the framework handle registration events (sending out validation email, triggering notifications, ...)

@@ -26,7 +26,7 @@ class SubmitCodeNoteTest extends TestCase
 
         $this->seed(RolesTableSeeder::class);
 
-        $this->user = User::factory()->create(['appToken' => Str::random(16), 'Permissions' => Permissions::Developer]);
+        $this->user = User::factory()->create(['connect_token' => Str::random(16), 'Permissions' => Permissions::Developer]);
         $this->user->assignRole(Role::DEVELOPER);
     }
 
@@ -149,7 +149,7 @@ class SubmitCodeNoteTest extends TestCase
 
         $developer = $this->user;
 
-        $this->user = User::factory()->create(['appToken' => Str::random(16), 'Permissions' => Permissions::JuniorDeveloper]);
+        $this->user = User::factory()->create(['connect_token' => Str::random(16), 'Permissions' => Permissions::JuniorDeveloper]);
         $this->user->assignRole(Role::DEVELOPER_JUNIOR);
 
         // ----------------------------
@@ -284,7 +284,7 @@ class SubmitCodeNoteTest extends TestCase
 
         // ----------------------------
         // registered user (handled by the MemoryNotePolicy)
-        $this->user = User::factory()->create(['appToken' => Str::random(16), 'Permissions' => Permissions::Registered]);
+        $this->user = User::factory()->create(['connect_token' => Str::random(16), 'Permissions' => Permissions::Registered]);
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
             'g' => $game->ID,
             'm' => 0x1234,
@@ -350,7 +350,7 @@ class SubmitCodeNoteTest extends TestCase
         $this->user->save();
 
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            't' => $developer->appToken,
+            't' => $developer->connect_token,
             'g' => $game->ID,
             'm' => 0x1234,
             'n' => 'This is a note',

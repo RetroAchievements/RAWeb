@@ -46,10 +46,10 @@ class AchievementControllerTest extends TestCase
         // Arrange
         $this->seed(RolesTableSeeder::class);
 
-        User::factory()->create(['APIKey' => 'regular-user-api-key']);
+        User::factory()->create(['web_api_key' => 'regular-user-api-key']);
         $achievement = Achievement::factory()->create();
 
-        $demotingUser = User::factory()->create(['User' => 'DevCompliance']);
+        $demotingUser = User::factory()->create(['username' => 'DevCompliance']);
         $demotingUser->assignRole(Role::TEAM_ACCOUNT);
 
         // ... this user is not in the allowed service accounts list ...
@@ -91,15 +91,15 @@ class AchievementControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         $serviceAccount = User::factory()->create([
-            'User' => 'RABot',
-            'APIKey' => 'rabot-api-key',
+            'username' => 'RABot',
+            'web_api_key' => 'rabot-api-key',
         ]);
 
         // ... this is an actual service account ...
         config(['api.internal.allowed_user_ids' => (string) $serviceAccount->id]);
 
         $demotingUser = User::factory()->create([
-            'User' => 'DevCompliance',
+            'username' => 'DevCompliance',
             'display_name' => 'DevCompliance',
         ]);
         $demotingUser->assignRole(Role::TEAM_ACCOUNT);
@@ -162,13 +162,13 @@ class AchievementControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         $serviceAccount = User::factory()->create([
-            'User' => 'RABot',
-            'APIKey' => 'rabot-api-key',
+            'username' => 'RABot',
+            'web_api_key' => 'rabot-api-key',
         ]);
         config(['api.internal.allowed_user_ids' => (string) $serviceAccount->id]);
 
         $demotingUser = User::factory()->create([
-            'User' => 'DevCompliance',
+            'username' => 'DevCompliance',
             'display_name' => 'DevCompliance',
         ]);
         $demotingUser->assignRole(Role::TEAM_ACCOUNT);
@@ -213,14 +213,14 @@ class AchievementControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         $serviceAccount = User::factory()->create([
-            'User' => 'RABot',
-            'APIKey' => 'rabot-api-key',
+            'username' => 'RABot',
+            'web_api_key' => 'rabot-api-key',
         ]);
         config(['api.internal.allowed_user_ids' => (string) $serviceAccount->id]);
 
         $achievement = Achievement::factory()->create();
 
-        $demotingUser = User::factory()->create(['User' => 'DevCompliance']);
+        $demotingUser = User::factory()->create(['username' => 'DevCompliance']);
         $demotingUser->assignRole(Role::TEAM_ACCOUNT);
 
         // Act
@@ -251,8 +251,8 @@ class AchievementControllerTest extends TestCase
     {
         // Arrange
         $serviceAccount = User::factory()->create([
-            'User' => 'RABot',
-            'APIKey' => 'rabot-api-key',
+            'username' => 'RABot',
+            'web_api_key' => 'rabot-api-key',
         ]);
         config(['api.internal.allowed_user_ids' => (string) $serviceAccount->id]);
 
@@ -285,12 +285,12 @@ class AchievementControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         $serviceAccount = User::factory()->create([
-            'User' => 'RABot',
-            'APIKey' => 'rabot-api-key',
+            'username' => 'RABot',
+            'web_api_key' => 'rabot-api-key',
         ]);
         config(['api.internal.allowed_user_ids' => (string) $serviceAccount->id]);
 
-        $demotingUser = User::factory()->create(['User' => 'DevCompliance']);
+        $demotingUser = User::factory()->create(['username' => 'DevCompliance']);
         $demotingUser->assignRole(Role::TEAM_ACCOUNT);
 
         // Act
@@ -330,8 +330,8 @@ class AchievementControllerTest extends TestCase
     {
         // Arrange
         $serviceAccount = User::factory()->create([
-            'User' => 'RABot',
-            'APIKey' => 'rabot-api-key',
+            'username' => 'RABot',
+            'web_api_key' => 'rabot-api-key',
         ]);
         config(['api.internal.allowed_user_ids' => (string) $serviceAccount->id]);
 
@@ -367,13 +367,13 @@ class AchievementControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         $serviceAccount = User::factory()->create([
-            'User' => 'RABot',
-            'APIKey' => 'rabot-api-key',
+            'username' => 'RABot',
+            'web_api_key' => 'rabot-api-key',
         ]);
         config(['api.internal.allowed_user_ids' => (string) $serviceAccount->id]);
 
         $demotingUser = User::factory()->create([
-            'User' => 'DevCompliance',
+            'username' => 'DevCompliance',
             'display_name' => 'DevCompliance',
         ]);
         $demotingUser->assignRole(Role::TEAM_ACCOUNT);
@@ -415,14 +415,14 @@ class AchievementControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         $serviceAccount = User::factory()->create([
-            'User' => 'RABot',
-            'APIKey' => 'rabot-api-key',
+            'username' => 'RABot',
+            'web_api_key' => 'rabot-api-key',
         ]);
         config(['api.internal.allowed_user_ids' => (string) $serviceAccount->id]);
 
         $achievement = Achievement::factory()->create();
 
-        $demotingUser = User::factory()->create(['User' => 'DevCompliance']);
+        $demotingUser = User::factory()->create(['username' => 'DevCompliance']);
         $demotingUser->assignRole(Role::TEAM_ACCOUNT);
 
         // Act

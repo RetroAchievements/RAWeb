@@ -66,7 +66,7 @@ class EventControllerTest extends TestCase
             'active_from' => '2020-01-01',
         ]);
 
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::EVENT_MANAGER);
         $this->actingAs($user);
 
@@ -96,7 +96,7 @@ class EventControllerTest extends TestCase
             'active_from' => Carbon::now()->addMonth(),
         ]);
 
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $this->actingAs($user);
 
         // Act
@@ -123,7 +123,7 @@ class EventControllerTest extends TestCase
             'active_from' => Carbon::now()->addMonth(),
         ]);
 
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::EVENT_MANAGER);
         $this->actingAs($user);
 

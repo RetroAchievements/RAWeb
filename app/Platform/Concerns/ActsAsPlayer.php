@@ -104,7 +104,7 @@ trait ActsAsPlayer
      */
     public function lastGame(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'LastGameID', 'ID');
+        return $this->belongsTo(Game::class, 'last_game_id', 'id');
     }
 
     /**
@@ -112,7 +112,7 @@ trait ActsAsPlayer
      */
     public function leaderboardEntries(): HasMany
     {
-        return $this->hasMany(LeaderboardEntry::class, 'user_id', 'ID');
+        return $this->hasMany(LeaderboardEntry::class, 'user_id', 'id');
     }
 
     /**
@@ -130,7 +130,7 @@ trait ActsAsPlayer
      */
     public function playerBadges(): HasMany
     {
-        return $this->hasMany(PlayerBadge::class, 'user_id', 'ID');
+        return $this->hasMany(PlayerBadge::class, 'user_id', 'id');
     }
 
     /**
@@ -162,7 +162,7 @@ trait ActsAsPlayer
      */
     public function playerStats(): HasMany
     {
-        return $this->hasMany(PlayerStat::class, 'user_id', 'ID');
+        return $this->hasMany(PlayerStat::class, 'user_id', 'id');
     }
 
     /**
@@ -170,7 +170,7 @@ trait ActsAsPlayer
      */
     public function reportedTickets(): HasMany
     {
-        return $this->hasMany(Ticket::class, 'reporter_id', 'ID');
+        return $this->hasMany(Ticket::class, 'reporter_id', 'id');
     }
 
     // == scopes
@@ -193,7 +193,7 @@ trait ActsAsPlayer
     public function scopeCurrentlyOnline(Builder $query): Builder
     {
         $recentMinutes = 10;
-        $query->where('LastLogin', '>', Carbon::now()->subMinutes($recentMinutes));
+        $query->where('last_activity_at', '>', Carbon::now()->subMinutes($recentMinutes));
 
         return $query;
     }

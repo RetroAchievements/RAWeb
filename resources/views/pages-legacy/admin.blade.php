@@ -19,26 +19,26 @@ if ($action === 'alt_identifier') {
     if ($forUser == null) {
         $message = "Unknown user: $altsForUser";
     } else {
-        $altsForUser = $forUser->display_name === $forUser->User
+        $altsForUser = $forUser->display_name === $forUser->username
             ? $forUser->display_name
-            : "{$forUser->display_name} ({$forUser->User})";
+            : "{$forUser->display_name} ({$forUser->username})";
 
         $emailAddresses = [];
-        if (!empty($forUser->EmailAddress)) {
-            $emailAddresses[] = $forUser->EmailAddress;
+        if (!empty($forUser->email)) {
+            $emailAddresses[] = $forUser->email;
         }
-        if (!empty($forUser->email_backup) && $forUser->email_backup != $forUser->EmailAddress) {
+        if (!empty($forUser->email_backup) && $forUser->email_backup != $forUser->email) {
             $emailAddresses[] = $forUser->email_backup;
         }
         $message = "No alts found for $altsForUser";
         if (!empty($emailAddresses)) {
             $alts = User::withTrashed()
-                ->select('User', 'Permissions', 'LastLogin', 'Deleted')
+                ->select('username', 'Permissions', 'last_activity_at', 'deleted_at')
                 ->where(function ($query) use ($emailAddresses) {
-                    $query->whereIn('EmailAddress', $emailAddresses)
+                    $query->whereIn('email', $emailAddresses)
                         ->orWhereIn('email_backup', $emailAddresses);
                 })
-                ->orderBy('LastLogin', 'desc')
+                ->orderBy('last_activity_at', 'desc')
                 ->get();
 
             $numAccounts = $alts->count();
@@ -54,11 +54,11 @@ if ($action === 'alt_identifier') {
 
                 foreach ($alts as $alt) {
                     $message .= '<tr><td>';
-                    $message .= userAvatar($alt['User']);
+                    $message .= userAvatar($alt['username']);
                     $message .= '</td><td>';
-                    $message .= ($alt['Deleted']) ? 'Deleted' : Permissions::toString($alt['Permissions']);
+                    $message .= ($alt['deleted_at']) ? 'Deleted' : Permissions::toString($alt['Permissions']);
                     $message .= '</td><td>';
-                    $message .= !empty($alt['LastLogin']) ? getNiceDate(strtotime($alt['LastLogin'])) : '';
+                    $message .= !empty($alt['last_activity_at']) ? getNiceDate(strtotime($alt['last_activity_at'])) : '';
                     $message .= '</td></tr>';
                 }
                 $message .= '</tbody></table></div>';

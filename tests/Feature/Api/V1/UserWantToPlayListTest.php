@@ -26,13 +26,13 @@ class UserWantToPlayListTest extends TestCase
         parent::setUp();
 
         /** @var User $user */
-        $user = User::factory()->create(['User' => 'myUser']);
+        $user = User::factory()->create(['username' => 'myUser']);
         $this->user = $user;
     }
 
     protected function apiUrl(string $method, array $params = []): string
     {
-        $params = array_merge(['y' => $this->user->APIKey], $params);
+        $params = array_merge(['y' => $this->user->web_api_key], $params);
 
         return sprintf('API/API_%s.php?%s', $method, http_build_query($params));
     }
@@ -59,7 +59,7 @@ class UserWantToPlayListTest extends TestCase
         /** Set up a user with 5 games on Want to Play List: */
 
         /** @var User $followedUser */
-        $followedUser = User::factory()->create(['User' => 'followedUser']);
+        $followedUser = User::factory()->create(['username' => 'followedUser']);
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $followedUser->id,
@@ -67,7 +67,7 @@ class UserWantToPlayListTest extends TestCase
         ]);
 
         /** @var User $followingUser */
-        $followingUser = User::factory()->create(['User' => 'followingUser']);
+        $followingUser = User::factory()->create(['username' => 'followingUser']);
         UserRelation::create([
             'user_id' => $followingUser->id,
             'related_user_id' => $this->user->id,
@@ -75,7 +75,7 @@ class UserWantToPlayListTest extends TestCase
         ]);
 
         /** @var User $friend */
-        $friend = User::factory()->create(['User' => 'myFriend']);
+        $friend = User::factory()->create(['username' => 'myFriend']);
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $friend->id,
@@ -144,7 +144,7 @@ class UserWantToPlayListTest extends TestCase
             'type' => UserGameListType::Play,
         ]);
 
-        $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->User]))
+        $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 5,
@@ -193,7 +193,7 @@ class UserWantToPlayListTest extends TestCase
                 ],
             ]);
 
-            $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->User, 'o' => 3]))
+            $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->username, 'o' => 3]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -218,7 +218,7 @@ class UserWantToPlayListTest extends TestCase
                     ],
                 ]);
 
-            $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->User, 'c' => 2]))
+            $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->username, 'c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -243,7 +243,7 @@ class UserWantToPlayListTest extends TestCase
                     ],
                 ]);
 
-            $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->User, 'o' => 1, 'c' => 2]))
+            $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->username, 'o' => 1, 'c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -269,15 +269,15 @@ class UserWantToPlayListTest extends TestCase
                 ]);
 
                 // friendship tests
-                $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $followedUser->User]))
+                $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $followedUser->username]))
                     ->assertUnauthorized()
                     ->assertJson([]);
 
-                $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $followingUser->User]))
+                $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $followingUser->username]))
                     ->assertUnauthorized()
                     ->assertJson([]);
 
-                $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $friend->User]))
+                $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $friend->username]))
                     ->assertSuccessful()
                     ->assertJson([
                         'Count' => 1,

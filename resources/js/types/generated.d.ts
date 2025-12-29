@@ -422,10 +422,10 @@ declare namespace App.Data {
     avatarUrl: string;
     apiKey?: string | null;
     createdAt?: string | null;
-    deleteRequested?: string | null;
+    deleteRequestedAt?: string | null;
     deletedAt?: string | null;
     displayableRoles?: Array<App.Data.Role> | null;
-    emailAddress?: string | null;
+    email?: string | null;
     enableBetaFeatures?: boolean | null;
     id?: number;
     isBanned?: boolean;
@@ -433,6 +433,7 @@ declare namespace App.Data {
     isGone?: boolean;
     isMuted?: boolean;
     isNew?: boolean;
+    isUserWallActive?: boolean | null;
     lastActivityAt?: string | null;
     legacyPermissions?: number | null;
     locale?: string | null;
@@ -441,12 +442,11 @@ declare namespace App.Data {
     playerPreferredMode?: App.Platform.Enums.PlayerPreferredMode;
     points?: number;
     pointsSoftcore?: number;
-    richPresenceMsg?: string | null;
-    unreadMessageCount?: number | null;
+    preferencesBitfield?: number | null;
+    richPresence?: string | null;
+    unreadMessages?: number | null;
     username?: string | null;
-    userWallActive?: boolean | null;
     visibleRole?: App.Data.Role | null;
-    websitePrefs?: number | null;
     preferences?: {
       isGloballyOptedOutOfSubsets: boolean;
       prefersAbsoluteDates: boolean;

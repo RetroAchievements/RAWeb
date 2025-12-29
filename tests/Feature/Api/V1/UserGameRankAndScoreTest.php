@@ -50,10 +50,10 @@ class UserGameRankAndScoreTest extends TestCase
         $this->addHardcoreUnlock($user2, $secondAchievement);
         $this->addHardcoreUnlock($user2, $thirdAchievement);
 
-        $this->get($this->apiUrl('GetUserGameRankAndScore', ['u' => $user->User, 'g' => $game->ID]))
+        $this->get($this->apiUrl('GetUserGameRankAndScore', ['u' => $user->username, 'g' => $game->ID]))
             ->assertSuccessful()
             ->assertJson([[
-                'User' => $user->User,
+                'User' => $user->username,
                 'TotalScore' => $firstAchievement->Points + $secondAchievement->Points,
                 'LastAward' => $unlock2Time->__toString(),
                 'UserRank' => 2,
@@ -85,7 +85,7 @@ class UserGameRankAndScoreTest extends TestCase
         $this->get($this->apiUrl('GetUserGameRankAndScore', ['u' => $user->ulid, 'g' => $game->ID]))
             ->assertSuccessful()
             ->assertJson([[
-                'User' => $user->User,
+                'User' => $user->username,
                 'TotalScore' => $firstAchievement->Points + $secondAchievement->Points,
                 'LastAward' => $unlock2Time->__toString(),
                 'UserRank' => 2,
@@ -114,10 +114,10 @@ class UserGameRankAndScoreTest extends TestCase
         $this->addHardcoreUnlock($user2, $secondAchievement);
         $this->addHardcoreUnlock($user2, $thirdAchievement);
 
-        $this->get($this->apiUrl('GetUserGameRankAndScore', ['u' => $user->User, 'g' => $game->ID]))
+        $this->get($this->apiUrl('GetUserGameRankAndScore', ['u' => $user->username, 'g' => $game->ID]))
             ->assertSuccessful()
             ->assertJson([[
-                'User' => $user->User,
+                'User' => $user->username,
                 'TotalScore' => $firstAchievement->Points + $secondAchievement->Points,
                 'LastAward' => $unlock2Time->__toString(),
                 'UserRank' => null,

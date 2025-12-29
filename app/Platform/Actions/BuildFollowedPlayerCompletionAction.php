@@ -29,12 +29,12 @@ class BuildFollowedPlayerCompletionAction
         $followedPlayerCompletion = null;
 
         $limitedFollowedUsers = UserRelation::query()
-            ->join('UserAccounts', 'Friends.related_user_id', '=', 'UserAccounts.ID')
+            ->join('users', 'Friends.related_user_id', '=', 'users.id')
             ->where(DB::raw('Friends.user_id'), '=', $user->id)
             ->where(DB::raw('Friends.Friendship'), '=', UserRelationship::Following)
-            ->select('UserAccounts.ID')
+            ->select('users.id')
             ->limit(1000)
-            ->pluck('ID')
+            ->pluck('id')
             ->toArray();
 
         $fields = [
@@ -66,7 +66,7 @@ class BuildFollowedPlayerCompletionAction
             ->get();
 
         $userIds = $followedPlayerCompletion->pluck('user_id')->toArray();
-        $followedPlayers = User::whereIn('ID', $userIds)->get()->keyBy('ID');
+        $followedPlayers = User::whereIn('id', $userIds)->get()->keyBy('id');
 
         return $followedPlayerCompletion->map(function (PlayerGame $playerGame) use ($followedPlayers) {
             $user = $followedPlayers[$playerGame->user_id] ?? null;

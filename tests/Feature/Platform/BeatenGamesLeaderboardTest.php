@@ -76,9 +76,9 @@ class BeatenGamesLeaderboardTest extends TestCase
 
         // Assert
         $view->assertSeeTextInOrder([
-            '#1', $users->get(2)->User,
-            '#2', $users->get(1)->User,
-            '#3', $users->get(0)->User,
+            '#1', $users->get(2)->username,
+            '#2', $users->get(1)->username,
+            '#3', $users->get(0)->username,
         ]);
     }
 
@@ -108,9 +108,9 @@ class BeatenGamesLeaderboardTest extends TestCase
 
         // Assert
         $view->assertSeeTextInOrder([
-            '#1', $users->get(1)->User,
-            '#1', $users->get(2)->User,
-            '#3', $users->get(0)->User,
+            '#1', $users->get(1)->username,
+            '#1', $users->get(2)->username,
+            '#3', $users->get(0)->username,
         ]);
     }
 
@@ -147,8 +147,8 @@ class BeatenGamesLeaderboardTest extends TestCase
 
         // Assert
         $view->assertSeeTextInOrder([
-            '#1', $users->get(2)->User,
-            '#2', $users->get(1)->User,
+            '#1', $users->get(2)->username,
+            '#2', $users->get(1)->username,
         ]);
     }
 
@@ -172,6 +172,6 @@ class BeatenGamesLeaderboardTest extends TestCase
         $view = $this->get('/ranking/beaten-games?filter[kind]=retail');
 
         // Assert
-        $view->assertSee($user->User . '-count-1');
+        $view->assertSee($user->username . '-count-1');
     }
 }

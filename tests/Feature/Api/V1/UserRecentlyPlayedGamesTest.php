@@ -75,14 +75,14 @@ class UserRecentlyPlayedGamesTest extends TestCase
 
         // addHardcoreUnlock will create a player_game for game. need to manually create one for game2
         $playerGame2 = new PlayerGame([
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'game_id' => $game2->ID,
             'created_at' => Carbon::now()->subHours(1),
             'last_played_at' => Carbon::now()->subMinutes(5),
         ]);
         $playerGame2->save();
 
-        $this->get($this->apiUrl('GetUserRecentlyPlayedGames', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserRecentlyPlayedGames', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 [

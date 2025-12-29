@@ -55,7 +55,7 @@ class UserCompletionProgressTest extends TestCase
          */
 
         /** @var User $me */
-        $me = User::factory()->create(['User' => 'myUser']);
+        $me = User::factory()->create(['username' => 'myUser']);
 
         /** @var System $system */
         $system = System::factory()->create(['ID' => 1]);
@@ -134,7 +134,7 @@ class UserCompletionProgressTest extends TestCase
         $this->addMasteryBadge($me, $gameSeven, awardTime: Carbon::now()->subMinutes(3));
         $this->addMasteryBadge($me, $gameEight, awardTime: Carbon::now()->subMinutes(4));
 
-        $this->get($this->apiUrl('GetUserCompletionProgress', ['u' => $me->User]))
+        $this->get($this->apiUrl('GetUserCompletionProgress', ['u' => $me->username]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 10,

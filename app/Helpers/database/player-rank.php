@@ -29,18 +29,18 @@ function countRankedUsers(int $type = RankType::Hardcore): int
     return Cache::remember("rankedUserCount:$type",
         Carbon::now()->addMinute(),
         function () use ($type) {
-            $query = "SELECT COUNT(*) AS count FROM UserAccounts ";
+            $query = "SELECT COUNT(*) AS count FROM users ";
             switch ($type) {
                 case RankType::Hardcore:
-                    $query .= "WHERE RAPoints >= " . Rank::MIN_POINTS;
+                    $query .= "WHERE points >= " . Rank::MIN_POINTS;
                     break;
 
                 case RankType::Softcore:
-                    $query .= "WHERE RASoftcorePoints >= " . Rank::MIN_POINTS;
+                    $query .= "WHERE points_softcore >= " . Rank::MIN_POINTS;
                     break;
 
                 case RankType::TruePoints:
-                    $query .= "WHERE TrueRAPoints >= " . Rank::MIN_TRUE_POINTS;
+                    $query .= "WHERE points_weighted >= " . Rank::MIN_TRUE_POINTS;
                     break;
             }
 
@@ -52,15 +52,15 @@ function countRankedUsers(int $type = RankType::Hardcore): int
 
 function getTopUsersByScore(int $count): array
 {
-    $topUsers = User::select(['ulid', 'display_name', 'User', 'RAPoints', 'TrueRAPoints'])
+    $topUsers = User::select(['ulid', 'display_name', 'username', 'points', 'points_weighted'])
         ->where('Untracked', false)
-        ->orderBy('RAPoints', 'desc')
+        ->orderBy('points', 'desc')
         ->take(min($count, 10))
         ->get()
         ->map(fn ($user) => [
-            1 => $user->display_name ?? $user->User,
-            2 => $user->RAPoints,
-            3 => $user->TrueRAPoints,
+            1 => $user->display_name ?? $user->username,
+            2 => $user->points,
+            3 => $user->points_weighted,
             4 => $user->ulid,
         ])
         ->toArray();
@@ -87,9 +87,9 @@ function getUserRank(string $username, int $type = RankType::Hardcore): ?int
         }
 
         $field = match ($type) {
-            RankType::Softcore => 'RASoftcorePoints',
-            RankType::TruePoints => 'TrueRAPoints',
-            default => 'RAPoints',
+            RankType::Softcore => 'points_softcore',
+            RankType::TruePoints => 'points_weighted',
+            default => 'points',
         };
 
         $points = $user->$field;

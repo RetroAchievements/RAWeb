@@ -50,7 +50,7 @@ class UserGameListEntry extends BaseModel
         $requests['pointsForNext'] = 0;
         $points = 0;
 
-        $points += $user->RAPoints + $user->RASoftcorePoints;
+        $points += $user->points + $user->points_softcore;
 
         // logic behind the amount of requests based on player's score:
         $boundariesAndChunks = [
@@ -98,7 +98,7 @@ class UserGameListEntry extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**

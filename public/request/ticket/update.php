@@ -88,7 +88,7 @@ switch ($input['action']) {
         break;
 
     case TicketAction::Request:
-        if (!User::where('ID', $ticket->reporter_id)->exists()) {
+        if (!User::where('id', $ticket->reporter_id)->exists()) {
             return back()->withErrors(__('legacy.error.error'));
         }
 

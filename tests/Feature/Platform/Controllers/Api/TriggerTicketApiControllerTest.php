@@ -33,7 +33,7 @@ class TriggerTicketApiControllerTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
             'muted_until' => Carbon::parse('2035-01-01'), // !!
         ]);
         $this->actingAs($user);
@@ -68,7 +68,7 @@ class TriggerTicketApiControllerTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'Created' => Carbon::now(), // !!
+            'created_at' => Carbon::now(), // !!
         ]);
         $this->actingAs($user);
 
@@ -104,7 +104,7 @@ class TriggerTicketApiControllerTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
         ]);
         $this->actingAs($user);
 
@@ -152,7 +152,7 @@ class TriggerTicketApiControllerTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
         ]);
         $this->actingAs($user);
 
@@ -196,7 +196,7 @@ class TriggerTicketApiControllerTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
         ]);
         $this->actingAs($user);
 
@@ -243,7 +243,7 @@ class TriggerTicketApiControllerTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
         ]);
         $this->actingAs($user);
 

@@ -34,7 +34,7 @@ class LeaderboardCommentControllerTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $this->actingAs($user);
 
         $system = System::factory()->create(['ID' => 1]);

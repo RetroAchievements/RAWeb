@@ -67,7 +67,7 @@ class PlayerProgressReset extends BaseModel
      */
     public function initiatedByUser(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
@@ -75,7 +75,7 @@ class PlayerProgressReset extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**

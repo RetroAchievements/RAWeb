@@ -50,8 +50,8 @@ class ForwardMessageToDiscordActionTest extends TestCase
         $this->action = new ForwardMessageToDiscordAction($mockClient);
 
         // Create test users and thread.
-        $this->sender = User::factory()->create(['User' => 'TestSender']);
-        $this->recipient = User::factory()->create(['User' => 'TestRecipient']);
+        $this->sender = User::factory()->create(['username' => 'TestSender']);
+        $this->recipient = User::factory()->create(['username' => 'TestRecipient']);
         $this->thread = MessageThread::factory()->create(['title' => 'Test Thread']);
     }
 
@@ -564,8 +564,8 @@ class ForwardMessageToDiscordActionTest extends TestCase
     public function testItForwardsTeamAccountRepliesToExistingDiscordThread(): void
     {
         // Arrange
-        $teamAccount = User::factory()->create(['User' => 'QATeam']);
-        $regularUser = User::factory()->create(['User' => 'JohnDoe']);
+        $teamAccount = User::factory()->create(['username' => 'QATeam']);
+        $regularUser = User::factory()->create(['username' => 'JohnDoe']);
 
         $this->setDiscordConfig($teamAccount, isForum: true);
 
@@ -602,8 +602,8 @@ class ForwardMessageToDiscordActionTest extends TestCase
     public function testItHandlesLongTeamAccountReplies(): void
     {
         // Arrange
-        $teamAccount = User::factory()->create(['User' => 'QATeam']);
-        $regularUser = User::factory()->create(['User' => 'JohnDoe']);
+        $teamAccount = User::factory()->create(['username' => 'QATeam']);
+        $regularUser = User::factory()->create(['username' => 'JohnDoe']);
 
         $this->setDiscordConfig($teamAccount, isForum: true);
 
@@ -1035,7 +1035,7 @@ class ForwardMessageToDiscordActionTest extends TestCase
     {
         // Arrange
         // ... team account has reports_url but url is empty ...
-        $teamAccount = User::factory()->create(['User' => 'TestTeam']);
+        $teamAccount = User::factory()->create(['username' => 'TestTeam']);
         $this->setDiscordConfig(
             $teamAccount,
             webhookUrl: '', // !! empty, not null
@@ -1142,7 +1142,7 @@ class ForwardMessageToDiscordActionTest extends TestCase
     {
         // Arrange
         // ... team account has both url AND reports_url configured ...
-        $teamAccount = User::factory()->create(['User' => 'RAdmin']);
+        $teamAccount = User::factory()->create(['username' => 'RAdmin']);
         $this->setDiscordConfig(
             $teamAccount,
             webhookUrl: 'https://discord.com/api/webhooks/inbox/general',

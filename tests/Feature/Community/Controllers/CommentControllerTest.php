@@ -160,7 +160,7 @@ class CommentControllerTest extends TestCase
     public function testReturns404ForDisabledUserWall(): void
     {
         // Arrange
-        $wallOwner = User::factory()->create(['UserWallActive' => false]);
+        $wallOwner = User::factory()->create(['is_user_wall_active' => false]);
         $commenter = User::factory()->create();
 
         $comment = Comment::factory()->create([
@@ -179,7 +179,7 @@ class CommentControllerTest extends TestCase
     public function testRedirectsToUserPageForRecentUserWallComment(): void
     {
         // Arrange
-        $wallOwner = User::factory()->create(['UserWallActive' => true]);
+        $wallOwner = User::factory()->create(['is_user_wall_active' => true]);
         $commenter = User::factory()->create();
 
         $comment = Comment::factory()->create([
@@ -309,7 +309,7 @@ class CommentControllerTest extends TestCase
     public function testRedirectsToUserCommentsPageWhenCommentIsOld(): void
     {
         // Arrange
-        $wallOwner = User::factory()->create(['UserWallActive' => true]);
+        $wallOwner = User::factory()->create(['is_user_wall_active' => true]);
         $commenter = User::factory()->create();
 
         $oldComment = Comment::factory()->create([

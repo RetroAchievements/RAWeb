@@ -495,32 +495,32 @@ class SubscriptionServiceTest extends TestCase
         // user2 implicitly subscribed to wall via comment
         Comment::create([
             'ArticleType' => ArticleType::User,
-            'ArticleID' => $user1->ID,
+            'ArticleID' => $user1->id,
             'user_id' => $user2->id,
             'Payload' => 'Test',
         ]);
 
         // user4 explicitly subscribed to wall
-        $this->updateSubscription($user4, SubscriptionSubjectType::UserWall, $user1->ID, true);
+        $this->updateSubscription($user4, SubscriptionSubjectType::UserWall, $user1->id, true);
 
         // user5 implicitly subscribed to achievement via comment, but explicitly unsubscribed
         Comment::create([
             'ArticleType' => ArticleType::User,
-            'ArticleID' => $user1->ID,
+            'ArticleID' => $user1->id,
             'user_id' => $user5->id,
             'Payload' => 'Test',
         ]);
-        $this->updateSubscription($user5, SubscriptionSubjectType::UserWall, $user1->ID, false);
+        $this->updateSubscription($user5, SubscriptionSubjectType::UserWall, $user1->id, false);
 
         $service = new SubscriptionService();
 
-        $this->assertTrue($service->isSubscribed($user1, SubscriptionSubjectType::UserWall, $user1->ID));
-        $this->assertTrue($service->isSubscribed($user2, SubscriptionSubjectType::UserWall, $user1->ID));
-        $this->assertFalse($service->isSubscribed($user3, SubscriptionSubjectType::UserWall, $user1->ID));
-        $this->assertTrue($service->isSubscribed($user4, SubscriptionSubjectType::UserWall, $user1->ID));
-        $this->assertFalse($service->isSubscribed($user5, SubscriptionSubjectType::UserWall, $user1->ID));
+        $this->assertTrue($service->isSubscribed($user1, SubscriptionSubjectType::UserWall, $user1->id));
+        $this->assertTrue($service->isSubscribed($user2, SubscriptionSubjectType::UserWall, $user1->id));
+        $this->assertFalse($service->isSubscribed($user3, SubscriptionSubjectType::UserWall, $user1->id));
+        $this->assertTrue($service->isSubscribed($user4, SubscriptionSubjectType::UserWall, $user1->id));
+        $this->assertFalse($service->isSubscribed($user5, SubscriptionSubjectType::UserWall, $user1->id));
 
-        $subscribers = $service->getSubscribers(SubscriptionSubjectType::UserWall, $user1->ID);
+        $subscribers = $service->getSubscribers(SubscriptionSubjectType::UserWall, $user1->id);
         $subscribedUserIds = $subscribers->pluck('id')->toArray();
         $this->assertEqualsCanonicalizing([1, 2, 4], $subscribedUserIds);
     }

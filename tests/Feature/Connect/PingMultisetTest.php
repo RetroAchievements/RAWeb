@@ -40,7 +40,7 @@ class PingMultisetTest extends TestCase
         Config::set('feature.enable_multiset', true);
 
         /** @var User $user */
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $this->user = $user;
     }
 
@@ -65,7 +65,7 @@ class PingMultisetTest extends TestCase
 
         $bonusGameHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
 
-        $this->user->LastGameID = $bonusGame->id;
+        $this->user->last_game_id = $bonusGame->id;
         $this->user->save();
 
         // Act
@@ -91,8 +91,8 @@ class PingMultisetTest extends TestCase
         $this->assertEquals('Playing bonus content', $playerSession->rich_presence);
         $this->assertEquals(1, $playerSession->duration);
 
-        $this->assertEquals($baseGame->id, $this->user->fresh()->LastGameID);
-        $this->assertEquals('Playing bonus content', $this->user->fresh()->RichPresenceMsg);
+        $this->assertEquals($baseGame->id, $this->user->fresh()->last_game_id);
+        $this->assertEquals('Playing bonus content', $this->user->fresh()->rich_presence);
     }
 
     public function testPingWithSpecialtySetMaintainsSubsetGame(): void
@@ -116,7 +116,7 @@ class PingMultisetTest extends TestCase
 
         $specialtyGameHash = GameHash::factory()->create(['game_id' => $specialtyGame->id]);
 
-        $this->user->LastGameID = $specialtyGame->id;
+        $this->user->last_game_id = $specialtyGame->id;
         $this->user->save();
 
         // Act
@@ -140,8 +140,8 @@ class PingMultisetTest extends TestCase
         $this->assertEquals('Playing specialty content', $playerSession->rich_presence);
         $this->assertEquals(1, $playerSession->duration);
 
-        $this->assertEquals($specialtyGame->id, $this->user->fresh()->LastGameID);
-        $this->assertEquals('Playing specialty content', $this->user->fresh()->RichPresenceMsg);
+        $this->assertEquals($specialtyGame->id, $this->user->fresh()->last_game_id);
+        $this->assertEquals('Playing specialty content', $this->user->fresh()->rich_presence);
     }
 
     public function testPingWithMultiDiscGameUsesGameIdDirectly(): void
@@ -156,7 +156,7 @@ class PingMultisetTest extends TestCase
             'name' => 'Game Title (Disc 2)', // !! will be detected as multi-disc
         ]);
 
-        $this->user->LastGameID = $game->id;
+        $this->user->last_game_id = $game->id;
         $this->user->save();
 
         // Act
@@ -179,7 +179,7 @@ class PingMultisetTest extends TestCase
         $this->assertNull($playerSession->game_hash_id);
         $this->assertEquals('Playing disc 2', $playerSession->rich_presence);
 
-        $this->assertEquals($game->id, $this->user->fresh()->LastGameID);
-        $this->assertEquals('Playing disc 2', $this->user->fresh()->RichPresenceMsg);
+        $this->assertEquals($game->id, $this->user->fresh()->last_game_id);
+        $this->assertEquals('Playing disc 2', $this->user->fresh()->rich_presence);
     }
 }

@@ -27,7 +27,7 @@ $currentVideoUrl = $achievement->AssocVideo;
 // Only allow jr. devs to update achievement embed if they are the author and the achievement is not core/official
 if (
     $permissions === Permissions::JuniorDeveloper
-    && ($user !== $achievement->developer?->User || $achievement->Flags === AchievementFlag::OfficialCore->value)
+    && ($user !== $achievement->developer?->username || $achievement->Flags === AchievementFlag::OfficialCore->value)
 ) {
     abort(403);
 }

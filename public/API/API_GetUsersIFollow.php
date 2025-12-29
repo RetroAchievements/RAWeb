@@ -32,19 +32,19 @@ $count = $input['c'] ?? 100;
 $user = Auth::user();
 
 $totalUsers = $user->followedUsers()
-    ->whereNull('Deleted')
+    ->whereNull('deleted_at')
     ->count();
 
 $usersList = $user
   ->followedUsers()
-  ->whereNull("Deleted")
+  ->whereNull("deleted_at")
   ->with([
       "relatedUsers" => fn ($q) => $q
-        ->select(sprintf("%s.ID", $user->getTable()), "related_user_id")
+        ->select(sprintf("%s.id", $user->getTable()), "related_user_id")
         ->where("related_user_id", $user->id)
         ->withPivot("Friendship"),
   ])
-  ->orderByDesc("LastLogin")
+  ->orderByDesc("last_activity_at")
   ->skip($offset)
   ->take($count)
   ->get()

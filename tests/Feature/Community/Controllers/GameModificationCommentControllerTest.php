@@ -36,7 +36,7 @@ class GameModificationCommentControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::DEVELOPER_JUNIOR);
         $this->actingAs($user);
 
@@ -56,7 +56,7 @@ class GameModificationCommentControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::DEVELOPER);
         $this->actingAs($user);
 
@@ -76,7 +76,7 @@ class GameModificationCommentControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::DEVELOPER);
         $this->actingAs($user);
 

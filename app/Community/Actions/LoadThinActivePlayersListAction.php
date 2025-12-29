@@ -8,7 +8,6 @@ use App\Enums\Permissions;
 use App\Models\GameRecentPlayer;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 class LoadThinActivePlayersListAction
 {
@@ -33,19 +32,19 @@ class LoadThinActivePlayersListAction
                 $timestampCutoff = Carbon::now()->subMinutes($lookbackMinutes);
 
                 $activePlayers = GameRecentPlayer::with(['game'])
-                    ->where('rich_presence_updated_at', '>', $timestampCutoff)
-                    ->join('UserAccounts', 'UserAccounts.ID', '=', 'game_recent_players.user_id')
-                    ->whereColumn('game_recent_players.game_id', 'UserAccounts.LastGameID')
-                    ->where(DB::raw('UserAccounts.Permissions'), '>=', $minimumPermissions)
-                    ->whereNull(DB::raw('UserAccounts.banned_at'))
-                    ->orderBy(DB::raw('UserAccounts.Untracked'), 'asc')
-                    ->orderByDesc(DB::raw('UserAccounts.RAPoints'))
-                    ->orderByDesc(DB::raw('UserAccounts.RASoftcorePoints'))
-                    ->orderBy(DB::raw('UserAccounts.ID'), 'asc')
+                    ->where('game_recent_players.rich_presence_updated_at', '>', $timestampCutoff)
+                    ->join('users', 'users.id', '=', 'game_recent_players.user_id')
+                    ->whereColumn('game_recent_players.game_id', 'users.last_game_id')
+                    ->where('users.Permissions', '>=', $minimumPermissions)
+                    ->whereNull('users.banned_at')
+                    ->orderBy('users.Untracked', 'asc')
+                    ->orderByDesc('users.points')
+                    ->orderByDesc('users.points_softcore')
+                    ->orderBy('users.id', 'asc')
                     ->select(
                         'game_recent_players.*',
-                        DB::raw('UserAccounts.User as username'),
-                        DB::raw('UserAccounts.display_name')
+                        'users.username as username',
+                        'users.display_name'
                     )
                     ->get();
 

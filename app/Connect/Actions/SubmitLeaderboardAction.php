@@ -85,7 +85,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
 
         $checksum = request()->input('h') ?? '';
         if (!$this->checksumMatches($checksum, $this->user->display_name)) {
-            if ($this->user->User === $this->user->display_name || !$this->checksumMatches($checksum, $this->user->User)) {
+            if ($this->user->username === $this->user->display_name || !$this->checksumMatches($checksum, $this->user->username)) {
                 return $this->accessDenied('Invalid checksum.');
             }
         }

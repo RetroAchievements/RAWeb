@@ -303,7 +303,7 @@ class UserPolicy
 
     public function viewDeveloperFeed(User $user, User $model): bool
     {
-        if ($user->ContribCount === 0) {
+        if ($user->yield_unlocks === 0) {
             return false;
         }
 

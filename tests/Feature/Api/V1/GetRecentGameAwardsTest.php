@@ -32,13 +32,13 @@ class GetRecentGameAwardsTest extends TestCase
         Carbon::setTestNow(Carbon::now());
 
         /** @var User $playerOne */
-        $playerOne = User::factory()->create(['User' => 'playerOne']);
+        $playerOne = User::factory()->create(['username' => 'playerOne']);
         /** @var User $playerTwo */
-        $playerTwo = User::factory()->create(['User' => 'playerTwo']);
+        $playerTwo = User::factory()->create(['username' => 'playerTwo']);
         /** @var User $playerThree */
-        $playerThree = User::factory()->create(['User' => 'playerThree']);
+        $playerThree = User::factory()->create(['username' => 'playerThree']);
         /** @var User $playerFour */
-        $playerFour = User::factory()->create(['User' => 'playerFour']);
+        $playerFour = User::factory()->create(['username' => 'playerFour']);
         /** @var System $system */
         $system = System::factory()->create(['ID' => 1]);
         /** @var Game $game */
@@ -104,13 +104,13 @@ class GetRecentGameAwardsTest extends TestCase
         Carbon::setTestNow(Carbon::now());
 
         /** @var User $playerOne */
-        $playerOne = User::factory()->create(['User' => 'playerOne']);
+        $playerOne = User::factory()->create(['username' => 'playerOne']);
         /** @var User $playerTwo */
-        $playerTwo = User::factory()->create(['User' => 'playerTwo']);
+        $playerTwo = User::factory()->create(['username' => 'playerTwo']);
         /** @var User $playerThree */
-        $playerThree = User::factory()->create(['User' => 'playerThree']);
+        $playerThree = User::factory()->create(['username' => 'playerThree']);
         /** @var User $playerFour */
-        $playerFour = User::factory()->create(['User' => 'playerFour']);
+        $playerFour = User::factory()->create(['username' => 'playerFour']);
         /** @var System $system */
         $system = System::factory()->create(['ID' => 1]);
         /** @var Game $game */
@@ -156,13 +156,13 @@ class GetRecentGameAwardsTest extends TestCase
         Carbon::setTestNow(Carbon::now());
 
         /** @var User $playerOne */
-        $playerOne = User::factory()->create(['User' => 'playerOne']);
+        $playerOne = User::factory()->create(['username' => 'playerOne']);
         /** @var User $playerTwo */
-        $playerTwo = User::factory()->create(['User' => 'playerTwo']);
+        $playerTwo = User::factory()->create(['username' => 'playerTwo']);
         /** @var User $playerThree */
-        $playerThree = User::factory()->create(['User' => 'playerThree']);
+        $playerThree = User::factory()->create(['username' => 'playerThree']);
         /** @var User $playerFour */
-        $playerFour = User::factory()->create(['User' => 'playerFour']);
+        $playerFour = User::factory()->create(['username' => 'playerFour']);
         /** @var System $system */
         $system = System::factory()->create(['ID' => 1]);
         /** @var Game $game */

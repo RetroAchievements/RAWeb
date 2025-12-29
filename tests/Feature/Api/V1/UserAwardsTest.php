@@ -44,7 +44,7 @@ class UserAwardsTest extends TestCase
         $user = User::factory()->create();
         PlayerBadge::factory()->count(3)->create(['user_id' => $user->id]);
 
-        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'TotalAwardsCount' => 3,
@@ -76,7 +76,7 @@ class UserAwardsTest extends TestCase
         PlayerBadge::factory()->create(['DisplayOrder' => -1, 'user_id' => $user->id]);
         PlayerBadge::factory()->create(['DisplayOrder' => -1, 'user_id' => $user->id]);
 
-        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'HiddenAwardsCount' => 2,
@@ -103,7 +103,7 @@ class UserAwardsTest extends TestCase
         PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardDataExtra' => UnlockMode::Softcore, 'user_id' => $user->id]);
         PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardDataExtra' => UnlockMode::Softcore, 'user_id' => $user->id]);
 
-        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'MasteryAwardsCount' => 1,
@@ -124,7 +124,7 @@ class UserAwardsTest extends TestCase
         PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Softcore, 'user_id' => $user->id]);
         PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Softcore, 'user_id' => $user->id]);
 
-        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'BeatenHardcoreAwardsCount' => 1,
@@ -151,7 +151,7 @@ class UserAwardsTest extends TestCase
             'DisplayOrder' => 0,
         ]);
 
-        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'TotalAwardsCount' => 1,
@@ -211,7 +211,7 @@ class UserAwardsTest extends TestCase
             'DisplayOrder' => 0,
         ]);
 
-        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'TotalAwardsCount' => 2,

@@ -125,9 +125,9 @@ class BuildFollowedPlayerCompletionActionTest extends TestCase
         $user = User::factory()->create();
 
         // ... create three followed users with different unlock patterns ...
-        $user1 = User::factory()->create(['User' => 'User1']); // will have most hardcore unlocks
-        $user2 = User::factory()->create(['User' => 'User2']); // will have second-most hardcore, but most total
-        $user3 = User::factory()->create(['User' => 'User3']); // will have least unlocks overall
+        $user1 = User::factory()->create(['username' => 'User1']); // will have most hardcore unlocks
+        $user2 = User::factory()->create(['username' => 'User2']); // will have second-most hardcore, but most total
+        $user3 = User::factory()->create(['username' => 'User3']); // will have least unlocks overall
 
         UserRelation::factory()->following()->create([
             'user_id' => $user->id,

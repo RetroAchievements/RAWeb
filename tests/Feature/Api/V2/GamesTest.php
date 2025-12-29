@@ -32,7 +32,7 @@ class GamesTest extends JsonApiResourceTestCase
     public function testItListsGames(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
         $game = Game::factory()->create([
             'Title' => 'Super Mario Bros.',
@@ -54,7 +54,7 @@ class GamesTest extends JsonApiResourceTestCase
     public function testItPaginatesBy50ByDefault(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
         Game::factory()->count(100)->create(['ConsoleID' => $system->id]);
 
@@ -80,7 +80,7 @@ class GamesTest extends JsonApiResourceTestCase
     public function testItFiltersBySystemId(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system1 = System::factory()->create();
         $system2 = System::factory()->create();
         $game1 = Game::factory()->create(['ConsoleID' => $system1->id]);
@@ -102,7 +102,7 @@ class GamesTest extends JsonApiResourceTestCase
     public function testItExcludesHubGames(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $gameSystem = System::factory()->create();
         System::factory()->create(['ID' => System::Hubs]);
 
@@ -125,7 +125,7 @@ class GamesTest extends JsonApiResourceTestCase
     public function testItExcludesEventGames(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $gameSystem = System::factory()->create();
         System::factory()->create(['ID' => System::Events]);
 
@@ -148,7 +148,7 @@ class GamesTest extends JsonApiResourceTestCase
     public function testItExcludesSubsetGames(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
 
         $normalGame = Game::factory()->create(['ConsoleID' => $system->id]);
@@ -173,7 +173,7 @@ class GamesTest extends JsonApiResourceTestCase
     public function testItSortsByTitle(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
         Game::factory()->create(['Title' => 'Zelda', 'ConsoleID' => $system->id]);
         Game::factory()->create(['Title' => 'Asteroids', 'ConsoleID' => $system->id]);
@@ -194,7 +194,7 @@ class GamesTest extends JsonApiResourceTestCase
     public function testItSortsByPointsTotalDescending(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
         Game::factory()->create(['points_total' => 100, 'ConsoleID' => $system->id]);
         Game::factory()->create(['points_total' => 500, 'ConsoleID' => $system->id]);
@@ -214,7 +214,7 @@ class GamesTest extends JsonApiResourceTestCase
     public function testItCanIncludeSystemRelationship(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create(['Name' => 'Nintendo 64']);
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
@@ -241,7 +241,7 @@ class GamesTest extends JsonApiResourceTestCase
     public function testItReturnsCorrectAttributes(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
         $game = Game::factory()->create([
             'Title' => 'Test Game',
@@ -278,7 +278,7 @@ class GamesTest extends JsonApiResourceTestCase
     public function testItIncludesForumTopicLinkWhenPresent(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
         $forumTopic = ForumTopic::factory()->create();
         $game = Game::factory()->create([
@@ -304,7 +304,7 @@ class GamesTest extends JsonApiResourceTestCase
     public function testItOmitsForumTopicLinkWhenNotPresent(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
         $game = Game::factory()->create([
             'ConsoleID' => $system->id,

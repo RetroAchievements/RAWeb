@@ -199,7 +199,7 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
             :userScoreData="$userScoreData"
         />
 
-        @if ($user !== null && $user === $userPageModel['User'])
+        @if ($user !== null && $user === $userPageModel['username'])
             <x-user.followed-leaderboard :user="$userPageModel" />
         @endif
     </x-slot>

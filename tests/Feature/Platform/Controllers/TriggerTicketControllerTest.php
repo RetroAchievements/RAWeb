@@ -36,9 +36,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => null, // !!
         ]);
         $this->actingAs($user);
@@ -59,9 +59,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'muted_until' => Carbon::parse('2035-01-01'), // !!
         ]);
         $this->actingAs($user);
@@ -82,9 +82,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now(), // !!
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now(), // !!
         ]);
         $this->actingAs($user);
 
@@ -104,9 +104,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'Created' => Carbon::now()->subWeeks(2),
-            'UnreadMessageCount' => 0,
+            'preferences_bitfield' => 63,
+            'created_at' => Carbon::now()->subWeeks(2),
+            'unread_messages' => 0,
         ]);
         $this->actingAs($user);
 
@@ -128,9 +128,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -163,9 +163,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -189,9 +189,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -220,9 +220,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -266,9 +266,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -329,9 +329,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -368,9 +368,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -410,9 +410,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -473,9 +473,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'UnreadMessageCount' => 0,
+            'unread_messages' => 0,
         ]);
         $this->actingAs($user);
 
@@ -522,9 +522,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'UnreadMessageCount' => 0,
+            'unread_messages' => 0,
         ]);
         $this->actingAs($user);
 
@@ -574,9 +574,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'UnreadMessageCount' => 0,
+            'unread_messages' => 0,
         ]);
         $this->actingAs($user);
 
@@ -623,9 +623,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'UnreadMessageCount' => 0,
+            'unread_messages' => 0,
         ]);
         $this->actingAs($user);
 
@@ -661,9 +661,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'UnreadMessageCount' => 0,
+            'unread_messages' => 0,
         ]);
         $this->actingAs($user);
 

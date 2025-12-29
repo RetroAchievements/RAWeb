@@ -25,8 +25,8 @@ if (empty($userArchInfo)) {
     abort_with(redirect(route('user.show', $dev)));
 }
 
-$userContribCount = $devUser->ContribCount;
-$userContribYield = $devUser->ContribYield;
+$userContribCount = $devUser->yield_unlocks;
+$userContribYield = $devUser->yield_points;
 
 // Get sets and achievements per console data for pie charts
 $setsPerConsole = getUserSetsPerConsole($devUser);

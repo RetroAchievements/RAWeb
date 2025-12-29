@@ -263,8 +263,8 @@ class GameController extends Controller
     {
         $allRequestors = UserGameListEntry::where('GameID', $game->id)
             ->where('type', UserGameListType::AchievementSetRequest)
-            ->join('UserAccounts', 'SetRequest.user_id', '=', 'UserAccounts.ID')
-            ->orderBy('UserAccounts.display_name')
+            ->join('users', 'SetRequest.user_id', '=', 'users.id')
+            ->orderBy('users.display_name')
             ->with('user')
             ->get();
 

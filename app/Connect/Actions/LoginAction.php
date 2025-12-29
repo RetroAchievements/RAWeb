@@ -64,12 +64,12 @@ class LoginAction extends BaseApiAction
             return $this->invalidCredentials();
         }
 
-        $hashedPassword = $user->Password;
+        $hashedPassword = $user->password;
 
         // if the user hasn't logged in for a while, they may still have a salted password, upgrade it
-        if (!empty($user->SaltedPass) && mb_strlen($user->SaltedPass) === 32) {
+        if (!empty($user->legacy_salted_password) && mb_strlen($user->legacy_salted_password) === 32) {
             $pepperedPassword = md5($this->password . config('app.legacy_password_salt'));
-            if ($user->SaltedPass !== $pepperedPassword) {
+            if ($user->legacy_salted_password !== $pepperedPassword) {
                 return $this->invalidCredentials();
             }
             $hashedPassword = changePassword($this->username, $this->password);
@@ -101,7 +101,7 @@ class LoginAction extends BaseApiAction
 
     private function authenticateFromToken(): array
     {
-        $user = User::whereName($this->username)->where('appToken', $this->token)->first();
+        $user = User::whereName($this->username)->where('connect_token', $this->token)->first();
         if (!$user) {
             return $this->invalidCredentials(fromToken: true);
         }
@@ -117,7 +117,7 @@ class LoginAction extends BaseApiAction
             return $this->invalidCredentials(fromToken: true);
         }
 
-        // if appToken has expired, generate a new one and force the user to log in again.
+        // if connect_token has expired, generate a new one and force the user to log in again.
         if ($user->isConnectTokenExpired()) {
             $user->generateNewConnectToken();
             $user->saveQuietly();
@@ -145,10 +145,10 @@ class LoginAction extends BaseApiAction
             'Success' => true,
             'User' => $user->display_name,
             'AvatarUrl' => $user->avatar_url,
-            'Token' => $user->appToken,
-            'Score' => $user->RAPoints,
-            'SoftcoreScore' => $user->RASoftcorePoints,
-            'Messages' => $user->UnreadMessageCount ?? 0,
+            'Token' => $user->connect_token,
+            'Score' => $user->points,
+            'SoftcoreScore' => $user->points_softcore,
+            'Messages' => $user->unread_messages ?? 0,
             'Permissions' => $permissions,
             'AccountType' => Permissions::toString($permissions),
         ];

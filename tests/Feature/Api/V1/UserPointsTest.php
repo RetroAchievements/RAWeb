@@ -23,7 +23,7 @@ class UserPointsTest extends TestCase
 
     public function testGetUserPointsUnknownUser(): void
     {
-        $this->user->RAPoints = 600; // make sure enough points to be ranked
+        $this->user->points = 600; // make sure enough points to be ranked
         $this->user->save();
 
         $this->get($this->apiUrl('GetUserPoints', ['u' => 'nonExistant']))
@@ -36,11 +36,11 @@ class UserPointsTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create();
 
-        $this->get($this->apiUrl('GetUserPoints', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserPoints', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
-                'Points' => $user->RAPoints,
-                'SoftcorePoints' => $user->RASoftcorePoints,
+                'Points' => $user->points,
+                'SoftcorePoints' => $user->points_softcore,
             ]);
     }
 
@@ -52,8 +52,8 @@ class UserPointsTest extends TestCase
         $this->get($this->apiUrl('GetUserPoints', ['u' => $user->ulid]))
             ->assertSuccessful()
             ->assertJson([
-                'Points' => $user->RAPoints,
-                'SoftcorePoints' => $user->RASoftcorePoints,
+                'Points' => $user->points,
+                'SoftcorePoints' => $user->points_softcore,
             ]);
     }
 }

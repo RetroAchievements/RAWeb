@@ -34,7 +34,7 @@ class UserSchema extends Schema
      * Default sort order when client doesn't provide any.
      * Shows highest point users first for leaderboard-style results.
      */
-    protected $defaultSort = '-pointsHardcore';
+    protected $defaultSort = '-points';
 
     /**
      * Get the resource type.
@@ -69,23 +69,23 @@ class UserSchema extends Schema
             Str::make('displayName', 'display_name')->readOnly(),
 
             Str::make('avatarUrl')->readOnly(),
-            Str::make('motto', 'Motto')->readOnly(),
+            Str::make('motto')->readOnly(),
 
-            Number::make('points', 'RASoftcorePoints')->sortable()->readOnly(),
-            Number::make('pointsHardcore', 'RAPoints')->sortable()->readOnly(),
-            Number::make('pointsWeighted', 'TrueRAPoints')->sortable()->readOnly(),
+            Number::make('points')->sortable()->readOnly(),
+            Number::make('pointsSoftcore', 'points_softcore')->sortable()->readOnly(),
+            Number::make('pointsWeighted', 'points_weighted')->sortable()->readOnly(),
 
-            Number::make('yieldUnlocks', 'ContribCount')->sortable()->readOnly(),
-            Number::make('yieldPoints', 'ContribYield')->sortable()->readOnly(),
+            Number::make('yieldUnlocks', 'yield_unlocks')->sortable()->readOnly(),
+            Number::make('yieldPoints', 'yield_points')->sortable()->readOnly(),
 
-            DateTime::make('joinedAt', 'Created')->sortable()->readOnly(),
-            DateTime::make('lastActivityAt', 'LastLogin')->sortable()->readOnly(),
+            DateTime::make('joinedAt', 'created_at')->sortable()->readOnly(),
+            DateTime::make('lastActivityAt', 'last_activity_at')->sortable()->readOnly(),
 
             Boolean::make('isUnranked')->readOnly(),
-            Boolean::make('isUserWallActive', 'UserWallActive')->readOnly(),
+            Boolean::make('isUserWallActive', 'is_user_wall_active')->readOnly(),
 
-            Str::make('richPresenceMessage', 'RichPresenceMsg')->readOnly(),
-            DateTime::make('richPresenceUpdatedAt', 'RichPresenceMsgDate')->readOnly(),
+            Str::make('richPresenceMessage', 'rich_presence')->readOnly(),
+            DateTime::make('richPresenceUpdatedAt', 'rich_presence_updated_at')->readOnly(),
 
             Str::make('visibleRole')->readOnly(),
             ArrayList::make('displayableRoles')->readOnly(),

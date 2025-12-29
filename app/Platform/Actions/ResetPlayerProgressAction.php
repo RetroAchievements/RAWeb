@@ -31,14 +31,14 @@ class ResetPlayerProgressAction
 
         $affectedAchievements = legacyDbFetchAll("
             SELECT
-                COALESCE(ua.display_name, ua.User) AS Author,
+                COALESCE(ua.display_name, ua.username) AS Author,
                 ach.GameID,
                 CASE WHEN pa.unlocked_hardcore_at THEN 1 ELSE 0 END AS HardcoreMode,
                 COUNT(ach.ID) AS Count, SUM(ach.Points) AS Points,
                 SUM(ach.TrueRatio) AS TruePoints
             FROM player_achievements pa
             INNER JOIN Achievements ach ON ach.ID = pa.achievement_id
-            INNER JOIN UserAccounts ua ON ua.ID = ach.user_id
+            INNER JOIN users AS ua ON ua.id = ach.user_id
             WHERE ach.Flags = " . AchievementFlag::OfficialCore->value . "
             AND pa.user_id = {$user->id} $clause
             GROUP BY ach.user_id, ach.GameID, HardcoreMode
@@ -47,27 +47,27 @@ class ResetPlayerProgressAction
         $affectedGames = collect();
         $authorUsernames = collect();
         foreach ($affectedAchievements as $achievementData) {
-            if ($achievementData['Author'] !== $user->User) {
+            if ($achievementData['Author'] !== $user->username) {
                 $authorUsernames->push($achievementData['Author']);
             }
             $affectedGames->push($achievementData['GameID']);
         }
 
         $maintainers = DB::select("
-            SELECT DISTINCT COALESCE(ua.display_name, ua.User) AS Username
+            SELECT DISTINCT COALESCE(ua.display_name, ua.username) AS Username
             FROM player_achievements pa
             INNER JOIN Achievements ach ON ach.ID = pa.achievement_id
             INNER JOIN achievement_maintainers m ON m.achievement_id = ach.ID
-            INNER JOIN UserAccounts ua ON ua.ID = m.user_id
+            INNER JOIN users AS ua ON ua.id = m.user_id
             WHERE ach.Flags = :flags
                 AND pa.user_id = :user_id
                 " . $clause . "
                 AND COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) >= m.effective_from
                 AND (
-                    m.effective_until IS NULL 
+                    m.effective_until IS NULL
                     OR COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) < m.effective_until
                 )
-                AND ua.ID != :user_id2
+                AND ua.id != :user_id2
         ", [
             'flags' => AchievementFlag::OfficialCore->value,
             'user_id' => $user->id,
@@ -75,7 +75,7 @@ class ResetPlayerProgressAction
         ]);
 
         foreach ($maintainers as $maintainer) {
-            $authorUsernames->push($maintainer->Username);
+            $authorUsernames->push($maintainer->username);
         }
 
         if ($achievementID !== null) {
@@ -201,11 +201,11 @@ class ResetPlayerProgressAction
             $user->playerAchievements()->delete();
             $user->leaderboardEntries()->delete();
 
-            $user->RAPoints = 0;
-            $user->RASoftcorePoints = 0;
-            $user->TrueRAPoints = 0;
-            $user->ContribCount = 0;
-            $user->ContribYield = 0;
+            $user->points = 0;
+            $user->points_softcore = 0;
+            $user->points_weighted = 0;
+            $user->yield_unlocks = 0;
+            $user->yield_points = 0;
             $user->saveQuietly();
 
             PlayerProgressReset::create([
@@ -220,10 +220,10 @@ class ResetPlayerProgressAction
         if ($achievementID === null) {
             $authors = User::query()
                 ->where(function ($query) use ($authorUsernames) {
-                    $query->whereIn('User', $authorUsernames->unique())
+                    $query->whereIn('username', $authorUsernames->unique())
                         ->orWhereIn('display_name', $authorUsernames->unique());
                 })
-                ->get('ID');
+                ->get('id');
             foreach ($authors as $author) {
                 dispatch(new UpdateDeveloperContributionYieldJob($author->id));
             }

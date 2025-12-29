@@ -42,7 +42,7 @@ trait BuildsGameListQueries
                 'achievementSetClaims' => function ($query) {
                     $query->activeOrInReview()->with(['user' => function ($query) {
                         // Only select the fields we need for the UserData DTO.
-                        $query->select(['ID', 'User', 'display_name', 'Permissions']);
+                        $query->select(['id', 'username', 'display_name', 'Permissions']);
                     }]);
                 },
             ])
@@ -252,10 +252,10 @@ trait BuildsGameListQueries
                 $query->whereExists(function ($subquery) use ($filterValues) {
                     $subquery->select(DB::raw(1))
                         ->from('SetRequest')
-                        ->join('UserAccounts', 'UserAccounts.ID', '=', 'SetRequest.user_id')
+                        ->join('users', 'users.id', '=', 'SetRequest.user_id')
                         ->whereColumn('SetRequest.GameID', 'GameData.ID')
                         ->where(DB::raw('SetRequest.type'), UserGameListType::AchievementSetRequest)
-                        ->where('UserAccounts.display_name', $filterValues[0]);
+                        ->where('users.display_name', $filterValues[0]);
                 });
                 continue;
             }

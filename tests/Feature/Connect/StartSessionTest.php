@@ -42,7 +42,7 @@ class StartSessionTest extends TestCase
         $this->associateAchievementSetToGameAction = new AssociateAchievementSetToGameAction();
 
         /** @var User $user */
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $this->user = $user;
     }
 
@@ -146,9 +146,9 @@ class StartSessionTest extends TestCase
         $this->assertEquals($gameHash->id, $playerSession->game_hash_id);
 
         /** @var User $user1 */
-        $user1 = User::whereName($this->user->User)->first();
-        $this->assertEquals($game->ID, $user1->LastGameID);
-        $this->assertEquals("Playing " . $game->Title, $user1->RichPresenceMsg);
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($game->ID, $user1->last_game_id);
+        $this->assertEquals("Playing " . $game->Title, $user1->rich_presence);
 
         // ----------------------------
         // non-existent game
@@ -202,9 +202,9 @@ class StartSessionTest extends TestCase
         $this->assertEquals('Playing ' . $game2->title, $playerSession->rich_presence);
         $this->assertEquals($gameHash2->id, $playerSession->game_hash_id);
 
-        $user1 = User::whereName($this->user->User)->first();
-        $this->assertEquals($game2->ID, $user1->LastGameID);
-        $this->assertEquals("Playing " . $game2->Title, $user1->RichPresenceMsg);
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($game2->ID, $user1->last_game_id);
+        $this->assertEquals("Playing " . $game2->Title, $user1->rich_presence);
 
         // ----------------------------
         // recently active session is extended
@@ -651,9 +651,9 @@ class StartSessionTest extends TestCase
         $gameOne = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
 
         /** @var User $integrationUser */
-        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
         /** @var User $delegatedUser */
-        $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
         // The integration user is the sole author of all the set's achievements.
         $coreAchievements = Achievement::factory()->published()->count(3)->create([
@@ -691,11 +691,11 @@ class StartSessionTest extends TestCase
         $this->seedEmulatorUserAgents();
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'startsession',
             'g' => $gameOne->id,
-            'k' => $delegatedUser->User,
+            'k' => $delegatedUser->username,
         ];
 
         // ----------------------------
@@ -741,8 +741,8 @@ class StartSessionTest extends TestCase
         $this->assertEquals(30, $playerSession->duration);
         $this->assertEquals('Playing ' . $bonusGameOne->title, $playerSession->rich_presence);
 
-        $this->assertEquals($bonusGameOne->id, $delegatedUser->LastGameID);
-        $this->assertEquals("Playing " . $bonusGameOne->Title, $delegatedUser->RichPresenceMsg);
+        $this->assertEquals($bonusGameOne->id, $delegatedUser->last_game_id);
+        $this->assertEquals("Playing " . $bonusGameOne->Title, $delegatedUser->rich_presence);
 
         // While delegating, updates are made on behalf of username `k`.
         $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
@@ -788,11 +788,11 @@ class StartSessionTest extends TestCase
             ]);
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'startsession',
             'g' => $gameOne->id,
-            'k' => $delegatedUser->User,
+            'k' => $delegatedUser->username,
         ];
 
         // Next, try a GET call, which should be blocked.
@@ -818,9 +818,9 @@ class StartSessionTest extends TestCase
         $gameOne = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
 
         /** @var User $integrationUser */
-        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
         /** @var User $delegatedUser */
-        $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
         // The integration user is the sole author of all the set's achievements.
         $coreAchievements = Achievement::factory()->published()->count(3)->create([
@@ -858,8 +858,8 @@ class StartSessionTest extends TestCase
         $this->seedEmulatorUserAgents();
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'startsession',
             'g' => $gameOne->id,
             'k' => $delegatedUser->ulid, // !!
@@ -908,8 +908,8 @@ class StartSessionTest extends TestCase
         $this->assertEquals(30, $playerSession->duration);
         $this->assertEquals('Playing ' . $bonusGameOne->title, $playerSession->rich_presence);
 
-        $this->assertEquals($bonusGameOne->id, $delegatedUser->LastGameID);
-        $this->assertEquals("Playing " . $bonusGameOne->Title, $delegatedUser->RichPresenceMsg);
+        $this->assertEquals($bonusGameOne->id, $delegatedUser->last_game_id);
+        $this->assertEquals("Playing " . $bonusGameOne->Title, $delegatedUser->rich_presence);
 
         // While delegating, updates are made on behalf of username `k`.
         $this->assertDatabaseMissing((new PlayerSession())->getTable(), [

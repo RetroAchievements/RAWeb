@@ -49,25 +49,25 @@ class UserRecentAchievementsTest extends TestCase
         $achievement3->refresh();
 
         // nothing in the last 0 minutes
-        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->User, 'm' => 0]))
+        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->username, 'm' => 0]))
             ->assertSuccessful()
             ->assertJsonCount(0)
             ->assertJson([]);
 
         // nothing in the last 1 minute
-        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->User, 'm' => 1]))
+        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->username, 'm' => 1]))
             ->assertSuccessful()
             ->assertJsonCount(0)
             ->assertJson([]);
 
         // one in the last 5 minutes
-        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->User, 'm' => 5]))
+        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->username, 'm' => 5]))
             ->assertSuccessful()
             ->assertJsonCount(1)
             ->assertJson([
                 [
                     'AchievementID' => $achievement3->ID,
-                    'Author' => $achievement3->developer->User,
+                    'Author' => $achievement3->developer->username,
                     'BadgeName' => $achievement3->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement3->BadgeName . '.png',
                     'ConsoleName' => $system2->Name,
@@ -84,13 +84,13 @@ class UserRecentAchievementsTest extends TestCase
             ]);
 
         // two in the last 30 minutes (newest first)
-        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->User, 'm' => 30]))
+        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->username, 'm' => 30]))
             ->assertSuccessful()
             ->assertJsonCount(2)
             ->assertJson([
                 [
                     'AchievementID' => $achievement3->ID,
-                    'Author' => $achievement3->developer->User,
+                    'Author' => $achievement3->developer->username,
                     'BadgeName' => $achievement3->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement3->BadgeName . '.png',
                     'ConsoleName' => $system2->Name,
@@ -107,7 +107,7 @@ class UserRecentAchievementsTest extends TestCase
                 ],
                 [
                     'AchievementID' => $achievement2->ID,
-                    'Author' => $achievement2->developer->User,
+                    'Author' => $achievement2->developer->username,
                     'BadgeName' => $achievement2->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement2->BadgeName . '.png',
                     'ConsoleName' => $system2->Name,
@@ -125,13 +125,13 @@ class UserRecentAchievementsTest extends TestCase
             ]);
 
         // two in the last 60 minutes
-        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->User]))
+        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->username]))
             ->assertSuccessful()
             ->assertJsonCount(2)
             ->assertJson([
                 [
                     'AchievementID' => $achievement3->ID,
-                    'Author' => $achievement3->developer->User,
+                    'Author' => $achievement3->developer->username,
                     'BadgeName' => $achievement3->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement3->BadgeName . '.png',
                     'ConsoleName' => $system2->Name,
@@ -148,7 +148,7 @@ class UserRecentAchievementsTest extends TestCase
                 ],
                 [
                     'AchievementID' => $achievement2->ID,
-                    'Author' => $achievement2->developer->User,
+                    'Author' => $achievement2->developer->username,
                     'BadgeName' => $achievement2->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement2->BadgeName . '.png',
                     'ConsoleName' => $system2->Name,
@@ -166,13 +166,13 @@ class UserRecentAchievementsTest extends TestCase
             ]);
 
         // three in the last 90 minutes
-        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->User, 'm' => 90]))
+        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->username, 'm' => 90]))
             ->assertSuccessful()
             ->assertJsonCount(3)
             ->assertJson([
                 [
                     'AchievementID' => $achievement3->ID,
-                    'Author' => $achievement3->developer->User,
+                    'Author' => $achievement3->developer->username,
                     'BadgeName' => $achievement3->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement3->BadgeName . '.png',
                     'ConsoleName' => $system2->Name,
@@ -189,7 +189,7 @@ class UserRecentAchievementsTest extends TestCase
                 ],
                 [
                     'AchievementID' => $achievement2->ID,
-                    'Author' => $achievement2->developer->User,
+                    'Author' => $achievement2->developer->username,
                     'BadgeName' => $achievement2->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement2->BadgeName . '.png',
                     'ConsoleName' => $system2->Name,
@@ -206,7 +206,7 @@ class UserRecentAchievementsTest extends TestCase
                 ],
                 [
                     'AchievementID' => $achievement1->ID,
-                    'Author' => $achievement1->developer->User,
+                    'Author' => $achievement1->developer->username,
                     'BadgeName' => $achievement1->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement1->BadgeName . '.png',
                     'ConsoleName' => $system1->Name,

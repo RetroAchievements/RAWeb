@@ -22,7 +22,7 @@ class DropGameClaimAction
         $claim->Status = ClaimStatus::Dropped;
         $claim->save();
 
-        Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($claim->user->User));
+        Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($claim->user->username));
 
         // if the primary claim was dropped and there's a collaboration claim, promote it to primary
         $firstCollabClaim = ($claim->ClaimType === ClaimType::Primary) ?
@@ -34,7 +34,7 @@ class DropGameClaimAction
             $firstCollabClaim->ClaimType = ClaimType::Primary;
             $firstCollabClaim->save();
 
-            Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($firstCollabClaim->user->User));
+            Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($firstCollabClaim->user->username));
 
             addArticleComment("Server", ArticleType::SetClaim, $claim->game->ID, "Primary claim dropped by {$actingUser->display_name}, transferred to {$firstCollabClaim->user->display_name}");
         } else {

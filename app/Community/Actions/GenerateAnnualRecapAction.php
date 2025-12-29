@@ -34,7 +34,7 @@ class GenerateAnnualRecapAction
     public function execute(User $user): void
     {
         // user must have a verified email address, and not be banned.
-        if (!$user->EmailAddress || !$user->isEmailVerified() || $user->isBanned()) {
+        if (!$user->email || !$user->isEmailVerified() || $user->isBanned()) {
             return;
         }
 
@@ -77,7 +77,7 @@ class GenerateAnnualRecapAction
         $this->summarizeDevelopment($recapData, $user, $startDate, $endDate);
 
         // send email
-        Mail::to($user->EmailAddress)->queue(
+        Mail::to($user->email)->queue(
             new AnnualRecapMail($user, $recapData)
         );
     }
@@ -511,7 +511,7 @@ class GenerateAnnualRecapAction
         $recapData['achievementsCreated'] = 0;
         $recapData['completedClaims'] = 0;
 
-        if (!$user->ContribCount) {
+        if (!$user->yield_unlocks) {
             return;
         }
 

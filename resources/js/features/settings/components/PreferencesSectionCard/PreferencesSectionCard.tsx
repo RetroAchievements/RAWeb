@@ -8,15 +8,15 @@ import { PreferencesSwitchField } from './PreferencesSwitchField';
 import { usePreferencesSectionForm } from './usePreferencesSectionForm';
 
 interface PreferencesSectionCardProps {
-  currentWebsitePrefs: number;
+  currentPreferencesBitfield: number;
 }
 
 export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
-  currentWebsitePrefs,
+  currentPreferencesBitfield,
 }) => {
   const { t } = useTranslation();
 
-  const { form, mutation, onSubmit } = usePreferencesSectionForm(currentWebsitePrefs);
+  const { form, mutation, onSubmit } = usePreferencesSectionForm(currentPreferencesBitfield);
 
   return (
     <SectionFormCard

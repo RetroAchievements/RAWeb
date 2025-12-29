@@ -55,10 +55,10 @@ class CrawlPlayerWeightedPoints extends Command
 
         // Get the next batch of users to be processed.
         $users = User::query()
-            ->where('ID', '>', $lastProcessedUserId)
-            ->where('TrueRAPoints', '>=', Rank::MIN_TRUE_POINTS) // this filters out hundreds of thousands of users
+            ->where('id', '>', $lastProcessedUserId)
+            ->where('points_weighted', '>=', Rank::MIN_TRUE_POINTS) // this filters out hundreds of thousands of users
             ->whereNull('unranked_at')
-            ->orderBy('ID')
+            ->orderBy('id')
             ->limit($batchSize)
             ->get();
 
@@ -81,13 +81,13 @@ class CrawlPlayerWeightedPoints extends Command
         Cache::put(self::CACHE_KEY, $lastUserId, self::CACHE_TTL);
 
         $this->info("Batch completed. Processed up to user ID: {$lastUserId}.");
-        $this->info("Updated {$this->numUpdatedUsers} users' TrueRAPoints values.");
+        $this->info("Updated {$this->numUpdatedUsers} users' points_weighted values.");
         $this->info("Processed {$this->numProcessedPlayerGames} player_games records.");
 
         // Check if there are any more users to process.
         $remainingCount = User::query()
-            ->where('ID', '>', $lastUserId)
-            ->where('TrueRAPoints', '>=', Rank::MIN_TRUE_POINTS)
+            ->where('id', '>', $lastUserId)
+            ->where('points_weighted', '>=', Rank::MIN_TRUE_POINTS)
             ->whereNull('unranked_at')
             ->count();
 
@@ -106,13 +106,13 @@ class CrawlPlayerWeightedPoints extends Command
         }
 
         $this->info("Updating user [{$user->id}:{$user->display_name}].");
-        $this->info("Current weighted points: {$user->TrueRAPoints}.");
+        $this->info("Current weighted points: {$user->points_weighted}.");
 
         $this->updateUserWeightedPoints($user);
 
         if ($this->numUpdatedUsers > 0) {
             $user->refresh();
-            $this->info("New weighted points: {$user->TrueRAPoints}.");
+            $this->info("New weighted points: {$user->points_weighted}.");
         }
 
         $this->info("Done.");
@@ -158,8 +158,8 @@ class CrawlPlayerWeightedPoints extends Command
         $totalWeightedPoints = (int) $totalWeightedPoints;
 
         // Only update if the value has changed.
-        if ($user->TrueRAPoints !== $totalWeightedPoints) {
-            $user->TrueRAPoints = $totalWeightedPoints;
+        if ($user->points_weighted !== $totalWeightedPoints) {
+            $user->points_weighted = $totalWeightedPoints;
             $user->saveQuietly();
 
             $this->numUpdatedUsers++;

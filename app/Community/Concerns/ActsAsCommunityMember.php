@@ -75,7 +75,7 @@ trait ActsAsCommunityMember
      */
     public function gameListEntries(?UserGameListType $type = null): HasMany
     {
-        $query = $this->hasMany(UserGameListEntry::class, 'user_id', 'ID');
+        $query = $this->hasMany(UserGameListEntry::class, 'user_id', 'id');
 
         if ($type !== null) {
             $query->where(DB::raw('SetRequest.type'), $type);
@@ -152,7 +152,7 @@ trait ActsAsCommunityMember
             !$this->isForumVerified()
             && $this->points === 0
             && $this->points_softcore === 0
-            && $this->Created > now()->subWeeks(2) // account is less than 2 weeks old
+            && $this->created_at > now()->subWeeks(2) // account is less than 2 weeks old
         ;
     }
 
@@ -183,7 +183,7 @@ trait ActsAsCommunityMember
 
     public function isDeleted(): bool
     {
-        return !empty($this->Deleted);
+        return !empty($this->deleted_at);
     }
 
     public function isBanned(): bool
@@ -205,7 +205,7 @@ trait ActsAsCommunityMember
     {
         $inactiveCutoff = now()->subDays($thresholdDays);
 
-        return $this->LastLogin < $inactiveCutoff;
+        return $this->last_activity_at < $inactiveCutoff;
     }
 
     public function isMuted(): bool
@@ -281,7 +281,7 @@ trait ActsAsCommunityMember
      */
     public function emailConfirmations(): HasMany
     {
-        return $this->hasMany(EmailConfirmation::class, 'user_id', 'ID');
+        return $this->hasMany(EmailConfirmation::class, 'user_id', 'id');
     }
 
     /**
@@ -294,7 +294,7 @@ trait ActsAsCommunityMember
 
     public function getUnreadMessagesCountAttribute(): int
     {
-        return (int) ($this->attributes['UnreadMessageCount'] ?? 0);
+        return (int) ($this->attributes['unread_messages'] ?? 0);
     }
 
     /**
@@ -302,7 +302,7 @@ trait ActsAsCommunityMember
      */
     public function forumPosts(): HasMany
     {
-        return $this->hasMany(ForumTopicComment::class, 'author_id', 'ID');
+        return $this->hasMany(ForumTopicComment::class, 'author_id', 'id');
     }
 
     /**
@@ -310,7 +310,7 @@ trait ActsAsCommunityMember
      */
     public function subscriptions(): HasMany
     {
-        return $this->hasMany(Subscription::class, 'user_id', 'ID');
+        return $this->hasMany(Subscription::class, 'user_id', 'id');
     }
 
     /**
@@ -318,6 +318,6 @@ trait ActsAsCommunityMember
      */
     public function usernameRequests(): HasMany
     {
-        return $this->hasMany(UserUsername::class, 'user_id', 'ID');
+        return $this->hasMany(UserUsername::class, 'user_id', 'id');
     }
 }

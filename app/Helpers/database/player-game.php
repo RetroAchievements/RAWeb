@@ -23,15 +23,15 @@ function getGameRankAndScore(int $gameID, User $user): array
     }
 
     $query = "WITH data
-    AS (SELECT ua.User, ua.ulid AS ULID, $rankClause, pg.Points AS TotalScore, $dateClause AS LastAward
+    AS (SELECT ua.username AS User, ua.ulid AS ULID, $rankClause, pg.Points AS TotalScore, $dateClause AS LastAward
         FROM player_games AS pg
-        INNER JOIN UserAccounts AS ua ON ua.ID = pg.user_id
+        INNER JOIN users AS ua ON ua.id = pg.user_id
         WHERE pg.game_id = $gameID $untrackedClause
-        GROUP BY ua.User
+        GROUP BY ua.username
         ORDER BY TotalScore DESC, LastAward ASC
    ) SELECT * FROM data WHERE User = :username";
 
-    return legacyDbFetchAll($query, ['username' => $user->User])->toArray();
+    return legacyDbFetchAll($query, ['username' => $user->username])->toArray();
 }
 
 function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements = -1, bool $withGameInfo = false): array
@@ -44,7 +44,7 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
     $lockedAchievements = [];
 
     $games = Game::with('system')->whereIn('ID', $gameIDs)->get()->keyBy('ID');
-    $playerGames = PlayerGame::where('user_id', '=', $user->ID)
+    $playerGames = PlayerGame::where('user_id', '=', $user->id)
         ->whereIn('game_id', $gameIDs)
         ->get()
         ->keyBy('game_id');
@@ -358,8 +358,8 @@ function getUsersCompletedGamesAndMax(string $user, ?int $limit = null, bool $is
             FROM player_games AS pg
             LEFT JOIN GameData AS gd ON gd.ID = pg.game_id
             LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-            LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
-            WHERE (ua.User = :user OR ua.display_name = :user2)
+            LEFT JOIN users ua ON ua.id = pg.user_id
+            WHERE (ua.username = :user OR ua.display_name = :user2)
             AND gd.achievements_published > $minAchievementsForCompletion
             $excludeCompletedClause
             ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.Title

@@ -14,7 +14,7 @@ use App\Platform\Enums\AchievementFlag;
 ])
 
 @if (empty($sessions))
-    <p>{{ $user->User }} has not played {{ $game->Title }}.</p>
+    <p>{{ $user->username }} has not played {{ $game->Title }}.</p>
 @else
     <div class="overflow-x-auto lg:overflow-x-visible">
         <table class="do-not-highlight mb-4">

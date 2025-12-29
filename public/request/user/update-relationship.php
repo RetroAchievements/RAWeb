@@ -12,7 +12,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetail)) {
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'user' => 'required|string|exists:UserAccounts,display_name',
+    'user' => 'required|string|exists:users,display_name',
     'action' => ['required', 'integer', Rule::in(UserRelationship::cases())],
 ]);
 

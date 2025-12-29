@@ -38,7 +38,7 @@ class UnlocksTest extends TestCase
         $this->associateAchievementSetToGameAction = new AssociateAchievementSetToGameAction();
 
         /** @var User $user */
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $this->user = $user;
     }
 

@@ -22,8 +22,8 @@ class FollowedUserLeaderboardService
     {
         $followedUsers = $user->followedUsers()
             ->where(function ($query) {
-                $query->where('RAPoints', '>', 0)
-                    ->orWhere('RASoftcorePoints', '>', 0);
+                $query->where('points', '>', 0)
+                    ->orWhere('points_softcore', '>', 0);
             })
             ->with(['playerStats' => function ($query) {
                 $types = [

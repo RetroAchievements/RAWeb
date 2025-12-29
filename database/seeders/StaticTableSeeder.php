@@ -30,8 +30,8 @@ class StaticTableSeeder extends Seeder
 
         $points = User::tracked()
             ->select([
-                DB::raw('SUM(RAPoints) AS HardcorePoints'),
-                DB::raw('SUM(RASoftcorePoints) AS SoftcorePoints'),
+                DB::raw('SUM(points) AS HardcorePoints'),
+                DB::raw('SUM(points_softcore) AS SoftcorePoints'),
             ])
             ->first();
 
@@ -43,7 +43,7 @@ class StaticTableSeeder extends Seeder
             'TotalPointsEarned' => $points['HardcorePoints'] + $points['SoftcorePoints'],
             'LastAchievementEarnedID' => $lastUnlock?->achievement_id ?? $achievement->id,
             'LastAchievementEarnedByUser' => $lastUnlock?->user_id ?? $user->id,
-            'LastRegisteredUser' => $user->User,
+            'LastRegisteredUser' => $user->username,
             'LastUpdatedGameID' => $game->id,
             'LastUpdatedAchievementID' => $achievement->id,
             'LastCreatedGameID' => $game->id,

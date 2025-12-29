@@ -20,12 +20,12 @@ class ClearAccountDataAction
     public function execute(User $user): void
     {
         // disable account access while we destroy it (prevents creating new records during delete)
-        DB::statement("UPDATE UserAccounts SET
-            Password = null,
-            SaltedPass = '',
-            appToken = null,
-            APIKey = null
-            WHERE ID = :userId", ['userId' => $user->ID]
+        DB::statement("UPDATE users SET
+            password = null,
+            legacy_salted_password = '',
+            connect_token = null,
+            web_api_key = null
+            WHERE id = :userId", ['userId' => $user->id]
         );
 
         // TODO $user->activities()->delete();
@@ -52,42 +52,42 @@ class ClearAccountDataAction
             $deleteMessageThreadAction->execute($participation->thread, $user);
         }
 
-        DB::statement("UPDATE UserAccounts SET
-            Password = null,
-            SaltedPass = '',
-            EmailAddress = '',
+        DB::statement("UPDATE users SET
+            password = null,
+            legacy_salted_password = '',
+            email = '',
             email_verified_at = null,
             Permissions = :permissions,
-            appToken = null,
-            appTokenExpiry = null,
-            websitePrefs = 0,
-            LastLogin = null,
+            connect_token = null,
+            connect_token_expires_at = null,
+            preferences_bitfield = 0,
+            last_activity_at = null,
             ManuallyVerified = 0,
             forum_verified_at = null,
-            Motto = '',
+            motto = '',
             Untracked = 1,
             unranked_at = :now2,
-            APIKey = null,
-            UserWallActive = 0,
-            LastGameID = 0,
-            RichPresenceMsg = null,
-            RichPresenceMsgDate = null,
-            Deleted = :now
-            WHERE ID = :userId",
+            web_api_key = null,
+            is_user_wall_active = 0,
+            last_game_id = 0,
+            rich_presence = null,
+            rich_presence_updated_at = null,
+            deleted_at = :now
+            WHERE id = :userId",
             [
                 // Cap permissions to 0 - negative values may stay
                 'permissions' => min($user->Permissions, Permissions::Unregistered),
-                'userId' => $user->ID,
+                'userId' => $user->id,
                 'now' => Carbon::now(),
                 'now2' => Carbon::now(),
             ]
         );
 
         // TODO use DeleteAvatarAction as soon as media library is in place
-        removeAvatar($user->User);
+        removeAvatar($user->username);
 
         UserDeleted::dispatch($user);
-        UnrankedUser::firstOrCreate(['user_id' => $user->ID]);
+        UnrankedUser::firstOrCreate(['user_id' => $user->id]);
 
         // Recalculate top entries for leaderboards that were affected by the deletion.
         $recalculateLeaderboardTopEntryAction = new RecalculateLeaderboardTopEntryAction();
@@ -95,6 +95,6 @@ class ClearAccountDataAction
             $recalculateLeaderboardTopEntryAction->execute($leaderboardId);
         }
 
-        Log::info("Cleared account data: {$user->User} [{$user->ID}]");
+        Log::info("Cleared account data: {$user->username} [{$user->id}]");
     }
 }

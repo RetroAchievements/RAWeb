@@ -73,7 +73,7 @@ class UserCard extends Component
     private function buildAllCardViewValues(string $username, array $rawUserData): array
     {
         $cardBioData = $this->buildCardBioData($rawUserData);
-        $cardRankData = $this->buildCardRankData($username, $rawUserData['RAPoints'], $rawUserData['RASoftcorePoints'] ?? 0, $rawUserData['Untracked'] ? true : false);
+        $cardRankData = $this->buildCardRankData($username, $rawUserData['points'], $rawUserData['points_softcore'] ?? 0, $rawUserData['Untracked'] ? true : false);
         $cardRoleData = $this->buildCardRoleData($username, $rawUserData['visibleRoleName'], $rawUserData['isBanned'], $rawUserData['isMuted']);
 
         return array_merge($cardBioData, $cardRankData, $cardRoleData);
@@ -81,16 +81,16 @@ class UserCard extends Component
 
     private function buildCardBioData(array $rawUserData): array
     {
-        $username = $rawUserData['display_name'] ?? $rawUserData['User'] ?? "";
-        $motto = $rawUserData['Motto'] && !$rawUserData['isMuted'] ? $rawUserData['Motto'] : null;
+        $username = $rawUserData['display_name'] ?? $rawUserData['username'] ?? "";
+        $motto = $rawUserData['motto'] && !$rawUserData['isMuted'] ? $rawUserData['motto'] : null;
         $avatarUrl = $rawUserData['avatarUrl'] ?? null;
-        $hardcorePoints = $rawUserData['RAPoints'] ?? 0;
-        $softcorePoints = $rawUserData['RASoftcorePoints'] ?? 0;
-        $retroPoints = $rawUserData['TrueRAPoints'] ?? 0;
+        $hardcorePoints = $rawUserData['points'] ?? 0;
+        $softcorePoints = $rawUserData['points_softcore'] ?? 0;
+        $retroPoints = $rawUserData['points_weighted'] ?? 0;
         $isUntracked = $rawUserData['Untracked'] ? true : false;
         $permissions = $rawUserData['Permissions'] ?? Permissions::Unregistered;
-        $memberSince = $rawUserData['Created'] ?? Carbon::now();
-        $lastActivity = $rawUserData['LastLogin'] ? Carbon::parse($rawUserData['LastLogin'])->diffForHumans() : null;
+        $memberSince = $rawUserData['created_at'] ?? Carbon::now();
+        $lastActivity = $rawUserData['last_activity_at'] ? Carbon::parse($rawUserData['last_activity_at'])->diffForHumans() : null;
 
         return compact(
             'username',

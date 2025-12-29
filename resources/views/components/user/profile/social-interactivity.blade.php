@@ -12,7 +12,7 @@ use App\Community\Enums\UserRelationship;
     $myFriendshipType = $me ? $me->getRelationship($user) : UserRelationship::NotFollowing;
 @endphp
 
-@if ($me && $me->User !== $user->User)
+@if ($me && $me->username !== $user->username)
     <div class="flex items-center gap-x-1">
         @if ($myFriendshipType !== UserRelationship::Blocked)
             <form action="/request/user/update-relationship.php" method="POST">

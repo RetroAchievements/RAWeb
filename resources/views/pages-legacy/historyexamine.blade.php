@@ -19,8 +19,8 @@ $userPage = $userDetails->display_name;
 
 $dateInput = (int) request()->input('d', 0);
 
-$userPageHardcorePoints = $userDetails->RAPoints;
-$userPageSoftcorePoints = $userDetails->RASoftcorePoints;
+$userPageHardcorePoints = $userDetails->points;
+$userPageSoftcorePoints = $userDetails->points_softcore;
 
 $achEarnedOnDay = getAchievementsEarnedOnDay($dateInput, $userDetails);
 
@@ -46,7 +46,7 @@ $dateStr = strftime("%d %b %Y", $dateInput);
     echo "<h3>History</h3>";
 
     echo "<div>";
-    echo "<img src='" . media_asset('/UserPic/' . $userDetails['User'] . '.png') . "' alt='$userPage' align='right' width='64' height='64'>";
+    echo "<img src='" . media_asset('/UserPic/' . $userDetails->username . '.png') . "' alt='$userPage' align='right' width='64' height='64'>";
     echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ";
 
     if ($userPageHardcorePoints > 0) {

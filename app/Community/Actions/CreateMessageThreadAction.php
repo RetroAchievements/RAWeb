@@ -28,7 +28,7 @@ class CreateMessageThreadAction
         $thread->save();
 
         $participantFrom = new MessageThreadParticipant([
-            'user_id' => $userFrom->ID,
+            'user_id' => $userFrom->id,
             'thread_id' => $thread->id,
         ]);
 
@@ -38,9 +38,9 @@ class CreateMessageThreadAction
 
         $participantFrom->save();
 
-        if ($userTo->ID != $userFrom->ID) {
+        if ($userTo->id != $userFrom->id) {
             $participantTo = new MessageThreadParticipant([
-                'user_id' => $userTo->ID,
+                'user_id' => $userTo->id,
                 'thread_id' => $thread->id,
             ]);
 

@@ -40,7 +40,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create();
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => 99999, 'u' => $user->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => 99999, 'u' => $user->username]))
             ->assertNotFound()
             ->assertJson(['Game not found']);
     }
@@ -56,7 +56,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->username]))
             ->assertUnprocessable()
             ->assertJson(['Game has no leaderboards']);
     }
@@ -75,7 +75,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         $leaderboard = Leaderboard::factory()->create(['GameID' => $game->ID]);
         $leaderboard->delete();
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->username]))
             ->assertUnprocessable()
             ->assertJson(['Game has no leaderboards']);
     }
@@ -93,7 +93,7 @@ class GetUserGameLeaderboardsTest extends TestCase
 
         Leaderboard::factory()->create(['GameID' => $game->ID]);
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->username]))
             ->assertUnprocessable()
             ->assertJson(['User has no leaderboards on this game']);
     }
@@ -113,12 +113,12 @@ class GetUserGameLeaderboardsTest extends TestCase
 
         $leaderboardEntry = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'score' => 1,
         ]);
         $leaderboardEntry->delete();
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->username]))
             ->assertUnprocessable()
             ->assertJson(['User has no leaderboards on this game']);
     }
@@ -141,22 +141,22 @@ class GetUserGameLeaderboardsTest extends TestCase
             'LowerIsBetter' => true,
         ]);
 
-        $userOne = User::factory()->create(['User' => 'myUser1']);
+        $userOne = User::factory()->create(['username' => 'myUser1']);
         $leaderboardEntryOne = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $userOne->ID,
+            'user_id' => $userOne->id,
             'score' => 100,
         ]);
         $leaderboardEntryOne->delete();
 
-        $userTwo = User::factory()->create(['User' => 'myUser2']);
+        $userTwo = User::factory()->create(['username' => 'myUser2']);
         $leaderboardEntryTwo = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $userTwo->ID,
+            'user_id' => $userTwo->id,
             'score' => 200,
         ]);
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userTwo->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userTwo->username]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 1,
@@ -169,7 +169,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboard->Description,
                         'Format' => $leaderboard->Format,
                         'UserEntry' => [
-                            'User' => $userTwo->User,
+                            'User' => $userTwo->username,
                             'Score' => $leaderboardEntryTwo->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->Format),
                             'Rank' => 1,
@@ -196,11 +196,11 @@ class GetUserGameLeaderboardsTest extends TestCase
 
        LeaderboardEntry::factory()->create([
            'leaderboard_id' => $leaderboard->ID,
-           'user_id' => $user->ID,
+           'user_id' => $user->id,
            'score' => 1,
        ]);
 
-       $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User]))
+       $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->username]))
            ->assertUnprocessable()
            ->assertJson(['User has no leaderboards on this game']);
     }
@@ -223,14 +223,14 @@ class GetUserGameLeaderboardsTest extends TestCase
             'LowerIsBetter' => true,
         ]);
 
-        $user = User::factory()->create(['User' => 'myUser1']);
+        $user = User::factory()->create(['username' => 'myUser1']);
         $leaderboardEntry = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'score' => 1,
         ]);
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 1,
@@ -243,7 +243,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboard->Description,
                         'Format' => $leaderboard->Format,
                         'UserEntry' => [
-                            'User' => $user->User,
+                            'User' => $user->username,
                             'Score' => $leaderboardEntry->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntry->score, $leaderboard->Format),
                             'Rank' => 1,
@@ -272,10 +272,10 @@ class GetUserGameLeaderboardsTest extends TestCase
             'LowerIsBetter' => true,
         ]);
 
-        $user = User::factory()->create(['User' => 'myUser1']);
+        $user = User::factory()->create(['username' => 'myUser1']);
         $leaderboardEntry = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'score' => 1,
         ]);
 
@@ -292,7 +292,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboard->Description,
                         'Format' => $leaderboard->Format,
                         'UserEntry' => [
-                            'User' => $user->User,
+                            'User' => $user->username,
                             'Score' => $leaderboardEntry->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntry->score, $leaderboard->Format),
                             'Rank' => 1,
@@ -329,20 +329,20 @@ class GetUserGameLeaderboardsTest extends TestCase
             'LowerIsBetter' => true,
         ]);
 
-        $user = User::factory()->create(['User' => 'myUser1']);
+        $user = User::factory()->create(['username' => 'myUser1']);
         $leaderboardOneEntry = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboardOne->ID,
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'score' => 1,
         ]);
 
         $leaderboardTwoEntry = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboardTwo->ID,
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'score' => 1,
         ]);
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 2,
@@ -355,7 +355,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboardOne->Description,
                         'Format' => $leaderboardOne->Format,
                         'UserEntry' => [
-                            'User' => $user->User,
+                            'User' => $user->username,
                             'Score' => $leaderboardOneEntry->score,
                             'FormattedScore' => ValueFormat::format($leaderboardOneEntry->score, $leaderboardOne->Format),
                             'Rank' => 1,
@@ -369,7 +369,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboardTwo->Description,
                         'Format' => $leaderboardTwo->Format,
                         'UserEntry' => [
-                            'User' => $user->User,
+                            'User' => $user->username,
                             'Score' => $leaderboardTwoEntry->score,
                             'FormattedScore' => ValueFormat::format($leaderboardTwoEntry->score, $leaderboardTwo->Format),
                             'Rank' => 1,
@@ -414,26 +414,26 @@ class GetUserGameLeaderboardsTest extends TestCase
             'LowerIsBetter' => true,
         ]);
 
-        $user = User::factory()->create(['User' => 'myUser1']);
+        $user = User::factory()->create(['username' => 'myUser1']);
         $leaderboardOneEntry = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboardOne->ID,
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'score' => 1,
         ]);
 
         $leaderboardTwoEntry = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboardTwo->ID,
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'score' => 1,
         ]);
 
         $leaderboardThreeEntry = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboardThree->ID,
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'score' => 1,
         ]);
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User, 'o' => 0, 'c' => 2]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->username, 'o' => 0, 'c' => 2]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 2,
@@ -446,7 +446,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboardOne->Description,
                         'Format' => $leaderboardOne->Format,
                         'UserEntry' => [
-                            'User' => $user->User,
+                            'User' => $user->username,
                             'Score' => $leaderboardOneEntry->score,
                             'FormattedScore' => ValueFormat::format($leaderboardOneEntry->score, $leaderboardOne->Format),
                             'Rank' => 1,
@@ -460,7 +460,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboardTwo->Description,
                         'Format' => $leaderboardTwo->Format,
                         'UserEntry' => [
-                            'User' => $user->User,
+                            'User' => $user->username,
                             'Score' => $leaderboardTwoEntry->score,
                             'FormattedScore' => ValueFormat::format($leaderboardTwoEntry->score, $leaderboardTwo->Format),
                             'Rank' => 1,
@@ -470,7 +470,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                 ],
             ]);
 
-            $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User, 'o' => 1, 'c' => 1]))
+            $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->username, 'o' => 1, 'c' => 1]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 1,
@@ -483,7 +483,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboardTwo->Description,
                         'Format' => $leaderboardTwo->Format,
                         'UserEntry' => [
-                            'User' => $user->User,
+                            'User' => $user->username,
                             'Score' => $leaderboardTwoEntry->score,
                             'FormattedScore' => ValueFormat::format($leaderboardTwoEntry->score, $leaderboardTwo->Format),
                             'Rank' => 1,
@@ -493,7 +493,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                 ],
             ]);
 
-            $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User, 'o' => 2, 'c' => 1]))
+            $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->username, 'o' => 2, 'c' => 1]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 1,
@@ -506,7 +506,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboardThree->Description,
                         'Format' => $leaderboardThree->Format,
                         'UserEntry' => [
-                            'User' => $user->User,
+                            'User' => $user->username,
                             'Score' => $leaderboardThreeEntry->score,
                             'FormattedScore' => ValueFormat::format($leaderboardThreeEntry->score, $leaderboardThree->Format),
                             'Rank' => 1,
@@ -535,21 +535,21 @@ class GetUserGameLeaderboardsTest extends TestCase
             'LowerIsBetter' => true,
         ]);
 
-        $userOne = User::factory()->create(['User' => 'myUser1']);
+        $userOne = User::factory()->create(['username' => 'myUser1']);
         $leaderboardEntryOne = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $userOne->ID,
+            'user_id' => $userOne->id,
             'score' => 100,
         ]);
 
-        $userTwo = User::factory()->create(['User' => 'myUser2']);
+        $userTwo = User::factory()->create(['username' => 'myUser2']);
         $leaderboardEntryTwo = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $userTwo->ID,
+            'user_id' => $userTwo->id,
             'score' => 200,
         ]);
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userOne->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userOne->username]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 1,
@@ -562,7 +562,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboard->Description,
                         'Format' => $leaderboard->Format,
                         'UserEntry' => [
-                            'User' => $userOne->User,
+                            'User' => $userOne->username,
                             'Score' => $leaderboardEntryOne->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryOne->score, $leaderboard->Format),
                             'Rank' => 1,
@@ -572,7 +572,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                 ],
             ]);
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userTwo->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userTwo->username]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 1,
@@ -585,7 +585,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboard->Description,
                         'Format' => $leaderboard->Format,
                         'UserEntry' => [
-                            'User' => $userTwo->User,
+                            'User' => $userTwo->username,
                             'Score' => $leaderboardEntryTwo->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->Format),
                             'Rank' => 2,
@@ -614,21 +614,21 @@ class GetUserGameLeaderboardsTest extends TestCase
             'LowerIsBetter' => false,
         ]);
 
-        $userOne = User::factory()->create(['User' => 'myUser1']);
+        $userOne = User::factory()->create(['username' => 'myUser1']);
         $leaderboardEntryOne = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $userOne->ID,
+            'user_id' => $userOne->id,
             'score' => 100,
         ]);
 
-        $userTwo = User::factory()->create(['User' => 'myUser2']);
+        $userTwo = User::factory()->create(['username' => 'myUser2']);
         $leaderboardEntryTwo = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $userTwo->ID,
+            'user_id' => $userTwo->id,
             'score' => 200,
         ]);
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userOne->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userOne->username]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 1,
@@ -641,7 +641,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboard->Description,
                         'Format' => $leaderboard->Format,
                         'UserEntry' => [
-                            'User' => $userOne->User,
+                            'User' => $userOne->username,
                             'Score' => $leaderboardEntryOne->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryOne->score, $leaderboard->Format),
                             'Rank' => 2,
@@ -651,7 +651,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                 ],
             ]);
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userTwo->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userTwo->username]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 1,
@@ -664,7 +664,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboard->Description,
                         'Format' => $leaderboard->Format,
                         'UserEntry' => [
-                            'User' => $userTwo->User,
+                            'User' => $userTwo->username,
                             'Score' => $leaderboardEntryTwo->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->Format),
                             'Rank' => 1,
@@ -693,28 +693,28 @@ class GetUserGameLeaderboardsTest extends TestCase
             'LowerIsBetter' => true,
         ]);
 
-        $userOne = User::factory()->create(['User' => 'myUser1']);
+        $userOne = User::factory()->create(['username' => 'myUser1']);
         LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $userOne->ID,
+            'user_id' => $userOne->id,
             'score' => 100,
         ]);
 
-        $userTwo = User::factory()->create(['User' => 'myUser2', 'unranked_at' => Carbon::now(), 'Untracked' => 1]);
+        $userTwo = User::factory()->create(['username' => 'myUser2', 'unranked_at' => Carbon::now(), 'Untracked' => 1]);
         LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $userTwo->ID,
+            'user_id' => $userTwo->id,
             'score' => 200,
         ]);
 
-        $userThree = User::factory()->create(['User' => 'myUser3']);
+        $userThree = User::factory()->create(['username' => 'myUser3']);
         $leaderboardEntryThree = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $userThree->ID,
+            'user_id' => $userThree->id,
             'score' => 300,
         ]);
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userThree->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userThree->username]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 1,
@@ -727,7 +727,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboard->Description,
                         'Format' => $leaderboard->Format,
                         'UserEntry' => [
-                            'User' => $userThree->User,
+                            'User' => $userThree->username,
                             'Score' => $leaderboardEntryThree->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryThree->score, $leaderboard->Format),
                             'Rank' => 2,
@@ -756,42 +756,42 @@ class GetUserGameLeaderboardsTest extends TestCase
             'LowerIsBetter' => true,
         ]);
 
-        $userOne = User::factory()->create(['User' => 'myUser1']);
+        $userOne = User::factory()->create(['username' => 'myUser1']);
         LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $userOne->ID,
+            'user_id' => $userOne->id,
             'score' => 100,
         ]);
 
-        $userTwo = User::factory()->create(['User' => 'myUser2']);
+        $userTwo = User::factory()->create(['username' => 'myUser2']);
         $leaderboardEntryTwo = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $userTwo->ID,
+            'user_id' => $userTwo->id,
             'score' => 200,
         ]);
 
-        $userThree = User::factory()->create(['User' => 'myUser3']);
+        $userThree = User::factory()->create(['username' => 'myUser3']);
         $leaderboardEntryThree = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $userThree->ID,
+            'user_id' => $userThree->id,
             'score' => 200,
         ]);
 
-        $userFour = User::factory()->create(['User' => 'myUser4']);
+        $userFour = User::factory()->create(['username' => 'myUser4']);
         $leaderboardEntryFour = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $userFour->ID,
+            'user_id' => $userFour->id,
             'score' => 300,
         ]);
 
-        $userFive = User::factory()->create(['User' => 'myUser5']);
+        $userFive = User::factory()->create(['username' => 'myUser5']);
         LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
-            'user_id' => $userFive->ID,
+            'user_id' => $userFive->id,
             'score' => 400,
         ]);
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userTwo->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userTwo->username]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 1,
@@ -804,7 +804,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboard->Description,
                         'Format' => $leaderboard->Format,
                         'UserEntry' => [
-                            'User' => $userTwo->User,
+                            'User' => $userTwo->username,
                             'Score' => $leaderboardEntryTwo->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->Format),
                             'Rank' => 2,
@@ -814,7 +814,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                 ],
             ]);
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userThree->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userThree->username]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 1,
@@ -827,7 +827,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboard->Description,
                         'Format' => $leaderboard->Format,
                         'UserEntry' => [
-                            'User' => $userThree->User,
+                            'User' => $userThree->username,
                             'Score' => $leaderboardEntryThree->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryThree->score, $leaderboard->Format),
                             'Rank' => 2,
@@ -837,7 +837,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                 ],
             ]);
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userFour->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $userFour->username]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 1,
@@ -850,7 +850,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $leaderboard->Description,
                         'Format' => $leaderboard->Format,
                         'UserEntry' => [
-                            'User' => $userFour->User,
+                            'User' => $userFour->username,
                             'Score' => $leaderboardEntryFour->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryFour->score, $leaderboard->Format),
                             'Rank' => 4,
@@ -888,21 +888,21 @@ class GetUserGameLeaderboardsTest extends TestCase
             'deleted_at' => now(),
         ]);
 
-        $user = User::factory()->create(['User' => 'testUser']);
+        $user = User::factory()->create(['username' => 'testUser']);
 
         // ... create entries for both leaderboards ...
         $activeEntry = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $activeLeaderboard->ID,
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'score' => 100,
         ]);
         LeaderboardEntry::factory()->create([
             'leaderboard_id' => $deletedLeaderboard->ID,
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'score' => 200,
         ]);
 
-        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->User]))
+        $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->ID, 'u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 1,
@@ -915,7 +915,7 @@ class GetUserGameLeaderboardsTest extends TestCase
                         'Description' => $activeLeaderboard->Description,
                         'Format' => $activeLeaderboard->Format,
                         'UserEntry' => [ // !! just one entry, for the non-deleted leaderboard
-                            'User' => $user->User,
+                            'User' => $user->username,
                             'Score' => $activeEntry->score,
                             'FormattedScore' => ValueFormat::format($activeEntry->score, $activeLeaderboard->Format),
                             'Rank' => 1,

@@ -78,8 +78,8 @@ class ResumePlayerSessionAction
         // As best as we can, we'll try to only write once to the user model.
         $doesUserNeedsUpdate = false;
 
-        if ($user->LastGameID !== $game->id) {
-            $user->LastGameID = $game->id;
+        if ($user->last_game_id !== $game->id) {
+            $user->last_game_id = $game->id;
             $doesUserNeedsUpdate = true;
         }
 
@@ -118,8 +118,8 @@ class ResumePlayerSessionAction
 
                         if (!$isBackdated) {
                             // TODO deprecated, read from last player_sessions entry where needed
-                            $user->RichPresenceMsg = $presence;
-                            $user->RichPresenceMsgDate = $timestamp;
+                            $user->rich_presence = $presence;
+                            $user->rich_presence_updated_at = $timestamp;
                             $doesUserNeedsUpdate = true;
 
                             // Update the player's game_recent_players table entry.
@@ -171,8 +171,8 @@ class ResumePlayerSessionAction
         }
 
         // TODO deprecated, read from last player_sessions entry where needed
-        $user->RichPresenceMsg = utf8_sanitize($presence);
-        $user->RichPresenceMsgDate = Carbon::now();
+        $user->rich_presence = utf8_sanitize($presence);
+        $user->rich_presence_updated_at = Carbon::now();
         $user->saveQuietly();
 
         // create new session
@@ -241,7 +241,7 @@ class ResumePlayerSessionAction
                 ->whereNull('completed_at')
                 ->increment('time_taken', $adjustment);
 
-            if ($playerSession->hardcore || $playerGame->user->RAPoints > $playerGame->user->RASoftcorePoints) {
+            if ($playerSession->hardcore || $playerGame->user->points > $playerGame->user->points_softcore) {
                 $baseQuery->clone()
                     ->whereNull('completed_hardcore_at')
                     ->increment('time_taken_hardcore', $adjustment);

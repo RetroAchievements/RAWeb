@@ -34,7 +34,7 @@ class SharedAuthorStrategy implements GameSuggestionStrategy
             ->where('Flags', AchievementFlag::OfficialCore->value)
             ->select('user_id')
             ->selectRaw('COUNT(*) as achievement_count')
-            ->with(['developer:ID,User'])
+            ->with(['developer:id,username'])
             ->groupBy('user_id')
             ->orderByDesc('achievement_count')
             ->first();

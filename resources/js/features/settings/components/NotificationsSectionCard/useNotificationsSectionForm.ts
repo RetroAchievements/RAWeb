@@ -34,7 +34,7 @@ export function useNotificationsSectionForm(websitePrefs: number) {
   const onSubmit = (formValues: FormValues) => {
     const newWebsitePrefs = convertObjectToWebsitePrefs(formValues);
 
-    toastMessage.promise(mutation.mutateAsync({ payload: { websitePrefs: newWebsitePrefs } }), {
+    toastMessage.promise(mutation.mutateAsync({ payload: { preferencesBitfield: newWebsitePrefs } }), {
       loading: t('Updating...'),
       success: () => {
         router.reload();

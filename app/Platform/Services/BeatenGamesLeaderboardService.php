@@ -98,7 +98,7 @@ class BeatenGamesLeaderboardService
     {
         // Fetch all the usernames for the current page.
         $userIds = $rankingRows->pluck('user_id')->unique();
-        $usernames = User::whereIn('ID', $userIds)->get(['ID', 'User'])->keyBy('ID');
+        $usernames = User::whereIn('id', $userIds)->get(['id', 'username'])->keyBy('id');
 
         // Fetch all the game metadata for the current page.
         $gameIds = $rankingRows->pluck('last_game_id')->unique()->filter();
@@ -110,7 +110,7 @@ class BeatenGamesLeaderboardService
 
         // Stitch all the fetched metadata back onto the rankings.
         $rankingRows->transform(function ($ranking) use ($usernames, $gameData, $consoleData) {
-            $ranking->User = $usernames[$ranking->user_id]->User ?? null;
+            $ranking->User = $usernames[$ranking->user_id]->username ?? null;
             $ranking->GameTitle = $gameData[$ranking->last_game_id]->Title ?? null;
             $ranking->GameIcon = $gameData[$ranking->last_game_id]->ImageIcon ?? null;
 

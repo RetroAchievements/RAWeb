@@ -105,8 +105,8 @@ foreach ($playerAchievements as $playerAchievement) {
     $unlocks[] = [
         'User' => $playerAchievement->user->display_name,
         'ULID' => $playerAchievement->user->ulid,
-        'RAPoints' => $playerAchievement->user->RAPoints,
-        'RASoftcorePoints' => $playerAchievement->user->RASoftcorePoints,
+        'RAPoints' => $playerAchievement->user->points,
+        'RASoftcorePoints' => $playerAchievement->user->points_softcore,
         'HardcoreMode' => $playerAchievement->unlocked_hardcore_at !== null ? 1 : 0,
         'DateAwarded' => $playerAchievement->unlocked_hardcore_at ?? $playerAchievement->unlocked_at,
     ];

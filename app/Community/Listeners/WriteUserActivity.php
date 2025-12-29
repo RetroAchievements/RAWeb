@@ -114,7 +114,7 @@ class WriteUserActivity
             /*
             * update last activity timestamp regardless of whether an activity was stored as some might have been suppressed
             */
-            $user->LastLogin = Carbon::now();
+            $user->last_activity_at = Carbon::now();
             $user->saveQuietly();
         }
     }

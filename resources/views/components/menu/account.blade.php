@@ -28,7 +28,7 @@ $user = request()->user();
 @auth
     <div class="nav-link flex-col justify-center items-end text-2xs" style="line-height: 1.1em">
         @if($user->points_softcore && $user->points_softcore > $user->points)
-            <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->RASoftcorePoints) }}</div>
+            <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->points_softcore) }}</div>
         @endif
 
         @if($user->points)
@@ -42,7 +42,7 @@ $user = request()->user();
         @endif
 
         @if($user->points_softcore && $user->points_softcore <= $user->points)
-            <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->RASoftcorePoints) }}</div>
+            <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->points_softcore) }}</div>
         @endif
     </div>
     <x-nav-dropdown trigger-class="py-0" dropdown-class="dropdown-menu-right" :desktopHref="route('user.show', $user)">
@@ -57,18 +57,18 @@ $user = request()->user();
             <x-dropdown-item :href="route('game-list.play.index')">Want to Play Games</x-dropdown-item>
             <x-dropdown-item :href="route('game.suggestions.personalized')">Game Suggestions</x-dropdown-item>
         @endif
-        @if($user->ContribCount > 0 || $user->Permissions >= Permissions::JuniorDeveloper)
+        @if($user->yield_unlocks > 0 || $user->Permissions >= Permissions::JuniorDeveloper)
             <div class="dropdown-divider"></div>
-            @if($user->ContribCount > 0)
+            @if($user->yield_unlocks > 0)
                 <x-dropdown-item :href="url('individualdevstats.php?u=' . $user->display_name)">Developer Profile</x-dropdown-item>
             @endif
             @if($user->Permissions >= Permissions::Developer)
                 <x-dropdown-item :href="url('gameList.php?t=develop&f=2')">Want to Develop Games</x-dropdown-item>
             @endif
-            @if($user->ContribCount > 0)
+            @if($user->yield_unlocks > 0)
                 <x-dropdown-item :href="route('user.achievement-author.feed', ['user' => $user->display_name])">Feed</x-dropdown-item>
             @endif
-            @if($user->ContribCount > 0)
+            @if($user->yield_unlocks > 0)
                 <x-dropdown-item :href="route('developer.tickets', ['user' => $user->display_name])">Tickets</x-dropdown-item>
                 <x-dropdown-item :href="route('developer.sets', ['user' => $user->display_name])">Sets</x-dropdown-item>
             @endif

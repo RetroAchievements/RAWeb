@@ -38,7 +38,7 @@ class AchievementMaintainerUnlock extends BaseModel
      */
     public function maintainer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'maintainer_id', 'ID');
+        return $this->belongsTo(User::class, 'maintainer_id');
     }
 
     /**

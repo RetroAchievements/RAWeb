@@ -48,26 +48,26 @@ class UserSummaryTest extends TestCase
     public function testGetUserSummaryNoGameHistoryByName(): void
     {
         // user with no game history should have no points
-        $this->user->RAPoints = 0;
-        $this->user->RASoftcorePoints = 0;
+        $this->user->points = 0;
+        $this->user->points_softcore = 0;
         $this->user->save();
 
-        $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->User])) // !!
+        $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->username])) // !!
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $this->user->ID,
-                'TotalPoints' => $this->user->RAPoints,
-                'TotalSoftcorePoints' => $this->user->RASoftcorePoints,
-                'TotalTruePoints' => $this->user->TrueRAPoints,
+                'ID' => $this->user->id,
+                'TotalPoints' => $this->user->points,
+                'TotalSoftcorePoints' => $this->user->points_softcore,
+                'TotalTruePoints' => $this->user->points_weighted,
                 'Permissions' => $this->user->Permissions,
                 'MemberSince' => $this->user->created_at->__toString(),
                 'Untracked' => $this->user->Untracked,
                 'ULID' => $this->user->ulid,
-                'UserPic' => '/UserPic/' . $this->user->User . '.png',
-                'Motto' => $this->user->Motto,
-                'UserWallActive' => $this->user->UserWallActive,
-                'ContribCount' => $this->user->ContribCount,
-                'ContribYield' => $this->user->ContribYield,
+                'UserPic' => '/UserPic/' . $this->user->username . '.png',
+                'Motto' => $this->user->motto,
+                'UserWallActive' => $this->user->is_user_wall_active,
+                'ContribCount' => $this->user->yield_unlocks,
+                'ContribYield' => $this->user->yield_points,
                 'Rank' => null,
                 'TotalRanked' => 0,
                 'LastGameID' => null,
@@ -81,26 +81,26 @@ class UserSummaryTest extends TestCase
     public function testGetUserSummaryNoGameHistoryByUlid(): void
     {
         // user with no game history should have no points
-        $this->user->RAPoints = 0;
-        $this->user->RASoftcorePoints = 0;
+        $this->user->points = 0;
+        $this->user->points_softcore = 0;
         $this->user->save();
 
         $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->ulid])) // !!
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $this->user->ID,
-                'TotalPoints' => $this->user->RAPoints,
-                'TotalSoftcorePoints' => $this->user->RASoftcorePoints,
-                'TotalTruePoints' => $this->user->TrueRAPoints,
+                'ID' => $this->user->id,
+                'TotalPoints' => $this->user->points,
+                'TotalSoftcorePoints' => $this->user->points_softcore,
+                'TotalTruePoints' => $this->user->points_weighted,
                 'Permissions' => $this->user->Permissions,
                 'MemberSince' => $this->user->created_at->__toString(),
                 'Untracked' => $this->user->Untracked,
                 'ULID' => $this->user->ulid,
-                'UserPic' => '/UserPic/' . $this->user->User . '.png',
-                'Motto' => $this->user->Motto,
-                'UserWallActive' => $this->user->UserWallActive,
-                'ContribCount' => $this->user->ContribCount,
-                'ContribYield' => $this->user->ContribYield,
+                'UserPic' => '/UserPic/' . $this->user->username . '.png',
+                'Motto' => $this->user->motto,
+                'UserWallActive' => $this->user->is_user_wall_active,
+                'ContribCount' => $this->user->yield_unlocks,
+                'ContribYield' => $this->user->yield_points,
                 'Rank' => null,
                 'TotalRanked' => 0,
                 'LastGameID' => null,
@@ -145,12 +145,12 @@ class UserSummaryTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'TrueRAPoints' => random_int(10000, 20000),
-            'Motto' => 'I play games.',
-            'ContribCount' => random_int(10, 500),
-            'ContribYield' => random_int(50, 1000),
-            'Created' => Carbon::now()->subMonths(2),
-            'LastLogin' => Carbon::now()->subDays(5),
+            'points_weighted' => random_int(10000, 20000),
+            'motto' => 'I play games.',
+            'yield_unlocks' => random_int(10, 500),
+            'yield_points' => random_int(50, 1000),
+            'created_at' => Carbon::now()->subMonths(2),
+            'last_activity_at' => Carbon::now()->subDays(5),
         ]);
         $game2 = $this->seedGame();
         $game2->fill([
@@ -190,7 +190,7 @@ class UserSummaryTest extends TestCase
 
         // addHardcoreUnlock will create a player_game for game. need to manually create one for game2
         $playerGame2 = new PlayerGame([
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'game_id' => $game2->ID,
             'created_at' => Carbon::now()->subDays(1),
             'last_played_at' => Carbon::now()->subMinutes(5),
@@ -199,30 +199,30 @@ class UserSummaryTest extends TestCase
 
         // ensure $user has enough points to be ranked
         $user->refresh();
-        $user['RAPoints'] = random_int(Rank::MIN_POINTS, 10000);
+        $user['points'] = random_int(Rank::MIN_POINTS, 10000);
         $user->save();
 
         // make sure $this->user is ranked higher than $user
-        $this->user->RAPoints = 1_234_567;
+        $this->user->points = 1_234_567;
         $this->user->save();
 
         // default parameters returns no games
-        $this->get($this->apiUrl('GetUserSummary', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserSummary', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $user->ID,
-                'TotalPoints' => $user->RAPoints,
-                'TotalSoftcorePoints' => $user->RASoftcorePoints,
-                'TotalTruePoints' => $user->TrueRAPoints,
+                'ID' => $user->id,
+                'TotalPoints' => $user->points,
+                'TotalSoftcorePoints' => $user->points_softcore,
+                'TotalTruePoints' => $user->points_weighted,
                 'Permissions' => $user->Permissions,
                 'MemberSince' => $user->created_at->__toString(),
                 'Untracked' => $user->Untracked,
                 'ULID' => $user->ulid,
-                'UserPic' => '/UserPic/' . $user->User . '.png',
-                'Motto' => $user->Motto,
-                'UserWallActive' => $user->UserWallActive,
-                'ContribCount' => $user->ContribCount,
-                'ContribYield' => $user->ContribYield,
+                'UserPic' => '/UserPic/' . $user->username . '.png',
+                'Motto' => $user->motto,
+                'UserWallActive' => $user->is_user_wall_active,
+                'ContribCount' => $user->yield_unlocks,
+                'ContribYield' => $user->yield_points,
                 'Rank' => 2,
                 'TotalRanked' => 2, // $this->user and $user
                 'LastGameID' => $game->id,
@@ -235,7 +235,7 @@ class UserSummaryTest extends TestCase
                     'timestamp' => null,
                     'lastupdate' => null,
                     'activitytype' => null,
-                    'User' => $user->User,
+                    'User' => $user->username,
                     'data' => null,
                     'data2' => null,
                 ],
@@ -245,22 +245,22 @@ class UserSummaryTest extends TestCase
             ->assertSee('"RecentAchievements":{},', false);
 
         // request more games than are available
-        $this->get($this->apiUrl('GetUserSummary', ['u' => $user->User, 'g' => 5]))
+        $this->get($this->apiUrl('GetUserSummary', ['u' => $user->username, 'g' => 5]))
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $user->ID,
-                'TotalPoints' => $user->RAPoints,
-                'TotalSoftcorePoints' => $user->RASoftcorePoints,
-                'TotalTruePoints' => $user->TrueRAPoints,
+                'ID' => $user->id,
+                'TotalPoints' => $user->points,
+                'TotalSoftcorePoints' => $user->points_softcore,
+                'TotalTruePoints' => $user->points_weighted,
                 'Permissions' => $user->Permissions,
                 'MemberSince' => $user->created_at->__toString(),
                 'Untracked' => $user->Untracked,
                 'ULID' => $user->ulid,
-                'UserPic' => '/UserPic/' . $user->User . '.png',
-                'Motto' => $user->Motto,
+                'UserPic' => '/UserPic/' . $user->username . '.png',
+                'Motto' => $user->motto,
                 'UserWallActive' => 1,
-                'ContribCount' => $user->ContribCount,
-                'ContribYield' => $user->ContribYield,
+                'ContribCount' => $user->yield_unlocks,
+                'ContribYield' => $user->yield_points,
                 'Rank' => 2,
                 'TotalRanked' => 2, // $this->user and $user
                 'LastGameID' => $game->id,
@@ -315,7 +315,7 @@ class UserSummaryTest extends TestCase
                     'timestamp' => null,
                     'lastupdate' => null,
                     'activitytype' => null,
-                    'User' => $user->User,
+                    'User' => $user->username,
                     'data' => null,
                     'data2' => null,
                 ],
@@ -359,22 +359,22 @@ class UserSummaryTest extends TestCase
             ]);
 
         // repeat the call, but only ask for one game
-        $this->get($this->apiUrl('GetUserSummary', ['u' => $user->User, 'g' => 1]))
+        $this->get($this->apiUrl('GetUserSummary', ['u' => $user->username, 'g' => 1]))
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $user->ID,
-                'TotalPoints' => $user->RAPoints,
-                'TotalSoftcorePoints' => $user->RASoftcorePoints,
-                'TotalTruePoints' => $user->TrueRAPoints,
+                'ID' => $user->id,
+                'TotalPoints' => $user->points,
+                'TotalSoftcorePoints' => $user->points_softcore,
+                'TotalTruePoints' => $user->points_weighted,
                 'Permissions' => $user->Permissions,
                 'MemberSince' => $user->created_at->__toString(),
                 'Untracked' => $user->Untracked,
                 'ULID' => $user->ulid,
-                'UserPic' => '/UserPic/' . $user->User . '.png',
-                'Motto' => $user->Motto,
-                'UserWallActive' => $user->UserWallActive,
-                'ContribCount' => $user->ContribCount,
-                'ContribYield' => $user->ContribYield,
+                'UserPic' => '/UserPic/' . $user->username . '.png',
+                'Motto' => $user->motto,
+                'UserWallActive' => $user->is_user_wall_active,
+                'ContribCount' => $user->yield_unlocks,
+                'ContribYield' => $user->yield_points,
                 'Rank' => 2,
                 'TotalRanked' => 2, // $this->user and $user
                 'LastGameID' => $game->id,
@@ -416,7 +416,7 @@ class UserSummaryTest extends TestCase
                     'timestamp' => null,
                     'lastupdate' => null,
                     'activitytype' => null,
-                    'User' => $user->User,
+                    'User' => $user->username,
                     'data' => null,
                     'data2' => null,
                 ],
@@ -474,10 +474,10 @@ class UserSummaryTest extends TestCase
 
         $this->addHardcoreUnlock($this->user, $publishedAchievements2->get(2), $now->clone()->subMinutes(90));
 
-        $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->User, 'g' => 5, 'a' => 2]))
+        $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->username, 'g' => 5, 'a' => 2]))
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $this->user->ID,
+                'ID' => $this->user->id,
                 'Awarded' => [
                     $game->ID => [
                         'NumPossibleAchievements' => 7,
@@ -507,10 +507,10 @@ class UserSummaryTest extends TestCase
             ->assertJsonCount(2, "RecentAchievements.{$game->ID}");
 
         // user only has 6 unlocks, so return all of them, and nothing more
-        $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->User, 'g' => 5, 'a' => 7]))
+        $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->username, 'g' => 5, 'a' => 7]))
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $this->user->ID,
+                'ID' => $this->user->id,
                 'Awarded' => [
                     $game->ID => [
                         'NumPossibleAchievements' => 7,

@@ -33,7 +33,7 @@ class UserModerationCommentControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::DEVELOPER);
         $this->actingAs($user);
 
@@ -52,7 +52,7 @@ class UserModerationCommentControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::MODERATOR);
         $this->actingAs($user);
 
@@ -71,11 +71,11 @@ class UserModerationCommentControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::MODERATOR);
         $this->actingAs($user);
 
-        $user = User::factory()->create(['User' => 'Scott']);
+        $user = User::factory()->create(['username' => 'Scott']);
 
         // Act
         $response = $this->get(route('user.moderation-comment.index', ['user' => $user]));
