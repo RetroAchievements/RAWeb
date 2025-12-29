@@ -26,11 +26,7 @@ export const PlayerBadgeLabel: FC<PlayerBadgeLabelProps> = ({
     <span
       className={cn(
         isColorized
-          ? buildAwardLabelColorClassNames(
-              playerBadge.awardType,
-              playerBadge.awardTier,
-              variant,
-            )
+          ? buildAwardLabelColorClassNames(playerBadge.awardType, playerBadge.awardTier, variant)
           : undefined,
         className,
       )}
