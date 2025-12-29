@@ -50,11 +50,11 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
 
     protected function assertPointBadgeTier(User $user, int $expectedTier, ?int $displayOrder = null): void
     {
-        $badge = $user->playerBadges()->where('award_type', AwardType::AchievementPointsYield)->orderBy('award_data', 'DESC')->first();
+        $badge = $user->playerBadges()->where('award_type', AwardType::AchievementPointsYield)->orderBy('award_key', 'DESC')->first();
         if ($expectedTier === 0) {
             $this->assertNull($badge);
         } else {
-            $this->assertGreaterThanOrEqual($badge?->award_data, $expectedTier);
+            $this->assertGreaterThanOrEqual($badge?->award_key, $expectedTier);
         }
 
         if ($displayOrder !== null) {
@@ -210,7 +210,7 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         $this->assertEquals(10000, $author->ContribYield);
         $this->assertPointBadgeTier($author, 3, 1);
 
-        $badges = $author->playerBadges()->where('award_type', AwardType::AchievementPointsYield)->orderBy('award_data', 'DESC')->get();
+        $badges = $author->playerBadges()->where('award_type', AwardType::AchievementPointsYield)->orderBy('award_key', 'DESC')->get();
         $this->assertEquals($now, $badges->get(0)->awarded_at); // non-backfilled always set to now
         $this->assertEquals($date3, $badges->get(1)->awarded_at); // backfilled should have extrapolated date
         $this->assertEquals($date2, $badges->get(2)->awarded_at); // backfilled should have extrapolated date

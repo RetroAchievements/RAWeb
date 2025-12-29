@@ -182,7 +182,7 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
             ->first();
 
         $this->assertNotNull($badge);
-        $this->assertEquals(0, $badge->award_data); // !! first tier (1000 points) is stored as 0
+        $this->assertEquals(0, $badge->award_key); // !! first tier (1000 points) is stored as 0
     }
 
     public function testItDoesNotDuplicateBadges(): void
@@ -195,7 +195,7 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         PlayerBadge::create([
             'user_id' => $developer->id,
             'award_type' => AwardType::AchievementPointsYield,
-            'award_data' => 0,
+            'award_key' => 0,
             'order_column' => 1,
         ]);
 
@@ -219,7 +219,7 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         // ... only one badge should exist ...
         $badgeCount = PlayerBadge::where('user_id', $developer->id)
             ->where('award_type', AwardType::AchievementPointsYield)
-            ->where('award_data', 0)
+            ->where('award_key', 0)
             ->count();
 
         $this->assertEquals(1, $badgeCount);
@@ -338,7 +338,7 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         PlayerBadge::create([
             'user_id' => $developer->id,
             'award_type' => AwardType::AchievementPointsYield,
-            'award_data' => 0, // First tier (1000 points)
+            'award_key' => 0, // First tier (1000 points)
             'order_column' => 1,
         ]);
 
@@ -387,7 +387,7 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         // ... should still only have ONE badge, no duplicates ...
         $badgeCount = PlayerBadge::where('user_id', $developer->id)
             ->where('award_type', AwardType::AchievementPointsYield)
-            ->where('award_data', 0)
+            ->where('award_key', 0)
             ->count();
 
         $this->assertEquals(1, $badgeCount);

@@ -49,7 +49,7 @@ describe('Component: TopAchieversList', () => {
             score: 753,
             badge: createPlayerBadge({
               awardType: 'mastery',
-              awardDataExtra: 1,
+              awardTier: 1,
               awardDate: '2024-11-01 05:55:55',
             }),
           }),
@@ -76,7 +76,7 @@ describe('Component: TopAchieversList', () => {
             score: 222,
             badge: createPlayerBadge({
               awardType: 'game_beaten',
-              awardDataExtra: 1,
+              awardTier: 1,
               awardDate: '2024-11-01 05:55:55',
             }),
           }),

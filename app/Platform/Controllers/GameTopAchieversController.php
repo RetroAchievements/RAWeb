@@ -71,15 +71,15 @@ class GameTopAchieversController extends Controller
             if ($playerGame->completed_hardcore_at) {
                 $badge = new PlayerBadgeData(
                     awardType: AwardType::Mastery,
-                    awardData: $game->id,
-                    awardDataExtra: 1,
+                    awardKey: $game->id,
+                    awardTier: 1,
                     awardDate: $playerGame->completed_hardcore_at,
                 );
             } elseif ($playerGame->beaten_hardcore_at) {
                 $badge = new PlayerBadgeData(
                     awardType: AwardType::GameBeaten,
-                    awardData: $game->id,
-                    awardDataExtra: 1,
+                    awardKey: $game->id,
+                    awardTier: 1,
                     awardDate: $playerGame->beaten_hardcore_at,
                 );
             }

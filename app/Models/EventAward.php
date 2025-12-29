@@ -30,8 +30,8 @@ class EventAward extends BaseModel
     {
         return PlayerBadge::query()
             ->where('award_type', AwardType::Event)
-            ->where('award_data', $this->event_id)
-            ->where('award_data_extra', $this->tier_index)
+            ->where('award_key', $this->event_id)
+            ->where('award_tier', $this->tier_index)
             ->whereHas('user', function ($query) {
                 /** @var Builder<User> $query */
                 $query->tracked();
@@ -55,8 +55,8 @@ class EventAward extends BaseModel
     {
         return $this->belongsToMany(User::class, 'user_awards', 'id', 'user_id')
             ->wherePivot('award_type', AwardType::Event)
-            ->wherePivot('award_data', $this->event_id)
-            ->wherePivot('award_data_extra', $this->tier_index)
+            ->wherePivot('award_key', $this->event_id)
+            ->wherePivot('award_tier', $this->tier_index)
             ->withPivot(['awarded_at'])
             ->using(PlayerBadge::class);
     }
@@ -80,22 +80,22 @@ class EventAward extends BaseModel
      */
     public function playerBadges(): HasMany
     {
-        $relation = $this->hasMany(PlayerBadge::class, 'award_data_extra', 'tier_index')
+        $relation = $this->hasMany(PlayerBadge::class, 'award_tier', 'tier_index')
             ->select([
                 'user_awards.id',
                 'user_awards.awarded_at',
                 'user_awards.user_id',
-                'user_awards.award_data_extra',
-                'user_awards.award_data',
+                'user_awards.award_tier',
+                'user_awards.award_key',
             ])
             ->where('award_type', AwardType::Event);
 
         // Look up the correct `event_id` using a subquery since we can't access
         // `$this->event_id` during relationship build time.
-        $relation->getQuery()->whereIn('award_data', function ($query) {
+        $relation->getQuery()->whereIn('award_key', function ($query) {
             $query->select('event_id')
                 ->from('event_awards')
-                ->whereColumn('tier_index', DB::raw('user_awards.award_data_extra'));
+                ->whereColumn('tier_index', DB::raw('user_awards.award_tier'));
         });
 
         return $relation;

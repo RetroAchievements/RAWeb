@@ -322,7 +322,7 @@ class GenerateAnnualRecapAction
                 AwardType::AchievementPointsYield,
                 AwardType::CertifiedLegend,
             ])
-            ->join('GameData', 'GameData.ID', '=', 'award_data')
+            ->join('GameData', 'GameData.ID', '=', 'award_key')
             ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
             ->get();
 
@@ -341,15 +341,15 @@ class GenerateAnnualRecapAction
         foreach ($awards as $award) {
             switch ($award->award_type) {
                 case AwardType::Mastery:
-                    $awardType = ($award->award_data_extra === 1) ? $MASTERED : $COMPLETED;
+                    $awardType = ($award->award_tier === 1) ? $MASTERED : $COMPLETED;
                     break;
 
                 case AwardType::GameBeaten:
-                    $awardType = ($award->award_data_extra === 1) ? $BEATEN : $BEATENSOFTCORE;
+                    $awardType = ($award->award_tier === 1) ? $BEATEN : $BEATENSOFTCORE;
                     break;
 
                 case AwardType::Event:
-                    $eventIds[] = $award->award_data;
+                    $eventIds[] = $award->award_key;
                     $awardType = $OTHER;
                     break;
 
@@ -360,8 +360,8 @@ class GenerateAnnualRecapAction
             }
 
             if ($awardType !== $OTHER) {
-                if (!array_key_exists($award->award_data, $bestAwards) || $awardType < $bestAwards[$award->award_data]) {
-                    $bestAwards[$award->award_data] = $awardType;
+                if (!array_key_exists($award->award_key, $bestAwards) || $awardType < $bestAwards[$award->award_key]) {
+                    $bestAwards[$award->award_key] = $awardType;
                 }
             }
         }

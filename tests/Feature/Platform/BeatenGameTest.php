@@ -219,8 +219,8 @@ class BeatenGameTest extends TestCase
         $this->assertNotNull(
             $user->playerBadges()
                 ->where('award_type', AwardType::GameBeaten)
-                ->where('award_data', $game->id)
-                ->where('award_data_extra', UnlockMode::Softcore)
+                ->where('award_key', $game->id)
+                ->where('award_tier', UnlockMode::Softcore)
                 ->where('awarded_at', Carbon::now()->subMinutes(10))
                 ->first()
         );
@@ -247,8 +247,8 @@ class BeatenGameTest extends TestCase
         $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
         $this->assertNotNull(PlayerBadge::where('user_id', $user->id)
             ->where('award_type', AwardType::GameBeaten)
-            ->where('award_data', $game->id)
-            ->where('award_data_extra', UnlockMode::Hardcore)
+            ->where('award_key', $game->id)
+            ->where('award_tier', UnlockMode::Hardcore)
             ->where('awarded_at', Carbon::now()->subMinutes(20))
             ->first()
         );
@@ -316,8 +316,8 @@ class BeatenGameTest extends TestCase
         $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
         $this->assertNotNull(PlayerBadge::where('user_id', $user->id)
             ->where('award_type', AwardType::GameBeaten)
-            ->where('award_data', $game->id)
-            ->where('award_data_extra', UnlockMode::Softcore)
+            ->where('award_key', $game->id)
+            ->where('award_tier', UnlockMode::Softcore)
             ->where('awarded_at', Carbon::now()->subMinutes(10))
             ->first()
         );
@@ -327,8 +327,8 @@ class BeatenGameTest extends TestCase
         $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
         $this->assertNotNull(PlayerBadge::where('user_id', $user->id)
             ->where('award_type', AwardType::GameBeaten)
-            ->where('award_data', $game->id)
-            ->where('award_data_extra', UnlockMode::Hardcore)
+            ->where('award_key', $game->id)
+            ->where('award_tier', UnlockMode::Hardcore)
             ->where('awarded_at', Carbon::now()->subMinutes(5))
             ->first()
         );
@@ -386,8 +386,8 @@ class BeatenGameTest extends TestCase
         $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
         $this->assertNotNull(PlayerBadge::where('user_id', $user->id)
             ->where('award_type', AwardType::GameBeaten)
-            ->where('award_data', $game->id)
-            ->where('award_data_extra', UnlockMode::Hardcore)
+            ->where('award_key', $game->id)
+            ->where('award_tier', UnlockMode::Hardcore)
             ->where('awarded_at', Carbon::now()->subHours(3))
             ->first()
         );
@@ -410,8 +410,8 @@ class BeatenGameTest extends TestCase
         $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
         $this->assertNotNull(PlayerBadge::where('user_id', $user->id)
             ->where('award_type', AwardType::GameBeaten)
-            ->where('award_data', $game->id)
-            ->where('award_data_extra', UnlockMode::Hardcore)
+            ->where('award_key', $game->id)
+            ->where('award_tier', UnlockMode::Hardcore)
             ->where('awarded_at', Carbon::now()->subHours(12))
             ->first()
         );
@@ -452,8 +452,8 @@ class BeatenGameTest extends TestCase
 
         $this->assertNotNull(PlayerBadge::where('user_id', $user->id)
             ->where('award_type', AwardType::GameBeaten)
-            ->where('award_data', $game->id)
-            ->where('award_data_extra', UnlockMode::Hardcore)
+            ->where('award_key', $game->id)
+            ->where('award_tier', UnlockMode::Hardcore)
             ->where('awarded_at', Carbon::now()->subHours(1))
             ->first()
         );

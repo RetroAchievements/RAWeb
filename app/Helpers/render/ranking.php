@@ -136,7 +136,7 @@ function getGlobalRankingData(
     };
 
     if ($unlockMode == UnlockMode::Hardcore) {
-        $totalAwards = "SUM(IF(award_data_extra > 0, 1, 0))";
+        $totalAwards = "SUM(IF(award_tier > 0, 1, 0))";
     } else {
         $totalAwards = "COUNT(*)";
         $pointRequirement = "AND ua.RASoftcorePoints >= 0"; // if someone resets a softcore achievement without resetting the hardcore, the query can return negative points

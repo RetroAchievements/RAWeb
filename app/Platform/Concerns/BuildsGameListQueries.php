@@ -564,7 +564,7 @@ trait BuildsGameListQueries
     /**
      * Filter games based on the player's progress.
      *
-     * The user_awards.award_data_extra field is used to differentiate between softcore (0) and hardcore (1).
+     * The user_awards.award_tier field is used to differentiate between softcore (0) and hardcore (1).
      *
      * If the user is not provided (ie: they aren't logged in), no filtering will be performed.
      *
@@ -640,7 +640,7 @@ trait BuildsGameListQueries
                             ->where(function ($q) {
                                 $q->where(function ($q2) {
                                     $q2->where('user_awards.award_type', AwardType::GameBeaten)
-                                        ->where('user_awards.award_data_extra', UnlockMode::Hardcore);
+                                        ->where('user_awards.award_tier', UnlockMode::Hardcore);
                                 })
                                 ->orWhere('user_awards.award_type', AwardType::Mastery);
                             });
@@ -655,7 +655,7 @@ trait BuildsGameListQueries
                         $subQuery->whereExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
                                 ->where('user_awards.award_type', AwardType::GameBeaten)
-                                ->where('user_awards.award_data_extra', UnlockMode::Softcore);
+                                ->where('user_awards.award_tier', UnlockMode::Softcore);
                         })
                         ->whereNotExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
@@ -672,7 +672,7 @@ trait BuildsGameListQueries
                         $subQuery->whereExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
                                 ->where('user_awards.award_type', AwardType::GameBeaten)
-                                ->where('user_awards.award_data_extra', UnlockMode::Hardcore);
+                                ->where('user_awards.award_tier', UnlockMode::Hardcore);
                         })
                         ->whereNotExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
@@ -700,7 +700,7 @@ trait BuildsGameListQueries
                         $subQuery->whereExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
                                 ->where('user_awards.award_type', AwardType::Mastery)
-                                ->where('user_awards.award_data_extra', UnlockMode::Softcore);
+                                ->where('user_awards.award_tier', UnlockMode::Softcore);
                         });
                     });
                     break;
@@ -712,7 +712,7 @@ trait BuildsGameListQueries
                     $query->orWhereExists(function ($subQuery) use ($user) {
                         $this->baseAwardsQuery($user)($subQuery)
                             ->where('user_awards.award_type', AwardType::Mastery)
-                            ->where('user_awards.award_data_extra', UnlockMode::Hardcore);
+                            ->where('user_awards.award_tier', UnlockMode::Hardcore);
                     });
                     break;
 
@@ -730,7 +730,7 @@ trait BuildsGameListQueries
                                         // Find games where the user has softcore mastery (completion),
                                         // but softcore completion is <100%.
                                         $q2->where('user_awards.award_type', AwardType::Mastery)
-                                            ->where('user_awards.award_data_extra', UnlockMode::Softcore)
+                                            ->where('user_awards.award_tier', UnlockMode::Softcore)
                                             ->whereExists(function ($progress) use ($user) {
                                                 $this->baseProgressQuery($user)($progress)
                                                     ->where('player_games.completion_percentage', '<', 1);
@@ -739,7 +739,7 @@ trait BuildsGameListQueries
                                     ->orWhere(function ($q2) use ($user) {
                                         // Find games where the user has mastery, but completion is <100%.
                                         $q2->where('user_awards.award_type', AwardType::Mastery)
-                                            ->where('user_awards.award_data_extra', UnlockMode::Hardcore)
+                                            ->where('user_awards.award_tier', UnlockMode::Hardcore)
                                             ->whereExists(function ($progress) use ($user) {
                                                 $this->baseProgressQuery($user)($progress)
                                                     ->where('player_games.completion_percentage_hardcore', '<', 1);
@@ -774,7 +774,7 @@ trait BuildsGameListQueries
         return function ($query) use ($user) {
             return $query->select(DB::raw(1))
                 ->from('user_awards')
-                ->whereColumn('user_awards.award_data', 'GameData.ID')
+                ->whereColumn('user_awards.award_key', 'GameData.ID')
                 ->where('user_awards.user_id', $user->id);
         };
     }

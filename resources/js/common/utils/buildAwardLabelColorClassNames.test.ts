@@ -14,7 +14,7 @@ describe('Util: buildAwardLabelColorClassNames', () => {
     expect(result).toBeNull();
   });
 
-  it('given there is awardType, but no awardDataExtra, returns null', () => {
+  it('given there is awardType, but no awardTier, returns null', () => {
     // ACT
     const result = buildAwardLabelColorClassNames('mastery', undefined);
 

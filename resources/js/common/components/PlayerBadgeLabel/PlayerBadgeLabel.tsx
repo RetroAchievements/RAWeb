@@ -28,7 +28,7 @@ export const PlayerBadgeLabel: FC<PlayerBadgeLabelProps> = ({
         isColorized
           ? buildAwardLabelColorClassNames(
               playerBadge.awardType,
-              playerBadge.awardDataExtra,
+              playerBadge.awardTier,
               variant,
             )
           : undefined,

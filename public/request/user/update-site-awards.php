@@ -66,11 +66,11 @@ foreach ($awards as $award) {
     if (in_array($awardTypeEnum, [AwardType::AchievementUnlocksYield, AwardType::AchievementPointsYield])) {
         $query = "UPDATE user_awards SET order_column = $value WHERE user_id = $userId " .
             "AND award_type = '$awardTypeValue' " .
-            "AND award_data_extra = $awardDataExtra";
+            "AND award_tier = $awardDataExtra";
     } else {
         $query = "UPDATE user_awards SET order_column = $value WHERE user_id = $userId " .
             "AND award_type = '$awardTypeValue' " .
-            "AND award_data = $awardData";
+            "AND award_key = $awardData";
     }
 
     if (!s_mysql_query($query)) {

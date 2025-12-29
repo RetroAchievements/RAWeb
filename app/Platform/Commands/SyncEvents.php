@@ -635,32 +635,32 @@ class ConvertGame
     {
         // only convert hardcore badges
         $badges = PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $event->legacyGame->id)
-            ->where('award_data_extra', 1)
+            ->where('award_key', $event->legacyGame->id)
+            ->where('award_tier', 1)
             ->update([
                 'award_type' => AwardType::Event,
-                'award_data' => $event->id,
-                'award_data_extra' => 0,
+                'award_key' => $event->id,
+                'award_tier' => 0,
             ]);
 
         // delete softcore badges
         PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $event->legacyGame->id)
-            ->where('award_data_extra', 0)
+            ->where('award_key', $event->legacyGame->id)
+            ->where('award_tier', 0)
             ->delete();
     }
 
     public function captureBefore(int $gameId): array
     {
         $badges = PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $gameId)
-            ->orderBy('award_data_extra'); // force softcore awards first so they overwritten if the user also has a hardcore award
+            ->where('award_key', $gameId)
+            ->orderBy('award_tier'); // force softcore awards first so they overwritten if the user also has a hardcore award
 
         $before = [];
         foreach ($badges->get() as $badge) {
             $before[$badge->user_id] = [
                 'awarded_at' => $badge->awarded_at,
-                'award_data_extra' => ($badge->award_data_extra === 1) ? 0 : -1,
+                'award_tier' => ($badge->award_tier === 1) ? 0 : -1,
             ];
         }
 
@@ -688,13 +688,13 @@ class ConvertGame
         }
 
         $badges = PlayerBadge::where('award_type', AwardType::Event)
-            ->where('award_data', $event->id);
+            ->where('award_key', $event->id);
 
         $after = [];
         foreach ($badges->get() as $badge) {
             $after[$badge->user_id] = [
                 'awarded_at' => $badge->awarded_at,
-                'award_data_extra' => $badge->award_data_extra,
+                'award_tier' => $badge->award_tier,
             ];
         }
 
@@ -703,7 +703,7 @@ class ConvertGame
         $tierCounts = [];
         foreach ($before as $userId => $badge) {
             if (!array_key_exists($userId, $after)) {
-                if ($badge['award_data_extra'] !== -1) {
+                if ($badge['award_tier'] !== -1) {
                     $user = User::find($userId);
                     $command->error("Badge for user $userId ({$user->User}) lost in conversion.");
                     $result = false;
@@ -714,12 +714,12 @@ class ConvertGame
                 $badgeAfter = $after[$userId];
                 unset($after[$userId]);
 
-                if ($badge['award_data_extra'] != $badgeAfter['award_data_extra']) {
+                if ($badge['award_tier'] != $badgeAfter['award_tier']) {
                     $user = User::find($userId);
-                    if ($badge['award_data_extra'] === -1) {
+                    if ($badge['award_tier'] === -1) {
                         $command->error("Badge for user $userId ({$user->User}) was not deleted.");
                     } else {
-                        $command->error("Badge for user $userId ({$user->User}) does not have expected tier_index {$badge['award_data_extra']}. Found {$badgeAfter['award_data_extra']}.");
+                        $command->error("Badge for user $userId ({$user->User}) does not have expected tier_index {$badge['award_tier']}. Found {$badgeAfter['award_tier']}.");
                     }
                     $result = false;
                 } elseif ($badge['awarded_at'] != $badgeAfter['awarded_at']) {
@@ -730,13 +730,13 @@ class ConvertGame
                     $converted++;
                 }
 
-                $tierCounts[$badge['award_data_extra']] = ($tierCounts[$badge['award_data_extra']] ?? 0) + 1;
+                $tierCounts[$badge['award_tier']] = ($tierCounts[$badge['award_tier']] ?? 0) + 1;
             }
         }
 
         foreach ($after as $userId => $badge) {
             $user = User::find($userId);
-            $command->error("Badge for user $userId ({$user->User}) unexpected. Found tier {$badge['award_data_extra']}.");
+            $command->error("Badge for user $userId ({$user->User}) unexpected. Found tier {$badge['award_tier']}.");
             $result = false;
         }
 
@@ -1108,13 +1108,13 @@ class ConvertAprilFools extends ConvertGame
         $before = [];
 
         $badges = PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $gameId)
-            ->orderBy('award_data_extra'); // force softcore awards first so they overwritten if the user also has a hardcore award
+            ->where('award_key', $gameId)
+            ->orderBy('award_tier'); // force softcore awards first so they overwritten if the user also has a hardcore award
 
         foreach ($badges->get() as $badge) {
             $before[$badge->user_id] = [
                 'awarded_at' => $badge->awarded_at,
-                'award_data_extra' => 0,
+                'award_tier' => 0,
             ];
         }
 
@@ -1125,24 +1125,24 @@ class ConvertAprilFools extends ConvertGame
     {
         // delete softcore badges where hardcore badges exist
         $hardcoreBadgeUserIds = PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $event->legacyGame->id)
-            ->where('award_data_extra', 1)
+            ->where('award_key', $event->legacyGame->id)
+            ->where('award_tier', 1)
             ->pluck('user_id')
             ->toArray();
 
         PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $event->legacyGame->id)
-            ->where('award_data_extra', 0)
+            ->where('award_key', $event->legacyGame->id)
+            ->where('award_tier', 0)
             ->whereIn('user_id', $hardcoreBadgeUserIds)
             ->delete();
 
         // convert all remaining badges to hardcore event badges
         $badges = PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $event->legacyGame->id)
+            ->where('award_key', $event->legacyGame->id)
             ->update([
                 'award_type' => AwardType::Event,
-                'award_data' => $event->id,
-                'award_data_extra' => 0,
+                'award_key' => $event->id,
+                'award_tier' => 0,
             ]);
     }
 
@@ -1212,14 +1212,14 @@ class ConvertCollapseSoftcore extends ConvertGame
     public function captureBefore(int $gameId): array
     {
         $badges = PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $gameId)
-            ->orderBy('award_data_extra'); // force softcore awards first so they overwritten if the user also has a hardcore award
+            ->where('award_key', $gameId)
+            ->orderBy('award_tier'); // force softcore awards first so they overwritten if the user also has a hardcore award
 
         $before = [];
         foreach ($badges->get() as $badge) {
             $before[$badge->user_id] = [
                 'awarded_at' => $badge->awarded_at,
-                'award_data_extra' => ($badge->award_data_extra === 1) ? 2 : 1,
+                'award_tier' => ($badge->award_tier === 1) ? 2 : 1,
             ];
         }
 
@@ -1230,35 +1230,35 @@ class ConvertCollapseSoftcore extends ConvertGame
     {
         // delete softcore badges where hardcore badges exist
         $hardcoreBadgeUserIds = PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $event->legacyGame->id)
-            ->where('award_data_extra', 1)
+            ->where('award_key', $event->legacyGame->id)
+            ->where('award_tier', 1)
             ->pluck('user_id')
             ->toArray();
 
         PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $event->legacyGame->id)
-            ->where('award_data_extra', 0)
+            ->where('award_key', $event->legacyGame->id)
+            ->where('award_tier', 0)
             ->whereIn('user_id', $hardcoreBadgeUserIds)
             ->delete();
 
         // convert softcore badges to tier 1
         $badges = PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $event->legacyGame->id)
-            ->where('award_data_extra', 0)
+            ->where('award_key', $event->legacyGame->id)
+            ->where('award_tier', 0)
             ->update([
                 'award_type' => AwardType::Event,
-                'award_data' => $event->id,
-                'award_data_extra' => 1,
+                'award_key' => $event->id,
+                'award_tier' => 1,
             ]);
 
         // convert hardcore badges to tier 2
         $badges = PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $event->legacyGame->id)
-            ->where('award_data_extra', 1)
+            ->where('award_key', $event->legacyGame->id)
+            ->where('award_tier', 1)
             ->update([
                 'award_type' => AwardType::Event,
-                'award_data' => $event->id,
-                'award_data_extra' => 2,
+                'award_key' => $event->id,
+                'award_tier' => 2,
             ]);
     }
 
@@ -1409,13 +1409,13 @@ class ConvertToMergedTracked extends ConvertToTracked
         $tierIndex = 1;
         foreach ($this->tiers as $count => $tierGameId) {
             $badges = PlayerBadge::where('award_type', AwardType::Mastery)
-                ->where('award_data', $tierGameId)
-                ->orderBy('award_data_extra'); // force softcore awards first so they overwritten if the user also has a hardcore award
+                ->where('award_key', $tierGameId)
+                ->orderBy('award_tier'); // force softcore awards first so they overwritten if the user also has a hardcore award
 
             foreach ($badges->get() as $badge) {
                 $before[$badge->user_id] = [
                     'awarded_at' => $badge->awarded_at,
-                    'award_data_extra' => $tierIndex,
+                    'award_tier' => $tierIndex,
                 ];
             }
 
@@ -1455,17 +1455,17 @@ class ConvertToMergedTracked extends ConvertToTracked
             }
 
             PlayerBadge::where('award_type', AwardType::Mastery)
-                ->where('award_data', $gameId)
-                ->where('award_data_extra', 1)
+                ->where('award_key', $gameId)
+                ->where('award_tier', 1)
                 ->update([
                     'award_type' => AwardType::Event,
-                    'award_data' => $event->id,
-                    'award_data_extra' => $tier_index,
+                    'award_key' => $event->id,
+                    'award_tier' => $tier_index,
                 ]);
 
             PlayerBadge::where('award_type', AwardType::Mastery)
-                ->where('award_data', $gameId)
-                ->where('award_data_extra', 0)
+                ->where('award_key', $gameId)
+                ->where('award_tier', 0)
                 ->delete();
 
             $tier_index++;
@@ -1554,14 +1554,14 @@ class ConvertToTiered extends ConvertGame
     public function captureBefore(int $gameId): array
     {
         $badges = PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $gameId)
-            ->orderBy('award_data_extra'); // force softcore awards first so they overwritten if the user also has a hardcore award
+            ->where('award_key', $gameId)
+            ->orderBy('award_tier'); // force softcore awards first so they overwritten if the user also has a hardcore award
 
         $before = [];
         foreach ($badges->get() as $badge) {
             $before[$badge->user_id] = [
                 'awarded_at' => $badge->awarded_at,
-                'award_data_extra' => 0,
+                'award_tier' => 0,
             ];
         }
 
@@ -1580,7 +1580,7 @@ class ConvertToTiered extends ConvertGame
 
             foreach ($allUserIds as $userId) {
                 if (array_key_exists($userId, $before)) {
-                    $before[$userId]['award_data_extra'] = $before[$userId]['award_data_extra'] + 1;
+                    $before[$userId]['award_tier'] = $before[$userId]['award_tier'] + 1;
                 }
             }
 
@@ -1591,21 +1591,21 @@ class ConvertToTiered extends ConvertGame
         foreach ($before as $userId => &$badge) {
             $tier_index = 1;
             foreach ($this->tiers as $count => $label) {
-                if ($count === $badge['award_data_extra']) {
-                    $badge['award_data_extra'] = $tier_index;
+                if ($count === $badge['award_tier']) {
+                    $badge['award_tier'] = $tier_index;
                     break;
                 }
 
-                if ($count > $badge['award_data_extra']) {
-                    $badge['award_data_extra'] = $tier_index - 1;
+                if ($count > $badge['award_tier']) {
+                    $badge['award_tier'] = $tier_index - 1;
                     break;
                 }
 
                 $tier_index++;
             }
 
-            if ($badge['award_data_extra'] > count($this->tiers)) {
-                $badge['award_data_extra'] = count($this->tiers);
+            if ($badge['award_tier'] > count($this->tiers)) {
+                $badge['award_tier'] = count($this->tiers);
             }
         }
 
@@ -1655,11 +1655,11 @@ class ConvertToTiered extends ConvertGame
             if ($users === 'to_hardcore') {
                 // convert hardcore and softcore badge to tiered badge
                 PlayerBadge::where('award_type', AwardType::Mastery)
-                    ->where('award_data', $event->legacyGame->id)
+                    ->where('award_key', $event->legacyGame->id)
                     ->update([
                         'award_type' => AwardType::Event,
-                        'award_data' => $event->id,
-                        'award_data_extra' => $tier_index,
+                        'award_key' => $event->id,
+                        'award_tier' => $tier_index,
                     ]);
 
                 // copy softcore unlock time to hardcore unlock time and
@@ -1703,8 +1703,8 @@ class ConvertToTiered extends ConvertGame
 
         // delete any remaining badges
         PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $event->legacyGame->id)
-            ->where('award_data_extra', 0)
+            ->where('award_key', $event->legacyGame->id)
+            ->where('award_tier', 0)
             ->delete();
     }
 
@@ -1712,16 +1712,16 @@ class ConvertToTiered extends ConvertGame
     {
         // find hardcore badge
         $badge = PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $gameId)
-            ->where('award_data_extra', 1)
+            ->where('award_key', $gameId)
+            ->where('award_tier', 1)
             ->where('user_id', $userId)
             ->first();
 
         if (!$badge) {
             // hardcore badge not found, look for softcore badge
             $badge = PlayerBadge::where('award_type', AwardType::Mastery)
-                ->where('award_data', $gameId)
-                ->where('award_data_extra', 0)
+                ->where('award_key', $gameId)
+                ->where('award_tier', 0)
                 ->where('user_id', $userId)
                 ->first();
         }
@@ -1729,8 +1729,8 @@ class ConvertToTiered extends ConvertGame
         if ($badge) {
             // convert found badge
             $badge->award_type = AwardType::Event;
-            $badge->award_data = $event->id;
-            $badge->award_data_extra = $tier_index;
+            $badge->award_key = $event->id;
+            $badge->award_tier = $tier_index;
             $badge->save();
         }
     }
@@ -1757,12 +1757,12 @@ class ConvertToSoftcoreTiered extends ConvertGame
     {
         // softcore badge -> tier 1, hardcore badge -> tier 2
         $badges = PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $event->legacyGame->id);
+            ->where('award_key', $event->legacyGame->id);
 
         foreach ($badges->get() as $badge) {
             $badge->award_type = AwardType::Event;
-            $badge->award_data = $event->id;
-            $badge->award_data_extra = ($badge->award_data_extra === 1) ? 2 : 1;
+            $badge->award_key = $event->id;
+            $badge->award_tier = ($badge->award_tier === 1) ? 2 : 1;
             $badge->save();
         }
     }
@@ -1770,14 +1770,14 @@ class ConvertToSoftcoreTiered extends ConvertGame
     public function captureBefore(int $gameId): array
     {
         $badges = PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $gameId)
-            ->orderBy('award_data_extra'); // force softcore awards first so they overwritten if the user also has a hardcore award
+            ->where('award_key', $gameId)
+            ->orderBy('award_tier'); // force softcore awards first so they overwritten if the user also has a hardcore award
 
         $before = [];
         foreach ($badges->get() as $badge) {
             $before[$badge->user_id] = [
                 'awarded_at' => $badge->awarded_at,
-                'award_data_extra' => ($badge->award_data_extra === 1) ? 2 : 1,
+                'award_tier' => ($badge->award_tier === 1) ? 2 : 1,
             ];
         }
 
@@ -1906,13 +1906,13 @@ class ConvertToCollapsedTiered extends ConvertToTiered
         $tierIndex = 1;
         foreach ($this->tiers as $tierGameId => $title) {
             $badges = PlayerBadge::where('award_type', AwardType::Mastery)
-                ->where('award_data', $tierGameId)
-                ->orderBy('award_data_extra'); // force softcore awards first so they overwritten if the user also has a hardcore award
+                ->where('award_key', $tierGameId)
+                ->orderBy('award_tier'); // force softcore awards first so they overwritten if the user also has a hardcore award
 
             foreach ($badges->get() as $badge) {
                 $before[$badge->user_id] = [
                     'awarded_at' => $badge->awarded_at,
-                    'award_data_extra' => $tierIndex,
+                    'award_tier' => $tierIndex,
                 ];
             }
 
@@ -2038,8 +2038,8 @@ class ConvertToCollapsedTiered extends ConvertToTiered
 
         // delete any remaining badges
         PlayerBadge::where('award_type', AwardType::Mastery)
-            ->where('award_data', $event->legacyGame->id)
-            ->where('award_data_extra', 0)
+            ->where('award_key', $event->legacyGame->id)
+            ->where('award_tier', 0)
             ->delete();
 
         // ensure PlayerGame records exist for all specified users
@@ -2087,13 +2087,13 @@ class ConvertAotWTiered extends ConvertGame
         $tierIndex = 1;
         foreach ($this->tiers as $count => $tierGameId) {
             $badges = PlayerBadge::where('award_type', AwardType::Mastery)
-                ->where('award_data', $tierGameId)
-                ->orderBy('award_data_extra'); // force softcore awards first so they overwritten if the user also has a hardcore award
+                ->where('award_key', $tierGameId)
+                ->orderBy('award_tier'); // force softcore awards first so they overwritten if the user also has a hardcore award
 
             foreach ($badges->get() as $badge) {
                 $before[$badge->user_id] = [
                     'awarded_at' => $badge->awarded_at,
-                    'award_data_extra' => $tierIndex,
+                    'award_tier' => $tierIndex,
                 ];
             }
 
@@ -2140,17 +2140,17 @@ class ConvertAotWTiered extends ConvertGame
             }
 
             PlayerBadge::where('award_type', AwardType::Mastery)
-                ->where('award_data', $gameId)
-                ->where('award_data_extra', 1)
+                ->where('award_key', $gameId)
+                ->where('award_tier', 1)
                 ->update([
                     'award_type' => AwardType::Event,
-                    'award_data' => $event->id,
-                    'award_data_extra' => $tier_index,
+                    'award_key' => $event->id,
+                    'award_tier' => $tier_index,
                 ]);
 
             PlayerBadge::where('award_type', AwardType::Mastery)
-                ->where('award_data', $gameId)
-                ->where('award_data_extra', 0)
+                ->where('award_key', $gameId)
+                ->where('award_tier', 0)
                 ->delete();
 
             $tier_index++;

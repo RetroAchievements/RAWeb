@@ -140,10 +140,10 @@ class UpdateDeveloperContributionYieldAction
         $badge = PlayerBadge::query()
             ->where('user_id', $user->id)
             ->where('award_type', '=', $type)
-            ->orderBy('award_data', 'DESC')
+            ->orderBy('award_key', 'DESC')
             ->first();
 
-        if ($badge && $badge->award_data >= $tier) {
+        if ($badge && $badge->award_key >= $tier) {
             // badge already awarded
             return;
         }
@@ -151,7 +151,7 @@ class UpdateDeveloperContributionYieldAction
         $displayOrder = $badge ? $badge->order_column : PlayerBadge::getNextDisplayOrder($user);
 
         // if there's a gap between tiers, backfill the missing awards
-        $oldTier = $badge ? $badge->award_data : -1;
+        $oldTier = $badge ? $badge->award_key : -1;
         if ($tier - $oldTier > 1) {
             $this->backfillMissingBadges($user, $type, $oldTier, $tier, $displayOrder);
         }
@@ -160,7 +160,7 @@ class UpdateDeveloperContributionYieldAction
         $badge = PlayerBadge::create([
             'user_id' => $user->id,
             'award_type' => $type,
-            'award_data' => $tier,
+            'award_key' => $tier,
             'order_column' => $displayOrder,
         ]);
 
@@ -193,7 +193,7 @@ class UpdateDeveloperContributionYieldAction
                         PlayerBadge::create([
                             'user_id' => $user->id,
                             'award_type' => $type,
-                            'award_data' => $tier,
+                            'award_key' => $tier,
                             'awarded_at' => $unlock->unlock_date,
                             'order_column' => $displayOrder,
                         ]);

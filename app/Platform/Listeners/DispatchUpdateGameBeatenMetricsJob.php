@@ -23,7 +23,7 @@ class DispatchUpdateGameBeatenMetricsJob implements ShouldQueue
                 switch ($event->playerBadge->award_type) {
                     case AwardType::GameBeaten:
                     case AwardType::Mastery:
-                        $game = Game::find($event->playerBadge->award_data);
+                        $game = Game::find($event->playerBadge->award_key);
                         break;
                 }
                 break;

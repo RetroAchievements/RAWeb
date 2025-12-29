@@ -31,8 +31,8 @@ function AddSiteAward(
         [
             'user_id' => $user->id,
             'award_type' => $awardType,
-            'award_data' => $data,
-            'award_data_extra' => $dataExtra,
+            'award_key' => $data,
+            'award_tier' => $dataExtra,
         ],
         [
             'awarded_at' => $awardDate ?? Carbon::now(),
@@ -42,8 +42,8 @@ function AddSiteAward(
 
     return PlayerBadge::where('user_id', $user->id)
         ->where('award_type', $awardType)
-        ->where('award_data', $data)
-        ->where('award_data_extra', $dataExtra)
+        ->where('award_key', $data)
+        ->where('award_tier', $dataExtra)
         ->first();
 }
 
@@ -65,43 +65,43 @@ function getUsersSiteAwards(?User $user): array
 
     $query = "
         -- game awards (mastery, beaten)
-        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_data, saw.award_data_extra, saw.order_column, gd.Title, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
+        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.Title, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
             FROM user_awards AS saw
-            LEFT JOIN GameData AS gd ON ( gd.ID = saw.award_data AND saw.award_type IN ('{$gameAwardValues}') )
+            LEFT JOIN GameData AS gd ON ( gd.ID = saw.award_key AND saw.award_type IN ('{$gameAwardValues}') )
             LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
             WHERE
                 saw.award_type IN('{$gameAwardValues}')
                 AND saw.user_id = :userId
-            GROUP BY saw.award_type, saw.award_data, saw.award_data_extra
+            GROUP BY saw.award_type, saw.award_key, saw.award_tier
             HAVING
                 -- Remove duplicate game beaten awards.
-                (saw.award_type != '" . AwardType::GameBeaten->value . "' OR saw.award_data_extra = 1 OR NOT EXISTS (
+                (saw.award_type != '" . AwardType::GameBeaten->value . "' OR saw.award_tier = 1 OR NOT EXISTS (
                     SELECT 1 FROM user_awards AS saw2
-                    WHERE saw2.award_type = saw.award_type AND saw2.award_data = saw.award_data AND saw2.award_data_extra = 1 AND saw2.user_id = saw.user_id
+                    WHERE saw2.award_type = saw.award_type AND saw2.award_key = saw.award_key AND saw2.award_tier = 1 AND saw2.user_id = saw.user_id
                 ))
                 -- Remove duplicate mastery awards.
-                AND (saw.award_type != '" . AwardType::Mastery->value . "' OR saw.award_data_extra = 1 OR NOT EXISTS (
+                AND (saw.award_type != '" . AwardType::Mastery->value . "' OR saw.award_tier = 1 OR NOT EXISTS (
                     SELECT 1 FROM user_awards AS saw3
-                    WHERE saw3.award_type = saw.award_type AND saw3.award_data = saw.award_data AND saw3.award_data_extra = 1 AND saw3.user_id = saw.user_id
+                    WHERE saw3.award_type = saw.award_type AND saw3.award_key = saw.award_key AND saw3.award_tier = 1 AND saw3.user_id = saw.user_id
                 ))
         UNION
         -- event awards
-        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_data, saw.award_data_extra, saw.order_column, gd.Title, " . System::Events . ", 'Events', NULL, e.image_asset_path
+        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.Title, " . System::Events . ", 'Events', NULL, e.image_asset_path
             FROM user_awards AS saw
-            LEFT JOIN events e ON e.id = saw.award_data
+            LEFT JOIN events e ON e.id = saw.award_key
             LEFT JOIN GameData gd ON gd.id = e.legacy_game_id
             WHERE
                 saw.award_type = '" . AwardType::Event->value . "'
                 AND saw.user_id = :userId3
         UNION
         -- non-game awards (developer contribution, ...)
-        SELECT " . unixTimestampStatement('MAX(saw.awarded_at)', 'AwardedAt') . ", saw.award_type, saw.user_id, MAX( saw.award_data ), saw.award_data_extra, saw.order_column, NULL, NULL, NULL, NULL, NULL
+        SELECT " . unixTimestampStatement('MAX(saw.awarded_at)', 'AwardedAt') . ", saw.award_type, saw.user_id, MAX( saw.award_key ), saw.award_tier, saw.order_column, NULL, NULL, NULL, NULL, NULL
             FROM user_awards AS saw
             WHERE
                 saw.award_type NOT IN('{$gameAwardValues}','" . AwardType::Event->value . "')
                 AND saw.user_id = :userId2
             GROUP BY saw.award_type
-        ORDER BY order_column, AwardedAt, award_type, award_data_extra ASC";
+        ORDER BY order_column, AwardedAt, award_type, award_tier ASC";
 
     $dbResult = legacyDbFetchAll($query, $bindings)->toArray();
 
@@ -109,15 +109,15 @@ function getUsersSiteAwards(?User $user): array
         unset($award['user_id']);
 
         $award['AwardType'] = AwardType::from($award['award_type'])->toLegacyInteger();
-        $award['AwardData'] = (int) $award['award_data'];
-        $award['AwardDataExtra'] = (int) $award['award_data_extra'];
+        $award['AwardData'] = (int) $award['award_key'];
+        $award['AwardDataExtra'] = (int) $award['award_tier'];
         $award['DisplayOrder'] = (int) $award['order_column'];
 
         if ($award['ConsoleID']) {
             settype($award['ConsoleID'], 'integer');
         }
 
-        unset($award['award_type'], $award['award_data'], $award['award_data_extra'], $award['order_column']);
+        unset($award['award_type'], $award['award_key'], $award['award_tier'], $award['order_column']);
     }
 
     return $dbResult;
@@ -188,23 +188,23 @@ function getRecentProgressionAwardData(
         $onlyAwardTypeClause = "WHERE saw.award_type = '" . $onlyAwardType->value . "'";
     }
 
-    $onlyUnlockModeClause = "saw.award_data_extra IS NOT NULL";
+    $onlyUnlockModeClause = "saw.award_tier IS NOT NULL";
     if (isset($onlyUnlockMode)) {
-        $onlyUnlockModeClause = "saw.award_data_extra = $onlyUnlockMode";
+        $onlyUnlockModeClause = "saw.award_tier = $onlyUnlockMode";
     }
 
     $retVal = [];
-    $query = "SELECT ua.User, s.AwardedAt, s.AwardedAtUnix, s.award_type, s.award_data, s.award_data_extra, s.GameTitle, s.GameID, s.ConsoleName, s.GameIcon
+    $query = "SELECT ua.User, s.AwardedAt, s.AwardedAtUnix, s.award_type, s.award_key, s.award_tier, s.GameTitle, s.GameID, s.ConsoleName, s.GameIcon
         FROM (
             SELECT
                 saw.user_id, saw.awarded_at as AwardedAt, UNIX_TIMESTAMP(saw.awarded_at) as AwardedAtUnix, saw.award_type,
-                saw.award_data, saw.award_data_extra, gd.Title AS GameTitle, gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon AS GameIcon,
-                ROW_NUMBER() OVER (PARTITION BY saw.user_id, saw.award_data, TIMESTAMPDIFF(MINUTE, saw.awarded_at, saw2.awarded_at) ORDER BY saw.award_type ASC) AS rn
+                saw.award_key, saw.award_tier, gd.Title AS GameTitle, gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon AS GameIcon,
+                ROW_NUMBER() OVER (PARTITION BY saw.user_id, saw.award_key, TIMESTAMPDIFF(MINUTE, saw.awarded_at, saw2.awarded_at) ORDER BY saw.award_type ASC) AS rn
             FROM user_awards AS saw
-            LEFT JOIN GameData AS gd ON gd.ID = saw.award_data
+            LEFT JOIN GameData AS gd ON gd.ID = saw.award_key
             LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-            LEFT JOIN user_awards AS saw2 ON saw2.user_id = saw.user_id AND saw2.award_data = saw.award_data AND TIMESTAMPDIFF(MINUTE, saw.awarded_at, saw2.awarded_at) BETWEEN 0 AND 1
-            $onlyAwardTypeClause AND saw.award_data > 0 AND $onlyUnlockModeClause $friendCondAward
+            LEFT JOIN user_awards AS saw2 ON saw2.user_id = saw.user_id AND saw2.award_key = saw.award_key AND TIMESTAMPDIFF(MINUTE, saw.awarded_at, saw2.awarded_at) BETWEEN 0 AND 1
+            $onlyAwardTypeClause AND saw.award_key > 0 AND $onlyUnlockModeClause $friendCondAward
             AND saw.awarded_at BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)
         ) s
         JOIN UserAccounts AS ua ON ua.ID = s.user_id
@@ -216,9 +216,9 @@ function getRecentProgressionAwardData(
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             $db_entry['AwardType'] = AwardType::from($db_entry['award_type'])->toLegacyInteger();
-            $db_entry['AwardData'] = (int) $db_entry['award_data'];
-            $db_entry['AwardDataExtra'] = (int) $db_entry['award_data_extra'];
-            unset($db_entry['award_type'], $db_entry['award_data'], $db_entry['award_data_extra']);
+            $db_entry['AwardData'] = (int) $db_entry['award_key'];
+            $db_entry['AwardDataExtra'] = (int) $db_entry['award_tier'];
+            unset($db_entry['award_type'], $db_entry['award_key'], $db_entry['award_tier']);
 
             $retVal[] = $db_entry;
         }
@@ -237,13 +237,13 @@ function getUserEventAwardCount(User $user): int
         ->whereHas('gameIfApplicable.system', function ($query) {
             $query->where('ID', System::Events);
         })
-        ->distinct('award_data')
-        ->count('award_data');
+        ->distinct('award_key')
+        ->count('award_key');
 
     $eventBadgeCount = $user->playerBadges()
         ->where('award_type', AwardType::Event)
-        ->distinct('award_data')
-        ->count('award_data');
+        ->distinct('award_key')
+        ->count('award_key');
 
     return $eventGameBadgeCount + $eventBadgeCount;
 }
@@ -267,11 +267,11 @@ function getUserGameProgressionAwards(int $gameId, User $user): array
     ];
 
     $foundAwards = PlayerBadge::where('user_id', $user->id)
-        ->where('award_data', $gameId)
+        ->where('award_key', $gameId)
         ->get();
 
     foreach ($foundAwards as $award) {
-        $awardExtra = $award->award_data_extra;
+        $awardExtra = $award->award_tier;
         $awardType = $award->award_type;
 
         $key = '';

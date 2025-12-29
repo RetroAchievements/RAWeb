@@ -67,7 +67,7 @@ class BuildGameChecklistAction
         $playerGames = PlayerGame::where('user_id', $user->id)->whereIn('game_id', $ids)->get();
         $gameBadges = PlayerBadge::where('user_id', $user->id)
             ->whereIn('award_type', [AwardType::Mastery, AwardType::GameBeaten])
-            ->whereIn('award_data', $ids)
+            ->whereIn('award_key', $ids)
             ->get();
 
         $result = [];
@@ -88,9 +88,9 @@ class BuildGameChecklistAction
                         } elseif ($playerGame->completed_at) {
                             $completedCount++;
                         } else {
-                            $gameBadge = $gameBadges->filter(fn ($gb) => $gb->award_data === $gameId && $gb->award_type === AwardType::Mastery)->first();
+                            $gameBadge = $gameBadges->filter(fn ($gb) => $gb->award_key === $gameId && $gb->award_type === AwardType::Mastery)->first();
                             if ($gameBadge) {
-                                if ($gameBadge->award_data_extra) {
+                                if ($gameBadge->award_tier) {
                                     $masteredCount++;
                                     $playerGame->completed_hardcore_at = $gameBadge->awarded_at;
                                 } else {
@@ -105,9 +105,9 @@ class BuildGameChecklistAction
                         } elseif ($playerGame->beaten_at) {
                             $beatenSoftcoreCount++;
                         } else {
-                            $gameBadge = $gameBadges->filter(fn ($gb) => $gb->award_data === $gameId && $gb->award_type === AwardType::GameBeaten)->first();
+                            $gameBadge = $gameBadges->filter(fn ($gb) => $gb->award_key === $gameId && $gb->award_type === AwardType::GameBeaten)->first();
                             if ($gameBadge) {
-                                if ($gameBadge->award_data_extra) {
+                                if ($gameBadge->award_tier) {
                                     $beatenCount++;
                                     $playerGame->beaten_hardcore_at = $gameBadge->awarded_at;
                                 } else {

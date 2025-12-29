@@ -73,10 +73,10 @@ if ($targetDate !== null) {
 
 // If the consumer is trying to filter by specific award kinds, add that filtering to the query.
 $kindMapping = [
-    'beaten-softcore' => ['award_type' => AwardType::GameBeaten, 'award_data_extra' => false],
-    'beaten-hardcore' => ['award_type' => AwardType::GameBeaten, 'award_data_extra' => true],
-    'completed' => ['award_type' => AwardType::Mastery, 'award_data_extra' => false],
-    'mastered' => ['award_type' => AwardType::Mastery, 'award_data_extra' => true],
+    'beaten-softcore' => ['award_type' => AwardType::GameBeaten, 'award_tier' => false],
+    'beaten-hardcore' => ['award_type' => AwardType::GameBeaten, 'award_tier' => true],
+    'completed' => ['award_type' => AwardType::Mastery, 'award_tier' => false],
+    'mastered' => ['award_type' => AwardType::Mastery, 'award_tier' => true],
 ];
 if (!empty($awardKinds)) {
     $baseQuery->where(function ($query) use ($awardKinds, $kindMapping) {
@@ -85,7 +85,7 @@ if (!empty($awardKinds)) {
                 $mapping = $kindMapping[$awardKind];
                 $query->orWhere(function ($q) use ($mapping) {
                     $q->where('award_type', $mapping['award_type'])
-                        ->where('award_data_extra', $mapping['award_data_extra']);
+                        ->where('award_tier', $mapping['award_tier']);
                 });
             }
         }
@@ -98,7 +98,7 @@ $fetchedGameAwards = (clone $baseQuery)->orderBy('awarded_at', 'desc')
     ->limit($count)
     ->get();
 
-$gameAwardGameIds = $fetchedGameAwards->pluck('award_data')->unique()->filter();
+$gameAwardGameIds = $fetchedGameAwards->pluck('award_key')->unique()->filter();
 $associatedGames = Game::with('system')->whereIn('ID', $gameAwardGameIds)
     ->get()
     ->keyBy('ID');
@@ -109,18 +109,18 @@ $associatedSystems = System::whereIn('ID', $systemIds)->get(['ID', 'Name'])->key
 $mappedGameAwards = $fetchedGameAwards
     ->filter(fn ($gameAward) => $gameAward->user !== null)
     ->map(function ($gameAward) use ($associatedGames, $associatedSystems) {
-        $associatedGame = $associatedGames->get($gameAward->award_data);
+        $associatedGame = $associatedGames->get($gameAward->award_key);
 
         $awardKind = $gameAward->award_type === AwardType::GameBeaten
-            ? ($gameAward->award_data_extra ? 'beaten-hardcore' : 'beaten-softcore')
-            : ($gameAward->award_data_extra ? 'mastered' : 'completed');
+            ? ($gameAward->award_tier ? 'beaten-hardcore' : 'beaten-softcore')
+            : ($gameAward->award_tier ? 'mastered' : 'completed');
 
         $mappedAward = [
             'User' => $gameAward->user->display_name,
             'ULID' => $gameAward->user->ulid,
             'AwardKind' => $awardKind,
             'AwardDate' => $gameAward->awarded_at->toIso8601String(),
-            'GameID' => $gameAward->award_data,
+            'GameID' => $gameAward->award_key,
             'GameTitle' => $associatedGame->Title ?? null,
             'ConsoleID' => $associatedGame->ConsoleID ?? null,
             'ConsoleName' => $associatedSystems[$associatedGame->ConsoleID]->Name ?? null,

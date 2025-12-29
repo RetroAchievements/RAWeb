@@ -240,8 +240,8 @@ class GameCardTest extends TestCase
         PlayerBadge::factory()->create([
             'user_id' => $user->id,
             'award_type' => AwardType::GameBeaten,
-            'award_data' => $game->id,
-            'award_data_extra' => 0,
+            'award_key' => $game->id,
+            'award_tier' => 0,
             'awarded_at' => $awardDate,
             'order_column' => 0,
         ]);
@@ -268,8 +268,8 @@ class GameCardTest extends TestCase
         PlayerBadge::factory()->create([
             'user_id' => $user->id,
             'award_type' => AwardType::GameBeaten,
-            'award_data' => $game->ID,
-            'award_data_extra' => 1,
+            'award_key' => $game->ID,
+            'award_tier' => 1,
             'awarded_at' => $awardDate,
             'order_column' => 0,
         ]);
@@ -296,8 +296,8 @@ class GameCardTest extends TestCase
         PlayerBadge::factory()->create([
             'user_id' => $user->id,
             'award_type' => AwardType::Mastery,
-            'award_data' => $game->ID,
-            'award_data_extra' => 0,
+            'award_key' => $game->ID,
+            'award_tier' => 0,
             'awarded_at' => $awardDate,
             'order_column' => 0,
         ]);
@@ -324,8 +324,8 @@ class GameCardTest extends TestCase
         PlayerBadge::factory()->create([
             'user_id' => $user->id,
             'award_type' => AwardType::Mastery,
-            'award_data' => $game->ID,
-            'award_data_extra' => 1,
+            'award_key' => $game->ID,
+            'award_tier' => 1,
             'awarded_at' => $awardDate,
             'order_column' => 0,
         ]);
@@ -352,8 +352,8 @@ class GameCardTest extends TestCase
         PlayerBadge::factory()->create([
             'user_id' => $user->id,
             'award_type' => AwardType::Mastery,
-            'award_data' => $game->ID,
-            'award_data_extra' => 1,
+            'award_key' => $game->ID,
+            'award_tier' => 1,
             'awarded_at' => $awardDate,
             'order_column' => 0,
         ]);

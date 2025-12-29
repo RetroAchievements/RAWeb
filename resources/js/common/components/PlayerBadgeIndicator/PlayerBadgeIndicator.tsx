@@ -9,15 +9,15 @@ interface PlayerBadgeIndicatorProps {
 }
 
 export const PlayerBadgeIndicator: FC<PlayerBadgeIndicatorProps> = ({ playerBadge, className }) => {
-  const { awardType, awardDataExtra } = playerBadge;
+  const { awardType, awardTier } = playerBadge;
 
   let indicator: 'mastery' | 'completion' | 'beaten-hardcore' | 'beaten-softcore' =
     'beaten-softcore';
-  if (awardType === 'mastery' && awardDataExtra) {
+  if (awardType === 'mastery' && awardTier) {
     indicator = 'mastery';
-  } else if (awardType === 'mastery' && !awardDataExtra) {
+  } else if (awardType === 'mastery' && !awardTier) {
     indicator = 'completion';
-  } else if (awardType === 'game_beaten' && awardDataExtra) {
+  } else if (awardType === 'game_beaten' && awardTier) {
     indicator = 'beaten-hardcore';
   }
 

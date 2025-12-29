@@ -78,11 +78,11 @@ class BuildDeveloperFeedDataAction
         return DB::table(DB::raw('(
             SELECT *,
                 ROW_NUMBER() OVER (
-                    PARTITION BY award_data, award_type, user_id
-                    ORDER BY award_data_extra DESC
+                    PARTITION BY award_key, award_type, user_id
+                    ORDER BY award_tier DESC
                 ) as rn
             FROM user_awards
-            WHERE award_data IN (' . implode(',', $gameIds) . ')
+            WHERE award_key IN (' . implode(',', $gameIds) . ')
                 AND award_type IN (\'' . AwardType::Mastery->value . '\', \'' . AwardType::GameBeaten->value . '\')
         ) ranked'))
             ->where('rn', 1)
@@ -141,18 +141,18 @@ class BuildDeveloperFeedDataAction
 
         return PlayerBadge::from('user_awards as pb')
             ->with(['user', 'gameIfApplicable', 'gameIfApplicable.system'])
-            ->whereIn('pb.award_data', $gameIds)
+            ->whereIn('pb.award_key', $gameIds)
             ->whereIn('pb.award_type', [AwardType::Mastery, AwardType::GameBeaten])
             ->whereDate('pb.awarded_at', '>=', $thirtyDaysAgo)
             ->joinSub(
-                PlayerBadge::selectRaw('MAX(award_data_extra) as MaxExtra, award_data, award_type, user_id')
-                    ->groupBy('award_data', 'award_type', 'user_id'),
+                PlayerBadge::selectRaw('MAX(award_tier) as MaxExtra, award_key, award_type, user_id')
+                    ->groupBy('award_key', 'award_type', 'user_id'),
                 'priority_awards',
                 function ($join) {
-                    $join->on('pb.award_data', '=', 'priority_awards.award_data')
+                    $join->on('pb.award_key', '=', 'priority_awards.award_key')
                         ->on('pb.award_type', '=', 'priority_awards.award_type')
                         ->on('pb.user_id', '=', 'priority_awards.user_id')
-                        ->on('pb.award_data_extra', '=', 'priority_awards.MaxExtra');
+                        ->on('pb.award_tier', '=', 'priority_awards.MaxExtra');
                 }
             )
             ->orderByDesc('pb.awarded_at')
@@ -161,7 +161,7 @@ class BuildDeveloperFeedDataAction
             ->reject(fn ($award) => $award->user->Untracked)
             ->map(fn ($award) => new RecentPlayerBadgeData(
                 game: GameData::fromGame($award->gameIfApplicable)->include('badgeUrl', 'system.iconUrl', 'system.nameShort'),
-                awardType: $award->award_data_extra === UnlockMode::Hardcore
+                awardType: $award->award_tier === UnlockMode::Hardcore
                     ? ($award->award_type === AwardType::Mastery ? 'mastered' : 'beaten-hardcore')
                     : ($award->award_type === AwardType::Mastery ? 'completed' : 'beaten-softcore'),
                 user: UserData::fromUser($award->user),

@@ -581,7 +581,7 @@ describe('Component: GameListItemDialogContent', () => {
         achievementsUnlocked: 30,
         highestAward: createPlayerBadge({
           awardType: 'mastery',
-          awardDataExtra: 1,
+          awardTier: 1,
         }),
       });
 

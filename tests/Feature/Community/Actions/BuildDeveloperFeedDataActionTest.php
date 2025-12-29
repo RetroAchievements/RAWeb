@@ -62,18 +62,18 @@ class BuildDeveloperFeedDataActionTest extends TestCase
 
         PlayerBadge::factory()->count(2)->create([
             'award_type' => AwardType::Mastery,
-            'award_data' => $game1->id,
-            'award_data_extra' => UnlockMode::Softcore,
+            'award_key' => $game1->id,
+            'award_tier' => UnlockMode::Softcore,
         ]);
         PlayerBadge::factory()->create([
             'award_type' => AwardType::Mastery,
-            'award_data' => $game1->id,
-            'award_data_extra' => UnlockMode::Hardcore,
+            'award_key' => $game1->id,
+            'award_tier' => UnlockMode::Hardcore,
         ]);
         PlayerBadge::factory()->count(2)->create([
             'award_type' => AwardType::GameBeaten,
-            'award_data' => $game2->id,
-            'award_data_extra' => UnlockMode::Softcore,
+            'award_key' => $game2->id,
+            'award_tier' => UnlockMode::Softcore,
         ]);
 
         // Act

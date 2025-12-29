@@ -226,7 +226,7 @@ describe('Component: ChipOfInterest', () => {
       achievementsUnlocked: 100,
       highestAward: createPlayerBadge({
         awardType: 'mastery',
-        awardDataExtra: 1,
+        awardTier: 1,
       }),
     });
 
@@ -278,7 +278,7 @@ describe('Component: ChipOfInterest', () => {
       achievementsUnlocked: 11,
       highestAward: createPlayerBadge({
         awardType: 'game_beaten',
-        awardDataExtra: 1,
+        awardTier: 1,
       }),
     });
 
@@ -298,7 +298,7 @@ describe('Component: ChipOfInterest', () => {
       achievementsUnlocked: 99,
       highestAward: createPlayerBadge({
         awardType: 'mastery',
-        awardDataExtra: 1,
+        awardTier: 1,
       }),
     });
 
@@ -318,7 +318,7 @@ describe('Component: ChipOfInterest', () => {
       achievementsUnlocked: 100,
       highestAward: createPlayerBadge({
         awardType: 'mastery',
-        awardDataExtra: 1,
+        awardTier: 1,
       }),
     });
 

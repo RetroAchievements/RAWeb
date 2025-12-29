@@ -60,7 +60,7 @@ class PlayerGame extends BasePivot
      */
     public function badges(): HasMany
     {
-        return $this->hasMany(PlayerBadge::class, 'award_data', 'game_id')
+        return $this->hasMany(PlayerBadge::class, 'award_key', 'game_id')
             ->whereIn('award_type', [AwardType::GameBeaten, AwardType::Mastery]);
     }
 

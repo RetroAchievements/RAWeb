@@ -6,8 +6,8 @@ export const createPlayerBadge = createFactory<App.Platform.Data.PlayerBadge>((f
       'mastery',
       'game_beaten',
     ]),
-    awardData: faker.number.int({ min: 0, max: 20000 }),
-    awardDataExtra: faker.helpers.arrayElement([0, 1]),
+    awardKey: faker.number.int({ min: 0, max: 20000 }),
+    awardTier: faker.helpers.arrayElement([0, 1]),
     awardDate: faker.date.recent().toISOString(),
   };
 });

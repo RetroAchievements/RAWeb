@@ -94,7 +94,7 @@ class IncrementDeveloperContributionYieldAction
         $existingBadge = PlayerBadge::query()
             ->where('user_id', $developer->id)
             ->where('award_type', '=', $type)
-            ->where('award_data', '=', $tier)
+            ->where('award_key', '=', $tier)
             ->exists();
 
         if ($existingBadge) {
@@ -105,7 +105,7 @@ class IncrementDeveloperContributionYieldAction
         $lastBadge = PlayerBadge::query()
             ->where('user_id', $developer->id)
             ->where('award_type', '=', $type)
-            ->orderBy('award_data', 'DESC')
+            ->orderBy('award_key', 'DESC')
             ->first();
 
         $displayOrder = $lastBadge ? $lastBadge->order_column : PlayerBadge::getNextDisplayOrder($developer);
@@ -114,7 +114,7 @@ class IncrementDeveloperContributionYieldAction
         $badge = PlayerBadge::create([
             'user_id' => $developer->id,
             'award_type' => $type,
-            'award_data' => $tier,
+            'award_key' => $tier,
             'order_column' => $displayOrder,
         ]);
 

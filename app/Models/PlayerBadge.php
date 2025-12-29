@@ -25,16 +25,16 @@ class PlayerBadge extends BaseModel
     protected $fillable = [
         'user_id',
         'award_type',
-        'award_data',
-        'award_data_extra',
+        'award_key',
+        'award_tier',
         'awarded_at',
         'order_column',
     ];
 
     protected $casts = [
         'award_type' => AwardType::class,
-        'award_data' => 'int',
-        'award_data_extra' => 'int',
+        'award_key' => 'int',
+        'award_tier' => 'int',
         'order_column' => 'int',
     ];
 
@@ -138,7 +138,7 @@ class PlayerBadge extends BaseModel
             $found = $userAwards->first(function ($userAward) use ($prestigeOrderKind) {
                 return
                     $userAward->award_type === $prestigeOrderKind['type']
-                    && $userAward->award_data_extra === $prestigeOrderKind['isHardcore']
+                    && $userAward->award_tier === $prestigeOrderKind['isHardcore']
                 ;
             });
 
@@ -184,7 +184,7 @@ class PlayerBadge extends BaseModel
      */
     public function gameIfApplicable(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'award_data', 'id');
+        return $this->belongsTo(Game::class, 'award_key', 'id');
     }
 
     /**
@@ -217,7 +217,7 @@ class PlayerBadge extends BaseModel
                 ->orWhere('award_type', AwardType::Mastery);
         });
 
-        $query->where('award_data', $gameId);
+        $query->where('award_key', $gameId);
 
         return $query;
     }

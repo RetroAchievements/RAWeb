@@ -14,7 +14,7 @@ describe('Component: PlayerBadgeLabel', () => {
 
   it('renders a label for the given badge', () => {
     // ARRANGE
-    const playerBadge = createPlayerBadge({ awardType: 'mastery', awardDataExtra: 1 });
+    const playerBadge = createPlayerBadge({ awardType: 'mastery', awardTier: 1 });
 
     render(<PlayerBadgeLabel playerBadge={playerBadge} />);
 
@@ -24,7 +24,7 @@ describe('Component: PlayerBadgeLabel', () => {
 
   it('by default, colorizes the label', () => {
     // ARRANGE
-    const playerBadge = createPlayerBadge({ awardType: 'mastery', awardDataExtra: 1 });
+    const playerBadge = createPlayerBadge({ awardType: 'mastery', awardTier: 1 });
 
     render(<PlayerBadgeLabel playerBadge={playerBadge} />);
 
@@ -36,7 +36,7 @@ describe('Component: PlayerBadgeLabel', () => {
 
   it('can be configured to not colorize the label', () => {
     // ARRANGE
-    const playerBadge = createPlayerBadge({ awardType: 'mastery', awardDataExtra: 1 });
+    const playerBadge = createPlayerBadge({ awardType: 'mastery', awardTier: 1 });
 
     render(<PlayerBadgeLabel playerBadge={playerBadge} isColorized={false} />);
 

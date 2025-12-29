@@ -13,8 +13,8 @@ return new class extends Migration {
         Schema::table('SiteAwards', function (Blueprint $table) {
             $table->renameColumn('AwardDate', 'awarded_at');
             $table->renameColumn('AwardType', 'award_type');
-            $table->renameColumn('AwardData', 'award_data');
-            $table->renameColumn('AwardDataExtra', 'award_data_extra');
+            $table->renameColumn('AwardData', 'award_key');
+            $table->renameColumn('AwardDataExtra', 'award_tier');
             $table->renameColumn('DisplayOrder', 'order_column');
         });
 
@@ -22,9 +22,9 @@ return new class extends Migration {
 
         Schema::table('user_awards', function (Blueprint $table) {
             $table->renameIndex('siteawards_awardtype_index', 'user_awards_award_type_index');
-            $table->renameIndex('siteawards_awarddata_awardtype_awarddate_index', 'user_awards_award_data_award_type_awarded_at_index');
+            $table->renameIndex('siteawards_awarddata_awardtype_awarddate_index', 'user_awards_award_key_award_type_awarded_at_index');
             $table->renameIndex('siteawards_user_id_index', 'user_awards_user_id_index');
-            $table->renameIndex('siteawards_user_id_awarddata_awardtype_awarddataextra_index', 'user_awards_user_id_award_data_award_type_award_data_extra_index');
+            $table->renameIndex('siteawards_user_id_awarddata_awardtype_awarddataextra_index', 'user_awards_user_id_award_key_award_type_award_tier_index');
         });
 
         if (DB::connection()->getDriverName() === 'sqlite') {
@@ -60,9 +60,9 @@ return new class extends Migration {
 
         Schema::table('user_awards', function (Blueprint $table) {
             $table->renameIndex('user_awards_award_type_index', 'siteawards_awardtype_index');
-            $table->renameIndex('user_awards_award_data_award_type_awarded_at_index', 'siteawards_awarddata_awardtype_awarddate_index');
+            $table->renameIndex('user_awards_award_key_award_type_awarded_at_index', 'siteawards_awarddata_awardtype_awarddate_index');
             $table->renameIndex('user_awards_user_id_index', 'siteawards_user_id_index');
-            $table->renameIndex('user_awards_user_id_award_data_award_type_award_data_extra_index', 'siteawards_user_id_awarddata_awardtype_awarddataextra_index');
+            $table->renameIndex('user_awards_user_id_award_key_award_type_award_tier_index', 'siteawards_user_id_awarddata_awardtype_awarddataextra_index');
         });
 
         Schema::rename('user_awards', 'SiteAwards');
@@ -70,8 +70,8 @@ return new class extends Migration {
         Schema::table('SiteAwards', function (Blueprint $table) {
             $table->renameColumn('awarded_at', 'AwardDate');
             $table->renameColumn('award_type', 'AwardType');
-            $table->renameColumn('award_data', 'AwardData');
-            $table->renameColumn('award_data_extra', 'AwardDataExtra');
+            $table->renameColumn('award_key', 'AwardData');
+            $table->renameColumn('award_tier', 'AwardDataExtra');
             $table->renameColumn('order_column', 'DisplayOrder');
         });
     }

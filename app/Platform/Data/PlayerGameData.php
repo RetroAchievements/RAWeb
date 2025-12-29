@@ -74,7 +74,7 @@ class PlayerGameData extends Data
         // Loop through the priority list and return the first matching badge.
         foreach ($awardPriority as $criteria) {
             $highestAward = $badges->first(function ($badge) use ($criteria) {
-                return $badge->award_type === $criteria['type'] && $badge->award_data_extra === $criteria['extra'];
+                return $badge->award_type === $criteria['type'] && $badge->award_tier === $criteria['extra'];
             });
 
             if ($highestAward) {

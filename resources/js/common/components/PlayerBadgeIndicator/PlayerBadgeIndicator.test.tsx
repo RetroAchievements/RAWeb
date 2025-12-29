@@ -16,7 +16,7 @@ describe('Component: PlayerBadgeIndicator', () => {
     // ARRANGE
     const playerBadge = createPlayerBadge({
       awardType: 'mastery',
-      awardDataExtra: 1,
+      awardTier: 1,
     });
 
     render(<PlayerBadgeIndicator playerBadge={playerBadge} />);
@@ -29,7 +29,7 @@ describe('Component: PlayerBadgeIndicator', () => {
     // ARRANGE
     const playerBadge = createPlayerBadge({
       awardType: 'mastery',
-      awardDataExtra: 0,
+      awardTier: 0,
     });
 
     render(<PlayerBadgeIndicator playerBadge={playerBadge} />);
@@ -42,7 +42,7 @@ describe('Component: PlayerBadgeIndicator', () => {
     // ARRANGE
     const playerBadge = createPlayerBadge({
       awardType: 'game_beaten',
-      awardDataExtra: 1,
+      awardTier: 1,
     });
 
     render(<PlayerBadgeIndicator playerBadge={playerBadge} />);
@@ -55,7 +55,7 @@ describe('Component: PlayerBadgeIndicator', () => {
     // ARRANGE
     const playerBadge = createPlayerBadge({
       awardType: 'game_beaten',
-      awardDataExtra: 0,
+      awardTier: 0,
     });
 
     render(<PlayerBadgeIndicator playerBadge={playerBadge} />);

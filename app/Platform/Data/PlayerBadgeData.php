@@ -15,8 +15,8 @@ class PlayerBadgeData extends Data
 {
     public function __construct(
         public AwardType $awardType,
-        public int $awardData,
-        public int $awardDataExtra,
+        public int $awardKey,
+        public int $awardTier,
         public Carbon $awardDate,
     ) {
     }
@@ -25,8 +25,8 @@ class PlayerBadgeData extends Data
     {
         return new self(
             awardType: $playerBadge->award_type,
-            awardData: $playerBadge->award_data,
-            awardDataExtra: $playerBadge->award_data_extra,
+            awardKey: $playerBadge->award_key,
+            awardTier: $playerBadge->award_tier,
             awardDate: $playerBadge->awarded_at,
         );
     }

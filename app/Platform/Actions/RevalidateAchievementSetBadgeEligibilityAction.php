@@ -43,9 +43,9 @@ class RevalidateAchievementSetBadgeEligibilityAction
         $statusChanged = false;
         $badge = $playerGame->user->playerBadges()
             ->where('award_type', AwardType::GameBeaten)
-            ->where('award_data', $playerGame->game->id);
-        $softcoreBadge = (clone $badge)->where('award_data_extra', UnlockMode::Softcore);
-        $hardcoreBadge = (clone $badge)->where('award_data_extra', UnlockMode::Hardcore);
+            ->where('award_key', $playerGame->game->id);
+        $softcoreBadge = (clone $badge)->where('award_tier', UnlockMode::Softcore);
+        $hardcoreBadge = (clone $badge)->where('award_tier', UnlockMode::Hardcore);
 
         if ($playerGame->beaten_at === null && $softcoreBadge->exists()) {
             $this->dispatchBadgeLostEvent($softcoreBadge->first());
@@ -103,9 +103,9 @@ class RevalidateAchievementSetBadgeEligibilityAction
         $statusChanged = false;
         $badge = $playerGame->user->playerBadges()
             ->where('award_type', AwardType::Mastery)
-            ->where('award_data', $playerGame->game->id);
-        $softcoreBadge = (clone $badge)->where('award_data_extra', UnlockMode::Softcore);
-        $hardcoreBadge = (clone $badge)->where('award_data_extra', UnlockMode::Hardcore);
+            ->where('award_key', $playerGame->game->id);
+        $softcoreBadge = (clone $badge)->where('award_tier', UnlockMode::Softcore);
+        $hardcoreBadge = (clone $badge)->where('award_tier', UnlockMode::Hardcore);
 
         if ($playerGame->completed_at === null && $softcoreBadge->exists()) {
             // if the user has at least one unlock for the set, assume there was
@@ -177,8 +177,8 @@ class RevalidateAchievementSetBadgeEligibilityAction
         PlayerBadgeLost::dispatch(
             $badge->user,
             $badge->award_type,
-            $badge->award_data,
-            $badge->award_data_extra,
+            $badge->award_key,
+            $badge->award_tier,
         );
     }
 
@@ -210,16 +210,16 @@ class RevalidateAchievementSetBadgeEligibilityAction
         }
 
         $existingAward = $playerGame->user->playerBadges->where('award_type', AwardType::Event)
-            ->where('award_data', $event->id)
+            ->where('award_key', $event->id)
             ->first();
         if ($existingAward) {
-            if ($existingAward->award_data_extra >= $expectedTier) {
+            if ($existingAward->award_tier >= $expectedTier) {
                 // player already has the appropriate award (or better - never downgrade an award due to resetting)
                 return;
             }
 
             // upgraded the badge and update the awarded_at.
-            $existingAward->award_data_extra = $expectedTier;
+            $existingAward->award_tier = $expectedTier;
             $existingAward->awarded_at = Carbon::now();
             $existingAward->save();
         } else {

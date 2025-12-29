@@ -26,15 +26,15 @@ trait TestsPlayerBadges
 
         $badge = $user->playerBadges()
             ->where('award_type', '=', $type)
-            ->where('award_data', '=', $id)
-            ->where('award_data_extra', '=', $extra)
+            ->where('award_key', '=', $id)
+            ->where('award_tier', '=', $extra)
             ->first();
         if ($badge === null) {
             $badge = new PlayerBadge([
                 'user_id' => $user->id,
                 'award_type' => $type,
-                'award_data' => $id,
-                'award_data_extra' => $extra,
+                'award_key' => $id,
+                'award_tier' => $extra,
                 'awarded_at' => $awardTime,
             ]);
             $user->playerBadges()->save($badge);
@@ -54,10 +54,10 @@ trait TestsPlayerBadges
     {
         $badge = $user->playerBadges()
             ->where('award_type', AwardType::GameBeaten)
-            ->where('award_data', $game->ID);
+            ->where('award_key', $game->ID);
 
         if ($mode !== null) {
-            $badge = $badge->where('award_data_extra', UnlockMode::Hardcore);
+            $badge = $badge->where('award_tier', UnlockMode::Hardcore);
         }
 
         return $badge->exists();
@@ -92,8 +92,8 @@ trait TestsPlayerBadges
     {
         return $user->playerBadges()
             ->where('award_type', AwardType::Mastery)
-            ->where('award_data', $game->ID)
-            ->where('award_data_extra', UnlockMode::Hardcore)
+            ->where('award_key', $game->ID)
+            ->where('award_tier', UnlockMode::Hardcore)
             ->exists();
     }
 
@@ -117,8 +117,8 @@ trait TestsPlayerBadges
     {
         return $user->playerBadges()
             ->where('award_type', AwardType::Mastery)
-            ->where('award_data', $game->ID)
-            ->where('award_data_extra', UnlockMode::Softcore)
+            ->where('award_key', $game->ID)
+            ->where('award_tier', UnlockMode::Softcore)
             ->exists();
     }
 

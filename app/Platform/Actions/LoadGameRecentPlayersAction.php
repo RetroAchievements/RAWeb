@@ -44,7 +44,7 @@ class LoadGameRecentPlayersAction
 
         // Batch load all awards for these users for this specific game.
         $badges = PlayerBadge::whereIn('user_id', $userIds)
-            ->where('award_data', $game->id)
+            ->where('award_key', $game->id)
             ->whereIn('award_type', [AwardType::Mastery, AwardType::GameBeaten])
             ->get()
             ->groupBy('user_id');
@@ -81,7 +81,7 @@ class LoadGameRecentPlayersAction
 
         foreach ($awardPriority as $criteria) {
             $highestAward = $badges->first(function ($badge) use ($criteria) {
-                return $badge->award_type === $criteria['type'] && $badge->award_data_extra === $criteria['extra'];
+                return $badge->award_type === $criteria['type'] && $badge->award_tier === $criteria['extra'];
             });
 
             if ($highestAward) {

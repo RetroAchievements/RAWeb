@@ -1033,8 +1033,8 @@ declare namespace App.Platform.Data {
   };
   export type PlayerBadge = {
     awardType: App.Community.Enums.AwardType;
-    awardData: number;
-    awardDataExtra: number;
+    awardKey: number;
+    awardTier: number;
     awardDate: string;
   };
   export type PlayerGameActivity = {
