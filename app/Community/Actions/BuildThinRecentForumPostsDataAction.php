@@ -39,7 +39,6 @@ class BuildThinRecentForumPostsDataAction
                 'LatestComments.body as Payload',
                 'ua.username as Author',
                 'ua.display_name as AuthorDisplayName',
-                'ua.points',
                 'ft.id as ForumTopicID',
                 'ft.title as ForumTopicTitle',
                 'LatestComments.author_id as author_id',

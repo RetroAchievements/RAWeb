@@ -19,8 +19,8 @@ class UpdatePlayerMetricsAction
         $user->achievements_unlocked_hardcore = $playerGames->sum('achievements_unlocked_hardcore');
         $user->completion_percentage_average = $playerGames->average('completion_percentage');
         $user->completion_percentage_average_hardcore = $playerGames->average('completion_percentage_hardcore');
-        $user->points = $playerGames->sum('points_hardcore');
-        $user->points_softcore = $playerGames->sum('points') - $user->points;
+        $user->points_hardcore = $playerGames->sum('points_hardcore');
+        $user->points = $playerGames->sum('points') - $user->points_hardcore;
         $user->points_weighted = $playerGames->sum('points_weighted');
 
         $user->saveQuietly();

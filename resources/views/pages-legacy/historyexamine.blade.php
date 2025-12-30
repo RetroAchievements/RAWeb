@@ -19,8 +19,8 @@ $userPage = $userDetails->display_name;
 
 $dateInput = (int) request()->input('d', 0);
 
-$userPageHardcorePoints = $userDetails->points;
-$userPageSoftcorePoints = $userDetails->points_softcore;
+$userPageHardcorePoints = $userDetails->points_hardcore;
+$userPageSoftcorePoints = $userDetails->points;
 
 $achEarnedOnDay = getAchievementsEarnedOnDay($dateInput, $userDetails);
 

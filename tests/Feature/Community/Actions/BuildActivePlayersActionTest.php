@@ -279,7 +279,7 @@ class BuildActivePlayersActionTest extends TestCase
             'Permissions' => Permissions::Registered,
             'username' => 'tracked_high_points',
             'Untracked' => 0,
-            'points' => 100000,
+            'points_hardcore' => 100000,
         ]);
         $untrackedHighPoints = User::factory()->create([
             'rich_presence_game_id' => $game->id,
@@ -287,7 +287,7 @@ class BuildActivePlayersActionTest extends TestCase
             'Permissions' => Permissions::Registered,
             'username' => 'untracked_high_points',
             'Untracked' => 1,
-            'points' => 999999,
+            'points_hardcore' => 999999,
         ]);
         $trackedLowPoints = User::factory()->create([
             'rich_presence_game_id' => $game->id,
@@ -295,7 +295,7 @@ class BuildActivePlayersActionTest extends TestCase
             'Permissions' => Permissions::Registered,
             'username' => 'tracked_low_points',
             'Untracked' => 0,
-            'points' => 50000,
+            'points_hardcore' => 50000,
         ]);
 
         $this->createActivePlayer($trackedHighPoints, $game);

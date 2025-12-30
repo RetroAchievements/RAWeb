@@ -110,7 +110,7 @@ function getArticleComments(
     $numArticleComments = 0;
     $order = $recent ? ' DESC' : '';
 
-    $query = "SELECT SQL_CALC_FOUND_ROWS ua.username AS User, ua.points, ua.banned_at, c.ID, c.user_id,
+    $query = "SELECT SQL_CALC_FOUND_ROWS ua.username AS User, ua.banned_at, c.ID, c.user_id,
                      c.Payload AS CommentPayload,
                      UNIX_TIMESTAMP(c.Submitted) AS Submitted, c.Edited
               FROM Comment AS c
@@ -161,8 +161,8 @@ function getLatestRichPresenceUpdates(): array
     $recentMinutes = 10;
     $permissionsCutoff = Permissions::Registered;
 
-    $ifRAPoints = ifStatement('ua.Untracked', 0, 'ua.points');
-    $ifRASoftcorePoints = ifStatement('ua.Untracked', 0, 'ua.points_softcore');
+    $ifRAPoints = ifStatement('ua.Untracked', 0, 'ua.points_hardcore');
+    $ifRASoftcorePoints = ifStatement('ua.Untracked', 0, 'ua.points');
     $timestampStatement = timestampAddMinutesStatement(-$recentMinutes);
 
     $query = "SELECT ua.username AS User, $ifRAPoints as RAPoints, $ifRASoftcorePoints as RASoftcorePoints,

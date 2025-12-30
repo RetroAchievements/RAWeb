@@ -354,8 +354,6 @@ function getRecentForumPosts(
             LatestComments.body AS Payload,
             ua.username as Author,
             ua.display_name as AuthorDisplayName,
-            ua.points,
-            ua.motto,
             ft.id AS ForumTopicID,
             ft.title AS ForumTopicTitle,
             LatestComments.author_id AS author_id,

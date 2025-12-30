@@ -23,7 +23,7 @@ class UserRankAndScoreTest extends TestCase
 
     public function testGetUserRankAndScoreUnknownUser(): void
     {
-        $this->user->points = 600; // make sure enough points to be ranked
+        $this->user->points_hardcore = 600; // make sure enough points to be ranked
         $this->user->save();
 
         $this->get($this->apiUrl('GetUserRankAndScore', ['u' => 'nonExistant']))
@@ -38,20 +38,20 @@ class UserRankAndScoreTest extends TestCase
 
     public function testGetUserRankAndScoreByName(): void
     {
-        $this->user->points = 600; // make sure enough points to be ranked
+        $this->user->points_hardcore = 600; // make sure enough points to be ranked
         $this->user->save();
 
         /** @var User $user */
         $user = User::factory()->create([
-            'points_softcore' => 371,
-            'points' => 25842,
+            'points' => 371,
+            'points_hardcore' => 25842,
         ]);
 
         $this->get($this->apiUrl('GetUserRankAndScore', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
-                'Score' => $user->points,
-                'SoftcoreScore' => $user->points_softcore,
+                'Score' => $user->points_hardcore,
+                'SoftcoreScore' => $user->points,
                 'Rank' => 1,
                 'TotalRanked' => 2, // $this->user and $user
             ]);
@@ -59,20 +59,20 @@ class UserRankAndScoreTest extends TestCase
 
     public function testGetUserRankAndScoreByUlid(): void
     {
-        $this->user->points = 600; // make sure enough points to be ranked
+        $this->user->points_hardcore = 600; // make sure enough points to be ranked
         $this->user->save();
 
         /** @var User $user */
         $user = User::factory()->create([
-            'points_softcore' => 371,
-            'points' => 25842,
+            'points' => 371,
+            'points_hardcore' => 25842,
         ]);
 
         $this->get($this->apiUrl('GetUserRankAndScore', ['u' => $user->ulid]))
             ->assertSuccessful()
             ->assertJson([
-                'Score' => $user->points,
-                'SoftcoreScore' => $user->points_softcore,
+                'Score' => $user->points_hardcore,
+                'SoftcoreScore' => $user->points,
                 'Rank' => 1,
                 'TotalRanked' => 2, // $this->user and $user
             ]);

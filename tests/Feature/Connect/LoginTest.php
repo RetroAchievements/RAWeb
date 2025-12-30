@@ -30,8 +30,8 @@ class LoginTest extends TestCase
             'connect_token' => Str::random(16),
             'password' => Hash::make($password),
             'Permissions' => Permissions::JuniorDeveloper,
-            'points' => 12345,
-            'points_softcore' => 4321,
+            'points_hardcore' => 12345,
+            'points' => 4321,
         ]);
 
         $this->get($this->apiUrl('login', ['u' => $user->username, 'p' => $password], credentials: false))
@@ -75,8 +75,8 @@ class LoginTest extends TestCase
             'connect_token' => '',
             'legacy_salted_password' => md5($password . config('app.legacy_password_salt')),
             'Permissions' => Permissions::Developer,
-            'points' => 99999,
-            'points_softcore' => 99,
+            'points_hardcore' => 99999,
+            'points' => 99,
         ]);
 
         $response = $this->get($this->apiUrl('login', ['u' => $user2->username, 'p' => $password], credentials: false));

@@ -32,11 +32,11 @@ function countRankedUsers(int $type = RankType::Hardcore): int
             $query = "SELECT COUNT(*) AS count FROM users ";
             switch ($type) {
                 case RankType::Hardcore:
-                    $query .= "WHERE points >= " . Rank::MIN_POINTS;
+                    $query .= "WHERE points_hardcore >= " . Rank::MIN_POINTS;
                     break;
 
                 case RankType::Softcore:
-                    $query .= "WHERE points_softcore >= " . Rank::MIN_POINTS;
+                    $query .= "WHERE points >= " . Rank::MIN_POINTS;
                     break;
 
                 case RankType::TruePoints:
@@ -52,14 +52,14 @@ function countRankedUsers(int $type = RankType::Hardcore): int
 
 function getTopUsersByScore(int $count): array
 {
-    $topUsers = User::select(['ulid', 'display_name', 'username', 'points', 'points_weighted'])
+    $topUsers = User::select(['ulid', 'display_name', 'username', 'points_hardcore', 'points_weighted'])
         ->where('Untracked', false)
-        ->orderBy('points', 'desc')
+        ->orderBy('points_hardcore', 'desc')
         ->take(min($count, 10))
         ->get()
         ->map(fn ($user) => [
             1 => $user->display_name ?? $user->username,
-            2 => $user->points,
+            2 => $user->points_hardcore,
             3 => $user->points_weighted,
             4 => $user->ulid,
         ])
@@ -87,9 +87,9 @@ function getUserRank(string $username, int $type = RankType::Hardcore): ?int
         }
 
         $field = match ($type) {
-            RankType::Softcore => 'points_softcore',
+            RankType::Softcore => 'points',
             RankType::TruePoints => 'points_weighted',
-            default => 'points',
+            default => 'points_hardcore',
         };
 
         $points = $user->$field;

@@ -126,8 +126,8 @@ class UsersTest extends JsonApiResourceTestCase
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
-        User::factory()->create(['points' => 100]);
-        User::factory()->create(['points' => 500]);
+        User::factory()->create(['points_hardcore' => 100]);
+        User::factory()->create(['points_hardcore' => 500]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -305,8 +305,8 @@ class UsersTest extends JsonApiResourceTestCase
             'display_name' => 'TestPlayer',
             'username' => 'TestPlayer',
             'motto' => 'Test motto',
-            'points' => 5000,
-            'points_softcore' => 100,
+            'points_hardcore' => 5000,
+            'points' => 100,
             'points_weighted' => 15000,
             'yield_unlocks' => 50,
             'yield_points' => 1000,

@@ -50,7 +50,7 @@ class UserGameListEntry extends BaseModel
         $requests['pointsForNext'] = 0;
         $points = 0;
 
-        $points += $user->points + $user->points_softcore;
+        $points += $user->points_hardcore + $user->points;
 
         // logic behind the amount of requests based on player's score:
         $boundariesAndChunks = [

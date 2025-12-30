@@ -241,7 +241,7 @@ class ResumePlayerSessionAction
                 ->whereNull('completed_at')
                 ->increment('time_taken', $adjustment);
 
-            if ($playerSession->hardcore || $playerGame->user->points > $playerGame->user->points_softcore) {
+            if ($playerSession->hardcore || $playerGame->user->points_hardcore > $playerGame->user->points) {
                 $baseQuery->clone()
                     ->whereNull('completed_hardcore_at')
                     ->increment('time_taken_hardcore', $adjustment);

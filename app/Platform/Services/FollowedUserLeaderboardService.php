@@ -22,8 +22,8 @@ class FollowedUserLeaderboardService
     {
         $followedUsers = $user->followedUsers()
             ->where(function ($query) {
-                $query->where('points', '>', 0)
-                    ->orWhere('points_softcore', '>', 0);
+                $query->where('points_hardcore', '>', 0)
+                    ->orWhere('points', '>', 0);
             })
             ->with(['playerStats' => function ($query) {
                 $types = [
@@ -59,11 +59,11 @@ class FollowedUserLeaderboardService
                 $statsWeekly[] = ['user' => $followedUser->display_name] + $weekly;
             }
 
-            if ($followedUser->points > 0) {
+            if ($followedUser->points_hardcore > 0) {
                 $statsAllTime[] = [
                     'user' => $followedUser->display_name,
-                    'points_hardcore' => $followedUser->points,
-                    'points_softcore' => $followedUser->points_softcore,
+                    'points_hardcore' => $followedUser->points_hardcore,
+                    'points_softcore' => $followedUser->points,
                     'points_weighted' => $followedUser->points_weighted,
                 ];
             }
@@ -81,8 +81,8 @@ class FollowedUserLeaderboardService
         // Include the current user in the all-time list.
         $statsAllTime[] = [
             'user' => $user->display_name,
-            'points_hardcore' => $user->points,
-            'points_softcore' => $user->points_softcore,
+            'points_hardcore' => $user->points_hardcore,
+            'points_softcore' => $user->points,
             'points_weighted' => $user->points_weighted,
         ];
 

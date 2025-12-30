@@ -139,7 +139,7 @@ function getGlobalRankingData(
         $totalAwards = "SUM(IF(AwardDataExtra > 0, 1, 0))";
     } else {
         $totalAwards = "COUNT(*)";
-        $pointRequirement = "AND ua.points_softcore >= 0"; // if someone resets a softcore achievement without resetting the hardcore, the query can return negative points
+        $pointRequirement = "AND ua.points >= 0"; // if someone resets a softcore achievement without resetting the hardcore, the query can return negative points
     }
 
     $retVal = [];
@@ -147,11 +147,11 @@ function getGlobalRankingData(
         if ($friendsOf === null) {
             // if not comparing against friends, only look at the ranked users
             if ($unlockMode == UnlockMode::Softcore) {
-                $pointRequirement = "AND ua.points_softcore >= " . Rank::MIN_POINTS;
+                $pointRequirement = "AND ua.points >= " . Rank::MIN_POINTS;
             } elseif ($sort == 6) {
                 $pointRequirement = "AND ua.points_weighted >= " . Rank::MIN_TRUE_POINTS;
             } else {
-                $pointRequirement = "AND ua.points >= " . Rank::MIN_POINTS;
+                $pointRequirement = "AND ua.points_hardcore >= " . Rank::MIN_POINTS;
             }
         }
 
@@ -159,24 +159,24 @@ function getGlobalRankingData(
             if ($unlockMode == UnlockMode::Hardcore) {
                 $selectQuery = "SELECT ua.id AS ID, ua.username AS User,
                         COALESCE(ua.achievements_unlocked_hardcore, 0) AS AchievementCount,
-                        COALESCE(ua.points, 0) AS Points,
+                        COALESCE(ua.points_hardcore, 0) AS Points,
                         COALESCE(ua.points_weighted, 0) AS RetroPoints,
-                        COALESCE(ROUND(ua.points_weighted/ua.points, 2), 0) AS RetroRatio ";
+                        COALESCE(ROUND(ua.points_weighted/ua.points_hardcore, 2), 0) AS RetroRatio ";
             } else {
                 $selectQuery = "SELECT ua.id AS ID, ua.username AS User,
                         COALESCE(ua.achievements_unlocked - ua.achievements_unlocked_hardcore, 0) AS AchievementCount,
-                        COALESCE(ua.points_softcore, 0) AS Points,
+                        COALESCE(ua.points, 0) AS Points,
                         0 AS RetroPoints,
                         0 AS RetroRatio ";
             }
         } else {
             if ($unlockMode == UnlockMode::Hardcore) {
                 $selectQuery = "SELECT ua.id AS ID, ua.username AS User,
-                        COALESCE(ua.points, 0) AS Points,
+                        COALESCE(ua.points_hardcore, 0) AS Points,
                         COALESCE(ua.points_weighted, 0) AS RetroPoints ";
             } else {
                 $selectQuery = "SELECT ua.id AS ID, ua.username AS User,
-                        COALESCE(ua.points_softcore, 0) AS Points,
+                        COALESCE(ua.points, 0) AS Points,
                         0 AS RetroPoints ";
             }
         }

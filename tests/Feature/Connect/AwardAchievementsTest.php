@@ -64,8 +64,8 @@ class AwardAchievementsTest extends TestCase
         $this->assertEquals([$achievement1->ID], array_keys($unlocks));
 
         // do the delegated unlocks sync
-        $scoreBefore = $delegatedUser->points;
-        $softcoreScoreBefore = $delegatedUser->points_softcore;
+        $scoreBefore = $delegatedUser->points_hardcore;
+        $softcoreScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $integrationUser->username,
@@ -144,9 +144,9 @@ class AwardAchievementsTest extends TestCase
         $user1 = User::whereName($delegatedUser->username)->first();
         $this->assertEquals(
             $scoreBefore + $achievement2->Points + $achievement3->Points + $achievement4->Points,
-            $user1->points
+            $user1->points_hardcore
         );
-        $this->assertEquals($softcoreScoreBefore, $user1->points_softcore);
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $game->ID);
@@ -178,8 +178,8 @@ class AwardAchievementsTest extends TestCase
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->create(['ID' => 1, 'GameID' => $game->ID, 'user_id' => $integrationUser->id]);
 
-        $scoreBefore = $delegatedUser->points;
-        $softcoreScoreBefore = $delegatedUser->points_softcore;
+        $scoreBefore = $delegatedUser->points_hardcore;
+        $softcoreScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $integrationUser->username,
@@ -205,8 +205,8 @@ class AwardAchievementsTest extends TestCase
         $delegatedUser->refresh();
 
         // Points shouldn't change.
-        $this->assertEquals($scoreBefore, $delegatedUser->points);
-        $this->assertEquals($softcoreScoreBefore, $delegatedUser->points_softcore);
+        $this->assertEquals($scoreBefore, $delegatedUser->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $delegatedUser->points);
 
         // A session shouldn't have been created.
         $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
@@ -230,8 +230,8 @@ class AwardAchievementsTest extends TestCase
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->create(['ID' => 1, 'GameID' => $game->ID, 'user_id' => $integrationUser->id]);
 
-        $scoreBefore = $delegatedUser->points;
-        $softcoreScoreBefore = $delegatedUser->points_softcore;
+        $scoreBefore = $delegatedUser->points_hardcore;
+        $softcoreScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $integrationUser->username,
@@ -257,8 +257,8 @@ class AwardAchievementsTest extends TestCase
         $delegatedUser->refresh();
 
         // Points shouldn't change.
-        $this->assertEquals($scoreBefore, $delegatedUser->points);
-        $this->assertEquals($softcoreScoreBefore, $delegatedUser->points_softcore);
+        $this->assertEquals($scoreBefore, $delegatedUser->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $delegatedUser->points);
 
         // A session shouldn't have been created.
         $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
@@ -282,8 +282,8 @@ class AwardAchievementsTest extends TestCase
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->create(['ID' => 1, 'GameID' => $game->ID, 'user_id' => 9999999]);
 
-        $scoreBefore = $delegatedUser->points;
-        $softcoreScoreBefore = $delegatedUser->points_softcore;
+        $scoreBefore = $delegatedUser->points_hardcore;
+        $softcoreScoreBefore = $delegatedUser->points;
 
         $params = [
             'u' => $integrationUser->username,
@@ -309,8 +309,8 @@ class AwardAchievementsTest extends TestCase
         $delegatedUser->refresh();
 
         // Points shouldn't change.
-        $this->assertEquals($scoreBefore, $delegatedUser->points);
-        $this->assertEquals($softcoreScoreBefore, $delegatedUser->points_softcore);
+        $this->assertEquals($scoreBefore, $delegatedUser->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $delegatedUser->points);
 
         // A session shouldn't have been created.
         $this->assertDatabaseMissing((new PlayerSession())->getTable(), [

@@ -150,8 +150,8 @@ trait ActsAsCommunityMember
 
         return
             !$this->isForumVerified()
+            && $this->points_hardcore === 0
             && $this->points === 0
-            && $this->points_softcore === 0
             && $this->created_at > now()->subWeeks(2) // account is less than 2 weeks old
         ;
     }

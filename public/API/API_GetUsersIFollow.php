@@ -52,8 +52,8 @@ $usersList = $user
     fn ($followedUser) => [
         "User" => $followedUser->display_name,
         "ULID" => $followedUser->ulid,
-        "Points" => $followedUser->points,
-        "PointsSoftcore" => $followedUser->points_softcore,
+        "Points" => $followedUser->points_hardcore,
+        "PointsSoftcore" => $followedUser->points,
         "IsFollowingMe" => $followedUser->relatedUsers->first()?->pivot?->Friendship ===
           UserRelationship::Following,
     ]

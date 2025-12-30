@@ -65,8 +65,8 @@ function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchi
     $libraryOut['LastGameID'] = (int) $user->rich_presence_game_id;
     $libraryOut['ContribCount'] = (int) $user->yield_unlocks;
     $libraryOut['ContribYield'] = (int) $user->yield_points;
-    $libraryOut['TotalPoints'] = (int) $user->points;
-    $libraryOut['TotalSoftcorePoints'] = (int) $user->points_softcore;
+    $libraryOut['TotalPoints'] = (int) $user->points_hardcore;
+    $libraryOut['TotalSoftcorePoints'] = (int) $user->points;
     $libraryOut['TotalTruePoints'] = (int) $user->points_weighted;
     $libraryOut['Permissions'] = (int) $user->getAttribute('Permissions');
     $libraryOut['Untracked'] = (int) $user->Untracked;
@@ -128,8 +128,8 @@ function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataO
     $orderBy = match ($sortBy) {
         1 => "COALESCE(ua.display_name, ua.username) ASC ",
         11 => "COALESCE(ua.display_name, ua.username) DESC ",
-        2 => "ua.points DESC ",
-        12 => "ua.points ASC ",
+        2 => "ua.points_hardcore DESC ",
+        12 => "ua.points_hardcore ASC ",
         3 => "NumAwarded DESC ",
         13 => "NumAwarded ASC ",
         4 => "ua.last_activity_at DESC ",
@@ -137,7 +137,7 @@ function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataO
         default => "COALESCE(ua.display_name, ua.username) ASC ",
     };
 
-   $query = "SELECT ua.id, COALESCE(ua.display_name, ua.username) AS User, ua.points, ua.points_weighted, ua.last_activity_at,
+   $query = "SELECT ua.id, COALESCE(ua.display_name, ua.username) AS User, ua.points_hardcore AS points, ua.points_weighted, ua.last_activity_at,
                 ua.achievements_unlocked NumAwarded
                 FROM users AS ua
                 $whereQuery

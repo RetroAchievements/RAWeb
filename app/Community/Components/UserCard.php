@@ -73,7 +73,7 @@ class UserCard extends Component
     private function buildAllCardViewValues(string $username, array $rawUserData): array
     {
         $cardBioData = $this->buildCardBioData($rawUserData);
-        $cardRankData = $this->buildCardRankData($username, $rawUserData['points'], $rawUserData['points_softcore'] ?? 0, $rawUserData['Untracked'] ? true : false);
+        $cardRankData = $this->buildCardRankData($username, $rawUserData['points_hardcore'], $rawUserData['points'] ?? 0, $rawUserData['Untracked'] ? true : false);
         $cardRoleData = $this->buildCardRoleData($username, $rawUserData['visibleRoleName'], $rawUserData['isBanned'], $rawUserData['isMuted']);
 
         return array_merge($cardBioData, $cardRankData, $cardRoleData);
@@ -84,8 +84,8 @@ class UserCard extends Component
         $username = $rawUserData['display_name'] ?? $rawUserData['username'] ?? "";
         $motto = $rawUserData['motto'] && !$rawUserData['isMuted'] ? $rawUserData['motto'] : null;
         $avatarUrl = $rawUserData['avatarUrl'] ?? null;
-        $hardcorePoints = $rawUserData['points'] ?? 0;
-        $softcorePoints = $rawUserData['points_softcore'] ?? 0;
+        $hardcorePoints = $rawUserData['points_hardcore'] ?? 0;
+        $softcorePoints = $rawUserData['points'] ?? 0;
         $retroPoints = $rawUserData['points_weighted'] ?? 0;
         $isUntracked = $rawUserData['Untracked'] ? true : false;
         $permissions = $rawUserData['Permissions'] ?? Permissions::Unregistered;

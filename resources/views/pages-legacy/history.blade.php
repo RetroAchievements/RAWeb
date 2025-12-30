@@ -26,8 +26,8 @@ if ($sortBy == 2 || $sortBy == 12) {
     $sortByGraphName = 'Num Achievements Earned';
 }
 
-$userPageHardcorePoints = $userDetails->points;
-$userPageSoftcorePoints = $userDetails->points_softcore;
+$userPageHardcorePoints = $userDetails->points_hardcore;
+$userPageSoftcorePoints = $userDetails->points;
 
 //	the past week
 $userScoreData = getAwardedList($userDetails);

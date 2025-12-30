@@ -201,8 +201,8 @@ class ResetPlayerProgressAction
             $user->playerAchievements()->delete();
             $user->leaderboardEntries()->delete();
 
+            $user->points_hardcore = 0;
             $user->points = 0;
-            $user->points_softcore = 0;
             $user->points_weighted = 0;
             $user->yield_unlocks = 0;
             $user->yield_points = 0;

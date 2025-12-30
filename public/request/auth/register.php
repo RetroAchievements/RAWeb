@@ -49,8 +49,8 @@ $userModel = new User([
     'email' => $email,
     'Permissions' => Permissions::Unregistered,
     'preferences_bitfield' => 127,
+    'points_hardcore' => 0,
     'points' => 0,
-    'points_softcore' => 0,
     'points_weighted' => 0,
 ]);
 // these fields are not fillable, so we have to set them after initializing the User model

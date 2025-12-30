@@ -118,8 +118,8 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         'password', // fillable for registration
         'PasswordResetToken', // fillable for when users are banned
         'Permissions',
+        'points_hardcore',
         'points',
-        'points_softcore',
         'points_weighted',
         'preferences',
         'preferences_bitfield',
@@ -152,8 +152,8 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         "ManuallyVerified",
         "motto",
         "Permissions",
+        "points_hardcore",
         "points",
-        "points_softcore",
         "points_weighted",
         "preferences_bitfield",
         "unread_messages",
@@ -177,8 +177,8 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         'muted_until' => 'datetime',
         'password' => 'hashed',
         'Permissions' => 'integer',
+        'points_hardcore' => 'integer',
         'points' => 'integer',
-        'points_softcore' => 'integer',
         'points_weighted' => 'integer',
         'rich_presence_updated_at' => 'datetime',
         'unranked_at' => 'datetime',
@@ -452,8 +452,8 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
      */
     public function scopeHasAnyPoints(Builder $query): Builder
     {
-        return $query->where('points', '>', 0)
-            ->orWhere('points_softcore', '>', 0);
+        return $query->where('points_hardcore', '>', 0)
+            ->orWhere('points', '>', 0);
     }
 
     /**

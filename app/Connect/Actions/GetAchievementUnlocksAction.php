@@ -65,7 +65,7 @@ class GetAchievementUnlocksAction extends BaseAuthenticatedApiAction
             $recentWinners[] = [
                 'User' => $playerAchievement->user->display_name,
                 'AvatarUrl' => media_asset('UserPic/' . $playerAchievement->user->username . '.png'),
-                'RAPoints' => $playerAchievement->user->points,
+                'RAPoints' => $playerAchievement->user->points_hardcore,
                 'DateAwarded' => $playerAchievement->unlocked_hardcore_at ?
                     $playerAchievement->unlocked_hardcore_at->unix() :
                     $playerAchievement->unlocked_at->unix(),

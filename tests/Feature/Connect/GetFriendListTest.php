@@ -67,7 +67,7 @@ class GetFriendListTest extends TestCase
                     [
                         'Friend' => $user2->display_name,
                         'AvatarUrl' => $user2->avatar_url,
-                        'RAPoints' => $user2->points,
+                        'RAPoints' => $user2->points_hardcore,
                         'LastSeen' => $user2->rich_presence,
                         'LastSeenTime' => $date1->unix(),
                         'LastGameId' => $game1->id,
@@ -111,7 +111,7 @@ class GetFriendListTest extends TestCase
                     [
                         'Friend' => $user3->display_name,
                         'AvatarUrl' => $user3->avatar_url,
-                        'RAPoints' => $user3->points,
+                        'RAPoints' => $user3->points_hardcore,
                         'LastSeen' => "Titles",
                         'LastSeenTime' => $date2->unix(),
                         'LastGameId' => $game2->id,
@@ -121,7 +121,7 @@ class GetFriendListTest extends TestCase
                     [
                         'Friend' => $user2->display_name,
                         'AvatarUrl' => $user2->avatar_url,
-                        'RAPoints' => $user2->points,
+                        'RAPoints' => $user2->points_hardcore,
                         'LastSeen' => $user2->rich_presence,
                         'LastSeenTime' => $date1->unix(),
                         'LastGameId' => $game1->id,
@@ -155,7 +155,7 @@ class GetFriendListTest extends TestCase
                     [
                         'Friend' => $user6->display_name,
                         'AvatarUrl' => $user6->avatar_url,
-                        'RAPoints' => $user6->points,
+                        'RAPoints' => $user6->points_hardcore,
                         'LastSeen' => 'Unknown',
                         'LastSeenTime' => $date3->unix(),
                         'LastGameId' => null,
@@ -165,7 +165,7 @@ class GetFriendListTest extends TestCase
                     [
                         'Friend' => $user3->display_name,
                         'AvatarUrl' => $user3->avatar_url,
-                        'RAPoints' => $user3->points,
+                        'RAPoints' => $user3->points_hardcore,
                         'LastSeen' => "Titles",
                         'LastSeenTime' => $date2->unix(),
                         'LastGameId' => $game2->id,
@@ -175,7 +175,7 @@ class GetFriendListTest extends TestCase
                     [
                         'Friend' => $user2->display_name,
                         'AvatarUrl' => $user2->avatar_url,
-                        'RAPoints' => $user2->points,
+                        'RAPoints' => $user2->points_hardcore,
                         'LastSeen' => $user2->rich_presence,
                         'LastSeenTime' => $date1->unix(),
                         'LastGameId' => $game1->id,
@@ -205,7 +205,7 @@ class GetFriendListTest extends TestCase
                     [
                         'Friend' => $user6->display_name,
                         'AvatarUrl' => $user6->avatar_url,
-                        'RAPoints' => $user6->points,
+                        'RAPoints' => $user6->points_hardcore,
                         'LastSeen' => $user6->rich_presence,
                         'LastSeenTime' => $date3->unix(),
                         'LastGameId' => $game2->id,

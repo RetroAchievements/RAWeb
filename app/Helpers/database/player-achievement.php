@@ -59,17 +59,17 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?Ga
         if ($isHardcore && !$hasHardcore) {
             if ($playerGame) {
                 $playerGame->achievements_unlocked_hardcore++;
-                $user->points += $achievement->Points;
+                $user->points_hardcore += $achievement->Points;
 
                 if ($hasRegular) {
                     $playerGame->achievements_unlocked--;
-                    $user->points_softcore -= $achievement->Points;
+                    $user->points -= $achievement->Points;
                 }
 
                 $playerGame->save();
             }
         } elseif (!$isHardcore && !$hasRegular) {
-            $user->points_softcore += $achievement->Points;
+            $user->points += $achievement->Points;
 
             if ($playerGame) {
                 $playerGame->achievements_unlocked++;
@@ -142,7 +142,7 @@ function getAchievementUnlocksData(
     return PlayerAchievement::where('achievement_id', $achievementId)
         ->join('users', 'users.id', '=', 'user_id')
         ->orderByRaw('COALESCE(unlocked_hardcore_at, unlocked_at) DESC')
-        ->select(['users.ulid', 'users.username', 'users.display_name', 'users.points', 'users.points_softcore', 'unlocked_at', 'unlocked_hardcore_at'])
+        ->select(['users.ulid', 'users.username', 'users.display_name', 'users.points_hardcore', 'users.points', 'unlocked_at', 'unlocked_hardcore_at'])
         ->offset($offset)
         ->limit($limit)
         ->get()
@@ -150,8 +150,8 @@ function getAchievementUnlocksData(
             return [
                 'User' => !empty($row->display_name) ? $row->display_name : $row->username,
                 'ULID' => $row->ulid,
-                'RAPoints' => $row->points,
-                'RASoftcorePoints' => $row->points_softcore,
+                'RAPoints' => $row->points_hardcore,
+                'RASoftcorePoints' => $row->points,
                 'DateAwarded' => $row->unlocked_hardcore_at ?? $row->unlocked_at,
                 'HardcoreMode' => $row->unlocked_hardcore_at ? 1 : 0,
             ];

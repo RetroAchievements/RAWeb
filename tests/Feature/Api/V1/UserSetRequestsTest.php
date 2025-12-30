@@ -47,7 +47,7 @@ class UserSetRequestsTest extends TestCase
         ]);
 
         $user = User::factory()->create([
-            'points' => 1501, // enough points to set request total to 1
+            'points_hardcore' => 1501, // enough points to set request total to 1
         ]);
 
         // Create the first user game list entry for the set request
@@ -106,7 +106,7 @@ class UserSetRequestsTest extends TestCase
         ]);
 
         $user = User::factory()->create([
-            'points' => 1501, // enough points to set request total to 1
+            'points_hardcore' => 1501, // enough points to set request total to 1
         ]);
 
         // Create the first user game list entry for the set request

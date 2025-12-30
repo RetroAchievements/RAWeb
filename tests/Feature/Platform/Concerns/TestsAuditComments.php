@@ -22,6 +22,7 @@ trait TestsAuditComments
             'email' => '',
             'email_verified_at' => null,
             'password' => null,
+            'points_hardcore' => 0,
             'points' => 0,
             'web_api_key' => null,
             'remember_token' => null,

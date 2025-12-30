@@ -48,16 +48,16 @@ class UserSummaryTest extends TestCase
     public function testGetUserSummaryNoGameHistoryByName(): void
     {
         // user with no game history should have no points
+        $this->user->points_hardcore = 0;
         $this->user->points = 0;
-        $this->user->points_softcore = 0;
         $this->user->save();
 
         $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->username])) // !!
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $this->user->id,
-                'TotalPoints' => $this->user->points,
-                'TotalSoftcorePoints' => $this->user->points_softcore,
+                'TotalPoints' => $this->user->points_hardcore,
+                'TotalSoftcorePoints' => $this->user->points,
                 'TotalTruePoints' => $this->user->points_weighted,
                 'Permissions' => $this->user->Permissions,
                 'MemberSince' => $this->user->created_at->__toString(),
@@ -81,16 +81,16 @@ class UserSummaryTest extends TestCase
     public function testGetUserSummaryNoGameHistoryByUlid(): void
     {
         // user with no game history should have no points
+        $this->user->points_hardcore = 0;
         $this->user->points = 0;
-        $this->user->points_softcore = 0;
         $this->user->save();
 
         $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->ulid])) // !!
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $this->user->id,
-                'TotalPoints' => $this->user->points,
-                'TotalSoftcorePoints' => $this->user->points_softcore,
+                'TotalPoints' => $this->user->points_hardcore,
+                'TotalSoftcorePoints' => $this->user->points,
                 'TotalTruePoints' => $this->user->points_weighted,
                 'Permissions' => $this->user->Permissions,
                 'MemberSince' => $this->user->created_at->__toString(),
@@ -199,11 +199,11 @@ class UserSummaryTest extends TestCase
 
         // ensure $user has enough points to be ranked
         $user->refresh();
-        $user['points'] = random_int(Rank::MIN_POINTS, 10000);
+        $user['points_hardcore'] = random_int(Rank::MIN_POINTS, 10000);
         $user->save();
 
         // make sure $this->user is ranked higher than $user
-        $this->user->points = 1_234_567;
+        $this->user->points_hardcore = 1_234_567;
         $this->user->save();
 
         // default parameters returns no games
@@ -211,8 +211,8 @@ class UserSummaryTest extends TestCase
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $user->id,
-                'TotalPoints' => $user->points,
-                'TotalSoftcorePoints' => $user->points_softcore,
+                'TotalPoints' => $user->points_hardcore,
+                'TotalSoftcorePoints' => $user->points,
                 'TotalTruePoints' => $user->points_weighted,
                 'Permissions' => $user->Permissions,
                 'MemberSince' => $user->created_at->__toString(),
@@ -249,8 +249,8 @@ class UserSummaryTest extends TestCase
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $user->id,
-                'TotalPoints' => $user->points,
-                'TotalSoftcorePoints' => $user->points_softcore,
+                'TotalPoints' => $user->points_hardcore,
+                'TotalSoftcorePoints' => $user->points,
                 'TotalTruePoints' => $user->points_weighted,
                 'Permissions' => $user->Permissions,
                 'MemberSince' => $user->created_at->__toString(),
@@ -363,8 +363,8 @@ class UserSummaryTest extends TestCase
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $user->id,
-                'TotalPoints' => $user->points,
-                'TotalSoftcorePoints' => $user->points_softcore,
+                'TotalPoints' => $user->points_hardcore,
+                'TotalSoftcorePoints' => $user->points,
                 'TotalTruePoints' => $user->points_weighted,
                 'Permissions' => $user->Permissions,
                 'MemberSince' => $user->created_at->__toString(),

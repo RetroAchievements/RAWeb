@@ -71,8 +71,8 @@ class UserSchema extends Schema
             Str::make('avatarUrl')->readOnly(),
             Str::make('motto')->readOnly(),
 
-            Number::make('points', 'points_softcore')->sortable()->readOnly(),
-            Number::make('pointsHardcore', 'points')->sortable()->readOnly(),
+            Number::make('points', 'points')->sortable()->readOnly(),
+            Number::make('pointsHardcore', 'points_hardcore')->sortable()->readOnly(),
             Number::make('pointsWeighted', 'points_weighted')->sortable()->readOnly(),
 
             Number::make('yieldUnlocks', 'yield_unlocks')->sortable()->readOnly(),

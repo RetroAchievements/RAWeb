@@ -30,8 +30,8 @@ class StaticTableSeeder extends Seeder
 
         $points = User::tracked()
             ->select([
-                DB::raw('SUM(points) AS HardcorePoints'),
-                DB::raw('SUM(points_softcore) AS SoftcorePoints'),
+                DB::raw('SUM(points_hardcore) AS HardcorePoints'),
+                DB::raw('SUM(points) AS SoftcorePoints'),
             ])
             ->first();
 

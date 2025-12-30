@@ -27,12 +27,12 @@ $user = request()->user();
 @endguest
 @auth
     <div class="nav-link flex-col justify-center items-end text-2xs" style="line-height: 1.1em">
-        @if($user->points_softcore && $user->points_softcore > $user->points)
-            <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->points_softcore) }}</div>
+        @if($user->points && $user->points > $user->points_hardcore)
+            <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->points) }}</div>
         @endif
 
-        @if($user->points)
-            <div class="text-color cursor-help" title="Points earned in hardcore mode">{{ localized_number($user->points) }}</div>
+        @if($user->points_hardcore)
+            <div class="text-color cursor-help" title="Points earned in hardcore mode">{{ localized_number($user->points_hardcore) }}</div>
         @endif
 
         @if($user->points_weighted)
@@ -41,8 +41,8 @@ $user = request()->user();
             </x-points-weighted-container>
         @endif
 
-        @if($user->points_softcore && $user->points_softcore <= $user->points)
-            <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->points_softcore) }}</div>
+        @if($user->points && $user->points <= $user->points_hardcore)
+            <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->points) }}</div>
         @endif
     </div>
     <x-nav-dropdown trigger-class="py-0" dropdown-class="dropdown-menu-right" :desktopHref="route('user.show', $user)">

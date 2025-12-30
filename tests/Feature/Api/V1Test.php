@@ -367,8 +367,8 @@ class V1Test extends TestCase
                     [
                         'User' => $this->user->username,
                         'ULID' => $this->user->ulid,
-                        'RAPoints' => $this->user->points,
-                        'RASoftcorePoints' => $this->user->points_softcore,
+                        'RAPoints' => $this->user->points_hardcore,
+                        'RASoftcorePoints' => $this->user->points,
                         'HardcoreMode' => 0,
                     ],
                 ],

@@ -24,8 +24,8 @@ return new class extends Migration {
             $table->renameColumn('Password', 'password');
             $table->renameColumn('SaltedPass', 'legacy_salted_password');
             $table->renameColumn('EmailAddress', 'email');
-            $table->renameColumn('RAPoints', 'points');
-            $table->renameColumn('RASoftcorePoints', 'points_softcore');
+            $table->renameColumn('RAPoints', 'points_hardcore');
+            $table->renameColumn('RASoftcorePoints', 'points');
             $table->renameColumn('appToken', 'connect_token');
             $table->renameColumn('appTokenExpiry', 'connect_token_expires_at');
             $table->renameColumn('websitePrefs', 'preferences_bitfield');
@@ -104,9 +104,9 @@ return new class extends Migration {
                     MODIFY COLUMN `achievements_unlocked_hardcore` int(10) unsigned DEFAULT NULL AFTER `achievements_unlocked`,
                     MODIFY COLUMN `completion_percentage_average` decimal(10,9) DEFAULT NULL AFTER `achievements_unlocked_hardcore`,
                     MODIFY COLUMN `completion_percentage_average_hardcore` decimal(10,9) DEFAULT NULL AFTER `completion_percentage_average`,
-                    MODIFY COLUMN `points` int(11) NOT NULL AFTER `completion_percentage_average_hardcore`,
-                    MODIFY COLUMN `points_softcore` int(11) DEFAULT 0 AFTER `points`,
-                    MODIFY COLUMN `points_weighted` int(10) unsigned DEFAULT NULL AFTER `points_softcore`,
+                    MODIFY COLUMN `points` int(11) DEFAULT 0 AFTER `completion_percentage_average_hardcore`,
+                    MODIFY COLUMN `points_hardcore` int(11) NOT NULL AFTER `points`,
+                    MODIFY COLUMN `points_weighted` int(10) unsigned DEFAULT NULL AFTER `points_hardcore`,
 
                     -- Developer stats
                     MODIFY COLUMN `yield_unlocks` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'The Number of awarded achievements that this user was the author of' AFTER `points_weighted`,
@@ -184,9 +184,9 @@ return new class extends Migration {
                 MODIFY COLUMN `achievements_unlocked_hardcore` int(10) unsigned DEFAULT NULL AFTER `achievements_unlocked`,
                 MODIFY COLUMN `completion_percentage_average` decimal(10,9) DEFAULT NULL AFTER `achievements_unlocked_hardcore`,
                 MODIFY COLUMN `completion_percentage_average_hardcore` decimal(10,9) DEFAULT NULL AFTER `completion_percentage_average`,
-                MODIFY COLUMN `points` int(11) NOT NULL AFTER `completion_percentage_average_hardcore`,
-                MODIFY COLUMN `points_softcore` int(11) DEFAULT 0 AFTER `points`,
-                MODIFY COLUMN `connect_token` varchar(60) DEFAULT NULL AFTER `points_softcore`,
+                MODIFY COLUMN `points` int(11) DEFAULT 0 AFTER `completion_percentage_average_hardcore`,
+                MODIFY COLUMN `points_hardcore` int(11) NOT NULL AFTER `points`,
+                MODIFY COLUMN `connect_token` varchar(60) DEFAULT NULL AFTER `points_hardcore`,
                 MODIFY COLUMN `connect_token_expires_at` datetime DEFAULT NULL AFTER `connect_token`,
                 MODIFY COLUMN `preferences_bitfield` int(10) unsigned DEFAULT 0 AFTER `connect_token_expires_at`,
                 MODIFY COLUMN `preferences` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`preferences`)) AFTER `preferences_bitfield`,
@@ -242,8 +242,8 @@ return new class extends Migration {
             $table->renameColumn('password', 'Password');
             $table->renameColumn('legacy_salted_password', 'SaltedPass');
             $table->renameColumn('email', 'EmailAddress');
-            $table->renameColumn('points', 'RAPoints');
-            $table->renameColumn('points_softcore', 'RASoftcorePoints');
+            $table->renameColumn('points_hardcore', 'RAPoints');
+            $table->renameColumn('points', 'RASoftcorePoints');
             $table->renameColumn('connect_token', 'appToken');
             $table->renameColumn('connect_token_expires_at', 'appTokenExpiry');
             $table->renameColumn('preferences_bitfield', 'websitePrefs');

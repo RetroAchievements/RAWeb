@@ -53,14 +53,14 @@ trait ActsAsPlayer
 
     public function getPointsRatioAttribute(): float|string
     {
-        return $this->points ? ($this->points_weighted / $this->points) : 0;
+        return $this->points_hardcore ? ($this->points_weighted / $this->points_hardcore) : 0;
     }
 
     public function getPlayerPreferredModeAttribute(): PlayerPreferredMode
     {
         // This attribute doesn't care if the user is untracked.
-        $hasHardcoreRank = $this->points >= Rank::MIN_POINTS;
-        $hasSoftcoreRank = $this->points_softcore >= Rank::MIN_POINTS;
+        $hasHardcoreRank = $this->points_hardcore >= Rank::MIN_POINTS;
+        $hasSoftcoreRank = $this->points >= Rank::MIN_POINTS;
 
         if ($hasHardcoreRank && $hasSoftcoreRank) {
             return PlayerPreferredMode::Mixed;
