@@ -6,6 +6,9 @@ namespace Database\Seeders\Concerns;
 
 use App\Models\Role;
 use App\Models\User;
+use Carbon\Carbon;
+use DateTime;
+use Faker\Factory as Faker;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -29,6 +32,11 @@ trait SeedsUsers
         // set the connect token expiry back a few minutes so we can detect if it gets
         // updated to now + expiry_delay
         $user->connect_token_expires_at = $user->connect_token_expires_at->subMinutes(5);
+
+        $faker = Faker::create();
+        $user->created_at = Carbon::parse($faker->dateTimeBetween('-3 years', '-2 hours')->format(DateTime::ATOM));
+        $user->timestamps = false;
+
         $user->save();
 
         if (!$role) {

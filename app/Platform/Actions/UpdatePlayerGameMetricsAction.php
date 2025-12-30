@@ -21,7 +21,7 @@ use Illuminate\Support\Collection;
 
 class UpdatePlayerGameMetricsAction
 {
-    public function execute(PlayerGame $playerGame, bool $silent = false): void
+    public function execute(PlayerGame $playerGame, bool $silent = false, bool $seeding = false): void
     {
         $game = $playerGame->game;
         $user = $playerGame->user;
@@ -187,12 +187,14 @@ class UpdatePlayerGameMetricsAction
             PlayerGameMetricsUpdated::dispatch($user, $game);
         }
 
-        if ($beatenChanged) {
-            dispatch(new UpdateGameBeatenMetricsJob($game->id))->onQueue('game-beaten-metrics');
-        }
+        if (!$seeding) {
+            if ($beatenChanged) {
+                dispatch(new UpdateGameBeatenMetricsJob($game->id))->onQueue('game-beaten-metrics');
+            }
 
-        foreach ($possiblePlayerCountChangeGameIds as $gameId) {
-            dispatch(new UpdateGamePlayerCountJob($gameId))->onQueue('game-player-count');
+            foreach ($possiblePlayerCountChangeGameIds as $gameId) {
+                dispatch(new UpdateGamePlayerCountJob($gameId))->onQueue('game-player-count');
+            }
         }
 
         app()->make(RevalidateAchievementSetBadgeEligibilityAction::class)->execute($playerGame);

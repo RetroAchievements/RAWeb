@@ -36,39 +36,60 @@ class PlayerAchievementsSeeder extends Seeder
             $updatePlayerGameMetricsAction = new UpdatePlayerGameMetricsAction();
             $resumePlayerSessionAction = new ResumePlayerSessionAction();
 
-            $numPlayers = (int) sqrt(random_int(1, $maxPlayers * $maxPlayers));
+            $set = $game->achievementSets()->first();
+
+            $numPlayers = (int) sqrt(rand(1, $maxPlayers * $maxPlayers));
             foreach (User::inRandomOrder()->limit($numPlayers)->get() as $user) {
+                if ($user->points_hardcore > 0 && rand(0, $user->points_hardcore) < 10) {
+                    // small chance of player loading game without earning any achievements
+                    continue;
+                }
+
+                $date = Carbon::parse($faker->dateTimeBetween($user->created_at, '-2 hours')->format(DateTime::ATOM));
+                if ($date < $set->achievements_first_published_at) {
+                    // player tried to play before the set was created.
+                    // large chance of ignoring this user makes older sets have more players
+                    if (rand(0, 3) !== 0) {
+                        continue;
+                    }
+                    // player played game before achievements existed
+                }
+
                 $achievementsRemaining = $numAchievements;
                 if ($user->points_hardcore + $user->points === 0) {
-                    $hardcore = (random_int(0, 1) === 1);
+                    $hardcore = (rand(0, 1) === 1);
                 } else {
                     $hardcore = ($user->points_hardcore > $user->points);
                 }
-                $keepPlayingChance = random_int(75, 100);
+                $keepPlayingChance = rand(75, 100);
                 $num_sessions = 1;
 
-                $date = Carbon::parse($faker->dateTimeBetween('-3 years', '-2 hours')->format(DateTime::ATOM));
                 $playerSession = $resumePlayerSessionAction->execute($user, $game, timestamp: $date);
                 $playerSession->created_at = $date;
 
                 $playerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $game->id)->firstOrFail();
                 $playerGame->created_at = $date;
 
-                $date = $date->addSeconds(random_int(100, 2000));
+                $date = $date->addSeconds(rand(100, 2000));
 
                 foreach ($game->achievements()->promoted()->get() as $achievement) {
+                    if ($date < $achievement->created_at || $date < $set->achievements_first_published_at) {
+                        // player playing before set was released. don't unlock any achievements
+                        break;
+                    }
+
                     if ($achievement->type !== AchievementType::Progression) {
                         if ($achievement->type === AchievementType::WinCondition) {
-                            if (random_int(1, $numWinConditions) !== 1) {
+                            if (rand(1, $numWinConditions) !== 1) {
                                 // win condition - 1/X chance of unlocking it
                                 continue;
                             }
                         } elseif ($achievement->type === AchievementType::Missable) {
-                            if (random_int(1, 3) === 1) {
+                            if (rand(1, 3) === 1) {
                                 // missable, 33% chance to not unlock it
                                 continue;
                             }
-                        } elseif (random_int(1, 8) === 1) {
+                        } elseif (rand(1, 8) === 1) {
                             // non-progression, 12% chance to not unlock it
                             continue;
                         }
@@ -81,37 +102,37 @@ class PlayerAchievementsSeeder extends Seeder
                     ]);
 
                     // time advances
-                    $date = $date->addSeconds(random_int(0, random_int(10, 500) + random_int(10, 500) + random_int(10, 500) + random_int(10, 500)));
+                    $date = $date->addSeconds(rand(0, rand(10, 500) + rand(10, 500) + rand(10, 500) + rand(10, 500)));
 
-                    if (random_int(0, $achievementsRemaining) === 0) {
+                    if (rand(0, $achievementsRemaining) === 0) {
                         // player gives up
                         break;
                     }
 
-                    if ($hardcore && random_int(1, 40) === 1) {
+                    if ($hardcore && rand(1, 40) === 1) {
                         // player switches to softcore
                         $hardcore = false;
                     }
 
-                    if (random_int(0, $keepPlayingChance) === 0) {
+                    if (rand(0, $keepPlayingChance) === 0) {
                         // player gave up
                         break;
                     }
-                    $keepPlayingChance = max(0, $keepPlayingChance - random_int(0, (int) floor($achievementsRemaining / 3)));
+                    $keepPlayingChance = max(0, $keepPlayingChance - rand(0, (int) floor($achievementsRemaining / 3)));
 
-                    if (random_int(0, (int) floor($numAchievements / $num_sessions)) > $achievementsRemaining) {
+                    if (rand(0, (int) floor($numAchievements / $num_sessions)) > $achievementsRemaining) {
                         // player takes a break
 
-                        $playerSession->rich_presence = ucfirst($faker->words(random_int(2, 10), true));
+                        $playerSession->rich_presence = ucfirst($faker->words(rand(2, 10), true));
                         $playerSession->rich_presence_updated_at = $date;
                         $playerSession->duration = (int) $date->diffInMinutes($playerSession->created_at, true);
                         $playerSession->save();
 
-                        $date = $date->addMinutes((int) sqrt(random_int(500 * 500, 100000 * 100000))); // 8 hours to three month break, weighted toward shorter period
+                        $date = $date->addMinutes((int) sqrt(rand(500 * 500, 100000 * 100000))); // 8 hours to three month break, weighted toward shorter period
                         if ($date < Carbon::now()) {
                             $playerSession = $resumePlayerSessionAction->execute($user, $game, timestamp: $date);
                             $playerSession->created_at = $date;
-                            $date = $date->addSeconds(random_int(100, 2000));
+                            $date = $date->addSeconds(rand(100, 2000));
                         }
                     }
 
@@ -121,19 +142,19 @@ class PlayerAchievementsSeeder extends Seeder
                 }
 
                 // finalize the session
-                $playerSession->rich_presence = ucfirst($faker->words(random_int(2, 10), true));
+                $playerSession->rich_presence = ucfirst($faker->words(rand(2, 10), true));
                 $playerSession->rich_presence_updated_at = $date;
                 $playerSession->duration = (int) $date->diffInMinutes($playerSession->created_at, true);
                 $playerSession->save();
 
                 // aggregate metrics for player
-                $updatePlayerGameMetricsAction->execute($playerGame, silent: true);
+                $updatePlayerGameMetricsAction->execute($playerGame, silent: true, seeding: true);
 
                 // update points
                 $playerGame->refresh();
                 $user->points_hardcore += $playerGame->points_hardcore;
                 $user->points += $playerGame->points;
-                $user->save();
+                $user->saveQuietly();
             }
 
             // update player count and unlock metrics
@@ -141,6 +162,35 @@ class PlayerAchievementsSeeder extends Seeder
             (new UpdateGamePlayerCountAction())->execute($game);
             (new UpdateGameBeatenMetricsAction())->execute($game);
             (new UpdateGameAchievementsMetricsAction())->execute($game);
+        });
+
+        // small number of games without achievements should have players
+        Game::where('achievements_published', 0)->inRandomOrder()->limit(15)->each(function (Game $game) use ($maxPlayers, $faker) {
+            $numPlayers = (int) sqrt(rand(1, $maxPlayers));
+            foreach (User::inRandomOrder()->limit($numPlayers)->get() as $user) {
+                $date = Carbon::parse($faker->dateTimeBetween($user->created_at, '-2 hours')->format(DateTime::ATOM));
+
+                $playerSession = new ResumePlayerSessionAction()->execute($user, $game, timestamp: $date);
+                $playerSession->created_at = $date;
+
+                $playerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $game->id)->firstOrFail();
+                $playerGame->created_at = $date;
+
+                $date = $date->addMinutes(rand(1, 15) + rand(0, 10) + rand(0, 10) + rand(0, 10))->addSeconds(rand(0, 120));
+
+                // finalize the session
+                $playerSession->rich_presence = 'Playing ' . $game->title;
+                $playerSession->rich_presence_updated_at = $date;
+                $playerSession->duration = (int) $date->diffInMinutes($playerSession->created_at, true);
+                $playerSession->save();
+
+                // aggregate metrics for player
+                new UpdatePlayerGameMetricsAction()->execute($playerGame, silent: true, seeding: true);
+            }
+
+            // update player count metrics
+            (new UpdateGameMetricsAction())->execute($game);
+            (new UpdateGamePlayerCountAction())->execute($game);
         });
 
         // update player metrics
