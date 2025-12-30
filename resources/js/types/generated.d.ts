@@ -225,7 +225,7 @@ declare namespace App.Community.Enums {
   export type CommentableType =
     | 'achievement.comment'
     | 'trigger.ticket.comment'
-    | 'forum-topic.comment'
+    | 'forum-topic-comment'
     | 'game.comment'
     | 'game-hash.comment'
     | 'game-modification.comment'

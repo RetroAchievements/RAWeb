@@ -76,7 +76,7 @@ function buildPostRoute({
 
     'trigger.ticket.comment': 'TODO',
 
-    'forum-topic.comment': 'TODO',
+    'forum-topic-comment': 'TODO',
 
     'game.comment': route('api.game.comment.store', { game: commentableId }),
 

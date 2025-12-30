@@ -13,7 +13,7 @@ enum CommentableType: string
 {
     case Achievement = 'achievement.comment';
     case AchievementTicket = 'trigger.ticket.comment';
-    case Forum = 'forum-topic.comment'; // Forum topic comments (posts) use ForumTopicComment table, not the comments table. This is for email notifications only.
+    case Forum = 'forum-topic-comment'; // Forum topic comments (posts) use ForumTopicComment table, not the comments table. This is for email notifications only.
     case Game = 'game.comment';
     case GameHash = 'game-hash.comment';
     case GameModification = 'game-modification.comment';
