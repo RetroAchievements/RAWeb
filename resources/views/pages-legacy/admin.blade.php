@@ -27,8 +27,8 @@ if ($action === 'alt_identifier') {
         if (!empty($forUser->email)) {
             $emailAddresses[] = $forUser->email;
         }
-        if (!empty($forUser->email_backup) && $forUser->email_backup != $forUser->email) {
-            $emailAddresses[] = $forUser->email_backup;
+        if (!empty($forUser->email_original) && $forUser->email_original != $forUser->email) {
+            $emailAddresses[] = $forUser->email_original;
         }
         $message = "No alts found for $altsForUser";
         if (!empty($emailAddresses)) {
@@ -36,7 +36,7 @@ if ($action === 'alt_identifier') {
                 ->select('username', 'Permissions', 'last_activity_at', 'deleted_at')
                 ->where(function ($query) use ($emailAddresses) {
                     $query->whereIn('email', $emailAddresses)
-                        ->orWhereIn('email_backup', $emailAddresses);
+                        ->orWhereIn('email_original', $emailAddresses);
                 })
                 ->orderBy('last_activity_at', 'desc')
                 ->get();

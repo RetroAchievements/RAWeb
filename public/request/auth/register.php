@@ -56,7 +56,7 @@ $userModel = new User([
 // these fields are not fillable, so we have to set them after initializing the User model
 $userModel->password = Hash::make($pass);
 $userModel->ulid = (string) Str::ulid();
-$userModel->email_backup = $email;
+$userModel->email_original = $email;
 $userModel->unread_messages = 0;
 $userModel->save();
 

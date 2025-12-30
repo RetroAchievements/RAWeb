@@ -45,6 +45,7 @@ return new class extends Migration {
             $table->renameColumn('Updated', 'updated_at');
             $table->renameColumn('DeleteRequested', 'delete_requested_at');
             $table->renameColumn('Deleted', 'deleted_at');
+            $table->renameColumn('email_backup', 'email_original');
         });
 
         // Rename the table.
@@ -92,10 +93,10 @@ return new class extends Migration {
                     -- Email
                     MODIFY COLUMN `email` varchar(64) NOT NULL AFTER `remember_token`,
                     MODIFY COLUMN `email_verified_at` timestamp NULL DEFAULT NULL AFTER `email`,
-                    MODIFY COLUMN `email_backup` varchar(255) DEFAULT NULL AFTER `email_verified_at`,
+                    MODIFY COLUMN `email_original` varchar(255) DEFAULT NULL AFTER `email_verified_at`,
 
                     -- Authorization
-                    MODIFY COLUMN `visible_role_id` bigint(20) unsigned DEFAULT NULL AFTER `email_backup`,
+                    MODIFY COLUMN `visible_role_id` bigint(20) unsigned DEFAULT NULL AFTER `email_original`,
                     MODIFY COLUMN `Permissions` tinyint(4) NOT NULL COMMENT '-2=spam, -1=banned, 0=unconfirmed, 1=confirmed, 2=jr-developer, 3=developer, 4=moderator' AFTER `visible_role_id`,
 
                     -- Player stats
@@ -212,8 +213,8 @@ return new class extends Migration {
                 MODIFY COLUMN `points_weighted` int(10) unsigned DEFAULT NULL AFTER `unread_messages`,
                 MODIFY COLUMN `is_user_wall_active` tinyint(1) NOT NULL DEFAULT 1 COMMENT 'Allow Posting to user wall' AFTER `points_weighted`,
                 MODIFY COLUMN `Untracked` tinyint(1) NOT NULL DEFAULT 0 AFTER `is_user_wall_active`,
-                MODIFY COLUMN `email_backup` varchar(255) DEFAULT NULL AFTER `Untracked`,
-                MODIFY COLUMN `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP AFTER `email_backup`,
+                MODIFY COLUMN `email_original` varchar(255) DEFAULT NULL AFTER `Untracked`,
+                MODIFY COLUMN `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP AFTER `email_original`,
                 MODIFY COLUMN `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_at`,
                 MODIFY COLUMN `delete_requested_at` timestamp NULL DEFAULT NULL AFTER `updated_at`,
                 MODIFY COLUMN `deleted_at` timestamp NULL DEFAULT NULL AFTER `delete_requested_at`
@@ -262,6 +263,7 @@ return new class extends Migration {
             $table->renameColumn('updated_at', 'Updated');
             $table->renameColumn('delete_requested_at', 'DeleteRequested');
             $table->renameColumn('deleted_at', 'Deleted');
+            $table->renameColumn('email_original', 'email_backup');
         });
 
         // Recreate original foreign key constraint.
