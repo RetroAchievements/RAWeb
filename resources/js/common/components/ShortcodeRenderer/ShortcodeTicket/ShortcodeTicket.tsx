@@ -6,7 +6,6 @@ import { route } from 'ziggy-js';
 import { useCardTooltip } from '../../../hooks/useCardTooltip';
 import { persistedTicketsAtom } from '../../../state/shortcode.atoms';
 import { cn } from '../../../utils/cn';
-import { TicketState } from '../../../utils/generatedAppConstants';
 
 interface ShortcodeTicketProps {
   ticketId: number;
@@ -33,9 +32,9 @@ export const ShortcodeTicket: FC<ShortcodeTicketProps> = ({ ticketId }) => {
     return (
       <a
         data-testid="achievement-ticket-embed"
-        href={route('ticket.show', { ticket: ticketId })}
+        href={route('ticket.show', { triggerTicket: ticketId })}
         {...cardTooltipProps}
-        className={cn('inline-block rounded', getTicketStateClassName(foundTicket.state ?? -1))}
+        className={cn('inline-block rounded', getTicketStateClassName(foundTicket.state))}
       >
         <img
           loading="lazy"
@@ -56,13 +55,14 @@ export const ShortcodeTicket: FC<ShortcodeTicketProps> = ({ ticketId }) => {
   return null;
 };
 
-function getTicketStateClassName(ticketState: number): string {
-  // Match the state to return appropriate class name.
-  if (ticketState === TicketState.Open || ticketState === TicketState.Request) {
+function getTicketStateClassName(
+  ticketState: App.Community.Enums.TriggerTicketState | undefined,
+): string {
+  if (ticketState === 'open' || ticketState === 'request') {
     return 'border border-green-600';
   }
 
-  if (ticketState === TicketState.Closed || ticketState === TicketState.Resolved) {
+  if (ticketState === 'closed' || ticketState === 'resolved') {
     return 'border border-red-600';
   }
 

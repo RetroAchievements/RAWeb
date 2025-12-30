@@ -146,12 +146,11 @@
  */
 
 use App\Actions\FindUserByIdentifierAction;
-use App\Community\Enums\TicketState;
-use App\Community\Enums\TicketType;
+use App\Community\Enums\TriggerTicketState;
+use App\Community\Enums\TriggerTicketType;
 use App\Models\Achievement;
 use App\Models\Game;
-use App\Models\Ticket;
-use App\Models\User;
+use App\Models\TriggerTicket;
 use App\Platform\Enums\AchievementFlag;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -166,10 +165,16 @@ if ($ticketID > 0) {
         return response()->json(['error' => "Ticket ID $ticketID not found"], 404);
     }
 
-    $ticketData['ReportStateDescription'] = TicketState::toString($ticketData['ReportState']);
-    $ticketData['ReportTypeDescription'] = TicketType::toString($ticketData['ReportType']);
+    // Convert string enum values to legacy integers for backwards compatibility.
+    $ticketState = TriggerTicketState::from($ticketData['ReportState']);
+    $ticketType = TriggerTicketType::from($ticketData['ReportType']);
 
-    $ticketData['URL'] = route('ticket.show', ['ticket' => $ticketID]);
+    $ticketData['ReportState'] = $ticketState->toLegacyInteger();
+    $ticketData['ReportStateDescription'] = $ticketState->label();
+    $ticketData['ReportType'] = $ticketType->toLegacyInteger();
+    $ticketData['ReportTypeDescription'] = $ticketType->label();
+
+    $ticketData['URL'] = route('ticket.show', ['triggerTicket' => $ticketID]);
 
     return response()->json($ticketData);
 }
@@ -205,22 +210,23 @@ if (!empty($assignedToUser)) {
 
     $userTicketInfo = getTicketsForUser($foundUser);
     foreach ($userTicketInfo as $ticket) {
-        switch ($ticket['ReportState']) {
-            case TicketState::Closed:
+        $ticketState = $ticket['state'];
+        switch ($ticketState) {
+            case TriggerTicketState::Closed->value:
                 $ticketData['Closed'] += $ticket['TicketCount'];
                 $ticketData['Total'] += $ticket['TicketCount'];
                 break;
-            case TicketState::Open:
+            case TriggerTicketState::Open->value:
                 $ticketData['Open'] += $ticket['TicketCount'];
                 $ticketData['Total'] += $ticket['TicketCount'];
                 break;
-            case TicketState::Resolved:
+            case TriggerTicketState::Resolved->value:
                 $ticketData['Resolved'] += $ticket['TicketCount'];
                 $ticketData['Total'] += $ticket['TicketCount'];
                 break;
         }
-        if ($prevID != $ticket['AchievementID']) {
-            $prevID = $ticket['AchievementID'];
+        if ($prevID != $ticket['ticketable_id']) {
+            $prevID = $ticket['ticketable_id'];
         }
     }
     $ticketData['URL'] = route('developer.tickets', ['user' => $foundUser->display_name]);
@@ -232,17 +238,18 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
     $result = [];
 
     $tickets = $builder->with(['achievement.game.system', 'reporter', 'resolver'])
-       ->orderBy('ReportedAt', 'DESC')
+       ->orderBy('created_at', 'DESC')
+       ->orderBy('id', 'DESC')
        ->offset($offset)
        ->take($count)
        ->get();
 
     $tickets->loadMissing('achievement', 'author');
 
-    /** @var Ticket $ticket */
+    /** @var TriggerTicket $ticket */
     foreach ($tickets as $ticket) {
         $result[] = [
-            'ID' => $ticket->ID,
+            'ID' => $ticket->id,
             'AchievementID' => $ticket->achievement->ID,
             'AchievementTitle' => $ticket->achievement->Title,
             'AchievementDesc' => $ticket->achievement->Description,
@@ -255,18 +262,18 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
             'ConsoleName' => $ticket->achievement->game->system->name,
             'GameTitle' => $ticket->achievement->game->title,
             'GameIcon' => $ticket->achievement->game->ImageIcon,
-            'ReportedAt' => $ticket->ReportedAt->__toString(),
-            'ReportType' => $ticket->ReportType,
-            'ReportTypeDescription' => TicketType::toString($ticket->ReportType),
-            'ReportNotes' => $ticket->ReportNotes,
+            'ReportedAt' => $ticket->created_at->__toString(),
+            'ReportType' => $ticket->type->toLegacyInteger(),
+            'ReportTypeDescription' => $ticket->type->label(),
+            'ReportNotes' => $ticket->body,
             'ReportedBy' => $ticket->reporter?->display_name,
             'ReportedByULID' => $ticket->reporter?->ulid,
-            'ResolvedAt' => $ticket->ResolvedAt?->__toString(),
+            'ResolvedAt' => $ticket->resolved_at?->__toString(),
             'ResolvedBy' => $ticket->resolver?->display_name,
             'ResolvedByULID' => $ticket->resolver?->ulid,
-            'ReportState' => $ticket->ReportState,
-            'ReportStateDescription' => TicketState::toString($ticket->ReportState),
-            'Hardcore' => $ticket->Hardcore,
+            'ReportState' => $ticket->state->toLegacyInteger(),
+            'ReportStateDescription' => $ticket->state->label(),
+            'Hardcore' => $ticket->hardcore,
         ];
     }
 
@@ -278,7 +285,7 @@ $gameIDGiven = (int) request()->query('g');
 if ($gameIDGiven > 0) {
     $game = Game::where('ID', $gameIDGiven)->with('system')->first();
     if ($game) {
-        $tickets = Ticket::forGame($game);
+        $tickets = TriggerTicket::forGame($game);
         if ($gamesTableFlag === AchievementFlag::Unofficial->value) {
             $tickets->unofficial();
         } else {
@@ -320,7 +327,7 @@ if ($achievementIDGiven > 0) {
 }
 
 // getting the 10 most recent tickets
-$tickets = Ticket::officialCore()->unresolved();
+$tickets = TriggerTicket::officialCore()->unresolved();
 $ticketData['OpenTickets'] = $tickets->count();
 $ticketData['URL'] = route('tickets.index');
 $ticketData['RecentTickets'] = $getTicketsInfo($tickets, $offset, $count);

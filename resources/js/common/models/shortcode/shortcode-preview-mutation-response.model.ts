@@ -4,6 +4,6 @@ export interface ShortcodeBodyPreviewMutationResponse {
   events: App.Platform.Data.Event[];
   games: App.Platform.Data.Game[];
   hubs: App.Platform.Data.GameSet[];
-  tickets: App.Platform.Data.Ticket[];
+  tickets: App.Platform.Data.TriggerTicket[];
   users: App.Data.User[];
 }

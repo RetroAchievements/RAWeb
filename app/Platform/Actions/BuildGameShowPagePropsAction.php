@@ -23,7 +23,7 @@ use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\System;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Models\User;
 use App\Models\UserGameAchievementSetPreference;
 use App\Models\UserGameListEntry;
@@ -373,8 +373,8 @@ class BuildGameShowPagePropsAction
             numMasters: $numMasters,
 
             numOpenTickets: $targetAchievementFlag === AchievementFlag::OfficialCore
-                ? Ticket::forGame($backingGame)->unresolved()->officialCore()->count()
-                : Ticket::forGame($backingGame)->unresolved()->unofficial()->count(),
+                ? TriggerTicket::forGame($backingGame)->unresolved()->officialCore()->count()
+                : TriggerTicket::forGame($backingGame)->unresolved()->unofficial()->count(),
 
             recentPlayers: $this->loadGameRecentPlayersAction->execute($backingGame),
             recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($backingGame->visibleComments))),

@@ -4,7 +4,6 @@ import { route } from 'ziggy-js';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
-import { TicketType } from '@/common/utils/generatedAppConstants';
 
 import { buildStructuredMessage } from './buildStructuredMessage';
 import { ReportIssueOptionItem } from './ReportIssueOptionItem';
@@ -20,7 +19,7 @@ export const SessionDrivenIssueListItems: FC = () => {
     return null;
   }
 
-  if (ticketType === TicketType.DidNotTrigger) {
+  if (ticketType === 'did_not_trigger') {
     return (
       <>
         {can.createTriggerTicket ? (
@@ -29,7 +28,7 @@ export const SessionDrivenIssueListItems: FC = () => {
               t_buttonText={t('Create Ticket')}
               href={route('achievement.tickets.create', {
                 achievement: achievement.id,
-                type: TicketType.DidNotTrigger,
+                type: 'did_not_trigger',
               })}
               anchorClassName={buildTrackingClassNames('Click Create Ticket')}
               shouldUseClientSideRoute={true}
@@ -40,7 +39,7 @@ export const SessionDrivenIssueListItems: FC = () => {
               t_buttonText={t('Create Ticket')}
               href={route('achievement.tickets.create', {
                 achievement: achievement.id,
-                type: TicketType.TriggeredAtWrongTime,
+                type: 'triggered_at_wrong_time',
                 extra,
               })}
               anchorClassName={buildTrackingClassNames('Click Create Ticket')}
@@ -78,7 +77,7 @@ export const SessionDrivenIssueListItems: FC = () => {
       t_buttonText={t('Create Ticket')}
       href={route('achievement.tickets.create', {
         achievement: achievement.id,
-        type: TicketType.TriggeredAtWrongTime,
+        type: 'triggered_at_wrong_time',
         extra,
       })}
       anchorClassName={buildTrackingClassNames('Click Create Ticket')}

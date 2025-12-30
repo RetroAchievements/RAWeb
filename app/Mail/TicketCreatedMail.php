@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Mail;
 
 use App\Community\Enums\SubscriptionSubjectType;
-use App\Community\Enums\TicketType;
 use App\Enums\UserPreference;
 use App\Mail\Services\UnsubscribeService;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\Leaderboard;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -32,7 +31,7 @@ class TicketCreatedMail extends Mailable
      */
     public function __construct(
         public User $user,
-        public Ticket $ticket,
+        public TriggerTicket $ticket,
         public Game $game,
         public Achievement|Leaderboard $ticketable,
         public bool $isMaintainer = false,
@@ -84,8 +83,8 @@ class TicketCreatedMail extends Mailable
         return new Content(
             markdown: 'mail.ticket.created',
             with: [
-                'problemType' => TicketType::toString($this->ticket->ReportType),
-                'ticketUrl' => route('ticket.show', ['ticket' => $this->ticket->id]),
+                'problemType' => $this->ticket->type->label(),
+                'ticketUrl' => route('ticket.show', ['triggerTicket' => $this->ticket->id]),
                 'granularUrl' => $this->granularUrl,
                 'granularText' => 'Unsubscribe from tickets for this game',
                 'categoryUrl' => $this->categoryUrl,

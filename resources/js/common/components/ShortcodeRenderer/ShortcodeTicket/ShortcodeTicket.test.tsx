@@ -1,17 +1,16 @@
 import { render, screen } from '@/test';
-import { createAchievement, createTicket } from '@/test/factories';
+import { createAchievement, createTriggerTicket } from '@/test/factories';
 
 import { persistedTicketsAtom } from '../../../state/shortcode.atoms';
-import { TicketState } from '../../../utils/generatedAppConstants';
 import { ShortcodeTicket } from './ShortcodeTicket';
 
 describe('Component: ShortcodeTicket', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const ticket = createTicket({
+    const ticket = createTriggerTicket({
       id: 123,
       ticketableType: 'achievement',
-      state: TicketState.Open,
+      state: 'open',
       ticketable: createAchievement({ badgeUnlockedUrl: 'test-badge.png' }),
     });
 
@@ -28,10 +27,10 @@ describe('Component: ShortcodeTicket', () => {
 
   it('given no matching ticket is found, renders nothing', () => {
     // ARRANGE
-    const ticket = createTicket({
+    const ticket = createTriggerTicket({
       id: 123,
       ticketableType: 'achievement',
-      state: TicketState.Open,
+      state: 'open',
       ticketable: createAchievement({ badgeUnlockedUrl: 'test-badge.png' }),
     });
 
@@ -49,10 +48,10 @@ describe('Component: ShortcodeTicket', () => {
 
   it('given an achievement ticket is found, renders it properly', () => {
     // ARRANGE
-    const ticket = createTicket({
+    const ticket = createTriggerTicket({
       id: 123,
       ticketableType: 'achievement',
-      state: TicketState.Open,
+      state: 'open',
       ticketable: createAchievement({ badgeUnlockedUrl: 'test-badge.png' }),
     });
 
@@ -75,10 +74,10 @@ describe('Component: ShortcodeTicket', () => {
 
   it('given a non-achievement ticket is found, renders nothing', () => {
     // ARRANGE
-    const ticket = createTicket({
+    const ticket = createTriggerTicket({
       id: 123,
       ticketableType: 'leaderboard',
-      state: TicketState.Open,
+      state: 'open',
       ticketable: createAchievement({ badgeUnlockedUrl: 'test-badge.png' }),
     });
 
@@ -96,10 +95,10 @@ describe('Component: ShortcodeTicket', () => {
 
   it('given an open ticket, applies green border styling', () => {
     // ARRANGE
-    const ticket = createTicket({
+    const ticket = createTriggerTicket({
       id: 123,
       ticketableType: 'achievement',
-      state: TicketState.Open, // !!
+      state: 'open',
       ticketable: createAchievement({ badgeUnlockedUrl: 'test-badge.png' }),
     });
 
@@ -116,10 +115,10 @@ describe('Component: ShortcodeTicket', () => {
 
   it('given a request ticket, applies green border styling', () => {
     // ARRANGE
-    const ticket = createTicket({
+    const ticket = createTriggerTicket({
       id: 123,
       ticketableType: 'achievement',
-      state: TicketState.Request, // !!
+      state: 'request',
       ticketable: createAchievement({ badgeUnlockedUrl: 'test-badge.png' }),
     });
 
@@ -136,10 +135,10 @@ describe('Component: ShortcodeTicket', () => {
 
   it('given a closed ticket, applies red border styling', () => {
     // ARRANGE
-    const ticket = createTicket({
+    const ticket = createTriggerTicket({
       id: 123,
       ticketableType: 'achievement',
-      state: TicketState.Closed, // !!
+      state: 'closed',
       ticketable: createAchievement({ badgeUnlockedUrl: 'test-badge.png' }),
     });
 
@@ -156,10 +155,10 @@ describe('Component: ShortcodeTicket', () => {
 
   it('given a resolved ticket, applies red border styling', () => {
     // ARRANGE
-    const ticket = createTicket({
+    const ticket = createTriggerTicket({
       id: 123,
       ticketableType: 'achievement',
-      state: TicketState.Resolved, // !!
+      state: 'resolved',
       ticketable: createAchievement({ badgeUnlockedUrl: 'test-badge.png' }),
     });
 
@@ -174,34 +173,12 @@ describe('Component: ShortcodeTicket', () => {
     expect(screen.getByRole('link')).toHaveClass('border-red-600');
   });
 
-  it('given an unknown ticket state, applies no border styling', () => {
-    // ARRANGE
-    const ticket = createTicket({
-      id: 123,
-      ticketableType: 'achievement',
-      state: -1, // !!
-      ticketable: createAchievement({ badgeUnlockedUrl: 'test-badge.png' }),
-    });
-
-    render(<ShortcodeTicket ticketId={123} />, {
-      jotaiAtoms: [
-        [persistedTicketsAtom, [ticket]],
-        //
-      ],
-    });
-
-    // ASSERT
-    const linkEl = screen.getByRole('link');
-    expect(linkEl).not.toHaveClass('border-green-600');
-    expect(linkEl).not.toHaveClass('border-red-600');
-  });
-
   it('given an undefined ticket state, applies no border styling', () => {
     // ARRANGE
-    const ticket = createTicket({
+    const ticket = createTriggerTicket({
       id: 123,
       ticketableType: 'achievement',
-      state: undefined, // !!
+      state: undefined,
       ticketable: createAchievement({ badgeUnlockedUrl: 'test-badge.png' }),
     });
 

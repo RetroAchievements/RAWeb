@@ -1,19 +1,19 @@
 <?php
 
 use App\Models\Achievement;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Platform\Services\TicketListService;
 use Illuminate\View\View;
 
 use function Laravel\Folio\{middleware, name, render};
 
-middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
+middleware(['auth', 'can:viewAny,' . App\Models\TriggerTicket::class]);
 name('achievement.tickets');
 
 render(function (View $view, Achievement $achievement, TicketListService $ticketListService) {
     $selectFilters = $ticketListService->getSelectFilters(showDevType: false, showAchievementType: false, systemId: $achievement->game->system->id);
     $filterOptions = $ticketListService->getFilterOptions(request());
-    $tickets = $ticketListService->getTickets($filterOptions, Ticket::forAchievement($achievement));
+    $tickets = $ticketListService->getTickets($filterOptions, TriggerTicket::forAchievement($achievement));
 
     return $view->with([
         'achievement' => $achievement,
@@ -29,7 +29,7 @@ render(function (View $view, Achievement $achievement, TicketListService $ticket
 
 @props([
     'achievement' => null, // Achievement
-    'tickets' => null, // Collection<int, Ticket>
+    'tickets' => null, // Collection<int, TriggerTicket>
     'availableSelectFilters' => [],
     'filterOptions' => [],
     'totalTickets' => 0,

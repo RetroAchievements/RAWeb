@@ -171,27 +171,6 @@ export const StringifiedArticleType = {
 } as const;
 
 
-export const TicketType = {
-    TriggeredAtWrongTime: 1,
-    DidNotTrigger: 2,
-} as const;
-
-
-export const StringifiedTicketType = {
-    TriggeredAtWrongTime: '1',
-    DidNotTrigger: '2',
-} as const;
-
-
-export const TicketState = {
-    Closed: 0,
-    Open: 1,
-    Resolved: 2,
-    Request: 3,
-    REASON_DEMOTED: 'Demoted',
-} as const;
-
-
 export const ClaimSetType = {
     NewSet: 0,
     Revision: 1,

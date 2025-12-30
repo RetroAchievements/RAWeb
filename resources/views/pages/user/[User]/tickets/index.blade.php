@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Platform\Services\TicketListService;
 use Illuminate\View\View;
 
@@ -9,14 +9,14 @@ use function Laravel\Folio\{middleware, name, render, withTrashed};
 
 withTrashed();
 
-middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
+middleware(['auth', 'can:viewAny,' . App\Models\TriggerTicket::class]);
 name('developer.tickets');
 
 render(function (View $view, User $user, TicketListService $ticketListService) {
     $ticketListService->perPage = 50;
     $selectFilters = $ticketListService->getSelectFilters(showDevType: false);
     $filterOptions = $ticketListService->getFilterOptions(request());
-    $tickets = $ticketListService->getTickets($filterOptions, Ticket::forDeveloper($user));
+    $tickets = $ticketListService->getTickets($filterOptions, TriggerTicket::forDeveloper($user));
 
     return $view->with([
         'user' => $user,

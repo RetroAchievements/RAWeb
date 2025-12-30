@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Components;
 
 use App\Models\AchievementSetClaim;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
@@ -29,7 +29,7 @@ class GeneralNotificationsIcon extends Component
         }
 
         // Ticket feedback for users without manage permissions
-        if (!$user->can('manage', Ticket::class)) {
+        if (!$user->can('manage', TriggerTicket::class)) {
             $ticketFeedback = countRequestTicketsByUser($user);
             if ($ticketFeedback) {
                 $notifications->push([

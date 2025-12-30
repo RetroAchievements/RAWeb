@@ -1,19 +1,19 @@
 <?php
 
 use App\Models\Game;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Platform\Services\TicketListService;
 use Illuminate\View\View;
 
 use function Laravel\Folio\{middleware, name, render};
 
-middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
+middleware(['auth', 'can:viewAny,' . App\Models\TriggerTicket::class]);
 name('game.tickets');
 
 render(function (View $view, Game $game, TicketListService $ticketListService) {
     $selectFilters = $ticketListService->getSelectFilters(systemId: $game->system->id);
     $filterOptions = $ticketListService->getFilterOptions(request());
-    $tickets = $ticketListService->getTickets($filterOptions, Ticket::forGame($game));
+    $tickets = $ticketListService->getTickets($filterOptions, TriggerTicket::forGame($game));
 
     return $view->with([
         'game' => $game,
@@ -29,7 +29,7 @@ render(function (View $view, Game $game, TicketListService $ticketListService) {
 
 @props([
     'game' => null, // Game
-    'tickets' => null, // Collection<int, Ticket>
+    'tickets' => null, // Collection<int, TriggerTicket>
     'availableSelectFilters' => [],
     'filterOptions' => [],
     'totalTickets' => 0,

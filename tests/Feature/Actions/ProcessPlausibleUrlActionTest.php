@@ -10,7 +10,7 @@ use App\Models\Event;
 use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\System;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Models\User;
 use App\Platform\Enums\GameSetType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -240,7 +240,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
     public function testItCorrectlyHandlesTicketUrls(): void
     {
         // Arrange
-        Ticket::factory()->create(['ID' => 1]);
+        TriggerTicket::factory()->create(['id' => 1]);
 
         // Act
         $result = $this->action->execute('ticket/1', [], $this->defaultProps);

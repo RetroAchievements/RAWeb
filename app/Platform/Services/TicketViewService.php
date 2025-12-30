@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
-use App\Community\Enums\TicketState;
-use App\Community\Enums\TicketType;
 use App\Enums\PlayerGameActivityEventType;
 use App\Enums\PlayerGameActivitySessionType;
 use App\Models\PlayerAchievement;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Models\User;
 
 class TicketViewService
@@ -27,11 +25,11 @@ class TicketViewService
 
     }
 
-    public function load(Ticket $ticket): void
+    public function load(TriggerTicket $ticket): void
     {
         if ($ticket->reporter) {
             $msgTitle = rawurlencode("Bug Report ({$ticket->achievement->game->Title})");
-            $msgPayload = "Hi [user={$ticket->reporter->User}], I'm contacting you about [ticket={$ticket->ID}]";
+            $msgPayload = "Hi [user={$ticket->reporter->User}], I'm contacting you about [ticket={$ticket->id}]";
             $msgPayload = rawurlencode($msgPayload);
             $this->contactReporterUrl = route('message-thread.create') . "?to={$ticket->reporter->User}&subject=$msgTitle&message=$msgPayload";
 
@@ -41,10 +39,11 @@ class TicketViewService
 
             $this->openTickets = [];
             $this->closedTickets = [];
-            $achievementTickets = Ticket::where('AchievementID', $ticket->achievement->id);
+            $achievementTickets = TriggerTicket::where('ticketable_id', $ticket->achievement->id)
+                ->where('ticketable_type', 'achievement');
             foreach ($achievementTickets->get() as $otherTicket) {
-                if ($otherTicket->ID !== $ticket->ID) {
-                    if (TicketState::isOpen($otherTicket->ReportState)) {
+                if ($otherTicket->id !== $ticket->id) {
+                    if ($otherTicket->state->isOpen()) {
                         $this->openTickets[] = $otherTicket->id;
                     } else {
                         $this->closedTickets[] = $otherTicket->id;
@@ -54,15 +53,15 @@ class TicketViewService
         }
 
         $this->unlocksSinceReported = 0;
-        if (TicketState::isOpen($ticket->ReportState)) {
+        if ($ticket->state->isOpen()) {
             $this->unlocksSinceReported = PlayerAchievement::where('achievement_id', $ticket->achievement->id)
                 ->where(function ($query) use ($ticket) {
-                    $query->where('unlocked_at', '>', $ticket->ReportedAt)
-                        ->orWhere('unlocked_hardcore_at', '>', $ticket->ReportedAt);
+                    $query->where('unlocked_at', '>', $ticket->created_at)
+                        ->orWhere('unlocked_hardcore_at', '>', $ticket->created_at);
                 })->count();
         }
 
-        $this->ticketNotes = nl2br($ticket->ReportNotes);
+        $this->ticketNotes = nl2br($ticket->body);
         foreach ($ticket->achievement->game->hashes as $hash) {
             if (stripos($this->ticketNotes, $hash->md5) !== false) {
                 $hashesRoute = route('game.hashes.index', ['game' => $ticket->achievement->game]);
@@ -74,19 +73,19 @@ class TicketViewService
         }
     }
 
-    public function buildHistory(Ticket $ticket, User $actingUser): array
+    public function buildHistory(TriggerTicket $ticket, User $actingUser): array
     {
         $this->clients = [];
 
-        $canManageTicket = $actingUser->can('manage', Ticket::class);
+        $canManageTicket = $actingUser->can('manage', TriggerTicket::class);
         if (!$canManageTicket || !$ticket->reporter) {
             return [];
         }
 
         $this->activity->initialize($ticket->reporter, $ticket->achievement->game);
 
-        $this->activity->addCustomEvent($ticket->ReportedAt, PlayerGameActivitySessionType::TicketCreated,
-            "Ticket created - " . TicketType::toString($ticket->ReportType) . ": {$ticket->achievement->title}");
+        $this->activity->addCustomEvent($ticket->created_at, PlayerGameActivitySessionType::TicketCreated,
+            "Ticket created - " . $ticket->type->label() . ": {$ticket->achievement->title}");
 
         foreach ($this->activity->sessions as &$session) {
             foreach ($session['events'] as &$event) {

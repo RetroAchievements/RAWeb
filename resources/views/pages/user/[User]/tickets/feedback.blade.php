@@ -1,21 +1,21 @@
 <?php
 
-use App\Community\Enums\TicketState;
+use App\Community\Enums\TriggerTicketState;
 use App\Models\User;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Platform\Services\TicketListService;
 use Illuminate\View\View;
 
 use function Laravel\Folio\{middleware, name, render};
 
-middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
+middleware(['auth', 'can:viewAny,' . App\Models\TriggerTicket::class]);
 name('reporter.tickets');
 
 render(function (View $view, User $user, TicketListService $ticketListService) {
     $filterOptions = $ticketListService->getFilterOptions(request());
 
-    $ticketQuery = Ticket::where('reporter_id', '=', $user->id)
-        ->where('ReportState', '=', TicketState::Request);
+    $ticketQuery = TriggerTicket::where('reporter_id', '=', $user->id)
+        ->where('state', '=', TriggerTicketState::Request);
 
     $tickets = $ticketListService->getTickets($filterOptions, $ticketQuery);
 

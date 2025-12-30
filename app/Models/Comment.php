@@ -152,7 +152,7 @@ class Comment extends BaseModel
         }
 
         if ($this->ArticleType === ArticleType::AchievementTicket) {
-            return route('ticket.show', ['ticket' => $this->ArticleID]) . "#comment_{$this->ID}";
+            return route('ticket.show', ['triggerTicket' => $this->ArticleID]) . "#comment_{$this->ID}";
         }
 
         return null;

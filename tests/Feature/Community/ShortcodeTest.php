@@ -9,7 +9,7 @@ use App\Models\Event;
 use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\System;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Models\User;
 use App\Platform\Enums\GameSetType;
 use App\Support\Shortcode\Shortcode;
@@ -724,17 +724,17 @@ final class ShortcodeTest extends TestCase
             'Title' => 'Test Achievement',
         ]);
 
-        /** @var Ticket $ticket */
-        $ticket = Ticket::factory()->create([
-            'ID' => 12345,
-            'AchievementID' => $achievement->ID,
+        /** @var TriggerTicket $ticket */
+        $ticket = TriggerTicket::factory()->create([
+            'id' => 12345,
+            'ticketable_id' => $achievement->id,
         ]);
 
         // Act
         $result = Shortcode::convertToMarkdown('[ticket=12345]');
 
         // Assert
-        $expectedUrl = route('ticket.show', ['ticket' => $ticket]);
+        $expectedUrl = route('ticket.show', ['triggerTicket' => $ticket]);
 
         $this->assertSame(
             "[Ticket #12345]({$expectedUrl})",

@@ -1,11 +1,10 @@
 <?php
 
-use App\Community\Enums\TicketState;
-use App\Community\Enums\TicketType;
-use App\Models\Ticket;
+use App\Community\Enums\TriggerTicketState;
+use App\Models\TriggerTicket;
 
 function ticketAvatar(
-    int|string|Ticket $ticket,
+    int|string|TriggerTicket $ticket,
     ?bool $label = null,
     bool|int|string|null $icon = null,
     int $iconSize = 32,
@@ -14,19 +13,19 @@ function ticketAvatar(
     ?string $context = null,
 ): string {
     if (is_int($ticket)) {
-        $ticket = Ticket::find($ticket);
+        $ticket = TriggerTicket::find($ticket);
     }
 
     if ($ticket === null) {
         return '';
     }
 
-    /** @var Ticket $safeTicket */
+    /** @var TriggerTicket $safeTicket */
     $safeTicket = $ticket;
 
-    $ticketStateClass = match ($safeTicket->ReportState) {
-        TicketState::Open, TicketState::Request => 'open',
-        TicketState::Closed, TicketState::Resolved => 'closed',
+    $ticketStateClass = match ($safeTicket->state) {
+        TriggerTicketState::Open, TriggerTicketState::Request => 'open',
+        TriggerTicketState::Closed, TriggerTicketState::Resolved => 'closed',
         default => '',
     };
 
@@ -34,7 +33,7 @@ function ticketAvatar(
         resource: 'ticket',
         id: $safeTicket->id,
         label: "Ticket #{$safeTicket->id}",
-        link: route('ticket.show', ['ticket' => $safeTicket->id]),
+        link: route('ticket.show', ['triggerTicket' => $safeTicket->id]),
         tooltip: is_array($tooltip) ? renderAchievementCard($tooltip) : $tooltip,
         class: "ticket-avatar $ticketStateClass",
         iconUrl: media_asset("/Badge/" . $safeTicket->achievement->badgeName . ".png"),
@@ -44,19 +43,19 @@ function ticketAvatar(
     );
 }
 
-function renderTicketCard(int|Ticket $ticket): string
+function renderTicketCard(int|TriggerTicket $ticket): string
 {
     if (is_int($ticket)) {
-        $ticket = Ticket::find($ticket);
+        $ticket = TriggerTicket::find($ticket);
     }
 
     if (!$ticket) {
         return '';
     }
 
-    $ticketStateClass = match ($ticket->ReportState) {
-        TicketState::Open, TicketState::Request => 'open',
-        TicketState::Closed, TicketState::Resolved => 'closed',
+    $ticketStateClass = match ($ticket->state) {
+        TriggerTicketState::Open, TriggerTicketState::Request => 'open',
+        TriggerTicketState::Closed, TriggerTicketState::Resolved => 'closed',
         default => '',
     };
 
@@ -65,10 +64,10 @@ function renderTicketCard(int|Ticket $ticket): string
         "<div class='ticket-tooltip-info $ticketStateClass'>" .
         "<div><b>" . $ticket->achievement->title . "</b> <i>(" . $ticket->achievement->game->title . ")</i></div>" .
         "<div>Reported by {$ticket->reporter->display_name}</div>" .
-        "<div>Issue: " . TicketType::toString($ticket->ReportType) . "</div>" .
-        ($ticket->resolver ? "<div class='tooltip-closer'>Closed by {$ticket->resolver->display_name}, " . getNiceDate(strtotime($ticket->ResolvedAt)) . "</div>" : "") .
-        "<div class='tooltip-opened-date'> Opened " . getNiceDate(strtotime($ticket->ReportedAt)) . "</div>" .
+        "<div>Issue: " . $ticket->type->label() . "</div>" .
+        ($ticket->resolver ? "<div class='tooltip-closer'>Closed by {$ticket->resolver->display_name}, " . getNiceDate(strtotime($ticket->resolved_at)) . "</div>" : "") .
+        "<div class='tooltip-opened-date'> Opened " . getNiceDate(strtotime($ticket->created_at)) . "</div>" .
         "</div>" .
-        "<div class='ticket-tooltip-state'>" . TicketState::toString($ticket->ReportState) . "</div>" .
+        "<div class='ticket-tooltip-state'>" . $ticket->state->label() . "</div>" .
         "</div>";
 }

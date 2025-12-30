@@ -165,7 +165,7 @@ declare namespace App.Community.Data {
   };
   export type ShortcodeDynamicEntities = {
     users: Array<App.Data.User>;
-    tickets: Array<App.Platform.Data.Ticket>;
+    tickets: Array<App.Platform.Data.TriggerTicket>;
     achievements: Array<App.Platform.Data.Achievement>;
     games: Array<App.Platform.Data.Game>;
     hubs: Array<App.Platform.Data.GameSet>;
@@ -250,14 +250,14 @@ declare namespace App.Community.Enums {
     | 'GameTickets'
     | 'GameAchievements'
     | 'AchievementTicket';
+  export type TriggerTicketState = 'closed' | 'open' | 'resolved' | 'request';
+  export type TriggerTicketType = 'triggered_at_wrong_time' | 'did_not_trigger';
   export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
   export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
   export type AwardType = 1 | 2 | 3 | 6 | 7 | 8 | 9;
   export type ClaimSetType = 0 | 1;
   export type ClaimStatus = 0 | 1 | 2 | 3;
   export type ClaimType = 0 | 1;
-  export type TicketState = 0 | 1 | 2 | 3 | 'Demoted';
-  export type TicketType = 1 | 2;
 }
 declare namespace App.Data {
   export type AchievementSetClaimGroup = {
@@ -1119,7 +1119,7 @@ declare namespace App.Platform.Data {
   export type ReportAchievementIssuePageProps = {
     achievement: App.Platform.Data.Achievement;
     hasSession: boolean;
-    ticketType: number;
+    ticketType: App.Community.Enums.TriggerTicketType;
     extra: string | null;
     can: App.Data.UserPermissions;
   };
@@ -1147,10 +1147,10 @@ declare namespace App.Platform.Data {
     persistedViewPreferences: Record<string, any> | null;
     defaultDesktopPageSize: number;
   };
-  export type Ticket = {
+  export type TriggerTicket = {
     id: number;
     ticketableType: App.Platform.Enums.TicketableType;
-    state?: number;
+    state?: App.Community.Enums.TriggerTicketState;
     ticketable?:
       | App.Platform.Data.Achievement
       | App.Platform.Data.Leaderboard
@@ -1269,7 +1269,7 @@ declare namespace App.Platform.Enums {
     | 'hacks_beaten'
     | 'all_beaten';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
-  export type TicketableType = 'achievement' | 'leaderboard' | 'rich-presence';
+  export type TicketableType = 'achievement' | 'leaderboard' | 'game.rich-presence';
   export type TriggerableType = 'achievement' | 'leaderboard' | 'game';
 }
 declare namespace App.Platform.Services.GameSuggestions.Enums {

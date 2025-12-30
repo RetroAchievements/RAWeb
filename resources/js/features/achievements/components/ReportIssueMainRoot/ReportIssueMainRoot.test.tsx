@@ -1,6 +1,5 @@
 import { faker } from '@faker-js/faker';
 
-import { TicketType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
 import { createAchievement } from '@/test/factories';
 
@@ -198,7 +197,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        ticketType: TicketType.DidNotTrigger,
+        ticketType: 'did_not_trigger',
         can: { createTriggerTicket: true },
       },
     });
@@ -226,7 +225,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        ticketType: TicketType.TriggeredAtWrongTime,
+        ticketType: 'triggered_at_wrong_time',
         can: { createTriggerTicket: true },
       },
     });
@@ -261,7 +260,7 @@ describe('Component: ReportIssueMainRoot', () => {
         achievement,
         extra,
         hasSession: true,
-        ticketType: TicketType.TriggeredAtWrongTime,
+        ticketType: 'triggered_at_wrong_time',
         can: { createTriggerTicket: true },
       },
     });
@@ -310,7 +309,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        ticketType: TicketType.DidNotTrigger,
+        ticketType: 'did_not_trigger',
         can: {
           createTriggerTicket: false, // !!
         },
@@ -340,7 +339,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        ticketType: TicketType.TriggeredAtWrongTime,
+        ticketType: 'triggered_at_wrong_time',
         can: {
           createTriggerTicket: false, // !!
         },

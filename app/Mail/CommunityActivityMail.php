@@ -11,7 +11,7 @@ use App\Mail\Services\UnsubscribeService;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\Leaderboard;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -48,7 +48,7 @@ class CommunityActivityMail extends Mailable
 
         // If this is a ticket comment, fetch the ticket data.
         if ($this->articleType === ArticleType::AchievementTicket) {
-            $ticket = Ticket::with(['achievement.game.system'])->find($this->activityId);
+            $ticket = TriggerTicket::with(['achievement.game.system'])->find($this->activityId);
             if ($ticket) {
                 $this->ticketable = $ticket->achievement;
                 $this->game = $ticket->achievement?->game;

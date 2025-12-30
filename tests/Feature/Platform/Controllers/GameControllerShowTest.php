@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
-use App\Community\Enums\TicketState;
+use App\Community\Enums\TriggerTicketState;
 use App\Community\Enums\UserGameListType;
 use App\Enums\GameHashCompatibility;
 use App\Models\Achievement;
@@ -23,7 +23,7 @@ use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\System;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
@@ -1299,17 +1299,17 @@ describe('Open Tickets Props', function () {
         $reporter = User::factory()->create();
 
         // ... create tickets for both achievements ...
-        Ticket::factory()->create([
-            'AchievementID' => $publishedAchievement->id,
+        TriggerTicket::factory()->create([
+            'ticketable_id' => $publishedAchievement->id,
             'reporter_id' => $reporter->id,
             'ticketable_author_id' => $developer->id,
-            'ReportState' => TicketState::Open,
+            'state' => TriggerTicketState::Open,
         ]);
-        Ticket::factory()->create([
-            'AchievementID' => $unpublishedAchievement->id,
+        TriggerTicket::factory()->create([
+            'ticketable_id' => $unpublishedAchievement->id,
             'reporter_id' => $reporter->id,
             'ticketable_author_id' => $developer->id,
-            'ReportState' => TicketState::Open,
+            'state' => TriggerTicketState::Open,
         ]);
 
         // ACT
@@ -1342,25 +1342,26 @@ describe('Open Tickets Props', function () {
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
 
         $reporter = User::factory()->create();
+        $reporter2 = User::factory()->create();
 
         // ... create tickets for both achievements ...
-        Ticket::factory()->create([
-            'AchievementID' => $publishedAchievement->id,
+        TriggerTicket::factory()->create([
+            'ticketable_id' => $publishedAchievement->id,
             'reporter_id' => $reporter->id,
             'ticketable_author_id' => $developer->id,
-            'ReportState' => TicketState::Open,
+            'state' => TriggerTicketState::Open,
         ]);
-        Ticket::factory()->create([
-            'AchievementID' => $unpublishedAchievement->id,
+        TriggerTicket::factory()->create([
+            'ticketable_id' => $unpublishedAchievement->id,
             'reporter_id' => $reporter->id,
             'ticketable_author_id' => $developer->id,
-            'ReportState' => TicketState::Open,
+            'state' => TriggerTicketState::Open,
         ]);
-        Ticket::factory()->create([
-            'AchievementID' => $unpublishedAchievement->id,
-            'reporter_id' => $reporter->id,
+        TriggerTicket::factory()->create([
+            'ticketable_id' => $unpublishedAchievement->id,
+            'reporter_id' => $reporter2->id, // Use different reporter to avoid unique constraint.
             'ticketable_author_id' => $developer->id,
-            'ReportState' => TicketState::Open,
+            'state' => TriggerTicketState::Open,
         ]);
 
         // ACT
@@ -1386,19 +1387,20 @@ describe('Open Tickets Props', function () {
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
 
         $reporter = User::factory()->create();
+        $reporter2 = User::factory()->create();
 
         // ... create an open ticket and a resolved ticket ...
-        Ticket::factory()->create([
-            'AchievementID' => $achievement->id,
+        TriggerTicket::factory()->create([
+            'ticketable_id' => $achievement->id,
             'reporter_id' => $reporter->id,
             'ticketable_author_id' => $developer->id,
-            'ReportState' => TicketState::Open,
+            'state' => TriggerTicketState::Open,
         ]);
-        Ticket::factory()->create([
-            'AchievementID' => $achievement->id,
-            'reporter_id' => $reporter->id,
+        TriggerTicket::factory()->create([
+            'ticketable_id' => $achievement->id,
+            'reporter_id' => $reporter2->id, // Use different reporter to avoid unique constraint.
             'ticketable_author_id' => $developer->id,
-            'ReportState' => TicketState::Resolved, // !!
+            'state' => TriggerTicketState::Resolved, // !!
         ]);
 
         // ACT

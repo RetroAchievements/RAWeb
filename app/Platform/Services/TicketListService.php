@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
-use App\Community\Enums\TicketType;
+use App\Community\Enums\TriggerTicketType;
 use App\Enums\Permissions;
 use App\Models\Emulator;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -80,8 +80,8 @@ class TicketListService
             'label' => 'Ticket Type',
             'options' => [
                 0 => 'All',
-                TicketType::TriggeredAtWrongTime => TicketType::toString(TicketType::TriggeredAtWrongTime),
-                TicketType::DidNotTrigger => TicketType::toString(TicketType::DidNotTrigger),
+                TriggerTicketType::TriggeredAtWrongTime->toLegacyInteger() => TriggerTicketType::TriggeredAtWrongTime->label(),
+                TriggerTicketType::DidNotTrigger->toLegacyInteger() => TriggerTicketType::DidNotTrigger->label(),
             ],
         ];
 
@@ -166,24 +166,24 @@ class TicketListService
     }
 
     /**
-     * @param Builder<Ticket> $tickets
+     * @param Builder<TriggerTicket> $tickets
      *
-     * @return Collection<int, Ticket>
+     * @return Collection<int, TriggerTicket>
      */
     public function getTickets(array $filterOptions, ?Builder $tickets = null): Collection
     {
-        return $this->buildQuery($filterOptions, $tickets)->orderBy('ReportedAt', 'DESC')->get();
+        return $this->buildQuery($filterOptions, $tickets)->orderBy('created_at', 'DESC')->get();
     }
 
     /**
-     * @param Builder<Ticket> $tickets
+     * @param Builder<TriggerTicket> $tickets
      *
-     * @return Builder<Ticket>
+     * @return Builder<TriggerTicket>
      */
     public function buildQuery(array $filterOptions, ?Builder $tickets = null): Builder
     {
         if ($tickets === null) {
-            $tickets = Ticket::query();
+            $tickets = TriggerTicket::query();
         }
 
         $this->totalTickets = $tickets->count();
@@ -199,7 +199,8 @@ class TicketListService
         }
 
         if ($filterOptions['type'] > 0) {
-            $tickets->where('ReportType', $filterOptions['type']);
+            $ticketType = TriggerTicketType::fromLegacyInteger($filterOptions['type']);
+            $tickets->where('type', $ticketType);
         }
 
         switch ($filterOptions['achievement']) {
@@ -214,15 +215,15 @@ class TicketListService
 
         switch ($filterOptions['mode']) {
             case 'hardcore':
-                $tickets->where('Hardcore', 1);
+                $tickets->where('hardcore', true);
                 break;
 
             case 'softcore':
-                $tickets->where('Hardcore', 0);
+                $tickets->where('hardcore', false);
                 break;
 
             case 'unspecified':
-                $tickets->whereNull('Hardcore');
+                $tickets->whereNull('hardcore');
                 break;
         }
 

@@ -8,7 +8,7 @@ use App\Models\Emulator;
 use App\Models\EmulatorUserAgent;
 use App\Models\GameHash;
 use App\Models\PlayerSession;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Platform\Services\UserAgentService;
 use Illuminate\Console\Command;
 
@@ -23,20 +23,20 @@ class MigrateTicketCommentMetadata extends Command
         $ticketId = $this->argument('ticketId');
 
         if ($ticketId !== null) {
-            $ticket = Ticket::with('achievement.game')->findOrFail($ticketId);
+            $ticket = TriggerTicket::with('achievement.game')->findOrFail($ticketId);
 
             $this->info('Updating metadata for ticket [' . $ticket->id . ']');
 
             $this->syncMetadataForTicket($ticket);
         } else {
-            $count = Ticket::count();
+            $count = TriggerTicket::count();
             $this->info("Updating metadata for $count tickets.");
             $progressBar = $this->output->createProgressBar($count);
 
             $count = 0;
-            Ticket::with('achievement.game')->chunkById(100, function ($tickets) use (&$count, $progressBar) {
+            TriggerTicket::with('achievement.game')->chunkById(100, function ($tickets) use (&$count, $progressBar) {
                 foreach ($tickets as $ticket) {
-                    /** @var Ticket $ticket */
+                    /** @var TriggerTicket $ticket */
                     if ($this->syncMetadataForTicket($ticket)) {
                         $count++;
                     }
@@ -49,13 +49,13 @@ class MigrateTicketCommentMetadata extends Command
         }
     }
 
-    private function syncMetadataForTicket(Ticket $ticket): bool
+    private function syncMetadataForTicket(TriggerTicket $ticket): bool
     {
         $changed = false;
         $newBody = '';
         $normalizedBody = str_replace("\\n", "\n",
                           str_replace("\\r", "\r",
-                          str_replace("<br/>", "\n", $ticket->ReportNotes)));
+                          str_replace("<br/>", "\n", $ticket->body)));
         foreach (explode("\n", $normalizedBody) as $line) {
             if (str_starts_with($line, 'RetroAchievements Hash:')) {
                 $hash = trim(substr($line, 23));
@@ -169,14 +169,14 @@ class MigrateTicketCommentMetadata extends Command
                 $ticket->emulator_core = null;
             }
 
-            // use raw query to avoid updating Updated timestamp
-            Ticket::where('id', $ticket->id)->update([
-                'ReportNotes' => trim($newBody),
+            // Use raw query to avoid updating updated_at timestamp.
+            TriggerTicket::where('id', $ticket->id)->update([
+                'body' => trim($newBody),
                 'game_hash_id' => $ticket->game_hash_id,
                 'emulator_id' => $ticket->emulator_id,
                 'emulator_version' => $ticket->emulator_version,
                 'emulator_core' => $ticket->emulator_core,
-                'Updated' => $ticket->Updated,
+                'updated_at' => $ticket->updated_at,
             ]);
         }
 

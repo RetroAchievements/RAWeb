@@ -28,7 +28,6 @@ use App\Models\Message;
 use App\Models\News;
 use App\Models\NewsComment;
 use App\Models\Subscription;
-use App\Models\Ticket;
 use App\Models\TriggerTicket;
 use App\Models\TriggerTicketComment;
 use App\Models\UserActivity;
@@ -77,7 +76,6 @@ class AppServiceProvider extends ServiceProvider
             'news' => News::class,
             'news.comment' => NewsComment::class,
             'subscription' => Subscription::class,
-            'ticket' => Ticket::class,
             'trigger.ticket' => TriggerTicket::class,
             'trigger.ticket.comment' => TriggerTicketComment::class,
             'user.comment' => UserComment::class,

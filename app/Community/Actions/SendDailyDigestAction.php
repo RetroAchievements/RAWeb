@@ -14,7 +14,7 @@ use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
 use App\Models\Leaderboard;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Models\User;
 use App\Models\UserDelayedSubscription;
 use App\Support\Shortcode\Shortcode;
@@ -200,9 +200,9 @@ class SendDailyDigestAction
     {
         $result = [];
 
-        $tickets = Ticket::whereIn('ID', $ids)->with('achievement')->get();
+        $tickets = TriggerTicket::whereIn('id', $ids)->with('achievement')->get();
         foreach ($tickets as $ticket) {
-            $result[$ticket->ID] = "{$ticket->achievement->Title}";
+            $result[$ticket->id] = "{$ticket->achievement->Title}";
         }
 
         return $result;
@@ -266,7 +266,7 @@ class CommentDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
         }
 
         if ($this->articleType === ArticleType::AchievementTicket) {
-            return route('ticket.show', ['ticket' => $subjectId]) . "#comment_{$firstUpdateId}";
+            return route('ticket.show', ['triggerTicket' => $subjectId]) . "#comment_{$firstUpdateId}";
         }
 
         return '';

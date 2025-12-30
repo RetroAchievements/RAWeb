@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
-use App\Community\Enums\TicketState;
+use App\Community\Enums\TriggerTicketState;
 use App\Http\Controller;
 use App\Models\Achievement;
-use App\Models\Ticket;
 use App\Models\TriggerTicket;
 use App\Platform\Actions\BuildTicketCreationDataAction;
 use App\Support\Concerns\HandlesResources;
@@ -46,13 +45,14 @@ class TriggerTicketController extends Controller
 
         // A user can only have one ticket open at a time for a triggerable.
         // If they already have a ticket open, redirect them to the ticket's page.
-        $existingTicket = Ticket::where('reporter_id', $request->user()->id)
-            ->where('AchievementID', $achievement->id)
-            ->whereNotIn('ReportState', [TicketState::Closed, TicketState::Resolved])
+        $existingTicket = TriggerTicket::where('reporter_id', $request->user()->id)
+            ->where('ticketable_id', $achievement->id)
+            ->where('ticketable_type', 'achievement')
+            ->whereNotIn('state', [TriggerTicketState::Closed, TriggerTicketState::Resolved])
             ->first();
         if ($existingTicket) {
             // TODO stop using Inertia::location() after ticket.show is migrated to React
-            return Inertia::location(route('ticket.show', ['ticket' => $existingTicket->id]));
+            return Inertia::location(route('ticket.show', ['triggerTicket' => $existingTicket->id]));
         }
 
         $props = $buildTicketCreationData->execute($achievement, $request->user());
@@ -71,9 +71,9 @@ class TriggerTicketController extends Controller
     {
     }
 
-    public function show(TriggerTicket $ticket): View
+    public function show(TriggerTicket $ticket): void
     {
-        return view('ticket.show')->with('ticket', $ticket);
+        // TODO currently uses Folio, convert to Inertia/React
     }
 
     public function edit(TriggerTicket $ticket): void

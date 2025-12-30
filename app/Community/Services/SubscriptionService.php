@@ -14,7 +14,7 @@ use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\Role;
 use App\Models\Subscription;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -451,10 +451,11 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = Ticket::whereIn('Ticket.ID', $subjectIds)
-            ->join('Achievements', 'Ticket.AchievementID', '=', 'Achievements.ID')
+        $query = TriggerTicket::whereIn(DB::raw('trigger_tickets.id'), $subjectIds)
+            ->join('Achievements', DB::raw('trigger_tickets.ticketable_id'), '=', 'Achievements.ID')
+            ->where(DB::raw('trigger_tickets.ticketable_type'), 'achievement')
             ->select([
-                DB::raw('Ticket.ID as subject_id'),
+                DB::raw('trigger_tickets.id as subject_id'),
                 DB::raw('Achievements.Title as title'),
             ])
             ->orderBy('title');
@@ -471,7 +472,7 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
         $query = parent::getImplicitSubscriptionQuery($subjectId, $forUserId, $ignoreSubjectIds, $ignoreUserIds);
 
         if ($subjectId !== null) {
-            $ticket = Ticket::with('achievement')->find($subjectId);
+            $ticket = TriggerTicket::with('achievement')->find($subjectId);
             if ($ticket) {
                 // find any users subscribed to GameTickets for the game owning the ticketed achievement
                 /** @var Builder<Model> $query2 */
@@ -499,11 +500,11 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
 
                 if ($includeReporter) {
                     /** @var Builder<Model> $query3 */
-                    $query3 = Ticket::query()
-                        ->where('ID', $ticket->ID)
+                    $query3 = TriggerTicket::query()
+                        ->where('id', $ticket->id)
                         ->select([
                             DB::raw('reporter_id as user_id'),
-                            DB::raw('ID as subject_id'),
+                            DB::raw('id as subject_id'),
                         ]);
 
                     $query->union($query3);
@@ -522,11 +523,11 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
 
                 if ($includeMaintainer) {
                     /** @var Builder<Model> $query4 */
-                    $query4 = Ticket::query()
-                        ->where('ID', $ticket->ID)
+                    $query4 = TriggerTicket::query()
+                        ->where('id', $ticket->id)
                         ->select([
                             DB::raw($maintainer->id . ' as user_id'),
-                            DB::raw('ID as subject_id'),
+                            DB::raw('id as subject_id'),
                         ]);
 
                     $query->union($query4);
@@ -538,14 +539,14 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
 
             // find any tickets created by the user
             /** @var Builder<Model> $query3 */
-            $query3 = Ticket::query()
+            $query3 = TriggerTicket::query()
                 ->where('reporter_id', $forUserId)
                 ->select([
                     DB::raw('reporter_id as user_id'),
-                    DB::raw('ID as subject_id'),
+                    DB::raw('id as subject_id'),
                 ]);
             if (!empty($ignoreSubjectIds)) {
-                $query3->whereNotIn('ID', $ignoreSubjectIds);
+                $query3->whereNotIn('id', $ignoreSubjectIds);
             }
             $query->union($query3);
         }

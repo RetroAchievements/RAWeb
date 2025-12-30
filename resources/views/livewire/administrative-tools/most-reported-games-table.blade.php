@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Role;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -71,37 +71,38 @@ new class extends Component implements HasForms, HasTable, HasActions {
 
     private function buildMostTicketedSetsQuery(): Builder
     {
-        $oldestTicketSubquery = Ticket::unresolved()
+        $oldestTicketSubquery = TriggerTicket::unresolved()
             ->officialCore()
-            ->select('AchievementID', DB::raw('MIN(ReportedAt) as OldestTicketDate'))
-            ->groupBy('AchievementID');
+            ->select('ticketable_id', DB::raw('MIN(created_at) as OldestTicketDate'))
+            ->groupBy('ticketable_id');
 
-        $newestTicketSubquery = Ticket::unresolved()
+        $newestTicketSubquery = TriggerTicket::unresolved()
             ->officialCore()
-            ->select('AchievementID', DB::raw('MAX(ReportedAt) as NewestTicketDate'))
-            ->groupBy('AchievementID');
+            ->select('ticketable_id', DB::raw('MAX(created_at) as NewestTicketDate'))
+            ->groupBy('ticketable_id');
 
         return (
-            Ticket::unresolved()
+            TriggerTicket::unresolved()
                 ->officialCore()
-                ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
+                ->join('Achievements', 'Achievements.ID', '=', 'trigger_tickets.ticketable_id')
                 ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
                 ->join('Console', 'Console.ID', '=', 'GameData.ConsoleID')
                 ->leftJoinSub($oldestTicketSubquery, 'oldest_tickets', function ($join) {
-                    $join->on('Ticket.AchievementID', '=', 'oldest_tickets.AchievementID');
+                    $join->on('trigger_tickets.ticketable_id', '=', 'oldest_tickets.ticketable_id');
                 })
                 ->leftJoinSub($newestTicketSubquery, 'newest_tickets', function ($join) {
-                    $join->on('Ticket.AchievementID', '=', 'newest_tickets.AchievementID');
+                    $join->on('trigger_tickets.ticketable_id', '=', 'newest_tickets.ticketable_id');
                 })
                 ->select(
+                    DB::raw('MIN(trigger_tickets.id) as id'),
                     'GameData.ID',
                     'GameData.Title',
                     'GameData.ConsoleID',
                     'GameData.ImageIcon',
                     'GameData.players_total',
                     'Console.Name as ConsoleName',
-                    DB::raw('count(Ticket.ID) AS TicketCount'),
-                    DB::raw('count(DISTINCT Ticket.AchievementID) AS UniquelyTicketedAchievements'),
+                    DB::raw('count(trigger_tickets.id) AS TicketCount'),
+                    DB::raw('count(DISTINCT trigger_tickets.ticketable_id) AS UniquelyTicketedAchievements'),
                     DB::raw('MIN(oldest_tickets.OldestTicketDate) AS OldestTicketDate'),
                     DB::raw('MAX(newest_tickets.NewestTicketDate) AS NewestTicketDate'),
                 )

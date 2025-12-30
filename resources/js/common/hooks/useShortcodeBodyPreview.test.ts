@@ -7,7 +7,7 @@ import {
   createGame,
   createGameSet,
   createRaEvent,
-  createTicket,
+  createTriggerTicket,
   createUser,
 } from '@/test/factories';
 
@@ -97,7 +97,7 @@ describe('Hook: useShortcodeBodyPreview', () => {
             legacyGame: createGame({ title: 'Achievement of the Week 2025' }),
           }),
         ],
-        tickets: [createTicket({ id: 12345 })],
+        tickets: [createTriggerTicket({ id: 12345 })],
         users: [createUser({ displayName: 'username' })],
         convertedBody: '[user=username] and [game=123]',
       },

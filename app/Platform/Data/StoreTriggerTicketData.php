@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Data;
 
+use App\Community\Enums\TriggerTicketType;
 use App\Models\Achievement;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
@@ -15,7 +16,7 @@ class StoreTriggerTicketData extends Data
     public function __construct(
         public Achievement|Leaderboard $ticketable,
         public string $mode,
-        public int $issue,
+        public TriggerTicketType $issue,
         public string $description,
         public string $emulator,
         public ?string $emulatorVersion,
@@ -34,7 +35,7 @@ class StoreTriggerTicketData extends Data
         return new self(
             ticketable: $ticketable,
             mode: $request->mode,
-            issue: $request->issue,
+            issue: TriggerTicketType::from($request->issue),
             description: $request->description,
             emulator: $request->emulator,
             emulatorVersion: $request->emulatorVersion,

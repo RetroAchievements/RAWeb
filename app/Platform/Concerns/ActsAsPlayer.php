@@ -14,7 +14,7 @@ use App\Models\PlayerBadge;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
 use App\Models\PlayerStat;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Models\User;
 use App\Platform\Enums\PlayerPreferredMode;
 use Carbon\Carbon;
@@ -166,11 +166,11 @@ trait ActsAsPlayer
     }
 
     /**
-     * @return HasMany<Ticket, $this>
+     * @return HasMany<TriggerTicket, $this>
      */
     public function reportedTickets(): HasMany
     {
-        return $this->hasMany(Ticket::class, 'reporter_id', 'ID');
+        return $this->hasMany(TriggerTicket::class, 'reporter_id', 'ID');
     }
 
     // == scopes

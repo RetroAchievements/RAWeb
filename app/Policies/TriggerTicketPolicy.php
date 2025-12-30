@@ -20,14 +20,30 @@ class TriggerTicketPolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
+            Role::TICKET_MANAGER,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
         ]);
     }
 
-    public function view(User $user, TriggerTicket $achievementTicket): bool
+    public function viewAny(?User $user): bool
     {
-        return false;
+        // Guests cannot view tickets.
+        if (!$user) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function view(?User $user, TriggerTicket $triggerTicket): bool
+    {
+        // Guests cannot view tickets.
+        if (!$user) {
+            return false;
+        }
+
+        return true;
     }
 
     public function create(User $user): bool
@@ -54,22 +70,22 @@ class TriggerTicketPolicy
         return $this->createAchievementTicket($user, $triggerable);
     }
 
-    public function update(User $user, TriggerTicket $achievementTicket): bool
+    public function update(User $user, TriggerTicket $triggerTicket): bool
     {
         return false;
     }
 
-    public function delete(User $user, TriggerTicket $achievementTicket): bool
+    public function delete(User $user, TriggerTicket $triggerTicket): bool
     {
         return false;
     }
 
-    public function restore(User $user, TriggerTicket $achievementTicket): bool
+    public function restore(User $user, TriggerTicket $triggerTicket): bool
     {
         return false;
     }
 
-    public function forceDelete(User $user, TriggerTicket $achievementTicket): bool
+    public function forceDelete(User $user, TriggerTicket $triggerTicket): bool
     {
         return false;
     }
@@ -85,5 +101,13 @@ class TriggerTicketPolicy
         // Users must have played the game to be able to create tickets for its leaderboards.
         // TODO $user->hasPlayedGameForLeaderboard ?
         return $user->hasPlayedGame($leaderboard->game);
+    }
+
+    public function updateState(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::DEVELOPER,
+            Role::TICKET_MANAGER,
+        ]);
     }
 }

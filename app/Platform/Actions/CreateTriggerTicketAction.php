@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Emulator;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Models\User;
 use App\Platform\Data\StoreTriggerTicketData;
 
 class CreateTriggerTicketAction
 {
-    public function execute(StoreTriggerTicketData $data, User $user): Ticket
+    public function execute(StoreTriggerTicketData $data, User $user): TriggerTicket
     {
         $emulator = Emulator::where('name', $data->emulator)->first();
 
@@ -20,12 +20,12 @@ class CreateTriggerTicketAction
         $newTicketId = _createTicket(
             user: $user,
             achievementId: $data->ticketable->id,
-            reportType: $data->issue,
+            reportType: $data->issue->toLegacyInteger(),
             hardcore: $data->mode === 'hardcore' ? 1 : 0,
             note: $note
         );
 
-        $ticket = Ticket::find($newTicketId);
+        $ticket = TriggerTicket::find($newTicketId);
         $ticket->game_hash_id = $data->gameHash->id;
 
         if ($emulator) {

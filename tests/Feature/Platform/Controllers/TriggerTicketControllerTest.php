@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Controllers;
 
-use App\Community\Enums\TicketState;
+use App\Community\Enums\TriggerTicketState;
 use App\Models\Achievement;
 use App\Models\Emulator;
 use App\Models\Game;
@@ -13,7 +13,7 @@ use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
 use App\Models\System;
-use App\Models\Ticket;
+use App\Models\TriggerTicket;
 use App\Models\User;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
@@ -138,17 +138,17 @@ class TriggerTicketControllerTest extends TestCase
         PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $game->id]);
 
         // !! they have an existing ticket !!
-        $existingTicket = Ticket::factory()->create([
+        $existingTicket = TriggerTicket::factory()->create([
             'reporter_id' => $user->id,
-            'AchievementID' => $achievement->id,
-            'ReportState' => TicketState::Open, // !!
+            'ticketable_id' => $achievement->id,
+            'state' => TriggerTicketState::Open, // !!
         ]);
 
         // Act
         $response = $this->get(route('achievement.tickets.create', ['achievement' => $achievement]));
 
         // Assert
-        $response->assertRedirect(route('ticket.show', ['ticket' => $existingTicket->id]));
+        $response->assertRedirect(route('ticket.show', ['triggerTicket' => $existingTicket->id]));
     }
 
     public function testCreateGivenThereAreNoHashesItRedirects(): void

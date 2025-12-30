@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
-use App\Community\Enums\TicketType;
+use App\Community\Enums\TriggerTicketType;
 use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Models\Achievement;
@@ -81,9 +81,9 @@ class ReportAchievementIssueController extends Controller
     /**
      * @param Collection<int, PlayerAchievement> $allPlayerAchievements
      */
-    private function determineTicketType(?PlayerAchievement $playerAchievement, Collection $allPlayerAchievements): int
+    private function determineTicketType(?PlayerAchievement $playerAchievement, Collection $allPlayerAchievements): TriggerTicketType
     {
-        $ticketType = TicketType::DidNotTrigger;
+        $ticketType = TriggerTicketType::DidNotTrigger;
 
         $hasAnyHardcoreUnlocks = $allPlayerAchievements->contains(function ($playerAchievement) {
             return $playerAchievement->unlocked_hardcore_at !== null;
@@ -93,7 +93,7 @@ class ReportAchievementIssueController extends Controller
         $unlockedHardcoreAt = $playerAchievement?->unlocked_hardcore_at;
 
         if ($unlockedHardcoreAt || ($unlockedAt && !$hasAnyHardcoreUnlocks)) {
-            $ticketType = TicketType::TriggeredAtWrongTime;
+            $ticketType = TriggerTicketType::TriggeredAtWrongTime;
         }
 
         return $ticketType;

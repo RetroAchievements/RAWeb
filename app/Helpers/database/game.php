@@ -245,11 +245,11 @@ function getGamesListByDev(
                   WHERE 1=1 $whereClause
                   GROUP BY gd.ID, gd.points_total $orderBy";
     } elseif ($sortBy === 5 || $sortBy === 15) { // OpenTickets
-        $query = "SELECT $foundRows gd.ID, SUM(!ISNULL(tick.ID)) AS OpenTickets
+        $query = "SELECT $foundRows gd.ID, SUM(!ISNULL(tick.id)) AS OpenTickets
                   FROM GameData gd
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
                   LEFT JOIN Achievements ach ON ach.GameID=gd.ID
-                  LEFT JOIN Ticket tick ON tick.AchievementID=ach.ID AND tick.ReportState IN (1,3)
+                  LEFT JOIN trigger_tickets tick ON tick.ticketable_id=ach.ID AND tick.ticketable_type='achievement' AND tick.state IN ('open','request')
                   WHERE 1=1 $whereClause
                   GROUP BY gd.ID $orderBy";
     } elseif ($sortBy === 6 || $sortBy === 16) { // DateModified
@@ -419,21 +419,23 @@ function getGamesListByDev(
         }
         if ($dev === null) {
             $query = "SELECT ach.GameID, COUNT(*) AS OpenTickets
-                      FROM Ticket tick
-                      INNER JOIN Achievements ach ON ach.ID=tick.AchievementID
+                      FROM trigger_tickets tick
+                      INNER JOIN Achievements ach ON ach.ID=tick.ticketable_id
                       WHERE ach.GameID IN ($gameList)
-                      AND tick.ReportState IN (1,3)
+                      AND tick.ticketable_type = 'achievement'
+                      AND tick.state IN ('open','request')
                       GROUP BY ach.GameID";
             foreach (legacyDbFetchAll($query) as $row) {
                 $games[$row['GameID']]['OpenTickets'] = $row['OpenTickets'];
             }
         } else {
             $query = "SELECT ach.GameID, ua.User as Author, COUNT(*) AS OpenTickets
-                      FROM Ticket tick
-                      INNER JOIN Achievements ach ON ach.ID = tick.AchievementID
+                      FROM trigger_tickets tick
+                      INNER JOIN Achievements ach ON ach.ID = tick.ticketable_id
                       LEFT JOIN UserAccounts ua ON ach.user_id = ua.ID
                       WHERE ach.GameID IN ($gameList)
-                      AND tick.ReportState IN (1,3)
+                      AND tick.ticketable_type = 'achievement'
+                      AND tick.state IN ('open','request')
                       GROUP BY ach.GameID, Author";
             foreach (legacyDbFetchAll($query) as $row) {
                 if ($row['Author'] === $dev) {

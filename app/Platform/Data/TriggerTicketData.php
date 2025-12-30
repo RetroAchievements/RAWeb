@@ -4,24 +4,25 @@ declare(strict_types=1);
 
 namespace App\Platform\Data;
 
-use App\Models\Ticket;
+use App\Community\Enums\TriggerTicketState;
+use App\Models\TriggerTicket;
 use App\Platform\Enums\TicketableType;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript('Ticket')]
-class TicketData extends Data
+#[TypeScript('TriggerTicket')]
+class TriggerTicketData extends Data
 {
     public function __construct(
         public int $id,
         public TicketableType $ticketableType,
-        public Lazy|int $state,
+        public Lazy|TriggerTicketState $state,
         public Lazy|AchievementData|LeaderboardData|GameData $ticketable,
     ) {
     }
 
-    public static function fromTicket(Ticket $ticket): self
+    public static function fromTriggerTicket(TriggerTicket $ticket): self
     {
         return new self(
             id: $ticket->id,
