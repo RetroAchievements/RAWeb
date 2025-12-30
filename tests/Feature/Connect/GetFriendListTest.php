@@ -51,7 +51,7 @@ class GetFriendListTest extends TestCase
             ]);
 
         // user2 is playing game1
-        $user2->last_game_id = $game1->ID;
+        $user2->rich_presence_game_id = $game1->ID;
         $user2->rich_presence = "Running through a forest";
         $user2->rich_presence_updated_at = $date1;
         $user2->save();
@@ -78,7 +78,7 @@ class GetFriendListTest extends TestCase
             ]);
 
         // user3 is playing game2
-        $user3->last_game_id = $game2->ID;
+        $user3->rich_presence_game_id = $game2->ID;
         $user3->rich_presence = "Killing everything";
         $user3->rich_presence_updated_at = $date2->clone()->subMinutes(45);
         $user3->save();
@@ -91,7 +91,7 @@ class GetFriendListTest extends TestCase
         ]);
 
         // user4 is playing game2
-        $user4->last_game_id = $game2->ID;
+        $user4->rich_presence_game_id = $game2->ID;
         $user4->rich_presence = "Killing everything";
         $user4->rich_presence_updated_at = $date3;
         $user4->setAttribute('Permissions', Permissions::Banned);
@@ -132,7 +132,7 @@ class GetFriendListTest extends TestCase
             ]);
 
         // user5 is playing game2
-        $user5->last_game_id = $game2->ID;
+        $user5->rich_presence_game_id = $game2->ID;
         $user5->rich_presence = "Killing everything";
         $user5->rich_presence_updated_at = $date3;
         $user5->save();
@@ -186,7 +186,7 @@ class GetFriendListTest extends TestCase
             ]);
 
         // user6 is playing game 2
-        $user6->last_game_id = $game2->ID;
+        $user6->rich_presence_game_id = $game2->ID;
         $user6->rich_presence = "Killing everything";
         $user6->rich_presence_updated_at = $date3;
         $user6->save();

@@ -62,7 +62,7 @@ function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchi
     $libraryOut['LastActivity'] = $user->last_activity_at?->__toString();
     $libraryOut['RichPresenceMsg'] = empty($user->rich_presence) || $user->rich_presence === 'Unknown' ? null : $user->rich_presence;
     $libraryOut['RichPresenceMsgDate'] = $user->rich_presence_updated_at?->__toString();
-    $libraryOut['LastGameID'] = (int) $user->last_game_id;
+    $libraryOut['LastGameID'] = (int) $user->rich_presence_game_id;
     $libraryOut['ContribCount'] = (int) $user->yield_unlocks;
     $libraryOut['ContribYield'] = (int) $user->yield_points;
     $libraryOut['TotalPoints'] = (int) $user->points;
@@ -86,16 +86,16 @@ function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchi
             $gameIDs[] = $recentlyPlayed['GameID'];
         }
 
-        if ($user->last_game_id && !in_array($user->last_game_id, $gameIDs)) {
-            $gameIDs[] = $user->last_game_id;
+        if ($user->rich_presence_game_id && !in_array($user->rich_presence_game_id, $gameIDs)) {
+            $gameIDs[] = $user->rich_presence_game_id;
         }
 
         $userProgress = getUserProgress($user, $gameIDs, $numRecentAchievements, withGameInfo: true);
 
         $libraryOut['Awarded'] = $userProgress['Awarded'];
         $libraryOut['RecentAchievements'] = $userProgress['RecentAchievements'];
-        if (array_key_exists($user->last_game_id, $userProgress['GameInfo'])) {
-            $libraryOut['LastGame'] = $userProgress['GameInfo'][$user->last_game_id];
+        if (array_key_exists($user->rich_presence_game_id, $userProgress['GameInfo'])) {
+            $libraryOut['LastGame'] = $userProgress['GameInfo'][$user->rich_presence_game_id];
         }
     }
 

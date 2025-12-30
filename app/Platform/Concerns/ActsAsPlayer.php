@@ -104,7 +104,7 @@ trait ActsAsPlayer
      */
     public function lastGame(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'last_game_id', 'id');
+        return $this->belongsTo(Game::class, 'rich_presence_game_id', 'id');
     }
 
     /**

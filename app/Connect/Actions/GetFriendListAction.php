@@ -38,7 +38,7 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
                 'users.rich_presence',
                 'users.rich_presence_updated_at',
                 'users.last_activity_at',
-                'users.last_game_id',
+                'users.rich_presence_game_id',
             ])
             ->get();
 
@@ -77,9 +77,9 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
         // Get game IDs for users without recent sessions.
         $gameIds = $friends
             ->filter(function ($friend) use ($latestSessions) {
-                return !isset($latestSessions[$friend->id]) && $friend->last_game_id > 0;
+                return !isset($latestSessions[$friend->id]) && $friend->rich_presence_game_id > 0;
             })
-            ->pluck('last_game_id')
+            ->pluck('rich_presence_game_id')
             ->unique()
             ->toArray();
 
@@ -117,8 +117,8 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
                     $entry['LastGameTitle'] = null;
                     $entry['LastGameIconUrl'] = null;
                 }
-            } elseif ($friend->last_game_id && isset($games[$friend->last_game_id])) {
-                $lastGame = $games[$friend->last_game_id];
+            } elseif ($friend->rich_presence_game_id && isset($games[$friend->rich_presence_game_id])) {
+                $lastGame = $games[$friend->rich_presence_game_id];
                 $entry['LastGameId'] = $lastGame->id;
                 $entry['LastGameTitle'] = $lastGame->title;
                 $entry['LastGameIconUrl'] = media_asset($lastGame->ImageIcon);

@@ -147,7 +147,7 @@ class StartSessionTest extends TestCase
 
         /** @var User $user1 */
         $user1 = User::whereName($this->user->username)->first();
-        $this->assertEquals($game->ID, $user1->last_game_id);
+        $this->assertEquals($game->ID, $user1->rich_presence_game_id);
         $this->assertEquals("Playing " . $game->Title, $user1->rich_presence);
 
         // ----------------------------
@@ -203,7 +203,7 @@ class StartSessionTest extends TestCase
         $this->assertEquals($gameHash2->id, $playerSession->game_hash_id);
 
         $user1 = User::whereName($this->user->username)->first();
-        $this->assertEquals($game2->ID, $user1->last_game_id);
+        $this->assertEquals($game2->ID, $user1->rich_presence_game_id);
         $this->assertEquals("Playing " . $game2->Title, $user1->rich_presence);
 
         // ----------------------------
@@ -741,7 +741,7 @@ class StartSessionTest extends TestCase
         $this->assertEquals(30, $playerSession->duration);
         $this->assertEquals('Playing ' . $bonusGameOne->title, $playerSession->rich_presence);
 
-        $this->assertEquals($bonusGameOne->id, $delegatedUser->last_game_id);
+        $this->assertEquals($bonusGameOne->id, $delegatedUser->rich_presence_game_id);
         $this->assertEquals("Playing " . $bonusGameOne->Title, $delegatedUser->rich_presence);
 
         // While delegating, updates are made on behalf of username `k`.
@@ -908,7 +908,7 @@ class StartSessionTest extends TestCase
         $this->assertEquals(30, $playerSession->duration);
         $this->assertEquals('Playing ' . $bonusGameOne->title, $playerSession->rich_presence);
 
-        $this->assertEquals($bonusGameOne->id, $delegatedUser->last_game_id);
+        $this->assertEquals($bonusGameOne->id, $delegatedUser->rich_presence_game_id);
         $this->assertEquals("Playing " . $bonusGameOne->Title, $delegatedUser->rich_presence);
 
         // While delegating, updates are made on behalf of username `k`.

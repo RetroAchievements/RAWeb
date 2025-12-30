@@ -168,10 +168,10 @@ function getLatestRichPresenceUpdates(): array
     $query = "SELECT ua.username AS User, $ifRAPoints as RAPoints, $ifRASoftcorePoints as RASoftcorePoints,
                      ua.rich_presence AS RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
               FROM users AS ua
-              LEFT JOIN GameData AS gd ON gd.ID = ua.last_game_id
+              LEFT JOIN GameData AS gd ON gd.ID = ua.rich_presence_game_id
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE ua.rich_presence_updated_at > $timestampStatement
-                AND ua.last_game_id != 0
+                AND ua.rich_presence_game_id != 0
                 AND ua.Permissions >= $permissionsCutoff
               ORDER BY RAPoints DESC, RASoftcorePoints DESC, ua.username ASC";
 

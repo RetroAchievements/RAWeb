@@ -42,7 +42,7 @@ return response()->json([
     'UserPic' => sprintf("/UserPic/%s.png", $user->username),
     'MemberSince' => $user->created_at->toDateTimeString(),
     'RichPresenceMsg' => empty($user->rich_presence) || $user->rich_presence === 'Unknown' ? null : $user->rich_presence,
-    'LastGameID' => $user->last_game_id,
+    'LastGameID' => $user->rich_presence_game_id,
     'ContribCount' => $user->yield_unlocks,
     'ContribYield' => $user->yield_points,
     'TotalPoints' => $user->points,

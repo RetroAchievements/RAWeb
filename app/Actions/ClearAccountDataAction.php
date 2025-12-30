@@ -69,7 +69,7 @@ class ClearAccountDataAction
             unranked_at = :now2,
             web_api_key = null,
             is_user_wall_active = 0,
-            last_game_id = 0,
+            rich_presence_game_id = 0,
             rich_presence = null,
             rich_presence_updated_at = null,
             deleted_at = :now

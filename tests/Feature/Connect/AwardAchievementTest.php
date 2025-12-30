@@ -382,7 +382,7 @@ class AwardAchievementTest extends TestCase
         /** @var User $delegatedUser */
         $delegatedUser = User::factory()->create(['username' => 'Username', 'Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
-        $delegatedUser->last_game_id = $gameOne->id;
+        $delegatedUser->rich_presence_game_id = $gameOne->id;
         $delegatedUser->save();
 
         /** @var Achievement $achievement1 */
@@ -569,7 +569,7 @@ class AwardAchievementTest extends TestCase
         /** @var User $delegatedUser */
         $delegatedUser = User::factory()->create(['username' => 'Username', 'Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
-        $delegatedUser->last_game_id = $gameOne->id;
+        $delegatedUser->rich_presence_game_id = $gameOne->id;
         $delegatedUser->save();
 
         /** @var Achievement $achievement1 */

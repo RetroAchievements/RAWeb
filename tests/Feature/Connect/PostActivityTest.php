@@ -43,7 +43,7 @@ class PostActivityTest extends TestCase
 
         /** @var User $user1 */
         $user1 = User::whereName($this->user->username)->first();
-        $this->assertEquals($game->ID, $user1->last_game_id);
+        $this->assertEquals($game->ID, $user1->rich_presence_game_id);
         $this->assertEquals("Playing " . $game->Title, $user1->rich_presence);
 
         // disallow anything other than StartedPlaying messages

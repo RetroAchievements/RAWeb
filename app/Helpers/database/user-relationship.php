@@ -86,7 +86,7 @@ function GetExtendedFriendsList(User $user): array
             return [
                 'User' => $friend->display_name,
                 'Friendship' => (int) $friend->pivot->Friendship,
-                'LastGameID' => (int) $friend->last_game_id,
+                'LastGameID' => (int) $friend->rich_presence_game_id,
                 'LastSeen' => empty($friend->rich_presence) ? 'Unknown' : strip_tags($friend->rich_presence),
                 'LastActivityTimestamp' => $friend->rich_presence_updated_at?->format('Y-m-d H:i:s'),
             ];

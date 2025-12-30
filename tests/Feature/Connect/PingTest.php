@@ -30,7 +30,7 @@ class PingTest extends TestCase
         $game = $this->seedGame();
         $gameHash = $game->hashes->first();
 
-        $this->user->last_game_id = $game->ID;
+        $this->user->rich_presence_game_id = $game->ID;
         $this->user->save();
 
         // this API requires POST
@@ -52,7 +52,7 @@ class PingTest extends TestCase
 
         /** @var User $user1 */
         $user1 = User::whereName($this->user->username)->first();
-        $this->assertEquals($game->ID, $user1->last_game_id);
+        $this->assertEquals($game->ID, $user1->rich_presence_game_id);
         $this->assertEquals('Doing good', $user1->rich_presence);
 
         // string sent by GET will not update user's rich presence message
@@ -72,7 +72,7 @@ class PingTest extends TestCase
         $this->assertEquals('Doing good', $playerSession2->rich_presence);
 
         $user1 = User::whereName($this->user->username)->first();
-        $this->assertEquals($game->ID, $user1->last_game_id);
+        $this->assertEquals($game->ID, $user1->rich_presence_game_id);
         $this->assertEquals('Doing good', $user1->rich_presence);
 
         // invalid UTF-8 should be sanitized
@@ -93,7 +93,7 @@ class PingTest extends TestCase
         $this->assertEquals($gameHash->id, $playerSession2->game_hash_id);
 
         $user1 = User::whereName($this->user->username)->first();
-        $this->assertEquals($game->ID, $user1->last_game_id);
+        $this->assertEquals($game->ID, $user1->rich_presence_game_id);
         $this->assertEquals('Tést t?st', $user1->rich_presence);
     }
 
@@ -253,7 +253,7 @@ class PingTest extends TestCase
         /** @var User $delegatedUser */
         $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
-        $delegatedUser->last_game_id = $gameOne->id;
+        $delegatedUser->rich_presence_game_id = $gameOne->id;
         $delegatedUser->save();
 
         // The integration user is the sole author of all the set's achievements.
@@ -352,7 +352,7 @@ class PingTest extends TestCase
         /** @var User $delegatedUser */
         $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
-        $delegatedUser->last_game_id = $gameOne->id;
+        $delegatedUser->rich_presence_game_id = $gameOne->id;
         $delegatedUser->save();
 
         // The integration user is the sole author of all the set's achievements.

@@ -10,8 +10,8 @@ use App\Models\User;
 
 <?php
 /** @var ?User $user */
-$sessionGame = $user?->last_game_id
-    ? Game::with('system')->find($user->last_game_id)
+$sessionGame = $user?->rich_presence_game_id
+    ? Game::with('system')->find($user->rich_presence_game_id)
     : null;
 
 $richPresenceMessage = $user?->rich_presence;

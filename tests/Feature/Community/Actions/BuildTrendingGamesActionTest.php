@@ -40,22 +40,22 @@ class BuildTrendingGamesActionTest extends TestCase
         $game5 = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => 'fifth_most_popular']);
 
         $game4User = User::factory()->create([
-            'last_game_id' => $game4->id,
+            'rich_presence_game_id' => $game4->id,
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
         ]);
         $game3Users = User::factory()->count(2)->create([
-            'last_game_id' => $game3->id,
+            'rich_presence_game_id' => $game3->id,
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
         ]);
         $game2Users = User::factory()->count(3)->create([
-            'last_game_id' => $game2->id,
+            'rich_presence_game_id' => $game2->id,
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
         ]);
         $game1Users = User::factory()->count(4)->create([
-            'last_game_id' => $game1->id,
+            'rich_presence_game_id' => $game1->id,
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
         ]);

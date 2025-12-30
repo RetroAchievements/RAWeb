@@ -45,7 +45,7 @@ class BuildActivePlayersActionTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         $users = User::factory()->count(5)->create([
-            'last_game_id' => $game->id,
+            'rich_presence_game_id' => $game->id,
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
         ]);
@@ -72,12 +72,12 @@ class BuildActivePlayersActionTest extends TestCase
         $game2 = Game::factory()->create(['ConsoleID' => $system->id]);
 
         $game1Users = User::factory()->count(5)->create([
-            'last_game_id' => $game1->id, // !!
+            'rich_presence_game_id' => $game1->id, // !!
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
         ]);
         $game2Users = User::factory()->count(3)->create([
-            'last_game_id' => $game2->id, // !!
+            'rich_presence_game_id' => $game2->id, // !!
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
         ]);
@@ -106,14 +106,14 @@ class BuildActivePlayersActionTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         $user1 = User::factory()->create([
-            'last_game_id' => $game->id,
+            'rich_presence_game_id' => $game->id,
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
             'username' => 'testuser123', // !!
             'rich_presence' => 'Playing game',
         ]);
         $user2 = User::factory()->create([
-            'last_game_id' => $game->id,
+            'rich_presence_game_id' => $game->id,
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
             'username' => 'otheruser456', // !!
@@ -138,14 +138,14 @@ class BuildActivePlayersActionTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         $user1 = User::factory()->create([
-            'last_game_id' => $game->id,
+            'rich_presence_game_id' => $game->id,
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
             'username' => 'testuser123',
             'rich_presence' => 'Developing achievements',
         ]);
         $user2 = User::factory()->create([
-            'last_game_id' => $game->id,
+            'rich_presence_game_id' => $game->id,
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
             'username' => 'otheruser456',
@@ -172,13 +172,13 @@ class BuildActivePlayersActionTest extends TestCase
         $game2 = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => 'Legend of Zelda']);
 
         $user1 = User::factory()->create([
-            'last_game_id' => $game1->id, // !!
+            'rich_presence_game_id' => $game1->id, // !!
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
             'username' => 'Scott',
         ]);
         $user2 = User::factory()->create([
-            'last_game_id' => $game2->id, // !!
+            'rich_presence_game_id' => $game2->id, // !!
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
             'username' => 'Batman',
@@ -203,19 +203,19 @@ class BuildActivePlayersActionTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         $user1 = User::factory()->create([
-            'last_game_id' => $game->id,
+            'rich_presence_game_id' => $game->id,
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
             'rich_presence' => 'Playing game',
         ]);
         $user2 = User::factory()->create([
-            'last_game_id' => $game->id,
+            'rich_presence_game_id' => $game->id,
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
             'rich_presence' => 'Developing achievements',
         ]);
         $user3 = User::factory()->create([
-            'last_game_id' => $game->id,
+            'rich_presence_game_id' => $game->id,
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
             'rich_presence' => 'Fixing achievements',
@@ -239,12 +239,12 @@ class BuildActivePlayersActionTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         $activeUser = User::factory()->create([
-            'last_game_id' => $game->id,
+            'rich_presence_game_id' => $game->id,
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
         ]);
         $inactiveUser = User::factory()->create([
-            'last_game_id' => $game->id,
+            'rich_presence_game_id' => $game->id,
             'rich_presence_updated_at' => now()->subDays(2),
             'Permissions' => Permissions::Registered,
         ]);
@@ -274,7 +274,7 @@ class BuildActivePlayersActionTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         $trackedHighPoints = User::factory()->create([
-            'last_game_id' => $game->id,
+            'rich_presence_game_id' => $game->id,
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
             'username' => 'tracked_high_points',
@@ -282,7 +282,7 @@ class BuildActivePlayersActionTest extends TestCase
             'points' => 100000,
         ]);
         $untrackedHighPoints = User::factory()->create([
-            'last_game_id' => $game->id,
+            'rich_presence_game_id' => $game->id,
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
             'username' => 'untracked_high_points',
@@ -290,7 +290,7 @@ class BuildActivePlayersActionTest extends TestCase
             'points' => 999999,
         ]);
         $trackedLowPoints = User::factory()->create([
-            'last_game_id' => $game->id,
+            'rich_presence_game_id' => $game->id,
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
             'username' => 'tracked_low_points',

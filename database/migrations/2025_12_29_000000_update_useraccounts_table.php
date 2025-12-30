@@ -35,7 +35,7 @@ return new class extends Migration {
             $table->renameColumn('ContribYield', 'yield_points');
             $table->renameColumn('APIKey', 'web_api_key');
             $table->renameColumn('APIUses', 'web_api_calls');
-            $table->renameColumn('LastGameID', 'last_game_id');
+            $table->renameColumn('LastGameID', 'rich_presence_game_id');
             $table->renameColumn('RichPresenceMsg', 'rich_presence');
             $table->renameColumn('RichPresenceMsgDate', 'rich_presence_updated_at');
             $table->renameColumn('UnreadMessageCount', 'unread_messages');
@@ -128,9 +128,9 @@ return new class extends Migration {
 
                     -- Activity/session
                     MODIFY COLUMN `last_activity_at` timestamp NULL DEFAULT NULL AFTER `locale_number`,
-                    MODIFY COLUMN `last_game_id` int(10) unsigned NOT NULL DEFAULT 0 AFTER `last_activity_at`,
-                    MODIFY COLUMN `rich_presence` varchar(255) DEFAULT NULL AFTER `last_game_id`,
-                    MODIFY COLUMN `rich_presence_updated_at` datetime DEFAULT NULL AFTER `rich_presence`,
+                    MODIFY COLUMN `rich_presence` varchar(255) DEFAULT NULL AFTER `last_activity_at`,
+                    MODIFY COLUMN `rich_presence_game_id` int(10) unsigned NOT NULL DEFAULT 0 AFTER `rich_presence`,
+                    MODIFY COLUMN `rich_presence_updated_at` datetime DEFAULT NULL AFTER `rich_presence_game_id`,
 
                     -- Profile
                     MODIFY COLUMN `motto` varchar(50) NOT NULL DEFAULT '' AFTER `rich_presence_updated_at`,
@@ -200,8 +200,8 @@ return new class extends Migration {
                 MODIFY COLUMN `yield_points` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'The total points allocated for achievements that this user has been the author of' AFTER `yield_unlocks`,
                 MODIFY COLUMN `web_api_key` varchar(60) DEFAULT NULL AFTER `yield_points`,
                 MODIFY COLUMN `web_api_calls` int(10) unsigned NOT NULL DEFAULT 0 AFTER `web_api_key`,
-                MODIFY COLUMN `last_game_id` int(10) unsigned NOT NULL DEFAULT 0 AFTER `web_api_calls`,
-                MODIFY COLUMN `rich_presence` varchar(255) DEFAULT NULL AFTER `last_game_id`,
+                MODIFY COLUMN `rich_presence_game_id` int(10) unsigned NOT NULL DEFAULT 0 AFTER `web_api_calls`,
+                MODIFY COLUMN `rich_presence` varchar(255) DEFAULT NULL AFTER `rich_presence_game_id`,
                 MODIFY COLUMN `rich_presence_updated_at` datetime DEFAULT NULL AFTER `rich_presence`,
                 MODIFY COLUMN `ManuallyVerified` tinyint(3) unsigned DEFAULT 0 COMMENT 'If 0, cannot post directly to forums without manual permission' AFTER `rich_presence_updated_at`,
                 MODIFY COLUMN `forum_verified_at` timestamp NULL DEFAULT NULL AFTER `ManuallyVerified`,
@@ -252,7 +252,7 @@ return new class extends Migration {
             $table->renameColumn('yield_points', 'ContribYield');
             $table->renameColumn('web_api_key', 'APIKey');
             $table->renameColumn('web_api_calls', 'APIUses');
-            $table->renameColumn('last_game_id', 'LastGameID');
+            $table->renameColumn('rich_presence_game_id', 'LastGameID');
             $table->renameColumn('rich_presence', 'RichPresenceMsg');
             $table->renameColumn('rich_presence_updated_at', 'RichPresenceMsgDate');
             $table->renameColumn('unread_messages', 'UnreadMessageCount');

@@ -78,8 +78,8 @@ class ResumePlayerSessionAction
         // As best as we can, we'll try to only write once to the user model.
         $doesUserNeedsUpdate = false;
 
-        if ($user->last_game_id !== $game->id) {
-            $user->last_game_id = $game->id;
+        if ($user->rich_presence_game_id !== $game->id) {
+            $user->rich_presence_game_id = $game->id;
             $doesUserNeedsUpdate = true;
         }
 

@@ -65,7 +65,7 @@ class PingMultisetTest extends TestCase
 
         $bonusGameHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
 
-        $this->user->last_game_id = $bonusGame->id;
+        $this->user->rich_presence_game_id = $bonusGame->id;
         $this->user->save();
 
         // Act
@@ -91,7 +91,7 @@ class PingMultisetTest extends TestCase
         $this->assertEquals('Playing bonus content', $playerSession->rich_presence);
         $this->assertEquals(1, $playerSession->duration);
 
-        $this->assertEquals($baseGame->id, $this->user->fresh()->last_game_id);
+        $this->assertEquals($baseGame->id, $this->user->fresh()->rich_presence_game_id);
         $this->assertEquals('Playing bonus content', $this->user->fresh()->rich_presence);
     }
 
@@ -116,7 +116,7 @@ class PingMultisetTest extends TestCase
 
         $specialtyGameHash = GameHash::factory()->create(['game_id' => $specialtyGame->id]);
 
-        $this->user->last_game_id = $specialtyGame->id;
+        $this->user->rich_presence_game_id = $specialtyGame->id;
         $this->user->save();
 
         // Act
@@ -140,7 +140,7 @@ class PingMultisetTest extends TestCase
         $this->assertEquals('Playing specialty content', $playerSession->rich_presence);
         $this->assertEquals(1, $playerSession->duration);
 
-        $this->assertEquals($specialtyGame->id, $this->user->fresh()->last_game_id);
+        $this->assertEquals($specialtyGame->id, $this->user->fresh()->rich_presence_game_id);
         $this->assertEquals('Playing specialty content', $this->user->fresh()->rich_presence);
     }
 
@@ -156,7 +156,7 @@ class PingMultisetTest extends TestCase
             'name' => 'Game Title (Disc 2)', // !! will be detected as multi-disc
         ]);
 
-        $this->user->last_game_id = $game->id;
+        $this->user->rich_presence_game_id = $game->id;
         $this->user->save();
 
         // Act
@@ -179,7 +179,7 @@ class PingMultisetTest extends TestCase
         $this->assertNull($playerSession->game_hash_id);
         $this->assertEquals('Playing disc 2', $playerSession->rich_presence);
 
-        $this->assertEquals($game->id, $this->user->fresh()->last_game_id);
+        $this->assertEquals($game->id, $this->user->fresh()->rich_presence_game_id);
         $this->assertEquals('Playing disc 2', $this->user->fresh()->rich_presence);
     }
 }
