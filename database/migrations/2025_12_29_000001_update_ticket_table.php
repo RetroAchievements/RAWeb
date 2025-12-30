@@ -59,9 +59,9 @@ return new class extends Migration {
             $table->renameIndex('tickets_ticketable_index', 'trigger_tickets_ticketable_index');
         });
 
-        // Add a new index for state + deleted_at queries.
+        // Replace the dropped (AchievementID, state, deleted_at) index with a morph-based equivalent.
         Schema::table('trigger_tickets', function (Blueprint $table) {
-            $table->index(['state', 'deleted_at'], 'trigger_tickets_state_deleted_at_index');
+            $table->index(['ticketable_type', 'ticketable_id', 'state', 'deleted_at'], 'trigger_tickets_ticketable_state_index');
         });
 
         if (DB::connection()->getDriverName() === 'sqlite') {
@@ -155,9 +155,9 @@ return new class extends Migration {
                 MODIFY COLUMN `deleted_at` timestamp NULL DEFAULT NULL AFTER `updated_at`
         SQL);
 
-        // Drop the new state index.
+        // Drop the ticketable state index.
         Schema::table('trigger_tickets', function (Blueprint $table) {
-            $table->dropIndex('trigger_tickets_state_deleted_at_index');
+            $table->dropIndex('trigger_tickets_ticketable_state_index');
         });
 
         // Rename indexes back.
