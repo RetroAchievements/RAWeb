@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
-use App\Community\Enums\TriggerTicketState;
-use App\Models\TriggerTicket;
+use App\Community\Enums\TicketState;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -62,13 +62,13 @@ class DeveloperSetsService
         $gameIDs = array_keys($gameAuthoredAchievementsList) +
             array_keys($gameAuthoredLeaderboardsList);
 
-        $gameAuthoredTicketsList = TriggerTicket::whereIn('state', [TriggerTicketState::Open, TriggerTicketState::Request])
+        $gameAuthoredTicketsList = Ticket::whereIn('state', [TicketState::Open, TicketState::Request])
             ->where('ticketable_type', 'achievement')
-            ->join('Achievements', 'Achievements.ID', '=', 'trigger_tickets.ticketable_id')
+            ->join('Achievements', 'Achievements.ID', '=', 'tickets.ticketable_id')
             ->whereIn('Achievements.GameID', $gameIDs)
             ->where(DB::raw('Achievements.user_id'), $user->id)
             ->select(['GameID',
-                DB::raw('COUNT(trigger_tickets.id) AS NumAuthoredTickets'),
+                DB::raw('COUNT(tickets.id) AS NumAuthoredTickets'),
             ])
             ->groupBy('GameID')
             ->get()

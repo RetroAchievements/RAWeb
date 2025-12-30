@@ -5,7 +5,7 @@ import {
   createGameSet,
   createRaEvent,
   createSystem,
-  createTriggerTicket,
+  createTicket,
   createUser,
 } from '@/test/factories';
 
@@ -210,7 +210,7 @@ describe('Component: ShortcodeRenderer', () => {
 
   it('given a body with a ticket tag and a found persisted ticket, renders the ticket shortcode component', () => {
     // ARRANGE
-    const ticket = createTriggerTicket({
+    const ticket = createTicket({
       id: 12345,
       ticketable: createAchievement({ title: 'That Was Easy!' }),
     });

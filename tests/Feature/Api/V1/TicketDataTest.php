@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
-use App\Community\Enums\TriggerTicketState;
-use App\Community\Enums\TriggerTicketType;
+use App\Community\Enums\TicketState;
+use App\Community\Enums\TicketType;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\System;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -28,8 +28,8 @@ class TicketDataTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID]);
-        /** @var TriggerTicket $ticket */
-        $ticket = TriggerTicket::factory()->create([
+        /** @var Ticket $ticket */
+        $ticket = Ticket::factory()->create([
             'ticketable_id' => $achievement->id,
             'reporter_id' => $this->user->id,
             'ticketable_author_id' => $achievement->user_id,
@@ -74,8 +74,8 @@ class TicketDataTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID]);
-        /** @var TriggerTicket $ticket */
-        $ticket = TriggerTicket::factory()->create([
+        /** @var Ticket $ticket */
+        $ticket = Ticket::factory()->create([
             'ticketable_id' => $achievement->ID,
             'reporter_id' => $this->user->ID,
             'ticketable_author_id' => $achievement->user_id,
@@ -86,11 +86,11 @@ class TicketDataTest extends TestCase
         $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID]);
-        /** @var TriggerTicket $ticket2 */
-        $ticket2 = TriggerTicket::factory()->create([
+        /** @var Ticket $ticket2 */
+        $ticket2 = Ticket::factory()->create([
             'ticketable_id' => $achievement2->ID,
             'reporter_id' => $user2->ID, 'hardcore' => 0,
-            'type' => TriggerTicketType::TriggeredAtWrongTime,
+            'type' => TicketType::TriggeredAtWrongTime,
             'ticketable_author_id' => $achievement2->user_id,
         ]);
         /** @var User $user3 */
@@ -99,9 +99,9 @@ class TicketDataTest extends TestCase
         $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement3 */
         $achievement3 = Achievement::factory()->published()->create(['GameID' => $game3->ID]);
-        TriggerTicket::factory()->create([
+        Ticket::factory()->create([
             'ticketable_id' => $achievement3->ID,
-            'reporter_id' => $user2->ID, 'state' => TriggerTicketState::Resolved,
+            'reporter_id' => $user2->ID, 'state' => TicketState::Resolved,
             'resolver_id' => $user3->ID, 'resolved_at' => Carbon::now(),
             'ticketable_author_id' => $achievement3->user_id,
         ]);
@@ -183,21 +183,21 @@ class TicketDataTest extends TestCase
         $achievements3 = Achievement::factory()->published()->count(6)->create(['GameID' => $game3->ID]);
 
         for ($i = 0; $i < 1; $i++) {
-            TriggerTicket::factory()->create([
+            Ticket::factory()->create([
                 'ticketable_id' => $achievements->get($i)->ID,
                 'reporter_id' => $this->user->ID,
                 'ticketable_author_id' => $achievements->get($i)->user_id,
             ]);
         }
         for ($i = 0; $i < 5; $i++) {
-            TriggerTicket::factory()->create([
+            Ticket::factory()->create([
                 'ticketable_id' => $achievements2->get($i)->ID,
                 'reporter_id' => $this->user->ID,
                 'ticketable_author_id' => $achievements2->get($i)->user_id,
             ]);
         }
         for ($i = 0; $i < 3; $i++) {
-            TriggerTicket::factory()->create([
+            Ticket::factory()->create([
                 'ticketable_id' => $achievements3->get($i)->ID,
                 'reporter_id' => $this->user->ID,
                 'ticketable_author_id' => $achievements3->get($i)->user_id,
@@ -242,8 +242,8 @@ class TicketDataTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $this->user->id]);
-        /** @var TriggerTicket $ticket */
-        $ticket = TriggerTicket::factory()->create([
+        /** @var Ticket $ticket */
+        $ticket = Ticket::factory()->create([
             'ticketable_id' => $achievement->ID,
             'reporter_id' => $this->user->ID,
             'ticketable_author_id' => $achievement->user_id,
@@ -254,12 +254,12 @@ class TicketDataTest extends TestCase
         $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'user_id' => $this->user->id]);
-        /** @var TriggerTicket $ticket2 */
-        $ticket2 = TriggerTicket::factory()->create([
+        /** @var Ticket $ticket2 */
+        $ticket2 = Ticket::factory()->create([
             'ticketable_id' => $achievement2->ID,
             'reporter_id' => $user2->ID,
             'hardcore' => 0,
-            'type' => TriggerTicketType::TriggeredAtWrongTime,
+            'type' => TicketType::TriggeredAtWrongTime,
             'ticketable_author_id' => $achievement2->user_id,
         ]);
         /** @var User $user3 */
@@ -268,10 +268,10 @@ class TicketDataTest extends TestCase
         $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement3 */
         $achievement3 = Achievement::factory()->published()->create(['GameID' => $game3->ID, 'user_id' => $this->user->id]);
-        TriggerTicket::factory()->create([
+        Ticket::factory()->create([
             'ticketable_id' => $achievement3->ID,
             'reporter_id' => $user2->ID,
-            'state' => TriggerTicketState::Resolved,
+            'state' => TicketState::Resolved,
             'resolver_id' => $user3->ID,
             'resolved_at' => Carbon::now(),
             'ticketable_author_id' => $achievement3->user_id,
@@ -298,8 +298,8 @@ class TicketDataTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $this->user->id]);
-        /** @var TriggerTicket $ticket */
-        $ticket = TriggerTicket::factory()->create([
+        /** @var Ticket $ticket */
+        $ticket = Ticket::factory()->create([
             'ticketable_id' => $achievement->ID,
             'reporter_id' => $this->user->ID,
             'ticketable_author_id' => $achievement->user_id,
@@ -310,12 +310,12 @@ class TicketDataTest extends TestCase
         $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'user_id' => $this->user->id]);
-        /** @var TriggerTicket $ticket2 */
-        $ticket2 = TriggerTicket::factory()->create([
+        /** @var Ticket $ticket2 */
+        $ticket2 = Ticket::factory()->create([
             'ticketable_id' => $achievement2->ID,
             'reporter_id' => $user2->ID,
             'hardcore' => 0,
-            'type' => TriggerTicketType::TriggeredAtWrongTime,
+            'type' => TicketType::TriggeredAtWrongTime,
             'ticketable_author_id' => $achievement2->user_id,
         ]);
         /** @var User $user3 */
@@ -324,10 +324,10 @@ class TicketDataTest extends TestCase
         $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement3 */
         $achievement3 = Achievement::factory()->published()->create(['GameID' => $game3->ID, 'user_id' => $this->user->id]);
-        TriggerTicket::factory()->create([
+        Ticket::factory()->create([
             'ticketable_id' => $achievement3->ID,
             'reporter_id' => $user2->ID,
-            'state' => TriggerTicketState::Resolved,
+            'state' => TicketState::Resolved,
             'resolver_id' => $user3->ID,
             'resolved_at' => Carbon::now(),
             'ticketable_author_id' => $achievement3->user_id,
@@ -362,18 +362,18 @@ class TicketDataTest extends TestCase
         /** @var Achievement $achievement2 */
         $achievement2 = $achievements->get(3);
 
-        /** @var TriggerTicket $ticket */
-        $ticket = TriggerTicket::factory()->create([
+        /** @var Ticket $ticket */
+        $ticket = Ticket::factory()->create([
             'ticketable_id' => $achievement1->ID,
             'reporter_id' => $this->user->ID,
             'ticketable_author_id' => $achievement1->user_id,
         ]);
-        /** @var TriggerTicket $ticket2 */
-        $ticket2 = TriggerTicket::factory()->create([
+        /** @var Ticket $ticket2 */
+        $ticket2 = Ticket::factory()->create([
             'ticketable_id' => $achievement2->ID,
             'reporter_id' => $this->user->ID,
             'hardcore' => 0,
-            'type' => TriggerTicketType::TriggeredAtWrongTime,
+            'type' => TicketType::TriggeredAtWrongTime,
             'ticketable_author_id' => $achievement2->user_id,
         ]);
 
@@ -449,20 +449,20 @@ class TicketDataTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $this->user->id]);
-        /** @var TriggerTicket $ticket */
-        $ticket = TriggerTicket::factory()->create([
+        /** @var Ticket $ticket */
+        $ticket = Ticket::factory()->create([
             'ticketable_id' => $achievement->ID,
             'reporter_id' => $this->user->ID,
             'ticketable_author_id' => $achievement->user_id,
         ]);
         /** @var User $user2 */
         $user2 = User::factory()->create();
-        /** @var TriggerTicket $ticket2 */
-        $ticket2 = TriggerTicket::factory()->create([
+        /** @var Ticket $ticket2 */
+        $ticket2 = Ticket::factory()->create([
             'ticketable_id' => $achievement->ID,
             'reporter_id' => $user2->ID,
             'hardcore' => 0,
-            'type' => TriggerTicketType::TriggeredAtWrongTime,
+            'type' => TicketType::TriggeredAtWrongTime,
             'ticketable_author_id' => $achievement->user_id,
         ]);
 

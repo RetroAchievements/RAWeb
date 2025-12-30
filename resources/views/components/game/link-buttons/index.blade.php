@@ -18,14 +18,14 @@
 
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use Illuminate\Support\Facades\Auth;
 
 $user = Auth::user();
 
-$canSeeOpenTickets = in_array('tickets', $allowedLinks) && $user?->can('viewAny', TriggerTicket::class);
+$canSeeOpenTickets = in_array('tickets', $allowedLinks) && $user?->can('viewAny', Ticket::class);
 if ($canSeeOpenTickets) {
-    $gameTickets = TriggerTicket::forGame($game)->unresolved();
+    $gameTickets = Ticket::forGame($game)->unresolved();
     if ($isViewingOfficial) {
         $gameTickets->officialCore();
     } else {

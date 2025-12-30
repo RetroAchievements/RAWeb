@@ -60,7 +60,7 @@ class ReportAchievementIssueControllerTest extends TestCase
             ->has('hasSession')
             ->has('ticketType')
             ->has('can', fn (Assert $can) => $can
-                ->has('createTriggerTicket')
+                ->has('createTicket')
             )
             ->etc() // for whatever reason, component validation always fails. it's covered elsewhere, though.
         );

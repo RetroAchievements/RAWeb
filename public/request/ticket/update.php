@@ -1,9 +1,9 @@
 <?php
 
 use App\Community\Enums\TicketAction;
-use App\Community\Enums\TriggerTicketState;
+use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -14,12 +14,12 @@ if (!authenticateFromCookie($username, $permissions, $userDetail)) {
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'ticket' => 'required|integer|exists:trigger_tickets,id',
+    'ticket' => 'required|integer|exists:tickets,id',
     'action' => ['required', 'string', Rule::in(TicketAction::cases())],
 ]);
 
 $ticketId = (int) $input['ticket'];
-$ticket = TriggerTicket::find($ticketId);
+$ticket = Ticket::find($ticketId);
 if (!$ticket) {
     return back()->withErrors(__('legacy.error.error'));
 }
@@ -28,61 +28,61 @@ $reason = null;
 $ticketState = null;
 switch ($input['action']) {
     case TicketAction::ClosedMistaken:
-        $ticketState = TriggerTicketState::Closed;
+        $ticketState = TicketState::Closed;
         $reason = "Mistaken report";
         break;
 
     case TicketAction::Resolved:
         if ($permissions >= Permissions::Developer) {
-            $ticketState = TriggerTicketState::Resolved;
+            $ticketState = TicketState::Resolved;
         }
         break;
 
     case TicketAction::Demoted:
         if ($permissions >= Permissions::Developer) {
-            $ticketState = TriggerTicketState::Closed;
-            $reason = TriggerTicketState::REASON_DEMOTED;
+            $ticketState = TicketState::Closed;
+            $reason = TicketState::REASON_DEMOTED;
         }
         break;
 
     case TicketAction::NotEnoughInfo:
         if ($permissions >= Permissions::Developer) {
-            $ticketState = TriggerTicketState::Closed;
+            $ticketState = TicketState::Closed;
             $reason = "Not enough information";
         }
         break;
 
     case TicketAction::WrongRom:
         if ($permissions >= Permissions::Developer) {
-            $ticketState = TriggerTicketState::Closed;
+            $ticketState = TicketState::Closed;
             $reason = "Wrong ROM";
         }
         break;
 
     case TicketAction::Network:
         if ($permissions >= Permissions::Developer) {
-            $ticketState = TriggerTicketState::Closed;
+            $ticketState = TicketState::Closed;
             $reason = "Network problems";
         }
         break;
 
     case TicketAction::UnableToReproduce:
         if ($permissions >= Permissions::Developer) {
-            $ticketState = TriggerTicketState::Closed;
+            $ticketState = TicketState::Closed;
             $reason = "Unable to reproduce";
         }
         break;
 
     case TicketAction::UnableToDebug:
         if ($permissions >= Permissions::Developer) {
-            $ticketState = TriggerTicketState::Closed;
+            $ticketState = TicketState::Closed;
             $reason = "Unable to debug due to no toolkit support";
         }
         break;
 
     case TicketAction::ClosedOther:
         if ($permissions >= Permissions::Developer) {
-            $ticketState = TriggerTicketState::Closed;
+            $ticketState = TicketState::Closed;
             $reason = "See the comments";
         }
         break;
@@ -92,11 +92,11 @@ switch ($input['action']) {
             return back()->withErrors(__('legacy.error.error'));
         }
 
-        $ticketState = TriggerTicketState::Request;
+        $ticketState = TicketState::Request;
         break;
 
     case TicketAction::Reopen:
-        $ticketState = TriggerTicketState::Open;
+        $ticketState = TicketState::Open;
         break;
 }
 

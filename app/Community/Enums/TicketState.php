@@ -8,7 +8,7 @@ use InvalidArgumentException;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
-enum TriggerTicketState: string
+enum TicketState: string
 {
     case Closed = 'closed';
     case Open = 'open';
@@ -37,7 +37,7 @@ enum TriggerTicketState: string
 
     /**
      * Returns the legacy integer value for V1 API backwards compatibility.
-     * These values were used when TriggerTicketState was an integer-backed enum
+     * These values were used when TicketState was an integer-backed enum
      * and must remain stable for existing API consumers.
      */
     public function toLegacyInteger(): int
@@ -51,7 +51,7 @@ enum TriggerTicketState: string
     }
 
     /**
-     * Creates a TriggerTicketState from a legacy integer value.
+     * Creates a TicketState from a legacy integer value.
      * Used for backwards compatibility with legacy code that still uses integer values.
      */
     public static function fromLegacyInteger(int $value): self
@@ -61,7 +61,7 @@ enum TriggerTicketState: string
             1 => self::Open,
             2 => self::Resolved,
             3 => self::Request,
-            default => throw new InvalidArgumentException("Invalid legacy TriggerTicketState value: {$value}"),
+            default => throw new InvalidArgumentException("Invalid legacy TicketState value: {$value}"),
         };
     }
 }

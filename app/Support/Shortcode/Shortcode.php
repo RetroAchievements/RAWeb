@@ -9,7 +9,7 @@ use App\Models\Event;
 use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\System;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Actions\ResolveBackingGameForAchievementSetAction;
 use App\Platform\Enums\GameSetType;
@@ -255,7 +255,7 @@ final class Shortcode
                     break;
 
                 case 'ticketIds':
-                    $results[$key] = TriggerTicket::whereIn('id', $ids)
+                    $results[$key] = Ticket::whereIn('id', $ids)
                         ->get()->mapWithKeys(function ($ticket) {
                             return [$ticket->id => $ticket];
                         });
@@ -504,7 +504,7 @@ final class Shortcode
                 $ticketId = (int) $matches[1];
                 $ticket = $shortcodeRecords['ticketIds'][$ticketId] ?? null;
                 if ($ticket) {
-                    $url = route('ticket.show', ['triggerTicket' => $ticket]);
+                    $url = route('ticket.show', ['ticket' => $ticket]);
 
                     return "[Ticket #{$ticketId}]({$url})";
                 }
@@ -877,7 +877,7 @@ final class Shortcode
 
     private function embedTicket(int $id): string
     {
-        $ticket = TriggerTicket::find($id);
+        $ticket = Ticket::find($id);
 
         if (!$ticket) {
             return '';

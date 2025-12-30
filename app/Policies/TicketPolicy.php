@@ -7,12 +7,12 @@ namespace App\Policies;
 use App\Models\Achievement;
 use App\Models\Leaderboard;
 use App\Models\Role;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class TriggerTicketPolicy
+class TicketPolicy
 {
     use HandlesAuthorization;
 
@@ -36,7 +36,7 @@ class TriggerTicketPolicy
         return true;
     }
 
-    public function view(?User $user, TriggerTicket $triggerTicket): bool
+    public function view(?User $user, Ticket $ticket): bool
     {
         // Guests cannot view tickets.
         if (!$user) {
@@ -70,22 +70,22 @@ class TriggerTicketPolicy
         return $this->createAchievementTicket($user, $triggerable);
     }
 
-    public function update(User $user, TriggerTicket $triggerTicket): bool
+    public function update(User $user, Ticket $ticket): bool
     {
         return false;
     }
 
-    public function delete(User $user, TriggerTicket $triggerTicket): bool
+    public function delete(User $user, Ticket $ticket): bool
     {
         return false;
     }
 
-    public function restore(User $user, TriggerTicket $triggerTicket): bool
+    public function restore(User $user, Ticket $ticket): bool
     {
         return false;
     }
 
-    public function forceDelete(User $user, TriggerTicket $triggerTicket): bool
+    public function forceDelete(User $user, Ticket $ticket): bool
     {
         return false;
     }

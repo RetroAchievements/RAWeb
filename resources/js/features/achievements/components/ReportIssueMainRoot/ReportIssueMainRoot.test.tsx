@@ -14,7 +14,7 @@ describe('Component: ReportIssueMainRoot', () => {
       {
         pageProps: {
           achievement: createAchievement(),
-          can: { createTriggerTicket: true },
+          can: { createTicket: true },
         },
       },
     );
@@ -30,7 +30,7 @@ describe('Component: ReportIssueMainRoot', () => {
     render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
       pageProps: {
         achievement,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -47,7 +47,7 @@ describe('Component: ReportIssueMainRoot', () => {
     render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
       pageProps: {
         achievement,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -63,7 +63,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: false,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -80,7 +80,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -102,7 +102,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -124,7 +124,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -147,7 +147,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: false,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -173,7 +173,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -198,7 +198,7 @@ describe('Component: ReportIssueMainRoot', () => {
         achievement,
         hasSession: true,
         ticketType: 'did_not_trigger',
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -226,7 +226,7 @@ describe('Component: ReportIssueMainRoot', () => {
         achievement,
         hasSession: true,
         ticketType: 'triggered_at_wrong_time',
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -261,7 +261,7 @@ describe('Component: ReportIssueMainRoot', () => {
         extra,
         hasSession: true,
         ticketType: 'triggered_at_wrong_time',
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -282,7 +282,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -311,7 +311,7 @@ describe('Component: ReportIssueMainRoot', () => {
         hasSession: true,
         ticketType: 'did_not_trigger',
         can: {
-          createTriggerTicket: false, // !!
+          createTicket: false, // !!
         },
       },
     });
@@ -341,7 +341,7 @@ describe('Component: ReportIssueMainRoot', () => {
         hasSession: true,
         ticketType: 'triggered_at_wrong_time',
         can: {
-          createTriggerTicket: false, // !!
+          createTicket: false, // !!
         },
       },
     });

@@ -11,7 +11,7 @@ use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Game;
 use App\Models\Leaderboard;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Models\User;
 use Aws\CommandPool;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
@@ -234,13 +234,13 @@ function informAllSubscribersAboutActivity(
             break;
 
         case ArticleType::AchievementTicket:  // Ticket
-            $ticket = TriggerTicket::with(['achievement.game', 'reporter'])->find($articleID);
+            $ticket = Ticket::with(['achievement.game', 'reporter'])->find($articleID);
             if (!$ticket) {
                 return;
             }
 
             $articleTitle = "{$ticket->achievement->Title} ({$ticket->achievement->game->Title})";
-            $urlTarget = route('ticket.show', ['triggerTicket' => $ticket->id]);
+            $urlTarget = route('ticket.show', ['ticket' => $ticket->id]);
             $subjectAuthor = $ticket->reporter;
             $articleEmailPreference = UserPreference::EmailOn_TicketActivity;
             $subscriptionSubjectType = SubscriptionSubjectType::AchievementTicket;

@@ -8,7 +8,7 @@ use InvalidArgumentException;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
-enum TriggerTicketType: string
+enum TicketType: string
 {
     case TriggeredAtWrongTime = 'triggered_at_wrong_time';
     case DidNotTrigger = 'did_not_trigger';
@@ -23,7 +23,7 @@ enum TriggerTicketType: string
 
     /**
      * Returns the legacy integer value for V1 API backwards compatibility.
-     * These values were used when TriggerTicketType was an integer-backed enum
+     * These values were used when TicketType was an integer-backed enum
      * and must remain stable for existing API consumers.
      */
     public function toLegacyInteger(): int
@@ -35,7 +35,7 @@ enum TriggerTicketType: string
     }
 
     /**
-     * Creates a TriggerTicketType from a legacy integer value.
+     * Creates a TicketType from a legacy integer value.
      * Used for backwards compatibility with legacy code that still uses integer values.
      */
     public static function fromLegacyInteger(int $value): self
@@ -43,7 +43,7 @@ enum TriggerTicketType: string
         return match ($value) {
             1 => self::TriggeredAtWrongTime,
             2 => self::DidNotTrigger,
-            default => throw new InvalidArgumentException("Invalid legacy TriggerTicketType value: {$value}"),
+            default => throw new InvalidArgumentException("Invalid legacy TicketType value: {$value}"),
         };
     }
 }

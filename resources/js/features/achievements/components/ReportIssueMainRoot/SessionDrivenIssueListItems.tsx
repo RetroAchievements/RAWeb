@@ -22,7 +22,7 @@ export const SessionDrivenIssueListItems: FC = () => {
   if (ticketType === 'did_not_trigger') {
     return (
       <>
-        {can.createTriggerTicket ? (
+        {can.createTicket ? (
           <>
             <ReportIssueOptionItem
               t_buttonText={t('Create Ticket')}
@@ -68,7 +68,7 @@ export const SessionDrivenIssueListItems: FC = () => {
 
   // Ticket creation is the only option left.
   // It's the happy path, so it'll be the final return.
-  if (!can.createTriggerTicket) {
+  if (!can.createTicket) {
     return null;
   }
 

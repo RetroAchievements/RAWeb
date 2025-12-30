@@ -39,7 +39,7 @@ export const CreateAchievementTicketForm: FC = () => {
     emulator: getDefaultSelectedEmulator(selectedEmulator, emulators),
     hash: getDefaultGameHashId(selectedGameHashId, gameHashes),
     issue: getDefaultIssueValueFromTypeParameter(
-      query.type as App.Community.Enums.TriggerTicketType | undefined,
+      query.type as App.Community.Enums.TicketType | undefined,
     ),
     mode: getDefaultSelectedMode(selectedMode, {
       hardcore: auth!.user.points,
@@ -159,7 +159,7 @@ function getDefaultSelectedMode(
 }
 
 function getDefaultIssueValueFromTypeParameter(
-  type: App.Community.Enums.TriggerTicketType | undefined,
+  type: App.Community.Enums.TicketType | undefined,
 ): 'TriggeredAtWrongTime' | 'DidNotTrigger' | undefined {
   switch (type) {
     case 'triggered_at_wrong_time':

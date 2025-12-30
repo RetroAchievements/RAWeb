@@ -249,7 +249,7 @@ function getGamesListByDev(
                   FROM GameData gd
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
                   LEFT JOIN Achievements ach ON ach.GameID=gd.ID
-                  LEFT JOIN trigger_tickets tick ON tick.ticketable_id=ach.ID AND tick.ticketable_type='achievement' AND tick.state IN ('open','request')
+                  LEFT JOIN tickets tick ON tick.ticketable_id=ach.ID AND tick.ticketable_type='achievement' AND tick.state IN ('open','request')
                   WHERE 1=1 $whereClause
                   GROUP BY gd.ID $orderBy";
     } elseif ($sortBy === 6 || $sortBy === 16) { // DateModified
@@ -419,7 +419,7 @@ function getGamesListByDev(
         }
         if ($dev === null) {
             $query = "SELECT ach.GameID, COUNT(*) AS OpenTickets
-                      FROM trigger_tickets tick
+                      FROM tickets tick
                       INNER JOIN Achievements ach ON ach.ID=tick.ticketable_id
                       WHERE ach.GameID IN ($gameList)
                       AND tick.ticketable_type = 'achievement'
@@ -430,7 +430,7 @@ function getGamesListByDev(
             }
         } else {
             $query = "SELECT ach.GameID, ua.User as Author, COUNT(*) AS OpenTickets
-                      FROM trigger_tickets tick
+                      FROM tickets tick
                       INNER JOIN Achievements ach ON ach.ID = tick.ticketable_id
                       LEFT JOIN UserAccounts ua ON ach.user_id = ua.ID
                       WHERE ach.GameID IN ($gameList)

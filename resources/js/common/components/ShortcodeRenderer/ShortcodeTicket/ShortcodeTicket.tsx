@@ -32,7 +32,7 @@ export const ShortcodeTicket: FC<ShortcodeTicketProps> = ({ ticketId }) => {
     return (
       <a
         data-testid="achievement-ticket-embed"
-        href={route('ticket.show', { triggerTicket: ticketId })}
+        href={route('ticket.show', { ticket: ticketId })}
         {...cardTooltipProps}
         className={cn('inline-block rounded', getTicketStateClassName(foundTicket.state))}
       >
@@ -55,9 +55,7 @@ export const ShortcodeTicket: FC<ShortcodeTicketProps> = ({ ticketId }) => {
   return null;
 };
 
-function getTicketStateClassName(
-  ticketState: App.Community.Enums.TriggerTicketState | undefined,
-): string {
+function getTicketStateClassName(ticketState: App.Community.Enums.TicketState | undefined): string {
   if (ticketState === 'open' || ticketState === 'request') {
     return 'border border-green-600';
   }

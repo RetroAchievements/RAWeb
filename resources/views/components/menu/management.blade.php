@@ -39,7 +39,7 @@ $visibleTools = collect($tools)->filter(fn($tool) => $user?->can($tool['abilitie
 
         <div class="dropdown-column">
             @can('develop')
-                @can('manage', App\Models\TriggerTicket::class)
+                @can('manage', App\Models\Ticket::class)
                     <x-dropdown-header>{{ __('Development') }}</x-dropdown-header>
                     <x-dropdown-item :href="route('tickets.index')">{{ __res('ticket') }}</x-dropdown-item>
                     <x-dropdown-item :href="route('filament.admin.pages.most-reported-games')">Most Reported Games</x-dropdown-item>

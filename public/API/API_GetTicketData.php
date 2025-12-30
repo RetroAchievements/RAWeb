@@ -146,11 +146,11 @@
  */
 
 use App\Actions\FindUserByIdentifierAction;
-use App\Community\Enums\TriggerTicketState;
-use App\Community\Enums\TriggerTicketType;
+use App\Community\Enums\TicketState;
+use App\Community\Enums\TicketType;
 use App\Models\Achievement;
 use App\Models\Game;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Platform\Enums\AchievementFlag;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -166,15 +166,15 @@ if ($ticketID > 0) {
     }
 
     // Convert string enum values to legacy integers for backwards compatibility.
-    $ticketState = TriggerTicketState::from($ticketData['ReportState']);
-    $ticketType = TriggerTicketType::from($ticketData['ReportType']);
+    $ticketState = TicketState::from($ticketData['ReportState']);
+    $ticketType = TicketType::from($ticketData['ReportType']);
 
     $ticketData['ReportState'] = $ticketState->toLegacyInteger();
     $ticketData['ReportStateDescription'] = $ticketState->label();
     $ticketData['ReportType'] = $ticketType->toLegacyInteger();
     $ticketData['ReportTypeDescription'] = $ticketType->label();
 
-    $ticketData['URL'] = route('ticket.show', ['triggerTicket' => $ticketID]);
+    $ticketData['URL'] = route('ticket.show', ['ticket' => $ticketID]);
 
     return response()->json($ticketData);
 }
@@ -212,15 +212,15 @@ if (!empty($assignedToUser)) {
     foreach ($userTicketInfo as $ticket) {
         $ticketState = $ticket['state'];
         switch ($ticketState) {
-            case TriggerTicketState::Closed->value:
+            case TicketState::Closed->value:
                 $ticketData['Closed'] += $ticket['TicketCount'];
                 $ticketData['Total'] += $ticket['TicketCount'];
                 break;
-            case TriggerTicketState::Open->value:
+            case TicketState::Open->value:
                 $ticketData['Open'] += $ticket['TicketCount'];
                 $ticketData['Total'] += $ticket['TicketCount'];
                 break;
-            case TriggerTicketState::Resolved->value:
+            case TicketState::Resolved->value:
                 $ticketData['Resolved'] += $ticket['TicketCount'];
                 $ticketData['Total'] += $ticket['TicketCount'];
                 break;
@@ -246,7 +246,7 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
 
     $tickets->loadMissing('achievement', 'author');
 
-    /** @var TriggerTicket $ticket */
+    /** @var Ticket $ticket */
     foreach ($tickets as $ticket) {
         $result[] = [
             'ID' => $ticket->id,
@@ -285,7 +285,7 @@ $gameIDGiven = (int) request()->query('g');
 if ($gameIDGiven > 0) {
     $game = Game::where('ID', $gameIDGiven)->with('system')->first();
     if ($game) {
-        $tickets = TriggerTicket::forGame($game);
+        $tickets = Ticket::forGame($game);
         if ($gamesTableFlag === AchievementFlag::Unofficial->value) {
             $tickets->unofficial();
         } else {
@@ -327,7 +327,7 @@ if ($achievementIDGiven > 0) {
 }
 
 // getting the 10 most recent tickets
-$tickets = TriggerTicket::officialCore()->unresolved();
+$tickets = Ticket::officialCore()->unresolved();
 $ticketData['OpenTickets'] = $tickets->count();
 $ticketData['URL'] = route('tickets.index');
 $ticketData['RecentTickets'] = $getTicketsInfo($tickets, $offset, $count);

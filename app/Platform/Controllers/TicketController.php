@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
-use App\Community\Enums\TriggerTicketState;
+use App\Community\Enums\TicketState;
 use App\Http\Controller;
 use App\Models\Achievement;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Platform\Actions\BuildTicketCreationDataAction;
 use App\Support\Concerns\HandlesResources;
 use Illuminate\Contracts\View\View;
@@ -16,13 +16,13 @@ use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
-class TriggerTicketController extends Controller
+class TicketController extends Controller
 {
     use HandlesResources;
 
     public function resourceName(): string
     {
-        return 'trigger.ticket';
+        return 'ticket';
     }
 
     public function index(): View
@@ -41,18 +41,18 @@ class TriggerTicketController extends Controller
         Achievement $achievement,
         BuildTicketCreationDataAction $buildTicketCreationData,
     ): InertiaResponse|HttpResponse {
-        $this->authorize('createFor', [TriggerTicket::class, $achievement]);
+        $this->authorize('createFor', [Ticket::class, $achievement]);
 
         // A user can only have one ticket open at a time for a triggerable.
         // If they already have a ticket open, redirect them to the ticket's page.
-        $existingTicket = TriggerTicket::where('reporter_id', $request->user()->id)
+        $existingTicket = Ticket::where('reporter_id', $request->user()->id)
             ->where('ticketable_id', $achievement->id)
             ->where('ticketable_type', 'achievement')
-            ->whereNotIn('state', [TriggerTicketState::Closed, TriggerTicketState::Resolved])
+            ->whereNotIn('state', [TicketState::Closed, TicketState::Resolved])
             ->first();
         if ($existingTicket) {
             // TODO stop using Inertia::location() after ticket.show is migrated to React
-            return Inertia::location(route('ticket.show', ['triggerTicket' => $existingTicket->id]));
+            return Inertia::location(route('ticket.show', ['ticket' => $existingTicket->id]));
         }
 
         $props = $buildTicketCreationData->execute($achievement, $request->user());
@@ -71,20 +71,20 @@ class TriggerTicketController extends Controller
     {
     }
 
-    public function show(TriggerTicket $ticket): void
+    public function show(Ticket $ticket): void
     {
         // TODO currently uses Folio, convert to Inertia/React
     }
 
-    public function edit(TriggerTicket $ticket): void
+    public function edit(Ticket $ticket): void
     {
     }
 
-    public function update(Request $request, TriggerTicket $ticket): void
+    public function update(Request $request, Ticket $ticket): void
     {
     }
 
-    public function destroy(TriggerTicket $ticket): void
+    public function destroy(Ticket $ticket): void
     {
     }
 }

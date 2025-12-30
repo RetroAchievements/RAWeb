@@ -8,7 +8,7 @@ use App\Enums\UserPreference;
 use App\Mail\Services\UnsubscribeService;
 use App\Models\Achievement;
 use App\Models\Leaderboard;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -28,7 +28,7 @@ class TicketStatusUpdatedMail extends Mailable
      * Create a new message instance.
      */
     public function __construct(
-        public TriggerTicket $ticket,
+        public Ticket $ticket,
         public User $updatedBy,
         public string $newStatus,
         public string $comment,
@@ -77,7 +77,7 @@ class TicketStatusUpdatedMail extends Mailable
         return new Content(
             markdown: 'mail.ticket.status-updated',
             with: [
-                'ticketUrl' => route('ticket.show', ['triggerTicket' => $this->ticket->id]),
+                'ticketUrl' => route('ticket.show', ['ticket' => $this->ticket->id]),
                 'ticketable' => $this->ticketable,
                 'game' => $this->ticketable->game,
                 'categoryUrl' => $this->categoryUrl,

@@ -9,7 +9,7 @@
 
 @php
 
-use App\Community\Enums\TriggerTicketState;
+use App\Community\Enums\TicketState;
 use App\Models\Game;
 
 $gameCache = [];
@@ -57,7 +57,7 @@ $gameCache = [];
                     @foreach ($tickets as $ticket)
                         <tr>
                             <td class="text-right">
-                                <a href="{{ route('ticket.show', ['triggerTicket' => $ticket]) }}">{{ $ticket->id }}</a>
+                                <a href="{{ route('ticket.show', ['ticket' => $ticket]) }}">{{ $ticket->id }}</a>
                             </td>
                             <td>{{ $ticket->state->label() }}</td>
                             <td>{!! achievementAvatar($ticket->achievement) !!}</td>

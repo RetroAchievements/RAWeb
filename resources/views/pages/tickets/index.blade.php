@@ -1,12 +1,12 @@
 <?php
 
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Platform\Services\TicketListService;
 use Illuminate\View\View;
 
 use function Laravel\Folio\{middleware, name, render};
 
-middleware(['auth', 'can:viewAny,' . App\Models\TriggerTicket::class]);
+middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
 name('tickets.index');
 
 render(function (View $view, TicketListService $ticketListService) {
@@ -15,7 +15,7 @@ render(function (View $view, TicketListService $ticketListService) {
     $filterOptions = $ticketListService->getFilterOptions(request());
     $tickets = $ticketListService->getTickets($filterOptions);
 
-    $openTicketCount = TriggerTicket::unresolved()->count();
+    $openTicketCount = Ticket::unresolved()->count();
 
     return $view->with([
         'tickets' => $tickets,
@@ -32,7 +32,7 @@ render(function (View $view, TicketListService $ticketListService) {
 ?>
 
 @props([
-    'tickets' => null, // Collection<int, TriggerTicket>
+    'tickets' => null, // Collection<int, Ticket>
     'availableSelectFilters' => [],
     'filterOptions' => [],
     'totalTickets' => 0,

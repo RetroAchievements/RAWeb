@@ -9,7 +9,7 @@ use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\PlayerAchievement;
 use App\Models\System;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\TriggerDecoderService;
@@ -221,7 +221,7 @@ if ($game->system->id === System::Events) {
             } else {
                 echo "<i>No open tickets</i>";
             }
-            if ($userModel?->can('create', TriggerTicket::class)) {
+            if ($userModel?->can('create', Ticket::class)) {
                 echo "<a class='btn btn-link' href='" . route('achievement.report-issue.index', ['achievement' => $achievementID]) ."'>Report an issue</a>";
             }
             echo "</div>";

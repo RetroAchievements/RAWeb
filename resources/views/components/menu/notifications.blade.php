@@ -4,7 +4,7 @@
             <x-fas-bolt />
         </a>
     </li>--}}
-    @can('manage', App\Models\TriggerTicket::class)
+    @can('manage', App\Models\Ticket::class)
         <livewire:ticket-notifications-icon class="{{$class ?? ''}}" />
     @endcan
     <livewire:general-notifications-icon class="{{$class ?? ''}}" />

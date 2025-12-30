@@ -165,7 +165,7 @@ declare namespace App.Community.Data {
   };
   export type ShortcodeDynamicEntities = {
     users: Array<App.Data.User>;
-    tickets: Array<App.Platform.Data.TriggerTicket>;
+    tickets: Array<App.Platform.Data.Ticket>;
     achievements: Array<App.Platform.Data.Achievement>;
     games: Array<App.Platform.Data.Game>;
     hubs: Array<App.Platform.Data.GameSet>;
@@ -250,8 +250,8 @@ declare namespace App.Community.Enums {
     | 'GameTickets'
     | 'GameAchievements'
     | 'AchievementTicket';
-  export type TriggerTicketState = 'closed' | 'open' | 'resolved' | 'request';
-  export type TriggerTicketType = 'triggered_at_wrong_time' | 'did_not_trigger';
+  export type TicketState = 'closed' | 'open' | 'resolved' | 'request';
+  export type TicketType = 'triggered_at_wrong_time' | 'did_not_trigger';
   export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
   export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
   export type AwardType = 1 | 2 | 3 | 6 | 7 | 8 | 9;
@@ -462,7 +462,7 @@ declare namespace App.Data {
     createGameForumTopic?: boolean;
     createMessageThreads?: boolean;
     createModerationReports?: boolean;
-    createTriggerTicket?: boolean;
+    createTicket?: boolean;
     createUserBetaFeedbackSubmission?: boolean;
     createUsernameChangeRequest?: boolean;
     deleteForumTopic?: boolean;
@@ -1119,7 +1119,7 @@ declare namespace App.Platform.Data {
   export type ReportAchievementIssuePageProps = {
     achievement: App.Platform.Data.Achievement;
     hasSession: boolean;
-    ticketType: App.Community.Enums.TriggerTicketType;
+    ticketType: App.Community.Enums.TicketType;
     extra: string | null;
     can: App.Data.UserPermissions;
   };
@@ -1147,10 +1147,10 @@ declare namespace App.Platform.Data {
     persistedViewPreferences: Record<string, any> | null;
     defaultDesktopPageSize: number;
   };
-  export type TriggerTicket = {
+  export type Ticket = {
     id: number;
     ticketableType: App.Platform.Enums.TicketableType;
-    state?: App.Community.Enums.TriggerTicketState;
+    state?: App.Community.Enums.TicketState;
     ticketable?:
       | App.Platform.Data.Achievement
       | App.Platform.Data.Leaderboard

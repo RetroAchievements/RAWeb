@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
-use App\Community\Enums\TriggerTicketType;
+use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
 use App\Models\Emulator;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -80,8 +80,8 @@ class TicketListService
             'label' => 'Ticket Type',
             'options' => [
                 0 => 'All',
-                TriggerTicketType::TriggeredAtWrongTime->toLegacyInteger() => TriggerTicketType::TriggeredAtWrongTime->label(),
-                TriggerTicketType::DidNotTrigger->toLegacyInteger() => TriggerTicketType::DidNotTrigger->label(),
+                TicketType::TriggeredAtWrongTime->toLegacyInteger() => TicketType::TriggeredAtWrongTime->label(),
+                TicketType::DidNotTrigger->toLegacyInteger() => TicketType::DidNotTrigger->label(),
             ],
         ];
 
@@ -166,9 +166,9 @@ class TicketListService
     }
 
     /**
-     * @param Builder<TriggerTicket> $tickets
+     * @param Builder<Ticket> $tickets
      *
-     * @return Collection<int, TriggerTicket>
+     * @return Collection<int, Ticket>
      */
     public function getTickets(array $filterOptions, ?Builder $tickets = null): Collection
     {
@@ -176,14 +176,14 @@ class TicketListService
     }
 
     /**
-     * @param Builder<TriggerTicket> $tickets
+     * @param Builder<Ticket> $tickets
      *
-     * @return Builder<TriggerTicket>
+     * @return Builder<Ticket>
      */
     public function buildQuery(array $filterOptions, ?Builder $tickets = null): Builder
     {
         if ($tickets === null) {
-            $tickets = TriggerTicket::query();
+            $tickets = Ticket::query();
         }
 
         $this->totalTickets = $tickets->count();
@@ -199,7 +199,7 @@ class TicketListService
         }
 
         if ($filterOptions['type'] > 0) {
-            $ticketType = TriggerTicketType::fromLegacyInteger($filterOptions['type']);
+            $ticketType = TicketType::fromLegacyInteger($filterOptions['type']);
             $tickets->where('type', $ticketType);
         }
 

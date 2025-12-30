@@ -2,33 +2,33 @@
 
 namespace App\Platform\Controllers\Api;
 
-use App\Community\Enums\TriggerTicketState;
+use App\Community\Enums\TicketState;
 use App\Http\Controller;
-use App\Models\TriggerTicket;
-use App\Platform\Actions\CreateTriggerTicketAction;
-use App\Platform\Data\StoreTriggerTicketData;
-use App\Platform\Requests\StoreTriggerTicketRequest;
+use App\Models\Ticket;
+use App\Platform\Actions\CreateTicketAction;
+use App\Platform\Data\StoreTicketData;
+use App\Platform\Requests\StoreTicketRequest;
 use Illuminate\Http\JsonResponse;
 
-class TriggerTicketApiController extends Controller
+class TicketApiController extends Controller
 {
     public function index(): void
     {
     }
 
     public function store(
-        StoreTriggerTicketRequest $request,
-        CreateTriggerTicketAction $createTriggerTicket,
+        StoreTicketRequest $request,
+        CreateTicketAction $createTicket,
     ): JsonResponse {
-        $data = StoreTriggerTicketData::fromRequest($request);
+        $data = StoreTicketData::fromRequest($request);
 
-        $this->authorize('create', [TriggerTicket::class, $data->ticketable]);
+        $this->authorize('create', [Ticket::class, $data->ticketable]);
 
         // If the user has an existing open ticket, don't create a duplicate.
-        $existingTicket = TriggerTicket::where('reporter_id', $request->user()->id)
+        $existingTicket = Ticket::where('reporter_id', $request->user()->id)
             ->where('ticketable_id', $data->ticketable->id)
             ->where('ticketable_type', 'achievement')
-            ->whereNotIn('state', [TriggerTicketState::Closed, TriggerTicketState::Resolved])
+            ->whereNotIn('state', [TicketState::Closed, TicketState::Resolved])
             ->first();
         if ($existingTicket) {
             return response()->json([
@@ -37,7 +37,7 @@ class TriggerTicketApiController extends Controller
             ], 409);
         }
 
-        $ticket = $createTriggerTicket->execute($data, $request->user());
+        $ticket = $createTicket->execute($data, $request->user());
 
         return response()->json([
             'message' => __('legacy.success.submit'),

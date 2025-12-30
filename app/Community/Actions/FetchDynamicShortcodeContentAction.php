@@ -10,13 +10,13 @@ use App\Models\Achievement;
 use App\Models\Event;
 use App\Models\Game;
 use App\Models\GameSet;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\EventData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
-use App\Platform\Data\TriggerTicketData;
+use App\Platform\Data\TicketData;
 use App\Platform\Enums\GameSetType;
 use Illuminate\Support\Collection;
 
@@ -63,7 +63,7 @@ class FetchDynamicShortcodeContentAction
     }
 
     /**
-     * @return Collection<int, TriggerTicketData>
+     * @return Collection<int, TicketData>
      */
     private function fetchTickets(array $ticketIds): Collection
     {
@@ -71,10 +71,10 @@ class FetchDynamicShortcodeContentAction
             return collect();
         }
 
-        return TriggerTicket::with('achievement')
+        return Ticket::with('achievement')
             ->whereIn('id', $ticketIds)
             ->get()
-            ->map(fn (TriggerTicket $ticket) => TriggerTicketData::fromTriggerTicket($ticket)->include('state', 'ticketable'));
+            ->map(fn (Ticket $ticket) => TicketData::fromTicket($ticket)->include('state', 'ticketable'));
     }
 
     /**

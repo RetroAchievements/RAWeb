@@ -560,11 +560,11 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return HasMany<TriggerTicket, $this>
+     * @return HasMany<Ticket, $this>
      */
     public function tickets()
     {
-        return $this->hasMany(TriggerTicket::class, 'ticketable_id');
+        return $this->hasMany(Ticket::class, 'ticketable_id');
     }
 
     /**

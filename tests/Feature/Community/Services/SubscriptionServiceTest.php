@@ -14,7 +14,7 @@ use App\Models\ForumTopicComment;
 use App\Models\Game;
 use App\Models\Role;
 use App\Models\Subscription;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Models\User;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -323,8 +323,8 @@ class SubscriptionServiceTest extends TestCase
         $achievement = $this->seedAchievement();
         $achievement->user_id = $user8->id;
         $achievement->save();
-        /** @var TriggerTicket $ticket */
-        $ticket = TriggerTicket::factory()->create(['ticketable_id' => $achievement->id, 'reporter_id' => $user7->id]);
+        /** @var Ticket $ticket */
+        $ticket = Ticket::factory()->create(['ticketable_id' => $achievement->id, 'reporter_id' => $user7->id]);
 
         // user1 implicitly subscribed to achievement via comment
         Comment::create([

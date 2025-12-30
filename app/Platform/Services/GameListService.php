@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Platform\Services;
 
 use App\Community\Enums\AwardType;
-use App\Community\Enums\TriggerTicketState;
+use App\Community\Enums\TicketState;
 use App\Community\Enums\UserGameListType;
 use App\Models\Game;
 use App\Models\System;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Platform\Enums\AchievementFlag;
@@ -43,13 +43,13 @@ class GameListService
     public function initializeGameList(array $gameIds, bool $allowNonGameSystems = false): void
     {
         if ($this->withTicketCounts) {
-            $gameTicketsList = TriggerTicket::whereIn('state', [TriggerTicketState::Open, TriggerTicketState::Request])
-                ->join('Achievements', 'Achievements.ID', '=', 'trigger_tickets.ticketable_id')
-                ->where(DB::raw('trigger_tickets.ticketable_type'), 'achievement')
+            $gameTicketsList = Ticket::whereIn('state', [TicketState::Open, TicketState::Request])
+                ->join('Achievements', 'Achievements.ID', '=', 'tickets.ticketable_id')
+                ->where(DB::raw('tickets.ticketable_type'), 'achievement')
                 ->whereIn('Achievements.GameID', $gameIds)
                 ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore->value)
                 ->select(['GameID',
-                    DB::raw('COUNT(trigger_tickets.id) AS NumTickets'),
+                    DB::raw('COUNT(tickets.id) AS NumTickets'),
                 ])
                 ->groupBy('GameID')
                 ->get()

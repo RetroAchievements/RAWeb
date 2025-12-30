@@ -2,7 +2,7 @@ import { createFactory } from '@/test/createFactory';
 
 import { createAchievement } from './createAchievement';
 
-export const createTriggerTicket = createFactory<App.Platform.Data.TriggerTicket>((faker) => {
+export const createTicket = createFactory<App.Platform.Data.Ticket>((faker) => {
   return {
     id: faker.number.int({ min: 1, max: 99999 }),
     ticketableType: 'achievement',

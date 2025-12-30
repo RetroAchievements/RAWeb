@@ -1,10 +1,10 @@
 <?php
 
 use App\Community\Enums\ArticleType;
-use App\Community\Enums\TriggerTicketState;
+use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
 use App\Models\Comment;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Support\Rules\ContainsRegularCharacter;
 use Illuminate\Support\Arr;
@@ -29,7 +29,7 @@ $articleID = (int) $input['commentable_id'];
 $articleType = (int) $input['commentable_type'];
 
 $commentable = match ($articleType) {
-    ArticleType::AchievementTicket => TriggerTicket::find($articleID),
+    ArticleType::AchievementTicket => Ticket::find($articleID),
     ArticleType::User, ArticleType::UserModeration => User::find($articleID),
     default => null,
 };
@@ -43,8 +43,8 @@ if (addArticleComment($user, $articleType, $articleID, $input['body'])) {
     // if a user is responding to a ticket in the Request state,
     // automatically change the state back to Open
     if ($articleType === ArticleType::AchievementTicket) {
-        if ($commentable->state === TriggerTicketState::Request && $commentable->reporter_id === $userModel->id) {
-            updateTicket($userModel, $articleID, TriggerTicketState::Open);
+        if ($commentable->state === TicketState::Request && $commentable->reporter_id === $userModel->id) {
+            updateTicket($userModel, $articleID, TicketState::Open);
         }
     }
 

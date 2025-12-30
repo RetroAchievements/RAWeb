@@ -897,15 +897,15 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     /**
-     * @return HasManyThrough<TriggerTicket, Achievement, $this>
+     * @return HasManyThrough<Ticket, Achievement, $this>
      */
     public function tickets(): HasManyThrough
     {
-        return $this->hasManyThrough(TriggerTicket::class, Achievement::class, 'GameID', 'ticketable_id', 'ID', 'ID');
+        return $this->hasManyThrough(Ticket::class, Achievement::class, 'GameID', 'ticketable_id', 'ID', 'ID');
     }
 
     /**
-     * @return HasManyThrough<TriggerTicket, Achievement, $this>
+     * @return HasManyThrough<Ticket, Achievement, $this>
      */
     public function unresolvedTickets(): HasManyThrough
     {

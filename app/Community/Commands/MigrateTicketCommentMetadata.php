@@ -8,7 +8,7 @@ use App\Models\Emulator;
 use App\Models\EmulatorUserAgent;
 use App\Models\GameHash;
 use App\Models\PlayerSession;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Platform\Services\UserAgentService;
 use Illuminate\Console\Command;
 
@@ -23,20 +23,20 @@ class MigrateTicketCommentMetadata extends Command
         $ticketId = $this->argument('ticketId');
 
         if ($ticketId !== null) {
-            $ticket = TriggerTicket::with('achievement.game')->findOrFail($ticketId);
+            $ticket = Ticket::with('achievement.game')->findOrFail($ticketId);
 
             $this->info('Updating metadata for ticket [' . $ticket->id . ']');
 
             $this->syncMetadataForTicket($ticket);
         } else {
-            $count = TriggerTicket::count();
+            $count = Ticket::count();
             $this->info("Updating metadata for $count tickets.");
             $progressBar = $this->output->createProgressBar($count);
 
             $count = 0;
-            TriggerTicket::with('achievement.game')->chunkById(100, function ($tickets) use (&$count, $progressBar) {
+            Ticket::with('achievement.game')->chunkById(100, function ($tickets) use (&$count, $progressBar) {
                 foreach ($tickets as $ticket) {
-                    /** @var TriggerTicket $ticket */
+                    /** @var Ticket $ticket */
                     if ($this->syncMetadataForTicket($ticket)) {
                         $count++;
                     }
@@ -49,7 +49,7 @@ class MigrateTicketCommentMetadata extends Command
         }
     }
 
-    private function syncMetadataForTicket(TriggerTicket $ticket): bool
+    private function syncMetadataForTicket(Ticket $ticket): bool
     {
         $changed = false;
         $newBody = '';
@@ -170,7 +170,7 @@ class MigrateTicketCommentMetadata extends Command
             }
 
             // Use raw query to avoid updating updated_at timestamp.
-            TriggerTicket::where('id', $ticket->id)->update([
+            Ticket::where('id', $ticket->id)->update([
                 'body' => trim($newBody),
                 'game_hash_id' => $ticket->game_hash_id,
                 'emulator_id' => $ticket->emulator_id,

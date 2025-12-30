@@ -9,7 +9,7 @@ use App\Community\Enums\ClaimType;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\Role;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Data\AchievementSetClaimData;
 use App\Platform\Data\GamePageClaimData;
@@ -74,7 +74,7 @@ class BuildGamePageClaimDataAction
             isSoleAuthor: $isSoleAuthor,
             maxClaimCount: $maxClaimCount,
             numClaimsRemaining: $this->calculateNumClaimsRemaining($user, $maxClaimCount),
-            numUnresolvedTickets: TriggerTicket::forDeveloper($user)->awaitingDeveloper()->count(),
+            numUnresolvedTickets: Ticket::forDeveloper($user)->awaitingDeveloper()->count(),
             wouldBeCollaboration: $wouldBeCollaboration,
             wouldBeRevision: $wouldBeRevision,
         );

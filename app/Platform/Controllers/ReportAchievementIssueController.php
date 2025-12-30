@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
-use App\Community\Enums\TriggerTicketType;
+use App\Community\Enums\TicketType;
 use App\Data\UserPermissionsData;
 use App\Http\Controller;
 use App\Models\Achievement;
@@ -41,7 +41,7 @@ class ReportAchievementIssueController extends Controller
             'game.system',
         );
 
-        $can = UserPermissionsData::fromUser($user, triggerable: $achievement)->include('createTriggerTicket');
+        $can = UserPermissionsData::fromUser($user, triggerable: $achievement)->include('createTicket');
 
         $props = new ReportAchievementIssuePagePropsData(
             achievement: $achievementData,
@@ -81,9 +81,9 @@ class ReportAchievementIssueController extends Controller
     /**
      * @param Collection<int, PlayerAchievement> $allPlayerAchievements
      */
-    private function determineTicketType(?PlayerAchievement $playerAchievement, Collection $allPlayerAchievements): TriggerTicketType
+    private function determineTicketType(?PlayerAchievement $playerAchievement, Collection $allPlayerAchievements): TicketType
     {
-        $ticketType = TriggerTicketType::DidNotTrigger;
+        $ticketType = TicketType::DidNotTrigger;
 
         $hasAnyHardcoreUnlocks = $allPlayerAchievements->contains(function ($playerAchievement) {
             return $playerAchievement->unlocked_hardcore_at !== null;
@@ -93,7 +93,7 @@ class ReportAchievementIssueController extends Controller
         $unlockedHardcoreAt = $playerAchievement?->unlocked_hardcore_at;
 
         if ($unlockedHardcoreAt || ($unlockedAt && !$hasAnyHardcoreUnlocks)) {
-            $ticketType = TriggerTicketType::TriggeredAtWrongTime;
+            $ticketType = TicketType::TriggeredAtWrongTime;
         }
 
         return $ticketType;

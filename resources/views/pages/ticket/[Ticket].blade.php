@@ -1,24 +1,24 @@
 <?php
 
 use App\Models\Role;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Platform\Services\TicketViewService;
 use App\Platform\Services\UserAgentService;
 use Illuminate\View\View;
 
 use function Laravel\Folio\{middleware, name, render};
 
-middleware(['auth', 'can:view,triggerTicket']);
+middleware(['auth', 'can:view,ticket']);
 name('ticket.show');
 
-render(function (View $view, TriggerTicket $triggerTicket) {
+render(function (View $view, Ticket $ticket) {
     $userAgentService = new UserAgentService();
     $ticketService = new TicketViewService();
-    $ticketService->load($triggerTicket);
-    $sessions = $ticketService->buildHistory($triggerTicket, Auth::user());
-    
+    $ticketService->load($ticket);
+    $sessions = $ticketService->buildHistory($ticket, Auth::user());
+
     return $view->with([
-        'ticket' => $triggerTicket,
+        'ticket' => $ticket,
         'unlocksSinceReported' => $ticketService->unlocksSinceReported,
         'openTickets' => $ticketService->openTickets,
         'closedTickets' => $ticketService->closedTickets,
@@ -34,7 +34,7 @@ render(function (View $view, TriggerTicket $triggerTicket) {
 ?>
 
 @props([
-    'ticket' => null, // ?TriggerTicket
+    'ticket' => null, // ?Ticket
     'unlocksSinceReported' => 0,
     'openTickets' => [],
     'closedTickets' => [],
@@ -50,8 +50,8 @@ render(function (View $view, TriggerTicket $triggerTicket) {
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\TicketAction;
-use App\Community\Enums\TriggerTicketState;
-use App\Community\Enums\TriggerTicketType;
+use App\Community\Enums\TicketState;
+use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
 use App\Enums\PlayerGameActivityEventType;
 use App\Models\User;
@@ -140,7 +140,7 @@ $commentData = [];
                     @else
                         <x-ticket.stat-element label="{{ $label }} ({{ count($openTickets) }})">
                             @foreach ($openTickets as $ticketId)
-                                <a href="{{ route('ticket.show', ['triggerTicket' => $ticketId])}}">{!! $ticketId !!}</a>{{ $loop->last ? '' : ', ' }}
+                                <a href="{{ route('ticket.show', ['ticket' => $ticketId])}}">{!! $ticketId !!}</a>{{ $loop->last ? '' : ', ' }}
                             @endforeach
                         </x-ticket.stat-element>
                     @endif
@@ -151,7 +151,7 @@ $commentData = [];
                     @else
                         <x-ticket.stat-element label="{{ $label }} ({{ count($closedTickets) }})">
                             @foreach ($closedTickets as $ticketId)
-                                <a href="{{ route('ticket.show', ['triggerTicket' => $ticketId])}}">{!! $ticketId !!}</a>{{ $loop->last ? '' : ', ' }}
+                                <a href="{{ route('ticket.show', ['ticket' => $ticketId])}}">{!! $ticketId !!}</a>{{ $loop->last ? '' : ', ' }}
                             @endforeach
                         </x-ticket.stat-element>
                     @endif
@@ -161,7 +161,7 @@ $commentData = [];
     </div>
 
     @if ($ticket->reporter)
-      @can('manage', TriggerTicket::class)
+      @can('manage', Ticket::class)
         <div class="mt-2">
             <div class="flex w-full justify-between border-embed-highlight items-center">
                 <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">
@@ -250,7 +250,7 @@ $commentData = [];
                 Comments
             </p>
             @if ($ticket->reporter)
-                @can('manage', TriggerTicket::class)
+                @can('manage', Ticket::class)
                     <div class="flex flex-col gap-y-1">
                         <a class="btn" href="{!! $contactReporterUrl !!}">
                             Message the reporter
@@ -310,7 +310,7 @@ $commentData = [];
                     <select name="action" id="ticketAction" required>
                         <option value="" disabled selected hidden>Choose an action...</option>
                         <option value="{{ TicketAction::Resolved }}">Resolve as fixed (add comments about your fix above)</option>
-                        @if ($ticket->state === TriggerTicketState::Open)
+                        @if ($ticket->state === TicketState::Open)
                             @php
                                 $lastComment = null;
                                 foreach ($commentData as $comment) {
@@ -364,7 +364,7 @@ $commentData = [];
             @endif
         </form>
 
-        @can('manage', TriggerTicket::class)
+        @can('manage', Ticket::class)
             <div class="mt-4 w-full relative flex gap-x-3">
                 <button id="achievementLogicButton" class="btn"
                         onclick="toggleExpander('achievementLogicButton', 'achievementLogicContent')">Achievement Logic ▼</button>

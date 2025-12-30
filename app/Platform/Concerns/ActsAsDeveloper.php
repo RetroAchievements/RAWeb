@@ -9,7 +9,7 @@ use App\Models\AchievementAuthor;
 use App\Models\AchievementSetClaim;
 use App\Models\Leaderboard;
 use App\Models\MemoryNote;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 trait ActsAsDeveloper
@@ -67,11 +67,11 @@ trait ActsAsDeveloper
 
     /**
      * NOTE: this is the tickets the user has resolved (including ones not associated to their achievements).
-     * @return HasMany<TriggerTicket, $this>
+     * @return HasMany<Ticket, $this>
      */
     public function resolvedTickets(): HasMany
     {
-        return $this->hasMany(TriggerTicket::class, 'resolver_id', 'ID');
+        return $this->hasMany(Ticket::class, 'resolver_id', 'ID');
     }
 
     /**

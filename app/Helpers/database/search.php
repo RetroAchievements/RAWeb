@@ -173,7 +173,7 @@ function performSearch(
             $countsQuery = "SELECT SUM(Count) AS Count FROM (
                 $countsQuery
                 UNION ALL
-                SELECT COUNT(*) AS Count FROM trigger_tickets AS t
+                SELECT COUNT(*) AS Count FROM tickets AS t
                 LEFT JOIN UserAccounts AS reporter ON reporter.ID=t.reporter_id
                 WHERE t.body LIKE '%$searchQuery%'
                 AND reporter.User != 'Server'
@@ -234,7 +234,7 @@ function performSearch(
                             ELSE CONCAT( '...', MID( t.body, GREATEST( LOCATE('$searchQuery', t.body)-25, 1), 60 ), '...' )
                         END AS Title,
                         t.created_at AS SortDate
-                    FROM trigger_tickets AS t
+                    FROM tickets AS t
                     LEFT JOIN UserAccounts AS reporter ON reporter.ID=t.reporter_id
                     WHERE t.body LIKE '%$searchQuery%'
                     AND reporter.User != 'Server'

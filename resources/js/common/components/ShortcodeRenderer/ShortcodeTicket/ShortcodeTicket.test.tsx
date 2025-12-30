@@ -1,5 +1,5 @@
 import { render, screen } from '@/test';
-import { createAchievement, createTriggerTicket } from '@/test/factories';
+import { createAchievement, createTicket } from '@/test/factories';
 
 import { persistedTicketsAtom } from '../../../state/shortcode.atoms';
 import { ShortcodeTicket } from './ShortcodeTicket';
@@ -7,7 +7,7 @@ import { ShortcodeTicket } from './ShortcodeTicket';
 describe('Component: ShortcodeTicket', () => {
   it('renders without crashing', () => {
     // ARRANGE
-    const ticket = createTriggerTicket({
+    const ticket = createTicket({
       id: 123,
       ticketableType: 'achievement',
       state: 'open',
@@ -27,7 +27,7 @@ describe('Component: ShortcodeTicket', () => {
 
   it('given no matching ticket is found, renders nothing', () => {
     // ARRANGE
-    const ticket = createTriggerTicket({
+    const ticket = createTicket({
       id: 123,
       ticketableType: 'achievement',
       state: 'open',
@@ -48,7 +48,7 @@ describe('Component: ShortcodeTicket', () => {
 
   it('given an achievement ticket is found, renders it properly', () => {
     // ARRANGE
-    const ticket = createTriggerTicket({
+    const ticket = createTicket({
       id: 123,
       ticketableType: 'achievement',
       state: 'open',
@@ -74,7 +74,7 @@ describe('Component: ShortcodeTicket', () => {
 
   it('given a non-achievement ticket is found, renders nothing', () => {
     // ARRANGE
-    const ticket = createTriggerTicket({
+    const ticket = createTicket({
       id: 123,
       ticketableType: 'leaderboard',
       state: 'open',
@@ -95,7 +95,7 @@ describe('Component: ShortcodeTicket', () => {
 
   it('given an open ticket, applies green border styling', () => {
     // ARRANGE
-    const ticket = createTriggerTicket({
+    const ticket = createTicket({
       id: 123,
       ticketableType: 'achievement',
       state: 'open',
@@ -115,7 +115,7 @@ describe('Component: ShortcodeTicket', () => {
 
   it('given a request ticket, applies green border styling', () => {
     // ARRANGE
-    const ticket = createTriggerTicket({
+    const ticket = createTicket({
       id: 123,
       ticketableType: 'achievement',
       state: 'request',
@@ -135,7 +135,7 @@ describe('Component: ShortcodeTicket', () => {
 
   it('given a closed ticket, applies red border styling', () => {
     // ARRANGE
-    const ticket = createTriggerTicket({
+    const ticket = createTicket({
       id: 123,
       ticketableType: 'achievement',
       state: 'closed',
@@ -155,7 +155,7 @@ describe('Component: ShortcodeTicket', () => {
 
   it('given a resolved ticket, applies red border styling', () => {
     // ARRANGE
-    const ticket = createTriggerTicket({
+    const ticket = createTicket({
       id: 123,
       ticketableType: 'achievement',
       state: 'resolved',
@@ -175,7 +175,7 @@ describe('Component: ShortcodeTicket', () => {
 
   it('given an undefined ticket state, applies no border styling', () => {
     // ARRANGE
-    const ticket = createTriggerTicket({
+    const ticket = createTicket({
       id: 123,
       ticketableType: 'achievement',
       state: undefined,

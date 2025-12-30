@@ -1,10 +1,10 @@
 <?php
 
-use App\Community\Enums\TriggerTicketState;
-use App\Models\TriggerTicket;
+use App\Community\Enums\TicketState;
+use App\Models\Ticket;
 
 function ticketAvatar(
-    int|string|TriggerTicket $ticket,
+    int|string|Ticket $ticket,
     ?bool $label = null,
     bool|int|string|null $icon = null,
     int $iconSize = 32,
@@ -13,19 +13,19 @@ function ticketAvatar(
     ?string $context = null,
 ): string {
     if (is_int($ticket)) {
-        $ticket = TriggerTicket::find($ticket);
+        $ticket = Ticket::find($ticket);
     }
 
     if ($ticket === null) {
         return '';
     }
 
-    /** @var TriggerTicket $safeTicket */
+    /** @var Ticket $safeTicket */
     $safeTicket = $ticket;
 
     $ticketStateClass = match ($safeTicket->state) {
-        TriggerTicketState::Open, TriggerTicketState::Request => 'open',
-        TriggerTicketState::Closed, TriggerTicketState::Resolved => 'closed',
+        TicketState::Open, TicketState::Request => 'open',
+        TicketState::Closed, TicketState::Resolved => 'closed',
         default => '',
     };
 
@@ -33,7 +33,7 @@ function ticketAvatar(
         resource: 'ticket',
         id: $safeTicket->id,
         label: "Ticket #{$safeTicket->id}",
-        link: route('ticket.show', ['triggerTicket' => $safeTicket->id]),
+        link: route('ticket.show', ['ticket' => $safeTicket->id]),
         tooltip: is_array($tooltip) ? renderAchievementCard($tooltip) : $tooltip,
         class: "ticket-avatar $ticketStateClass",
         iconUrl: media_asset("/Badge/" . $safeTicket->achievement->badgeName . ".png"),
@@ -43,10 +43,10 @@ function ticketAvatar(
     );
 }
 
-function renderTicketCard(int|TriggerTicket $ticket): string
+function renderTicketCard(int|Ticket $ticket): string
 {
     if (is_int($ticket)) {
-        $ticket = TriggerTicket::find($ticket);
+        $ticket = Ticket::find($ticket);
     }
 
     if (!$ticket) {
@@ -54,8 +54,8 @@ function renderTicketCard(int|TriggerTicket $ticket): string
     }
 
     $ticketStateClass = match ($ticket->state) {
-        TriggerTicketState::Open, TriggerTicketState::Request => 'open',
-        TriggerTicketState::Closed, TriggerTicketState::Resolved => 'closed',
+        TicketState::Open, TicketState::Request => 'open',
+        TicketState::Closed, TicketState::Resolved => 'closed',
         default => '',
     };
 

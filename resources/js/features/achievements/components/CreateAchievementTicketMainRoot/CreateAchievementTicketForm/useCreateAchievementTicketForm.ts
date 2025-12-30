@@ -9,7 +9,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { useCreateTicketMutation } from '@/features/achievements/hooks/mutations/useCreateTicketMutation';
 
 const createAchievementTicketFormSchema = z.object({
-  /** @see TriggerTicketType.php */
+  /** @see TicketType.php */
   issue: z.enum(['DidNotTrigger', 'TriggeredAtWrongTime', 'NetworkIssue']),
   emulator: z.string().min(1),
   emulatorVersion: z.string().optional(),
@@ -60,7 +60,7 @@ export function useCreateAchievementTicketForm(
             const { ticketId } = submitResponse.data;
 
             // TODO use router.visit after migrating this page to React
-            window.location.href = route('ticket.show', { triggerTicket: ticketId });
+            window.location.href = route('ticket.show', { ticket: ticketId });
           }, 1000);
 
           return t('Submitted!');
@@ -75,7 +75,7 @@ export function useCreateAchievementTicketForm(
 
 function getTicketTypeFromIssue(
   issue: CreateAchievementTicketFormValues['issue'],
-): App.Community.Enums.TriggerTicketType {
+): App.Community.Enums.TicketType {
   if (issue === 'DidNotTrigger') {
     return 'did_not_trigger';
   }

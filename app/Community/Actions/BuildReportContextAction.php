@@ -123,7 +123,7 @@ class BuildReportContextAction
         $anchor = '#comment_' . $comment->ID;
 
         return match ($comment->ArticleType) {
-            ArticleType::AchievementTicket => route('ticket.show', ['triggerTicket' => $comment->ArticleID]) . $anchor,
+            ArticleType::AchievementTicket => route('ticket.show', ['ticket' => $comment->ArticleID]) . $anchor,
 
             default => null,
         };

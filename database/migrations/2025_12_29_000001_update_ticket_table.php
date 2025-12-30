@@ -51,17 +51,17 @@ return new class extends Migration {
         });
 
         // Rename the table.
-        Schema::rename('Ticket', 'trigger_tickets');
+        Schema::rename('Ticket', 'tickets');
 
         // Rename indexes.
-        Schema::table('trigger_tickets', function (Blueprint $table) {
-            $table->renameIndex('tickets_created_at_index', 'trigger_tickets_created_at_index');
-            $table->renameIndex('tickets_ticketable_index', 'trigger_tickets_ticketable_index');
+        Schema::table('tickets', function (Blueprint $table) {
+            $table->renameIndex('tickets_created_at_index', 'tickets_created_at_index');
+            $table->renameIndex('tickets_ticketable_index', 'tickets_ticketable_index');
         });
 
         // Replace the dropped (AchievementID, state, deleted_at) index with a morph-based equivalent.
-        Schema::table('trigger_tickets', function (Blueprint $table) {
-            $table->index(['ticketable_type', 'ticketable_id', 'state', 'deleted_at'], 'trigger_tickets_ticketable_state_index');
+        Schema::table('tickets', function (Blueprint $table) {
+            $table->index(['ticketable_type', 'ticketable_id', 'state', 'deleted_at'], 'tickets_ticketable_state_index');
         });
 
         if (DB::connection()->getDriverName() === 'sqlite') {
@@ -71,22 +71,22 @@ return new class extends Migration {
         // Convert type column - change to VARCHAR first, then update values.
         // type: 1 = 'triggered_at_wrong_time', 2 = 'did_not_trigger'
         // Delete any tickets with invalid type values (legacy data inconsistencies).
-        DB::statement("ALTER TABLE trigger_tickets MODIFY type VARCHAR(30)");
-        DB::table('trigger_tickets')->whereNotIn('type', ['1', '2'])->delete();
-        DB::table('trigger_tickets')->where('type', '1')->update(['type' => 'triggered_at_wrong_time']);
-        DB::table('trigger_tickets')->where('type', '2')->update(['type' => 'did_not_trigger']);
+        DB::statement("ALTER TABLE tickets MODIFY type VARCHAR(30)");
+        DB::table('tickets')->whereNotIn('type', ['1', '2'])->delete();
+        DB::table('tickets')->where('type', '1')->update(['type' => 'triggered_at_wrong_time']);
+        DB::table('tickets')->where('type', '2')->update(['type' => 'did_not_trigger']);
 
         // Convert state column - change to VARCHAR first, then update values.
         // state: 0 = 'closed', 1 = 'open', 2 = 'resolved', 3 = 'request'
-        DB::statement("ALTER TABLE trigger_tickets MODIFY state VARCHAR(30)");
-        DB::table('trigger_tickets')->where('state', '0')->update(['state' => 'closed']);
-        DB::table('trigger_tickets')->where('state', '1')->update(['state' => 'open']);
-        DB::table('trigger_tickets')->where('state', '2')->update(['state' => 'resolved']);
-        DB::table('trigger_tickets')->where('state', '3')->update(['state' => 'request']);
+        DB::statement("ALTER TABLE tickets MODIFY state VARCHAR(30)");
+        DB::table('tickets')->where('state', '0')->update(['state' => 'closed']);
+        DB::table('tickets')->where('state', '1')->update(['state' => 'open']);
+        DB::table('tickets')->where('state', '2')->update(['state' => 'resolved']);
+        DB::table('tickets')->where('state', '3')->update(['state' => 'request']);
 
         // Reorder columns into logical groups.
         DB::statement(<<<SQL
-            ALTER TABLE trigger_tickets
+            ALTER TABLE tickets
                 -- Primary key
                 MODIFY COLUMN `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT FIRST,
 
@@ -122,19 +122,19 @@ return new class extends Migration {
     public function down(): void
     {
         // Revert enum columns to integer values.
-        DB::table('trigger_tickets')->where('type', 'triggered_at_wrong_time')->update(['type' => '1']);
-        DB::table('trigger_tickets')->where('type', 'did_not_trigger')->update(['type' => '2']);
-        DB::statement("ALTER TABLE trigger_tickets MODIFY type TINYINT(3) UNSIGNED NOT NULL");
+        DB::table('tickets')->where('type', 'triggered_at_wrong_time')->update(['type' => '1']);
+        DB::table('tickets')->where('type', 'did_not_trigger')->update(['type' => '2']);
+        DB::statement("ALTER TABLE tickets MODIFY type TINYINT(3) UNSIGNED NOT NULL");
 
-        DB::table('trigger_tickets')->where('state', 'closed')->update(['state' => '0']);
-        DB::table('trigger_tickets')->where('state', 'open')->update(['state' => '1']);
-        DB::table('trigger_tickets')->where('state', 'resolved')->update(['state' => '2']);
-        DB::table('trigger_tickets')->where('state', 'request')->update(['state' => '3']);
-        DB::statement("ALTER TABLE trigger_tickets MODIFY state TINYINT(3) UNSIGNED NOT NULL DEFAULT 1");
+        DB::table('tickets')->where('state', 'closed')->update(['state' => '0']);
+        DB::table('tickets')->where('state', 'open')->update(['state' => '1']);
+        DB::table('tickets')->where('state', 'resolved')->update(['state' => '2']);
+        DB::table('tickets')->where('state', 'request')->update(['state' => '3']);
+        DB::statement("ALTER TABLE tickets MODIFY state TINYINT(3) UNSIGNED NOT NULL DEFAULT 1");
 
         // Restore original column order.
         DB::statement(<<<SQL
-            ALTER TABLE trigger_tickets
+            ALTER TABLE tickets
                 MODIFY COLUMN `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT FIRST,
                 MODIFY COLUMN `ticketable_type` varchar(255) DEFAULT NULL AFTER `id`,
                 MODIFY COLUMN `ticketable_id` bigint(20) unsigned DEFAULT NULL AFTER `ticketable_type`,
@@ -156,18 +156,18 @@ return new class extends Migration {
         SQL);
 
         // Drop the ticketable state index.
-        Schema::table('trigger_tickets', function (Blueprint $table) {
-            $table->dropIndex('trigger_tickets_ticketable_state_index');
+        Schema::table('tickets', function (Blueprint $table) {
+            $table->dropIndex('tickets_ticketable_state_index');
         });
 
         // Rename indexes back.
-        Schema::table('trigger_tickets', function (Blueprint $table) {
-            $table->renameIndex('trigger_tickets_created_at_index', 'tickets_created_at_index');
-            $table->renameIndex('trigger_tickets_ticketable_index', 'tickets_ticketable_index');
+        Schema::table('tickets', function (Blueprint $table) {
+            $table->renameIndex('tickets_created_at_index', 'tickets_created_at_index');
+            $table->renameIndex('tickets_ticketable_index', 'tickets_ticketable_index');
         });
 
         // Rename the table back.
-        Schema::rename('trigger_tickets', 'Ticket');
+        Schema::rename('tickets', 'Ticket');
 
         // Re-add the AchievementID column in original position.
         Schema::table('Ticket', function (Blueprint $table) {

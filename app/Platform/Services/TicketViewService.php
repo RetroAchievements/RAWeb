@@ -7,7 +7,7 @@ namespace App\Platform\Services;
 use App\Enums\PlayerGameActivityEventType;
 use App\Enums\PlayerGameActivitySessionType;
 use App\Models\PlayerAchievement;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Models\User;
 
 class TicketViewService
@@ -25,7 +25,7 @@ class TicketViewService
 
     }
 
-    public function load(TriggerTicket $ticket): void
+    public function load(Ticket $ticket): void
     {
         if ($ticket->reporter) {
             $msgTitle = rawurlencode("Bug Report ({$ticket->achievement->game->Title})");
@@ -39,7 +39,7 @@ class TicketViewService
 
             $this->openTickets = [];
             $this->closedTickets = [];
-            $achievementTickets = TriggerTicket::where('ticketable_id', $ticket->achievement->id)
+            $achievementTickets = Ticket::where('ticketable_id', $ticket->achievement->id)
                 ->where('ticketable_type', 'achievement');
             foreach ($achievementTickets->get() as $otherTicket) {
                 if ($otherTicket->id !== $ticket->id) {
@@ -73,11 +73,11 @@ class TicketViewService
         }
     }
 
-    public function buildHistory(TriggerTicket $ticket, User $actingUser): array
+    public function buildHistory(Ticket $ticket, User $actingUser): array
     {
         $this->clients = [];
 
-        $canManageTicket = $actingUser->can('manage', TriggerTicket::class);
+        $canManageTicket = $actingUser->can('manage', Ticket::class);
         if (!$canManageTicket || !$ticket->reporter) {
             return [];
         }

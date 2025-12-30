@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Data;
 
-use App\Community\Enums\TriggerTicketType;
+use App\Community\Enums\TicketType;
 use App\Data\UserPermissionsData;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -15,7 +15,7 @@ class ReportAchievementIssuePagePropsData extends Data
     public function __construct(
         public AchievementData $achievement,
         public bool $hasSession,
-        public TriggerTicketType $ticketType,
+        public TicketType $ticketType,
         public ?string $extra,
         public UserPermissionsData $can,
     ) {

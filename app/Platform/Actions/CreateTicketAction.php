@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Emulator;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Models\User;
-use App\Platform\Data\StoreTriggerTicketData;
+use App\Platform\Data\StoreTicketData;
 
-class CreateTriggerTicketAction
+class CreateTicketAction
 {
-    public function execute(StoreTriggerTicketData $data, User $user): TriggerTicket
+    public function execute(StoreTicketData $data, User $user): Ticket
     {
         $emulator = Emulator::where('name', $data->emulator)->first();
 
@@ -25,7 +25,7 @@ class CreateTriggerTicketAction
             note: $note
         );
 
-        $ticket = TriggerTicket::find($newTicketId);
+        $ticket = Ticket::find($newTicketId);
         $ticket->game_hash_id = $data->gameHash->id;
 
         if ($emulator) {
@@ -41,7 +41,7 @@ class CreateTriggerTicketAction
         return $ticket;
     }
 
-    private function formatTicketNote(StoreTriggerTicketData $data, bool $captureEmulatorData): string
+    private function formatTicketNote(StoreTicketData $data, bool $captureEmulatorData): string
     {
         $note = trim($data->description);
         $extraNotes = [];
@@ -54,7 +54,7 @@ class CreateTriggerTicketAction
             }
         }
 
-        // Add emulator information (if emulator was not identified)
+        // Add emulator information (if emulator was not identified).
         if ($captureEmulatorData) {
             $emulatorInfo = $data->emulator;
             if ($data->core && in_array($data->emulator, ['RetroArch', 'RALibRetro'], true)) {

@@ -6,13 +6,13 @@ namespace App\Platform\Concerns;
 
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimStatus;
-use App\Community\Enums\TriggerTicketState;
+use App\Community\Enums\TicketState;
 use App\Community\Enums\UserGameListType;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\System;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Platform\Enums\AchievementFlag;
@@ -75,12 +75,12 @@ trait BuildsGameListQueries
         // is a dev. Otherwise, skip it.
         if ($user?->can('develop')) {
             $query->addSelect([
-                'num_unresolved_tickets' => TriggerTicket::selectRaw('COUNT(*)')
+                'num_unresolved_tickets' => Ticket::selectRaw('COUNT(*)')
                     ->where('ticketable_type', 'achievement')
-                    ->join('Achievements', 'trigger_tickets.ticketable_id', '=', 'Achievements.ID')
+                    ->join('Achievements', 'tickets.ticketable_id', '=', 'Achievements.ID')
                     ->whereColumn('Achievements.GameID', 'GameData.ID')
                     ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore->value)
-                    ->whereIn('trigger_tickets.state', [TriggerTicketState::Open, TriggerTicketState::Request]),
+                    ->whereIn('tickets.state', [TicketState::Open, TicketState::Request]),
             ]);
         }
 

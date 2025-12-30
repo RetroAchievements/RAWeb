@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\TriggerTicketState;
+use App\Community\Enums\TicketState;
 use App\Models\User;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -242,12 +242,12 @@ foreach ($userTicketInfo as $ticketData) {
         $counted = false;
     }
     switch ($ticketData['state']) {
-        case TriggerTicketState::Closed->value:
+        case TicketState::Closed->value:
             $userTickets['closed'] += $ticketData['TicketCount'];
             $userTickets['total'] += $ticketData['TicketCount'];
             $userTickets['uniqueClosed']++;
             break;
-        case TriggerTicketState::Open->value:
+        case TicketState::Open->value:
             $userTickets['open'] += $ticketData['TicketCount'];
             $userTickets['total'] += $ticketData['TicketCount'];
             $userTickets['uniqueOpen']++;
@@ -256,7 +256,7 @@ foreach ($userTicketInfo as $ticketData) {
                 $userTickets['uniqueValid']++;
             }
             break;
-        case TriggerTicketState::Resolved->value:
+        case TicketState::Resolved->value:
             $userTickets['resolved'] += $ticketData['TicketCount'];
             $userTickets['total'] += $ticketData['TicketCount'];
             $userTickets['uniqueResolved']++;
@@ -265,7 +265,7 @@ foreach ($userTicketInfo as $ticketData) {
                 $userTickets['uniqueValid']++;
             }
             break;
-        case TriggerTicketState::Request->value:
+        case TicketState::Request->value:
             $userTickets['request'] += $ticketData['TicketCount'];
             $userTickets['total'] += $ticketData['TicketCount'];
             $userTickets['uniqueRequest']++;
@@ -771,7 +771,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
         // Tickets resolved
         echo "<tr><td>Tickets Resolved:</td><td>";
         echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev]) . "\">";
-        echo $devUser->resolvedTickets()->where('state', '=', TriggerTicketState::Resolved)->count();
+        echo $devUser->resolvedTickets()->where('state', '=', TicketState::Resolved)->count();
         echo "</a>";
         echo "</td></tr>";
 

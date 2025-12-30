@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Community\Enums\TriggerTicketState;
-use App\Community\Enums\TriggerTicketType;
+use App\Community\Enums\TicketState;
+use App\Community\Enums\TicketType;
 use App\Platform\Enums\AchievementFlag;
 use App\Support\Database\Eloquent\BaseModel;
-use Database\Factories\TriggerTicketFactory;
+use Database\Factories\TicketFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,13 +16,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class TriggerTicket extends BaseModel
+class Ticket extends BaseModel
 {
-    /** @use HasFactory<TriggerTicketFactory> */
+    /** @use HasFactory<TicketFactory> */
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = 'trigger_tickets';
+    protected $table = 'tickets';
 
     protected $fillable = [
         'ticketable_type',
@@ -35,14 +35,14 @@ class TriggerTicket extends BaseModel
     ];
 
     protected $casts = [
-        'type' => TriggerTicketType::class,
-        'state' => TriggerTicketState::class,
+        'type' => TicketType::class,
+        'state' => TicketState::class,
         'resolved_at' => 'datetime',
     ];
 
-    protected static function newFactory(): TriggerTicketFactory
+    protected static function newFactory(): TicketFactory
     {
-        return TriggerTicketFactory::new();
+        return TicketFactory::new();
     }
 
     // == accessors
@@ -115,38 +115,38 @@ class TriggerTicket extends BaseModel
     // == scopes
 
     /**
-     * @param Builder<TriggerTicket> $query
-     * @return Builder<TriggerTicket>
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
      */
     public function scopeUnresolved(Builder $query): Builder
     {
-        return $query->whereIn('state', [TriggerTicketState::Open, TriggerTicketState::Request]);
+        return $query->whereIn('state', [TicketState::Open, TicketState::Request]);
     }
 
     /**
      * Tickets that are actively awaiting the developer's action.
      * Excludes "Request" tickets which are reassigned back to the reporter.
      *
-     * @param Builder<TriggerTicket> $query
-     * @return Builder<TriggerTicket>
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
      */
     public function scopeAwaitingDeveloper(Builder $query): Builder
     {
-        return $query->where('state', TriggerTicketState::Open);
+        return $query->where('state', TicketState::Open);
     }
 
     /**
-     * @param Builder<TriggerTicket> $query
-     * @return Builder<TriggerTicket>
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
      */
     public function scopeResolved(Builder $query): Builder
     {
-        return $query->whereIn('state', [TriggerTicketState::Resolved, TriggerTicketState::Closed]);
+        return $query->whereIn('state', [TicketState::Resolved, TicketState::Closed]);
     }
 
     /**
-     * @param Builder<TriggerTicket> $query
-     * @return Builder<TriggerTicket>
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
      */
     public function scopeForGame(Builder $query, Game $game): Builder
     {
@@ -156,8 +156,8 @@ class TriggerTicket extends BaseModel
     }
 
     /**
-     * @param Builder<TriggerTicket> $query
-     * @return Builder<TriggerTicket>
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
      */
     public function scopeForAchievement(Builder $query, Achievement $achievement): Builder
     {
@@ -166,8 +166,8 @@ class TriggerTicket extends BaseModel
     }
 
     /**
-     * @param Builder<TriggerTicket> $query
-     * @return Builder<TriggerTicket>
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
      */
     public function scopeForDeveloper(Builder $query, User $developer): Builder
     {
@@ -175,8 +175,8 @@ class TriggerTicket extends BaseModel
     }
 
     /**
-     * @param Builder<TriggerTicket> $query
-     * @return Builder<TriggerTicket>
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
      */
     public function scopeOfficialCore(Builder $query): Builder
     {
@@ -186,8 +186,8 @@ class TriggerTicket extends BaseModel
     }
 
     /**
-     * @param Builder<TriggerTicket> $query
-     * @return Builder<TriggerTicket>
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
      */
     public function scopeUnofficial(Builder $query): Builder
     {

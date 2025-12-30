@@ -6,7 +6,7 @@ namespace Tests\Feature\Platform\Actions;
 
 use App\Community\Actions\AddGameToListAction;
 use App\Community\Actions\CreateGameClaimAction;
-use App\Community\Enums\TriggerTicketState;
+use App\Community\Enums\TicketState;
 use App\Community\Enums\UserGameListType;
 use App\Models\Achievement;
 use App\Models\Game;
@@ -15,7 +15,7 @@ use App\Models\Leaderboard;
 use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\System;
-use App\Models\TriggerTicket;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Actions\BuildGameListAction;
 use App\Platform\Enums\AchievementFlag;
@@ -439,8 +439,8 @@ class BuildGameListActionTest extends TestCase
         $achievement1001 = Achievement::factory()->create(['GameID' => 1001, 'Flags' => AchievementFlag::OfficialCore->value]);
         $achievement1003 = Achievement::factory()->create(['GameID' => 1003, 'Flags' => AchievementFlag::OfficialCore->value]);
 
-        TriggerTicket::factory()->count(3)->create(['ticketable_id' => $achievement1001->id, 'state' => TriggerTicketState::Open]);
-        TriggerTicket::factory()->count(27)->create(['ticketable_id' => $achievement1003->id, 'state' => TriggerTicketState::Closed]);
+        Ticket::factory()->count(3)->create(['ticketable_id' => $achievement1001->id, 'state' => TicketState::Open]);
+        Ticket::factory()->count(27)->create(['ticketable_id' => $achievement1003->id, 'state' => TicketState::Closed]);
 
         // Act
         $result = (new BuildGameListAction())->execute(
@@ -493,8 +493,8 @@ class BuildGameListActionTest extends TestCase
         $achievement1001 = Achievement::factory()->create(['GameID' => 1001, 'Flags' => AchievementFlag::OfficialCore->value]);
         $achievement1003 = Achievement::factory()->create(['GameID' => 1003, 'Flags' => AchievementFlag::OfficialCore->value]);
 
-        TriggerTicket::factory()->count(3)->create(['ticketable_id' => $achievement1001->id, 'state' => TriggerTicketState::Open]);
-        TriggerTicket::factory()->count(27)->create(['ticketable_id' => $achievement1003->id, 'state' => TriggerTicketState::Closed]);
+        Ticket::factory()->count(3)->create(['ticketable_id' => $achievement1001->id, 'state' => TicketState::Open]);
+        Ticket::factory()->count(27)->create(['ticketable_id' => $achievement1003->id, 'state' => TicketState::Closed]);
 
         // Act
         $result = (new BuildGameListAction())->execute(
