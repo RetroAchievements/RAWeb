@@ -18,10 +18,10 @@ class PatreonSupportersController extends Controller
     {
         $baseQuery = PlayerBadge::query()
             ->where('award_type', AwardType::PatreonSupporter)
-            ->join('UserAccounts', 'user_awards.user_id', '=', 'UserAccounts.ID')
-            ->whereNull('UserAccounts.Deleted')
-            ->whereNull('UserAccounts.banned_at')
-            ->select('user_awards.*', 'UserAccounts.display_name', 'UserAccounts.User')
+            ->join('users', 'user_awards.user_id', '=', 'users.id')
+            ->whereNull('users.deleted_at')
+            ->whereNull('users.banned_at')
+            ->select('user_awards.*', 'users.display_name', 'users.username')
             ->with('user');
 
         // Get the 4 most recent supporters.
@@ -34,7 +34,7 @@ class PatreonSupportersController extends Controller
 
         // Get all supporters alphabetically.
         $allSupporters = (clone $baseQuery)
-            ->orderBy('UserAccounts.display_name', 'asc')
+            ->orderBy('users.display_name', 'asc')
             ->get();
 
         // Split the supporters into initial and deferred groups.

@@ -41,7 +41,7 @@ class UpdatePlayerBeatenGamesStats extends Command
             $baseUserQuery = User::whereExists(function ($query) {
                 $query->select(DB::raw(1))
                       ->from('player_games')
-                      ->whereRaw('player_games.user_id = UserAccounts.ID');
+                      ->whereRaw('player_games.user_id = users.id');
             });
 
             $distinctUserCount = $baseUserQuery->count();

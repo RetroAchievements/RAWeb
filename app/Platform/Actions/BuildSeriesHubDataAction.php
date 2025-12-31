@@ -23,15 +23,15 @@ class BuildSeriesHubDataAction
         }
 
         // Get all games in the hub (excluding subsets).
-        $query = $seriesHub->games()->where(DB::raw('GameData.Title'), 'not like', '%[Subset -%');
+        $query = $seriesHub->games()->where(DB::raw('games.title'), 'not like', '%[Subset -%');
 
         $allGames = $query->get();
 
         // Calculate aggregated statistics.
         $stats = $query->select([
-            DB::raw('COUNT(DISTINCT GameData.ID) as total_game_count'),
-            DB::raw('SUM(GameData.achievements_published) as total_achievements'),
-            DB::raw('SUM(GameData.points_total) as total_points'),
+            DB::raw('COUNT(DISTINCT games.id) as total_game_count'),
+            DB::raw('SUM(games.achievements_published) as total_achievements'),
+            DB::raw('SUM(games.points_total) as total_points'),
         ])->first();
 
         $gamesWithAchievements = $allGames->filter(fn ($g) => $g->achievements_published > 0)->values();

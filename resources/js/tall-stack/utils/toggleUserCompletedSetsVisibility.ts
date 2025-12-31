@@ -3,33 +3,25 @@ import { setCookie } from './cookie';
 export const cookieName = 'prefers_hidden_user_completed_sets';
 
 /**
- * Toggles the visibility of user completed sets in a table based on the
- * state of the "Hide user completed sets" checkbox. When the checkbox is
- * checked, it calls this function, which hides the table rows for completed
- * or mastered games. If the checkbox is unchecked, the rows reappear.
+ * Toggles between the "all games" and "incomplete games only" lists
+ * based on the state of the "Hide completed games" checkbox.
  *
- * This function assumes the checkbox has an id of 'hide-user-completed-sets-checkbox'
- * and the table rows have the class 'completion-progress-completed-row'.
+ * When checked, shows the incomplete games list.
+ * When unchecked, shows the full list including completed games.
  */
 export function toggleUserCompletedSetsVisibility() {
   const checkboxEl = document.getElementById(
     'hide-user-completed-sets-checkbox',
   ) as HTMLInputElement | null;
 
-  const completionProgressRowEls = document.querySelectorAll<HTMLTableRowElement>(
-    '#usercompletedgamescomponent tr.completion-progress-completed-row',
-  );
+  const allGamesEl = document.getElementById('completion-progress-all');
+  const incompleteGamesEl = document.getElementById('completion-progress-incomplete');
 
-  if (checkboxEl && completionProgressRowEls) {
+  if (checkboxEl && allGamesEl && incompleteGamesEl) {
     const isChecked = checkboxEl.checked;
     setCookie(cookieName, isChecked ? 'true' : 'false');
 
-    for (const rowEl of completionProgressRowEls) {
-      if (isChecked) {
-        rowEl.classList.add('hidden');
-      } else {
-        rowEl.classList.remove('hidden');
-      }
-    }
+    allGamesEl.classList.toggle('hidden', isChecked);
+    incompleteGamesEl.classList.toggle('hidden', !isChecked);
   }
 }

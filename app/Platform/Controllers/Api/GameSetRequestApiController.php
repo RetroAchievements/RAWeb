@@ -25,7 +25,7 @@ class GameSetRequestApiController extends Controller
         }
 
         // Check if the user already requested this game.
-        if ($user->gameListEntries(UserGameListType::AchievementSetRequest)->where('GameID', $game->id)->exists()) {
+        if ($user->gameListEntries(UserGameListType::AchievementSetRequest)->where('game_id', $game->id)->exists()) {
             return response()->json(['error' => 'already_requested'], 422);
         }
 
@@ -52,7 +52,7 @@ class GameSetRequestApiController extends Controller
         $user = $request->user();
 
         // Check if the user has already requested this game.
-        if (!$user->gameListEntries(UserGameListType::AchievementSetRequest)->where('GameID', $game->id)->exists()) {
+        if (!$user->gameListEntries(UserGameListType::AchievementSetRequest)->where('game_id', $game->id)->exists()) {
             return response()->json(['error' => 'not_requested'], 422);
         }
 

@@ -15,7 +15,6 @@ use App\Models\PlayerBadge;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\AttachPlayerGameAction;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Jobs\UpdateGameAchievementsMetricsJob;
 use App\Platform\Jobs\UpdateGamePlayerCountJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
@@ -576,16 +575,16 @@ class SyncEvents extends Command
         $game = Game::find($gameId);
         $event = $game->event;
 
-        $achievements = $game->achievements()->published()->orderBy('DisplayOrder')->get();
+        $achievements = $game->achievements()->promoted()->orderBy('order_column')->get();
         foreach ($achievements as $achievement) {
-            $command->info(sprintf("  %6u %5u/%u %s", $achievement->ID, $achievement->unlocks_hardcore_total, $game->players_hardcore, $achievement->Title));
-            if ($achievement->Points === 0) {
-                $command->error("No points on achievement {$achievement->ID}");
-            } elseif ($achievement->unlocks_total > $achievement->unlocks_hardcore_total) {
-                $softcoreUnlocks = $achievement->unlocks_total - $achievement->unlocks_hardcore_total;
-                $command->error("$softcoreUnlocks softcore unlocks on {$achievement->ID}");
-            } elseif ($achievement->unlocks_hardcore_total > $game->players_hardcore) {
-                $command->error("Too many achievements awarded for {$achievement->ID}");
+            $command->info(sprintf("  %6u %5u/%u %s", $achievement->id, $achievement->unlocks_hardcore, $game->players_hardcore, $achievement->title));
+            if ($achievement->points === 0) {
+                $command->error("No points on achievement {$achievement->id}");
+            } elseif ($achievement->unlocks_total > $achievement->unlocks_hardcore) {
+                $softcoreUnlocks = $achievement->unlocks_total - $achievement->unlocks_hardcore;
+                $command->error("$softcoreUnlocks softcore unlocks on {$achievement->id}");
+            } elseif ($achievement->unlocks_hardcore > $game->players_hardcore) {
+                $command->error("Too many achievements awarded for {$achievement->id}");
             }
         }
     }
@@ -611,8 +610,8 @@ class ConvertGame
         $event = $game->event;
         if (!$event) {
             $event = Event::create([
-                'legacy_game_id' => $game->ID,
-                'image_asset_path' => $game->ImageIcon,
+                'legacy_game_id' => $game->id,
+                'image_asset_path' => $game->image_icon_asset_path,
             ]);
         }
 
@@ -676,7 +675,7 @@ class ConvertGame
             return false;
         }
 
-        $achievementCount = Achievement::where('GameID', $gameId)->published()->count();
+        $achievementCount = Achievement::where('game_id', $gameId)->promoted()->count();
         $command->info("Event has $achievementCount achievements.");
 
         $event = Event::where('legacy_game_id', $gameId)->firstOrFail();
@@ -705,7 +704,7 @@ class ConvertGame
             if (!array_key_exists($userId, $after)) {
                 if ($badge['award_tier'] !== -1) {
                     $user = User::find($userId);
-                    $command->error("Badge for user $userId ({$user->User}) lost in conversion.");
+                    $command->error("Badge for user $userId ({$user->username}) lost in conversion.");
                     $result = false;
                 } else {
                     $deleted++;
@@ -717,14 +716,14 @@ class ConvertGame
                 if ($badge['award_tier'] != $badgeAfter['award_tier']) {
                     $user = User::find($userId);
                     if ($badge['award_tier'] === -1) {
-                        $command->error("Badge for user $userId ({$user->User}) was not deleted.");
+                        $command->error("Badge for user $userId ({$user->username}) was not deleted.");
                     } else {
-                        $command->error("Badge for user $userId ({$user->User}) does not have expected tier_index {$badge['award_tier']}. Found {$badgeAfter['award_tier']}.");
+                        $command->error("Badge for user $userId ({$user->username}) does not have expected tier_index {$badge['award_tier']}. Found {$badgeAfter['award_tier']}.");
                     }
                     $result = false;
                 } elseif ($badge['awarded_at'] != $badgeAfter['awarded_at']) {
                     $user = User::find($userId);
-                    $command->error("Badge for user $userId ({$user->User}) award date changed from " . $badge['awarded_at']->format("Y-m-d") . " to " . $badgeAfter['awarded_at']->format("Y-m-d"));
+                    $command->error("Badge for user $userId ({$user->username}) award date changed from " . $badge['awarded_at']->format("Y-m-d") . " to " . $badgeAfter['awarded_at']->format("Y-m-d"));
                     $result = false;
                 } else {
                     $converted++;
@@ -736,7 +735,7 @@ class ConvertGame
 
         foreach ($after as $userId => $badge) {
             $user = User::find($userId);
-            $command->error("Badge for user $userId ({$user->User}) unexpected. Found tier {$badge['award_tier']}.");
+            $command->error("Badge for user $userId ({$user->username}) unexpected. Found tier {$badge['award_tier']}.");
             $result = false;
         }
 
@@ -755,14 +754,14 @@ class ConvertGame
         $unofficialCount = 0;
         for ($index = 0; $index < $event->legacyGame->achievements->count(); $index++) {
             $achievement = $event->legacyGame->achievements->skip($index)->first();
-            if ($achievement->Flags === AchievementFlag::OfficialCore->value) {
+            if ($achievement->is_promoted) {
                 if ($publishedCount === $count) {
-                    $achievement->Flags = AchievementFlag::Unofficial->value;
+                    $achievement->is_promoted = false;
                     $achievement->save();
                 } else {
                     $publishedCount++;
-                    $achievement->DisplayOrder = $publishedCount;
-                    $achievement->Points = 1;
+                    $achievement->order_column = $publishedCount;
+                    $achievement->points = 1;
                     $achievement->save();
                 }
             } else {
@@ -774,12 +773,12 @@ class ConvertGame
         if ($publishedCount < $count && $unofficialCount > 0) {
             for ($index = 0; $index < $event->legacyGame->achievements->count(); $index++) {
                 $achievement = $event->legacyGame->achievements->skip($index)->first();
-                if ($achievement->Flags === AchievementFlag::Unofficial->value) {
+                if (!$achievement->is_promoted) {
                     $publishedCount++;
 
-                    $achievement->DisplayOrder = $publishedCount;
-                    $achievement->Points = 1;
-                    $achievement->Flags = AchievementFlag::OfficialCore->value;
+                    $achievement->order_column = $publishedCount;
+                    $achievement->points = 1;
+                    $achievement->is_promoted = true;
                     $achievement->save();
 
                     if ($publishedCount === $count) {
@@ -792,15 +791,15 @@ class ConvertGame
         while ($publishedCount < $count) {
             $publishedCount++;
             $achievement = Achievement::create([
-                'Title' => 'Title',
-                'Description' => 'Description',
-                'Points' => 1,
-                'MemAddr' => '0=1',
-                'Flags' => AchievementFlag::OfficialCore->value,
-                'GameID' => $event->legacyGame->id,
+                'title' => 'Title',
+                'description' => 'Description',
+                'points' => 1,
+                'trigger_definition' => '0=1',
+                'is_promoted' => true,
+                'game_id' => $event->legacyGame->id,
                 'user_id' => EventAchievement::RAEVENTS_USER_ID,
-                'BadgeName' => '00000',
-                'DisplayOrder' => $publishedCount,
+                'image_name' => '00000',
+                'order_column' => $publishedCount,
             ]);
         }
 
@@ -824,7 +823,7 @@ class ConvertGame
     protected function createEventAchievement(Command $command, Achievement $achievement, ?int $sourceAchievementId = null,
         ?Carbon $activeFrom = null, ?Carbon $activeThrough = null): ?EventAchievement
     {
-        if ($sourceAchievementId && !Achievement::where('ID', $sourceAchievementId)->exists()) {
+        if ($sourceAchievementId && !Achievement::where('id', $sourceAchievementId)->exists()) {
             $command->error("Could not find source achievement: $sourceAchievementId");
 
             return null;
@@ -836,12 +835,12 @@ class ConvertGame
             // update unlock timestamps on the event achievements to match the source unlock
             $winners = PlayerAchievement::where('achievement_id', $sourceAchievementId)
                 ->whereNotNull('unlocked_hardcore_at')
-                ->join('UserAccounts', 'UserAccounts.ID', '=', 'player_achievements.user_id')
+                ->join('users', 'users.id', '=', 'player_achievements.user_id')
                 ->select([
                     'player_achievements.user_id',
                     'player_achievements.unlocked_hardcore_at',
-                    'UserAccounts.Untracked',
-                    'UserAccounts.unranked_at',
+                    'users.Untracked',
+                    'users.unranked_at',
                 ]);
 
             if ($activeFrom) {
@@ -885,7 +884,7 @@ class ConvertGame
                 ->delete();
 
         } else {
-            $achievement->Points = 1;
+            $achievement->points = 1;
             $achievement->save();
         }
 
@@ -908,7 +907,7 @@ class ConvertGame
             $sourceAchievement = $eventAchievement->sourceAchievement;
             $achievement->title = $sourceAchievement->title;
             $achievement->description = $sourceAchievement->description;
-            $achievement->BadgeName = $sourceAchievement->BadgeName;
+            $achievement->image_name = $sourceAchievement->image_name;
             $achievement->save();
         }
 
@@ -921,8 +920,8 @@ class ConvertGame
     protected function demoteGame(int $gameId): void
     {
         $game = Game::find($gameId);
-        if (!str_starts_with($game->Title, "~Z~ ")) {
-            $game->Title = "~Z~ {$game->Title}";
+        if (!str_starts_with($game->title, "~Z~ ")) {
+            $game->title = "~Z~ {$game->title}";
             $game->save();
         }
 
@@ -1084,7 +1083,7 @@ class ConvertAsIs extends ConvertGame
 
     protected function process(Command $command, Event $event): void
     {
-        foreach (Achievement::where('GameID', $event->legacyGame->id)->published()->get() as $achievement) {
+        foreach (Achievement::where('game_id', $event->legacyGame->id)->promoted()->get() as $achievement) {
             $this->createEventAchievement($command, $achievement);
         }
     }
@@ -1148,7 +1147,7 @@ class ConvertAprilFools extends ConvertGame
 
     protected function process(Command $command, Event $event): void
     {
-        foreach (Achievement::where('GameID', $event->legacyGame->id)->published()->get() as $achievement) {
+        foreach (Achievement::where('game_id', $event->legacyGame->id)->promoted()->get() as $achievement) {
             PlayerAchievement::where('achievement_id', $achievement->id)->whereNull('unlocked_hardcore_at')->delete();
             $this->createEventAchievement($command, $achievement);
         }
@@ -1173,19 +1172,19 @@ class ConvertCollapse extends ConvertGame
 
         $first = true;
         foreach ($event->legacyGame->achievements as $achievement) {
-            if ($first && $achievement->Flags === AchievementFlag::OfficialCore->value) {
+            if ($first && $achievement->is_promoted) {
                 $first = false;
 
-                $achievement->Flags = AchievementFlag::OfficialCore->value;
-                $achievement->Points = 1;
-                $achievement->Title = $event->Title;
-                if (empty(trim($achievement->Description))) {
-                    $achievement->Description = "Earned enough points for the badge";
+                $achievement->is_promoted = true;
+                $achievement->points = 1;
+                $achievement->title = $event->Title;
+                if (empty(trim($achievement->description))) {
+                    $achievement->description = "Earned enough points for the badge";
                 }
 
                 $this->createEventAchievement($command, $achievement);
             } else {
-                $achievement->Flags = AchievementFlag::Unofficial->value;
+                $achievement->is_promoted = false;
             }
 
             $achievement->save();
@@ -1296,9 +1295,9 @@ class ConvertCollapseSoftcore extends ConvertGame
 
         $tier_index = 1;
         foreach ($event->legacyGame->achievements as $achievement) {
-            if ($tier_index < 3 && $achievement->Flags === AchievementFlag::OfficialCore->value) {
-                $achievement->Flags = AchievementFlag::OfficialCore->value;
-                $achievement->Points = 1;
+            if ($tier_index < 3 && $achievement->is_promoted) {
+                $achievement->is_promoted = true;
+                $achievement->points = 1;
 
                 $this->createEventAchievement($command, $achievement);
 
@@ -1316,7 +1315,7 @@ class ConvertCollapseSoftcore extends ConvertGame
 
                 $tier_index++;
             } else {
-                $achievement->Flags = AchievementFlag::Unofficial->value;
+                $achievement->is_promoted = false;
             }
 
             $achievement->save();
@@ -1347,7 +1346,7 @@ class ConvertToTracked extends ConvertGame
         $eventAchievement = null;
         $index = 0;
         foreach ($this->achievements as $sourceAchievementId => $dates) {
-            $achievement = $event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value)->skip($index)->first();
+            $achievement = $event->legacyGame->achievements->where('is_promoted', true)->skip($index)->first();
             if (!$achievement) {
                 $command->error("Could not find achievement[$index]");
 
@@ -1443,14 +1442,14 @@ class ConvertToMergedTracked extends ConvertToTracked
 
             if (!$eventAward) {
                 $game = Game::find($gameId);
-                $lastSpace = strrpos($game->Title, ' ');
+                $lastSpace = strrpos($game->title, ' ');
 
                 $eventAward = EventAward::create([
                     'event_id' => $event->id,
                     'tier_index' => $tier_index,
-                    'label' => substr($game->Title, $lastSpace + 1),
+                    'label' => substr($game->title, $lastSpace + 1),
                     'points_required' => $count,
-                    'image_asset_path' => $game->ImageIcon,
+                    'image_asset_path' => $game->image_icon_asset_path,
                 ]);
             }
 
@@ -1475,7 +1474,7 @@ class ConvertToMergedTracked extends ConvertToTracked
         $eventAchievement = null;
         $index = 0;
         foreach ($this->achievements as $sourceAchievementId => $dates) {
-            $achievement = $event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value)->skip($index)->first();
+            $achievement = $event->legacyGame->achievements->where('is_promoted', true)->skip($index)->first();
             if (!$achievement) {
                 $command->error("Could not find achievement[$index]");
 
@@ -1496,7 +1495,7 @@ class ConvertToMergedTracked extends ConvertToTracked
         }
 
         foreach ($this->bonusAchievements as $sourceAchievementId => $dates) {
-            $achievement = $event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value)->skip($index)->first();
+            $achievement = $event->legacyGame->achievements->where('is_promoted', true)->skip($index)->first();
             if (!$achievement) {
                 $command->error("Could not find achievement[$index]");
 
@@ -1505,12 +1504,12 @@ class ConvertToMergedTracked extends ConvertToTracked
 
             if (is_string($sourceAchievementId)) {
                 $this->createDatedEventAchievement($command, $achievement, null, $dates);
-                $achievement->Title = $sourceAchievementId;
+                $achievement->title = $sourceAchievementId;
             } else {
                 $this->createDatedEventAchievement($command, $achievement, $sourceAchievementId, $dates);
             }
 
-            $achievement->Points = 2;
+            $achievement->points = 2;
             $achievement->save();
 
             $index++;
@@ -1573,7 +1572,7 @@ class ConvertToTiered extends ConvertGame
                 $userIds = PlayerAchievement::where('achievement_id', $achievementId)
                     ->pluck('user_id')->toArray();
             } else {
-                $userIds = User::whereIn('User', $users)->pluck('ID')->toArray();
+                $userIds = User::whereIn('username', $users)->pluck('id')->toArray();
             }
 
             $allUserIds = array_merge($allUserIds, $userIds);
@@ -1668,7 +1667,7 @@ class ConvertToTiered extends ConvertGame
                     ->update(['unlocked_hardcore_at' => DB::raw('unlocked_at')]);
             } else {
                 // convert badge to current tier
-                $userIds = User::whereIn('User', $users)->withTrashed()->pluck('ID')->toArray();
+                $userIds = User::whereIn('username', $users)->withTrashed()->pluck('id')->toArray();
                 foreach ($userIds as $userId) {
                     $this->convertBadge($event, $event->legacyGame->id, $userId, $tier_index);
                 }
@@ -1695,7 +1694,7 @@ class ConvertToTiered extends ConvertGame
             $count--;
             $index++;
 
-            $achievement->DisplayOrder = $index;
+            $achievement->order_column = $index;
             $achievement->save();
         }
 
@@ -1787,18 +1786,18 @@ class ConvertToSoftcoreTiered extends ConvertGame
     protected function process(Command $command, Event $event): void
     {
         $description = "Earn $this->softcoreLabel";
-        $winnerAchievement = Achievement::where('GameID', $event->legacyGame->id)->where('Description', $description)->first();
+        $winnerAchievement = Achievement::where('game_id', $event->legacyGame->id)->where('description', $description)->first();
         if (!$winnerAchievement) {
             $winnerAchievement = Achievement::create([
-                'Title' => $this->softcoreLabel,
-                'Description' => $description,
-                'Points' => 1,
-                'MemAddr' => '0=1',
-                'Flags' => AchievementFlag::OfficialCore->value,
-                'GameID' => $event->legacyGame->id,
+                'title' => $this->softcoreLabel,
+                'description' => $description,
+                'points' => 1,
+                'trigger_definition' => '0=1',
+                'is_promoted' => true,
+                'game_id' => $event->legacyGame->id,
                 'user_id' => EventAchievement::RAEVENTS_USER_ID,
-                'BadgeName' => '00000',
-                'DisplayOrder' => $event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value)->count() + 1,
+                'image_name' => '00000',
+                'order_column' => $event->legacyGame->achievements->where('is_promoted', true)->count() + 1,
             ]);
 
             $this->createEventAchievement($command, $winnerAchievement);
@@ -1819,7 +1818,7 @@ class ConvertToSoftcoreTiered extends ConvertGame
                 'event_id' => $event->id,
                 'tier_index' => 2,
                 'label' => $this->hardcoreLabel,
-                'points_required' => $event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value)->count(),
+                'points_required' => $event->legacyGame->achievements->where('is_promoted', true)->count(),
                 'image_asset_path' => $event->image_asset_path,
             ]);
         }
@@ -1827,9 +1826,9 @@ class ConvertToSoftcoreTiered extends ConvertGame
         // convert achievements to event achievements
         $first = true;
         $lastBadge = '00000';
-        foreach ($event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value) as $achievement) {
+        foreach ($event->legacyGame->achievements->where('is_promoted', true) as $achievement) {
             $this->createEventAchievement($command, $achievement);
-            $lastBadge = $achievement->BadgeName;
+            $lastBadge = $achievement->image_name;
 
             if ($first) {
                 $first = false;
@@ -1865,8 +1864,8 @@ class ConvertToSoftcoreTiered extends ConvertGame
                 ->delete();
         }
 
-        if ($winnerAchievement->BadgeName === '00000') {
-            $winnerAchievement->BadgeName = $lastBadge;
+        if ($winnerAchievement->image_name === '00000') {
+            $winnerAchievement->image_name = $lastBadge;
             $winnerAchievement->save();
         }
 
@@ -1929,15 +1928,15 @@ class ConvertToCollapsedTiered extends ConvertToTiered
         foreach ($this->tiers as $gameId => $label) {
             $labels[] = $label;
             if ($gameId != $event->legacyGame->id) {
-                Achievement::where('GameID', $gameId)->update(['GameID' => $event->legacyGame->id]);
+                Achievement::where('game_id', $gameId)->update(['game_id' => $event->legacyGame->id]);
             }
         }
 
-        Achievement::where('GameID', $event->legacyGame->id)
-            ->whereNotIn('ID', $this->achievements)
-            ->update(['Flags' => AchievementFlag::Unofficial->value]);
-        Achievement::whereIn('ID', $this->achievements)
-            ->update(['Flags' => AchievementFlag::OfficialCore->value, 'Points' => 1]);
+        Achievement::where('game_id', $event->legacyGame->id)
+            ->whereNotIn('id', $this->achievements)
+            ->update(['is_promoted' => false]);
+        Achievement::whereIn('id', $this->achievements)
+            ->update(['is_promoted' => true, 'points' => 1]);
 
         $tier_index = 1;
         foreach ($this->tiers as $gameId => $label) {
@@ -1951,7 +1950,7 @@ class ConvertToCollapsedTiered extends ConvertToTiered
                     'tier_index' => $tier_index,
                     'label' => $label,
                     'points_required' => $tier_index,
-                    'image_asset_path' => Game::find($gameId)->ImageIcon,
+                    'image_asset_path' => Game::find($gameId)->image_icon_asset_path,
                 ]);
             }
 
@@ -1978,9 +1977,9 @@ class ConvertToCollapsedTiered extends ConvertToTiered
                 return;
             }
 
-            $achievement->Title = $this->title;
-            $achievement->Description = $labels[$index];
-            $achievement->DisplayOrder = $index + 1;
+            $achievement->title = $this->title;
+            $achievement->description = $labels[$index];
+            $achievement->order_column = $index + 1;
             $achievement->save();
 
             $this->createEventAchievement($command, $achievement);
@@ -2033,7 +2032,7 @@ class ConvertToCollapsedTiered extends ConvertToTiered
         }
 
         $event->legacyGame->achievements_published = count($this->achievements);
-        $event->legacyGame->Title = $this->title;
+        $event->legacyGame->title = $this->title;
         $event->legacyGame->save();
 
         // delete any remaining badges
@@ -2113,7 +2112,7 @@ class ConvertAotWTiered extends ConvertGame
         // move the achievements from the tier games into the base game
         foreach ($this->tiers as $count => $gameId) {
             if ($gameId != $event->legacyGame->id) {
-                Achievement::where('GameID', $gameId)->update(['GameID' => $event->legacyGame->id]);
+                Achievement::where('game_id', $gameId)->update(['game_id' => $event->legacyGame->id]);
             }
         }
 
@@ -2128,14 +2127,14 @@ class ConvertAotWTiered extends ConvertGame
 
             if (!$eventAward) {
                 $game = Game::find($gameId);
-                $lastSpace = strrpos($game->Title, ' ');
+                $lastSpace = strrpos($game->title, ' ');
 
                 $eventAward = EventAward::create([
                     'event_id' => $event->id,
                     'tier_index' => $tier_index,
-                    'label' => substr($game->Title, $lastSpace + 1),
+                    'label' => substr($game->title, $lastSpace + 1),
                     'points_required' => $count,
-                    'image_asset_path' => $game->ImageIcon,
+                    'image_asset_path' => $game->image_icon_asset_path,
                 ]);
             }
 
@@ -2159,7 +2158,7 @@ class ConvertAotWTiered extends ConvertGame
         $date = Carbon::parse($this->activeFrom);
         $year = $date->clone()->addWeeks(1)->year;
 
-        $event->legacyGame->Title = "Achievement of the Week $year";
+        $event->legacyGame->title = "Achievement of the Week $year";
         $event->legacyGame->save();
 
         $event->active_from = $date;
@@ -2169,7 +2168,7 @@ class ConvertAotWTiered extends ConvertGame
         foreach ($this->achievements as $sourceAchievementId) {
             $endDate = $date->clone()->addDays($this->extraDay ? 7 : 6);
 
-            $achievement = $event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value)->skip($index)->first();
+            $achievement = $event->legacyGame->achievements->where('is_promoted', true)->skip($index)->first();
             $eventAchievement = $this->createEventAchievement($command, $achievement, $sourceAchievementId, $date, $endDate);
 
             $date = $date->addDays(7);
@@ -2189,7 +2188,7 @@ class ConvertAotWTiered extends ConvertGame
                     $endDate = $endDate->addWeeks(1);
                 }
 
-                $achievement = $event->legacyGame->achievements->where('Flags', AchievementFlag::OfficialCore->value)->skip($index)->first();
+                $achievement = $event->legacyGame->achievements->where('is_promoted', true)->skip($index)->first();
 
                 if (is_array($sourceAchievementId)) {
                     $eventAchievement = EventAchievement::where('achievement_id', $achievement->id)->first();

@@ -65,10 +65,10 @@ function getUsersSiteAwards(?User $user): array
 
     $query = "
         -- game awards (mastery, beaten)
-        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.Title, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
+        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.title AS Title, s.id AS ConsoleID, s.name AS ConsoleName, NULL AS Flags, gd.image_icon_asset_path AS ImageIcon
             FROM user_awards AS saw
-            LEFT JOIN GameData AS gd ON ( gd.ID = saw.award_key AND saw.award_type IN ('{$gameAwardValues}') )
-            LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+            LEFT JOIN games AS gd ON ( gd.id = saw.award_key AND saw.award_type IN ('{$gameAwardValues}') )
+            LEFT JOIN systems AS s ON s.id = gd.system_id
             WHERE
                 saw.award_type IN('{$gameAwardValues}')
                 AND saw.user_id = :userId
@@ -86,10 +86,10 @@ function getUsersSiteAwards(?User $user): array
                 ))
         UNION
         -- event awards
-        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.Title, " . System::Events . ", 'Events', NULL, e.image_asset_path
+        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.title AS Title, " . System::Events . ", 'Events', NULL, e.image_asset_path AS ImageIcon
             FROM user_awards AS saw
             LEFT JOIN events e ON e.id = saw.award_key
-            LEFT JOIN GameData gd ON gd.id = e.legacy_game_id
+            LEFT JOIN games gd ON gd.id = e.legacy_game_id
             WHERE
                 saw.award_type = '" . AwardType::Event->value . "'
                 AND saw.user_id = :userId3
@@ -177,7 +177,7 @@ function getRecentProgressionAwardData(
     // Determine the friends condition
     $friendCondAward = "";
     if ($friendsOfUser) {
-        $friendSubquery = GetFriendsSubquery($friendsOfUser->User, returnUserIds: true);
+        $friendSubquery = GetFriendsSubquery($friendsOfUser->username, returnUserIds: true);
         $friendCondAward = "AND saw.user_id IN ($friendSubquery)";
     }
 
@@ -194,21 +194,21 @@ function getRecentProgressionAwardData(
     }
 
     $retVal = [];
-    $query = "SELECT ua.User, s.AwardedAt, s.AwardedAtUnix, s.award_type, s.award_key, s.award_tier, s.GameTitle, s.GameID, s.ConsoleName, s.GameIcon
+    $query = "SELECT ua.username AS User, sub.AwardedAt, sub.AwardedAtUnix, sub.award_type, sub.award_key, sub.award_tier, sub.GameTitle, sub.GameID, sub.ConsoleName, sub.GameIcon
         FROM (
             SELECT
                 saw.user_id, saw.awarded_at as AwardedAt, UNIX_TIMESTAMP(saw.awarded_at) as AwardedAtUnix, saw.award_type,
-                saw.award_key, saw.award_tier, gd.Title AS GameTitle, gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon AS GameIcon,
+                saw.award_key, saw.award_tier, gd.title AS GameTitle, gd.id AS GameID, sys.name AS ConsoleName, gd.image_icon_asset_path AS GameIcon,
                 ROW_NUMBER() OVER (PARTITION BY saw.user_id, saw.award_key, TIMESTAMPDIFF(MINUTE, saw.awarded_at, saw2.awarded_at) ORDER BY saw.award_type ASC) AS rn
             FROM user_awards AS saw
-            LEFT JOIN GameData AS gd ON gd.ID = saw.award_key
-            LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+            LEFT JOIN games AS gd ON gd.id = saw.award_key
+            LEFT JOIN systems AS sys ON sys.id = gd.system_id
             LEFT JOIN user_awards AS saw2 ON saw2.user_id = saw.user_id AND saw2.award_key = saw.award_key AND TIMESTAMPDIFF(MINUTE, saw.awarded_at, saw2.awarded_at) BETWEEN 0 AND 1
             $onlyAwardTypeClause AND saw.award_key > 0 AND $onlyUnlockModeClause $friendCondAward
             AND saw.awarded_at BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)
-        ) s
-        JOIN UserAccounts AS ua ON ua.ID = s.user_id
-        WHERE s.rn = 1
+        ) sub
+        JOIN users AS ua ON ua.id = sub.user_id
+        WHERE sub.rn = 1
         ORDER BY AwardedAt DESC
         LIMIT $offset, $count";
 
@@ -235,7 +235,7 @@ function getUserEventAwardCount(User $user): int
     $eventGameBadgeCount = $user->playerBadges()
         ->where('award_type', AwardType::Mastery)
         ->whereHas('gameIfApplicable.system', function ($query) {
-            $query->where('ID', System::Events);
+            $query->where('id', System::Events);
         })
         ->distinct('award_key')
         ->count('award_key');

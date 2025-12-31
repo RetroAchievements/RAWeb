@@ -78,9 +78,9 @@ function getGlobalRankingData(
     $singleUserAwardCond = "";
     $singleUserCond = "";
     if ($user !== null) {
-        $singleUserAchievementCond = "AND ua.User LIKE '$user'";
-        $singleUserAwardCond = "AND ua.User LIKE '$user'";
-        $singleUserCond = "AND ua.User LIKE '$user'";
+        $singleUserAchievementCond = "AND ua.username LIKE '$user'";
+        $singleUserAwardCond = "AND ua.username LIKE '$user'";
+        $singleUserCond = "AND ua.username LIKE '$user'";
     }
 
     // Determine the friends condition
@@ -90,9 +90,9 @@ function getGlobalRankingData(
     if ($friendsOf !== null) {
         $friendsSubquery = GetFriendsSubquery($friendsOf);
 
-        $friendCondAchievement = "AND ua.User IN ($friendsSubquery)";
-        $friendCondAward = "AND ua.User IN ($friendsSubquery)";
-        $friendCondAllTime = "AND ua.User IN ($friendsSubquery)";
+        $friendCondAchievement = "AND ua.username IN ($friendsSubquery)";
+        $friendCondAward = "AND ua.username IN ($friendsSubquery)";
+        $friendCondAllTime = "AND ua.username IN ($friendsSubquery)";
     }
 
     // Determine the ORDER BY condition
@@ -139,7 +139,7 @@ function getGlobalRankingData(
         $totalAwards = "SUM(IF(award_tier > 0, 1, 0))";
     } else {
         $totalAwards = "COUNT(*)";
-        $pointRequirement = "AND ua.RASoftcorePoints >= 0"; // if someone resets a softcore achievement without resetting the hardcore, the query can return negative points
+        $pointRequirement = "AND ua.points >= 0"; // if someone resets a softcore achievement without resetting the hardcore, the query can return negative points
     }
 
     $retVal = [];
@@ -147,45 +147,45 @@ function getGlobalRankingData(
         if ($friendsOf === null) {
             // if not comparing against friends, only look at the ranked users
             if ($unlockMode == UnlockMode::Softcore) {
-                $pointRequirement = "AND ua.RASoftcorePoints >= " . Rank::MIN_POINTS;
+                $pointRequirement = "AND ua.points >= " . Rank::MIN_POINTS;
             } elseif ($sort == 6) {
-                $pointRequirement = "AND ua.TrueRAPoints >= " . Rank::MIN_TRUE_POINTS;
+                $pointRequirement = "AND ua.points_weighted >= " . Rank::MIN_TRUE_POINTS;
             } else {
-                $pointRequirement = "AND ua.RAPoints >= " . Rank::MIN_POINTS;
+                $pointRequirement = "AND ua.points_hardcore >= " . Rank::MIN_POINTS;
             }
         }
 
         if ($info == 0) {
             if ($unlockMode == UnlockMode::Hardcore) {
-                $selectQuery = "SELECT ua.ID, ua.User,
+                $selectQuery = "SELECT ua.id AS ID, ua.username AS User,
                         COALESCE(ua.achievements_unlocked_hardcore, 0) AS AchievementCount,
-                        COALESCE(ua.RAPoints, 0) AS Points,
-                        COALESCE(ua.TrueRAPoints, 0) AS RetroPoints,
-                        COALESCE(ROUND(ua.TrueRAPoints/ua.RAPoints, 2), 0) AS RetroRatio ";
+                        COALESCE(ua.points_hardcore, 0) AS Points,
+                        COALESCE(ua.points_weighted, 0) AS RetroPoints,
+                        COALESCE(ROUND(ua.points_weighted/ua.points_hardcore, 2), 0) AS RetroRatio ";
             } else {
-                $selectQuery = "SELECT ua.ID, ua.User,
+                $selectQuery = "SELECT ua.id AS ID, ua.username AS User,
                         COALESCE(ua.achievements_unlocked - ua.achievements_unlocked_hardcore, 0) AS AchievementCount,
-                        COALESCE(ua.RASoftcorePoints, 0) AS Points,
+                        COALESCE(ua.points, 0) AS Points,
                         0 AS RetroPoints,
                         0 AS RetroRatio ";
             }
         } else {
             if ($unlockMode == UnlockMode::Hardcore) {
-                $selectQuery = "SELECT ua.ID, ua.User,
-                        COALESCE(ua.RAPoints, 0) AS Points,
-                        COALESCE(ua.TrueRAPoints, 0) AS RetroPoints ";
+                $selectQuery = "SELECT ua.id AS ID, ua.username AS User,
+                        COALESCE(ua.points_hardcore, 0) AS Points,
+                        COALESCE(ua.points_weighted, 0) AS RetroPoints ";
             } else {
-                $selectQuery = "SELECT ua.ID, ua.User,
-                        COALESCE(ua.RASoftcorePoints, 0) AS Points,
+                $selectQuery = "SELECT ua.id AS ID, ua.username AS User,
+                        COALESCE(ua.points, 0) AS Points,
                         0 AS RetroPoints ";
             }
         }
 
         // TODO slow query (60)
         $query = "$selectQuery
-                    FROM UserAccounts AS ua
+                    FROM users AS ua
                     WHERE TRUE $untrackedCond $singleUserCond $pointRequirement $friendCondAllTime
-                    $orderCond, ua.User
+                    $orderCond, ua.username
                     LIMIT $offset, $count";
 
         $dbResult = s_mysql_query($query);
@@ -221,17 +221,17 @@ function getGlobalRankingData(
     // Just Hardcore Points and Retro Points. Used for the sidebar rankings
     if ($info == 1) {
         return legacyDbFetchAll("
-            SELECT ua.User AS User,
-            SUM(ach.Points) AS Points,
-            SUM(ach.TrueRatio) AS RetroPoints
+            SELECT ua.username AS User,
+            SUM(ach.points) AS Points,
+            SUM(ach.points_weighted) AS RetroPoints
             FROM player_achievements AS aw
-            INNER JOIN Achievements AS ach ON ach.ID = aw.achievement_id
-            INNER JOIN UserAccounts AS ua ON ua.ID = aw.user_id
+            INNER JOIN achievements AS ach ON ach.id = aw.achievement_id
+            INNER JOIN users AS ua ON ua.id = aw.user_id
             WHERE TRUE $whereDateAchievement $typeCond
             $friendCondAchievement
             $singleUserAchievementCond
             $untrackedCond
-            GROUP BY ua.User
+            GROUP BY ua.username
             $orderCond
             LIMIT $offset, $count
         ")->toArray();
@@ -240,11 +240,11 @@ function getGlobalRankingData(
     // All ranking stats
 
     if ($unlockMode == UnlockMode::Hardcore) {
-        $achPoints = "CASE WHEN aw.unlocked_hardcore_at IS NOT NULL THEN ach.Points ELSE 0 END";
+        $achPoints = "CASE WHEN aw.unlocked_hardcore_at IS NOT NULL THEN ach.points ELSE 0 END";
         $achCount = "CASE WHEN aw.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END";
-        $achTruePoints = "CASE WHEN aw.unlocked_hardcore_at IS NOT NULL THEN ach.TrueRatio ELSE 0 END";
+        $achTruePoints = "CASE WHEN aw.unlocked_hardcore_at IS NOT NULL THEN ach.points_weighted ELSE 0 END";
     } else {
-        $achPoints = "CASE WHEN aw.unlocked_at IS NOT NULL THEN ach.Points ELSE -ach.Points END";
+        $achPoints = "CASE WHEN aw.unlocked_at IS NOT NULL THEN ach.points ELSE -ach.points END";
         $achCount = "CASE WHEN aw.unlocked_at IS NOT NULL THEN 1 ELSE -1 END";
         $achTruePoints = 0;
     }
@@ -259,39 +259,39 @@ function getGlobalRankingData(
         FROM
         (
             (
-                SELECT ua.User AS User,
+                SELECT ua.username AS User,
                     ua.display_name AS DisplayName,
-                    ua.ID as user_id,
+                    ua.id as user_id,
                     SUM($achCount) AS AchievementCount,
                     SUM($achPoints) as Points,
                     SUM($achTruePoints) AS RetroPoints,
                     NULL AS TotalAwards
                 FROM player_achievements AS aw
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.achievement_id
-                LEFT JOIN UserAccounts AS ua ON ua.ID = aw.user_id
+                LEFT JOIN achievements AS ach ON ach.id = aw.achievement_id
+                LEFT JOIN users AS ua ON ua.id = aw.user_id
                 WHERE TRUE $whereDateAchievement $typeCond
                     $friendCondAchievement
                     $singleUserAchievementCond
                     $untrackedCond
-                GROUP BY ua.ID
+                GROUP BY ua.id
             )
             UNION
             (
-                SELECT ua.User AS User,
+                SELECT ua.username AS User,
                     ua.display_name AS DisplayName,
-                    ua.ID AS user_id,
+                    ua.id AS user_id,
                     NULL AS AchievementCount,
                     NULL AS Points,
                     NULL AS RetroPoints,
                     $totalAwards AS TotalAwards
                 FROM user_awards AS sa
-                LEFT JOIN UserAccounts AS ua ON ua.ID = sa.user_id
+                LEFT JOIN users AS ua ON ua.id = sa.user_id
                 WHERE TRUE AND sa.awarded_at $typeCond
                     $friendCondAward
                     $singleUserAwardCond
                     $masteryCond
                     $untrackedCond
-                GROUP BY ua.ID
+                GROUP BY ua.id
             )
         ) AS Query
         GROUP BY user_id

@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 ?>
 
 @props([
@@ -9,23 +9,23 @@ use App\Community\Enums\UserRelationship;
 
 @php
     $me = auth()->user() ?? null;
-    $myFriendshipType = $me ? $me->getRelationship($user) : UserRelationship::NotFollowing;
+    $myRelationStatus = $me ? $me->getRelationship($user) : UserRelationStatus::NotFollowing;
 @endphp
 
-@if ($me && $me->User !== $user->User)
+@if ($me && $me->username !== $user->username)
     <div class="flex items-center gap-x-1">
-        @if ($myFriendshipType !== UserRelationship::Blocked)
+        @if ($myRelationStatus !== UserRelationStatus::Blocked)
             <form action="/request/user/update-relationship.php" method="POST">
                 {!! csrf_field() !!}
                 <input type="hidden" name="user" value="{{ $user->display_name }}">
-                <input type="hidden" name="action" value="{{ UserRelationship::Blocked }}">
+                <input type="hidden" name="action" value="{{ UserRelationStatus::Blocked->value }}">
                 <button class="btn btn-link">Block</button>
             </form>
         @else
             <form action="/request/user/update-relationship.php" method="POST">
                 {!! csrf_field() !!}
                 <input type="hidden" name="user" value="{{ $user->display_name }}">
-                <input type="hidden" name="action" value="{{ UserRelationship::NotFollowing }}">
+                <input type="hidden" name="action" value="{{ UserRelationStatus::NotFollowing->value }}">
                 <button class="btn btn-link">Unblock</button>
             </form>
         @endif
@@ -35,18 +35,18 @@ use App\Community\Enums\UserRelationship;
             <span class="sr-only">Message</span>
         </a>
 
-        @if ($myFriendshipType === UserRelationship::Following)
+        @if ($myRelationStatus === UserRelationStatus::Following)
             <form action="/request/user/update-relationship.php" method="POST">
                 {!! csrf_field() !!}
                 <input type="hidden" name="user" value="{{ $user->display_name }}">
-                <input type="hidden" name="action" value="{{ UserRelationship::NotFollowing }}">
+                <input type="hidden" name="action" value="{{ UserRelationStatus::NotFollowing->value }}">
                 <button class="btn btn max-h-[24px] flex items-center">Unfollow</button>
             </form>
-        @elseif ($myFriendshipType === UserRelationship::NotFollowing && !$me->isFreshAccount())
+        @elseif ($myRelationStatus === UserRelationStatus::NotFollowing && !$me->isFreshAccount())
             <form action="/request/user/update-relationship.php" method="POST">
                 {!! csrf_field() !!}
                 <input type="hidden" name="user" value="{{ $user->display_name }}">
-                <input type="hidden" name="action" value="{{ UserRelationship::Following }}">
+                <input type="hidden" name="action" value="{{ UserRelationStatus::Following->value }}">
                 <button class="btn max-h-[24px] flex items-center">
                     Follow
                 </button>

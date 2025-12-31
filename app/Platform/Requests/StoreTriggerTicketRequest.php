@@ -12,7 +12,7 @@ class StoreTriggerTicketRequest extends FormRequest
     {
         return [
             'ticketableModel' => 'required|string|in:achievement', // TODO or in:leaderboard
-            'ticketableId' => 'required|integer|exists:Achievements,ID', // TODO could also be a leaderboard id
+            'ticketableId' => 'required|integer|exists:achievements,id', // TODO could also be a leaderboard id
             'mode' => 'required|string|in:hardcore,softcore',
             'issue' => 'required|integer|min:1|max:2', // see `TicketType`
             'description' => 'required|string|max:2000',

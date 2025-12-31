@@ -53,14 +53,14 @@ class SystemResource extends Resource
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
-            'ID' => $record->ID,
+            'id' => $record->id,
             'Short name' => $record->name_short,
         ];
     }
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['ID', 'name_full', 'name_short'];
+        return ['id', 'name_full', 'name_short'];
     }
 
     public static function infolist(Schema $schema): Schema
@@ -80,7 +80,7 @@ class SystemResource extends Resource
                                 ]),
                             Schemas\Components\Group::make()
                                 ->schema([
-                                    Infolists\Components\TextEntry::make('Name')
+                                    Infolists\Components\TextEntry::make('name')
                                         ->helperText('Used in menus and page titles. May include manufacturer for recognizability.'),
 
                                     Infolists\Components\TextEntry::make('name_short')
@@ -99,12 +99,12 @@ class SystemResource extends Resource
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
 
-                        Infolists\Components\TextEntry::make('Created')
+                        Infolists\Components\TextEntry::make('created_at')
                             ->label('Created at')
                             ->dateTime()
                             ->hidden(fn ($state) => !$state),
 
-                        Infolists\Components\TextEntry::make('Updated')
+                        Infolists\Components\TextEntry::make('updated_at')
                             ->label('Updated at')
                             ->dateTime()
                             ->hidden(fn ($state) => !$state),
@@ -125,7 +125,7 @@ class SystemResource extends Resource
                     Schemas\Components\Section::make()
                         ->columns(2)
                         ->schema([
-                            Forms\Components\TextInput::make('Name')
+                            Forms\Components\TextInput::make('name')
                                 ->helperText('Used in menus and page titles. May include manufacturer for recognizability.')
                                 ->required()
                                 ->maxLength(255),
@@ -161,7 +161,7 @@ class SystemResource extends Resource
                     ->label('')
                     ->size(config('media.icon.sm.width')),
 
-                Tables\Columns\TextColumn::make('ID')
+                Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->sortable()
                     ->searchable(),
@@ -182,7 +182,7 @@ class SystemResource extends Resource
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('Name')
+                Tables\Columns\TextColumn::make('name')
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\IconColumn::make('active')
@@ -190,13 +190,13 @@ class SystemResource extends Resource
                     ->default(false)
                     ->alignCenter(),
 
-                Tables\Columns\TextColumn::make('Created')
+                Tables\Columns\TextColumn::make('created_at')
                     ->label('Created at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('Updated')
+                Tables\Columns\TextColumn::make('updated_at')
                     ->label('Updated at')
                     ->dateTime()
                     ->sortable()

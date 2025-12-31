@@ -40,24 +40,24 @@ class UserProfileTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create();
 
-        $this->get($this->apiUrl('GetUserProfile', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserProfile', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
-                'User' => $user->User,
-                'UserPic' => sprintf("/UserPic/%s.png", $user->User),
+                'User' => $user->username,
+                'UserPic' => sprintf("/UserPic/%s.png", $user->username),
                 'MemberSince' => $user->created_at->toDateTimeString(),
-                'RichPresenceMsg' => ($user->RichPresenceMsg) ? $user->RichPresenceMsg : null,
-                'LastGameID' => $user->LastGameID,
-                'ContribCount' => $user->ContribCount,
-                'ContribYield' => $user->ContribYield,
-                'TotalPoints' => $user->RAPoints,
-                'TotalSoftcorePoints' => $user->RASoftcorePoints,
-                'TotalTruePoints' => $user->TrueRAPoints,
+                'RichPresenceMsg' => ($user->rich_presence) ? $user->rich_presence : null,
+                'LastGameID' => $user->rich_presence_game_id,
+                'ContribCount' => $user->yield_unlocks,
+                'ContribYield' => $user->yield_points,
+                'TotalPoints' => $user->points_hardcore,
+                'TotalSoftcorePoints' => $user->points,
+                'TotalTruePoints' => $user->points_weighted,
                 'Permissions' => $user->getAttribute('Permissions'),
                 'Untracked' => $user->Untracked,
-                'ID' => $user->ID,
-                'UserWallActive' => $user->UserWallActive,
-                'Motto' => $user->Motto,
+                'ID' => $user->id,
+                'UserWallActive' => $user->is_user_wall_active,
+                'Motto' => $user->motto,
             ]);
     }
 
@@ -69,22 +69,22 @@ class UserProfileTest extends TestCase
         $this->get($this->apiUrl('GetUserProfile', ['u' => $user->ulid]))
             ->assertSuccessful()
             ->assertJson([
-                'User' => $user->User,
+                'User' => $user->username,
                 'ULID' => $user->ulid,
-                'UserPic' => sprintf("/UserPic/%s.png", $user->User),
+                'UserPic' => sprintf("/UserPic/%s.png", $user->username),
                 'MemberSince' => $user->created_at->toDateTimeString(),
-                'RichPresenceMsg' => ($user->RichPresenceMsg) ? $user->RichPresenceMsg : null,
-                'LastGameID' => $user->LastGameID,
-                'ContribCount' => $user->ContribCount,
-                'ContribYield' => $user->ContribYield,
-                'TotalPoints' => $user->RAPoints,
-                'TotalSoftcorePoints' => $user->RASoftcorePoints,
-                'TotalTruePoints' => $user->TrueRAPoints,
+                'RichPresenceMsg' => ($user->rich_presence) ? $user->rich_presence : null,
+                'LastGameID' => $user->rich_presence_game_id,
+                'ContribCount' => $user->yield_unlocks,
+                'ContribYield' => $user->yield_points,
+                'TotalPoints' => $user->points_hardcore,
+                'TotalSoftcorePoints' => $user->points,
+                'TotalTruePoints' => $user->points_weighted,
                 'Permissions' => $user->getAttribute('Permissions'),
                 'Untracked' => $user->Untracked,
-                'ID' => $user->ID,
-                'UserWallActive' => $user->UserWallActive,
-                'Motto' => $user->Motto,
+                'ID' => $user->id,
+                'UserWallActive' => $user->is_user_wall_active,
+                'Motto' => $user->motto,
             ]);
     }
 }

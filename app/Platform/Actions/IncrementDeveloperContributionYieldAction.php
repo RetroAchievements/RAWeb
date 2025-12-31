@@ -26,7 +26,7 @@ class IncrementDeveloperContributionYieldAction
         bool $isHardcore = false,
     ): void {
         // If we somehow made it here for an unofficial achievement, bail.
-        if (!$achievement->is_published) {
+        if (!$achievement->is_promoted) {
             return;
         }
 
@@ -47,22 +47,22 @@ class IncrementDeveloperContributionYieldAction
             }
         }
 
-        $oldContribCount = $developer->ContribCount;
-        $oldContribYield = $developer->ContribYield;
+        $oldContribCount = $developer->yield_unlocks;
+        $oldContribYield = $developer->yield_points;
 
         if ($isUnlock) {
-            DB::table('UserAccounts')
-                ->where('ID', $developer->id)
+            DB::table('users')
+                ->where('id', $developer->id)
                 ->update([
-                    'ContribCount' => DB::raw('ContribCount + 1'),
-                    'ContribYield' => DB::raw('ContribYield + ' . $achievement->Points),
+                    'yield_unlocks' => DB::raw('yield_unlocks + 1'),
+                    'yield_points' => DB::raw('yield_points + ' . $achievement->points),
                 ]);
         } else {
-            DB::table('UserAccounts')
-                ->where('ID', $developer->id)
+            DB::table('users')
+                ->where('id', $developer->id)
                 ->update([
-                    'ContribCount' => DB::raw('CASE WHEN ContribCount > 0 THEN ContribCount - 1 ELSE 0 END'),
-                    'ContribYield' => DB::raw('CASE WHEN ContribYield >= ' . $achievement->Points . ' THEN ContribYield - ' . $achievement->Points . ' ELSE 0 END'),
+                    'yield_unlocks' => DB::raw('CASE WHEN yield_unlocks > 0 THEN yield_unlocks - 1 ELSE 0 END'),
+                    'yield_points' => DB::raw('CASE WHEN yield_points >= ' . $achievement->points . ' THEN yield_points - ' . $achievement->points . ' ELSE 0 END'),
                 ]);
         }
 
@@ -77,10 +77,10 @@ class IncrementDeveloperContributionYieldAction
     private function checkAndAwardNewBadges(User $developer, int $oldContribYield, int $oldContribCount): void
     {
         // Check for points yield badge.
-        $this->checkAndAwardBadge($developer, AwardType::AchievementPointsYield, $oldContribYield, $developer->ContribYield);
+        $this->checkAndAwardBadge($developer, AwardType::AchievementPointsYield, $oldContribYield, $developer->yield_points);
 
         // Check for unlock count badge.
-        $this->checkAndAwardBadge($developer, AwardType::AchievementUnlocksYield, $oldContribCount, $developer->ContribCount);
+        $this->checkAndAwardBadge($developer, AwardType::AchievementUnlocksYield, $oldContribCount, $developer->yield_unlocks);
     }
 
     private function checkAndAwardBadge(User $developer, AwardType $type, int $oldValue, int $currentValue): void

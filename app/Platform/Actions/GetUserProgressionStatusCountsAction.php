@@ -46,7 +46,7 @@ class GetUserProgressionStatusCountsAction
 
         $results = $this->buildQualifyingGamesQuery($user)
             ->selectRaw("
-                GameData.ConsoleID,
+                games.system_id,
                 SUM(player_games.achievements_unlocked_hardcore) as total_hc_achievements,
                 SUM(GREATEST(0, CAST(player_games.achievements_unlocked AS SIGNED) - CAST(player_games.achievements_unlocked_hardcore AS SIGNED))) as total_sc_achievements,
                 SUM(mastery_hc.id IS NOT NULL) as mastered_count,
@@ -85,7 +85,7 @@ class GetUserProgressionStatusCountsAction
                     ->where('beaten_sc.award_type', '=', $beatenAwardType)
                     ->where('beaten_sc.award_tier', '=', $softcoreMode);
             })
-            ->groupBy('GameData.ConsoleID')
+            ->groupBy('games.system_id')
             ->get();
 
         $systemProgress = [];
@@ -94,7 +94,7 @@ class GetUserProgressionStatusCountsAction
         $totalSoftcoreAchievements = 0;
 
         foreach ($results as $row) {
-            $systemId = (int) $row->ConsoleID;
+            $systemId = (int) $row->system_id;
             $mastered = (int) $row->mastered_count;
             $completed = (int) $row->completed_count;
             $beatenHc = (int) $row->beaten_hc_count;
@@ -174,15 +174,15 @@ class GetUserProgressionStatusCountsAction
                 'user_awards.award_key as game_id',
                 'user_awards.award_type',
                 'user_awards.award_tier',
-                'GameData.ConsoleID',
+                'games.system_id',
             ])
-            ->join('GameData', 'GameData.ID', '=', 'user_awards.award_key')
-            ->join('Console', 'Console.ID', '=', 'GameData.ConsoleID')
+            ->join('games', 'games.id', '=', 'user_awards.award_key')
+            ->join('systems', 'systems.id', '=', 'games.system_id')
             ->where('user_awards.user_id', $user->id)
             ->whereIn('user_awards.award_type', [AwardType::Mastery, AwardType::GameBeaten])
             ->whereNotIn('user_awards.award_key', $countedGameIds)
-            ->whereRaw('Console.active = true')
-            ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
+            ->whereRaw('systems.active = true')
+            ->whereNotIn('games.system_id', System::getNonGameSystems())
             ->get();
 
         // Group by game and find the highest award per game.
@@ -191,7 +191,7 @@ class GetUserProgressionStatusCountsAction
 
         foreach ($orphanBadges as $badge) {
             $gameId = $badge->game_id;
-            $systemId = (int) $badge->ConsoleID;
+            $systemId = (int) $badge->system_id;
 
             $awardKind = match (true) {
                 $badge->award_type === AwardType::Mastery && $badge->award_tier === UnlockMode::Hardcore => 'mastered',
@@ -243,11 +243,11 @@ class GetUserProgressionStatusCountsAction
     {
         return PlayerGame::where('player_games.user_id', $user->id)
             ->where('player_games.achievements_unlocked', '>', 0)
-            ->join('GameData', 'GameData.ID', '=', 'player_games.game_id')
-            ->join('Console', 'Console.ID', '=', 'GameData.ConsoleID')
-            ->whereRaw('Console.active = true')
-            ->whereRaw('GameData.achievements_published >= ?', [PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY])
-            ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems());
+            ->join('games', 'games.id', '=', 'player_games.game_id')
+            ->join('systems', 'systems.id', '=', 'games.system_id')
+            ->whereRaw('systems.active = true')
+            ->whereRaw('games.achievements_published >= ?', [PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY])
+            ->whereNotIn('games.system_id', System::getNonGameSystems());
     }
 
     /**
@@ -258,16 +258,16 @@ class GetUserProgressionStatusCountsAction
     {
         $result = PlayerGame::query()
             ->selectRaw('
-                SUM(player_games.achievements_unlocked / GameData.achievements_published) as sum_pct,
+                SUM(player_games.achievements_unlocked / games.achievements_published) as sum_pct,
                 COUNT(*) as game_count
             ')
-            ->join('GameData', 'GameData.ID', '=', 'player_games.game_id')
-            ->join('Console', 'Console.ID', '=', 'GameData.ConsoleID')
+            ->join('games', 'games.id', '=', 'player_games.game_id')
+            ->join('systems', 'systems.id', '=', 'games.system_id')
             ->where('player_games.user_id', $user->id)
             ->where('player_games.achievements_unlocked', '>', 0)
-            ->whereRaw('Console.active = true')
-            ->whereRaw('GameData.achievements_published >= ?', [PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY])
-            ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
+            ->whereRaw('systems.active = true')
+            ->whereRaw('games.achievements_published >= ?', [PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY])
+            ->whereNotIn('games.system_id', System::getNonGameSystems())
             ->whereNotExists(function ($query) {
                 $query->selectRaw('1')
                     ->from('game_achievement_sets as gas1')

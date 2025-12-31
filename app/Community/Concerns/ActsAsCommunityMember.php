@@ -6,7 +6,7 @@ namespace App\Community\Concerns;
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\UserGameListType;
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\Comment;
 use App\Models\EmailConfirmation;
 use App\Models\ForumTopicComment;
@@ -75,10 +75,10 @@ trait ActsAsCommunityMember
      */
     public function gameListEntries(?UserGameListType $type = null): HasMany
     {
-        $query = $this->hasMany(UserGameListEntry::class, 'user_id', 'ID');
+        $query = $this->hasMany(UserGameListEntry::class, 'user_id', 'id');
 
         if ($type !== null) {
-            $query->where(DB::raw('SetRequest.type'), $type);
+            $query->where(DB::raw('user_game_list_entries.type'), $type);
         }
 
         return $query;
@@ -99,7 +99,7 @@ trait ActsAsCommunityMember
     public function relatedUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'user_id', 'related_user_id')
-            ->withPivot('Friendship'); // TODO rename to `status`
+            ->withPivot('status');
     }
 
     /**
@@ -108,7 +108,7 @@ trait ActsAsCommunityMember
     public function inverseRelatedUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'related_user_id', 'user_id')
-            ->withPivot('Friendship'); // TODO rename to `status`
+            ->withPivot('status');
     }
 
     /**
@@ -116,7 +116,7 @@ trait ActsAsCommunityMember
      */
     public function followedUsers(): BelongsToMany
     {
-        return $this->relatedUsers()->where('Friendship', '=', UserRelationship::Following);
+        return $this->relatedUsers()->where('status', '=', UserRelationStatus::Following);
     }
 
     /**
@@ -124,24 +124,29 @@ trait ActsAsCommunityMember
      */
     public function followerUsers(): BelongsToMany
     {
-        return $this->inverseRelatedUsers()->where('Friendship', '=', UserRelationship::Following);
+        return $this->inverseRelatedUsers()->where('status', '=', UserRelationStatus::Following);
     }
 
-    public function getRelationship(User $user): int
+    public function getRelationship(User $user): UserRelationStatus
     {
         $relatedUser = $this->relatedUsers()->where('related_user_id', $user->id)->first();
 
-        return $relatedUser ? $relatedUser->pivot->Friendship : UserRelationship::NotFollowing;
+        if (!$relatedUser) {
+            return UserRelationStatus::NotFollowing;
+        }
+
+        // The pivot doesn't automatically apply casts, so we cast it manually.
+        return UserRelationStatus::from($relatedUser->pivot->status);
     }
 
     public function isFollowing(User $user): bool
     {
-        return $this->getRelationship($user) === UserRelationship::Following;
+        return $this->getRelationship($user) === UserRelationStatus::Following;
     }
 
     public function isBlocking(User $user): bool
     {
-        return $this->getRelationship($user) === UserRelationship::Blocked;
+        return $this->getRelationship($user) === UserRelationStatus::Blocked;
     }
 
     public function isFreshAccount(): bool
@@ -150,9 +155,9 @@ trait ActsAsCommunityMember
 
         return
             !$this->isForumVerified()
+            && $this->points_hardcore === 0
             && $this->points === 0
-            && $this->points_softcore === 0
-            && $this->Created > now()->subWeeks(2) // account is less than 2 weeks old
+            && $this->created_at > now()->subWeeks(2) // account is less than 2 weeks old
         ;
     }
 
@@ -183,7 +188,7 @@ trait ActsAsCommunityMember
 
     public function isDeleted(): bool
     {
-        return !empty($this->Deleted);
+        return !empty($this->deleted_at);
     }
 
     public function isBanned(): bool
@@ -205,7 +210,7 @@ trait ActsAsCommunityMember
     {
         $inactiveCutoff = now()->subDays($thresholdDays);
 
-        return $this->LastLogin < $inactiveCutoff;
+        return $this->last_activity_at < $inactiveCutoff;
     }
 
     public function isMuted(): bool
@@ -281,7 +286,7 @@ trait ActsAsCommunityMember
      */
     public function emailConfirmations(): HasMany
     {
-        return $this->hasMany(EmailConfirmation::class, 'user_id', 'ID');
+        return $this->hasMany(EmailConfirmation::class, 'user_id', 'id');
     }
 
     /**
@@ -294,7 +299,7 @@ trait ActsAsCommunityMember
 
     public function getUnreadMessagesCountAttribute(): int
     {
-        return (int) ($this->attributes['UnreadMessageCount'] ?? 0);
+        return (int) ($this->attributes['unread_messages'] ?? 0);
     }
 
     /**
@@ -302,7 +307,7 @@ trait ActsAsCommunityMember
      */
     public function forumPosts(): HasMany
     {
-        return $this->hasMany(ForumTopicComment::class, 'author_id', 'ID');
+        return $this->hasMany(ForumTopicComment::class, 'author_id', 'id');
     }
 
     /**
@@ -310,7 +315,7 @@ trait ActsAsCommunityMember
      */
     public function subscriptions(): HasMany
     {
-        return $this->hasMany(Subscription::class, 'user_id', 'ID');
+        return $this->hasMany(Subscription::class, 'user_id', 'id');
     }
 
     /**
@@ -318,6 +323,6 @@ trait ActsAsCommunityMember
      */
     public function usernameRequests(): HasMany
     {
-        return $this->hasMany(UserUsername::class, 'user_id', 'ID');
+        return $this->hasMany(UserUsername::class, 'user_id', 'id');
     }
 }

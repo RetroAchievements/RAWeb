@@ -24,7 +24,7 @@ class CommentFactory extends Factory
             'Payload' => $this->faker->paragraph,
             'Submitted' => $this->faker->dateTimeBetween('-1 year', 'now'),
             'Edited' => $isEdited ? $this->faker->dateTimeBetween('now', '+1 year') : null,
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'ArticleID' => $this->faker->numberBetween(1, 100),
             'ArticleType' => $this->faker->numberBetween(1, 3),
         ];

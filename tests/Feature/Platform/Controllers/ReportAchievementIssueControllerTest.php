@@ -23,16 +23,16 @@ class ReportAchievementIssueControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
+            'preferences_bitfield' => 63,
             'Permissions' => Permissions::Registered,
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'UnreadMessageCount' => 0,
+            'unread_messages' => 0,
         ]);
         $this->actingAs($user);
 

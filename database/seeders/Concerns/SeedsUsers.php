@@ -23,12 +23,12 @@ trait SeedsUsers
             $safeRoleName = str_replace('-', '', $role['name']);
         }
 
-        $user = User::factory()->create(array_merge(['User' => $safeUsername], $attributes));
+        $user = User::factory()->create(array_merge(['username' => $safeUsername], $attributes));
         $user->generateNewConnectToken();
 
         // set the connect token expiry back a few minutes so we can detect if it gets
         // updated to now + expiry_delay
-        $user->appTokenExpiry = $user->appTokenExpiry->subMinutes(5);
+        $user->connect_token_expires_at = $user->connect_token_expires_at->subMinutes(5);
         $user->save();
 
         if (!$role) {

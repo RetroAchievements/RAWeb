@@ -17,12 +17,12 @@ class DatabaseTest extends TestCase
     {
         User::factory()->count(3)->create();
 
-        legacyDbStatement('UPDATE UserAccounts SET User = ? WHERE ID = ?', ['John', 1]);
+        legacyDbStatement('UPDATE users SET username = ? WHERE id = ?', ['John', 1]);
         /** @var User $user */
         $user = User::find(1);
-        $this->assertSame('John', $user->User);
+        $this->assertSame('John', $user->username);
 
-        legacyDbStatement('DELETE FROM UserAccounts WHERE ID = ?', [3]);
+        legacyDbStatement('DELETE FROM users WHERE id = ?', [3]);
         $this->assertSame(2, User::count());
 
         User::find(2)->delete();
@@ -31,31 +31,31 @@ class DatabaseTest extends TestCase
 
     public function testLegacyDbFetchReturnsNullIfNothingWasFound(): void
     {
-        $result = legacyDbFetch('SELECT * FROM UserAccounts WHERE ID = 1');
+        $result = legacyDbFetch('SELECT * FROM users WHERE id = 1');
         $this->assertNull($result);
     }
 
     public function testLegacyDbFetchReturnsAssociativeArray(): void
     {
         User::factory()->createOne();
-        $result = legacyDbFetch('SELECT * FROM UserAccounts WHERE ID = 1');
+        $result = legacyDbFetch('SELECT * FROM users WHERE id = 1');
         $this->assertIsArray($result);
-        $this->assertArrayHasKey('ID', $result);
+        $this->assertArrayHasKey('id', $result);
     }
 
     public function testLegacyDbFetchAllReturnsEmptyCollectionIfNothingWasFound(): void
     {
-        $result = legacyDbFetchAll('SELECT * FROM UserAccounts');
+        $result = legacyDbFetchAll('SELECT * FROM users');
         $this->assertTrue($result->isEmpty());
     }
 
     public function testLegacyDbFetchAll(): void
     {
         User::factory()->count(3)->create();
-        $result = legacyDbFetchAll('SELECT * FROM UserAccounts');
+        $result = legacyDbFetchAll('SELECT * FROM users');
         $this->assertCount(3, $result);
         $this->assertIsIterable($result[0]);
-        $this->assertArrayHasKey('ID', $result[0]);
+        $this->assertArrayHasKey('id', $result[0]);
     }
 
     public function testSqliteDiffStatements(): void
@@ -65,22 +65,22 @@ class DatabaseTest extends TestCase
 
         User::factory()->create([
             // active for 10 minutes
-            'Created' => Carbon::now()->subMinutes(10),
+            'created_at' => Carbon::now()->subMinutes(10),
             // 10 minutes remaining
-            'Updated' => Carbon::now()->addMonths(3),
+            'updated_at' => Carbon::now()->addMonths(3),
         ]);
 
-        $passed = diffMinutesPassedStatement('Created', 'MinutesPassed');
-        $remaining = diffMinutesRemainingStatement('Updated', 'MinutesRemaining');
+        $passed = diffMinutesPassedStatement('created_at', 'MinutesPassed');
+        $remaining = diffMinutesRemainingStatement('updated_at', 'MinutesRemaining');
 
         $result = legacyDbFetch("
             SELECT
-                User,
-                Created,
-                Updated,
+                username,
+                created_at,
+                updated_at,
                 $remaining,
                 $passed
-            FROM UserAccounts u
+            FROM users u
             LIMIT 1
         ");
 

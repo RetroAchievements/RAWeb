@@ -9,6 +9,7 @@ use App\Models\PlayerStatRanking;
 use App\Models\System;
 use App\Platform\Enums\PlayerStatRankingKind;
 use App\Platform\Enums\PlayerStatType;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -24,12 +25,21 @@ class UpdateBeatenGamesLeaderboardAction
             return;
         }
 
-        // Use a Redis lock per system to prevent deadlocks when
-        // multiple jobs for the same system run concurrently.
-        $lockKey = 'player-stat-rankings:' . ($systemId ?? 'overall');
-        Cache::lock($lockKey, 120)->block(90, function () use ($systemId, $kind, $includedTypes) {
-            $this->executeWithDirectInsert($systemId, $kind, $includedTypes);
-        });
+        // Use a single global Redis lock to serialize all leaderboard updates.
+        // Concurrent DELETE/INSERT operations on player_stat_rankings cause
+        // InnoDB auto-increment corruption (error 1467) even on different rows.
+        $lockKey = 'player-stat-rankings-update';
+        try {
+            Cache::lock($lockKey, 300)->block(240, function () use ($systemId, $kind, $includedTypes) {
+                $this->executeWithDirectInsert($systemId, $kind, $includedTypes);
+            });
+        } catch (LockTimeoutException) {
+            // Skip gracefully in the rare circumstance that we can't acquire the lock.
+            // This is fine: the next beat on this system+kind will trigger a new job
+            // that recalculates everything anyway. This is a materialized view - it's
+            // eventually correct.
+            return;
+        }
     }
 
     private function deleteExistingRankings(?int $systemId, PlayerStatRankingKind $kind): void

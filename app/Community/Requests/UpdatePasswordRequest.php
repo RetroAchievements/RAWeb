@@ -20,7 +20,7 @@ class UpdatePasswordRequest extends FormRequest
         return [
             'currentPassword' => ['required', function ($attribute, $value, $fail) {
                 $user = $this->user();
-                if (!Hash::check($value, $user->Password)) {
+                if (!Hash::check($value, $user->password)) {
                     $fail(__('legacy.error.credentials'));
                 }
             }],

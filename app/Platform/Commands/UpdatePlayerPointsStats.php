@@ -69,7 +69,7 @@ class UpdatePlayerPointsStats extends Command
             $baseUserQuery = $baseUserQuery->orWhere(function ($query) use ($relevantPlayerStatTypes) {
                 $query->whereHas('playerStats', function ($subQuery) use ($relevantPlayerStatTypes) {
                     $subQuery->whereIn('type', $relevantPlayerStatTypes);
-                })->where('LastLogin', '>=', Carbon::now()->subDays(32));
+                })->where('last_activity_at', '>=', Carbon::now()->subDays(32));
             });
 
             $distinctUserCount = $baseUserQuery->count();
@@ -80,7 +80,7 @@ class UpdatePlayerPointsStats extends Command
 
             // Retrieve all user IDs first.
             $this->info('Collecting user IDs...');
-            $allUserIds = $baseUserQuery->pluck('ID')->toArray();
+            $allUserIds = $baseUserQuery->pluck('id')->toArray();
 
             // Now create batch jobs from the user IDs.
             $this->info('Creating batch jobs...');

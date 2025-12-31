@@ -40,24 +40,24 @@ class Edit extends EditRecord
 
         $action = new ApplyUploadedImageToDataAction();
 
-        $action->execute($data, 'ImageIcon', ImageUploadType::GameBadge);
-        $action->execute($data, 'ImageTitle', ImageUploadType::GameTitle);
-        $action->execute($data, 'ImageIngame', ImageUploadType::GameInGame);
-        $action->execute($data, 'ImageBoxArt', ImageUploadType::GameBoxArt);
+        $action->execute($data, 'image_icon_asset_path', ImageUploadType::GameBadge);
+        $action->execute($data, 'image_title_asset_path', ImageUploadType::GameTitle);
+        $action->execute($data, 'image_ingame_asset_path', ImageUploadType::GameInGame);
+        $action->execute($data, 'image_box_art_asset_path', ImageUploadType::GameBoxArt);
 
-        // Handle RichPresencePatch separately to ensure trigger versioning is captured.
-        if (array_key_exists('RichPresencePatch', $data)) {
+        // Handle trigger_definition separately to ensure trigger versioning is captured.
+        if (array_key_exists('trigger_definition', $data)) {
             /** @var User $user */
             $user = Auth::user();
             /** @var Game $game */
             $game = $this->record;
 
-            if ($user && $user->can('updateField', [$game, 'RichPresencePatch'])) {
-                (new SubmitRichPresenceAction())->execute($game->id, $data['RichPresencePatch'] ?? '', $user);
+            if ($user && $user->can('updateField', [$game, 'trigger_definition'])) {
+                (new SubmitRichPresenceAction())->execute($game->id, $data['trigger_definition'] ?? '', $user);
             }
 
             // Remove from data array so it doesn't get saved directly by Filament.
-            unset($data['RichPresencePatch']);
+            unset($data['trigger_definition']);
         }
 
         return $data;

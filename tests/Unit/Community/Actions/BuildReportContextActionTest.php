@@ -31,7 +31,7 @@ class BuildReportContextActionTest extends TestCase
     public function testItBuildsForumTopicCommentContextForInbox(): void
     {
         // Arrange
-        $author = User::factory()->create(['User' => 'ReportedUser']);
+        $author = User::factory()->create(['username' => 'ReportedUser']);
         $topic = ForumTopic::factory()->create();
         $comment = ForumTopicComment::factory()->create([
             'body' => 'This is the reported comment content.',
@@ -64,7 +64,7 @@ class BuildReportContextActionTest extends TestCase
     public function testItBuildsForumTopicCommentContextForDiscord(): void
     {
         // Arrange
-        $author = User::factory()->create(['User' => 'ReportedUser', 'display_name' => 'Reported User']);
+        $author = User::factory()->create(['username' => 'ReportedUser', 'display_name' => 'Reported User']);
         $topic = ForumTopic::factory()->create();
         $comment = ForumTopicComment::factory()->create([
             'body' => 'This is the reported comment content.',
@@ -98,7 +98,7 @@ class BuildReportContextActionTest extends TestCase
     public function testItBuildsDirectMessageContextForInbox(): void
     {
         // Arrange
-        $author = User::factory()->create(['User' => 'MessageSender']);
+        $author = User::factory()->create(['username' => 'MessageSender']);
         $message = Message::factory()->create([
             'body' => 'This is an inappropriate direct message.',
             'author_id' => $author->id,
@@ -129,7 +129,7 @@ class BuildReportContextActionTest extends TestCase
     public function testItBuildsDirectMessageContextForDiscord(): void
     {
         // Arrange
-        $author = User::factory()->create(['User' => 'MessageSender', 'display_name' => 'Message Sender']);
+        $author = User::factory()->create(['username' => 'MessageSender', 'display_name' => 'Message Sender']);
         $message = Message::factory()->create([
             'body' => 'This is an inappropriate direct message.',
             'author_id' => $author->id,
@@ -160,8 +160,8 @@ class BuildReportContextActionTest extends TestCase
     public function testItBuildsCommentContextForInbox(): void
     {
         // Arrange
-        $author = User::factory()->create(['User' => 'CommentAuthor']);
-        $targetUser = User::factory()->create(['User' => 'WallOwner']);
+        $author = User::factory()->create(['username' => 'CommentAuthor']);
+        $targetUser = User::factory()->create(['username' => 'WallOwner']);
         $comment = Comment::factory()->create([
             'ArticleType' => ArticleType::User, // !!
             'ArticleID' => $targetUser->id, // !!
@@ -194,8 +194,8 @@ class BuildReportContextActionTest extends TestCase
     public function testItBuildsCommentContextForDiscord(): void
     {
         // Arrange
-        $author = User::factory()->create(['User' => 'CommentAuthor', 'display_name' => 'SomeGuy']);
-        $targetUser = User::factory()->create(['User' => 'WallOwner']);
+        $author = User::factory()->create(['username' => 'CommentAuthor', 'display_name' => 'SomeGuy']);
+        $targetUser = User::factory()->create(['username' => 'WallOwner']);
         $comment = Comment::factory()->create([
             'ArticleType' => ArticleType::User, // !!
             'ArticleID' => $targetUser->id, // !!

@@ -18,7 +18,6 @@ use App\Platform\Data\AchievementData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\LeaderboardData;
 use App\Platform\Data\LeaderboardEntryData;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -29,20 +28,20 @@ class BuildDeveloperFeedDataAction
     public function execute(User $targetUser): DeveloperFeedPagePropsData
     {
         // Use DB::table() to avoid loading potentially thousands of Eloquent models into memory.
-        $achievementInfo = DB::table('Achievements')
-            ->select(['ID', 'GameID'])
+        $achievementInfo = DB::table('achievements')
+            ->select(['id', 'game_id'])
             ->where('user_id', $targetUser->id)
-            ->where('Flags', AchievementFlag::OfficialCore->value)
+            ->where('is_promoted', true)
             ->get();
 
-        $allUserAchievementIds = $achievementInfo->pluck('ID');
-        $allUserGameIds = $achievementInfo->pluck('GameID')->unique();
+        $allUserAchievementIds = $achievementInfo->pluck('id');
+        $allUserGameIds = $achievementInfo->pluck('game_id')->unique();
 
         $activePlayers = (new BuildActivePlayersAction())->execute(gameIds: $allUserGameIds->toArray());
 
         $recentUnlocks = $this->getRecentUnlocks(
             $allUserAchievementIds,
-            shouldUseDateRange: $targetUser->ContribCount <= 20_000,
+            shouldUseDateRange: $targetUser->yield_unlocks <= 20_000,
         );
 
         $recentPlayerBadges = $this->getRecentPlayerBadges($allUserGameIds->toArray());
@@ -52,8 +51,8 @@ class BuildDeveloperFeedDataAction
         $props = new DeveloperFeedPagePropsData(
             activePlayers: $activePlayers,
             developer: UserData::from($targetUser),
-            unlocksContributed: $targetUser->ContribCount ?? 0,
-            pointsContributed: $targetUser->ContribYield ?? 0,
+            unlocksContributed: $targetUser->yield_unlocks ?? 0,
+            pointsContributed: $targetUser->yield_points ?? 0,
             awardsContributed: $this->countAwardsForGames($allUserGameIds->toArray()),
             leaderboardEntriesContributed: $this->countLeaderboardEntries($targetUser),
             recentUnlocks: $recentUnlocks,
@@ -182,7 +181,7 @@ class BuildDeveloperFeedDataAction
             ->where(DB::raw('ld.author_id'), $targetUser->id)
             ->whereNull('ld.deleted_at')
             ->whereNull('leaderboard_entries.deleted_at')
-            ->where('leaderboard_entries.updated_at', '>=', now()->subDays(30))
+            ->where(DB::raw('leaderboard_entries.updated_at'), '>=', now()->subDays(30))
             ->orderBy('leaderboard_entries.updated_at', 'desc')
             ->take(200)
             ->get()

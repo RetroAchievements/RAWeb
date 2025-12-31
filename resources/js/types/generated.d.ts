@@ -222,14 +222,10 @@ declare namespace App.Community.Data {
   };
 }
 declare namespace App.Community.Enums {
-  export type ClaimSetType = 0 | 1;
-  export type MessageThreadTemplateKind =
-    | 'achievement-issue'
-    | 'manual-unlock'
-    | 'misclassification'
-    | 'unwelcome-concept'
-    | 'writing-error';
   export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+  export type TicketState = 0 | 1 | 2 | 3 | 'Demoted';
+  export type ClaimSpecial = 'none' | 'own_revision' | 'free_rollout' | 'scheduled_release';
+  export type TicketType = 1 | 2;
   export type AwardType =
     | 'mastery'
     | 'achievement_unlocks_yield'
@@ -238,6 +234,15 @@ declare namespace App.Community.Enums {
     | 'certified_legend'
     | 'game_beaten'
     | 'event';
+  export type ClaimSetType = 'new_set' | 'revision';
+  export type ClaimStatus = 'active' | 'complete' | 'dropped' | 'in_review';
+  export type ClaimType = 'primary' | 'collaboration';
+  export type MessageThreadTemplateKind =
+    | 'achievement-issue'
+    | 'manual-unlock'
+    | 'misclassification'
+    | 'unwelcome-concept'
+    | 'writing-error';
   export type ModerationReportableType =
     | 'Comment'
     | 'DirectMessage'
@@ -261,19 +266,16 @@ declare namespace App.Community.Enums {
     | 'GameAchievements'
     | 'AchievementTicket';
   export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
-  export type ClaimStatus = 0 | 1 | 2 | 3;
-  export type ClaimType = 0 | 1;
-  export type TicketState = 0 | 1 | 2 | 3 | 'Demoted';
-  export type TicketType = 1 | 2;
+  export type UserRelationStatus = 'blocked' | 'not_following' | 'following';
 }
 declare namespace App.Data {
   export type AchievementSetClaimGroup = {
     id: number;
     users: Array<App.Data.User>;
     game: App.Platform.Data.Game;
-    claimType: number;
-    setType: number;
-    status: number;
+    claimType: App.Community.Enums.ClaimType;
+    setType: App.Community.Enums.ClaimSetType;
+    status: App.Community.Enums.ClaimStatus;
     created: string;
     finished: string;
   };
@@ -429,10 +431,10 @@ declare namespace App.Data {
     avatarUrl: string;
     apiKey?: string | null;
     createdAt?: string | null;
-    deleteRequested?: string | null;
+    deleteRequestedAt?: string | null;
     deletedAt?: string | null;
     displayableRoles?: Array<App.Data.Role> | null;
-    emailAddress?: string | null;
+    email?: string | null;
     enableBetaFeatures?: boolean | null;
     id?: number;
     isBanned?: boolean;
@@ -440,6 +442,7 @@ declare namespace App.Data {
     isGone?: boolean;
     isMuted?: boolean;
     isNew?: boolean;
+    isUserWallActive?: boolean | null;
     lastActivityAt?: string | null;
     legacyPermissions?: number | null;
     locale?: string | null;
@@ -448,12 +451,11 @@ declare namespace App.Data {
     playerPreferredMode?: App.Platform.Enums.PlayerPreferredMode;
     points?: number;
     pointsSoftcore?: number;
-    richPresenceMsg?: string | null;
-    unreadMessageCount?: number | null;
+    preferencesBitfield?: number | null;
+    richPresence?: string | null;
+    unreadMessages?: number | null;
     username?: string | null;
-    userWallActive?: boolean | null;
     visibleRole?: App.Data.Role | null;
-    websitePrefs?: number | null;
     preferences?: {
       isGloballyOptedOutOfSubsets: boolean;
       prefersAbsoluteDates: boolean;
@@ -607,7 +609,7 @@ declare namespace App.Platform.Data {
     description?: string;
     decorator?: string | null;
     developer?: App.Data.User;
-    flags?: App.Platform.Enums.AchievementFlag;
+    isPromoted?: boolean;
     game?: App.Platform.Data.Game;
     groupId?: number | null;
     orderColumn?: number;
@@ -618,16 +620,16 @@ declare namespace App.Platform.Data {
     unlockedHardcoreAt?: string;
     unlockHardcorePercentage?: string;
     unlockPercentage?: string;
-    unlocksHardcoreTotal?: number;
+    unlocksHardcore?: number;
     unlocksTotal?: number;
   };
   export type AchievementSetClaim = {
     id: number;
     user?: App.Data.User;
     game?: App.Platform.Data.Game;
-    claimType?: number;
-    setType?: number;
-    status?: number;
+    claimType?: App.Community.Enums.ClaimType;
+    setType?: App.Community.Enums.ClaimSetType;
+    status?: App.Community.Enums.ClaimStatus;
     createdAt?: string;
     finishedAt?: string;
     userLastPlayedAt?: string | null;
@@ -1183,8 +1185,8 @@ declare namespace App.Platform.Data {
 }
 declare namespace App.Platform.Enums {
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
-  export type AchievementFlag = 3 | 5;
   export type AchievementSetAuthorTask = 'artwork';
+  export type UnlockMode = 0 | 1;
   export type AchievementSetType =
     | 'core'
     | 'bonus'
@@ -1193,7 +1195,6 @@ declare namespace App.Platform.Enums {
     | 'will_be_bonus'
     | 'will_be_specialty'
     | 'will_be_exclusive';
-  export type UnlockMode = 0 | 1;
   export type EventState = 'active' | 'concluded' | 'evergreen';
   export type GameListProgressFilterValue =
     | 'unstarted'

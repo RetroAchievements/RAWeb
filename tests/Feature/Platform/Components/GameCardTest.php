@@ -28,12 +28,12 @@ class GameCardTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['id' => 1, 'system_id' => $system->id]);
 
         $view = $this->blade('<x-game-card gameId="1" />');
 
-        $view->assertSeeText($game->Title);
-        $view->assertSeeText($system->ConsoleName);
+        $view->assertSeeText($game->title);
+        $view->assertSeeText($system->name);
         $view->assertSeeText("No achievements yet.");
     }
 
@@ -43,27 +43,27 @@ class GameCardTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['id' => 1, 'system_id' => $system->id]);
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::Developer]);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Special' => ClaimSpecial::None,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'special_type' => ClaimSpecial::None,
+            'status' => ClaimStatus::Active,
         ]);
 
         // Act
         $view = $this->blade('<x-game-card gameId="1" />');
 
         // Assert
-        $view->assertSeeText($game->Title);
-        $view->assertSeeText($system->ConsoleName);
+        $view->assertSeeText($game->title);
+        $view->assertSeeText($system->name);
         $view->assertSeeText("Achievements under development");
-        $view->assertSeeText("by " . $user->User);
+        $view->assertSeeText("by " . $user->username);
     }
 
     public function testItRendersGameWithActiveCollaborationClaim(): void
@@ -72,38 +72,38 @@ class GameCardTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['id' => 1, 'system_id' => $system->id]);
         /** @var User $user1 */
-        $user1 = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'AAA']);
+        $user1 = User::factory()->create(['Permissions' => Permissions::Developer, 'username' => 'AAA']);
         /** @var User $user2 */
-        $user2 = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'BBB']);
+        $user2 = User::factory()->create(['Permissions' => Permissions::Developer, 'username' => 'BBB']);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user1->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Special' => ClaimSpecial::None,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'special_type' => ClaimSpecial::None,
+            'status' => ClaimStatus::Active,
         ]);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user2->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Special' => ClaimSpecial::None,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'special_type' => ClaimSpecial::None,
+            'status' => ClaimStatus::Active,
         ]);
 
         // Act
         $view = $this->blade('<x-game-card gameId="1" />');
 
         // Assert
-        $view->assertSeeText($game->Title);
-        $view->assertSeeText($system->ConsoleName);
+        $view->assertSeeText($game->title);
+        $view->assertSeeText($system->name);
         $view->assertSeeText("Achievements under development");
-        $view->assertSeeText("by " . $user1->User . " and " . $user2->User);
+        $view->assertSeeText("by " . $user1->username . " and " . $user2->username);
     }
 
     public function testItRendersGameWithActiveGroupCollaborationClaim(): void
@@ -112,49 +112,49 @@ class GameCardTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['id' => 1, 'system_id' => $system->id]);
         /** @var User $user1 */
-        $user1 = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'AAA']);
+        $user1 = User::factory()->create(['Permissions' => Permissions::Developer, 'username' => 'AAA']);
         /** @var User $user2 */
-        $user2 = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'BBB']);
+        $user2 = User::factory()->create(['Permissions' => Permissions::Developer, 'username' => 'BBB']);
         /** @var User $user3 */
-        $user3 = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'CCC']);
+        $user3 = User::factory()->create(['Permissions' => Permissions::Developer, 'username' => 'CCC']);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user1->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Special' => ClaimSpecial::None,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'special_type' => ClaimSpecial::None,
+            'status' => ClaimStatus::Active,
         ]);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user2->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Special' => ClaimSpecial::None,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'special_type' => ClaimSpecial::None,
+            'status' => ClaimStatus::Active,
         ]);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user3->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Special' => ClaimSpecial::None,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'special_type' => ClaimSpecial::None,
+            'status' => ClaimStatus::Active,
         ]);
 
         // Act
         $view = $this->blade('<x-game-card gameId="1" />');
 
         // Assert
-        $view->assertSeeText($game->Title);
-        $view->assertSeeText($system->ConsoleName);
+        $view->assertSeeText($game->title);
+        $view->assertSeeText($system->name);
         $view->assertSeeText("Achievements under development");
-        $view->assertSeeText("by " . $user1->User . ", " . $user2->User . ", and " . $user3->User);
+        $view->assertSeeText("by " . $user1->username . ", " . $user2->username . ", and " . $user3->username);
     }
 
     public function testItRendersGameWithAchievements(): void
@@ -162,13 +162,13 @@ class GameCardTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
-        Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID, 'Points' => 5]);
+        $game = Game::factory()->create(['id' => 1, 'system_id' => $system->id]);
+        Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
 
         $view = $this->blade('<x-game-card gameId="1" />');
 
-        $view->assertSeeText($game->Title);
-        $view->assertSeeText($system->ConsoleName);
+        $view->assertSeeText($game->title);
+        $view->assertSeeText($system->name);
         $view->assertSeeText('Achievements');
         $view->assertSeeText('6');
         $view->assertSeeText('Points');
@@ -182,46 +182,46 @@ class GameCardTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
-        Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID, 'Points' => 5]);
+        $game = Game::factory()->create(['id' => 1, 'system_id' => $system->id]);
+        Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
 
         /** @var User $user */
-        $user = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'AAA']);
+        $user = User::factory()->create(['Permissions' => Permissions::Developer, 'username' => 'AAA']);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Special' => ClaimSpecial::None,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'special_type' => ClaimSpecial::None,
+            'status' => ClaimStatus::Active,
         ]);
 
         // Act
         $view = $this->blade('<x-game-card gameId="1" />');
 
         // Assert
-        $view->assertSeeText($game->Title);
-        $view->assertSeeText($system->ConsoleName);
+        $view->assertSeeText($game->title);
+        $view->assertSeeText($system->name);
         $view->assertSeeText('Achievements');
         $view->assertSeeText('6');
         $view->assertSeeText('Points');
         $view->assertSeeText('30');
         $view->assertSeeText('RetroPoints');
         $view->assertSeeText("Revision in progress");
-        $view->assertSeeText("by " . $user->User);
+        $view->assertSeeText("by " . $user->username);
     }
 
     public function testItRendersRetiredGame(): void
     {
         /** @var System $system */
         $system = System::factory()->create();
-        Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID, 'Title' => 'Pokemon Blue Version ~Z~']);
+        Game::factory()->create(['id' => 1, 'system_id' => $system->id, 'title' => 'Pokemon Blue Version ~Z~']);
 
         $view = $this->blade('<x-game-card gameId="1" />');
 
         $view->assertSeeText("Pokemon Blue Version");
-        $view->assertSeeText($system->ConsoleName);
+        $view->assertSeeText($system->name);
         $view->assertSeeText("has been retired");
     }
 
@@ -229,12 +229,12 @@ class GameCardTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['User' => 'AAA']);
+        $user = User::factory()->create(['username' => 'AAA']);
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
-        Achievement::factory()->published()->count(6)->create(['GameID' => $game->id, 'Points' => 5]);
+        $game = Game::factory()->create(['id' => 1, 'system_id' => $system->id]);
+        Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
 
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
@@ -257,18 +257,18 @@ class GameCardTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['User' => 'AAA']);
+        $user = User::factory()->create(['username' => 'AAA']);
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
-        Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID, 'Points' => 5]);
+        $game = Game::factory()->create(['id' => 1, 'system_id' => $system->id]);
+        Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
 
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
             'user_id' => $user->id,
             'award_type' => AwardType::GameBeaten,
-            'award_key' => $game->ID,
+            'award_key' => $game->id,
             'award_tier' => 1,
             'awarded_at' => $awardDate,
             'order_column' => 0,
@@ -285,18 +285,18 @@ class GameCardTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['User' => 'AAA']);
+        $user = User::factory()->create(['username' => 'AAA']);
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
-        Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID, 'Points' => 5]);
+        $game = Game::factory()->create(['id' => 1, 'system_id' => $system->id]);
+        Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
 
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
             'user_id' => $user->id,
             'award_type' => AwardType::Mastery,
-            'award_key' => $game->ID,
+            'award_key' => $game->id,
             'award_tier' => 0,
             'awarded_at' => $awardDate,
             'order_column' => 0,
@@ -313,18 +313,18 @@ class GameCardTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['User' => 'AAA']);
+        $user = User::factory()->create(['username' => 'AAA']);
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
-        Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID, 'Points' => 5]);
+        $game = Game::factory()->create(['id' => 1, 'system_id' => $system->id]);
+        Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
 
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
             'user_id' => $user->id,
             'award_type' => AwardType::Mastery,
-            'award_key' => $game->ID,
+            'award_key' => $game->id,
             'award_tier' => 1,
             'awarded_at' => $awardDate,
             'order_column' => 0,
@@ -341,18 +341,18 @@ class GameCardTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['User' => 'AAA']);
+        $user = User::factory()->create(['username' => 'AAA']);
         /** @var System $system */
-        $system = System::factory()->create(['ID' => 101, 'Name' => 'Events']);
+        $system = System::factory()->create(['id' => 101, 'name' => 'Events']);
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
-        Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID, 'Points' => 5]);
+        $game = Game::factory()->create(['id' => 1, 'system_id' => $system->id]);
+        Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id, 'points' => 5]);
 
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
             'user_id' => $user->id,
             'award_type' => AwardType::Mastery,
-            'award_key' => $game->ID,
+            'award_key' => $game->id,
             'award_tier' => 1,
             'awarded_at' => $awardDate,
             'order_column' => 0,

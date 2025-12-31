@@ -54,7 +54,7 @@ class FetchDynamicShortcodeContentAction
         $users = User::query()
             ->withTrashed()
             ->where(function ($query) use ($usernames) {
-                $query->whereIn('User', $usernames)
+                $query->whereIn('username', $usernames)
                     ->orWhereIn('display_name', $usernames);
             })
             ->get();
@@ -86,7 +86,7 @@ class FetchDynamicShortcodeContentAction
             return collect();
         }
 
-        return Achievement::whereIn('ID', $achievementIds)
+        return Achievement::whereIn('id', $achievementIds)
             ->get()
             ->map(fn (Achievement $achievement) => AchievementData::fromAchievement($achievement)->include(
                 'points'
