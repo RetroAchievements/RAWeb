@@ -31,8 +31,8 @@ class BuildGameSetRelatedHubsAction
             ])
             ->withCount([
                 'games' => function ($query) {
-                    $query->whereNull('GameData.deleted_at')
-                        ->where('GameData.ConsoleID', '!=', System::Hubs);
+                    $query->whereNull('games.deleted_at')
+                        ->where('games.system_id', '!=', System::Hubs);
                 },
                 'parents as link_count' => function ($query) {
                     $query->whereNull('game_sets.deleted_at');

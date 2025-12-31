@@ -25,8 +25,8 @@ $points = 0;
 $softcorePoints = 0;
 
 if ($user) {
-    $points = $user?->points ?? 0;
-    $softcorePoints = $user?->points_softcore ?? 0;
+    $points = $user?->points_hardcore ?? 0;
+    $softcorePoints = $user?->points ?? 0;
 }
 
 return response()->json([

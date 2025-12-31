@@ -65,22 +65,22 @@ class CreateGameClaimAction
             'Finished' => $expiresAt,
         ]);
 
-        Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($currentUser->User));
+        Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($currentUser->username));
 
-        addArticleComment("Server", ArticleType::SetClaim, $game->ID,
+        addArticleComment("Server", ArticleType::SetClaim, $game->id,
             ClaimType::toString($claimType) . " " . ($setType == ClaimSetType::Revision ? "revision" : "") . " claim made by " . $currentUser->display_name);
 
         if ($claimType == ClaimType::Primary) {
             $subscriptionService = new SubscriptionService();
 
             // automatically subscribe the user to game wall comments when they make a claim on the game
-            $subscriptionService->updateSubscription($currentUser, SubscriptionSubjectType::GameWall, $game->ID, true);
+            $subscriptionService->updateSubscription($currentUser, SubscriptionSubjectType::GameWall, $game->id, true);
 
             // also automatically subscribe the user to the game's official forum topic (if one exists -
             // the "Make Primary Forum Topic and Claim" functionality makes the claim first, but as the
             // author of the primary forum topic they'll be implicitly subscribed).
-            if ($game->ForumTopicID && !$subscriptionService->isSubscribed($currentUser, SubscriptionSubjectType::ForumTopic, $game->ForumTopicID)) {
-                $subscriptionService->updateSubscription($currentUser, SubscriptionSubjectType::ForumTopic, $game->ForumTopicID, true);
+            if ($game->forum_topic_id && !$subscriptionService->isSubscribed($currentUser, SubscriptionSubjectType::ForumTopic, $game->forum_topic_id)) {
+                $subscriptionService->updateSubscription($currentUser, SubscriptionSubjectType::ForumTopic, $game->forum_topic_id, true);
             }
         }
 

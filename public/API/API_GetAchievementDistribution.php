@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Auth;
 
 $gameID = (int) request()->query('i');
 $hardcore = (int) request()->query('h', (string) UnlockMode::Softcore);
-$requestedBy = Auth::user()->User;
+$requestedBy = Auth::user()->username;
 $isPromoted = Achievement::isPromotedFromLegacyFlags((int) request()->query('f', (string) Achievement::FLAG_PROMOTED)) ?? true;
 
 return response()->json(getAchievementDistribution($gameID, $hardcore, $requestedBy, $isPromoted));

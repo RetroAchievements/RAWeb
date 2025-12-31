@@ -23,15 +23,15 @@ function getGameRankAndScore(int $gameID, User $user): array
     }
 
     $query = "WITH data
-    AS (SELECT ua.User, ua.ulid AS ULID, $rankClause, pg.Points AS TotalScore, $dateClause AS LastAward
+    AS (SELECT ua.username AS User, ua.ulid AS ULID, $rankClause, pg.Points AS TotalScore, $dateClause AS LastAward
         FROM player_games AS pg
-        INNER JOIN UserAccounts AS ua ON ua.ID = pg.user_id
+        INNER JOIN users AS ua ON ua.id = pg.user_id
         WHERE pg.game_id = $gameID $untrackedClause
-        GROUP BY ua.User
+        GROUP BY ua.username
         ORDER BY TotalScore DESC, LastAward ASC
    ) SELECT * FROM data WHERE User = :username";
 
-    return legacyDbFetchAll($query, ['username' => $user->User])->toArray();
+    return legacyDbFetchAll($query, ['username' => $user->username])->toArray();
 }
 
 function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements = -1, bool $withGameInfo = false): array
@@ -43,8 +43,8 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
     $unlockedAchievements = [];
     $lockedAchievements = [];
 
-    $games = Game::with('system')->whereIn('ID', $gameIDs)->get()->keyBy('ID');
-    $playerGames = PlayerGame::where('user_id', '=', $user->ID)
+    $games = Game::with('system')->whereIn('id', $gameIDs)->get()->keyBy('id');
+    $playerGames = PlayerGame::where('user_id', '=', $user->id)
         ->whereIn('game_id', $gameIDs)
         ->get()
         ->keyBy('game_id');
@@ -76,19 +76,19 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
 
         if ($withGameInfo) {
             $gameInfo[$gameID] = [
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => (int) $game->system->ID,
-                'ConsoleName' => $game->system->Name,
-                'ForumTopicID' => (int) $game->ForumTopicID,
-                'Flags' => (int) $game->Flags,
-                'ImageIcon' => $game->ImageIcon,
-                'ImageTitle' => $game->ImageTitle,
-                'ImageIngame' => $game->ImageIngame,
-                'ImageBoxArt' => $game->ImageBoxArt,
-                'Publisher' => $game->Publisher,
-                'Developer' => $game->Developer,
-                'Genre' => $game->Genre,
+                'ID' => $game->id,
+                'Title' => $game->title,
+                'ConsoleID' => $game->system_id,
+                'ConsoleName' => $game->system->name,
+                'ForumTopicID' => (int) $game->forum_topic_id,
+                'Flags' => 0,
+                'ImageIcon' => $game->image_icon_asset_path,
+                'ImageTitle' => $game->image_title_asset_path,
+                'ImageIngame' => $game->image_ingame_asset_path,
+                'ImageBoxArt' => $game->image_box_art_asset_path,
+                'Publisher' => $game->publisher,
+                'Developer' => $game->developer,
+                'Genre' => $game->genre,
                 'Released' => $game->released_at?->format('Y-m-d'),
                 'ReleasedAtGranularity' => $game->released_at_granularity,
             ];
@@ -186,14 +186,14 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
 
         foreach ($unlockedAchievements as $unlockedAchievement) {
             $gameData = $unlockedAchievement['Game'];
-            $gameID = (int) $gameData['ID'];
+            $gameID = (int) $gameData['id'];
             $achievementData = $unlockedAchievement['Achievement'];
             $achievementID = (int) $achievementData['id'];
 
             $recentAchievements[$gameID][$achievementID] = [
                 'ID' => $achievementID,
                 'GameID' => $gameID,
-                'GameTitle' => $gameData['Title'],
+                'GameTitle' => $gameData['title'],
                 'Title' => $achievementData['title'],
                 'Description' => $achievementData['description'],
                 'Points' => (int) $achievementData['points'],
@@ -217,14 +217,14 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
 
             foreach ($lockedAchievements as $lockedAchievement) {
                 $gameData = $lockedAchievement['Game'];
-                $gameID = (int) $gameData['ID'];
+                $gameID = (int) $gameData['id'];
                 $achievementData = $lockedAchievement['Achievement'];
                 $achievementID = (int) $achievementData['id'];
 
                 $recentAchievements[$gameID][$achievementID] = [
                     'ID' => $achievementID,
                     'GameID' => $gameID,
-                    'GameTitle' => $gameData['Title'],
+                    'GameTitle' => $gameData['title'],
                     'Title' => $achievementData['title'],
                     'Description' => $achievementData['description'],
                     'Points' => (int) $achievementData['points'],
@@ -349,20 +349,20 @@ function getUsersCompletedGamesAndMax(string $user, ?int $limit = null, bool $is
         ? "AND pg.achievements_unlocked < gd.achievements_published"
         : "";
 
-    $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID,
-            gd.ImageIcon, gd.Title, gd.sort_title as SortTitle, gd.achievements_published as MaxPossible,
+    $query = "SELECT gd.id AS GameID, s.name AS ConsoleName, s.id AS ConsoleID,
+            gd.image_icon_asset_path AS ImageIcon, gd.title AS Title, gd.sort_title as SortTitle, gd.achievements_published as MaxPossible,
             pg.first_unlock_at AS FirstWonDate, pg.last_unlock_at AS MostRecentWonDate,
             pg.achievements_unlocked AS NumAwarded, pg.achievements_unlocked_hardcore AS NumAwardedHC, " .
             floatDivisionStatement('pg.achievements_unlocked', 'gd.achievements_published') . " AS PctWon, " .
             floatDivisionStatement('pg.achievements_unlocked_hardcore', 'gd.achievements_published') . " AS PctWonHC
             FROM player_games AS pg
-            LEFT JOIN GameData AS gd ON gd.ID = pg.game_id
-            LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-            LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
-            WHERE (ua.User = :user OR ua.display_name = :user2)
+            LEFT JOIN games AS gd ON gd.id = pg.game_id
+            LEFT JOIN systems AS s ON s.id = gd.system_id
+            LEFT JOIN users ua ON ua.id = pg.user_id
+            WHERE (ua.username = :user OR ua.display_name = :user2)
             AND gd.achievements_published > $minAchievementsForCompletion
             $excludeCompletedClause
-            ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.Title
+            ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.title
             $limitClause";
 
     return legacyDbFetchAll($query, ['user' => $user, 'user2' => $user])->toArray();

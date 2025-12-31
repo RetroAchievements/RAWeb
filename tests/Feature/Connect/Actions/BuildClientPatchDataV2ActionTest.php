@@ -40,7 +40,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
     {
         parent::setUp();
 
-        $this->system = System::factory()->create(['ID' => 1, 'Name' => 'NES/Famicom']);
+        $this->system = System::factory()->create(['id' => 1, 'name' => 'NES/Famicom']);
 
         $this->upsertGameCoreSetAction = new UpsertGameCoreAchievementSetFromLegacyFlagsAction();
         $this->associateAchievementSetToGameAction = new AssociateAchievementSetToGameAction();
@@ -58,10 +58,10 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         ?string $richPresencePatch = "Display:\nTest",
     ): Game {
         $game = Game::factory()->create([
-            'Title' => $title,
-            'ConsoleID' => $system->id,
-            'ImageIcon' => $imagePath,
-            'RichPresencePatch' => $richPresencePatch,
+            'title' => $title,
+            'system_id' => $system->id,
+            'image_icon_asset_path' => $imagePath,
+            'trigger_definition' => $richPresencePatch,
         ]);
 
         Achievement::factory()->promoted()->count($publishedCount)->create(['game_id' => $game->id]);
@@ -78,8 +78,8 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $this->assertEquals($game->id, $patchData['GameId']);
         $this->assertEquals($game->title, $patchData['Title']);
         $this->assertEquals($game->system->id, $patchData['ConsoleId']);
-        $this->assertEquals(media_asset($game->ImageIcon), $patchData['ImageIconUrl']);
-        $this->assertEquals($game->RichPresencePatch, $patchData['RichPresencePatch']);
+        $this->assertEquals(media_asset($game->image_icon_asset_path), $patchData['ImageIconUrl']);
+        $this->assertEquals($game->trigger_definition, $patchData['RichPresencePatch']);
         $this->assertEquals($game->id, $patchData['RichPresenceGameId']);
     }
 
@@ -121,9 +121,9 @@ class BuildClientPatchDataV2ActionTest extends TestCase
     {
         // Arrange
         $game = Game::factory()->create([
-            'ConsoleID' => $this->system->id,
-            'ImageIcon' => '/Images/000011.png',
-            'RichPresencePatch' => "Display:\nTest",
+            'system_id' => $this->system->id,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'trigger_definition' => "Display:\nTest",
         ]);
         $this->upsertGameCoreSetAction->execute($game);
 
@@ -324,7 +324,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
 
         $gameHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $result = (new BuildClientPatchDataV2Action())->execute(gameHash: $gameHash, user: $user);
@@ -354,7 +354,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $this->upsertGameCoreSetAction->execute($bonusGame);
         $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $result = (new BuildClientPatchDataV2Action())->execute(
@@ -390,7 +390,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
 
         $bonusGameHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_DISABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_DISABLED]);
 
         // Act
         $result = (new BuildClientPatchDataV2Action())->execute(
@@ -440,7 +440,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
 
         $bonusGameHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // They're going to load a hash for $bonusGame, but they're also
         // locally opted out of $bonusGame's achievement set.
@@ -466,7 +466,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
 
         $this->assertEquals($baseGame->id, $result['GameId']);
         $this->assertEquals($baseGame->title, $result['Title']);
-        $this->assertEquals(media_asset($baseGame->ImageIcon), $result['ImageIconUrl']);
+        $this->assertEquals(media_asset($baseGame->image_icon_asset_path), $result['ImageIconUrl']);
 
         $this->assertCount(2, $result['Sets']); // !! core set and bonus2 set
 
@@ -496,7 +496,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $this->associateAchievementSetToGameAction->execute($baseGame, $specialtySet, AchievementSetType::Specialty, 'Specialty');
 
         $baseGameHash = GameHash::factory()->create(['game_id' => $baseGame->id]); // !!
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $result = (new BuildClientPatchDataV2Action())->execute(gameHash: $baseGameHash, user: $user);
@@ -557,7 +557,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $this->associateAchievementSetToGameAction->execute($baseGame, $specialtyGame, AchievementSetType::Specialty, 'Special');
 
         $specialtyGameHash = GameHash::factory()->create(['game_id' => $specialtyGame->id]);
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $result = (new BuildClientPatchDataV2Action())->execute(gameHash: $specialtyGameHash, user: $user);
@@ -565,7 +565,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         // Assert
         $this->assertTrue($result['Success']);
         $this->assertEquals($specialtyGame->id, $result['RichPresenceGameId']);
-        $this->assertEquals($specialtyGame->RichPresencePatch, $result['RichPresencePatch']);
+        $this->assertEquals($specialtyGame->trigger_definition, $result['RichPresencePatch']);
     }
 
     public function testItPrioritizesExclusiveSetRichPresenceScript(): void
@@ -589,7 +589,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $this->associateAchievementSetToGameAction->execute($baseGame, $exclusiveGame, AchievementSetType::Exclusive, 'Exclusive');
 
         $exclusiveGameHash = GameHash::factory()->create(['game_id' => $exclusiveGame->id]);
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $result = (new BuildClientPatchDataV2Action())->execute(gameHash: $exclusiveGameHash, user: $user);
@@ -597,7 +597,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         // Assert
         $this->assertTrue($result['Success']);
         $this->assertEquals($exclusiveGame->id, $result['RichPresenceGameId']);
-        $this->assertEquals($exclusiveGame->RichPresencePatch, $result['RichPresencePatch']);
+        $this->assertEquals($exclusiveGame->trigger_definition, $result['RichPresencePatch']);
     }
 
     public function testItFallsBackToCoreSetRichPresenceScript(): void
@@ -617,7 +617,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
             imagePath: '/Images/000002.png',
         );
 
-        $specialtyGame->RichPresencePatch = ""; // !!
+        $specialtyGame->trigger_definition = ""; // !!
         $specialtyGame->save();
 
         $this->upsertGameCoreSetAction->execute($baseGame);
@@ -625,7 +625,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $this->associateAchievementSetToGameAction->execute($baseGame, $specialtyGame, AchievementSetType::Specialty, 'Special');
 
         $specialtyGameHash = GameHash::factory()->create(['game_id' => $specialtyGame->id]);
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $result = (new BuildClientPatchDataV2Action())->execute(gameHash: $specialtyGameHash, user: $user);
@@ -633,7 +633,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         // Assert
         $this->assertTrue($result['Success']);
         $this->assertEquals($baseGame->id, $result['RichPresenceGameId']);
-        $this->assertEquals($baseGame->RichPresencePatch, $result['RichPresencePatch']);
+        $this->assertEquals($baseGame->trigger_definition, $result['RichPresencePatch']);
     }
 
     public function testItUsesCoreGameRichPresenceForBonusSet(): void
@@ -657,7 +657,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
 
         $bonusGameHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $result = (new BuildClientPatchDataV2Action())->execute(gameHash: $bonusGameHash, user: $user);
@@ -665,7 +665,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         // Assert
         $this->assertTrue($result['Success']);
         $this->assertEquals($baseGame->id, $result['RichPresenceGameId']);
-        $this->assertEquals($baseGame->RichPresencePatch, $result['RichPresencePatch']);
+        $this->assertEquals($baseGame->trigger_definition, $result['RichPresencePatch']);
     }
 
     public function testItDoesntCrashFromNullRichPresencePatch(): void
@@ -807,7 +807,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         );
 
         $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $result = (new BuildClientPatchDataV2Action())->execute(gameHash: $gameHash, user: $user);
@@ -817,7 +817,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $this->assertCount(1, $result['Sets']);
         $this->assertEmpty($result['Sets'][0]['Achievements']);
         $this->assertEquals($game->id, $result['GameId']);
-        $this->assertEquals($game->RichPresencePatch, $result['RichPresencePatch']);
+        $this->assertEquals($game->trigger_definition, $result['RichPresencePatch']);
     }
 
     public function testItHandlesBuildPatchDataWithGameHashAndNullUser(): void
@@ -851,7 +851,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
 
         $baseGameHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // ... the user opts out of BOTH the core set and the bonus set ...
         $coreSet = GameAchievementSet::whereGameId($baseGame->id)->whereType(AchievementSetType::Core)->first();
@@ -904,7 +904,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
 
         $baseGameHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // ... user opts out of only "Bonus 2" ...
         $bonus2Set = GameAchievementSet::whereGameId($baseGame->id)
@@ -956,7 +956,7 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $baseGameHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
 
         // ... globally opt them out ...
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_DISABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_DISABLED]);
 
         // ... locally opt them in ...
         $bonusSet = GameAchievementSet::whereGameId($baseGame->id)->whereType(AchievementSetType::Bonus)->first();

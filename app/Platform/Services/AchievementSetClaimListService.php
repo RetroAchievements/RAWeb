@@ -171,7 +171,7 @@ class AchievementSetClaimListService
                 $systems[$system->id] = $system->name;
             } elseif (!$onlyValid) {
                 $systemClaims = AchievementSetClaim::whereHas('game', function ($query) use ($system) {
-                    $query->where('ConsoleID', '=', $system->id);
+                    $query->where('system_id', '=', $system->id);
                 });
                 if ($systemClaims->exists()) {
                     $systems[$system->id] = $system->name;
@@ -278,7 +278,7 @@ class AchievementSetClaimListService
 
         if ($filterOptions['system'] !== 0) {
             $claims->whereHas('game', function ($query) use ($filterOptions) {
-                $query->where('ConsoleID', '=', $filterOptions['system']);
+                $query->where('system_id', '=', $filterOptions['system']);
             });
         }
 
@@ -296,16 +296,16 @@ class AchievementSetClaimListService
 
         switch ($this->sortOrder) {
             case 'title':
-                $claims->join('GameData', 'GameData.ID', '=', 'SetClaim.game_id')
-                       ->orderByRaw(ifStatement("GameData.Title LIKE '~%'", 1, 0))
-                       ->orderBy('GameData.Title')
+                $claims->join('games', 'games.id', '=', 'SetClaim.game_id')
+                       ->orderByRaw(ifStatement("games.title LIKE '~%'", 1, 0))
+                       ->orderBy('games.title')
                        ->orderByDesc('SetClaim.Finished')
                        ->select('SetClaim.*');
                 break;
 
             case 'developer':
-                $claims->join('UserAccounts', 'UserAccounts.ID', '=', 'SetClaim.user_id')
-                       ->orderBy('UserAccounts.User')
+                $claims->join('users', 'users.id', '=', 'SetClaim.user_id')
+                       ->orderBy('users.username')
                        ->orderByDesc('SetClaim.Finished')
                        ->select('SetClaim.*');
                 break;

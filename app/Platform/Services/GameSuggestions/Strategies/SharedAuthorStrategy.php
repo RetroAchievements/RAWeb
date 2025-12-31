@@ -33,7 +33,7 @@ class SharedAuthorStrategy implements GameSuggestionStrategy
             ->where('is_promoted', true)
             ->select('user_id')
             ->selectRaw('COUNT(*) as achievement_count')
-            ->with(['developer:ID,User'])
+            ->with(['developer:id,username'])
             ->groupBy('user_id')
             ->orderByDesc('achievement_count')
             ->first();
@@ -46,12 +46,12 @@ class SharedAuthorStrategy implements GameSuggestionStrategy
 
         // Then, find another game with achievements by this author
         $this->selectedGame = Game::query()
-            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+            ->whereNotIn('system_id', System::getNonGameSystems())
             ->whereHas('achievements', function ($query) use ($author) {
                 $query->where('user_id', $author->user_id)
                     ->where('is_promoted', true);
             })
-            ->where('ID', '!=', $this->sourceGame->id)
+            ->where('id', '!=', $this->sourceGame->id)
             ->whereHasPublishedAchievements()
             ->inRandomOrder()
             ->first();

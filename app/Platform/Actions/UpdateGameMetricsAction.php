@@ -20,7 +20,7 @@ class UpdateGameMetricsAction
         $game->achievements_unpublished = $game->achievements()->unpromoted()->count();
 
         $game->points_total = $game->achievements()->promoted()->sum('points');
-        // NOTE $game->TotalTruePoints are updated separately
+        // NOTE $game->points_weighted are updated separately
 
         $achievementSetVersionChanged = false;
         if ($game->achievements_published || $game->achievements_unpublished) {

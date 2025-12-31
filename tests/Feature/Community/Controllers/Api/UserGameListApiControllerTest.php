@@ -24,8 +24,8 @@ class UserGameListApiControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
-        $games = Game::factory()->count(3)->create(['ConsoleID' => $system->id, 'achievements_published' => 20]);
+        $system = System::factory()->create(['id' => 1]);
+        $games = Game::factory()->count(3)->create(['system_id' => $system->id, 'achievements_published' => 20]);
 
         $addGameToListAction = new AddGameToListAction();
         $addGameToListAction->execute($user, $games->get(0), UserGameListType::Play);
@@ -65,8 +65,8 @@ class UserGameListApiControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         // Act
         $response = $this->postJson(route('api.user-game-list.store', ['game' => $game->id]), [
@@ -80,14 +80,14 @@ class UserGameListApiControllerTest extends TestCase
                 'success' => true,
                 'data' => [
                     'user_id' => $user->id,
-                    'GameID' => $game->id,
+                    'game_id' => $game->id,
                     'type' => UserGameListType::Play->value,
                 ],
             ]);
 
         $this->assertDatabaseHas(UserGameListEntry::getFullTableName(), [
             'user_id' => $user->id,
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'type' => UserGameListType::Play->value,
         ]);
     }
@@ -99,8 +99,8 @@ class UserGameListApiControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $addGameToListAction = new AddGameToListAction();
         $addGameToListAction->execute($user, $game, UserGameListType::Play);

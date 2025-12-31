@@ -22,7 +22,7 @@ class ConsoleIDsTest extends TestCase
         /** @var System $system3 */
         $system3 = System::factory()->create();
         /** @var System $system4 */
-        $system4 = System::factory()->create(['ID' => System::Events]);
+        $system4 = System::factory()->create(['id' => System::Events]);
 
         // games with achievements for all systems
         $this->get($this->apiUrl('GetConsoleIDs'))
@@ -30,29 +30,29 @@ class ConsoleIDsTest extends TestCase
             ->assertJsonCount(4)
             ->assertJson([
                 [
-                    'ID' => $system1->ID,
-                    'Name' => $system1->Name,
+                    'ID' => $system1->id,
+                    'Name' => $system1->name,
                     'IconURL' => $system1->icon_url,
                     'Active' => true,
                     'IsGameSystem' => true,
                 ],
                 [
-                    'ID' => $system2->ID,
-                    'Name' => $system2->Name,
+                    'ID' => $system2->id,
+                    'Name' => $system2->name,
                     'IconURL' => $system2->icon_url,
                     'Active' => true,
                     'IsGameSystem' => true,
                 ],
                 [
-                    'ID' => $system3->ID,
-                    'Name' => $system3->Name,
+                    'ID' => $system3->id,
+                    'Name' => $system3->name,
                     'IconURL' => $system3->icon_url,
                     'Active' => true,
                     'IsGameSystem' => true,
                 ],
                 [
-                    'ID' => $system4->ID,
-                    'Name' => $system4->Name,
+                    'ID' => $system4->id,
+                    'Name' => $system4->name,
                     'IconURL' => $system4->icon_url,
                     'Active' => true,
                     'IsGameSystem' => false,
@@ -73,8 +73,8 @@ class ConsoleIDsTest extends TestCase
             ->assertJsonCount(1)
             ->assertJson([
                 [
-                    'ID' => $system1->ID,
-                    'Name' => $system1->Name,
+                    'ID' => $system1->id,
+                    'Name' => $system1->name,
                     'IconURL' => $system1->icon_url,
                     'Active' => true,
                     'IsGameSystem' => true,
@@ -87,7 +87,7 @@ class ConsoleIDsTest extends TestCase
         /** @var System $system1 */
         $system1 = System::factory()->create();
         /** @var System $system2 */
-        $system2 = System::factory()->create(['ID' => System::Hubs]);
+        $system2 = System::factory()->create(['id' => System::Hubs]);
 
         // only game systems
         $this->get($this->apiUrl('GetConsoleIDs', ['g' => 1]))
@@ -95,8 +95,8 @@ class ConsoleIDsTest extends TestCase
             ->assertJsonCount(1)
             ->assertJson([
                 [
-                    'ID' => $system1->ID,
-                    'Name' => $system1->Name,
+                    'ID' => $system1->id,
+                    'Name' => $system1->name,
                     'IconURL' => $system1->icon_url,
                     'Active' => true,
                     'IsGameSystem' => true,

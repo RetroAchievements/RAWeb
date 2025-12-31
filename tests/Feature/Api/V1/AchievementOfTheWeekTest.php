@@ -54,9 +54,9 @@ class AchievementOfTheWeekTest extends TestCase
             'Event_AOTW_ForumID' => 2,
         ]);
 
-        System::factory()->create(['ID' => System::Events]);
+        System::factory()->create(['id' => System::Events]);
         /** @var Game $eventGame */
-        $eventGame = Game::factory()->create(['ConsoleID' => System::Events, 'Title' => 'Achievement of the Week', 'ForumTopicId' => 1]);
+        $eventGame = Game::factory()->create(['system_id' => System::Events, 'title' => 'Achievement of the Week', 'forum_topic_id' => 1]);
         Event::factory()->create([
             'legacy_game_id' => $eventGame->id,
             'active_from' => $now->clone()->subDays(1),
@@ -89,24 +89,24 @@ class AchievementOfTheWeekTest extends TestCase
                     'ID' => 1, // forum topic from from event game
                 ],
                 'Game' => [
-                    'ID' => $game->ID, // source achievement game
+                    'ID' => $game->id, // source achievement game
                 ],
                 'StartAt' => $ev->active_from->jsonSerialize(),
                 'TotalPlayers' => 2, // only the hardcore unlock applies (event achievements can't technically be unlocked in softcore)
                 'Unlocks' => [
                     [
-                        'User' => $user3->User,
+                        'User' => $user3->username,
                         'ULID' => $user3->ulid,
-                        'RAPoints' => $user3->RAPoints,
-                        'RASoftcorePoints' => $user3->RASoftcorePoints,
+                        'RAPoints' => $user3->points_hardcore,
+                        'RASoftcorePoints' => $user3->points,
                         'HardcoreMode' => 1,
                         'DateAwarded' => $time3->jsonSerialize(),
                     ],
                     [
-                        'User' => $this->user->User,
+                        'User' => $this->user->username,
                         'ULID' => $this->user->ulid,
-                        'RAPoints' => $this->user->RAPoints,
-                        'RASoftcorePoints' => $this->user->RASoftcorePoints,
+                        'RAPoints' => $this->user->points_hardcore,
+                        'RASoftcorePoints' => $this->user->points,
                         'HardcoreMode' => 1,
                         'DateAwarded' => $time1->jsonSerialize(),
                     ],

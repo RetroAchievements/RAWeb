@@ -90,73 +90,73 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         // no unlocks yet
         $action = new UpdateDeveloperContributionYieldAction();
         $action->execute($author);
-        $this->assertEquals($author->ContribCount, 0);
-        $this->assertEquals($author->ContribYield, 0);
+        $this->assertEquals($author->yield_unlocks, 0);
+        $this->assertEquals($author->yield_points, 0);
         $this->assertPointBadgeTier($author, 0);
 
         // not enough points to cross tier
         $this->addHardcoreUnlock($player1, $achievements[1]);
         $action->execute($author);
-        $this->assertEquals(1, $author->ContribCount);
-        $this->assertEquals(999, $author->ContribYield);
+        $this->assertEquals(1, $author->yield_unlocks);
+        $this->assertEquals(999, $author->yield_points);
         $this->assertPointBadgeTier($author, 0);
 
         // ignore unlocks from author
         $this->addHardcoreUnlock($author, $achievements[2]);
         $action->execute($author);
-        $this->assertEquals(1, $author->ContribCount);
-        $this->assertEquals(999, $author->ContribYield);
+        $this->assertEquals(1, $author->yield_unlocks);
+        $this->assertEquals(999, $author->yield_points);
         $this->assertPointBadgeTier($author, 0);
 
         // single point unlock to cross first tier
         $this->addHardcoreUnlock($player2, $achievements[0]);
         $action->execute($author);
-        $this->assertEquals(2, $author->ContribCount);
-        $this->assertEquals(1000, $author->ContribYield);
+        $this->assertEquals(2, $author->yield_unlocks);
+        $this->assertEquals(1000, $author->yield_points);
         $this->assertPointBadgeTier($author, 1, 1);
 
         // reset unlock does remove contributions, but does not remove award
         $this->removeUnlock($player2, $achievements[0]);
         $action->execute($author);
-        $this->assertEquals(1, $author->ContribCount);
-        $this->assertEquals(999, $author->ContribYield);
+        $this->assertEquals(1, $author->yield_unlocks);
+        $this->assertEquals(999, $author->yield_points);
         $this->assertPointBadgeTier($author, 1);
 
         // new unlock does not reach next tier (softcode vs. hardcore doesn't matter)
         $this->addSoftcoreUnlock($player2, $achievements[2]);
         $action->execute($author);
-        $this->assertEquals(2, $author->ContribCount);
-        $this->assertEquals(2499, $author->ContribYield);
+        $this->assertEquals(2, $author->yield_unlocks);
+        $this->assertEquals(2499, $author->yield_points);
         $this->assertPointBadgeTier($author, 1);
 
         // new unlock does reach next tier
         $this->addHardcoreUnlock($player2, $achievements[3]);
         $action->execute($author);
-        $this->assertEquals(3, $author->ContribCount);
-        $this->assertEquals(4999, $author->ContribYield);
+        $this->assertEquals(3, $author->yield_unlocks);
+        $this->assertEquals(4999, $author->yield_points);
         $this->assertPointBadgeTier($author, 2, 1);
 
         // demoted achievement removes contributions, but not badge.
         $achievements[3]->is_promoted = false;
         $achievements[3]->save();
         $action->execute($author);
-        $this->assertEquals(2, $author->ContribCount);
-        $this->assertEquals(2499, $author->ContribYield);
+        $this->assertEquals(2, $author->yield_unlocks);
+        $this->assertEquals(2499, $author->yield_points);
         $this->assertPointBadgeTier($author, 2);
 
         // new unlock does not reach next tier
         $this->addHardcoreUnlock($player2, $achievements[4]);
         $action->execute($author);
-        $this->assertEquals(3, $author->ContribCount);
-        $this->assertEquals(4999, $author->ContribYield);
+        $this->assertEquals(3, $author->yield_unlocks);
+        $this->assertEquals(4999, $author->yield_points);
         $this->assertPointBadgeTier($author, 2);
 
         // promoted achievement restores contributions, crosses tier, and awards new badge.
         $achievements[3]->is_promoted = true;
         $achievements[3]->save();
         $action->execute($author);
-        $this->assertEquals(4, $author->ContribCount);
-        $this->assertEquals(7499, $author->ContribYield);
+        $this->assertEquals(4, $author->yield_unlocks);
+        $this->assertEquals(7499, $author->yield_points);
         $this->assertPointBadgeTier($author, 3, 1);
     }
 
@@ -182,8 +182,8 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         // no unlocks yet
         $action = new UpdateDeveloperContributionYieldAction();
         $action->execute($author);
-        $this->assertEquals($author->ContribCount, 0);
-        $this->assertEquals($author->ContribYield, 0);
+        $this->assertEquals($author->yield_unlocks, 0);
+        $this->assertEquals($author->yield_points, 0);
         $this->assertPointBadgeTier($author, 0);
 
         $now = Carbon::parse('2020-05-05');
@@ -193,8 +193,8 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         $date1 = Carbon::parse('2020-01-01');
         $this->addHardcoreUnlock($player, $achievements[0], $date1);
         $action->execute($author);
-        $this->assertEquals(1, $author->ContribCount);
-        $this->assertEquals(1000, $author->ContribYield);
+        $this->assertEquals(1, $author->yield_unlocks);
+        $this->assertEquals(1000, $author->yield_points);
         $this->assertPointBadgeTier($author, 1, 1);
 
         // enough points for fourth tier
@@ -205,8 +205,8 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         $date4 = Carbon::parse('2020-04-04');
         $this->addHardcoreUnlock($player, $achievements[3], $date4);
         $action->execute($author);
-        $this->assertEquals(4, $author->ContribCount);
-        $this->assertEquals(10000, $author->ContribYield);
+        $this->assertEquals(4, $author->yield_unlocks);
+        $this->assertEquals(10000, $author->yield_points);
         $this->assertPointBadgeTier($author, 3, 1);
 
         $badges = $author->playerBadges()->where('AwardType', AwardType::AchievementPointsYield)->orderBy('AwardData', 'DESC')->get();

@@ -33,7 +33,7 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?Ga
 
     $hasRegular = false;
     $hasHardcore = false;
-    $playerAchievement = PlayerAchievement::where('user_id', $user->ID)
+    $playerAchievement = PlayerAchievement::where('user_id', $user->id)
         ->where('achievement_id', $achievementId)
         ->first();
     if ($playerAchievement) {
@@ -58,17 +58,17 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?Ga
         if ($isHardcore && !$hasHardcore) {
             if ($playerGame) {
                 $playerGame->achievements_unlocked_hardcore++;
-                $user->RAPoints += $achievement->points;
+                $user->points_hardcore += $achievement->points;
 
                 if ($hasRegular) {
                     $playerGame->achievements_unlocked--;
-                    $user->RASoftcorePoints -= $achievement->points;
+                    $user->points -= $achievement->points;
                 }
 
                 $playerGame->save();
             }
         } elseif (!$isHardcore && !$hasRegular) {
-            $user->RASoftcorePoints += $achievement->points;
+            $user->points += $achievement->points;
 
             if ($playerGame) {
                 $playerGame->achievements_unlocked++;
@@ -110,7 +110,7 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?Ga
     $retVal['Success'] = true;
     // Achievements all awarded. Now housekeeping (no error handling?)
 
-    static_setlastearnedachievement($achievement->id, $user->User, $achievement->points);
+    static_setlastearnedachievement($achievement->id, $user->username, $achievement->points);
 
     return $retVal;
 }
@@ -139,18 +139,18 @@ function getAchievementUnlocksData(
 
     // Get recent winners, and their most recent activity
     return PlayerAchievement::where('achievement_id', $achievementId)
-        ->join('UserAccounts', 'UserAccounts.ID', '=', 'user_id')
+        ->join('users', 'users.id', '=', 'user_id')
         ->orderByRaw('COALESCE(unlocked_hardcore_at, unlocked_at) DESC')
-        ->select(['UserAccounts.ulid', 'UserAccounts.User', 'UserAccounts.display_name', 'UserAccounts.RAPoints', 'UserAccounts.RASoftcorePoints', 'unlocked_at', 'unlocked_hardcore_at'])
+        ->select(['users.ulid', 'users.username', 'users.display_name', 'users.points_hardcore', 'users.points', 'unlocked_at', 'unlocked_hardcore_at'])
         ->offset($offset)
         ->limit($limit)
         ->get()
         ->map(function ($row) {
             return [
-                'User' => !empty($row->display_name) ? $row->display_name : $row->User,
+                'User' => !empty($row->display_name) ? $row->display_name : $row->username,
                 'ULID' => $row->ulid,
-                'RAPoints' => $row->RAPoints,
-                'RASoftcorePoints' => $row->RASoftcorePoints,
+                'RAPoints' => $row->points_hardcore,
+                'RASoftcorePoints' => $row->points,
                 'DateAwarded' => $row->unlocked_hardcore_at ?? $row->unlocked_at,
                 'HardcoreMode' => $row->unlocked_hardcore_at ? 1 : 0,
             ];
@@ -204,13 +204,13 @@ function getUnlocksInDateRange(array $achievementIDs, string $startTime, string 
 
     $userArray = [];
     foreach ($achievementIDs as $nextID) {
-        $query = "SELECT ua.User
+        $query = "SELECT ua.username AS User
                       FROM player_achievements AS pa
-                      INNER JOIN UserAccounts AS ua ON ua.ID = pa.user_id
+                      INNER JOIN users AS ua ON ua.id = pa.user_id
                       WHERE pa.achievement_id = $nextID
                       AND ua.Untracked = 0
                       $dateQuery
-                      ORDER BY ua.User";
+                      ORDER BY ua.username";
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
             while ($db_entry = mysqli_fetch_assoc($dbResult)) {
@@ -257,10 +257,10 @@ function getAchievementDistribution(
             ->orderByDesc('AwardedCount');
 
         if ($shouldJoinUsers) {
-            $countQuery->join("UserAccounts", "player_games.user_id", "=", "UserAccounts.ID")
+            $countQuery->join("users", "player_games.user_id", "=", "users.id")
                 ->where(fn ($query) => $query
-                    ->where("UserAccounts.Untracked", 0)
-                    ->orWhere("UserAccounts.User", $requestedBy)
+                    ->where("users.Untracked", 0)
+                    ->orWhere("users.username", $requestedBy)
             );
         }
 
@@ -280,10 +280,10 @@ function getAchievementDistribution(
             ->groupBy("player_achievements.user_id");
 
         if ($shouldJoinUsers) {
-            $subQuery->join("UserAccounts", "player_achievements.user_id", "=", "UserAccounts.ID")
+            $subQuery->join("users", "player_achievements.user_id", "=", "users.id")
                 ->where(fn ($query) => $query
-                    ->where(DB::raw("UserAccounts.Untracked"), 0)
-                    ->orWhere(DB::raw("UserAccounts.User"), $requestedBy)
+                    ->where(DB::raw("users.Untracked"), 0)
+                    ->orWhere(DB::raw("users.username"), $requestedBy)
             );
         }
 

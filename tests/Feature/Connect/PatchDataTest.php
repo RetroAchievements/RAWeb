@@ -39,7 +39,7 @@ class PatchDataTest extends TestCase
             'Description' => $achievement->description,
             'MemAddr' => $achievement->trigger_definition,
             'Points' => $achievement->points,
-            'Author' => $achievement->developer->User,
+            'Author' => $achievement->developer->username,
             'Modified' => $achievement->modified_at->unix(),
             'Created' => $achievement->created_at->unix(),
             'BadgeName' => $achievement->image_name,
@@ -106,17 +106,17 @@ class PatchDataTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/000011.png',
-            'ImageTitle' => '/Images/000021.png',
-            'ImageIngame' => '/Images/000031.png',
-            'ImageBoxArt' => '/Images/000041.png',
-            'Publisher' => 'WePublishStuff',
-            'Developer' => 'WeDevelopStuff',
-            'Genre' => 'Action',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'image_title_asset_path' => '/Images/000021.png',
+            'image_ingame_asset_path' => '/Images/000031.png',
+            'image_box_art_asset_path' => '/Images/000041.png',
+            'publisher' => 'WePublishStuff',
+            'developer' => 'WeDevelopStuff',
+            'genre' => 'Action',
             'released_at' => Carbon::parse('1989-01-15'),
             'released_at_granularity' => 'month',
-            'RichPresencePatch' => 'Display:\nTest',
+            'trigger_definition' => 'Display:\nTest',
         ]);
 
         /** @var Achievement $achievement1 */
@@ -141,42 +141,42 @@ class PatchDataTest extends TestCase
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
 
         /** @var Leaderboard $leaderboard1 */
-        $leaderboard1 = Leaderboard::factory()->create(['GameID' => $game->ID, 'DisplayOrder' => 2]);
+        $leaderboard1 = Leaderboard::factory()->create(['GameID' => $game->id, 'DisplayOrder' => 2]);
         /** @var Leaderboard $leaderboard2 */
-        $leaderboard2 = Leaderboard::factory()->create(['GameID' => $game->ID, 'DisplayOrder' => 1, 'Format' => 'SCORE']);
+        $leaderboard2 = Leaderboard::factory()->create(['GameID' => $game->id, 'DisplayOrder' => 1, 'Format' => 'SCORE']);
         /** @var Leaderboard $leaderboard3 */
-        $leaderboard3 = Leaderboard::factory()->create(['GameID' => $game->ID, 'DisplayOrder' => -1, 'Format' => 'SECS']);
+        $leaderboard3 = Leaderboard::factory()->create(['GameID' => $game->id, 'DisplayOrder' => -1, 'Format' => 'SECS']);
 
         $this->seedEmulatorUserAgents();
 
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/000051.png',
-            'ImageTitle' => '/Images/000061.png',
-            'ImageIngame' => '/Images/000071.png',
-            'ImageBoxArt' => '/Images/000081.png',
-            'Publisher' => 'WePublishStuff',
-            'Developer' => 'WeDevelopStuff',
-            'Genre' => 'Action',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000051.png',
+            'image_title_asset_path' => '/Images/000061.png',
+            'image_ingame_asset_path' => '/Images/000071.png',
+            'image_box_art_asset_path' => '/Images/000081.png',
+            'publisher' => 'WePublishStuff',
+            'developer' => 'WeDevelopStuff',
+            'genre' => 'Action',
             'released_at' => Carbon::parse('1989-01-15'),
             'released_at_granularity' => 'month',
-            'RichPresencePatch' => '',
+            'trigger_definition' => '',
         ]);
 
         // general use case
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('patch', ['g' => $game->ID]))
+            ->get($this->apiUrl('patch', ['g' => $game->id]))
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'ParentID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'ID' => $game->id,
+                    'ParentID' => $game->id,
+                    'Title' => $game->title,
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
@@ -198,17 +198,17 @@ class PatchDataTest extends TestCase
 
         // only retrieve published achievements
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('patch', ['g' => $game->ID, 'f' => 3]))
+            ->get($this->apiUrl('patch', ['g' => $game->id, 'f' => 3]))
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'ParentID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'ID' => $game->id,
+                    'ParentID' => $game->id,
+                    'Title' => $game->title,
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
@@ -234,17 +234,17 @@ class PatchDataTest extends TestCase
         $achievement3PatchData = $this->getAchievementPatchData($achievement3);
         $achievement3PatchData['Author'] = '';
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('patch', ['g' => $game->ID, 'f' => 3]))
+            ->get($this->apiUrl('patch', ['g' => $game->id, 'f' => 3]))
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'ParentID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'ID' => $game->id,
+                    'ParentID' => $game->id,
+                    'Title' => $game->title,
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $achievement3PatchData, // DisplayOrder: 2
@@ -277,16 +277,16 @@ class PatchDataTest extends TestCase
 
         // game without achievements/leaderboards/rich presence
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('patch', ['g' => $game2->ID]))
+            ->get($this->apiUrl('patch', ['g' => $game2->id]))
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game2->ID,
-                    'ParentID' => $game2->ID,
-                    'Title' => $game2->Title,
-                    'ConsoleID' => $game2->ConsoleID,
-                    'ImageIcon' => $game2->ImageIcon,
-                    'ImageIconURL' => media_asset($game2->ImageIcon),
+                    'ID' => $game2->id,
+                    'ParentID' => $game2->id,
+                    'Title' => $game2->title,
+                    'ConsoleID' => $game2->system_id,
+                    'ImageIcon' => $game2->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game2->image_icon_asset_path),
                     'RichPresencePatch' => '',
                     'Achievements' => [],
                     'Leaderboards' => [],
@@ -303,8 +303,8 @@ class PatchDataTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/000011.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000011.png',
         ]);
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1]);
@@ -334,17 +334,17 @@ class PatchDataTest extends TestCase
 
         // if the player has never played game before, the number of players will be incremented to calculate rarity
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('patch', ['g' => $game->ID]))
+            ->get($this->apiUrl('patch', ['g' => $game->id]))
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'ParentID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'ID' => $game->id,
+                    'ParentID' => $game->id,
+                    'Title' => $game->title,
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getAchievementPatchData($achievement1, 91.67, 83.33), // 11/12=91.67, 10/12=83.33
                         $this->getAchievementPatchData($achievement2, 66.67, 50.00), //  8/12=66.67,  6/12=50.00
@@ -357,22 +357,22 @@ class PatchDataTest extends TestCase
         // if the player has played the game before, the number of players will not be incremented to calculate rarity
         // addHardcoreUnlock will create a player_game for game. need to manually create one for game2
         $playerGame = new PlayerGame([
-            'user_id' => $this->user->ID,
-            'game_id' => $game->ID,
+            'user_id' => $this->user->id,
+            'game_id' => $game->id,
         ]);
         $playerGame->save();
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('patch', ['g' => $game->ID]))
+            ->get($this->apiUrl('patch', ['g' => $game->id]))
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'ParentID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'ID' => $game->id,
+                    'ParentID' => $game->id,
+                    'Title' => $game->title,
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getAchievementPatchData($achievement1, 100.00, 90.91), // 11/11=100.00, 10/11=90.91
                         $this->getAchievementPatchData($achievement2, 72.73, 54.55),  //  8/11= 72.73,  6/11=54.55
@@ -391,17 +391,17 @@ class PatchDataTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/000011.png',
-            'ImageTitle' => '/Images/000021.png',
-            'ImageIngame' => '/Images/000031.png',
-            'ImageBoxArt' => '/Images/000041.png',
-            'Publisher' => 'WePublishStuff',
-            'Developer' => 'WeDevelopStuff',
-            'Genre' => 'Action',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'image_title_asset_path' => '/Images/000021.png',
+            'image_ingame_asset_path' => '/Images/000031.png',
+            'image_box_art_asset_path' => '/Images/000041.png',
+            'publisher' => 'WePublishStuff',
+            'developer' => 'WeDevelopStuff',
+            'genre' => 'Action',
             'released_at' => Carbon::parse('1989-01-15'),
             'released_at_granularity' => 'month',
-            'RichPresencePatch' => 'Display:\nTest',
+            'trigger_definition' => 'Display:\nTest',
         ]);
 
         /** @var Achievement $achievement1 */
@@ -418,18 +418,18 @@ class PatchDataTest extends TestCase
         $this->seedEmulatorUserAgents();
 
         // no user agent
-        $this->get($this->apiUrl('patch', ['g' => $game->ID]))
+        $this->get($this->apiUrl('patch', ['g' => $game->id]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'ParentID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'ID' => $game->id,
+                    'ParentID' => $game->id,
+                    'Title' => $game->title,
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getClientWarningAchievementPatchData(ClientSupportLevel::Unknown),
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
@@ -444,18 +444,18 @@ class PatchDataTest extends TestCase
 
         // unknown user agent
         $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
-            ->get($this->apiUrl('patch', ['g' => $game->ID]))
+            ->get($this->apiUrl('patch', ['g' => $game->id]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'ParentID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'ID' => $game->id,
+                    'ParentID' => $game->id,
+                    'Title' => $game->title,
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getClientWarningAchievementPatchData(ClientSupportLevel::Unknown),
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
@@ -470,18 +470,18 @@ class PatchDataTest extends TestCase
 
         // outdated user agent
         $this->withHeaders(['User-Agent' => $this->userAgentOutdated])
-            ->get($this->apiUrl('patch', ['g' => $game->ID]))
+            ->get($this->apiUrl('patch', ['g' => $game->id]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'ParentID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'ID' => $game->id,
+                    'ParentID' => $game->id,
+                    'Title' => $game->title,
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getClientWarningAchievementPatchData(ClientSupportLevel::Outdated),
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
@@ -495,18 +495,18 @@ class PatchDataTest extends TestCase
 
         // unsupported user agent
         $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
-            ->get($this->apiUrl('patch', ['g' => $game->ID]))
+            ->get($this->apiUrl('patch', ['g' => $game->id]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'ParentID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'ID' => $game->id,
+                    'ParentID' => $game->id,
+                    'Title' => $game->title,
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getClientWarningAchievementPatchData(ClientSupportLevel::Unsupported),
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
@@ -520,7 +520,7 @@ class PatchDataTest extends TestCase
 
         // blocked user agent
         $this->withHeaders(['User-Agent' => $this->userAgentBlocked])
-            ->get($this->apiUrl('patch', ['g' => $game->ID]))
+            ->get($this->apiUrl('patch', ['g' => $game->id]))
             ->assertStatus(403)
             ->assertExactJson([
                 'Code' => 'unsupported_client',
@@ -531,18 +531,18 @@ class PatchDataTest extends TestCase
 
         // valid user agent
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('patch', ['g' => $game->ID]))
+            ->get($this->apiUrl('patch', ['g' => $game->id]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'ParentID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'ID' => $game->id,
+                    'ParentID' => $game->id,
+                    'Title' => $game->title,
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
@@ -562,21 +562,21 @@ class PatchDataTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/000011.png',
-            'ImageTitle' => '/Images/000021.png',
-            'ImageIngame' => '/Images/000031.png',
-            'ImageBoxArt' => '/Images/000041.png',
-            'Publisher' => 'WePublishStuff',
-            'Developer' => 'WeDevelopStuff',
-            'Genre' => 'Action',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'image_title_asset_path' => '/Images/000021.png',
+            'image_ingame_asset_path' => '/Images/000031.png',
+            'image_box_art_asset_path' => '/Images/000041.png',
+            'publisher' => 'WePublishStuff',
+            'developer' => 'WeDevelopStuff',
+            'genre' => 'Action',
             'released_at' => Carbon::parse('1989-01-15'),
             'released_at_granularity' => 'month',
-            'RichPresencePatch' => 'Display:\nTest',
+            'trigger_definition' => 'Display:\nTest',
         ]);
 
         /** @var User $author */
-        $author = User::factory()->create(['appToken' => Str::random(16)]);
+        $author = User::factory()->create(['connect_token' => Str::random(16)]);
 
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->promoted()->progression()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1, 'user_id' => $author->id]);
@@ -607,11 +607,11 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + VirtualGameIdService::IncompatibleIdBase,
+                    'ID' => $game->id + VirtualGameIdService::IncompatibleIdBase,
                     'Title' => "Unsupported Game Version ($game->title)",
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
                             title: 'Unsupported Game Version',
@@ -628,11 +628,11 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + VirtualGameIdService::IncompatibleIdBase,
+                    'ID' => $game->id + VirtualGameIdService::IncompatibleIdBase,
                     'Title' => "Unsupported Game Version ($game->title)",
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
                             title: 'Unsupported Game Version',
@@ -652,11 +652,11 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + VirtualGameIdService::UntestedIdBase,
+                    'ID' => $game->id + VirtualGameIdService::UntestedIdBase,
                     'Title' => "Unsupported Game Version ($game->title)",
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
                             title: 'Unsupported Game Version',
@@ -673,11 +673,11 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + VirtualGameIdService::UntestedIdBase,
+                    'ID' => $game->id + VirtualGameIdService::UntestedIdBase,
                     'Title' => "Unsupported Game Version ($game->title)",
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
                             title: 'Unsupported Game Version',
@@ -697,11 +697,11 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + VirtualGameIdService::PatchRequiredIdBase,
+                    'ID' => $game->id + VirtualGameIdService::PatchRequiredIdBase,
                     'Title' => "Unsupported Game Version ($game->title)",
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
                             title: 'Unsupported Game Version',
@@ -718,11 +718,11 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + VirtualGameIdService::PatchRequiredIdBase,
+                    'ID' => $game->id + VirtualGameIdService::PatchRequiredIdBase,
                     'Title' => "Unsupported Game Version ($game->title)",
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
                             title: 'Unsupported Game Version',
@@ -742,13 +742,13 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ID' => $game->id,
+                    'Title' => $game->title,
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
                     'ParentID' => 1,
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
@@ -769,13 +769,13 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'Title' => "Unsupported Game Version ({$game->Title})",
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ID' => $game->id,
+                    'Title' => "Unsupported Game Version ({$game->title})",
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
                     'ParentID' => 1,
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
@@ -792,13 +792,13 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ID' => $game->id,
+                    'Title' => $game->title,
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
                     'ParentID' => 1,
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
@@ -822,11 +822,11 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + VirtualGameIdService::UntestedIdBase,
-                    'Title' => "Unsupported Game Version ($game->Title)",
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ID' => $game->id + VirtualGameIdService::UntestedIdBase,
+                    'Title' => "Unsupported Game Version ($game->title)",
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
                             title: 'Unsupported Game Version',
@@ -843,11 +843,11 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID + VirtualGameIdService::UntestedIdBase,
-                    'Title' => "Unsupported Game Version ($game->Title)",
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ID' => $game->id + VirtualGameIdService::UntestedIdBase,
+                    'Title' => "Unsupported Game Version ($game->title)",
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
                     'Achievements' => [
                         $this->getWarningAchievementPatchData(
                             title: 'Unsupported Game Version',
@@ -868,13 +868,13 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'Title' => "Unsupported Game Version ({$game->Title})",
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ID' => $game->id,
+                    'Title' => "Unsupported Game Version ({$game->title})",
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
                     'ParentID' => 1,
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
@@ -891,13 +891,13 @@ class PatchDataTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'Title' => "Unsupported Game Version ({$game->Title})",
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ID' => $game->id,
+                    'Title' => "Unsupported Game Version ({$game->title})",
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
                     'ParentID' => 1,
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
@@ -911,21 +911,21 @@ class PatchDataTest extends TestCase
         // achievement author also gets the full achievement list
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('patch', [
-                'u' => $author->User,
-                't' => $author->appToken,
+                'u' => $author->username,
+                't' => $author->connect_token,
                 'm' => $gameHash->md5,
             ], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'Title' => "Unsupported Game Version ({$game->Title})",
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ID' => $game->id,
+                    'Title' => "Unsupported Game Version ({$game->title})",
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
                     'ParentID' => 1,
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
@@ -938,21 +938,21 @@ class PatchDataTest extends TestCase
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('patch', [
-                'u' => $author->User,
-                't' => $author->appToken,
+                'u' => $author->username,
+                't' => $author->connect_token,
                 'g' => $game->id + VirtualGameIdService::UntestedIdBase,
             ], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'PatchData' => [
-                    'ID' => $game->ID,
-                    'Title' => "Unsupported Game Version ({$game->Title})",
-                    'ConsoleID' => $game->ConsoleID,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'ID' => $game->id,
+                    'Title' => "Unsupported Game Version ({$game->title})",
+                    'ConsoleID' => $game->system_id,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageIconURL' => media_asset($game->image_icon_asset_path),
                     'ParentID' => 1,
-                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'RichPresencePatch' => $game->trigger_definition,
                     'Achievements' => [
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2

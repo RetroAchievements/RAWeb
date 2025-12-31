@@ -39,10 +39,10 @@ class PlayerAchievementsSeeder extends Seeder
             $numPlayers = (int) sqrt(random_int(1, $maxPlayers * $maxPlayers));
             foreach (User::inRandomOrder()->limit($numPlayers)->get() as $user) {
                 $achievementsRemaining = $numAchievements;
-                if ($user->RAPoints + $user->RASoftcorePoints === 0) {
+                if ($user->points_hardcore + $user->points === 0) {
                     $hardcore = (random_int(0, 1) === 1);
                 } else {
-                    $hardcore = ($user->RAPoints > $user->RASoftcorePoints);
+                    $hardcore = ($user->points_hardcore > $user->points);
                 }
                 $keepPlayingChance = random_int(75, 100);
                 $num_sessions = 1;
@@ -131,8 +131,8 @@ class PlayerAchievementsSeeder extends Seeder
 
                 // update points
                 $playerGame->refresh();
-                $user->RAPoints += $playerGame->points_hardcore;
-                $user->RASoftcorePoints += $playerGame->points;
+                $user->points_hardcore += $playerGame->points_hardcore;
+                $user->points += $playerGame->points;
                 $user->save();
             }
 
@@ -145,7 +145,7 @@ class PlayerAchievementsSeeder extends Seeder
 
         // update player metrics
         $updatePlayerMetricsAction = new UpdatePlayerMetricsAction();
-        foreach (User::where('RAPoints', '>', 0)->orWhere('RASoftcorePoints', '>', 0)->get() as $player) {
+        foreach (User::where('points_hardcore', '>', 0)->orWhere('points', '>', 0)->get() as $player) {
             $updatePlayerMetricsAction->execute($player);
         }
 

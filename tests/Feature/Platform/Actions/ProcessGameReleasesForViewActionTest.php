@@ -25,13 +25,13 @@ class ProcessGameReleasesForViewActionTest extends TestCase
     {
         parent::setUp();
 
-        $this->system = System::factory()->create(['ID' => 1, 'Name' => 'NES/Famicom']);
+        $this->system = System::factory()->create(['id' => 1, 'name' => 'NES/Famicom']);
         $this->action = new ProcessGameReleasesForViewAction();
     }
 
     private function createGameWithReleases(string $title, array $releases): Game
     {
-        $game = Game::factory()->create(['Title' => $title, 'ConsoleID' => $this->system->id]);
+        $game = Game::factory()->create(['title' => $title, 'system_id' => $this->system->id]);
 
         // Delete releases created by the factory.
         GameRelease::where('game_id', $game->id)->delete();
@@ -46,7 +46,7 @@ class ProcessGameReleasesForViewActionTest extends TestCase
     public function testItReturnsEmptyArrayWhenNoReleases(): void
     {
         // Arrange
-        $game = Game::factory()->create(['Title' => 'Super Mario Bros.', 'ConsoleID' => $this->system->id]);
+        $game = Game::factory()->create(['title' => 'Super Mario Bros.', 'system_id' => $this->system->id]);
 
         // Delete releases created by the factory.
         GameRelease::where('game_id', $game->id)->delete();
@@ -279,7 +279,7 @@ class ProcessGameReleasesForViewActionTest extends TestCase
     public function testItHandlesNullRegionsAsWorldwide(): void
     {
         // Arrange
-        $game = Game::factory()->create(['Title' => 'Null Region Game', 'ConsoleID' => $this->system->id]);
+        $game = Game::factory()->create(['title' => 'Null Region Game', 'system_id' => $this->system->id]);
 
         GameRelease::where('game_id', $game->id)->delete();
         GameRelease::factory()->create([
@@ -363,7 +363,7 @@ class ProcessGameReleasesForViewActionTest extends TestCase
     public function testItPreservesReleasesWithUniqueTitles(): void
     {
         // Arrange
-        $game = Game::factory()->create(['Title' => 'Unique Titles Game', 'ConsoleID' => $this->system->id]);
+        $game = Game::factory()->create(['title' => 'Unique Titles Game', 'system_id' => $this->system->id]);
 
         // ... set up multiple releases with different titles, some without dates ...
         GameRelease::where('game_id', $game->id)->delete();

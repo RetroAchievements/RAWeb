@@ -33,7 +33,7 @@ class GenerateAnnualRecapAction
     public function execute(User $user): void
     {
         // user must have a verified email address, and not be banned.
-        if (!$user->EmailAddress || !$user->isEmailVerified() || $user->isBanned()) {
+        if (!$user->email || !$user->isEmailVerified() || $user->isBanned()) {
             return;
         }
 
@@ -76,7 +76,7 @@ class GenerateAnnualRecapAction
         $this->summarizeDevelopment($recapData, $user, $startDate, $endDate);
 
         // send email
-        Mail::to($user->EmailAddress)->queue(
+        Mail::to($user->email)->queue(
             new AnnualRecapMail($user, $recapData)
         );
     }
@@ -87,19 +87,19 @@ class GenerateAnnualRecapAction
             ->where('duration', '>=', 5)
             ->where('created_at', '>=', $startDate)
             ->where('created_at', '<', $endDate)
-            ->join('GameData', 'GameData.ID', '=', 'game_id')
-            ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
+            ->join('games', 'games.id', '=', 'game_id')
+            ->whereNotIn('games.system_id', System::getNonGameSystems())
             ->groupBy('game_id')
             ->select([
-                'GameData.ID',
-                'GameData.ConsoleID',
+                'games.id',
+                'games.system_id',
                 DB::raw('sum(duration) as totalDuration'),
             ]);
 
         $gameData = [];
         foreach ($games->get() as $game) {
-            $gameData[$game->ID] = [
-                'ConsoleID' => $game->ConsoleID,
+            $gameData[$game->id] = [
+                'ConsoleID' => $game->system_id,
                 'totalDuration' => (int) $game->totalDuration,
             ];
         }
@@ -300,7 +300,7 @@ class GenerateAnnualRecapAction
 
         $system = System::find($mostPlayedSystem);
         if ($system) {
-            $recapData['mostPlayedSystem'] = $system->Name;
+            $recapData['mostPlayedSystem'] = $system->name;
             $recapData['mostPlayedSystemPlaytime'] = $this->hoursMinutes($systemTimes[$mostPlayedSystem]);
         } else {
             $recapData['mostPlayedSystem'] = '';
@@ -321,8 +321,8 @@ class GenerateAnnualRecapAction
                 AwardType::AchievementPointsYield,
                 AwardType::CertifiedLegend,
             ])
-            ->join('GameData', 'GameData.ID', '=', 'AwardData')
-            ->whereNotIn('GameData.ConsoleID', System::getNonGameSystems())
+            ->join('games', 'games.id', '=', 'AwardData')
+            ->whereNotIn('games.system_id', System::getNonGameSystems())
             ->get();
 
         $recapData['numEventAwards'] = 0;
@@ -434,10 +434,10 @@ class GenerateAnnualRecapAction
             ->where('unlocked_hardcore_at', '>=', $startDate)
             ->where('unlocked_hardcore_at', '<', $endDate)
             ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
-            ->join('GameData', 'GameData.ID', '=', 'achievements.game_id')
+            ->join('games', 'games.id', '=', 'achievements.game_id')
             ->whereIn('achievements.game_id', $gameIds)
             ->where(DB::raw('achievements.is_promoted'), true)
-            ->select('achievements.id', DB::raw('achievements.unlocks_hardcore/GameData.players_total as EarnRate'))
+            ->select('achievements.id', DB::raw('achievements.unlocks_hardcore/games.players_total as EarnRate'))
             ->orderBy('EarnRate')
             ->first();
         if ($rarestHardcoreAchievement) {
@@ -451,10 +451,10 @@ class GenerateAnnualRecapAction
             ->where('unlocked_at', '>=', $startDate)
             ->where('unlocked_at', '<', $endDate)
             ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
-            ->join('GameData', 'GameData.ID', '=', 'achievements.game_id')
+            ->join('games', 'games.id', '=', 'achievements.game_id')
             ->whereIn('achievements.game_id', $gameIds)
             ->where(DB::raw('achievements.is_promoted'), true)
-            ->select('achievements.id', DB::raw('achievements.unlocks_total/GameData.players_total as EarnRate'))
+            ->select('achievements.id', DB::raw('achievements.unlocks_total/games.players_total as EarnRate'))
             ->orderBy('EarnRate')
             ->first();
         if ($rarestSoftcoreAchievement) {
@@ -510,7 +510,7 @@ class GenerateAnnualRecapAction
         $recapData['achievementsCreated'] = 0;
         $recapData['completedClaims'] = 0;
 
-        if (!$user->ContribCount) {
+        if (!$user->yield_unlocks) {
             return;
         }
 

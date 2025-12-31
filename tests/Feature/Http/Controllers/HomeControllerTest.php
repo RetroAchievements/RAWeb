@@ -88,7 +88,7 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
         ]);
         $player = User::factory()->create();
 
@@ -119,7 +119,7 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
         ]);
         $player = User::factory()->create();
 
@@ -150,7 +150,7 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
         ]);
 
         $achievement = Achievement::factory()->create([
@@ -159,9 +159,9 @@ class HomeControllerTest extends TestCase
             'game_id' => $game->id,
         ]);
 
-        System::factory()->create(['ID' => System::Events]);
+        System::factory()->create(['id' => System::Events]);
         /** @var Game $eventGame */
-        $eventGame = Game::factory()->create(['ConsoleID' => System::Events, 'Title' => 'Achievement of the Week', 'ForumTopicId' => 14029]);
+        $eventGame = Game::factory()->create(['system_id' => System::Events, 'title' => 'Achievement of the Week', 'forum_topic_id' => 14029]);
         /** @var Achievement $eventAchievement */
         $eventAchievement = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
 
@@ -201,11 +201,11 @@ class HomeControllerTest extends TestCase
     public function testItHandlesAotwEventAchievementsWithoutSourceAchievement(): void
     {
         // Arrange
-        System::factory()->create(['ID' => System::Events]);
+        System::factory()->create(['id' => System::Events]);
         $eventGame = Game::factory()->create([
-            'ConsoleID' => System::Events,
-            'Title' => 'Achievement of the Week',
-            'ForumTopicId' => 14029,
+            'system_id' => System::Events,
+            'title' => 'Achievement of the Week',
+            'forum_topic_id' => 14029,
         ]);
 
         $eventAchievement = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
@@ -269,11 +269,11 @@ class HomeControllerTest extends TestCase
         $system = System::factory()->create(['active' => true]);
 
         $gameWithAchievements = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'achievements_published' => 6,
         ]);
         $gameWithoutAchievements = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'achievements_published' => 0, // !! should be filtered out
         ]);
 
@@ -309,12 +309,12 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
             'achievements_published' => 6,
         ]);
         $user = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
 
         AchievementSetClaim::factory()->create([
@@ -351,12 +351,12 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
             'achievements_published' => 6,
         ]);
         $user = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
 
         // Create two claims by the same user for the same game.
@@ -404,15 +404,15 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
             'achievements_published' => 6,
         ]);
         $userOne = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
         $userTwo = User::factory()->create([
-            'User' => 'SporyTike',
+            'username' => 'SporyTike',
         ]);
 
         // Both users claim the same game.
@@ -481,7 +481,7 @@ class HomeControllerTest extends TestCase
         ];
         file_put_contents($this->logPath, implode("\n", $logEntries));
 
-        User::factory()->count(3)->create(['LastLogin' => now()->subMinutes(5)]);
+        User::factory()->count(3)->create(['last_activity_at' => now()->subMinutes(5)]);
 
         // Act
         $response = $this->get(route('home'));
@@ -511,11 +511,11 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
         ]);
         $user = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
 
         AchievementSetClaim::factory()->create([
@@ -553,11 +553,11 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
         ]);
         $user = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
 
         // Create two claims by the same user for the same game.
@@ -605,14 +605,14 @@ class HomeControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['active' => true]);
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
         ]);
         $userOne = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
         $userTwo = User::factory()->create([
-            'User' => 'SporyTike',
+            'username' => 'SporyTike',
         ]);
 
         // Both users claim the same game.
@@ -669,7 +669,7 @@ class HomeControllerTest extends TestCase
     public function testItSendsSingleForumPostCorrectly(): void
     {
         // Arrange
-        $user = User::factory()->create(['User' => 'Scott']);
+        $user = User::factory()->create(['username' => 'Scott']);
 
         $topic = ForumTopic::factory()->create([
             'title' => 'Test Topic',
@@ -704,7 +704,7 @@ class HomeControllerTest extends TestCase
     public function testItFiltersForumPostsByUserPermissions(): void
     {
         // Arrange
-        $user = User::factory()->create(['User' => 'Scott']);
+        $user = User::factory()->create(['username' => 'Scott']);
 
         $publicTopic = ForumTopic::factory()->create([
             'required_permissions' => Permissions::Unregistered,
@@ -737,7 +737,7 @@ class HomeControllerTest extends TestCase
     public function testItFiltersUnauthorizedForumPosts(): void
     {
         // Arrange
-        $user = User::factory()->create(['User' => 'Scott']);
+        $user = User::factory()->create(['username' => 'Scott']);
 
         $topic = ForumTopic::factory()->create([
             'required_permissions' => Permissions::Unregistered,

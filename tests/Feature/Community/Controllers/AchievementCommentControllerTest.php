@@ -19,8 +19,8 @@ class AchievementCommentControllerTest extends TestCase
     public function testIndexWorksForUnauthenticatedVisitors(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
         $achievement = Achievement::factory()->create(['title' => 'Ancient Steps Retraced', 'game_id' => $game->id]);
 
         // Act
@@ -34,11 +34,11 @@ class AchievementCommentControllerTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
         $achievement = Achievement::factory()->create(['title' => 'Ancient Steps Retraced', 'game_id' => $game->id]);
 
         // Act

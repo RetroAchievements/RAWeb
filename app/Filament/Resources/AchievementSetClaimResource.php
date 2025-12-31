@@ -69,7 +69,7 @@ class AchievementSetClaimResource extends Resource
                             return UserResource::getUrl('view', ['record' => $record->user]);
                         }
 
-                        if ($record->user && is_null($record->user->Deleted)) {
+                        if ($record->user && is_null($record->user->deleted_at)) {
                             return route('user.show', $record->user);
                         }
 
@@ -78,9 +78,9 @@ class AchievementSetClaimResource extends Resource
                     ->searchable()
                     ->sortable(query: function (Builder $query, string $direction): Builder {
                         return $query
-                            ->join('UserAccounts', 'SetClaim.user_id', '=', 'UserAccounts.id')
-                            ->orderByRaw('COALESCE(UserAccounts.display_name, "") ' . $direction) // Sort by display_name, treating null as empty string.
-                            ->orderBy('UserAccounts.User', $direction);
+                            ->join('users', 'SetClaim.user_id', '=', 'users.id')
+                            ->orderByRaw('COALESCE(users.display_name, "") ' . $direction) // Sort by display_name, treating null as empty string.
+                            ->orderBy('users.username', $direction);
                     }),
 
                 Tables\Columns\TextColumn::make('ClaimType')

@@ -14,7 +14,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 
 /** @var User $user */
 $user = request()->user();
-$user->websitePrefs = $input['preferences'];
+$user->preferences_bitfield = $input['preferences'];
 $user->saveQuietly();
 
 return response()->json(['message' => __('legacy.success.ok')]);

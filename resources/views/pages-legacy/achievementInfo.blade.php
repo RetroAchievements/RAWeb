@@ -53,7 +53,7 @@ $achievementDescriptionRaw = $dataOut['Description'];
 $gameTitleRaw = $dataOut['GameTitle'];
 
 $game = Game::find($dataOut['GameID']);
-$isEventGame = $game->ConsoleID === System::Events;
+$isEventGame = $game->system_id === System::Events;
 
 sanitize_outputs(
     $achievementTitle,
@@ -183,7 +183,7 @@ if ($game->system->id === System::Events) {
             <x-game.multiline-avatar
                 :gameId="$eventAchievement->sourceAchievement->game->id"
                 :gameTitle="$eventAchievement->sourceAchievement->game->title"
-                :gameImageIcon="$eventAchievement->sourceAchievement->game->ImageIcon"
+                :gameImageIcon="$eventAchievement->sourceAchievement->game->image_icon_asset_path"
                 :consoleId="$eventAchievement->sourceAchievement->game->system->id"
                 :consoleName="$eventAchievement->sourceAchievement->game->system->name"
             />

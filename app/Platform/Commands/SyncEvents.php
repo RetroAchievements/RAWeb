@@ -610,8 +610,8 @@ class ConvertGame
         $event = $game->event;
         if (!$event) {
             $event = Event::create([
-                'legacy_game_id' => $game->ID,
-                'image_asset_path' => $game->ImageIcon,
+                'legacy_game_id' => $game->id,
+                'image_asset_path' => $game->image_icon_asset_path,
             ]);
         }
 
@@ -704,7 +704,7 @@ class ConvertGame
             if (!array_key_exists($userId, $after)) {
                 if ($badge['AwardDataExtra'] !== -1) {
                     $user = User::find($userId);
-                    $command->error("Badge for user $userId ({$user->User}) lost in conversion.");
+                    $command->error("Badge for user $userId ({$user->username}) lost in conversion.");
                     $result = false;
                 } else {
                     $deleted++;
@@ -716,14 +716,14 @@ class ConvertGame
                 if ($badge['AwardDataExtra'] != $badgeAfter['AwardDataExtra']) {
                     $user = User::find($userId);
                     if ($badge['AwardDataExtra'] === -1) {
-                        $command->error("Badge for user $userId ({$user->User}) was not deleted.");
+                        $command->error("Badge for user $userId ({$user->username}) was not deleted.");
                     } else {
-                        $command->error("Badge for user $userId ({$user->User}) does not have expected tier_index {$badge['AwardDataExtra']}. Found {$badgeAfter['AwardDataExtra']}.");
+                        $command->error("Badge for user $userId ({$user->username}) does not have expected tier_index {$badge['AwardDataExtra']}. Found {$badgeAfter['AwardDataExtra']}.");
                     }
                     $result = false;
                 } elseif ($badge['AwardDate'] != $badgeAfter['AwardDate']) {
                     $user = User::find($userId);
-                    $command->error("Badge for user $userId ({$user->User}) award date changed from " . $badge['AwardDate']->format("Y-m-d") . " to " . $badgeAfter['AwardDate']->format("Y-m-d"));
+                    $command->error("Badge for user $userId ({$user->username}) award date changed from " . $badge['AwardDate']->format("Y-m-d") . " to " . $badgeAfter['AwardDate']->format("Y-m-d"));
                     $result = false;
                 } else {
                     $converted++;
@@ -735,7 +735,7 @@ class ConvertGame
 
         foreach ($after as $userId => $badge) {
             $user = User::find($userId);
-            $command->error("Badge for user $userId ({$user->User}) unexpected. Found tier {$badge['AwardDataExtra']}.");
+            $command->error("Badge for user $userId ({$user->username}) unexpected. Found tier {$badge['AwardDataExtra']}.");
             $result = false;
         }
 
@@ -835,12 +835,12 @@ class ConvertGame
             // update unlock timestamps on the event achievements to match the source unlock
             $winners = PlayerAchievement::where('achievement_id', $sourceAchievementId)
                 ->whereNotNull('unlocked_hardcore_at')
-                ->join('UserAccounts', 'UserAccounts.ID', '=', 'player_achievements.user_id')
+                ->join('users', 'users.id', '=', 'player_achievements.user_id')
                 ->select([
                     'player_achievements.user_id',
                     'player_achievements.unlocked_hardcore_at',
-                    'UserAccounts.Untracked',
-                    'UserAccounts.unranked_at',
+                    'users.Untracked',
+                    'users.unranked_at',
                 ]);
 
             if ($activeFrom) {
@@ -920,8 +920,8 @@ class ConvertGame
     protected function demoteGame(int $gameId): void
     {
         $game = Game::find($gameId);
-        if (!str_starts_with($game->Title, "~Z~ ")) {
-            $game->Title = "~Z~ {$game->Title}";
+        if (!str_starts_with($game->title, "~Z~ ")) {
+            $game->title = "~Z~ {$game->title}";
             $game->save();
         }
 
@@ -1442,14 +1442,14 @@ class ConvertToMergedTracked extends ConvertToTracked
 
             if (!$eventAward) {
                 $game = Game::find($gameId);
-                $lastSpace = strrpos($game->Title, ' ');
+                $lastSpace = strrpos($game->title, ' ');
 
                 $eventAward = EventAward::create([
                     'event_id' => $event->id,
                     'tier_index' => $tier_index,
-                    'label' => substr($game->Title, $lastSpace + 1),
+                    'label' => substr($game->title, $lastSpace + 1),
                     'points_required' => $count,
-                    'image_asset_path' => $game->ImageIcon,
+                    'image_asset_path' => $game->image_icon_asset_path,
                 ]);
             }
 
@@ -1572,7 +1572,7 @@ class ConvertToTiered extends ConvertGame
                 $userIds = PlayerAchievement::where('achievement_id', $achievementId)
                     ->pluck('user_id')->toArray();
             } else {
-                $userIds = User::whereIn('User', $users)->pluck('ID')->toArray();
+                $userIds = User::whereIn('username', $users)->pluck('id')->toArray();
             }
 
             $allUserIds = array_merge($allUserIds, $userIds);
@@ -1667,7 +1667,7 @@ class ConvertToTiered extends ConvertGame
                     ->update(['unlocked_hardcore_at' => DB::raw('unlocked_at')]);
             } else {
                 // convert badge to current tier
-                $userIds = User::whereIn('User', $users)->withTrashed()->pluck('ID')->toArray();
+                $userIds = User::whereIn('username', $users)->withTrashed()->pluck('id')->toArray();
                 foreach ($userIds as $userId) {
                     $this->convertBadge($event, $event->legacyGame->id, $userId, $tier_index);
                 }
@@ -1950,7 +1950,7 @@ class ConvertToCollapsedTiered extends ConvertToTiered
                     'tier_index' => $tier_index,
                     'label' => $label,
                     'points_required' => $tier_index,
-                    'image_asset_path' => Game::find($gameId)->ImageIcon,
+                    'image_asset_path' => Game::find($gameId)->image_icon_asset_path,
                 ]);
             }
 
@@ -2032,7 +2032,7 @@ class ConvertToCollapsedTiered extends ConvertToTiered
         }
 
         $event->legacyGame->achievements_published = count($this->achievements);
-        $event->legacyGame->Title = $this->title;
+        $event->legacyGame->title = $this->title;
         $event->legacyGame->save();
 
         // delete any remaining badges
@@ -2127,14 +2127,14 @@ class ConvertAotWTiered extends ConvertGame
 
             if (!$eventAward) {
                 $game = Game::find($gameId);
-                $lastSpace = strrpos($game->Title, ' ');
+                $lastSpace = strrpos($game->title, ' ');
 
                 $eventAward = EventAward::create([
                     'event_id' => $event->id,
                     'tier_index' => $tier_index,
-                    'label' => substr($game->Title, $lastSpace + 1),
+                    'label' => substr($game->title, $lastSpace + 1),
                     'points_required' => $count,
-                    'image_asset_path' => $game->ImageIcon,
+                    'image_asset_path' => $game->image_icon_asset_path,
                 ]);
             }
 
@@ -2158,7 +2158,7 @@ class ConvertAotWTiered extends ConvertGame
         $date = Carbon::parse($this->activeFrom);
         $year = $date->clone()->addWeeks(1)->year;
 
-        $event->legacyGame->Title = "Achievement of the Week $year";
+        $event->legacyGame->title = "Achievement of the Week $year";
         $event->legacyGame->save();
 
         $event->active_from = $date;

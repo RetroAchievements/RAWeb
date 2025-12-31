@@ -43,11 +43,11 @@ class GenerateAnnualRecap extends Command
             $december = Carbon::create($year, 12, 1, 0, 0, 0);
             $september = Carbon::create($year, 9, 1, 0, 0, 0);
 
-            $users = User::where('LastLogin', '>=', $december)
+            $users = User::where('last_activity_at', '>=', $december)
                 ->where('Created', '<', $september)
                 ->whereNotNull('email_verified_at')
                 ->whereNull('banned_at')
-                ->orderByDesc('LastLogin')
+                ->orderByDesc('last_activity_at')
                 ->pluck('ID');
 
             $userCount = $users->count();

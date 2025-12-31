@@ -96,7 +96,7 @@ class Ticket extends BaseModel
      */
     public function author(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'ticketable_author_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'ticketable_author_id')->withTrashed();
     }
 
     /**
@@ -104,7 +104,7 @@ class Ticket extends BaseModel
      */
     public function reporter(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'reporter_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'reporter_id')->withTrashed();
     }
 
     /**
@@ -112,7 +112,7 @@ class Ticket extends BaseModel
      */
     public function resolver(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'resolver_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'resolver_id')->withTrashed();
     }
 
     /**

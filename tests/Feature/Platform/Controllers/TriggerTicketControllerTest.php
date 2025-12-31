@@ -31,14 +31,14 @@ class TriggerTicketControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => null, // !!
         ]);
         $this->actingAs($user);
@@ -54,14 +54,14 @@ class TriggerTicketControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'muted_until' => Carbon::parse('2035-01-01'), // !!
         ]);
         $this->actingAs($user);
@@ -77,14 +77,14 @@ class TriggerTicketControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now(), // !!
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now(), // !!
         ]);
         $this->actingAs($user);
 
@@ -99,14 +99,14 @@ class TriggerTicketControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'Created' => Carbon::now()->subWeeks(2),
-            'UnreadMessageCount' => 0,
+            'preferences_bitfield' => 63,
+            'created_at' => Carbon::now()->subWeeks(2),
+            'unread_messages' => 0,
         ]);
         $this->actingAs($user);
 
@@ -123,14 +123,14 @@ class TriggerTicketControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -155,7 +155,7 @@ class TriggerTicketControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         $emulators = Emulator::factory()->count(3)->create();
@@ -163,9 +163,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -183,15 +183,15 @@ class TriggerTicketControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $gameHashes = GameHash::factory()->count(5)->create(['game_id' => $game->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -209,7 +209,7 @@ class TriggerTicketControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $gameHashes = GameHash::factory()->count(5)->create(['game_id' => $game->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
@@ -220,9 +220,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -253,7 +253,7 @@ class TriggerTicketControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $gameHashes = GameHash::factory()->count(5)->create(['game_id' => $game->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
@@ -266,9 +266,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -320,7 +320,7 @@ class TriggerTicketControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $gameHashes = GameHash::factory()->count(5)->create(['game_id' => $game->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
@@ -329,9 +329,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -359,7 +359,7 @@ class TriggerTicketControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $gameHashes = GameHash::factory()->count(5)->create(['game_id' => $game->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
@@ -368,9 +368,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -401,7 +401,7 @@ class TriggerTicketControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $gameHashes = GameHash::factory()->count(5)->create(['game_id' => $game->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
@@ -410,9 +410,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
-            'UnreadMessageCount' => 0,
-            'Created' => Carbon::now()->subWeeks(2),
+            'preferences_bitfield' => 63,
+            'unread_messages' => 0,
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
         ]);
         $this->actingAs($user);
@@ -459,8 +459,8 @@ class TriggerTicketControllerTest extends TestCase
         $system->emulators()->attach($emulator->id);
 
         // ... create base game with a core set and bonus game with a bonus set ...
-        $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
-        $bonusGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        $baseGame = Game::factory()->create(['system_id' => $system->id]);
+        $bonusGame = Game::factory()->create(['system_id' => $system->id]);
         Achievement::factory()->promoted()->create(['game_id' => $baseGame->id]);
         $bonusAchievement = Achievement::factory()->promoted()->create(['game_id' => $bonusGame->id]);
 
@@ -473,9 +473,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'UnreadMessageCount' => 0,
+            'unread_messages' => 0,
         ]);
         $this->actingAs($user);
 
@@ -508,8 +508,8 @@ class TriggerTicketControllerTest extends TestCase
         $emulator = Emulator::factory()->create(['name' => 'RetroArch', 'active' => true]);
         $system->emulators()->attach($emulator->id);
 
-        $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
-        $bonusGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        $baseGame = Game::factory()->create(['system_id' => $system->id]);
+        $bonusGame = Game::factory()->create(['system_id' => $system->id]);
         Achievement::factory()->promoted()->create(['game_id' => $baseGame->id]);
         $bonusAchievement = Achievement::factory()->promoted()->create(['game_id' => $bonusGame->id]);
 
@@ -522,9 +522,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'UnreadMessageCount' => 0,
+            'unread_messages' => 0,
         ]);
         $this->actingAs($user);
 
@@ -560,8 +560,8 @@ class TriggerTicketControllerTest extends TestCase
         $system->emulators()->attach($emulator->id);
 
         // ... create base game with a core set and a specialty game with a specialty set ...
-        $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
-        $specialtyGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        $baseGame = Game::factory()->create(['system_id' => $system->id]);
+        $specialtyGame = Game::factory()->create(['system_id' => $system->id]);
         Achievement::factory()->promoted()->create(['game_id' => $baseGame->id]);
         $specialtyAchievement = Achievement::factory()->promoted()->create(['game_id' => $specialtyGame->id]);
 
@@ -574,9 +574,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'UnreadMessageCount' => 0,
+            'unread_messages' => 0,
         ]);
         $this->actingAs($user);
 
@@ -610,8 +610,8 @@ class TriggerTicketControllerTest extends TestCase
         $emulator = Emulator::factory()->create(['active' => true]);
         $system->emulators()->attach($emulator->id);
 
-        $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
-        $bonusGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        $baseGame = Game::factory()->create(['system_id' => $system->id]);
+        $bonusGame = Game::factory()->create(['system_id' => $system->id]);
         Achievement::factory()->promoted()->create(['game_id' => $baseGame->id]);
         $bonusAchievement = Achievement::factory()->promoted()->create(['game_id' => $bonusGame->id]);
 
@@ -623,9 +623,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'UnreadMessageCount' => 0,
+            'unread_messages' => 0,
         ]);
         $this->actingAs($user);
 
@@ -648,8 +648,8 @@ class TriggerTicketControllerTest extends TestCase
         $emulator = Emulator::factory()->create(['active' => true]);
         $system->emulators()->attach($emulator->id);
 
-        $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
-        $specialtyGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        $baseGame = Game::factory()->create(['system_id' => $system->id]);
+        $specialtyGame = Game::factory()->create(['system_id' => $system->id]);
         Achievement::factory()->promoted()->create(['game_id' => $baseGame->id]);
         $specialtyAchievement = Achievement::factory()->promoted()->create(['game_id' => $specialtyGame->id]);
 
@@ -661,9 +661,9 @@ class TriggerTicketControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'UnreadMessageCount' => 0,
+            'unread_messages' => 0,
         ]);
         $this->actingAs($user);
 

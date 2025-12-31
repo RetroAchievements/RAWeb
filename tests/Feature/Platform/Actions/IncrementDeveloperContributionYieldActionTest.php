@@ -33,7 +33,7 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
     public function testItSuccessfullyIncrementsForUnlock(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 5, 'ContribYield' => 500]);
+        $developer = User::factory()->create(['yield_unlocks' => 5, 'yield_points' => 500]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
@@ -54,14 +54,14 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(6, $developer->ContribCount);
-        $this->assertEquals(550, $developer->ContribYield);
+        $this->assertEquals(6, $developer->yield_unlocks);
+        $this->assertEquals(550, $developer->yield_points);
     }
 
     public function testItSuccessfullyDecrementsForResets(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 5, 'ContribYield' => 500]);
+        $developer = User::factory()->create(['yield_unlocks' => 5, 'yield_points' => 500]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
@@ -82,14 +82,14 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(4, $developer->ContribCount);
-        $this->assertEquals(450, $developer->ContribYield);
+        $this->assertEquals(4, $developer->yield_unlocks);
+        $this->assertEquals(450, $developer->yield_points);
     }
 
     public function testItIgnoresUnofficialAchievements(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 5, 'ContribYield' => 500]);
+        $developer = User::factory()->create(['yield_unlocks' => 5, 'yield_points' => 500]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
@@ -111,14 +111,14 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(5, $developer->ContribCount); // !! unchanged
-        $this->assertEquals(500, $developer->ContribYield); // !! unchanged
+        $this->assertEquals(5, $developer->yield_unlocks); // !! unchanged
+        $this->assertEquals(500, $developer->yield_points); // !! unchanged
     }
 
     public function testItIgnoresDeveloperOwnUnlocks(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 5, 'ContribYield' => 500]);
+        $developer = User::factory()->create(['yield_unlocks' => 5, 'yield_points' => 500]);
 
         $game = $this->seedGame(withHash: false);
         $achievement = Achievement::factory()->promoted()->create([
@@ -138,14 +138,14 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(5, $developer->ContribCount); // !! unchanged
-        $this->assertEquals(500, $developer->ContribYield); // !! unchanged
+        $this->assertEquals(5, $developer->yield_unlocks); // !! unchanged
+        $this->assertEquals(500, $developer->yield_points); // !! unchanged
     }
 
     public function testItAwardsBadgeOnThresholdCross(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 0, 'ContribYield' => 950]);
+        $developer = User::factory()->create(['yield_unlocks' => 0, 'yield_points' => 950]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
@@ -173,7 +173,7 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(1050, $developer->ContribYield);
+        $this->assertEquals(1050, $developer->yield_points);
 
         // ... verify the badge was awarded ...
         $badge = PlayerBadge::where('user_id', $developer->id)
@@ -187,7 +187,7 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
     public function testItDoesNotDuplicateBadges(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 10, 'ContribYield' => 1100]);
+        $developer = User::factory()->create(['yield_unlocks' => 10, 'yield_points' => 1100]);
         $player = User::factory()->create();
 
         // ... the developer already has the tier 0 badge (1000 points threshold) ...
@@ -227,8 +227,8 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
     public function testItCorrectlyHandlesMaintainerUnlocks(): void
     {
         // Arrange
-        $author = User::factory()->create(['ContribCount' => 5, 'ContribYield' => 500]);
-        $maintainer = User::factory()->create(['ContribCount' => 10, 'ContribYield' => 1000]);
+        $author = User::factory()->create(['yield_unlocks' => 5, 'yield_points' => 500]);
+        $maintainer = User::factory()->create(['yield_unlocks' => 10, 'yield_points' => 1000]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
@@ -256,19 +256,19 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $maintainer->refresh();
 
         // Assert
-        $this->assertEquals(11, $maintainer->ContribCount);
-        $this->assertEquals(1050, $maintainer->ContribYield);
+        $this->assertEquals(11, $maintainer->yield_unlocks);
+        $this->assertEquals(1050, $maintainer->yield_points);
 
         // ... author's stats should not change ...
         $author->refresh();
-        $this->assertEquals(5, $author->ContribCount);
-        $this->assertEquals(500, $author->ContribYield);
+        $this->assertEquals(5, $author->yield_unlocks);
+        $this->assertEquals(500, $author->yield_points);
     }
 
     public function testItIgnoresSoftcoreToHardcoreUpgrades(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 5, 'ContribYield' => 500]);
+        $developer = User::factory()->create(['yield_unlocks' => 5, 'yield_points' => 500]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
@@ -291,14 +291,14 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(5, $developer->ContribCount); // !! unchanged
-        $this->assertEquals(500, $developer->ContribYield); // !! unchanged
+        $this->assertEquals(5, $developer->yield_unlocks); // !! unchanged
+        $this->assertEquals(500, $developer->yield_points); // !! unchanged
     }
 
     public function testItCountsDirectHardcoreUnlocks(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 5, 'ContribYield' => 500]);
+        $developer = User::factory()->create(['yield_unlocks' => 5, 'yield_points' => 500]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
@@ -322,14 +322,14 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(6, $developer->ContribCount); // !! incremented
-        $this->assertEquals(550, $developer->ContribYield); // !! incremented
+        $this->assertEquals(6, $developer->yield_unlocks); // !! incremented
+        $this->assertEquals(550, $developer->yield_points); // !! incremented
     }
 
     public function testItDoesNotReAwardBadgeAfterDippingBelowThreshold(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 10, 'ContribYield' => 1050]);
+        $developer = User::factory()->create(['yield_unlocks' => 10, 'yield_points' => 1050]);
         $player1 = User::factory()->create();
         $player2 = User::factory()->create();
 
@@ -368,7 +368,7 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $this->action->execute($developer, $achievement1, $playerAchievement1, false);
         $developer->refresh();
 
-        $this->assertEquals(950, $developer->ContribYield); // !! 950 yield
+        $this->assertEquals(950, $developer->yield_points); // !! 950 yield
 
         // ... unlock the 50 point achievement. this should increase yield to 1000 ...
         $playerAchievement2 = PlayerAchievement::create([
@@ -381,7 +381,7 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(1000, $developer->ContribYield);
+        $this->assertEquals(1000, $developer->yield_points);
 
         // ... should still only have ONE badge, no duplicates ...
         $badgeCount = PlayerBadge::where('user_id', $developer->id)
@@ -395,7 +395,7 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
     public function testItPreventsUnderflowWhenDecrementingFromZero(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 0, 'ContribYield' => 0]);
+        $developer = User::factory()->create(['yield_unlocks' => 0, 'yield_points' => 0]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
@@ -416,14 +416,14 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(0, $developer->ContribCount);
-        $this->assertEquals(0, $developer->ContribYield);
+        $this->assertEquals(0, $developer->yield_unlocks);
+        $this->assertEquals(0, $developer->yield_points);
     }
 
     public function testItPreventsPartialUnderflowWhenDecrementingYield(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 1, 'ContribYield' => 25]);
+        $developer = User::factory()->create(['yield_unlocks' => 1, 'yield_points' => 25]);
         $player = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
@@ -444,7 +444,7 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $developer->refresh();
 
         // Assert
-        $this->assertEquals(0, $developer->ContribCount);
-        $this->assertEquals(0, $developer->ContribYield); // Should be 0, not negative
+        $this->assertEquals(0, $developer->yield_unlocks);
+        $this->assertEquals(0, $developer->yield_points); // Should be 0, not negative
     }
 }

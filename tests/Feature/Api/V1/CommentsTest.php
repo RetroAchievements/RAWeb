@@ -60,7 +60,7 @@ class CommentsTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
         $bannedUser = User::factory()->create(['ID' => 309, 'banned_at' => Carbon::now()->subDay()]);
@@ -99,13 +99,13 @@ class CommentsTest extends TestCase
             'Total' => 2,
             'Results' => [
                 [
-                    'User' => $user1->User,
+                    'User' => $user1->username,
                     'ULID' => $user1->ulid,
                     'Submitted' => $comment1->Submitted->toISOString(),
                     'CommentText' => $comment1->Payload,
                 ],
                 [
-                    'User' => $user2->User,
+                    'User' => $user2->username,
                     'ULID' => $user2->ulid,
                     'Submitted' => $comment2->Submitted->toISOString(),
                     'CommentText' => $comment2->Payload,
@@ -118,7 +118,7 @@ class CommentsTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
         $bannedUser = User::factory()->create(['ID' => 309, 'banned_at' => Carbon::now()->subDay()]);
@@ -156,12 +156,12 @@ class CommentsTest extends TestCase
             'Total' => 2,
             'Results' => [
                 [
-                    'User' => $user2->User,
+                    'User' => $user2->username,
                     'Submitted' => $comment2->Submitted->toISOString(),
                     'CommentText' => $comment2->Payload,
                 ],
                 [
-                    'User' => $user1->User,
+                    'User' => $user1->username,
                     'Submitted' => $comment1->Submitted->toISOString(),
                     'CommentText' => $comment1->Payload,
                 ],
@@ -173,34 +173,34 @@ class CommentsTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
         $bannedUser = User::factory()->create(['banned_at' => Carbon::now()]);
 
         $comment1 = Comment::factory()->create([
-            'ArticleID' => $game->ID,
+            'ArticleID' => $game->id,
             'ArticleType' => 1,
             'user_id' => $user1->id,
             'Payload' => 'This is a great achievement!',
             'Submitted' => "2024-01-18T15:01:04.000000Z",
         ]);
         $comment2 = Comment::factory()->create([
-            'ArticleID' => $game->ID,
+            'ArticleID' => $game->id,
             'ArticleType' => 1,
             'user_id' => $user2->id,
             'Payload' => 'I agree, this is awesome!',
             'Submitted' => "2024-01-19T15:01:04.000000Z",
         ]);
         $comment3 = Comment::factory()->create([
-            'ArticleID' => $game->ID,
+            'ArticleID' => $game->id,
             'ArticleType' => 2,
             'user_id' => $bannedUser->id,
             'Payload' => 'This comment is from a banned user!',
             'Submitted' => "2024-01-20T15:01:04.000000Z",
         ]);
         $deletedComment = Comment::factory()->create([
-            'ArticleID' => $game->ID,
+            'ArticleID' => $game->id,
             'ArticleType' => 2,
             'user_id' => $user1->id,
             'Payload' => 'This comment has been deleted!',
@@ -209,7 +209,7 @@ class CommentsTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get($this->apiUrl('GetComments', ['i' => $game->ID, 't' => 1]))
+        $response = $this->get($this->apiUrl('GetComments', ['i' => $game->id, 't' => 1]))
             ->assertSuccessful();
 
         // Assert
@@ -219,13 +219,13 @@ class CommentsTest extends TestCase
             'Total' => 2,
             'Results' => [
                 [
-                    'User' => $user1->User,
+                    'User' => $user1->username,
                     'ULID' => $user1->ulid,
                     'Submitted' => $comment1->Submitted->toISOString(),
                     'CommentText' => $comment1->Payload,
                 ],
                 [
-                    'User' => $user2->User,
+                    'User' => $user2->username,
                     'ULID' => $user2->ulid,
                     'Submitted' => $comment2->Submitted->toISOString(),
                     'CommentText' => $comment2->Payload,
@@ -264,7 +264,7 @@ class CommentsTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get($this->apiUrl('GetComments', ['i' => $user->User, 't' => 3]))
+        $response = $this->get($this->apiUrl('GetComments', ['i' => $user->username, 't' => 3]))
             ->assertSuccessful();
 
         // Assert
@@ -274,13 +274,13 @@ class CommentsTest extends TestCase
             'Total' => 2,
             'Results' => [
                 [
-                    'User' => $user2->User,
+                    'User' => $user2->username,
                     'ULID' => $user2->ulid,
                     'Submitted' => $comment1->Submitted->toISOString(),
                     'CommentText' => $comment1->Payload,
                 ],
                 [
-                    'User' => $user2->User,
+                    'User' => $user2->username,
                     'ULID' => $user2->ulid,
                     'Submitted' => $comment2->Submitted->toISOString(),
                     'CommentText' => $comment2->Payload,
@@ -329,13 +329,13 @@ class CommentsTest extends TestCase
             'Total' => 2,
             'Results' => [
                 [
-                    'User' => $user2->User,
+                    'User' => $user2->username,
                     'ULID' => $user2->ulid,
                     'Submitted' => $comment1->Submitted->toISOString(),
                     'CommentText' => $comment1->Payload,
                 ],
                 [
-                    'User' => $user2->User,
+                    'User' => $user2->username,
                     'ULID' => $user2->ulid,
                     'Submitted' => $comment2->Submitted->toISOString(),
                     'CommentText' => $comment2->Payload,
@@ -347,7 +347,7 @@ class CommentsTest extends TestCase
     public function testGetCommentsForUserWithDisabledWall(): void
     {
         // Arrange
-        $user = User::factory()->create(['UserWallActive' => false]);
+        $user = User::factory()->create(['is_user_wall_active' => false]);
         $user2 = User::factory()->create();
         $comment1 = Comment::factory()->create([
             'ArticleID' => $user->id,
@@ -365,7 +365,7 @@ class CommentsTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get($this->apiUrl('GetComments', ['i' => $user->User]));
+        $response = $this->get($this->apiUrl('GetComments', ['i' => $user->username]));
 
         // Assert
         $response->assertNotFound();

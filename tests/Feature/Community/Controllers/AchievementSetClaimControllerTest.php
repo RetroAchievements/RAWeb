@@ -72,17 +72,17 @@ class AchievementSetClaimControllerTest extends TestCase
 
         // forum topic should automatically be created by the user
         $game->refresh();
-        $this->assertGreaterThan(0, $game->ForumTopicID);
+        $this->assertGreaterThan(0, $game->forum_topic_id);
 
-        $this->assertTrue(ForumTopicComment::where('forum_topic_id', $game->ForumTopicID)
-            ->where('author_id', $user->ID)
+        $this->assertTrue(ForumTopicComment::where('forum_topic_id', $game->forum_topic_id)
+            ->where('author_id', $user->id)
             ->exists()
         );
 
         // implicit subscription to forum topic. don't need an explicit one
         $this->assertFalse($user->subscriptions()
             ->where('subject_type', SubscriptionSubjectType::ForumTopic)
-            ->where('subject_id', $game->ForumTopicID)
+            ->where('subject_id', $game->forum_topic_id)
             ->exists()
         );
 
@@ -299,7 +299,7 @@ class AchievementSetClaimControllerTest extends TestCase
         Carbon::setTestNow($collabDate);
 
         Session::flush();
-        $response = $this->actingAs($user2)->postJson(route('achievement-set-claim.create', $game->ID));
+        $response = $this->actingAs($user2)->postJson(route('achievement-set-claim.create', $game->id));
 
         $response->assertStatus(302); // redirect
         $response->assertRedirect('/'); // back() redirects to home when no source is provided
@@ -390,7 +390,7 @@ class AchievementSetClaimControllerTest extends TestCase
         Carbon::setTestNow($collabDate);
 
         Session::flush();
-        $response = $this->actingAs($user2)->postJson(route('achievement-set-claim.create', $game->ID));
+        $response = $this->actingAs($user2)->postJson(route('achievement-set-claim.create', $game->id));
 
         $response->assertStatus(302); // redirect
         $response->assertRedirect('/'); // back() redirects to home when no source is provided
@@ -481,7 +481,7 @@ class AchievementSetClaimControllerTest extends TestCase
         Carbon::setTestNow($collabDate);
 
         Session::flush();
-        $response = $this->actingAs($user2)->postJson(route('achievement-set-claim.create', $game->ID));
+        $response = $this->actingAs($user2)->postJson(route('achievement-set-claim.create', $game->id));
 
         $response->assertStatus(302); // redirect
         $response->assertRedirect('/'); // back() redirects to home when no source is provided
@@ -575,7 +575,7 @@ class AchievementSetClaimControllerTest extends TestCase
         Carbon::setTestNow($collabDate);
 
         Session::flush();
-        $response = $this->actingAs($user2)->postJson(route('achievement-set-claim.create', $game->ID));
+        $response = $this->actingAs($user2)->postJson(route('achievement-set-claim.create', $game->id));
 
         $response->assertStatus(302); // redirect
         $response->assertRedirect('/'); // back() redirects to home when no source is provided
@@ -650,7 +650,7 @@ class AchievementSetClaimControllerTest extends TestCase
 
         Forum::factory()->create(['id' => 10, 'title' => 'Default']);
 
-        generateGameForumTopic($user2, $game->ID);
+        generateGameForumTopic($user2, $game->id);
 
         // initial claim
         $claimDate = Carbon::now()->startOfSecond();
@@ -685,15 +685,15 @@ class AchievementSetClaimControllerTest extends TestCase
 
         // new forum topic should not have been created by the user
         $game->refresh();
-        $this->assertFalse(ForumTopicComment::where('forum_topic_id', $game->ForumTopicID)
-            ->where('author_id', $user->ID)
+        $this->assertFalse(ForumTopicComment::where('forum_topic_id', $game->forum_topic_id)
+            ->where('author_id', $user->id)
             ->exists()
         );
 
         // user didn't create the forum topic, so they should be explicit subscribed
         $this->assertTrue($user->subscriptions()
             ->where('subject_type', SubscriptionSubjectType::ForumTopic)
-            ->where('subject_id', $game->ForumTopicID)
+            ->where('subject_id', $game->forum_topic_id)
             ->where('state', true)
             ->exists()
         );
@@ -849,7 +849,7 @@ class AchievementSetClaimControllerTest extends TestCase
         Forum::factory()->create(['id' => 10, 'title' => 'Default']);
 
         // create a forum topic for the game (required for junior devs on new sets)
-        generateGameForumTopic($codeReviewer, $game->ID);
+        generateGameForumTopic($codeReviewer, $game->id);
 
         // initial claim
         $claimDate = Carbon::now()->startOfSecond();

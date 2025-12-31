@@ -124,7 +124,7 @@ class AchievementSetClaim extends BaseModel
      */
     public function game(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'game_id', 'ID');
+        return $this->belongsTo(Game::class, 'game_id', 'id');
     }
 
     /**
@@ -132,7 +132,7 @@ class AchievementSetClaim extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'user_id')->withTrashed();
     }
 
     // == scopes

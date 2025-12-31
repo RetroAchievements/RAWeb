@@ -29,16 +29,16 @@ class AwardAchievementsTest extends TestCase
         Carbon::setTestNow($now);
 
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $game = Game::factory()->create(['system_id' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
-        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
         /** @var User $delegatedUser */
-        $delegatedUser = User::factory()->create(['User' => 'Username', 'Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $delegatedUser = User::factory()->create(['username' => 'Username', 'Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
-        $delegatedUser->LastGameID = $game->id;
+        $delegatedUser->rich_presence_game_id = $game->id;
         $delegatedUser->save();
 
         /** @var Achievement $achievement1 */
@@ -60,18 +60,18 @@ class AwardAchievementsTest extends TestCase
         $this->assertModelExists($playerSession1);
 
         // cache the unlocks for the game - verify multiple unlocks captured
-        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $game->ID);
+        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $game->id);
         $this->assertEquals([$achievement1->id], array_keys($unlocks));
 
         // do the delegated unlocks sync
-        $scoreBefore = $delegatedUser->RAPoints;
-        $softcoreScoreBefore = $delegatedUser->RASoftcorePoints;
+        $scoreBefore = $delegatedUser->points_hardcore;
+        $softcoreScoreBefore = $delegatedUser->points;
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'awardachievements',
-            'k' => $delegatedUser->User,
+            'k' => $delegatedUser->username,
         ];
         $payload = [
             // Note that #0 is already unlocked, thus it will not be in the "SuccessfulIDs" list.
@@ -141,15 +141,15 @@ class AwardAchievementsTest extends TestCase
         $this->assertEquals($playerAchievement3->player_session_id, $playerSession2->id);
 
         // player score should have increased
-        $user1 = User::whereName($delegatedUser->User)->first();
+        $user1 = User::whereName($delegatedUser->username)->first();
         $this->assertEquals(
             $scoreBefore + $achievement2->points + $achievement3->points + $achievement4->points,
-            $user1->RAPoints
+            $user1->points_hardcore
         );
-        $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
-        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $game->ID);
+        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $game->id);
         $this->assertEqualsCanonicalizing(
             [
                 $achievement1->id,
@@ -166,26 +166,26 @@ class AwardAchievementsTest extends TestCase
     public function testNotStandaloneSystem(): void
     {
         /** @var System $system */
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var User $integrationUser */
-        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
         /** @var User $delegatedUser */
-        $delegatedUser = User::factory()->create(['User' => 'Username', 'Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $delegatedUser = User::factory()->create(['username' => 'Username', 'Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->promoted()->create(['id' => 1, 'game_id' => $game->id, 'user_id' => $integrationUser->id]);
 
-        $scoreBefore = $delegatedUser->RAPoints;
-        $softcoreScoreBefore = $delegatedUser->RASoftcorePoints;
+        $scoreBefore = $delegatedUser->points_hardcore;
+        $softcoreScoreBefore = $delegatedUser->points;
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'awardachievements',
-            'k' => $delegatedUser->User,
+            'k' => $delegatedUser->username,
         ];
         $payload = [
             'a' => $achievement1->id,
@@ -205,8 +205,8 @@ class AwardAchievementsTest extends TestCase
         $delegatedUser->refresh();
 
         // Points shouldn't change.
-        $this->assertEquals($scoreBefore, $delegatedUser->points);
-        $this->assertEquals($softcoreScoreBefore, $delegatedUser->RASoftcorePoints);
+        $this->assertEquals($scoreBefore, $delegatedUser->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $delegatedUser->points);
 
         // A session shouldn't have been created.
         $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
@@ -218,26 +218,26 @@ class AwardAchievementsTest extends TestCase
     public function testWrongValidationHash(): void
     {
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $game = Game::factory()->create(['system_id' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
-        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
         /** @var User $delegatedUser */
-        $delegatedUser = User::factory()->create(['User' => 'Username', 'Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $delegatedUser = User::factory()->create(['username' => 'Username', 'Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->promoted()->create(['id' => 1, 'game_id' => $game->id, 'user_id' => $integrationUser->id]);
 
-        $scoreBefore = $delegatedUser->RAPoints;
-        $softcoreScoreBefore = $delegatedUser->RASoftcorePoints;
+        $scoreBefore = $delegatedUser->points_hardcore;
+        $softcoreScoreBefore = $delegatedUser->points;
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'awardachievements',
-            'k' => $delegatedUser->User,
+            'k' => $delegatedUser->username,
         ];
         $payload = [
             'a' => $achievement1->id,
@@ -257,8 +257,8 @@ class AwardAchievementsTest extends TestCase
         $delegatedUser->refresh();
 
         // Points shouldn't change.
-        $this->assertEquals($scoreBefore, $delegatedUser->points);
-        $this->assertEquals($softcoreScoreBefore, $delegatedUser->RASoftcorePoints);
+        $this->assertEquals($scoreBefore, $delegatedUser->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $delegatedUser->points);
 
         // A session shouldn't have been created.
         $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
@@ -270,26 +270,26 @@ class AwardAchievementsTest extends TestCase
     public function testNotAuthor(): void
     {
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $game = Game::factory()->create(['system_id' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
-        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
         /** @var User $delegatedUser */
-        $delegatedUser = User::factory()->create(['User' => 'Username', 'Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $delegatedUser = User::factory()->create(['username' => 'Username', 'Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->promoted()->create(['id' => 1, 'game_id' => $game->id, 'user_id' => 9999999]);
 
-        $scoreBefore = $delegatedUser->RAPoints;
-        $softcoreScoreBefore = $delegatedUser->RASoftcorePoints;
+        $scoreBefore = $delegatedUser->points_hardcore;
+        $softcoreScoreBefore = $delegatedUser->points;
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'awardachievements',
-            'k' => $delegatedUser->User,
+            'k' => $delegatedUser->username,
         ];
         $payload = [
             'a' => $achievement1->id,
@@ -309,8 +309,8 @@ class AwardAchievementsTest extends TestCase
         $delegatedUser->refresh();
 
         // Points shouldn't change.
-        $this->assertEquals($scoreBefore, $delegatedUser->points);
-        $this->assertEquals($softcoreScoreBefore, $delegatedUser->RASoftcorePoints);
+        $this->assertEquals($scoreBefore, $delegatedUser->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $delegatedUser->points);
 
         // A session shouldn't have been created.
         $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
@@ -322,19 +322,19 @@ class AwardAchievementsTest extends TestCase
     public function testNoDelegatedUser(): void
     {
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $game = Game::factory()->create(['system_id' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
-        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->promoted()->create(['id' => 1, 'game_id' => $game->id, 'user_id' => $integrationUser->id]);
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'awardachievements',
         ];
         $payload = [
@@ -356,19 +356,19 @@ class AwardAchievementsTest extends TestCase
     public function testInvalidDelegatedUser(): void
     {
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $game = Game::factory()->create(['system_id' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
-        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->promoted()->create(['id' => 1, 'game_id' => $game->id, 'user_id' => $integrationUser->id]);
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'awardachievements',
             'k' => 'Some Guy',
         ];
@@ -392,25 +392,25 @@ class AwardAchievementsTest extends TestCase
     public function testGetCall(): void
     {
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $game = Game::factory()->create(['system_id' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
-        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
         /** @var User $delegatedUser */
-        $delegatedUser = User::factory()->create(['User' => 'Username', 'Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $delegatedUser = User::factory()->create(['username' => 'Username', 'Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->promoted()->create(['id' => 1, 'game_id' => $game->id, 'user_id' => $integrationUser->id]);
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'awardachievements',
             'h' => 1,
             'a' => $achievement1->id,
-            'k' => $delegatedUser->User,
+            'k' => $delegatedUser->username,
             'v' => 'f3a3ef72749787fee6ae6cb933b651b0',
         ];
 

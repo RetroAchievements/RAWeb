@@ -69,11 +69,11 @@ final class Shortcode
         // Find all legacy hubs (games with ConsoleID 100) and their corresponding
         // game_sets entries in a single query.
         $hubMap = Game::query()
-            ->join('game_sets', 'GameData.ID', '=', 'game_sets.game_id')
-            ->where(DB::raw('GameData.ConsoleID'), System::Hubs)
+            ->join('game_sets', 'games.id', '=', 'game_sets.game_id')
+            ->where(DB::raw('games.system_id'), System::Hubs)
             ->where('game_sets.type', GameSetType::Hub)
-            ->whereIn('GameData.ID', $gameIds)
-            ->select('GameData.ID as game_id', 'game_sets.id as hub_id')
+            ->whereIn('games.id', $gameIds)
+            ->select('games.id as game_id', 'game_sets.id as hub_id')
             ->get()
             ->pluck('hub_id', 'game_id');
 
@@ -104,15 +104,15 @@ final class Shortcode
         // Fetch all users by username in a single query.
         $users = User::withTrashed()
             ->where(function ($query) use ($normalizedUsernames) {
-                $query->whereIn(DB::raw('LOWER(User)'), $normalizedUsernames)
+                $query->whereIn(DB::raw('LOWER(username)'), $normalizedUsernames)
                     ->orWhereIn(DB::raw('LOWER(display_name)'), $normalizedUsernames);
             })
-            ->get(['ID', 'User', 'display_name']);
+            ->get(['id', 'username', 'display_name']);
 
         // Create a lookup map that includes both username and display name as keys.
         $userMap = collect();
         foreach ($users as $user) {
-            if ($user->User) {
+            if ($user->username) {
                 $userMap[strtolower($user->username)] = $user;
             }
             if ($user->display_name) {
@@ -125,7 +125,7 @@ final class Shortcode
             $username = strtolower($matches[1]);
             $user = $userMap->get($username);
 
-            return $user ? "[user={$user->ID}]" : $matches[0];
+            return $user ? "[user={$user->id}]" : $matches[0];
         }, $input);
     }
 
@@ -234,9 +234,9 @@ final class Shortcode
                     break;
 
                 case 'gameIds':
-                    $results[$key] = Game::with('system')->whereIn('ID', $ids)
+                    $results[$key] = Game::with('system')->whereIn('id', $ids)
                         ->get()->mapWithKeys(function ($game) {
-                            return [$game->ID => $game];
+                            return [$game->id => $game];
                         });
                     break;
 
@@ -263,18 +263,18 @@ final class Shortcode
 
                 case 'usernames':
                     $userIds = array_filter($ids, fn ($value) => ctype_digit($value));
-                    $results[$key] = User::withTrashed()->whereIn('ID', $userIds)
+                    $results[$key] = User::withTrashed()->whereIn('id', $userIds)
                         ->get()->mapWithKeys(function ($user) {
-                            return [$user->ID => $user];
+                            return [$user->id => $user];
                         });
                     User::withTrashed()
                         ->where(function ($query) use ($ids) {
-                            $query->whereIn('User', $ids)
+                            $query->whereIn('username', $ids)
                                 ->orWhereIn('display_name', $ids);
                         })
                         ->get()->map(function ($user) use ($key, &$results) {
                             $results[$key][$user->display_name] ??= $user;
-                            $results[$key][$user->User] ??= $user;
+                            $results[$key][$user->username] ??= $user;
                         });
 
                     break;
@@ -641,7 +641,7 @@ final class Shortcode
         $userIds = array_map('intval', $matches[1]);
 
         if (!empty($userIds)) {
-            $users = User::withTrashed()->whereIn('ID', $userIds)->get()->keyBy('ID');
+            $users = User::withTrashed()->whereIn('id', $userIds)->get()->keyBy('id');
             $this->usersCache = $users->all();
         }
     }

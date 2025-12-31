@@ -196,7 +196,7 @@ class Event extends BaseModel
      */
     public function legacyGame(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'legacy_game_id', 'ID');
+        return $this->belongsTo(Game::class, 'legacy_game_id', 'id');
     }
 
     /**

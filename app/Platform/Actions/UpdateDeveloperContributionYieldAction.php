@@ -24,8 +24,8 @@ class UpdateDeveloperContributionYieldAction
         $this->ensureBadge($user, AwardType::AchievementPointsYield, $newContribYield);
         $this->ensureBadge($user, AwardType::AchievementUnlocksYield, $newContribCount);
 
-        $user->ContribYield = $newContribYield;
-        $user->ContribCount = $newContribCount;
+        $user->yield_points = $newContribYield;
+        $user->yield_unlocks = $newContribCount;
         $user->saveQuietly();
     }
 

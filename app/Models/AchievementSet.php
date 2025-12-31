@@ -173,7 +173,7 @@ class AchievementSet extends BaseModel
      */
     public function games(): BelongsToMany
     {
-        return $this->belongsToMany(Game::class, 'game_achievement_sets', 'achievement_set_id', 'game_id', 'id', 'ID');
+        return $this->belongsToMany(Game::class, 'game_achievement_sets', 'achievement_set_id', 'game_id', 'id', 'id');
     }
 
     /**
@@ -181,7 +181,7 @@ class AchievementSet extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     // == scopes

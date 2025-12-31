@@ -188,7 +188,7 @@ class UpdatePlayerGameMetricsAction
         }
 
         if ($beatenChanged) {
-            dispatch(new UpdateGameBeatenMetricsJob($game->ID))->onQueue('game-beaten-metrics');
+            dispatch(new UpdateGameBeatenMetricsJob($game->id))->onQueue('game-beaten-metrics');
         }
 
         foreach ($possiblePlayerCountChangeGameIds as $gameId) {

@@ -64,6 +64,8 @@ class AuditLog extends ResourceAuditLog
     {
         $fieldLabelMap = parent::createFieldLabelMap();
 
+        // Support both new and legacy column names for historical audit log entries.
+        $fieldLabelMap['image_icon_asset_path'] = 'Badge';
         $fieldLabelMap['ImageIcon'] = 'Badge';
 
         $fieldLabelMap['release_title'] = 'Release Title';

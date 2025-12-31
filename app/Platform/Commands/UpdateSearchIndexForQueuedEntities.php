@@ -40,7 +40,7 @@ class UpdateSearchIndexForQueuedEntities extends Command
 
         $chunks = array_chunk($pendingGameIds, 100);
         foreach ($chunks as $chunkIds) {
-            $games = Game::whereIn('ID', $chunkIds)->get();
+            $games = Game::whereIn('id', $chunkIds)->get();
             $games->searchable(); // this forces Scout to update the search index
         }
 

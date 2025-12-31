@@ -42,29 +42,29 @@ class UserCompletedGamesTest extends TestCase
 
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/001234.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/001234.png',
         ]);
         $publishedAchievements = Achievement::factory()->promoted()->count(10)->create(['game_id' => $game->id]);
 
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/002345.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/002345.png',
         ]);
         $publishedAchievements2 = Achievement::factory()->promoted()->count(20)->create(['game_id' => $game2->id]);
 
         /** @var Game $game3 */
         $game3 = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/003456.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/003456.png',
         ]);
         Achievement::factory()->promoted()->count(3)->create(['game_id' => $game3->id]);
 
         /** @var Game $game4 */
         $game4 = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/004567.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/004567.png',
         ]);
         $publishedAchievements4 = Achievement::factory()->promoted()->count(8)->create(['game_id' => $game4->id]);
 
@@ -91,15 +91,15 @@ class UserCompletedGamesTest extends TestCase
             $this->addSoftcoreUnlock($user, $ach);
         }
 
-        $this->get($this->apiUrl('GetUserCompletedGames', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserCompletedGames', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 [
                     'GameID' => $game->id,
-                    'Title' => $game->Title,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ConsoleID' => $system->ID,
-                    'ConsoleName' => $system->Name,
+                    'Title' => $game->title,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ConsoleID' => $system->id,
+                    'ConsoleName' => $system->name,
                     'MaxPossible' => 10,
                     'NumAwarded' => 10,
                     'PctWon' => '1.0000',
@@ -107,10 +107,10 @@ class UserCompletedGamesTest extends TestCase
                 ],
                 [
                     'GameID' => $game->id,
-                    'Title' => $game->Title,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ConsoleID' => $system->ID,
-                    'ConsoleName' => $system->Name,
+                    'Title' => $game->title,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ConsoleID' => $system->id,
+                    'ConsoleName' => $system->name,
                     'MaxPossible' => 10,
                     'NumAwarded' => 10,
                     'PctWon' => '1.0000',
@@ -118,10 +118,10 @@ class UserCompletedGamesTest extends TestCase
                 ],
                 [
                     'GameID' => $game2->id,
-                    'Title' => $game2->Title,
-                    'ImageIcon' => $game2->ImageIcon,
-                    'ConsoleID' => $system->ID,
-                    'ConsoleName' => $system->Name,
+                    'Title' => $game2->title,
+                    'ImageIcon' => $game2->image_icon_asset_path,
+                    'ConsoleID' => $system->id,
+                    'ConsoleName' => $system->name,
                     'MaxPossible' => 20,
                     'NumAwarded' => 13,
                     'PctWon' => '0.6500',
@@ -129,10 +129,10 @@ class UserCompletedGamesTest extends TestCase
                 ],
                 [
                     'GameID' => $game2->id,
-                    'Title' => $game2->Title,
-                    'ImageIcon' => $game2->ImageIcon,
-                    'ConsoleID' => $system->ID,
-                    'ConsoleName' => $system->Name,
+                    'Title' => $game2->title,
+                    'ImageIcon' => $game2->image_icon_asset_path,
+                    'ConsoleID' => $system->id,
+                    'ConsoleName' => $system->name,
                     'MaxPossible' => 20,
                     'NumAwarded' => 6,
                     'PctWon' => '0.3000',
@@ -140,10 +140,10 @@ class UserCompletedGamesTest extends TestCase
                 ],
                 [
                     'GameID' => $game4->id,
-                    'Title' => $game4->Title,
-                    'ImageIcon' => $game4->ImageIcon,
-                    'ConsoleID' => $system->ID,
-                    'ConsoleName' => $system->Name,
+                    'Title' => $game4->title,
+                    'ImageIcon' => $game4->image_icon_asset_path,
+                    'ConsoleID' => $system->id,
+                    'ConsoleName' => $system->name,
                     'MaxPossible' => 8,
                     'NumAwarded' => 3,
                     'PctWon' => '0.3750',
@@ -161,29 +161,29 @@ class UserCompletedGamesTest extends TestCase
 
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/001234.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/001234.png',
         ]);
         $publishedAchievements = Achievement::factory()->promoted()->count(10)->create(['game_id' => $game->id]);
 
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/002345.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/002345.png',
         ]);
         $publishedAchievements2 = Achievement::factory()->promoted()->count(20)->create(['game_id' => $game2->id]);
 
         /** @var Game $game3 */
         $game3 = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/003456.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/003456.png',
         ]);
         Achievement::factory()->promoted()->count(3)->create(['game_id' => $game3->id]);
 
         /** @var Game $game4 */
         $game4 = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ImageIcon' => '/Images/004567.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/004567.png',
         ]);
         $publishedAchievements4 = Achievement::factory()->promoted()->count(8)->create(['game_id' => $game4->id]);
 
@@ -215,10 +215,10 @@ class UserCompletedGamesTest extends TestCase
             ->assertJson([
                 [
                     'GameID' => $game->id,
-                    'Title' => $game->Title,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ConsoleID' => $system->ID,
-                    'ConsoleName' => $system->Name,
+                    'Title' => $game->title,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ConsoleID' => $system->id,
+                    'ConsoleName' => $system->name,
                     'MaxPossible' => 10,
                     'NumAwarded' => 10,
                     'PctWon' => '1.0000',
@@ -226,10 +226,10 @@ class UserCompletedGamesTest extends TestCase
                 ],
                 [
                     'GameID' => $game->id,
-                    'Title' => $game->Title,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ConsoleID' => $system->ID,
-                    'ConsoleName' => $system->Name,
+                    'Title' => $game->title,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ConsoleID' => $system->id,
+                    'ConsoleName' => $system->name,
                     'MaxPossible' => 10,
                     'NumAwarded' => 10,
                     'PctWon' => '1.0000',
@@ -237,10 +237,10 @@ class UserCompletedGamesTest extends TestCase
                 ],
                 [
                     'GameID' => $game2->id,
-                    'Title' => $game2->Title,
-                    'ImageIcon' => $game2->ImageIcon,
-                    'ConsoleID' => $system->ID,
-                    'ConsoleName' => $system->Name,
+                    'Title' => $game2->title,
+                    'ImageIcon' => $game2->image_icon_asset_path,
+                    'ConsoleID' => $system->id,
+                    'ConsoleName' => $system->name,
                     'MaxPossible' => 20,
                     'NumAwarded' => 13,
                     'PctWon' => '0.6500',
@@ -248,10 +248,10 @@ class UserCompletedGamesTest extends TestCase
                 ],
                 [
                     'GameID' => $game2->id,
-                    'Title' => $game2->Title,
-                    'ImageIcon' => $game2->ImageIcon,
-                    'ConsoleID' => $system->ID,
-                    'ConsoleName' => $system->Name,
+                    'Title' => $game2->title,
+                    'ImageIcon' => $game2->image_icon_asset_path,
+                    'ConsoleID' => $system->id,
+                    'ConsoleName' => $system->name,
                     'MaxPossible' => 20,
                     'NumAwarded' => 6,
                     'PctWon' => '0.3000',
@@ -259,10 +259,10 @@ class UserCompletedGamesTest extends TestCase
                 ],
                 [
                     'GameID' => $game4->id,
-                    'Title' => $game4->Title,
-                    'ImageIcon' => $game4->ImageIcon,
-                    'ConsoleID' => $system->ID,
-                    'ConsoleName' => $system->Name,
+                    'Title' => $game4->title,
+                    'ImageIcon' => $game4->image_icon_asset_path,
+                    'ConsoleID' => $system->id,
+                    'ConsoleName' => $system->name,
                     'MaxPossible' => 8,
                     'NumAwarded' => 3,
                     'PctWon' => '0.3750',

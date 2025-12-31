@@ -16,7 +16,7 @@ class WriteGameSortTitleFromGameTitleActionTest extends TestCase
     public function testItGeneratesCorrectSortTitles(): void
     {
         // Arrange
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'sort_title' => null]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'sort_title' => null]);
 
         // Act
         (new WriteGameSortTitleFromGameTitleAction())->execute($game, $game->title);
@@ -29,7 +29,7 @@ class WriteGameSortTitleFromGameTitleActionTest extends TestCase
     public function testItPreservesCustomSortTitlesByDefault(): void
     {
         // Arrange
-        $game = Game::factory()->create(['Title' => 'Final Fantasy IV', 'sort_title' => 'final fantasy 00004']);
+        $game = Game::factory()->create(['title' => 'Final Fantasy IV', 'sort_title' => 'final fantasy 00004']);
         $game = $game->fresh();
 
         $game->sort_title = 'ff4';
@@ -46,7 +46,7 @@ class WriteGameSortTitleFromGameTitleActionTest extends TestCase
     public function testItCanBeConfiguredToOverrideCustomSortTitles(): void
     {
         // Arrange
-        $game = Game::factory()->create(['Title' => 'Final Fantasy IV', 'sort_title' => 'final fantasy 0004']);
+        $game = Game::factory()->create(['title' => 'Final Fantasy IV', 'sort_title' => 'final fantasy 0004']);
 
         // Act
         (new WriteGameSortTitleFromGameTitleAction())->execute(

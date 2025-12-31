@@ -40,7 +40,7 @@ class UploadAchievementTest extends TestCase
         /** @var User $author */
         $author = User::factory()->create([
             'Permissions' => Permissions::Developer,
-            'appToken' => Str::random(16),
+            'connect_token' => Str::random(16),
         ]);
         $game = $this->seedGame(withHash: false);
 
@@ -51,8 +51,8 @@ class UploadAchievementTest extends TestCase
 
         $this->get($this->apiUrl('uploadachievement', [
             'u' => $author->username,
-            't' => $author->appToken,
-            'g' => $game->ID,
+            't' => $author->connect_token,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -78,7 +78,7 @@ class UploadAchievementTest extends TestCase
         /** @var User $author */
         $author = User::factory()->create([
             'Permissions' => Permissions::Developer,
-            'appToken' => Str::random(16),
+            'connect_token' => Str::random(16),
         ]);
         $game = $this->seedGame(withHash: false);
 
@@ -93,7 +93,7 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', [
             'a' => $achievement->id,
             'u' => $author->username,
-            't' => $author->appToken,
+            't' => $author->connect_token,
             'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
@@ -116,9 +116,9 @@ class UploadAchievementTest extends TestCase
         /** @var User $author */
         $author = User::factory()->create([
             'Permissions' => Permissions::Developer,
-            'appToken' => Str::random(16),
-            'ContribCount' => 0,
-            'ContribYield' => 0,
+            'connect_token' => Str::random(16),
+            'yield_unlocks' => 0,
+            'yield_points' => 0,
         ]);
         $game = $this->seedGame(withHash: false);
 
@@ -131,9 +131,9 @@ class UploadAchievementTest extends TestCase
         ]);
 
         $params = [
-            'u' => $author->User,
-            't' => $author->appToken,
-            'g' => $game->ID,
+            'u' => $author->username,
+            't' => $author->connect_token,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -153,7 +153,7 @@ class UploadAchievementTest extends TestCase
 
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::findOrFail($achievement1->id + 1);
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title1');
         $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
         $this->assertEquals($achievement2->points, 5);
@@ -180,7 +180,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title1');
         $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
         $this->assertEquals($achievement2->points, 5);
@@ -209,7 +209,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
@@ -228,8 +228,8 @@ class UploadAchievementTest extends TestCase
         $this->addHardcoreUnlock($this->user, $achievement2);
 
         $author->refresh();
-        $this->assertEquals($author->ContribCount, 1);
-        $this->assertEquals($author->ContribYield, 10);
+        $this->assertEquals($author->yield_unlocks, 1);
+        $this->assertEquals($author->yield_points, 10);
 
         $game->refresh();
         $this->assertEquals($game->players_total, 2);
@@ -247,7 +247,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 5);
@@ -263,8 +263,8 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($game->players_hardcore, 2);
 
         $author->refresh();
-        $this->assertEquals($author->ContribCount, 1);
-        $this->assertEquals($author->ContribYield, 5);
+        $this->assertEquals($author->yield_unlocks, 1);
+        $this->assertEquals($author->yield_points, 5);
 
         // ====================================================
         // demote achievement; contrib yield changes
@@ -277,7 +277,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 5);
@@ -293,8 +293,8 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($game->players_hardcore, 0);
 
         $author->refresh();
-        $this->assertEquals($author->ContribCount, 0);
-        $this->assertEquals($author->ContribYield, 0);
+        $this->assertEquals($author->yield_unlocks, 0);
+        $this->assertEquals($author->yield_points, 0);
 
         // ====================================================
         // change points while demoted
@@ -307,7 +307,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
@@ -323,8 +323,8 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($game->players_hardcore, 0);
 
         $author->refresh();
-        $this->assertEquals($author->ContribCount, 0);
-        $this->assertEquals($author->ContribYield, 0);
+        $this->assertEquals($author->yield_unlocks, 0);
+        $this->assertEquals($author->yield_points, 0);
 
         // ====================================================
         // repromote achievement; contrib yield changes
@@ -337,7 +337,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
@@ -353,8 +353,8 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($game->players_hardcore, 2);
 
         $author->refresh();
-        $this->assertEquals($author->ContribCount, 1);
-        $this->assertEquals($author->ContribYield, 10);
+        $this->assertEquals($author->yield_unlocks, 1);
+        $this->assertEquals($author->yield_points, 10);
     }
 
     public function testNonDevPermissions(): void
@@ -362,7 +362,7 @@ class UploadAchievementTest extends TestCase
         /** @var User $author */
         $author = User::factory()->create([
             'Permissions' => Permissions::Registered,
-            'appToken' => Str::random(16),
+            'connect_token' => Str::random(16),
         ]);
         $game = $this->seedGame(withHash: false);
 
@@ -370,9 +370,9 @@ class UploadAchievementTest extends TestCase
         $achievement1 = Achievement::factory()->create(['game_id' => $game->id, 'user_id' => $author->id]);
 
         $params = [
-            'u' => $author->User,
-            't' => $author->appToken,
-            'g' => $game->ID,
+            'u' => $author->username,
+            't' => $author->connect_token,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -396,7 +396,7 @@ class UploadAchievementTest extends TestCase
         /** @var User $author */
         $author = User::factory()->create([
             'Permissions' => Permissions::JuniorDeveloper,
-            'appToken' => Str::random(16),
+            'connect_token' => Str::random(16),
         ]);
         $game = $this->seedGame(withHash: false);
 
@@ -404,9 +404,9 @@ class UploadAchievementTest extends TestCase
         $achievement1 = Achievement::factory()->create(['game_id' => $game->id, 'user_id' => $this->user->id, 'points' => 5]);
 
         $params = [
-            'u' => $author->User,
-            't' => $author->appToken,
-            'g' => $game->ID,
+            'u' => $author->username,
+            't' => $author->connect_token,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -440,7 +440,7 @@ class UploadAchievementTest extends TestCase
 
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::findOrFail($achievement1->id + 1);
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title1');
         $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
         $this->assertEquals($achievement2->points, 5);
@@ -465,7 +465,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
@@ -503,7 +503,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
@@ -524,7 +524,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
@@ -544,7 +544,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
@@ -568,7 +568,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title3');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 5);
@@ -582,7 +582,7 @@ class UploadAchievementTest extends TestCase
         /** @var User $author */
         $author = User::factory()->create([
             'Permissions' => Permissions::Developer,
-            'appToken' => Str::random(16),
+            'connect_token' => Str::random(16),
         ]);
         $game = $this->seedGame(withHash: false);
 
@@ -590,9 +590,9 @@ class UploadAchievementTest extends TestCase
         $achievement1 = Achievement::factory()->create(['game_id' => $game->id, 'user_id' => $this->user->id]);
 
         $params = [
-            'u' => $author->User,
-            't' => $author->appToken,
-            'g' => $game->ID,
+            'u' => $author->username,
+            't' => $author->connect_token,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -626,7 +626,7 @@ class UploadAchievementTest extends TestCase
 
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::findOrFail($achievement1->id + 1);
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title1');
         $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
         $this->assertEquals($achievement2->points, 5);
@@ -651,7 +651,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
@@ -670,7 +670,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
@@ -694,7 +694,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title3');
         $this->assertEquals($achievement2->trigger_definition, '0xH0002=1');
         $this->assertEquals($achievement2->points, 5);
@@ -713,7 +713,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title3');
         $this->assertEquals($achievement2->trigger_definition, '0xH0002=1');
         $this->assertEquals($achievement2->points, 5);
@@ -756,7 +756,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement1->refresh();
-        $this->assertEquals($achievement1->game_id, $game->ID);
+        $this->assertEquals($achievement1->game_id, $game->id);
         $this->assertEquals($achievement1->title, 'Title2');
         $this->assertEquals($achievement1->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement1->points, 10);
@@ -780,7 +780,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement1->refresh();
-        $this->assertEquals($achievement1->game_id, $game->ID);
+        $this->assertEquals($achievement1->game_id, $game->id);
         $this->assertEquals($achievement1->title, 'Title3');
         $this->assertEquals($achievement1->trigger_definition, '0xH0002=1');
         $this->assertEquals($achievement1->points, 5);
@@ -799,7 +799,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement1->refresh();
-        $this->assertEquals($achievement1->game_id, $game->ID);
+        $this->assertEquals($achievement1->game_id, $game->id);
         $this->assertEquals($achievement1->title, 'Title3');
         $this->assertEquals($achievement1->trigger_definition, '0xH0002=1');
         $this->assertEquals($achievement1->points, 5);
@@ -813,10 +813,10 @@ class UploadAchievementTest extends TestCase
         /** @var User $author */
         $author = User::factory()->create([
             'Permissions' => Permissions::Developer,
-            'appToken' => Str::random(16),
+            'connect_token' => Str::random(16),
         ]);
         $game = $this->seedGame(withHash: false);
-        $game->Title .= " [Subset - Testing]";
+        $game->title .= " [Subset - Testing]";
         $game->save();
 
         AchievementSetClaim::factory()->create([
@@ -828,9 +828,9 @@ class UploadAchievementTest extends TestCase
         $achievement1 = Achievement::factory()->create(['game_id' => $game->id + 1, 'user_id' => $author->id]);
 
         $params = [
-            'u' => $author->User,
-            't' => $author->appToken,
-            'g' => $game->ID,
+            'u' => $author->username,
+            't' => $author->connect_token,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -850,7 +850,7 @@ class UploadAchievementTest extends TestCase
 
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::findOrFail($achievement1->id + 1);
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title1');
         $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
         $this->assertEquals($achievement2->points, 5);
@@ -876,7 +876,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title1');
         $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
         $this->assertEquals($achievement2->points, 5);
@@ -915,7 +915,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
@@ -934,10 +934,10 @@ class UploadAchievementTest extends TestCase
         /** @var User $author */
         $author = User::factory()->create([
             'Permissions' => Permissions::Developer,
-            'appToken' => Str::random(16),
+            'connect_token' => Str::random(16),
         ]);
         /** @var System $system */
-        $system = System::factory()->create(['ID' => 500, 'active' => false]);
+        $system = System::factory()->create(['id' => 500, 'active' => false]);
         $game = $this->seedGame(system: $system, withHash: false);
 
         AchievementSetClaim::factory()->create([
@@ -949,9 +949,9 @@ class UploadAchievementTest extends TestCase
         $achievement1 = Achievement::factory()->create(['game_id' => $game->id + 1, 'user_id' => $author->id]);
 
         $params = [
-            'u' => $author->User,
-            't' => $author->appToken,
-            'g' => $game->ID,
+            'u' => $author->username,
+            't' => $author->connect_token,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -971,7 +971,7 @@ class UploadAchievementTest extends TestCase
 
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::findOrFail($achievement1->id + 1);
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title1');
         $this->assertEquals($achievement2->trigger_definition, '0xH0000=1');
         $this->assertEquals($achievement2->points, 5);
@@ -1002,7 +1002,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
@@ -1026,7 +1026,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->game_id, $game->ID);
+        $this->assertEquals($achievement2->game_id, $game->id);
         $this->assertEquals($achievement2->title, 'Title2');
         $this->assertEquals($achievement2->trigger_definition, '0xH0001=1');
         $this->assertEquals($achievement2->points, 10);
@@ -1040,7 +1040,7 @@ class UploadAchievementTest extends TestCase
         /** @var User $author */
         $author = User::factory()->create([
             'Permissions' => Permissions::Developer,
-            'appToken' => Str::random(16),
+            'connect_token' => Str::random(16),
         ]);
         $game = $this->seedGame(withHash: false);
 
@@ -1050,9 +1050,9 @@ class UploadAchievementTest extends TestCase
         ]);
 
         $params = [
-            'u' => $author->User,
-            't' => $author->appToken,
-            'g' => $game->ID,
+            'u' => $author->username,
+            't' => $author->connect_token,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -1099,7 +1099,7 @@ class UploadAchievementTest extends TestCase
         // Arrange
         $author = User::factory()->create([
             'Permissions' => Permissions::Developer,
-            'appToken' => Str::random(16),
+            'connect_token' => Str::random(16),
         ]);
         $game = $this->seedGame(withHash: false);
 
@@ -1111,7 +1111,7 @@ class UploadAchievementTest extends TestCase
         // Act
         $response = $this->get($this->apiUrl('uploadachievement', [
             'u' => $author->username,
-            't' => $author->appToken,
+            't' => $author->connect_token,
             'g' => $game->id,
             'n' => 'Test Achievement',
             'd' => 'Test Description',
@@ -1140,7 +1140,7 @@ class UploadAchievementTest extends TestCase
         // Arrange
         $author = User::factory()->create([
             'Permissions' => Permissions::Developer,
-            'appToken' => Str::random(16),
+            'connect_token' => Str::random(16),
         ]);
         $game = $this->seedGame(withHash: false);
 
@@ -1166,7 +1166,7 @@ class UploadAchievementTest extends TestCase
         // Act
         $response = $this->get($this->apiUrl('uploadachievement', [
             'u' => $author->username,
-            't' => $author->appToken,
+            't' => $author->connect_token,
             'g' => $game->id,
             'n' => 'Test Achievement',
             'd' => 'Test Description',
@@ -1196,7 +1196,7 @@ class UploadAchievementTest extends TestCase
         // Arrange
         $author = User::factory()->create([
             'Permissions' => Permissions::Developer,
-            'appToken' => Str::random(16),
+            'connect_token' => Str::random(16),
         ]);
         $game = $this->seedGame(withHash: false);
 
@@ -1222,7 +1222,7 @@ class UploadAchievementTest extends TestCase
         // Act
         $response = $this->get($this->apiUrl('uploadachievement', [
             'u' => $author->username,
-            't' => $author->appToken,
+            't' => $author->connect_token,
             'g' => $game->id,
             'n' => 'Test Achievement',
             'd' => 'Test Description',
@@ -1249,7 +1249,7 @@ class UploadAchievementTest extends TestCase
         // Arrange
         $author = User::factory()->create([
             'Permissions' => Permissions::Developer,
-            'appToken' => Str::random(16),
+            'connect_token' => Str::random(16),
         ]);
         $game = $this->seedGame(withHash: false);
 
@@ -1266,7 +1266,7 @@ class UploadAchievementTest extends TestCase
         // Act
         $response = $this->get($this->apiUrl('uploadachievement', [
             'u' => $author->username,
-            't' => $author->appToken,
+            't' => $author->connect_token,
             'g' => null, // !! no game id given
             'n' => 'Changed Name',
             'd' => 'Test Description',
@@ -1291,7 +1291,7 @@ class UploadAchievementTest extends TestCase
         // Arrange
         $author = User::factory()->create([
             'Permissions' => Permissions::Developer,
-            'appToken' => Str::random(16),
+            'connect_token' => Str::random(16),
         ]);
         $game = $this->seedGame(withHash: false);
 
@@ -1312,7 +1312,7 @@ class UploadAchievementTest extends TestCase
         // Act
         $response = $this->get($this->apiUrl('uploadachievement', [
             'u' => $author->username,
-            't' => $author->appToken,
+            't' => $author->connect_token,
             'g' => $game->id,
             'n' => 'Test Achievement',
             'd' => 'Test Description',
@@ -1341,9 +1341,9 @@ class UploadAchievementTest extends TestCase
         /** @var User $author */
         $author = User::factory()->create([
             'Permissions' => Permissions::Developer,
-            'appToken' => Str::random(16),
-            'ContribCount' => 0,
-            'ContribYield' => 0,
+            'connect_token' => Str::random(16),
+            'yield_unlocks' => 0,
+            'yield_points' => 0,
         ]);
         $game = $this->seedGame(withHash: false);
 
@@ -1358,9 +1358,9 @@ class UploadAchievementTest extends TestCase
         // ====================================================
         // create an achievement
         $params = [
-            'u' => $author->User,
-            't' => $author->appToken,
-            'g' => $game->ID,
+            'u' => $author->username,
+            't' => $author->connect_token,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -1387,9 +1387,9 @@ class UploadAchievementTest extends TestCase
         // ====================================================
         // create another achievement
         $params = [
-            'u' => $author->User,
-            't' => $author->appToken,
-            'g' => $game->ID,
+            'u' => $author->username,
+            't' => $author->connect_token,
+            'g' => $game->id,
             'n' => 'Title2',
             'd' => 'Description2',
             'z' => 10,
@@ -1438,9 +1438,9 @@ class UploadAchievementTest extends TestCase
         /** @var User $author */
         $author = User::factory()->create([
             'Permissions' => Permissions::Developer,
-            'appToken' => Str::random(16),
-            'ContribCount' => 0,
-            'ContribYield' => 0,
+            'connect_token' => Str::random(16),
+            'yield_unlocks' => 0,
+            'yield_points' => 0,
         ]);
         $game = $this->seedGame(withHash: false, achievements: 6);
 
@@ -1483,9 +1483,9 @@ class UploadAchievementTest extends TestCase
         ]);
 
         $params3 = [
-            'u' => $author->User,
-            't' => $author->appToken,
-            'g' => $game->ID,
+            'u' => $author->username,
+            't' => $author->connect_token,
+            'g' => $game->id,
             'a' => $achievement3->id,
             'n' => $achievement3->title,
             'd' => $achievement3->description,
@@ -1495,9 +1495,9 @@ class UploadAchievementTest extends TestCase
             'b' => $achievement3->image_name,
         ];
         $params4 = [
-            'u' => $author->User,
-            't' => $author->appToken,
-            'g' => $game->ID,
+            'u' => $author->username,
+            't' => $author->connect_token,
+            'g' => $game->id,
             'a' => $achievement4->id,
             'n' => $achievement4->title,
             'd' => $achievement4->description,

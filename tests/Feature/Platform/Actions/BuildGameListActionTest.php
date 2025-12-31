@@ -51,7 +51,7 @@ class BuildGameListActionTest extends TestCase
         $user = User::factory()->create();
 
         $system = System::factory()->create();
-        $games = Game::factory()->count(10)->create(['ConsoleID' => $system->id]);
+        $games = Game::factory()->count(10)->create(['system_id' => $system->id]);
 
         $addGameToListAction = new AddGameToListAction();
         foreach ($games as $game) {
@@ -189,28 +189,28 @@ class BuildGameListActionTest extends TestCase
         // Arrange
         $user = User::factory()->create();
 
-        $systemGb = System::factory()->create(['ID' => 1, 'name' => 'Game Boy', 'name_short' => 'GB']);
-        $systemNes = System::factory()->create(['ID' => 2, 'name' => 'NES/Famicom', 'name_short' => 'NES']);
+        $systemGb = System::factory()->create(['id' => 1, 'name' => 'Game Boy', 'name_short' => 'GB']);
+        $systemNes = System::factory()->create(['id' => 2, 'name' => 'NES/Famicom', 'name_short' => 'NES']);
 
         Game::factory()->create([
-            'ID' => 1000,
-            'ConsoleID' => $systemGb->id,
-            'Title' => 'AAA',
+            'id' => 1000,
+            'system_id' => $systemGb->id,
+            'title' => 'AAA',
         ]);
         Game::factory()->create([
-            'ID' => 1001,
-            'ConsoleID' => $systemGb->id,
-            'Title' => '~Hack~ AAA',
+            'id' => 1001,
+            'system_id' => $systemGb->id,
+            'title' => '~Hack~ AAA',
         ]);
         Game::factory()->create([
-            'ID' => 1002,
-            'ConsoleID' => $systemGb->id,
-            'Title' => 'ZZZ',
+            'id' => 1002,
+            'system_id' => $systemGb->id,
+            'title' => 'ZZZ',
         ]);
         Game::factory()->create([
-            'ID' => 1003,
-            'ConsoleID' => $systemNes->id,
-            'Title' => 'BBB',
+            'id' => 1003,
+            'system_id' => $systemNes->id,
+            'title' => 'BBB',
         ]);
 
         $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003]);
@@ -327,7 +327,7 @@ class BuildGameListActionTest extends TestCase
 
         foreach ($dates as $gameId => $date) {
             $game = Game::find($gameId);
-            $game->Updated = Carbon::parse($date);
+            $game->updated_at = Carbon::parse($date);
             $game->save(['timestamps' => false]); // prevent updated_at from being set to now
         }
 
@@ -958,17 +958,17 @@ class BuildGameListActionTest extends TestCase
     public function testItReturnsCorrectGamesForAllGamesList(): void
     {
         // Arrange
-        $activeGameSystem = System::factory()->create(['ID' => 1, 'name' => 'NES/Famicom', 'name_short' => 'NES', 'active' => true]);
-        $inactiveGameSystem = System::factory()->create(['ID' => 2, 'name' => 'PlayStation 5', 'name_short' => 'PS5', 'active' => false]);
+        $activeGameSystem = System::factory()->create(['id' => 1, 'name' => 'NES/Famicom', 'name_short' => 'NES', 'active' => true]);
+        $inactiveGameSystem = System::factory()->create(['id' => 2, 'name' => 'PlayStation 5', 'name_short' => 'PS5', 'active' => false]);
 
-        Game::factory()->create(['Title' => 'AAAAAAA', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
-        Game::factory()->create(['Title' => 'BBBBBBB', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
+        Game::factory()->create(['title' => 'AAAAAAA', 'achievements_published' => 50, 'system_id' => $activeGameSystem->id]);
+        Game::factory()->create(['title' => 'BBBBBBB', 'achievements_published' => 50, 'system_id' => $activeGameSystem->id]);
 
         // Event, hub, and inactive system games should all be excluded from the "All Games" list.
-        Game::factory()->create(['Title' => 'CCCCCCC', 'achievements_published' => 50, 'ConsoleID' => System::Events]);
-        Game::factory()->create(['Title' => 'DDDDDDD', 'achievements_published' => 50, 'ConsoleID' => System::Hubs]);
-        Game::factory()->create(['Title' => 'EEEEEEE', 'achievements_published' => 50, 'ConsoleID' => $inactiveGameSystem->id]);
-        Game::factory()->create(['Title' => 'AAAAAAA [Subset - Bonus]', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
+        Game::factory()->create(['title' => 'CCCCCCC', 'achievements_published' => 50, 'system_id' => System::Events]);
+        Game::factory()->create(['title' => 'DDDDDDD', 'achievements_published' => 50, 'system_id' => System::Hubs]);
+        Game::factory()->create(['title' => 'EEEEEEE', 'achievements_published' => 50, 'system_id' => $inactiveGameSystem->id]);
+        Game::factory()->create(['title' => 'AAAAAAA [Subset - Bonus]', 'achievements_published' => 50, 'system_id' => $activeGameSystem->id]);
 
         // Act
         $result = (new BuildGameListAction())->execute(
@@ -983,20 +983,20 @@ class BuildGameListActionTest extends TestCase
 
     private function seedGamesForLists(): void
     {
-        $systemGb = System::factory()->create(['ID' => 1, 'name' => 'Game Boy', 'name_short' => 'GB']);
-        $systemNes = System::factory()->create(['ID' => 2, 'name' => 'NES/Famicom', 'name_short' => 'NES']);
+        $systemGb = System::factory()->create(['id' => 1, 'name' => 'Game Boy', 'name_short' => 'GB']);
+        $systemNes = System::factory()->create(['id' => 2, 'name' => 'NES/Famicom', 'name_short' => 'NES']);
 
         $game1000 = Game::factory()->create([
-            'ID' => 1000,
-            'ConsoleID' => $systemGb->id,
-            'Title' => 'A-Mazing Tater | Puzzle Boy II',
-            'ImageIcon' => '/Images/090884.png',
+            'id' => 1000,
+            'system_id' => $systemGb->id,
+            'title' => 'A-Mazing Tater | Puzzle Boy II',
+            'image_icon_asset_path' => '/Images/090884.png',
             'players_total' => 969,
             'players_hardcore' => 641,
             'achievements_published' => 45,
             'points_total' => 448,
-            'TotalTruePoints' => 813,
-            'Updated' => Carbon::parse('2023-06-06'),
+            'points_weighted' => 813,
+            'updated_at' => Carbon::parse('2023-06-06'),
         ]);
         GameRelease::factory()->create([
             'game_id' => $game1000->id,
@@ -1008,16 +1008,16 @@ class BuildGameListActionTest extends TestCase
         ]);
 
         $game1001 = Game::factory()->create([
-            'ID' => 1001,
-            'ConsoleID' => $systemGb->id,
-            'Title' => '~Hack~ Twitch Plays Pokemon: Anniversary Red',
-            'ImageIcon' => '/Images/094381.png',
+            'id' => 1001,
+            'system_id' => $systemGb->id,
+            'title' => '~Hack~ Twitch Plays Pokemon: Anniversary Red',
+            'image_icon_asset_path' => '/Images/094381.png',
             'players_total' => 120,
             'players_hardcore' => 97,
             'achievements_published' => 47,
             'points_total' => 300,
-            'TotalTruePoints' => 363,
-            'Updated' => Carbon::parse('2023-06-06'),
+            'points_weighted' => 363,
+            'updated_at' => Carbon::parse('2023-06-06'),
         ]);
         GameRelease::factory()->create([
             'game_id' => $game1001->id,
@@ -1029,16 +1029,16 @@ class BuildGameListActionTest extends TestCase
         ]);
 
         $game1002 = Game::factory()->create([
-            'ID' => 1002,
-            'ConsoleID' => $systemNes->id,
-            'Title' => 'Final Fantasy [Subset - Solo Class]',
-            'ImageIcon' => '/Images/071115.png',
+            'id' => 1002,
+            'system_id' => $systemNes->id,
+            'title' => 'Final Fantasy [Subset - Solo Class]',
+            'image_icon_asset_path' => '/Images/071115.png',
             'players_total' => 2856,
             'players_hardcore' => 2054,
             'achievements_published' => 144,
             'points_total' => 1747,
-            'TotalTruePoints' => 35962,
-            'Updated' => Carbon::parse('2023-06-06'),
+            'points_weighted' => 35962,
+            'updated_at' => Carbon::parse('2023-06-06'),
         ]);
         GameRelease::factory()->create([
             'game_id' => $game1002->id,
@@ -1050,16 +1050,16 @@ class BuildGameListActionTest extends TestCase
         ]);
 
         $game1003 = Game::factory()->create([
-            'ID' => 1003,
-            'ConsoleID' => $systemNes->id,
-            'Title' => 'Dragon Quest III | Dragon Warrior III',
-            'ImageIcon' => '/Images/026797.png',
+            'id' => 1003,
+            'system_id' => $systemNes->id,
+            'title' => 'Dragon Quest III | Dragon Warrior III',
+            'image_icon_asset_path' => '/Images/026797.png',
             'players_total' => 826,
             'players_hardcore' => 623,
             'achievements_published' => 50,
             'points_total' => 400,
-            'TotalTruePoints' => 548,
-            'Updated' => Carbon::parse('2023-06-06'),
+            'points_weighted' => 548,
+            'updated_at' => Carbon::parse('2023-06-06'),
         ]);
         GameRelease::factory()->create([
             'game_id' => $game1003->id,
@@ -1071,31 +1071,31 @@ class BuildGameListActionTest extends TestCase
         ]);
 
         $game1004 = Game::factory()->create([
-            'ID' => 1004,
-            'ConsoleID' => $systemNes->id,
-            'Title' => 'Cycle Race: Road Man',
-            'ImageIcon' => '/Images/013746.png',
+            'id' => 1004,
+            'system_id' => $systemNes->id,
+            'title' => 'Cycle Race: Road Man',
+            'image_icon_asset_path' => '/Images/013746.png',
             'released_at' => null,
             'released_at_granularity' => null,
             'players_total' => 0,
             'players_hardcore' => 0,
             'achievements_published' => 0,
             'points_total' => 0,
-            'TotalTruePoints' => 0,
-            'Updated' => Carbon::parse('2023-06-06'),
+            'points_weighted' => 0,
+            'updated_at' => Carbon::parse('2023-06-06'),
         ]);
 
         $game1005 = Game::factory()->create([
-            'ID' => 1005,
-            'ConsoleID' => $systemNes->id,
-            'Title' => 'Double Moon Densetsu',
-            'ImageIcon' => '/Images/071237.png',
+            'id' => 1005,
+            'system_id' => $systemNes->id,
+            'title' => 'Double Moon Densetsu',
+            'image_icon_asset_path' => '/Images/071237.png',
             'players_total' => 18,
             'players_hardcore' => 17,
             'achievements_published' => 38,
             'points_total' => 240,
-            'TotalTruePoints' => 282,
-            'Updated' => Carbon::parse('2023-06-06'),
+            'points_weighted' => 282,
+            'updated_at' => Carbon::parse('2023-06-06'),
         ]);
         GameRelease::factory()->create([
             'game_id' => $game1005->id,

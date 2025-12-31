@@ -48,7 +48,7 @@ class AchievementSetClaimPolicy
         }
 
         // Junior developers can only create claims for games with forum topics.
-        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && !$game->ForumTopicID) {
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && !$game->forum_topic_id) {
             return false;
         }
 
@@ -134,7 +134,7 @@ class AchievementSetClaimPolicy
         $game = $achievementSetClaim->game;
 
         // For valid/active systems, require promoted/official achievements to complete the claim.
-        if (isValidConsoleId($game->ConsoleID)) {
+        if (isValidConsoleId($game->system_id)) {
             return $game->achievements_published > 0; // TODO this probably needs to use achievement sets at some point in the future
         }
 

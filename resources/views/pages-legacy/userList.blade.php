@@ -108,9 +108,9 @@ if ($perms >= Permissions::Spam && $perms <= Permissions::Moderator) {
         }
 
         $nextUser = $userEntry['User'];
-        $totalPoints = $userEntry['RAPoints'];
+        $totalPoints = $userEntry['points'];
         $totalEarned = $userEntry['NumAwarded'];
-        $lastLogin = !empty($userEntry['LastLogin']) ? getNiceDate(strtotime($userEntry['LastLogin'])) : '';
+        $lastLogin = !empty($userEntry['last_activity_at']) ? getNiceDate(strtotime($userEntry['last_activity_at'])) : '';
 
         if ($sortBy == 2) {
             echo "<td>";

@@ -406,7 +406,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function developer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'user_id')->withTrashed();
     }
 
     /**

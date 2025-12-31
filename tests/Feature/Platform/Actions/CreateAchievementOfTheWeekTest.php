@@ -23,7 +23,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
     public function testCreateEmpty(): void
     {
         /** @var System $eventSystem */
-        $eventSystem = System::factory()->create(['ID' => System::Events]);
+        $eventSystem = System::factory()->create(['id' => System::Events]);
 
         $event = (new CreateAchievementOfTheWeek())->execute(Carbon::parse('2023-01-02'))->legacyGame;
 
@@ -98,9 +98,9 @@ class CreateAchievementOfTheWeekTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var System $eventSystem */
-        $eventSystem = System::factory()->create(['ID' => System::Events]);
+        $eventSystem = System::factory()->create(['id' => System::Events]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var Achievement $sourceAchievement1 */
         $sourceAchievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Achievement $sourceAchievement2 */
@@ -119,7 +119,7 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->addHardcoreUnlock($player3, $sourceAchievement2, $time4);
 
         $lastLogin = Carbon::parse('2020-01-02 03:04:05');
-        $player1->LastLogin = $lastLogin;
+        $player1->last_activity_at = $lastLogin;
         $player1->save();
 
         $event = (new CreateAchievementOfTheWeek())->execute(Carbon::parse('2024-01-01'), [$sourceAchievement1->id, $sourceAchievement2->id])->legacyGame;
@@ -192,6 +192,6 @@ class CreateAchievementOfTheWeekTest extends TestCase
 
         // unlocking event achievements should not generate user activity
         $player1->refresh();
-        $this->assertEquals($lastLogin, $player1->LastLogin);
+        $this->assertEquals($lastLogin, $player1->last_activity_at);
     }
 }

@@ -34,7 +34,7 @@ class UnsubscribeServiceTest extends TestCase
 
         $this->service = new UnsubscribeService();
         $this->user = User::factory()->create();
-        $this->system = System::factory()->create(['ID' => 1, 'Name' => 'NES/Famicom']);
+        $this->system = System::factory()->create(['id' => 1, 'name' => 'NES/Famicom']);
     }
 
     /**
@@ -42,7 +42,7 @@ class UnsubscribeServiceTest extends TestCase
      */
     private function createUserWithPreferences(int $websitePrefs): User
     {
-        return User::factory()->create(['websitePrefs' => $websitePrefs]);
+        return User::factory()->create(['preferences_bitfield' => $websitePrefs]);
     }
 
     /**
@@ -85,7 +85,7 @@ class UnsubscribeServiceTest extends TestCase
     private function assertUserPreferenceBit(User $user, int $preference, bool $shouldBeSet): void
     {
         $user->refresh();
-        $isSet = ($user->websitePrefs & (1 << $preference)) !== 0;
+        $isSet = ($user->preferences_bitfield & (1 << $preference)) !== 0;
         $this->assertEquals($shouldBeSet, $isSet);
     }
 
@@ -196,8 +196,8 @@ class UnsubscribeServiceTest extends TestCase
     {
         // Arrange
         $game = Game::factory()->create([
-            'Title' => 'Dragon Quest III',
-            'ConsoleID' => $this->system->id,
+            'title' => 'Dragon Quest III',
+            'system_id' => $this->system->id,
         ]);
         $token = $this->generateValidGranularToken(
             $this->user->id,
@@ -224,7 +224,7 @@ class UnsubscribeServiceTest extends TestCase
     public function testItProcessesGranularUnsubscribeForAchievement(): void
     {
         // Arrange
-        $game = Game::factory()->create(['ConsoleID' => $this->system->id]);
+        $game = Game::factory()->create(['system_id' => $this->system->id]);
         $achievement = Achievement::factory()->create([
             'game_id' => $game->id,
             'title' => 'First Boss Defeated',
@@ -254,7 +254,7 @@ class UnsubscribeServiceTest extends TestCase
     public function testItProcessesGranularUnsubscribeForUserWall(): void
     {
         // Arrange
-        $targetUser = User::factory()->create(['User' => 'TestUser']);
+        $targetUser = User::factory()->create(['username' => 'TestUser']);
         $token = $this->generateValidGranularToken(
             $this->user->id,
             SubscriptionSubjectType::UserWall, // !!
@@ -531,7 +531,7 @@ class UnsubscribeServiceTest extends TestCase
         $this->assertEquals('unsubscribeSuccess-forumThread', $forumResult['descriptionKey']);
 
         // GameWall
-        $game = Game::factory()->create(['Title' => 'Test Game', 'ConsoleID' => $this->system->id]);
+        $game = Game::factory()->create(['title' => 'Test Game', 'system_id' => $this->system->id]);
         $gameWallToken = $this->generateValidGranularToken(
             $this->user->id,
             SubscriptionSubjectType::GameWall, // !!
@@ -556,7 +556,7 @@ class UnsubscribeServiceTest extends TestCase
         $this->assertEquals(['achievementTitle' => 'Test Achievement'], $achievementResult['descriptionParams']);
 
         // UserWall
-        $targetUser = User::factory()->create(['User' => 'TargetUser']);
+        $targetUser = User::factory()->create(['username' => 'TargetUser']);
         $userWallToken = $this->generateValidGranularToken(
             $this->user->id,
             SubscriptionSubjectType::UserWall, // !!

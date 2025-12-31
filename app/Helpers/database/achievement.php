@@ -76,18 +76,18 @@ function getAchievementsList(
                 ach.modified_at AS DateModified,
                 ach.image_name AS BadgeName,
                 ach.game_id AS GameID,
-                gd.Title AS GameTitle,
-                gd.ImageIcon AS GameIcon,
-                gd.ConsoleID,
-                c.Name AS ConsoleName,
-                ua.User AS Author
+                gd.title AS GameTitle,
+                gd.image_icon_asset_path AS GameIcon,
+                gd.system_id AS ConsoleID,
+                s.name AS ConsoleName,
+                ua.username AS Author
                 $selectAwardedDate
             FROM achievements AS ach
             $joinPlayerAchievements
-            INNER JOIN UserAccounts AS ua ON ua.ID = ach.user_id
-            INNER JOIN GameData AS gd ON gd.ID = ach.game_id
-            INNER JOIN Console AS c ON c.ID = gd.ConsoleID
-            WHERE gd.ConsoleID != " . System::Events . "
+            INNER JOIN users AS ua ON ua.id = ach.user_id
+            INNER JOIN games AS gd ON gd.id = ach.game_id
+            INNER JOIN systems AS s ON s.id = gd.system_id
+            WHERE gd.system_id != " . System::Events . "
             AND ach.is_promoted = :isPromoted
             AND ach.deleted_at IS NULL ";
 
@@ -121,7 +121,7 @@ function getAchievementsList(
             $query .= "ORDER BY ach.points_weighted, ach.points DESC, GameTitle ";
             break;
         case 5:
-            $query .= "ORDER BY ua.User ";
+            $query .= "ORDER BY ua.username ";
             break;
         case 6:
             $query .= "ORDER BY GameTitle ";
@@ -148,7 +148,7 @@ function getAchievementsList(
             $query .= "ORDER BY ach.points_weighted DESC, ach.points, GameTitle ";
             break;
         case 15:
-            $query .= "ORDER BY ua.User DESC ";
+            $query .= "ORDER BY ua.username DESC ";
             break;
         case 16:
             $query .= "ORDER BY GameTitle DESC ";
@@ -202,7 +202,7 @@ function GetAchievementData(int $achievementId): ?array
         'ConsoleID' => $achievement->game->system->id,
         'ConsoleName' => $achievement->game->system->name,
         'GameTitle' => $achievement->game->title,
-        'GameIcon' => $achievement->game->ImageIcon,
+        'GameIcon' => $achievement->game->image_icon_asset_path,
     ];
 }
 
@@ -284,8 +284,8 @@ function UploadNewAchievement(
         }
 
         $isForSubsetOrTestKit = (
-            mb_strpos($gameData['Title'], '[Subset') !== false
-            || mb_strpos($gameData['Title'], '~Test Kit~') !== false
+            mb_strpos($gameData['title'], '[Subset') !== false
+            || mb_strpos($gameData['title'], '~Test Kit~') !== false
         );
 
         if (

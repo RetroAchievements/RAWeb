@@ -196,7 +196,7 @@ final class ShortcodeTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'id' => 123,
-            'User' => 'Jamiras',
+            'username' => 'Jamiras',
         ]);
 
         $rawString = 'https://retroachievements.org/user/Jamiras';
@@ -526,13 +526,13 @@ final class ShortcodeTest extends TestCase
     {
         // Arrange
         /** @var System $system */
-        $system = System::factory()->create(['id' => 1, 'Name' => 'Mega Drive']);
+        $system = System::factory()->create(['id' => 1, 'name' => 'Mega Drive']);
 
         /** @var Game $game */
         $game = Game::factory()->create([
             'id' => 1,
-            'ConsoleID' => $system->ID,
-            'Title' => 'Sonic the Hedgehog',
+            'system_id' => $system->id,
+            'title' => 'Sonic the Hedgehog',
         ]);
 
         // Act
@@ -551,13 +551,13 @@ final class ShortcodeTest extends TestCase
     {
         // Arrange
         /** @var System $system */
-        $system = System::factory()->create(['id' => 1, 'Name' => 'Mega Drive']);
+        $system = System::factory()->create(['id' => 1, 'name' => 'Mega Drive']);
 
         /** @var Game $game */
         $game = Game::factory()->create([
             'id' => 1,
-            'ConsoleID' => $system->ID,
-            'Title' => 'Sonic the Hedgehog',
+            'system_id' => $system->id,
+            'title' => 'Sonic the Hedgehog',
         ]);
 
         /** @var Achievement $achievement */
@@ -586,7 +586,7 @@ final class ShortcodeTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'id' => 456,
-            'User' => 'Scott',
+            'username' => 'Scott',
             'display_name' => 'Scott',
         ]);
 
@@ -608,7 +608,7 @@ final class ShortcodeTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'id' => 456,
-            'User' => 'Scott',
+            'username' => 'Scott',
             'display_name' => 'Scott',
         ]);
 
@@ -630,12 +630,12 @@ final class ShortcodeTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'id' => 456,
-            'User' => 'Scott',
+            'username' => 'Scott',
             'display_name' => 'Scott',
         ]);
         $user2 = User::factory()->create([
             'id' => 999,
-            'User' => '456',
+            'username' => '456',
             'display_name' => '456',
         ]);
 
@@ -682,8 +682,8 @@ final class ShortcodeTest extends TestCase
         /** @var Game $legacyGame */
         $legacyGame = Game::factory()->create([
             'id' => 999,
-            'ConsoleID' => $system->ID,
-            'Title' => 'Achievement of the Week 2025',
+            'system_id' => $system->id,
+            'title' => 'Achievement of the Week 2025',
         ]);
 
         /** @var Event $event */
@@ -708,13 +708,13 @@ final class ShortcodeTest extends TestCase
     {
         // Arrange
         /** @var System $system */
-        $system = System::factory()->create(['id' => 1, 'Name' => 'Mega Drive']);
+        $system = System::factory()->create(['id' => 1, 'name' => 'Mega Drive']);
 
         /** @var Game $game */
         $game = Game::factory()->create([
             'id' => 1,
-            'ConsoleID' => $system->ID,
-            'Title' => 'Sonic the Hedgehog',
+            'system_id' => $system->id,
+            'title' => 'Sonic the Hedgehog',
         ]);
 
         /** @var Achievement $achievement */
@@ -768,13 +768,13 @@ final class ShortcodeTest extends TestCase
     {
         // Arrange
         /** @var System $system */
-        $system = System::factory()->create(['id' => 1, 'Name' => 'NES']);
+        $system = System::factory()->create(['id' => 1, 'name' => 'NES']);
 
         /** @var Game $game */
         $game = Game::factory()->create([
             'id' => 1,
-            'ConsoleID' => $system->ID,
-            'Title' => 'Super Mario Bros.',
+            'system_id' => $system->id,
+            'title' => 'Super Mario Bros.',
         ]);
 
         /** @var Achievement $achievement */
@@ -788,7 +788,7 @@ final class ShortcodeTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'id' => 5,
-            'User' => 'TestUser',
+            'username' => 'TestUser',
             'display_name' => 'TestUser',
         ]);
 
@@ -810,13 +810,13 @@ final class ShortcodeTest extends TestCase
     {
         // Arrange
         /** @var System $system */
-        $system = System::factory()->create(['id' => 1, 'Name' => 'SNES']);
+        $system = System::factory()->create(['id' => 1, 'name' => 'SNES']);
 
         /** @var Game $game */
         $game = Game::factory()->create([
             'id' => 1,
-            'ConsoleID' => $system->ID,
-            'Title' => 'Chrono Trigger',
+            'system_id' => $system->id,
+            'title' => 'Chrono Trigger',
         ]);
 
         // Act
@@ -851,13 +851,13 @@ final class ShortcodeTest extends TestCase
     {
         // Arrange
         /** @var System $system */
-        $system = System::factory()->create(['id' => 1, 'Name' => 'PS1']);
+        $system = System::factory()->create(['id' => 1, 'name' => 'PS1']);
 
         /** @var Game $game */
         $game = Game::factory()->create([
             'id' => 100,
-            'ConsoleID' => $system->ID,
-            'Title' => 'Final Fantasy VII',
+            'system_id' => $system->id,
+            'title' => 'Final Fantasy VII',
         ]);
 
         /** @var Achievement $achievement */

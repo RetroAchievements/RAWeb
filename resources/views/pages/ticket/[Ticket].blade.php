@@ -73,7 +73,7 @@ $commentData = [];
     <div class="navpath">
         <a href="{{ route('tickets.index') }}">Open Tickets</a>
         &raquo;
-        <a href="{{ route('game.tickets', ['game' => $ticket->achievement->game]) }}">{{ $ticket->achievement->game->Title }}</a>
+        <a href="{{ route('game.tickets', ['game' => $ticket->achievement->game]) }}">{{ $ticket->achievement->game->title }}</a>
         &raquo;
         <span class="font-bold">Ticket {{ $ticket->ID }}</span>
     </div>
@@ -275,9 +275,9 @@ $commentData = [];
                         @php
                             $when = Carbon::createFromTimestampUTC($comment['Submitted']);
                             $commentUser = match($comment['User']) {
-                                $ticket->reporter?->User => $ticket->reporter,
-                                $user->User => $user,
-                                default => User::withTrashed()->where('User', $comment['User'])->first()
+                                $ticket->reporter?->username => $ticket->reporter,
+                                $user->username => $user,
+                                default => User::withTrashed()->where('username', $comment['User'])->first()
                             };
                         @endphp
                         <x-comment.item
@@ -287,7 +287,7 @@ $commentData = [];
                             articleType="{{ ArticleType::AchievementTicket }}"
                             :articleId="$ticket->ID"
                             :commentId="$comment['ID']"
-                            :allowDelete="$allowDelete || $comment['User'] === $user->User"
+                            :allowDelete="$allowDelete || $comment['User'] === $user->username"
                         />
                     @endforeach
 
@@ -319,7 +319,7 @@ $commentData = [];
                                     }
                                 }
                             @endphp
-                            @if ($lastComment != null && ($lastComment['User'] === $user->User || $lastComment['User'] === $ticket->achievement->developer->display_name) && !$ticket->reporter->trashed())
+                            @if ($lastComment != null && ($lastComment['User'] === $user->username || $lastComment['User'] === $ticket->achievement->developer->display_name) && !$ticket->reporter->trashed())
                                 <option value="{{ TicketAction::Request }}">Transfer to reporter - {{ $ticket->reporter->display_name }}</option>
                             @endif
                         @else

@@ -75,7 +75,7 @@ if (!$targetUser) {
 }
 
 $gameId = (int) $input['g'];
-$game = Game::where('ID', $gameId)->with('system')->first();
+$game = Game::where('id', $gameId)->with('system')->first();
 if (!$game) {
     return response()->json([]);
 }
@@ -97,19 +97,19 @@ $gameData = [
     'UserCompletion' => sprintf("%01.2f%%", ($playerGame->completion_percentage ?? 0) * 100),
     'UserCompletionHardcore' => sprintf("%01.2f%%", ($playerGame->completion_percentage_hardcore ?? 0) * 100),
     'UserTotalPlaytime' => $playerGame->playtime_total ?? 0,
-    'ForumTopicID' => $game->ForumTopicID,
+    'ForumTopicID' => $game->forum_topic_id,
     'Flags' => 0,
-    'ImageIcon' => $game->ImageIcon,
-    'ImageTitle' => $game->ImageTitle,
-    'ImageIngame' => $game->ImageIngame,
-    'ImageBoxArt' => $game->ImageBoxArt,
-    'Publisher' => $game->Publisher,
-    'Developer' => $game->Developer,
-    'Genre' => $game->Genre,
+    'ImageIcon' => $game->image_icon_asset_path,
+    'ImageTitle' => $game->image_title_asset_path,
+    'ImageIngame' => $game->image_ingame_asset_path,
+    'ImageBoxArt' => $game->image_box_art_asset_path,
+    'Publisher' => $game->publisher,
+    'Developer' => $game->developer,
+    'Genre' => $game->genre,
     'Released' => $game->released_at ? $game->released_at->format('Y-m-d') : null,
     'ReleasedAtGranularity' => $game->released_at_granularity,
     'IsFinal' => false,
-    'RichPresencePatch' => md5($game->RichPresencePatch),
+    'RichPresencePatch' => md5($game->trigger_definition ?? ''),
 ];
 
 if (!$game->achievements_published) {

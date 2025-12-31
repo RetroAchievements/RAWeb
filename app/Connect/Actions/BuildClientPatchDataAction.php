@@ -164,10 +164,10 @@ class BuildClientPatchDataAction
             'ID' => $game->id,
             'ParentID' => $game->id,
             'Title' => $title,
-            'ImageIcon' => $game->ImageIcon,
-            'RichPresencePatch' => $game->RichPresencePatch,
-            'ConsoleID' => $game->ConsoleID,
-            'ImageIconURL' => media_asset($game->ImageIcon),
+            'ImageIcon' => $game->image_icon_asset_path,
+            'RichPresencePatch' => $game->trigger_definition,
+            'ConsoleID' => $game->system_id,
+            'ImageIconURL' => media_asset($game->image_icon_asset_path),
         ];
     }
 
@@ -245,9 +245,9 @@ class BuildClientPatchDataAction
             'PatchData' => [
                 'ID' => VirtualGameIdService::encodeVirtualGameId($game->id, $gameHashCompatibility),
                 'Title' => "Unsupported Game Version ($game->title)",
-                'ConsoleID' => $game->ConsoleID,
-                'ImageIcon' => $game->ImageIcon,
-                'ImageIconURL' => media_asset($game->ImageIcon),
+                'ConsoleID' => $game->system_id,
+                'ImageIcon' => $game->image_icon_asset_path,
+                'ImageIconURL' => media_asset($game->image_icon_asset_path),
                 'Achievements' => [
                     (new CreateWarningAchievementAction())->execute(
                         title: 'Unsupported Game Version',

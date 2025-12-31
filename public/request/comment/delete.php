@@ -15,7 +15,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 ]);
 
 $comment = Comment::findOrFail((int) $input['comment']);
-$user = User::find($userDetails['ID']);
+$user = User::find($userDetails['id']);
 
 if (!$user->can('delete', $comment)) {
     abort(400);

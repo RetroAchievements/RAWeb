@@ -90,14 +90,14 @@ class UserForumTopicCommentController extends Controller
                 lftc.id AS CommentID, 
                 lftc.created_at AS PostedAt, 
                 lftc.author_id,
-                ua.User AS Author, 
+                ua.username AS Author,
                 ua.display_name AS AuthorDisplayName,
                 lftc.body AS ShortMsg,
                 0 AS IsTruncated
             FROM forum_topic_comments AS lftc
             INNER JOIN forum_topics AS ft ON ft.id = lftc.forum_topic_id
             INNER JOIN forums AS f ON f.id = ft.forum_id
-            LEFT JOIN UserAccounts AS ua ON ua.ID = lftc.author_id
+            LEFT JOIN users AS ua ON ua.id = lftc.author_id
             WHERE lftc.author_id = :author_id 
               AND lftc.is_authorized = 1
               AND ft.required_permissions <= :permissions 

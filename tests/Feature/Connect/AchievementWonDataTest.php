@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\System;
@@ -29,7 +29,7 @@ class AchievementWonDataTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement2 */
@@ -79,14 +79,14 @@ class AchievementWonDataTest extends TestCase
                 'AchievementID' => $achievement1->id,
                 'Response' => [
                     'NumEarned' => 14,
-                    'GameID' => $game->ID,
+                    'GameID' => $game->id,
                     'TotalPlayers' => 16,
                     'RecentWinner' => [
-                        ['User' => $users[19]->display_name, 'AvatarUrl' => $users[19]->avatar_url, 'RAPoints' => $users[19]->RAPoints, 'DateAwarded' => $unlocks[19]],
-                        ['User' => $users[18]->display_name, 'AvatarUrl' => $users[18]->avatar_url, 'RAPoints' => $users[18]->RAPoints, 'DateAwarded' => $unlocks[18]],
-                        ['User' => $users[16]->display_name, 'AvatarUrl' => $users[16]->avatar_url, 'RAPoints' => $users[16]->RAPoints, 'DateAwarded' => $unlocks[16]],
-                        ['User' => $users[15]->display_name, 'AvatarUrl' => $users[15]->avatar_url, 'RAPoints' => $users[15]->RAPoints, 'DateAwarded' => $unlocks[15]],
-                        ['User' => $users[14]->display_name, 'AvatarUrl' => $users[14]->avatar_url, 'RAPoints' => $users[14]->RAPoints, 'DateAwarded' => $unlocks[14]],
+                        ['User' => $users[19]->display_name, 'AvatarUrl' => $users[19]->avatar_url, 'RAPoints' => $users[19]->points_hardcore, 'DateAwarded' => $unlocks[19]],
+                        ['User' => $users[18]->display_name, 'AvatarUrl' => $users[18]->avatar_url, 'RAPoints' => $users[18]->points_hardcore, 'DateAwarded' => $unlocks[18]],
+                        ['User' => $users[16]->display_name, 'AvatarUrl' => $users[16]->avatar_url, 'RAPoints' => $users[16]->points_hardcore, 'DateAwarded' => $unlocks[16]],
+                        ['User' => $users[15]->display_name, 'AvatarUrl' => $users[15]->avatar_url, 'RAPoints' => $users[15]->points_hardcore, 'DateAwarded' => $unlocks[15]],
+                        ['User' => $users[14]->display_name, 'AvatarUrl' => $users[14]->avatar_url, 'RAPoints' => $users[14]->points_hardcore, 'DateAwarded' => $unlocks[14]],
                     ],
                 ],
             ]);
@@ -102,11 +102,11 @@ class AchievementWonDataTest extends TestCase
                 'AchievementID' => $achievement1->id,
                 'Response' => [
                     'NumEarned' => 14,
-                    'GameID' => $game->ID,
+                    'GameID' => $game->id,
                     'TotalPlayers' => 16,
                     'RecentWinner' => [
-                        ['User' => $users[3]->display_name, 'AvatarUrl' => $users[3]->avatar_url, 'RAPoints' => $users[3]->RAPoints, 'DateAwarded' => $unlocks[3]],
-                        ['User' => $users[2]->display_name, 'AvatarUrl' => $users[2]->avatar_url, 'RAPoints' => $users[2]->RAPoints, 'DateAwarded' => $unlocks[2]],
+                        ['User' => $users[3]->display_name, 'AvatarUrl' => $users[3]->avatar_url, 'RAPoints' => $users[3]->points_hardcore, 'DateAwarded' => $unlocks[3]],
+                        ['User' => $users[2]->display_name, 'AvatarUrl' => $users[2]->avatar_url, 'RAPoints' => $users[2]->points_hardcore, 'DateAwarded' => $unlocks[2]],
                     ],
                 ],
             ]);
@@ -122,13 +122,13 @@ class AchievementWonDataTest extends TestCase
                 'AchievementID' => $achievement2->id,
                 'Response' => [
                     'NumEarned' => 7,
-                    'GameID' => $game->ID,
+                    'GameID' => $game->id,
                     'TotalPlayers' => 16,
                     'RecentWinner' => [
-                        ['User' => $users[10]->display_name, 'AvatarUrl' => $users[10]->avatar_url, 'RAPoints' => $users[10]->RAPoints, 'DateAwarded' => $unlocks[10]],
-                        ['User' => $users[7]->display_name, 'AvatarUrl' => $users[7]->avatar_url, 'RAPoints' => $users[7]->RAPoints, 'DateAwarded' => $unlocks[7]],
-                        ['User' => $users[4]->display_name, 'AvatarUrl' => $users[4]->avatar_url, 'RAPoints' => $users[4]->RAPoints, 'DateAwarded' => $unlocks[4]],
-                        ['User' => $users[1]->display_name, 'AvatarUrl' => $users[1]->avatar_url, 'RAPoints' => $users[1]->RAPoints, 'DateAwarded' => $unlocks[1]],
+                        ['User' => $users[10]->display_name, 'AvatarUrl' => $users[10]->avatar_url, 'RAPoints' => $users[10]->points_hardcore, 'DateAwarded' => $unlocks[10]],
+                        ['User' => $users[7]->display_name, 'AvatarUrl' => $users[7]->avatar_url, 'RAPoints' => $users[7]->points_hardcore, 'DateAwarded' => $unlocks[7]],
+                        ['User' => $users[4]->display_name, 'AvatarUrl' => $users[4]->avatar_url, 'RAPoints' => $users[4]->points_hardcore, 'DateAwarded' => $unlocks[4]],
+                        ['User' => $users[1]->display_name, 'AvatarUrl' => $users[1]->avatar_url, 'RAPoints' => $users[1]->points_hardcore, 'DateAwarded' => $unlocks[1]],
                     ],
                 ],
             ]);
@@ -144,7 +144,7 @@ class AchievementWonDataTest extends TestCase
                 'AchievementID' => $achievement3->id,
                 'Response' => [
                     'NumEarned' => 0,
-                    'GameID' => $game->ID,
+                    'GameID' => $game->id,
                     'TotalPlayers' => 16,
                     'RecentWinner' => [],
                 ],
@@ -161,17 +161,17 @@ class AchievementWonDataTest extends TestCase
             ]);
 
         // second achievement - friends only
-        $this->assertEquals($this->user->ID, $users[1]->ID); /* logic assumes that first user is making API call */
+        $this->assertEquals($this->user->id, $users[1]->id); /* logic assumes that first user is making API call */
 
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $users[10]->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $users[4]->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         $this->get($this->apiUrl('achievementwondata', ['a' => $achievement2->id, 'f' => 1]))
@@ -184,11 +184,11 @@ class AchievementWonDataTest extends TestCase
                 'AchievementID' => $achievement2->id,
                 'Response' => [
                     'NumEarned' => 7,
-                    'GameID' => $game->ID,
+                    'GameID' => $game->id,
                     'TotalPlayers' => 16,
                     'RecentWinner' => [
-                        ['User' => $users[10]->display_name, 'AvatarUrl' => $users[10]->avatar_url, 'RAPoints' => $users[10]->RAPoints, 'DateAwarded' => $unlocks[10]],
-                        ['User' => $users[4]->display_name, 'AvatarUrl' => $users[4]->avatar_url, 'RAPoints' => $users[4]->RAPoints, 'DateAwarded' => $unlocks[4]],
+                        ['User' => $users[10]->display_name, 'AvatarUrl' => $users[10]->avatar_url, 'RAPoints' => $users[10]->points_hardcore, 'DateAwarded' => $unlocks[10]],
+                        ['User' => $users[4]->display_name, 'AvatarUrl' => $users[4]->avatar_url, 'RAPoints' => $users[4]->points_hardcore, 'DateAwarded' => $unlocks[4]],
                         // $users[1] is not their own friend, so won't be in the list
                     ],
                 ],

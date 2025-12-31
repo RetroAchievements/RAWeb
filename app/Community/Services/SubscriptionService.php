@@ -36,7 +36,7 @@ class SubscriptionService
 
         $allSubscriberIds = array_merge($explicitSubscriberIds, $implicitSubscriberIds);
 
-        return User::whereIn('ID', $allSubscriberIds)->get();
+        return User::whereIn('id', $allSubscriberIds)->get();
     }
 
     /**
@@ -619,10 +619,10 @@ class GameAchievementsSubscriptionHandler extends BaseSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = Game::whereIn('ID', $subjectIds)
+        $query = Game::whereIn('id', $subjectIds)
             ->select([
-                DB::raw('ID as subject_id'),
-                DB::raw('Title as title'),
+                DB::raw('id as subject_id'),
+                DB::raw('title as title'),
             ])
             ->orderBy('sort_title');
 
@@ -648,10 +648,10 @@ class GameTicketsSubscriptionHandler extends BaseSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = Game::whereIn('ID', $subjectIds)
+        $query = Game::whereIn('id', $subjectIds)
             ->select([
-                DB::raw('ID as subject_id'),
-                DB::raw('Title as title'),
+                DB::raw('id as subject_id'),
+                DB::raw('title as title'),
             ])
             ->orderBy('sort_title');
 
@@ -682,10 +682,10 @@ class GameWallSubscriptionHandler extends CommentSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = Game::whereIn('ID', $subjectIds)
+        $query = Game::whereIn('id', $subjectIds)
             ->select([
-                DB::raw('ID as subject_id'),
-                DB::raw('Title as title'),
+                DB::raw('id as subject_id'),
+                DB::raw('title as title'),
             ])
             ->orderBy('sort_title');
 
@@ -730,10 +730,10 @@ class UserWallSubscriptionHandler extends CommentSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = User::whereIn('ID', $subjectIds)
+        $query = User::whereIn('id', $subjectIds)
             ->select([
-                DB::raw('ID as subject_id'),
-                DB::raw('IFNULL(display_name, User) as title'),
+                DB::raw('id as subject_id'),
+                DB::raw('IFNULL(display_name, username) as title'),
             ])
             ->orderBy('title');
 

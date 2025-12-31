@@ -44,7 +44,7 @@ class UserAwardsTest extends TestCase
         $user = User::factory()->create();
         PlayerBadge::factory()->count(3)->create(['user_id' => $user->id]);
 
-        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'TotalAwardsCount' => 3,
@@ -76,7 +76,7 @@ class UserAwardsTest extends TestCase
         PlayerBadge::factory()->create(['DisplayOrder' => -1, 'user_id' => $user->id]);
         PlayerBadge::factory()->create(['DisplayOrder' => -1, 'user_id' => $user->id]);
 
-        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'HiddenAwardsCount' => 2,
@@ -103,7 +103,7 @@ class UserAwardsTest extends TestCase
         PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardDataExtra' => UnlockMode::Softcore, 'user_id' => $user->id]);
         PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardDataExtra' => UnlockMode::Softcore, 'user_id' => $user->id]);
 
-        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'MasteryAwardsCount' => 1,
@@ -124,7 +124,7 @@ class UserAwardsTest extends TestCase
         PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Softcore, 'user_id' => $user->id]);
         PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Softcore, 'user_id' => $user->id]);
 
-        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'BeatenHardcoreAwardsCount' => 1,
@@ -139,7 +139,7 @@ class UserAwardsTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $awardDate = '2015-07-02 16:44:46';
         $award = PlayerBadge::factory()->create([
@@ -151,7 +151,7 @@ class UserAwardsTest extends TestCase
             'DisplayOrder' => 0,
         ]);
 
-        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'TotalAwardsCount' => 1,
@@ -167,10 +167,10 @@ class UserAwardsTest extends TestCase
                         'AwardData' => $award['AwardData'],
                         'AwardDataExtra' => $award['AwardDataExtra'],
                         'DisplayOrder' => $award['DisplayOrder'],
-                        'Title' => $game['Title'],
-                        'ConsoleName' => $system['Name'],
-                        'Flags' => $game['Flags'],
-                        'ImageIcon' => $game['ImageIcon'],
+                        'Title' => $game->title,
+                        'ConsoleName' => $system['name'],
+                        'Flags' => null,
+                        'ImageIcon' => $game->image_icon_asset_path,
                     ],
                 ],
             ]);
@@ -181,15 +181,15 @@ class UserAwardsTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create();
         /** @var System $system */
-        $system = System::factory()->create(['ID' => System::Events, 'Name' => 'Events']);
+        $system = System::factory()->create(['id' => System::Events, 'name' => 'Events']);
         /** @var Game $game1 */
-        $game1 = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game1 = Game::factory()->create(['system_id' => $system->id]);
         /** @var Game $game2 */
-        $game2 = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game2 = Game::factory()->create(['system_id' => $system->id]);
         /** @var Event $event1 */
-        $event1 = Event::factory()->create(['legacy_game_id' => $game1->id, 'gives_site_award' => true]);
+        $event1 = Event::factory()->create(['legacy_game_id' => $game1->id, 'gives_site_award' => true, 'image_asset_path' => '/Images/event1.png']);
         /** @var Event $event2 */
-        $event2 = Event::factory()->create(['legacy_game_id' => $game2->id, 'gives_site_award' => false]);
+        $event2 = Event::factory()->create(['legacy_game_id' => $game2->id, 'gives_site_award' => false, 'image_asset_path' => '/Images/event2.png']);
 
         $awardDate1 = '2015-07-02 16:44:46';
         $award1 = PlayerBadge::factory()->create([
@@ -211,7 +211,7 @@ class UserAwardsTest extends TestCase
             'DisplayOrder' => 0,
         ]);
 
-        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'TotalAwardsCount' => 2,
@@ -227,10 +227,10 @@ class UserAwardsTest extends TestCase
                         'AwardData' => $award1['AwardData'],
                         'AwardDataExtra' => $award1['AwardDataExtra'],
                         'DisplayOrder' => $award1['DisplayOrder'],
-                        'Title' => $game1['Title'],
-                        'ConsoleName' => $system['Name'],
-                        'Flags' => $game1['Flags'],
-                        'ImageIcon' => $game1['ImageIcon'],
+                        'Title' => $game1->title,
+                        'ConsoleName' => $system['name'],
+                        'Flags' => null,
+                        'ImageIcon' => $event1->image_asset_path,
                     ],
                     [
                         'AwardedAt' => Carbon::parse($awardDate2)->toIso8601String(),
@@ -238,10 +238,10 @@ class UserAwardsTest extends TestCase
                         'AwardData' => $award2['AwardData'],
                         'AwardDataExtra' => $award2['AwardDataExtra'],
                         'DisplayOrder' => $award2['DisplayOrder'],
-                        'Title' => $game2['Title'],
-                        'ConsoleName' => $system['Name'],
-                        'Flags' => $game2['Flags'],
-                        'ImageIcon' => $game2['ImageIcon'],
+                        'Title' => $game2->title,
+                        'ConsoleName' => $system['name'],
+                        'Flags' => null,
+                        'ImageIcon' => $event2->image_asset_path,
                     ],
                 ],
             ]);

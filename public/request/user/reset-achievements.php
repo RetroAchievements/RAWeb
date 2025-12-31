@@ -10,7 +10,7 @@ if ($user === null) {
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'game' => 'required_without:achievement|integer|exists:GameData,ID',
+    'game' => 'required_without:achievement|integer|exists:games,id',
     'achievement' => 'required_without:game|integer|exists:achievements,id',
 ]);
 

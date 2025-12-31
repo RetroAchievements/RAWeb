@@ -243,8 +243,8 @@ switch ($requestType) {
         if ($achIDToAward == Achievement::CLIENT_WARNING_ID) {
             $response = [
                 'Success' => true,
-                'Score' => $user->RAPoints,
-                'SoftcoreScore' => $user->RASoftcorePoints,
+                'Score' => $user->points_hardcore,
+                'SoftcoreScore' => $user->points,
                 'AchievementID' => $achIDToAward,
                 'AchievementsRemaining' => 9999,
             ];
@@ -312,8 +312,8 @@ switch ($requestType) {
         }
 
         if (empty($response['Score'])) {
-            $response['Score'] = $user->RAPoints;
-            $response['SoftcoreScore'] = $user->RASoftcorePoints;
+            $response['Score'] = $user->points_hardcore;
+            $response['SoftcoreScore'] = $user->points;
         }
 
         $response['AchievementID'] = $achIDToAward;
@@ -409,8 +409,8 @@ switch ($requestType) {
             }
         }
 
-        $response['Score'] = $targetUser->RAPoints;
-        $response['SoftcoreScore'] = $targetUser->RASoftcorePoints;
+        $response['Score'] = $targetUser->points_hardcore;
+        $response['SoftcoreScore'] = $targetUser->points;
         $response['ExistingIDs'] = $alreadyAwardedIds;
         $response['SuccessfulIDs'] = $newAwardedIds;
 

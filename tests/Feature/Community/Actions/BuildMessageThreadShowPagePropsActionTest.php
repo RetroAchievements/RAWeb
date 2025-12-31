@@ -128,7 +128,7 @@ class BuildMessageThreadShowPagePropsActionTest extends TestCase
     {
         // Arrange
         $activeUser = User::factory()->create();
-        $deletedUser = User::factory()->create(['Deleted' => now()]);
+        $deletedUser = User::factory()->create(['deleted_at' => now()]);
         $thread = MessageThread::factory()->create();
 
         MessageThreadParticipant::factory()->create([

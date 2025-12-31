@@ -38,7 +38,7 @@ trait ActsAsDeveloper
      */
     public function achievementSetClaims(): HasMany
     {
-        return $this->hasMany(AchievementSetClaim::class, 'user_id', 'ID');
+        return $this->hasMany(AchievementSetClaim::class, 'user_id', 'id');
     }
 
     /**
@@ -46,7 +46,7 @@ trait ActsAsDeveloper
      */
     public function authoredAchievements(): HasMany
     {
-        return $this->hasMany(Achievement::class, 'user_id', 'ID');
+        return $this->hasMany(Achievement::class, 'user_id', 'id');
     }
 
     /**
@@ -54,7 +54,7 @@ trait ActsAsDeveloper
      */
     public function authoredCodeNotes(): HasMany
     {
-        return $this->hasMany(MemoryNote::class, 'user_id', 'ID')->where('body', '!=', '');
+        return $this->hasMany(MemoryNote::class, 'user_id', 'id')->where('body', '!=', '');
     }
 
     /**
@@ -62,7 +62,7 @@ trait ActsAsDeveloper
      */
     public function authoredLeaderboards(): HasMany
     {
-        return $this->hasMany(Leaderboard::class, 'author_id', 'ID');
+        return $this->hasMany(Leaderboard::class, 'author_id', 'id');
     }
 
     /**
@@ -71,7 +71,7 @@ trait ActsAsDeveloper
      */
     public function resolvedTickets(): HasMany
     {
-        return $this->hasMany(Ticket::class, 'resolver_id', 'ID');
+        return $this->hasMany(Ticket::class, 'resolver_id', 'id');
     }
 
     /**
@@ -79,7 +79,7 @@ trait ActsAsDeveloper
      */
     public function achievementCredits(): HasMany
     {
-        return $this->hasMany(AchievementAuthor::class, 'user_id', 'ID');
+        return $this->hasMany(AchievementAuthor::class, 'user_id', 'id');
     }
 
     // == scopes

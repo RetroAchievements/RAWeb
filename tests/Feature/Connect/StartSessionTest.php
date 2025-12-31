@@ -41,7 +41,7 @@ class StartSessionTest extends TestCase
         $this->associateAchievementSetToGameAction = new AssociateAchievementSetToGameAction();
 
         /** @var User $user */
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $this->user = $user;
     }
 
@@ -53,7 +53,7 @@ class StartSessionTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var GameHash $gameHash */
         $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
 
@@ -71,7 +71,7 @@ class StartSessionTest extends TestCase
 
         // Create a bonus set with its own achievements.
         /** @var Game $bonusGame */
-        $bonusGame = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => $game->Title . ' [Subset - Bonus]']);
+        $bonusGame = Game::factory()->create(['system_id' => $system->id, 'title' => $game->title . ' [Subset - Bonus]']);
         /** @var Achievement $bonusAchievement1 */
         $bonusAchievement1 = Achievement::factory()->promoted()->create(['game_id' => $bonusGame->id]);
         /** @var Achievement $bonusAchievement2 */
@@ -103,7 +103,7 @@ class StartSessionTest extends TestCase
         // ----------------------------
         // game with unlocks
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [
@@ -145,9 +145,9 @@ class StartSessionTest extends TestCase
         $this->assertEquals($gameHash->id, $playerSession->game_hash_id);
 
         /** @var User $user1 */
-        $user1 = User::whereName($this->user->User)->first();
-        $this->assertEquals($game->ID, $user1->LastGameID);
-        $this->assertEquals("Playing " . $game->Title, $user1->RichPresenceMsg);
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($game->id, $user1->rich_presence_game_id);
+        $this->assertEquals("Playing " . $game->title, $user1->rich_presence);
 
         // ----------------------------
         // non-existent game
@@ -170,20 +170,20 @@ class StartSessionTest extends TestCase
         // ----------------------------
         // game with no unlocks
         /** @var Game $game2 */
-        $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game2 = Game::factory()->create(['system_id' => $system->id]);
         /** @var GameHash $gameHash */
         $gameHash2 = GameHash::factory()->create(['game_id' => $game2->id]);
         Achievement::factory()->promoted()->count(6)->create(['game_id' => $game->id]);
         $this->upsertGameCoreSetAction->execute($game2);
 
         /** @var Game $bonusGame2 */
-        $bonusGame2 = Game::factory()->create(['ConsoleID' => $system->ID, 'Title' => $game2->Title . ' [Subset - Bonus 2]']);
+        $bonusGame2 = Game::factory()->create(['system_id' => $system->id, 'title' => $game2->title . ' [Subset - Bonus 2]']);
         Achievement::factory()->promoted()->count(4)->create(['game_id' => $bonusGame2->id]);
         $this->upsertGameCoreSetAction->execute($bonusGame2);
         $this->associateAchievementSetToGameAction->execute($game2, $bonusGame2, AchievementSetType::Bonus, 'Bonus 2');
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('startsession', ['g' => $game2->ID, 'm' => $gameHash2->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game2->id, 'm' => $gameHash2->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [],
@@ -201,15 +201,15 @@ class StartSessionTest extends TestCase
         $this->assertEquals('Playing ' . $game2->title, $playerSession->rich_presence);
         $this->assertEquals($gameHash2->id, $playerSession->game_hash_id);
 
-        $user1 = User::whereName($this->user->User)->first();
-        $this->assertEquals($game2->ID, $user1->LastGameID);
-        $this->assertEquals("Playing " . $game2->Title, $user1->RichPresenceMsg);
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($game2->id, $user1->rich_presence_game_id);
+        $this->assertEquals("Playing " . $game2->title, $user1->rich_presence);
 
         // ----------------------------
         // recently active session is extended
         Carbon::setTestNow($now->addMinutes(8));
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('startsession', ['g' => $game2->ID, 'm' => $gameHash2->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game2->id, 'm' => $gameHash2->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [],
@@ -232,7 +232,7 @@ class StartSessionTest extends TestCase
         // new session created after long absence
         Carbon::setTestNow($now->addHours(4));
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('startsession', ['g' => $game2->ID, 'm' => $gameHash2->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game2->id, 'm' => $gameHash2->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [],
@@ -252,9 +252,9 @@ class StartSessionTest extends TestCase
 
         // ----------------------------
         // not-unlocked event achievement hides hardcore unlock when active
-        System::factory()->create(['ID' => System::Events]);
+        System::factory()->create(['id' => System::Events]);
         /** @var Game $eventGame */
-        $eventGame = Game::factory()->create(['ConsoleID' => System::Events]);
+        $eventGame = Game::factory()->create(['system_id' => System::Events]);
         /** @var Achievement $eventAchievement1 */
         $eventAchievement1 = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
 
@@ -268,7 +268,7 @@ class StartSessionTest extends TestCase
             'active_until' => $now->clone()->addDays(2),
         ]);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [
@@ -302,7 +302,7 @@ class StartSessionTest extends TestCase
         // after event achievement is unlocked, hardcore unlock is returned
         $this->addHardcoreUnlock($this->user, $eventAchievement1, $now);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [
@@ -343,7 +343,7 @@ class StartSessionTest extends TestCase
             'active_until' => $now->clone()->addDays(3),
         ]);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [
@@ -377,7 +377,7 @@ class StartSessionTest extends TestCase
         // after all event achievements are unlocked, hardcore unlock is returned
         $this->addHardcoreUnlock($this->user, $eventAchievement2, $now);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [
@@ -419,7 +419,7 @@ class StartSessionTest extends TestCase
         ]);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [
@@ -461,7 +461,7 @@ class StartSessionTest extends TestCase
         ]);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [
@@ -495,7 +495,7 @@ class StartSessionTest extends TestCase
         // new session from outdated emulator
         Carbon::setTestNow($now->addHours(16));
         $this->withHeaders(['User-Agent' => $this->userAgentOutdated])
-            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash2->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash2->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [
@@ -544,7 +544,7 @@ class StartSessionTest extends TestCase
         // new session from unsupported emulator
         Carbon::setTestNow($now->addHours(24));
         $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
-            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash2->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash2->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [
@@ -593,7 +593,7 @@ class StartSessionTest extends TestCase
         // new session from unknown emulator
         Carbon::setTestNow($now->addHours(32));
         $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
-            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash2->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash2->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [
@@ -645,14 +645,14 @@ class StartSessionTest extends TestCase
         Carbon::setTestNow($now);
 
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $gameOne */
-        $gameOne = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $gameOne = Game::factory()->create(['system_id' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
-        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
         /** @var User $delegatedUser */
-        $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
         // The integration user is the sole author of all the set's achievements.
         $coreAchievements = Achievement::factory()->promoted()->count(3)->create([
@@ -663,8 +663,8 @@ class StartSessionTest extends TestCase
 
         /** @var Game $bonusGameOne */
         $bonusGameOne = Game::factory()->create([
-            'ConsoleID' => $standalonesSystem->ID,
-            'Title' => $gameOne->Title . ' [Subset - Bonus]',
+            'system_id' => $standalonesSystem->id,
+            'title' => $gameOne->title . ' [Subset - Bonus]',
         ]);
         $bonusAchievements = Achievement::factory()->promoted()->count(3)->create([
             'game_id' => $bonusGameOne->id,
@@ -690,11 +690,11 @@ class StartSessionTest extends TestCase
         $this->seedEmulatorUserAgents();
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'startsession',
             'g' => $gameOne->id,
-            'k' => $delegatedUser->User,
+            'k' => $delegatedUser->username,
         ];
 
         // ----------------------------
@@ -740,8 +740,8 @@ class StartSessionTest extends TestCase
         $this->assertEquals(30, $playerSession->duration);
         $this->assertEquals('Playing ' . $bonusGameOne->title, $playerSession->rich_presence);
 
-        $this->assertEquals($bonusGameOne->id, $delegatedUser->LastGameID);
-        $this->assertEquals("Playing " . $bonusGameOne->Title, $delegatedUser->RichPresenceMsg);
+        $this->assertEquals($bonusGameOne->id, $delegatedUser->rich_presence_game_id);
+        $this->assertEquals("Playing " . $bonusGameOne->title, $delegatedUser->rich_presence);
 
         // While delegating, updates are made on behalf of username `k`.
         $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
@@ -752,9 +752,9 @@ class StartSessionTest extends TestCase
         // Next, try to delegate on a non-standalone game.
         // This is not allowed and should fail.
         /** @var System $normalSystem */
-        $normalSystem = System::factory()->create(['ID' => 1]);
+        $normalSystem = System::factory()->create(['id' => 1]);
         /** @var Game $gameTwo */
-        $gameTwo = Game::factory()->create(['ConsoleID' => $normalSystem->ID]);
+        $gameTwo = Game::factory()->create(['system_id' => $normalSystem->id]);
 
         $params['g'] = $gameTwo->id;
 
@@ -772,7 +772,7 @@ class StartSessionTest extends TestCase
         // Next, try to delegate on a game with no achievements authored by the integration user.
         // This is not allowed and should fail.
         /** @var Game $gameThree */
-        $gameThree = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $gameThree = Game::factory()->create(['system_id' => $standalonesSystem->id]);
         Achievement::factory()->promoted()->count(6)->create(['game_id' => $gameThree->id]);
         $params['g'] = $gameThree->id;
 
@@ -787,11 +787,11 @@ class StartSessionTest extends TestCase
             ]);
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'startsession',
             'g' => $gameOne->id,
-            'k' => $delegatedUser->User,
+            'k' => $delegatedUser->username,
         ];
 
         // Next, try a GET call, which should be blocked.
@@ -812,14 +812,14 @@ class StartSessionTest extends TestCase
         Carbon::setTestNow($now);
 
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $gameOne */
-        $gameOne = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $gameOne = Game::factory()->create(['system_id' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
-        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
         /** @var User $delegatedUser */
-        $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
         // The integration user is the sole author of all the set's achievements.
         $coreAchievements = Achievement::factory()->promoted()->count(3)->create([
@@ -830,8 +830,8 @@ class StartSessionTest extends TestCase
 
         /** @var Game $bonusGameOne */
         $bonusGameOne = Game::factory()->create([
-            'ConsoleID' => $standalonesSystem->ID,
-            'Title' => $gameOne->Title . ' [Subset - Bonus]',
+            'system_id' => $standalonesSystem->id,
+            'title' => $gameOne->title . ' [Subset - Bonus]',
         ]);
         $bonusAchievements = Achievement::factory()->promoted()->count(3)->create([
             'game_id' => $bonusGameOne->id,
@@ -857,8 +857,8 @@ class StartSessionTest extends TestCase
         $this->seedEmulatorUserAgents();
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'startsession',
             'g' => $gameOne->id,
             'k' => $delegatedUser->ulid, // !!
@@ -907,8 +907,8 @@ class StartSessionTest extends TestCase
         $this->assertEquals(30, $playerSession->duration);
         $this->assertEquals('Playing ' . $bonusGameOne->title, $playerSession->rich_presence);
 
-        $this->assertEquals($bonusGameOne->id, $delegatedUser->LastGameID);
-        $this->assertEquals("Playing " . $bonusGameOne->Title, $delegatedUser->RichPresenceMsg);
+        $this->assertEquals($bonusGameOne->id, $delegatedUser->rich_presence_game_id);
+        $this->assertEquals("Playing " . $bonusGameOne->title, $delegatedUser->rich_presence);
 
         // While delegating, updates are made on behalf of username `k`.
         $this->assertDatabaseMissing((new PlayerSession())->getTable(), [
@@ -925,7 +925,7 @@ class StartSessionTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var GameHash $gameHash */
         $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
 
@@ -937,7 +937,7 @@ class StartSessionTest extends TestCase
 
         $this->seedEmulatorUserAgents();
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('startsession', ['g' => $game->ID + VirtualGameIdService::IncompatibleIdBase, 'm' => $gameHash->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game->id + VirtualGameIdService::IncompatibleIdBase, 'm' => $gameHash->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [],
@@ -962,14 +962,14 @@ class StartSessionTest extends TestCase
 
         // ... create a game with a core achievement ...
         /** @var Game $baseGame */
-        $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        $baseGame = Game::factory()->create(['system_id' => $system->id]);
         /** @var Achievement $coreAchievement */
         $coreAchievement = Achievement::factory()->promoted()->create(['game_id' => $baseGame->id]);
         $this->upsertGameCoreSetAction->execute($baseGame);
 
         // ... create a specialty "subset game" with an achievement ...
         /** @var Game $specialtyGame */
-        $specialtyGame = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => $baseGame->title . ' [Subset - Specialty]']);
+        $specialtyGame = Game::factory()->create(['system_id' => $system->id, 'title' => $baseGame->title . ' [Subset - Specialty]']);
         /** @var Achievement $specialtyAchievement */
         $specialtyAchievement = Achievement::factory()->promoted()->create(['game_id' => $specialtyGame->id]);
         $this->upsertGameCoreSetAction->execute($specialtyGame);
@@ -1015,14 +1015,14 @@ class StartSessionTest extends TestCase
 
         // ... create a game with a core achievement ...
         /** @var Game $baseGame */
-        $baseGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        $baseGame = Game::factory()->create(['system_id' => $system->id]);
         /** @var Achievement $coreAchievement */
         $coreAchievement = Achievement::factory()->promoted()->create(['game_id' => $baseGame->id]);
         $this->upsertGameCoreSetAction->execute($baseGame);
 
         // ... create an exclusive "subset game" with an achievement ...
         /** @var Game $exclusiveGame */
-        $exclusiveGame = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => $baseGame->title . ' [Subset - Exclusive]']);
+        $exclusiveGame = Game::factory()->create(['system_id' => $system->id, 'title' => $baseGame->title . ' [Subset - Exclusive]']);
         /** @var Achievement $exclusiveAchievement */
         $exclusiveAchievement = Achievement::factory()->promoted()->create(['game_id' => $exclusiveGame->id]);
         $this->upsertGameCoreSetAction->execute($exclusiveGame);

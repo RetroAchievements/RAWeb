@@ -42,7 +42,7 @@ class SubscriptionServiceTest extends TestCase
         $user = User::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 3]);
+        $game = Game::factory()->create(['id' => 3]);
 
         $this->updateSubscription($user, SubscriptionSubjectType::GameWall, 3, true);
 
@@ -60,7 +60,7 @@ class SubscriptionServiceTest extends TestCase
         $subscription = $subscriptions->get(0);
         $this->assertEquals(SubscriptionSubjectType::GameWall, $subscription->subject_type);
         $this->assertEquals(3, $subscription->subject_id);
-        $this->assertEquals($game->Title, $subscription->title);
+        $this->assertEquals($game->title, $subscription->title);
         $this->assertTrue($subscription->exists);
     }
 
@@ -70,7 +70,7 @@ class SubscriptionServiceTest extends TestCase
         $user = User::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 3]);
+        $game = Game::factory()->create(['id' => 3]);
 
         $this->updateSubscription($user, SubscriptionSubjectType::GameWall, 3, false);
 
@@ -92,7 +92,7 @@ class SubscriptionServiceTest extends TestCase
         $user = User::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 3]);
+        $game = Game::factory()->create(['id' => 3]);
 
         $service = new SubscriptionService();
 
@@ -112,7 +112,7 @@ class SubscriptionServiceTest extends TestCase
         $user = User::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 3]);
+        $game = Game::factory()->create(['id' => 3]);
 
         Comment::create([
             'ArticleType' => ArticleType::Game,
@@ -135,7 +135,7 @@ class SubscriptionServiceTest extends TestCase
         $subscription = $subscriptions->get(0);
         $this->assertEquals(SubscriptionSubjectType::GameWall, $subscription->subject_type);
         $this->assertEquals(3, $subscription->subject_id);
-        $this->assertEquals($game->Title, $subscription->title);
+        $this->assertEquals($game->title, $subscription->title);
         $this->assertFalse($subscription->exists); // implicit subscription has no backing row
     }
 
@@ -145,7 +145,7 @@ class SubscriptionServiceTest extends TestCase
         $user = User::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 3]);
+        $game = Game::factory()->create(['id' => 3]);
 
         Comment::create([
             'ArticleType' => ArticleType::Game,
@@ -169,7 +169,7 @@ class SubscriptionServiceTest extends TestCase
         $subscription = $subscriptions->get(0);
         $this->assertEquals(SubscriptionSubjectType::GameWall, $subscription->subject_type);
         $this->assertEquals(3, $subscription->subject_id);
-        $this->assertEquals($game->Title, $subscription->title);
+        $this->assertEquals($game->title, $subscription->title);
         $this->assertTrue($subscription->exists);
     }
 
@@ -179,7 +179,7 @@ class SubscriptionServiceTest extends TestCase
         $user = User::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['ID' => 3]);
+        $game = Game::factory()->create(['id' => 3]);
 
         Comment::create([
             'ArticleType' => ArticleType::Game,
@@ -531,13 +531,13 @@ class SubscriptionServiceTest extends TestCase
         $user = User::factory()->create();
 
         /** @var Game $game1 */
-        $game1 = Game::factory()->create(['ID' => 1, 'Title' => 'One']);
+        $game1 = Game::factory()->create(['id' => 1, 'title' => 'One']);
         /** @var Game $game2 */
-        $game2 = Game::factory()->create(['ID' => 2, 'Title' => 'Two']);
+        $game2 = Game::factory()->create(['id' => 2, 'title' => 'Two']);
         /** @var Game $game3 */
-        $game3 = Game::factory()->create(['ID' => 3, 'Title' => 'Three']);
+        $game3 = Game::factory()->create(['id' => 3, 'title' => 'Three']);
         /** @var Game $game4 */
-        $game4 = Game::factory()->create(['ID' => 4, 'Title' => 'Four']);
+        $game4 = Game::factory()->create(['id' => 4, 'title' => 'Four']);
 
         // explicitly subscribed to GameWall 2 and 4
         $this->updateSubscription($user, SubscriptionSubjectType::GameWall, 2, true);

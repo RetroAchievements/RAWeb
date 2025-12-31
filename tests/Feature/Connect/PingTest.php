@@ -30,11 +30,11 @@ class PingTest extends TestCase
         $game = $this->seedGame();
         $gameHash = $game->hashes->first();
 
-        $this->user->LastGameID = $game->ID;
+        $this->user->rich_presence_game_id = $game->id;
         $this->user->save();
 
         // this API requires POST
-        $this->post('dorequest.php', $this->apiParams('ping', ['g' => $game->ID, 'm' => 'Doing good', 'x' => $gameHash->md5]))
+        $this->post('dorequest.php', $this->apiParams('ping', ['g' => $game->id, 'm' => 'Doing good', 'x' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -51,12 +51,12 @@ class PingTest extends TestCase
         $this->assertEquals($gameHash->id, $playerSession->game_hash_id);
 
         /** @var User $user1 */
-        $user1 = User::whereName($this->user->User)->first();
-        $this->assertEquals($game->ID, $user1->LastGameID);
-        $this->assertEquals('Doing good', $user1->RichPresenceMsg);
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($game->id, $user1->rich_presence_game_id);
+        $this->assertEquals('Doing good', $user1->rich_presence);
 
         // string sent by GET will not update user's rich presence message
-        $this->get($this->apiUrl('ping', ['g' => $game->ID, 'm' => 'Doing better', 'x' => $gameHash->md5]))
+        $this->get($this->apiUrl('ping', ['g' => $game->id, 'm' => 'Doing better', 'x' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -71,12 +71,12 @@ class PingTest extends TestCase
         $this->assertEquals(1, $playerSession2->duration);
         $this->assertEquals('Doing good', $playerSession2->rich_presence);
 
-        $user1 = User::whereName($this->user->User)->first();
-        $this->assertEquals($game->ID, $user1->LastGameID);
-        $this->assertEquals('Doing good', $user1->RichPresenceMsg);
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($game->id, $user1->rich_presence_game_id);
+        $this->assertEquals('Doing good', $user1->rich_presence);
 
         // invalid UTF-8 should be sanitized
-        $this->post('dorequest.php', $this->apiParams('ping', ['g' => $game->ID, 'm' => "T\xC3\xA9st t\xC3st", 'x' => $gameHash->md5]))
+        $this->post('dorequest.php', $this->apiParams('ping', ['g' => $game->id, 'm' => "T\xC3\xA9st t\xC3st", 'x' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -92,9 +92,9 @@ class PingTest extends TestCase
         $this->assertEquals('Tést t?st', $playerSession2->rich_presence);
         $this->assertEquals($gameHash->id, $playerSession2->game_hash_id);
 
-        $user1 = User::whereName($this->user->User)->first();
-        $this->assertEquals($game->ID, $user1->LastGameID);
-        $this->assertEquals('Tést t?st', $user1->RichPresenceMsg);
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($game->id, $user1->rich_presence_game_id);
+        $this->assertEquals('Tést t?st', $user1->rich_presence);
     }
 
     public function testPingInvalidGame(): void
@@ -127,7 +127,7 @@ class PingTest extends TestCase
             'u' => 'UnknownUser',
             't' => 'ABCDEFGHIJK',
             'r' => 'ping',
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 'Doing good',
         ];
 
@@ -143,7 +143,7 @@ class PingTest extends TestCase
             ]);
 
         // try with incorrect token
-        $params['u'] = $this->user->User;
+        $params['u'] = $this->user->username;
 
         $this->post('dorequest.php', $params)
             ->assertStatus(401)
@@ -157,10 +157,10 @@ class PingTest extends TestCase
 
         // try with banned user
         /** @var User $user */
-        $user = User::factory()->create(['Permissions' => Permissions::Banned, 'appToken' => Str::random(16)]);
+        $user = User::factory()->create(['Permissions' => Permissions::Banned, 'connect_token' => Str::random(16)]);
 
-        $params['u'] = $user->User;
-        $params['t'] = $user->appToken;
+        $params['u'] = $user->username;
+        $params['t'] = $user->connect_token;
 
         $this->post('dorequest.php', $params)
             ->assertStatus(403)
@@ -186,13 +186,13 @@ class PingTest extends TestCase
         $game = $this->seedGame();
 
         /** @var User $user */
-        $user = User::factory()->create(['Permissions' => Permissions::Unregistered, 'appToken' => Str::random(16)]);
+        $user = User::factory()->create(['Permissions' => Permissions::Unregistered, 'connect_token' => Str::random(16)]);
 
         $params = [
-            'u' => $user->User,
-            't' => $user->appToken,
+            'u' => $user->username,
+            't' => $user->connect_token,
             'r' => 'ping',
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 'Doing good',
         ];
 
@@ -220,13 +220,13 @@ class PingTest extends TestCase
         $game = $this->seedGame();
 
         /** @var User $user */
-        $user = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $user = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
         $params = [
-            'u' => $user->User,
-            't' => $this->user->appToken,
+            'u' => $user->username,
+            't' => $this->user->connect_token,
             'r' => 'ping',
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 'Doing good',
         ];
 
@@ -244,16 +244,16 @@ class PingTest extends TestCase
     public function testPingDelegatedByName(): void
     {
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $gameOne */
-        $gameOne = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $gameOne = Game::factory()->create(['system_id' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
-        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
         /** @var User $delegatedUser */
-        $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
-        $delegatedUser->LastGameID = $gameOne->id;
+        $delegatedUser->rich_presence_game_id = $gameOne->id;
         $delegatedUser->save();
 
         // The integration user is the sole author of all the set's achievements.
@@ -263,12 +263,12 @@ class PingTest extends TestCase
         ]);
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'ping',
             'g' => $gameOne->id,
             'm' => 'Doing good',
-            'k' => $delegatedUser->User, // !!
+            'k' => $delegatedUser->username, // !!
         ];
 
         $this->post('dorequest.php', $params)
@@ -291,7 +291,7 @@ class PingTest extends TestCase
             'game_id' => $gameOne->id,
         ]);
 
-        // Next, try to delegate for an unknown user
+        // Next, try to delegate for an unknown user.
         $params['k'] = 'IDontExist';
         $this->post('dorequest.php', $params)
             ->assertStatus(404)
@@ -305,11 +305,11 @@ class PingTest extends TestCase
         // Next, try to delegate on a non-standalone game.
         // This is not allowed and should fail.
         /** @var System $normalSystem */
-        $normalSystem = System::factory()->create(['ID' => 1]);
+        $normalSystem = System::factory()->create(['id' => 1]);
         /** @var Game $gameTwo */
-        $gameTwo = Game::factory()->create(['ConsoleID' => $normalSystem->ID]);
+        $gameTwo = Game::factory()->create(['system_id' => $normalSystem->id]);
 
-        $params['k'] = $delegatedUser->User;
+        $params['k'] = $delegatedUser->username;
         $params['g'] = $gameTwo->id;
 
         $this->post('dorequest.php', $params)
@@ -324,9 +324,9 @@ class PingTest extends TestCase
         // Next, try to delegate on a game with no achievements authored by the integration user.
         // This is not allowed and should fail.
         /** @var Game $gameThree */
-        $gameThree = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $gameThree = Game::factory()->create(['system_id' => $standalonesSystem->id]);
         /** @var User $randomUser */
-        $randomUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $randomUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
         Achievement::factory()->promoted()->count(6)->create(['game_id' => $gameThree->id, 'user_id' => $randomUser->id]);
         $params['g'] = $gameThree->id;
 
@@ -343,16 +343,16 @@ class PingTest extends TestCase
     public function testPingDelegatedByUlid(): void
     {
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $gameOne */
         $gameOne = $this->seedGame(system: $standalonesSystem);
 
         /** @var User $integrationUser */
-        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
         /** @var User $delegatedUser */
-        $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
-        $delegatedUser->LastGameID = $gameOne->id;
+        $delegatedUser->rich_presence_game_id = $gameOne->id;
         $delegatedUser->save();
 
         // The integration user is the sole author of all the set's achievements.
@@ -362,8 +362,8 @@ class PingTest extends TestCase
         ]);
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'ping',
             'g' => $gameOne->id,
             'm' => 'Doing good',
@@ -393,9 +393,9 @@ class PingTest extends TestCase
         // Next, try to delegate on a non-standalone game.
         // This is not allowed and should fail.
         /** @var System $normalSystem */
-        $normalSystem = System::factory()->create(['ID' => 1]);
+        $normalSystem = System::factory()->create(['id' => 1]);
         /** @var Game $gameTwo */
-        $gameTwo = Game::factory()->create(['ConsoleID' => $normalSystem->ID]);
+        $gameTwo = Game::factory()->create(['system_id' => $normalSystem->id]);
 
         $params['g'] = $gameTwo->id;
 
@@ -411,9 +411,9 @@ class PingTest extends TestCase
         // Next, try to delegate on a game with no achievements authored by the integration user.
         // This is not allowed and should fail.
         /** @var Game $gameThree */
-        $gameThree = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $gameThree = Game::factory()->create(['system_id' => $standalonesSystem->id]);
         /** @var User $randomUser */
-        $randomUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $randomUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
         Achievement::factory()->promoted()->count(6)->create(['game_id' => $gameThree->id, 'user_id' => $randomUser->id]);
         $params['g'] = $gameThree->id;
 

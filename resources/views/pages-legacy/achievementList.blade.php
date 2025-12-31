@@ -7,7 +7,7 @@ use App\Models\Achievement;
 use App\Models\System;
 use App\Models\User;
 
-$consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
+$consoleList = System::get(['id', 'name'])->keyBy('id')->map(fn ($system) => $system['name']);
 $consoleIDInput = (int) request()->input('z', 0);
 $mobileBrowser = (new GetUserDeviceKindAction())->execute() === 'mobile';
 
