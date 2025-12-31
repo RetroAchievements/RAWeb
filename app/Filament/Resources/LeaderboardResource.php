@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Filament\Actions\CloneLeaderboardAction;
 use App\Filament\Actions\DeleteLeaderboardAction;
 use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
 use App\Filament\Extensions\Resources\Resource;
@@ -12,6 +13,7 @@ use App\Filament\Resources\LeaderboardResource\RelationManagers;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\User;
+use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\ValueFormat;
 use BackedEnum;
 use Filament\Actions;
@@ -98,7 +100,12 @@ class LeaderboardResource extends Resource
 
                         Infolists\Components\TextEntry::make('Description'),
 
+                        Infolists\Components\TextEntry::make('state')
+                            ->label('State')
+                            ->formatStateUsing(fn (LeaderboardState $state): string => ucfirst($state->value)),
+
                         Infolists\Components\TextEntry::make('DisplayOrder'),
+
                     ]),
 
                 Schemas\Components\Section::make('Rules')
@@ -136,6 +143,18 @@ class LeaderboardResource extends Resource
                         Forms\Components\TextInput::make('Description')
                             ->maxLength(255)
                             ->disabled(!$user->can('updateField', [$schema->model, 'Description'])),
+
+                        Forms\Components\Select::make('state')
+                            ->label('State')
+                            ->selectablePlaceholder(false)
+                            ->helperText('If set to Disabled, the leaderboard will be prevented from activating. If set to Unpublished, the leaderboard will additionally be removed from normal page listings.')
+                            ->options([
+                                LeaderboardState::Active->value => 'Active',
+                                LeaderboardState::Disabled->value => 'Disabled',
+                                LeaderboardState::Unpublished->value => 'Unpublished',
+                            ])
+                            ->required()
+                            ->disabled(!$user->can('updateField', [$schema->model, 'state'])),
 
                         Forms\Components\TextInput::make('DisplayOrder')
                             ->numeric()
@@ -219,6 +238,10 @@ class LeaderboardResource extends Resource
                     ->label('Display Order')
                     ->sortable()
                     ->toggleable(),
+                Tables\Columns\TextColumn::make('state')
+                    ->label('State')
+                    ->formatStateUsing(fn (LeaderboardState $state) => ucfirst($state->value)),
+
             ])
             ->searchPlaceholder('(ID, Title, Game, Dev)')
             ->filters([
@@ -261,6 +284,7 @@ class LeaderboardResource extends Resource
             ->recordActions([
                 Actions\ActionGroup::make([
                     Actions\ActionGroup::make([
+                        CloneLeaderboardAction::make('clone_leaderboard'),
                         ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
                         DeleteLeaderboardAction::make('delete_leaderboard'),
                     ])

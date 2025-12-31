@@ -989,6 +989,7 @@ declare namespace App.Platform.Data {
     topEntry?: App.Platform.Data.LeaderboardEntry | null;
     userEntry?: App.Platform.Data.LeaderboardEntry | null;
     rankAsc?: boolean | null;
+    state?: App.Platform.Enums.LeaderboardState | null;
   };
   export type LeaderboardEntry = {
     id: number;
@@ -1252,6 +1253,7 @@ declare namespace App.Platform.Enums {
     | 'shared-hub'
     | 'similar-game'
     | 'want-to-play';
+  export type LeaderboardState = 'active' | 'disabled' | 'unpublished';
   export type PlatformExecutionEnvironment =
     | 'desktop'
     | 'mobile'
