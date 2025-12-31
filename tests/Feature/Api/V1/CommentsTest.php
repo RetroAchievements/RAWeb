@@ -60,12 +60,12 @@ class CommentsTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
         $bannedUser = User::factory()->create(['ID' => 309, 'banned_at' => Carbon::now()->subDay()]);
 
-        $achievement = Achievement::factory()->create(['GameID' => $game->ID, 'user_id' => $user1->id]);
+        $achievement = Achievement::factory()->create(['GameID' => $game->id, 'user_id' => $user1->id]);
         $comment1 = Comment::factory()->create([
             'ArticleID' => $achievement->ID,
             'ArticleType' => 2,
@@ -118,12 +118,12 @@ class CommentsTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
         $bannedUser = User::factory()->create(['ID' => 309, 'banned_at' => Carbon::now()->subDay()]);
 
-        $achievement = Achievement::factory()->create(['GameID' => $game->ID, 'user_id' => $user1->id]);
+        $achievement = Achievement::factory()->create(['GameID' => $game->id, 'user_id' => $user1->id]);
         $comment1 = Comment::factory()->create([
             'ArticleID' => $achievement->ID,
             'ArticleType' => 2,
@@ -173,34 +173,34 @@ class CommentsTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
         $bannedUser = User::factory()->create(['banned_at' => Carbon::now()]);
 
         $comment1 = Comment::factory()->create([
-            'ArticleID' => $game->ID,
+            'ArticleID' => $game->id,
             'ArticleType' => 1,
             'user_id' => $user1->id,
             'Payload' => 'This is a great achievement!',
             'Submitted' => "2024-01-18T15:01:04.000000Z",
         ]);
         $comment2 = Comment::factory()->create([
-            'ArticleID' => $game->ID,
+            'ArticleID' => $game->id,
             'ArticleType' => 1,
             'user_id' => $user2->id,
             'Payload' => 'I agree, this is awesome!',
             'Submitted' => "2024-01-19T15:01:04.000000Z",
         ]);
         $comment3 = Comment::factory()->create([
-            'ArticleID' => $game->ID,
+            'ArticleID' => $game->id,
             'ArticleType' => 2,
             'user_id' => $bannedUser->id,
             'Payload' => 'This comment is from a banned user!',
             'Submitted' => "2024-01-20T15:01:04.000000Z",
         ]);
         $deletedComment = Comment::factory()->create([
-            'ArticleID' => $game->ID,
+            'ArticleID' => $game->id,
             'ArticleType' => 2,
             'user_id' => $user1->id,
             'Payload' => 'This comment has been deleted!',
@@ -209,7 +209,7 @@ class CommentsTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get($this->apiUrl('GetComments', ['i' => $game->ID, 't' => 1]))
+        $response = $this->get($this->apiUrl('GetComments', ['i' => $game->id, 't' => 1]))
             ->assertSuccessful();
 
         // Assert

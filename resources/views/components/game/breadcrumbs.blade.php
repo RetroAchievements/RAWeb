@@ -24,9 +24,9 @@ $gameListHref = System::isGameSystem($game->system->id)
 
     {{-- If there's game metadata, then show console metadata as a URL. Otherwise, it's plain text. --}}
     @if ($gameListHref)
-        <a href="{{ $gameListHref }}">{{ $game->system->Name }}</a>
+        <a href="{{ $gameListHref }}">{{ $game->system->name }}</a>
     @else
-        <span class="font-bold">{{ $game->system->Name }}</span>
+        <span class="font-bold">{{ $game->system->name }}</span>
     @endif
 
     &raquo;
@@ -34,11 +34,11 @@ $gameListHref = System::isGameSystem($game->system->id)
     {{-- If there's a current page label, then show game metadata as a URL. Otherwise, it's plain text. --}}
     @if ($currentPageLabel)
         <a href="{{ route('game.show', $game->id) }}">
-            <x-game-title :rawTitle="$game->Title" />
+            <x-game-title :rawTitle="$game->title" />
         </a>
     @else
         <span class="font-bold">
-            <x-game-title :rawTitle="$game->Title" />
+            <x-game-title :rawTitle="$game->title" />
         </span>
     @endif
 

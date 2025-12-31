@@ -26,7 +26,7 @@ class TriggerTicketApiControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
 
@@ -61,7 +61,7 @@ class TriggerTicketApiControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
 
@@ -95,7 +95,7 @@ class TriggerTicketApiControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
         $developer = User::factory()->create();
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $developer->id]);
@@ -144,7 +144,7 @@ class TriggerTicketApiControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
         $developer = User::factory()->create();
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $developer->id]);
@@ -188,7 +188,7 @@ class TriggerTicketApiControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
         $developer = User::factory()->create();
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $developer->id]);
@@ -235,7 +235,7 @@ class TriggerTicketApiControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
         $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
         $developer = User::factory()->create();
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $developer->id]);

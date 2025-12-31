@@ -85,24 +85,24 @@ $gameAchievementSetClaims = AchievementSetClaim::with('user')->where('game_id', 
 $gameAchievements = Achievement::where('GameID', $gameId)->where('Flags', $flag->value)->findMany($game->achievements);
 
 $gameData = [
-    'ID' => $game->ID,
-    'Title' => $game->Title,
-    'ConsoleID' => $game->ConsoleID,
-    'ForumTopicID' => $game->ForumTopicID,
+    'ID' => $game->id,
+    'Title' => $game->title,
+    'ConsoleID' => $game->system_id,
+    'ForumTopicID' => $game->forum_topic_id,
     'Flags' => null, // Always '0', this is different in the extended endpoint test for some reason
-    'ImageIcon' => $game->ImageIcon,
-    'ImageTitle' => $game->ImageTitle,
-    'ImageIngame' => $game->ImageIngame,
-    'ImageBoxArt' => $game->ImageBoxArt,
-    'Publisher' => $game->Publisher,
-    'Developer' => $game->Developer,
-    'Genre' => $game->Genre,
+    'ImageIcon' => $game->image_icon_asset_path,
+    'ImageTitle' => $game->image_title_asset_path,
+    'ImageIngame' => $game->image_ingame_asset_path,
+    'ImageBoxArt' => $game->image_box_art_asset_path,
+    'Publisher' => $game->publisher,
+    'Developer' => $game->developer,
+    'Genre' => $game->genre,
     'Released' => $game->released_at?->format('Y-m-d'),
     'ReleasedAtGranularity' => $game->released_at_granularity?->value,
     'IsFinal' => false,
-    'RichPresencePatch' => md5($game->RichPresencePatch),
-    'GuideURL' => $game->GuideURL,
-    'Updated' => $game->Updated->format('Y-m-d\TH:i:s.u\Z'),
+    'RichPresencePatch' => md5($game->trigger_definition ?? ''),
+    'GuideURL' => $game->legacy_guide_url,
+    'Updated' => $game->updated_at->format('Y-m-d\TH:i:s.u\Z'),
 ];
 
 // Use maps to structure the data with how legacy API consumers might expect it to be returned.
@@ -151,7 +151,7 @@ if (!$gameAchievementSetClaims) {
 return response()->json(array_merge(
     $gameData,
     [
-        'ConsoleName' => $game->system->Name,
+        'ConsoleName' => $game->system->name,
         'ParentGameID' => $game->parentGameId,
         'NumDistinctPlayers' => $game->players_total,
         'NumAchievements' => count($gameAchievements),

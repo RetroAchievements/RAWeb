@@ -385,7 +385,7 @@ function saveCodeNote(rowIndex, isDeleting = false) {
             echo "<br/>";
             $icon = "<img decoding='async' width='24' height='24' src='{$subset->game->badgeUrl}' class='badgeimg'>";
             $link = "codenotes.php?g=" . $subset->game_id;
-            $label = Blade::render("<x-game-title :rawTitle=\"\$rawTitle\" />", ['rawTitle' => $subset->game->Title]);
+            $label = Blade::render("<x-game-title :rawTitle=\"\$rawTitle\" />", ['rawTitle' => $subset->game->title]);
             echo "<span class='inline'><a class='inline-block' href='$link'>$icon $label</a></span>";
         }
     }

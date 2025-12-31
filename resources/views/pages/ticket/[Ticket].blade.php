@@ -73,7 +73,7 @@ $commentData = [];
     <div class="navpath">
         <a href="{{ route('tickets.index') }}">Open Tickets</a>
         &raquo;
-        <a href="{{ route('game.tickets', ['game' => $ticket->achievement->game]) }}">{{ $ticket->achievement->game->Title }}</a>
+        <a href="{{ route('game.tickets', ['game' => $ticket->achievement->game]) }}">{{ $ticket->achievement->game->title }}</a>
         &raquo;
         <span class="font-bold">Ticket {{ $ticket->ID }}</span>
     </div>

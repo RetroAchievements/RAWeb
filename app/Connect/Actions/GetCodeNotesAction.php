@@ -38,7 +38,7 @@ class GetCodeNotesAction extends BaseApiAction
             [$this->gameId, $compatibility] = VirtualGameIdService::decodeVirtualGameId($this->gameId);
         }
 
-        if (!Game::where('ID', $this->gameId)->exists()) {
+        if (!Game::where('id', $this->gameId)->exists()) {
             return $this->gameNotFound();
         }
 

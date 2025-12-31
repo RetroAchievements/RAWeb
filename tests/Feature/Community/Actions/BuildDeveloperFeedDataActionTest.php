@@ -46,8 +46,8 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
 
-        $game1 = Game::factory()->create(['ConsoleID' => $system->id]);
-        $game2 = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game1 = Game::factory()->create(['system_id' => $system->id]);
+        $game2 = Game::factory()->create(['system_id' => $system->id]);
 
         Achievement::factory()->count(5)->create([
             'GameID' => $game1->id,
@@ -89,7 +89,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
 
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $leaderboard = Leaderboard::factory()->create([
             'GameID' => $game->id,
             'author_id' => $developer->id,
@@ -115,7 +115,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         // Arrange
         $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $achievement = Achievement::factory()->create([
             'GameID' => $game->id,
@@ -147,7 +147,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         // Arrange
         $developer = User::factory()->create(['yield_unlocks' => 25000]);
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $achievement = Achievement::factory()->create([
             'GameID' => $game->id,
@@ -178,7 +178,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         // Arrange
         $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $achievement = Achievement::factory()->create([
             'GameID' => $game->id,
@@ -214,7 +214,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
 
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $leaderboard = Leaderboard::factory()->create([
             'GameID' => $game->id,
             'author_id' => $developer->id,
@@ -247,7 +247,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
 
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $leaderboard1 = Leaderboard::factory()->create([
             'GameID' => $game->id,
             'author_id' => $developer->id,

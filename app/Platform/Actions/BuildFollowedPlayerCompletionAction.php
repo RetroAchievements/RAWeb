@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Data\UserData;
 use App\Models\Game;
 use App\Models\PlayerGame;
@@ -29,9 +29,9 @@ class BuildFollowedPlayerCompletionAction
         $followedPlayerCompletion = null;
 
         $limitedFollowedUsers = UserRelation::query()
-            ->join('users', 'Friends.related_user_id', '=', 'users.id')
-            ->where(DB::raw('Friends.user_id'), '=', $user->id)
-            ->where(DB::raw('Friends.Friendship'), '=', UserRelationship::Following)
+            ->join('users', 'user_relations.related_user_id', '=', 'users.id')
+            ->where(DB::raw('user_relations.user_id'), '=', $user->id)
+            ->where(DB::raw('user_relations.status'), '=', UserRelationStatus::Following)
             ->select('users.id')
             ->limit(1000)
             ->pluck('id')

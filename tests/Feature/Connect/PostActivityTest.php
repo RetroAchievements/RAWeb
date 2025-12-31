@@ -26,7 +26,7 @@ class PostActivityTest extends TestCase
         $game = $this->seedGame();
 
         // this is the legacy start_session API call
-        $this->get($this->apiUrl('postactivity', ['a' => 3, 'm' => $game->ID]))
+        $this->get($this->apiUrl('postactivity', ['a' => 3, 'm' => $game->id]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -35,7 +35,7 @@ class PostActivityTest extends TestCase
         // player session created
         $playerSession = PlayerSession::where([
             'user_id' => $this->user->id,
-            'game_id' => $game->ID,
+            'game_id' => $game->id,
         ])->first();
         $this->assertModelExists($playerSession);
         $this->assertEquals(1, $playerSession->duration);
@@ -43,11 +43,11 @@ class PostActivityTest extends TestCase
 
         /** @var User $user1 */
         $user1 = User::whereName($this->user->username)->first();
-        $this->assertEquals($game->ID, $user1->rich_presence_game_id);
-        $this->assertEquals("Playing " . $game->Title, $user1->rich_presence);
+        $this->assertEquals($game->id, $user1->rich_presence_game_id);
+        $this->assertEquals("Playing " . $game->title, $user1->rich_presence);
 
         // disallow anything other than StartedPlaying messages
-        $this->get($this->apiUrl('postactivity', ['a' => 4, 'm' => $game->ID]))
+        $this->get($this->apiUrl('postactivity', ['a' => 4, 'm' => $game->id]))
             ->assertStatus(403)
             ->assertExactJson([
                 "Success" => false,

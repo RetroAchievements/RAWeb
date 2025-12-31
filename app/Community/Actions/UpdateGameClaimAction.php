@@ -112,7 +112,7 @@ class UpdateGameClaimAction
         if ($claim->SetType === ClaimSetType::Revision) {
             // Send email to users who had previously mastered the set
             $userAwards = PlayerBadge::with('user')
-                ->where('AwardData', $game->ID)
+                ->where('AwardData', $game->id)
                 ->where('AwardType', AwardType::Mastery)
                 ->get();
 
@@ -126,7 +126,7 @@ class UpdateGameClaimAction
                 }
             }
         } else {
-            $setRequests = UserGameListEntry::where('GameID', $game->id)
+            $setRequests = UserGameListEntry::where('game_id', $game->id)
                 ->where('type', UserGameListType::AchievementSetRequest)
                 ->with('user')
                 ->get();

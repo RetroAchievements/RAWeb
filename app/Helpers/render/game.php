@@ -27,11 +27,11 @@ function gameAvatar(
     }
 
     if (is_array($game)) {
-        $id = $game['GameID'] ?? $game['ID'];
+        $id = $game['GameID'] ?? $game['ID'] ?? $game['id'];
 
         if ($label !== false) {
             if ($title === null) {
-                $title = $game['GameTitle'] ?? $game['Title'] ?? null;
+                $title = $game['GameTitle'] ?? $game['Title'] ?? $game['title'] ?? null;
 
                 $consoleName = $game['Console'] ?? $game['ConsoleName'] ?? null;
                 if ($consoleName) {
@@ -45,7 +45,7 @@ function gameAvatar(
         }
 
         if ($icon === null) {
-            $icon = media_asset($game['GameIcon'] ?? $game['ImageIcon']);
+            $icon = media_asset($game['GameIcon'] ?? $game['ImageIcon'] ?? $game['image_icon_asset_path'] ?? null);
         }
     }
 
@@ -93,8 +93,8 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
 
     // Retrieve separate IDs and titles for main game and subset (if any)
     $getSplitData = function ($data) use ($consoleID): array {
-        $gameID = $data['GameID'] ?? $data['ID'];
-        $gameTitle = $data['GameTitle'] ?? $data['Title'];
+        $gameID = $data['GameID'] ?? $data['ID'] ?? $data['id'];
+        $gameTitle = $data['GameTitle'] ?? $data['Title'] ?? $data['title'];
         // Match and possibly split main title and subset
         $mainID = $gameID;
         $mainTitle = $gameTitle;
@@ -153,7 +153,7 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
 
 function renderGameCard(int|array $game, ?string $targetUsername): string
 {
-    $gameId = is_int($game) ? $game : ($game['GameID'] ?? $game['ID'] ?? null);
+    $gameId = is_int($game) ? $game : ($game['GameID'] ?? $game['ID'] ?? $game['id'] ?? null);
 
     if (empty($gameId)) {
         return __('legacy.error.error');

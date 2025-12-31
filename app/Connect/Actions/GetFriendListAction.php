@@ -64,7 +64,7 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
                     ->on('ps.user_id', '=', 'latest.user_id')
                     ->on('ps.rich_presence_updated_at', '=', 'latest.max_date');
             })
-            ->with(['game:ID,Title,ImageIcon'])
+            ->with(['game:id,title,image_icon_asset_path'])
             ->select([
                 'ps.user_id',
                 'ps.rich_presence',
@@ -87,10 +87,10 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
         $games = empty($gameIds)
             ? collect()
             : Game::query()
-                ->whereIn('ID', $gameIds)
-                ->select(['ID', 'Title', 'ImageIcon'])
+                ->whereIn('id', $gameIds)
+                ->select(['id', 'title', 'image_icon_asset_path'])
                 ->get()
-                ->keyBy('ID');
+                ->keyBy('id');
 
         $friendList = [];
 
@@ -111,7 +111,7 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
                 if ($mostRecentSession->game) {
                     $entry['LastGameId'] = $mostRecentSession->game_id;
                     $entry['LastGameTitle'] = $mostRecentSession->game->title;
-                    $entry['LastGameIconUrl'] = media_asset($mostRecentSession->game->ImageIcon);
+                    $entry['LastGameIconUrl'] = media_asset($mostRecentSession->game->image_icon_asset_path);
                 } else {
                     $entry['LastGameId'] = $mostRecentSession->game_id;
                     $entry['LastGameTitle'] = null;
@@ -121,7 +121,7 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
                 $lastGame = $games[$friend->rich_presence_game_id];
                 $entry['LastGameId'] = $lastGame->id;
                 $entry['LastGameTitle'] = $lastGame->title;
-                $entry['LastGameIconUrl'] = media_asset($lastGame->ImageIcon);
+                $entry['LastGameIconUrl'] = media_asset($lastGame->image_icon_asset_path);
             } else {
                 $entry['LastGameId'] = null;
                 $entry['LastGameTitle'] = null;

@@ -104,7 +104,7 @@ class GameController extends Controller
         $user = $request->user();
 
         // Redirect hubs to the dedicated hub page.
-        if ($game->ConsoleID === System::Hubs) {
+        if ($game->system_id === System::Hubs) {
             $gameSet = GameSet::whereType(GameSetType::Hub)
                 ->whereGameId($game->id)
                 ->first();
@@ -117,7 +117,7 @@ class GameController extends Controller
         }
 
         // Redirect events to the dedicated event page.
-        if ($game->ConsoleID === System::Events && $game->event) {
+        if ($game->system_id === System::Events && $game->event) {
             return redirect()->route('event.show', ['event' => $game->event]);
         }
 
@@ -261,9 +261,9 @@ class GameController extends Controller
      */
     public function setRequests(Request $request, Game $game): InertiaResponse
     {
-        $allRequestors = UserGameListEntry::where('GameID', $game->id)
+        $allRequestors = UserGameListEntry::where('game_id', $game->id)
             ->where('type', UserGameListType::AchievementSetRequest)
-            ->join('users', 'SetRequest.user_id', '=', 'users.id')
+            ->join('users', 'user_game_list_entries.user_id', '=', 'users.id')
             ->orderBy('users.display_name')
             ->with('user')
             ->get();

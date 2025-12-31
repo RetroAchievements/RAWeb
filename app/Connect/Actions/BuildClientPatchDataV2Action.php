@@ -131,7 +131,7 @@ class BuildClientPatchDataV2Action
         if ($resolvedSets?->isNotEmpty()) {
             // Preload all games.
             $coreGameIds = $resolvedSets->pluck('core_game_id')->unique();
-            $games = Game::whereIn('ID', $coreGameIds)->get()->keyBy('ID');
+            $games = Game::whereIn('id', $coreGameIds)->get()->keyBy('id');
 
             foreach ($resolvedSets as $resolvedSet) {
                 $setGame = $games[$resolvedSet->core_game_id];
@@ -144,7 +144,7 @@ class BuildClientPatchDataV2Action
                     'Type' => $resolvedSet->type->value,
                     'AchievementSetId' => $resolvedSet->achievementSet->id,
                     'GameId' => $resolvedSet->core_game_id,
-                    'ImageIconUrl' => media_asset($setGame->ImageIcon),
+                    'ImageIconUrl' => media_asset($setGame->image_icon_asset_path),
                     'Achievements' => $achievements,
                     'Leaderboards' => $leaderboards,
                 ];
@@ -167,7 +167,7 @@ class BuildClientPatchDataV2Action
                 'Type' => $coreAchievementSet?->type->value ?? AchievementSetType::Core->value,
                 'AchievementSetId' => $coreAchievementSet?->achievementSet->id ?? 0,
                 'GameId' => $coreAchievementSet?->game_id ?? $game->id,
-                'ImageIconUrl' => media_asset($coreAchievementSet?->game->ImageIcon ?? $game->ImageIcon),
+                'ImageIconUrl' => media_asset($coreAchievementSet?->game->image_icon_asset_path ?? $game->image_icon_asset_path),
                 'Achievements' => $achievements,
                 'Leaderboards' => $leaderboards,
             ];
@@ -181,9 +181,9 @@ class BuildClientPatchDataV2Action
             'Success' => true,
             'GameId' => $game->id,
             'Title' => $title,
-            'ImageIconUrl' => media_asset($game->ImageIcon),
+            'ImageIconUrl' => media_asset($game->image_icon_asset_path),
             'RichPresenceGameId' => $richPresenceGameId ?? $game->id,
-            'RichPresencePatch' => $richPresencePatch ?? $game->RichPresencePatch,
+            'RichPresencePatch' => $richPresencePatch ?? $game->trigger_definition,
             'ConsoleId' => $game->system->id,
             'Sets' => $sets,
         ];
@@ -287,18 +287,18 @@ class BuildClientPatchDataV2Action
     private function buildRichPresenceData(Game $actualLoadedGame, Game $derivedCoreGame, AchievementSetType $loadedSetType): array
     {
         $doesLoadedGameHaveRp =
-            !empty($actualLoadedGame->RichPresencePatch)
-            && !is_null($actualLoadedGame->RichPresencePatch);
+            !empty($actualLoadedGame->trigger_definition)
+            && !is_null($actualLoadedGame->trigger_definition);
 
         $didUserLoadSpecialtyOrExclusive =
             $loadedSetType === AchievementSetType::Specialty
             || $loadedSetType === AchievementSetType::Exclusive;
 
         if ($doesLoadedGameHaveRp && $didUserLoadSpecialtyOrExclusive) {
-            return [$actualLoadedGame->id, $actualLoadedGame->RichPresencePatch];
+            return [$actualLoadedGame->id, $actualLoadedGame->trigger_definition];
         }
 
-        return [$derivedCoreGame->id, $derivedCoreGame->RichPresencePatch];
+        return [$derivedCoreGame->id, $derivedCoreGame->trigger_definition];
     }
 
     /**
@@ -346,15 +346,15 @@ class BuildClientPatchDataV2Action
             'Success' => true,
             'GameId' => VirtualGameIdService::encodeVirtualGameId($game->id, $gameHashCompatibility),
             'Title' => "Unsupported Game Version ($game->title)",
-            'ImageIconUrl' => media_asset($game->ImageIcon),
-            'ConsoleId' => $game->ConsoleID,
+            'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+            'ConsoleId' => $game->system_id,
             'Sets' => [
                 [
                     'Title' => null,
                     'Type' => AchievementSetType::Core->value,
                     'AchievementSetId' => $achievementSetId,
                     'GameId' => VirtualGameIdService::encodeVirtualGameId($game->id, $gameHashCompatibility),
-                    'ImageIconUrl' => media_asset($game->ImageIcon),
+                    'ImageIconUrl' => media_asset($game->image_icon_asset_path),
                     'Achievements' => [
                         (new CreateWarningAchievementAction())->execute(
                             title: 'Unsupported Game Version',
@@ -391,9 +391,9 @@ class BuildClientPatchDataV2Action
             'Success' => true,
             'GameId' => $game->id,
             'Title' => $title,
-            'ImageIconUrl' => media_asset($game->ImageIcon),
+            'ImageIconUrl' => media_asset($game->image_icon_asset_path),
             'RichPresenceGameId' => $game->id,
-            'RichPresencePatch' => $game->RichPresencePatch,
+            'RichPresencePatch' => $game->trigger_definition,
             'ConsoleId' => $game->system->id,
             'Sets' => [
                 [
@@ -401,7 +401,7 @@ class BuildClientPatchDataV2Action
                     'Type' => AchievementSetType::Core->value,
                     'AchievementSetId' => $achievementSetId,
                     'GameId' => $game->id,
-                    'ImageIconUrl' => media_asset($game->ImageIcon),
+                    'ImageIconUrl' => media_asset($game->image_icon_asset_path),
                     'Achievements' => [
                         (new CreateWarningAchievementAction())->execute(
                             title: 'All Sets Opted Out',

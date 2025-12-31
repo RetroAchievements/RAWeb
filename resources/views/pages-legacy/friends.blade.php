@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Enums\Permissions;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,10 +14,10 @@ $followingList = [];
 $blockedUsersList = [];
 foreach (GetExtendedFriendsList($userModel) as $entry) {
     switch ($entry['Friendship']) {
-        case UserRelationship::Following:
+        case UserRelationStatus::Following->toLegacyInteger():
             $followingList[] = $entry;
             break;
-        case UserRelationship::Blocked:
+        case UserRelationStatus::Blocked->toLegacyInteger():
             $blockedUsersList[] = $entry['User'];
             break;
     }
@@ -76,14 +76,14 @@ $followersList = $userModel->followerUsers()->pluck('users.display_name')->toArr
             echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
             echo csrf_field();
             echo "<input type='hidden' name='user' value='$followingUser'>";
-            echo "<input type='hidden' name='action' value='" . UserRelationship::NotFollowing . "'>";
+            echo "<input type='hidden' name='action' value='" . UserRelationStatus::NotFollowing->value . "'>";
             echo "<button class='btn btn-link'>Unfollow</button>";
             echo "</form>";
 
             echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
             echo csrf_field();
             echo "<input type='hidden' name='user' value='$followingUser'>";
-            echo "<input type='hidden' name='action' value='" . UserRelationship::Blocked . "'>";
+            echo "<input type='hidden' name='action' value='" . UserRelationStatus::Blocked->value . "'>";
             echo "<button class='btn btn-link'>Block</button>";
             echo "</form>";
 
@@ -95,8 +95,8 @@ $followersList = $userModel->followerUsers()->pluck('users.display_name')->toArr
         echo "</tbody></table>";
     }
 
-    RenderUserList('Followers', $followersList, UserRelationship::Following, $followingList);
-    RenderUserList('Blocked', $blockedUsersList, UserRelationship::Blocked, $followingList);
+    RenderUserList('Followers', $followersList, UserRelationStatus::Following, $followingList);
+    RenderUserList('Blocked', $blockedUsersList, UserRelationStatus::Blocked, $followingList);
     ?>
     @if (!empty($followingList))
         <x-slot name="sidebar">

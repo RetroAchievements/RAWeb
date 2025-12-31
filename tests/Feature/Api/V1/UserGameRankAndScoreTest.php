@@ -23,7 +23,7 @@ class UserGameRankAndScoreTest extends TestCase
     {
         $game = Game::factory()->create();
 
-        $this->get($this->apiUrl('GetUserGameRankAndScore', ['u' => 'nonExistant', 'g' => $game->ID]))
+        $this->get($this->apiUrl('GetUserGameRankAndScore', ['u' => 'nonExistant', 'g' => $game->id]))
             ->assertSuccessful()
             ->assertJson([]);
     }
@@ -33,8 +33,8 @@ class UserGameRankAndScoreTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->id]);
         $firstAchievement = $publishedAchievements->get(0);
         $secondAchievement = $publishedAchievements->get(1);
         $thirdAchievement = $publishedAchievements->get(2);
@@ -50,7 +50,7 @@ class UserGameRankAndScoreTest extends TestCase
         $this->addHardcoreUnlock($user2, $secondAchievement);
         $this->addHardcoreUnlock($user2, $thirdAchievement);
 
-        $this->get($this->apiUrl('GetUserGameRankAndScore', ['u' => $user->username, 'g' => $game->ID]))
+        $this->get($this->apiUrl('GetUserGameRankAndScore', ['u' => $user->username, 'g' => $game->id]))
             ->assertSuccessful()
             ->assertJson([[
                 'User' => $user->username,
@@ -65,8 +65,8 @@ class UserGameRankAndScoreTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->id]);
         $firstAchievement = $publishedAchievements->get(0);
         $secondAchievement = $publishedAchievements->get(1);
         $thirdAchievement = $publishedAchievements->get(2);
@@ -82,7 +82,7 @@ class UserGameRankAndScoreTest extends TestCase
         $this->addHardcoreUnlock($user2, $secondAchievement);
         $this->addHardcoreUnlock($user2, $thirdAchievement);
 
-        $this->get($this->apiUrl('GetUserGameRankAndScore', ['u' => $user->ulid, 'g' => $game->ID]))
+        $this->get($this->apiUrl('GetUserGameRankAndScore', ['u' => $user->ulid, 'g' => $game->id]))
             ->assertSuccessful()
             ->assertJson([[
                 'User' => $user->username,
@@ -97,8 +97,8 @@ class UserGameRankAndScoreTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->id]);
         $firstAchievement = $publishedAchievements->get(0);
         $secondAchievement = $publishedAchievements->get(1);
         $thirdAchievement = $publishedAchievements->get(2);
@@ -114,7 +114,7 @@ class UserGameRankAndScoreTest extends TestCase
         $this->addHardcoreUnlock($user2, $secondAchievement);
         $this->addHardcoreUnlock($user2, $thirdAchievement);
 
-        $this->get($this->apiUrl('GetUserGameRankAndScore', ['u' => $user->username, 'g' => $game->ID]))
+        $this->get($this->apiUrl('GetUserGameRankAndScore', ['u' => $user->username, 'g' => $game->id]))
             ->assertSuccessful()
             ->assertJson([[
                 'User' => $user->username,

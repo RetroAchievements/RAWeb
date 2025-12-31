@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\System;
@@ -29,13 +29,13 @@ class AchievementWonDataTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id]);
 
         $users = [];
         $unlocks = [];
@@ -79,7 +79,7 @@ class AchievementWonDataTest extends TestCase
                 'AchievementID' => $achievement1->ID,
                 'Response' => [
                     'NumEarned' => 14,
-                    'GameID' => $game->ID,
+                    'GameID' => $game->id,
                     'TotalPlayers' => 16,
                     'RecentWinner' => [
                         ['User' => $users[19]->display_name, 'AvatarUrl' => $users[19]->avatar_url, 'RAPoints' => $users[19]->points_hardcore, 'DateAwarded' => $unlocks[19]],
@@ -102,7 +102,7 @@ class AchievementWonDataTest extends TestCase
                 'AchievementID' => $achievement1->ID,
                 'Response' => [
                     'NumEarned' => 14,
-                    'GameID' => $game->ID,
+                    'GameID' => $game->id,
                     'TotalPlayers' => 16,
                     'RecentWinner' => [
                         ['User' => $users[3]->display_name, 'AvatarUrl' => $users[3]->avatar_url, 'RAPoints' => $users[3]->points_hardcore, 'DateAwarded' => $unlocks[3]],
@@ -122,7 +122,7 @@ class AchievementWonDataTest extends TestCase
                 'AchievementID' => $achievement2->ID,
                 'Response' => [
                     'NumEarned' => 7,
-                    'GameID' => $game->ID,
+                    'GameID' => $game->id,
                     'TotalPlayers' => 16,
                     'RecentWinner' => [
                         ['User' => $users[10]->display_name, 'AvatarUrl' => $users[10]->avatar_url, 'RAPoints' => $users[10]->points_hardcore, 'DateAwarded' => $unlocks[10]],
@@ -144,7 +144,7 @@ class AchievementWonDataTest extends TestCase
                 'AchievementID' => $achievement3->ID,
                 'Response' => [
                     'NumEarned' => 0,
-                    'GameID' => $game->ID,
+                    'GameID' => $game->id,
                     'TotalPlayers' => 16,
                     'RecentWinner' => [],
                 ],
@@ -166,12 +166,12 @@ class AchievementWonDataTest extends TestCase
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $users[10]->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $users[4]->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         $this->get($this->apiUrl('achievementwondata', ['a' => $achievement2->ID, 'f' => 1]))
@@ -184,7 +184,7 @@ class AchievementWonDataTest extends TestCase
                 'AchievementID' => $achievement2->ID,
                 'Response' => [
                     'NumEarned' => 7,
-                    'GameID' => $game->ID,
+                    'GameID' => $game->id,
                     'TotalPlayers' => 16,
                     'RecentWinner' => [
                         ['User' => $users[10]->display_name, 'AvatarUrl' => $users[10]->avatar_url, 'RAPoints' => $users[10]->points_hardcore, 'DateAwarded' => $unlocks[10]],

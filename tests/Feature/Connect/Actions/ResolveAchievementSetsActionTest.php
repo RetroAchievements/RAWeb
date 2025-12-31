@@ -36,7 +36,7 @@ class ResolveAchievementSetsActionTest extends TestCase
         parent::setUp();
 
         // This common system is used in all the tests.
-        $this->system = System::factory()->create(['ID' => 1, 'Name' => 'NES/Famicom']);
+        $this->system = System::factory()->create(['id' => 1, 'name' => 'NES/Famicom']);
 
         $this->upsertGameCoreSetAction = new UpsertGameCoreAchievementSetFromLegacyFlagsAction();
         $this->associateAchievementSetToGameAction = new AssociateAchievementSetToGameAction();
@@ -51,7 +51,7 @@ class ResolveAchievementSetsActionTest extends TestCase
         int $publishedCount,
         int $unpublishedCount = 0,
     ): Game {
-        $game = Game::factory()->create(['Title' => $title, 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => $title, 'system_id' => $system->id]);
         Achievement::factory()->published()->count($publishedCount)->create(['GameID' => $game->id]);
         Achievement::factory()->count($unpublishedCount)->create(['GameID' => $game->id]);
 

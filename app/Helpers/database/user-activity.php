@@ -71,7 +71,7 @@ function getRecentlyPlayedGames(User $user, int $offset, int $count, array &$dat
 
     $playerGames = PlayerGame::where('user_id', $user->id)
         ->whereHas('game', function ($query) {
-            $query->whereNotIn('ConsoleId', System::getNonGameSystems());
+            $query->whereNotIn('system_id', System::getNonGameSystems());
         })
         ->with('game.system')
         ->orderByDesc('last_played_at')
@@ -80,14 +80,14 @@ function getRecentlyPlayedGames(User $user, int $offset, int $count, array &$dat
 
     foreach ($playerGames->get() as $playerGame) {
         $dataOut[] = [
-            'GameID' => $playerGame->game->ID,
+            'GameID' => $playerGame->game->id,
             'ConsoleID' => $playerGame->game->system->id,
             'ConsoleName' => $playerGame->game->system->name,
-            'Title' => $playerGame->game->Title,
-            'ImageIcon' => $playerGame->game->ImageIcon,
-            'ImageTitle' => $playerGame->game->ImageTitle,
-            'ImageIngame' => $playerGame->game->ImageIngame,
-            'ImageBoxArt' => $playerGame->game->ImageBoxArt,
+            'Title' => $playerGame->game->title,
+            'ImageIcon' => $playerGame->game->image_icon_asset_path,
+            'ImageTitle' => $playerGame->game->image_title_asset_path,
+            'ImageIngame' => $playerGame->game->image_ingame_asset_path,
+            'ImageBoxArt' => $playerGame->game->image_box_art_asset_path,
             'LastPlayed' => $playerGame->last_played_at
                 ? $playerGame->last_played_at->format("Y-m-d H:i:s")
                 : null,
@@ -166,10 +166,10 @@ function getLatestRichPresenceUpdates(): array
     $timestampStatement = timestampAddMinutesStatement(-$recentMinutes);
 
     $query = "SELECT ua.username AS User, $ifRAPoints as RAPoints, $ifRASoftcorePoints as RASoftcorePoints,
-                     ua.rich_presence AS RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
+                     ua.rich_presence AS RichPresenceMsg, gd.id AS GameID, gd.title AS GameTitle, gd.image_icon_asset_path AS GameIcon, s.name AS ConsoleName
               FROM users AS ua
-              LEFT JOIN GameData AS gd ON gd.ID = ua.rich_presence_game_id
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              LEFT JOIN games AS gd ON gd.id = ua.rich_presence_game_id
+              LEFT JOIN systems AS s ON s.id = gd.system_id
               WHERE ua.rich_presence_updated_at > $timestampStatement
                 AND ua.rich_presence_game_id != 0
                 AND ua.Permissions >= $permissionsCutoff

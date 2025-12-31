@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\V1;
 
 use App\Community\Enums\UserGameListType;
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
@@ -63,7 +63,7 @@ class UserWantToPlayListTest extends TestCase
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $followedUser->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         /** @var User $followingUser */
@@ -71,7 +71,7 @@ class UserWantToPlayListTest extends TestCase
         UserRelation::create([
             'user_id' => $followingUser->id,
             'related_user_id' => $this->user->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         /** @var User $friend */
@@ -79,68 +79,68 @@ class UserWantToPlayListTest extends TestCase
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $friend->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
         UserRelation::create([
             'user_id' => $friend->id,
             'related_user_id' => $this->user->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
         /** @var System $system */
         $system = System::factory()->create();
 
         /** @var Game $gameOne */
-        $gameOne = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameOne = Game::factory()->create(['system_id' => $system->id]);
         UserGameListEntry::create([
             'user_id' => $this->user->id,
-            'GameID' => $gameOne->ID,
+            'game_id' => $gameOne->id,
             'type' => UserGameListType::Play,
         ]);
         UserGameListEntry::create([
             'user_id' => $followedUser->id,
-            'GameID' => $gameOne->ID,
+            'game_id' => $gameOne->id,
             'type' => UserGameListType::Play,
         ]);
         UserGameListEntry::create([
             'user_id' => $followingUser->id,
-            'GameID' => $gameOne->ID,
+            'game_id' => $gameOne->id,
             'type' => UserGameListType::Play,
         ]);
         UserGameListEntry::create([
             'user_id' => $friend->id,
-            'GameID' => $gameOne->ID,
+            'game_id' => $gameOne->id,
             'type' => UserGameListType::Play,
         ]);
 
         /** @var Game $gameTwo */
-        $gameTwo = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameTwo = Game::factory()->create(['system_id' => $system->id]);
         UserGameListEntry::create([
             'user_id' => $this->user->id,
-            'GameID' => $gameTwo->ID,
+            'game_id' => $gameTwo->id,
             'type' => UserGameListType::Play,
         ]);
 
         /** @var Game $gameThree */
-        $gameThree = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameThree = Game::factory()->create(['system_id' => $system->id]);
         UserGameListEntry::create([
             'user_id' => $this->user->id,
-            'GameID' => $gameThree->ID,
+            'game_id' => $gameThree->id,
             'type' => UserGameListType::Play,
         ]);
 
         /** @var Game $gameFour */
-        $gameFour = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameFour = Game::factory()->create(['system_id' => $system->id]);
         UserGameListEntry::create([
             'user_id' => $this->user->id,
-            'GameID' => $gameFour->ID,
+            'game_id' => $gameFour->id,
             'type' => UserGameListType::Play,
         ]);
 
         /** @var Game $gameFive */
-        $gameFive = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameFive = Game::factory()->create(['system_id' => $system->id]);
         UserGameListEntry::create([
             'user_id' => $this->user->id,
-            'GameID' => $gameFive->ID,
+            'game_id' => $gameFive->id,
             'type' => UserGameListType::Play,
         ]);
 
@@ -151,42 +151,42 @@ class UserWantToPlayListTest extends TestCase
                 'Total' => 5,
                 'Results' => [
                     [
-                        "ID" => $gameOne->ID,
-                        "Title" => $gameOne->Title,
-                        "ImageIcon" => $gameOne->ImageIcon,
-                        "ConsoleID" => $system->ID,
+                        "ID" => $gameOne->id,
+                        "Title" => $gameOne->title,
+                        "ImageIcon" => $gameOne->image_icon_asset_path,
+                        "ConsoleID" => $system->id,
                         "PointsTotal" => $gameOne->points_total,
                         'AchievementsPublished' => $gameOne->achievements_published,
                     ],
                     [
-                        "ID" => $gameTwo->ID,
-                        "Title" => $gameTwo->Title,
-                        "ImageIcon" => $gameTwo->ImageIcon,
-                        "ConsoleID" => $system->ID,
+                        "ID" => $gameTwo->id,
+                        "Title" => $gameTwo->title,
+                        "ImageIcon" => $gameTwo->image_icon_asset_path,
+                        "ConsoleID" => $system->id,
                         "PointsTotal" => $gameTwo->points_total,
                         'AchievementsPublished' => $gameTwo->achievements_published,
                     ],
                     [
-                        "ID" => $gameThree->ID,
-                        "Title" => $gameThree->Title,
-                        "ImageIcon" => $gameThree->ImageIcon,
-                        "ConsoleID" => $system->ID,
+                        "ID" => $gameThree->id,
+                        "Title" => $gameThree->title,
+                        "ImageIcon" => $gameThree->image_icon_asset_path,
+                        "ConsoleID" => $system->id,
                         "PointsTotal" => $gameThree->points_total,
                         'AchievementsPublished' => $gameThree->achievements_published,
                     ],
                     [
-                        "ID" => $gameFour->ID,
-                        "Title" => $gameFour->Title,
-                        "ImageIcon" => $gameFour->ImageIcon,
-                        "ConsoleID" => $system->ID,
+                        "ID" => $gameFour->id,
+                        "Title" => $gameFour->title,
+                        "ImageIcon" => $gameFour->image_icon_asset_path,
+                        "ConsoleID" => $system->id,
                         "PointsTotal" => $gameFour->points_total,
                         'AchievementsPublished' => $gameFour->achievements_published,
                     ],
                     [
-                        "ID" => $gameFive->ID,
-                        "Title" => $gameFive->Title,
-                        "ImageIcon" => $gameFive->ImageIcon,
-                        "ConsoleID" => $system->ID,
+                        "ID" => $gameFive->id,
+                        "Title" => $gameFive->title,
+                        "ImageIcon" => $gameFive->image_icon_asset_path,
+                        "ConsoleID" => $system->id,
                         "PointsTotal" => $gameFive->points_total,
                         'AchievementsPublished' => $gameFive->achievements_published,
                     ],
@@ -200,18 +200,18 @@ class UserWantToPlayListTest extends TestCase
                     'Total' => 5,
                     'Results' => [
                         [
-                            "ID" => $gameFour->ID,
-                            "Title" => $gameFour->Title,
-                            "ImageIcon" => $gameFour->ImageIcon,
-                            "ConsoleID" => $system->ID,
+                            "ID" => $gameFour->id,
+                            "Title" => $gameFour->title,
+                            "ImageIcon" => $gameFour->image_icon_asset_path,
+                            "ConsoleID" => $system->id,
                             "PointsTotal" => $gameFour->points_total,
                             'AchievementsPublished' => $gameFour->achievements_published,
                         ],
                         [
-                            "ID" => $gameFive->ID,
-                            "Title" => $gameFive->Title,
-                            "ImageIcon" => $gameFive->ImageIcon,
-                            "ConsoleID" => $system->ID,
+                            "ID" => $gameFive->id,
+                            "Title" => $gameFive->title,
+                            "ImageIcon" => $gameFive->image_icon_asset_path,
+                            "ConsoleID" => $system->id,
                             "PointsTotal" => $gameFive->points_total,
                             'AchievementsPublished' => $gameFive->achievements_published,
                         ],
@@ -225,18 +225,18 @@ class UserWantToPlayListTest extends TestCase
                     'Total' => 5,
                     'Results' => [
                         [
-                            "ID" => $gameOne->ID,
-                            "Title" => $gameOne->Title,
-                            "ImageIcon" => $gameOne->ImageIcon,
-                            "ConsoleID" => $system->ID,
+                            "ID" => $gameOne->id,
+                            "Title" => $gameOne->title,
+                            "ImageIcon" => $gameOne->image_icon_asset_path,
+                            "ConsoleID" => $system->id,
                             "PointsTotal" => $gameOne->points_total,
                             'AchievementsPublished' => $gameOne->achievements_published,
                         ],
                         [
-                            "ID" => $gameTwo->ID,
-                            "Title" => $gameTwo->Title,
-                            "ImageIcon" => $gameTwo->ImageIcon,
-                            "ConsoleID" => $system->ID,
+                            "ID" => $gameTwo->id,
+                            "Title" => $gameTwo->title,
+                            "ImageIcon" => $gameTwo->image_icon_asset_path,
+                            "ConsoleID" => $system->id,
                             "PointsTotal" => $gameTwo->points_total,
                             'AchievementsPublished' => $gameTwo->achievements_published,
                         ],
@@ -250,18 +250,18 @@ class UserWantToPlayListTest extends TestCase
                     'Total' => 5,
                     'Results' => [
                         [
-                            "ID" => $gameTwo->ID,
-                            "Title" => $gameTwo->Title,
-                            "ImageIcon" => $gameTwo->ImageIcon,
-                            "ConsoleID" => $system->ID,
+                            "ID" => $gameTwo->id,
+                            "Title" => $gameTwo->title,
+                            "ImageIcon" => $gameTwo->image_icon_asset_path,
+                            "ConsoleID" => $system->id,
                             "PointsTotal" => $gameTwo->points_total,
                             'AchievementsPublished' => $gameTwo->achievements_published,
                         ],
                         [
-                            "ID" => $gameThree->ID,
-                            "Title" => $gameThree->Title,
-                            "ImageIcon" => $gameThree->ImageIcon,
-                            "ConsoleID" => $system->ID,
+                            "ID" => $gameThree->id,
+                            "Title" => $gameThree->title,
+                            "ImageIcon" => $gameThree->image_icon_asset_path,
+                            "ConsoleID" => $system->id,
                             "PointsTotal" => $gameThree->points_total,
                             'AchievementsPublished' => $gameThree->achievements_published,
                         ],
@@ -284,10 +284,10 @@ class UserWantToPlayListTest extends TestCase
                         'Total' => 1,
                         'Results' => [
                             [
-                                "ID" => $gameOne->ID,
-                                "Title" => $gameOne->Title,
-                                "ImageIcon" => $gameOne->ImageIcon,
-                                "ConsoleID" => $system->ID,
+                                "ID" => $gameOne->id,
+                                "Title" => $gameOne->title,
+                                "ImageIcon" => $gameOne->image_icon_asset_path,
+                                "ConsoleID" => $system->id,
                                 "PointsTotal" => $gameOne->points_total,
                                 'AchievementsPublished' => $gameOne->achievements_published,
                             ],

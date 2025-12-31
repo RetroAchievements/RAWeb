@@ -37,9 +37,9 @@ class AchievementOfTheWeekTest extends TestCase
         $user3 = User::factory()->create();
         $game = $this->seedGame(withHash: false);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id]);
         $now = Carbon::now();
         $time1 = $now->clone()->startOfSecond();
         $this->addHardcoreUnlock($this->user, $achievement1, $time1);
@@ -54,16 +54,16 @@ class AchievementOfTheWeekTest extends TestCase
             'Event_AOTW_ForumID' => 2,
         ]);
 
-        System::factory()->create(['ID' => System::Events]);
+        System::factory()->create(['id' => System::Events]);
         /** @var Game $eventGame */
-        $eventGame = Game::factory()->create(['ConsoleID' => System::Events, 'Title' => 'Achievement of the Week', 'ForumTopicId' => 1]);
+        $eventGame = Game::factory()->create(['system_id' => System::Events, 'title' => 'Achievement of the Week', 'forum_topic_id' => 1]);
         Event::factory()->create([
             'legacy_game_id' => $eventGame->id,
             'active_from' => $now->clone()->subDays(1),
             'active_until' => $now->clone()->addDays(2),
         ]);
         /** @var Achievement $eventAchievement1 */
-        $eventAchievement1 = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
+        $eventAchievement1 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
 
         $ev = EventAchievement::create([
             'achievement_id' => $eventAchievement1->ID,
@@ -89,7 +89,7 @@ class AchievementOfTheWeekTest extends TestCase
                     'ID' => 1, // forum topic from from event game
                 ],
                 'Game' => [
-                    'ID' => $game->ID, // source achievement game
+                    'ID' => $game->id, // source achievement game
                 ],
                 'StartAt' => $ev->active_from->jsonSerialize(),
                 'TotalPlayers' => 2, // only the hardcore unlock applies (event achievements can't technically be unlocked in softcore)

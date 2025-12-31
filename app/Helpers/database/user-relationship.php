@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
 use App\Mail\CommunityFriendMail;
@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Models\UserRelation;
 use Illuminate\Support\Facades\Mail;
 
-function changeFriendStatus(User $senderUser, User $targetUser, int $newStatus): string
+function changeFriendStatus(User $senderUser, User $targetUser, UserRelationStatus $newStatus): string
 {
     $existingUserRelation = UserRelation::where('user_id', $senderUser->id)
         ->where('related_user_id', $targetUser->id)
@@ -16,56 +16,56 @@ function changeFriendStatus(User $senderUser, User $targetUser, int $newStatus):
 
     $newRelationship = false;
     if ($existingUserRelation) {
-        $oldStatus = $existingUserRelation->Friendship;
+        $oldStatus = $existingUserRelation->status;
     } else {
         $newRelationship = true;
-        $oldStatus = UserRelationship::NotFollowing;
+        $oldStatus = UserRelationStatus::NotFollowing;
     }
 
     if (
-        $newStatus === UserRelationship::Following
+        $newStatus === UserRelationStatus::Following
         && ($targetUser->isBlocking($senderUser) || $senderUser->isFreshAccount())
     ) {
-        // don't allow follows if one user is blocking the other, or if the
-        // person initiating the follow has little to no activity on their account
+        // Don't allow follows if one user is blocking the other, or if the
+        // person initiating the follow has little to no activity on their account.
         return "error";
     }
 
     // Upsert the relationship.
     if ($existingUserRelation) {
-        $existingUserRelation->Friendship = $newStatus;
+        $existingUserRelation->status = $newStatus;
         $existingUserRelation->save();
     } else {
         UserRelation::create([
             'user_id' => $senderUser->id,
             'related_user_id' => $targetUser->id,
-            'Friendship' => $newStatus,
+            'status' => $newStatus,
         ]);
     }
 
     switch ($newStatus) {
-        case UserRelationship::Following:
-            // attempt to notify the target of the new follower
+        case UserRelationStatus::Following:
+            // Attempt to notify the target of the new follower.
             if ($newRelationship && BitSet($targetUser->preferences_bitfield, UserPreference::EmailOn_Followed)) {
-                // notify the new friend of the request
+                // Notify the new friend of the request.
                 Mail::to($targetUser)->queue(new CommunityFriendMail($targetUser, $senderUser));
             }
 
             return "user_follow";
 
-        case UserRelationship::NotFollowing:
+        case UserRelationStatus::NotFollowing:
             return match ($oldStatus) {
-                UserRelationship::Following => "user_unfollow",
-                UserRelationship::Blocked => "user_unblock",
+                UserRelationStatus::Following => "user_unfollow",
+                UserRelationStatus::Blocked => "user_unblock",
                 default => "error",
             };
 
-        case UserRelationship::Blocked:
+        case UserRelationStatus::Blocked:
             if (!$targetUser->isBlocking($senderUser)) {
-                // if the other user hasn't blocked the user, clear out their friendship status too
+                // If the other user hasn't blocked the user, clear out their friendship status too.
                 UserRelation::where('user_id', $targetUser->id)
                     ->where('related_user_id', $senderUser->id)
-                    ->update(['Friendship' => UserRelationship::NotFollowing]);
+                    ->update(['status' => UserRelationStatus::NotFollowing]);
             }
 
             return "user_block";
@@ -85,7 +85,7 @@ function GetExtendedFriendsList(User $user): array
         ->map(function ($friend) {
             return [
                 'User' => $friend->display_name,
-                'Friendship' => (int) $friend->pivot->Friendship,
+                'Friendship' => UserRelationStatus::from($friend->pivot->status)->toLegacyInteger(),
                 'LastGameID' => (int) $friend->rich_presence_game_id,
                 'LastSeen' => empty($friend->rich_presence) ? 'Unknown' : strip_tags($friend->rich_presence),
                 'LastActivityTimestamp' => $friend->rich_presence_updated_at?->format('Y-m-d H:i:s'),
@@ -104,15 +104,15 @@ function GetFriendsSubquery(string $user, bool $includeUser = true, bool $return
 
     $friendsSubquery = "SELECT $selectColumn FROM users ua
         JOIN (
-            SELECT related_user_id FROM Friends
-            WHERE user_id = :userId AND Friendship = :friendshipStatus
+            SELECT related_user_id FROM user_relations
+            WHERE user_id = :userId AND status = :status
         ) AS Friends1 ON Friends1.related_user_id = ua.id
         WHERE ua.deleted_at IS NULL AND ua.Permissions >= :permissionsLevel
     ";
 
     $bindings = [
         'userId' => $userId,
-        'friendshipStatus' => UserRelationship::Following,
+        'status' => UserRelationStatus::Following->value,
         'permissionsLevel' => Permissions::Unregistered,
     ];
 

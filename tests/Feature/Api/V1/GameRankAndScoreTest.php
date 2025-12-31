@@ -30,11 +30,11 @@ class GameRankAndScoreTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $ach1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Points' => 3]);
-        $ach2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Points' => 5]);
-        $ach3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Points' => 10]);
+        $ach1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 3]);
+        $ach2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 5]);
+        $ach3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 10]);
 
         // $this->user has mastered the game
         $this->addHardcoreUnlock($this->user, $ach1);
@@ -55,7 +55,7 @@ class GameRankAndScoreTest extends TestCase
         $this->addHardcoreUnlock($user3, $ach3);
 
         // ask for high scores first (t=0 [default])
-        $this->get($this->apiUrl('GetGameRankAndScore', ['g' => $game->ID]))
+        $this->get($this->apiUrl('GetGameRankAndScore', ['g' => $game->id]))
             ->assertSuccessful()
             ->assertJsonCount(3)
             ->assertJson([
@@ -80,7 +80,7 @@ class GameRankAndScoreTest extends TestCase
             ]);
 
         // ask for masters (t=1)
-        $this->get($this->apiUrl('GetGameRankAndScore', ['g' => $game->ID, 't' => 1]))
+        $this->get($this->apiUrl('GetGameRankAndScore', ['g' => $game->id, 't' => 1]))
             ->assertSuccessful()
             ->assertJsonCount(1)
             ->assertJson([

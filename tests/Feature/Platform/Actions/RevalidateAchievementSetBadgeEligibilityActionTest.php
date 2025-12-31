@@ -32,7 +32,7 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
     public function testBadgeUpgrade(): void
     {
         $user = User::factory()->create();
-        $system = System::factory()->create(['ID' => System::Events]);
+        $system = System::factory()->create(['id' => System::Events]);
         $game = $this->seedGame(system: $system);
         $achievements = $this->seedAchievements(8, $game);
         foreach ($achievements as $achievement) {
@@ -117,8 +117,8 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
     public function testBadgeUpgradeWeighted(): void
     {
         $user = User::factory()->create();
-        System::factory()->create(['ID' => System::Events]);
-        $game = Game::factory()->create(['ConsoleID' => System::Events, 'achievements_published' => 3, 'points_total' => 6]);
+        System::factory()->create(['id' => System::Events]);
+        $game = Game::factory()->create(['system_id' => System::Events, 'achievements_published' => 3, 'points_total' => 6]);
         $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 1]);
         $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 1]);
         $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 2]);
@@ -173,7 +173,7 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
     public function testNonTieredEvent(): void
     {
         $user = User::factory()->create();
-        $eventSystem = System::factory()->create(['ID' => System::Events]);
+        $eventSystem = System::factory()->create(['id' => System::Events]);
         $game = $this->seedGame(system: $eventSystem);
         $achievements = $this->seedAchievements(3, $game);
         $event = Event::create(['legacy_game_id' => $game->id]);

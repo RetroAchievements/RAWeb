@@ -25,7 +25,7 @@ class UserGameAchievementSetPreferenceControllerTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $achievements = Achievement::factory()->published()->count(10)->create(['GameID' => $game->id]);
 
@@ -62,7 +62,7 @@ class UserGameAchievementSetPreferenceControllerTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         // ... create a core set ...
         Achievement::factory()->published()->count(5)->create(['GameID' => $game->id]);

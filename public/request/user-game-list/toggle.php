@@ -15,7 +15,7 @@ if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'game' => 'required|integer|exists:GameData,ID',
+    'game' => 'required|integer|exists:games,id',
     'type' => ['required', 'string', Rule::in(array_column(UserGameListType::cases(), 'value'))],
 ]);
 
@@ -29,7 +29,7 @@ $command = '';
 
 /** @var User $user */
 $user = User::findOrFail($userDetails['ID']);
-if ($user->gameListEntries($typeEnum)->where('GameID', $gameId)->exists()) {
+if ($user->gameListEntries($typeEnum)->where('game_id', $gameId)->exists()) {
     $action = new RemoveGameFromListAction();
     $success = $action->execute($user, $game, $typeEnum);
     $command = 'removed';

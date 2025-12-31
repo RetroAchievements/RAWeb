@@ -77,18 +77,18 @@ function getAchievementsList(
                 ach.DateModified,
                 ach.BadgeName,
                 ach.GameID,
-                gd.Title AS GameTitle,
-                gd.ImageIcon AS GameIcon,
-                gd.ConsoleID,
-                c.Name AS ConsoleName,
+                gd.title AS GameTitle,
+                gd.image_icon_asset_path AS GameIcon,
+                gd.system_id AS ConsoleID,
+                s.name AS ConsoleName,
                 ua.username AS Author
                 $selectAwardedDate
             FROM Achievements AS ach
             $joinPlayerAchievements
             INNER JOIN users AS ua ON ua.id = ach.user_id
-            INNER JOIN GameData AS gd ON gd.ID = ach.GameID
-            INNER JOIN Console AS c ON c.ID = gd.ConsoleID
-            WHERE gd.ConsoleID != " . System::Events . "
+            INNER JOIN games AS gd ON gd.id = ach.GameID
+            INNER JOIN systems AS s ON s.id = gd.system_id
+            WHERE gd.system_id != " . System::Events . "
             AND ach.Flags = :achievementFlag
             AND ach.deleted_at IS NULL ";
 
@@ -203,7 +203,7 @@ function GetAchievementData(int $achievementId): ?array
         'ConsoleID' => $achievement->game->system->id,
         'ConsoleName' => $achievement->game->system->name,
         'GameTitle' => $achievement->game->title,
-        'GameIcon' => $achievement->game->ImageIcon,
+        'GameIcon' => $achievement->game->image_icon_asset_path,
     ];
 }
 
@@ -284,8 +284,8 @@ function UploadNewAchievement(
         }
 
         $isForSubsetOrTestKit = (
-            mb_strpos($gameData['Title'], '[Subset') !== false
-            || mb_strpos($gameData['Title'], '~Test Kit~') !== false
+            mb_strpos($gameData['title'], '[Subset') !== false
+            || mb_strpos($gameData['title'], '~Test Kit~') !== false
         );
 
         if (

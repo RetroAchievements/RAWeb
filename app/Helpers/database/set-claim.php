@@ -233,7 +233,7 @@ function getFilteredClaims(
     // Create the sorting condition
     $sortCondition = match ($sortType) {
         2 => 'ua.username ',
-        3 => 'gd.Title ',
+        3 => 'gd.title ',
         4 => 'sc.ClaimType ',
         5 => 'sc.SetType ',
         6 => 'sc.Status ',
@@ -272,10 +272,10 @@ function getFilteredClaims(
         ua.ulid as ULID,
         COALESCE(ua.display_name, ua.username) AS User,
         sc.game_id AS GameID,
-        gd.Title AS GameTitle,
-        gd.ImageIcon AS GameIcon,
-        c.ID AS ConsoleID,
-        c.Name AS ConsoleName,
+        gd.title AS GameTitle,
+        gd.image_icon_asset_path AS GameIcon,
+        s.id AS ConsoleID,
+        s.name AS ConsoleName,
         sc.ClaimType AS ClaimType,
         sc.SetType AS SetType,
         sc.Status AS Status,
@@ -294,9 +294,9 @@ function getFilteredClaims(
         FROM
             SetClaim sc
         LEFT JOIN
-            GameData AS gd ON gd.ID = sc.game_id
+            games AS gd ON gd.id = sc.game_id
         LEFT JOIN
-            Console AS c ON c.ID = gd.ConsoleID
+            systems AS s ON s.id = gd.system_id
         LEFT JOIN
             users AS ua ON ua.id = sc.user_id
         WHERE

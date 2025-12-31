@@ -9,9 +9,9 @@ function getHashList(int $offset, int $count, ?string $searchedHash): array
 {
     $query =
         GameHash::with(['user', 'game' => function ($query) {
-            $query->select('ID', 'Title', 'ImageIcon', 'ConsoleID');
+            $query->select('id', 'title', 'image_icon_asset_path', 'system_id');
         }, 'game.system' => function ($query) {
-            $query->select('ID', 'Name');
+            $query->select('id', 'name');
         }])
         ->select('md5', 'game_id', 'user_id', 'created_at');
 
@@ -32,9 +32,9 @@ function getHashList(int $offset, int $count, ?string $searchedHash): array
             'GameID' => $hash->game_id,
             'User' => $hash->user ? $hash->user->username : null,
             'DateAdded' => $hash->created_at,
-            'GameTitle' => $hash->game ? $hash->game->Title : null,
-            'GameIcon' => $hash->game ? $hash->game->ImageIcon : null,
-            'ConsoleName' => $hash->game->system ? $hash->game->system->Name : null,
+            'GameTitle' => $hash->game ? $hash->game->title : null,
+            'GameIcon' => $hash->game ? $hash->game->image_icon_asset_path : null,
+            'ConsoleName' => $hash->game->system ? $hash->game->system->name : null,
         ];
     })
         ->toArray();

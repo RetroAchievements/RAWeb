@@ -63,7 +63,7 @@ class BuildGameChecklistAction
         }
         $ids = array_unique($ids);
 
-        $games = Game::whereIn('ID', $ids)->with('system')->get();
+        $games = Game::whereIn('id', $ids)->with('system')->get();
         $playerGames = PlayerGame::where('user_id', $user->id)->whereIn('game_id', $ids)->get();
         $gameBadges = PlayerBadge::where('user_id', $user->id)
             ->whereIn('AwardType', [AwardType::Mastery, AwardType::GameBeaten])

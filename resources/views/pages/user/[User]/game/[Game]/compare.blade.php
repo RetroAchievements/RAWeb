@@ -30,12 +30,12 @@ render(function (View $view, User $user, Game $game, CompareUnlocksPageService $
 ])
 
 <x-app-layout
-    pageTitle="Compare Unlocks - {{ $game->Title }}"
-    pageDescription="Compares unlocks between {{ $user->display_name }} and {{ $otherUser->display_name }} for {{ $game->Title }}"
+    pageTitle="Compare Unlocks - {{ $game->title }}"
+    pageDescription="Compares unlocks between {{ $user->display_name }} and {{ $otherUser->display_name }} for {{ $game->title }}"
 >
     <x-user.breadcrumbs
         :user="$otherUser"
-        :parentPage="$game->Title"
+        :parentPage="$game->title"
         :parentPageUrl="$game->permalink"
         currentPage="Compare Unlocks"
     />

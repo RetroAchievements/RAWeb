@@ -26,7 +26,7 @@ class AchievementSetClaimTest extends TestCase
     {
         /** @var System $system */
         $system = System::factory()->create();
-        Game::factory()->create(['ConsoleID' => $system->ID]);
+        Game::factory()->create(['system_id' => $system->id]);
         AchievementSetClaim::factory()->count(51)->create();
 
         $response = $this->get($this->apiUrl('GetActiveClaims'))
@@ -43,7 +43,7 @@ class AchievementSetClaimTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::Developer]);
         /** @var AchievementSetClaim $claim */
@@ -58,13 +58,13 @@ class AchievementSetClaimTest extends TestCase
             ->assertJson([
                 [
                     'ClaimType' => ClaimType::Primary,
-                    'ConsoleName' => $system->Name,
+                    'ConsoleName' => $system->name,
                     'Created' => $claim->Created->__toString(),
                     'DoneTime' => $claim->Finished->__toString(),
                     'Extension' => 0,
-                    'GameID' => $game->ID,
+                    'GameID' => $game->id,
                     'GameIcon' => '/Images/000001.png',
-                    'GameTitle' => $game->Title,
+                    'GameTitle' => $game->title,
                     'ID' => $claim->ID,
                     'MinutesLeft' => Carbon::now()->diffInMinutes($claim->Finished),
                     'SetType' => ClaimSetType::NewSet,
@@ -86,7 +86,7 @@ class AchievementSetClaimTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::JuniorDeveloper]);
         /** @var AchievementSetClaim $claim */
@@ -101,13 +101,13 @@ class AchievementSetClaimTest extends TestCase
             ->assertJson([
                 [
                     'ClaimType' => ClaimType::Primary,
-                    'ConsoleName' => $system->Name,
+                    'ConsoleName' => $system->name,
                     'Created' => $claim->Created->__toString(),
                     'DoneTime' => $claim->Finished->__toString(),
                     'Extension' => 0,
-                    'GameID' => $game->ID,
+                    'GameID' => $game->id,
                     'GameIcon' => '/Images/000001.png',
-                    'GameTitle' => $game->Title,
+                    'GameTitle' => $game->title,
                     'ID' => $claim->ID,
                     'MinutesLeft' => Carbon::now()->diffInMinutes($claim->Finished),
                     'SetType' => ClaimSetType::NewSet,
@@ -125,7 +125,7 @@ class AchievementSetClaimTest extends TestCase
     {
         /** @var System $system */
         $system = System::factory()->create();
-        Game::factory()->create(['ConsoleID' => $system->ID]);
+        Game::factory()->create(['system_id' => $system->id]);
 
         AchievementSetClaim::factory()->create();
         AchievementSetClaim::factory()->create([
@@ -147,7 +147,7 @@ class AchievementSetClaimTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::Developer]);
         /** @var AchievementSetClaim $claim */
@@ -161,13 +161,13 @@ class AchievementSetClaimTest extends TestCase
             ->assertJson([
                 [
                     'ClaimType' => ClaimType::Primary,
-                    'ConsoleName' => $system->Name,
+                    'ConsoleName' => $system->name,
                     'Created' => $claim->Created->__toString(),
                     'DoneTime' => $claim->Finished->__toString(),
                     'Extension' => 0,
-                    'GameID' => $game->ID,
+                    'GameID' => $game->id,
                     'GameIcon' => '/Images/000001.png',
-                    'GameTitle' => $game->Title,
+                    'GameTitle' => $game->title,
                     'ID' => $claim->ID,
                     'MinutesLeft' => (int) $now->diffInMinutes($claim->Finished, true),
                     'SetType' => ClaimSetType::NewSet,

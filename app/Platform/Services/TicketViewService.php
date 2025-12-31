@@ -30,7 +30,7 @@ class TicketViewService
     public function load(Ticket $ticket): void
     {
         if ($ticket->reporter) {
-            $msgTitle = rawurlencode("Bug Report ({$ticket->achievement->game->Title})");
+            $msgTitle = rawurlencode("Bug Report ({$ticket->achievement->game->title})");
             $msgPayload = "Hi [user={$ticket->reporter->display_name}], I'm contacting you about [ticket={$ticket->ID}]";
             $msgPayload = rawurlencode($msgPayload);
             $this->contactReporterUrl = route('message-thread.create') . "?to={$ticket->reporter->display_name}&subject=$msgTitle&message=$msgPayload";

@@ -28,7 +28,7 @@ class UpdatePlayerPointsStatsBatchActionTest extends TestCase
 
         $users = User::factory()->count(3)->create();
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         // ... user 1 has 2 hardcore achievements ...
         $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 10]);
@@ -74,7 +74,7 @@ class UpdatePlayerPointsStatsBatchActionTest extends TestCase
         $untrackedUser = User::factory()->create(['Untracked' => true, 'unranked_at' => Carbon::now()]);
 
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 100]);
 
         // ... both users have hardcore achievements ...
@@ -106,7 +106,7 @@ class UpdatePlayerPointsStatsBatchActionTest extends TestCase
 
         $users = User::factory()->count(2)->create();
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 10]);
 
         $this->addHardcoreUnlock($users[0], $achievement, Carbon::now()->subMinutes(10));
@@ -150,7 +150,7 @@ class UpdatePlayerPointsStatsBatchActionTest extends TestCase
 
         $user = User::factory()->create();
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 50]);
 
         $this->addHardcoreUnlock($user, $achievement, Carbon::now()->subHours(2)); // !! earlier today

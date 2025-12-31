@@ -30,7 +30,7 @@ class GameReleasesSeeder extends Seeder
 
             $year = 0;
             $range = [1976, 2012];
-            switch ($game->ConsoleID) {
+            switch ($game->system_id) {
                 case 57: // Channel F
                     $range = [1976, 1979];
                     break;

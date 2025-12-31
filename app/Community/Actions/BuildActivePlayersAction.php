@@ -173,7 +173,7 @@ class BuildActivePlayersAction
 
         // Fetch all users and games in bulk.
         $users = User::whereIn('id', $userIds)->get()->keyBy('id');
-        $games = Game::whereIn('ID', $gameIds)->get()->keyBy('id');
+        $games = Game::whereIn('id', $gameIds)->get()->keyBy('id');
 
         // Map the results to ActivePlayerData objects.
         return collect($players)->map(function ($player) use ($users, $games) {

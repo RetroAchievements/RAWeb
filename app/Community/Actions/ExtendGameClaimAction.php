@@ -20,7 +20,7 @@ class ExtendGameClaimAction
         $claim->save();
 
         Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($claim->user->username));
-        addArticleComment("Server", ArticleType::SetClaim, $claim->game->ID, "Claim extended by " . $actingUser->display_name);
+        addArticleComment("Server", ArticleType::SetClaim, $claim->game->id, "Claim extended by " . $actingUser->display_name);
 
         $webhookUrl = config('services.discord.webhook.claims');
         if (!empty($webhookUrl)) {
@@ -44,7 +44,7 @@ class ExtendGameClaimAction
             $collaborationClaim->save();
 
             Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($collaborationClaim->user->username));
-            addArticleComment("Server", ArticleType::SetClaim, $claim->game->ID,
+            addArticleComment("Server", ArticleType::SetClaim, $claim->game->id,
                 $collaborationClaim->user->display_name . "'s collaboration claim extended by " . $actingUser->display_name);
         }
     }

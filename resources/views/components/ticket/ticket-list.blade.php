@@ -64,13 +64,13 @@ $gameCache = [];
                             <td>
                                 @php
                                     $game = $gameCache[$ticket->achievement->GameID] ??=
-                                        Game::where('ID', $ticket->achievement->GameID)->with('system')->first();
+                                        Game::where('id', $ticket->achievement->GameID)->with('system')->first();
                                 @endphp
                                 <x-game.multiline-avatar
-                                    :gameId="$game->ID"
-                                    :gameTitle="$game->Title"
-                                    :gameImageIcon="$game->ImageIcon"
-                                    :consoleName="$game->system->Name"
+                                    :gameId="$game->id"
+                                    :gameTitle="$game->title"
+                                    :gameImageIcon="$game->image_icon_asset_path"
+                                    :consoleName="$game->system->name"
                                 />
                             </td>
                             <td>{!! userAvatar($ticket->author ?? 'Deleted User') !!}</td>

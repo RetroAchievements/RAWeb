@@ -20,7 +20,7 @@ class ActivePlayersApiControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         User::factory()->create([
             'rich_presence_game_id' => $game->id,
@@ -47,7 +47,7 @@ class ActivePlayersApiControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $users = User::factory()->count(5)->create([
             'rich_presence_game_id' => $game->id,

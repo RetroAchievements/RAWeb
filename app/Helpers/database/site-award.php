@@ -63,10 +63,10 @@ function getUsersSiteAwards(?User $user): array
 
     $query = "
         -- game awards (mastery, beaten)
-        SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.user_id, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
+        SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.user_id, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.title AS Title, s.id AS ConsoleID, s.name AS ConsoleName, NULL AS Flags, gd.image_icon_asset_path AS ImageIcon
             FROM SiteAwards AS saw
-            LEFT JOIN GameData AS gd ON ( gd.ID = saw.AwardData AND saw.AwardType IN (" . implode(',', AwardType::game()) . ") )
-            LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+            LEFT JOIN games AS gd ON ( gd.id = saw.AwardData AND saw.AwardType IN (" . implode(',', AwardType::game()) . ") )
+            LEFT JOIN systems AS s ON s.id = gd.system_id
             WHERE
                 saw.AwardType IN(" . implode(',', AwardType::game()) . ")
                 AND saw.user_id = :userId
@@ -84,10 +84,10 @@ function getUsersSiteAwards(?User $user): array
                 ))
         UNION
         -- event awards
-        SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.user_id, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, " . System::Events . ", 'Events', NULL, e.image_asset_path
+        SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.user_id, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.title AS Title, " . System::Events . ", 'Events', NULL, e.image_asset_path AS ImageIcon
             FROM SiteAwards AS saw
             LEFT JOIN events e ON e.id = saw.AwardData
-            LEFT JOIN GameData gd ON gd.id = e.legacy_game_id
+            LEFT JOIN games gd ON gd.id = e.legacy_game_id
             WHERE
                 saw.AwardType = " . AwardType::Event . "
                 AND saw.user_id = :userId3
@@ -188,21 +188,21 @@ function getRecentProgressionAwardData(
     }
 
     $retVal = [];
-    $query = "SELECT ua.username AS User, s.AwardedAt, s.AwardedAtUnix, s.AwardType, s.AwardData, s.AwardDataExtra, s.GameTitle, s.GameID, s.ConsoleName, s.GameIcon
+    $query = "SELECT ua.username AS User, sub.AwardedAt, sub.AwardedAtUnix, sub.AwardType, sub.AwardData, sub.AwardDataExtra, sub.GameTitle, sub.GameID, sub.ConsoleName, sub.GameIcon
         FROM (
-            SELECT 
-                saw.user_id, saw.AwardDate as AwardedAt, UNIX_TIMESTAMP(saw.AwardDate) as AwardedAtUnix, saw.AwardType, 
-                saw.AwardData, saw.AwardDataExtra, gd.Title AS GameTitle, gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon AS GameIcon,
+            SELECT
+                saw.user_id, saw.AwardDate as AwardedAt, UNIX_TIMESTAMP(saw.AwardDate) as AwardedAtUnix, saw.AwardType,
+                saw.AwardData, saw.AwardDataExtra, gd.title AS GameTitle, gd.id AS GameID, s.name AS ConsoleName, gd.image_icon_asset_path AS GameIcon,
                 ROW_NUMBER() OVER (PARTITION BY saw.user_id, saw.AwardData, TIMESTAMPDIFF(MINUTE, saw.AwardDate, saw2.AwardDate) ORDER BY saw.AwardType ASC) AS rn
             FROM SiteAwards AS saw
-            LEFT JOIN GameData AS gd ON gd.ID = saw.AwardData
-            LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+            LEFT JOIN games AS gd ON gd.id = saw.AwardData
+            LEFT JOIN systems AS s ON s.id = gd.system_id
             LEFT JOIN SiteAwards AS saw2 ON saw2.user_id = saw.user_id AND saw2.AwardData = saw.AwardData AND TIMESTAMPDIFF(MINUTE, saw.AwardDate, saw2.AwardDate) BETWEEN 0 AND 1
             $onlyAwardTypeClause AND saw.AwardData > 0 AND $onlyUnlockModeClause $friendCondAward
             AND saw.AwardDate BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)
-        ) s
-        JOIN users AS ua ON ua.id = s.user_id
-        WHERE s.rn = 1
+        ) sub
+        JOIN users AS ua ON ua.id = sub.user_id
+        WHERE sub.rn = 1
         ORDER BY AwardedAt DESC
         LIMIT $offset, $count";
 
@@ -224,7 +224,7 @@ function getUserEventAwardCount(User $user): int
     $eventGameBadgeCount = $user->playerBadges()
         ->where('AwardType', AwardType::Mastery)
         ->whereHas('gameIfApplicable.system', function ($query) {
-            $query->where('ID', System::Events);
+            $query->where('id', System::Events);
         })
         ->distinct('AwardData')
         ->count('AwardData');

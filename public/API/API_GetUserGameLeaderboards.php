@@ -50,7 +50,7 @@ if (!$user) {
     return response()->json(['User not found'], 404);
 }
 
-$game = Game::firstWhere("ID", request()->query('i'));
+$game = Game::firstWhere("id", request()->query('i'));
 if (!$game) {
     return response()->json(['Game not found'], 404);
 }
@@ -64,7 +64,7 @@ $userLeaderboardEntriesCount = LeaderboardEntry::where('user_id', $user->id)
     ->whereIn('leaderboard_id', function ($query) use ($game) {
         $query->select('ID')
             ->from('LeaderboardDef')
-            ->where('GameID', $game->ID)
+            ->where('GameID', $game->id)
             ->whereNull('deleted_at');
     })
     ->whereNull(DB::raw('users.unranked_at'))
@@ -98,7 +98,7 @@ $leaderboardEntries = LeaderboardEntry::select('leaderboard_entries.*')
     ])
     ->join('LeaderboardDef', 'leaderboard_entries.leaderboard_id', '=', 'LeaderboardDef.ID')
     ->join('users', 'leaderboard_entries.user_id', '=', 'users.id')
-    ->where(DB::raw('LeaderboardDef.GameID'), $game->ID)
+    ->where(DB::raw('LeaderboardDef.GameID'), $game->id)
     ->where('leaderboard_entries.user_id', $user->id)
     ->whereNull(DB::raw('users.unranked_at'))
     ->where(DB::raw('users.Untracked'), 0)

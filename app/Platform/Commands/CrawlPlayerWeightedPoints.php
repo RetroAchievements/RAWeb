@@ -148,8 +148,8 @@ class CrawlPlayerWeightedPoints extends Command
         // Now update the user's total TrueRAPoints by summing all player_games.points_weighted.
         // This follows the same pattern as UpdatePlayerMetricsAction.
         $totalWeightedPoints = DB::table('player_games')
-            ->join('GameData', 'GameData.ID', '=', 'player_games.game_id')
-            ->whereNotIn('GameData.ConsoleID', [System::Events, System::Hubs])
+            ->join('games', 'games.id', '=', 'player_games.game_id')
+            ->whereNotIn('games.system_id', [System::Events, System::Hubs])
             ->where('player_games.user_id', $user->id)
             ->where('player_games.achievements_unlocked', '>', 0)
             ->sum('player_games.points_weighted');

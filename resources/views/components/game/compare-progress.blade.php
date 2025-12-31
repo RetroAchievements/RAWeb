@@ -1,5 +1,5 @@
 <?php
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Models\UserRelation;
@@ -15,9 +15,9 @@ $followedUserCompletion = null;
 
 if ($user !== null) {
     $followedUsers = UserRelation::query()
-        ->join('users', 'Friends.related_user_id', '=', 'users.id')
-        ->where('Friends.user_id', '=', $user->id)
-        ->where('Friends.Friendship', '=', UserRelationship::Following)
+        ->join('users', 'user_relations.related_user_id', '=', 'users.id')
+        ->where('user_relations.user_id', '=', $user->id)
+        ->where('user_relations.status', '=', UserRelationStatus::Following)
         ->whereNull('users.banned_at')
         ->select('users.id')
         ->pluck('id')

@@ -271,7 +271,7 @@ function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment
     }
 
     // If a valid forum topic already exists for the game, bail.
-    if ($game->ForumTopicID > 0 && ForumTopic::find($game->ForumTopicID)->exists()) {
+    if ($game->forum_topic_id > 0 && ForumTopic::find($game->forum_topic_id)->exists()) {
         return null;
     }
 
@@ -315,7 +315,7 @@ function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment
 
     $forumTopicComment = submitNewTopic($user, $forumId, $topicTitle, $topicPayload);
 
-    $game->ForumTopicID = $forumTopicComment->forumTopic->id;
+    $game->forum_topic_id = $forumTopicComment->forumTopic->id;
     $game->save();
 
     return $forumTopicComment;

@@ -36,9 +36,9 @@ class DropGameClaimAction
 
             Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($firstCollabClaim->user->username));
 
-            addArticleComment("Server", ArticleType::SetClaim, $claim->game->ID, "Primary claim dropped by {$actingUser->display_name}, transferred to {$firstCollabClaim->user->display_name}");
+            addArticleComment("Server", ArticleType::SetClaim, $claim->game->id, "Primary claim dropped by {$actingUser->display_name}, transferred to {$firstCollabClaim->user->display_name}");
         } else {
-            addArticleComment("Server", ArticleType::SetClaim, $claim->game->ID, ClaimType::toString($claim->ClaimType) . " claim dropped by {$actingUser->display_name}");
+            addArticleComment("Server", ArticleType::SetClaim, $claim->game->id, ClaimType::toString($claim->ClaimType) . " claim dropped by {$actingUser->display_name}");
         }
 
         $webhookUrl = config('services.discord.webhook.claims');

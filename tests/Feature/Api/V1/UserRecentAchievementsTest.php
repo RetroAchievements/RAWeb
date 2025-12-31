@@ -26,15 +26,15 @@ class UserRecentAchievementsTest extends TestCase
         /** @var System $system2 */
         $system2 = System::factory()->create();
         /** @var Game $game1 */
-        $game1 = Game::factory()->create(['ConsoleID' => $system1->ID]);
+        $game1 = Game::factory()->create(['system_id' => $system1->id]);
         /** @var Game $game2 */
-        $game2 = Game::factory()->create(['ConsoleID' => $system2->ID]);
+        $game2 = Game::factory()->create(['system_id' => $system2->id]);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game1->ID, 'BadgeName' => '12345']);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game1->id, 'BadgeName' => '12345']);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'BadgeName' => '23456']);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->id, 'BadgeName' => '23456']);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->progression()->create(['GameID' => $game2->ID, 'BadgeName' => '34567']);
+        $achievement3 = Achievement::factory()->published()->progression()->create(['GameID' => $game2->id, 'BadgeName' => '34567']);
 
         $now = Carbon::now()->subSeconds(15); // 15-second offset so times aren't on the boundaries being queried
         $unlock1Date = $now->clone()->subMinutes(65);
@@ -70,16 +70,16 @@ class UserRecentAchievementsTest extends TestCase
                     'Author' => $achievement3->developer->username,
                     'BadgeName' => $achievement3->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement3->BadgeName . '.png',
-                    'ConsoleName' => $system2->Name,
+                    'ConsoleName' => $system2->name,
                     'Date' => $unlock3Date->format('Y-m-d H:i:s'),
                     'Description' => $achievement3->Description,
                     'HardcoreMode' => UnlockMode::Softcore,
                     'Points' => $achievement3->Points,
                     'TrueRatio' => $achievement3->points_weighted,
                     'Title' => $achievement3->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
             ]);
 
@@ -93,7 +93,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Author' => $achievement3->developer->username,
                     'BadgeName' => $achievement3->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement3->BadgeName . '.png',
-                    'ConsoleName' => $system2->Name,
+                    'ConsoleName' => $system2->name,
                     'Date' => $unlock3Date->format('Y-m-d H:i:s'),
                     'Description' => $achievement3->Description,
                     'HardcoreMode' => UnlockMode::Softcore,
@@ -101,16 +101,16 @@ class UserRecentAchievementsTest extends TestCase
                     'TrueRatio' => $achievement3->points_weighted,
                     'Type' => $achievement3->type,
                     'Title' => $achievement3->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
                 [
                     'AchievementID' => $achievement2->ID,
                     'Author' => $achievement2->developer->username,
                     'BadgeName' => $achievement2->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement2->BadgeName . '.png',
-                    'ConsoleName' => $system2->Name,
+                    'ConsoleName' => $system2->name,
                     'Date' => $unlock2Date->format('Y-m-d H:i:s'),
                     'Description' => $achievement2->Description,
                     'HardcoreMode' => UnlockMode::Hardcore,
@@ -118,9 +118,9 @@ class UserRecentAchievementsTest extends TestCase
                     'TrueRatio' => $achievement2->points_weighted,
                     'Type' => $achievement2->type,
                     'Title' => $achievement2->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
             ]);
 
@@ -134,7 +134,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Author' => $achievement3->developer->username,
                     'BadgeName' => $achievement3->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement3->BadgeName . '.png',
-                    'ConsoleName' => $system2->Name,
+                    'ConsoleName' => $system2->name,
                     'Date' => $unlock3Date->format('Y-m-d H:i:s'),
                     'Description' => $achievement3->Description,
                     'HardcoreMode' => UnlockMode::Softcore,
@@ -142,16 +142,16 @@ class UserRecentAchievementsTest extends TestCase
                     'TrueRatio' => $achievement3->points_weighted,
                     'Type' => $achievement3->type,
                     'Title' => $achievement3->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
                 [
                     'AchievementID' => $achievement2->ID,
                     'Author' => $achievement2->developer->username,
                     'BadgeName' => $achievement2->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement2->BadgeName . '.png',
-                    'ConsoleName' => $system2->Name,
+                    'ConsoleName' => $system2->name,
                     'Date' => $unlock2Date->format('Y-m-d H:i:s'),
                     'Description' => $achievement2->Description,
                     'HardcoreMode' => UnlockMode::Hardcore,
@@ -159,9 +159,9 @@ class UserRecentAchievementsTest extends TestCase
                     'TrueRatio' => $achievement2->points_weighted,
                     'Type' => $achievement2->type,
                     'Title' => $achievement2->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
             ]);
 
@@ -175,7 +175,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Author' => $achievement3->developer->username,
                     'BadgeName' => $achievement3->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement3->BadgeName . '.png',
-                    'ConsoleName' => $system2->Name,
+                    'ConsoleName' => $system2->name,
                     'Date' => $unlock3Date->format('Y-m-d H:i:s'),
                     'Description' => $achievement3->Description,
                     'HardcoreMode' => UnlockMode::Softcore,
@@ -183,16 +183,16 @@ class UserRecentAchievementsTest extends TestCase
                     'TrueRatio' => $achievement3->points_weighted,
                     'Type' => $achievement3->type,
                     'Title' => $achievement3->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
                 [
                     'AchievementID' => $achievement2->ID,
                     'Author' => $achievement2->developer->username,
                     'BadgeName' => $achievement2->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement2->BadgeName . '.png',
-                    'ConsoleName' => $system2->Name,
+                    'ConsoleName' => $system2->name,
                     'Date' => $unlock2Date->format('Y-m-d H:i:s'),
                     'Description' => $achievement2->Description,
                     'HardcoreMode' => UnlockMode::Hardcore,
@@ -200,16 +200,16 @@ class UserRecentAchievementsTest extends TestCase
                     'TrueRatio' => $achievement2->points_weighted,
                     'Type' => $achievement2->type,
                     'Title' => $achievement2->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
                 [
                     'AchievementID' => $achievement1->ID,
                     'Author' => $achievement1->developer->username,
                     'BadgeName' => $achievement1->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement1->BadgeName . '.png',
-                    'ConsoleName' => $system1->Name,
+                    'ConsoleName' => $system1->name,
                     'Date' => $unlock1Date->format('Y-m-d H:i:s'),
                     'Description' => $achievement1->Description,
                     'HardcoreMode' => UnlockMode::Hardcore,
@@ -217,9 +217,9 @@ class UserRecentAchievementsTest extends TestCase
                     'TrueRatio' => $achievement1->points_weighted,
                     'Type' => $achievement1->type,
                     'Title' => $achievement1->Title,
-                    'GameID' => $game1->ID,
-                    'GameTitle' => $game1->Title,
-                    'GameURL' => '/game/' . $game1->ID,
+                    'GameID' => $game1->id,
+                    'GameTitle' => $game1->title,
+                    'GameURL' => '/game/' . $game1->id,
                 ],
             ]);
     }

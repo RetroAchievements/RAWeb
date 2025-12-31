@@ -76,13 +76,13 @@ You spent {{ $recapData['totalPlaytime'] }} playing games {{ $playedSystemsClaus
 
 @if ($recapData['mostPlayedGame'])
 <x-mail::image-panel
-    src="{{ media_asset($recapData['mostPlayedGame']->ImageIcon) }}"
-    alt="{{ $recapData['mostPlayedGame']->Title }} game badge"
+    src="{{ media_asset($recapData['mostPlayedGame']->image_icon_asset_path) }}"
+    alt="{{ $recapData['mostPlayedGame']->title }} game badge"
     url="{{ route('game.show', $recapData['mostPlayedGame']) }}"
     width="64"
     height="64"
 >
-    Your most played game was <a href="{{ route('game.show', $recapData['mostPlayedGame']) }}">{{ $recapData['mostPlayedGame']->Title }}</a> at {{ $recapData['mostPlayedGamePlaytime'] }}.
+    Your most played game was <a href="{{ route('game.show', $recapData['mostPlayedGame']) }}">{{ $recapData['mostPlayedGame']->title }}</a> at {{ $recapData['mostPlayedGamePlaytime'] }}.
 </x-mail::image-panel>
 @endif
 

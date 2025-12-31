@@ -26,7 +26,7 @@ class GamesTest extends JsonApiResourceTestCase
     {
         $system = System::factory()->create();
 
-        return Game::factory()->create(['ConsoleID' => $system->id]);
+        return Game::factory()->create(['system_id' => $system->id]);
     }
 
     public function testItListsGames(): void
@@ -35,8 +35,8 @@ class GamesTest extends JsonApiResourceTestCase
         $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'Title' => 'Super Mario Bros.',
-            'ConsoleID' => $system->id,
+            'title' => 'Super Mario Bros.',
+            'system_id' => $system->id,
         ]);
 
         // Act
@@ -56,7 +56,7 @@ class GamesTest extends JsonApiResourceTestCase
         // Arrange
         $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
-        Game::factory()->count(100)->create(['ConsoleID' => $system->id]);
+        Game::factory()->count(100)->create(['system_id' => $system->id]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -83,8 +83,8 @@ class GamesTest extends JsonApiResourceTestCase
         $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system1 = System::factory()->create();
         $system2 = System::factory()->create();
-        $game1 = Game::factory()->create(['ConsoleID' => $system1->id]);
-        $game2 = Game::factory()->create(['ConsoleID' => $system2->id]);
+        $game1 = Game::factory()->create(['system_id' => $system1->id]);
+        $game2 = Game::factory()->create(['system_id' => $system2->id]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -104,10 +104,10 @@ class GamesTest extends JsonApiResourceTestCase
         // Arrange
         $user = User::factory()->create(['web_api_key' => 'test-key']);
         $gameSystem = System::factory()->create();
-        System::factory()->create(['ID' => System::Hubs]);
+        System::factory()->create(['id' => System::Hubs]);
 
-        $normalGame = Game::factory()->create(['ConsoleID' => $gameSystem->id]);
-        $hubGame = Game::factory()->create(['ConsoleID' => System::Hubs]);
+        $normalGame = Game::factory()->create(['system_id' => $gameSystem->id]);
+        $hubGame = Game::factory()->create(['system_id' => System::Hubs]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -127,10 +127,10 @@ class GamesTest extends JsonApiResourceTestCase
         // Arrange
         $user = User::factory()->create(['web_api_key' => 'test-key']);
         $gameSystem = System::factory()->create();
-        System::factory()->create(['ID' => System::Events]);
+        System::factory()->create(['id' => System::Events]);
 
-        $normalGame = Game::factory()->create(['ConsoleID' => $gameSystem->id]);
-        $eventGame = Game::factory()->create(['ConsoleID' => System::Events]);
+        $normalGame = Game::factory()->create(['system_id' => $gameSystem->id]);
+        $eventGame = Game::factory()->create(['system_id' => System::Events]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -151,10 +151,10 @@ class GamesTest extends JsonApiResourceTestCase
         $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
 
-        $normalGame = Game::factory()->create(['ConsoleID' => $system->id]);
+        $normalGame = Game::factory()->create(['system_id' => $system->id]);
         $subsetGame = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'Title' => 'Pokemon Red [Subset - Professor Oak Challenge]',
+            'system_id' => $system->id,
+            'title' => 'Pokemon Red [Subset - Professor Oak Challenge]',
         ]);
 
         // Act
@@ -175,8 +175,8 @@ class GamesTest extends JsonApiResourceTestCase
         // Arrange
         $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
-        Game::factory()->create(['Title' => 'Zelda', 'ConsoleID' => $system->id]);
-        Game::factory()->create(['Title' => 'Asteroids', 'ConsoleID' => $system->id]);
+        Game::factory()->create(['title' => 'Zelda', 'system_id' => $system->id]);
+        Game::factory()->create(['title' => 'Asteroids', 'system_id' => $system->id]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -196,8 +196,8 @@ class GamesTest extends JsonApiResourceTestCase
         // Arrange
         $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
-        Game::factory()->create(['points_total' => 100, 'ConsoleID' => $system->id]);
-        Game::factory()->create(['points_total' => 500, 'ConsoleID' => $system->id]);
+        Game::factory()->create(['points_total' => 100, 'system_id' => $system->id]);
+        Game::factory()->create(['points_total' => 500, 'system_id' => $system->id]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -215,8 +215,8 @@ class GamesTest extends JsonApiResourceTestCase
     {
         // Arrange
         $user = User::factory()->create(['web_api_key' => 'test-key']);
-        $system = System::factory()->create(['Name' => 'Nintendo 64']);
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $system = System::factory()->create(['name' => 'Nintendo 64']);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -244,11 +244,11 @@ class GamesTest extends JsonApiResourceTestCase
         $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'Title' => 'Test Game',
-            'ConsoleID' => $system->id,
+            'title' => 'Test Game',
+            'system_id' => $system->id,
             'achievements_published' => 50,
             'points_total' => 500,
-            'TotalTruePoints' => 1000,
+            'points_weighted' => 1000,
             'players_total' => 100,
             'players_hardcore' => 75,
         ]);
@@ -282,8 +282,8 @@ class GamesTest extends JsonApiResourceTestCase
         $system = System::factory()->create();
         $forumTopic = ForumTopic::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'ForumTopicID' => $forumTopic->id,
+            'system_id' => $system->id,
+            'forum_topic_id' => $forumTopic->id,
         ]);
 
         // Act
@@ -307,8 +307,8 @@ class GamesTest extends JsonApiResourceTestCase
         $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'ForumTopicID' => null,
+            'system_id' => $system->id,
+            'forum_topic_id' => null,
         ]);
 
         // Act

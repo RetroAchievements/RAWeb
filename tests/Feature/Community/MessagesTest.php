@@ -9,7 +9,7 @@ use App\Community\Actions\AddToMessageThreadAction;
 use App\Community\Actions\CreateMessageThreadAction;
 use App\Community\Actions\DeleteMessageThreadAction;
 use App\Community\Actions\ReadMessageThreadAction;
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Enums\UserPreference;
 use App\Mail\PrivateMessageReceivedMail;
 use App\Models\Message;
@@ -254,7 +254,7 @@ class MessagesTest extends TestCase
         $relation = new UserRelation([
             'user_id' => $user1->id,
             'related_user_id' => $user2->id,
-            'Friendship' => UserRelationship::Blocked,
+            'status' => UserRelationStatus::Blocked,
         ]);
         $relation->save();
 

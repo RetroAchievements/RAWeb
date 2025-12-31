@@ -29,10 +29,10 @@ function getUserBestDaysList(User $user, int $offset, int $limit, int $sortBy): 
     $query = "SELECT DATE(pa.unlocked_at) AS Date, COUNT(*) AS NumAwarded, SUM(Points) AS TotalPointsEarned
                 FROM player_achievements pa
                 INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
-                INNER JOIN GameData AS gd ON gd.ID = ach.GameID
+                INNER JOIN games AS gd ON gd.id = ach.GameID
                 WHERE pa.user_id={$user->id}
                 AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
-                AND gd.ConsoleID != " . System::Events . "
+                AND gd.system_id != " . System::Events . "
                 GROUP BY Date
                 $orderCond
                 LIMIT $offset, $limit";
@@ -66,12 +66,12 @@ function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, User $
                      ach.ID AS AchievementID, ach.Title, ach.Description,
                      ach.BadgeName, ach.Points, ach.TrueRatio, ach.type as Type,
                      COALESCE(ua.display_name, ua.username) AS Author, ua.ulid AS AuthorULID,
-                     gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, ach.GameID,
-                     c.Name AS ConsoleName
+                     gd.title AS GameTitle, gd.image_icon_asset_path AS GameIcon, ach.GameID,
+                     s.name AS ConsoleName
               FROM player_achievements pa
               INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
-              INNER JOIN GameData AS gd ON gd.ID = ach.GameID
-              INNER JOIN Console AS c ON c.ID = gd.ConsoleID
+              INNER JOIN games AS gd ON gd.id = ach.GameID
+              INNER JOIN systems AS s ON s.id = gd.system_id
               INNER JOIN users AS ua on ua.id = ach.user_id
               WHERE pa.user_id = :userid AND ach.Flags = :achievementFlag
               AND COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) BETWEEN :dateStart AND :dateEnd
@@ -137,10 +137,10 @@ function getAwardedList(
                 SUM(ach.Points) AS SoftcorePoints
                 FROM player_achievements pa
                 INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
-                INNER JOIN GameData AS gd ON gd.ID = ach.GameID
+                INNER JOIN games AS gd ON gd.id = ach.GameID
                 WHERE pa.user_id = {$user->id}
                 AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
-                " . ($excludeEvents ? "AND gd.ConsoleID != " . System::Events : "") . "
+                " . ($excludeEvents ? "AND gd.system_id != " . System::Events : "") . "
                 $dateCondition
                 GROUP BY Date
                 ORDER BY Date ASC

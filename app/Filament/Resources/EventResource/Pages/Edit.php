@@ -22,7 +22,7 @@ class Edit extends EditRecord
         if (isset($data['image_asset_path'])) {
             /** @var Game $game */
             $game = $this->getRecord()->legacyGame;
-            $game->ImageIcon = $data['image_asset_path'];
+            $game->image_icon_asset_path = $data['image_asset_path'];
             $game->save();
         }
 

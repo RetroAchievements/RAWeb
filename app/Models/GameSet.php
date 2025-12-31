@@ -86,7 +86,9 @@ class GameSet extends BaseModel
             $originalTitle = $gameSet->getOriginal('title');
             $freshGameSet = $gameSet->fresh();
 
-            if ($originalTitle !== $freshGameSet->title || $gameSet->wasRecentlyCreated) {
+            // Only update sort_title if there's actually a title.
+            // SimilarGames sets don't have titles - they're just relationship containers.
+            if ($freshGameSet->title !== null && ($originalTitle !== $freshGameSet->title || $gameSet->wasRecentlyCreated)) {
                 (new WriteGameSetSortTitleAction())->execute(
                     $freshGameSet,
                     $freshGameSet->title,
@@ -125,16 +127,16 @@ class GameSet extends BaseModel
                 /** @var User $user */
                 $user = Auth::user();
 
-                $attachedGames = Game::whereIn('ID', $pivotIds)
-                    ->select(['ID', 'Title', 'ConsoleID'])
+                $attachedGames = Game::whereIn('id', $pivotIds)
+                    ->select(['id', 'title', 'system_id'])
                     ->get();
 
                 activity()->causedBy($user)->performedOn($model)
                     ->withProperty('old', [$relationName => null])
                     ->withProperty('attributes', [$relationName => $attachedGames
                         ->map(fn ($game) => [
-                            'id' => $game->ID,
-                            'system_id' => $game->ConsoleID,
+                            'id' => $game->id,
+                            'system_id' => $game->system_id,
                             'title' => $game->title,
                         ]),
                     ])
@@ -213,15 +215,15 @@ class GameSet extends BaseModel
                 /** @var User $user */
                 $user = Auth::user();
 
-                $detachedGames = Game::whereIn('ID', $pivotIds)
-                    ->select(['ID', 'Title', 'ConsoleID'])
+                $detachedGames = Game::whereIn('id', $pivotIds)
+                    ->select(['id', 'title', 'system_id'])
                     ->get();
 
                 activity()->causedBy($user)->performedOn($model)
                     ->withProperty('old', [$relationName => $detachedGames
                         ->map(fn ($game) => [
-                            'id' => $game->ID,
-                            'system_id' => $game->ConsoleID,
+                            'id' => $game->id,
+                            'system_id' => $game->system_id,
                             'title' => $game->title,
                         ]),
                     ])

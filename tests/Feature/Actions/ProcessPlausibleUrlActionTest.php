@@ -52,7 +52,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
     public function testItCorrectlyHandlesLegacyGameUrls(): void
     {
         // Arrange
-        Game::factory()->create(['ID' => 1, 'Title' => 'Sonic the Hedgehog']);
+        Game::factory()->create(['id' => 1, 'title' => 'Sonic the Hedgehog']);
 
         // Act
         $result = $this->action->execute('game/1', [], $this->defaultProps);
@@ -71,7 +71,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
     public function testItCorrectlyHandlesSelfHealingGameUrls(): void
     {
         // Arrange
-        Game::factory()->create(['ID' => 1, 'Title' => 'Sonic the Hedgehog 3']);
+        Game::factory()->create(['id' => 1, 'title' => 'Sonic the Hedgehog 3']);
 
         // Act
         $result = $this->action->execute('game/1-sonic-the-hedgehog-3', [], $this->defaultProps);
@@ -90,7 +90,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
     public function testItCorrectlyHandlesNestedGameUrls(): void
     {
         // Arrange
-        Game::factory()->create(['ID' => 1, 'Title' => 'Sonic the Hedgehog']);
+        Game::factory()->create(['id' => 1, 'title' => 'Sonic the Hedgehog']);
 
         // Act
         $result = $this->action->execute('game/1/foo', [], $this->defaultProps);
@@ -109,7 +109,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
     public function testItCorrectlyHandlesLegacyAchievementUrls(): void
     {
         // Arrange
-        Achievement::factory()->create(['ID' => 15, 'Title' => "Don't Get Lost"]);
+        Achievement::factory()->create(['id' => 15, 'Title' => "Don't Get Lost"]);
 
         // Act
         $result = $this->action->execute('achievement/15', [], $this->defaultProps);
@@ -128,7 +128,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
     public function testItCorrectlyHandlesSelfHealingAchievementUrls(): void
     {
         // Arrange
-        Achievement::factory()->create(['ID' => 15, 'Title' => "Don't Get Lost"]);
+        Achievement::factory()->create(['id' => 15, 'Title' => "Don't Get Lost"]);
 
         // Act
         $result = $this->action->execute('achievement/15-dont-get-lost', [], $this->defaultProps);
@@ -183,7 +183,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
     public function testItCorrectlyHandlesSystemUrls(): void
     {
         // Arrange
-        System::factory()->create(['ID' => 1, 'Name' => 'Game Boy']);
+        System::factory()->create(['id' => 1, 'name' => 'Game Boy']);
 
         // Act
         $result = $this->action->execute('system/1-game-boy', [], $this->defaultProps);
@@ -288,8 +288,8 @@ class ProcessPlausibleUrlActionTest extends TestCase
     public function testItCorrectlyHandlesEventUrls(): void
     {
         // Arrange
-        $game = Game::factory()->create(['ID' => 100, 'Title' => 'Achievement of the Week 2025']);
-        Event::factory()->create(['id' => 1, 'legacy_game_id' => $game->ID]);
+        $game = Game::factory()->create(['id' => 100, 'title' => 'Achievement of the Week 2025']);
+        Event::factory()->create(['id' => 1, 'legacy_game_id' => $game->id]);
 
         // Act
         $result = $this->action->execute('event/1-achievement-of-the-week-2025', [], $this->defaultProps);
@@ -308,8 +308,8 @@ class ProcessPlausibleUrlActionTest extends TestCase
     public function testItCorrectlyHandlesSelfHealingEventUrls(): void
     {
         // Arrange
-        $game = Game::factory()->create(['ID' => 100, 'Title' => 'Some Cool Event']);
-        Event::factory()->create(['id' => 2, 'legacy_game_id' => $game->ID]);
+        $game = Game::factory()->create(['id' => 100, 'title' => 'Some Cool Event']);
+        Event::factory()->create(['id' => 2, 'legacy_game_id' => $game->id]);
 
         // Act
         $result = $this->action->execute('event/2-some-cool-event', [], $this->defaultProps);

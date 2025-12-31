@@ -71,45 +71,28 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     use Searchable;
     use SoftDeletes;
 
-    // TODO rename GameData table to games
-    // TODO rename ID column to id, remove getIdAttribute()
-    // TODO rename Title column to title
-    // TODO rename ConsoleID column to system_id
-    // TODO rename Publisher column to publisher
-    // TODO rename Developer column to developer
-    // TODO rename Genre column to genre
-    // TODO rename TotalTruePoints to points_weighted, remove getPointsWeightedAttribute()
+    // TODO migrate forum_topic_id to forumable morph
+    // TODO migrate image_*_asset_path columns to media library
     // TODO drop achievement_set_version_hash, migrate to achievement_sets
-    // TODO drop ForumTopicID, migrate to forumable morph
-    // TODO drop Flags
-    // TODO drop ImageIcon, ImageTitle, ImageInGame, ImageBoxArt, migrate to media
-    // TODO drop GuideURL, migrate to forumable morph
-    // TODO drop RichPresencePatch, migrate to triggerable morph
-    protected $table = 'GameData';
-
-    protected $primaryKey = 'ID';
-
-    public const CREATED_AT = 'Created';
-    public const UPDATED_AT = 'Updated';
+    protected $table = 'games';
 
     protected $fillable = [
-        'release',
-        'Title',
+        'title',
         'sort_title',
-        'ConsoleID',
-        'ForumTopicID',
-        'Publisher',
-        'Developer',
-        'Genre',
+        'system_id',
+        'forum_topic_id',
+        'publisher',
+        'developer',
+        'genre',
         'released_at',
         'released_at_granularity',
         'trigger_id',
-        'GuideURL',
+        'legacy_guide_url',
         'comments_locked_at',
-        'ImageIcon',
-        'ImageTitle',
-        'ImageIngame',
-        'ImageBoxArt',
+        'image_icon_asset_path',
+        'image_title_asset_path',
+        'image_ingame_asset_path',
+        'image_box_art_asset_path',
     ];
 
     protected $casts = [
@@ -120,24 +103,23 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     ];
 
     protected $visible = [
-        'ID',
-        'Title',
+        'id',
+        'title',
         'sort_title',
-        'ConsoleID',
-        'ForumTopicID',
-        'Flags',
-        'ImageIcon',
-        'ImageTitle',
-        'ImageIngame',
-        'ImageBoxArt',
-        'Publisher',
-        'Developer',
-        'Genre',
+        'system_id',
+        'forum_topic_id',
+        'image_icon_asset_path',
+        'image_title_asset_path',
+        'image_ingame_asset_path',
+        'image_box_art_asset_path',
+        'publisher',
+        'developer',
+        'genre',
         'released_at',
         'released_at_granularity',
-        'RichPresencePatch',
-        'GuideURL',
-        'Updated',
+        'trigger_definition',
+        'legacy_guide_url',
+        'updated_at',
         'achievement_set_version_hash',
         'achievements_published',
         'points_total',
@@ -155,7 +137,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
         static::saved(function (Game $game) {
             $originalTitle = $game->getOriginal('title');
-            $originalImageIcon = $game->getOriginal('ImageIcon');
+            $originalImageIcon = $game->getOriginal('image_icon_asset_path');
             $freshGame = $game->fresh(); // $game starts with stale values.
 
             // Handle game title changes.
@@ -186,12 +168,12 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
             }
 
             // Handle game badge changes.
-            if ($originalImageIcon !== $freshGame->ImageIcon) {
+            if ($originalImageIcon !== $freshGame->image_icon_asset_path) {
                 (new SyncAchievementSetImageAssetPathFromGameAction())->execute($freshGame);
             }
 
             // Keep game_sets in sync (only for title changes, not new "hub games").
-            if ($originalTitle !== $freshGame->title && $game->ConsoleID === System::Hubs) {
+            if ($originalTitle !== $freshGame->title && $game->system_id === System::Hubs) {
                 $foundGameSet = GameSet::whereType(GameSetType::Hub)
                     ->whereGameId($game->id)
                     ->first();
@@ -266,17 +248,17 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     {
         return LogOptions::defaults()
             ->logOnly([
-                'Title',
+                'title',
                 'sort_title',
-                'ForumTopicID',
-                'GuideURL',
-                'Publisher',
-                'Developer',
-                'Genre',
-                'ImageIcon',
-                'ImageBoxArt',
-                'ImageTitle',
-                'ImageIngame',
+                'forum_topic_id',
+                'legacy_guide_url',
+                'publisher',
+                'developer',
+                'genre',
+                'image_icon_asset_path',
+                'image_box_art_asset_path',
+                'image_title_asset_path',
+                'image_ingame_asset_path',
                 'released_at',
                 'released_at_granularity',
             ])
@@ -386,7 +368,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
         };
 
         return [
-            'id' => (int) $this->ID,
+            'id' => $this->id,
             'title' => $this->title,
             'alt_titles' => $altTitles,
             'search_titles' => $searchTitles,
@@ -400,7 +382,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
     public function shouldBeSearchable(): bool
     {
-        if ($this->ConsoleID === System::Hubs || $this->ConsoleID === System::Events) {
+        if ($this->system_id === System::Hubs || $this->system_id === System::Events) {
             return false;
         }
 
@@ -413,22 +395,22 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
     public function getBadgeUrlAttribute(): string
     {
-        return media_asset($this->ImageIcon);
+        return media_asset($this->image_icon_asset_path);
     }
 
     public function getImageBoxArtUrlAttribute(): string
     {
-        return media_asset($this->ImageBoxArt);
+        return media_asset($this->image_box_art_asset_path);
     }
 
     public function getImageTitleUrlAttribute(): string
     {
-        return media_asset($this->ImageTitle);
+        return media_asset($this->image_title_asset_path);
     }
 
     public function getImageIngameUrlAttribute(): string
     {
-        return media_asset($this->ImageIngame);
+        return media_asset($this->image_ingame_asset_path);
     }
 
     public function getParentGameIdAttribute(): ?int
@@ -462,10 +444,10 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
                 // Trim to ensure no leading/trailing spaces.
                 $baseSetTitle = trim(substr($this->title, 0, $index));
 
-                // Attempt to find a game with the base title and the same console ID.
-                return Game::where('Title', $baseSetTitle)
-                    ->where('ConsoleID', $this->ConsoleID)
-                    ->value('ID');
+                // Attempt to find a game with the base title and the same system ID.
+                return Game::where('title', $baseSetTitle)
+                    ->where('system_id', $this->system_id)
+                    ->value('id');
             }
 
             return null;
@@ -480,11 +462,11 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     public function getCanHaveBeatenTypes(): bool
     {
         $isSubsetOrTestKit = (
-            mb_strpos($this->Title, "[Subset") !== false
-            || mb_strpos($this->Title, "~Test Kit~") !== false
+            mb_strpos($this->title, "[Subset") !== false
+            || mb_strpos($this->title, "~Test Kit~") !== false
         );
 
-        $isEventGame = $this->ConsoleID === 101;
+        $isEventGame = $this->system_id === System::Events;
 
         return !$isSubsetOrTestKit && !$isEventGame;
     }
@@ -506,7 +488,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
     public function getLastUpdatedAttribute(): Carbon
     {
-        return $this->last_achievement_update ?? $this->Updated;
+        return $this->last_achievement_update ?? $this->updated_at;
     }
 
     public function getPermalinkAttribute(): string
@@ -514,14 +496,9 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
         return route('game.show', $this);
     }
 
-    public function getPointsWeightedAttribute(): int
-    {
-        return $this->TotalTruePoints ?? 0;
-    }
-
     public function getSlugAttribute(): string
     {
-        return $this->Title ? '-' . Str::slug($this->Title) : '';
+        return $this->title ? '-' . Str::slug($this->title) : '';
     }
 
     public function getHasAuthoredSomeAchievements(User $user): bool
@@ -543,25 +520,9 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
         return '[' . $this->id . '] ' . $this->title;
     }
 
-    // TODO remove after rename
-    public function getIdAttribute(): int
-    {
-        return $this->attributes['ID'] ?? 1;
-    }
-
     public function getIsStandalone(): bool
     {
-        return $this->ConsoleID === 102;
-    }
-
-    public function getSystemIdAttribute(): int
-    {
-        return $this->attributes['ConsoleID'];
-    }
-
-    public function getTitleAttribute(): ?string
-    {
-        return $this->attributes['Title'] ?? null;
+        return $this->system_id === System::Standalones;
     }
 
     // == mutators
@@ -581,7 +542,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function achievementSets(): BelongsToMany
     {
-        return $this->belongsToMany(AchievementSet::class, 'game_achievement_sets', 'game_id', 'achievement_set_id', 'ID', 'id')
+        return $this->belongsToMany(AchievementSet::class, 'game_achievement_sets', 'game_id', 'achievement_set_id', 'id', 'id')
             ->withPivot(['type', 'title', 'order_column'])
             ->withTimestamps('created_at', 'updated_at');
     }
@@ -611,7 +572,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
             GameAchievementSet::class,
             'game_id',
             'achievement_set_id',
-            'ID',
+            'id',
             'achievement_set_id'
         )->where(DB::raw('game_achievement_sets.type'), AchievementSetType::Core);
     }
@@ -713,17 +674,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function system(): BelongsTo
     {
-        return $this->belongsTo(System::class, 'ConsoleID');
-    }
-
-    /**
-     * @return BelongsTo<System, $this>
-     *
-     * @deprecated use `->system`
-     */
-    public function console(): BelongsTo
-    {
-        return $this->system();
+        return $this->belongsTo(System::class, 'system_id');
     }
 
     /**
@@ -739,7 +690,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function leaderboards(): HasMany
     {
-        return $this->hasMany(Leaderboard::class, 'GameID', 'ID');
+        return $this->hasMany(Leaderboard::class, 'GameID', 'id');
     }
 
     /**
@@ -757,7 +708,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function playerBadges(): HasMany
     {
-        return $this->hasMany(PlayerBadge::class, 'AwardData', 'ID');
+        return $this->hasMany(PlayerBadge::class, 'AwardData', 'id');
     }
 
     /**
@@ -790,7 +741,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function releases(): HasMany
     {
-        return $this->hasMany(GameRelease::class, 'game_id', 'ID');
+        return $this->hasMany(GameRelease::class, 'game_id', 'id');
     }
 
     /**
@@ -798,7 +749,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function gameAchievementSets(): HasMany
     {
-        return $this->hasMany(GameAchievementSet::class, 'game_id', 'ID');
+        return $this->hasMany(GameAchievementSet::class, 'game_id', 'id');
     }
 
     /**
@@ -869,7 +820,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function gameListEntries(): HasMany
     {
-        return $this->hasMany(UserGameListEntry::class, 'GameID', 'ID');
+        return $this->hasMany(UserGameListEntry::class, 'game_id', 'id');
     }
 
     /**
@@ -901,7 +852,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function tickets(): HasManyThrough
     {
-        return $this->hasManyThrough(Ticket::class, Achievement::class, 'GameID', 'AchievementID', 'ID', 'ID');
+        return $this->hasManyThrough(Ticket::class, Achievement::class, 'GameID', 'AchievementID', 'id', 'ID');
     }
 
     /**
@@ -965,7 +916,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     {
         return $query->addSelect([
             'last_achievement_update' => Achievement::select('DateModified')
-                ->whereColumn('Achievements.GameID', 'GameData.ID')
+                ->whereColumn('Achievements.GameID', 'games.id')
                 ->orderBy('DateModified', 'desc')
                 ->limit(1),
         ]);

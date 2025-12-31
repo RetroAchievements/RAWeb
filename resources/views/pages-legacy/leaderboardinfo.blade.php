@@ -59,10 +59,10 @@ $lbMemory = $leaderboard->Mem;
 
 $gameID = $leaderboard->game->id;
 $gameTitle = $leaderboard->game->title;
-$gameIcon = $leaderboard->game->ImageIcon;
+$gameIcon = $leaderboard->game->image_icon_asset_path;
 $consoleID = $leaderboard->game->system->id;
 $consoleName = $leaderboard->game->system->name;
-$forumTopicID = $leaderboard->game->ForumTopicID;
+$forumTopicID = $leaderboard->game->forum_topic_id;
 
 $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Enums\Permissions;
 use App\Models\Game;
 use App\Models\PlayerSession;
@@ -51,13 +51,13 @@ class GetFriendListTest extends TestCase
             ]);
 
         // user2 is playing game1
-        $user2->rich_presence_game_id = $game1->ID;
+        $user2->rich_presence_game_id = $game1->id;
         $user2->rich_presence = "Running through a forest";
         $user2->rich_presence_updated_at = $date1;
         $user2->save();
 
         // user is following user2 (legacy RP - no session)
-        changeFriendStatus($this->user, $user2, UserRelationship::Following);
+        changeFriendStatus($this->user, $user2, UserRelationStatus::Following);
 
         $this->get($this->apiUrl('getfriendlist'))
             ->assertStatus(200)
@@ -71,37 +71,37 @@ class GetFriendListTest extends TestCase
                         'LastSeen' => $user2->rich_presence,
                         'LastSeenTime' => $date1->unix(),
                         'LastGameId' => $game1->id,
-                        'LastGameTitle' => $game1->Title,
+                        'LastGameTitle' => $game1->title,
                         'LastGameIconUrl' => $game1->badge_url,
                     ],
                 ],
             ]);
 
         // user3 is playing game2
-        $user3->rich_presence_game_id = $game2->ID;
+        $user3->rich_presence_game_id = $game2->id;
         $user3->rich_presence = "Killing everything";
         $user3->rich_presence_updated_at = $date2->clone()->subMinutes(45);
         $user3->save();
 
         PlayerSession::factory()->create([
             'user_id' => $user3->id,
-            'game_id' => $game2->ID,
+            'game_id' => $game2->id,
             'rich_presence' => "Titles",
             'rich_presence_updated_at' => $date2,
         ]);
 
         // user4 is playing game2
-        $user4->rich_presence_game_id = $game2->ID;
+        $user4->rich_presence_game_id = $game2->id;
         $user4->rich_presence = "Killing everything";
         $user4->rich_presence_updated_at = $date3;
         $user4->setAttribute('Permissions', Permissions::Banned);
         $user4->save();
 
         // user is following user3 (RP from session)
-        changeFriendStatus($this->user, $user3, UserRelationship::Following);
+        changeFriendStatus($this->user, $user3, UserRelationStatus::Following);
 
         // user is following user4 (banned - should not be returned)
-        changeFriendStatus($this->user, $user4, UserRelationship::Following);
+        changeFriendStatus($this->user, $user4, UserRelationStatus::Following);
 
         $this->get($this->apiUrl('getfriendlist'))
             ->assertStatus(200)
@@ -115,7 +115,7 @@ class GetFriendListTest extends TestCase
                         'LastSeen' => "Titles",
                         'LastSeenTime' => $date2->unix(),
                         'LastGameId' => $game2->id,
-                        'LastGameTitle' => $game2->Title,
+                        'LastGameTitle' => $game2->title,
                         'LastGameIconUrl' => $game2->badge_url,
                     ],
                     [
@@ -125,27 +125,27 @@ class GetFriendListTest extends TestCase
                         'LastSeen' => $user2->rich_presence,
                         'LastSeenTime' => $date1->unix(),
                         'LastGameId' => $game1->id,
-                        'LastGameTitle' => $game1->Title,
+                        'LastGameTitle' => $game1->title,
                         'LastGameIconUrl' => $game1->badge_url,
                     ],
                 ],
             ]);
 
         // user5 is playing game2
-        $user5->rich_presence_game_id = $game2->ID;
+        $user5->rich_presence_game_id = $game2->id;
         $user5->rich_presence = "Killing everything";
         $user5->rich_presence_updated_at = $date3;
         $user5->save();
 
         // user5 is following user (inverse relationship)
-        changeFriendStatus($user5, $this->user, UserRelationship::Following);
+        changeFriendStatus($user5, $this->user, UserRelationStatus::Following);
 
         // user6 has no activity
         $user6->last_activity_at = $date3;
         $user6->save();
 
         // user is following user6 (legacy RP - no session)
-        changeFriendStatus($this->user, $user6, UserRelationship::Following);
+        changeFriendStatus($this->user, $user6, UserRelationStatus::Following);
 
         $this->get($this->apiUrl('getfriendlist'))
             ->assertStatus(200)
@@ -169,7 +169,7 @@ class GetFriendListTest extends TestCase
                         'LastSeen' => "Titles",
                         'LastSeenTime' => $date2->unix(),
                         'LastGameId' => $game2->id,
-                        'LastGameTitle' => $game2->Title,
+                        'LastGameTitle' => $game2->title,
                         'LastGameIconUrl' => $game2->badge_url,
                     ],
                     [
@@ -179,23 +179,23 @@ class GetFriendListTest extends TestCase
                         'LastSeen' => $user2->rich_presence,
                         'LastSeenTime' => $date1->unix(),
                         'LastGameId' => $game1->id,
-                        'LastGameTitle' => $game1->Title,
+                        'LastGameTitle' => $game1->title,
                         'LastGameIconUrl' => $game1->badge_url,
                     ],
                 ],
             ]);
 
         // user6 is playing game 2
-        $user6->rich_presence_game_id = $game2->ID;
+        $user6->rich_presence_game_id = $game2->id;
         $user6->rich_presence = "Killing everything";
         $user6->rich_presence_updated_at = $date3;
         $user6->save();
 
         // user has stopped following user2
-        changeFriendStatus($this->user, $user2, UserRelationship::NotFollowing);
+        changeFriendStatus($this->user, $user2, UserRelationStatus::NotFollowing);
 
         // user has blocked user3
-        changeFriendStatus($this->user, $user3, UserRelationship::NotFollowing);
+        changeFriendStatus($this->user, $user3, UserRelationStatus::NotFollowing);
 
         $this->get($this->apiUrl('getfriendlist'))
             ->assertStatus(200)
@@ -209,7 +209,7 @@ class GetFriendListTest extends TestCase
                         'LastSeen' => $user6->rich_presence,
                         'LastSeenTime' => $date3->unix(),
                         'LastGameId' => $game2->id,
-                        'LastGameTitle' => $game2->Title,
+                        'LastGameTitle' => $game2->title,
                         'LastGameIconUrl' => $game2->badge_url,
                     ],
                 ],

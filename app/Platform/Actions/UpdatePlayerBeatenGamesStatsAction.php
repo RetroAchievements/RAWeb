@@ -34,15 +34,15 @@ class UpdatePlayerBeatenGamesStatsAction
             ->playerBadges()
             ->where('AwardType', AwardType::GameBeaten)
             ->where('AwardDataExtra', UnlockMode::Hardcore)
-            ->join('GameData', 'GameData.ID', '=', 'AwardData')
+            ->join('games', 'games.id', '=', 'AwardData')
             ->select(
-                'GameData.ID as game_id',
-                'GameData.ConsoleID',
-                'GameData.Title',
+                'games.id as game_id',
+                'games.system_id',
+                'games.title',
                 'SiteAwards.AwardDate as beaten_hardcore_at'
             )
-            ->where(DB::raw('GameData.Title'), 'not like', '%[Subset%')
-            ->where(DB::raw('GameData.Title'), 'not like', '~Test Kit~%')
+            ->where(DB::raw('games.title'), 'not like', '%[Subset%')
+            ->where(DB::raw('games.title'), 'not like', '~Test Kit~%')
             ->orderBy('beaten_hardcore_at')
             ->get();
 
@@ -52,9 +52,9 @@ class UpdatePlayerBeatenGamesStatsAction
                 'game_id' => $item->game_id,
                 'beaten_hardcore_at' => $item->beaten_hardcore_at,
                 'game' => [
-                    'ID' => $item->game_id,
-                    'ConsoleID' => $item->ConsoleID,
-                    'Title' => $item->Title,
+                    'id' => $item->game_id,
+                    'system_id' => $item->system_id,
+                    'title' => $item->title,
                 ],
             ];
         });
@@ -104,13 +104,13 @@ class UpdatePlayerBeatenGamesStatsAction
         ];
 
         foreach ($playerBeatenHardcoreGames as $playerGame) {
-            $gameConsoleId = $playerGame['game']['ConsoleID'];
-            $gameKind = $this->determineGameKind($playerGame['game']['Title'], $gameConsoleId);
+            $gameConsoleId = $playerGame['game']['system_id'];
+            $gameKind = $this->determineGameKind($playerGame['game']['title'], $gameConsoleId);
             $statTypeKey = $gameKindToStatType[$gameKind] ?? PlayerStatType::GamesBeatenHardcoreRetail;
 
             // Update the overall aggregates.
             $statValues['overall'][$statTypeKey][0]++;
-            $statValues['overall'][$statTypeKey][1] = $playerGame['game']['ID'];
+            $statValues['overall'][$statTypeKey][1] = $playerGame['game']['id'];
             $statValues['overall'][$statTypeKey][2] = $playerGame['beaten_hardcore_at'];
 
             // Ensure there's an array entry for the console aggregates.
@@ -120,7 +120,7 @@ class UpdatePlayerBeatenGamesStatsAction
 
             // Update the individual console aggregates.
             $statValues[$gameConsoleId][$statTypeKey][0]++;
-            $statValues[$gameConsoleId][$statTypeKey][1] = $playerGame['game']['ID'];
+            $statValues[$gameConsoleId][$statTypeKey][1] = $playerGame['game']['id'];
             $statValues[$gameConsoleId][$statTypeKey][2] = $playerGame['beaten_hardcore_at'];
         }
 

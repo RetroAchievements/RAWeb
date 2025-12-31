@@ -18,8 +18,8 @@ class GameCommentControllerTest extends TestCase
     public function testIndexWorksForUnauthenticatedVisitors(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
 
         // Act
         $response = $this->get(route('game.comment.index', ['game' => $game]));
@@ -35,8 +35,8 @@ class GameCommentControllerTest extends TestCase
         $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
 
         // Act
         $response = $this->get(route('game.comment.index', ['game' => $game]));

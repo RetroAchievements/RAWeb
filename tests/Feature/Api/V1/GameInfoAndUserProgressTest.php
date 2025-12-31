@@ -41,20 +41,20 @@ class GameInfoAndUserProgressTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ForumTopicID' => 1234,
-            'ImageIcon' => '/Images/000011.png',
-            'ImageTitle' => '/Images/000021.png',
-            'ImageIngame' => '/Images/000031.png',
-            'ImageBoxArt' => '/Images/000041.png',
-            'Publisher' => 'WePublishStuff',
-            'Developer' => 'WeDevelopStuff',
-            'Genre' => 'Action',
+            'system_id' => $system->id,
+            'forum_topic_id' => 1234,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'image_title_asset_path' => '/Images/000021.png',
+            'image_ingame_asset_path' => '/Images/000031.png',
+            'image_box_art_asset_path' => '/Images/000041.png',
+            'publisher' => 'WePublishStuff',
+            'developer' => 'WeDevelopStuff',
+            'genre' => 'Action',
         ]);
 
         GameRelease::factory()->create([
-            'game_id' => $game->ID,
-            'title' => $game->Title,
+            'game_id' => $game->id,
+            'title' => $game->title,
             'released_at' => $releasedAt,
             'released_at_granularity' => ReleasedAtGranularity::Day,
             'region' => GameReleaseRegion::NorthAmerica,
@@ -62,11 +62,11 @@ class GameInfoAndUserProgressTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '23456', 'DisplayOrder' => 3]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '23456', 'DisplayOrder' => 3]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '34567', 'DisplayOrder' => 2]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '34567', 'DisplayOrder' => 2]);
 
         /** @var User $user2 */
         $user2 = User::factory()->create();
@@ -94,22 +94,22 @@ class GameInfoAndUserProgressTest extends TestCase
         $this->addHardcoreUnlock($user4, $achievement1);
         $this->addHardcoreUnlock($user4, $achievement2);
 
-        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->ID, 'u' => $user3->username])) // !! name
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $user3->username])) // !! name
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
-                'ForumTopicID' => $game->ForumTopicID,
+                'ID' => $game->id,
+                'Title' => $game->title,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
+                'ForumTopicID' => $game->forum_topic_id,
                 'Flags' => null,
-                'ImageIcon' => $game->ImageIcon,
-                'ImageTitle' => $game->ImageTitle,
-                'ImageIngame' => $game->ImageIngame,
-                'ImageBoxArt' => $game->ImageBoxArt,
-                'Publisher' => $game->Publisher,
-                'Developer' => $game->Developer,
-                'Genre' => $game->Genre,
+                'ImageIcon' => $game->image_icon_asset_path,
+                'ImageTitle' => $game->image_title_asset_path,
+                'ImageIngame' => $game->image_ingame_asset_path,
+                'ImageBoxArt' => $game->image_box_art_asset_path,
+                'Publisher' => $game->publisher,
+                'Developer' => $game->developer,
+                'Genre' => $game->genre,
                 'Released' => $releasedAt->format('Y-m-d'),
                 'ReleasedAtGranularity' => 'day',
                 'NumAchievements' => 3,
@@ -176,20 +176,20 @@ class GameInfoAndUserProgressTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ForumTopicID' => 1234,
-            'ImageIcon' => '/Images/000011.png',
-            'ImageTitle' => '/Images/000021.png',
-            'ImageIngame' => '/Images/000031.png',
-            'ImageBoxArt' => '/Images/000041.png',
-            'Publisher' => 'WePublishStuff',
-            'Developer' => 'WeDevelopStuff',
-            'Genre' => 'Action',
+            'system_id' => $system->id,
+            'forum_topic_id' => 1234,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'image_title_asset_path' => '/Images/000021.png',
+            'image_ingame_asset_path' => '/Images/000031.png',
+            'image_box_art_asset_path' => '/Images/000041.png',
+            'publisher' => 'WePublishStuff',
+            'developer' => 'WeDevelopStuff',
+            'genre' => 'Action',
         ]);
 
         GameRelease::factory()->create([
-            'game_id' => $game->ID,
-            'title' => $game->Title,
+            'game_id' => $game->id,
+            'title' => $game->title,
             'released_at' => $releasedAt,
             'released_at_granularity' => ReleasedAtGranularity::Day,
             'region' => GameReleaseRegion::NorthAmerica,
@@ -197,11 +197,11 @@ class GameInfoAndUserProgressTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '23456', 'DisplayOrder' => 3]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '23456', 'DisplayOrder' => 3]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '34567', 'DisplayOrder' => 2]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '34567', 'DisplayOrder' => 2]);
 
         /** @var User $user2 */
         $user2 = User::factory()->create();
@@ -229,22 +229,22 @@ class GameInfoAndUserProgressTest extends TestCase
         $this->addHardcoreUnlock($user4, $achievement1);
         $this->addHardcoreUnlock($user4, $achievement2);
 
-        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->ID, 'u' => $user3->ulid])) // !! ulid
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $user3->ulid])) // !! ulid
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
-                'ForumTopicID' => $game->ForumTopicID,
+                'ID' => $game->id,
+                'Title' => $game->title,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
+                'ForumTopicID' => $game->forum_topic_id,
                 'Flags' => null,
-                'ImageIcon' => $game->ImageIcon,
-                'ImageTitle' => $game->ImageTitle,
-                'ImageIngame' => $game->ImageIngame,
-                'ImageBoxArt' => $game->ImageBoxArt,
-                'Publisher' => $game->Publisher,
-                'Developer' => $game->Developer,
-                'Genre' => $game->Genre,
+                'ImageIcon' => $game->image_icon_asset_path,
+                'ImageTitle' => $game->image_title_asset_path,
+                'ImageIngame' => $game->image_ingame_asset_path,
+                'ImageBoxArt' => $game->image_box_art_asset_path,
+                'Publisher' => $game->publisher,
+                'Developer' => $game->developer,
+                'Genre' => $game->genre,
                 'Released' => $releasedAt->format('Y-m-d'),
                 'ReleasedAtGranularity' => 'day',
                 'NumAchievements' => 3,
@@ -311,20 +311,20 @@ class GameInfoAndUserProgressTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ForumTopicID' => 1234,
-            'ImageIcon' => '/Images/000011.png',
-            'ImageTitle' => '/Images/000021.png',
-            'ImageIngame' => '/Images/000031.png',
-            'ImageBoxArt' => '/Images/000041.png',
-            'Publisher' => 'WePublishStuff',
-            'Developer' => 'WeDevelopStuff',
-            'Genre' => 'Action',
+            'system_id' => $system->id,
+            'forum_topic_id' => 1234,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'image_title_asset_path' => '/Images/000021.png',
+            'image_ingame_asset_path' => '/Images/000031.png',
+            'image_box_art_asset_path' => '/Images/000041.png',
+            'publisher' => 'WePublishStuff',
+            'developer' => 'WeDevelopStuff',
+            'genre' => 'Action',
         ]);
 
         GameRelease::factory()->create([
-            'game_id' => $game->ID,
-            'title' => $game->Title,
+            'game_id' => $game->id,
+            'title' => $game->title,
             'released_at' => $releasedAt,
             'released_at_granularity' => ReleasedAtGranularity::Day,
             'region' => GameReleaseRegion::NorthAmerica,
@@ -332,22 +332,22 @@ class GameInfoAndUserProgressTest extends TestCase
         ]);
 
         // issue #484: empty associative array should still return {}, not []
-        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->ID, 'u' => $this->user->username]))
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $this->user->username]))
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
-                'ForumTopicID' => $game->ForumTopicID,
+                'ID' => $game->id,
+                'Title' => $game->title,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
+                'ForumTopicID' => $game->forum_topic_id,
                 'Flags' => null,
-                'ImageIcon' => $game->ImageIcon,
-                'ImageTitle' => $game->ImageTitle,
-                'ImageIngame' => $game->ImageIngame,
-                'ImageBoxArt' => $game->ImageBoxArt,
-                'Publisher' => $game->Publisher,
-                'Developer' => $game->Developer,
-                'Genre' => $game->Genre,
+                'ImageIcon' => $game->image_icon_asset_path,
+                'ImageTitle' => $game->image_title_asset_path,
+                'ImageIngame' => $game->image_ingame_asset_path,
+                'ImageBoxArt' => $game->image_box_art_asset_path,
+                'Publisher' => $game->publisher,
+                'Developer' => $game->developer,
+                'Genre' => $game->genre,
                 'Released' => $releasedAt->format('Y-m-d'),
                 'ReleasedAtGranularity' => 'day',
                 'NumAchievements' => 0,
@@ -373,20 +373,20 @@ class GameInfoAndUserProgressTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ForumTopicID' => 1234,
-            'ImageIcon' => '/Images/000011.png',
-            'ImageTitle' => '/Images/000021.png',
-            'ImageIngame' => '/Images/000031.png',
-            'ImageBoxArt' => '/Images/000041.png',
-            'Publisher' => 'WePublishStuff',
-            'Developer' => 'WeDevelopStuff',
-            'Genre' => 'Action',
+            'system_id' => $system->id,
+            'forum_topic_id' => 1234,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'image_title_asset_path' => '/Images/000021.png',
+            'image_ingame_asset_path' => '/Images/000031.png',
+            'image_box_art_asset_path' => '/Images/000041.png',
+            'publisher' => 'WePublishStuff',
+            'developer' => 'WeDevelopStuff',
+            'genre' => 'Action',
         ]);
 
         GameRelease::factory()->create([
-            'game_id' => $game->ID,
-            'title' => $game->Title,
+            'game_id' => $game->id,
+            'title' => $game->title,
             'released_at' => $releasedAt,
             'released_at_granularity' => ReleasedAtGranularity::Day,
             'region' => GameReleaseRegion::NorthAmerica,
@@ -394,11 +394,11 @@ class GameInfoAndUserProgressTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1, 'type' => AchievementType::Progression]);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '12345', 'DisplayOrder' => 1, 'type' => AchievementType::Progression]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '23456', 'DisplayOrder' => 3]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '23456', 'DisplayOrder' => 3]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '34567', 'DisplayOrder' => 2]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '34567', 'DisplayOrder' => 2]);
 
         /** @var User $user2 */
         $user2 = User::factory()->create();
@@ -427,22 +427,22 @@ class GameInfoAndUserProgressTest extends TestCase
         $this->addHardcoreUnlock($user4, $achievement2);
 
         // make the API call for $this->user
-        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->ID, 'u' => $this->user->username, 'a' => 1]))
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $this->user->username, 'a' => 1]))
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
-                'ForumTopicID' => $game->ForumTopicID,
+                'ID' => $game->id,
+                'Title' => $game->title,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
+                'ForumTopicID' => $game->forum_topic_id,
                 'Flags' => null,
-                'ImageIcon' => $game->ImageIcon,
-                'ImageTitle' => $game->ImageTitle,
-                'ImageIngame' => $game->ImageIngame,
-                'ImageBoxArt' => $game->ImageBoxArt,
-                'Publisher' => $game->Publisher,
-                'Developer' => $game->Developer,
-                'Genre' => $game->Genre,
+                'ImageIcon' => $game->image_icon_asset_path,
+                'ImageTitle' => $game->image_title_asset_path,
+                'ImageIngame' => $game->image_ingame_asset_path,
+                'ImageBoxArt' => $game->image_box_art_asset_path,
+                'Publisher' => $game->publisher,
+                'Developer' => $game->developer,
+                'Genre' => $game->genre,
                 'Released' => $releasedAt->format('Y-m-d'),
                 'ReleasedAtGranularity' => 'day',
                 'NumAchievements' => 3,
@@ -503,22 +503,22 @@ class GameInfoAndUserProgressTest extends TestCase
             ]);
 
         // make the API call for user2
-        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->ID, 'u' => $user2->username, 'a' => 1]))
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $user2->username, 'a' => 1]))
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
-                'ForumTopicID' => $game->ForumTopicID,
+                'ID' => $game->id,
+                'Title' => $game->title,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
+                'ForumTopicID' => $game->forum_topic_id,
                 'Flags' => null,
-                'ImageIcon' => $game->ImageIcon,
-                'ImageTitle' => $game->ImageTitle,
-                'ImageIngame' => $game->ImageIngame,
-                'ImageBoxArt' => $game->ImageBoxArt,
-                'Publisher' => $game->Publisher,
-                'Developer' => $game->Developer,
-                'Genre' => $game->Genre,
+                'ImageIcon' => $game->image_icon_asset_path,
+                'ImageTitle' => $game->image_title_asset_path,
+                'ImageIngame' => $game->image_ingame_asset_path,
+                'ImageBoxArt' => $game->image_box_art_asset_path,
+                'Publisher' => $game->publisher,
+                'Developer' => $game->developer,
+                'Genre' => $game->genre,
                 'Released' => $releasedAt->format('Y-m-d'),
                 'ReleasedAtGranularity' => 'day',
                 'NumAchievements' => 3,
@@ -579,22 +579,22 @@ class GameInfoAndUserProgressTest extends TestCase
             ]);
 
         // make the API call for user3
-        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->ID, 'u' => $user3->username, 'a' => 1]))
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $user3->username, 'a' => 1]))
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
-                'ForumTopicID' => $game->ForumTopicID,
+                'ID' => $game->id,
+                'Title' => $game->title,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
+                'ForumTopicID' => $game->forum_topic_id,
                 'Flags' => null,
-                'ImageIcon' => $game->ImageIcon,
-                'ImageTitle' => $game->ImageTitle,
-                'ImageIngame' => $game->ImageIngame,
-                'ImageBoxArt' => $game->ImageBoxArt,
-                'Publisher' => $game->Publisher,
-                'Developer' => $game->Developer,
-                'Genre' => $game->Genre,
+                'ImageIcon' => $game->image_icon_asset_path,
+                'ImageTitle' => $game->image_title_asset_path,
+                'ImageIngame' => $game->image_ingame_asset_path,
+                'ImageBoxArt' => $game->image_box_art_asset_path,
+                'Publisher' => $game->publisher,
+                'Developer' => $game->developer,
+                'Genre' => $game->genre,
                 'Released' => $releasedAt->format('Y-m-d'),
                 'ReleasedAtGranularity' => 'day',
                 'NumAchievements' => 3,
@@ -655,22 +655,22 @@ class GameInfoAndUserProgressTest extends TestCase
             ]);
 
         // make the API call for user4
-        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->ID, 'u' => $user4->username, 'a' => 1]))
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $user4->username, 'a' => 1]))
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
-                'ForumTopicID' => $game->ForumTopicID,
+                'ID' => $game->id,
+                'Title' => $game->title,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
+                'ForumTopicID' => $game->forum_topic_id,
                 'Flags' => null,
-                'ImageIcon' => $game->ImageIcon,
-                'ImageTitle' => $game->ImageTitle,
-                'ImageIngame' => $game->ImageIngame,
-                'ImageBoxArt' => $game->ImageBoxArt,
-                'Publisher' => $game->Publisher,
-                'Developer' => $game->Developer,
-                'Genre' => $game->Genre,
+                'ImageIcon' => $game->image_icon_asset_path,
+                'ImageTitle' => $game->image_title_asset_path,
+                'ImageIngame' => $game->image_ingame_asset_path,
+                'ImageBoxArt' => $game->image_box_art_asset_path,
+                'Publisher' => $game->publisher,
+                'Developer' => $game->developer,
+                'Genre' => $game->genre,
                 'Released' => $releasedAt->format('Y-m-d'),
                 'ReleasedAtGranularity' => 'day',
                 'NumAchievements' => 3,
