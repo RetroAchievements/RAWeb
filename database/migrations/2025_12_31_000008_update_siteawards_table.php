@@ -47,16 +47,14 @@ return new class extends Migration {
 
     public function down(): void
     {
-        if (DB::connection()->getDriverName() !== 'sqlite') {
-            DB::table('user_awards')->where('award_type', 'mastery')->update(['award_type' => '1']);
-            DB::table('user_awards')->where('award_type', 'achievement_unlocks_yield')->update(['award_type' => '2']);
-            DB::table('user_awards')->where('award_type', 'achievement_points_yield')->update(['award_type' => '3']);
-            DB::table('user_awards')->where('award_type', 'patreon_supporter')->update(['award_type' => '6']);
-            DB::table('user_awards')->where('award_type', 'certified_legend')->update(['award_type' => '7']);
-            DB::table('user_awards')->where('award_type', 'game_beaten')->update(['award_type' => '8']);
-            DB::table('user_awards')->where('award_type', 'event')->update(['award_type' => '9']);
-            DB::statement("ALTER TABLE user_awards MODIFY award_type INT");
-        }
+        DB::table('user_awards')->where('award_type', 'mastery')->update(['award_type' => '1']);
+        DB::table('user_awards')->where('award_type', 'achievement_unlocks_yield')->update(['award_type' => '2']);
+        DB::table('user_awards')->where('award_type', 'achievement_points_yield')->update(['award_type' => '3']);
+        DB::table('user_awards')->where('award_type', 'patreon_supporter')->update(['award_type' => '6']);
+        DB::table('user_awards')->where('award_type', 'certified_legend')->update(['award_type' => '7']);
+        DB::table('user_awards')->where('award_type', 'game_beaten')->update(['award_type' => '8']);
+        DB::table('user_awards')->where('award_type', 'event')->update(['award_type' => '9']);
+        DB::statement("ALTER TABLE user_awards MODIFY award_type INT");
 
         Schema::table('user_awards', function (Blueprint $table) {
             $table->renameIndex('user_awards_award_type_index', 'siteawards_awardtype_index');
