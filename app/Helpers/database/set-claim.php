@@ -116,7 +116,7 @@ function getClaimData(array $gameIds, bool $getFullData = true): array
 
     // Fetch the usernames and stitch them into the result.
     $userIds = array_column($claims, 'user_id');
-    $usernames = User::whereIn('ID', array_unique($userIds))->pluck('User', 'ID')->toArray();
+    $usernames = User::whereIn('id', array_unique($userIds))->pluck('username', 'id')->toArray();
 
     return array_map(function ($claim) use ($usernames) {
         $claim['User'] = $usernames[$claim['user_id']] ?? 'Deleted User';
@@ -232,7 +232,7 @@ function getFilteredClaims(
 
     // Create the sorting condition
     $sortCondition = match ($sortType) {
-        2 => 'ua.User ',
+        2 => 'ua.username ',
         3 => 'gd.title ',
         4 => 'sc.ClaimType ',
         5 => 'sc.SetType ',
@@ -251,7 +251,7 @@ function getFilteredClaims(
     if (isset($username)) {
         $bindings['username'] = $username;
         $bindings['display_name'] = $username;
-        $userCondition = "AND (ua.User = :username OR ua.display_name = :display_name)";
+        $userCondition = "AND (ua.username = :username OR ua.display_name = :display_name)";
     }
 
     $gameCondition = '';
@@ -270,7 +270,7 @@ function getFilteredClaims(
     $selectCondition = "
         sc.ID AS ID,
         ua.ulid as ULID,
-        COALESCE(ua.display_name, ua.User) AS User,
+        COALESCE(ua.display_name, ua.username) AS User,
         sc.game_id AS GameID,
         gd.title AS GameTitle,
         gd.image_icon_asset_path AS GameIcon,
@@ -298,7 +298,7 @@ function getFilteredClaims(
         LEFT JOIN
             systems AS s ON s.id = gd.system_id
         LEFT JOIN
-            UserAccounts AS ua ON ua.ID = sc.user_id
+            users AS ua ON ua.id = sc.user_id
         WHERE
             TRUE
             $claimTypeCondition

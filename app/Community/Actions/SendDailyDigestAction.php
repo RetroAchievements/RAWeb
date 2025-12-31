@@ -41,7 +41,7 @@ class SendDailyDigestAction
 
         // if the user doesn't have an email address or is opted out, bail.
         // do this after deleting the pending subscriptions.
-        if (!$user->EmailAddress || BitSet($user->websitePrefs, UserPreference::EmailOff_DailyDigest)) {
+        if (!$user->email || BitSet($user->preferences_bitfield, UserPreference::EmailOff_DailyDigest)) {
             return;
         }
 
@@ -61,7 +61,7 @@ class SendDailyDigestAction
                 SubscriptionSubjectType::ForumTopic->value => ForumTopic::whereIn('id', $typeIds)->pluck('title', 'id'),
                 SubscriptionSubjectType::GameWall->value => $this->buildGameWallTitles($typeIds),
                 SubscriptionSubjectType::Achievement->value => $this->buildAchievementWallTitles($typeIds),
-                SubscriptionSubjectType::UserWall->value => User::whereIn('ID', $typeIds)->pluck('display_name', 'ID'),
+                SubscriptionSubjectType::UserWall->value => User::whereIn('id', $typeIds)->pluck('display_name', 'id'),
                 SubscriptionSubjectType::Leaderboard->value => $this->buildLeaderboardTitles($typeIds),
                 SubscriptionSubjectType::AchievementTicket->value => $this->buildTicketTitles($typeIds),
                 default => [],
@@ -140,7 +140,7 @@ class SendDailyDigestAction
         }
 
         // send the mail
-        Mail::to($user->EmailAddress)->queue(
+        Mail::to($user->email)->queue(
             new DailyDigestMail($user, $notificationItems)
         );
     }

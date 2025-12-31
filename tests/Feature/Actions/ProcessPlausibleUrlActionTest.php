@@ -147,7 +147,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
     public function testItCorrectlyHandlesUserUrls(): void
     {
         // Arrange
-        User::factory()->create(['ID' => 1, 'User' => 'Scott']);
+        User::factory()->create(['id' => 1, 'username' => 'Scott']);
 
         // Act
         $result = $this->action->execute('user/Scott', [], $this->defaultProps);
@@ -165,7 +165,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
     public function testItCorrectlyHandlesNestedUserUrls(): void
     {
         // Arrange
-        User::factory()->create(['ID' => 1, 'User' => 'Scott']);
+        User::factory()->create(['id' => 1, 'username' => 'Scott']);
 
         // Act
         $result = $this->action->execute('user/Scott/progress', [], $this->defaultProps);

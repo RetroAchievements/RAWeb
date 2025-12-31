@@ -81,11 +81,11 @@ function getAchievementsList(
                 gd.image_icon_asset_path AS GameIcon,
                 gd.system_id AS ConsoleID,
                 s.name AS ConsoleName,
-                ua.User AS Author
+                ua.username AS Author
                 $selectAwardedDate
             FROM Achievements AS ach
             $joinPlayerAchievements
-            INNER JOIN UserAccounts AS ua ON ua.ID = ach.user_id
+            INNER JOIN users AS ua ON ua.id = ach.user_id
             INNER JOIN games AS gd ON gd.id = ach.GameID
             INNER JOIN systems AS s ON s.id = gd.system_id
             WHERE gd.system_id != " . System::Events . "
@@ -122,7 +122,7 @@ function getAchievementsList(
             $query .= "ORDER BY ach.TrueRatio, ach.Points DESC, GameTitle ";
             break;
         case 5:
-            $query .= "ORDER BY ua.User ";
+            $query .= "ORDER BY ua.username ";
             break;
         case 6:
             $query .= "ORDER BY GameTitle ";
@@ -149,7 +149,7 @@ function getAchievementsList(
             $query .= "ORDER BY ach.TrueRatio DESC, ach.Points, GameTitle ";
             break;
         case 15:
-            $query .= "ORDER BY ua.User DESC ";
+            $query .= "ORDER BY ua.username DESC ";
             break;
         case 16:
             $query .= "ORDER BY GameTitle DESC ";

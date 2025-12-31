@@ -10,12 +10,12 @@ use App\Models\User;
 
 <?php
 /** @var ?User $user */
-$sessionGame = $user?->LastGameID
-    ? Game::with('system')->find($user->LastGameID)
+$sessionGame = $user?->rich_presence_game_id
+    ? Game::with('system')->find($user->rich_presence_game_id)
     : null;
 
-$richPresenceMessage = $user?->RichPresenceMsg;
-$richPresenceDate = $user?->RichPresenceMsgDate;
+$richPresenceMessage = $user?->rich_presence;
+$richPresenceDate = $user?->rich_presence_updated_at;
 ?>
 
 @if ($sessionGame)

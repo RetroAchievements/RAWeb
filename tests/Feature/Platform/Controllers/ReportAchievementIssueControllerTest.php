@@ -28,11 +28,11 @@ class ReportAchievementIssueControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 63,
+            'preferences_bitfield' => 63,
             'Permissions' => Permissions::Registered,
-            'Created' => Carbon::now()->subWeeks(2),
+            'created_at' => Carbon::now()->subWeeks(2),
             'email_verified_at' => Carbon::parse('2013-01-01'),
-            'UnreadMessageCount' => 0,
+            'unread_messages' => 0,
         ]);
         $this->actingAs($user);
 

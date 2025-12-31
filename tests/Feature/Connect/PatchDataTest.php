@@ -40,7 +40,7 @@ class PatchDataTest extends TestCase
             'Description' => $achievement->Description,
             'MemAddr' => $achievement->MemAddr,
             'Points' => $achievement->Points,
-            'Author' => $achievement->developer->User,
+            'Author' => $achievement->developer->username,
             'Modified' => $achievement->DateModified->unix(),
             'Created' => $achievement->DateCreated->unix(),
             'BadgeName' => $achievement->BadgeName,
@@ -358,7 +358,7 @@ class PatchDataTest extends TestCase
         // if the player has played the game before, the number of players will not be incremented to calculate rarity
         // addHardcoreUnlock will create a player_game for game. need to manually create one for game2
         $playerGame = new PlayerGame([
-            'user_id' => $this->user->ID,
+            'user_id' => $this->user->id,
             'game_id' => $game->id,
         ]);
         $playerGame->save();
@@ -577,7 +577,7 @@ class PatchDataTest extends TestCase
         ]);
 
         /** @var User $author */
-        $author = User::factory()->create(['appToken' => Str::random(16)]);
+        $author = User::factory()->create(['connect_token' => Str::random(16)]);
 
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->progression()->create(['GameID' => $game->id, 'BadgeName' => '12345', 'DisplayOrder' => 1, 'user_id' => $author->id]);
@@ -912,8 +912,8 @@ class PatchDataTest extends TestCase
         // achievement author also gets the full achievement list
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('patch', [
-                'u' => $author->User,
-                't' => $author->appToken,
+                'u' => $author->username,
+                't' => $author->connect_token,
                 'm' => $gameHash->md5,
             ], credentials: false))
             ->assertStatus(200)
@@ -939,8 +939,8 @@ class PatchDataTest extends TestCase
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('patch', [
-                'u' => $author->User,
-                't' => $author->appToken,
+                'u' => $author->username,
+                't' => $author->connect_token,
                 'g' => $game->id + VirtualGameIdService::UntestedIdBase,
             ], credentials: false))
             ->assertStatus(200)

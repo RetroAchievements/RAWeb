@@ -169,7 +169,7 @@ class V1Test extends TestCase
 
         $this->get(
             $this->apiUrl('GetAchievementsEarnedBetween', [
-                'u' => $this->user->User, // !!
+                'u' => $this->user->username, // !!
                 'f' => Carbon::now()->subDay()->startOfDay()->unix(),
                 't' => Carbon::now()->addDay()->endOfDay()->unix(),
             ])
@@ -253,7 +253,7 @@ class V1Test extends TestCase
 
         $this->get(
             $this->apiUrl('GetAchievementsEarnedOnDay', [
-                'u' => $this->user->User, // !!
+                'u' => $this->user->username, // !!
                 'd' => $unlockTime->format('Y-m-d'),
             ])
         )
@@ -261,7 +261,7 @@ class V1Test extends TestCase
             ->assertJson([
                 [
                     'AchievementID' => $achievement->ID,
-                    'Author' => $this->user->User,
+                    'Author' => $this->user->username,
                     'AuthorULID' => $this->user->ulid,
                     'BadgeName' => $achievement->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement->BadgeName . '.png',
@@ -304,7 +304,7 @@ class V1Test extends TestCase
             ->assertJson([
                 [
                     'AchievementID' => $achievement->ID,
-                    'Author' => $this->user->User,
+                    'Author' => $this->user->username,
                     'AuthorULID' => $this->user->ulid,
                     'BadgeName' => $achievement->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement->BadgeName . '.png',
@@ -353,7 +353,7 @@ class V1Test extends TestCase
                     'Description' => $achievement->Description,
                     'Points' => $achievement->Points,
                     'Type' => $achievement->type,
-                    'Author' => $achievementAuthor->User,
+                    'Author' => $achievementAuthor->username,
                     'AuthorULID' => $achievementAuthor->ulid,
                 ],
                 'Console' => [
@@ -365,10 +365,10 @@ class V1Test extends TestCase
                 'TotalPlayers' => 1,
                 'Unlocks' => [
                     [
-                        'User' => $this->user->User,
+                        'User' => $this->user->username,
                         'ULID' => $this->user->ulid,
-                        'RAPoints' => $this->user->RAPoints,
-                        'RASoftcorePoints' => $this->user->RASoftcorePoints,
+                        'RAPoints' => $this->user->points_hardcore,
+                        'RASoftcorePoints' => $this->user->points,
                         'HardcoreMode' => 0,
                     ],
                 ],

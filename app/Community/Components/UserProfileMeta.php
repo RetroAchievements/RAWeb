@@ -46,7 +46,7 @@ class UserProfileMeta extends Component
 
         $developerStats = [];
         // FIXME: Uses legacy roles.
-        if ($this->userMassData['ContribCount'] > 0 || $this->user->getAttribute('Permissions') >= Permissions::JuniorDeveloper) {
+        if ($this->user->yield_unlocks > 0 || $this->user->getAttribute('Permissions') >= Permissions::JuniorDeveloper) {
             $developerStats = $this->buildDeveloperStats($this->user, $this->userMassData);
         }
 
@@ -59,7 +59,7 @@ class UserProfileMeta extends Component
             'user' => $this->user,
             'userClaims' => $this->userClaims,
             'userMassData' => $this->userMassData, // TODO: replace w/ props from user model
-            'username' => $this->user->User, // TODO: remove
+            'username' => $this->user->username, // TODO: remove
         ]);
     }
 
@@ -116,7 +116,7 @@ class UserProfileMeta extends Component
 
         // Open tickets
         $openTickets = null;
-        if ($user->ContribCount) {
+        if ($user->yield_unlocks) {
             $openTickets = array_sum(countOpenTicketsByDev($user));
         }
         $openTicketsStat = [
@@ -213,7 +213,7 @@ class UserProfileMeta extends Component
         $recentPointsEarned = $this->calculateRecentPointsEarned($user, $preferredMode);
 
         // Total games beaten
-        $gamesBeatenStats = PlayerStat::where('user_id', $user->ID)
+        $gamesBeatenStats = PlayerStat::where('user_id', $user->id)
             ->where('system_id', null)
             ->whereIn('type', [
                 PlayerStatType::GamesBeatenHardcoreDemos,
@@ -303,7 +303,7 @@ class UserProfileMeta extends Component
         int $rankType = RankType::Hardcore,
         ?int $predefinedRank = null,
     ): array {
-        $rank = $predefinedRank ?? getUserRank($user->User, $rankType);
+        $rank = $predefinedRank ?? getUserRank($user->username, $rankType);
         $numRankedUsers = countRankedUsers($rankType);
         $rankPercent = sprintf("%1.2f", ($rank / $numRankedUsers) * 100.0);
         $rankPercentLabel = $rank > 100 ? "(Top $rankPercent%)" : "";

@@ -20,10 +20,10 @@ class MessageRequest extends FormRequest
                 'max:60000',
                 new ContainsRegularCharacter(),
             ],
-            'recipient' => 'required_without:thread_id|exists:UserAccounts,display_name',
+            'recipient' => 'required_without:thread_id|exists:users,display_name',
             'thread_id' => 'nullable|integer',
             'title' => 'required_without:thread_id|string|max:255',
-            'senderUserDisplayName' => 'sometimes|string|exists:UserAccounts,display_name',
+            'senderUserDisplayName' => 'sometimes|string|exists:users,display_name',
             'rType' => [
                 'nullable',
                 Rule::enum(ModerationReportableType::class),

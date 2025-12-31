@@ -33,7 +33,7 @@ class SubmitRichPresenceTest extends TestCase
     public function testDeveloperCanSubmitRichPresence(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER);
         $this->user = $user;
 
@@ -58,7 +58,7 @@ class SubmitRichPresenceTest extends TestCase
     public function testJuniorDeveloperWithClaimCanSubmitRichPresence(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER_JUNIOR);
         $this->user = $user;
 
@@ -89,7 +89,7 @@ class SubmitRichPresenceTest extends TestCase
     public function testJuniorDeveloperAsSoleAuthorCanSubmitRichPresence(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER_JUNIOR);
         $this->user = $user;
 
@@ -120,7 +120,7 @@ class SubmitRichPresenceTest extends TestCase
     public function testJuniorDeveloperWithoutPermissionCannotSubmitRichPresence(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER_JUNIOR);
         $this->user = $user;
 
@@ -153,7 +153,7 @@ class SubmitRichPresenceTest extends TestCase
     public function testJuniorDeveloperWithMixedAuthorshipCannotSubmitRichPresence(): void
     {
         // Arrange
-        $juniorDev = User::factory()->create(['appToken' => Str::random(16)]);
+        $juniorDev = User::factory()->create(['connect_token' => Str::random(16)]);
         $juniorDev->assignRole(Role::DEVELOPER_JUNIOR);
         $this->user = $juniorDev;
 
@@ -197,7 +197,7 @@ class SubmitRichPresenceTest extends TestCase
     public function testRegularUserCannotSubmitRichPresence(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $this->user = $user;
 
         // ... no developer role! ...
@@ -229,7 +229,7 @@ class SubmitRichPresenceTest extends TestCase
     public function testInvalidCredentialsCannotSubmitRichPresence(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER);
         $this->user = $user;
 
@@ -260,7 +260,7 @@ class SubmitRichPresenceTest extends TestCase
     public function testSubmitUnchangedRichPresenceReturnsSuccessWithoutModifying(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER);
         $this->user = $user;
 
@@ -285,7 +285,7 @@ class SubmitRichPresenceTest extends TestCase
     public function testSubmitEmptyRichPresenceClearsIt(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER);
         $this->user = $user;
 
@@ -310,7 +310,7 @@ class SubmitRichPresenceTest extends TestCase
     public function testMissingDataParameterReturnsError(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER);
         $this->user = $user;
 
@@ -342,7 +342,7 @@ class SubmitRichPresenceTest extends TestCase
     public function testReturnsErrorForNonexistentGame(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER);
         $this->user = $user;
 
@@ -364,7 +364,7 @@ class SubmitRichPresenceTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER);
         $this->user = $user;
 

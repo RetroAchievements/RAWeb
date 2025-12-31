@@ -36,7 +36,7 @@ function getCodeNotes(int $gameId, array &$codeNotesOut): bool
  */
 function getCodeNoteCounts(User $user): array
 {
-    $userId = $user->ID;
+    $userId = $user->id;
 
     $retVal = [];
     $query = "SELECT gd.title as GameTitle, gd.image_icon_asset_path as GameIcon, s.name as ConsoleName, mn.game_id as GameID, COUNT(mn.game_id) as TotalNotes,

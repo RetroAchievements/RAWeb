@@ -20,7 +20,7 @@ class UserCommentControllerTest extends TestCase
     {
         // Arrange
         /** @var User $targetUser */
-        $targetUser = User::factory()->create(['User' => 'Scott']);
+        $targetUser = User::factory()->create(['username' => 'Scott']);
 
         // Act
         $response = $this->get(route('user.comment.index', ['user' => $targetUser]));
@@ -33,11 +33,11 @@ class UserCommentControllerTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $this->actingAs($user);
 
         /** @var User $targetUser */
-        $targetUser = User::factory()->create(['User' => 'Scott']);
+        $targetUser = User::factory()->create(['username' => 'Scott']);
 
         // Act
         $response = $this->get(route('user.comment.index', ['user' => $targetUser]));

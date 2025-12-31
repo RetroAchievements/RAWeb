@@ -51,9 +51,9 @@ class GetFriendListTest extends TestCase
             ]);
 
         // user2 is playing game1
-        $user2->LastGameID = $game1->id;
-        $user2->RichPresenceMsg = "Running through a forest";
-        $user2->RichPresenceMsgDate = $date1;
+        $user2->rich_presence_game_id = $game1->id;
+        $user2->rich_presence = "Running through a forest";
+        $user2->rich_presence_updated_at = $date1;
         $user2->save();
 
         // user is following user2 (legacy RP - no session)
@@ -67,8 +67,8 @@ class GetFriendListTest extends TestCase
                     [
                         'Friend' => $user2->display_name,
                         'AvatarUrl' => $user2->avatar_url,
-                        'RAPoints' => $user2->points,
-                        'LastSeen' => $user2->RichPresenceMsg,
+                        'RAPoints' => $user2->points_hardcore,
+                        'LastSeen' => $user2->rich_presence,
                         'LastSeenTime' => $date1->unix(),
                         'LastGameId' => $game1->id,
                         'LastGameTitle' => $game1->title,
@@ -78,22 +78,22 @@ class GetFriendListTest extends TestCase
             ]);
 
         // user3 is playing game2
-        $user3->LastGameID = $game2->id;
-        $user3->RichPresenceMsg = "Killing everything";
-        $user3->RichPresenceMsgDate = $date2->clone()->subMinutes(45);
+        $user3->rich_presence_game_id = $game2->id;
+        $user3->rich_presence = "Killing everything";
+        $user3->rich_presence_updated_at = $date2->clone()->subMinutes(45);
         $user3->save();
 
         PlayerSession::factory()->create([
-            'user_id' => $user3->ID,
+            'user_id' => $user3->id,
             'game_id' => $game2->id,
             'rich_presence' => "Titles",
             'rich_presence_updated_at' => $date2,
         ]);
 
         // user4 is playing game2
-        $user4->LastGameID = $game2->id;
-        $user4->RichPresenceMsg = "Killing everything";
-        $user4->RichPresenceMsgDate = $date3;
+        $user4->rich_presence_game_id = $game2->id;
+        $user4->rich_presence = "Killing everything";
+        $user4->rich_presence_updated_at = $date3;
         $user4->setAttribute('Permissions', Permissions::Banned);
         $user4->save();
 
@@ -111,7 +111,7 @@ class GetFriendListTest extends TestCase
                     [
                         'Friend' => $user3->display_name,
                         'AvatarUrl' => $user3->avatar_url,
-                        'RAPoints' => $user3->points,
+                        'RAPoints' => $user3->points_hardcore,
                         'LastSeen' => "Titles",
                         'LastSeenTime' => $date2->unix(),
                         'LastGameId' => $game2->id,
@@ -121,8 +121,8 @@ class GetFriendListTest extends TestCase
                     [
                         'Friend' => $user2->display_name,
                         'AvatarUrl' => $user2->avatar_url,
-                        'RAPoints' => $user2->points,
-                        'LastSeen' => $user2->RichPresenceMsg,
+                        'RAPoints' => $user2->points_hardcore,
+                        'LastSeen' => $user2->rich_presence,
                         'LastSeenTime' => $date1->unix(),
                         'LastGameId' => $game1->id,
                         'LastGameTitle' => $game1->title,
@@ -132,16 +132,16 @@ class GetFriendListTest extends TestCase
             ]);
 
         // user5 is playing game2
-        $user5->LastGameID = $game2->id;
-        $user5->RichPresenceMsg = "Killing everything";
-        $user5->RichPresenceMsgDate = $date3;
+        $user5->rich_presence_game_id = $game2->id;
+        $user5->rich_presence = "Killing everything";
+        $user5->rich_presence_updated_at = $date3;
         $user5->save();
 
         // user5 is following user (inverse relationship)
         changeFriendStatus($user5, $this->user, UserRelationStatus::Following);
 
         // user6 has no activity
-        $user6->LastLogin = $date3;
+        $user6->last_activity_at = $date3;
         $user6->save();
 
         // user is following user6 (legacy RP - no session)
@@ -155,7 +155,7 @@ class GetFriendListTest extends TestCase
                     [
                         'Friend' => $user6->display_name,
                         'AvatarUrl' => $user6->avatar_url,
-                        'RAPoints' => $user6->points,
+                        'RAPoints' => $user6->points_hardcore,
                         'LastSeen' => 'Unknown',
                         'LastSeenTime' => $date3->unix(),
                         'LastGameId' => null,
@@ -165,7 +165,7 @@ class GetFriendListTest extends TestCase
                     [
                         'Friend' => $user3->display_name,
                         'AvatarUrl' => $user3->avatar_url,
-                        'RAPoints' => $user3->points,
+                        'RAPoints' => $user3->points_hardcore,
                         'LastSeen' => "Titles",
                         'LastSeenTime' => $date2->unix(),
                         'LastGameId' => $game2->id,
@@ -175,8 +175,8 @@ class GetFriendListTest extends TestCase
                     [
                         'Friend' => $user2->display_name,
                         'AvatarUrl' => $user2->avatar_url,
-                        'RAPoints' => $user2->points,
-                        'LastSeen' => $user2->RichPresenceMsg,
+                        'RAPoints' => $user2->points_hardcore,
+                        'LastSeen' => $user2->rich_presence,
                         'LastSeenTime' => $date1->unix(),
                         'LastGameId' => $game1->id,
                         'LastGameTitle' => $game1->title,
@@ -186,9 +186,9 @@ class GetFriendListTest extends TestCase
             ]);
 
         // user6 is playing game 2
-        $user6->LastGameID = $game2->id;
-        $user6->RichPresenceMsg = "Killing everything";
-        $user6->RichPresenceMsgDate = $date3;
+        $user6->rich_presence_game_id = $game2->id;
+        $user6->rich_presence = "Killing everything";
+        $user6->rich_presence_updated_at = $date3;
         $user6->save();
 
         // user has stopped following user2
@@ -205,8 +205,8 @@ class GetFriendListTest extends TestCase
                     [
                         'Friend' => $user6->display_name,
                         'AvatarUrl' => $user6->avatar_url,
-                        'RAPoints' => $user6->points,
-                        'LastSeen' => $user6->RichPresenceMsg,
+                        'RAPoints' => $user6->points_hardcore,
+                        'LastSeen' => $user6->rich_presence,
                         'LastSeenTime' => $date3->unix(),
                         'LastGameId' => $game2->id,
                         'LastGameTitle' => $game2->title,
@@ -219,8 +219,8 @@ class GetFriendListTest extends TestCase
     public function testSqlLeak(): void
     {
         // change the column name to force a query failure
-        Schema::table('UserAccounts', function (Blueprint $table) {
-            $table->renameColumn('RichPresenceMsg', 'broken');
+        Schema::table('users', function (Blueprint $table) {
+            $table->renameColumn('rich_presence', 'broken');
         });
 
         $response = $this->get($this->apiUrl('getfriendlist'))

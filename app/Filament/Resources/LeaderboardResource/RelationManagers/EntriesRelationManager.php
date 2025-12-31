@@ -44,7 +44,7 @@ class EntriesRelationManager extends RelationManager
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->whereHas('user', function (Builder $subQuery) use ($search) {
                             return $subQuery->where('display_name', 'LIKE', "%{$search}%")
-                                ->orWhere('User', 'LIKE', "%{$search}%");
+                                ->orWhere('username', 'LIKE', "%{$search}%");
                         });
                     }),
 

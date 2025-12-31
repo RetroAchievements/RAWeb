@@ -85,7 +85,7 @@ class GameApiControllerTest extends TestCase
         // Arrange
         $this->seed(RolesTableSeeder::class);
 
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::DEVELOPER);
         $this->actingAs($user);
 
@@ -118,7 +118,7 @@ class GameApiControllerTest extends TestCase
         // Arrange
         $this->seed(RolesTableSeeder::class);
 
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::DEVELOPER_JUNIOR); // !! jrdevs shouldn't be able to do this
         $this->actingAs($user);
 

@@ -108,7 +108,7 @@ class Comment extends BaseModel
         // Don't index user wall comments if the wall owner has disabled their wall or is banned.
         if ($this->ArticleType === ArticleType::User) {
             $wallOwner = User::find($this->ArticleID);
-            if (!$wallOwner || !$wallOwner->UserWallActive || $wallOwner->isBanned()) {
+            if (!$wallOwner || !$wallOwner->is_user_wall_active || $wallOwner->isBanned()) {
                 return false;
             }
         }
@@ -175,7 +175,7 @@ class Comment extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID')->withDefault(['username' => 'Deleted User', 'display_name' => 'Deleted User']);
+        return $this->belongsTo(User::class, 'user_id')->withDefault(['username' => 'Deleted User', 'display_name' => 'Deleted User']);
     }
 
     /**
@@ -183,7 +183,7 @@ class Comment extends BaseModel
      */
     public function userWithTrashed(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID')
+        return $this->belongsTo(User::class, 'user_id')
             ->withTrashed()
             ->withDefault(['username' => 'Deleted User', 'display_name' => 'Deleted User']);
     }

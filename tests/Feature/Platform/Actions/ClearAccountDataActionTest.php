@@ -39,7 +39,7 @@ class ClearAccountDataActionTest extends TestCase
         /** @var User $user2 */
         $user2 = User::factory()->create();
 
-        $this->assertNotEquals('', $user2->EmailAddress);
+        $this->assertNotEquals('', $user2->email);
 
         UserRelation::create([
             'user_id' => $user1->id,
@@ -112,6 +112,6 @@ class ClearAccountDataActionTest extends TestCase
         $this->assertEquals(0, PlayerStat::where('user_id', $user2->id)->count());
 
         $user2->refresh();
-        $this->assertEquals('', $user2->EmailAddress);
+        $this->assertEquals('', $user2->email);
     }
 }

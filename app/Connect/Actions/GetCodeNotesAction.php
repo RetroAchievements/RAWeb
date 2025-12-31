@@ -53,7 +53,7 @@ class GetCodeNotesAction extends BaseApiAction
         foreach ($memoryNotes as $memoryNote) {
             if (!empty($memoryNote->body)) { // notes used to be deleted by setting their body to be blank
                 $notes[] = [
-                    'User' => $memoryNote->user->display_name ?? $memoryNote->user->User,
+                    'User' => $memoryNote->user->display_name ?? $memoryNote->user->username,
                     'Address' => sprintf("0x%06x", $memoryNote->address),
                     'Note' => $memoryNote->body,
                 ];

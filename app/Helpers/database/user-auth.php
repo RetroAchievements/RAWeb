@@ -12,8 +12,8 @@ function changePassword(string $username, string $password): string
 
     $user = User::whereName($username)->first();
 
-    $user->Password = $hashedPassword;
-    $user->SaltedPass = '';
+    $user->password = $hashedPassword;
+    $user->legacy_salted_password = '';
     $user->saveQuietly();
 
     PasswordResetToken::where('user_id', $user->id)->delete();
@@ -48,7 +48,7 @@ function authenticateFromCookie(
 
     $userDetailsOut = $user->toArray();
     $userDetailsOut['isMuted'] = $user->isMuted;
-    $userOut = $user->getAttribute('User');
+    $userOut = $user->username;
     $permissionsOut = $user->getAttribute('Permissions');
 
     if ($permissionsOut === Permissions::Banned) {
@@ -90,7 +90,7 @@ function authenticateFromAppToken(
     $user = auth('connect-token')->user();
 
     $doesUsernameMatch = $user && (
-        strcasecmp($user->User, $userOut) == 0
+        strcasecmp($user->username, $userOut) == 0
         || strcasecmp($user->display_name, $userOut) == 0
     );
 
@@ -98,7 +98,7 @@ function authenticateFromAppToken(
         return false;
     }
 
-    $userOut = $user->User; // always normalize to the username field
+    $userOut = $user->username; // always normalize to the username field
     /** @var int|null $permissions */
     $permissions = $user->Permissions;
     $permissionOut = $permissions;
@@ -120,7 +120,7 @@ function generateAPIKey(string $username): string
 
     $newKey = Str::random(32);
 
-    $user->APIKey = $newKey;
+    $user->web_api_key = $newKey;
     $user->saveQuietly();
 
     return $newKey;

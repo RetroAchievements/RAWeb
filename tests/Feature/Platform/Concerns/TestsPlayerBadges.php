@@ -67,7 +67,7 @@ trait TestsPlayerBadges
     {
         $this->assertTrue(
             $this->beatenBadgeExists($user, $game, $mode),
-            "No beaten badge for game " . $game->id . "/user " . $user->ID,
+            "No beaten badge for game " . $game->id . "/user " . $user->id,
         );
     }
 
@@ -75,7 +75,7 @@ trait TestsPlayerBadges
     {
         $this->assertFalse(
             $this->beatenBadgeExists($user, $game, $mode),
-            "Found beaten badge for game " . $game->id . "/user " . $user->ID,
+            "Found beaten badge for game " . $game->id . "/user " . $user->id,
         );
     }
 
@@ -101,7 +101,7 @@ trait TestsPlayerBadges
     {
         $this->assertTrue(
             $this->masteryBadgeExists($user, $game),
-            "No mastery badge for game " . $game->id . "/user " . $user->ID,
+            "No mastery badge for game " . $game->id . "/user " . $user->id,
         );
     }
 
@@ -109,7 +109,7 @@ trait TestsPlayerBadges
     {
         $this->assertFalse(
             $this->masteryBadgeExists($user, $game),
-            "Found mastery badge for game " . $game->id . "/user " . $user->ID,
+            "Found mastery badge for game " . $game->id . "/user " . $user->id,
         );
     }
 
@@ -126,7 +126,7 @@ trait TestsPlayerBadges
     {
         $this->assertTrue(
             $this->completionBadgeExists($user, $game),
-            "No completion badge for game " . $game->id . "/user " . $user->ID,
+            "No completion badge for game " . $game->id . "/user " . $user->id,
         );
     }
 
@@ -134,7 +134,7 @@ trait TestsPlayerBadges
     {
         $this->assertFalse(
             $this->completionBadgeExists($user, $game),
-            "Found completion badge for game " . $game->id . "/user " . $user->ID,
+            "Found completion badge for game " . $game->id . "/user " . $user->id,
         );
     }
 }

@@ -76,7 +76,7 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertGreaterThan(0, $game->forum_topic_id);
 
         $this->assertTrue(ForumTopicComment::where('forum_topic_id', $game->forum_topic_id)
-            ->where('author_id', $user->ID)
+            ->where('author_id', $user->id)
             ->exists()
         );
 
@@ -687,7 +687,7 @@ class AchievementSetClaimControllerTest extends TestCase
         // new forum topic should not have been created by the user
         $game->refresh();
         $this->assertFalse(ForumTopicComment::where('forum_topic_id', $game->forum_topic_id)
-            ->where('author_id', $user->ID)
+            ->where('author_id', $user->id)
             ->exists()
         );
 

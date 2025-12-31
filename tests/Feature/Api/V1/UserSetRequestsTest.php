@@ -47,7 +47,7 @@ class UserSetRequestsTest extends TestCase
         ]);
 
         $user = User::factory()->create([
-            'RAPoints' => 1501, // enough points to set request total to 1
+            'points_hardcore' => 1501, // enough points to set request total to 1
         ]);
 
         // Create the first user game list entry for the set request
@@ -63,7 +63,7 @@ class UserSetRequestsTest extends TestCase
             'game_id' => $game2->id,
         ]);
 
-        $this->get($this->apiUrl('GetUserSetRequests', ['u' => $user->User, 't' => 1]))
+        $this->get($this->apiUrl('GetUserSetRequests', ['u' => $user->username, 't' => 1]))
             ->assertSuccessful()
             ->assertJson([
                 'RequestedSets' => [
@@ -106,7 +106,7 @@ class UserSetRequestsTest extends TestCase
         ]);
 
         $user = User::factory()->create([
-            'RAPoints' => 1501, // enough points to set request total to 1
+            'points_hardcore' => 1501, // enough points to set request total to 1
         ]);
 
         // Create the first user game list entry for the set request
@@ -123,7 +123,7 @@ class UserSetRequestsTest extends TestCase
         ]);
 
         // Note that only the second game is present in the assert. The code will find the first game as well but only return the game with no published achievements.
-        $this->get($this->apiUrl('GetUserSetRequests', ['u' => $user->User, 't' => 0]))
+        $this->get($this->apiUrl('GetUserSetRequests', ['u' => $user->username, 't' => 0]))
             ->assertSuccessful()
             ->assertJson([
                 'RequestedSets' => [

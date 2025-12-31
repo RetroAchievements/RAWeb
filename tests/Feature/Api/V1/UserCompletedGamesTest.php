@@ -91,7 +91,7 @@ class UserCompletedGamesTest extends TestCase
             $this->addSoftcoreUnlock($user, $ach);
         }
 
-        $this->get($this->apiUrl('GetUserCompletedGames', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserCompletedGames', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 [

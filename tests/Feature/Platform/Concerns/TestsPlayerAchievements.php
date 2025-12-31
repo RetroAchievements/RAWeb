@@ -57,7 +57,7 @@ trait TestsPlayerAchievements
         }
         $this->assertTrue(
             $query->exists(),
-            "No " . UnlockMode::toString($mode) . " unlock for achievement " . $achievement->ID . "/user " . $user->ID
+            "No " . UnlockMode::toString($mode) . " unlock for achievement " . $achievement->ID . "/user " . $user->id
         );
     }
 
@@ -79,7 +79,7 @@ trait TestsPlayerAchievements
         }
         $this->assertFalse(
             $query->exists(),
-            "Found " . UnlockMode::toString($mode) . " unlock for achievement " . $achievement->ID . "/user " . $user->ID
+            "Found " . UnlockMode::toString($mode) . " unlock for achievement " . $achievement->ID . "/user " . $user->id
         );
     }
 
@@ -97,7 +97,7 @@ trait TestsPlayerAchievements
     {
         $this->assertFalse(
             $user->playerAchievements()->where('achievement_id', $achievement->ID)->exists(),
-            "Found unlock for achievement " . $achievement->ID . "/user " . $user->ID
+            "Found unlock for achievement " . $achievement->ID . "/user " . $user->id
         );
     }
 

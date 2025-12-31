@@ -25,7 +25,7 @@ class UserGameListTest extends TestCase
     public function testSetRequestLimitNewUser(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 0, 'RASoftcorePoints' => 0]);
+        $user = User::factory()->create(['points_hardcore' => 0, 'points' => 0]);
 
         $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
@@ -38,8 +38,8 @@ class UserGameListTest extends TestCase
     public function testSetRequestLimitFromAge(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 0, 'RASoftcorePoints' => 0,
-            'Created' => Carbon::now()->subDays(370),
+        $user = User::factory()->create(['points_hardcore' => 0, 'points' => 0,
+            'created_at' => Carbon::now()->subDays(370),
         ]);
 
         $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
@@ -53,7 +53,7 @@ class UserGameListTest extends TestCase
     public function testSetRequestLimitFromAwards(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 0, 'RASoftcorePoints' => 0]);
+        $user = User::factory()->create(['points_hardcore' => 0, 'points' => 0]);
 
         /** @var System $system */
         $system = System::factory()->create(['id' => System::Events]);
@@ -74,7 +74,7 @@ class UserGameListTest extends TestCase
     public function testSetRequestLimitFromPoints(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 123456, 'RASoftcorePoints' => 0]);
+        $user = User::factory()->create(['points_hardcore' => 123456, 'points' => 0]);
 
         $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
@@ -87,7 +87,7 @@ class UserGameListTest extends TestCase
     public function testSetRequestLimitFromManyPoints(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 12345678, 'RASoftcorePoints' => 0]);
+        $user = User::factory()->create(['points_hardcore' => 12345678, 'points' => 0]);
 
         $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
@@ -100,7 +100,7 @@ class UserGameListTest extends TestCase
     public function testSetRequestLimitFromSoftcorePoints(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 23456, 'RASoftcorePoints' => 1111]);
+        $user = User::factory()->create(['points_hardcore' => 23456, 'points' => 1111]);
 
         $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
@@ -113,7 +113,7 @@ class UserGameListTest extends TestCase
     public function testSetRequestLimitFromManySoftcorePoints(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 1234, 'RASoftcorePoints' => 11111]);
+        $user = User::factory()->create(['points_hardcore' => 1234, 'points' => 11111]);
 
         $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
@@ -130,7 +130,7 @@ class UserGameListTest extends TestCase
         $now = Carbon::now()->toISOString();
 
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 10000]);
+        $user = User::factory()->create(['points_hardcore' => 10000]);
         /** @var Game $game1 */
         $game1 = Game::factory()->create();
         /** @var Game $game2 */
@@ -189,7 +189,7 @@ class UserGameListTest extends TestCase
         $now = Carbon::now()->toISOString();
 
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 10000]);
+        $user = User::factory()->create(['points_hardcore' => 10000]);
         /** @var Game $game1 */
         $game1 = Game::factory()->create();
         /** @var Game $game2 */
@@ -218,7 +218,7 @@ class UserGameListTest extends TestCase
         $now = Carbon::now()->toISOString();
 
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 2345, 'RASoftcorePoints' => 0]);
+        $user = User::factory()->create(['points_hardcore' => 2345, 'points' => 0]);
         /** @var Game $game1 */
         $game1 = Game::factory()->create();
         /** @var Game $game2 */

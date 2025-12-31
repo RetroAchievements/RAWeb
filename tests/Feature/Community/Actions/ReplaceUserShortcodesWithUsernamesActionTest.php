@@ -16,8 +16,8 @@ class ReplaceUserShortcodesWithUsernamesActionTest extends TestCase
     public function testItReplacesUserIds(): void
     {
         // Arrange
-        User::factory()->create(['ID' => 100, 'User' => 'Scott']);
-        User::factory()->create(['ID' => 101, 'User' => 'Batman']);
+        User::factory()->create(['id' => 100, 'username' => 'Scott']);
+        User::factory()->create(['id' => 101, 'username' => 'Batman']);
 
         $messageBody = "[user=100] might actually be [user=101].";
 

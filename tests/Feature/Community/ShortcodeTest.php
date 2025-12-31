@@ -195,8 +195,8 @@ final class ShortcodeTest extends TestCase
     {
         /** @var User $user */
         $user = User::factory()->create([
-            'ID' => 123,
-            'User' => 'Jamiras',
+            'id' => 123,
+            'username' => 'Jamiras',
         ]);
 
         $rawString = 'https://retroachievements.org/user/Jamiras';
@@ -585,8 +585,8 @@ final class ShortcodeTest extends TestCase
         // Arrange
         /** @var User $user */
         $user = User::factory()->create([
-            'ID' => 456,
-            'User' => 'Scott',
+            'id' => 456,
+            'username' => 'Scott',
             'display_name' => 'Scott',
         ]);
 
@@ -607,8 +607,8 @@ final class ShortcodeTest extends TestCase
         // Arrange
         /** @var User $user */
         $user = User::factory()->create([
-            'ID' => 456,
-            'User' => 'Scott',
+            'id' => 456,
+            'username' => 'Scott',
             'display_name' => 'Scott',
         ]);
 
@@ -629,13 +629,13 @@ final class ShortcodeTest extends TestCase
         // Arrange
         /** @var User $user */
         $user = User::factory()->create([
-            'ID' => 456,
-            'User' => 'Scott',
+            'id' => 456,
+            'username' => 'Scott',
             'display_name' => 'Scott',
         ]);
         $user2 = User::factory()->create([
-            'ID' => 999,
-            'User' => '456',
+            'id' => 999,
+            'username' => '456',
             'display_name' => '456',
         ]);
 
@@ -787,8 +787,8 @@ final class ShortcodeTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'ID' => 5,
-            'User' => 'TestUser',
+            'id' => 5,
+            'username' => 'TestUser',
             'display_name' => 'TestUser',
         ]);
 

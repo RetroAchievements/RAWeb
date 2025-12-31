@@ -30,9 +30,9 @@ class ResetPlayerProgressActionTest extends TestCase
     public function testResetSoftcore(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RASoftcorePoints' => 123, 'RAPoints' => 1234, 'TrueRAPoints' => 2345]);
+        $user = User::factory()->create(['points' => 123, 'points_hardcore' => 1234, 'points_weighted' => 2345]);
         /** @var User $author */
-        $author = User::factory()->create(['ContribCount' => 111, 'ContribYield' => 2222]);
+        $author = User::factory()->create(['yield_unlocks' => 111, 'yield_points' => 2222]);
         $game = $this->seedGame(withHash: false);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 5, 'TrueRatio' => 7, 'user_id' => $author->id]);
@@ -41,13 +41,13 @@ class ResetPlayerProgressActionTest extends TestCase
 
         $this->assertHasSoftcoreUnlock($user, $achievement);
         $this->assertDoesNotHaveHardcoreUnlock($user, $achievement);
-        $this->assertEquals($achievement->points, $user->RASoftcorePoints);
-        $this->assertEquals(0, $user->RAPoints);
-        $this->assertEquals(0, $user->TrueRAPoints);
+        $this->assertEquals($achievement->points, $user->points);
+        $this->assertEquals(0, $user->points_hardcore);
+        $this->assertEquals(0, $user->points_weighted);
 
         $author->refresh();
-        // $this->assertEquals(1, $author->ContribCount);
-        // $this->assertEquals($achievement->points, $author->ContribYield);
+        // $this->assertEquals(1, $author->yield_unlocks);
+        // $this->assertEquals($achievement->points, $author->yield_points);
 
         (new ResetPlayerProgressAction())->execute($user, $achievement->ID);
         $user->refresh();
@@ -56,29 +56,29 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertDoesNotHaveAnyUnlock($user, $achievement);
 
         // user points should have been adjusted
-        $this->assertEquals(0, $user->RASoftcorePoints);
-        $this->assertEquals(0, $user->RAPoints);
-        $this->assertEquals(0, $user->TrueRAPoints);
+        $this->assertEquals(0, $user->points);
+        $this->assertEquals(0, $user->points_hardcore);
+        $this->assertEquals(0, $user->points_weighted);
 
         // author contributions should have been adjusted
         $author->refresh();
-        // $this->assertEquals(0, $author->ContribCount);
-        // $this->assertEquals(0, $author->ContribYield);
+        // $this->assertEquals(0, $author->yield_unlocks);
+        // $this->assertEquals(0, $author->yield_points);
 
         // repeated call should do nothing
         (new ResetPlayerProgressAction())->execute($user, $achievement->ID);
         $this->assertDoesNotHaveAnyUnlock($user, $achievement);
-        $this->assertEquals(0, $user->RASoftcorePoints);
-        $this->assertEquals(0, $user->RAPoints);
-        $this->assertEquals(0, $user->TrueRAPoints);
+        $this->assertEquals(0, $user->points);
+        $this->assertEquals(0, $user->points_hardcore);
+        $this->assertEquals(0, $user->points_weighted);
     }
 
     public function testResetHardcore(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RASoftcorePoints' => 123, 'RAPoints' => 1234, 'TrueRAPoints' => 2345]);
+        $user = User::factory()->create(['points' => 123, 'points_hardcore' => 1234, 'points_weighted' => 2345]);
         /** @var User $author */
-        $author = User::factory()->create(['ContribCount' => 111, 'ContribYield' => 2222]);
+        $author = User::factory()->create(['yield_unlocks' => 111, 'yield_points' => 2222]);
         $game = $this->seedGame(withHash: false);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 5, 'TrueRatio' => 7, 'user_id' => $author->id]);
@@ -88,13 +88,13 @@ class ResetPlayerProgressActionTest extends TestCase
 
         $this->assertHasSoftcoreUnlock($user, $achievement);
         $this->assertHasHardcoreUnlock($user, $achievement);
-        $this->assertEquals(0, $user->RASoftcorePoints);
-        $this->assertEquals($achievement->points, $user->RAPoints);
-        $this->assertEquals($achievement->points_weighted, $user->TrueRAPoints);
+        $this->assertEquals(0, $user->points);
+        $this->assertEquals($achievement->points, $user->points_hardcore);
+        $this->assertEquals($achievement->points_weighted, $user->points_weighted);
 
         $author->refresh();
-        // $this->assertEquals(1, $author->ContribCount);
-        // $this->assertEquals($achievement->points, $author->ContribYield);
+        // $this->assertEquals(1, $author->yield_unlocks);
+        // $this->assertEquals($achievement->points, $author->yield_points);
 
         (new ResetPlayerProgressAction())->execute($user, $achievement->ID);
         $user->refresh();
@@ -103,25 +103,25 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertDoesNotHaveAnyUnlock($user, $achievement);
 
         // user points should have been adjusted
-        $this->assertEquals(0, $user->RASoftcorePoints);
-        $this->assertEquals(0, $user->RAPoints);
-        $this->assertEquals(0, $user->TrueRAPoints);
+        $this->assertEquals(0, $user->points);
+        $this->assertEquals(0, $user->points_hardcore);
+        $this->assertEquals(0, $user->points_weighted);
 
         // author contributions should have been adjusted
         $author->refresh();
-        // $this->assertEquals(0, $author->ContribCount);
-        // $this->assertEquals(0, $author->ContribYield);
+        // $this->assertEquals(0, $author->yield_unlocks);
+        // $this->assertEquals(0, $author->yield_points);
     }
 
     public function testResetAuthoredAchievement(): void
     {
         /** @var User $user */
         $user = User::factory()->create([
-            'RASoftcorePoints' => 123,
-            'RAPoints' => 1234,
-            'TrueRAPoints' => 2345,
-            'ContribCount' => 111,
-            'ContribYield' => 2222,
+            'points' => 123,
+            'points_hardcore' => 1234,
+            'points_weighted' => 2345,
+            'yield_unlocks' => 111,
+            'yield_points' => 2222,
         ]);
         $game = $this->seedGame(withHash: false);
         /** @var Achievement $achievement */
@@ -132,13 +132,13 @@ class ResetPlayerProgressActionTest extends TestCase
 
         $this->assertHasSoftcoreUnlock($user, $achievement);
         $this->assertHasHardcoreUnlock($user, $achievement);
-        $this->assertEquals(0, $user->RASoftcorePoints);
-        $this->assertEquals($achievement->points, $user->RAPoints);
-        $this->assertEquals($achievement->points_weighted, $user->TrueRAPoints);
+        $this->assertEquals(0, $user->points);
+        $this->assertEquals($achievement->points, $user->points_hardcore);
+        $this->assertEquals($achievement->points_weighted, $user->points_weighted);
 
         // contribution tallies do not include the author. expect to not be updated
-        // $this->assertEquals(0, $user->ContribCount);
-        // $this->assertEquals(0, $user->ContribYield);
+        // $this->assertEquals(0, $user->yield_unlocks);
+        // $this->assertEquals(0, $user->yield_points);
 
         (new ResetPlayerProgressAction())->execute($user, $achievement->ID);
         $user->refresh();
@@ -147,11 +147,11 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertDoesNotHaveAnyUnlock($user, $achievement);
 
         // user points should have been adjusted
-        $this->assertEquals(0, $user->RASoftcorePoints);
-        $this->assertEquals(0, $user->RAPoints);
-        $this->assertEquals(0, $user->TrueRAPoints);
-        // $this->assertEquals(0, $user->ContribCount);
-        // $this->assertEquals(0, $user->ContribYield);
+        $this->assertEquals(0, $user->points);
+        $this->assertEquals(0, $user->points_hardcore);
+        $this->assertEquals(0, $user->points_weighted);
+        // $this->assertEquals(0, $user->yield_unlocks);
+        // $this->assertEquals(0, $user->yield_points);
     }
 
     public function testResetOnlyAffectsTargetUser(): void
@@ -283,9 +283,9 @@ class ResetPlayerProgressActionTest extends TestCase
     public function testResetGame(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RASoftcorePoints' => 123, 'RAPoints' => 1234, 'TrueRAPoints' => 2345]);
+        $user = User::factory()->create(['points' => 123, 'points_hardcore' => 1234, 'points_weighted' => 2345]);
         /** @var User $author */
-        $author = User::factory()->create(['ContribCount' => 111, 'ContribYield' => 2222]);
+        $author = User::factory()->create(['yield_unlocks' => 111, 'yield_points' => 2222]);
         $game = $this->seedGame(withHash: false);
         $achievements = Achievement::factory()->published()
             ->count(PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY)
@@ -304,12 +304,12 @@ class ResetPlayerProgressActionTest extends TestCase
 
         $this->assertHasMasteryBadge($user, $game);
         $this->assertEquals(7, $user->achievements_unlocked);
-        $this->assertEquals(0, $user->RASoftcorePoints);
-        $this->assertEquals($achievements->sum('Points') + $game2Achievement->points, $user->RAPoints);
+        $this->assertEquals(0, $user->points);
+        $this->assertEquals($achievements->sum('Points') + $game2Achievement->points, $user->points_hardcore);
 
         $author->refresh();
-        // $this->assertEquals($achievements->count(), $author->ContribCount);
-        // $this->assertEquals($achievements->sum('Points'), $author->ContribYield);
+        // $this->assertEquals($achievements->count(), $author->yield_unlocks);
+        // $this->assertEquals($achievements->sum('Points'), $author->yield_points);
 
         /** @var User $user2 */
         $user2 = User::factory()->create();
@@ -333,13 +333,13 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertHasHardcoreUnlock($user, $game2Achievement);
 
         // points should have been updated
-        $this->assertEquals(0, $user->RASoftcorePoints);
-        $this->assertEquals($game2Achievement->points, $user->RAPoints);
+        $this->assertEquals(0, $user->points);
+        $this->assertEquals($game2Achievement->points, $user->points_hardcore);
 
         // author contributions should have been updated and only have user2's unlocks attributed
         $author->refresh();
-        // $this->assertEquals($user2->achievements()->count(), $author->ContribCount);
-        // $this->assertEquals($user2->achievements()->sum('Points'), $author->ContribYield);
+        // $this->assertEquals($user2->achievements()->count(), $author->yield_unlocks);
+        // $this->assertEquals($user2->achievements()->sum('Points'), $author->yield_points);
 
         // secondary user should not have been affected
         $this->assertHasHardcoreUnlock($user2, $achievements->get(0));
@@ -351,9 +351,9 @@ class ResetPlayerProgressActionTest extends TestCase
     public function testResetEventGame(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RASoftcorePoints' => 123, 'RAPoints' => 1234, 'TrueRAPoints' => 2345]);
+        $user = User::factory()->create(['points' => 123, 'points_hardcore' => 1234, 'points_weighted' => 2345]);
         /** @var User $author */
-        $author = User::factory()->create(['ContribCount' => 111, 'ContribYield' => 2222]);
+        $author = User::factory()->create(['yield_unlocks' => 111, 'yield_points' => 2222]);
         $eventSystem = System::factory()->create(['id' => System::Events]);
         $game = $this->seedGame(system: $eventSystem, withHash: false);
         $achievements = Achievement::factory()->published()
@@ -380,9 +380,9 @@ class ResetPlayerProgressActionTest extends TestCase
     public function testResetAll(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RASoftcorePoints' => 123, 'RAPoints' => 1234, 'TrueRAPoints' => 2345]);
+        $user = User::factory()->create(['points' => 123, 'points_hardcore' => 1234, 'points_weighted' => 2345]);
         /** @var User $author */
-        $author = User::factory()->create(['ContribCount' => 111, 'ContribYield' => 2222]);
+        $author = User::factory()->create(['yield_unlocks' => 111, 'yield_points' => 2222]);
         $game = $this->seedGame(withHash: false);
         $achievements = Achievement::factory()->published()
             ->count(PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY)
@@ -401,12 +401,12 @@ class ResetPlayerProgressActionTest extends TestCase
 
         $this->assertHasMasteryBadge($user, $game);
         $this->assertEquals(7, $user->achievements_unlocked);
-        $this->assertEquals(0, $user->RASoftcorePoints);
-        $this->assertEquals($achievements->sum('Points') + $game2Achievement->points, $user->RAPoints);
+        $this->assertEquals(0, $user->points);
+        $this->assertEquals($achievements->sum('Points') + $game2Achievement->points, $user->points_hardcore);
 
         $author->refresh();
-        // $this->assertEquals($user->achievements_unlocked, $author->ContribCount);
-        // $this->assertEquals($user->points, $author->ContribYield);
+        // $this->assertEquals($user->achievements_unlocked, $author->yield_unlocks);
+        // $this->assertEquals($user->points_hardcore, $author->yield_points);
 
         /** @var User $user2 */
         $user2 = User::factory()->create();
@@ -427,14 +427,14 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertDoesNotHaveAnyUnlock($user, $game2Achievement);
 
         // points should have been updated
-        $this->assertEquals(0, $user->RASoftcorePoints);
-        $this->assertEquals(0, $user->RAPoints);
-        $this->assertEquals(0, $user->TrueRAPoints);
+        $this->assertEquals(0, $user->points);
+        $this->assertEquals(0, $user->points_hardcore);
+        $this->assertEquals(0, $user->points_weighted);
 
         // author contributions should have been updated and only have user2's unlocks attributed
         $author->refresh();
-        // $this->assertEquals($user2->achievements()->count(), $author->ContribCount);
-        // $this->assertEquals($user2->achievements()->sum('Points'), $author->ContribYield);
+        // $this->assertEquals($user2->achievements()->count(), $author->yield_unlocks);
+        // $this->assertEquals($user2->achievements()->sum('Points'), $author->yield_points);
 
         // secondary user should not have been affected
         foreach ($achievements as $achievement) {
@@ -446,11 +446,11 @@ class ResetPlayerProgressActionTest extends TestCase
     public function testResetAllMultipleAuthors(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RASoftcorePoints' => 123, 'RAPoints' => 1234, 'TrueRAPoints' => 2345]);
+        $user = User::factory()->create(['points' => 123, 'points_hardcore' => 1234, 'points_weighted' => 2345]);
         /** @var User $author */
-        $author = User::factory()->create(['ContribCount' => 777, 'ContribYield' => 3333]);
+        $author = User::factory()->create(['yield_unlocks' => 777, 'yield_points' => 3333]);
         /** @var User $author2 */
-        $author2 = User::factory()->create(['ContribCount' => 111, 'ContribYield' => 2222]);
+        $author2 = User::factory()->create(['yield_unlocks' => 111, 'yield_points' => 2222]);
         $game = $this->seedGame(withHash: false);
         $achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->id, 'user_id' => $author->id, 'TrueRatio' => 0]);
         $game2 = $this->seedGame(withHash: false);
@@ -463,16 +463,16 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->addHardcoreUnlock($user, $game2Achievement);
 
         $this->assertEquals(4, $user->achievements_unlocked);
-        $this->assertEquals(0, $user->RASoftcorePoints);
-        $this->assertEquals($achievements->sum('Points') + $game2Achievement->points, $user->RAPoints);
+        $this->assertEquals(0, $user->points);
+        $this->assertEquals($achievements->sum('Points') + $game2Achievement->points, $user->points_hardcore);
 
         $author->refresh();
-        // $this->assertEquals($achievements->count(), $author->ContribCount);
-        // $this->assertEquals($achievements->sum('Points'), $author->ContribYield);
+        // $this->assertEquals($achievements->count(), $author->yield_unlocks);
+        // $this->assertEquals($achievements->sum('Points'), $author->yield_points);
 
         $author2->refresh();
-        // $this->assertEquals(1, $author2->ContribCount);
-        // $this->assertEquals($game2Achievement->points, $author2->ContribYield);
+        // $this->assertEquals(1, $author2->yield_unlocks);
+        // $this->assertEquals($game2Achievement->points, $author2->yield_points);
 
         (new ResetPlayerProgressAction())->execute($user);
         $user->refresh();
@@ -484,19 +484,19 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertDoesNotHaveAnyUnlock($user, $game2Achievement);
 
         // points should have been updated
-        $this->assertEquals(0, $user->RASoftcorePoints);
-        $this->assertEquals(0, $user->RAPoints);
-        $this->assertEquals(0, $user->TrueRAPoints);
+        $this->assertEquals(0, $user->points);
+        $this->assertEquals(0, $user->points_hardcore);
+        $this->assertEquals(0, $user->points_weighted);
 
         // author contributions should have been updated
         $author->refresh();
-        // $this->assertEquals(0, $author->ContribCount);
-        // $this->assertEquals(0, $author->ContribYield);
+        // $this->assertEquals(0, $author->yield_unlocks);
+        // $this->assertEquals(0, $author->yield_points);
 
         // secondary author contributions should have been updated
         $author2->refresh();
-        // $this->assertEquals(0, $author2->ContribCount);
-        // $this->assertEquals(0, $author2->ContribYield);
+        // $this->assertEquals(0, $author2->yield_unlocks);
+        // $this->assertEquals(0, $author2->yield_points);
     }
 
     public function testAccountResetCreatesAccountResetRecord(): void

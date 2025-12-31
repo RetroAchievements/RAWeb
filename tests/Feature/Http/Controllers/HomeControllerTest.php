@@ -314,7 +314,7 @@ class HomeControllerTest extends TestCase
             'achievements_published' => 6,
         ]);
         $user = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
 
         AchievementSetClaim::factory()->create([
@@ -356,7 +356,7 @@ class HomeControllerTest extends TestCase
             'achievements_published' => 6,
         ]);
         $user = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
 
         // Create two claims by the same user for the same game.
@@ -409,10 +409,10 @@ class HomeControllerTest extends TestCase
             'achievements_published' => 6,
         ]);
         $userOne = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
         $userTwo = User::factory()->create([
-            'User' => 'SporyTike',
+            'username' => 'SporyTike',
         ]);
 
         // Both users claim the same game.
@@ -481,7 +481,7 @@ class HomeControllerTest extends TestCase
         ];
         file_put_contents($this->logPath, implode("\n", $logEntries));
 
-        User::factory()->count(3)->create(['LastLogin' => now()->subMinutes(5)]);
+        User::factory()->count(3)->create(['last_activity_at' => now()->subMinutes(5)]);
 
         // Act
         $response = $this->get(route('home'));
@@ -515,7 +515,7 @@ class HomeControllerTest extends TestCase
             'title' => 'Sonic the Hedgehog',
         ]);
         $user = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
 
         AchievementSetClaim::factory()->create([
@@ -557,7 +557,7 @@ class HomeControllerTest extends TestCase
             'title' => 'Sonic the Hedgehog',
         ]);
         $user = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
 
         // Create two claims by the same user for the same game.
@@ -609,10 +609,10 @@ class HomeControllerTest extends TestCase
             'title' => 'Sonic the Hedgehog',
         ]);
         $userOne = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
         ]);
         $userTwo = User::factory()->create([
-            'User' => 'SporyTike',
+            'username' => 'SporyTike',
         ]);
 
         // Both users claim the same game.
@@ -669,7 +669,7 @@ class HomeControllerTest extends TestCase
     public function testItSendsSingleForumPostCorrectly(): void
     {
         // Arrange
-        $user = User::factory()->create(['User' => 'Scott']);
+        $user = User::factory()->create(['username' => 'Scott']);
 
         $topic = ForumTopic::factory()->create([
             'title' => 'Test Topic',
@@ -704,7 +704,7 @@ class HomeControllerTest extends TestCase
     public function testItFiltersForumPostsByUserPermissions(): void
     {
         // Arrange
-        $user = User::factory()->create(['User' => 'Scott']);
+        $user = User::factory()->create(['username' => 'Scott']);
 
         $publicTopic = ForumTopic::factory()->create([
             'required_permissions' => Permissions::Unregistered,
@@ -737,7 +737,7 @@ class HomeControllerTest extends TestCase
     public function testItFiltersUnauthorizedForumPosts(): void
     {
         // Arrange
-        $user = User::factory()->create(['User' => 'Scott']);
+        $user = User::factory()->create(['username' => 'Scott']);
 
         $topic = ForumTopic::factory()->create([
             'required_permissions' => Permissions::Unregistered,

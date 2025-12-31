@@ -23,7 +23,7 @@ if (!$achievement) {
 }
 
 // Only allow jr. devs to update achievement image if they are the author
-if ($permissions === Permissions::JuniorDeveloper && $user !== $achievement->developer?->User) {
+if ($permissions === Permissions::JuniorDeveloper && $user !== $achievement->developer?->username) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 

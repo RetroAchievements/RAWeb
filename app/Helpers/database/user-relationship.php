@@ -46,7 +46,7 @@ function changeFriendStatus(User $senderUser, User $targetUser, UserRelationStat
     switch ($newStatus) {
         case UserRelationStatus::Following:
             // Attempt to notify the target of the new follower.
-            if ($newRelationship && BitSet($targetUser->websitePrefs, UserPreference::EmailOn_Followed)) {
+            if ($newRelationship && BitSet($targetUser->preferences_bitfield, UserPreference::EmailOn_Followed)) {
                 // Notify the new friend of the request.
                 Mail::to($targetUser)->queue(new CommunityFriendMail($targetUser, $senderUser));
             }
@@ -79,16 +79,16 @@ function GetExtendedFriendsList(User $user): array
 {
     $friendList = $user->followedUsers()
         ->where('Permissions', '>=', Permissions::Unregistered)
-        ->whereNull('Deleted')
-        ->orderBy('RichPresenceMsgDate', 'DESC')
+        ->whereNull('deleted_at')
+        ->orderBy('rich_presence_updated_at', 'DESC')
         ->get()
         ->map(function ($friend) {
             return [
                 'User' => $friend->display_name,
                 'Friendship' => UserRelationStatus::from($friend->pivot->status)->toLegacyInteger(),
-                'LastGameID' => (int) $friend->LastGameID,
-                'LastSeen' => empty($friend->RichPresenceMsg) ? 'Unknown' : strip_tags($friend->RichPresenceMsg),
-                'LastActivityTimestamp' => $friend->RichPresenceMsgDate?->format('Y-m-d H:i:s'),
+                'LastGameID' => (int) $friend->rich_presence_game_id,
+                'LastSeen' => empty($friend->rich_presence) ? 'Unknown' : strip_tags($friend->rich_presence),
+                'LastActivityTimestamp' => $friend->rich_presence_updated_at?->format('Y-m-d H:i:s'),
             ];
         });
 
@@ -100,14 +100,14 @@ function GetFriendsSubquery(string $user, bool $includeUser = true, bool $return
     $userModel = User::whereName($user)->first();
     $userId = $userModel->id;
 
-    $selectColumn = $returnUserIds ? 'ua.ID' : 'ua.User';
+    $selectColumn = $returnUserIds ? 'ua.id' : 'ua.username';
 
-    $friendsSubquery = "SELECT $selectColumn FROM UserAccounts ua
+    $friendsSubquery = "SELECT $selectColumn FROM users ua
         JOIN (
             SELECT related_user_id FROM user_relations
             WHERE user_id = :userId AND status = :status
-        ) AS Friends1 ON Friends1.related_user_id = ua.ID
-        WHERE ua.Deleted IS NULL AND ua.Permissions >= :permissionsLevel
+        ) AS Friends1 ON Friends1.related_user_id = ua.id
+        WHERE ua.deleted_at IS NULL AND ua.Permissions >= :permissionsLevel
     ";
 
     $bindings = [
@@ -122,7 +122,7 @@ function GetFriendsSubquery(string $user, bool $includeUser = true, bool $return
     //       total for two separate queries
     $friends = [];
     foreach (legacyDbFetchAll($friendsSubquery, $bindings) as $db_entry) {
-        $friends[] = $returnUserIds ? $db_entry['ID'] : "'" . $db_entry['User'] . "'";
+        $friends[] = $returnUserIds ? $db_entry['id'] : "'" . $db_entry['username'] . "'";
     }
 
     if ($includeUser) {

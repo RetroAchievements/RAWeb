@@ -63,7 +63,7 @@ class GameCardTest extends TestCase
         $view->assertSeeText($game->title);
         $view->assertSeeText($system->name);
         $view->assertSeeText("Achievements under development");
-        $view->assertSeeText("by " . $user->User);
+        $view->assertSeeText("by " . $user->username);
     }
 
     public function testItRendersGameWithActiveCollaborationClaim(): void
@@ -74,9 +74,9 @@ class GameCardTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['id' => 1, 'system_id' => $system->id]);
         /** @var User $user1 */
-        $user1 = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'AAA']);
+        $user1 = User::factory()->create(['Permissions' => Permissions::Developer, 'username' => 'AAA']);
         /** @var User $user2 */
-        $user2 = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'BBB']);
+        $user2 = User::factory()->create(['Permissions' => Permissions::Developer, 'username' => 'BBB']);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user1->id,
@@ -103,7 +103,7 @@ class GameCardTest extends TestCase
         $view->assertSeeText($game->title);
         $view->assertSeeText($system->name);
         $view->assertSeeText("Achievements under development");
-        $view->assertSeeText("by " . $user1->User . " and " . $user2->User);
+        $view->assertSeeText("by " . $user1->username . " and " . $user2->username);
     }
 
     public function testItRendersGameWithActiveGroupCollaborationClaim(): void
@@ -114,11 +114,11 @@ class GameCardTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['id' => 1, 'system_id' => $system->id]);
         /** @var User $user1 */
-        $user1 = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'AAA']);
+        $user1 = User::factory()->create(['Permissions' => Permissions::Developer, 'username' => 'AAA']);
         /** @var User $user2 */
-        $user2 = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'BBB']);
+        $user2 = User::factory()->create(['Permissions' => Permissions::Developer, 'username' => 'BBB']);
         /** @var User $user3 */
-        $user3 = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'CCC']);
+        $user3 = User::factory()->create(['Permissions' => Permissions::Developer, 'username' => 'CCC']);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user1->id,
@@ -154,7 +154,7 @@ class GameCardTest extends TestCase
         $view->assertSeeText($game->title);
         $view->assertSeeText($system->name);
         $view->assertSeeText("Achievements under development");
-        $view->assertSeeText("by " . $user1->User . ", " . $user2->User . ", and " . $user3->User);
+        $view->assertSeeText("by " . $user1->username . ", " . $user2->username . ", and " . $user3->username);
     }
 
     public function testItRendersGameWithAchievements(): void
@@ -186,7 +186,7 @@ class GameCardTest extends TestCase
         Achievement::factory()->published()->count(6)->create(['GameID' => $game->id, 'Points' => 5]);
 
         /** @var User $user */
-        $user = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'AAA']);
+        $user = User::factory()->create(['Permissions' => Permissions::Developer, 'username' => 'AAA']);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
@@ -209,7 +209,7 @@ class GameCardTest extends TestCase
         $view->assertSeeText('30');
         $view->assertSeeText('RetroPoints');
         $view->assertSeeText("Revision in progress");
-        $view->assertSeeText("by " . $user->User);
+        $view->assertSeeText("by " . $user->username);
     }
 
     public function testItRendersRetiredGame(): void
@@ -229,7 +229,7 @@ class GameCardTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['User' => 'AAA']);
+        $user = User::factory()->create(['username' => 'AAA']);
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
@@ -257,7 +257,7 @@ class GameCardTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['User' => 'AAA']);
+        $user = User::factory()->create(['username' => 'AAA']);
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
@@ -285,7 +285,7 @@ class GameCardTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['User' => 'AAA']);
+        $user = User::factory()->create(['username' => 'AAA']);
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
@@ -313,7 +313,7 @@ class GameCardTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['User' => 'AAA']);
+        $user = User::factory()->create(['username' => 'AAA']);
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
@@ -341,7 +341,7 @@ class GameCardTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['User' => 'AAA']);
+        $user = User::factory()->create(['username' => 'AAA']);
         /** @var System $system */
         $system = System::factory()->create(['id' => 101, 'name' => 'Events']);
         /** @var Game $game */

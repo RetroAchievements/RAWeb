@@ -110,11 +110,11 @@ function getArticleComments(
     $numArticleComments = 0;
     $order = $recent ? ' DESC' : '';
 
-    $query = "SELECT SQL_CALC_FOUND_ROWS ua.User, ua.RAPoints, ua.banned_at, c.ID, c.user_id,
+    $query = "SELECT SQL_CALC_FOUND_ROWS ua.username AS User, ua.banned_at, c.ID, c.user_id,
                      c.Payload AS CommentPayload,
                      UNIX_TIMESTAMP(c.Submitted) AS Submitted, c.Edited
               FROM Comment AS c
-              LEFT JOIN UserAccounts AS ua ON ua.ID = c.user_id
+              LEFT JOIN users AS ua ON ua.id = c.user_id
               WHERE c.ArticleType=$articleTypeID AND c.ArticleID=$articleID AND c.deleted_at IS NULL
               ORDER BY c.Submitted$order, c.ID$order
               LIMIT $offset, $count";
@@ -161,19 +161,19 @@ function getLatestRichPresenceUpdates(): array
     $recentMinutes = 10;
     $permissionsCutoff = Permissions::Registered;
 
-    $ifRAPoints = ifStatement('ua.Untracked', 0, 'ua.RAPoints');
-    $ifRASoftcorePoints = ifStatement('ua.Untracked', 0, 'ua.RASoftcorePoints');
+    $ifRAPoints = ifStatement('ua.Untracked', 0, 'ua.points_hardcore');
+    $ifRASoftcorePoints = ifStatement('ua.Untracked', 0, 'ua.points');
     $timestampStatement = timestampAddMinutesStatement(-$recentMinutes);
 
-    $query = "SELECT ua.User, $ifRAPoints as RAPoints, $ifRASoftcorePoints as RASoftcorePoints,
-                     ua.RichPresenceMsg, gd.id AS GameID, gd.title AS GameTitle, gd.image_icon_asset_path AS GameIcon, s.name AS ConsoleName
-              FROM UserAccounts AS ua
-              LEFT JOIN games AS gd ON gd.id = ua.LastGameID
+    $query = "SELECT ua.username AS User, $ifRAPoints as RAPoints, $ifRASoftcorePoints as RASoftcorePoints,
+                     ua.rich_presence AS RichPresenceMsg, gd.id AS GameID, gd.title AS GameTitle, gd.image_icon_asset_path AS GameIcon, s.name AS ConsoleName
+              FROM users AS ua
+              LEFT JOIN games AS gd ON gd.id = ua.rich_presence_game_id
               LEFT JOIN systems AS s ON s.id = gd.system_id
-              WHERE ua.RichPresenceMsgDate > $timestampStatement
-                AND ua.LastGameID != 0
+              WHERE ua.rich_presence_updated_at > $timestampStatement
+                AND ua.rich_presence_game_id != 0
                 AND ua.Permissions >= $permissionsCutoff
-              ORDER BY RAPoints DESC, RASoftcorePoints DESC, ua.User ASC";
+              ORDER BY RAPoints DESC, RASoftcorePoints DESC, ua.username ASC";
 
     $dbResult = legacyDbFetchAll($query);
 

@@ -114,19 +114,19 @@ function getOwnAchievementsObtained(User $user): array
  */
 function getObtainersOfSpecificUser(User $user): array
 {
-    $query = "SELECT ua.User, COUNT(ua.User) AS ObtainCount,
+    $query = "SELECT ua.username AS User, COUNT(ua.username) AS ObtainCount,
               SUM(CASE WHEN pa.unlocked_hardcore_at IS NULL THEN 1 ELSE 0 END) AS SoftcoreCount,
               SUM(CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END) AS HardcoreCount
               FROM player_achievements AS pa
               INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
               INNER JOIN games AS gd ON gd.id = ach.GameID
-              INNER JOIN UserAccounts AS ua ON ua.ID = pa.user_id
+              INNER JOIN users AS ua ON ua.id = pa.user_id
               WHERE ach.user_id = :authorId
               AND pa.user_id != :userId
               AND ach.Flags = :achievementFlag
               AND gd.system_id NOT IN (100, 101)
               AND ua.Untracked = 0
-              GROUP BY ua.User
+              GROUP BY ua.username
               ORDER BY ObtainCount DESC";
 
     return legacyDbFetchAll($query, [
@@ -141,7 +141,7 @@ function getObtainersOfSpecificUser(User $user): array
  */
 function getRecentUnlocksForDev(User $user, int $offset = 0, int $count = 200): array
 {
-    $query = "SELECT ua.User,
+    $query = "SELECT ua.username AS User,
                      COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS Date,
                      CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode,
                      ach.ID AS AchievementID, ach.GameID, ach.Title, ach.Description,
@@ -151,7 +151,7 @@ function getRecentUnlocksForDev(User $user, int $offset = 0, int $count = 200): 
               INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
               INNER JOIN games AS gd ON gd.id = ach.GameID
               INNER JOIN systems AS s ON s.id = gd.system_id
-              INNER JOIN UserAccounts AS ua ON ua.ID = pa.user_id
+              INNER JOIN users AS ua ON ua.id = pa.user_id
               WHERE ach.user_id = :authorId
               AND gd.system_id NOT IN (100, 101)
               ORDER BY Date DESC

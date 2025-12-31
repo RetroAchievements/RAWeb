@@ -22,7 +22,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $achievement = Achievement::find($input['achievement']);
 
 // Only allow jr. devs to update base data if they are the author
-if ($permissions === Permissions::JuniorDeveloper && $user !== $achievement->developer?->User) {
+if ($permissions === Permissions::JuniorDeveloper && $user !== $achievement->developer?->username) {
     abort(403);
 }
 

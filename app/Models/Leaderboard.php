@@ -193,7 +193,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
      */
     public function developer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'author_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'author_id')->withTrashed();
     }
 
     /**

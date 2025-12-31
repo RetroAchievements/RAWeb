@@ -26,7 +26,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
     public function testItReturnsEmptyDataWhenDeveloperHasNoContent(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 100]);
+        $developer = User::factory()->create(['yield_unlocks' => 100]);
 
         // Act
         $result = (new BuildDeveloperFeedDataAction())->execute($developer);
@@ -43,7 +43,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
     public function testItCountsAwardsAcrossAllGames(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 100]);
+        $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
 
         $game1 = Game::factory()->create(['system_id' => $system->id]);
@@ -86,7 +86,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
     public function testItCountsLeaderboardEntries(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 100]);
+        $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
 
         $game = Game::factory()->create(['system_id' => $system->id]);
@@ -113,7 +113,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
     public function testItFetchesRecentUnlocksWithinThirtyDaysForSmallContributors(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 100]);
+        $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
 
@@ -145,7 +145,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
     public function testItFetchesAllRecentUnlocksForLargeContributors(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 25000]);
+        $developer = User::factory()->create(['yield_unlocks' => 25000]);
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
 
@@ -176,7 +176,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
     public function testItExcludesUntrackedPlayersFromUnlocks(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 100]);
+        $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
 
@@ -211,7 +211,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
     public function testItExcludedUntrackedPlayersFromLeaderboardEntries(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 100]);
+        $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
 
         $game = Game::factory()->create(['system_id' => $system->id]);
@@ -244,7 +244,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
     public function testItExcludedDeletedLeaderboardsFromLeaderboardEntries(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 100]);
+        $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
 
         $game = Game::factory()->create(['system_id' => $system->id]);

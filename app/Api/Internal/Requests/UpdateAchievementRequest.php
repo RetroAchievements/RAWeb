@@ -16,7 +16,7 @@ class UpdateAchievementRequest extends BaseJsonApiRequest
             'data.attributes.published' => 'nullable|boolean',
             'data.attributes.title' => 'nullable|string|max:64',
             'data.meta' => 'required|array',
-            'data.meta.actingUser' => 'required|string|exists:UserAccounts,User',
+            'data.meta.actingUser' => 'required|string|exists:users,username',
         ];
     }
 

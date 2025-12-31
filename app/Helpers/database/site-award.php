@@ -171,7 +171,7 @@ function getRecentProgressionAwardData(
     // Determine the friends condition
     $friendCondAward = "";
     if ($friendsOfUser) {
-        $friendSubquery = GetFriendsSubquery($friendsOfUser->User, returnUserIds: true);
+        $friendSubquery = GetFriendsSubquery($friendsOfUser->username, returnUserIds: true);
         $friendCondAward = "AND saw.user_id IN ($friendSubquery)";
     }
 
@@ -188,7 +188,7 @@ function getRecentProgressionAwardData(
     }
 
     $retVal = [];
-    $query = "SELECT ua.User, sub.AwardedAt, sub.AwardedAtUnix, sub.AwardType, sub.AwardData, sub.AwardDataExtra, sub.GameTitle, sub.GameID, sub.ConsoleName, sub.GameIcon
+    $query = "SELECT ua.username AS User, sub.AwardedAt, sub.AwardedAtUnix, sub.AwardType, sub.AwardData, sub.AwardDataExtra, sub.GameTitle, sub.GameID, sub.ConsoleName, sub.GameIcon
         FROM (
             SELECT
                 saw.user_id, saw.AwardDate as AwardedAt, UNIX_TIMESTAMP(saw.AwardDate) as AwardedAtUnix, saw.AwardType,
@@ -201,7 +201,7 @@ function getRecentProgressionAwardData(
             $onlyAwardTypeClause AND saw.AwardData > 0 AND $onlyUnlockModeClause $friendCondAward
             AND saw.AwardDate BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)
         ) sub
-        JOIN UserAccounts AS ua ON ua.ID = sub.user_id
+        JOIN users AS ua ON ua.id = sub.user_id
         WHERE sub.rn = 1
         ORDER BY AwardedAt DESC
         LIMIT $offset, $count";

@@ -114,25 +114,25 @@ class DeveloperSetsService
         $columns['title']['tally'] = function ($game) { return 1; };
         $columns['title']['render_tally'] = function ($value) { echo "<td><b>Total:</b> $value games</td>"; };
 
-        $columns['achievements']['tooltip'] = "The number of achievements created by {$user->User} in the set";
+        $columns['achievements']['tooltip'] = "The number of achievements created by {$user->display_name} in the set";
         $columns['achievements']['render'] = function ($game) {
             $this->renderNumberOfNumber($game, 'NumAuthoredAchievements', 'achievements_published');
         };
         $columns['achievements']['tally'] = function ($game) { return $game['NumAuthoredAchievements']; };
 
-        $columns['points']['tooltip'] = "The number of points associated to achievements created by {$user->User} in the set";
+        $columns['points']['tooltip'] = "The number of points associated to achievements created by {$user->display_name} in the set";
         $columns['points']['render'] = function ($game) {
             $this->renderNumberOfNumber($game, 'NumAuthoredPoints', 'points_total');
         };
         $columns['points']['tally'] = function ($game) { return $game['NumAuthoredPoints']; };
 
-        $columns['leaderboards']['tooltip'] = "The number of leaderboards created by {$user->User} in the set";
+        $columns['leaderboards']['tooltip'] = "The number of leaderboards created by {$user->display_name} in the set";
         $columns['leaderboards']['render'] = function ($game) {
             $this->renderNumberOfNumber($game, 'NumAuthoredLeaderboards', 'leaderboards_count');
         };
         $columns['leaderboards']['tally'] = function ($game) { return $game['NumAuthoredLeaderboards']; };
 
-        $columns['tickets']['tooltip'] = "The number of open tickets for achievements created by {$user->User} in the set";
+        $columns['tickets']['tooltip'] = "The number of open tickets for achievements created by {$user->display_name} in the set";
         $columns['tickets']['render'] = function ($game) {
             $this->renderNumberOfNumber($game, 'NumAuthoredTickets', 'NumTickets');
         };

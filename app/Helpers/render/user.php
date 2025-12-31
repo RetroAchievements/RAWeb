@@ -37,12 +37,12 @@ function userAvatar(
         );
 
         if (!$user) {
-            $user = ['User' => $username, 'Deleted' => 'yes'];
+            $user = ['username' => $username, 'Deleted' => 'yes'];
         }
     }
 
-    $username = $user['User'] ?? null;
-    $displayName = $user['display_name'] ?? $user['User'] ?? null;
+    $username = $user['username'] ?? null;
+    $displayName = $user['display_name'] ?? $user['username'] ?? null;
 
     if ($user['Deleted'] ?? false) {
         $userSanitized = $displayName;

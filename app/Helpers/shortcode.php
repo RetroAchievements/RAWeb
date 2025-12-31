@@ -66,7 +66,7 @@ function convertUserUrlsToShortcodes(string $input): string
 
     // Map usernames to their corresponding IDs.
     $usernames = array_unique($matches[1]);
-    $users = User::whereIn('User', $usernames)->get()->keyBy('User');
+    $users = User::whereIn('username', $usernames)->get()->keyBy('username');
 
     // Replace URLs with shortcodes.
     foreach ($matches[1] as $username) {

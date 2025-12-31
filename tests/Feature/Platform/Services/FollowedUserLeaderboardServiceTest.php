@@ -54,7 +54,7 @@ class FollowedUserLeaderboardServiceTest extends TestCase
     public function testItBuildsFollowedUserStats(): void
     {
         // Arrange
-        $user = User::factory()->create(['RAPoints' => 125]);
+        $user = User::factory()->create(['points_hardcore' => 125]);
         $followedUsers = User::factory()->count(3)->create();
 
         // Have $user follow all the $followedUsers.
@@ -82,7 +82,7 @@ class FollowedUserLeaderboardServiceTest extends TestCase
                 'value' => $stats[$index]['week'],
             ]);
             $followedUser->update([
-                'RAPoints' => $stats[$index]['alltime'],
+                'points_hardcore' => $stats[$index]['alltime'],
             ]);
         }
 

@@ -71,7 +71,7 @@ class AchievementSetClaimTest extends TestCase
                     'Special' => ClaimSpecial::None,
                     'Status' => ClaimStatus::Complete,
                     'Updated' => $claim->Updated->__toString(),
-                    'User' => $user->User,
+                    'User' => $user->username,
                     'ULID' => $user->ulid,
                     'UserIsJrDev' => 0,
                 ],
@@ -114,7 +114,7 @@ class AchievementSetClaimTest extends TestCase
                     'Special' => ClaimSpecial::None,
                     'Status' => ClaimStatus::Dropped,
                     'Updated' => $claim->Updated->__toString(),
-                    'User' => $user->User,
+                    'User' => $user->username,
                     'ULID' => $user->ulid,
                     'UserIsJrDev' => 1,
                 ],
@@ -156,7 +156,7 @@ class AchievementSetClaimTest extends TestCase
             'game_id' => $game->id,
         ]);
 
-        $this->get($this->apiUrl('GetUserClaims', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserClaims', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 [
@@ -174,7 +174,7 @@ class AchievementSetClaimTest extends TestCase
                     'Special' => ClaimSpecial::None,
                     'Status' => ClaimStatus::Active,
                     'Updated' => $claim->Updated->__toString(),
-                    'User' => $user->User,
+                    'User' => $user->username,
                     'ULID' => $user->ulid,
                     'UserIsJrDev' => 0,
                 ],

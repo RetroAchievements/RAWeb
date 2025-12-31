@@ -49,12 +49,12 @@ class UserClaimsTest extends TestCase
             'game_id' => $game->id,
         ]);
 
-        $this->get($this->apiUrl('GetUserClaims', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserClaims', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 [
                     'ID' => $claim->ID,
-                    'User' => $user->User,
+                    'User' => $user->username,
                     'ULID' => $user->ulid,
                     'GameID' => $game->id,
                     'GameTitle' => $game->title,
@@ -96,7 +96,7 @@ class UserClaimsTest extends TestCase
             ->assertJson([
                 [
                     'ID' => $claim->ID,
-                    'User' => $user->User,
+                    'User' => $user->username,
                     'ULID' => $user->ulid,
                     'GameID' => $game->id,
                     'GameTitle' => $game->title,

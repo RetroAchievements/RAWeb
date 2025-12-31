@@ -79,14 +79,14 @@ class AwardAchievementTest extends TestCase
         $this->assertModelExists($playerSession1);
 
         // cache the unlocks for the game - verify singular unlock captured
-        $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->id);
+        $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
         $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
 
         // do the hardcore unlock
         $validationHash = $this->buildValidationHash($achievement3, $this->user, 1);
-        $scoreBefore = $this->user->RAPoints;
-        $softcoreScoreBefore = $this->user->RASoftcorePoints;
-        $truePointsBefore = $this->user->TrueRAPoints;
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+        $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
@@ -127,20 +127,20 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($playerAchievement->player_session_id, $playerSession2->id);
 
         // player score should have increased
-        $user1 = User::whereName($this->user->User)->first();
-        $this->assertEquals($scoreBefore + $achievement3->Points, $user1->RAPoints);
-        $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($scoreBefore + $achievement3->Points, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
-        $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->id);
+        $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
         $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
 
         // repeat the hardcore unlock
-        $scoreBefore = $user1->RAPoints;
-        $softcoreScoreBefore = $user1->RASoftcorePoints;
-        $truePointsBefore = $user1->TrueRAPoints;
+        $scoreBefore = $user1->points_hardcore;
+        $softcoreScoreBefore = $user1->points;
+        $truePointsBefore = $user1->points_weighted;
 
         $newNow = $now->clone()->addMinutes(5);
         Carbon::setTestNow($newNow);
@@ -159,10 +159,10 @@ class AwardAchievementTest extends TestCase
             ]);
 
         // player score should not have increased
-        $user2 = User::whereName($this->user->User)->first();
-        $this->assertEquals($scoreBefore, $user2->RAPoints);
-        $this->assertEquals($softcoreScoreBefore, $user2->RASoftcorePoints);
-        $this->assertEquals($truePointsBefore, $user2->TrueRAPoints);
+        $user2 = User::whereName($this->user->username)->first();
+        $this->assertEquals($scoreBefore, $user2->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $user2->points);
+        $this->assertEquals($truePointsBefore, $user2->points_weighted);
 
         // make sure the unlock time didn't change
         $unlockTime = $this->getUnlockTime($user2, $achievement3, UnlockMode::Hardcore);
@@ -235,14 +235,14 @@ class AwardAchievementTest extends TestCase
         $this->addSoftcoreUnlock($this->user, $achievement6, $unlock1Date);
 
         // cache the unlocks for the game - verify singular unlock captured
-        $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->id);
+        $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
         $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
 
         // do the softcore unlock
         $validationHash = $this->buildValidationHash($achievement3, $this->user, 0);
-        $scoreBefore = $this->user->RAPoints;
-        $softcoreScoreBefore = $this->user->RASoftcorePoints;
-        $truePointsBefore = $this->user->TrueRAPoints;
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+        $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
@@ -257,19 +257,19 @@ class AwardAchievementTest extends TestCase
 
         // player score should have increased
         $user1 = $this->user;
-        $this->assertEquals($scoreBefore, $user1->RAPoints);
-        $this->assertEquals($softcoreScoreBefore + $achievement3->Points, $user1->RASoftcorePoints);
-        $this->assertEquals($truePointsBefore, $user1->TrueRAPoints);
+        $this->assertEquals($scoreBefore, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore + $achievement3->Points, $user1->points);
+        $this->assertEquals($truePointsBefore, $user1->points_weighted);
 
         // make sure the unlock cache was updated
-        $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->id);
+        $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
         $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
         $this->assertArrayNotHasKey('DateEarnedHardcore', $unlocks[$achievement3->ID]);
 
         // repeat the softcore unlock
-        $scoreBefore = $user1->RAPoints;
-        $softcoreScoreBefore = $user1->RASoftcorePoints;
+        $scoreBefore = $user1->points_hardcore;
+        $softcoreScoreBefore = $user1->points;
 
         $newNow = $now->clone()->addMinutes(5);
         Carbon::setTestNow($newNow);
@@ -288,10 +288,10 @@ class AwardAchievementTest extends TestCase
             ]);
 
         // player score should not have increased
-        $user2 = User::whereName($this->user->User)->first();
-        $this->assertEquals($scoreBefore, $user2->RAPoints);
-        $this->assertEquals($softcoreScoreBefore, $user2->RASoftcorePoints);
-        $this->assertEquals($truePointsBefore, $user2->TrueRAPoints);
+        $user2 = User::whereName($this->user->username)->first();
+        $this->assertEquals($scoreBefore, $user2->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $user2->points);
+        $this->assertEquals($truePointsBefore, $user2->points_weighted);
 
         // make sure the unlock time didn't change
         $unlockTime = $this->getUnlockTime($user2, $achievement3, UnlockMode::Softcore);
@@ -300,8 +300,8 @@ class AwardAchievementTest extends TestCase
 
         // do the hardcore unlock
         $validationHash = $this->buildValidationHash($achievement3, $this->user, 1);
-        $scoreBefore = $user1->RAPoints;
-        $softcoreScoreBefore = $user1->RASoftcorePoints;
+        $scoreBefore = $user1->points_hardcore;
+        $softcoreScoreBefore = $user1->points;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
@@ -316,11 +316,11 @@ class AwardAchievementTest extends TestCase
 
         // player score should have adjusted
         $user2 = $this->user;
-        $this->assertEquals($scoreBefore + $achievement3->Points, $user2->RAPoints);
-        $this->assertEquals($softcoreScoreBefore - $achievement3->Points, $user2->RASoftcorePoints);
+        $this->assertEquals($scoreBefore + $achievement3->Points, $user2->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore - $achievement3->Points, $user2->points);
 
         // make sure the unlock cache was updated
-        $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->id);
+        $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
         $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
         $this->assertEquals($newNow, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
@@ -332,8 +332,8 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($newNow, $unlockTime);
 
         // unlock the rest of the set
-        $scoreBefore = $user2->RAPoints;
-        $softcoreScoreBefore = $user2->RASoftcorePoints;
+        $scoreBefore = $user2->points_hardcore;
+        $softcoreScoreBefore = $user2->points;
 
         $validationHash = $this->buildValidationHash($achievement2, $this->user, 0);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
@@ -378,11 +378,11 @@ class AwardAchievementTest extends TestCase
         $gameOne = $this->seedGame(system: $standalonesSystem, withHash: false);
 
         /** @var User $integrationUser */
-        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
         /** @var User $delegatedUser */
-        $delegatedUser = User::factory()->create(['User' => 'Username', 'Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $delegatedUser = User::factory()->create(['username' => 'Username', 'Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
-        $delegatedUser->LastGameID = $gameOne->id;
+        $delegatedUser->rich_presence_game_id = $gameOne->id;
         $delegatedUser->save();
 
         /** @var Achievement $achievement1 */
@@ -412,18 +412,18 @@ class AwardAchievementTest extends TestCase
         $this->assertModelExists($playerSession1);
 
         // cache the unlocks for the game - verify singular unlock captured
-        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $gameOne->id);
+        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $gameOne->id);
         $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
 
         // do the delegated hardcore unlock
-        $scoreBefore = $delegatedUser->RAPoints;
-        $softcoreScoreBefore = $delegatedUser->RASoftcorePoints;
+        $scoreBefore = $delegatedUser->points_hardcore;
+        $softcoreScoreBefore = $delegatedUser->points;
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'awardachievement',
-            'k' => $delegatedUser->User,
+            'k' => $delegatedUser->username,
             'h' => 1,
             'a' => $achievement3->ID,
             'v' => '62c47b9fba313855ff8a09673780bb35',
@@ -467,12 +467,12 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($playerAchievement->player_session_id, $playerSession2->id);
 
         // player score should have increased
-        $user1 = User::whereName($delegatedUser->User)->first();
-        $this->assertEquals($scoreBefore + $achievement3->Points, $user1->RAPoints);
-        $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
+        $user1 = User::whereName($delegatedUser->username)->first();
+        $this->assertEquals($scoreBefore + $achievement3->Points, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
-        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $gameOne->id);
+        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $gameOne->id);
         $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
@@ -516,10 +516,10 @@ class AwardAchievementTest extends TestCase
 
         // Next, try a GET call, which should be blocked.
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'awardachievement',
-            'k' => $delegatedUser->User,
+            'k' => $delegatedUser->username,
             'h' => 1,
             'a' => $achievement3->ID,
         ];
@@ -535,10 +535,10 @@ class AwardAchievementTest extends TestCase
 
         // Next, try a call that doesn't include a validation hash. This should fail.
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'awardachievement',
-            'k' => $delegatedUser->User,
+            'k' => $delegatedUser->username,
             'h' => 1,
             'a' => $achievement3->ID,
         ];
@@ -565,11 +565,11 @@ class AwardAchievementTest extends TestCase
         $gameOne = $this->seedGame(system: $standalonesSystem, withHash: false);
 
         /** @var User $integrationUser */
-        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
         /** @var User $delegatedUser */
-        $delegatedUser = User::factory()->create(['User' => 'Username', 'Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $delegatedUser = User::factory()->create(['username' => 'Username', 'Permissions' => Permissions::Registered, 'connect_token' => Str::random(16)]);
 
-        $delegatedUser->LastGameID = $gameOne->id;
+        $delegatedUser->rich_presence_game_id = $gameOne->id;
         $delegatedUser->save();
 
         /** @var Achievement $achievement1 */
@@ -599,16 +599,16 @@ class AwardAchievementTest extends TestCase
         $this->assertModelExists($playerSession1);
 
         // cache the unlocks for the game - verify singular unlock captured
-        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $gameOne->id);
+        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $gameOne->id);
         $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
 
         // do the delegated hardcore unlock
-        $scoreBefore = $delegatedUser->RAPoints;
-        $softcoreScoreBefore = $delegatedUser->RASoftcorePoints;
+        $scoreBefore = $delegatedUser->points_hardcore;
+        $softcoreScoreBefore = $delegatedUser->points;
 
         $params = [
-            'u' => $integrationUser->User,
-            't' => $integrationUser->appToken,
+            'u' => $integrationUser->username,
+            't' => $integrationUser->connect_token,
             'r' => 'awardachievement',
             'k' => $delegatedUser->ulid, // !!
             'h' => 1,
@@ -654,12 +654,12 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($playerAchievement->player_session_id, $playerSession2->id);
 
         // player score should have increased
-        $user1 = User::whereName($delegatedUser->User)->first();
-        $this->assertEquals($scoreBefore + $achievement3->Points, $user1->RAPoints);
-        $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
+        $user1 = User::whereName($delegatedUser->username)->first();
+        $this->assertEquals($scoreBefore + $achievement3->Points, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
-        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $gameOne->id);
+        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $gameOne->id);
         $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
@@ -696,9 +696,9 @@ class AwardAchievementTest extends TestCase
         // do the hardcore unlock
         $offset = 30;
         $validationHash = $this->buildValidationHash($achievement3, $this->user, 1, $offset);
-        $scoreBefore = $this->user->RAPoints;
-        $softcoreScoreBefore = $this->user->RASoftcorePoints;
-        $truePointsBefore = $this->user->TrueRAPoints;
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+        $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
@@ -839,10 +839,10 @@ class AwardAchievementTest extends TestCase
         $unlock1Date = $now->clone()->subMinutes(65);
         $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date);
 
-        $scoreBefore = $this->user->RAPoints;
-        $softcoreScoreBefore = $this->user->RASoftcorePoints;
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
 
-        $validationHash = md5('999999' . $this->user->User . '1');
+        $validationHash = md5('999999' . $this->user->username . '1');
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('awardachievement', ['a' => 999999, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
@@ -865,9 +865,9 @@ class AwardAchievementTest extends TestCase
             ]);
 
        // player score should not have adjusted
-       $user1 = User::whereName($this->user->User)->first();
-       $this->assertEquals($scoreBefore, $user1->RAPoints);
-       $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
+       $user1 = User::whereName($this->user->username)->first();
+       $this->assertEquals($scoreBefore, $user1->points_hardcore);
+       $this->assertEquals($softcoreScoreBefore, $user1->points);
     }
 
     public function testHardcoreEventUnlock(): void
@@ -921,9 +921,9 @@ class AwardAchievementTest extends TestCase
 
         // do the hardcore unlock
         $validationHash = $this->buildValidationHash($achievement1, $this->user, 1);
-        $scoreBefore = $this->user->RAPoints;
-        $softcoreScoreBefore = $this->user->RASoftcorePoints;
-        $truePointsBefore = $this->user->TrueRAPoints;
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+        $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('awardachievement', ['a' => $achievement1->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
@@ -943,9 +943,9 @@ class AwardAchievementTest extends TestCase
         $this->assertHasHardcoreUnlock($this->user, $eventAchievement1);
 
         // player score should not have increased
-        $user1 = User::whereName($this->user->User)->first();
-        $this->assertEquals($scoreBefore, $user1->RAPoints);
-        $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
+        $user1 = User::whereName($this->user->username)->first();
+        $this->assertEquals($scoreBefore, $user1->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore, $user1->points);
 
         /** @var Achievement $eventAchievement2 */
         $eventAchievement2 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
@@ -958,9 +958,9 @@ class AwardAchievementTest extends TestCase
 
         // softcore unlock (user has neither event achievement nor source achievement unlocked)
         $validationHash = $this->buildValidationHash($achievement2, $this->user, 0);
-        $scoreBefore = $this->user->RAPoints;
-        $softcoreScoreBefore = $this->user->RASoftcorePoints;
-        $truePointsBefore = $this->user->TrueRAPoints;
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
+        $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
@@ -974,9 +974,9 @@ class AwardAchievementTest extends TestCase
 
         // player score updated
         $this->user->refresh();
-        $this->assertEquals($scoreBefore, $this->user->RAPoints);
-        $this->assertEquals($softcoreScoreBefore + $achievement2->Points, $this->user->RASoftcorePoints);
-        $softcoreScoreBefore = $this->user->RASoftcorePoints;
+        $this->assertEquals($scoreBefore, $this->user->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore + $achievement2->Points, $this->user->points);
+        $softcoreScoreBefore = $this->user->points;
 
         // event achievement not unlocked
         $this->assertDoesNotHaveAnyUnlock($this->user, $eventAchievement2);
@@ -996,10 +996,10 @@ class AwardAchievementTest extends TestCase
 
         // player score updated
         $this->user->refresh();
-        $this->assertEquals($scoreBefore + $achievement2->Points, $this->user->RAPoints);
-        $this->assertEquals($softcoreScoreBefore - $achievement2->Points, $this->user->RASoftcorePoints);
-        $scoreBefore = $this->user->RAPoints;
-        $softcoreScoreBefore = $this->user->RASoftcorePoints;
+        $this->assertEquals($scoreBefore + $achievement2->Points, $this->user->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore - $achievement2->Points, $this->user->points);
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
 
         // achievement unlocked
         $this->assertHasHardcoreUnlock($this->user, $eventAchievement2);
@@ -1055,8 +1055,8 @@ class AwardAchievementTest extends TestCase
         // force an achievement unlock to reconstruct the user state (primarily his points)
         (new UnlockPlayerAchievementAction())->execute($this->user, $achievement6, true);
         $this->user->refresh();
-        $scoreBefore = $this->user->RAPoints;
-        $softcoreScoreBefore = $this->user->RASoftcorePoints;
+        $scoreBefore = $this->user->points_hardcore;
+        $softcoreScoreBefore = $this->user->points;
 
         // no user agent (unlock demoted to softcore)
         $validationHash = $this->buildValidationHash($achievement1, $this->user, 1);
@@ -1067,7 +1067,7 @@ class AwardAchievementTest extends TestCase
                 'AchievementID' => $achievement1->ID,
                 'AchievementsRemaining' => 5,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $this->user->RASoftcorePoints + $achievement1->Points,
+                'SoftcoreScore' => $this->user->points + $achievement1->Points,
             ]);
         $softcoreScoreBefore += $achievement1->Points;
 
@@ -1159,7 +1159,7 @@ class AwardAchievementTest extends TestCase
         // force an achievement unlock to reconstruct the user state (primarily his points)
         (new UnlockPlayerAchievementAction())->execute($this->user, $achievement6, false);
         $this->user->refresh();
-        $scoreBefore = $this->user->RASoftcorePoints;
+        $scoreBefore = $this->user->points;
 
         // no user agent
         $validationHash = $this->buildValidationHash($achievement1, $this->user, 0);
@@ -1169,7 +1169,7 @@ class AwardAchievementTest extends TestCase
                 'Success' => true,
                 'AchievementID' => $achievement1->ID,
                 'AchievementsRemaining' => 5,
-                'Score' => $this->user->RAPoints,
+                'Score' => $this->user->points_hardcore,
                 'SoftcoreScore' => $scoreBefore + $achievement1->Points,
             ]);
         $scoreBefore += $achievement1->Points;
@@ -1183,7 +1183,7 @@ class AwardAchievementTest extends TestCase
                 'Success' => true,
                 'AchievementID' => $achievement2->ID,
                 'AchievementsRemaining' => 4,
-                'Score' => $this->user->RAPoints,
+                'Score' => $this->user->points_hardcore,
                 'SoftcoreScore' => $scoreBefore + $achievement2->Points,
             ]);
         $scoreBefore += $achievement2->Points;
@@ -1197,7 +1197,7 @@ class AwardAchievementTest extends TestCase
                 'Success' => true,
                 'AchievementID' => $achievement3->ID,
                 'AchievementsRemaining' => 3,
-                'Score' => $this->user->RAPoints,
+                'Score' => $this->user->points_hardcore,
                 'SoftcoreScore' => $scoreBefore + $achievement3->Points,
             ]);
         $scoreBefore += $achievement3->Points;
@@ -1211,7 +1211,7 @@ class AwardAchievementTest extends TestCase
                 'Success' => true,
                 'AchievementID' => $achievement7->ID,
                 'AchievementsRemaining' => 2,
-                'Score' => $this->user->RAPoints,
+                'Score' => $this->user->points_hardcore,
                 'SoftcoreScore' => $scoreBefore + $achievement7->Points,
             ]);
         $scoreBefore += $achievement7->Points;
@@ -1225,7 +1225,7 @@ class AwardAchievementTest extends TestCase
                 'Success' => true,
                 'AchievementID' => $achievement4->ID,
                 'AchievementsRemaining' => 1,
-                'Score' => $this->user->RAPoints,
+                'Score' => $this->user->points_hardcore,
                 'SoftcoreScore' => $scoreBefore + $achievement4->Points,
             ]);
         $scoreBefore += $achievement4->Points;
@@ -1251,8 +1251,8 @@ class AwardAchievementTest extends TestCase
                 'Success' => true,
                 'AchievementID' => Achievement::CLIENT_WARNING_ID,
                 'AchievementsRemaining' => 9999,
-                'Score' => $this->user->RAPoints,
-                'SoftcoreScore' => $this->user->RASoftcorePoints,
+                'Score' => $this->user->points_hardcore,
+                'SoftcoreScore' => $this->user->points,
             ]);
 
         $this->assertFalse(

@@ -113,7 +113,7 @@ function getGameMetadata(
         ach.Description,
         ach.Points,
         ach.TrueRatio,
-        COALESCE(ua.display_name, ua.User) AS Author,
+        COALESCE(ua.display_name, ua.username) AS Author,
         ua.ulid AS AuthorULID,
         ach.DateModified,
         ach.DateCreated,
@@ -122,7 +122,7 @@ function getGameMetadata(
         ach.MemAddr,
         ach.type
     FROM Achievements AS ach
-    LEFT JOIN UserAccounts AS ua ON ach.user_id = ua.ID
+    LEFT JOIN users AS ua ON ach.user_id = ua.id
     WHERE ach.GameID = :gameId AND ach.Flags = :achievementFlag AND ach.deleted_at IS NULL
     $orderBy";
 
@@ -223,7 +223,7 @@ function getGamesListByDev(
     $listJoin = '';
     if ($listType !== null) {
         $listJoin = "INNER JOIN user_game_list_entries ugle ON ugle.game_id = gd.id";
-        $whereClause .= " AND ugle.user_id = " . request()->user()->ID . " AND ugle.type = :listType";
+        $whereClause .= " AND ugle.user_id = " . request()->user()->id . " AND ugle.type = :listType";
         $bindings['listType'] = $listType;
     }
 
@@ -443,10 +443,10 @@ function getGamesListByDev(
                 $games[$row['GameID']]['OpenTickets'] = $row['OpenTickets'];
             }
         } else {
-            $query = "SELECT ach.GameID, ua.User as Author, COUNT(*) AS OpenTickets
+            $query = "SELECT ach.GameID, ua.username as Author, COUNT(*) AS OpenTickets
                       FROM Ticket tick
                       INNER JOIN Achievements ach ON ach.ID = tick.AchievementID
-                      LEFT JOIN UserAccounts ua ON ach.user_id = ua.ID
+                      LEFT JOIN users ua ON ach.user_id = ua.id
                       WHERE ach.GameID IN ($gameList)
                       AND tick.ReportState IN (1,3)
                       GROUP BY ach.GameID, Author";

@@ -24,6 +24,6 @@ if (!$foundUser) {
 }
 
 return response()->json(array_map('intval', [
-    'Points' => $foundUser->points,
-    'SoftcorePoints' => $foundUser->points_softcore,
+    'Points' => $foundUser->points_hardcore,
+    'SoftcorePoints' => $foundUser->points,
 ]));

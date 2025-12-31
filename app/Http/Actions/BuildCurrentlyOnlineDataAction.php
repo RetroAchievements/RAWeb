@@ -40,7 +40,7 @@ class BuildCurrentlyOnlineDataAction
 
     private function getNumCurrentPlayers(): int
     {
-        return User::where('LastLogin', '>', Carbon::now()->subMinutes(10))->count();
+        return User::where('last_activity_at', '>', Carbon::now()->subMinutes(10))->count();
     }
 
     private function getLogEntries(array $logFileLines): array

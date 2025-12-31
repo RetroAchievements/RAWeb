@@ -54,7 +54,7 @@ class FetchDynamicShortcodeContentAction
         $users = User::query()
             ->withTrashed()
             ->where(function ($query) use ($usernames) {
-                $query->whereIn('User', $usernames)
+                $query->whereIn('username', $usernames)
                     ->orWhereIn('display_name', $usernames);
             })
             ->get();

@@ -304,8 +304,8 @@ class AchievementSetClaimListService
                 break;
 
             case 'developer':
-                $claims->join('UserAccounts', 'UserAccounts.ID', '=', 'SetClaim.user_id')
-                       ->orderBy('UserAccounts.User')
+                $claims->join('users', 'users.id', '=', 'SetClaim.user_id')
+                       ->orderBy('users.username')
                        ->orderByDesc('SetClaim.Finished')
                        ->select('SetClaim.*');
                 break;

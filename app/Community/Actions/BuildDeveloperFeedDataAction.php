@@ -42,7 +42,7 @@ class BuildDeveloperFeedDataAction
 
         $recentUnlocks = $this->getRecentUnlocks(
             $allUserAchievementIds,
-            shouldUseDateRange: $targetUser->ContribCount <= 20_000,
+            shouldUseDateRange: $targetUser->yield_unlocks <= 20_000,
         );
 
         $recentPlayerBadges = $this->getRecentPlayerBadges($allUserGameIds->toArray());
@@ -52,8 +52,8 @@ class BuildDeveloperFeedDataAction
         $props = new DeveloperFeedPagePropsData(
             activePlayers: $activePlayers,
             developer: UserData::from($targetUser),
-            unlocksContributed: $targetUser->ContribCount ?? 0,
-            pointsContributed: $targetUser->ContribYield ?? 0,
+            unlocksContributed: $targetUser->yield_unlocks ?? 0,
+            pointsContributed: $targetUser->yield_points ?? 0,
             awardsContributed: $this->countAwardsForGames($allUserGameIds->toArray()),
             leaderboardEntriesContributed: $this->countLeaderboardEntries($targetUser),
             recentUnlocks: $recentUnlocks,

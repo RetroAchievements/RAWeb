@@ -284,7 +284,7 @@ function informAllSubscribersAboutActivity(
     }
 
     $subscriptionService = new SubscriptionService();
-    $subscribers = $subscriptionService->getSegmentedSubscriberIds($subscriptionSubjectType, $articleID, $subjectAuthor?->ID);
+    $subscribers = $subscriptionService->getSegmentedSubscriberIds($subscriptionSubjectType, $articleID, $subjectAuthor?->id);
 
     $notificationService = new SubscriptionNotificationService();
     $notificationService->queueNotifications($subscribers['implicitlySubscribedNotifyLater'],
@@ -326,15 +326,15 @@ function sendActivityEmail(
         $user->is($activityCommenter)
         || $user->isGone()
         || $user->isInactive()
-        || empty($user->EmailAddress)
+        || empty($user->email)
     ) {
         return false;
     }
 
-    Mail::to($user->EmailAddress)->queue(new CommunityActivityMail(
+    Mail::to($user->email)->queue(new CommunityActivityMail(
         $user,
         $actID,
-        $activityCommenter?->display_name ?? $activityCommenter?->User,
+        $activityCommenter?->display_name ?? $activityCommenter?->username,
         $articleType,
         $articleTitle,
         $urlTarget,

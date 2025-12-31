@@ -11,7 +11,7 @@
     @if (empty($currentPage))
         <span class="font-bold"><a href="{{ route('user.show', $user->display_name) }}">{{ $user->display_name }}</a></span>
     @else
-        @if ($user->Deleted)
+        @if ($user->deleted_at)
             <span class="line-through">{{ $user->display_name }}</span>
         @else
             <a href="{{ route('user.show', $user->display_name) }}">{{ $user->display_name }}</a>

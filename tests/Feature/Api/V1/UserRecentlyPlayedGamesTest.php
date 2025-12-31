@@ -82,7 +82,7 @@ class UserRecentlyPlayedGamesTest extends TestCase
         ]);
         $playerGame2->save();
 
-        $this->get($this->apiUrl('GetUserRecentlyPlayedGames', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserRecentlyPlayedGames', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
                 [

@@ -89,25 +89,25 @@ function performSearch(
     }
 
     if (in_array(SearchType::User, $searchType)) {
-        $counts[] = "SELECT COUNT(*) AS Count FROM UserAccounts WHERE display_name LIKE '%$searchQuery%'";
+        $counts[] = "SELECT COUNT(*) AS Count FROM users WHERE display_name LIKE '%$searchQuery%'";
         $parts[] = "
             SELECT " . SearchType::User . " AS Type, ua.display_name AS ID,
                 CONCAT( '/user/', ua.display_name ) AS Target, ua.display_name AS Title,
                 CASE WHEN ua.display_name LIKE '$searchQuery%' THEN 0 ELSE 1 END AS SecondarySort
-            FROM UserAccounts AS ua
-            WHERE ua.display_name LIKE '%$searchQuery%' AND ua.Permissions >= 0 AND ua.Deleted IS NULL
+            FROM users AS ua
+            WHERE ua.display_name LIKE '%$searchQuery%' AND ua.Permissions >= 0 AND ua.deleted_at IS NULL
             ORDER BY SecondarySort, ua.display_name";
     }
 
     if (in_array(SearchType::Forum, $searchType)) {
         $counts[] = "SELECT COUNT(*) AS Count FROM forum_topic_comments WHERE body LIKE '%$searchQuery%'";
         $parts[] = "
-        SELECT " . SearchType::Forum . " AS Type, ua.User AS ID,
+        SELECT " . SearchType::Forum . " AS Type, ua.username AS ID,
                CONCAT( '/forums/topic/', ftc.forum_topic_id, '?comment=', ftc.id, '#', ftc.id ) AS Target,
                CASE WHEN CHAR_LENGTH(ftc.body) <= 64 THEN ftc.body ELSE
                CONCAT( '...', MID( ftc.body, GREATEST( LOCATE('$searchQuery', ftc.body)-25, 1), 60 ), '...' ) END AS Title
         FROM forum_topic_comments AS ftc
-        LEFT JOIN UserAccounts AS ua ON ua.ID = ftc.author_id
+        LEFT JOIN users AS ua ON ua.id = ftc.author_id
         LEFT JOIN forum_topics AS ft ON ft.id = ftc.forum_topic_id
         WHERE ftc.body LIKE '%$searchQuery%' AND ft.deleted_at IS NULL
         AND ft.required_permissions <= '$permissions'
@@ -162,11 +162,11 @@ function performSearch(
     if ($articleTypes !== []) {
         // Count regular comments.
         $countsQuery = "SELECT COUNT(*) AS Count FROM Comment AS c
-            LEFT JOIN UserAccounts AS cua ON cua.ID=c.user_id
-            LEFT JOIN UserAccounts AS ua ON ua.ID=c.ArticleID AND c.articletype=" . ArticleType::User . "
+            LEFT JOIN users AS cua ON cua.id=c.user_id
+            LEFT JOIN users AS ua ON ua.id=c.ArticleID AND c.articletype=" . ArticleType::User . "
             WHERE c.Payload LIKE '%$searchQuery%'
-            AND cua.User != 'Server' AND c.articletype IN (" . implode(',', $articleTypes) . ")
-            AND ua.Deleted IS NULL AND (ua.UserWallActive OR ua.UserWallActive IS NULL)";
+            AND cua.username != 'Server' AND c.articletype IN (" . implode(',', $articleTypes) . ")
+            AND ua.deleted_at IS NULL AND (ua.is_user_wall_active OR ua.is_user_wall_active IS NULL)";
 
         // If searching ticket comments, also count ReportNotes from tickets.
         if ($includeTicketComments) {
@@ -174,9 +174,9 @@ function performSearch(
                 $countsQuery
                 UNION ALL
                 SELECT COUNT(*) AS Count FROM Ticket AS t
-                LEFT JOIN UserAccounts AS reporter ON reporter.ID=t.reporter_id
+                LEFT JOIN users AS reporter ON reporter.id=t.reporter_id
                 WHERE t.ReportNotes LIKE '%$searchQuery%'
-                AND reporter.User != 'Server'
+                AND reporter.username != 'Server'
                 AND t.deleted_at IS NULL
             ) AS combined_counts";
         }
@@ -196,7 +196,7 @@ function performSearch(
                 WHEN c.articletype=" . ArticleType::SetClaim . " THEN " . SearchType::SetClaimComment . "
                 ELSE 9999
             END AS Type,
-            cua.User AS ID,
+            cua.username AS ID,
             CASE
                 WHEN c.articletype=" . ArticleType::Game . " THEN CONCAT('/game/', c.ArticleID, '#comment_', c.ID)
                 WHEN c.articletype=" . ArticleType::Achievement . " THEN CONCAT('/achievement/', c.ArticleID, '#comment_', c.ID)
@@ -214,11 +214,11 @@ function performSearch(
             END AS Title,
             c.Submitted AS SortDate
             FROM Comment AS c
-            LEFT JOIN UserAccounts AS cua ON cua.ID=c.user_id
-            LEFT JOIN UserAccounts AS ua ON ua.ID=c.ArticleID AND c.articletype in (" . ArticleType::User . "," . ArticleType::UserModeration . ")
+            LEFT JOIN users AS cua ON cua.id=c.user_id
+            LEFT JOIN users AS ua ON ua.id=c.ArticleID AND c.articletype in (" . ArticleType::User . "," . ArticleType::UserModeration . ")
             WHERE c.Payload LIKE '%$searchQuery%'
-            AND cua.User != 'Server' AND c.articletype IN (" . implode(',', $articleTypes) . ")
-            AND ua.Deleted IS NULL AND (ua.UserWallActive OR ua.UserWallActive IS NULL)";
+            AND cua.username != 'Server' AND c.articletype IN (" . implode(',', $articleTypes) . ")
+            AND ua.deleted_at IS NULL AND (ua.is_user_wall_active OR ua.is_user_wall_active IS NULL)";
 
         // If searching ticket comments, also include ReportNotes from tickets via a UNION.
         if ($includeTicketComments) {
@@ -227,7 +227,7 @@ function performSearch(
                     $partsQuery
                     UNION ALL
                     SELECT " . SearchType::TicketComment . " AS Type,
-                        reporter.User AS ID,
+                        reporter.username AS ID,
                         CONCAT('/ticket/', t.ID) AS Target,
                         CASE
                             WHEN CHAR_LENGTH(t.ReportNotes) <= 64 THEN t.ReportNotes
@@ -235,9 +235,9 @@ function performSearch(
                         END AS Title,
                         t.ReportedAt AS SortDate
                     FROM Ticket AS t
-                    LEFT JOIN UserAccounts AS reporter ON reporter.ID=t.reporter_id
+                    LEFT JOIN users AS reporter ON reporter.id=t.reporter_id
                     WHERE t.ReportNotes LIKE '%$searchQuery%'
-                    AND reporter.User != 'Server'
+                    AND reporter.username != 'Server'
                     AND t.deleted_at IS NULL
                 ) AS combined_results
                 ORDER BY Type, SortDate DESC";

@@ -28,7 +28,7 @@ class SystemsTest extends JsonApiResourceTestCase
     public function testItListsSystems(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create([
             'name' => 'PlayStation',
             'active' => true,
@@ -49,7 +49,7 @@ class SystemsTest extends JsonApiResourceTestCase
     public function testItPaginatesBy50ByDefault(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         System::factory()->count(100)->create();
 
         // Act
@@ -74,7 +74,7 @@ class SystemsTest extends JsonApiResourceTestCase
     public function testItFiltersByActive(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $active = System::factory()->create(['active' => true]); // active system
         $inactive = System::factory()->create(['active' => false]); // inactive system
 
@@ -94,7 +94,7 @@ class SystemsTest extends JsonApiResourceTestCase
     public function testItExcludesNonGameSystems(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $gameSystem = System::factory()->create();
         $hubsSystem = System::factory()->create(['id' => System::Hubs]);
         $eventsSystem = System::factory()->create(['id' => System::Events]);
@@ -115,7 +115,7 @@ class SystemsTest extends JsonApiResourceTestCase
     public function testItSortsByName(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         System::factory()->create(['name' => 'Zulu System']);
         System::factory()->create(['name' => 'Alpha System']);
 

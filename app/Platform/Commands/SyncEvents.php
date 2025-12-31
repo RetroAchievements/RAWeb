@@ -705,7 +705,7 @@ class ConvertGame
             if (!array_key_exists($userId, $after)) {
                 if ($badge['AwardDataExtra'] !== -1) {
                     $user = User::find($userId);
-                    $command->error("Badge for user $userId ({$user->User}) lost in conversion.");
+                    $command->error("Badge for user $userId ({$user->username}) lost in conversion.");
                     $result = false;
                 } else {
                     $deleted++;
@@ -717,14 +717,14 @@ class ConvertGame
                 if ($badge['AwardDataExtra'] != $badgeAfter['AwardDataExtra']) {
                     $user = User::find($userId);
                     if ($badge['AwardDataExtra'] === -1) {
-                        $command->error("Badge for user $userId ({$user->User}) was not deleted.");
+                        $command->error("Badge for user $userId ({$user->username}) was not deleted.");
                     } else {
-                        $command->error("Badge for user $userId ({$user->User}) does not have expected tier_index {$badge['AwardDataExtra']}. Found {$badgeAfter['AwardDataExtra']}.");
+                        $command->error("Badge for user $userId ({$user->username}) does not have expected tier_index {$badge['AwardDataExtra']}. Found {$badgeAfter['AwardDataExtra']}.");
                     }
                     $result = false;
                 } elseif ($badge['AwardDate'] != $badgeAfter['AwardDate']) {
                     $user = User::find($userId);
-                    $command->error("Badge for user $userId ({$user->User}) award date changed from " . $badge['AwardDate']->format("Y-m-d") . " to " . $badgeAfter['AwardDate']->format("Y-m-d"));
+                    $command->error("Badge for user $userId ({$user->username}) award date changed from " . $badge['AwardDate']->format("Y-m-d") . " to " . $badgeAfter['AwardDate']->format("Y-m-d"));
                     $result = false;
                 } else {
                     $converted++;
@@ -736,7 +736,7 @@ class ConvertGame
 
         foreach ($after as $userId => $badge) {
             $user = User::find($userId);
-            $command->error("Badge for user $userId ({$user->User}) unexpected. Found tier {$badge['AwardDataExtra']}.");
+            $command->error("Badge for user $userId ({$user->username}) unexpected. Found tier {$badge['AwardDataExtra']}.");
             $result = false;
         }
 
@@ -836,12 +836,12 @@ class ConvertGame
             // update unlock timestamps on the event achievements to match the source unlock
             $winners = PlayerAchievement::where('achievement_id', $sourceAchievementId)
                 ->whereNotNull('unlocked_hardcore_at')
-                ->join('UserAccounts', 'UserAccounts.ID', '=', 'player_achievements.user_id')
+                ->join('users', 'users.id', '=', 'player_achievements.user_id')
                 ->select([
                     'player_achievements.user_id',
                     'player_achievements.unlocked_hardcore_at',
-                    'UserAccounts.Untracked',
-                    'UserAccounts.unranked_at',
+                    'users.Untracked',
+                    'users.unranked_at',
                 ]);
 
             if ($activeFrom) {
@@ -1573,7 +1573,7 @@ class ConvertToTiered extends ConvertGame
                 $userIds = PlayerAchievement::where('achievement_id', $achievementId)
                     ->pluck('user_id')->toArray();
             } else {
-                $userIds = User::whereIn('User', $users)->pluck('ID')->toArray();
+                $userIds = User::whereIn('username', $users)->pluck('id')->toArray();
             }
 
             $allUserIds = array_merge($allUserIds, $userIds);
@@ -1668,7 +1668,7 @@ class ConvertToTiered extends ConvertGame
                     ->update(['unlocked_hardcore_at' => DB::raw('unlocked_at')]);
             } else {
                 // convert badge to current tier
-                $userIds = User::whereIn('User', $users)->withTrashed()->pluck('ID')->toArray();
+                $userIds = User::whereIn('username', $users)->withTrashed()->pluck('id')->toArray();
                 foreach ($userIds as $userId) {
                     $this->convertBadge($event, $event->legacyGame->id, $userId, $tier_index);
                 }

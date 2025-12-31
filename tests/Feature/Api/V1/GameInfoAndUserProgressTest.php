@@ -28,7 +28,7 @@ class GameInfoAndUserProgressTest extends TestCase
 
     public function testGetGameInfoAndUserProgressUnknownGame(): void
     {
-        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => 999999, 'u' => $this->user->User]))
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => 999999, 'u' => $this->user->username]))
             ->assertSuccessful()
             ->assertExactJson([]);
     }
@@ -94,7 +94,7 @@ class GameInfoAndUserProgressTest extends TestCase
         $this->addHardcoreUnlock($user4, $achievement1);
         $this->addHardcoreUnlock($user4, $achievement2);
 
-        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $user3->User])) // !! name
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $user3->username])) // !! name
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $game->id,
@@ -129,7 +129,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement1->Points,
                         'BadgeName' => $achievement1->BadgeName,
                         'DisplayOrder' => $achievement1->DisplayOrder,
-                        'Author' => $achievement1->developer->User,
+                        'Author' => $achievement1->developer->username,
                         'AuthorULID' => $achievement1->developer->ulid,
                         'DateCreated' => $achievement1->DateCreated->__toString(),
                         'DateModified' => $achievement1->DateModified->__toString(),
@@ -143,7 +143,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement3->Points,
                         'BadgeName' => $achievement3->BadgeName,
                         'DisplayOrder' => $achievement3->DisplayOrder,
-                        'Author' => $achievement3->developer->User,
+                        'Author' => $achievement3->developer->username,
                         'AuthorULID' => $achievement3->developer->ulid,
                         'DateCreated' => $achievement3->DateCreated->__toString(),
                         'DateModified' => $achievement3->DateModified->__toString(),
@@ -157,7 +157,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
                         'DisplayOrder' => $achievement2->DisplayOrder,
-                        'Author' => $achievement2->developer->User,
+                        'Author' => $achievement2->developer->username,
                         'AuthorULID' => $achievement2->developer->ulid,
                         'DateCreated' => $achievement2->DateCreated->__toString(),
                         'DateModified' => $achievement2->DateModified->__toString(),
@@ -264,7 +264,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement1->Points,
                         'BadgeName' => $achievement1->BadgeName,
                         'DisplayOrder' => $achievement1->DisplayOrder,
-                        'Author' => $achievement1->developer->User,
+                        'Author' => $achievement1->developer->username,
                         'AuthorULID' => $achievement1->developer->ulid,
                         'DateCreated' => $achievement1->DateCreated->__toString(),
                         'DateModified' => $achievement1->DateModified->__toString(),
@@ -278,7 +278,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement3->Points,
                         'BadgeName' => $achievement3->BadgeName,
                         'DisplayOrder' => $achievement3->DisplayOrder,
-                        'Author' => $achievement3->developer->User,
+                        'Author' => $achievement3->developer->username,
                         'AuthorULID' => $achievement3->developer->ulid,
                         'DateCreated' => $achievement3->DateCreated->__toString(),
                         'DateModified' => $achievement3->DateModified->__toString(),
@@ -292,7 +292,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
                         'DisplayOrder' => $achievement2->DisplayOrder,
-                        'Author' => $achievement2->developer->User,
+                        'Author' => $achievement2->developer->username,
                         'AuthorULID' => $achievement2->developer->ulid,
                         'DateCreated' => $achievement2->DateCreated->__toString(),
                         'DateModified' => $achievement2->DateModified->__toString(),
@@ -332,7 +332,7 @@ class GameInfoAndUserProgressTest extends TestCase
         ]);
 
         // issue #484: empty associative array should still return {}, not []
-        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $this->user->User]))
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $this->user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $game->id,
@@ -427,7 +427,7 @@ class GameInfoAndUserProgressTest extends TestCase
         $this->addHardcoreUnlock($user4, $achievement2);
 
         // make the API call for $this->user
-        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $this->user->User, 'a' => 1]))
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $this->user->username, 'a' => 1]))
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $game->id,
@@ -462,7 +462,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement1->Points,
                         'BadgeName' => $achievement1->BadgeName,
                         'DisplayOrder' => $achievement1->DisplayOrder,
-                        'Author' => $achievement1->developer->User,
+                        'Author' => $achievement1->developer->username,
                         'AuthorULID' => $achievement1->developer->ulid,
                         'DateCreated' => $achievement1->DateCreated->__toString(),
                         'DateModified' => $achievement1->DateModified->__toString(),
@@ -476,7 +476,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement3->Points,
                         'BadgeName' => $achievement3->BadgeName,
                         'DisplayOrder' => $achievement3->DisplayOrder,
-                        'Author' => $achievement3->developer->User,
+                        'Author' => $achievement3->developer->username,
                         'AuthorULID' => $achievement3->developer->ulid,
                         'DateCreated' => $achievement3->DateCreated->__toString(),
                         'DateModified' => $achievement3->DateModified->__toString(),
@@ -490,7 +490,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
                         'DisplayOrder' => $achievement2->DisplayOrder,
-                        'Author' => $achievement2->developer->User,
+                        'Author' => $achievement2->developer->username,
                         'AuthorULID' => $achievement2->developer->ulid,
                         'DateCreated' => $achievement2->DateCreated->__toString(),
                         'DateModified' => $achievement2->DateModified->__toString(),
@@ -503,7 +503,7 @@ class GameInfoAndUserProgressTest extends TestCase
             ]);
 
         // make the API call for user2
-        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $user2->User, 'a' => 1]))
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $user2->username, 'a' => 1]))
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $game->id,
@@ -538,7 +538,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement1->Points,
                         'BadgeName' => $achievement1->BadgeName,
                         'DisplayOrder' => $achievement1->DisplayOrder,
-                        'Author' => $achievement1->developer->User,
+                        'Author' => $achievement1->developer->username,
                         'AuthorULID' => $achievement1->developer->ulid,
                         'DateCreated' => $achievement1->DateCreated->__toString(),
                         'DateModified' => $achievement1->DateModified->__toString(),
@@ -552,7 +552,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement3->Points,
                         'BadgeName' => $achievement3->BadgeName,
                         'DisplayOrder' => $achievement3->DisplayOrder,
-                        'Author' => $achievement3->developer->User,
+                        'Author' => $achievement3->developer->username,
                         'AuthorULID' => $achievement3->developer->ulid,
                         'DateCreated' => $achievement3->DateCreated->__toString(),
                         'DateModified' => $achievement3->DateModified->__toString(),
@@ -566,7 +566,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
                         'DisplayOrder' => $achievement2->DisplayOrder,
-                        'Author' => $achievement2->developer->User,
+                        'Author' => $achievement2->developer->username,
                         'AuthorULID' => $achievement2->developer->ulid,
                         'DateCreated' => $achievement2->DateCreated->__toString(),
                         'DateModified' => $achievement2->DateModified->__toString(),
@@ -579,7 +579,7 @@ class GameInfoAndUserProgressTest extends TestCase
             ]);
 
         // make the API call for user3
-        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $user3->User, 'a' => 1]))
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $user3->username, 'a' => 1]))
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $game->id,
@@ -614,7 +614,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement1->Points,
                         'BadgeName' => $achievement1->BadgeName,
                         'DisplayOrder' => $achievement1->DisplayOrder,
-                        'Author' => $achievement1->developer->User,
+                        'Author' => $achievement1->developer->username,
                         'AuthorULID' => $achievement1->developer->ulid,
                         'DateCreated' => $achievement1->DateCreated->__toString(),
                         'DateModified' => $achievement1->DateModified->__toString(),
@@ -628,7 +628,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement3->Points,
                         'BadgeName' => $achievement3->BadgeName,
                         'DisplayOrder' => $achievement3->DisplayOrder,
-                        'Author' => $achievement3->developer->User,
+                        'Author' => $achievement3->developer->username,
                         'AuthorULID' => $achievement3->developer->ulid,
                         'DateCreated' => $achievement3->DateCreated->__toString(),
                         'DateModified' => $achievement3->DateModified->__toString(),
@@ -642,7 +642,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
                         'DisplayOrder' => $achievement2->DisplayOrder,
-                        'Author' => $achievement2->developer->User,
+                        'Author' => $achievement2->developer->username,
                         'AuthorULID' => $achievement2->developer->ulid,
                         'DateCreated' => $achievement2->DateCreated->__toString(),
                         'DateModified' => $achievement2->DateModified->__toString(),
@@ -655,7 +655,7 @@ class GameInfoAndUserProgressTest extends TestCase
             ]);
 
         // make the API call for user4
-        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $user4->User, 'a' => 1]))
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->id, 'u' => $user4->username, 'a' => 1]))
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $game->id,
@@ -690,7 +690,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement1->Points,
                         'BadgeName' => $achievement1->BadgeName,
                         'DisplayOrder' => $achievement1->DisplayOrder,
-                        'Author' => $achievement1->developer->User,
+                        'Author' => $achievement1->developer->username,
                         'AuthorULID' => $achievement1->developer->ulid,
                         'DateCreated' => $achievement1->DateCreated->__toString(),
                         'DateModified' => $achievement1->DateModified->__toString(),
@@ -704,7 +704,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement3->Points,
                         'BadgeName' => $achievement3->BadgeName,
                         'DisplayOrder' => $achievement3->DisplayOrder,
-                        'Author' => $achievement3->developer->User,
+                        'Author' => $achievement3->developer->username,
                         'AuthorULID' => $achievement3->developer->ulid,
                         'DateCreated' => $achievement3->DateCreated->__toString(),
                         'DateModified' => $achievement3->DateModified->__toString(),
@@ -718,7 +718,7 @@ class GameInfoAndUserProgressTest extends TestCase
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
                         'DisplayOrder' => $achievement2->DisplayOrder,
-                        'Author' => $achievement2->developer->User,
+                        'Author' => $achievement2->developer->username,
                         'AuthorULID' => $achievement2->developer->ulid,
                         'DateCreated' => $achievement2->DateCreated->__toString(),
                         'DateModified' => $achievement2->DateModified->__toString(),

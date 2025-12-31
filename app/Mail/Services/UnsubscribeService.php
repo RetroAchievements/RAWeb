@@ -141,7 +141,7 @@ class UnsubscribeService
 
             $descriptionData = $this->getGranularDescription($data->subjectType, $data->subjectId);
         } elseif ($data instanceof CategoryUnsubscribeData) {
-            $currentPrefs = $user->websitePrefs;
+            $currentPrefs = $user->preferences_bitfield;
 
             switch ($data->preference) {
                 case UserPreference::EmailOff_DailyDigest:
@@ -155,7 +155,7 @@ class UnsubscribeService
                     break;
             }
 
-            $user->websitePrefs = $newPrefs;
+            $user->preferences_bitfield = $newPrefs;
             $user->save();
 
             $descriptionData = $this->getCategoryDescription($data->preference);
@@ -233,7 +233,7 @@ class UnsubscribeService
                     ->update(['state' => $data->previousState]);
             }
         } elseif ($data instanceof CategoryUnsubscribeData) {
-            $currentPrefs = $user->websitePrefs;
+            $currentPrefs = $user->preferences_bitfield;
 
             switch ($data->preference) {
                 case UserPreference::EmailOff_DailyDigest:
@@ -247,7 +247,7 @@ class UnsubscribeService
                     break;
             }
 
-            $user->websitePrefs = $newPrefs;
+            $user->preferences_bitfield = $newPrefs;
             $user->save();
         }
 

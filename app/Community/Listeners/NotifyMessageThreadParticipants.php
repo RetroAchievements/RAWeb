@@ -23,7 +23,7 @@ class NotifyMessageThreadParticipants
     {
         $message = $event->message;
 
-        $userFrom = User::firstWhere('ID', $message->author_id);
+        $userFrom = User::firstWhere('id', $message->author_id);
         if (!$userFrom) {
             return;
         }
@@ -42,7 +42,7 @@ class NotifyMessageThreadParticipants
                 continue;
             }
 
-            $userTo = User::firstWhere('ID', $participant->user_id);
+            $userTo = User::firstWhere('id', $participant->user_id);
             if (!$userTo) {
                 // ignore deleted users
                 continue;
@@ -61,7 +61,7 @@ class NotifyMessageThreadParticipants
             $updateUnreadMessageCountAction->execute($userTo);
 
             // send email?
-            if (BitSet($userTo->websitePrefs, UserPreference::EmailOn_PrivateMessage)) {
+            if (BitSet($userTo->preferences_bitfield, UserPreference::EmailOn_PrivateMessage)) {
                 if (!$userTo->is($userFrom)) {
                     Mail::to($userTo)->queue(new PrivateMessageReceivedMail(
                         $userTo,

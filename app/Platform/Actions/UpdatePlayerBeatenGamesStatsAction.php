@@ -208,7 +208,7 @@ class UpdatePlayerBeatenGamesStatsAction
     ): void {
         PlayerStat::updateOrCreate(
             [
-                'user_id' => $user->ID,
+                'user_id' => $user->id,
                 'system_id' => $systemId,
                 'type' => $statType,
             ],

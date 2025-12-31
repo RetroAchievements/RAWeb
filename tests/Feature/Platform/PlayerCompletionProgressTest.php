@@ -27,7 +27,7 @@ class PlayerCompletionProgressTest extends TestCase
     public function testItRendersWithoutCrashing(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['User' => 'MockUser']);
+        $user = User::factory()->create(['username' => 'MockUser']);
 
         $this->actingAs($user)->get('/user/MockUser/progress')->assertStatus(200);
     }
@@ -35,67 +35,67 @@ class PlayerCompletionProgressTest extends TestCase
     public function testItReturns404IfTargetUserIsBanned(): void
     {
         /** @var User $me */
-        $me = User::factory()->create(['User' => 'myUser']);
+        $me = User::factory()->create(['username' => 'myUser']);
         /** @var User $targetUser */
-        $targetUser = User::factory()->create(['User' => 'targetUser', 'Permissions' => Permissions::Banned]);
+        $targetUser = User::factory()->create(['username' => 'targetUser', 'Permissions' => Permissions::Banned]);
 
-        $this->actingAs($me)->get('/user/' . $targetUser->User . '/progress')->assertStatus(404);
+        $this->actingAs($me)->get('/user/' . $targetUser->username . '/progress')->assertStatus(404);
     }
 
     public function testGivenUserHasNoGamesItRendersEmptyState(): void
     {
         /** @var User $me */
-        $me = User::factory()->create(['User' => 'myUser']);
+        $me = User::factory()->create(['username' => 'myUser']);
         /** @var User $targetUser */
-        $targetUser = User::factory()->create(['User' => 'targetUser']);
+        $targetUser = User::factory()->create(['username' => 'targetUser']);
 
         $this
             ->actingAs($me)
-            ->get('/user/' . $targetUser->User . '/progress')
-            ->assertSeeTextInOrder([$targetUser->User . " doesn't", "games with achievement unlocks yet"]);
+            ->get('/user/' . $targetUser->username . '/progress')
+            ->assertSeeTextInOrder([$targetUser->username . " doesn't", "games with achievement unlocks yet"]);
     }
 
     public function testEmptyStateMessageChangesIfViewingMyOwnProfile(): void
     {
         /** @var User $me */
-        $me = User::factory()->create(['User' => 'myUser']);
+        $me = User::factory()->create(['username' => 'myUser']);
 
         $this
             ->actingAs($me)
-            ->get('/user/' . $me->User . '/progress')
+            ->get('/user/' . $me->username . '/progress')
             ->assertSeeTextInOrder(["You don't", "games with achievement unlocks yet"]);
     }
 
     public function testCorrectHeadingIfViewingOwnProgress(): void
     {
         /** @var User $me */
-        $me = User::factory()->create(['User' => 'myUser']);
+        $me = User::factory()->create(['username' => 'myUser']);
 
         $this
             ->actingAs($me)
-            ->get('/user/' . $me->User . '/progress')
+            ->get('/user/' . $me->username . '/progress')
             ->assertSeeText("Your Completion Progress");
     }
 
     public function testCorrectHeadingIfViewingOtherPlayersProgress(): void
     {
         /** @var User $me */
-        $me = User::factory()->create(['User' => 'myUser']);
+        $me = User::factory()->create(['username' => 'myUser']);
         /** @var User $targetUser */
-        $targetUser = User::factory()->create(['User' => 'targetUser']);
+        $targetUser = User::factory()->create(['username' => 'targetUser']);
 
         // "targetUser's Completion Progress"
         $this
             ->actingAs($me)
-            ->get('/user/' . $targetUser->User . '/progress')
-            ->assertSeeText($targetUser->User . "'s Completion Progress");
+            ->get('/user/' . $targetUser->username . '/progress')
+            ->assertSeeText($targetUser->username . "'s Completion Progress");
     }
 
     public function testShowGamesWithNoFilteringApplied(): void
     {
         // Arrange
         /** @var User $me */
-        $me = User::factory()->create(['User' => 'myUser']);
+        $me = User::factory()->create(['username' => 'myUser']);
 
         /** @var System $systemOne */
         $systemOne = System::factory()->create(['id' => 1, 'name_short' => 'find_me_1']);
@@ -117,7 +117,7 @@ class PlayerCompletionProgressTest extends TestCase
         $this->addHardcoreUnlock($me, $gameTwoAchievements->get(2));
 
         // Act
-        $view = $this->actingAs($me)->get('/user/' . $me->User . '/progress');
+        $view = $this->actingAs($me)->get('/user/' . $me->username . '/progress');
 
         // Assert
         $view->assertSeeTextInOrder([$gameTwo->title, $gameOne->title]);
@@ -134,7 +134,7 @@ class PlayerCompletionProgressTest extends TestCase
     {
         // Arrange
         /** @var User $me */
-        $me = User::factory()->create(['User' => 'myUser']);
+        $me = User::factory()->create(['username' => 'myUser']);
 
         /** @var System $systemOne */
         $systemOne = System::factory()->create(['id' => 1]);
@@ -156,7 +156,7 @@ class PlayerCompletionProgressTest extends TestCase
         $this->addHardcoreUnlock($me, $gameTwoAchievements->get(2));
 
         // Act
-        $view = $this->actingAs($me)->get('/user/' . $me->User . '/progress?filter[system]=1');
+        $view = $this->actingAs($me)->get('/user/' . $me->username . '/progress?filter[system]=1');
 
         // Assert
         $view->assertSeeText("1 Played");
@@ -167,7 +167,7 @@ class PlayerCompletionProgressTest extends TestCase
     {
         // Arrange
         /** @var User $me */
-        $me = User::factory()->create(['User' => 'myUser']);
+        $me = User::factory()->create(['username' => 'myUser']);
 
         /** @var System $systemOne */
         $systemOne = System::factory()->create(['id' => 1]);
@@ -197,7 +197,7 @@ class PlayerCompletionProgressTest extends TestCase
         ]);
 
         // Act
-        $view = $this->actingAs($me)->get('/user/' . $me->User . '/progress?filter[status]=eq-mastered');
+        $view = $this->actingAs($me)->get('/user/' . $me->username . '/progress?filter[status]=eq-mastered');
 
         // Assert
         $view->assertSeeText("2 Played");
@@ -220,7 +220,7 @@ class PlayerCompletionProgressTest extends TestCase
 
         // Arrange
         /** @var User $me */
-        $me = User::factory()->create(['User' => 'myUser']);
+        $me = User::factory()->create(['username' => 'myUser']);
 
         /** @var System $system */
         $system = System::factory()->create(['id' => 1]);
@@ -300,7 +300,7 @@ class PlayerCompletionProgressTest extends TestCase
         $this->addMasteryBadge($me, $gameEight, awardTime: Carbon::now());
 
         // Act
-        $view = $this->actingAs($me)->get('/user/' . $me->User . '/progress');
+        $view = $this->actingAs($me)->get('/user/' . $me->username . '/progress');
 
         // Assert
         $view->assertSeeText("10 Played");
@@ -320,7 +320,7 @@ class PlayerCompletionProgressTest extends TestCase
 
         // Arrange
         /** @var User $me */
-        $me = User::factory()->create(['User' => 'myUser']);
+        $me = User::factory()->create(['username' => 'myUser']);
 
         /** @var System $system */
         $system = System::factory()->create(['id' => 1]);
@@ -370,7 +370,7 @@ class PlayerCompletionProgressTest extends TestCase
         $this->addMasteryBadge($me, $gameEight, awardTime: Carbon::now()->subMinutes(25));
 
         // Act
-        $view = $this->actingAs($me)->get('/user/' . $me->User . '/progress');
+        $view = $this->actingAs($me)->get('/user/' . $me->username . '/progress');
 
         // Assert
         $view->assertSeeTextInOrder([

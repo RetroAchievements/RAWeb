@@ -21,7 +21,7 @@ class SharedAuthorStrategyTest extends TestCase
     public function testItSelectsGameBySharedAuthor(): void
     {
         // Arrange
-        $author = User::factory()->create(['User' => 'Scott']);
+        $author = User::factory()->create(['username' => 'Scott']);
 
         $sourceGame = Game::factory()->create(['achievements_published' => 10]);
         $authoredGame = Game::factory()->create(['achievements_published' => 10]);

@@ -229,7 +229,7 @@ class LeaderboardResource extends Resource
                     ->toggleable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->orWhereHas('developer', function (Builder $subQuery) use ($search) {
-                            $subQuery->where('User', 'like', "%{$search}%")
+                            $subQuery->where('username', 'like', "%{$search}%")
                                 ->orWhere('display_name', 'like', "%{$search}%");
                         });
                     }),

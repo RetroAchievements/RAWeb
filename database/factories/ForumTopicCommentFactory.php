@@ -24,7 +24,7 @@ class ForumTopicCommentFactory extends Factory
 
         return [
             'body' => ucwords(fake()->words(2, true)),
-            'author_id' => $user->ID,
+            'author_id' => $user->id,
             'authorized_at' => Carbon::now(),
             'is_authorized' => 1,
         ];

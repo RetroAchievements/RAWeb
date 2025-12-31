@@ -45,7 +45,7 @@ class UploadLeaderboardTest extends TestCase
 
     public function testUploadLeaderboardDeveloper(): void
     {
-        $this->user = User::factory()->create(['appToken' => Str::random(16), 'Permissions' => Permissions::Developer]);
+        $this->user = User::factory()->create(['connect_token' => Str::random(16), 'Permissions' => Permissions::Developer]);
         $this->user->assignRole(Role::DEVELOPER);
 
         $game = $this->seedGame();
@@ -378,7 +378,7 @@ class UploadLeaderboardTest extends TestCase
 
     public function testUploadLeaderboardJuniorDeveloper(): void
     {
-        $this->user = User::factory()->create(['appToken' => Str::random(16), 'Permissions' => Permissions::JuniorDeveloper]);
+        $this->user = User::factory()->create(['connect_token' => Str::random(16), 'Permissions' => Permissions::JuniorDeveloper]);
         $this->user->assignRole(Role::DEVELOPER_JUNIOR);
 
         $game = $this->seedGame();
@@ -498,7 +498,7 @@ class UploadLeaderboardTest extends TestCase
 
     public function testUploadLeaderboardNonDeveloper(): void
     {
-        $this->user = User::factory()->create(['appToken' => Str::random(16), 'Permissions' => Permissions::Registered]);
+        $this->user = User::factory()->create(['connect_token' => Str::random(16), 'Permissions' => Permissions::Registered]);
 
         $game = $this->seedGame();
         $this->addServerUser();
