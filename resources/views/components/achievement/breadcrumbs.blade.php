@@ -13,12 +13,12 @@ $achievement->loadMissing('game.system');
 
     &raquo;
 
-    <a href="{{ route('system.game.index', ['system' => $achievement->game->ConsoleID]) }}">{{ $achievement->game->system->Name }}</a>
+    <a href="{{ route('system.game.index', ['system' => $achievement->game->system_id]) }}">{{ $achievement->game->system->name }}</a>
 
     &raquo;
 
     <a href="{{ route('game.show', $achievement->game->id) }}">
-        <x-game-title :rawTitle="$achievement->game->Title" />
+        <x-game-title :rawTitle="$achievement->game->title" />
     </a>
 
     &raquo;
@@ -26,11 +26,11 @@ $achievement->loadMissing('game.system');
     {{-- If there's a current page label, then show game metadata as a URL. Otherwise, it's plain text. --}}
     @if ($currentPageLabel)
         <a href="{{ route('achievement.show', $achievement->id) }}">
-            <x-game-title :rawTitle="$achievement->Title" />
+            <x-game-title :rawTitle="$achievement->title" />
         </a>
     @else
         <span class="font-bold">
-            <x-game-title :rawTitle="$achievement->Title" />
+            <x-game-title :rawTitle="$achievement->title" />
         </span>
     @endif
 

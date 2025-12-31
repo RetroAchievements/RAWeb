@@ -37,7 +37,7 @@ class BuildHomePageClaimsDataAction
 
         // For completed claims, only show games from valid consoles with published achievements.
         if ($status === ClaimStatus::Complete) {
-            $query->whereHas('game.system', fn ($q) => $q->whereIn('ID', getValidConsoleIds()));
+            $query->whereHas('game.system', fn ($q) => $q->whereIn('id', getValidConsoleIds()));
             $query->whereHas('game', fn ($q) => $q->whereHasPublishedAchievements());
         }
 

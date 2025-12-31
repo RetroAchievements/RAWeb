@@ -7,7 +7,6 @@ namespace App\Platform\Actions;
 use App\Community\Enums\AwardType;
 use App\Models\PlayerBadge;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Events\SiteBadgeAwarded;
 use Illuminate\Support\Facades\DB;
 
@@ -25,8 +24,8 @@ class UpdateDeveloperContributionYieldAction
         $this->ensureBadge($user, AwardType::AchievementPointsYield, $newContribYield);
         $this->ensureBadge($user, AwardType::AchievementUnlocksYield, $newContribCount);
 
-        $user->ContribYield = $newContribYield;
-        $user->ContribCount = $newContribCount;
+        $user->yield_points = $newContribYield;
+        $user->yield_unlocks = $newContribCount;
         $user->saveQuietly();
     }
 
@@ -34,39 +33,37 @@ class UpdateDeveloperContributionYieldAction
     {
         // Calculate author contributions (achievements created by the user where credit wasn't given to a maintainer).
         $authorSql = <<<SQL
-            SELECT 
-                SUM(a.Points) as author_points,
+            SELECT
+                SUM(a.points) as author_points,
                 COUNT(*) as author_count
-            FROM Achievements a
-            JOIN player_achievements pa ON pa.achievement_id = a.ID
+            FROM achievements a
+            JOIN player_achievements pa ON pa.achievement_id = a.id
             WHERE a.user_id = :user_id
-                AND a.Flags = :flags
+                AND a.is_promoted = 1
                 AND pa.user_id != :user_id2
                 AND NOT EXISTS (
-                    SELECT 1 
-                    FROM achievement_maintainer_unlocks amu 
+                    SELECT 1
+                    FROM achievement_maintainer_unlocks amu
                     WHERE amu.player_achievement_id = pa.id
                 )
         SQL;
         $authorResults = DB::select($authorSql, [
             'user_id' => $user->id,
             'user_id2' => $user->id,
-            'flags' => AchievementFlag::OfficialCore->value,
         ]);
 
         // Calculate maintainer contributions (unlocks credited to the user as a maintainer).
         $maintainerSql = <<<SQL
-            SELECT 
-                SUM(a.Points) as maintainer_points,
+            SELECT
+                SUM(a.points) as maintainer_points,
                 COUNT(*) as maintainer_count
             FROM achievement_maintainer_unlocks amu
-            JOIN Achievements a ON a.ID = amu.achievement_id
+            JOIN achievements a ON a.id = amu.achievement_id
             WHERE amu.maintainer_id = :user_id
-                AND a.Flags = :flags
+                AND a.is_promoted = 1
         SQL;
         $maintainerResults = DB::select($maintainerSql, [
             'user_id' => $user->id,
-            'flags' => AchievementFlag::OfficialCore->value,
         ]);
 
         // Calculate totals.
@@ -83,35 +80,35 @@ class UpdateDeveloperContributionYieldAction
 
     private function getChronologicalUnlocks(User $user, int $type, int $offset = 0, int $limit = 10000): array
     {
-        $pointsField = ($type == AwardType::AchievementPointsYield) ? 'a.Points' : '1';
+        $pointsField = ($type == AwardType::AchievementPointsYield) ? 'a.points' : '1';
 
         // Get the unlocks in chronological order.
         $unlocksSql = <<<SQL
             -- Author unlocks (where no maintainer has claimed credit).
-            SELECT 
+            SELECT
                 {$pointsField} as Points,
                 COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) as unlock_date
-            FROM Achievements a
-            JOIN player_achievements pa ON pa.achievement_id = a.ID
+            FROM achievements a
+            JOIN player_achievements pa ON pa.achievement_id = a.id
             WHERE a.user_id = :user_id
-            AND a.Flags = :flags
+            AND a.is_promoted = 1
             AND pa.user_id != :user_id2
             AND NOT EXISTS (
-                SELECT 1 
-                FROM achievement_maintainer_unlocks amu 
+                SELECT 1
+                FROM achievement_maintainer_unlocks amu
                 WHERE amu.player_achievement_id = pa.id
             )
             UNION ALL
-            
+
             -- Maintainer unlocks.
-            SELECT 
+            SELECT
                 {$pointsField} as Points,
                 COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) as unlock_date
             FROM achievement_maintainer_unlocks amu
             JOIN player_achievements pa ON pa.id = amu.player_achievement_id
-            JOIN Achievements a ON a.ID = amu.achievement_id
+            JOIN achievements a ON a.id = amu.achievement_id
             WHERE amu.maintainer_id = :user_id3
-                AND a.Flags = :flags2
+                AND a.is_promoted = 1
             ORDER BY unlock_date
             LIMIT :limit OFFSET :offset
         SQL;
@@ -120,8 +117,6 @@ class UpdateDeveloperContributionYieldAction
             'user_id' => $user->id,
             'user_id2' => $user->id,
             'user_id3' => $user->id,
-            'flags' => AchievementFlag::OfficialCore->value,
-            'flags2' => AchievementFlag::OfficialCore->value,
             'limit' => $limit,
             'offset' => $offset,
         ]);

@@ -16,7 +16,7 @@ trait BootstrapsConnect
         parent::setUp();
 
         /** @var User $user */
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $this->user = $user;
     }
 
@@ -27,7 +27,7 @@ trait BootstrapsConnect
         auth()->forgetGuards();
 
         if ($credentials) {
-            $params = array_merge(['u' => $this->user->User, 't' => $this->user->appToken], $params);
+            $params = array_merge(['u' => $this->user->username, 't' => $this->user->connect_token], $params);
         }
 
         return array_merge(['r' => $method], $params);

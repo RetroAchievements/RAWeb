@@ -18,7 +18,7 @@ class MessageThreadService
     public function buildForMessageThreadsIndexViewData(User $user, int $forPageNumber = 1): array
     {
         $messageThreads = MessageThread::join('message_thread_participants', 'message_thread_participants.thread_id', '=', 'message_threads.id')
-            ->where('message_thread_participants.user_id', $user->ID)
+            ->where('message_thread_participants.user_id', $user->id)
             ->whereNull('message_thread_participants.deleted_at');
         $totalMessages = $messageThreads->count();
 
@@ -42,24 +42,24 @@ class MessageThreadService
 
         foreach ($messageThreads as &$messageThread) {
             $messageThread['other_participants'] = User::withTrashed()
-                ->join('message_thread_participants', 'message_thread_participants.user_id', '=', DB::raw('UserAccounts.ID'))
+                ->join('message_thread_participants', 'message_thread_participants.user_id', '=', DB::raw('users.id'))
                 ->where('message_thread_participants.thread_id', '=', $messageThread->id)
-                ->where('message_thread_participants.user_id', '!=', $user->ID)
-                ->pluck(DB::raw('UserAccounts.User'))
+                ->where('message_thread_participants.user_id', '!=', $user->id)
+                ->pluck(DB::raw('users.username'))
                 ->toArray();
-            $messageThread['num_unread'] = MessageThreadParticipant::where('user_id', $user->ID)
+            $messageThread['num_unread'] = MessageThreadParticipant::where('user_id', $user->id)
                 ->where('thread_id', $messageThread->id)
                 ->value('num_unread');
         }
 
         return [
             'currentPage' => $currentPage,
-            'isShowAbsoluteDatesPreferenceSet' => BitSet($user->websitePrefs, UserPreference::Forum_ShowAbsoluteDates),
+            'isShowAbsoluteDatesPreferenceSet' => BitSet($user->preferences_bitfield, UserPreference::Forum_ShowAbsoluteDates),
             'messages' => $messageThreads,
             'monthAgo' => Carbon::now()->subMonth(),
             'totalMessages' => $totalMessages,
             'totalPages' => $totalPages,
-            'unreadCount' => $user->UnreadMessageCount,
+            'unreadCount' => $user->unread_messages,
             'user' => $user,
         ];
     }
@@ -70,7 +70,7 @@ class MessageThreadService
         int $forPageNumber = 1,
     ): array {
         $participant = MessageThreadParticipant::where('thread_id', $messageThread->id)
-            ->where('user_id', $user->ID)
+            ->where('user_id', $user->id)
             ->first();
         if (!$participant) {
             abort(404);
@@ -96,20 +96,20 @@ class MessageThreadService
 
         $participants = MessageThreadParticipant::withTrashed()
             ->where('thread_id', $messageThread->id)
-            ->join('UserAccounts', DB::raw('UserAccounts.ID'), '=', 'message_thread_participants.user_id');
+            ->join('users', DB::raw('users.id'), '=', 'message_thread_participants.user_id');
 
         $canReply = ($participants->count() === 1) || (clone $participants)
-            ->where('user_id', '!=', $user->ID)
-            ->whereNull(DB::raw('UserAccounts.Deleted'))
+            ->where('user_id', '!=', $user->id)
+            ->whereNull(DB::raw('users.deleted_at'))
             ->exists();
 
-        $participants = $participants->get([DB::raw('UserAccounts.ID'), DB::raw('UserAccounts.User')])
+        $participants = $participants->get([DB::raw('users.id'), DB::raw('users.username')])
             ->mapWithKeys(function ($participant, $key) {
-                return [$participant->ID => $participant->User];
+                return [$participant->id => $participant->username];
             })
             ->toArray();
 
-        $isShowAbsoluteDatesPreferenceSet = BitSet(request()->user()->websitePrefs, UserPreference::Forum_ShowAbsoluteDates);
+        $isShowAbsoluteDatesPreferenceSet = BitSet(request()->user()->preferences_bitfield, UserPreference::Forum_ShowAbsoluteDates);
         $monthAgo = Carbon::now()->subMonth();
 
         $participantModels = [];
@@ -119,7 +119,7 @@ class MessageThreadService
                     $participantModel = User::withTrashed()->firstWhere('id', $message->author_id);
                     if ($participantModel) {
                         $participantModels[$message->author_id] = $participantModel;
-                        $participants[$participantModel->ID] = $participantModel->User;
+                        $participants[$participantModel->id] = $participantModel->username;
                     }
                 }
             }

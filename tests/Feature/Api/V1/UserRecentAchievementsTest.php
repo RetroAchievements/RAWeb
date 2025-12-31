@@ -26,15 +26,15 @@ class UserRecentAchievementsTest extends TestCase
         /** @var System $system2 */
         $system2 = System::factory()->create();
         /** @var Game $game1 */
-        $game1 = Game::factory()->create(['ConsoleID' => $system1->ID]);
+        $game1 = Game::factory()->create(['system_id' => $system1->id]);
         /** @var Game $game2 */
-        $game2 = Game::factory()->create(['ConsoleID' => $system2->ID]);
+        $game2 = Game::factory()->create(['system_id' => $system2->id]);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game1->ID, 'BadgeName' => '12345']);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game1->id, 'image_name' => '12345']);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'BadgeName' => '23456']);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game2->id, 'image_name' => '23456']);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->progression()->create(['GameID' => $game2->ID, 'BadgeName' => '34567']);
+        $achievement3 = Achievement::factory()->promoted()->progression()->create(['game_id' => $game2->id, 'image_name' => '34567']);
 
         $now = Carbon::now()->subSeconds(15); // 15-second offset so times aren't on the boundaries being queried
         $unlock1Date = $now->clone()->subMinutes(65);
@@ -49,177 +49,177 @@ class UserRecentAchievementsTest extends TestCase
         $achievement3->refresh();
 
         // nothing in the last 0 minutes
-        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->User, 'm' => 0]))
+        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->username, 'm' => 0]))
             ->assertSuccessful()
             ->assertJsonCount(0)
             ->assertJson([]);
 
         // nothing in the last 1 minute
-        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->User, 'm' => 1]))
+        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->username, 'm' => 1]))
             ->assertSuccessful()
             ->assertJsonCount(0)
             ->assertJson([]);
 
         // one in the last 5 minutes
-        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->User, 'm' => 5]))
+        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->username, 'm' => 5]))
             ->assertSuccessful()
             ->assertJsonCount(1)
             ->assertJson([
                 [
-                    'AchievementID' => $achievement3->ID,
-                    'Author' => $achievement3->developer->User,
-                    'BadgeName' => $achievement3->BadgeName,
-                    'BadgeURL' => '/Badge/' . $achievement3->BadgeName . '.png',
-                    'ConsoleName' => $system2->Name,
+                    'AchievementID' => $achievement3->id,
+                    'Author' => $achievement3->developer->username,
+                    'BadgeName' => $achievement3->image_name,
+                    'BadgeURL' => '/Badge/' . $achievement3->image_name . '.png',
+                    'ConsoleName' => $system2->name,
                     'Date' => $unlock3Date->format('Y-m-d H:i:s'),
-                    'Description' => $achievement3->Description,
+                    'Description' => $achievement3->description,
                     'HardcoreMode' => UnlockMode::Softcore,
-                    'Points' => $achievement3->Points,
+                    'Points' => $achievement3->points,
                     'TrueRatio' => $achievement3->points_weighted,
-                    'Title' => $achievement3->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'Title' => $achievement3->title,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
             ]);
 
         // two in the last 30 minutes (newest first)
-        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->User, 'm' => 30]))
+        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->username, 'm' => 30]))
             ->assertSuccessful()
             ->assertJsonCount(2)
             ->assertJson([
                 [
-                    'AchievementID' => $achievement3->ID,
-                    'Author' => $achievement3->developer->User,
-                    'BadgeName' => $achievement3->BadgeName,
-                    'BadgeURL' => '/Badge/' . $achievement3->BadgeName . '.png',
-                    'ConsoleName' => $system2->Name,
+                    'AchievementID' => $achievement3->id,
+                    'Author' => $achievement3->developer->username,
+                    'BadgeName' => $achievement3->image_name,
+                    'BadgeURL' => '/Badge/' . $achievement3->image_name . '.png',
+                    'ConsoleName' => $system2->name,
                     'Date' => $unlock3Date->format('Y-m-d H:i:s'),
-                    'Description' => $achievement3->Description,
+                    'Description' => $achievement3->description,
                     'HardcoreMode' => UnlockMode::Softcore,
-                    'Points' => $achievement3->Points,
+                    'Points' => $achievement3->points,
                     'TrueRatio' => $achievement3->points_weighted,
                     'Type' => $achievement3->type,
-                    'Title' => $achievement3->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'Title' => $achievement3->title,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
                 [
-                    'AchievementID' => $achievement2->ID,
-                    'Author' => $achievement2->developer->User,
-                    'BadgeName' => $achievement2->BadgeName,
-                    'BadgeURL' => '/Badge/' . $achievement2->BadgeName . '.png',
-                    'ConsoleName' => $system2->Name,
+                    'AchievementID' => $achievement2->id,
+                    'Author' => $achievement2->developer->username,
+                    'BadgeName' => $achievement2->image_name,
+                    'BadgeURL' => '/Badge/' . $achievement2->image_name . '.png',
+                    'ConsoleName' => $system2->name,
                     'Date' => $unlock2Date->format('Y-m-d H:i:s'),
-                    'Description' => $achievement2->Description,
+                    'Description' => $achievement2->description,
                     'HardcoreMode' => UnlockMode::Hardcore,
-                    'Points' => $achievement2->Points,
+                    'Points' => $achievement2->points,
                     'TrueRatio' => $achievement2->points_weighted,
                     'Type' => $achievement2->type,
-                    'Title' => $achievement2->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'Title' => $achievement2->title,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
             ]);
 
         // two in the last 60 minutes
-        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->User]))
+        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->username]))
             ->assertSuccessful()
             ->assertJsonCount(2)
             ->assertJson([
                 [
-                    'AchievementID' => $achievement3->ID,
-                    'Author' => $achievement3->developer->User,
-                    'BadgeName' => $achievement3->BadgeName,
-                    'BadgeURL' => '/Badge/' . $achievement3->BadgeName . '.png',
-                    'ConsoleName' => $system2->Name,
+                    'AchievementID' => $achievement3->id,
+                    'Author' => $achievement3->developer->username,
+                    'BadgeName' => $achievement3->image_name,
+                    'BadgeURL' => '/Badge/' . $achievement3->image_name . '.png',
+                    'ConsoleName' => $system2->name,
                     'Date' => $unlock3Date->format('Y-m-d H:i:s'),
-                    'Description' => $achievement3->Description,
+                    'Description' => $achievement3->description,
                     'HardcoreMode' => UnlockMode::Softcore,
-                    'Points' => $achievement3->Points,
+                    'Points' => $achievement3->points,
                     'TrueRatio' => $achievement3->points_weighted,
                     'Type' => $achievement3->type,
-                    'Title' => $achievement3->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'Title' => $achievement3->title,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
                 [
-                    'AchievementID' => $achievement2->ID,
-                    'Author' => $achievement2->developer->User,
-                    'BadgeName' => $achievement2->BadgeName,
-                    'BadgeURL' => '/Badge/' . $achievement2->BadgeName . '.png',
-                    'ConsoleName' => $system2->Name,
+                    'AchievementID' => $achievement2->id,
+                    'Author' => $achievement2->developer->username,
+                    'BadgeName' => $achievement2->image_name,
+                    'BadgeURL' => '/Badge/' . $achievement2->image_name . '.png',
+                    'ConsoleName' => $system2->name,
                     'Date' => $unlock2Date->format('Y-m-d H:i:s'),
-                    'Description' => $achievement2->Description,
+                    'Description' => $achievement2->description,
                     'HardcoreMode' => UnlockMode::Hardcore,
-                    'Points' => $achievement2->Points,
+                    'Points' => $achievement2->points,
                     'TrueRatio' => $achievement2->points_weighted,
                     'Type' => $achievement2->type,
-                    'Title' => $achievement2->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'Title' => $achievement2->title,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
             ]);
 
         // three in the last 90 minutes
-        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->User, 'm' => 90]))
+        $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->username, 'm' => 90]))
             ->assertSuccessful()
             ->assertJsonCount(3)
             ->assertJson([
                 [
-                    'AchievementID' => $achievement3->ID,
-                    'Author' => $achievement3->developer->User,
-                    'BadgeName' => $achievement3->BadgeName,
-                    'BadgeURL' => '/Badge/' . $achievement3->BadgeName . '.png',
-                    'ConsoleName' => $system2->Name,
+                    'AchievementID' => $achievement3->id,
+                    'Author' => $achievement3->developer->username,
+                    'BadgeName' => $achievement3->image_name,
+                    'BadgeURL' => '/Badge/' . $achievement3->image_name . '.png',
+                    'ConsoleName' => $system2->name,
                     'Date' => $unlock3Date->format('Y-m-d H:i:s'),
-                    'Description' => $achievement3->Description,
+                    'Description' => $achievement3->description,
                     'HardcoreMode' => UnlockMode::Softcore,
-                    'Points' => $achievement3->Points,
+                    'Points' => $achievement3->points,
                     'TrueRatio' => $achievement3->points_weighted,
                     'Type' => $achievement3->type,
-                    'Title' => $achievement3->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'Title' => $achievement3->title,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
                 [
-                    'AchievementID' => $achievement2->ID,
-                    'Author' => $achievement2->developer->User,
-                    'BadgeName' => $achievement2->BadgeName,
-                    'BadgeURL' => '/Badge/' . $achievement2->BadgeName . '.png',
-                    'ConsoleName' => $system2->Name,
+                    'AchievementID' => $achievement2->id,
+                    'Author' => $achievement2->developer->username,
+                    'BadgeName' => $achievement2->image_name,
+                    'BadgeURL' => '/Badge/' . $achievement2->image_name . '.png',
+                    'ConsoleName' => $system2->name,
                     'Date' => $unlock2Date->format('Y-m-d H:i:s'),
-                    'Description' => $achievement2->Description,
+                    'Description' => $achievement2->description,
                     'HardcoreMode' => UnlockMode::Hardcore,
-                    'Points' => $achievement2->Points,
+                    'Points' => $achievement2->points,
                     'TrueRatio' => $achievement2->points_weighted,
                     'Type' => $achievement2->type,
-                    'Title' => $achievement2->Title,
-                    'GameID' => $game2->ID,
-                    'GameTitle' => $game2->Title,
-                    'GameURL' => '/game/' . $game2->ID,
+                    'Title' => $achievement2->title,
+                    'GameID' => $game2->id,
+                    'GameTitle' => $game2->title,
+                    'GameURL' => '/game/' . $game2->id,
                 ],
                 [
-                    'AchievementID' => $achievement1->ID,
-                    'Author' => $achievement1->developer->User,
-                    'BadgeName' => $achievement1->BadgeName,
-                    'BadgeURL' => '/Badge/' . $achievement1->BadgeName . '.png',
-                    'ConsoleName' => $system1->Name,
+                    'AchievementID' => $achievement1->id,
+                    'Author' => $achievement1->developer->username,
+                    'BadgeName' => $achievement1->image_name,
+                    'BadgeURL' => '/Badge/' . $achievement1->image_name . '.png',
+                    'ConsoleName' => $system1->name,
                     'Date' => $unlock1Date->format('Y-m-d H:i:s'),
-                    'Description' => $achievement1->Description,
+                    'Description' => $achievement1->description,
                     'HardcoreMode' => UnlockMode::Hardcore,
-                    'Points' => $achievement1->Points,
+                    'Points' => $achievement1->points,
                     'TrueRatio' => $achievement1->points_weighted,
                     'Type' => $achievement1->type,
-                    'Title' => $achievement1->Title,
-                    'GameID' => $game1->ID,
-                    'GameTitle' => $game1->Title,
-                    'GameURL' => '/game/' . $game1->ID,
+                    'Title' => $achievement1->title,
+                    'GameID' => $game1->id,
+                    'GameTitle' => $game1->title,
+                    'GameURL' => '/game/' . $game1->id,
                 ],
             ]);
     }

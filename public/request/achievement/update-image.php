@@ -12,7 +12,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'achievement' => 'required|integer|exists:Achievements,ID',
+    'achievement' => 'required|integer|exists:achievements,id',
     'file' => 'image',
 ]);
 
@@ -23,7 +23,7 @@ if (!$achievement) {
 }
 
 // Only allow jr. devs to update achievement image if they are the author
-if ($permissions === Permissions::JuniorDeveloper && $user !== $achievement->developer?->User) {
+if ($permissions === Permissions::JuniorDeveloper && $user !== $achievement->developer?->username) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -33,7 +33,7 @@ try {
     return back()->withErrors(__('legacy.error.image_upload'));
 }
 
-$achievement->BadgeName = $imagePath;
+$achievement->image_name = $imagePath;
 if (!$achievement->save()) {
     return back()->withErrors(__('legacy.error.image_upload'));
 }

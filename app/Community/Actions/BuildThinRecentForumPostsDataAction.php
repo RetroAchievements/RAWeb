@@ -33,14 +33,12 @@ class BuildThinRecentForumPostsDataAction
             ->mergeBindings($subQuery)
             ->join('forum_topics as ft', 'ft.id', '=', 'LatestComments.forum_topic_id')
             ->leftJoin('forums as f', 'f.id', '=', 'ft.forum_id')
-            ->leftJoin('UserAccounts as ua', 'ua.ID', '=', 'LatestComments.author_id')
+            ->leftJoin('users as ua', 'ua.id', '=', 'LatestComments.author_id')
             ->select([
                 'LatestComments.created_at as PostedAt',
                 'LatestComments.body as Payload',
-                'ua.User as Author',
+                'ua.username as Author',
                 'ua.display_name as AuthorDisplayName',
-                'ua.RAPoints',
-                'ua.Motto',
                 'ft.id as ForumTopicID',
                 'ft.title as ForumTopicTitle',
                 'LatestComments.author_id as author_id',

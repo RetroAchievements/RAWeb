@@ -21,11 +21,11 @@ class UserGameListControllerTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
-        $games = Game::factory()->count(3)->create(['ConsoleID' => $system->id, 'achievements_published' => 20]);
+        $system = System::factory()->create(['id' => 1]);
+        $games = Game::factory()->count(3)->create(['system_id' => $system->id, 'achievements_published' => 20]);
 
         $addGameToListAction = new AddGameToListAction();
         $addGameToListAction->execute($user, $games->get(0), UserGameListType::Play);

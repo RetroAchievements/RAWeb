@@ -28,8 +28,8 @@ class AchievementSetClaimController extends Controller
 
         $claim = $action->execute($game);
 
-        if (!$game->ForumTopicID && $this->authorize('update', $game)) {
-            generateGameForumTopic(Auth::user(), $game->ID);
+        if (!$game->forum_topic_id && $this->authorize('update', $game)) {
+            generateGameForumTopic(Auth::user(), $game->id);
         }
 
         return back()->with('success', $this->resourceActionSuccessMessage('claim',

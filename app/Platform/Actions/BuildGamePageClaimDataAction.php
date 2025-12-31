@@ -13,7 +13,6 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Data\AchievementSetClaimData;
 use App\Platform\Data\GamePageClaimData;
-use App\Platform\Enums\AchievementFlag;
 use Illuminate\Support\Collection;
 
 class BuildGamePageClaimDataAction
@@ -49,7 +48,7 @@ class BuildGamePageClaimDataAction
 
         // Calculate if the game has official/published achievements and if the system is valid (rolled out).
         $hasOfficialAchievements = $this->calculateHasOfficialAchievements($game);
-        $isValidConsole = isValidConsoleId($game->ConsoleID);
+        $isValidConsole = isValidConsoleId($game->system_id);
 
         $wouldBeCollaboration = $primaryClaimByOtherUser !== null;
         $wouldBeRevision = $game->achievements_published > 0;
@@ -93,7 +92,7 @@ class BuildGamePageClaimDataAction
         // Check if any achievement for the set is published.
         foreach ($game->gameAchievementSets as $gameAchievementSet) {
             foreach ($gameAchievementSet->achievementSet->achievements as $achievement) {
-                if ($achievement->Flags === AchievementFlag::OfficialCore->value) {
+                if ($achievement->is_promoted) {
                     return true;
                 }
             }

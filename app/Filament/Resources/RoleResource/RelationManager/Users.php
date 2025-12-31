@@ -34,7 +34,7 @@ class Users extends RelationManager
                     ->grow(true),
 
             ])
-            ->defaultSort('User', 'asc')
+            ->defaultSort('display_name', 'asc')
             ->headerActions([
             ])
             ->recordActions([

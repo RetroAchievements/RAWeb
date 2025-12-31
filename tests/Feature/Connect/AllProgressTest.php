@@ -19,7 +19,7 @@ class AllProgressTest extends TestCase
     {
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'achievements_published' => 12,
         ]);
 
@@ -47,7 +47,7 @@ class AllProgressTest extends TestCase
     {
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'achievements_published' => 0, // !! set was demoted
         ]);
 
@@ -69,7 +69,7 @@ class AllProgressTest extends TestCase
     {
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'achievements_published' => 12,
         ]);
 
@@ -97,7 +97,7 @@ class AllProgressTest extends TestCase
         $otherSystem = System::factory()->create();
 
         $game = Game::factory()->create([
-            'ConsoleID' => $otherSystem->id,  // !! different console
+            'system_id' => $otherSystem->id,  // !! different console
             'achievements_published' => 12,
         ]);
 

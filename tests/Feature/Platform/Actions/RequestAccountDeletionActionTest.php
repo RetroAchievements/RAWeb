@@ -40,11 +40,11 @@ class RequestAccountDeletionActionTest extends TestCase
         $user->refresh();
 
         $this->assertEquals(Permissions::Unregistered, $user->getAttribute('Permissions'));
-        $this->assertEquals($now, $user->DeleteRequested);
+        $this->assertEquals($now, $user->delete_requested_at);
 
-        $this->assertAuditComment(ArticleType::UserModeration, $user->ID, $user->User . ' requested account deletion');
+        $this->assertAuditComment(ArticleType::UserModeration, $user->id, $user->username . ' requested account deletion');
 
-        Mail::assertQueued(RequestAccountDeleteMail::class, $user->EmailAddress);
+        Mail::assertQueued(RequestAccountDeleteMail::class, $user->email);
 
         /* second attempt to delete user does nothing */
         $now2 = $now->clone()->addDays(2);
@@ -53,7 +53,7 @@ class RequestAccountDeletionActionTest extends TestCase
         $this->assertFalse((new RequestAccountDeletionAction())->execute($user));
 
         $user->refresh();
-        $this->assertEquals($now, $user->DeleteRequested);
+        $this->assertEquals($now, $user->delete_requested_at);
     }
 
     public function testDeleteDeveloperWithClaims(): void
@@ -94,20 +94,20 @@ class RequestAccountDeletionActionTest extends TestCase
 
         // account should be demoted to Registered
         $this->assertEquals(Permissions::Registered, $user->getAttribute('Permissions'));
-        $this->assertEquals($now, $user->DeleteRequested);
+        $this->assertEquals($now, $user->delete_requested_at);
 
-        $this->assertAuditComment(ArticleType::UserModeration, $user->ID, $user->User . ' requested account deletion');
+        $this->assertAuditComment(ArticleType::UserModeration, $user->id, $user->username . ' requested account deletion');
 
-        Mail::assertQueued(RequestAccountDeleteMail::class, $user->EmailAddress);
+        Mail::assertQueued(RequestAccountDeleteMail::class, $user->email);
 
         // non-completed claims should be dropped
         $claim1->refresh();
         $this->assertEquals(ClaimStatus::Dropped, $claim1->status);
-        $this->assertAuditComment(ArticleType::SetClaim, $claim1->id, $user->User . "'s Primary claim dropped via demotion to Registered.");
+        $this->assertAuditComment(ArticleType::SetClaim, $claim1->id, $user->username . "'s Primary claim dropped via demotion to Registered.");
 
         $claim2->refresh();
         $this->assertEquals(ClaimStatus::Dropped, $claim2->status);
-        $this->assertAuditComment(ArticleType::SetClaim, $claim2->id, $user->User . "'s Collaboration claim dropped via demotion to Registered.");
+        $this->assertAuditComment(ArticleType::SetClaim, $claim2->id, $user->username . "'s Collaboration claim dropped via demotion to Registered.");
 
         $claim3->refresh();
         $this->assertEquals(ClaimStatus::Complete, $claim3->status);

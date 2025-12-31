@@ -11,7 +11,6 @@ use App\Models\Game;
 use App\Models\GameRelease;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\GameReleaseRegion;
 use App\Platform\Enums\ReleasedAtGranularity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -40,20 +39,20 @@ class GameExtendedTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ForumTopicID' => 1234,
-            'ImageIcon' => '/Images/000011.png',
-            'ImageTitle' => '/Images/000021.png',
-            'ImageIngame' => '/Images/000031.png',
-            'ImageBoxArt' => '/Images/000041.png',
-            'Publisher' => 'WePublishStuff',
-            'Developer' => 'WeDevelopStuff',
-            'Genre' => 'Action',
+            'system_id' => $system->id,
+            'forum_topic_id' => 1234,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'image_title_asset_path' => '/Images/000021.png',
+            'image_ingame_asset_path' => '/Images/000031.png',
+            'image_box_art_asset_path' => '/Images/000041.png',
+            'publisher' => 'WePublishStuff',
+            'developer' => 'WeDevelopStuff',
+            'genre' => 'Action',
         ]);
 
         GameRelease::factory()->create([
-            'game_id' => $game->ID,
-            'title' => $game->Title,
+            'game_id' => $game->id,
+            'title' => $game->title,
             'released_at' => $releasedAt,
             'released_at_granularity' => ReleasedAtGranularity::Day,
             'region' => GameReleaseRegion::NorthAmerica,
@@ -61,13 +60,13 @@ class GameExtendedTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '23456', 'DisplayOrder' => 3]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '23456', 'order_column' => 3]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '34567', 'DisplayOrder' => 2]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '34567', 'order_column' => 2]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->create(['GameID' => $game->ID]); // unofficial
+        $achievement4 = Achievement::factory()->create(['game_id' => $game->id]); // unofficial
 
         /** @var User $user2 */
         $user2 = User::factory()->create();
@@ -95,22 +94,22 @@ class GameExtendedTest extends TestCase
         $this->addHardcoreUnlock($user4, $achievement1);
         $this->addHardcoreUnlock($user4, $achievement2);
 
-        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID]))
+        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->id]))
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
-                'ForumTopicID' => $game->ForumTopicID,
+                'ID' => $game->id,
+                'Title' => $game->title,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
+                'ForumTopicID' => $game->forum_topic_id,
                 'Flags' => null,
-                'ImageIcon' => $game->ImageIcon,
-                'ImageTitle' => $game->ImageTitle,
-                'ImageIngame' => $game->ImageIngame,
-                'ImageBoxArt' => $game->ImageBoxArt,
-                'Publisher' => $game->Publisher,
-                'Developer' => $game->Developer,
-                'Genre' => $game->Genre,
+                'ImageIcon' => $game->image_icon_asset_path,
+                'ImageTitle' => $game->image_title_asset_path,
+                'ImageIngame' => $game->image_ingame_asset_path,
+                'ImageBoxArt' => $game->image_box_art_asset_path,
+                'Publisher' => $game->publisher,
+                'Developer' => $game->developer,
+                'Genre' => $game->genre,
                 'Released' => $releasedAt->format('Y-m-d'),
                 'ReleasedAtGranularity' => 'day',
                 'NumAchievements' => 3,
@@ -118,66 +117,66 @@ class GameExtendedTest extends TestCase
                 'NumDistinctPlayersCasual' => 4,
                 'NumDistinctPlayersHardcore' => 4,
                 'Achievements' => [
-                    $achievement1->ID => [
-                        'ID' => $achievement1->ID,
-                        'Title' => $achievement1->Title,
-                        'Description' => $achievement1->Description,
-                        'Points' => $achievement1->Points,
-                        'BadgeName' => $achievement1->BadgeName,
-                        'DisplayOrder' => $achievement1->DisplayOrder,
-                        'Author' => $achievement1->developer->User,
+                    $achievement1->id => [
+                        'ID' => $achievement1->id,
+                        'Title' => $achievement1->title,
+                        'Description' => $achievement1->description,
+                        'Points' => $achievement1->points,
+                        'BadgeName' => $achievement1->image_name,
+                        'DisplayOrder' => $achievement1->order_column,
+                        'Author' => $achievement1->developer->username,
                         'AuthorULID' => $achievement1->developer->ulid,
-                        'DateCreated' => $achievement1->DateCreated->__toString(),
-                        'DateModified' => $achievement1->DateModified->__toString(),
+                        'DateCreated' => $achievement1->created_at->__toString(),
+                        'DateModified' => $achievement1->modified_at->__toString(),
                         'NumAwarded' => 4,
                         'NumAwardedHardcore' => 3,
                     ],
-                    $achievement3->ID => [
-                        'ID' => $achievement3->ID,
-                        'Title' => $achievement3->Title,
-                        'Description' => $achievement3->Description,
-                        'Points' => $achievement3->Points,
-                        'BadgeName' => $achievement3->BadgeName,
-                        'DisplayOrder' => $achievement3->DisplayOrder,
-                        'Author' => $achievement3->developer->User,
+                    $achievement3->id => [
+                        'ID' => $achievement3->id,
+                        'Title' => $achievement3->title,
+                        'Description' => $achievement3->description,
+                        'Points' => $achievement3->points,
+                        'BadgeName' => $achievement3->image_name,
+                        'DisplayOrder' => $achievement3->order_column,
+                        'Author' => $achievement3->developer->username,
                         'AuthorULID' => $achievement3->developer->ulid,
-                        'DateCreated' => $achievement3->DateCreated->__toString(),
-                        'DateModified' => $achievement3->DateModified->__toString(),
+                        'DateCreated' => $achievement3->created_at->__toString(),
+                        'DateModified' => $achievement3->modified_at->__toString(),
                         'NumAwarded' => 3,
                         'NumAwardedHardcore' => 1,
                     ],
-                    $achievement2->ID => [
-                        'ID' => $achievement2->ID,
-                        'Title' => $achievement2->Title,
-                        'Description' => $achievement2->Description,
-                        'Points' => $achievement2->Points,
-                        'BadgeName' => $achievement2->BadgeName,
-                        'DisplayOrder' => $achievement2->DisplayOrder,
-                        'Author' => $achievement2->developer->User,
+                    $achievement2->id => [
+                        'ID' => $achievement2->id,
+                        'Title' => $achievement2->title,
+                        'Description' => $achievement2->description,
+                        'Points' => $achievement2->points,
+                        'BadgeName' => $achievement2->image_name,
+                        'DisplayOrder' => $achievement2->order_column,
+                        'Author' => $achievement2->developer->username,
                         'AuthorULID' => $achievement2->developer->ulid,
-                        'DateCreated' => $achievement2->DateCreated->__toString(),
-                        'DateModified' => $achievement2->DateModified->__toString(),
+                        'DateCreated' => $achievement2->created_at->__toString(),
+                        'DateModified' => $achievement2->modified_at->__toString(),
                         'NumAwarded' => 4,
                         'NumAwardedHardcore' => 2,
                     ],
                 ],
             ]);
 
-        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID, 'f' => AchievementFlag::Unofficial->value]))
+        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->id, 'f' => Achievement::FLAG_UNPROMOTED]))
             ->assertSuccessful()
             ->assertJson([
                 'Achievements' => [
-                    $achievement4->ID => [
-                        'ID' => $achievement4->ID,
-                        'Title' => $achievement4->Title,
-                        'Description' => $achievement4->Description,
-                        'Points' => $achievement4->Points,
-                        'BadgeName' => $achievement4->BadgeName,
-                        'DisplayOrder' => $achievement4->DisplayOrder,
-                        'Author' => $achievement4->developer->User,
+                    $achievement4->id => [
+                        'ID' => $achievement4->id,
+                        'Title' => $achievement4->title,
+                        'Description' => $achievement4->description,
+                        'Points' => $achievement4->points,
+                        'BadgeName' => $achievement4->image_name,
+                        'DisplayOrder' => $achievement4->order_column,
+                        'Author' => $achievement4->developer->username,
                         'AuthorULID' => $achievement4->developer->ulid,
-                        'DateCreated' => $achievement4->DateCreated->__toString(),
-                        'DateModified' => $achievement4->DateModified->__toString(),
+                        'DateCreated' => $achievement4->created_at->__toString(),
+                        'DateModified' => $achievement4->modified_at->__toString(),
                         'NumAwarded' => 0,
                         'NumAwardedHardcore' => 0,
                     ],
@@ -193,20 +192,20 @@ class GameExtendedTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
-            'ForumTopicID' => 1234,
-            'ImageIcon' => '/Images/000011.png',
-            'ImageTitle' => '/Images/000021.png',
-            'ImageIngame' => '/Images/000031.png',
-            'ImageBoxArt' => '/Images/000041.png',
-            'Publisher' => 'WePublishStuff',
-            'Developer' => 'WeDevelopStuff',
-            'Genre' => 'Action',
+            'system_id' => $system->id,
+            'forum_topic_id' => 1234,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'image_title_asset_path' => '/Images/000021.png',
+            'image_ingame_asset_path' => '/Images/000031.png',
+            'image_box_art_asset_path' => '/Images/000041.png',
+            'publisher' => 'WePublishStuff',
+            'developer' => 'WeDevelopStuff',
+            'genre' => 'Action',
         ]);
 
         GameRelease::factory()->create([
-            'game_id' => $game->ID,
-            'title' => $game->Title,
+            'game_id' => $game->id,
+            'title' => $game->title,
             'released_at' => $releasedAt,
             'released_at_granularity' => ReleasedAtGranularity::Day,
             'region' => GameReleaseRegion::NorthAmerica,
@@ -222,28 +221,28 @@ class GameExtendedTest extends TestCase
             'game_id' => $game->id,
         ]);
 
-        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID]))
+        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->id]))
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
-                'ForumTopicID' => $game->ForumTopicID,
+                'ID' => $game->id,
+                'Title' => $game->title,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
+                'ForumTopicID' => $game->forum_topic_id,
                 'Flags' => null,
-                'ImageIcon' => $game->ImageIcon,
-                'ImageTitle' => $game->ImageTitle,
-                'ImageIngame' => $game->ImageIngame,
-                'ImageBoxArt' => $game->ImageBoxArt,
-                'Publisher' => $game->Publisher,
-                'Developer' => $game->Developer,
-                'Genre' => $game->Genre,
+                'ImageIcon' => $game->image_icon_asset_path,
+                'ImageTitle' => $game->image_title_asset_path,
+                'ImageIngame' => $game->image_ingame_asset_path,
+                'ImageBoxArt' => $game->image_box_art_asset_path,
+                'Publisher' => $game->publisher,
+                'Developer' => $game->developer,
+                'Genre' => $game->genre,
                 'Released' => $releasedAt->format('Y-m-d'),
                 'ReleasedAtGranularity' => 'day',
                 'Achievements' => [],
                 'Claims' => [
                     [
-                        'User' => $claim->user->User,
+                        'User' => $claim->user->username,
                         'ULID' => $claim->user->ulid,
                         'SetType' => $claim->set_type->toLegacyInteger(),
                         'ClaimType' => $claim->claim_type->toLegacyInteger(),
@@ -258,7 +257,7 @@ class GameExtendedTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         // Assert
         $this->get($this->apiUrl('GetGameExtended', ['i' => $game->id, 'f' => 2]))

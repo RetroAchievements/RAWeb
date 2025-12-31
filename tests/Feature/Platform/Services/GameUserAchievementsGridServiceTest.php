@@ -22,8 +22,8 @@ class GameUserAchievementsGridServiceTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
-        $publishedAchievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
-        $unofficialAchievement = Achievement::factory()->create(['GameID' => $game->id]);
+        $publishedAchievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $unofficialAchievement = Achievement::factory()->create(['game_id' => $game->id]);
 
         $service = new GameUserAchievementsGridService();
 
@@ -41,10 +41,10 @@ class GameUserAchievementsGridServiceTest extends TestCase
             'Points' => $publishedAchievement->points,
             'TrueRatio' => $publishedAchievement->points_weighted,
             'Type' => $publishedAchievement->type,
-            'BadgeName' => $publishedAchievement->BadgeName . '_lock',
-            'BadgeURL' => media_asset('Badge/' . $publishedAchievement->BadgeName . '_lock.png'),
+            'BadgeName' => $publishedAchievement->image_name . '_lock',
+            'BadgeURL' => media_asset('Badge/' . $publishedAchievement->image_name . '_lock.png'),
             'BadgeClassNames' => '',
-            'DisplayOrder' => $publishedAchievement->DisplayOrder,
+            'DisplayOrder' => $publishedAchievement->order_column,
             'Unlocked' => false,
             'DateAwarded' => null,
             'HardcoreAchieved' => null,
@@ -58,7 +58,7 @@ class GameUserAchievementsGridServiceTest extends TestCase
 
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
-        $publishedAchievement = Achievement::factory()->published()->create(['GameID' => $game->id]);
+        $publishedAchievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         $this->addHardcoreUnlock($user, $publishedAchievement);
 
@@ -78,10 +78,10 @@ class GameUserAchievementsGridServiceTest extends TestCase
             'Points' => $publishedAchievement->points,
             'TrueRatio' => $publishedAchievement->points_weighted,
             'Type' => $publishedAchievement->type,
-            'BadgeName' => $publishedAchievement->BadgeName,
-            'BadgeURL' => media_asset('Badge/' . $publishedAchievement->BadgeName . '.png'),
+            'BadgeName' => $publishedAchievement->image_name,
+            'BadgeURL' => media_asset('Badge/' . $publishedAchievement->image_name . '.png'),
             'BadgeClassNames' => 'goldimage',
-            'DisplayOrder' => $publishedAchievement->DisplayOrder,
+            'DisplayOrder' => $publishedAchievement->order_column,
             'Unlocked' => true,
             'DateAwarded' => Carbon::now()->format('Y-m-d H:i:s'),
             'HardcoreAchieved' => Carbon::now()->format('Y-m-d H:i:s'),

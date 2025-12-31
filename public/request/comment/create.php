@@ -34,7 +34,7 @@ $commentable = match ($articleType) {
     default => null,
 };
 
-$userModel = User::find($userDetails['ID']);
+$userModel = User::find($userDetails['id']);
 if (!$userModel->can('create', [Comment::class, $commentable, $articleType])) {
     return back()->withErrors(__('legacy.error.error'));
 }

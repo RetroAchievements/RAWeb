@@ -49,7 +49,7 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
         if ($gameId) {
             $game = Game::find($gameId);
 
-            return $game && !in_array($game->ConsoleID, System::getNonGameSystems()) ? $game : null;
+            return $game && !in_array($game->system_id, System::getNonGameSystems()) ? $game : null;
         }
 
         return null;

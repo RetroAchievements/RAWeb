@@ -22,7 +22,9 @@ describe('Component: NotificationsSectionCard', () => {
     const userSettings = createUser();
 
     const { container } = render<App.Community.Data.UserSettingsPageProps>(
-      <NotificationsSectionCard currentWebsitePrefs={userSettings.websitePrefs ?? 0} />,
+      <NotificationsSectionCard
+        currentPreferencesBitfield={userSettings.preferencesBitfield ?? 0}
+      />,
     );
 
     // ASSERT
@@ -40,13 +42,16 @@ describe('Component: NotificationsSectionCard', () => {
     const mockWebsitePrefs = convertObjectToWebsitePrefs(mappedPreferences);
 
     render<App.Community.Data.UserSettingsPageProps>(
-      <NotificationsSectionCard currentWebsitePrefs={mockWebsitePrefs} />,
+      <NotificationsSectionCard currentPreferencesBitfield={mockWebsitePrefs} />,
       {
         pageProps: {
           can: {},
           userSettings: createUser(),
           auth: {
-            user: createAuthenticatedUser({ websitePrefs: mockWebsitePrefs, roles: ['developer'] }),
+            user: createAuthenticatedUser({
+              preferencesBitfield: mockWebsitePrefs,
+              roles: ['developer'],
+            }),
           },
         },
       },
@@ -71,10 +76,10 @@ describe('Component: NotificationsSectionCard', () => {
     const mockWebsitePrefs = convertObjectToWebsitePrefs(mappedPreferences);
 
     render<App.Community.Data.UserSettingsPageProps>(
-      <NotificationsSectionCard currentWebsitePrefs={mockWebsitePrefs} />,
+      <NotificationsSectionCard currentPreferencesBitfield={mockWebsitePrefs} />,
       {
         pageProps: {
-          auth: { user: createAuthenticatedUser({ websitePrefs: mockWebsitePrefs }) },
+          auth: { user: createAuthenticatedUser({ preferencesBitfield: mockWebsitePrefs }) },
         },
       },
     );
@@ -85,14 +90,14 @@ describe('Component: NotificationsSectionCard', () => {
 
     // ASSERT
     expect(putSpy).toHaveBeenCalledWith(route('api.settings.preferences.update'), {
-      websitePrefs: 401,
+      preferencesBitfield: 401,
     });
   });
 
   it('shows developer-only notification setting for users with developer role', () => {
     // ARRANGE
     render<App.Community.Data.UserSettingsPageProps>(
-      <NotificationsSectionCard currentWebsitePrefs={0} />,
+      <NotificationsSectionCard currentPreferencesBitfield={0} />,
       {
         pageProps: {
           auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
@@ -111,7 +116,7 @@ describe('Component: NotificationsSectionCard', () => {
   it('shows developer-only notification setting for users with developer-junior role', () => {
     // ARRANGE
     render<App.Community.Data.UserSettingsPageProps>(
-      <NotificationsSectionCard currentWebsitePrefs={0} />,
+      <NotificationsSectionCard currentPreferencesBitfield={0} />,
       {
         pageProps: {
           auth: { user: createAuthenticatedUser({ roles: ['developer-junior'] }) },
@@ -130,7 +135,7 @@ describe('Component: NotificationsSectionCard', () => {
   it('hides developer-only notification setting for non-developer users', () => {
     // ARRANGE
     render<App.Community.Data.UserSettingsPageProps>(
-      <NotificationsSectionCard currentWebsitePrefs={0} />,
+      <NotificationsSectionCard currentPreferencesBitfield={0} />,
       {
         pageProps: {
           auth: { user: createAuthenticatedUser({ roles: [] }) },

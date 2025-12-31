@@ -19,7 +19,7 @@ class AchievementSetClaimSeeder extends Seeder
 
         Game::take(5)->get()->each(function (Game $game) {
             AchievementSetClaim::factory()->count(5)->create([
-                'game_id' => $game->ID,
+                'game_id' => $game->id,
                 'status' => ClaimStatus::Complete,
             ]);
         });

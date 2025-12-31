@@ -175,7 +175,7 @@ class AchievementSetClaimListService
                 $systems[$system->id] = $system->name;
             } elseif (!$onlyValid) {
                 $systemClaims = AchievementSetClaim::whereHas('game', function ($query) use ($system) {
-                    $query->where('ConsoleID', '=', $system->id);
+                    $query->where('system_id', '=', $system->id);
                 });
                 if ($systemClaims->exists()) {
                     $systems[$system->id] = $system->name;
@@ -282,7 +282,7 @@ class AchievementSetClaimListService
 
         if ($filterOptions['system'] !== 0) {
             $claims->whereHas('game', function ($query) use ($filterOptions) {
-                $query->where('ConsoleID', '=', $filterOptions['system']);
+                $query->where('system_id', '=', $filterOptions['system']);
             });
         }
 
@@ -300,16 +300,16 @@ class AchievementSetClaimListService
 
         switch ($this->sortOrder) {
             case 'title':
-                $claims->join('GameData', 'GameData.ID', '=', 'achievement_set_claims.game_id')
-                    ->orderByRaw(ifStatement("GameData.Title LIKE '~%'", 1, 0))
-                    ->orderBy('GameData.Title')
+                $claims->join('games', 'games.id', '=', 'achievement_set_claims.game_id')
+                    ->orderByRaw(ifStatement("games.title LIKE '~%'", 1, 0))
+                    ->orderBy('games.title')
                     ->orderByDesc('achievement_set_claims.finished_at')
                     ->select('achievement_set_claims.*');
                 break;
 
             case 'developer':
-                $claims->join('UserAccounts', 'UserAccounts.ID', '=', 'achievement_set_claims.user_id')
-                    ->orderBy('UserAccounts.User')
+                $claims->join('users', 'users.id', '=', 'achievement_set_claims.user_id')
+                    ->orderBy('users.username')
                     ->orderByDesc('achievement_set_claims.finished_at')
                     ->select('achievement_set_claims.*');
                 break;

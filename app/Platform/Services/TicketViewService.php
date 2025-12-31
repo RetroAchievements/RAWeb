@@ -30,10 +30,10 @@ class TicketViewService
     public function load(Ticket $ticket): void
     {
         if ($ticket->reporter) {
-            $msgTitle = rawurlencode("Bug Report ({$ticket->achievement->game->Title})");
-            $msgPayload = "Hi [user={$ticket->reporter->User}], I'm contacting you about [ticket={$ticket->ID}]";
+            $msgTitle = rawurlencode("Bug Report ({$ticket->achievement->game->title})");
+            $msgPayload = "Hi [user={$ticket->reporter->display_name}], I'm contacting you about [ticket={$ticket->ID}]";
             $msgPayload = rawurlencode($msgPayload);
-            $this->contactReporterUrl = route('message-thread.create') . "?to={$ticket->reporter->User}&subject=$msgTitle&message=$msgPayload";
+            $this->contactReporterUrl = route('message-thread.create') . "?to={$ticket->reporter->display_name}&subject=$msgTitle&message=$msgPayload";
 
             $this->existingUnlock = PlayerAchievement::where('user_id', $ticket->reporter->id)
                 ->where('achievement_id', $ticket->achievement->id)
