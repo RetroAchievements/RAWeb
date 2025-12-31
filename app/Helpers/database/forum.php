@@ -305,7 +305,7 @@ function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment
     $wikipediaURL = "https://www.google.com/search?q=site:en.wikipedia.org+$urlSafeGameTitle";
 
     $topicPayload = "Official Topic Post for discussion about [game=$gameId]\n" .
-        "Created " . date("j M, Y H:i") . " by [user={$user->username}]\n\n" .
+        "Created " . date("j M, Y H:i") . " by [user={$user->display_name}]\n\n" .
         "[b][url=$hashesURL]Supported Game Files[/url][/b]\n\n" .
         "[b]Resources:[/b]\n" .
         // FIXME there is a bug here. these links are malformed for some games, such as game id 26257
