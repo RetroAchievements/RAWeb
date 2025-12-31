@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from 'motion/react';
 import { type FC, type KeyboardEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronRight, LuLoaderCircle, LuSearch } from 'react-icons/lu';
-import { route } from 'ziggy-js';
 
 import {
   BaseCommand,
@@ -29,6 +28,7 @@ import { SearchResultsSkeleton } from './components/SearchResultsSkeleton';
 import { useGlobalSearchDebounce } from './hooks/useGlobalSearchDebounce';
 import { useGlobalSearchHotkey } from './hooks/useGlobalSearchHotkey';
 import { useScrollToTopOnSearchResults } from './hooks/useScrollToTopOnSearchResults';
+import { buildSearchUrl } from './utils/buildSearchUrl';
 
 interface GlobalSearchProps {
   isOpen: boolean;
@@ -168,13 +168,7 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
             />
 
             {/* Because this is a React island, we can't use InertiaLink. */}
-            <a
-              href={route('search', {
-                query: rawQuery || undefined,
-                scope: searchMode !== 'all' ? searchMode : undefined,
-              })}
-              className="hidden items-center sm:flex"
-            >
+            <a href={buildSearchUrl(rawQuery, searchMode)} className="hidden items-center sm:flex">
               {t('Browse')} <LuChevronRight className="size-4" />
             </a>
           </div>
