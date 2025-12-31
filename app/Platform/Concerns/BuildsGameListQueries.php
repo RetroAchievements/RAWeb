@@ -51,8 +51,8 @@ trait BuildsGameListQueries
                 // Fetch counts here to avoid N+1 query problems.
 
                 'has_active_or_in_review_claims' => AchievementSetClaim::selectRaw('CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END')
-                    ->whereColumn('SetClaim.game_id', 'games.id')
-                    ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
+                    ->whereColumn('achievement_set_claims.game_id', 'games.id')
+                    ->whereIn('status', [ClaimStatus::Active->value, ClaimStatus::InReview->value])
                     ->limit(1),
 
                 'num_visible_leaderboards' => Leaderboard::selectRaw('COUNT(*)')
@@ -228,16 +228,16 @@ trait BuildsGameListQueries
                     if ($filterValues[0] === 'claimed') {
                         $query->whereExists(function ($subquery) {
                             $subquery->select(DB::raw(1))
-                                ->from('SetClaim')
-                                ->whereColumn('SetClaim.game_id', 'games.id')
-                                ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview]);
+                                ->from('achievement_set_claims')
+                                ->whereColumn('achievement_set_claims.game_id', 'games.id')
+                                ->whereIn('status', [ClaimStatus::Active->value, ClaimStatus::InReview->value]);
                         });
                     } elseif ($filterValues[0] === 'unclaimed') {
                         $query->whereNotExists(function ($subquery) {
                             $subquery->select(DB::raw(1))
-                                ->from('SetClaim')
-                                ->whereColumn('SetClaim.game_id', 'games.id')
-                                ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview]);
+                                ->from('achievement_set_claims')
+                                ->whereColumn('achievement_set_claims.game_id', 'games.id')
+                                ->whereIn('status', [ClaimStatus::Active->value, ClaimStatus::InReview->value]);
                         });
                     }
                 }

@@ -53,22 +53,22 @@ class UserClaimsTest extends TestCase
             ->assertSuccessful()
             ->assertJson([
                 [
-                    'ID' => $claim->ID,
+                    'ID' => $claim->id,
                     'User' => $user->username,
                     'ULID' => $user->ulid,
                     'GameID' => $game->id,
                     'GameTitle' => $game->title,
                     'GameIcon' => $game->image_icon_asset_path,
                     'ConsoleName' => $system->name,
-                    'ClaimType' => ClaimType::Primary,
-                    'SetType' => ClaimSetType::NewSet,
-                    'Status' => ClaimStatus::Active,
+                    'ClaimType' => ClaimType::Primary->toLegacyInteger(),
+                    'SetType' => ClaimSetType::NewSet->toLegacyInteger(),
+                    'Status' => ClaimStatus::Active->toLegacyInteger(),
                     'Extension' => 0,
-                    'Special' => ClaimSpecial::None,
-                    'Created' => $claim->Created->__toString(),
-                    'DoneTime' => $claim->Finished->__toString(),
-                    'Updated' => $claim->Updated->__toString(),
-                    'MinutesLeft' => Carbon::now()->diffInMinutes($claim->Finished),
+                    'Special' => ClaimSpecial::None->toLegacyInteger(),
+                    'Created' => $claim->created_at->__toString(),
+                    'DoneTime' => $claim->finished_at->__toString(),
+                    'Updated' => $claim->updated_at->__toString(),
+                    'MinutesLeft' => Carbon::now()->diffInMinutes($claim->finished_at),
                 ],
             ]);
     }
@@ -95,22 +95,22 @@ class UserClaimsTest extends TestCase
             ->assertSuccessful()
             ->assertJson([
                 [
-                    'ID' => $claim->ID,
+                    'ID' => $claim->id,
                     'User' => $user->username,
                     'ULID' => $user->ulid,
                     'GameID' => $game->id,
                     'GameTitle' => $game->title,
                     'GameIcon' => $game->image_icon_asset_path,
                     'ConsoleName' => $system->name,
-                    'ClaimType' => ClaimType::Primary,
-                    'SetType' => ClaimSetType::NewSet,
-                    'Status' => ClaimStatus::Active,
+                    'ClaimType' => ClaimType::Primary->toLegacyInteger(),
+                    'SetType' => ClaimSetType::NewSet->toLegacyInteger(),
+                    'Status' => ClaimStatus::Active->toLegacyInteger(),
                     'Extension' => 0,
-                    'Special' => ClaimSpecial::None,
-                    'Created' => $claim->Created->__toString(),
-                    'DoneTime' => $claim->Finished->__toString(),
-                    'Updated' => $claim->Updated->__toString(),
-                    'MinutesLeft' => Carbon::now()->diffInMinutes($claim->Finished),
+                    'Special' => ClaimSpecial::None->toLegacyInteger(),
+                    'Created' => $claim->created_at->__toString(),
+                    'DoneTime' => $claim->finished_at->__toString(),
+                    'Updated' => $claim->updated_at->__toString(),
+                    'MinutesLeft' => Carbon::now()->diffInMinutes($claim->finished_at),
                 ],
             ]);
     }

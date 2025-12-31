@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Data;
 
+use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimStatus;
+use App\Community\Enums\ClaimType;
 use App\Models\AchievementSetClaim;
 use App\Platform\Data\GameData;
 use Carbon\Carbon;
@@ -25,9 +28,9 @@ class AchievementSetClaimGroupData extends Data
         public array $users,
 
         public GameData $game,
-        public int $claimType,
-        public int $setType,
-        public int $status,
+        public ClaimType $claimType,
+        public ClaimSetType $setType,
+        public ClaimStatus $status,
         public Carbon $created,
         public Carbon $finished,
     ) {
@@ -39,14 +42,14 @@ class AchievementSetClaimGroupData extends Data
         $gameData = GameData::from($claim->game)->include('badgeUrl', 'system');
 
         return new self(
-            id: $claim->ID,
+            id: $claim->id,
             users: $userData,
             game: $gameData,
-            claimType: $claim->ClaimType,
-            setType: $claim->SetType,
-            status: $claim->Status,
-            created: Carbon::parse($claim->Created),
-            finished: Carbon::parse($claim->Finished),
+            claimType: $claim->claim_type,
+            setType: $claim->set_type,
+            status: $claim->status,
+            created: $claim->created_at,
+            finished: $claim->finished_at,
         );
     }
 }

@@ -56,7 +56,6 @@
 use App\Models\Achievement;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
-use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -138,11 +137,11 @@ if (!$gameAchievementSetClaims) {
         return [
             'User' => $gc->user->display_name,
             'ULID' => $gc->user->ulid,
-            'SetType' => $gc->SetType,
+            'SetType' => $gc->set_type->toLegacyInteger(),
             'GameID' => $gc->game_id,
-            'ClaimType' => $gc->ClaimType,
-            'Created' => Carbon::parse($gc->Created)->format('Y-m-d H:i:s'),
-            'Expiration' => Carbon::parse($gc->Finished)->format('Y-m-d H:i:s'),
+            'ClaimType' => $gc->claim_type->toLegacyInteger(),
+            'Created' => $gc->created_at->format('Y-m-d H:i:s'),
+            'Expiration' => $gc->finished_at->format('Y-m-d H:i:s'),
         ];
     });
 }

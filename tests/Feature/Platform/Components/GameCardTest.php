@@ -50,10 +50,10 @@ class GameCardTest extends TestCase
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Special' => ClaimSpecial::None,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'special_type' => ClaimSpecial::None,
+            'status' => ClaimStatus::Active,
         ]);
 
         // Act
@@ -81,19 +81,19 @@ class GameCardTest extends TestCase
         AchievementSetClaim::factory()->create([
             'user_id' => $user1->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Special' => ClaimSpecial::None,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'special_type' => ClaimSpecial::None,
+            'status' => ClaimStatus::Active,
         ]);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user2->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Special' => ClaimSpecial::None,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'special_type' => ClaimSpecial::None,
+            'status' => ClaimStatus::Active,
         ]);
 
         // Act
@@ -123,28 +123,28 @@ class GameCardTest extends TestCase
         AchievementSetClaim::factory()->create([
             'user_id' => $user1->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Special' => ClaimSpecial::None,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'special_type' => ClaimSpecial::None,
+            'status' => ClaimStatus::Active,
         ]);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user2->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Special' => ClaimSpecial::None,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'special_type' => ClaimSpecial::None,
+            'status' => ClaimStatus::Active,
         ]);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user3->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Special' => ClaimSpecial::None,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'special_type' => ClaimSpecial::None,
+            'status' => ClaimStatus::Active,
         ]);
 
         // Act
@@ -191,10 +191,10 @@ class GameCardTest extends TestCase
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'SetType' => ClaimSetType::NewSet,
-            'Special' => ClaimSpecial::None,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'set_type' => ClaimSetType::NewSet,
+            'special_type' => ClaimSpecial::None,
+            'status' => ClaimStatus::Active,
         ]);
 
         // Act

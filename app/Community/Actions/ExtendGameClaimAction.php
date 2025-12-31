@@ -15,8 +15,8 @@ class ExtendGameClaimAction
 {
     public function execute(AchievementSetClaim $claim, User $actingUser): void
     {
-        $claim->Finished = $claim->Finished->addMonths(3);
-        $claim->Extension++;
+        $claim->finished_at = $claim->finished_at->addMonths(3);
+        $claim->extensions_count++;
         $claim->save();
 
         Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($claim->user->username));
@@ -39,8 +39,8 @@ class ExtendGameClaimAction
             ->with('user')
             ->get();
         foreach ($collaborationClaims as $collaborationClaim) {
-            $collaborationClaim->Finished = $claim->Finished;
-            $collaborationClaim->Extension++;
+            $collaborationClaim->finished_at = $claim->finished_at;
+            $collaborationClaim->extensions_count++;
             $collaborationClaim->save();
 
             Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($collaborationClaim->user->username));

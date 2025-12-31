@@ -244,10 +244,10 @@ class GameExtendedTest extends TestCase
                     [
                         'User' => $claim->user->username,
                         'ULID' => $claim->user->ulid,
-                        'SetType' => $claim->SetType,
-                        'ClaimType' => $claim->ClaimType,
-                        'Created' => $claim->Created->__toString(),
-                        'Expiration' => $claim->Finished->__toString(),
+                        'SetType' => $claim->set_type->toLegacyInteger(),
+                        'ClaimType' => $claim->claim_type->toLegacyInteger(),
+                        'Created' => $claim->created_at->__toString(),
+                        'Expiration' => $claim->finished_at->__toString(),
                     ],
                 ],
             ]);

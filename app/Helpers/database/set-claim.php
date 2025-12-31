@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Checks if the user already has the game claimed. Allows for checking primary/collaboration claims as well as set type.
  */
-function hasSetClaimed(User $user, int $gameId, bool $isPrimaryClaim = false, ?int $setType = null): bool
+function hasSetClaimed(User $user, int $gameId, bool $isPrimaryClaim = false, ?ClaimSetType $setType = null): bool
 {
     $query = AchievementSetClaim::where('user_id', $user->id)
         ->where('game_id', $gameId)
@@ -48,12 +48,12 @@ function updateClaimsForPermissionChange(User $user, int $permissionsAfter, int 
         } else {
             $comment = "{$user->display_name}'s claim updated via promotion to {$permissionsString}.";
         }
-        $comment .= " Claim Status: " . ClaimStatus::toString(ClaimStatus::Active);
+        $comment .= " Claim Status: " . ClaimStatus::Active->label();
 
         $inReviewClaims = $user->achievementSetClaims()
-            ->where('Status', ClaimStatus::InReview)->get();
+            ->where('status', ClaimStatus::InReview)->get();
         foreach ($inReviewClaims as $claim) {
-            $claim->Status = ClaimStatus::Active;
+            $claim->status = ClaimStatus::Active;
             $claim->save();
 
             addArticleComment('Server', ArticleType::SetClaim, $claim->game_id, $comment);
@@ -65,15 +65,15 @@ function updateClaimsForPermissionChange(User $user, int $permissionsAfter, int 
         $permissionsString = Permissions::toString($permissionsAfter);
 
         $activeClaims = $user->achievementSetClaims()
-            ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])->get();
+            ->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])->get();
         foreach ($activeClaims as $claim) {
-            $claim->Status = ClaimStatus::Dropped;
+            $claim->status = ClaimStatus::Dropped;
             $claim->save();
 
             if (!empty($actingUsername)) {
-                $comment = "{$actingUsername} dropped {$user->display_name}'s " . ClaimType::toString($claim->ClaimType) . " claim via demotion to {$permissionsString}.";
+                $comment = "{$actingUsername} dropped {$user->display_name}'s " . $claim->claim_type->label() . " claim via demotion to {$permissionsString}.";
             } else {
-                $comment = "{$user->display_name}'s " . ClaimType::toString($claim->ClaimType) . " claim dropped via demotion to {$permissionsString}.";
+                $comment = "{$user->display_name}'s " . $claim->claim_type->label() . " claim dropped via demotion to {$permissionsString}.";
             }
 
             addArticleComment('Server', ArticleType::SetClaim, $claim->game_id, $comment);
@@ -92,19 +92,19 @@ function getClaimData(array $gameIds, bool $getFullData = true): array
 
     $selectColumns = [
         'user_id',
-        'SetType',
+        'set_type as SetType',
         'game_id as GameID',
-        'ClaimType',
-        'Created',
-        'Finished as Expiration',
+        'claim_type as ClaimType',
+        'created_at as Created',
+        'finished_at as Expiration',
     ];
 
     if ($getFullData) {
         $selectColumns = array_merge($selectColumns, [
-            'Status',
-            'ID',
-            DB::raw(diffMinutesRemainingStatement('Finished', 'MinutesLeft')),
-            DB::raw(diffMinutesPassedStatement('Created', 'MinutesActive')),
+            'status as Status',
+            'id as ID',
+            DB::raw(diffMinutesRemainingStatement('finished_at', 'MinutesLeft')),
+            DB::raw(diffMinutesPassedStatement('created_at', 'MinutesActive')),
         ]);
     }
 
@@ -143,6 +143,7 @@ function getFilteredClaims(
     ?string $username = null,
     ?int $offset = null,
     ?int $limit = null,
+    bool $useLegacyIntegers = false,
 ): Collection {
     $primaryClaim = ($claimFilter & ClaimFilters::PrimaryClaim);
     $collaborationClaim = ($claimFilter & ClaimFilters::CollaborationClaim);
@@ -155,64 +156,70 @@ function getFilteredClaims(
     $developerClaim = ($claimFilter & ClaimFilters::DeveloperClaim);
     $juniorDeveloperClaim = ($claimFilter & ClaimFilters::JuniorDeveloperClaim);
 
-    // Create claim type condition
+    // Create claim type condition.
     $claimTypeCondition = '';
     if ($primaryClaim && !$collaborationClaim) {
-        $claimTypeCondition = 'AND sc.ClaimType = ' . ClaimType::Primary;
+        $claimTypeCondition = "AND sc.claim_type = '" . ClaimType::Primary->value . "'";
     } elseif (!$primaryClaim && $collaborationClaim) {
-        $claimTypeCondition = 'AND sc.ClaimType = ' . ClaimType::Collaboration;
+        $claimTypeCondition = "AND sc.claim_type = '" . ClaimType::Collaboration->value . "'";
     } elseif (!$primaryClaim && !$collaborationClaim) {
         return collect();
     }
 
-    // Create set type condition
+    // Create set type condition.
     $setTypeCondition = '';
     if ($newSetClaim && !$revisionClaim) {
-        $setTypeCondition = 'AND sc.SetType = ' . ClaimSetType::NewSet;
+        $setTypeCondition = "AND sc.set_type = '" . ClaimSetType::NewSet->value . "'";
     } elseif (!$newSetClaim && $revisionClaim) {
-        $setTypeCondition = 'AND sc.SetType = ' . ClaimSetType::Revision;
+        $setTypeCondition = "AND sc.set_type = '" . ClaimSetType::Revision->value . "'";
     } elseif (!$newSetClaim && !$revisionClaim) {
         return collect();
     }
 
-    // Create the claim status condition
+    // Create the claim status condition.
     $statuses = [];
     if ($claimFilter & ClaimFilters::ActiveClaim) {
-        $statuses[] = ClaimStatus::Active;
+        $statuses[] = "'" . ClaimStatus::Active->value . "'";
     }
     if ($claimFilter & ClaimFilters::InReviewClaim) {
-        $statuses[] = ClaimStatus::InReview;
+        $statuses[] = "'" . ClaimStatus::InReview->value . "'";
     }
     if ($claimFilter & ClaimFilters::CompleteClaim) {
-        $statuses[] = ClaimStatus::Complete;
+        $statuses[] = "'" . ClaimStatus::Complete->value . "'";
     }
     if ($claimFilter & ClaimFilters::DroppedClaim) {
-        $statuses[] = ClaimStatus::Dropped;
+        $statuses[] = "'" . ClaimStatus::Dropped->value . "'";
     }
     if (empty($statuses)) {
         return collect();
     }
     $statusCondition = '';
-    if ($statuses != ClaimStatus::cases()) {
-        $statusCondition = 'AND sc.Status IN (' . join(',', $statuses) . ')';
+    $allStatusValues = array_map(fn ($case) => "'" . $case->value . "'", ClaimStatus::cases());
+    if ($statuses != $allStatusValues) {
+        $statusCondition = 'AND sc.status IN (' . join(',', $statuses) . ')';
     }
 
-    // Create the special condition
-    $str = ($specialNoneClaim ? ClaimSpecial::None . ',' : '');
-    $str .= ($specialRevisionClaim ? ClaimSpecial::OwnRevision . ',' : '');
-    $str .= ($specialRolloutClaim ? ClaimSpecial::FreeRollout . ',' : '');
-    $str .= ($specialScheduledClaim ? ClaimSpecial::ScheduledRelease : '');
-
-    if (!(strlen($str) % 2)) { // Remove trailing comma if necessary
-        $str = rtrim($str, ",");
+    // Create the special condition.
+    $specials = [];
+    if ($specialNoneClaim) {
+        $specials[] = "'" . ClaimSpecial::None->value . "'";
+    }
+    if ($specialRevisionClaim) {
+        $specials[] = "'" . ClaimSpecial::OwnRevision->value . "'";
+    }
+    if ($specialRolloutClaim) {
+        $specials[] = "'" . ClaimSpecial::FreeRollout->value . "'";
+    }
+    if ($specialScheduledClaim) {
+        $specials[] = "'" . ClaimSpecial::ScheduledRelease->value . "'";
     }
 
     $specialCondition = 'AND FALSE';
-    if (strlen($str) > 0) {
-        $specialCondition = "AND sc.Special IN ($str)";
+    if (!empty($specials)) {
+        $specialCondition = "AND sc.special_type IN (" . join(',', $specials) . ")";
     }
 
-    // Create the developer status condition
+    // Create the developer status condition.
     $devStatusCondition = '';
     if ($developerClaim && !$juniorDeveloperClaim) {
         $devStatusCondition = "AND ua.Permissions >= " . Permissions::Developer;
@@ -222,7 +229,7 @@ function getFilteredClaims(
         $devStatusCondition = "AND ua.Permissions < " . Permissions::JuniorDeveloper;
     }
 
-    // Determine ascending or descending order
+    // Determine ascending or descending order.
     if ($sortType < 10) {
         $sortOrder = "DESC";
     } else {
@@ -230,17 +237,17 @@ function getFilteredClaims(
         $sortType = $sortType - 10;
     }
 
-    // Create the sorting condition
+    // Create the sorting condition.
     $sortCondition = match ($sortType) {
         2 => 'ua.username ',
         3 => 'gd.title ',
-        4 => 'sc.ClaimType ',
-        5 => 'sc.SetType ',
-        6 => 'sc.Status ',
-        7 => 'sc.Special ',
-        8 => 'sc.Created ',
-        9 => 'sc.Finished ',
-        default => 'sc.Created ',
+        4 => 'sc.claim_type ',
+        5 => 'sc.set_type ',
+        6 => 'sc.status ',
+        7 => 'sc.special_type ',
+        8 => 'sc.created_at ',
+        9 => 'sc.finished_at ',
+        default => 'sc.created_at ',
     };
 
     $sortCondition .= $sortOrder;
@@ -260,15 +267,15 @@ function getFilteredClaims(
         $gameCondition = "AND sc.game_id = :gameId";
     }
 
-    // Get expiring claims only
+    // Get expiring claims only.
     $havingCondition = '';
     if ($getExpiringOnly) {
         $havingCondition = "HAVING MinutesLeft <= 10080"; // 7 days = 7 * 24 * 60
     }
 
-    // Get either the filtered count or the filtered data
+    // Get either the filtered count or the filtered data.
     $selectCondition = "
-        sc.ID AS ID,
+        sc.id AS ID,
         ua.ulid as ULID,
         COALESCE(ua.display_name, ua.username) AS User,
         sc.game_id AS GameID,
@@ -276,23 +283,23 @@ function getFilteredClaims(
         gd.image_icon_asset_path AS GameIcon,
         s.id AS ConsoleID,
         s.name AS ConsoleName,
-        sc.ClaimType AS ClaimType,
-        sc.SetType AS SetType,
-        sc.Status AS Status,
-        sc.Extension AS Extension,
-        sc.Special AS Special,
-        sc.Created AS Created,
-        sc.Finished AS DoneTime,
-        sc.Updated AS Updated,
+        sc.claim_type AS ClaimType,
+        sc.set_type AS SetType,
+        sc.status AS Status,
+        sc.extensions_count AS Extension,
+        sc.special_type AS Special,
+        sc.created_at AS Created,
+        sc.finished_at AS DoneTime,
+        sc.updated_at AS Updated,
         CASE WHEN ua.Permissions <= 2 THEN true ELSE false END AS UserIsJrDev,
     ";
-    $selectCondition .= diffMinutesRemainingStatement('sc.Finished', 'MinutesLeft');
+    $selectCondition .= diffMinutesRemainingStatement('sc.finished_at', 'MinutesLeft');
 
     $query = "
         SELECT
             $selectCondition
         FROM
-            SetClaim sc
+            achievement_set_claims sc
         LEFT JOIN
             games AS gd ON gd.id = sc.game_id
         LEFT JOIN
@@ -322,7 +329,21 @@ function getFilteredClaims(
         $bindings['limit'] = $limit;
     }
 
-    return legacyDbFetchAll($query, $bindings);
+    $results = legacyDbFetchAll($query, $bindings);
+
+    // For V1 API backward compatibility, convert string enum values to legacy integers.
+    if ($useLegacyIntegers) {
+        $results = $results->map(function ($claim) {
+            $claim['ClaimType'] = ClaimType::from($claim['ClaimType'])->toLegacyInteger();
+            $claim['SetType'] = ClaimSetType::from($claim['SetType'])->toLegacyInteger();
+            $claim['Status'] = ClaimStatus::from($claim['Status'])->toLegacyInteger();
+            $claim['Special'] = ClaimSpecial::from($claim['Special'])->toLegacyInteger();
+
+            return $claim;
+        });
+    }
+
+    return $results;
 }
 
 /**
@@ -341,27 +362,27 @@ function getActiveClaimCount(?User $user = null, bool $countCollaboration = true
 
     $claimTypeCondition = '';
     if (!$countCollaboration) {
-        $bindings['type'] = ClaimType::Primary;
-        $claimTypeCondition = 'AND ClaimType = :type';
+        $bindings['type'] = ClaimType::Primary->value;
+        $claimTypeCondition = 'AND claim_type = :type';
     }
 
     $specialCondition = '';
     if (!$countSpecial) {
-        $bindings['special'] = ClaimSpecial::None;
-        $specialCondition = 'AND Special = :special';
+        $bindings['special'] = ClaimSpecial::None->value;
+        $specialCondition = 'AND special_type = :special';
     }
 
     $query = "
         SELECT
             COUNT(*) AS ActiveClaims
         FROM
-            SetClaim
+            achievement_set_claims
         WHERE
             TRUE
             $userCondition
             $claimTypeCondition
             $specialCondition
-            AND Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")";
+            AND status IN ('" . ClaimStatus::Active->value . "','" . ClaimStatus::InReview->value . "')";
 
     return (int) legacyDbFetch($query, $bindings)['ActiveClaims'];
 }
@@ -382,9 +403,9 @@ function getExpiringClaim(User $user): array
     // here will always fail. We need to add a special exception for when this is
     // called by tests.
     if (DB::connection()->getDriverName() === 'sqlite') {
-        $minuteDiff = "round((julianday(Finished) - julianday('now')) * 1440)";
+        $minuteDiff = "round((julianday(finished_at) - julianday('now')) * 1440)";
     } else {
-        $minuteDiff = "TIMESTAMPDIFF(MINUTE, NOW(), Finished)";
+        $minuteDiff = "TIMESTAMPDIFF(MINUTE, NOW(), finished_at)";
     }
 
     $claims = AchievementSetClaim::select(
@@ -393,20 +414,20 @@ function getExpiringClaim(User $user): array
         DB::raw('COUNT(*) AS Count')
     )
         ->where('user_id', $user->id)
-        ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
-        ->where('Special', '!=', ClaimSpecial::ScheduledRelease)
+        ->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])
+        ->where('special_type', '!=', ClaimSpecial::ScheduledRelease)
         ->first();
 
     if (!$claims || $claims['Count'] == 0) {
         $value = [];
-        // new claim expiration is 30 days and expiration warning is 7 days, so this guarantees a refresh before expiration
+        // New claim expiration is 30 days and expiration warning is 7 days, so this guarantees a refresh before expiration.
         Cache::put($cacheKey, $value, Carbon::now()->addDays(20));
     } else {
         $value = [
             'Expired' => $claims->Expired,
             'Expiring' => $claims->Expiring,
         ];
-        // refresh once an hour. this query only takes about 2ms, so it's not super expensive, but
+        // Refresh once an hour. This query only takes about 2ms, so it's not super expensive, but
         // we want to avoid doing it on every page load.
         Cache::put($cacheKey, $value, Carbon::now()->addHours(1));
     }

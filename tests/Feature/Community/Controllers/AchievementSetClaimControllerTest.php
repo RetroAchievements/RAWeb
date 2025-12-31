@@ -53,14 +53,14 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertNotNull($claim);
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Active, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($claimDate->clone()->addMonths(3), $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($claimDate, $claim->Updated);
-        $this->assertEquals(0, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($claimDate->clone()->addMonths(3), $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($claimDate, $claim->updated_at);
+        $this->assertEquals(0, $claim->extensions_count);
 
         // user should automatically be subscribed to the game wall
         $this->assertTrue($user->subscriptions()
@@ -93,8 +93,8 @@ class AchievementSetClaimControllerTest extends TestCase
         $completeDate = $claimDate->clone()->addDays(41);
         Carbon::setTestNow($completeDate);
 
-        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.update', $claim->ID), [
-            'status' => ClaimStatus::Complete,
+        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.update', $claim->id), [
+            'status' => ClaimStatus::Complete->value,
         ]);
 
         $response->assertStatus(302); // redirect
@@ -104,14 +104,14 @@ class AchievementSetClaimControllerTest extends TestCase
         $claim->refresh();
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Complete, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($completeDate, $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($completeDate, $claim->Updated);
-        $this->assertEquals(0, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Complete, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($completeDate, $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($completeDate, $claim->updated_at);
+        $this->assertEquals(0, $claim->extensions_count);
 
         // attempt to drop claim
         $dropDate = $completeDate->clone()->addDays(23);
@@ -126,14 +126,14 @@ class AchievementSetClaimControllerTest extends TestCase
         $claim->refresh();
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Complete, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($completeDate, $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($completeDate, $claim->Updated);
-        $this->assertEquals(0, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Complete, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($completeDate, $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($completeDate, $claim->updated_at);
+        $this->assertEquals(0, $claim->extensions_count);
     }
 
     public function testExtendAndDropPrimaryClaim(): void
@@ -163,17 +163,17 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertNotNull($claim);
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Active, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($claimDate->clone()->addMonths(3), $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($claimDate, $claim->Updated);
-        $this->assertEquals(0, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($claimDate->clone()->addMonths(3), $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($claimDate, $claim->updated_at);
+        $this->assertEquals(0, $claim->extensions_count);
 
         // extend claim
-        $claimFinished = $claim->Finished;
+        $claimFinished = $claim->finished_at;
         $extendDate = $claimDate->clone()->addWeeks(11);
         Carbon::setTestNow($extendDate);
 
@@ -186,14 +186,14 @@ class AchievementSetClaimControllerTest extends TestCase
         $claim->refresh();
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Active, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($claimFinished->clone()->addMonths(3), $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($extendDate, $claim->Updated);
-        $this->assertEquals(1, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($claimFinished->clone()->addMonths(3), $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($extendDate, $claim->updated_at);
+        $this->assertEquals(1, $claim->extensions_count);
 
         // drop claim
         $dropDate = $extendDate->clone()->addDays(23);
@@ -208,14 +208,14 @@ class AchievementSetClaimControllerTest extends TestCase
         $claim->refresh();
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Dropped, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($dropDate, $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($dropDate, $claim->Updated);
-        $this->assertEquals(1, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Dropped, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($dropDate, $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($dropDate, $claim->updated_at);
+        $this->assertEquals(1, $claim->extensions_count);
 
         // attempt to drop claim again
         $dropAgainDate = $extendDate->clone()->addMinutes(2);
@@ -230,14 +230,14 @@ class AchievementSetClaimControllerTest extends TestCase
         $claim->refresh();
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Dropped, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($dropDate, $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($dropDate, $claim->Updated);
-        $this->assertEquals(1, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Dropped, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($dropDate, $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($dropDate, $claim->updated_at);
+        $this->assertEquals(1, $claim->extensions_count);
 
         // re-claim
         $reclaimDate = Carbon::now()->startOfSecond();
@@ -251,17 +251,17 @@ class AchievementSetClaimControllerTest extends TestCase
 
         $newClaim = $game->achievementSetClaims()->active()->first();
         $this->assertNotNull($newClaim);
-        $this->assertNotEquals($newClaim->ID, $claim->ID);
+        $this->assertNotEquals($newClaim->id, $claim->id);
         $this->assertEquals($user->id, $newClaim->user_id);
         $this->assertEquals($game->id, $newClaim->game_id);
-        $this->assertEquals(ClaimType::Primary, $newClaim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $newClaim->SetType);
-        $this->assertEquals(ClaimStatus::Active, $newClaim->Status);
-        $this->assertEquals(ClaimSpecial::None, $newClaim->Special);
-        $this->assertEquals($reclaimDate->clone()->addMonths(3), $newClaim->Finished);
-        $this->assertEquals($reclaimDate, $newClaim->Created);
-        $this->assertEquals($reclaimDate, $newClaim->Updated);
-        $this->assertEquals(0, $newClaim->Extension);
+        $this->assertEquals(ClaimType::Primary, $newClaim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $newClaim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $newClaim->status);
+        $this->assertEquals(ClaimSpecial::None, $newClaim->special_type);
+        $this->assertEquals($reclaimDate->clone()->addMonths(3), $newClaim->finished_at);
+        $this->assertEquals($reclaimDate, $newClaim->created_at);
+        $this->assertEquals($reclaimDate, $newClaim->updated_at);
+        $this->assertEquals(0, $newClaim->extensions_count);
     }
 
     public function testCollaborationClaimAndDrop(): void
@@ -309,14 +309,14 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertNotNull($collabClaim);
         $this->assertEquals($user2->id, $collabClaim->user_id);
         $this->assertEquals($game->id, $collabClaim->game_id);
-        $this->assertEquals(ClaimType::Collaboration, $collabClaim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->SetType);
-        $this->assertEquals(ClaimStatus::Active, $collabClaim->Status);
-        $this->assertEquals(ClaimSpecial::None, $collabClaim->Special);
-        $this->assertEquals($collabDate->clone()->addMonths(3), $collabClaim->Finished);
-        $this->assertEquals($collabDate, $collabClaim->Created);
-        $this->assertEquals($collabDate, $collabClaim->Updated);
-        $this->assertEquals(0, $collabClaim->Extension);
+        $this->assertEquals(ClaimType::Collaboration, $collabClaim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $collabClaim->status);
+        $this->assertEquals(ClaimSpecial::None, $collabClaim->special_type);
+        $this->assertEquals($collabDate->clone()->addMonths(3), $collabClaim->finished_at);
+        $this->assertEquals($collabDate, $collabClaim->created_at);
+        $this->assertEquals($collabDate, $collabClaim->updated_at);
+        $this->assertEquals(0, $collabClaim->extensions_count);
 
         // drop claim
         $dropDate = $collabDate->clone()->addDays(23);
@@ -331,28 +331,28 @@ class AchievementSetClaimControllerTest extends TestCase
         $collabClaim->refresh();
         $this->assertEquals($user2->id, $collabClaim->user_id);
         $this->assertEquals($game->id, $collabClaim->game_id);
-        $this->assertEquals(ClaimType::Collaboration, $collabClaim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->SetType);
-        $this->assertEquals(ClaimStatus::Dropped, $collabClaim->Status);
-        $this->assertEquals(ClaimSpecial::None, $collabClaim->Special);
-        $this->assertEquals($dropDate, $collabClaim->Finished);
-        $this->assertEquals($collabDate, $collabClaim->Created);
-        $this->assertEquals($dropDate, $collabClaim->Updated);
-        $this->assertEquals(0, $collabClaim->Extension);
+        $this->assertEquals(ClaimType::Collaboration, $collabClaim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->set_type);
+        $this->assertEquals(ClaimStatus::Dropped, $collabClaim->status);
+        $this->assertEquals(ClaimSpecial::None, $collabClaim->special_type);
+        $this->assertEquals($dropDate, $collabClaim->finished_at);
+        $this->assertEquals($collabDate, $collabClaim->created_at);
+        $this->assertEquals($dropDate, $collabClaim->updated_at);
+        $this->assertEquals(0, $collabClaim->extensions_count);
 
         // primary claim is unaffected
         $claim = $game->achievementSetClaims()->where('user_id', $user->id)->first();
         $this->assertNotNull($claim);
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Active, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($claimDate->clone()->addMonths(3), $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($claimDate, $claim->Updated);
-        $this->assertEquals(0, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($claimDate->clone()->addMonths(3), $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($claimDate, $claim->updated_at);
+        $this->assertEquals(0, $claim->extensions_count);
     }
 
     public function testCollaborationClaimAndPrimaryDrop(): void
@@ -400,14 +400,14 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertNotNull($collabClaim);
         $this->assertEquals($user2->id, $collabClaim->user_id);
         $this->assertEquals($game->id, $collabClaim->game_id);
-        $this->assertEquals(ClaimType::Collaboration, $collabClaim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->SetType);
-        $this->assertEquals(ClaimStatus::Active, $collabClaim->Status);
-        $this->assertEquals(ClaimSpecial::None, $collabClaim->Special);
-        $this->assertEquals($collabDate->clone()->addMonths(3), $collabClaim->Finished);
-        $this->assertEquals($collabDate, $collabClaim->Created);
-        $this->assertEquals($collabDate, $collabClaim->Updated);
-        $this->assertEquals(0, $collabClaim->Extension);
+        $this->assertEquals(ClaimType::Collaboration, $collabClaim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $collabClaim->status);
+        $this->assertEquals(ClaimSpecial::None, $collabClaim->special_type);
+        $this->assertEquals($collabDate->clone()->addMonths(3), $collabClaim->finished_at);
+        $this->assertEquals($collabDate, $collabClaim->created_at);
+        $this->assertEquals($collabDate, $collabClaim->updated_at);
+        $this->assertEquals(0, $collabClaim->extensions_count);
 
         // drop primary claim
         $dropDate = $collabDate->clone()->addDays(23);
@@ -423,27 +423,27 @@ class AchievementSetClaimControllerTest extends TestCase
         $claim->refresh();
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Dropped, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($dropDate, $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($dropDate, $claim->Updated);
-        $this->assertEquals(0, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Dropped, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($dropDate, $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($dropDate, $claim->updated_at);
+        $this->assertEquals(0, $claim->extensions_count);
 
         // collab claim should be promoted to primary claim
         $collabClaim->refresh();
         $this->assertEquals($user2->id, $collabClaim->user_id);
         $this->assertEquals($game->id, $collabClaim->game_id);
-        $this->assertEquals(ClaimType::Primary, $collabClaim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->SetType);
-        $this->assertEquals(ClaimStatus::Active, $collabClaim->Status);
-        $this->assertEquals(ClaimSpecial::None, $collabClaim->Special);
-        $this->assertEquals($collabDate->clone()->addMonths(3), $collabClaim->Finished);
-        $this->assertEquals($collabDate, $collabClaim->Created);
-        $this->assertEquals($dropDate, $collabClaim->Updated);
-        $this->assertEquals(0, $collabClaim->Extension);
+        $this->assertEquals(ClaimType::Primary, $collabClaim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $collabClaim->status);
+        $this->assertEquals(ClaimSpecial::None, $collabClaim->special_type);
+        $this->assertEquals($collabDate->clone()->addMonths(3), $collabClaim->finished_at);
+        $this->assertEquals($collabDate, $collabClaim->created_at);
+        $this->assertEquals($dropDate, $collabClaim->updated_at);
+        $this->assertEquals(0, $collabClaim->extensions_count);
     }
 
     public function testCollaborationClaimAndPrimaryComplete(): void
@@ -491,14 +491,14 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertNotNull($collabClaim);
         $this->assertEquals($user2->id, $collabClaim->user_id);
         $this->assertEquals($game->id, $collabClaim->game_id);
-        $this->assertEquals(ClaimType::Collaboration, $collabClaim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->SetType);
-        $this->assertEquals(ClaimStatus::Active, $collabClaim->Status);
-        $this->assertEquals(ClaimSpecial::None, $collabClaim->Special);
-        $this->assertEquals($collabDate->clone()->addMonths(3), $collabClaim->Finished);
-        $this->assertEquals($collabDate, $collabClaim->Created);
-        $this->assertEquals($collabDate, $collabClaim->Updated);
-        $this->assertEquals(0, $collabClaim->Extension);
+        $this->assertEquals(ClaimType::Collaboration, $collabClaim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $collabClaim->status);
+        $this->assertEquals(ClaimSpecial::None, $collabClaim->special_type);
+        $this->assertEquals($collabDate->clone()->addMonths(3), $collabClaim->finished_at);
+        $this->assertEquals($collabDate, $collabClaim->created_at);
+        $this->assertEquals($collabDate, $collabClaim->updated_at);
+        $this->assertEquals(0, $collabClaim->extensions_count);
 
         // add official achievements so the claim can be completed
         $this->seedAchievements(amount: 6, game: $game);
@@ -508,7 +508,7 @@ class AchievementSetClaimControllerTest extends TestCase
         Carbon::setTestNow($completeDate);
 
         Session::flush();
-        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.update', $game->id), ['status' => ClaimStatus::Complete]);
+        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.update', $game->id), ['status' => ClaimStatus::Complete->value]);
 
         $response->assertStatus(302); // redirect
         $response->assertRedirect('/'); // back() redirects to home when no source is provided
@@ -517,27 +517,27 @@ class AchievementSetClaimControllerTest extends TestCase
         $claim->refresh();
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Complete, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($completeDate, $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($completeDate, $claim->Updated);
-        $this->assertEquals(0, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Complete, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($completeDate, $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($completeDate, $claim->updated_at);
+        $this->assertEquals(0, $claim->extensions_count);
 
         // collab claim should be also be completed
         $collabClaim->refresh();
         $this->assertEquals($user2->id, $collabClaim->user_id);
         $this->assertEquals($game->id, $collabClaim->game_id);
-        $this->assertEquals(ClaimType::Collaboration, $collabClaim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->SetType);
-        $this->assertEquals(ClaimStatus::Complete, $collabClaim->Status);
-        $this->assertEquals(ClaimSpecial::None, $collabClaim->Special);
-        $this->assertEquals($completeDate, $collabClaim->Finished);
-        $this->assertEquals($collabDate, $collabClaim->Created);
-        $this->assertEquals($completeDate, $collabClaim->Updated);
-        $this->assertEquals(0, $collabClaim->Extension);
+        $this->assertEquals(ClaimType::Collaboration, $collabClaim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->set_type);
+        $this->assertEquals(ClaimStatus::Complete, $collabClaim->status);
+        $this->assertEquals(ClaimSpecial::None, $collabClaim->special_type);
+        $this->assertEquals($completeDate, $collabClaim->finished_at);
+        $this->assertEquals($collabDate, $collabClaim->created_at);
+        $this->assertEquals($completeDate, $collabClaim->updated_at);
+        $this->assertEquals(0, $collabClaim->extensions_count);
     }
 
     public function testCollaborationClaimAndPrimaryExtend(): void
@@ -585,17 +585,17 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertNotNull($collabClaim);
         $this->assertEquals($user2->id, $collabClaim->user_id);
         $this->assertEquals($game->id, $collabClaim->game_id);
-        $this->assertEquals(ClaimType::Collaboration, $collabClaim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->SetType);
-        $this->assertEquals(ClaimStatus::Active, $collabClaim->Status);
-        $this->assertEquals(ClaimSpecial::None, $collabClaim->Special);
-        $this->assertEquals($collabDate->clone()->addMonths(3), $collabClaim->Finished);
-        $this->assertEquals($collabDate, $collabClaim->Created);
-        $this->assertEquals($collabDate, $collabClaim->Updated);
-        $this->assertEquals(0, $collabClaim->Extension);
+        $this->assertEquals(ClaimType::Collaboration, $collabClaim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $collabClaim->status);
+        $this->assertEquals(ClaimSpecial::None, $collabClaim->special_type);
+        $this->assertEquals($collabDate->clone()->addMonths(3), $collabClaim->finished_at);
+        $this->assertEquals($collabDate, $collabClaim->created_at);
+        $this->assertEquals($collabDate, $collabClaim->updated_at);
+        $this->assertEquals(0, $collabClaim->extensions_count);
 
         // extend primary claim
-        $claimFinished = $claim->Finished;
+        $claimFinished = $claim->finished_at;
         $extendDate = $claimDate->clone()->addWeeks(11);
         Carbon::setTestNow($extendDate);
 
@@ -609,27 +609,27 @@ class AchievementSetClaimControllerTest extends TestCase
         $claim->refresh();
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Active, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($claimFinished->clone()->addMonths(3), $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($extendDate, $claim->Updated);
-        $this->assertEquals(1, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($claimFinished->clone()->addMonths(3), $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($extendDate, $claim->updated_at);
+        $this->assertEquals(1, $claim->extensions_count);
 
         // collab claim should be also be extended
         $collabClaim->refresh();
         $this->assertEquals($user2->id, $collabClaim->user_id);
         $this->assertEquals($game->id, $collabClaim->game_id);
-        $this->assertEquals(ClaimType::Collaboration, $collabClaim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->SetType);
-        $this->assertEquals(ClaimStatus::Active, $collabClaim->Status);
-        $this->assertEquals(ClaimSpecial::None, $collabClaim->Special);
-        $this->assertEquals($claimFinished->clone()->addMonths(3), $collabClaim->Finished);
-        $this->assertEquals($collabDate, $collabClaim->Created);
-        $this->assertEquals($extendDate, $collabClaim->Updated);
-        $this->assertEquals(1, $collabClaim->Extension);
+        $this->assertEquals(ClaimType::Collaboration, $collabClaim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $collabClaim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $collabClaim->status);
+        $this->assertEquals(ClaimSpecial::None, $collabClaim->special_type);
+        $this->assertEquals($claimFinished->clone()->addMonths(3), $collabClaim->finished_at);
+        $this->assertEquals($collabDate, $collabClaim->created_at);
+        $this->assertEquals($extendDate, $collabClaim->updated_at);
+        $this->assertEquals(1, $collabClaim->extensions_count);
     }
 
     public function testPrimaryRevisionClaimAndComplete(): void
@@ -666,14 +666,14 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertNotNull($claim);
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::Revision, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Active, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($claimDate->clone()->addMonths(3), $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($claimDate, $claim->Updated);
-        $this->assertEquals(0, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::Revision, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($claimDate->clone()->addMonths(3), $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($claimDate, $claim->updated_at);
+        $this->assertEquals(0, $claim->extensions_count);
 
         // user should automatically be subscribed to the game wall
         $this->assertTrue($user->subscriptions()
@@ -702,8 +702,8 @@ class AchievementSetClaimControllerTest extends TestCase
         $completeDate = $claimDate->clone()->addDays(7);
         Carbon::setTestNow($completeDate);
 
-        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.update', $claim->ID), [
-            'status' => ClaimStatus::Complete,
+        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.update', $claim->id), [
+            'status' => ClaimStatus::Complete->value,
         ]);
 
         $response->assertStatus(302); // redirect
@@ -713,14 +713,14 @@ class AchievementSetClaimControllerTest extends TestCase
         $claim->refresh();
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::Revision, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Complete, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($completeDate, $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($completeDate, $claim->Updated);
-        $this->assertEquals(0, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::Revision, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Complete, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($completeDate, $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($completeDate, $claim->updated_at);
+        $this->assertEquals(0, $claim->extensions_count);
 
         // attempt to drop claim
         $dropDate = $completeDate->clone()->addDays(23);
@@ -735,14 +735,14 @@ class AchievementSetClaimControllerTest extends TestCase
         $claim->refresh();
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::Revision, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Complete, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($completeDate, $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($completeDate, $claim->Updated);
-        $this->assertEquals(0, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::Revision, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Complete, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($completeDate, $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($completeDate, $claim->updated_at);
+        $this->assertEquals(0, $claim->extensions_count);
     }
 
     public function testOwnRevisionClaimAndComplete(): void
@@ -775,21 +775,21 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertNotNull($claim);
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::Revision, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Active, $claim->Status);
-        $this->assertEquals(ClaimSpecial::OwnRevision, $claim->Special);
-        $this->assertEquals($claimDate->clone()->addMonths(3), $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($claimDate, $claim->Updated);
-        $this->assertEquals(0, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::Revision, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $claim->status);
+        $this->assertEquals(ClaimSpecial::OwnRevision, $claim->special_type);
+        $this->assertEquals($claimDate->clone()->addMonths(3), $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($claimDate, $claim->updated_at);
+        $this->assertEquals(0, $claim->extensions_count);
 
         // complete claim
         $completeDate = $claimDate->clone()->addDays(7);
         Carbon::setTestNow($completeDate);
 
-        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.update', $claim->ID), [
-            'status' => ClaimStatus::Complete,
+        $response = $this->actingAs($user)->postJson(route('achievement-set-claim.update', $claim->id), [
+            'status' => ClaimStatus::Complete->value,
         ]);
 
         $response->assertStatus(302); // redirect
@@ -799,14 +799,14 @@ class AchievementSetClaimControllerTest extends TestCase
         $claim->refresh();
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::Revision, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Complete, $claim->Status);
-        $this->assertEquals(ClaimSpecial::OwnRevision, $claim->Special);
-        $this->assertEquals($completeDate, $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($completeDate, $claim->Updated);
-        $this->assertEquals(0, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::Revision, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Complete, $claim->status);
+        $this->assertEquals(ClaimSpecial::OwnRevision, $claim->special_type);
+        $this->assertEquals($completeDate, $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($completeDate, $claim->updated_at);
+        $this->assertEquals(0, $claim->extensions_count);
 
         // attempt to drop claim
         $dropDate = $completeDate->clone()->addDays(23);
@@ -821,14 +821,14 @@ class AchievementSetClaimControllerTest extends TestCase
         $claim->refresh();
         $this->assertEquals($user->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::Revision, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Complete, $claim->Status);
-        $this->assertEquals(ClaimSpecial::OwnRevision, $claim->Special);
-        $this->assertEquals($completeDate, $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($completeDate, $claim->Updated);
-        $this->assertEquals(0, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::Revision, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Complete, $claim->status);
+        $this->assertEquals(ClaimSpecial::OwnRevision, $claim->special_type);
+        $this->assertEquals($completeDate, $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($completeDate, $claim->updated_at);
+        $this->assertEquals(0, $claim->extensions_count);
     }
 
     public function testPrimaryClaimInReview(): void
@@ -865,22 +865,22 @@ class AchievementSetClaimControllerTest extends TestCase
         $this->assertNotNull($claim);
         $this->assertEquals($juniorDeveloper->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Active, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($claimDate->clone()->addMonths(3), $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($claimDate, $claim->Updated);
-        $this->assertEquals(0, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($claimDate->clone()->addMonths(3), $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($claimDate, $claim->updated_at);
+        $this->assertEquals(0, $claim->extensions_count);
 
         // change to review status
         $reviewDate = $claimDate->clone()->addWeeks(11);
         Carbon::setTestNow($reviewDate);
 
         Session::flush();
-        $response = $this->actingAs($codeReviewer)->postJson(route('achievement-set-claim.update', $claim->ID), [
-            'status' => ClaimStatus::InReview,
+        $response = $this->actingAs($codeReviewer)->postJson(route('achievement-set-claim.update', $claim->id), [
+            'status' => ClaimStatus::InReview->value,
         ]);
 
         $response->assertStatus(302); // redirect
@@ -890,14 +890,14 @@ class AchievementSetClaimControllerTest extends TestCase
         $claim->refresh();
         $this->assertEquals($juniorDeveloper->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
-        $this->assertEquals(ClaimStatus::InReview, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($claimDate->clone()->addMonths(3), $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($reviewDate, $claim->Updated);
-        $this->assertEquals(0, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->set_type);
+        $this->assertEquals(ClaimStatus::InReview, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($claimDate->clone()->addMonths(3), $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($reviewDate, $claim->updated_at);
+        $this->assertEquals(0, $claim->extensions_count);
 
         // attempt to drop claim
         $dropDate = $reviewDate->clone()->addDays(2);
@@ -911,7 +911,7 @@ class AchievementSetClaimControllerTest extends TestCase
         $response->assertSessionHas('error', 'You do not have a claim on this game.');
 
         // extend claim
-        $claimFinished = $claim->Finished;
+        $claimFinished = $claim->finished_at;
         $extendDate = $claimDate->clone()->addDays(30 + 30 + 27);
         Carbon::setTestNow($extendDate);
 
@@ -924,34 +924,34 @@ class AchievementSetClaimControllerTest extends TestCase
         $claim->refresh();
         $this->assertEquals($juniorDeveloper->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
-        $this->assertEquals(ClaimStatus::InReview, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($claimFinished->clone()->addMonths(3), $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($extendDate, $claim->Updated);
-        $this->assertEquals(1, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->set_type);
+        $this->assertEquals(ClaimStatus::InReview, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($claimFinished->clone()->addMonths(3), $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($extendDate, $claim->updated_at);
+        $this->assertEquals(1, $claim->extensions_count);
 
         // end review
         $reviewDate = $extendDate->clone()->addWeeks(1);
         Carbon::setTestNow($reviewDate);
 
         Session::flush();
-        $response = $this->actingAs($codeReviewer)->postJson(route('achievement-set-claim.update', $claim->ID), [
-            'status' => ClaimStatus::Active,
+        $response = $this->actingAs($codeReviewer)->postJson(route('achievement-set-claim.update', $claim->id), [
+            'status' => ClaimStatus::Active->value,
         ]);
 
         $claim->refresh();
         $this->assertEquals($juniorDeveloper->id, $claim->user_id);
         $this->assertEquals($game->id, $claim->game_id);
-        $this->assertEquals(ClaimType::Primary, $claim->ClaimType);
-        $this->assertEquals(ClaimSetType::NewSet, $claim->SetType);
-        $this->assertEquals(ClaimStatus::Active, $claim->Status);
-        $this->assertEquals(ClaimSpecial::None, $claim->Special);
-        $this->assertEquals($claimFinished->clone()->addMonths(3), $claim->Finished);
-        $this->assertEquals($claimDate, $claim->Created);
-        $this->assertEquals($reviewDate, $claim->Updated);
-        $this->assertEquals(1, $claim->Extension);
+        $this->assertEquals(ClaimType::Primary, $claim->claim_type);
+        $this->assertEquals(ClaimSetType::NewSet, $claim->set_type);
+        $this->assertEquals(ClaimStatus::Active, $claim->status);
+        $this->assertEquals(ClaimSpecial::None, $claim->special_type);
+        $this->assertEquals($claimFinished->clone()->addMonths(3), $claim->finished_at);
+        $this->assertEquals($claimDate, $claim->created_at);
+        $this->assertEquals($reviewDate, $claim->updated_at);
+        $this->assertEquals(1, $claim->extensions_count);
     }
 }

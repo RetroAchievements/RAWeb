@@ -43,8 +43,8 @@ class CreateGameClaimAction
             }
 
             $claimType = ClaimType::Collaboration;
-            $setType = $primaryClaim->SetType;
-            $special = $primaryClaim->Special;
+            $setType = $primaryClaim->set_type;
+            $special = $primaryClaim->special_type;
         }
 
         if ($game->achievements_published > 0) {
@@ -57,20 +57,20 @@ class CreateGameClaimAction
         $newClaim = AchievementSetClaim::create([
             'user_id' => $currentUser->id,
             'game_id' => $game->id,
-            'ClaimType' => $claimType,
-            'SetType' => $setType,
-            'Status' => ClaimStatus::Active,
-            'Extension' => 0,
-            'Special' => $special,
-            'Finished' => $expiresAt,
+            'claim_type' => $claimType,
+            'set_type' => $setType,
+            'status' => ClaimStatus::Active,
+            'extensions_count' => 0,
+            'special_type' => $special,
+            'finished_at' => $expiresAt,
         ]);
 
         Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($currentUser->username));
 
         addArticleComment("Server", ArticleType::SetClaim, $game->id,
-            ClaimType::toString($claimType) . " " . ($setType == ClaimSetType::Revision ? "revision" : "") . " claim made by " . $currentUser->display_name);
+            $claimType->label() . " " . ($setType === ClaimSetType::Revision ? "revision" : "") . " claim made by " . $currentUser->display_name);
 
-        if ($claimType == ClaimType::Primary) {
+        if ($claimType === ClaimType::Primary) {
             $subscriptionService = new SubscriptionService();
 
             // automatically subscribe the user to game wall comments when they make a claim on the game
@@ -90,7 +90,7 @@ class CreateGameClaimAction
                 'username' => 'Claim Bot',
                 'avatar_url' => media_asset('UserPic/QATeam.png'),
                 'content' => route('game.show', $game) . "\n:new: " .
-                             ClaimType::toString($claimType) .
+                             $claimType->label() .
                              ($setType === ClaimSetType::Revision ? ' revision' : '') .
                              " claim made by " . $currentUser->display_name,
             ];

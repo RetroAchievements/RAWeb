@@ -79,14 +79,14 @@ class RequestAccountDeletionActionTest extends TestCase
         $claim2 = AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game2->id,
-            'ClaimType' => ClaimType::Collaboration,
-            'SetType' => ClaimSetType::Revision,
+            'claim_type' => ClaimType::Collaboration,
+            'set_type' => ClaimSetType::Revision,
         ]);
 
         $claim3 = AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game3->id,
-            'Status' => ClaimStatus::Complete,
+            'status' => ClaimStatus::Complete,
         ]);
 
         $this->assertTrue((new RequestAccountDeletionAction())->execute($user));
@@ -102,14 +102,14 @@ class RequestAccountDeletionActionTest extends TestCase
 
         // non-completed claims should be dropped
         $claim1->refresh();
-        $this->assertEquals(ClaimStatus::Dropped, $claim1->Status);
-        $this->assertAuditComment(ArticleType::SetClaim, $claim1->ID, $user->username . "'s Primary claim dropped via demotion to Registered.");
+        $this->assertEquals(ClaimStatus::Dropped, $claim1->status);
+        $this->assertAuditComment(ArticleType::SetClaim, $claim1->id, $user->username . "'s Primary claim dropped via demotion to Registered.");
 
         $claim2->refresh();
-        $this->assertEquals(ClaimStatus::Dropped, $claim2->Status);
-        $this->assertAuditComment(ArticleType::SetClaim, $claim2->ID, $user->username . "'s Collaboration claim dropped via demotion to Registered.");
+        $this->assertEquals(ClaimStatus::Dropped, $claim2->status);
+        $this->assertAuditComment(ArticleType::SetClaim, $claim2->id, $user->username . "'s Collaboration claim dropped via demotion to Registered.");
 
         $claim3->refresh();
-        $this->assertEquals(ClaimStatus::Complete, $claim3->Status);
+        $this->assertEquals(ClaimStatus::Complete, $claim3->status);
     }
 }

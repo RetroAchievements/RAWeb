@@ -29,14 +29,14 @@ class BuildGamePageClaimDataAction
 
         // Get the user's claim on this game, we'll need it for a bunch of stuff later.
         $userClaim = $achievementSetClaims
-            ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
+            ->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])
             ->where('user_id', $user->id)
             ->first();
 
         // Check if there's an active primary claim by another user.
         $primaryClaimByOtherUser = $achievementSetClaims
-            ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
-            ->where('ClaimType', ClaimType::Primary)
+            ->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])
+            ->where('claim_type', ClaimType::Primary)
             ->where('user_id', '!=', $user->id)
             ->first();
 

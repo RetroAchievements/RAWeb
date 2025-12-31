@@ -110,9 +110,7 @@ class GenerateAnnualRecapAction
     private function extractDevelopmentTime(array &$recapData, User $user, array &$gameData, Carbon $startDate, Carbon $endDate): void
     {
         $gameIds = AchievementSetClaim::where('user_id', $user->id)
-            ->where('Finished', '>', $startDate)
-            ->select('game_id')
-            ->get()
+            ->where('finished_at', '>', $startDate)
             ->pluck('game_id')
             ->unique()
             ->toArray();
@@ -521,10 +519,10 @@ class GenerateAnnualRecapAction
             ->count();
 
         $recapData['completedClaims'] = AchievementSetClaim::where('user_id', $user->id)
-            ->where('SetType', ClaimSetType::NewSet)
-            ->where('Status', ClaimStatus::Complete)
-            ->where('Finished', '>=', $startDate)
-            ->where('Finished', '<', $endDate)
+            ->where('set_type', ClaimSetType::NewSet)
+            ->where('status', ClaimStatus::Complete)
+            ->where('finished_at', '>=', $startDate)
+            ->where('finished_at', '<', $endDate)
             ->count();
     }
 

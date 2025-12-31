@@ -417,8 +417,8 @@ describe('Claims Props', function () {
         AchievementSetClaim::factory()->create([
             'user_id' => $developer->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Active,
         ]);
 
         // ACT
@@ -445,8 +445,8 @@ describe('Claims Props', function () {
         AchievementSetClaim::factory()->create([
             'user_id' => $developer->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::InReview,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::InReview,
         ]);
 
         // ACT
@@ -472,8 +472,8 @@ describe('Claims Props', function () {
         AchievementSetClaim::factory()->create([
             'user_id' => $developer->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Complete,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Complete,
         ]);
 
         // ACT
@@ -608,8 +608,8 @@ describe('Permissions Props', function () {
         AchievementSetClaim::factory()->create([
             'user_id' => $developer->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Active,
         ]);
 
         // ACT
@@ -636,8 +636,8 @@ describe('Permissions Props', function () {
         AchievementSetClaim::factory()->create([
             'user_id' => $juniorDeveloper->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Active,
         ]);
 
         // ACT
@@ -670,8 +670,8 @@ describe('Permissions Props', function () {
         AchievementSetClaim::factory()->create([
             'user_id' => $juniorDeveloper->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Active,
         ]);
 
         // ACT
@@ -701,8 +701,8 @@ describe('Permissions Props', function () {
         AchievementSetClaim::factory()->create([
             'user_id' => $juniorDeveloper->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Active,
         ]);
 
         // ACT
@@ -1721,8 +1721,8 @@ describe('Subset Context Props', function () {
         AchievementSetClaim::factory()->create([
             'user_id' => $developer->id,
             'game_id' => $subsetGame->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Active,
         ]);
 
         // ACT
