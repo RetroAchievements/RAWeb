@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Community\Enums\UserGameListType;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\UserGameListEntryFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -103,4 +104,17 @@ class UserGameListEntry extends BaseModel
     }
 
     // == scopes
+
+    /**
+     * @param Builder<UserGameListEntry> $query
+     * @return Builder<UserGameListEntry>
+     */
+    public function scopeWithoutAchievements(Builder $query): Builder
+    {
+        return $query
+            ->select('user_game_list_entries.*')
+            ->leftJoin('achievements', 'user_game_list_entries.game_id', '=', 'achievements.game_id')
+            ->groupBy('user_game_list_entries.game_id')
+            ->havingRaw('count(achievements.id) = 0');
+    }
 }

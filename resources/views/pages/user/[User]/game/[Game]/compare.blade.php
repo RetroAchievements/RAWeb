@@ -105,31 +105,31 @@ render(function (View $view, User $user, Game $game, CompareUnlocksPageService $
                             <td>
                                 <div>
                                     {!! achievementAvatar($achievement, label: true, icon: false) !!}
-                                    <p>{{ $achievement['Description'] }}</p>
+                                    <p>{{ $achievement['description'] }}</p>
                                 </div>
                             </td>
                             <td>
                                 @if ($achievement['otherUserTimestamp'] ?? null)
-                                    {!! achievementAvatar($achievement, label: false, icon: $achievement['BadgeName'], iconSize: 32, iconClass: ($achievement['otherUserHardcore'] ?? false) ? 'goldimage' : 'badgeimage') !!}
+                                    {!! achievementAvatar($achievement, label: false, icon: $achievement['image_name'], iconSize: 32, iconClass: ($achievement['otherUserHardcore'] ?? false) ? 'goldimage' : 'badgeimage') !!}
                                     <span class="smalldate whitespace-nowrap">{{ $achievement['otherUserTimestamp'] }}
                                         @if ($achievement['otherUserHardcore'] ?? false)
                                             <br>HARDCORE
                                         @endif
                                     </span>
                                 @else
-                                    {!! achievementAvatar($achievement, label: false, icon: $achievement['BadgeName'] . '_lock', iconSize: 32) !!}
+                                    {!! achievementAvatar($achievement, label: false, icon: $achievement['image_name'] . '_lock', iconSize: 32) !!}
                                 @endif
                             </td>
                             <td>
                                 @if ($achievement['userTimestamp'] ?? null)
-                                    {!! achievementAvatar($achievement, label: false, icon: $achievement['BadgeName'], iconSize: 32, iconClass: ($achievement['userHardcore'] ?? false) ? 'goldimage' : 'badgeimage') !!}
+                                    {!! achievementAvatar($achievement, label: false, icon: $achievement['image_name'], iconSize: 32, iconClass: ($achievement['userHardcore'] ?? false) ? 'goldimage' : 'badgeimage') !!}
                                     <span class="smalldate whitespace-nowrap">{{ $achievement['userTimestamp'] }}
                                         @if ($achievement['userHardcore'] ?? false)
                                             <br>HARDCORE
                                         @endif
                                     </span>
                                 @else
-                                    {!! achievementAvatar($achievement, label: false, icon: $achievement['BadgeName'] . '_lock', iconSize: 32) !!}
+                                    {!! achievementAvatar($achievement, label: false, icon: $achievement['image_name'] . '_lock', iconSize: 32) !!}
                                 @endif
                             </td>
                         </tr>

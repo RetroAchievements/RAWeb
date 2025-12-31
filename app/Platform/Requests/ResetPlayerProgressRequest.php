@@ -18,7 +18,7 @@ class ResetPlayerProgressRequest extends FormRequest
     {
         return [
             'gameId' => 'required_without:achievementId|integer|exists:games,id',
-            'achievementId' => 'required_without:gameId|integer|exists:Achievements,ID',
+            'achievementId' => 'required_without:gameId|integer|exists:achievements,id',
         ];
     }
 }

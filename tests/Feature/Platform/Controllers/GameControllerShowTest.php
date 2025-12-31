@@ -29,7 +29,6 @@ use App\Models\UserGameListEntry;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementAuthorTask;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameSetRolePermission;
 use App\Platform\Enums\GameSetType;
@@ -58,12 +57,12 @@ function createGameWithAchievements(
     $developer = User::factory()->create();
 
     $game = Game::factory()->create(['title' => $title, 'system_id' => $system->id]);
-    Achievement::factory()->published()->count($publishedCount)->create([
-        'GameID' => $game->id,
+    Achievement::factory()->promoted()->count($publishedCount)->create([
+        'game_id' => $game->id,
         'user_id' => $developer->id,
     ]);
     Achievement::factory()->count($unpublishedCount)->create([
-        'GameID' => $game->id,
+        'game_id' => $game->id,
         'user_id' => $developer->id,
     ]);
 
@@ -1283,15 +1282,15 @@ describe('Open Tickets Props', function () {
         $developer = User::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $publishedAchievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+        $publishedAchievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
 
         $unpublishedAchievement = Achievement::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::Unofficial->value,
+            'is_promoted' => false,
         ]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
@@ -1328,15 +1327,15 @@ describe('Open Tickets Props', function () {
         $developer = User::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $publishedAchievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+        $publishedAchievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
 
         $unpublishedAchievement = Achievement::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::Unofficial->value,
+            'is_promoted' => false,
         ]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
@@ -1378,8 +1377,8 @@ describe('Open Tickets Props', function () {
         $developer = User::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
 
@@ -1516,8 +1515,8 @@ describe('Aggregate Credits Props', function () {
         $maintainer = User::factory()->create();
 
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $originalAuthor->id,
         ]);
 
@@ -1545,8 +1544,8 @@ describe('Aggregate Credits Props', function () {
         $originalAuthor = User::factory()->create();
 
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $originalAuthor->id,
         ]);
 
@@ -1574,8 +1573,8 @@ describe('Aggregate Credits Props', function () {
         $artworkAuthor = User::factory()->create();
 
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
 
@@ -1631,8 +1630,8 @@ describe('Achievement Groups Props', function () {
         $developer = User::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
 

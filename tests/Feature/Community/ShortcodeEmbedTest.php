@@ -42,11 +42,11 @@ class ShortcodeEmbedTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create();
 
-        Achievement::factory()->published()->create([
-            'ID' => 1,
-            'GameID' => $game->id,
-            'Title' => 'Ring Collector',
-            'Points' => 5,
+        Achievement::factory()->promoted()->create([
+            'id' => 1,
+            'game_id' => $game->id,
+            'title' => 'Ring Collector',
+            'points' => 5,
             'user_id' => $user->id,
         ]);
 
@@ -101,11 +101,11 @@ class ShortcodeEmbedTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create();
 
-        Achievement::factory()->published()->create([
-            'ID' => 1,
-            'GameID' => $game->id,
-            'Title' => 'Finish the Game [100% Completion]',
-            'Points' => 50,
+        Achievement::factory()->promoted()->create([
+            'id' => 1,
+            'game_id' => $game->id,
+            'title' => 'Finish the Game [100% Completion]',
+            'points' => 50,
             'user_id' => $user->id,
         ]);
 

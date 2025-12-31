@@ -227,9 +227,9 @@ final class Shortcode
 
             switch ($key) {
                 case 'achievementIds':
-                    $results[$key] = Achievement::whereIn('ID', $ids)
+                    $results[$key] = Achievement::whereIn('id', $ids)
                         ->get()->mapWithKeys(function ($achievement) {
-                            return [$achievement->ID => $achievement];
+                            return [$achievement->id => $achievement];
                         });
                     break;
 

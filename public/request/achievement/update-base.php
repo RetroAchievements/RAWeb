@@ -12,7 +12,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'achievement' => 'required|integer|exists:Achievements,ID',
+    'achievement' => 'required|integer|exists:achievements,id',
     'title' => 'required|string|max:64',
     'description' => 'required|max:255',
     'points' => 'required|integer',
@@ -30,15 +30,15 @@ $achievementId = $achievement->id;
 
 if (UploadNewAchievement(
     authorUsername: $user,
-    gameID: $achievement->GameID,
+    gameID: $achievement->game_id,
     title: $input['title'],
     desc: $input['description'],
     points: $input['points'],
     type: $input['type'] ?? null,
-    mem: $achievement->MemAddr,
-    flag: $achievement->Flags,
+    mem: $achievement->trigger_definition,
+    flag: $achievement->flags,
     idInOut: $achievementId,
-    badge: $achievement->BadgeName,
+    badge: $achievement->image_name,
     errorOut: $errorOut,
     gameAchievementSetID: null
 )) {

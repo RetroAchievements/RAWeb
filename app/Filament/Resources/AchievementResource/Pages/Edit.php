@@ -46,7 +46,7 @@ class Edit extends EditRecord
     {
         $this->authorizeFields($this->record, $data);
 
-        (new ApplyUploadedImageToDataAction())->execute($data, 'BadgeName', ImageUploadType::AchievementBadge);
+        (new ApplyUploadedImageToDataAction())->execute($data, 'image_name', ImageUploadType::AchievementBadge);
 
         return $data;
     }

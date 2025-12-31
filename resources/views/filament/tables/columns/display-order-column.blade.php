@@ -16,5 +16,5 @@
         />
     </x-filament::input.wrapper>
 @else
-    <span>{{ $record->DisplayOrder }}</span>
+    <span>{{ $record->order_column ?? $record->DisplayOrder }}</span>
 @endif

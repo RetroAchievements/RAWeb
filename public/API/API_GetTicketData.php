@@ -152,7 +152,6 @@ use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use Illuminate\Database\Eloquent\Builder;
 
 $count = min((int) request()->query('c', '10'), 100);
@@ -243,12 +242,12 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
     foreach ($tickets as $ticket) {
         $result[] = [
             'ID' => $ticket->ID,
-            'AchievementID' => $ticket->achievement->ID,
-            'AchievementTitle' => $ticket->achievement->Title,
-            'AchievementDesc' => $ticket->achievement->Description,
+            'AchievementID' => $ticket->achievement->id,
+            'AchievementTitle' => $ticket->achievement->title,
+            'AchievementDesc' => $ticket->achievement->description,
             'AchievementType' => $ticket->achievement->type,
             'Points' => $ticket->achievement->points,
-            'BadgeName' => $ticket->achievement->BadgeName,
+            'BadgeName' => $ticket->achievement->image_name,
             'AchievementAuthor' => $ticket->author?->display_name,
             'AchievementAuthorULID' => $ticket->author?->ulid,
             'GameID' => $ticket->achievement->game->id,
@@ -279,7 +278,7 @@ if ($gameIDGiven > 0) {
     $game = Game::where('id', $gameIDGiven)->with('system')->first();
     if ($game) {
         $tickets = Ticket::forGame($game);
-        if ($gamesTableFlag === AchievementFlag::Unofficial->value) {
+        if ($gamesTableFlag === Achievement::FLAG_UNPROMOTED) {
             $tickets->unofficial();
         } else {
             $tickets->officialCore();
@@ -310,8 +309,8 @@ if ($achievementIDGiven > 0) {
         return response()->json(['error' => "Achievement ID $achievementIDGiven not found"], 404);
     }
     $ticketData['AchievementID'] = $achievementIDGiven;
-    $ticketData['AchievementTitle'] = $achievementData['Title'];
-    $ticketData['AchievementDescription'] = $achievementData['Description'];
+    $ticketData['AchievementTitle'] = $achievementData['title'];
+    $ticketData['AchievementDescription'] = $achievementData['description'];
     $ticketData['AchievementType'] = $achievementData['type'];
     $ticketData['URL'] = route('achievement.tickets', ['achievement' => $achievementIDGiven]);
     $ticketData['OpenTickets'] = countOpenTicketsByAchievement($achievementIDGiven);

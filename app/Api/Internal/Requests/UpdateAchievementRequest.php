@@ -13,7 +13,7 @@ class UpdateAchievementRequest extends BaseJsonApiRequest
             'data.type' => 'required|in:achievements',
             'data.id' => 'required|integer',
             'data.attributes' => 'nullable|array',
-            'data.attributes.published' => 'nullable|boolean',
+            'data.attributes.promoted' => 'nullable|boolean',
             'data.attributes.title' => 'nullable|string|max:64',
             'data.meta' => 'required|array',
             'data.meta.actingUser' => 'required|string|exists:users,username',
@@ -25,7 +25,7 @@ class UpdateAchievementRequest extends BaseJsonApiRequest
         // Set custom attribute names to prevent Laravel from converting camelCase.
         return [
             'data.id' => 'data.id',
-            'data.attributes.published' => 'data.attributes.published',
+            'data.attributes.promoted' => 'data.attributes.promoted',
             'data.attributes.title' => 'data.attributes.title',
             'data.meta.actingUser' => 'data.meta.actingUser',
         ];
@@ -49,8 +49,8 @@ class UpdateAchievementRequest extends BaseJsonApiRequest
         return $this->getAttribute('title');
     }
 
-    public function getPublished(): ?bool
+    public function getPromoted(): ?bool
     {
-        return $this->hasAttribute('published') ? (bool) $this->getAttribute('published') : null;
+        return $this->hasAttribute('promoted') ? (bool) $this->getAttribute('promoted') : null;
     }
 }

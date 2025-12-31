@@ -50,7 +50,7 @@ function performSearch(
                    ELSE 2
                END AS SecondarySort
         FROM games AS gd
-        LEFT JOIN Achievements AS ach ON ach.GameID = gd.id AND ach.Flags = 3
+        LEFT JOIN achievements AS ach ON ach.game_id = gd.id AND ach.is_promoted = 1
         LEFT JOIN systems AS s ON gd.system_id = s.id
         WHERE gd.system_id != 100
         AND gd.title LIKE '%$searchQuery%'
@@ -77,15 +77,15 @@ function performSearch(
     }
 
     if (in_array(SearchType::Achievement, $searchType)) {
-        $counts[] = "SELECT COUNT(*) AS Count FROM Achievements WHERE Title LIKE '%$searchQuery%'";
+        $counts[] = "SELECT COUNT(*) AS Count FROM achievements WHERE title LIKE '%$searchQuery%'";
         $parts[] = "
-        SELECT " . SearchType::Achievement . " AS Type, ach.ID, CONCAT( '/achievement/', ach.ID ) AS Target,
-               CONCAT(ach.Title, ' (', gd.title, ')') AS Title,
-               CASE WHEN ach.Title LIKE '$searchQuery%' THEN 0 ELSE 1 END AS SecondarySort
-        FROM Achievements AS ach
-        LEFT JOIN games AS gd ON gd.id = ach.GameID
-        WHERE ach.Flags = 3 AND ach.Title LIKE '%$searchQuery%'
-        ORDER BY SecondarySort, ach.Title";
+        SELECT " . SearchType::Achievement . " AS Type, ach.id, CONCAT( '/achievement/', ach.id ) AS Target,
+               CONCAT(ach.title, ' (', gd.title, ')') AS Title,
+               CASE WHEN ach.title LIKE '$searchQuery%' THEN 0 ELSE 1 END AS SecondarySort
+        FROM achievements AS ach
+        LEFT JOIN games AS gd ON gd.id = ach.game_id
+        WHERE ach.is_promoted = 1 AND ach.title LIKE '%$searchQuery%'
+        ORDER BY SecondarySort, ach.title";
     }
 
     if (in_array(SearchType::User, $searchType)) {

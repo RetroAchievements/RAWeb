@@ -26,7 +26,7 @@ class IncrementDeveloperContributionYieldAction
         bool $isHardcore = false,
     ): void {
         // If we somehow made it here for an unofficial achievement, bail.
-        if (!$achievement->is_published) {
+        if (!$achievement->is_promoted) {
             return;
         }
 
@@ -55,14 +55,14 @@ class IncrementDeveloperContributionYieldAction
                 ->where('id', $developer->id)
                 ->update([
                     'yield_unlocks' => DB::raw('yield_unlocks + 1'),
-                    'yield_points' => DB::raw('yield_points + ' . $achievement->Points),
+                    'yield_points' => DB::raw('yield_points + ' . $achievement->points),
                 ]);
         } else {
             DB::table('users')
                 ->where('id', $developer->id)
                 ->update([
                     'yield_unlocks' => DB::raw('CASE WHEN yield_unlocks > 0 THEN yield_unlocks - 1 ELSE 0 END'),
-                    'yield_points' => DB::raw('CASE WHEN yield_points >= ' . $achievement->Points . ' THEN yield_points - ' . $achievement->Points . ' ELSE 0 END'),
+                    'yield_points' => DB::raw('CASE WHEN yield_points >= ' . $achievement->points . ' THEN yield_points - ' . $achievement->points . ' ELSE 0 END'),
                 ]);
         }
 

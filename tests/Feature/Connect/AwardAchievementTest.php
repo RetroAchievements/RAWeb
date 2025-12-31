@@ -52,17 +52,17 @@ class AwardAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
         $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => '0123456789abcdeffedcba9876543210']);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement4 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement5 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement6 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -80,7 +80,7 @@ class AwardAchievementTest extends TestCase
 
         // cache the unlocks for the game - verify singular unlock captured
         $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
-        $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
+        $this->assertEquals([$achievement1->id, $achievement5->id, $achievement6->id], array_keys($unlocks));
 
         // do the hardcore unlock
         $validationHash = $this->buildValidationHash($achievement3, $this->user, 1);
@@ -89,12 +89,12 @@ class AwardAchievementTest extends TestCase
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->id, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement3->ID,
+                'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 2,
-                'Score' => $scoreBefore + $achievement3->Points,
+                'Score' => $scoreBefore + $achievement3->points,
                 'SoftcoreScore' => $softcoreScoreBefore,
             ]);
         $this->user->refresh();
@@ -128,14 +128,14 @@ class AwardAchievementTest extends TestCase
 
         // player score should have increased
         $user1 = User::whereName($this->user->username)->first();
-        $this->assertEquals($scoreBefore + $achievement3->Points, $user1->points_hardcore);
+        $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
         $this->assertEquals($softcoreScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
-        $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
-        $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
-        $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
+        $this->assertEqualsCanonicalizing([$achievement1->id, $achievement5->id, $achievement6->id, $achievement3->id], array_keys($unlocks));
+        $this->assertEquals($now, $unlocks[$achievement3->id]['DateEarnedHardcore']);
+        $this->assertEquals($now, $unlocks[$achievement3->id]['DateEarned']);
 
         // repeat the hardcore unlock
         $scoreBefore = $user1->points_hardcore;
@@ -147,12 +147,12 @@ class AwardAchievementTest extends TestCase
         $this->assertNotEquals($now, Carbon::now());
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->id, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => false,
                 // client detects the "User already has" and does not report this as an error.
                 'Error' => 'User already has this achievement unlocked in hardcore mode.',
-                'AchievementID' => $achievement3->ID,
+                'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 2,
                 'Score' => $scoreBefore,
                 'SoftcoreScore' => $softcoreScoreBefore,
@@ -173,23 +173,23 @@ class AwardAchievementTest extends TestCase
         // unlock the rest of the set
         $validationHash = $this->buildValidationHash($achievement2, $this->user, 1);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement2->id, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'AchievementsRemaining' => 1,
-                'Score' => $scoreBefore + $achievement2->Points,
+                'Score' => $scoreBefore + $achievement2->points,
                 'SoftcoreScore' => $softcoreScoreBefore,
             ]);
 
         $validationHash = $this->buildValidationHash($achievement4, $this->user, 1);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement4->id, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement4->ID,
+                'AchievementID' => $achievement4->id,
                 'AchievementsRemaining' => 0,
-                'Score' => $scoreBefore + $achievement2->Points + $achievement4->Points,
+                'Score' => $scoreBefore + $achievement2->points + $achievement4->points,
                 'SoftcoreScore' => $softcoreScoreBefore,
             ]);
 
@@ -215,17 +215,17 @@ class AwardAchievementTest extends TestCase
         /** @var GameHash $gameHash */
         $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => '0123456789abcdeffedcba9876543210']);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement4 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement5 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement6 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -236,7 +236,7 @@ class AwardAchievementTest extends TestCase
 
         // cache the unlocks for the game - verify singular unlock captured
         $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
-        $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
+        $this->assertEquals([$achievement1->id, $achievement5->id, $achievement6->id], array_keys($unlocks));
 
         // do the softcore unlock
         $validationHash = $this->buildValidationHash($achievement3, $this->user, 0);
@@ -245,27 +245,27 @@ class AwardAchievementTest extends TestCase
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->id, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement3->ID,
+                'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 2,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->Points,
+                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->points,
             ]);
         $this->user->refresh();
 
         // player score should have increased
         $user1 = $this->user;
         $this->assertEquals($scoreBefore, $user1->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore + $achievement3->Points, $user1->points);
+        $this->assertEquals($softcoreScoreBefore + $achievement3->points, $user1->points);
         $this->assertEquals($truePointsBefore, $user1->points_weighted);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
-        $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
-        $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
-        $this->assertArrayNotHasKey('DateEarnedHardcore', $unlocks[$achievement3->ID]);
+        $this->assertEqualsCanonicalizing([$achievement1->id, $achievement5->id, $achievement6->id, $achievement3->id], array_keys($unlocks));
+        $this->assertEquals($now, $unlocks[$achievement3->id]['DateEarned']);
+        $this->assertArrayNotHasKey('DateEarnedHardcore', $unlocks[$achievement3->id]);
 
         // repeat the softcore unlock
         $scoreBefore = $user1->points_hardcore;
@@ -276,12 +276,12 @@ class AwardAchievementTest extends TestCase
         $this->assertNotEquals($now, Carbon::now());
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->id, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => false,
                 // client detects the "User already has" and does not report this as an error.
                 'Error' => 'User already has this achievement unlocked.',
-                'AchievementID' => $achievement3->ID,
+                'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 2,
                 'Score' => $scoreBefore,
                 'SoftcoreScore' => $softcoreScoreBefore,
@@ -304,26 +304,26 @@ class AwardAchievementTest extends TestCase
         $softcoreScoreBefore = $user1->points;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->id, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement3->ID,
+                'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
-                'Score' => $scoreBefore + $achievement3->Points,
-                'SoftcoreScore' => $softcoreScoreBefore - $achievement3->Points,
+                'Score' => $scoreBefore + $achievement3->points,
+                'SoftcoreScore' => $softcoreScoreBefore - $achievement3->points,
             ]);
         $this->user->refresh();
 
         // player score should have adjusted
         $user2 = $this->user;
-        $this->assertEquals($scoreBefore + $achievement3->Points, $user2->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore - $achievement3->Points, $user2->points);
+        $this->assertEquals($scoreBefore + $achievement3->points, $user2->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore - $achievement3->points, $user2->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->username, $game->id);
-        $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
-        $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
-        $this->assertEquals($newNow, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
+        $this->assertEqualsCanonicalizing([$achievement1->id, $achievement5->id, $achievement6->id, $achievement3->id], array_keys($unlocks));
+        $this->assertEquals($now, $unlocks[$achievement3->id]['DateEarned']);
+        $this->assertEquals($newNow, $unlocks[$achievement3->id]['DateEarnedHardcore']);
 
         // make sure the softcore unlock time didn't change
         $unlockTime = $this->getUnlockTime($user2, $achievement3, UnlockMode::Softcore);
@@ -337,24 +337,24 @@ class AwardAchievementTest extends TestCase
 
         $validationHash = $this->buildValidationHash($achievement2, $this->user, 0);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement2->id, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'AchievementsRemaining' => 1,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement2->Points,
+                'SoftcoreScore' => $softcoreScoreBefore + $achievement2->points,
             ]);
 
         $validationHash = $this->buildValidationHash($achievement4, $this->user, 0);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement4->id, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement4->ID,
+                'AchievementID' => $achievement4->id,
                 'AchievementsRemaining' => 0,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement2->Points + $achievement4->Points,
+                'SoftcoreScore' => $softcoreScoreBefore + $achievement2->points + $achievement4->points,
             ]);
 
         // verify badge was awarded
@@ -386,17 +386,17 @@ class AwardAchievementTest extends TestCase
         $delegatedUser->save();
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['ID' => 1, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
+        $achievement1 = Achievement::factory()->promoted()->create(['id' => 1, 'game_id' => $gameOne->id, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['ID' => 2, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
+        $achievement2 = Achievement::factory()->promoted()->create(['id' => 2, 'game_id' => $gameOne->id, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['ID' => 3, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
+        $achievement3 = Achievement::factory()->promoted()->create(['id' => 3, 'game_id' => $gameOne->id, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['ID' => 4, 'GameID' => $gameOne->id, 'user_id' => 9999999]);
+        $achievement4 = Achievement::factory()->promoted()->create(['id' => 4, 'game_id' => $gameOne->id, 'user_id' => 9999999]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['ID' => 5, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
+        $achievement5 = Achievement::factory()->promoted()->create(['id' => 5, 'game_id' => $gameOne->id, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['ID' => 6, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
+        $achievement6 = Achievement::factory()->promoted()->create(['id' => 6, 'game_id' => $gameOne->id, 'user_id' => $integrationUser->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -413,7 +413,7 @@ class AwardAchievementTest extends TestCase
 
         // cache the unlocks for the game - verify singular unlock captured
         $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $gameOne->id);
-        $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
+        $this->assertEquals([$achievement1->id, $achievement5->id, $achievement6->id], array_keys($unlocks));
 
         // do the delegated hardcore unlock
         $scoreBefore = $delegatedUser->points_hardcore;
@@ -425,7 +425,7 @@ class AwardAchievementTest extends TestCase
             'r' => 'awardachievement',
             'k' => $delegatedUser->username,
             'h' => 1,
-            'a' => $achievement3->ID,
+            'a' => $achievement3->id,
             'v' => '62c47b9fba313855ff8a09673780bb35',
         ];
 
@@ -434,9 +434,9 @@ class AwardAchievementTest extends TestCase
             ->post($requestUrl)
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement3->ID,
+                'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 2,
-                'Score' => $scoreBefore + $achievement3->Points,
+                'Score' => $scoreBefore + $achievement3->points,
                 'SoftcoreScore' => $softcoreScoreBefore,
             ]);
         $delegatedUser->refresh();
@@ -468,14 +468,14 @@ class AwardAchievementTest extends TestCase
 
         // player score should have increased
         $user1 = User::whereName($delegatedUser->username)->first();
-        $this->assertEquals($scoreBefore + $achievement3->Points, $user1->points_hardcore);
+        $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
         $this->assertEquals($softcoreScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $gameOne->id);
-        $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
-        $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
-        $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
+        $this->assertEqualsCanonicalizing([$achievement1->id, $achievement5->id, $achievement6->id, $achievement3->id], array_keys($unlocks));
+        $this->assertEquals($now, $unlocks[$achievement3->id]['DateEarnedHardcore']);
+        $this->assertEquals($now, $unlocks[$achievement3->id]['DateEarned']);
 
         // Next, try to award an achievement on a non-standalone game.
         // This is not allowed and should fail, even if the integration user is the achievement author.
@@ -484,7 +484,7 @@ class AwardAchievementTest extends TestCase
         /** @var Game $gameTwo */
         $gameTwo = Game::factory()->create(['system_id' => $normalSystem->id]);
 
-        $achievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameTwo->id, 'user_id' => $integrationUser->id]);
+        $achievements = Achievement::factory()->promoted()->count(6)->create(['game_id' => $gameTwo->id, 'user_id' => $integrationUser->id]);
 
         $params['a'] = $achievements->get(0)->id;
 
@@ -521,7 +521,7 @@ class AwardAchievementTest extends TestCase
             'r' => 'awardachievement',
             'k' => $delegatedUser->username,
             'h' => 1,
-            'a' => $achievement3->ID,
+            'a' => $achievement3->id,
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
@@ -540,7 +540,7 @@ class AwardAchievementTest extends TestCase
             'r' => 'awardachievement',
             'k' => $delegatedUser->username,
             'h' => 1,
-            'a' => $achievement3->ID,
+            'a' => $achievement3->id,
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
@@ -573,17 +573,17 @@ class AwardAchievementTest extends TestCase
         $delegatedUser->save();
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['ID' => 1, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
+        $achievement1 = Achievement::factory()->promoted()->create(['id' => 1, 'game_id' => $gameOne->id, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['ID' => 2, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
+        $achievement2 = Achievement::factory()->promoted()->create(['id' => 2, 'game_id' => $gameOne->id, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['ID' => 3, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
+        $achievement3 = Achievement::factory()->promoted()->create(['id' => 3, 'game_id' => $gameOne->id, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['ID' => 4, 'GameID' => $gameOne->id, 'user_id' => 9999999]);
+        $achievement4 = Achievement::factory()->promoted()->create(['id' => 4, 'game_id' => $gameOne->id, 'user_id' => 9999999]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['ID' => 5, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
+        $achievement5 = Achievement::factory()->promoted()->create(['id' => 5, 'game_id' => $gameOne->id, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['ID' => 6, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
+        $achievement6 = Achievement::factory()->promoted()->create(['id' => 6, 'game_id' => $gameOne->id, 'user_id' => $integrationUser->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -600,7 +600,7 @@ class AwardAchievementTest extends TestCase
 
         // cache the unlocks for the game - verify singular unlock captured
         $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $gameOne->id);
-        $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
+        $this->assertEquals([$achievement1->id, $achievement5->id, $achievement6->id], array_keys($unlocks));
 
         // do the delegated hardcore unlock
         $scoreBefore = $delegatedUser->points_hardcore;
@@ -612,7 +612,7 @@ class AwardAchievementTest extends TestCase
             'r' => 'awardachievement',
             'k' => $delegatedUser->ulid, // !!
             'h' => 1,
-            'a' => $achievement3->ID,
+            'a' => $achievement3->id,
             'v' => '62c47b9fba313855ff8a09673780bb35',
         ];
 
@@ -621,9 +621,9 @@ class AwardAchievementTest extends TestCase
             ->post($requestUrl)
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement3->ID,
+                'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 2,
-                'Score' => $scoreBefore + $achievement3->Points,
+                'Score' => $scoreBefore + $achievement3->points,
                 'SoftcoreScore' => $softcoreScoreBefore,
             ]);
         $delegatedUser->refresh();
@@ -655,14 +655,14 @@ class AwardAchievementTest extends TestCase
 
         // player score should have increased
         $user1 = User::whereName($delegatedUser->username)->first();
-        $this->assertEquals($scoreBefore + $achievement3->Points, $user1->points_hardcore);
+        $this->assertEquals($scoreBefore + $achievement3->points, $user1->points_hardcore);
         $this->assertEquals($softcoreScoreBefore, $user1->points);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($delegatedUser->username, $gameOne->id);
-        $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
-        $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
-        $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
+        $this->assertEqualsCanonicalizing([$achievement1->id, $achievement5->id, $achievement6->id, $achievement3->id], array_keys($unlocks));
+        $this->assertEquals($now, $unlocks[$achievement3->id]['DateEarnedHardcore']);
+        $this->assertEquals($now, $unlocks[$achievement3->id]['DateEarned']);
     }
 
     public function testBackdatedUnlock(): void
@@ -675,17 +675,17 @@ class AwardAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
         $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => '0123456789abcdeffedcba9876543210']);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement4 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement5 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement6 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -701,15 +701,15 @@ class AwardAchievementTest extends TestCase
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->id, 'h' => 1, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement3->ID,
+                'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 4,
-                'Score' => $scoreBefore + $achievement3->Points,
+                'Score' => $scoreBefore + $achievement3->points,
                 'SoftcoreScore' => $softcoreScoreBefore,
             ]);
-        $scoreBefore += $achievement3->Points;
+        $scoreBefore += $achievement3->points;
 
         // player session created
         $playerSession = PlayerSession::where([
@@ -741,15 +741,15 @@ class AwardAchievementTest extends TestCase
 
         // try to unlock another achievement with incorrect validation hash - should succeed, but not be backdated
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 1, 'm' => $gameHash->md5, 'o' => $offset, 'v' => 'XXXXXXXXX']))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement2->id, 'h' => 1, 'm' => $gameHash->md5, 'o' => $offset, 'v' => 'XXXXXXXXX']))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'AchievementsRemaining' => 3,
-                'Score' => $scoreBefore + $achievement2->Points,
+                'Score' => $scoreBefore + $achievement2->points,
                 'SoftcoreScore' => $softcoreScoreBefore,
             ]);
-        $scoreBefore += $achievement2->Points;
+        $scoreBefore += $achievement2->points;
 
         $playerAchievement2 = PlayerAchievement::where([
             'user_id' => $this->user->id,
@@ -766,15 +766,15 @@ class AwardAchievementTest extends TestCase
         $validationHash = $this->buildValidationHash($achievement3, $this->user, 1, $offset);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 1, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement4->id, 'h' => 1, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement4->ID,
+                'AchievementID' => $achievement4->id,
                 'AchievementsRemaining' => 2,
-                'Score' => $scoreBefore + $achievement4->Points,
+                'Score' => $scoreBefore + $achievement4->points,
                 'SoftcoreScore' => $softcoreScoreBefore,
             ]);
-        $scoreBefore += $achievement4->Points;
+        $scoreBefore += $achievement4->points;
 
         $playerAchievement3 = PlayerAchievement::where([
             'user_id' => $this->user->id,
@@ -791,15 +791,15 @@ class AwardAchievementTest extends TestCase
         $validationHash = $this->buildValidationHash($achievement5, $this->user, 1, $offset);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement5->ID, 'h' => 1, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement5->id, 'h' => 1, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement5->ID,
+                'AchievementID' => $achievement5->id,
                 'AchievementsRemaining' => 1,
-                'Score' => $scoreBefore + $achievement5->Points,
+                'Score' => $scoreBefore + $achievement5->points,
                 'SoftcoreScore' => $softcoreScoreBefore,
             ]);
-        $scoreBefore += $achievement5->Points;
+        $scoreBefore += $achievement5->points;
 
         $playerAchievement4 = PlayerAchievement::where([
             'user_id' => $this->user->id,
@@ -826,13 +826,13 @@ class AwardAchievementTest extends TestCase
         /** @var GameHash $gameHash */
         $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => '0123456789abcdeffedcba9876543210']);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement4 = Achievement::factory()->create(['game_id' => $game->id, 'user_id' => $author->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -855,11 +855,11 @@ class AwardAchievementTest extends TestCase
 
         $validationHash = $this->buildValidationHash($achievement4, $this->user, 1);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement4->id, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => false,
                 'Error' => 'Unofficial achievements cannot be unlocked',
-                'AchievementID' => $achievement4->ID,
+                'AchievementID' => $achievement4->id,
                 'Score' => $scoreBefore,
                 'SoftcoreScore' => $softcoreScoreBefore,
             ]);
@@ -880,17 +880,17 @@ class AwardAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
         $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => '0123456789abcdeffedcba9876543210']);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement4 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement5 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
+        $achievement6 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $author->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -911,10 +911,10 @@ class AwardAchievementTest extends TestCase
         /** @var Game $eventGame */
         $eventGame = Game::factory()->create(['system_id' => System::Events]);
         /** @var Achievement $eventAchievement1 */
-        $eventAchievement1 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
+        $eventAchievement1 = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
         EventAchievement::create([
-            'achievement_id' => $eventAchievement1->ID,
-            'source_achievement_id' => $achievement1->ID,
+            'achievement_id' => $eventAchievement1->id,
+            'source_achievement_id' => $achievement1->id,
             'active_from' => $now->clone()->subDays(1),
             'active_until' => $now->clone()->addDays(2),
         ]);
@@ -926,13 +926,13 @@ class AwardAchievementTest extends TestCase
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement1->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement1->id, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 // client assumes success - it will blindly dispatch the event unlock
                 'Success' => true,
                 // client detects the "User already has" and does not report this as an error.
                 'Error' => 'User already has this achievement unlocked in hardcore mode.',
-                'AchievementID' => $achievement1->ID,
+                'AchievementID' => $achievement1->id,
                 'AchievementsRemaining' => 3,
                 'Score' => $scoreBefore,
                 'SoftcoreScore' => $softcoreScoreBefore,
@@ -948,10 +948,10 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($softcoreScoreBefore, $user1->points);
 
         /** @var Achievement $eventAchievement2 */
-        $eventAchievement2 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
+        $eventAchievement2 = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
         EventAchievement::create([
-            'achievement_id' => $eventAchievement2->ID,
-            'source_achievement_id' => $achievement2->ID,
+            'achievement_id' => $eventAchievement2->id,
+            'source_achievement_id' => $achievement2->id,
             'active_from' => $now->clone()->subDays(1),
             'active_until' => $now->clone()->addDays(2),
         ]);
@@ -963,19 +963,19 @@ class AwardAchievementTest extends TestCase
         $truePointsBefore = $this->user->points_weighted;
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement2->id, 'h' => 0, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'AchievementsRemaining' => 2,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement2->Points,
+                'SoftcoreScore' => $softcoreScoreBefore + $achievement2->points,
             ]);
 
         // player score updated
         $this->user->refresh();
         $this->assertEquals($scoreBefore, $this->user->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore + $achievement2->Points, $this->user->points);
+        $this->assertEquals($softcoreScoreBefore + $achievement2->points, $this->user->points);
         $softcoreScoreBefore = $this->user->points;
 
         // event achievement not unlocked
@@ -985,19 +985,19 @@ class AwardAchievementTest extends TestCase
         $validationHash = $this->buildValidationHash($achievement2, $this->user, 1);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement2->id, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'AchievementsRemaining' => 2,
-                'Score' => $scoreBefore + $achievement2->Points,
-                'SoftcoreScore' => $softcoreScoreBefore - $achievement2->Points,
+                'Score' => $scoreBefore + $achievement2->points,
+                'SoftcoreScore' => $softcoreScoreBefore - $achievement2->points,
             ]);
 
         // player score updated
         $this->user->refresh();
-        $this->assertEquals($scoreBefore + $achievement2->Points, $this->user->points_hardcore);
-        $this->assertEquals($softcoreScoreBefore - $achievement2->Points, $this->user->points);
+        $this->assertEquals($scoreBefore + $achievement2->points, $this->user->points_hardcore);
+        $this->assertEquals($softcoreScoreBefore - $achievement2->points, $this->user->points);
         $scoreBefore = $this->user->points_hardcore;
         $softcoreScoreBefore = $this->user->points;
 
@@ -1005,10 +1005,10 @@ class AwardAchievementTest extends TestCase
         $this->assertHasHardcoreUnlock($this->user, $eventAchievement2);
 
         /** @var Achievement $eventAchievement3 */
-        $eventAchievement3 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
+        $eventAchievement3 = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
         EventAchievement::create([
-            'achievement_id' => $eventAchievement3->ID,
-            'source_achievement_id' => $achievement3->ID,
+            'achievement_id' => $eventAchievement3->id,
+            'source_achievement_id' => $achievement3->id,
             'active_from' => $now->clone()->subDays(1),
             'active_until' => $now->clone()->addDays(2),
         ]);
@@ -1021,12 +1021,12 @@ class AwardAchievementTest extends TestCase
         $validationHash = $this->buildValidationHash($achievement3, $this->user, 1);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->id, 'h' => 1, 'm' => $gameHash->md5, 'v' => $validationHash]))
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement3->ID,
+                'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 1,
-                'Score' => $scoreBefore + $achievement3->Points,
+                'Score' => $scoreBefore + $achievement3->points,
                 'SoftcoreScore' => $softcoreScoreBefore,
             ]);
 
@@ -1060,77 +1060,77 @@ class AwardAchievementTest extends TestCase
 
         // no user agent (unlock demoted to softcore)
         $validationHash = $this->buildValidationHash($achievement1, $this->user, 1);
-        $this->get($this->apiUrl('awardachievement', ['a' => $achievement1->ID, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement1->id, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement1->ID,
+                'AchievementID' => $achievement1->id,
                 'AchievementsRemaining' => 5,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $this->user->points + $achievement1->Points,
+                'SoftcoreScore' => $this->user->points + $achievement1->points,
             ]);
-        $softcoreScoreBefore += $achievement1->Points;
+        $softcoreScoreBefore += $achievement1->points;
 
         // unknown user agent (unlock demoted to softcore)
         $validationHash = $this->buildValidationHash($achievement2, $this->user, 1);
         $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement2->id, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement2->Points,
+                'SoftcoreScore' => $softcoreScoreBefore + $achievement2->points,
             ]);
-        $softcoreScoreBefore += $achievement2->Points;
+        $softcoreScoreBefore += $achievement2->points;
 
         // outdated user agent (unlock demoted to softcore)
         $validationHash = $this->buildValidationHash($achievement3, $this->user, 1);
         $this->withHeaders(['User-Agent' => $this->userAgentOutdated])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->id, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement3->ID,
+                'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 3,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->Points,
+                'SoftcoreScore' => $softcoreScoreBefore + $achievement3->points,
             ]);
-        $softcoreScoreBefore += $achievement3->Points;
+        $softcoreScoreBefore += $achievement3->points;
 
         // unsupported user agent (unlock demoted to softcore)
         $validationHash = $this->buildValidationHash($achievement7, $this->user, 1);
         $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement7->ID, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement7->id, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement7->ID,
+                'AchievementID' => $achievement7->id,
                 'AchievementsRemaining' => 2,
                 'Score' => $scoreBefore,
-                'SoftcoreScore' => $softcoreScoreBefore + $achievement7->Points,
+                'SoftcoreScore' => $softcoreScoreBefore + $achievement7->points,
             ]);
-        $softcoreScoreBefore += $achievement7->Points;
+        $softcoreScoreBefore += $achievement7->points;
 
         // valid user agent
         $validationHash = $this->buildValidationHash($achievement4, $this->user, 1);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement4->id, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement4->ID,
+                'AchievementID' => $achievement4->id,
                 'AchievementsRemaining' => 5,
-                'Score' => $scoreBefore + $achievement4->Points,
+                'Score' => $scoreBefore + $achievement4->points,
                 'SoftcoreScore' => $softcoreScoreBefore,
             ]);
-        $scoreBefore += $achievement4->Points;
+        $scoreBefore += $achievement4->points;
 
         // blocked user agent
         $validationHash = $this->buildValidationHash($achievement5, $this->user, 1);
         $this->withHeaders(['User-Agent' => $this->userAgentBlocked])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement5->ID, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement5->id, 'h' => 1, 'm' => $md5, 'v' => $validationHash]))
             ->assertStatus(403)
             ->assertExactJson([
                 'Status' => 403,
@@ -1163,77 +1163,77 @@ class AwardAchievementTest extends TestCase
 
         // no user agent
         $validationHash = $this->buildValidationHash($achievement1, $this->user, 0);
-        $this->get($this->apiUrl('awardachievement', ['a' => $achievement1->ID, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement1->id, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement1->ID,
+                'AchievementID' => $achievement1->id,
                 'AchievementsRemaining' => 5,
                 'Score' => $this->user->points_hardcore,
-                'SoftcoreScore' => $scoreBefore + $achievement1->Points,
+                'SoftcoreScore' => $scoreBefore + $achievement1->points,
             ]);
-        $scoreBefore += $achievement1->Points;
+        $scoreBefore += $achievement1->points;
 
         // unknown user agent
         $validationHash = $this->buildValidationHash($achievement2, $this->user, 0);
         $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement2->id, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement2->ID,
+                'AchievementID' => $achievement2->id,
                 'AchievementsRemaining' => 4,
                 'Score' => $this->user->points_hardcore,
-                'SoftcoreScore' => $scoreBefore + $achievement2->Points,
+                'SoftcoreScore' => $scoreBefore + $achievement2->points,
             ]);
-        $scoreBefore += $achievement2->Points;
+        $scoreBefore += $achievement2->points;
 
         // outdated user agent
         $validationHash = $this->buildValidationHash($achievement3, $this->user, 0);
         $this->withHeaders(['User-Agent' => $this->userAgentOutdated])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement3->id, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement3->ID,
+                'AchievementID' => $achievement3->id,
                 'AchievementsRemaining' => 3,
                 'Score' => $this->user->points_hardcore,
-                'SoftcoreScore' => $scoreBefore + $achievement3->Points,
+                'SoftcoreScore' => $scoreBefore + $achievement3->points,
             ]);
-        $scoreBefore += $achievement3->Points;
+        $scoreBefore += $achievement3->points;
 
         // unsupported user agent
         $validationHash = $this->buildValidationHash($achievement7, $this->user, 1);
         $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement7->ID, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement7->id, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement7->ID,
+                'AchievementID' => $achievement7->id,
                 'AchievementsRemaining' => 2,
                 'Score' => $this->user->points_hardcore,
-                'SoftcoreScore' => $scoreBefore + $achievement7->Points,
+                'SoftcoreScore' => $scoreBefore + $achievement7->points,
             ]);
-        $scoreBefore += $achievement7->Points;
+        $scoreBefore += $achievement7->points;
 
         // valid user agent
         $validationHash = $this->buildValidationHash($achievement4, $this->user, 0);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement4->id, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
-                'AchievementID' => $achievement4->ID,
+                'AchievementID' => $achievement4->id,
                 'AchievementsRemaining' => 1,
                 'Score' => $this->user->points_hardcore,
-                'SoftcoreScore' => $scoreBefore + $achievement4->Points,
+                'SoftcoreScore' => $scoreBefore + $achievement4->points,
             ]);
-        $scoreBefore += $achievement4->Points;
+        $scoreBefore += $achievement4->points;
 
         // blocked user agent
         $validationHash = $this->buildValidationHash($achievement5, $this->user, 0);
         $this->withHeaders(['User-Agent' => $this->userAgentBlocked])
-            ->get($this->apiUrl('awardachievement', ['a' => $achievement5->ID, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
+            ->get($this->apiUrl('awardachievement', ['a' => $achievement5->id, 'h' => 0, 'm' => $md5, 'v' => $validationHash]))
             ->assertStatus(403)
             ->assertExactJson([
                 'Status' => 403,

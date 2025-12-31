@@ -23,7 +23,6 @@ use App\Models\PlayerBadge;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -247,28 +246,28 @@ class GenerateAnnualRecapAction
 
     private function getUnlockTallies(array $gameIds, User $user, Carbon $startDate, Carbon $endDate): array
     {
-        $hardcoreTally = PlayerAchievement::where('player_achievements.user_id', $user->id)
+        $hardcoreTally = PlayerAchievement::where(DB::raw('player_achievements.user_id'), $user->id)
             ->where('unlocked_hardcore_at', '>=', $startDate)
             ->where('unlocked_hardcore_at', '<', $endDate)
-            ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
-            ->whereIn(DB::raw('Achievements.GameID'), $gameIds)
-            ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore)
+            ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
+            ->whereIn(DB::raw('achievements.game_id'), $gameIds)
+            ->where(DB::raw('achievements.is_promoted'), true)
             ->select(
                 DB::raw('count(*) as count'),
-                DB::raw('sum(Achievements.Points) as points'),
+                DB::raw('sum(achievements.points) as points'),
             )
             ->first();
 
-        $softcoreTally = PlayerAchievement::where('player_achievements.user_id', $user->id)
+        $softcoreTally = PlayerAchievement::where(DB::raw('player_achievements.user_id'), $user->id)
             ->whereNull('unlocked_hardcore_at')
             ->where('unlocked_at', '>=', $startDate)
             ->where('unlocked_at', '<', $endDate)
-            ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
-            ->whereIn(DB::raw('Achievements.GameID'), $gameIds)
-            ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore)
+            ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
+            ->whereIn(DB::raw('achievements.game_id'), $gameIds)
+            ->where(DB::raw('achievements.is_promoted'), true)
             ->select(
                 DB::raw('count(*) as count'),
-                DB::raw('sum(Achievements.Points) as points'),
+                DB::raw('sum(achievements.points) as points'),
             )
             ->first();
 
@@ -431,35 +430,35 @@ class GenerateAnnualRecapAction
             'rarestSoftcoreAchievementEarnRate' => 0.0,
         ];
 
-        $rarestHardcoreAchievement = PlayerAchievement::where('player_achievements.user_id', $user->id)
+        $rarestHardcoreAchievement = PlayerAchievement::where(DB::raw('player_achievements.user_id'), $user->id)
             ->where('unlocked_hardcore_at', '>=', $startDate)
             ->where('unlocked_hardcore_at', '<', $endDate)
-            ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
-            ->join('games', 'games.id', '=', 'Achievements.GameID')
-            ->whereIn('Achievements.GameID', $gameIds)
-            ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore)
-            ->select('Achievements.ID', DB::raw('Achievements.unlocks_hardcore_total/games.players_total as EarnRate'))
+            ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
+            ->join('games', 'games.id', '=', 'achievements.game_id')
+            ->whereIn('achievements.game_id', $gameIds)
+            ->where(DB::raw('achievements.is_promoted'), true)
+            ->select('achievements.id', DB::raw('achievements.unlocks_hardcore/games.players_total as EarnRate'))
             ->orderBy('EarnRate')
             ->first();
         if ($rarestHardcoreAchievement) {
-            $result['rarestHardcoreAchievement'] = Achievement::find($rarestHardcoreAchievement->ID);
+            $result['rarestHardcoreAchievement'] = Achievement::find($rarestHardcoreAchievement->id);
             $result['rarestHardcoreAchievementEarnRate'] = sprintf("%01.2f", $rarestHardcoreAchievement->EarnRate * 100);
 
             return $result; // only report rarest hardcore achievement if one was found
         }
 
-        $rarestSoftcoreAchievement = PlayerAchievement::where('player_achievements.user_id', $user->id)
+        $rarestSoftcoreAchievement = PlayerAchievement::where(DB::raw('player_achievements.user_id'), $user->id)
             ->where('unlocked_at', '>=', $startDate)
             ->where('unlocked_at', '<', $endDate)
-            ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
-            ->join('games', 'games.id', '=', 'Achievements.GameID')
-            ->whereIn('Achievements.GameID', $gameIds)
-            ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore)
-            ->select('Achievements.ID', DB::raw('Achievements.unlocks_total/games.players_total as EarnRate'))
+            ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
+            ->join('games', 'games.id', '=', 'achievements.game_id')
+            ->whereIn('achievements.game_id', $gameIds)
+            ->where(DB::raw('achievements.is_promoted'), true)
+            ->select('achievements.id', DB::raw('achievements.unlocks_total/games.players_total as EarnRate'))
             ->orderBy('EarnRate')
             ->first();
         if ($rarestSoftcoreAchievement) {
-            $result['rarestSoftcoreAchievement'] = Achievement::find($rarestSoftcoreAchievement->ID);
+            $result['rarestSoftcoreAchievement'] = Achievement::find($rarestSoftcoreAchievement->id);
             $result['rarestSoftcoreAchievementEarnRate'] = sprintf("%01.2f", $rarestSoftcoreAchievement->EarnRate * 100);
         }
 
@@ -516,9 +515,9 @@ class GenerateAnnualRecapAction
         }
 
         $recapData['achievementsCreated'] = Achievement::where('user_id', $user->id)
-            ->where('Flags', AchievementFlag::OfficialCore)
-            ->where('DateCreated', '>=', $startDate)
-            ->where('DateCreated', '<', $endDate)
+            ->where('is_promoted', true)
+            ->where('created_at', '>=', $startDate)
+            ->where('created_at', '<', $endDate)
             ->count();
 
         $recapData['completedClaims'] = AchievementSetClaim::where('user_id', $user->id)

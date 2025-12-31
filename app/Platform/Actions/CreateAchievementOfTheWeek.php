@@ -9,7 +9,6 @@ use App\Models\Event;
 use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\System;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Jobs\UpdateGameMetricsJob;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
@@ -57,19 +56,19 @@ class CreateAchievementOfTheWeek
         while ($achievementCount < 52) {
             $achievementCount++;
             $achievement = Achievement::create([
-                'Title' => "Week $achievementCount",
-                'Description' => 'TBD',
-                'MemAddr' => '0=1',
-                'Points' => 1,
-                'Flags' => AchievementFlag::OfficialCore->value,
-                'GameID' => $eventGame->id,
+                'title' => "Week $achievementCount",
+                'description' => 'TBD',
+                'trigger_definition' => '0=1',
+                'points' => 1,
+                'is_promoted' => true,
+                'game_id' => $eventGame->id,
                 'user_id' => EventAchievement::RAEVENTS_USER_ID,
-                'BadgeName' => '00000',
-                'DisplayOrder' => $achievementCount,
+                'image_name' => '00000',
+                'order_column' => $achievementCount,
             ]);
         }
 
-        $achievements = $eventGame->achievements()->orderBy('DisplayOrder')->get();
+        $achievements = $eventGame->achievements()->orderBy('order_column')->get();
 
         $index = 0;
         foreach ($achievementIds as $achievementId) {
@@ -90,15 +89,15 @@ class CreateAchievementOfTheWeek
             $achievementCount++;
             $monthLabel = $date->format('F');
             $achievement = Achievement::create([
-                'Title' => $monthLabel . ' Achievement of the Month',
-                'Description' => 'TBD',
-                'MemAddr' => '0=1',
-                'Points' => 1,
-                'Flags' => AchievementFlag::OfficialCore->value,
-                'GameID' => $eventGame->id,
+                'title' => $monthLabel . ' Achievement of the Month',
+                'description' => 'TBD',
+                'trigger_definition' => '0=1',
+                'points' => 1,
+                'is_promoted' => true,
+                'game_id' => $eventGame->id,
                 'user_id' => EventAchievement::RAEVENTS_USER_ID,
-                'BadgeName' => '00000',
-                'DisplayOrder' => $achievementCount,
+                'image_name' => '00000',
+                'order_column' => $achievementCount,
             ]);
 
             $nextDate = $date->clone();

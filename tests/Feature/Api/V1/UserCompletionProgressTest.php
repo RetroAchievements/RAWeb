@@ -62,34 +62,34 @@ class UserCompletionProgressTest extends TestCase
 
         /** @var Game $gameOne */
         $gameOne = Game::factory()->create(['system_id' => $system->id]);
-        $gameOneAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameOne->id]);
+        $gameOneAchievements = Achievement::factory()->promoted()->count(6)->create(['game_id' => $gameOne->id]);
         /** @var Game $gameTwo */
         $gameTwo = Game::factory()->create(['system_id' => $system->id]);
-        $gameTwoAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameTwo->id]);
+        $gameTwoAchievements = Achievement::factory()->promoted()->count(6)->create(['game_id' => $gameTwo->id]);
         /** @var Game $gameThree */
         $gameThree = Game::factory()->create(['system_id' => $system->id]);
-        $gameThreeAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameThree->id]);
+        $gameThreeAchievements = Achievement::factory()->promoted()->count(6)->create(['game_id' => $gameThree->id]);
         /** @var Game $gameFour */
         $gameFour = Game::factory()->create(['system_id' => $system->id]);
-        $gameFourAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameFour->id]);
+        $gameFourAchievements = Achievement::factory()->promoted()->count(6)->create(['game_id' => $gameFour->id]);
         /** @var Game $gameFive */
         $gameFive = Game::factory()->create(['system_id' => $system->id]);
-        $gameFiveAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameFive->id]);
+        $gameFiveAchievements = Achievement::factory()->promoted()->count(6)->create(['game_id' => $gameFive->id]);
         /** @var Game $gameSix */
         $gameSix = Game::factory()->create(['system_id' => $system->id]);
-        $gameSixAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameSix->id]);
+        $gameSixAchievements = Achievement::factory()->promoted()->count(6)->create(['game_id' => $gameSix->id]);
         /** @var Game $gameSeven */
         $gameSeven = Game::factory()->create(['system_id' => $system->id]);
-        $gameSevenAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameSeven->id]);
+        $gameSevenAchievements = Achievement::factory()->promoted()->count(6)->create(['game_id' => $gameSeven->id]);
         /** @var Game $gameEight */
         $gameEight = Game::factory()->create(['system_id' => $system->id]);
-        $gameEightAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameEight->id]);
+        $gameEightAchievements = Achievement::factory()->promoted()->count(6)->create(['game_id' => $gameEight->id]);
         /** @var Game $gameNine */
         $gameNine = Game::factory()->create(['system_id' => $system->id]);
-        $gameNineAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameNine->id]);
+        $gameNineAchievements = Achievement::factory()->promoted()->count(6)->create(['game_id' => $gameNine->id]);
         /** @var Game $gameTen */
         $gameTen = Game::factory()->create(['system_id' => $system->id]);
-        $gameTenAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameTen->id]);
+        $gameTenAchievements = Achievement::factory()->promoted()->count(6)->create(['game_id' => $gameTen->id]);
 
         // Unlocks on every game to be sure we have some progress.
         $this->addHardcoreUnlock($me, $gameOneAchievements->get(0), Carbon::now()->subMinutes(5));

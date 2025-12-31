@@ -98,10 +98,10 @@ class AchievementSetsRelationManager extends RelationManager
                     }),
 
                 Tables\Columns\TextColumn::make('achievements_published')
-                    ->label('Published Achievements'),
+                    ->label('Promoted Achievements'),
 
                 Tables\Columns\TextColumn::make('achievements_unpublished')
-                    ->label('Unpublished Achievements'),
+                    ->label('Unpromoted Achievements'),
 
                 Tables\Columns\TextInputColumn::make('order_column')
                     ->label('Display Order')

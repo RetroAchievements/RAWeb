@@ -154,16 +154,16 @@ class HomeControllerTest extends TestCase
         ]);
 
         $achievement = Achievement::factory()->create([
-            'ID' => 9,
+            'id' => 9,
             'title' => 'That Was Easy',
-            'GameID' => $game->id,
+            'game_id' => $game->id,
         ]);
 
         System::factory()->create(['id' => System::Events]);
         /** @var Game $eventGame */
         $eventGame = Game::factory()->create(['system_id' => System::Events, 'title' => 'Achievement of the Week', 'forum_topic_id' => 14029]);
         /** @var Achievement $eventAchievement */
-        $eventAchievement = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
+        $eventAchievement = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
 
         EventAchievement::create([
             'achievement_id' => $eventAchievement->id,
@@ -208,7 +208,7 @@ class HomeControllerTest extends TestCase
             'forum_topic_id' => 14029,
         ]);
 
-        $eventAchievement = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
+        $eventAchievement = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
 
         EventAchievement::create([
             'achievement_id' => $eventAchievement->id,

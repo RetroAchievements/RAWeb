@@ -45,28 +45,28 @@ class UserCompletedGamesTest extends TestCase
             'system_id' => $system->id,
             'image_icon_asset_path' => '/Images/001234.png',
         ]);
-        $publishedAchievements = Achievement::factory()->published()->count(10)->create(['GameID' => $game->id]);
+        $publishedAchievements = Achievement::factory()->promoted()->count(10)->create(['game_id' => $game->id]);
 
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
             'system_id' => $system->id,
             'image_icon_asset_path' => '/Images/002345.png',
         ]);
-        $publishedAchievements2 = Achievement::factory()->published()->count(20)->create(['GameID' => $game2->id]);
+        $publishedAchievements2 = Achievement::factory()->promoted()->count(20)->create(['game_id' => $game2->id]);
 
         /** @var Game $game3 */
         $game3 = Game::factory()->create([
             'system_id' => $system->id,
             'image_icon_asset_path' => '/Images/003456.png',
         ]);
-        Achievement::factory()->published()->count(3)->create(['GameID' => $game3->id]);
+        Achievement::factory()->promoted()->count(3)->create(['game_id' => $game3->id]);
 
         /** @var Game $game4 */
         $game4 = Game::factory()->create([
             'system_id' => $system->id,
             'image_icon_asset_path' => '/Images/004567.png',
         ]);
-        $publishedAchievements4 = Achievement::factory()->published()->count(8)->create(['GameID' => $game4->id]);
+        $publishedAchievements4 = Achievement::factory()->promoted()->count(8)->create(['game_id' => $game4->id]);
 
         foreach ($publishedAchievements as $ach) {
             $this->addHardcoreUnlock($user, $ach);
@@ -164,28 +164,28 @@ class UserCompletedGamesTest extends TestCase
             'system_id' => $system->id,
             'image_icon_asset_path' => '/Images/001234.png',
         ]);
-        $publishedAchievements = Achievement::factory()->published()->count(10)->create(['GameID' => $game->id]);
+        $publishedAchievements = Achievement::factory()->promoted()->count(10)->create(['game_id' => $game->id]);
 
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
             'system_id' => $system->id,
             'image_icon_asset_path' => '/Images/002345.png',
         ]);
-        $publishedAchievements2 = Achievement::factory()->published()->count(20)->create(['GameID' => $game2->id]);
+        $publishedAchievements2 = Achievement::factory()->promoted()->count(20)->create(['game_id' => $game2->id]);
 
         /** @var Game $game3 */
         $game3 = Game::factory()->create([
             'system_id' => $system->id,
             'image_icon_asset_path' => '/Images/003456.png',
         ]);
-        Achievement::factory()->published()->count(3)->create(['GameID' => $game3->id]);
+        Achievement::factory()->promoted()->count(3)->create(['game_id' => $game3->id]);
 
         /** @var Game $game4 */
         $game4 = Game::factory()->create([
             'system_id' => $system->id,
             'image_icon_asset_path' => '/Images/004567.png',
         ]);
-        $publishedAchievements4 = Achievement::factory()->published()->count(8)->create(['GameID' => $game4->id]);
+        $publishedAchievements4 = Achievement::factory()->promoted()->count(8)->create(['game_id' => $game4->id]);
 
         foreach ($publishedAchievements as $ach) {
             $this->addHardcoreUnlock($user, $ach);

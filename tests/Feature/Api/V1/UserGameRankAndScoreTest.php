@@ -34,7 +34,7 @@ class UserGameRankAndScoreTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->id]);
+        $publishedAchievements = Achievement::factory()->promoted()->count(3)->create(['game_id' => $game->id]);
         $firstAchievement = $publishedAchievements->get(0);
         $secondAchievement = $publishedAchievements->get(1);
         $thirdAchievement = $publishedAchievements->get(2);
@@ -54,7 +54,7 @@ class UserGameRankAndScoreTest extends TestCase
             ->assertSuccessful()
             ->assertJson([[
                 'User' => $user->username,
-                'TotalScore' => $firstAchievement->Points + $secondAchievement->Points,
+                'TotalScore' => $firstAchievement->points + $secondAchievement->points,
                 'LastAward' => $unlock2Time->__toString(),
                 'UserRank' => 2,
             ]]);
@@ -66,7 +66,7 @@ class UserGameRankAndScoreTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->id]);
+        $publishedAchievements = Achievement::factory()->promoted()->count(3)->create(['game_id' => $game->id]);
         $firstAchievement = $publishedAchievements->get(0);
         $secondAchievement = $publishedAchievements->get(1);
         $thirdAchievement = $publishedAchievements->get(2);
@@ -86,7 +86,7 @@ class UserGameRankAndScoreTest extends TestCase
             ->assertSuccessful()
             ->assertJson([[
                 'User' => $user->username,
-                'TotalScore' => $firstAchievement->Points + $secondAchievement->Points,
+                'TotalScore' => $firstAchievement->points + $secondAchievement->points,
                 'LastAward' => $unlock2Time->__toString(),
                 'UserRank' => 2,
             ]]);
@@ -98,7 +98,7 @@ class UserGameRankAndScoreTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->id]);
+        $publishedAchievements = Achievement::factory()->promoted()->count(3)->create(['game_id' => $game->id]);
         $firstAchievement = $publishedAchievements->get(0);
         $secondAchievement = $publishedAchievements->get(1);
         $thirdAchievement = $publishedAchievements->get(2);
@@ -118,7 +118,7 @@ class UserGameRankAndScoreTest extends TestCase
             ->assertSuccessful()
             ->assertJson([[
                 'User' => $user->username,
-                'TotalScore' => $firstAchievement->Points + $secondAchievement->Points,
+                'TotalScore' => $firstAchievement->points + $secondAchievement->points,
                 'LastAward' => $unlock2Time->__toString(),
                 'UserRank' => null,
             ]]);

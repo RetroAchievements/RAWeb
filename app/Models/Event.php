@@ -207,10 +207,10 @@ class Event extends BaseModel
         return $this->hasManyThrough(
             EventAchievement::class,
             Achievement::class,
-            'GameID',         // Achievements.GameID
+            'game_id',        // achievements.game_id
             'achievement_id', // event_achievements.achievement_id
             'legacy_game_id', // events.legacy_game_id
-            'ID',             // Achievements.ID
+            'id',             // achievements.id
         )->with('achievement.game');
     }
 
@@ -219,7 +219,7 @@ class Event extends BaseModel
      */
     public function publishedAchievements(): HasManyThrough
     {
-        return $this->achievements()->published();
+        return $this->achievements()->promoted();
     }
 
     /**

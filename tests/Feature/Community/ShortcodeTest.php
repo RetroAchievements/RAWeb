@@ -562,10 +562,10 @@ final class ShortcodeTest extends TestCase
 
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->create([
-            'ID' => 123,
-            'GameID' => $game->id,
-            'Title' => 'Ring Collector',
-            'Points' => 5, // !!
+            'id' => 123,
+            'game_id' => $game->id,
+            'title' => 'Ring Collector',
+            'points' => 5, // !!
         ]);
 
         // Act
@@ -681,7 +681,7 @@ final class ShortcodeTest extends TestCase
 
         /** @var Game $legacyGame */
         $legacyGame = Game::factory()->create([
-            'ID' => 999,
+            'id' => 999,
             'system_id' => $system->id,
             'title' => 'Achievement of the Week 2025',
         ]);
@@ -719,15 +719,15 @@ final class ShortcodeTest extends TestCase
 
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->create([
-            'ID' => 1,
-            'GameID' => $game->id,
-            'Title' => 'Test Achievement',
+            'id' => 1,
+            'game_id' => $game->id,
+            'title' => 'Test Achievement',
         ]);
 
         /** @var Ticket $ticket */
         $ticket = Ticket::factory()->create([
-            'ID' => 12345,
-            'AchievementID' => $achievement->ID,
+            'id' => 12345,
+            'AchievementID' => $achievement->id,
         ]);
 
         // Act
@@ -779,10 +779,10 @@ final class ShortcodeTest extends TestCase
 
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->create([
-            'ID' => 10,
-            'GameID' => $game->id,
-            'Title' => 'World 1-1',
-            'Points' => 10,
+            'id' => 10,
+            'game_id' => $game->id,
+            'title' => 'World 1-1',
+            'points' => 10,
         ]);
 
         /** @var User $user */
@@ -862,10 +862,10 @@ final class ShortcodeTest extends TestCase
 
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->create([
-            'ID' => 200,
-            'GameID' => $game->id,
-            'Title' => 'Omnislash',
-            'Points' => 25,
+            'id' => 200,
+            'game_id' => $game->id,
+            'title' => 'Omnislash',
+            'points' => 25,
         ]);
 
         $input = "Hey everyone! I just unlocked [ach=200] in [game=100]!\n\n[quote]This was **so hard**[/quote]\n\nThe trick is to [spoiler]use Knights of the Round[/spoiler]. Check out [url=https://example.com]this guide[/url] for more tips!";

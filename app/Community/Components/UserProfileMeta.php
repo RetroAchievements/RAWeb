@@ -67,8 +67,8 @@ class UserProfileMeta extends Component
     {
         // Achievement sets worked on
         $gameAuthoredAchievementsCount = $user->authoredAchievements()
-            ->published()
-            ->select(DB::raw('COUNT(DISTINCT GameID) as game_count'))
+            ->promoted()
+            ->select(DB::raw('COUNT(DISTINCT game_id) as game_count'))
             ->first()
             ->game_count;
         $setsWorkedOnStat = [

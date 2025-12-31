@@ -56,7 +56,6 @@
 use App\Models\Achievement;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
-use App\Platform\Enums\AchievementFlag;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -66,14 +65,14 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
     'i' => ['required', 'integer', 'min:1'],
     'f' => [
         'nullable',
-        Rule::in(['3', '5']),
+        Rule::in([(string) Achievement::FLAG_PROMOTED, (string) Achievement::FLAG_UNPROMOTED]),
     ],
 ], [
-    'f.in' => 'Invalid flag parameter. Valid values are 3 (published) or 5 (unpublished).',
+    'f.in' => 'Invalid flag parameter. Valid values are ' . Achievement::FLAG_PROMOTED . ' (published) or ' . Achievement::FLAG_UNPROMOTED . ' (unpublished).',
 ]);
 
 $gameId = (int) $input['i'];
-$flag = AchievementFlag::tryFrom((int) ($input['f'] ?? '3'));
+$isPromoted = Achievement::isPromotedFromLegacyFlags((int) ($input['f'] ?? (string) Achievement::FLAG_PROMOTED));
 
 $game = Game::with('system')->find($gameId);
 
@@ -82,7 +81,7 @@ if (!$game) {
 }
 
 $gameAchievementSetClaims = AchievementSetClaim::with('user')->where('game_id', $gameId)->get();
-$gameAchievements = Achievement::where('GameID', $gameId)->where('Flags', $flag->value)->findMany($game->achievements);
+$gameAchievements = Achievement::where('game_id', $gameId)->where('is_promoted', $isPromoted)->findMany($game->achievements);
 
 $gameData = [
     'ID' => $game->id,
@@ -109,22 +108,22 @@ $gameData = [
 if (!$gameAchievements->isEmpty()) {
     $gameAchievements->loadMissing('developer');
 
-    $gameListAchievements = $gameAchievements->keyBy('ID')->map(function ($am) {
+    $gameListAchievements = $gameAchievements->keyBy('id')->map(function ($am) {
         return [
-            'ID' => $am->ID,
+            'ID' => $am->id,
             'NumAwarded' => $am->unlocks_total,
-            'NumAwardedHardcore' => $am->unlocks_hardcore_total,
-            'Title' => $am->Title,
-            'Description' => $am->Description,
-            'Points' => $am->Points,
-            'TrueRatio' => $am->TrueRatio,
+            'NumAwardedHardcore' => $am->unlocks_hardcore,
+            'Title' => $am->title,
+            'Description' => $am->description,
+            'Points' => $am->points,
+            'TrueRatio' => $am->points_weighted,
             'Author' => $am->developer?->display_name,
             'AuthorULID' => $am->developer?->ulid,
-            'DateModified' => Carbon::parse($am->DateModified)->format('Y-m-d H:i:s'),
-            'DateCreated' => Carbon::parse($am->DateCreated)->format('Y-m-d H:i:s'),
-            'BadgeName' => $am->BadgeName,
-            'DisplayOrder' => $am->DisplayOrder,
-            'MemAddr' => md5($am->MemAddr),
+            'DateModified' => $am->modified_at->format('Y-m-d H:i:s'),
+            'DateCreated' => $am->created_at->format('Y-m-d H:i:s'),
+            'BadgeName' => $am->image_name,
+            'DisplayOrder' => $am->order_column,
+            'MemAddr' => md5($am->trigger_definition),
             'type' => $am->type,
         ];
     });

@@ -14,7 +14,6 @@ use App\Models\User;
 use App\Models\UserGameAchievementSetPreference;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
@@ -52,8 +51,8 @@ class ResolveAchievementSetsActionTest extends TestCase
         int $unpublishedCount = 0,
     ): Game {
         $game = Game::factory()->create(['title' => $title, 'system_id' => $system->id]);
-        Achievement::factory()->published()->count($publishedCount)->create(['GameID' => $game->id]);
-        Achievement::factory()->count($unpublishedCount)->create(['GameID' => $game->id]);
+        Achievement::factory()->promoted()->count($publishedCount)->create(['game_id' => $game->id]);
+        Achievement::factory()->count($unpublishedCount)->create(['game_id' => $game->id]);
 
         return $game;
     }
@@ -76,8 +75,8 @@ class ResolveAchievementSetsActionTest extends TestCase
         $achievements = $set->achievementSet->achievements;
         $this->assertCount($publishedAchievementCount + $unpublishedAchievementCount, $achievements);
 
-        $publishedCount = $achievements->where('Flags', AchievementFlag::OfficialCore->value)->count();
-        $unpublishedCount = $achievements->where('Flags', AchievementFlag::Unofficial->value)->count();
+        $publishedCount = $achievements->where('is_promoted', true)->count();
+        $unpublishedCount = $achievements->where('is_promoted', false)->count();
         $this->assertEquals($publishedAchievementCount, $publishedCount);
         $this->assertEquals($unpublishedAchievementCount, $unpublishedCount);
     }

@@ -63,18 +63,18 @@ if (!$eventAchievement?->sourceAchievement) {
 $sourceAchievement = $eventAchievement->sourceAchievement;
 
 $achievement = [
-    'ID' => $sourceAchievement->ID ?? null,
-    'Title' => $sourceAchievement->Title ?? null,
-    'Description' => $sourceAchievement->Description ?? null,
-    'Points' => $sourceAchievement->Points ?? null,
-    'TrueRatio' => $sourceAchievement->TrueRatio ?? null,
+    'ID' => $sourceAchievement->id ?? null,
+    'Title' => $sourceAchievement->title ?? null,
+    'Description' => $sourceAchievement->description ?? null,
+    'Points' => $sourceAchievement->points ?? null,
+    'TrueRatio' => $sourceAchievement->points_weighted ?? null,
     'Type' => $sourceAchievement->type ?? null,
-    'Author' => $sourceAchievement->author->display_name ?? null,
-    'AuthorULID' => $sourceAchievement->author->ulid ?? null,
-    'BadgeName' => $sourceAchievement->BadgeName,
-    'BadgeURL' => "/Badge/" . $sourceAchievement->BadgeName . ".png",
-    'DateCreated' => $sourceAchievement->DateCreated?->format('Y-m-d'),
-    'DateModified' => $sourceAchievement->DateModified?->format('Y-m-d'),
+    'Author' => $sourceAchievement->developer?->display_name ?? null,
+    'AuthorULID' => $sourceAchievement->developer?->ulid ?? null,
+    'BadgeName' => $sourceAchievement->image_name,
+    'BadgeURL' => "/Badge/" . $sourceAchievement->image_name . ".png",
+    'DateCreated' => $sourceAchievement->created_at?->format('Y-m-d'),
+    'DateModified' => $sourceAchievement->modified_at?->format('Y-m-d'),
 ];
 
 $game = [

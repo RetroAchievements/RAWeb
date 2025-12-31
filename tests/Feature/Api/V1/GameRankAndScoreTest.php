@@ -32,9 +32,9 @@ class GameRankAndScoreTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $ach1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 3]);
-        $ach2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 5]);
-        $ach3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 10]);
+        $ach1 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 3]);
+        $ach2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 5]);
+        $ach3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 10]);
 
         // $this->user has mastered the game
         $this->addHardcoreUnlock($this->user, $ach1);
@@ -63,19 +63,19 @@ class GameRankAndScoreTest extends TestCase
                     'User' => $this->user->username,
                     'ULID' => $this->user->ulid,
                     'NumAchievements' => 3,
-                    'TotalScore' => $ach1->Points + $ach2->Points + $ach3->Points,
+                    'TotalScore' => $ach1->points + $ach2->points + $ach3->points,
                 ],
                 [
                     'User' => $user3->username,
                     'ULID' => $user3->ulid,
                     'NumAchievements' => 2,
-                    'TotalScore' => $ach1->Points + $ach3->Points,
+                    'TotalScore' => $ach1->points + $ach3->points,
                 ],
                 [
                     'User' => $user2->username,
                     'ULID' => $user2->ulid,
                     'NumAchievements' => 2,
-                    'TotalScore' => $ach1->Points + $ach2->Points,
+                    'TotalScore' => $ach1->points + $ach2->points,
                 ],
             ]);
 
@@ -88,7 +88,7 @@ class GameRankAndScoreTest extends TestCase
                     'User' => $this->user->username,
                     'ULID' => $this->user->ulid,
                     'NumAchievements' => 3,
-                    'TotalScore' => $ach1->Points + $ach2->Points + $ach3->Points,
+                    'TotalScore' => $ach1->points + $ach2->points + $ach3->points,
                 ],
             ]);
     }

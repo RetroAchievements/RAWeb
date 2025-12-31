@@ -7,6 +7,7 @@ namespace Tests\Feature\Community;
 use App\Community\Actions\AddGameToListAction;
 use App\Community\Actions\RemoveGameFromListAction;
 use App\Community\Enums\UserGameListType;
+use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
@@ -234,5 +235,46 @@ class UserGameListTest extends TestCase
         $this->assertCount(1, $entries);
         $this->assertEquals($game1->id, $entries[0]->game_id);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
+    }
+
+    public function testSetRequestScopeWithoutAchievements(): void
+    {
+        // Freeze time
+        Carbon::setTestNow(Carbon::now()->startOfSecond());
+        $now = Carbon::now()->toISOString();
+
+        /** @var User $user */
+        $user = User::factory()->create(['points_hardcore' => 10000]);
+        /** @var Game $game1 */
+        $game1 = Game::factory()->create();
+        /** @var Game $game2 */
+        $game2 = Game::factory()->create();
+        Achievement::factory()->promoted()->create(['game_id' => $game2->id]);
+        /** @var Game $game3 */
+        $game3 = Game::factory()->create();
+
+        $action = new AddGameToListAction();
+        $userGameListEntry1 = $action->execute($user, $game1, UserGameListType::AchievementSetRequest);
+        $userGameListEntry2 = $action->execute($user, $game2, UserGameListType::AchievementSetRequest);
+        $userGameListEntry3 = $action->execute($user, $game3, UserGameListType::AchievementSetRequest);
+        $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry1);
+        $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry2);
+        $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry3);
+
+        $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
+        $this->assertCount(3, $entries);
+        $this->assertEquals($game1->id, $entries[0]->game_id);
+        $this->assertEquals($game2->id, $entries[1]->game_id);
+        $this->assertEquals($game3->id, $entries[2]->game_id);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[2]->type);
+
+        $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->withoutAchievements()->get();
+        $this->assertCount(2, $entries);
+        $this->assertEquals($game1->id, $entries[0]->game_id);
+        $this->assertEquals($game3->id, $entries[1]->game_id);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
+        $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
     }
 }

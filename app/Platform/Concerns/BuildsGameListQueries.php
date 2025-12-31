@@ -15,7 +15,6 @@ use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserGameListEntry;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\GameListProgressFilterValue;
 use App\Platform\Enums\GameListSetTypeFilterValue;
 use App\Platform\Enums\GameListSortField;
@@ -76,9 +75,9 @@ trait BuildsGameListQueries
         if ($user?->can('develop')) {
             $query->addSelect([
                 'num_unresolved_tickets' => Ticket::selectRaw('COUNT(*)')
-                    ->join('Achievements', 'Ticket.AchievementID', '=', 'Achievements.ID')
-                    ->whereColumn('Achievements.GameID', 'games.id')
-                    ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore->value)
+                    ->join('achievements', 'Ticket.AchievementID', '=', 'achievements.id')
+                    ->whereColumn('achievements.game_id', 'games.id')
+                    ->where(DB::raw('achievements.is_promoted'), true)
                     ->whereIn('Ticket.ReportState', [TicketState::Open, TicketState::Request]),
             ]);
         }
@@ -333,7 +332,7 @@ trait BuildsGameListQueries
                     $query
                         ->selectRaw(
                             "COALESCE(
-                                (SELECT MAX(DateModified) FROM Achievements WHERE Achievements.GameID = games.id),
+                                (SELECT MAX(modified_at) FROM achievements WHERE achievements.game_id = games.id),
                                 games.updated_at
                             ) AS last_updated"
                         )

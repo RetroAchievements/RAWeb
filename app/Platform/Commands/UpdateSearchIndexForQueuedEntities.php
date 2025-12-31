@@ -63,7 +63,7 @@ class UpdateSearchIndexForQueuedEntities extends Command
 
         $chunks = array_chunk($pendingAchievementIds, 100);
         foreach ($chunks as $chunkIds) {
-            $achievements = Achievement::whereIn('ID', $chunkIds)->get();
+            $achievements = Achievement::whereIn('id', $chunkIds)->get();
             $achievements->searchable(); // this forces Scout to update the search index
         }
 

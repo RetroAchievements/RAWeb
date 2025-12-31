@@ -37,9 +37,9 @@ class AchievementOfTheWeekTest extends TestCase
         $user3 = User::factory()->create();
         $game = $this->seedGame(withHash: false);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         $now = Carbon::now();
         $time1 = $now->clone()->startOfSecond();
         $this->addHardcoreUnlock($this->user, $achievement1, $time1);
@@ -49,7 +49,7 @@ class AchievementOfTheWeekTest extends TestCase
         $this->addHardcoreUnlock($user3, $achievement1, $time3);
 
         $staticData = StaticData::factory()->create([
-            'Event_AOTW_AchievementID' => $achievement2->ID,
+            'Event_AOTW_AchievementID' => $achievement2->id,
             'Event_AOTW_StartAt' => $now->clone()->subDays(2),
             'Event_AOTW_ForumID' => 2,
         ]);
@@ -63,11 +63,11 @@ class AchievementOfTheWeekTest extends TestCase
             'active_until' => $now->clone()->addDays(2),
         ]);
         /** @var Achievement $eventAchievement1 */
-        $eventAchievement1 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
+        $eventAchievement1 = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
 
         $ev = EventAchievement::create([
-            'achievement_id' => $eventAchievement1->ID,
-            'source_achievement_id' => $achievement1->ID,
+            'achievement_id' => $eventAchievement1->id,
+            'source_achievement_id' => $achievement1->id,
             'active_from' => $now->clone()->subDays(1),
             'active_until' => $now->clone()->addDays(2),
         ]);
@@ -80,7 +80,7 @@ class AchievementOfTheWeekTest extends TestCase
             ->assertSuccessful()
             ->assertJson([
                 'Achievement' => [
-                    'ID' => $achievement1->ID, // event achievement used over static data
+                    'ID' => $achievement1->id, // event achievement used over static data
                 ],
                 'Console' => [
                     'ID' => $game->id, // console comes from source achievement game

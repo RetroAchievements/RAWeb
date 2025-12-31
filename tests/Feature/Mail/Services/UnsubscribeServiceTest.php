@@ -226,8 +226,8 @@ class UnsubscribeServiceTest extends TestCase
         // Arrange
         $game = Game::factory()->create(['system_id' => $this->system->id]);
         $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
-            'Title' => 'First Boss Defeated',
+            'game_id' => $game->id,
+            'title' => 'First Boss Defeated',
         ]);
         $token = $this->generateValidGranularToken(
             $this->user->id,
@@ -543,8 +543,8 @@ class UnsubscribeServiceTest extends TestCase
 
         // Achievement
         $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
-            'Title' => 'Test Achievement',
+            'game_id' => $game->id,
+            'title' => 'Test Achievement',
         ]);
         $achievementToken = $this->generateValidGranularToken(
             $this->user->id,

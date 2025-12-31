@@ -14,7 +14,6 @@ use App\Models\PlayerAchievement;
 use App\Models\PlayerBadge;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -49,15 +48,13 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         $game1 = Game::factory()->create(['system_id' => $system->id]);
         $game2 = Game::factory()->create(['system_id' => $system->id]);
 
-        Achievement::factory()->count(5)->create([
-            'GameID' => $game1->id,
+        Achievement::factory()->count(5)->promoted()->create([
+            'game_id' => $game1->id,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
         ]);
-        Achievement::factory()->count(3)->create([
-            'GameID' => $game2->id,
+        Achievement::factory()->count(3)->promoted()->create([
+            'game_id' => $game2->id,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
         ]);
 
         PlayerBadge::factory()->count(2)->create([
@@ -117,10 +114,9 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
         ]);
 
         $players = User::factory()->count(2)->create();
@@ -149,10 +145,9 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
         ]);
 
         $players = User::factory()->count(5)->create();
@@ -180,10 +175,9 @@ class BuildDeveloperFeedDataActionTest extends TestCase
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
         ]);
 
         $untrackedUser = User::factory()->create(['Untracked' => 1]);

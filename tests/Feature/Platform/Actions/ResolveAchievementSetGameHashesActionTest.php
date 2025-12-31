@@ -36,7 +36,7 @@ class ResolveAchievementSetGameHashesActionTest extends TestCase
     private function createGameWithAchievements(string $title, int $publishedCount): Game
     {
         $game = Game::factory()->create(['title' => $title, 'system_id' => $this->system->id]);
-        Achievement::factory()->published()->count($publishedCount)->create(['GameID' => $game->id]);
+        Achievement::factory()->promoted()->count($publishedCount)->create(['game_id' => $game->id]);
 
         return $game;
     }

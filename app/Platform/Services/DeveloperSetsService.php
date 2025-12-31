@@ -33,15 +33,15 @@ class DeveloperSetsService
             'sole' => ($validatedData['filter']['sole'] ?? 'false') !== 'false',
         ];
 
-        $gameAuthoredAchievementsList = $user->authoredAchievements()->published()
-            ->select(['GameID',
-                DB::raw('COUNT(Achievements.ID) AS NumAuthoredAchievements'),
-                DB::raw('SUM(Achievements.Points) AS NumAuthoredPoints'),
+        $gameAuthoredAchievementsList = $user->authoredAchievements()->promoted()
+            ->select(['game_id',
+                DB::raw('COUNT(achievements.id) AS NumAuthoredAchievements'),
+                DB::raw('SUM(achievements.points) AS NumAuthoredPoints'),
             ])
-            ->groupBy('GameID')
+            ->groupBy('game_id')
             ->get()
             ->mapWithKeys(function ($row, $key) {
-                return [$row['GameID'] => [
+                return [$row['game_id'] => [
                     'NumAuthoredAchievements' => (int) $row['NumAuthoredAchievements'],
                     'NumAuthoredPoints' => (int) $row['NumAuthoredPoints'],
                 ]];
@@ -63,16 +63,16 @@ class DeveloperSetsService
             array_keys($gameAuthoredLeaderboardsList);
 
         $gameAuthoredTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
-            ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
-            ->whereIn('Achievements.GameID', $gameIDs)
-            ->where(DB::raw('Achievements.user_id'), $user->id)
-            ->select(['GameID',
+            ->join('achievements', 'achievements.id', '=', 'Ticket.AchievementID')
+            ->whereIn('achievements.game_id', $gameIDs)
+            ->where(DB::raw('achievements.user_id'), $user->id)
+            ->select(['game_id',
                 DB::raw('COUNT(Ticket.ID) AS NumAuthoredTickets'),
             ])
-            ->groupBy('GameID')
+            ->groupBy('game_id')
             ->get()
             ->mapWithKeys(function ($row, $key) {
-                return [$row['GameID'] => [
+                return [$row['game_id'] => [
                     'NumAuthoredTickets' => (int) $row['NumAuthoredTickets'],
                 ]];
             })

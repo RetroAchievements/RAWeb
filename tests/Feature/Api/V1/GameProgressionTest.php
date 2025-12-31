@@ -45,15 +45,15 @@ class GameProgressionTest extends TestCase
         int $medianTimeToUnlock, int $unlockHardcoreTimesCount, int $medianTimeToUnlockHardcore): array
     {
         return [
-            'ID' => $achievement->ID,
-            'Title' => $achievement->Title,
-            'Description' => $achievement->Description,
-            'Points' => $achievement->Points,
-            'TrueRatio' => $achievement->TrueRatio,
+            'ID' => $achievement->id,
+            'Title' => $achievement->title,
+            'Description' => $achievement->description,
+            'Points' => $achievement->points,
+            'TrueRatio' => $achievement->points_weighted,
             'Type' => $achievement->type,
-            'BadgeName' => $achievement->BadgeName,
+            'BadgeName' => $achievement->image_name,
             'NumAwarded' => $achievement->unlocks_total,
-            'NumAwardedHardcore' => $achievement->unlocks_hardcore_total,
+            'NumAwardedHardcore' => $achievement->unlocks_hardcore,
             'TimesUsedInUnlockMedian' => $unlockTimesCount,
             'TimesUsedInHardcoreUnlockMedian' => $unlockHardcoreTimesCount,
             'MedianTimeToUnlock' => $medianTimeToUnlock,

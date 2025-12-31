@@ -15,7 +15,6 @@ use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\VirtualGameIdService;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -35,21 +34,21 @@ class PatchDataTest extends TestCase
     private function getAchievementPatchData(Achievement $achievement, float $rarity = 100.0, float $rarityHardcore = 100.0): array
     {
         return [
-            'ID' => $achievement->ID,
-            'Title' => $achievement->Title,
-            'Description' => $achievement->Description,
-            'MemAddr' => $achievement->MemAddr,
-            'Points' => $achievement->Points,
+            'ID' => $achievement->id,
+            'Title' => $achievement->title,
+            'Description' => $achievement->description,
+            'MemAddr' => $achievement->trigger_definition,
+            'Points' => $achievement->points,
             'Author' => $achievement->developer->username,
-            'Modified' => $achievement->DateModified->unix(),
-            'Created' => $achievement->DateCreated->unix(),
-            'BadgeName' => $achievement->BadgeName,
-            'Flags' => $achievement->Flags,
+            'Modified' => $achievement->modified_at->unix(),
+            'Created' => $achievement->created_at->unix(),
+            'BadgeName' => $achievement->image_name,
+            'Flags' => $achievement->flags,
             'Type' => $achievement->type,
             'Rarity' => $rarity,
             'RarityHardcore' => $rarityHardcore,
-            'BadgeURL' => media_asset("Badge/{$achievement->BadgeName}.png"),
-            'BadgeLockedURL' => media_asset("Badge/{$achievement->BadgeName}_lock.png"),
+            'BadgeURL' => media_asset("Badge/{$achievement->image_name}.png"),
+            'BadgeLockedURL' => media_asset("Badge/{$achievement->image_name}_lock.png"),
         ];
     }
 
@@ -65,7 +64,7 @@ class PatchDataTest extends TestCase
             'Modified' => Carbon::now()->unix(),
             'Created' => Carbon::now()->unix(),
             'BadgeName' => '00000',
-            'Flags' => AchievementFlag::OfficialCore->value,
+            'Flags' => Achievement::FLAG_PROMOTED,
             'Type' => null,
             'Rarity' => 0.0,
             'RarityHardcore' => 0.0,
@@ -121,23 +120,23 @@ class PatchDataTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->progression()->create(['GameID' => $game->id, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
+        $achievement1 = Achievement::factory()->promoted()->progression()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '23456', 'DisplayOrder' => 3]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '23456', 'order_column' => 3]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '34567', 'DisplayOrder' => 2]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '34567', 'order_column' => 2]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->progression()->create(['GameID' => $game->id, 'BadgeName' => '45678', 'DisplayOrder' => 5]);
+        $achievement4 = Achievement::factory()->promoted()->progression()->create(['game_id' => $game->id, 'image_name' => '45678', 'order_column' => 5]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->create(['GameID' => $game->id, 'BadgeName' => '56789', 'DisplayOrder' => 6, 'Flags' => 0]);
+        $achievement5 = Achievement::factory()->create(['game_id' => $game->id, 'image_name' => '56789', 'order_column' => 6, 'is_promoted' => false]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '98765', 'DisplayOrder' => 7]);
+        $achievement6 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '98765', 'order_column' => 7]);
         /** @var Achievement $achievement7 */
-        $achievement7 = Achievement::factory()->published()->winCondition()->create(['GameID' => $game->id, 'BadgeName' => '87654', 'DisplayOrder' => 4]);
+        $achievement7 = Achievement::factory()->promoted()->winCondition()->create(['game_id' => $game->id, 'image_name' => '87654', 'order_column' => 4]);
         /** @var Achievement $achievement8 */
-        $achievement8 = Achievement::factory()->create(['GameID' => $game->id, 'BadgeName' => '76543', 'DisplayOrder' => 8]);
+        $achievement8 = Achievement::factory()->create(['game_id' => $game->id, 'image_name' => '76543', 'order_column' => 8]);
         /** @var Achievement $achievement9 */
-        $achievement9 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '65432', 'DisplayOrder' => 9]);
+        $achievement9 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '65432', 'order_column' => 9]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
 
@@ -184,9 +183,9 @@ class PatchDataTest extends TestCase
                         $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
                         $this->getAchievementPatchData($achievement7), // DisplayOrder: 4
                         $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
-                        // $achievement5 (DisplayOrder: 6) has invalid flags and should not be returned
+                        $this->getAchievementPatchData($achievement5), // DisplayOrder: 6 (unpublished)
                         $this->getAchievementPatchData($achievement6), // DisplayOrder: 7
-                        $this->getAchievementPatchData($achievement8), // DisplayOrder: 8 (unofficial)
+                        $this->getAchievementPatchData($achievement8), // DisplayOrder: 8 (unpublished)
                         $this->getAchievementPatchData($achievement9), // DisplayOrder: 9
                     ],
                     'Leaderboards' => [
@@ -216,9 +215,9 @@ class PatchDataTest extends TestCase
                         $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
                         $this->getAchievementPatchData($achievement7), // DisplayOrder: 4
                         $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
-                        // $achievement5 (DisplayOrder: 6) has invalid flags and should not be returned
+                        // $achievement5 (DisplayOrder: 6) is unpublished - excluded when filtering for published only
                         $this->getAchievementPatchData($achievement6), // DisplayOrder: 7
-                        // $achievement8 (DisplayOrder: 8) is unofficial
+                        // $achievement8 (DisplayOrder: 8) is unpublished - excluded when filtering for published only
                         $this->getAchievementPatchData($achievement9), // DisplayOrder: 9
                     ],
                     'Leaderboards' => [
@@ -308,11 +307,11 @@ class PatchDataTest extends TestCase
             'image_icon_asset_path' => '/Images/000011.png',
         ]);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '23456', 'DisplayOrder' => 2]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '23456', 'order_column' => 2]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '34567', 'DisplayOrder' => 3]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '34567', 'order_column' => 3]);
 
         $game->players_total = 11;
         $game->players_hardcore = 9; // both rarity calculations should use the non-hardcore player count
@@ -320,15 +319,15 @@ class PatchDataTest extends TestCase
 
         // rarity calculation = (unlocks + 1) / (num_players) [max:100.0]
         $achievement1->unlocks_total = 10;
-        $achievement1->unlocks_hardcore_total = 9;
+        $achievement1->unlocks_hardcore = 9;
         $achievement1->save();
 
         $achievement2->unlocks_total = 7;
-        $achievement2->unlocks_hardcore_total = 5;
+        $achievement2->unlocks_hardcore = 5;
         $achievement2->save();
 
         $achievement3->unlocks_total = 2;
-        $achievement3->unlocks_hardcore_total = 0;
+        $achievement3->unlocks_hardcore = 0;
         $achievement3->save();
 
         $this->seedEmulatorUserAgents();
@@ -406,13 +405,13 @@ class PatchDataTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->progression()->create(['GameID' => $game->id, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
+        $achievement1 = Achievement::factory()->promoted()->progression()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '23456', 'DisplayOrder' => 3]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '23456', 'order_column' => 3]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '34567', 'DisplayOrder' => 2]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '34567', 'order_column' => 2]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->progression()->create(['GameID' => $game->id, 'BadgeName' => '45678', 'DisplayOrder' => 5]);
+        $achievement4 = Achievement::factory()->promoted()->progression()->create(['game_id' => $game->id, 'image_name' => '45678', 'order_column' => 5]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
 
@@ -580,13 +579,13 @@ class PatchDataTest extends TestCase
         $author = User::factory()->create(['connect_token' => Str::random(16)]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->progression()->create(['GameID' => $game->id, 'BadgeName' => '12345', 'DisplayOrder' => 1, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->promoted()->progression()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '23456', 'DisplayOrder' => 3, 'user_id' => $author->id]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '23456', 'order_column' => 3, 'user_id' => $author->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'BadgeName' => '34567', 'DisplayOrder' => 2, 'user_id' => $author->id]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '34567', 'order_column' => 2, 'user_id' => $author->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->progression()->create(['GameID' => $game->id, 'BadgeName' => '45678', 'DisplayOrder' => 5, 'user_id' => $author->id]);
+        $achievement4 = Achievement::factory()->promoted()->progression()->create(['game_id' => $game->id, 'image_name' => '45678', 'order_column' => 5, 'user_id' => $author->id]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
 

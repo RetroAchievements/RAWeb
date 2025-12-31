@@ -13,7 +13,6 @@ use App\Platform\Actions\SyncAchievementSetImageAssetPathFromGameAction;
 use App\Platform\Actions\SyncGameTagsFromTitleAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Contracts\HasVersionedTrigger;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\ReleasedAtGranularity;
@@ -511,7 +510,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
         // Check if any achievement is authored by the given user.
         return $this->achievements->some(function ($achievement) use ($user) {
-            return $achievement->Flags === AchievementFlag::OfficialCore->value && $achievement->developer->id === $user->id;
+            return $achievement->is_promoted && $achievement->developer->id === $user->id;
         });
     }
 
@@ -534,7 +533,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function achievements(): HasMany
     {
-        return $this->hasMany(Achievement::class, 'GameID');
+        return $this->hasMany(Achievement::class, 'game_id');
     }
 
     /**
@@ -682,7 +681,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function lastAchievementUpdate(): HasOne
     {
-        return $this->hasOne(Achievement::class, 'GameID')->latest('DateModified');
+        return $this->hasOne(Achievement::class, 'game_id')->latest('modified_at');
     }
 
     /**
@@ -852,7 +851,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function tickets(): HasManyThrough
     {
-        return $this->hasManyThrough(Ticket::class, Achievement::class, 'GameID', 'AchievementID', 'id', 'ID');
+        return $this->hasManyThrough(Ticket::class, Achievement::class, 'game_id', 'AchievementID', 'id', 'id');
     }
 
     /**
@@ -915,9 +914,9 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     public function scopeWithLastAchievementUpdate(Builder $query): Builder
     {
         return $query->addSelect([
-            'last_achievement_update' => Achievement::select('DateModified')
-                ->whereColumn('Achievements.GameID', 'games.id')
-                ->orderBy('DateModified', 'desc')
+            'last_achievement_update' => Achievement::select('modified_at')
+                ->whereColumn('achievements.game_id', 'games.id')
+                ->orderBy('modified_at', 'desc')
                 ->limit(1),
         ]);
     }

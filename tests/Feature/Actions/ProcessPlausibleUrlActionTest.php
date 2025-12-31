@@ -109,7 +109,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
     public function testItCorrectlyHandlesLegacyAchievementUrls(): void
     {
         // Arrange
-        Achievement::factory()->create(['id' => 15, 'Title' => "Don't Get Lost"]);
+        Achievement::factory()->create(['id' => 15, 'title' => "Don't Get Lost"]);
 
         // Act
         $result = $this->action->execute('achievement/15', [], $this->defaultProps);
@@ -128,7 +128,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
     public function testItCorrectlyHandlesSelfHealingAchievementUrls(): void
     {
         // Arrange
-        Achievement::factory()->create(['id' => 15, 'Title' => "Don't Get Lost"]);
+        Achievement::factory()->create(['id' => 15, 'title' => "Don't Get Lost"]);
 
         // Act
         $result = $this->action->execute('achievement/15-dont-get-lost', [], $this->defaultProps);

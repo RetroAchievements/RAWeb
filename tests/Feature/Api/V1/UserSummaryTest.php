@@ -323,13 +323,13 @@ class UserSummaryTest extends TestCase
                 'Awarded' => [
                     $game->id => [
                         'NumPossibleAchievements' => 3,
-                        'PossibleScore' => $publishedAchievements->get(0)->Points +
-                                           $publishedAchievements->get(1)->Points +
-                                           $publishedAchievements->get(2)->Points,
+                        'PossibleScore' => $publishedAchievements->get(0)->points +
+                                           $publishedAchievements->get(1)->points +
+                                           $publishedAchievements->get(2)->points,
                         'NumAchievedHardcore' => 1,
-                        'ScoreAchievedHardcore' => $earnedAchievement->Points,
+                        'ScoreAchievedHardcore' => $earnedAchievement->points,
                         'NumAchieved' => 1,
-                        'ScoreAchieved' => $earnedAchievement->Points,
+                        'ScoreAchieved' => $earnedAchievement->points,
                     ],
                     $game2->id => [
                         'NumPossibleAchievements' => 0,
@@ -342,12 +342,12 @@ class UserSummaryTest extends TestCase
                 ],
                 'RecentAchievements' => [
                     $game->id => [
-                        $earnedAchievement->ID => [
-                            'ID' => $earnedAchievement->ID,
-                            'Title' => $earnedAchievement->Title,
-                            'Description' => $earnedAchievement->Description,
-                            'Points' => $earnedAchievement->Points,
-                            'BadgeName' => $earnedAchievement->BadgeName,
+                        $earnedAchievement->id => [
+                            'ID' => $earnedAchievement->id,
+                            'Title' => $earnedAchievement->title,
+                            'Description' => $earnedAchievement->description,
+                            'Points' => $earnedAchievement->points,
+                            'BadgeName' => $earnedAchievement->image_name,
                             'GameID' => $game->id,
                             'GameTitle' => $game->title,
                             'IsAwarded' => '1',
@@ -424,23 +424,23 @@ class UserSummaryTest extends TestCase
                 'Awarded' => [
                     $game->id => [
                         'NumPossibleAchievements' => 3,
-                        'PossibleScore' => $publishedAchievements->get(0)->Points +
-                                           $publishedAchievements->get(1)->Points +
-                                           $publishedAchievements->get(2)->Points,
+                        'PossibleScore' => $publishedAchievements->get(0)->points +
+                                           $publishedAchievements->get(1)->points +
+                                           $publishedAchievements->get(2)->points,
                         'NumAchievedHardcore' => 1,
-                        'ScoreAchievedHardcore' => $earnedAchievement->Points,
+                        'ScoreAchievedHardcore' => $earnedAchievement->points,
                         'NumAchieved' => 1,
-                        'ScoreAchieved' => $earnedAchievement->Points,
+                        'ScoreAchieved' => $earnedAchievement->points,
                     ],
                 ],
                 'RecentAchievements' => [
                     $game->id => [
-                        $earnedAchievement->ID => [
-                            'ID' => $earnedAchievement->ID,
-                            'Title' => $earnedAchievement->Title,
-                            'Description' => $earnedAchievement->Description,
-                            'Points' => $earnedAchievement->Points,
-                            'BadgeName' => $earnedAchievement->BadgeName,
+                        $earnedAchievement->id => [
+                            'ID' => $earnedAchievement->id,
+                            'Title' => $earnedAchievement->title,
+                            'Description' => $earnedAchievement->description,
+                            'Points' => $earnedAchievement->points,
+                            'BadgeName' => $earnedAchievement->image_name,
                             'GameID' => $game->id,
                             'GameTitle' => $game->title,
                             'IsAwarded' => '1',
@@ -458,11 +458,11 @@ class UserSummaryTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $publishedAchievements = Achievement::factory()->published()->count(7)->create(['GameID' => $game->id]);
+        $publishedAchievements = Achievement::factory()->promoted()->count(7)->create(['game_id' => $game->id]);
 
         /** @var Game $game2 */
         $game2 = Game::factory()->create(['system_id' => $system->id]);
-        $publishedAchievements2 = Achievement::factory()->published()->count(4)->create(['GameID' => $game2->id]);
+        $publishedAchievements2 = Achievement::factory()->promoted()->count(4)->create(['game_id' => $game2->id]);
 
         $now = Carbon::now();
 
@@ -492,10 +492,10 @@ class UserSummaryTest extends TestCase
                 ],
                 'RecentAchievements' => [
                     $game->id => [
-                        $publishedAchievements->get(1)->ID => [
+                        $publishedAchievements->get(1)->id => [
                             'HardcoreAchieved' => 1,
                         ],
-                        $publishedAchievements->get(4)->ID => [
+                        $publishedAchievements->get(4)->id => [
                             'HardcoreAchieved' => 0,
                         ],
                     ],
@@ -525,24 +525,24 @@ class UserSummaryTest extends TestCase
                 ],
                 'RecentAchievements' => [
                     $game->id => [
-                        $publishedAchievements->get(1)->ID => [
+                        $publishedAchievements->get(1)->id => [
                             'HardcoreAchieved' => 1,
                         ],
-                        $publishedAchievements->get(4)->ID => [
+                        $publishedAchievements->get(4)->id => [
                             'HardcoreAchieved' => 0,
                         ],
-                        $publishedAchievements->get(6)->ID => [
+                        $publishedAchievements->get(6)->id => [
                             'HardcoreAchieved' => 1,
                         ],
-                        $publishedAchievements->get(0)->ID => [
+                        $publishedAchievements->get(0)->id => [
                             'HardcoreAchieved' => 1,
                         ],
-                        $publishedAchievements->get(2)->ID => [
+                        $publishedAchievements->get(2)->id => [
                             'HardcoreAchieved' => 1,
                         ],
                     ],
                     $game2->id => [
-                        $publishedAchievements2->get(2)->ID => [
+                        $publishedAchievements2->get(2)->id => [
                             'HardcoreAchieved' => 1,
                         ],
                     ],

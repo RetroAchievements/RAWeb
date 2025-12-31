@@ -67,7 +67,7 @@ class PlayerAchievement extends BasePivot
      */
     public function player(): BelongsTo
     {
-        return $this->player();
+        return $this->user();
     }
 
     // == scopes
@@ -79,7 +79,7 @@ class PlayerAchievement extends BasePivot
     public function scopeForGame(Builder $query, Game $game): Builder
     {
         return $query->whereHas('achievement', function ($query) use ($game) {
-            $query->where('GameID', $game->id);
+            $query->where('game_id', $game->id);
         });
     }
 }

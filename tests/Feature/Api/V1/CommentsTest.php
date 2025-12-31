@@ -65,23 +65,23 @@ class CommentsTest extends TestCase
         $user2 = User::factory()->create();
         $bannedUser = User::factory()->create(['ID' => 309, 'banned_at' => Carbon::now()->subDay()]);
 
-        $achievement = Achievement::factory()->create(['GameID' => $game->id, 'user_id' => $user1->id]);
+        $achievement = Achievement::factory()->create(['game_id' => $game->id, 'user_id' => $user1->id]);
         $comment1 = Comment::factory()->create([
-            'ArticleID' => $achievement->ID,
+            'ArticleID' => $achievement->id,
             'ArticleType' => 2,
             'user_id' => $user1->id,
             'Payload' => 'This is a great achievement!',
             'Submitted' => "2024-01-18T15:01:04.000000Z",
         ]);
         $comment2 = Comment::factory()->create([
-            'ArticleID' => $achievement->ID,
+            'ArticleID' => $achievement->id,
             'ArticleType' => 2,
             'user_id' => $user2->id,
             'Payload' => 'I agree, this is awesome!',
             'Submitted' => "2024-01-19T15:01:04.000000Z",
         ]);
         $comment3 = Comment::factory()->create([
-            'ArticleID' => $achievement->ID,
+            'ArticleID' => $achievement->id,
             'ArticleType' => 2,
             'user_id' => $bannedUser->id,
             'Payload' => 'This comment is from a banned user!',
@@ -89,7 +89,7 @@ class CommentsTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get($this->apiUrl('GetComments', ['i' => $achievement->ID, 't' => 2]))
+        $response = $this->get($this->apiUrl('GetComments', ['i' => $achievement->id, 't' => 2]))
             ->assertSuccessful();
 
         // Assert
@@ -123,30 +123,30 @@ class CommentsTest extends TestCase
         $user2 = User::factory()->create();
         $bannedUser = User::factory()->create(['ID' => 309, 'banned_at' => Carbon::now()->subDay()]);
 
-        $achievement = Achievement::factory()->create(['GameID' => $game->id, 'user_id' => $user1->id]);
+        $achievement = Achievement::factory()->create(['game_id' => $game->id, 'user_id' => $user1->id]);
         $comment1 = Comment::factory()->create([
-            'ArticleID' => $achievement->ID,
+            'ArticleID' => $achievement->id,
             'ArticleType' => 2,
             'user_id' => $user1->id,
             'Payload' => 'This is a great achievement!',
             'Submitted' => "2024-01-18T15:01:04.000000Z",
         ]);
         $comment2 = Comment::factory()->create([
-            'ArticleID' => $achievement->ID,
+            'ArticleID' => $achievement->id,
             'ArticleType' => 2,
             'user_id' => $user2->id,
             'Payload' => 'I agree, this is awesome!',
             'Submitted' => "2024-12-18T15:01:04.000000Z",
         ]);
         $comment3 = Comment::factory()->create([
-            'ArticleID' => $achievement->ID,
+            'ArticleID' => $achievement->id,
             'ArticleType' => 2,
             'user_id' => $bannedUser->id,
             'Payload' => 'This comment is from a banned user!',
         ]);
 
         // Act
-        $response = $this->get($this->apiUrl('GetComments', ['i' => $achievement->ID, 't' => 2, 'sort' => '-submitted']))
+        $response = $this->get($this->apiUrl('GetComments', ['i' => $achievement->id, 't' => 2, 'sort' => '-submitted']))
             ->assertSuccessful();
 
         // Assert

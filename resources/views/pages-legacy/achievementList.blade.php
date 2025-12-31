@@ -3,9 +3,9 @@
 // TODO migrate to AchievementController::index()
 
 use App\Actions\GetUserDeviceKindAction;
+use App\Models\Achievement;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 
 $consoleList = System::get(['id', 'name'])->keyBy('id')->map(fn ($system) => $system['name']);
 $consoleIDInput = (int) request()->input('z', 0);
@@ -26,8 +26,8 @@ if ($user == null) {
     $params = 3;
 }
 $flags = match ($params) {
-    5 => AchievementFlag::Unofficial,
-    default => AchievementFlag::OfficialCore,
+    Achievement::FLAG_UNPROMOTED => false,
+    default => true,
 };
 
 $dev_param = null;
@@ -70,15 +70,15 @@ if ($consoleIDInput !== 0) {
     echo "<div class='flex flex-wrap justify-between'>";
     echo "<div>";
 
-    echo $params !== AchievementFlag::OfficialCore->value ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementFlag::OfficialCore->value . "$dev_param'>" : "<b>";
+    echo $params !== Achievement::FLAG_PROMOTED ? "<a href='/achievementList.php?s=$sortBy&p=" . Achievement::FLAG_PROMOTED . "$dev_param'>" : "<b>";
     echo "Achievements in Core Sets";
-    echo $params !== AchievementFlag::OfficialCore->value ? "</a>" : "</b>";
+    echo $params !== Achievement::FLAG_PROMOTED ? "</a>" : "</b>";
     echo "<br>";
 
     if ($user !== null) {
-        echo $params !== AchievementFlag::Unofficial->value ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementFlag::Unofficial->value . "$dev_param'>" : "<b>";
+        echo $params !== Achievement::FLAG_UNPROMOTED ? "<a href='/achievementList.php?s=$sortBy&p=" . Achievement::FLAG_UNPROMOTED . "$dev_param'>" : "<b>";
         echo "Achievements in Unofficial Sets";
-        echo $params !== AchievementFlag::Unofficial->value ? "</a>" : "</b>";
+        echo $params !== Achievement::FLAG_UNPROMOTED ? "</a>" : "</b>";
         echo "<br>";
 
         echo $params !== 1 ? "<a href='/achievementList.php?s=$sortBy&p=1$dev_param'>" : "<b>";
@@ -164,10 +164,10 @@ if ($consoleIDInput !== 0) {
     echo "</tr>";
 
     foreach ($achData as $achEntry) {
-        $achID = $achEntry['ID'];
+        $achID = $achEntry['id'];
         $achTitle = $achEntry['AchievementTitle'];
-        $achDesc = $achEntry['Description'];
-        $achPoints = $achEntry['Points'];
+        $achDesc = $achEntry['description'];
+        $achPoints = $achEntry['points'];
         $achTruePoints = $achEntry['TrueRatio'];
         $achAuthor = $achEntry['Author'];
         $achDateCreated = $achEntry['DateCreated'];

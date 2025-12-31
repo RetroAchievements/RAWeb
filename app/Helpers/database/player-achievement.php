@@ -6,7 +6,6 @@ use App\Models\GameHash;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -26,7 +25,7 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?Ga
         return $retVal;
     }
 
-    if ($achievement->Flags === AchievementFlag::Unofficial->value) { // do not award Unofficial achievements
+    if (!$achievement->is_promoted) { // do not award Unofficial achievements
         $retVal['Error'] = "Unofficial achievements cannot be unlocked";
 
         return $retVal;
@@ -44,7 +43,7 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?Ga
     $alreadyAwarded = $isHardcore ? $hasHardcore : $hasRegular;
 
     $playerGame = PlayerGame::where('user_id', $user->id)
-        ->where('game_id', $achievement->GameID)
+        ->where('game_id', $achievement->game_id)
         ->first();
 
     if (!$alreadyAwarded) {
@@ -59,17 +58,17 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?Ga
         if ($isHardcore && !$hasHardcore) {
             if ($playerGame) {
                 $playerGame->achievements_unlocked_hardcore++;
-                $user->points_hardcore += $achievement->Points;
+                $user->points_hardcore += $achievement->points;
 
                 if ($hasRegular) {
                     $playerGame->achievements_unlocked--;
-                    $user->points -= $achievement->Points;
+                    $user->points -= $achievement->points;
                 }
 
                 $playerGame->save();
             }
         } elseif (!$isHardcore && !$hasRegular) {
-            $user->points += $achievement->Points;
+            $user->points += $achievement->points;
 
             if ($playerGame) {
                 $playerGame->achievements_unlocked++;
@@ -111,7 +110,7 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?Ga
     $retVal['Success'] = true;
     // Achievements all awarded. Now housekeeping (no error handling?)
 
-    static_setlastearnedachievement($achievement->ID, $user->username, $achievement->Points);
+    static_setlastearnedachievement($achievement->id, $user->username, $achievement->points);
 
     return $retVal;
 }
@@ -129,13 +128,13 @@ function getAchievementUnlocksData(
     int $limit = 50,
 ): Collection {
 
-    $achievement = Achievement::firstWhere('ID', $achievementId);
+    $achievement = Achievement::firstWhere('id', $achievementId);
     if (!$achievement) {
         return new Collection();
     }
 
     $numWinners = $achievement->unlocks_total ?? 0;
-    $numWinnersHardcore = $achievement->unlocks_hardcore_total ?? 0;
+    $numWinnersHardcore = $achievement->unlocks_hardcore ?? 0;
     $numPossibleWinners = $achievement->game->players_total ?? 0;
 
     // Get recent winners, and their most recent activity
@@ -230,11 +229,11 @@ function getAchievementDistribution(
     int $gameID,
     int $isHardcore,
     ?string $requestedBy = null,
-    AchievementFlag $flag = AchievementFlag::OfficialCore,
+    bool $isPromoted = true,
     int $numPlayers = 0,
 ): array {
     /** @var Game $game */
-    $game = Game::withCount(['achievements' => fn ($query) => $query->flag($flag)])->find($gameID);
+    $game = Game::withCount(['achievements' => fn ($query) => $query->where('is_promoted', $isPromoted)])->find($gameID);
     $results = null;
 
     if (!$game || !$game->achievements_count) {
@@ -247,7 +246,7 @@ function getAchievementDistribution(
     $shouldJoinUsers = $numPlayers < 100;
 
     // Returns an array of the number of players who have achieved each total, up to the max.
-    if ($flag === AchievementFlag::OfficialCore) {
+    if ($isPromoted) {
         $countColumn = $isHardcore ? 'player_games.achievements_unlocked_hardcore' : 'player_games.achievements_unlocked_softcore';
 
         $countQuery = DB::table("player_games")
@@ -275,9 +274,9 @@ function getAchievementDistribution(
                 sum(case when player_achievements.unlocked_hardcore_at is null then 1 else 0 end) as softcore_unlocks,
                 sum(case when player_achievements.unlocked_hardcore_at is not null then 1 else 0 end) as hardcore_unlocks"
             )
-            ->join("Achievements", "player_achievements.achievement_id", "=", "Achievements.ID")
-            ->where(DB::raw("Achievements.GameID"), $gameID)
-            ->where(DB::raw("Achievements.Flags"), AchievementFlag::Unofficial->value)
+            ->join("achievements", "player_achievements.achievement_id", "=", "achievements.id")
+            ->where(DB::raw("achievements.game_id"), $gameID)
+            ->where(DB::raw("achievements.is_promoted"), 0)
             ->groupBy("player_achievements.user_id");
 
         if ($shouldJoinUsers) {

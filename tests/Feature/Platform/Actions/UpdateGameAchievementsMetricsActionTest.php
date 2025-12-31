@@ -22,7 +22,7 @@ class UpdateGameAchievementsMetricsActionTest extends TestCase
     {
         User::factory()->count(10)->create();
         $game = $this->seedGame(withHash: false);
-        Achievement::factory()->published()->count(10)->create(['GameID' => $game->id, 'Points' => 3]);
+        Achievement::factory()->promoted()->count(10)->create(['game_id' => $game->id, 'points' => 3]);
 
         foreach (User::all() as $index => $user) {
             for ($i = 0; $i <= $index; $i++) {

@@ -42,7 +42,7 @@ class GetAchievementUnlocksAction extends BaseAuthenticatedApiAction
     protected function process(): array
     {
         $achievement = Achievement::query()
-            ->where('ID', $this->achievementId)
+            ->where('id', $this->achievementId)
             ->with('game')
             ->first();
         if (!$achievement) {

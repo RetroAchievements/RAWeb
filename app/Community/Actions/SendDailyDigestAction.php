@@ -176,9 +176,9 @@ class SendDailyDigestAction
     {
         $result = [];
 
-        $achievements = Achievement::whereIn('ID', $ids)->with('game')->get();
+        $achievements = Achievement::whereIn('id', $ids)->with('game')->get();
         foreach ($achievements as $achievement) {
-            $result[$achievement->ID] = "{$achievement->Title} ({$achievement->game->title})";
+            $result[$achievement->id] = "{$achievement->title} ({$achievement->game->title})";
         }
 
         return $result;
@@ -202,7 +202,7 @@ class SendDailyDigestAction
 
         $tickets = Ticket::whereIn('ID', $ids)->with('achievement')->get();
         foreach ($tickets as $ticket) {
-            $result[$ticket->ID] = "{$ticket->achievement->Title}";
+            $result[$ticket->ID] = "{$ticket->achievement->title}";
         }
 
         return $result;

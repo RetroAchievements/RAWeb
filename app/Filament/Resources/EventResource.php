@@ -249,7 +249,8 @@ class EventResource extends Resource
     {
         return $table
             ->defaultSort(function (Builder $query) {
-                $query->orderBy('active_until', 'desc')
+                $query->select('events.*')
+                    ->orderBy('events.active_until', 'desc')
                     ->join('games', 'events.legacy_game_id', '=', 'games.id')
                     ->orderBy('games.title');
             })
