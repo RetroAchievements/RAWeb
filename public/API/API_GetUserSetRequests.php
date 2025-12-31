@@ -41,11 +41,11 @@ $query = UserGameListEntry::select([
     'games.title as Title',
     'games.image_icon_asset_path as ImageIcon',
     'games.system_id as ConsoleID',
-    'Console.Name as ConsoleName',
+    'systems.name as ConsoleName',
 ])
-    ->join('games', 'SetRequest.GameID', '=', 'games.id')
-    ->join('Console', 'games.system_id', '=', 'Console.ID')
-    ->where(DB::raw('SetRequest.user_id'), $user->id)
+    ->join('games', 'user_game_list_entries.game_id', '=', 'games.id')
+    ->join('systems', 'games.system_id', '=', 'systems.id')
+    ->where(DB::raw('user_game_list_entries.user_id'), $user->id)
     ->where('type', UserGameListType::AchievementSetRequest);
 
 if ($type !== 1) {

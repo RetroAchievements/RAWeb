@@ -151,7 +151,7 @@ if (!$gameAchievementSetClaims) {
 return response()->json(array_merge(
     $gameData,
     [
-        'ConsoleName' => $game->system->Name,
+        'ConsoleName' => $game->system->name,
         'ParentGameID' => $game->parentGameId,
         'NumDistinctPlayers' => $game->players_total,
         'NumAchievements' => count($gameAchievements),

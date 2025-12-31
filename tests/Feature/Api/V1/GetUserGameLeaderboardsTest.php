@@ -54,7 +54,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $this->get($this->apiUrl('GetUserGameLeaderboards', ['i' => $game->id, 'u' => $user->User]))
             ->assertUnprocessable()
@@ -70,7 +70,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
         $leaderboard->delete();
@@ -89,7 +89,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         Leaderboard::factory()->create(['GameID' => $game->id]);
 
@@ -107,7 +107,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
 
@@ -131,7 +131,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
@@ -190,7 +190,7 @@ class GetUserGameLeaderboardsTest extends TestCase
        $system = System::factory()->create();
 
        /** @var Game $game */
-       $game = Game::factory()->create(['system_id' => $system->ID]);
+       $game = Game::factory()->create(['system_id' => $system->id]);
 
        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
 
@@ -213,7 +213,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
@@ -262,7 +262,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
@@ -311,7 +311,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var Leaderboard $leaderboardOne */
         $leaderboardOne = Leaderboard::factory()->create([
@@ -388,7 +388,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var Leaderboard $leaderboardOne */
         $leaderboardOne = Leaderboard::factory()->create([
@@ -525,7 +525,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
@@ -604,7 +604,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
@@ -683,7 +683,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
@@ -746,7 +746,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
@@ -869,7 +869,7 @@ class GetUserGameLeaderboardsTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var Leaderboard $activeLeaderboard */
         $activeLeaderboard = Leaderboard::factory()->create([

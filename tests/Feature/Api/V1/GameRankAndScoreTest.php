@@ -30,7 +30,7 @@ class GameRankAndScoreTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $ach1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 3]);
         $ach2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 5]);

@@ -43,7 +43,7 @@ function performSearch(
         $counts[] = "SELECT COUNT(*) AS Count FROM games WHERE title LIKE '%$searchQuery%'";
         $parts[] = "
         SELECT " . SearchType::Game . " AS Type, gd.id AS ID, CONCAT( '/game/', gd.id ) AS Target,
-               CONCAT(gd.title, ' (', c.Name, ')') AS Title,
+               CONCAT(gd.title, ' (', s.name, ')') AS Title,
                CASE
                    WHEN gd.title LIKE '$searchQuery%' THEN 0
                    WHEN gd.title LIKE '%~ $searchQuery%' THEN 1
@@ -51,7 +51,7 @@ function performSearch(
                END AS SecondarySort
         FROM games AS gd
         LEFT JOIN Achievements AS ach ON ach.GameID = gd.id AND ach.Flags = 3
-        LEFT JOIN Console AS c ON gd.system_id = c.ID
+        LEFT JOIN systems AS s ON gd.system_id = s.id
         WHERE gd.system_id != 100
         AND gd.title LIKE '%$searchQuery%'
         GROUP BY gd.id, gd.title

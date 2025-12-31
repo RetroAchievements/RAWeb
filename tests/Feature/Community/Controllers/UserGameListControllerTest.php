@@ -24,7 +24,7 @@ class UserGameListControllerTest extends TestCase
         $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $games = Game::factory()->count(3)->create(['system_id' => $system->id, 'achievements_published' => 20]);
 
         $addGameToListAction = new AddGameToListAction();

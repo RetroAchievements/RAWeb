@@ -79,7 +79,7 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
                 'ID' => $game->id,
                 'Title' => $game->title,
                 'ConsoleID' => $game->system_id,
-                'ConsoleName' => $game->system->Name,
+                'ConsoleName' => $game->system->name,
                 'ForumTopicID' => (int) $game->forum_topic_id,
                 'Flags' => 0,
                 'ImageIcon' => $game->image_icon_asset_path,
@@ -349,7 +349,7 @@ function getUsersCompletedGamesAndMax(string $user, ?int $limit = null, bool $is
         ? "AND pg.achievements_unlocked < gd.achievements_published"
         : "";
 
-    $query = "SELECT gd.id AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID,
+    $query = "SELECT gd.id AS GameID, s.name AS ConsoleName, s.id AS ConsoleID,
             gd.image_icon_asset_path AS ImageIcon, gd.title AS Title, gd.sort_title as SortTitle, gd.achievements_published as MaxPossible,
             pg.first_unlock_at AS FirstWonDate, pg.last_unlock_at AS MostRecentWonDate,
             pg.achievements_unlocked AS NumAwarded, pg.achievements_unlocked_hardcore AS NumAwardedHC, " .
@@ -357,7 +357,7 @@ function getUsersCompletedGamesAndMax(string $user, ?int $limit = null, bool $is
             floatDivisionStatement('pg.achievements_unlocked_hardcore', 'gd.achievements_published') . " AS PctWonHC
             FROM player_games AS pg
             LEFT JOIN games AS gd ON gd.id = pg.game_id
-            LEFT JOIN Console AS c ON c.ID = gd.system_id
+            LEFT JOIN systems AS s ON s.id = gd.system_id
             LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
             WHERE (ua.User = :user OR ua.display_name = :user2)
             AND gd.achievements_published > $minAchievementsForCompletion

@@ -79,10 +79,10 @@ class GameListService
 
         $gameModels = $gameModelsQuery->get();
 
-        $this->consoles = System::whereIn('ID', $gameModels->pluck('system_id')->unique())
-            ->orderBy('Name')
+        $this->consoles = System::whereIn('id', $gameModels->pluck('system_id')->unique())
+            ->orderBy('name')
             ->get()
-            ->keyBy('ID');
+            ->keyBy('id');
 
         $this->games = [];
         foreach ($gameModels as &$gameModel) {
@@ -110,7 +110,7 @@ class GameListService
 
             $game['RetroRatio'] = $gameModel->points_total ? $gameModel->points_weighted / $gameModel->points_total : 0.0;
 
-            $game['ConsoleName'] = $this->consoles[$gameModel->system_id]->Name;
+            $game['ConsoleName'] = $this->consoles[$gameModel->system_id]->name;
 
             $this->games[] = $game;
         }
@@ -128,7 +128,7 @@ class GameListService
             $allConsoleIds = collect($this->games)->pluck('system_id')->unique();
 
             $this->consoles = $this->consoles->filter(function ($console) use ($allConsoleIds) {
-                return $allConsoleIds->contains($console->ID);
+                return $allConsoleIds->contains($console->id);
             });
         }
     }
@@ -195,7 +195,7 @@ class GameListService
 
         $wantToPlayGames = UserGameListEntry::where('user_id', $user->id)
             ->where('type', UserGameListType::Play)
-            ->pluck('GameID')
+            ->pluck('game_id')
             ->toArray();
 
         foreach ($this->games as &$game) {

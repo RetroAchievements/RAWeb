@@ -20,7 +20,7 @@ class GameClaimsCommentControllerTest extends TestCase
     public function testIndexDoesNotAuthorizeGuests(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
 
         // Act
@@ -40,7 +40,7 @@ class GameClaimsCommentControllerTest extends TestCase
         $user->assignRole(Role::DEVELOPER_JUNIOR);
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
 
         // Act
@@ -60,7 +60,7 @@ class GameClaimsCommentControllerTest extends TestCase
         $user->assignRole(Role::DEVELOPER);
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
 
         // Act
@@ -80,8 +80,8 @@ class GameClaimsCommentControllerTest extends TestCase
         $user->assignRole(Role::DEVELOPER);
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['ID' => 1, 'title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['id' => 1, 'title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
 
         // Act
         $response = $this->get(route('game.claims.comment.index', ['game' => $game]));

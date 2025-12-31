@@ -168,7 +168,7 @@ class UserAwardsTest extends TestCase
                         'AwardDataExtra' => $award['AwardDataExtra'],
                         'DisplayOrder' => $award['DisplayOrder'],
                         'Title' => $game->title,
-                        'ConsoleName' => $system['Name'],
+                        'ConsoleName' => $system['name'],
                         'Flags' => null,
                         'ImageIcon' => $game->image_icon_asset_path,
                     ],
@@ -181,7 +181,7 @@ class UserAwardsTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create();
         /** @var System $system */
-        $system = System::factory()->create(['ID' => System::Events, 'Name' => 'Events']);
+        $system = System::factory()->create(['id' => System::Events, 'name' => 'Events']);
         /** @var Game $game1 */
         $game1 = Game::factory()->create(['system_id' => $system->id]);
         /** @var Game $game2 */
@@ -228,7 +228,7 @@ class UserAwardsTest extends TestCase
                         'AwardDataExtra' => $award1['AwardDataExtra'],
                         'DisplayOrder' => $award1['DisplayOrder'],
                         'Title' => $game1->title,
-                        'ConsoleName' => $system['Name'],
+                        'ConsoleName' => $system['name'],
                         'Flags' => null,
                         'ImageIcon' => $event1->image_asset_path,
                     ],
@@ -239,7 +239,7 @@ class UserAwardsTest extends TestCase
                         'AwardDataExtra' => $award2['AwardDataExtra'],
                         'DisplayOrder' => $award2['DisplayOrder'],
                         'Title' => $game2->title,
-                        'ConsoleName' => $system['Name'],
+                        'ConsoleName' => $system['name'],
                         'Flags' => null,
                         'ImageIcon' => $event2->image_asset_path,
                     ],

@@ -29,7 +29,7 @@ $command = '';
 
 /** @var User $user */
 $user = User::findOrFail($userDetails['ID']);
-if ($user->gameListEntries($typeEnum)->where('GameID', $gameId)->exists()) {
+if ($user->gameListEntries($typeEnum)->where('game_id', $gameId)->exists()) {
     $action = new RemoveGameFromListAction();
     $success = $action->execute($user, $game, $typeEnum);
     $command = 'removed';

@@ -439,8 +439,8 @@ class GameResource extends Resource
                 Tables\Filters\SelectFilter::make('system')
                     ->options(function () {
                         $options = ['active' => 'All Active Systems'];
-                        $systemOptions = System::orderBy('Name')
-                            ->pluck('Name', 'ID')
+                        $systemOptions = System::orderBy('name')
+                            ->pluck('name', 'id')
                             ->toArray();
 
                         return $options + $systemOptions;
@@ -449,7 +449,7 @@ class GameResource extends Resource
                         $value = $data['value'] ?? null;
 
                         if ($value === 'active') {
-                            $query->whereIn('system_id', System::active()->pluck('ID'));
+                            $query->whereIn('system_id', System::active()->pluck('id'));
                         } elseif ($value) {
                             $query->where('system_id', $value);
                         }

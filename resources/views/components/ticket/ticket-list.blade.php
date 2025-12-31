@@ -70,7 +70,7 @@ $gameCache = [];
                                     :gameId="$game->id"
                                     :gameTitle="$game->title"
                                     :gameImageIcon="$game->image_icon_asset_path"
-                                    :consoleName="$game->system->Name"
+                                    :consoleName="$game->system->name"
                                 />
                             </td>
                             <td>{!! userAvatar($ticket->author ?? 'Deleted User') !!}</td>

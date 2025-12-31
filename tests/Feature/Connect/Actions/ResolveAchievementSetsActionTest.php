@@ -36,7 +36,7 @@ class ResolveAchievementSetsActionTest extends TestCase
         parent::setUp();
 
         // This common system is used in all the tests.
-        $this->system = System::factory()->create(['ID' => 1, 'Name' => 'NES/Famicom']);
+        $this->system = System::factory()->create(['id' => 1, 'name' => 'NES/Famicom']);
 
         $this->upsertGameCoreSetAction = new UpsertGameCoreAchievementSetFromLegacyFlagsAction();
         $this->associateAchievementSetToGameAction = new AssociateAchievementSetToGameAction();

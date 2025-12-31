@@ -44,7 +44,7 @@ class LeaderboardEntriesTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([

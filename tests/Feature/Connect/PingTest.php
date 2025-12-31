@@ -244,9 +244,9 @@ class PingTest extends TestCase
     public function testPingDelegatedByName(): void
     {
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $gameOne */
-        $gameOne = Game::factory()->create(['system_id' => $standalonesSystem->ID]);
+        $gameOne = Game::factory()->create(['system_id' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
         $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
@@ -305,9 +305,9 @@ class PingTest extends TestCase
         // Next, try to delegate on a non-standalone game.
         // This is not allowed and should fail.
         /** @var System $normalSystem */
-        $normalSystem = System::factory()->create(['ID' => 1]);
+        $normalSystem = System::factory()->create(['id' => 1]);
         /** @var Game $gameTwo */
-        $gameTwo = Game::factory()->create(['system_id' => $normalSystem->ID]);
+        $gameTwo = Game::factory()->create(['system_id' => $normalSystem->id]);
 
         $params['k'] = $delegatedUser->User;
         $params['g'] = $gameTwo->id;
@@ -324,7 +324,7 @@ class PingTest extends TestCase
         // Next, try to delegate on a game with no achievements authored by the integration user.
         // This is not allowed and should fail.
         /** @var Game $gameThree */
-        $gameThree = Game::factory()->create(['system_id' => $standalonesSystem->ID]);
+        $gameThree = Game::factory()->create(['system_id' => $standalonesSystem->id]);
         /** @var User $randomUser */
         $randomUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
         Achievement::factory()->published()->count(6)->create(['GameID' => $gameThree->id, 'user_id' => $randomUser->id]);
@@ -343,7 +343,7 @@ class PingTest extends TestCase
     public function testPingDelegatedByUlid(): void
     {
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $gameOne */
         $gameOne = $this->seedGame(system: $standalonesSystem);
 
@@ -393,9 +393,9 @@ class PingTest extends TestCase
         // Next, try to delegate on a non-standalone game.
         // This is not allowed and should fail.
         /** @var System $normalSystem */
-        $normalSystem = System::factory()->create(['ID' => 1]);
+        $normalSystem = System::factory()->create(['id' => 1]);
         /** @var Game $gameTwo */
-        $gameTwo = Game::factory()->create(['system_id' => $normalSystem->ID]);
+        $gameTwo = Game::factory()->create(['system_id' => $normalSystem->id]);
 
         $params['g'] = $gameTwo->id;
 
@@ -411,7 +411,7 @@ class PingTest extends TestCase
         // Next, try to delegate on a game with no achievements authored by the integration user.
         // This is not allowed and should fail.
         /** @var Game $gameThree */
-        $gameThree = Game::factory()->create(['system_id' => $standalonesSystem->ID]);
+        $gameThree = Game::factory()->create(['system_id' => $standalonesSystem->id]);
         /** @var User $randomUser */
         $randomUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
         Achievement::factory()->published()->count(6)->create(['GameID' => $gameThree->id, 'user_id' => $randomUser->id]);

@@ -66,8 +66,8 @@ trait BuildsGameListQueries
         if ($listType === GameListType::SetRequests) {
             $query->addSelect([
                 'num_requests' => UserGameListEntry::selectRaw('COUNT(*)')
-                    ->whereColumn('SetRequest.GameID', 'games.id')
-                    ->where(DB::raw('SetRequest.type'), UserGameListType::AchievementSetRequest),
+                    ->whereColumn('user_game_list_entries.game_id', 'games.id')
+                    ->where(DB::raw('user_game_list_entries.type'), UserGameListType::AchievementSetRequest),
             ]);
         }
 
@@ -88,7 +88,7 @@ trait BuildsGameListQueries
                 // Exclude non game systems, inactive systems, and subsets.
                 $validSystemIds = System::active()
                     ->gameSystems()
-                    ->pluck('ID')
+                    ->pluck('id')
                     ->all();
 
                 $query->whereIn(DB::raw('games.system_id'), $validSystemIds);
@@ -98,15 +98,15 @@ trait BuildsGameListQueries
                 // Only show games with at least 1 request.
                 // We also don't care if the system is active or not.
                 $validSystemIds = System::gameSystems()
-                    ->pluck('ID')
+                    ->pluck('id')
                     ->all();
 
                 $query->whereIn(DB::raw('games.system_id'), $validSystemIds)
                     ->whereExists(function ($subquery) {
                         $subquery->select(DB::raw(1))
-                            ->from('SetRequest')
-                            ->whereColumn('SetRequest.GameID', 'games.id')
-                            ->where(DB::raw('SetRequest.type'), UserGameListType::AchievementSetRequest);
+                            ->from('user_game_list_entries')
+                            ->whereColumn('user_game_list_entries.game_id', 'games.id')
+                            ->where(DB::raw('user_game_list_entries.type'), UserGameListType::AchievementSetRequest);
                     });
                 break;
 
@@ -178,7 +178,7 @@ trait BuildsGameListQueries
                 }
 
                 $systemIds = in_array('supported', $filterValues)
-                    ? System::active()->gameSystems()->pluck('ID')->all()
+                    ? System::active()->gameSystems()->pluck('id')->all()
                     : $filterValues;
                 $query->whereIn(DB::raw('games.system_id'), $systemIds);
                 continue;
@@ -251,10 +251,10 @@ trait BuildsGameListQueries
             if ($filterKey === 'user' && !empty($filterValues[0])) {
                 $query->whereExists(function ($subquery) use ($filterValues) {
                     $subquery->select(DB::raw(1))
-                        ->from('SetRequest')
-                        ->join('UserAccounts', 'UserAccounts.ID', '=', 'SetRequest.user_id')
-                        ->whereColumn('SetRequest.GameID', 'games.id')
-                        ->where(DB::raw('SetRequest.type'), UserGameListType::AchievementSetRequest)
+                        ->from('user_game_list_entries')
+                        ->join('UserAccounts', 'UserAccounts.ID', '=', 'user_game_list_entries.user_id')
+                        ->whereColumn('user_game_list_entries.game_id', 'games.id')
+                        ->where(DB::raw('user_game_list_entries.type'), UserGameListType::AchievementSetRequest)
                         ->where('UserAccounts.display_name', $filterValues[0]);
                 });
                 continue;
@@ -284,8 +284,8 @@ trait BuildsGameListQueries
                  */
                 case GameListSortField::System->value:
                     $query
-                        ->join('Console', 'games.system_id', '=', 'Console.ID')
-                        ->orderBy('Console.name_short', $sortDirection);
+                        ->join('systems', 'games.system_id', '=', 'systems.id')
+                        ->orderBy('systems.name_short', $sortDirection);
                     break;
 
                 /*

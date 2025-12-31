@@ -16,7 +16,7 @@ class SystemApiControllerTest extends TestCase
     public function testGamesReturnsCorrectJsonResponse(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => 4, 'name' => 'Game Boy', 'name_short' => 'GB', 'active' => true]);
+        $system = System::factory()->create(['id' => 4, 'name' => 'Game Boy', 'name_short' => 'GB', 'active' => true]);
 
         /** @var Game $gameOne */
         $gameOne = Game::factory()->create(['title' => 'AAAAAAA', 'achievements_published' => 50, 'system_id' => $system->id]);

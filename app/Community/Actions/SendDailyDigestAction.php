@@ -166,7 +166,7 @@ class SendDailyDigestAction
 
         $games = Game::whereIn('id', $ids)->with('system')->get();
         foreach ($games as $game) {
-            $result[$game->id] = "{$game->title} ({$game->system->Name})";
+            $result[$game->id] = "{$game->title} ({$game->system->name})";
         }
 
         return $result;

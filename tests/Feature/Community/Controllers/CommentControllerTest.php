@@ -21,7 +21,7 @@ class CommentControllerTest extends TestCase
     public function testRedirectsToGamePageWhenCommentIsRecent(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['system_id' => $system->id]);
         $user = User::factory()->create();
 
@@ -47,7 +47,7 @@ class CommentControllerTest extends TestCase
     public function testRedirectsToCommentsPageWhenCommentIsOld(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['system_id' => $system->id]);
         $user = User::factory()->create();
 
@@ -82,7 +82,7 @@ class CommentControllerTest extends TestCase
     public function testCorrectlyCalculatesPageNumberForOldComment(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['system_id' => $system->id]);
         $user = User::factory()->create();
 
@@ -120,7 +120,7 @@ class CommentControllerTest extends TestCase
     public function testReturns404ForSoftDeletedComment(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['system_id' => $system->id]);
         $user = User::factory()->create();
 
@@ -203,7 +203,7 @@ class CommentControllerTest extends TestCase
     public function testRedirectsToAchievementPageForRecentComment(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['system_id' => $system->id]);
         $achievement = Achievement::factory()->create(['GameID' => $game->id]);
         $user = User::factory()->create();
@@ -229,7 +229,7 @@ class CommentControllerTest extends TestCase
     public function testRedirectsToLeaderboardPageForRecentComment(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['system_id' => $system->id]);
         $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
         $user = User::factory()->create();
@@ -273,7 +273,7 @@ class CommentControllerTest extends TestCase
     public function testRedirectsToAchievementCommentsPageWhenCommentIsOld(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['system_id' => $system->id]);
         $achievement = Achievement::factory()->create(['GameID' => $game->id]);
         $user = User::factory()->create();
@@ -343,7 +343,7 @@ class CommentControllerTest extends TestCase
     public function testRedirectsToLeaderboardCommentsPageWhenCommentIsOld(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['system_id' => $system->id]);
         $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
         $user = User::factory()->create();

@@ -12,6 +12,6 @@ class RemoveGameFromListAction
 {
     public function execute(User $user, Game $game, UserGameListType $type): bool
     {
-        return $user->gameListEntries($type)->where('GameID', $game->id)->delete() === 1;
+        return $user->gameListEntries($type)->where('game_id', $game->id)->delete() === 1;
     }
 }

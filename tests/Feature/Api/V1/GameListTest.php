@@ -36,7 +36,7 @@ class GameListTest extends TestCase
         /** @var Game $game1 */
         $game1 = Game::factory()->create([
             'title' => 'Alpha',
-            'system_id' => $system1->ID,
+            'system_id' => $system1->id,
             'image_icon_asset_path' => '/Images/123456.png',
             'forum_topic_id' => 123,
         ]);
@@ -48,13 +48,13 @@ class GameListTest extends TestCase
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
             'title' => 'Beta',
-            'system_id' => $system1->ID,
+            'system_id' => $system1->id,
             'image_icon_asset_path' => '/Images/213425.png',
         ]);
         /** @var Game $game3 */
         $game3 = Game::factory()->create([
             'title' => 'Gamma',
-            'system_id' => $system2->ID,
+            'system_id' => $system2->id,
             'image_icon_asset_path' => '/Images/327584.png',
         ]);
         $game3Achievements = Achievement::factory()->published()->count(5)->create(['GameID' => $game3->id, 'DateModified' => '2024-09-27 03:06:09']);
@@ -66,7 +66,7 @@ class GameListTest extends TestCase
         /** @var Game $game4 */
         $game4 = Game::factory()->create([
             'title' => 'Delta',
-            'system_id' => $system2->ID,
+            'system_id' => $system2->id,
             'image_icon_asset_path' => '/Images/051283.png',
         ]);
         $game4Achievements = Achievement::factory()->published()->count(4)->create(['GameID' => $game4->id, 'DateModified' => '2024-07-18 23:45:17']);
@@ -89,15 +89,15 @@ class GameListTest extends TestCase
         $action->execute($game4);
 
         // all games for system 1
-        $this->get($this->apiUrl('GetGameList', ['i' => $system1->ID]))
+        $this->get($this->apiUrl('GetGameList', ['i' => $system1->id]))
             ->assertSuccessful()
             ->assertJsonCount(2)
             ->assertJson([
                 [
                     'ID' => $game1->id,
                     'Title' => $game1->title,
-                    'ConsoleID' => $system1->ID,
-                    'ConsoleName' => $system1->Name,
+                    'ConsoleID' => $system1->id,
+                    'ConsoleName' => $system1->name,
                     'ImageIcon' => $game1->image_icon_asset_path,
                     'NumAchievements' => 3,
                     'Points' => $game1Points,
@@ -107,8 +107,8 @@ class GameListTest extends TestCase
                 [
                     'ID' => $game2->id,
                     'Title' => $game2->title,
-                    'ConsoleID' => $system1->ID,
-                    'ConsoleName' => $system1->Name,
+                    'ConsoleID' => $system1->id,
+                    'ConsoleName' => $system1->name,
                     'ImageIcon' => $game2->image_icon_asset_path,
                     'NumAchievements' => 0,
                     'Points' => 0,
@@ -118,15 +118,15 @@ class GameListTest extends TestCase
             ]);
 
         // games with achievements for system 1
-        $this->get($this->apiUrl('GetGameList', ['i' => $system1->ID, 'f' => 1]))
+        $this->get($this->apiUrl('GetGameList', ['i' => $system1->id, 'f' => 1]))
             ->assertSuccessful()
             ->assertJsonCount(1)
             ->assertJson([
                 [
                     'ID' => $game1->id,
                     'Title' => $game1->title,
-                    'ConsoleID' => $system1->ID,
-                    'ConsoleName' => $system1->Name,
+                    'ConsoleID' => $system1->id,
+                    'ConsoleName' => $system1->name,
                     'ImageIcon' => $game1->image_icon_asset_path,
                     'NumAchievements' => 3,
                     'Points' => $game1Points,
@@ -136,15 +136,15 @@ class GameListTest extends TestCase
             ]);
 
         // games with achievements for system 2 with hashes
-        $this->get($this->apiUrl('GetGameList', ['i' => $system2->ID, 'f' => 1, 'h' => 1]))
+        $this->get($this->apiUrl('GetGameList', ['i' => $system2->id, 'f' => 1, 'h' => 1]))
             ->assertSuccessful()
             ->assertJsonCount(2)
             ->assertExactJson([
                 [
                     'ID' => $game4->id, /* Delta before Gamma */
                     'Title' => $game4->title,
-                    'ConsoleID' => $system2->ID,
-                    'ConsoleName' => $system2->Name,
+                    'ConsoleID' => $system2->id,
+                    'ConsoleName' => $system2->name,
                     'DateModified' => '2024-07-18 23:45:17',
                     'ImageIcon' => $game4->image_icon_asset_path,
                     'NumAchievements' => 4,
@@ -159,8 +159,8 @@ class GameListTest extends TestCase
                 [
                     'ID' => $game3->id,
                     'Title' => $game3->title,
-                    'ConsoleID' => $system2->ID,
-                    'ConsoleName' => $system2->Name,
+                    'ConsoleID' => $system2->id,
+                    'ConsoleName' => $system2->name,
                     'DateModified' => '2024-09-27 03:06:09',
                     'ImageIcon' => $game3->image_icon_asset_path,
                     'NumAchievements' => 5, /* does not include unofficial */
@@ -172,15 +172,15 @@ class GameListTest extends TestCase
             ]);
 
         // games for system 1 with count
-        $this->get($this->apiUrl('GetGameList', ['i' => $system1->ID, 'c' => 1]))
+        $this->get($this->apiUrl('GetGameList', ['i' => $system1->id, 'c' => 1]))
         ->assertSuccessful()
         ->assertJsonCount(1)
         ->assertJson([
             [
                 'ID' => $game1->id,
                 'Title' => $game1->title,
-                'ConsoleID' => $system1->ID,
-                'ConsoleName' => $system1->Name,
+                'ConsoleID' => $system1->id,
+                'ConsoleName' => $system1->name,
                 'ImageIcon' => $game1->image_icon_asset_path,
                 'NumAchievements' => 3,
                 'Points' => $game1Points,
@@ -190,15 +190,15 @@ class GameListTest extends TestCase
         ]);
 
         // games for system 1 with offset
-        $this->get($this->apiUrl('GetGameList', ['i' => $system1->ID, 'o' => 1]))
+        $this->get($this->apiUrl('GetGameList', ['i' => $system1->id, 'o' => 1]))
         ->assertSuccessful()
         ->assertJsonCount(1)
         ->assertJson([
             [
                 'ID' => $game2->id,
                 'Title' => $game2->title,
-                'ConsoleID' => $system1->ID,
-                'ConsoleName' => $system1->Name,
+                'ConsoleID' => $system1->id,
+                'ConsoleName' => $system1->name,
                 'ImageIcon' => $game2->image_icon_asset_path,
                 'NumAchievements' => 0,
                 'Points' => 0,
@@ -208,15 +208,15 @@ class GameListTest extends TestCase
         ]);
 
         // games for system 1 with offset and count
-        $this->get($this->apiUrl('GetGameList', ['i' => $system1->ID, 'o' => 1, 'c' => 1]))
+        $this->get($this->apiUrl('GetGameList', ['i' => $system1->id, 'o' => 1, 'c' => 1]))
             ->assertSuccessful()
             ->assertJsonCount(1)
             ->assertJson([
                 [
                     'ID' => $game2->id,
                     'Title' => $game2->title,
-                    'ConsoleID' => $system1->ID,
-                    'ConsoleName' => $system1->Name,
+                    'ConsoleID' => $system1->id,
+                    'ConsoleName' => $system1->name,
                     'ImageIcon' => $game2->image_icon_asset_path,
                     'NumAchievements' => 0,
                     'Points' => 0,
@@ -237,8 +237,8 @@ class GameListTest extends TestCase
                 [
                     'ID' => $game1->id,
                     'Title' => $game1->title,
-                    'ConsoleID' => $system1->ID,
-                    'ConsoleName' => $system1->Name,
+                    'ConsoleID' => $system1->id,
+                    'ConsoleName' => $system1->name,
                     'ImageIcon' => $game1->image_icon_asset_path,
                     'NumAchievements' => 3,
                     'Points' => $game1Points,
@@ -248,8 +248,8 @@ class GameListTest extends TestCase
                 [
                     'ID' => $game4->id, /* Delta before Gamma * /
                     'Title' => $game4->title,
-                    'ConsoleID' => $system2->ID,
-                    'ConsoleName' => $system2->Name,
+                    'ConsoleID' => $system2->id,
+                    'ConsoleName' => $system2->name,
                     'ImageIcon' => $game4->image_icon_asset_path,
                     'NumAchievements' => 4,
                     'Points' => $game4Points,
@@ -259,8 +259,8 @@ class GameListTest extends TestCase
                 [
                     'ID' => $game3->id,
                     'Title' => $game3->title,
-                    'ConsoleID' => $system2->ID,
-                    'ConsoleName' => $system2->Name,
+                    'ConsoleID' => $system2->id,
+                    'ConsoleName' => $system2->name,
                     'ImageIcon' => $game3->image_icon_asset_path,
                     'NumAchievements' => 5, /* does not include unofficial * /
                     'Points' => $game3Points,

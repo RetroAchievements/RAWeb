@@ -24,7 +24,7 @@ class UserGameListApiControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $games = Game::factory()->count(3)->create(['system_id' => $system->id, 'achievements_published' => 20]);
 
         $addGameToListAction = new AddGameToListAction();
@@ -65,7 +65,7 @@ class UserGameListApiControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['system_id' => $system->id]);
 
         // Act
@@ -80,14 +80,14 @@ class UserGameListApiControllerTest extends TestCase
                 'success' => true,
                 'data' => [
                     'user_id' => $user->id,
-                    'GameID' => $game->id,
+                    'game_id' => $game->id,
                     'type' => UserGameListType::Play->value,
                 ],
             ]);
 
         $this->assertDatabaseHas(UserGameListEntry::getFullTableName(), [
             'user_id' => $user->id,
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'type' => UserGameListType::Play->value,
         ]);
     }
@@ -99,7 +99,7 @@ class UserGameListApiControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['system_id' => $system->id]);
 
         $addGameToListAction = new AddGameToListAction();
@@ -117,7 +117,7 @@ class UserGameListApiControllerTest extends TestCase
 
         $this->assertDatabaseMissing(UserGameListEntry::getFullTableName(), [
             'user_id' => $user->id,
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'type' => UserGameListType::Play->value,
         ]);
     }

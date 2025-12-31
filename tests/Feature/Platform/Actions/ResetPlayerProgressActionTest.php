@@ -354,7 +354,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $user = User::factory()->create(['RASoftcorePoints' => 123, 'RAPoints' => 1234, 'TrueRAPoints' => 2345]);
         /** @var User $author */
         $author = User::factory()->create(['ContribCount' => 111, 'ContribYield' => 2222]);
-        $eventSystem = System::factory()->create(['ID' => System::Events]);
+        $eventSystem = System::factory()->create(['id' => System::Events]);
         $game = $this->seedGame(system: $eventSystem, withHash: false);
         $achievements = Achievement::factory()->published()
             ->count(PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY)

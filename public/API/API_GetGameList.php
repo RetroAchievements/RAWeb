@@ -61,7 +61,7 @@ $leaderboardsSubquery = Leaderboard::query()
     ->groupBy('GameID');
 
 $query = DB::table('games')
-    ->leftJoin('Console AS c', 'c.ID', '=', 'games.system_id')
+    ->leftJoin('systems AS s', 's.id', '=', 'games.system_id')
     ->leftJoinSub($achievementsSubquery, 'ach_data', function ($join) {
         $join->on('ach_data.GameID', '=', 'games.id');
     })
@@ -70,7 +70,7 @@ $query = DB::table('games')
     })
     ->select(
         'games.*',
-        'c.Name as ConsoleName',
+        's.name as ConsoleName',
         DB::raw('COALESCE(games.achievements_published, 0) AS NumAchievements'),
         DB::raw('COALESCE(ach_data.DateModified, NULL) AS DateModified'),
         DB::raw('COALESCE(lb_data.NumLBs, 0) AS NumLBs')

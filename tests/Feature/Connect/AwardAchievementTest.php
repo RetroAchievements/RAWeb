@@ -373,7 +373,7 @@ class AwardAchievementTest extends TestCase
         Carbon::setTestNow($now);
 
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $gameOne */
         $gameOne = $this->seedGame(system: $standalonesSystem, withHash: false);
 
@@ -480,9 +480,9 @@ class AwardAchievementTest extends TestCase
         // Next, try to award an achievement on a non-standalone game.
         // This is not allowed and should fail, even if the integration user is the achievement author.
         /** @var System $normalSystem */
-        $normalSystem = System::factory()->create(['ID' => 1]);
+        $normalSystem = System::factory()->create(['id' => 1]);
         /** @var Game $gameTwo */
-        $gameTwo = Game::factory()->create(['system_id' => $normalSystem->ID]);
+        $gameTwo = Game::factory()->create(['system_id' => $normalSystem->id]);
 
         $achievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameTwo->id, 'user_id' => $integrationUser->id]);
 
@@ -560,7 +560,7 @@ class AwardAchievementTest extends TestCase
         Carbon::setTestNow($now);
 
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $gameOne */
         $gameOne = $this->seedGame(system: $standalonesSystem, withHash: false);
 
@@ -822,7 +822,7 @@ class AwardAchievementTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var GameHash $gameHash */
         $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => '0123456789abcdeffedcba9876543210']);
         /** @var Achievement $achievement1 */
@@ -907,7 +907,7 @@ class AwardAchievementTest extends TestCase
         $this->assertModelExists($playerSession1);
 
         // not-unlocked event achievement hides hardcore unlock when active
-        System::factory()->create(['ID' => System::Events]);
+        System::factory()->create(['id' => System::Events]);
         /** @var Game $eventGame */
         $eventGame = Game::factory()->create(['system_id' => System::Events]);
         /** @var Achievement $eventAchievement1 */

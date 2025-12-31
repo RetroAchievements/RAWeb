@@ -21,8 +21,8 @@ class GameApiControllerTest extends TestCase
     public function testIndexReturnsCorrectJsonResponse(): void
     {
         // Arrange
-        $activeGameSystem = System::factory()->create(['ID' => 1, 'name' => 'NES/Famicom', 'name_short' => 'NES', 'active' => true]);
-        $inactiveGameSystem = System::factory()->create(['ID' => 2, 'name' => 'PlayStation 5', 'name_short' => 'PS5', 'active' => false]);
+        $activeGameSystem = System::factory()->create(['id' => 1, 'name' => 'NES/Famicom', 'name_short' => 'NES', 'active' => true]);
+        $inactiveGameSystem = System::factory()->create(['id' => 2, 'name' => 'PlayStation 5', 'name_short' => 'PS5', 'active' => false]);
 
         /** @var Game $gameOne */
         $gameOne = Game::factory()->create(['title' => 'AAAAAAA', 'achievements_published' => 50, 'system_id' => $activeGameSystem->id]);
@@ -89,7 +89,7 @@ class GameApiControllerTest extends TestCase
         $user->assignRole(Role::DEVELOPER);
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1, 'Name' => 'Sega Genesis/Mega Drive']);
+        $system = System::factory()->create(['id' => 1, 'name' => 'Sega Genesis/Mega Drive']);
         $game = Game::factory()->create([
             'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',
@@ -122,7 +122,7 @@ class GameApiControllerTest extends TestCase
         $user->assignRole(Role::DEVELOPER_JUNIOR); // !! jrdevs shouldn't be able to do this
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1, 'Name' => 'Sega Genesis/Mega Drive']);
+        $system = System::factory()->create(['id' => 1, 'name' => 'Sega Genesis/Mega Drive']);
         $game = Game::factory()->create([
             'system_id' => $system->id,
             'title' => 'Sonic the Hedgehog',

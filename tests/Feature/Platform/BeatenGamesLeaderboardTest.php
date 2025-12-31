@@ -54,7 +54,7 @@ class BeatenGamesLeaderboardTest extends TestCase
         // Arrange
         $users = User::factory()->count(3)->create();
         $system = System::factory()->create();
-        $games = Game::factory()->count(3)->create(['system_id' => $system->ID]);
+        $games = Game::factory()->count(3)->create(['system_id' => $system->id]);
 
         $this->addGameBeatenAward($users->get(0), $games->get(0));
 
@@ -87,7 +87,7 @@ class BeatenGamesLeaderboardTest extends TestCase
         // Arrange
         $users = User::factory()->count(3)->create();
         $system = System::factory()->create();
-        $games = Game::factory()->count(3)->create(['system_id' => $system->ID]);
+        $games = Game::factory()->count(3)->create(['system_id' => $system->id]);
 
         $this->addGameBeatenAward($users->get(0), $games->get(0));
 
@@ -123,9 +123,9 @@ class BeatenGamesLeaderboardTest extends TestCase
         // Arrange
         $users = User::factory()->count(3)->create();
         $systems = System::factory()->count(2)->create();
-        $gameOne = Game::factory()->create(['system_id' => $systems->get(0)->ID]);
-        $gameTwo = Game::factory()->create(['system_id' => $systems->get(1)->ID]);
-        $gameThree = Game::factory()->create(['system_id' => $systems->get(1)->ID]);
+        $gameOne = Game::factory()->create(['system_id' => $systems->get(0)->id]);
+        $gameTwo = Game::factory()->create(['system_id' => $systems->get(1)->id]);
+        $gameThree = Game::factory()->create(['system_id' => $systems->get(1)->id]);
 
         $this->addGameBeatenAward($users->get(0), $gameOne);
 
@@ -140,10 +140,10 @@ class BeatenGamesLeaderboardTest extends TestCase
         (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(1));
         (new UpdatePlayerBeatenGamesStatsAction())->execute($users->get(2));
 
-        $this->rebuildLeaderboardRankings($systems->get(1)->ID);
+        $this->rebuildLeaderboardRankings($systems->get(1)->id);
 
         // Act
-        $view = $this->get('/ranking/beaten-games?filter[system]=' . $systems->get(1)->ID);
+        $view = $this->get('/ranking/beaten-games?filter[system]=' . $systems->get(1)->id);
 
         // Assert
         $view->assertSeeTextInOrder([
@@ -158,8 +158,8 @@ class BeatenGamesLeaderboardTest extends TestCase
         $user = User::factory()->create();
         $system = System::factory()->create();
 
-        $hack = Game::factory()->create(['title' => '~Hack~ Beat Super Mario Bros in 42 seconds', 'system_id' => $system->ID]);
-        $retail = Game::factory()->create(['title' => 'Donkey Kong', 'system_id' => $system->ID]);
+        $hack = Game::factory()->create(['title' => '~Hack~ Beat Super Mario Bros in 42 seconds', 'system_id' => $system->id]);
+        $retail = Game::factory()->create(['title' => 'Donkey Kong', 'system_id' => $system->id]);
 
         $this->addGameBeatenAward($user, $hack);
         $this->addGameBeatenAward($user, $retail);

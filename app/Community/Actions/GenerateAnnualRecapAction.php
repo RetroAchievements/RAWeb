@@ -301,7 +301,7 @@ class GenerateAnnualRecapAction
 
         $system = System::find($mostPlayedSystem);
         if ($system) {
-            $recapData['mostPlayedSystem'] = $system->Name;
+            $recapData['mostPlayedSystem'] = $system->name;
             $recapData['mostPlayedSystemPlaytime'] = $this->hoursMinutes($systemTimes[$mostPlayedSystem]);
         } else {
             $recapData['mostPlayedSystem'] = '';

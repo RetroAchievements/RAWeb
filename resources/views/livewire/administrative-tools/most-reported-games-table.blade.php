@@ -86,7 +86,7 @@ new class extends Component implements HasForms, HasTable, HasActions {
                 ->officialCore()
                 ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
                 ->join('games', 'games.id', '=', 'Achievements.GameID')
-                ->join('Console', 'Console.ID', '=', 'games.system_id')
+                ->join('systems', 'systems.id', '=', 'games.system_id')
                 ->leftJoinSub($oldestTicketSubquery, 'oldest_tickets', function ($join) {
                     $join->on('Ticket.AchievementID', '=', 'oldest_tickets.AchievementID');
                 })
@@ -99,7 +99,7 @@ new class extends Component implements HasForms, HasTable, HasActions {
                     'games.system_id as ConsoleID',
                     'games.image_icon_asset_path as ImageIcon',
                     'games.players_total',
-                    'Console.Name as ConsoleName',
+                    'systems.name as ConsoleName',
                     DB::raw('count(Ticket.ID) AS TicketCount'),
                     DB::raw('count(DISTINCT Ticket.AchievementID) AS UniquelyTicketedAchievements'),
                     DB::raw('MIN(oldest_tickets.OldestTicketDate) AS OldestTicketDate'),
@@ -109,7 +109,7 @@ new class extends Component implements HasForms, HasTable, HasActions {
                     'games.id',
                     'games.title',
                     'games.system_id',
-                    'Console.Name',
+                    'systems.name',
                     'games.image_icon_asset_path',
                     'games.players_total',
                 )

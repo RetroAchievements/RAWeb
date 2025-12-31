@@ -33,7 +33,7 @@ class UserGameRankAndScoreTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->id]);
         $firstAchievement = $publishedAchievements->get(0);
         $secondAchievement = $publishedAchievements->get(1);
@@ -65,7 +65,7 @@ class UserGameRankAndScoreTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->id]);
         $firstAchievement = $publishedAchievements->get(0);
         $secondAchievement = $publishedAchievements->get(1);
@@ -97,7 +97,7 @@ class UserGameRankAndScoreTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->id]);
         $firstAchievement = $publishedAchievements->get(0);
         $secondAchievement = $publishedAchievements->get(1);

@@ -406,14 +406,14 @@ function getMostAwardedGames(array $gameIDs): array
         return $retVal;
     }
 
-    $query = "SELECT gd.title AS Title, sa.AwardData AS ID, c.Name AS ConsoleName, gd.image_icon_asset_path as GameIcon,
+    $query = "SELECT gd.title AS Title, sa.AwardData AS ID, s.name AS ConsoleName, gd.image_icon_asset_path as GameIcon,
               SUM(IF(AwardType LIKE " . AwardType::GameBeaten . " AND AwardDataExtra LIKE '0' AND Untracked = 0, 1, 0)) AS BeatenSoftcore,
               SUM(IF(AwardType LIKE " . AwardType::GameBeaten . " AND AwardDataExtra LIKE '1' AND Untracked = 0, 1, 0)) AS BeatenHardcore,
               SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '0' AND Untracked = 0, 1, 0)) AS Completed,
               SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '1' AND Untracked = 0, 1, 0)) AS Mastered
               FROM SiteAwards AS sa
               LEFT JOIN games AS gd ON gd.id = sa.AwardData
-              LEFT JOIN Console AS c ON c.ID = gd.system_id
+              LEFT JOIN systems AS s ON s.id = gd.system_id
               LEFT JOIN UserAccounts AS ua ON ua.ID = sa.user_id
               WHERE sa.AwardType IN (" . implode(',', AwardType::game()) . ")
               AND AwardData IN(" . implode(",", $gameIDs) . ")

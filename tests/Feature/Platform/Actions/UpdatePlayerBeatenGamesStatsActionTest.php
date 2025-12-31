@@ -36,7 +36,7 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $system = System::factory()->create();
-        $games = Game::factory()->count(3)->create(['system_id' => $system->ID]);
+        $games = Game::factory()->count(3)->create(['system_id' => $system->id]);
 
         $this->addGameBeatenAward($user, $games->get(0), UnlockMode::Softcore);
         $this->addGameBeatenAward($user, $games->get(1), UnlockMode::Softcore);
@@ -55,7 +55,7 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $system = System::factory()->create();
-        $game = Game::factory()->create(['system_id' => $system->ID, 'title' => 'Super Mario Bros.']);
+        $game = Game::factory()->create(['system_id' => $system->id, 'title' => 'Super Mario Bros.']);
 
         $this->addGameBeatenAward($user, $game, UnlockMode::Hardcore, Carbon::create(2023, 1, 1));
 
@@ -76,7 +76,7 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         $this->assertEquals(Carbon::create(2023, 1, 1), $overallStats->stat_updated_at);
 
         $systemStats = $userStats->whereNotNull('system_id')->first();
-        $this->assertEquals($system->ID, $systemStats->system_id);
+        $this->assertEquals($system->id, $systemStats->system_id);
         $this->assertEquals($user->id, $systemStats->user_id);
         $this->assertEquals($game->id, $systemStats->last_game_id);
         $this->assertEquals(PlayerStatType::GamesBeatenHardcoreRetail, $systemStats->type);
@@ -90,9 +90,9 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         $users = User::factory()->count(3)->create();
         $systems = System::factory()->count(2)->create();
 
-        $gameRetail = Game::factory()->create(['system_id' => $systems->get(0)->ID, 'title' => 'Super Mario Bros.']);
-        $gameDemo = Game::factory()->create(['system_id' => $systems->get(0)->ID, 'title' => '~Demo~ Game']);
-        $gameHack = Game::factory()->create(['system_id' => $systems->get(1)->ID, 'title' => '~Hack~ Game']);
+        $gameRetail = Game::factory()->create(['system_id' => $systems->get(0)->id, 'title' => 'Super Mario Bros.']);
+        $gameDemo = Game::factory()->create(['system_id' => $systems->get(0)->id, 'title' => '~Demo~ Game']);
+        $gameHack = Game::factory()->create(['system_id' => $systems->get(1)->id, 'title' => '~Hack~ Game']);
 
         foreach ($users as $index => $user) {
             $this->addGameBeatenAward($user, $gameRetail, UnlockMode::Hardcore, Carbon::create(2022, $index + 1, 1));
@@ -108,27 +108,27 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         // Assert
         $userOneStats = PlayerStat::where('user_id', $users->get(0)->id)->get();
         $this->assertCount(6, $userOneStats);
-        $this->assertPlayerStatDetails($userOneStats, $gameRetail->id, $systems->get(0)->ID, Carbon::create(2022, 1, 1));
-        $this->assertPlayerStatDetails($userOneStats, $gameDemo->id, $systems->get(0)->ID, Carbon::create(2022, 1, 1)->addDays(10));
-        $this->assertPlayerStatDetails($userOneStats, $gameHack->id, $systems->get(1)->ID, Carbon::create(2022, 1, 1)->addDays(20));
+        $this->assertPlayerStatDetails($userOneStats, $gameRetail->id, $systems->get(0)->id, Carbon::create(2022, 1, 1));
+        $this->assertPlayerStatDetails($userOneStats, $gameDemo->id, $systems->get(0)->id, Carbon::create(2022, 1, 1)->addDays(10));
+        $this->assertPlayerStatDetails($userOneStats, $gameHack->id, $systems->get(1)->id, Carbon::create(2022, 1, 1)->addDays(20));
         $this->assertPlayerStatDetails($userOneStats, $gameRetail->id, null, Carbon::create(2022, 1, 1), true);
         $this->assertPlayerStatDetails($userOneStats, $gameDemo->id, null, Carbon::create(2022, 1, 1)->addDays(10), true);
         $this->assertPlayerStatDetails($userOneStats, $gameHack->id, null, Carbon::create(2022, 1, 1)->addDays(20), true);
 
         $userTwoStats = PlayerStat::where('user_id', $users->get(1)->id)->get();
         $this->assertCount(6, $userTwoStats);
-        $this->assertPlayerStatDetails($userTwoStats, $gameRetail->id, $systems->get(0)->ID, Carbon::create(2022, 2, 1));
-        $this->assertPlayerStatDetails($userTwoStats, $gameDemo->id, $systems->get(0)->ID, Carbon::create(2022, 2, 1)->addDays(10));
-        $this->assertPlayerStatDetails($userTwoStats, $gameHack->id, $systems->get(1)->ID, Carbon::create(2022, 2, 1)->addDays(20));
+        $this->assertPlayerStatDetails($userTwoStats, $gameRetail->id, $systems->get(0)->id, Carbon::create(2022, 2, 1));
+        $this->assertPlayerStatDetails($userTwoStats, $gameDemo->id, $systems->get(0)->id, Carbon::create(2022, 2, 1)->addDays(10));
+        $this->assertPlayerStatDetails($userTwoStats, $gameHack->id, $systems->get(1)->id, Carbon::create(2022, 2, 1)->addDays(20));
         $this->assertPlayerStatDetails($userTwoStats, $gameRetail->id, null, Carbon::create(2022, 2, 1), true);
         $this->assertPlayerStatDetails($userTwoStats, $gameDemo->id, null, Carbon::create(2022, 2, 1)->addDays(10), true);
         $this->assertPlayerStatDetails($userTwoStats, $gameHack->id, null, Carbon::create(2022, 2, 1)->addDays(20), true);
 
         $userThreeStats = PlayerStat::where('user_id', $users->get(2)->id)->get();
         $this->assertCount(6, $userThreeStats);
-        $this->assertPlayerStatDetails($userThreeStats, $gameRetail->id, $systems->get(0)->ID, Carbon::create(2022, 3, 1));
-        $this->assertPlayerStatDetails($userThreeStats, $gameDemo->id, $systems->get(0)->ID, Carbon::create(2022, 3, 1)->addDays(10));
-        $this->assertPlayerStatDetails($userThreeStats, $gameHack->id, $systems->get(1)->ID, Carbon::create(2022, 3, 1)->addDays(20));
+        $this->assertPlayerStatDetails($userThreeStats, $gameRetail->id, $systems->get(0)->id, Carbon::create(2022, 3, 1));
+        $this->assertPlayerStatDetails($userThreeStats, $gameDemo->id, $systems->get(0)->id, Carbon::create(2022, 3, 1)->addDays(10));
+        $this->assertPlayerStatDetails($userThreeStats, $gameHack->id, $systems->get(1)->id, Carbon::create(2022, 3, 1)->addDays(20));
         $this->assertPlayerStatDetails($userThreeStats, $gameRetail->id, null, Carbon::create(2022, 3, 1), true);
         $this->assertPlayerStatDetails($userThreeStats, $gameDemo->id, null, Carbon::create(2022, 3, 1)->addDays(10), true);
         $this->assertPlayerStatDetails($userThreeStats, $gameHack->id, null, Carbon::create(2022, 3, 1)->addDays(20), true);
@@ -139,7 +139,7 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         // Arrange
         $untrackedUser = User::factory()->create(['Untracked' => true]);
         $system = System::factory()->create();
-        $game = Game::factory()->create(['system_id' => $system->ID, 'title' => 'Super Mario Bros.']);
+        $game = Game::factory()->create(['system_id' => $system->id, 'title' => 'Super Mario Bros.']);
 
         $this->addGameBeatenAward($untrackedUser, $game, UnlockMode::Hardcore, Carbon::create(2023, 1, 1));
 
@@ -156,7 +156,7 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         // Arrange
         $user = User::factory()->create(); // Initially tracked
         $system = System::factory()->create();
-        Game::factory()->create(['system_id' => $system->ID]);
+        Game::factory()->create(['system_id' => $system->id]);
 
         (new UpdatePlayerBeatenGamesStatsAction())->execute($user);
 
@@ -176,13 +176,13 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         // Arrange
         $user = User::factory()->create();
 
-        $homebrewSystemOne = System::factory()->create(['ID' => 71]);
-        $homebrewSystemTwo = System::factory()->create(['ID' => 72]);
-        $homebrewSystemThree = System::factory()->create(['ID' => 80]);
+        $homebrewSystemOne = System::factory()->create(['id' => 71]);
+        $homebrewSystemTwo = System::factory()->create(['id' => 72]);
+        $homebrewSystemThree = System::factory()->create(['id' => 80]);
 
-        $gameOne = Game::factory()->create(['system_id' => $homebrewSystemOne->ID]);
-        $gameTwo = Game::factory()->create(['system_id' => $homebrewSystemTwo->ID]);
-        $gameThree = Game::factory()->create(['system_id' => $homebrewSystemThree->ID]);
+        $gameOne = Game::factory()->create(['system_id' => $homebrewSystemOne->id]);
+        $gameTwo = Game::factory()->create(['system_id' => $homebrewSystemTwo->id]);
+        $gameThree = Game::factory()->create(['system_id' => $homebrewSystemThree->id]);
 
         $this->addGameBeatenAward($user, $gameOne, UnlockMode::Hardcore);
         $this->addGameBeatenAward($user, $gameTwo, UnlockMode::Hardcore);
@@ -205,7 +205,7 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         $user = User::factory()->create();
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'system_id' => $system->ID,
+            'system_id' => $system->id,
             'title' => 'Super Mario Bros.',
         ]);
 
@@ -219,7 +219,7 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
         $initialStats = PlayerStat::where('user_id', $user->id)->get();
         $this->assertCount(2, $initialStats); // One overall, one system-specific.
         $this->assertEquals(1, $initialStats->whereNull('system_id')->first()->value);
-        $this->assertEquals(1, $initialStats->where('system_id', $system->ID)->first()->value);
+        $this->assertEquals(1, $initialStats->where('system_id', $system->id)->first()->value);
 
         // Act
         $user->playerBadges()->delete(); // simulate resetting achievements by deleting the beaten game award

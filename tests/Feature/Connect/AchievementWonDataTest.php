@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\System;
@@ -29,7 +29,7 @@ class AchievementWonDataTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id]);
         /** @var Achievement $achievement2 */
@@ -166,12 +166,12 @@ class AchievementWonDataTest extends TestCase
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $users[10]->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $users[4]->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         $this->get($this->apiUrl('achievementwondata', ['a' => $achievement2->ID, 'f' => 1]))

@@ -59,7 +59,7 @@ class V1Test extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $publishedAchievements = Achievement::factory()->published()->count(5)->create(['GameID' => $game->id]);
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(0));
@@ -157,7 +157,7 @@ class V1Test extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->id, 'Points' => 100]);
 
@@ -178,7 +178,7 @@ class V1Test extends TestCase
             ->assertJson([
                 [
                     'AchievementID' => $achievement->ID,
-                    'ConsoleName' => $system->Name,
+                    'ConsoleName' => $system->name,
                     'CumulScore' => 100,
                     'Date' => $unlockTime->format('Y-m-d H:i:s'),
                     'Description' => $achievement->Description,
@@ -200,7 +200,7 @@ class V1Test extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->id, 'Points' => 100]);
 
@@ -221,7 +221,7 @@ class V1Test extends TestCase
             ->assertJson([
                 [
                     'AchievementID' => $achievement->ID,
-                    'ConsoleName' => $system->Name,
+                    'ConsoleName' => $system->name,
                     'CumulScore' => 100,
                     'Date' => $unlockTime->format('Y-m-d H:i:s'),
                     'Description' => $achievement->Description,
@@ -243,7 +243,7 @@ class V1Test extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->id, 'Points' => 100, 'user_id' => $this->user->id]);
 
@@ -265,7 +265,7 @@ class V1Test extends TestCase
                     'AuthorULID' => $this->user->ulid,
                     'BadgeName' => $achievement->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement->BadgeName . '.png',
-                    'ConsoleName' => $system->Name,
+                    'ConsoleName' => $system->name,
                     'CumulScore' => 100,
                     'Date' => $unlockTime->format('Y-m-d H:i:s'),
                     'Description' => $achievement->Description,
@@ -286,7 +286,7 @@ class V1Test extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->id, 'Points' => 100, 'user_id' => $this->user->id]);
 
@@ -308,7 +308,7 @@ class V1Test extends TestCase
                     'AuthorULID' => $this->user->ulid,
                     'BadgeName' => $achievement->BadgeName,
                     'BadgeURL' => '/Badge/' . $achievement->BadgeName . '.png',
-                    'ConsoleName' => $system->Name,
+                    'ConsoleName' => $system->name,
                     'CumulScore' => 100,
                     'Date' => $unlockTime->format('Y-m-d H:i:s'),
                     'Description' => $achievement->Description,
@@ -335,7 +335,7 @@ class V1Test extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['system_id' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->progression()->create([
             'GameID' => $game->id,
@@ -357,7 +357,7 @@ class V1Test extends TestCase
                     'AuthorULID' => $achievementAuthor->ulid,
                 ],
                 'Console' => [
-                    'ID' => $system->ID,
+                    'ID' => $system->id,
                 ],
                 'Game' => [
                     'ID' => $game->id,
@@ -396,9 +396,9 @@ class V1Test extends TestCase
         $this->get($this->apiUrl('GetConsoleIDs'))
             ->assertSuccessful()
             ->assertJsonFragment([
-                'ID' => $system->ID,
-                'Name' => $system->Name,
-                'Active' => isValidConsoleId($system->ID),
+                'ID' => $system->id,
+                'Name' => $system->name,
+                'Active' => isValidConsoleId($system->id),
                 'IsGameSystem' => true,
             ]);
     }

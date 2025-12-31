@@ -261,9 +261,9 @@ class GameController extends Controller
      */
     public function setRequests(Request $request, Game $game): InertiaResponse
     {
-        $allRequestors = UserGameListEntry::where('GameID', $game->id)
+        $allRequestors = UserGameListEntry::where('game_id', $game->id)
             ->where('type', UserGameListType::AchievementSetRequest)
-            ->join('UserAccounts', 'SetRequest.user_id', '=', 'UserAccounts.ID')
+            ->join('UserAccounts', 'user_game_list_entries.user_id', '=', 'UserAccounts.ID')
             ->orderBy('UserAccounts.display_name')
             ->with('user')
             ->get();

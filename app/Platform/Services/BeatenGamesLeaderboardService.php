@@ -80,7 +80,7 @@ class BeatenGamesLeaderboardService
         }
 
         // Grab all the systems so we can build the system filter options.
-        $allSystems = System::gameSystems()->active()->orderBy('Name')->get(['ID', 'Name']);
+        $allSystems = System::gameSystems()->active()->orderBy('name')->get(['id', 'name']);
 
         return [
             'allSystems' => $allSystems,
@@ -106,7 +106,7 @@ class BeatenGamesLeaderboardService
 
         // Fetch all the console metadata for the current page.
         $consoleIds = $gameData->pluck('system_id')->unique()->filter();
-        $consoleData = System::whereIn('ID', $consoleIds)->get(['ID', 'Name'])->keyBy('ID');
+        $consoleData = System::whereIn('id', $consoleIds)->get(['id', 'name'])->keyBy('id');
 
         // Stitch all the fetched metadata back onto the rankings.
         $rankingRows->transform(function ($ranking) use ($usernames, $gameData, $consoleData) {
@@ -115,7 +115,7 @@ class BeatenGamesLeaderboardService
             $ranking->GameIcon = $gameData[$ranking->last_game_id]->image_icon_asset_path ?? null;
 
             $consoleId = $gameData[$ranking->last_game_id]->system_id ?? null;
-            $ranking->ConsoleName = $consoleId ? $consoleData[$consoleId]->Name ?? null : null;
+            $ranking->ConsoleName = $consoleId ? $consoleData[$consoleId]->name ?? null : null;
 
             return $ranking;
         });
