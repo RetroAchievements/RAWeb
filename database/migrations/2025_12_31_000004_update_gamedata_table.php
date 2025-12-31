@@ -55,8 +55,8 @@ return new class extends Migration {
                     ->onDelete('set null');
 
                 $table->foreign('system_id', 'games_system_id_foreign')
-                    ->references('ID')
-                    ->on('Console')
+                    ->references('id')
+                    ->on('systems')
                     ->onDelete('set null');
             });
         }
@@ -120,8 +120,8 @@ return new class extends Migration {
                 ->onDelete('set null');
 
             $table->foreign('ConsoleID', 'games_systems_id_foreign')
-                ->references('ID')
-                ->on('Console')
+                ->references('id')
+                ->on('systems')
                 ->onDelete('set null');
         });
     }
