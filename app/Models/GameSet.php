@@ -86,7 +86,9 @@ class GameSet extends BaseModel
             $originalTitle = $gameSet->getOriginal('title');
             $freshGameSet = $gameSet->fresh();
 
-            if ($originalTitle !== $freshGameSet->title || $gameSet->wasRecentlyCreated) {
+            // Only update sort_title if there's actually a title.
+            // SimilarGames sets don't have titles - they're just relationship containers.
+            if ($freshGameSet->title !== null && ($originalTitle !== $freshGameSet->title || $gameSet->wasRecentlyCreated)) {
                 (new WriteGameSetSortTitleAction())->execute(
                     $freshGameSet,
                     $freshGameSet->title,
