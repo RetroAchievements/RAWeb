@@ -80,14 +80,14 @@ function getAchievementsList(
                 gd.Title AS GameTitle,
                 gd.ImageIcon AS GameIcon,
                 gd.ConsoleID,
-                c.Name AS ConsoleName,
+                s.name AS ConsoleName,
                 ua.User AS Author
                 $selectAwardedDate
             FROM Achievements AS ach
             $joinPlayerAchievements
             INNER JOIN UserAccounts AS ua ON ua.ID = ach.user_id
             INNER JOIN GameData AS gd ON gd.ID = ach.GameID
-            INNER JOIN Console AS c ON c.ID = gd.ConsoleID
+            INNER JOIN systems AS s ON s.id = gd.ConsoleID
             WHERE gd.ConsoleID != " . System::Events . "
             AND ach.Flags = :achievementFlag
             AND ach.deleted_at IS NULL ";

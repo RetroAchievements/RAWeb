@@ -274,8 +274,8 @@ function getFilteredClaims(
         sc.game_id AS GameID,
         gd.Title AS GameTitle,
         gd.ImageIcon AS GameIcon,
-        c.ID AS ConsoleID,
-        c.Name AS ConsoleName,
+        s.id AS ConsoleID,
+        s.name AS ConsoleName,
         sc.ClaimType AS ClaimType,
         sc.SetType AS SetType,
         sc.Status AS Status,
@@ -296,7 +296,7 @@ function getFilteredClaims(
         LEFT JOIN
             GameData AS gd ON gd.ID = sc.game_id
         LEFT JOIN
-            Console AS c ON c.ID = gd.ConsoleID
+            systems AS s ON s.id = gd.ConsoleID
         LEFT JOIN
             UserAccounts AS ua ON ua.ID = sc.user_id
         WHERE

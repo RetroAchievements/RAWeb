@@ -53,7 +53,7 @@ class UserGameListController extends Controller
             ->join('GameData', DB::raw('user_game_list_entries.game_id'), '=', 'GameData.ID')
             ->distinct()
             ->pluck(DB::raw('GameData.ConsoleID'));
-        $filterableSystemOptions = System::whereIn('ID', $filterableSystemIds)
+        $filterableSystemOptions = System::whereIn('id', $filterableSystemIds)
             ->get()
             ->map(fn ($system) => SystemData::fromSystem($system)->include('nameShort'))
             ->values()

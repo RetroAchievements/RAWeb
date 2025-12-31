@@ -54,7 +54,7 @@ class StartSessionTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
         /** @var GameHash $gameHash */
         $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
 
@@ -171,14 +171,14 @@ class StartSessionTest extends TestCase
         // ----------------------------
         // game with no unlocks
         /** @var Game $game2 */
-        $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game2 = Game::factory()->create(['ConsoleID' => $system->id]);
         /** @var GameHash $gameHash */
         $gameHash2 = GameHash::factory()->create(['game_id' => $game2->id]);
         Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID]);
         $this->upsertGameCoreSetAction->execute($game2);
 
         /** @var Game $bonusGame2 */
-        $bonusGame2 = Game::factory()->create(['ConsoleID' => $system->ID, 'Title' => $game2->Title . ' [Subset - Bonus 2]']);
+        $bonusGame2 = Game::factory()->create(['ConsoleID' => $system->id, 'Title' => $game2->Title . ' [Subset - Bonus 2]']);
         Achievement::factory()->published()->count(4)->create(['GameID' => $bonusGame2->ID]);
         $this->upsertGameCoreSetAction->execute($bonusGame2);
         $this->associateAchievementSetToGameAction->execute($game2, $bonusGame2, AchievementSetType::Bonus, 'Bonus 2');
@@ -253,7 +253,7 @@ class StartSessionTest extends TestCase
 
         // ----------------------------
         // not-unlocked event achievement hides hardcore unlock when active
-        System::factory()->create(['ID' => System::Events]);
+        System::factory()->create(['id' => System::Events]);
         /** @var Game $eventGame */
         $eventGame = Game::factory()->create(['ConsoleID' => System::Events]);
         /** @var Achievement $eventAchievement1 */
@@ -646,9 +646,9 @@ class StartSessionTest extends TestCase
         Carbon::setTestNow($now);
 
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $gameOne */
-        $gameOne = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $gameOne = Game::factory()->create(['ConsoleID' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
         $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
@@ -664,7 +664,7 @@ class StartSessionTest extends TestCase
 
         /** @var Game $bonusGameOne */
         $bonusGameOne = Game::factory()->create([
-            'ConsoleID' => $standalonesSystem->ID,
+            'ConsoleID' => $standalonesSystem->id,
             'Title' => $gameOne->Title . ' [Subset - Bonus]',
         ]);
         $bonusAchievements = Achievement::factory()->published()->count(3)->create([
@@ -753,9 +753,9 @@ class StartSessionTest extends TestCase
         // Next, try to delegate on a non-standalone game.
         // This is not allowed and should fail.
         /** @var System $normalSystem */
-        $normalSystem = System::factory()->create(['ID' => 1]);
+        $normalSystem = System::factory()->create(['id' => 1]);
         /** @var Game $gameTwo */
-        $gameTwo = Game::factory()->create(['ConsoleID' => $normalSystem->ID]);
+        $gameTwo = Game::factory()->create(['ConsoleID' => $normalSystem->id]);
 
         $params['g'] = $gameTwo->id;
 
@@ -773,7 +773,7 @@ class StartSessionTest extends TestCase
         // Next, try to delegate on a game with no achievements authored by the integration user.
         // This is not allowed and should fail.
         /** @var Game $gameThree */
-        $gameThree = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $gameThree = Game::factory()->create(['ConsoleID' => $standalonesSystem->id]);
         Achievement::factory()->published()->count(6)->create(['GameID' => $gameThree->id]);
         $params['g'] = $gameThree->id;
 
@@ -813,9 +813,9 @@ class StartSessionTest extends TestCase
         Carbon::setTestNow($now);
 
         /** @var System $standalonesSystem */
-        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        $standalonesSystem = System::factory()->create(['id' => 102]);
         /** @var Game $gameOne */
-        $gameOne = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
+        $gameOne = Game::factory()->create(['ConsoleID' => $standalonesSystem->id]);
 
         /** @var User $integrationUser */
         $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
@@ -831,7 +831,7 @@ class StartSessionTest extends TestCase
 
         /** @var Game $bonusGameOne */
         $bonusGameOne = Game::factory()->create([
-            'ConsoleID' => $standalonesSystem->ID,
+            'ConsoleID' => $standalonesSystem->id,
             'Title' => $gameOne->Title . ' [Subset - Bonus]',
         ]);
         $bonusAchievements = Achievement::factory()->published()->count(3)->create([
@@ -926,7 +926,7 @@ class StartSessionTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
         /** @var GameHash $gameHash */
         $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
 

@@ -60,7 +60,7 @@ class CommentsTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
         $bannedUser = User::factory()->create(['ID' => 309, 'banned_at' => Carbon::now()->subDay()]);
@@ -118,7 +118,7 @@ class CommentsTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
         $bannedUser = User::factory()->create(['ID' => 309, 'banned_at' => Carbon::now()->subDay()]);
@@ -173,7 +173,7 @@ class CommentsTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
         $bannedUser = User::factory()->create(['banned_at' => Carbon::now()]);

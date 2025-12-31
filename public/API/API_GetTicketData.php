@@ -287,7 +287,7 @@ if ($gameIDGiven > 0) {
 
         $ticketData['GameID'] = $game->ID;
         $ticketData['GameTitle'] = $game->Title;
-        $ticketData['ConsoleName'] = $game->system->Name;
+        $ticketData['ConsoleName'] = $game->system->name;
         $ticketData['OpenTickets'] = $tickets->count();
         $ticketData['URL'] = route('game.tickets', ['game' => $game]);
 

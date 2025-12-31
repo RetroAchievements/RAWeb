@@ -30,7 +30,7 @@ class SystemsTest extends JsonApiResourceTestCase
         // Arrange
         $user = User::factory()->create(['APIKey' => 'test-key']);
         $system = System::factory()->create([
-            'Name' => 'PlayStation',
+            'name' => 'PlayStation',
             'active' => true,
         ]);
 
@@ -96,8 +96,8 @@ class SystemsTest extends JsonApiResourceTestCase
         // Arrange
         $user = User::factory()->create(['APIKey' => 'test-key']);
         $gameSystem = System::factory()->create();
-        $hubsSystem = System::factory()->create(['ID' => System::Hubs]);
-        $eventsSystem = System::factory()->create(['ID' => System::Events]);
+        $hubsSystem = System::factory()->create(['id' => System::Hubs]);
+        $eventsSystem = System::factory()->create(['id' => System::Events]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -116,8 +116,8 @@ class SystemsTest extends JsonApiResourceTestCase
     {
         // Arrange
         $user = User::factory()->create(['APIKey' => 'test-key']);
-        System::factory()->create(['Name' => 'Zulu System']);
-        System::factory()->create(['Name' => 'Alpha System']);
+        System::factory()->create(['name' => 'Zulu System']);
+        System::factory()->create(['name' => 'Alpha System']);
 
         // Act
         $response = $this->jsonApi('v2')

@@ -88,7 +88,7 @@ trait BuildsGameListQueries
                 // Exclude non game systems, inactive systems, and subsets.
                 $validSystemIds = System::active()
                     ->gameSystems()
-                    ->pluck('ID')
+                    ->pluck('id')
                     ->all();
 
                 $query->whereIn(DB::raw('GameData.ConsoleID'), $validSystemIds);
@@ -98,7 +98,7 @@ trait BuildsGameListQueries
                 // Only show games with at least 1 request.
                 // We also don't care if the system is active or not.
                 $validSystemIds = System::gameSystems()
-                    ->pluck('ID')
+                    ->pluck('id')
                     ->all();
 
                 $query->whereIn(DB::raw('GameData.ConsoleID'), $validSystemIds)
@@ -178,7 +178,7 @@ trait BuildsGameListQueries
                 }
 
                 $systemIds = in_array('supported', $filterValues)
-                    ? System::active()->gameSystems()->pluck('ID')->all()
+                    ? System::active()->gameSystems()->pluck('id')->all()
                     : $filterValues;
                 $query->whereIn(DB::raw('GameData.ConsoleID'), $systemIds);
                 continue;
@@ -284,8 +284,8 @@ trait BuildsGameListQueries
                  */
                 case GameListSortField::System->value:
                     $query
-                        ->join('Console', 'GameData.ConsoleID', '=', 'Console.ID')
-                        ->orderBy('Console.name_short', $sortDirection);
+                        ->join('systems', 'GameData.ConsoleID', '=', 'systems.id')
+                        ->orderBy('systems.name_short', $sortDirection);
                     break;
 
                 /*

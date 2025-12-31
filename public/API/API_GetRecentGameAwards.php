@@ -104,7 +104,7 @@ $associatedGames = Game::with('system')->whereIn('ID', $gameAwardGameIds)
     ->keyBy('ID');
 
 $systemIds = $associatedGames->pluck('ConsoleID')->unique()->filter();
-$associatedSystems = System::whereIn('ID', $systemIds)->get(['ID', 'Name'])->keyBy('ID');
+$associatedSystems = System::whereIn('id', $systemIds)->get(['id', 'name'])->keyBy('id');
 
 $mappedGameAwards = $fetchedGameAwards
     ->filter(fn ($gameAward) => $gameAward->user !== null)
@@ -123,7 +123,7 @@ $mappedGameAwards = $fetchedGameAwards
             'GameID' => $gameAward->AwardData,
             'GameTitle' => $associatedGame->Title ?? null,
             'ConsoleID' => $associatedGame->ConsoleID ?? null,
-            'ConsoleName' => $associatedSystems[$associatedGame->ConsoleID]->Name ?? null,
+            'ConsoleName' => $associatedSystems[$associatedGame->ConsoleID]->name ?? null,
         ];
 
         return $mappedAward;

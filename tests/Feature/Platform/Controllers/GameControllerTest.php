@@ -23,8 +23,8 @@ class GameControllerTest extends TestCase
     public function testIndexReturnsCorrectInertiaResponse(): void
     {
         // Arrange
-        $activeGameSystem = System::factory()->create(['ID' => 1, 'name' => 'NES/Famicom', 'name_short' => 'NES', 'active' => true]);
-        $inactiveGameSystem = System::factory()->create(['ID' => 2, 'name' => 'PlayStation 5', 'name_short' => 'PS5', 'active' => false]);
+        $activeGameSystem = System::factory()->create(['id' => 1, 'name' => 'NES/Famicom', 'name_short' => 'NES', 'active' => true]);
+        $inactiveGameSystem = System::factory()->create(['id' => 2, 'name' => 'PlayStation 5', 'name_short' => 'PS5', 'active' => false]);
 
         /** @var Game $gameOne */
         $gameOne = Game::factory()->create(['Title' => 'AAAAAAA', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);

@@ -66,7 +66,7 @@ class ClearAccountDataActionTest extends TestCase
             'state' => true,
         ]);
 
-        $system = System::factory()->create(['ID' => 1]);
+        $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
         $this->addMasteryBadge($user2, $game);
 

@@ -45,7 +45,7 @@ class EventAchievementObserverTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var System $eventSystem */
-        $eventSystem = System::factory()->create(['ID' => System::Events]);
+        $eventSystem = System::factory()->create(['id' => System::Events]);
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
         /** @var Achievement $sourceAchievement */

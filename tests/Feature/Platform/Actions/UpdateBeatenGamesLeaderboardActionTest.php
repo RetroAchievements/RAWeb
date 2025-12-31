@@ -26,7 +26,7 @@ class UpdateBeatenGamesLeaderboardActionTest extends TestCase
     {
         parent::setUp();
 
-        $this->system = System::factory()->create(['ID' => 1]);
+        $this->system = System::factory()->create(['id' => 1]);
         $this->action = new UpdateBeatenGamesLeaderboardAction();
     }
 
@@ -304,7 +304,7 @@ class UpdateBeatenGamesLeaderboardActionTest extends TestCase
     public function testItCalculatesRankingsForSpecificSystem(): void
     {
         // Arrange
-        $system2 = System::factory()->create(['ID' => 2]);
+        $system2 = System::factory()->create(['id' => 2]);
         $user = User::factory()->create();
 
         PlayerStat::factory()->create([
@@ -357,7 +357,7 @@ class UpdateBeatenGamesLeaderboardActionTest extends TestCase
     public function testHomebrewSystemExcludesRetailFromRetailBeatenKind(): void
     {
         // Arrange
-        $homebrewSystem = System::factory()->create(['ID' => System::Arduboy]);
+        $homebrewSystem = System::factory()->create(['id' => System::Arduboy]);
         $user = User::factory()->create();
 
         PlayerStat::factory()->create([
@@ -378,7 +378,7 @@ class UpdateBeatenGamesLeaderboardActionTest extends TestCase
     public function testHomebrewSystemExcludesRetailFromAllBeatenKind(): void
     {
         // Arrange
-        $homebrewSystem = System::factory()->create(['ID' => System::Arduboy]);
+        $homebrewSystem = System::factory()->create(['id' => System::Arduboy]);
         $user = User::factory()->create();
 
         PlayerStat::factory()->create([

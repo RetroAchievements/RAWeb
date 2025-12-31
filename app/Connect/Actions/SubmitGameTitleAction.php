@@ -94,7 +94,7 @@ class SubmitGameTitleAction extends BaseAuthenticatedApiAction
                 ->where('title', $this->gameTitle)
                 ->with('game')
                 ->whereHas('game.system', function ($query) {
-                    $query->where('ID', $this->systemId);
+                    $query->where('id', $this->systemId);
                 })
                 ->first();
             if ($release) {

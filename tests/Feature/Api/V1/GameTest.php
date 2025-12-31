@@ -34,7 +34,7 @@ class GameTest extends TestCase
 
         /** @var Game $gameOne */
         $gameOne = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'ForumTopicID' => 1234,
             'ImageIcon' => '/Images/000011.png',
             'ImageTitle' => '/Images/000021.png',
@@ -56,7 +56,7 @@ class GameTest extends TestCase
         // Ensure that null released_at values are properly handled.
         /** @var Game $gameTwo */
         $gameTwo = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'ForumTopicID' => 1234,
             'ImageIcon' => '/Images/000011.png',
             'ImageTitle' => '/Images/000021.png',
@@ -74,9 +74,9 @@ class GameTest extends TestCase
             ->assertJson([
                 'Title' => $gameOne->Title,
                 'GameTitle' => $gameOne->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
-                'Console' => $system->Name,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
+                'Console' => $system->name,
                 'ForumTopicID' => $gameOne->ForumTopicID,
                 'Flags' => 0,
                 'GameIcon' => $gameOne->ImageIcon,
@@ -96,9 +96,9 @@ class GameTest extends TestCase
             ->assertJson([
                 'Title' => $gameTwo->Title,
                 'GameTitle' => $gameTwo->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
-                'Console' => $system->Name,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
+                'Console' => $system->name,
                 'ForumTopicID' => $gameTwo->ForumTopicID,
                 'Flags' => 0,
                 'GameIcon' => $gameTwo->ImageIcon,

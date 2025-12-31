@@ -41,7 +41,7 @@ class GameInfoAndUserProgressTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'ForumTopicID' => 1234,
             'ImageIcon' => '/Images/000011.png',
             'ImageTitle' => '/Images/000021.png',
@@ -99,8 +99,8 @@ class GameInfoAndUserProgressTest extends TestCase
             ->assertJson([
                 'ID' => $game->ID,
                 'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
                 'ForumTopicID' => $game->ForumTopicID,
                 'Flags' => null,
                 'ImageIcon' => $game->ImageIcon,
@@ -176,7 +176,7 @@ class GameInfoAndUserProgressTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'ForumTopicID' => 1234,
             'ImageIcon' => '/Images/000011.png',
             'ImageTitle' => '/Images/000021.png',
@@ -234,8 +234,8 @@ class GameInfoAndUserProgressTest extends TestCase
             ->assertJson([
                 'ID' => $game->ID,
                 'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
                 'ForumTopicID' => $game->ForumTopicID,
                 'Flags' => null,
                 'ImageIcon' => $game->ImageIcon,
@@ -311,7 +311,7 @@ class GameInfoAndUserProgressTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'ForumTopicID' => 1234,
             'ImageIcon' => '/Images/000011.png',
             'ImageTitle' => '/Images/000021.png',
@@ -337,8 +337,8 @@ class GameInfoAndUserProgressTest extends TestCase
             ->assertJson([
                 'ID' => $game->ID,
                 'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
                 'ForumTopicID' => $game->ForumTopicID,
                 'Flags' => null,
                 'ImageIcon' => $game->ImageIcon,
@@ -373,7 +373,7 @@ class GameInfoAndUserProgressTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->ID,
+            'ConsoleID' => $system->id,
             'ForumTopicID' => 1234,
             'ImageIcon' => '/Images/000011.png',
             'ImageTitle' => '/Images/000021.png',
@@ -432,8 +432,8 @@ class GameInfoAndUserProgressTest extends TestCase
             ->assertJson([
                 'ID' => $game->ID,
                 'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
                 'ForumTopicID' => $game->ForumTopicID,
                 'Flags' => null,
                 'ImageIcon' => $game->ImageIcon,
@@ -508,8 +508,8 @@ class GameInfoAndUserProgressTest extends TestCase
             ->assertJson([
                 'ID' => $game->ID,
                 'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
                 'ForumTopicID' => $game->ForumTopicID,
                 'Flags' => null,
                 'ImageIcon' => $game->ImageIcon,
@@ -584,8 +584,8 @@ class GameInfoAndUserProgressTest extends TestCase
             ->assertJson([
                 'ID' => $game->ID,
                 'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
                 'ForumTopicID' => $game->ForumTopicID,
                 'Flags' => null,
                 'ImageIcon' => $game->ImageIcon,
@@ -660,8 +660,8 @@ class GameInfoAndUserProgressTest extends TestCase
             ->assertJson([
                 'ID' => $game->ID,
                 'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
+                'ConsoleID' => $system->id,
+                'ConsoleName' => $system->name,
                 'ForumTopicID' => $game->ForumTopicID,
                 'Flags' => null,
                 'ImageIcon' => $game->ImageIcon,

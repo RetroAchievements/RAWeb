@@ -64,8 +64,8 @@ $areGamesMaybePresent = (
     @foreach ($consoles as $console)
         @if ($groupByConsole)
             <h2 class="flex gap-x-2 items-center text-h3">
-                <img src="{{ getSystemIconUrl($console->ID) }}" alt="Console icon" width="24" height="24">
-                <span>{{ $console->Name }}</span>
+                <img src="{{ getSystemIconUrl($console->id) }}" alt="Console icon" width="24" height="24">
+                <span>{{ $console->name }}</span>
             </h2>
             <?php foreach ($totals as $key => $value) { $totals[$key] = 0; } ?>
         @endif
@@ -99,7 +99,7 @@ $areGamesMaybePresent = (
 
                 <tbody>
                     @foreach ($games as $game)
-                        @if ($groupByConsole && $game['ConsoleID'] !== $console['ID'])
+                        @if ($groupByConsole && $game['ConsoleID'] !== $console['id'])
                             @continue
                         @endif
                         <tr>
