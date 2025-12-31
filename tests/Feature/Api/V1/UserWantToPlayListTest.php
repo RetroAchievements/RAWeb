@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\V1;
 
 use App\Community\Enums\UserGameListType;
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
@@ -63,7 +63,7 @@ class UserWantToPlayListTest extends TestCase
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $followedUser->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         /** @var User $followingUser */
@@ -71,7 +71,7 @@ class UserWantToPlayListTest extends TestCase
         UserRelation::create([
             'user_id' => $followingUser->id,
             'related_user_id' => $this->user->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         /** @var User $friend */
@@ -79,12 +79,12 @@ class UserWantToPlayListTest extends TestCase
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $friend->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
         UserRelation::create([
             'user_id' => $friend->id,
             'related_user_id' => $this->user->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
         /** @var System $system */
         $system = System::factory()->create();
