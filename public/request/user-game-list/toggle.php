@@ -28,7 +28,7 @@ $typeEnum = UserGameListType::from($typeString);
 $command = '';
 
 /** @var User $user */
-$user = User::findOrFail($userDetails['ID']);
+$user = User::findOrFail($userDetails['id']);
 if ($user->gameListEntries($typeEnum)->where('game_id', $gameId)->exists()) {
     $action = new RemoveGameFromListAction();
     $success = $action->execute($user, $game, $typeEnum);

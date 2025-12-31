@@ -284,7 +284,7 @@ function informAllSubscribersAboutActivity(
     }
 
     $subscriptionService = new SubscriptionService();
-    $subscribers = $subscriptionService->getSegmentedSubscriberIds($subscriptionSubjectType, $articleID, $subjectAuthor?->ID);
+    $subscribers = $subscriptionService->getSegmentedSubscriberIds($subscriptionSubjectType, $articleID, $subjectAuthor?->id);
 
     $notificationService = new SubscriptionNotificationService();
     $notificationService->queueNotifications($subscribers['implicitlySubscribedNotifyLater'],

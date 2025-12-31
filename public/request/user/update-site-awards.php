@@ -52,7 +52,7 @@ $sortedAwards = $parseCsv($sortedCsv);
 
 $awards = array_merge($hiddenAwards, $sortedAwards);
 
-$userId = $userDetails['ID'];
+$userId = $userDetails['id'];
 
 foreach ($awards as $award) {
     $awardType = $award['type'];
