@@ -135,7 +135,7 @@ $userScoreData = getAwardedList($userDetails);
     function selectHandlerBestDays(e) {
       if (chartBestDays.getSelection().length >= 1) {
         var dateAbbr = dataBestDays.getFormattedValue(chartBestDays.getSelection()[0].row, 0);
-        var dateParsed = Date.parse(dateAbbr) / 1000;
+        var dateParsed = Date.parse(dateAbbr + ' UTC') / 1000;
         window.location = '/historyexamine.php?d=' + dateParsed + '&u=<?= $userPage ?>';
       }
     }
