@@ -18,7 +18,7 @@ if (empty($gameData)) {
 
 $userModel = null;
 if ($user) {
-    $userModel = User::find($userDetails['ID']);
+    $userModel = User::find($userDetails['id']);
 }
 
 $codeNotes = [];
