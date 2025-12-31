@@ -611,8 +611,8 @@ class ConvertGame
         $event = $game->event;
         if (!$event) {
             $event = Event::create([
-                'legacy_game_id' => $game->ID,
-                'image_asset_path' => $game->ImageIcon,
+                'legacy_game_id' => $game->id,
+                'image_asset_path' => $game->image_icon_asset_path,
             ]);
         }
 
@@ -921,8 +921,8 @@ class ConvertGame
     protected function demoteGame(int $gameId): void
     {
         $game = Game::find($gameId);
-        if (!str_starts_with($game->Title, "~Z~ ")) {
-            $game->Title = "~Z~ {$game->Title}";
+        if (!str_starts_with($game->title, "~Z~ ")) {
+            $game->title = "~Z~ {$game->title}";
             $game->save();
         }
 
@@ -1443,14 +1443,14 @@ class ConvertToMergedTracked extends ConvertToTracked
 
             if (!$eventAward) {
                 $game = Game::find($gameId);
-                $lastSpace = strrpos($game->Title, ' ');
+                $lastSpace = strrpos($game->title, ' ');
 
                 $eventAward = EventAward::create([
                     'event_id' => $event->id,
                     'tier_index' => $tier_index,
-                    'label' => substr($game->Title, $lastSpace + 1),
+                    'label' => substr($game->title, $lastSpace + 1),
                     'points_required' => $count,
-                    'image_asset_path' => $game->ImageIcon,
+                    'image_asset_path' => $game->image_icon_asset_path,
                 ]);
             }
 
@@ -1951,7 +1951,7 @@ class ConvertToCollapsedTiered extends ConvertToTiered
                     'tier_index' => $tier_index,
                     'label' => $label,
                     'points_required' => $tier_index,
-                    'image_asset_path' => Game::find($gameId)->ImageIcon,
+                    'image_asset_path' => Game::find($gameId)->image_icon_asset_path,
                 ]);
             }
 
@@ -2033,7 +2033,7 @@ class ConvertToCollapsedTiered extends ConvertToTiered
         }
 
         $event->legacyGame->achievements_published = count($this->achievements);
-        $event->legacyGame->Title = $this->title;
+        $event->legacyGame->title = $this->title;
         $event->legacyGame->save();
 
         // delete any remaining badges
@@ -2128,14 +2128,14 @@ class ConvertAotWTiered extends ConvertGame
 
             if (!$eventAward) {
                 $game = Game::find($gameId);
-                $lastSpace = strrpos($game->Title, ' ');
+                $lastSpace = strrpos($game->title, ' ');
 
                 $eventAward = EventAward::create([
                     'event_id' => $event->id,
                     'tier_index' => $tier_index,
-                    'label' => substr($game->Title, $lastSpace + 1),
+                    'label' => substr($game->title, $lastSpace + 1),
                     'points_required' => $count,
-                    'image_asset_path' => $game->ImageIcon,
+                    'image_asset_path' => $game->image_icon_asset_path,
                 ]);
             }
 
@@ -2159,7 +2159,7 @@ class ConvertAotWTiered extends ConvertGame
         $date = Carbon::parse($this->activeFrom);
         $year = $date->clone()->addWeeks(1)->year;
 
-        $event->legacyGame->Title = "Achievement of the Week $year";
+        $event->legacyGame->title = "Achievement of the Week $year";
         $event->legacyGame->save();
 
         $event->active_from = $date;

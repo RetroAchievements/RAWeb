@@ -22,7 +22,7 @@ class CommentControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['id' => 1]);
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $user = User::factory()->create();
 
         $comment = Comment::factory()->create([
@@ -48,7 +48,7 @@ class CommentControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['id' => 1]);
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $user = User::factory()->create();
 
         $oldComment = Comment::factory()->create([
@@ -83,7 +83,7 @@ class CommentControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['id' => 1]);
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $user = User::factory()->create();
 
         // ... create the old comment that will be on page 2 (there are 50 comments per page) ...
@@ -121,7 +121,7 @@ class CommentControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['id' => 1]);
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $user = User::factory()->create();
 
         $comment = Comment::factory()->create([
@@ -204,7 +204,7 @@ class CommentControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['id' => 1]);
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $achievement = Achievement::factory()->create(['GameID' => $game->id]);
         $user = User::factory()->create();
 
@@ -230,7 +230,7 @@ class CommentControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['id' => 1]);
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
         $user = User::factory()->create();
 
@@ -274,7 +274,7 @@ class CommentControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['id' => 1]);
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $achievement = Achievement::factory()->create(['GameID' => $game->id]);
         $user = User::factory()->create();
 
@@ -344,7 +344,7 @@ class CommentControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['id' => 1]);
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
         $user = User::factory()->create();
 

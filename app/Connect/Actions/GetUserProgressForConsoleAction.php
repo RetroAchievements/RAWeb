@@ -36,7 +36,7 @@ class GetUserProgressForConsoleAction extends BaseAuthenticatedApiAction
 
     protected function process(): array
     {
-        $games = Game::where('ConsoleID', $this->consoleId)
+        $games = Game::where('system_id', $this->consoleId)
             ->where('achievements_published', '>', 0)
             ->get();
 

@@ -51,7 +51,7 @@ class ResolveAchievementSetsActionTest extends TestCase
         int $publishedCount,
         int $unpublishedCount = 0,
     ): Game {
-        $game = Game::factory()->create(['Title' => $title, 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => $title, 'system_id' => $system->id]);
         Achievement::factory()->published()->count($publishedCount)->create(['GameID' => $game->id]);
         Achievement::factory()->count($unpublishedCount)->create(['GameID' => $game->id]);
 

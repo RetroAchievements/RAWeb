@@ -21,7 +21,7 @@ class GameClaimsCommentControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create(['id' => 1]);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
 
         // Act
         $response = $this->get(route('game.claims.comment.index', ['game' => $game]));
@@ -41,7 +41,7 @@ class GameClaimsCommentControllerTest extends TestCase
         $this->actingAs($user);
 
         $system = System::factory()->create(['id' => 1]);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
 
         // Act
         $response = $this->get(route('game.claims.comment.index', ['game' => $game]));
@@ -61,7 +61,7 @@ class GameClaimsCommentControllerTest extends TestCase
         $this->actingAs($user);
 
         $system = System::factory()->create(['id' => 1]);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
 
         // Act
         $response = $this->get(route('game.claims.comment.index', ['game' => $game]));
@@ -81,7 +81,7 @@ class GameClaimsCommentControllerTest extends TestCase
         $this->actingAs($user);
 
         $system = System::factory()->create(['id' => 1]);
-        $game = Game::factory()->create(['ID' => 1, 'Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['id' => 1, 'title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
 
         // Act
         $response = $this->get(route('game.claims.comment.index', ['game' => $game]));

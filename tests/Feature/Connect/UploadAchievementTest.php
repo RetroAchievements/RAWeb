@@ -53,7 +53,7 @@ class UploadAchievementTest extends TestCase
         $this->get($this->apiUrl('uploadachievement', [
             'u' => $author->username,
             't' => $author->appToken,
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -134,7 +134,7 @@ class UploadAchievementTest extends TestCase
         $params = [
             'u' => $author->User,
             't' => $author->appToken,
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -154,7 +154,7 @@ class UploadAchievementTest extends TestCase
 
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::findOrFail($achievement1->ID + 1);
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title1');
         $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
         $this->assertEquals($achievement2->Points, 5);
@@ -180,7 +180,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title1');
         $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
         $this->assertEquals($achievement2->Points, 5);
@@ -209,7 +209,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
@@ -247,7 +247,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 5);
@@ -277,7 +277,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 5);
@@ -307,7 +307,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
@@ -337,7 +337,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
@@ -367,12 +367,12 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->create(['GameID' => $game->id, 'user_id' => $author->id]);
 
         $params = [
             'u' => $author->User,
             't' => $author->appToken,
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -401,12 +401,12 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID, 'user_id' => $this->user->id, 'Points' => 5]);
+        $achievement1 = Achievement::factory()->create(['GameID' => $game->id, 'user_id' => $this->user->id, 'Points' => 5]);
 
         $params = [
             'u' => $author->User,
             't' => $author->appToken,
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -440,7 +440,7 @@ class UploadAchievementTest extends TestCase
 
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::findOrFail($achievement1->ID + 1);
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title1');
         $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
         $this->assertEquals($achievement2->Points, 5);
@@ -465,7 +465,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
@@ -503,7 +503,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
@@ -524,7 +524,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
@@ -544,7 +544,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
@@ -568,7 +568,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title3');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 5);
@@ -587,12 +587,12 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID, 'user_id' => $this->user->id]);
+        $achievement1 = Achievement::factory()->create(['GameID' => $game->id, 'user_id' => $this->user->id]);
 
         $params = [
             'u' => $author->User,
             't' => $author->appToken,
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -626,7 +626,7 @@ class UploadAchievementTest extends TestCase
 
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::findOrFail($achievement1->ID + 1);
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title1');
         $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
         $this->assertEquals($achievement2->Points, 5);
@@ -651,7 +651,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
@@ -670,7 +670,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
@@ -694,7 +694,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title3');
         $this->assertEquals($achievement2->MemAddr, '0xH0002=1');
         $this->assertEquals($achievement2->Points, 5);
@@ -713,7 +713,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title3');
         $this->assertEquals($achievement2->MemAddr, '0xH0002=1');
         $this->assertEquals($achievement2->Points, 5);
@@ -756,7 +756,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement1->refresh();
-        $this->assertEquals($achievement1->GameID, $game->ID);
+        $this->assertEquals($achievement1->GameID, $game->id);
         $this->assertEquals($achievement1->Title, 'Title2');
         $this->assertEquals($achievement1->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement1->Points, 10);
@@ -780,7 +780,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement1->refresh();
-        $this->assertEquals($achievement1->GameID, $game->ID);
+        $this->assertEquals($achievement1->GameID, $game->id);
         $this->assertEquals($achievement1->Title, 'Title3');
         $this->assertEquals($achievement1->MemAddr, '0xH0002=1');
         $this->assertEquals($achievement1->Points, 5);
@@ -799,7 +799,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement1->refresh();
-        $this->assertEquals($achievement1->GameID, $game->ID);
+        $this->assertEquals($achievement1->GameID, $game->id);
         $this->assertEquals($achievement1->Title, 'Title3');
         $this->assertEquals($achievement1->MemAddr, '0xH0002=1');
         $this->assertEquals($achievement1->Points, 5);
@@ -816,7 +816,7 @@ class UploadAchievementTest extends TestCase
             'appToken' => Str::random(16),
         ]);
         $game = $this->seedGame(withHash: false);
-        $game->Title .= " [Subset - Testing]";
+        $game->title .= " [Subset - Testing]";
         $game->save();
 
         AchievementSetClaim::factory()->create([
@@ -825,12 +825,12 @@ class UploadAchievementTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID + 1, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->create(['GameID' => $game->id + 1, 'user_id' => $author->id]);
 
         $params = [
             'u' => $author->User,
             't' => $author->appToken,
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -850,7 +850,7 @@ class UploadAchievementTest extends TestCase
 
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::findOrFail($achievement1->ID + 1);
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title1');
         $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
         $this->assertEquals($achievement2->Points, 5);
@@ -876,7 +876,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title1');
         $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
         $this->assertEquals($achievement2->Points, 5);
@@ -915,7 +915,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
@@ -946,12 +946,12 @@ class UploadAchievementTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID + 1, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->create(['GameID' => $game->id + 1, 'user_id' => $author->id]);
 
         $params = [
             'u' => $author->User,
             't' => $author->appToken,
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -971,7 +971,7 @@ class UploadAchievementTest extends TestCase
 
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::findOrFail($achievement1->ID + 1);
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title1');
         $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
         $this->assertEquals($achievement2->Points, 5);
@@ -1002,7 +1002,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
@@ -1026,7 +1026,7 @@ class UploadAchievementTest extends TestCase
             ]);
 
         $achievement2->refresh();
-        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->GameID, $game->id);
         $this->assertEquals($achievement2->Title, 'Title2');
         $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
         $this->assertEquals($achievement2->Points, 10);
@@ -1052,7 +1052,7 @@ class UploadAchievementTest extends TestCase
         $params = [
             'u' => $author->User,
             't' => $author->appToken,
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -1360,7 +1360,7 @@ class UploadAchievementTest extends TestCase
         $params = [
             'u' => $author->User,
             't' => $author->appToken,
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title1',
             'd' => 'Description1',
             'z' => 5,
@@ -1389,7 +1389,7 @@ class UploadAchievementTest extends TestCase
         $params = [
             'u' => $author->User,
             't' => $author->appToken,
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title2',
             'd' => 'Description2',
             'z' => 10,
@@ -1485,7 +1485,7 @@ class UploadAchievementTest extends TestCase
         $params3 = [
             'u' => $author->User,
             't' => $author->appToken,
-            'g' => $game->ID,
+            'g' => $game->id,
             'a' => $achievement3->ID,
             'n' => $achievement3->Title,
             'd' => $achievement3->Description,
@@ -1497,7 +1497,7 @@ class UploadAchievementTest extends TestCase
         $params4 = [
             'u' => $author->User,
             't' => $author->appToken,
-            'g' => $game->ID,
+            'g' => $game->id,
             'a' => $achievement4->ID,
             'n' => $achievement4->Title,
             'd' => $achievement4->Description,

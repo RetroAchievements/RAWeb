@@ -62,15 +62,15 @@ class GameListService
             $gameTicketsList = [];
         }
 
-        $gameModelsQuery = Game::whereIn('ID', $gameIds)
+        $gameModelsQuery = Game::whereIn('id', $gameIds)
             ->orderBy('sort_title')
             ->select([
-                'ID', 'Title', 'sort_title', 'ImageIcon', 'ConsoleID', 'players_total',
-                'achievements_published', 'points_total', 'TotalTruePoints',
+                'id', 'title', 'sort_title', 'image_icon_asset_path', 'system_id', 'players_total',
+                'achievements_published', 'points_total', 'points_weighted',
             ]);
 
         if (!$allowNonGameSystems) {
-            $gameModelsQuery->whereNotIn('ConsoleID', System::getNonGameSystems());
+            $gameModelsQuery->whereNotIn('system_id', System::getNonGameSystems());
         }
 
         if ($this->withLeaderboardCounts) {
@@ -79,7 +79,7 @@ class GameListService
 
         $gameModels = $gameModelsQuery->get();
 
-        $this->consoles = System::whereIn('id', $gameModels->pluck('ConsoleID')->unique())
+        $this->consoles = System::whereIn('id', $gameModels->pluck('system_id')->unique())
             ->orderBy('name')
             ->get()
             ->keyBy('id');
@@ -96,21 +96,21 @@ class GameListService
             }
 
             if ($this->withTicketCounts) {
-                $gameTickets = $gameTicketsList[$gameModel->ID] ?? null;
+                $gameTickets = $gameTicketsList[$gameModel->id] ?? null;
                 $game['NumTickets'] = $gameTickets['NumTickets'] ?? 0;
             }
 
             if ($this->userProgress !== null) {
-                $gameProgress = $this->userProgress[$gameModel->ID]['achievements_unlocked_hardcore'] ?? 0;
+                $gameProgress = $this->userProgress[$gameModel->id]['achievements_unlocked_hardcore'] ?? 0;
                 $game['CompletionPercentage'] = $gameModel->achievements_published ?
                     ($gameProgress * 100 / $gameModel->achievements_published) : 0;
             } else {
                 $game['CompletionPercentage'] = 0;
             }
 
-            $game['RetroRatio'] = $gameModel->points_total ? $gameModel->TotalTruePoints / $gameModel->points_total : 0.0;
+            $game['RetroRatio'] = $gameModel->points_total ? $gameModel->points_weighted / $gameModel->points_total : 0.0;
 
-            $game['ConsoleName'] = $this->consoles[$gameModel->ConsoleID]->name;
+            $game['ConsoleName'] = $this->consoles[$gameModel->system_id]->name;
 
             $this->games[] = $game;
         }
@@ -125,7 +125,7 @@ class GameListService
         $countAfter = count($this->games);
 
         if ($countAfter < $countBefore) {
-            $allConsoleIds = collect($this->games)->pluck('ConsoleID')->unique();
+            $allConsoleIds = collect($this->games)->pluck('system_id')->unique();
 
             $this->consoles = $this->consoles->filter(function ($console) use ($allConsoleIds) {
                 return $allConsoleIds->contains($console->id);
@@ -135,7 +135,7 @@ class GameListService
 
     public function useGameStatusFilter(array $game, string $statusValue): bool
     {
-        $foundProgress = $this->userProgress[$game['ID']] ?? null;
+        $foundProgress = $this->userProgress[$game['id']] ?? null;
 
         $hasAwardKind = function ($kind) use ($foundProgress) {
             return isset($foundProgress['HighestAwardKind']) && $foundProgress['HighestAwardKind'] === $kind;
@@ -199,7 +199,7 @@ class GameListService
             ->toArray();
 
         foreach ($this->games as &$game) {
-            $game['WantToPlay'] = in_array($game['ID'], $wantToPlayGames);
+            $game['WantToPlay'] = in_array($game['id'], $wantToPlayGames);
         }
     }
 
@@ -398,9 +398,9 @@ class GameListService
                 }
                 echo Blade::render('
                     <x-game.multiline-avatar
-                        :gameId="$ID"
-                        :gameTitle="$Title"
-                        :gameImageIcon="$ImageIcon"
+                        :gameId="$id"
+                        :gameTitle="$title"
+                        :gameImageIcon="$image_icon_asset_path"
                         :consoleName="$consoleName"
                     />', array_merge($game, ['consoleName' => $consoleName])
                 );
@@ -508,7 +508,7 @@ class GameListService
                     echo '<td></td>';
                 } else {
                     echo '<td class="text-right">';
-                    echo '<a href="' . route('game.tickets', ['game' => $game['ID']]) . '">';
+                    echo '<a href="' . route('game.tickets', ['game' => $game['id']]) . '">';
                     echo localized_number($game['NumTickets']);
                     echo '</a></td>';
                 }
@@ -527,7 +527,7 @@ class GameListService
                 if ($game['achievements_published'] == 0) {
                     echo '<td></td>';
                 } else {
-                    $gameProgress = $this->userProgress[$game['ID']] ?? null;
+                    $gameProgress = $this->userProgress[$game['id']] ?? null;
                     $softcoreProgress = $gameProgress['achievements_unlocked'] ?? 0;
                     $hardcoreProgress = $gameProgress['achievements_unlocked_hardcore'] ?? 0;
                     $highestAwardKind = $gameProgress['HighestAwardKind'] ?? 'unfinished';
@@ -569,7 +569,7 @@ class GameListService
                         :gameId="$gameId"
                         :isOnBacklog="$isOnBacklog"
                     />', [
-                    'gameId' => $game['ID'],
+                    'gameId' => $game['id'],
                     'isOnBacklog' => $game['WantToPlay'] ?? false,
                 ]);
                 echo '</td>';

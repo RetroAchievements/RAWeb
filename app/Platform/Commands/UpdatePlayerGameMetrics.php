@@ -41,7 +41,7 @@ class UpdatePlayerGameMetrics extends Command
         if ($gameIds->isNotEmpty()) {
             $query->whereIn(
                 'game_id',
-                Game::whereIn('id', $gameIds)->get()->pluck('id')
+                Game::whereIn('id', $gameIds)->pluck('id')
             );
         }
         $playerGames = $query->get();

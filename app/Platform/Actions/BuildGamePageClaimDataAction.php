@@ -49,7 +49,7 @@ class BuildGamePageClaimDataAction
 
         // Calculate if the game has official/published achievements and if the system is valid (rolled out).
         $hasOfficialAchievements = $this->calculateHasOfficialAchievements($game);
-        $isValidConsole = isValidConsoleId($game->ConsoleID);
+        $isValidConsole = isValidConsoleId($game->system_id);
 
         $wouldBeCollaboration = $primaryClaimByOtherUser !== null;
         $wouldBeRevision = $game->achievements_published > 0;

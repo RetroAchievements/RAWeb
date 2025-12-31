@@ -37,7 +37,7 @@ class SubmitCodeNoteTest extends TestCase
         // ----------------------------
         // new note for valid game
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1234,
             'n' => 'This is a note',
         ]))
@@ -51,7 +51,7 @@ class SubmitCodeNoteTest extends TestCase
         // ----------------------------
         // update note
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1234,
             'n' => 'This is a new note',
         ]))
@@ -63,7 +63,7 @@ class SubmitCodeNoteTest extends TestCase
         // ----------------------------
         // delete note by setting to empty
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1234,
             'n' => '',
         ]))
@@ -91,7 +91,7 @@ class SubmitCodeNoteTest extends TestCase
         // ----------------------------
         // update note for compatibility mapped game
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => VirtualGameIdService::encodeVirtualGameId($game->ID, GameHashCompatibility::Untested),
+            'g' => VirtualGameIdService::encodeVirtualGameId($game->id, GameHashCompatibility::Untested),
             'm' => 0x1234,
             'n' => 'This is a virtual note',
         ]))
@@ -104,7 +104,7 @@ class SubmitCodeNoteTest extends TestCase
         // ----------------------------
         // second note
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1235,
             'n' => 'This "note" is $pec!al',
         ]))
@@ -121,7 +121,7 @@ class SubmitCodeNoteTest extends TestCase
         // ----------------------------
         // delete note by setting to null
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1235,
         ]))
             ->assertExactJson(['Success' => true]);
@@ -133,7 +133,7 @@ class SubmitCodeNoteTest extends TestCase
         // ----------------------------
         // delete deleted note
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1235,
         ]))
             ->assertExactJson(['Success' => true]);
@@ -155,7 +155,7 @@ class SubmitCodeNoteTest extends TestCase
         // ----------------------------
         // new note for valid game
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1234,
             'n' => 'This is a note',
         ]))
@@ -168,7 +168,7 @@ class SubmitCodeNoteTest extends TestCase
         // ----------------------------
         // update own note
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1234,
             'n' => 'This is a new note',
         ]))
@@ -180,7 +180,7 @@ class SubmitCodeNoteTest extends TestCase
         // ----------------------------
         // delete own note
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1234,
             'n' => '',
         ]))
@@ -193,7 +193,7 @@ class SubmitCodeNoteTest extends TestCase
         // ----------------------------
         // restore own note
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1234,
             'n' => 'This is a restored note',
         ]))
@@ -208,7 +208,7 @@ class SubmitCodeNoteTest extends TestCase
         $note->save();
 
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1234,
             'n' => 'This is an overwritten note',
         ]))
@@ -226,7 +226,7 @@ class SubmitCodeNoteTest extends TestCase
         // ----------------------------
         // delete developer note
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1234,
             'n' => '',
         ]))
@@ -246,7 +246,7 @@ class SubmitCodeNoteTest extends TestCase
         $note->delete();
 
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1234,
             'n' => 'This is an overwritten note',
         ]))
@@ -268,7 +268,7 @@ class SubmitCodeNoteTest extends TestCase
         // unknown token (handled by BaseAuthenticatedApiAction)
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
             't' => 'IvalidToken',
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1234,
             'n' => 'This is a note',
         ]))
@@ -286,7 +286,7 @@ class SubmitCodeNoteTest extends TestCase
         // registered user (handled by the MemoryNotePolicy)
         $this->user = User::factory()->create(['appToken' => Str::random(16), 'Permissions' => Permissions::Registered]);
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1234,
             'n' => 'This is a note',
         ]))
@@ -307,7 +307,7 @@ class SubmitCodeNoteTest extends TestCase
         $this->user->save();
 
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1234,
             'n' => 'This is a note',
         ]))
@@ -329,7 +329,7 @@ class SubmitCodeNoteTest extends TestCase
         $this->user->save();
 
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1234,
             'n' => 'This is a note',
         ]))
@@ -351,7 +351,7 @@ class SubmitCodeNoteTest extends TestCase
 
         $this->post('dorequest.php', $this->apiParams('submitcodenote', [
             't' => $developer->appToken,
-            'g' => $game->ID,
+            'g' => $game->id,
             'm' => 0x1234,
             'n' => 'This is a note',
         ]))

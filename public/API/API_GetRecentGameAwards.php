@@ -99,11 +99,11 @@ $fetchedGameAwards = (clone $baseQuery)->orderBy('AwardDate', 'desc')
     ->get();
 
 $gameAwardGameIds = $fetchedGameAwards->pluck('AwardData')->unique()->filter();
-$associatedGames = Game::with('system')->whereIn('ID', $gameAwardGameIds)
+$associatedGames = Game::with('system')->whereIn('id', $gameAwardGameIds)
     ->get()
-    ->keyBy('ID');
+    ->keyBy('id');
 
-$systemIds = $associatedGames->pluck('ConsoleID')->unique()->filter();
+$systemIds = $associatedGames->pluck('system_id')->unique()->filter();
 $associatedSystems = System::whereIn('id', $systemIds)->get(['id', 'name'])->keyBy('id');
 
 $mappedGameAwards = $fetchedGameAwards
@@ -121,9 +121,9 @@ $mappedGameAwards = $fetchedGameAwards
             'AwardKind' => $awardKind,
             'AwardDate' => $gameAward->AwardDate->toIso8601String(),
             'GameID' => $gameAward->AwardData,
-            'GameTitle' => $associatedGame->Title ?? null,
-            'ConsoleID' => $associatedGame->ConsoleID ?? null,
-            'ConsoleName' => $associatedSystems[$associatedGame->ConsoleID]->name ?? null,
+            'GameTitle' => $associatedGame->title ?? null,
+            'ConsoleID' => $associatedGame->system_id ?? null,
+            'ConsoleName' => $associatedSystems[$associatedGame->system_id]->name ?? null,
         ];
 
         return $mappedAward;

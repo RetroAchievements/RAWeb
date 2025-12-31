@@ -46,11 +46,11 @@ class GameLeaderboardsTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var Leaderboard $leaderboardOne */
         $leaderboardOne = Leaderboard::factory()->create([
-            'GameID' => $game->ID,
+            'GameID' => $game->id,
             'Title' => "Test leaderboard 1",
             'Description' => "I am the first leaderboard",
         ]);
@@ -84,7 +84,7 @@ class GameLeaderboardsTest extends TestCase
 
         /** @var Leaderboard $leaderboardTwo */
         $leaderboardTwo = Leaderboard::factory()->create([
-            'GameID' => $game->ID,
+            'GameID' => $game->id,
             'Title' => "Test leaderboard 2",
             'Description' => "I am the second leaderboard",
         ]);
@@ -103,7 +103,7 @@ class GameLeaderboardsTest extends TestCase
 
         /** @var Leaderboard $leaderboardThree */
         $leaderboardThree = Leaderboard::factory()->create([
-            'GameID' => $game->ID,
+            'GameID' => $game->id,
             'Title' => "Test leaderboard 3",
             'Description' => "I am the third leaderboard",
         ]);
@@ -122,14 +122,14 @@ class GameLeaderboardsTest extends TestCase
 
         /** @var Leaderboard $leaderboardFour */
         $leaderboardFour = Leaderboard::factory()->create([
-            'GameID' => $game->ID,
+            'GameID' => $game->id,
             'Title' => "Test leaderboard 4",
             'Description' => "I am the fourth leaderboard",
         ]);
 
         /** @var Leaderboard $leaderboardFive */
         $leaderboardFive = Leaderboard::factory()->create([
-            'GameID' => $game->ID,
+            'GameID' => $game->id,
             'Title' => "Test leaderboard 5",
             'Description' => "I am the fifth leaderboard",
             'Format' => "TIME",
@@ -156,7 +156,7 @@ class GameLeaderboardsTest extends TestCase
 
         /** @var Leaderboard $hiddenLeaderboard */
         $hiddenLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->ID,
+            'GameID' => $game->id,
             'Title' => "Test hidden leaderboard",
             'Description' => "I am a hidden leaderboard",
             'Format' => "TIME",
@@ -178,7 +178,7 @@ class GameLeaderboardsTest extends TestCase
         $action->execute($leaderboardFour->id);
         $action->execute($leaderboardFive->id);
 
-        $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->ID]))
+        $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->id]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 5,
@@ -262,7 +262,7 @@ class GameLeaderboardsTest extends TestCase
                 ],
             ]);
 
-            $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->ID, 'o' => 3]))
+            $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->id, 'o' => 3]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -298,7 +298,7 @@ class GameLeaderboardsTest extends TestCase
                     ],
                 ]);
 
-            $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->ID, 'c' => 2]))
+            $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->id, 'c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -339,7 +339,7 @@ class GameLeaderboardsTest extends TestCase
                     ],
                 ]);
 
-            $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->ID, 'o' => 1, 'c' => 2]))
+            $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->id, 'o' => 1, 'c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -389,11 +389,11 @@ class GameLeaderboardsTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var Leaderboard $activeLeaderboard */
         $activeLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->ID,
+            'GameID' => $game->id,
             'Title' => "Active Leaderboard ",
             'Description' => "I am an active leaderboard",
             'State' => LeaderboardState::Active->value,
@@ -401,7 +401,7 @@ class GameLeaderboardsTest extends TestCase
 
         /** @var Leaderboard $disabledLeaderboard */
         $disabledLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->ID,
+            'GameID' => $game->id,
             'Title' => "Disabled Leaderboard ",
             'Description' => "I am a disabled leaderboard",
             'State' => LeaderboardState::Disabled->value,
@@ -409,13 +409,13 @@ class GameLeaderboardsTest extends TestCase
 
         /** @var Leaderboard $unpublishedLeaderboard */
         $unpublishedLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->ID,
+            'GameID' => $game->id,
             'Title' => "Unpublished Leaderboard ",
             'Description' => "I am an unpublished leaderboard",
             'State' => LeaderboardState::Unpublished->value,
         ]);
 
-        $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->ID]))
+        $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->id]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 3,

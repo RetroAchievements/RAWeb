@@ -69,11 +69,11 @@ final class Shortcode
         // Find all legacy hubs (games with ConsoleID 100) and their corresponding
         // game_sets entries in a single query.
         $hubMap = Game::query()
-            ->join('game_sets', 'GameData.ID', '=', 'game_sets.game_id')
-            ->where(DB::raw('GameData.ConsoleID'), System::Hubs)
+            ->join('game_sets', 'games.id', '=', 'game_sets.game_id')
+            ->where(DB::raw('games.system_id'), System::Hubs)
             ->where('game_sets.type', GameSetType::Hub)
-            ->whereIn('GameData.ID', $gameIds)
-            ->select('GameData.ID as game_id', 'game_sets.id as hub_id')
+            ->whereIn('games.id', $gameIds)
+            ->select('games.id as game_id', 'game_sets.id as hub_id')
             ->get()
             ->pluck('hub_id', 'game_id');
 
@@ -234,9 +234,9 @@ final class Shortcode
                     break;
 
                 case 'gameIds':
-                    $results[$key] = Game::with('system')->whereIn('ID', $ids)
+                    $results[$key] = Game::with('system')->whereIn('id', $ids)
                         ->get()->mapWithKeys(function ($game) {
-                            return [$game->ID => $game];
+                            return [$game->id => $game];
                         });
                     break;
 

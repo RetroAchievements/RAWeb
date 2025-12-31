@@ -52,17 +52,17 @@ class AwardAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
         $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => '0123456789abcdeffedcba9876543210']);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -79,7 +79,7 @@ class AwardAchievementTest extends TestCase
         $this->assertModelExists($playerSession1);
 
         // cache the unlocks for the game - verify singular unlock captured
-        $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
+        $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->id);
         $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
 
         // do the hardcore unlock
@@ -132,7 +132,7 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
 
         // make sure the unlock cache was updated
-        $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
+        $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->id);
         $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
@@ -196,7 +196,7 @@ class AwardAchievementTest extends TestCase
         // verify badge was awarded
         $this->assertNotNull(PlayerBadge::where('user_id', $this->user->id)
             ->where('AwardType', AwardType::Mastery)
-            ->where('AwardData', $game->ID)
+            ->where('AwardData', $game->id)
             ->where('AwardDataExtra', UnlockMode::Hardcore)
             ->where('AwardDate', $newNow)
             ->first()
@@ -215,17 +215,17 @@ class AwardAchievementTest extends TestCase
         /** @var GameHash $gameHash */
         $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => '0123456789abcdeffedcba9876543210']);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -235,7 +235,7 @@ class AwardAchievementTest extends TestCase
         $this->addSoftcoreUnlock($this->user, $achievement6, $unlock1Date);
 
         // cache the unlocks for the game - verify singular unlock captured
-        $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
+        $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->id);
         $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
 
         // do the softcore unlock
@@ -262,7 +262,7 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($truePointsBefore, $user1->TrueRAPoints);
 
         // make sure the unlock cache was updated
-        $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
+        $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->id);
         $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
         $this->assertArrayNotHasKey('DateEarnedHardcore', $unlocks[$achievement3->ID]);
@@ -320,7 +320,7 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($softcoreScoreBefore - $achievement3->Points, $user2->RASoftcorePoints);
 
         // make sure the unlock cache was updated
-        $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
+        $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->id);
         $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
         $this->assertEquals($newNow, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
@@ -360,7 +360,7 @@ class AwardAchievementTest extends TestCase
         // verify badge was awarded
         $this->assertNotNull(PlayerBadge::where('user_id', $this->user->id)
             ->where('AwardType', AwardType::Mastery)
-            ->where('AwardData', $game->ID)
+            ->where('AwardData', $game->id)
             ->where('AwardDataExtra', UnlockMode::Softcore)
             ->where('AwardDate', $newNow)
             ->first()
@@ -386,17 +386,17 @@ class AwardAchievementTest extends TestCase
         $delegatedUser->save();
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['ID' => 1, 'GameID' => $gameOne->ID, 'user_id' => $integrationUser->id]);
+        $achievement1 = Achievement::factory()->published()->create(['ID' => 1, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['ID' => 2, 'GameID' => $gameOne->ID, 'user_id' => $integrationUser->id]);
+        $achievement2 = Achievement::factory()->published()->create(['ID' => 2, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['ID' => 3, 'GameID' => $gameOne->ID, 'user_id' => $integrationUser->id]);
+        $achievement3 = Achievement::factory()->published()->create(['ID' => 3, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['ID' => 4, 'GameID' => $gameOne->ID, 'user_id' => 9999999]);
+        $achievement4 = Achievement::factory()->published()->create(['ID' => 4, 'GameID' => $gameOne->id, 'user_id' => 9999999]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['ID' => 5, 'GameID' => $gameOne->ID, 'user_id' => $integrationUser->id]);
+        $achievement5 = Achievement::factory()->published()->create(['ID' => 5, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['ID' => 6, 'GameID' => $gameOne->ID, 'user_id' => $integrationUser->id]);
+        $achievement6 = Achievement::factory()->published()->create(['ID' => 6, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -412,7 +412,7 @@ class AwardAchievementTest extends TestCase
         $this->assertModelExists($playerSession1);
 
         // cache the unlocks for the game - verify singular unlock captured
-        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $gameOne->ID);
+        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $gameOne->id);
         $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
 
         // do the delegated hardcore unlock
@@ -472,7 +472,7 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
 
         // make sure the unlock cache was updated
-        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $gameOne->ID);
+        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $gameOne->id);
         $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
@@ -482,7 +482,7 @@ class AwardAchievementTest extends TestCase
         /** @var System $normalSystem */
         $normalSystem = System::factory()->create(['id' => 1]);
         /** @var Game $gameTwo */
-        $gameTwo = Game::factory()->create(['ConsoleID' => $normalSystem->id]);
+        $gameTwo = Game::factory()->create(['system_id' => $normalSystem->id]);
 
         $achievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameTwo->id, 'user_id' => $integrationUser->id]);
 
@@ -573,17 +573,17 @@ class AwardAchievementTest extends TestCase
         $delegatedUser->save();
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['ID' => 1, 'GameID' => $gameOne->ID, 'user_id' => $integrationUser->id]);
+        $achievement1 = Achievement::factory()->published()->create(['ID' => 1, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['ID' => 2, 'GameID' => $gameOne->ID, 'user_id' => $integrationUser->id]);
+        $achievement2 = Achievement::factory()->published()->create(['ID' => 2, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['ID' => 3, 'GameID' => $gameOne->ID, 'user_id' => $integrationUser->id]);
+        $achievement3 = Achievement::factory()->published()->create(['ID' => 3, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['ID' => 4, 'GameID' => $gameOne->ID, 'user_id' => 9999999]);
+        $achievement4 = Achievement::factory()->published()->create(['ID' => 4, 'GameID' => $gameOne->id, 'user_id' => 9999999]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['ID' => 5, 'GameID' => $gameOne->ID, 'user_id' => $integrationUser->id]);
+        $achievement5 = Achievement::factory()->published()->create(['ID' => 5, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['ID' => 6, 'GameID' => $gameOne->ID, 'user_id' => $integrationUser->id]);
+        $achievement6 = Achievement::factory()->published()->create(['ID' => 6, 'GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -599,7 +599,7 @@ class AwardAchievementTest extends TestCase
         $this->assertModelExists($playerSession1);
 
         // cache the unlocks for the game - verify singular unlock captured
-        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $gameOne->ID);
+        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $gameOne->id);
         $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
 
         // do the delegated hardcore unlock
@@ -659,7 +659,7 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
 
         // make sure the unlock cache was updated
-        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $gameOne->ID);
+        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $gameOne->id);
         $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
@@ -675,17 +675,17 @@ class AwardAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
         $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => '0123456789abcdeffedcba9876543210']);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -822,17 +822,17 @@ class AwardAchievementTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var GameHash $gameHash */
         $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => '0123456789abcdeffedcba9876543210']);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement4 = Achievement::factory()->create(['GameID' => $game->id, 'user_id' => $author->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -880,17 +880,17 @@ class AwardAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
         $gameHash = GameHash::factory()->create(['game_id' => $game->id, 'md5' => '0123456789abcdeffedcba9876543210']);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $author->id]);
+        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->id, 'user_id' => $author->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -909,9 +909,9 @@ class AwardAchievementTest extends TestCase
         // not-unlocked event achievement hides hardcore unlock when active
         System::factory()->create(['id' => System::Events]);
         /** @var Game $eventGame */
-        $eventGame = Game::factory()->create(['ConsoleID' => System::Events]);
+        $eventGame = Game::factory()->create(['system_id' => System::Events]);
         /** @var Achievement $eventAchievement1 */
-        $eventAchievement1 = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
+        $eventAchievement1 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
         EventAchievement::create([
             'achievement_id' => $eventAchievement1->ID,
             'source_achievement_id' => $achievement1->ID,
@@ -948,7 +948,7 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
 
         /** @var Achievement $eventAchievement2 */
-        $eventAchievement2 = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
+        $eventAchievement2 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
         EventAchievement::create([
             'achievement_id' => $eventAchievement2->ID,
             'source_achievement_id' => $achievement2->ID,
@@ -1005,7 +1005,7 @@ class AwardAchievementTest extends TestCase
         $this->assertHasHardcoreUnlock($this->user, $eventAchievement2);
 
         /** @var Achievement $eventAchievement3 */
-        $eventAchievement3 = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
+        $eventAchievement3 = Achievement::factory()->published()->create(['GameID' => $eventGame->id]);
         EventAchievement::create([
             'achievement_id' => $eventAchievement3->ID,
             'source_achievement_id' => $achievement3->ID,

@@ -42,31 +42,31 @@ class UserCompletedGamesTest extends TestCase
 
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'ImageIcon' => '/Images/001234.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/001234.png',
         ]);
-        $publishedAchievements = Achievement::factory()->published()->count(10)->create(['GameID' => $game->ID]);
+        $publishedAchievements = Achievement::factory()->published()->count(10)->create(['GameID' => $game->id]);
 
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'ImageIcon' => '/Images/002345.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/002345.png',
         ]);
-        $publishedAchievements2 = Achievement::factory()->published()->count(20)->create(['GameID' => $game2->ID]);
+        $publishedAchievements2 = Achievement::factory()->published()->count(20)->create(['GameID' => $game2->id]);
 
         /** @var Game $game3 */
         $game3 = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'ImageIcon' => '/Images/003456.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/003456.png',
         ]);
-        Achievement::factory()->published()->count(3)->create(['GameID' => $game3->ID]);
+        Achievement::factory()->published()->count(3)->create(['GameID' => $game3->id]);
 
         /** @var Game $game4 */
         $game4 = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'ImageIcon' => '/Images/004567.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/004567.png',
         ]);
-        $publishedAchievements4 = Achievement::factory()->published()->count(8)->create(['GameID' => $game4->ID]);
+        $publishedAchievements4 = Achievement::factory()->published()->count(8)->create(['GameID' => $game4->id]);
 
         foreach ($publishedAchievements as $ach) {
             $this->addHardcoreUnlock($user, $ach);
@@ -95,9 +95,9 @@ class UserCompletedGamesTest extends TestCase
             ->assertSuccessful()
             ->assertJson([
                 [
-                    'GameID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ImageIcon' => $game->ImageIcon,
+                    'GameID' => $game->id,
+                    'Title' => $game->title,
+                    'ImageIcon' => $game->image_icon_asset_path,
                     'ConsoleID' => $system->id,
                     'ConsoleName' => $system->name,
                     'MaxPossible' => 10,
@@ -106,9 +106,9 @@ class UserCompletedGamesTest extends TestCase
                     'HardcoreMode' => '0',
                 ],
                 [
-                    'GameID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ImageIcon' => $game->ImageIcon,
+                    'GameID' => $game->id,
+                    'Title' => $game->title,
+                    'ImageIcon' => $game->image_icon_asset_path,
                     'ConsoleID' => $system->id,
                     'ConsoleName' => $system->name,
                     'MaxPossible' => 10,
@@ -117,9 +117,9 @@ class UserCompletedGamesTest extends TestCase
                     'HardcoreMode' => '1',
                 ],
                 [
-                    'GameID' => $game2->ID,
-                    'Title' => $game2->Title,
-                    'ImageIcon' => $game2->ImageIcon,
+                    'GameID' => $game2->id,
+                    'Title' => $game2->title,
+                    'ImageIcon' => $game2->image_icon_asset_path,
                     'ConsoleID' => $system->id,
                     'ConsoleName' => $system->name,
                     'MaxPossible' => 20,
@@ -128,9 +128,9 @@ class UserCompletedGamesTest extends TestCase
                     'HardcoreMode' => '0',
                 ],
                 [
-                    'GameID' => $game2->ID,
-                    'Title' => $game2->Title,
-                    'ImageIcon' => $game2->ImageIcon,
+                    'GameID' => $game2->id,
+                    'Title' => $game2->title,
+                    'ImageIcon' => $game2->image_icon_asset_path,
                     'ConsoleID' => $system->id,
                     'ConsoleName' => $system->name,
                     'MaxPossible' => 20,
@@ -139,9 +139,9 @@ class UserCompletedGamesTest extends TestCase
                     'HardcoreMode' => '1',
                 ],
                 [
-                    'GameID' => $game4->ID,
-                    'Title' => $game4->Title,
-                    'ImageIcon' => $game4->ImageIcon,
+                    'GameID' => $game4->id,
+                    'Title' => $game4->title,
+                    'ImageIcon' => $game4->image_icon_asset_path,
                     'ConsoleID' => $system->id,
                     'ConsoleName' => $system->name,
                     'MaxPossible' => 8,
@@ -161,31 +161,31 @@ class UserCompletedGamesTest extends TestCase
 
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'ImageIcon' => '/Images/001234.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/001234.png',
         ]);
-        $publishedAchievements = Achievement::factory()->published()->count(10)->create(['GameID' => $game->ID]);
+        $publishedAchievements = Achievement::factory()->published()->count(10)->create(['GameID' => $game->id]);
 
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'ImageIcon' => '/Images/002345.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/002345.png',
         ]);
-        $publishedAchievements2 = Achievement::factory()->published()->count(20)->create(['GameID' => $game2->ID]);
+        $publishedAchievements2 = Achievement::factory()->published()->count(20)->create(['GameID' => $game2->id]);
 
         /** @var Game $game3 */
         $game3 = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'ImageIcon' => '/Images/003456.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/003456.png',
         ]);
-        Achievement::factory()->published()->count(3)->create(['GameID' => $game3->ID]);
+        Achievement::factory()->published()->count(3)->create(['GameID' => $game3->id]);
 
         /** @var Game $game4 */
         $game4 = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'ImageIcon' => '/Images/004567.png',
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/004567.png',
         ]);
-        $publishedAchievements4 = Achievement::factory()->published()->count(8)->create(['GameID' => $game4->ID]);
+        $publishedAchievements4 = Achievement::factory()->published()->count(8)->create(['GameID' => $game4->id]);
 
         foreach ($publishedAchievements as $ach) {
             $this->addHardcoreUnlock($user, $ach);
@@ -214,9 +214,9 @@ class UserCompletedGamesTest extends TestCase
             ->assertSuccessful()
             ->assertJson([
                 [
-                    'GameID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ImageIcon' => $game->ImageIcon,
+                    'GameID' => $game->id,
+                    'Title' => $game->title,
+                    'ImageIcon' => $game->image_icon_asset_path,
                     'ConsoleID' => $system->id,
                     'ConsoleName' => $system->name,
                     'MaxPossible' => 10,
@@ -225,9 +225,9 @@ class UserCompletedGamesTest extends TestCase
                     'HardcoreMode' => '0',
                 ],
                 [
-                    'GameID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ImageIcon' => $game->ImageIcon,
+                    'GameID' => $game->id,
+                    'Title' => $game->title,
+                    'ImageIcon' => $game->image_icon_asset_path,
                     'ConsoleID' => $system->id,
                     'ConsoleName' => $system->name,
                     'MaxPossible' => 10,
@@ -236,9 +236,9 @@ class UserCompletedGamesTest extends TestCase
                     'HardcoreMode' => '1',
                 ],
                 [
-                    'GameID' => $game2->ID,
-                    'Title' => $game2->Title,
-                    'ImageIcon' => $game2->ImageIcon,
+                    'GameID' => $game2->id,
+                    'Title' => $game2->title,
+                    'ImageIcon' => $game2->image_icon_asset_path,
                     'ConsoleID' => $system->id,
                     'ConsoleName' => $system->name,
                     'MaxPossible' => 20,
@@ -247,9 +247,9 @@ class UserCompletedGamesTest extends TestCase
                     'HardcoreMode' => '0',
                 ],
                 [
-                    'GameID' => $game2->ID,
-                    'Title' => $game2->Title,
-                    'ImageIcon' => $game2->ImageIcon,
+                    'GameID' => $game2->id,
+                    'Title' => $game2->title,
+                    'ImageIcon' => $game2->image_icon_asset_path,
                     'ConsoleID' => $system->id,
                     'ConsoleName' => $system->name,
                     'MaxPossible' => 20,
@@ -258,9 +258,9 @@ class UserCompletedGamesTest extends TestCase
                     'HardcoreMode' => '1',
                 ],
                 [
-                    'GameID' => $game4->ID,
-                    'Title' => $game4->Title,
-                    'ImageIcon' => $game4->ImageIcon,
+                    'GameID' => $game4->id,
+                    'Title' => $game4->title,
+                    'ImageIcon' => $game4->image_icon_asset_path,
                     'ConsoleID' => $system->id,
                     'ConsoleName' => $system->name,
                     'MaxPossible' => 8,

@@ -37,7 +37,7 @@ class VerifyAchievementSetIntegrity extends Command
         // Get the core achievement set.
         $gameCoreSet = $game->gameAchievementSets()->core()->first();
         if (!$gameCoreSet) {
-            $this->error("No core achievement set found for game {$game->ID}");
+            $this->error("No core achievement set found for game {$game->id}");
 
             return;
         }
@@ -73,7 +73,7 @@ class VerifyAchievementSetIntegrity extends Command
             try {
                 $this->verifyGame($game);
             } catch (Exception $e) {
-                $this->error("Error processing game {$game->ID}: " . $e->getMessage());
+                $this->error("Error processing game {$game->id}: " . $e->getMessage());
                 $gamesWithErrors++;
             }
         }
@@ -94,7 +94,7 @@ class VerifyAchievementSetIntegrity extends Command
             ['field' => 'players_total', 'game' => $game->players_total, 'set' => $set->players_total],
             ['field' => 'players_hardcore', 'game' => $game->players_hardcore, 'set' => $set->players_hardcore],
             ['field' => 'points_total', 'game' => $game->points_total, 'set' => $set->points_total],
-            ['field' => 'points_weighted', 'game' => $game->TotalTruePoints, 'set' => $set->points_weighted],
+            ['field' => 'points_weighted', 'game' => $game->points_weighted, 'set' => $set->points_weighted],
         ];
 
         foreach ($comparisons as $comparison) {

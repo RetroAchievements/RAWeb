@@ -442,8 +442,8 @@ class UpdateBeatenGamesLeaderboardActionTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $olderGame = Game::factory()->create(['ConsoleID' => $this->system->id]);
-        $newerGame = Game::factory()->create(['ConsoleID' => $this->system->id]);
+        $olderGame = Game::factory()->create(['system_id' => $this->system->id]);
+        $newerGame = Game::factory()->create(['system_id' => $this->system->id]);
 
         PlayerStat::factory()->create([
             'user_id' => $user->id,

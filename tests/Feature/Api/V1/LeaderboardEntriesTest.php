@@ -44,11 +44,11 @@ class LeaderboardEntriesTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->ID,
+            'GameID' => $game->id,
             'Title' => "Test leaderboard 1",
             'Description' => "I am the first leaderboard",
         ]);
@@ -90,7 +90,7 @@ class LeaderboardEntriesTest extends TestCase
 
         /** @var Leaderboard $timedLeaderboard */
         $timedLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->ID,
+            'GameID' => $game->id,
             'Title' => "Test leaderboard 2",
             'Description' => "I am a timed leaderboard",
             'Format' => "TIME",

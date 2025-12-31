@@ -56,7 +56,7 @@ class LoadThinActivePlayersListAction
                         'username' => $player->username,
                         'display_name' => $player->display_name,
                         'rich_presence' => $player->rich_presence,
-                        'game_title' => $player->game?->Title ?? '',
+                        'game_title' => $player->game?->title ?? '',
                     ];
                 })->toArray();
             }

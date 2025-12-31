@@ -51,7 +51,7 @@ class GetFriendListTest extends TestCase
             ]);
 
         // user2 is playing game1
-        $user2->LastGameID = $game1->ID;
+        $user2->LastGameID = $game1->id;
         $user2->RichPresenceMsg = "Running through a forest";
         $user2->RichPresenceMsgDate = $date1;
         $user2->save();
@@ -71,27 +71,27 @@ class GetFriendListTest extends TestCase
                         'LastSeen' => $user2->RichPresenceMsg,
                         'LastSeenTime' => $date1->unix(),
                         'LastGameId' => $game1->id,
-                        'LastGameTitle' => $game1->Title,
+                        'LastGameTitle' => $game1->title,
                         'LastGameIconUrl' => $game1->badge_url,
                     ],
                 ],
             ]);
 
         // user3 is playing game2
-        $user3->LastGameID = $game2->ID;
+        $user3->LastGameID = $game2->id;
         $user3->RichPresenceMsg = "Killing everything";
         $user3->RichPresenceMsgDate = $date2->clone()->subMinutes(45);
         $user3->save();
 
         PlayerSession::factory()->create([
             'user_id' => $user3->ID,
-            'game_id' => $game2->ID,
+            'game_id' => $game2->id,
             'rich_presence' => "Titles",
             'rich_presence_updated_at' => $date2,
         ]);
 
         // user4 is playing game2
-        $user4->LastGameID = $game2->ID;
+        $user4->LastGameID = $game2->id;
         $user4->RichPresenceMsg = "Killing everything";
         $user4->RichPresenceMsgDate = $date3;
         $user4->setAttribute('Permissions', Permissions::Banned);
@@ -115,7 +115,7 @@ class GetFriendListTest extends TestCase
                         'LastSeen' => "Titles",
                         'LastSeenTime' => $date2->unix(),
                         'LastGameId' => $game2->id,
-                        'LastGameTitle' => $game2->Title,
+                        'LastGameTitle' => $game2->title,
                         'LastGameIconUrl' => $game2->badge_url,
                     ],
                     [
@@ -125,14 +125,14 @@ class GetFriendListTest extends TestCase
                         'LastSeen' => $user2->RichPresenceMsg,
                         'LastSeenTime' => $date1->unix(),
                         'LastGameId' => $game1->id,
-                        'LastGameTitle' => $game1->Title,
+                        'LastGameTitle' => $game1->title,
                         'LastGameIconUrl' => $game1->badge_url,
                     ],
                 ],
             ]);
 
         // user5 is playing game2
-        $user5->LastGameID = $game2->ID;
+        $user5->LastGameID = $game2->id;
         $user5->RichPresenceMsg = "Killing everything";
         $user5->RichPresenceMsgDate = $date3;
         $user5->save();
@@ -169,7 +169,7 @@ class GetFriendListTest extends TestCase
                         'LastSeen' => "Titles",
                         'LastSeenTime' => $date2->unix(),
                         'LastGameId' => $game2->id,
-                        'LastGameTitle' => $game2->Title,
+                        'LastGameTitle' => $game2->title,
                         'LastGameIconUrl' => $game2->badge_url,
                     ],
                     [
@@ -179,14 +179,14 @@ class GetFriendListTest extends TestCase
                         'LastSeen' => $user2->RichPresenceMsg,
                         'LastSeenTime' => $date1->unix(),
                         'LastGameId' => $game1->id,
-                        'LastGameTitle' => $game1->Title,
+                        'LastGameTitle' => $game1->title,
                         'LastGameIconUrl' => $game1->badge_url,
                     ],
                 ],
             ]);
 
         // user6 is playing game 2
-        $user6->LastGameID = $game2->ID;
+        $user6->LastGameID = $game2->id;
         $user6->RichPresenceMsg = "Killing everything";
         $user6->RichPresenceMsgDate = $date3;
         $user6->save();
@@ -209,7 +209,7 @@ class GetFriendListTest extends TestCase
                         'LastSeen' => $user6->RichPresenceMsg,
                         'LastSeenTime' => $date3->unix(),
                         'LastGameId' => $game2->id,
-                        'LastGameTitle' => $game2->Title,
+                        'LastGameTitle' => $game2->title,
                         'LastGameIconUrl' => $game2->badge_url,
                     ],
                 ],

@@ -28,14 +28,14 @@ class ResolveAchievementSetGameHashesActionTest extends TestCase
     {
         parent::setUp();
 
-        $this->system = System::factory()->create(['ID' => 1, 'Name' => 'NES/Famicom']);
+        $this->system = System::factory()->create(['id' => 1, 'name' => 'NES/Famicom']);
         $this->upsertGameCoreSetAction = new UpsertGameCoreAchievementSetFromLegacyFlagsAction();
         $this->associateAchievementSetToGameAction = new AssociateAchievementSetToGameAction();
     }
 
     private function createGameWithAchievements(string $title, int $publishedCount): Game
     {
-        $game = Game::factory()->create(['Title' => $title, 'ConsoleID' => $this->system->id]);
+        $game = Game::factory()->create(['title' => $title, 'system_id' => $this->system->id]);
         Achievement::factory()->published()->count($publishedCount)->create(['GameID' => $game->id]);
 
         return $game;

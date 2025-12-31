@@ -7,7 +7,11 @@ use App\Models\User;
 use App\Platform\Actions\TrimGameMetadataAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Enums\AchievementFlag;
+use Illuminate\Support\Facades\DB;
 
+/**
+ * @deprecated use Eloquent
+ */
 function getGameData(int $gameID): ?array
 {
     if ($gameID <= 0) {
@@ -17,9 +21,20 @@ function getGameData(int $gameID): ?array
     $game = Game::with('system')->find($gameID);
 
     return !$game ? null : array_merge($game->toArray(), [
-        'ConsoleID' => $game->system->id,
+        'ConsoleID' => $game->system_id,
         'ConsoleName' => $game->system->name,
         'NumDistinctPlayers' => $game->players_total ?? 0,
+
+        // Backward-compat keys for legacy code that expects PascalCase column names.
+        'Title' => $game->title,
+        'ImageIcon' => $game->image_icon_asset_path,
+        'ImageTitle' => $game->image_title_asset_path,
+        'ImageIngame' => $game->image_ingame_asset_path,
+        'ImageBoxArt' => $game->image_box_art_asset_path,
+        'ForumTopicID' => $game->forum_topic_id,
+        'TotalTruePoints' => $game->points_weighted,
+        'RichPresencePatch' => $game->trigger_definition,
+        'GuideURL' => $game->legacy_guide_url,
     ]);
 }
 
@@ -182,15 +197,15 @@ function getGamesListByDev(
     $bindings = [];
 
     if ($sortBy < 10) {
-        $titleSort = ifStatement("gd.Title LIKE '~%'", 1, 0) . ", gd.Title";
+        $titleSort = ifStatement("gd.title LIKE '~%'", 1, 0) . ", gd.title";
     } else {
-        $titleSort = ifStatement("gd.Title LIKE '~%'", 0, 1) . ", gd.Title DESC";
+        $titleSort = ifStatement("gd.title LIKE '~%'", 0, 1) . ", gd.title DESC";
     }
 
     // Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
     $whereClause = '';
     if ($consoleID !== 0) {
-        $whereClause = "AND gd.ConsoleID = $consoleID";
+        $whereClause = "AND gd.system_id = $consoleID";
     } elseif ($sortBy < 10) {
         $titleSort .= ", s.name ";
     } else {
@@ -207,7 +222,7 @@ function getGamesListByDev(
 
     $listJoin = '';
     if ($listType !== null) {
-        $listJoin = "INNER JOIN user_game_list_entries ugle ON ugle.game_id = gd.ID";
+        $listJoin = "INNER JOIN user_game_list_entries ugle ON ugle.game_id = gd.id";
         $whereClause .= " AND ugle.user_id = " . request()->user()->ID . " AND ugle.type = :listType";
         $bindings['listType'] = $listType;
     }
@@ -238,27 +253,27 @@ function getGamesListByDev(
 
     $initialQuery = true;
     if ($sortBy === 4 || $sortBy === 14) { // NumLBs
-        $query = "SELECT $foundRows gd.ID, gd.points_total AS MaxPointsAvailable, SUM(!ISNULL(lb.ID)) AS NumLBs
-                  FROM GameData gd
-                  INNER JOIN systems s ON s.id = gd.ConsoleID $listJoin
-                  LEFT JOIN LeaderboardDef lb ON lb.GameID = gd.ID
+        $query = "SELECT $foundRows gd.id AS ID, gd.points_total AS MaxPointsAvailable, SUM(!ISNULL(lb.ID)) AS NumLBs
+                  FROM games gd
+                  INNER JOIN systems s ON s.id = gd.system_id $listJoin
+                  LEFT JOIN LeaderboardDef lb ON lb.GameID = gd.id
                   WHERE 1=1 $whereClause
-                  GROUP BY gd.ID, gd.points_total $orderBy";
+                  GROUP BY gd.id, gd.points_total $orderBy";
     } elseif ($sortBy === 5 || $sortBy === 15) { // OpenTickets
-        $query = "SELECT $foundRows gd.ID, SUM(!ISNULL(tick.ID)) AS OpenTickets
-                  FROM GameData gd
-                  INNER JOIN systems s ON s.id = gd.ConsoleID $listJoin
-                  LEFT JOIN Achievements ach ON ach.GameID=gd.ID
+        $query = "SELECT $foundRows gd.id AS ID, SUM(!ISNULL(tick.ID)) AS OpenTickets
+                  FROM games gd
+                  INNER JOIN systems s ON s.id = gd.system_id $listJoin
+                  LEFT JOIN Achievements ach ON ach.GameID=gd.id
                   LEFT JOIN Ticket tick ON tick.AchievementID=ach.ID AND tick.ReportState IN (1,3)
                   WHERE 1=1 $whereClause
-                  GROUP BY gd.ID $orderBy";
+                  GROUP BY gd.id $orderBy";
     } elseif ($sortBy === 6 || $sortBy === 16) { // DateModified
-        $query = "SELECT $foundRows gd.ID, MAX(ach.DateModified) AS DateModified
-                  FROM GameData gd
-                  INNER JOIN systems s ON s.id = gd.ConsoleID $listJoin
-                  LEFT JOIN Achievements ach ON ach.GameID=gd.ID AND ach.Flags=" . AchievementFlag::OfficialCore->value . "
+        $query = "SELECT $foundRows gd.id AS ID, MAX(ach.DateModified) AS DateModified
+                  FROM games gd
+                  INNER JOIN systems s ON s.id = gd.system_id $listJoin
+                  LEFT JOIN Achievements ach ON ach.GameID=gd.id AND ach.Flags=" . AchievementFlag::OfficialCore->value . "
                   WHERE 1=1 $whereClause
-                  GROUP BY gd.ID $orderBy";
+                  GROUP BY gd.id $orderBy";
     } else {
         // other sorts can be handled without an initial query
         $initialQuery = false;
@@ -285,19 +300,19 @@ function getGamesListByDev(
         }
 
         // already did the complex filters. replace with a simple filter on the matching game list
-        $whereClause = "AND gd.ID IN ($gameList)";
+        $whereClause = "AND gd.id IN ($gameList)";
         $orderBy = '';
         $foundRows = '';
         $listJoin = '';
         $bindings = [];
     }
 
-    $commonFields = 'gd.ID, gd.Title, gd.ImageIcon, gd.TotalTruePoints,
+    $commonFields = 'gd.id AS ID, gd.title AS Title, gd.image_icon_asset_path AS ImageIcon, gd.points_weighted AS TotalTruePoints,
                      COALESCE(gd.achievements_published,0) AS NumAchievements,
                      gd.points_total AS MaxPointsAvailable,
-                     CASE WHEN LENGTH(gd.RichPresencePatch) > 0 THEN 1 ELSE 0 END AS RichPresence,
-                     CASE WHEN gd.points_total > 0 THEN ROUND(gd.TotalTruePoints/gd.points_total, 2) ELSE 0.00 END AS RetroRatio,
-                     gd.ForumTopicID, gd.ConsoleID, s.name as ConsoleName';
+                     CASE WHEN LENGTH(gd.trigger_definition) > 0 THEN 1 ELSE 0 END AS RichPresence,
+                     CASE WHEN gd.points_total > 0 THEN ROUND(gd.points_weighted/gd.points_total, 2) ELSE 0.00 END AS RetroRatio,
+                     gd.forum_topic_id AS ForumTopicID, gd.system_id AS ConsoleID, s.name as ConsoleName';
 
     $games = [];
     if ($dev !== null) {
@@ -305,8 +320,8 @@ function getGamesListByDev(
                          COUNT(*) AS MyAchievements,
                          SUM(ach.Points) AS MyPoints, SUM(ach.TrueRatio) AS MyTrueRatio
                   FROM Achievements ach
-                  INNER JOIN GameData gd ON gd.ID = ach.GameID
-                  INNER JOIN systems s ON s.id = gd.ConsoleID $listJoin
+                  INNER JOIN games gd ON gd.id = ach.GameID
+                  INNER JOIN systems s ON s.id = gd.system_id $listJoin
                   WHERE ach.user_id = :userId AND ach.Flags = " . AchievementFlag::OfficialCore->value . " $whereClause
                   GROUP BY ach.GameID $orderBy";
         foreach (legacyDbFetchAll($query, ['userId' => $dev->id]) as $row) {
@@ -336,10 +351,10 @@ function getGamesListByDev(
         }
     } else {
         $query = "SELECT $foundRows $commonFields
-                  FROM GameData gd
-                  INNER JOIN systems s ON s.id = gd.ConsoleID $listJoin
+                  FROM games gd
+                  INNER JOIN systems s ON s.id = gd.system_id $listJoin
                   WHERE 1=1 $whereClause
-                  GROUP BY gd.ID $orderBy";
+                  GROUP BY gd.id $orderBy";
         foreach (legacyDbFetchAll($query, $bindings) as $row) {
             if (!$initialQuery) {
                 $gameIds[] = $row['ID'];
@@ -457,19 +472,19 @@ function getGamesListData(?int $consoleID = null, bool $officialFlag = false): a
     $leftJoinAch = "";
     $whereClause = "";
     if ($officialFlag) {
-        $leftJoinAch = "LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID ";
+        $leftJoinAch = "LEFT JOIN Achievements AS ach ON ach.GameID = gd.id ";
         $whereClause = "WHERE ach.Flags=" . AchievementFlag::OfficialCore->value . ' ';
     }
 
     // Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
     if (!empty($consoleID)) {
         $whereClause .= $officialFlag ? "AND " : "WHERE ";
-        $whereClause .= "ConsoleID=$consoleID ";
+        $whereClause .= "system_id=$consoleID ";
     }
 
-    $query = "SELECT DISTINCT gd.Title, gd.ID, gd.ConsoleID, gd.ImageIcon, s.name as ConsoleName
-              FROM GameData AS gd
-              LEFT JOIN systems AS s ON s.id = gd.ConsoleID
+    $query = "SELECT DISTINCT gd.title AS Title, gd.id AS ID, gd.system_id AS ConsoleID, gd.image_icon_asset_path AS ImageIcon, s.name as ConsoleName
+              FROM games AS gd
+              LEFT JOIN systems AS s ON s.id = gd.system_id
               $leftJoinAch
               $whereClause
               ORDER BY ConsoleName, Title";
@@ -494,17 +509,17 @@ function getGamesList(?int $consoleID, array &$dataOut, bool $officialFlag = fal
 
 function getGamesListDataNamesOnly(int $consoleId, bool $officialFlag = false): array
 {
-    return Game::join('systems', 'GameData.ConsoleID', '=', 'systems.id')
+    return Game::join('systems', 'games.system_id', '=', 'systems.id')
         ->when($consoleId !== 0, function ($query) use ($consoleId) {
-            return $query->where(DB::raw('GameData.ConsoleID'), '=', $consoleId);
+            return $query->where(DB::raw('games.system_id'), '=', $consoleId);
         })
         ->when($officialFlag === true, function ($query) {
-            return $query->where(DB::raw('GameData.achievements_published'), '>', 0);
+            return $query->where(DB::raw('games.achievements_published'), '>', 0);
         })
         ->orderBy('systems.name')
-        ->orderBy(DB::raw('GameData.Title'))
-        ->select(DB::raw('GameData.Title'), DB::raw('GameData.ID'))
-        ->pluck(DB::raw('GameData.Title'), 'GameData.ID') // return mapping of ID => Title
+        ->orderBy(DB::raw('games.title'))
+        ->select(DB::raw('games.title'), DB::raw('games.id'))
+        ->pluck(DB::raw('games.title'), 'games.id') // return mapping of id => title
         ->toArray();
 }
 
@@ -512,9 +527,9 @@ function getGameIDFromTitle(string $gameTitle, int $consoleID): int
 {
     sanitize_sql_inputs($gameTitle);
 
-    $query = "SELECT gd.ID
-              FROM GameData AS gd
-              WHERE gd.Title='$gameTitle' AND gd.ConsoleID='$consoleID'";
+    $query = "SELECT gd.id AS ID
+              FROM games AS gd
+              WHERE gd.title='$gameTitle' AND gd.system_id='$consoleID'";
 
     $dbResult = s_mysql_query($query);
     if ($retVal = mysqli_fetch_assoc($dbResult)) {
@@ -547,21 +562,21 @@ function modifyGameData(
     $guideUrl = TrimGameMetadataAction::trimWhitespace($guideUrl);
 
     $modifications = [];
-    if ($game->Developer !== $developer) {
+    if ($game->developer !== $developer) {
         $modifications[] = "developer";
-        $game->Developer = $developer;
+        $game->developer = $developer;
     }
-    if ($game->Publisher !== $publisher) {
+    if ($game->publisher !== $publisher) {
         $modifications[] = "publisher";
-        $game->Publisher = $publisher;
+        $game->publisher = $publisher;
     }
-    if ($game->Genre !== $genre) {
+    if ($game->genre !== $genre) {
         $modifications[] = "genre";
-        $game->Genre = $genre;
+        $game->genre = $genre;
     }
-    if ($game->GuideURL !== $guideUrl) {
+    if ($game->legacy_guide_url !== $guideUrl) {
         $modifications[] = "Guide URL";
-        $game->GuideURL = $guideUrl;
+        $game->legacy_guide_url = $guideUrl;
     }
 
     if (count($modifications) == 0) {
@@ -638,7 +653,7 @@ function modifyGameForumTopic(string $username, int $gameId, int $newForumTopicI
         return false;
     }
 
-    $game->ForumTopicID = $newForumTopicId;
+    $game->forum_topic_id = $newForumTopicId;
     $game->save();
 
     addArticleComment('Server', ArticleType::GameModification, $gameId, "{$user->display_name} changed the forum topic");
@@ -653,7 +668,7 @@ function getRichPresencePatch(int $gameId, ?string &$dataOut): bool
         return false;
     }
 
-    $dataOut = $game->RichPresencePatch;
+    $dataOut = $game->trigger_definition;
 
     return true;
 }

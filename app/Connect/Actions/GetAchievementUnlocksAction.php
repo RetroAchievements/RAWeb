@@ -80,7 +80,7 @@ class GetAchievementUnlocksAction extends BaseAuthenticatedApiAction
             'Count' => $this->count,
             'Response' => [
                 'NumEarned' => $achievement->unlocks_total,
-                'GameID' => $achievement->game->ID,
+                'GameID' => $achievement->game->id,
                 'TotalPlayers' => $achievement->game->players_total,
                 'RecentWinner' => $recentWinners,
             ],

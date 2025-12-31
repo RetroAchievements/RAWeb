@@ -118,7 +118,7 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
     {
         $user = User::factory()->create();
         System::factory()->create(['id' => System::Events]);
-        $game = Game::factory()->create(['ConsoleID' => System::Events, 'achievements_published' => 3, 'points_total' => 6]);
+        $game = Game::factory()->create(['system_id' => System::Events, 'achievements_published' => 3, 'points_total' => 6]);
         $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 1]);
         $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 1]);
         $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 2]);

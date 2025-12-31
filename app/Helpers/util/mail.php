@@ -185,7 +185,7 @@ function informAllSubscribersAboutActivity(
                 return;
             }
 
-            $articleTitle = "{$game->Title} ({$game->system->name})";
+            $articleTitle = "{$game->title} ({$game->system->name})";
             $urlTarget = route('game.show', ['game' => $game, 'tab' => 'community']);
             $articleEmailPreference = UserPreference::EmailOn_AchievementComment;
             $subscriptionSubjectType = SubscriptionSubjectType::GameWall;
@@ -197,7 +197,7 @@ function informAllSubscribersAboutActivity(
                 return;
             }
 
-            $articleTitle = "{$achievement->Title} ({$achievement->game->Title})";
+            $articleTitle = "{$achievement->title} ({$achievement->game->title})";
             $urlTarget = route('achievement.show', $achievement);
             $subjectAuthor = $achievement->developer;
             $articleEmailPreference = UserPreference::EmailOn_AchievementComment;
@@ -227,7 +227,7 @@ function informAllSubscribersAboutActivity(
                 return;
             }
 
-            $articleTitle = "{$leaderboard->Title} ({$leaderboard->game->Title})";
+            $articleTitle = "{$leaderboard->title} ({$leaderboard->game->title})";
             $urlTarget = "leaderboardinfo.php?i=$articleID";
             $articleEmailPreference = UserPreference::EmailOn_AchievementComment;
             $subscriptionSubjectType = SubscriptionSubjectType::Leaderboard;
@@ -239,7 +239,7 @@ function informAllSubscribersAboutActivity(
                 return;
             }
 
-            $articleTitle = "{$ticket->achievement->Title} ({$ticket->achievement->game->Title})";
+            $articleTitle = "{$ticket->achievement->title} ({$ticket->achievement->game->title})";
             $urlTarget = route('ticket.show', ['ticket' => $ticket->ID]);
             $subjectAuthor = $ticket->reporter;
             $articleEmailPreference = UserPreference::EmailOn_TicketActivity;

@@ -42,18 +42,18 @@ class UserRecentlyPlayedGamesTest extends TestCase
     {
         $game = $this->seedGame(achievements: 3);
         $game->fill([
-            'ImageIcon' => '/Images/001234.png',
-            'ImageTitle' => '/Images/000002.png',
-            'ImageIngame' => '/Images/000003.png',
-            'ImageBoxArt' => '/Images/000004.png',
+            'image_icon_asset_path' => '/Images/001234.png',
+            'image_title_asset_path' => '/Images/000002.png',
+            'image_ingame_asset_path' => '/Images/000003.png',
+            'image_box_art_asset_path' => '/Images/000004.png',
         ]);
         $game->save();
         $publishedAchievements = $game->achievements;
         $game2 = $this->seedGame();
         $game2->fill([
-            'ImageTitle' => '/Images/000005.png',
-            'ImageIngame' => '/Images/000006.png',
-            'ImageBoxArt' => '/Images/000007.png',
+            'image_title_asset_path' => '/Images/000005.png',
+            'image_ingame_asset_path' => '/Images/000006.png',
+            'image_box_art_asset_path' => '/Images/000007.png',
         ]);
         $game2->save();
         /** @var User $user */
@@ -75,8 +75,8 @@ class UserRecentlyPlayedGamesTest extends TestCase
 
         // addHardcoreUnlock will create a player_game for game. need to manually create one for game2
         $playerGame2 = new PlayerGame([
-            'user_id' => $user->ID,
-            'game_id' => $game2->ID,
+            'user_id' => $user->id,
+            'game_id' => $game2->id,
             'created_at' => Carbon::now()->subHours(1),
             'last_played_at' => Carbon::now()->subMinutes(5),
         ]);
@@ -86,14 +86,14 @@ class UserRecentlyPlayedGamesTest extends TestCase
             ->assertSuccessful()
             ->assertJson([
                 [
-                    'GameID' => $game2->ID,
-                    'Title' => $game2->Title,
+                    'GameID' => $game2->id,
+                    'Title' => $game2->title,
                     'ConsoleID' => $game2->system->id,
                     'ConsoleName' => $game2->system->name,
-                    'ImageIcon' => $game2->ImageIcon,
-                    'ImageTitle' => $game2->ImageTitle,
-                    'ImageIngame' => $game2->ImageIngame,
-                    'ImageBoxArt' => $game2->ImageBoxArt,
+                    'ImageIcon' => $game2->image_icon_asset_path,
+                    'ImageTitle' => $game2->image_title_asset_path,
+                    'ImageIngame' => $game2->image_ingame_asset_path,
+                    'ImageBoxArt' => $game2->image_box_art_asset_path,
                     'LastPlayed' => $playerGame2->last_played_at->__toString(),
                     'NumPossibleAchievements' => 0,
                     'PossibleScore' => 0,
@@ -103,14 +103,14 @@ class UserRecentlyPlayedGamesTest extends TestCase
                     'ScoreAchievedHardcore' => 0,
                 ],
                 [
-                    'GameID' => $game->ID,
-                    'Title' => $game->Title,
+                    'GameID' => $game->id,
+                    'Title' => $game->title,
                     'ConsoleID' => $game->system->id,
                     'ConsoleName' => $game->system->name,
-                    'ImageIcon' => $game->ImageIcon,
-                    'ImageTitle' => $game->ImageTitle,
-                    'ImageIngame' => $game->ImageIngame,
-                    'ImageBoxArt' => $game->ImageBoxArt,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageTitle' => $game->image_title_asset_path,
+                    'ImageIngame' => $game->image_ingame_asset_path,
+                    'ImageBoxArt' => $game->image_box_art_asset_path,
                     'LastPlayed' => $playerGame->last_played_at->__toString(),
                     'NumPossibleAchievements' => 3,
                     'PossibleScore' => $publishedAchievements->get(0)->Points +

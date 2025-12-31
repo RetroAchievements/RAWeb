@@ -207,8 +207,8 @@ class LeaderboardResource extends Resource
                     ->toggleable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->orWhereHas('game', function (Builder $subQuery) use ($search) {
-                            $subQuery->where('ID', 'like', "%{$search}%")
-                                ->orWhere('Title', 'like', "%{$search}%");
+                            $subQuery->where('id', 'like', "%{$search}%")
+                                ->orWhere('title', 'like', "%{$search}%");
                         });
                     }),
 
@@ -251,8 +251,8 @@ class LeaderboardResource extends Resource
                             ->label('Game')
                             ->searchable()
                             ->getSearchResultsUsing(function (string $search): array {
-                                return Game::where('Title', 'like', "%{$search}%")
-                                    ->orWhere('ID', 'like', "%{$search}%")
+                                return Game::where('title', 'like', "%{$search}%")
+                                    ->orWhere('id', 'like', "%{$search}%")
                                     ->limit(50)
                                     ->get()
                                     ->mapWithKeys(function ($game) {

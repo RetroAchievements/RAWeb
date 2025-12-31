@@ -235,7 +235,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
      */
     public function game(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'GameID', 'ID');
+        return $this->belongsTo(Game::class, 'GameID', 'id');
     }
 
     /**

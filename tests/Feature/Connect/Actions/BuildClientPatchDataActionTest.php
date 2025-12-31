@@ -47,10 +47,10 @@ class BuildClientPatchDataActionTest extends TestCase
         ?string $richPresencePatch = "Display:\nTest",
     ): Game {
         $game = Game::factory()->create([
-            'Title' => $title,
-            'ConsoleID' => $system->id,
-            'ImageIcon' => $imagePath,
-            'RichPresencePatch' => $richPresencePatch,
+            'title' => $title,
+            'system_id' => $system->id,
+            'image_icon_asset_path' => $imagePath,
+            'trigger_definition' => $richPresencePatch,
         ]);
 
         Achievement::factory()->published()->count($publishedCount)->create(['GameID' => $game->id]);
@@ -67,10 +67,10 @@ class BuildClientPatchDataActionTest extends TestCase
         $this->assertEquals($game->id, $patchData['ID']);
         $this->assertEquals($game->id, $patchData['ParentID']);
         $this->assertEquals($game->title, $patchData['Title']);
-        $this->assertEquals($game->ConsoleID, $patchData['ConsoleID']);
-        $this->assertEquals($game->ImageIcon, $patchData['ImageIcon']);
-        $this->assertEquals($game->RichPresencePatch, $patchData['RichPresencePatch']);
-        $this->assertEquals(media_asset($game->ImageIcon), $patchData['ImageIconURL']);
+        $this->assertEquals($game->system_id, $patchData['ConsoleID']);
+        $this->assertEquals($game->image_icon_asset_path, $patchData['ImageIcon']);
+        $this->assertEquals($game->trigger_definition, $patchData['RichPresencePatch']);
+        $this->assertEquals(media_asset($game->image_icon_asset_path), $patchData['ImageIconURL']);
     }
 
     /**
@@ -107,9 +107,9 @@ class BuildClientPatchDataActionTest extends TestCase
     {
         // Arrange
         $game = Game::factory()->create([
-            'ConsoleID' => $this->system->id,
-            'ImageIcon' => '/Images/000011.png',
-            'RichPresencePatch' => "Display:\nTest",
+            'system_id' => $this->system->id,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'trigger_definition' => "Display:\nTest",
         ]);
 
         // Act
@@ -313,7 +313,7 @@ class BuildClientPatchDataActionTest extends TestCase
         $this->assertTrue($result['Success']);
         $this->assertEmpty($result['PatchData']['Achievements']);
         $this->assertEquals($game->id, $result['PatchData']['ID']);
-        $this->assertEquals($game->RichPresencePatch, $result['PatchData']['RichPresencePatch']);
+        $this->assertEquals($game->trigger_definition, $result['PatchData']['RichPresencePatch']);
     }
 
     public function testItBuildsPatchDataWithGameHashAndNullUser(): void

@@ -114,7 +114,7 @@ class UpdateAchievementMetricsAction
             $this->performBulkUpdate($bulkUpdates);
         }
 
-        $game->TotalTruePoints = $game->achievements()->published()->sum('TrueRatio');
+        $game->points_weighted = $game->achievements()->published()->sum('TrueRatio');
         if ($game->isDirty()) {
             $game->saveQuietly();
 
@@ -122,7 +122,7 @@ class UpdateAchievementMetricsAction
             $coreGameAchievementSet = $game->gameAchievementSets()->core()->first();
             if ($coreGameAchievementSet) {
                 $coreSet = $coreGameAchievementSet->achievementSet;
-                $coreSet->points_weighted = $game->TotalTruePoints;
+                $coreSet->points_weighted = $game->points_weighted;
                 $coreSet->save();
             }
 

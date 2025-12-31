@@ -26,7 +26,7 @@ class CacheMostPopularSystems extends Command
                 s.id AS system_id,
                 COUNT(DISTINCT pg.user_id) * (1 / {$sampleRate}) AS estimated_player_count
             FROM systems s
-            JOIN GameData g ON s.id = g.ConsoleID
+            JOIN games g ON s.id = g.system_id
             JOIN (
                 SELECT
                     game_id,
@@ -37,7 +37,7 @@ class CacheMostPopularSystems extends Command
                     deleted_at IS NULL
                     AND last_played_at >= DATE_SUB(NOW(), INTERVAL 1 YEAR)
                     AND RAND() < {$sampleRate}
-            ) pg ON g.ID = pg.game_id
+            ) pg ON g.id = pg.game_id
             WHERE
                 g.deleted_at IS NULL
                 AND s.id NOT IN (" . System::Hubs . ", " . System::Events . ", " . System::Standalones . ")

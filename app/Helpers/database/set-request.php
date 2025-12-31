@@ -18,8 +18,8 @@ function getUserRequestsInformation(User $user, int $gameId = -1): array
     // Requests made for games that since received achievements do not count towards a used request
     $setRequests = UserGameListEntry::where('user_id', $user->id)
         ->where('type', UserGameListType::AchievementSetRequest)
-        ->join('GameData', 'GameData.ID', '=', 'game_id')
-        ->select(['GameData.ID', 'GameData.achievements_published']);
+        ->join('games', 'games.id', '=', 'game_id')
+        ->select(['games.id', 'games.achievements_published']);
     foreach ($setRequests->get() as $request) {
         // If the game does not have achievements then it counts as a legit request
         if ($request['achievements_published'] == 0) {
@@ -27,7 +27,7 @@ function getUserRequestsInformation(User $user, int $gameId = -1): array
         }
 
         // Determine if we have made a request for the input game
-        if ($request['ID'] == $gameId) {
+        if ($request['id'] == $gameId) {
             $requests['requestedThisGame'] = 1;
         }
     }

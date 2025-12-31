@@ -34,11 +34,11 @@ $gameListHref = System::isGameSystem($game->system->id)
     {{-- If there's a current page label, then show game metadata as a URL. Otherwise, it's plain text. --}}
     @if ($currentPageLabel)
         <a href="{{ route('game.show', $game->id) }}">
-            <x-game-title :rawTitle="$game->Title" />
+            <x-game-title :rawTitle="$game->title" />
         </a>
     @else
         <span class="font-bold">
-            <x-game-title :rawTitle="$game->Title" />
+            <x-game-title :rawTitle="$game->title" />
         </span>
     @endif
 

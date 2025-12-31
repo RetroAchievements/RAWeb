@@ -25,13 +25,13 @@ class CreateAchievementOfTheWeek
 
         $eventTitle = "Achievement of the Week $year";
 
-        $eventGame = Game::firstWhere('Title', '=', $eventTitle);
+        $eventGame = Game::firstWhere('title', '=', $eventTitle);
         if (!$eventGame) {
             $eventGame = new Game([
-                'Title' => $eventTitle,
+                'title' => $eventTitle,
                 'sort_title' => (new ComputeSortTitleAction())->execute($eventTitle),
-                'Publisher' => 'RetroAchievements',
-                'ConsoleID' => System::Events,
+                'publisher' => 'RetroAchievements',
+                'system_id' => System::Events,
             ]);
             // these properties are not fillable, so have to be set manually
             $eventGame->players_total = 0;
@@ -47,7 +47,7 @@ class CreateAchievementOfTheWeek
             }
 
             Event::create([
-                'legacy_game_id' => $eventGame->ID,
+                'legacy_game_id' => $eventGame->id,
                 'active_from' => $startDate,
                 'active_until' => $nextDate,
             ]);

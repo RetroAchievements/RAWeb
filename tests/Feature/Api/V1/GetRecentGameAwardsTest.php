@@ -42,7 +42,7 @@ class GetRecentGameAwardsTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create(['id' => 1]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $this->addGameBeatenAward($playerOne, $game, UnlockMode::Softcore, Carbon::now()->subMinutes(5));
         $this->addGameBeatenAward($playerTwo, $game, UnlockMode::Hardcore, Carbon::now()->subMinutes(10));
@@ -60,8 +60,8 @@ class GetRecentGameAwardsTest extends TestCase
                         'ULID' => $playerThree->ulid,
                         'AwardKind' => 'completed',
                         'AwardDate' => Carbon::now()->subMinutes(1)->toIso8601String(),
-                        'GameID' => $game->ID,
-                        'GameTitle' => $game->Title,
+                        'GameID' => $game->id,
+                        'GameTitle' => $game->title,
                         'ConsoleID' => $system->id,
                         'ConsoleName' => $system->name,
                     ],
@@ -70,8 +70,8 @@ class GetRecentGameAwardsTest extends TestCase
                         'ULID' => $playerOne->ulid,
                         'AwardKind' => 'beaten-softcore',
                         'AwardDate' => Carbon::now()->subMinutes(5)->toIso8601String(),
-                        'GameID' => $game->ID,
-                        'GameTitle' => $game->Title,
+                        'GameID' => $game->id,
+                        'GameTitle' => $game->title,
                         'ConsoleID' => $system->id,
                         'ConsoleName' => $system->name,
                     ],
@@ -80,8 +80,8 @@ class GetRecentGameAwardsTest extends TestCase
                         'ULID' => $playerTwo->ulid,
                         'AwardKind' => 'beaten-hardcore',
                         'AwardDate' => Carbon::now()->subMinutes(10)->toIso8601String(),
-                        'GameID' => $game->ID,
-                        'GameTitle' => $game->Title,
+                        'GameID' => $game->id,
+                        'GameTitle' => $game->title,
                         'ConsoleID' => $system->id,
                         'ConsoleName' => $system->name,
                     ],
@@ -90,8 +90,8 @@ class GetRecentGameAwardsTest extends TestCase
                         'ULID' => $playerFour->ulid,
                         'AwardKind' => 'mastered',
                         'AwardDate' => Carbon::now()->subMinutes(15)->toIso8601String(),
-                        'GameID' => $game->ID,
-                        'GameTitle' => $game->Title,
+                        'GameID' => $game->id,
+                        'GameTitle' => $game->title,
                         'ConsoleID' => $system->id,
                         'ConsoleName' => $system->name,
                     ],
@@ -114,7 +114,7 @@ class GetRecentGameAwardsTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create(['id' => 1]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $this->addGameBeatenAward($playerOne, $game, UnlockMode::Softcore, Carbon::now()->subMinutes(5));
         $this->addGameBeatenAward($playerTwo, $game, UnlockMode::Hardcore, Carbon::now()->subMinutes(10));
@@ -132,8 +132,8 @@ class GetRecentGameAwardsTest extends TestCase
                         'ULID' => $playerThree->ulid,
                         'AwardKind' => 'completed',
                         'AwardDate' => Carbon::now()->subMinutes(1)->toIso8601String(),
-                        'GameID' => $game->ID,
-                        'GameTitle' => $game->Title,
+                        'GameID' => $game->id,
+                        'GameTitle' => $game->title,
                         'ConsoleID' => $system->id,
                         'ConsoleName' => $system->name,
                     ],
@@ -142,8 +142,8 @@ class GetRecentGameAwardsTest extends TestCase
                         'ULID' => $playerOne->ulid,
                         'AwardKind' => 'beaten-softcore',
                         'AwardDate' => Carbon::now()->subMinutes(5)->toIso8601String(),
-                        'GameID' => $game->ID,
-                        'GameTitle' => $game->Title,
+                        'GameID' => $game->id,
+                        'GameTitle' => $game->title,
                         'ConsoleID' => $system->id,
                         'ConsoleName' => $system->name,
                     ],
@@ -166,7 +166,7 @@ class GetRecentGameAwardsTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create(['id' => 1]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $this->addGameBeatenAward($playerOne, $game, UnlockMode::Softcore, Carbon::now()->subMinutes(5));
         $this->addGameBeatenAward($playerTwo, $game, UnlockMode::Hardcore, Carbon::now()->subMinutes(10));
@@ -184,8 +184,8 @@ class GetRecentGameAwardsTest extends TestCase
                         'ULID' => $playerFour->ulid,
                         'AwardKind' => 'mastered',
                         'AwardDate' => Carbon::now()->subMinutes(15)->toIso8601String(),
-                        'GameID' => $game->ID,
-                        'GameTitle' => $game->Title,
+                        'GameID' => $game->id,
+                        'GameTitle' => $game->title,
                         'ConsoleID' => $system->id,
                         'ConsoleName' => $system->name,
                     ],
