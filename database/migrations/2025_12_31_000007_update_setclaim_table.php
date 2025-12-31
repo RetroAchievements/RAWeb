@@ -55,27 +55,25 @@ return new class extends Migration {
 
     public function down(): void
     {
-        if (DB::connection()->getDriverName() !== 'sqlite') {
-            DB::table('achievement_set_claims')->where('claim_type', 'primary')->update(['claim_type' => '0']);
-            DB::table('achievement_set_claims')->where('claim_type', 'collaboration')->update(['claim_type' => '1']);
-            DB::statement("ALTER TABLE achievement_set_claims MODIFY claim_type TINYINT UNSIGNED");
+        DB::table('achievement_set_claims')->where('claim_type', 'primary')->update(['claim_type' => '0']);
+        DB::table('achievement_set_claims')->where('claim_type', 'collaboration')->update(['claim_type' => '1']);
+        DB::statement("ALTER TABLE achievement_set_claims MODIFY claim_type TINYINT UNSIGNED");
 
-            DB::table('achievement_set_claims')->where('set_type', 'new_set')->update(['set_type' => '0']);
-            DB::table('achievement_set_claims')->where('set_type', 'revision')->update(['set_type' => '1']);
-            DB::statement("ALTER TABLE achievement_set_claims MODIFY set_type TINYINT UNSIGNED");
+        DB::table('achievement_set_claims')->where('set_type', 'new_set')->update(['set_type' => '0']);
+        DB::table('achievement_set_claims')->where('set_type', 'revision')->update(['set_type' => '1']);
+        DB::statement("ALTER TABLE achievement_set_claims MODIFY set_type TINYINT UNSIGNED");
 
-            DB::table('achievement_set_claims')->where('status', 'active')->update(['status' => '0']);
-            DB::table('achievement_set_claims')->where('status', 'complete')->update(['status' => '1']);
-            DB::table('achievement_set_claims')->where('status', 'dropped')->update(['status' => '2']);
-            DB::table('achievement_set_claims')->where('status', 'in_review')->update(['status' => '3']);
-            DB::statement("ALTER TABLE achievement_set_claims MODIFY status TINYINT UNSIGNED");
+        DB::table('achievement_set_claims')->where('status', 'active')->update(['status' => '0']);
+        DB::table('achievement_set_claims')->where('status', 'complete')->update(['status' => '1']);
+        DB::table('achievement_set_claims')->where('status', 'dropped')->update(['status' => '2']);
+        DB::table('achievement_set_claims')->where('status', 'in_review')->update(['status' => '3']);
+        DB::statement("ALTER TABLE achievement_set_claims MODIFY status TINYINT UNSIGNED");
 
-            DB::table('achievement_set_claims')->where('special_type', 'none')->update(['special_type' => '0']);
-            DB::table('achievement_set_claims')->where('special_type', 'own_revision')->update(['special_type' => '1']);
-            DB::table('achievement_set_claims')->where('special_type', 'free_rollout')->update(['special_type' => '2']);
-            DB::table('achievement_set_claims')->where('special_type', 'scheduled_release')->update(['special_type' => '3']);
-            DB::statement("ALTER TABLE achievement_set_claims MODIFY special_type TINYINT UNSIGNED");
-        }
+        DB::table('achievement_set_claims')->where('special_type', 'none')->update(['special_type' => '0']);
+        DB::table('achievement_set_claims')->where('special_type', 'own_revision')->update(['special_type' => '1']);
+        DB::table('achievement_set_claims')->where('special_type', 'free_rollout')->update(['special_type' => '2']);
+        DB::table('achievement_set_claims')->where('special_type', 'scheduled_release')->update(['special_type' => '3']);
+        DB::statement("ALTER TABLE achievement_set_claims MODIFY special_type TINYINT UNSIGNED");
 
         Schema::rename('achievement_set_claims', 'SetClaim');
 
