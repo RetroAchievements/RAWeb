@@ -6,7 +6,7 @@ namespace App\Community\Concerns;
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\UserGameListType;
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\Comment;
 use App\Models\EmailConfirmation;
 use App\Models\ForumTopicComment;
@@ -78,7 +78,7 @@ trait ActsAsCommunityMember
         $query = $this->hasMany(UserGameListEntry::class, 'user_id', 'ID');
 
         if ($type !== null) {
-            $query->where(DB::raw('SetRequest.type'), $type);
+            $query->where(DB::raw('user_game_list_entries.type'), $type);
         }
 
         return $query;
@@ -99,7 +99,7 @@ trait ActsAsCommunityMember
     public function relatedUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'user_id', 'related_user_id')
-            ->withPivot('Friendship'); // TODO rename to `status`
+            ->withPivot('status');
     }
 
     /**
@@ -108,7 +108,7 @@ trait ActsAsCommunityMember
     public function inverseRelatedUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'related_user_id', 'user_id')
-            ->withPivot('Friendship'); // TODO rename to `status`
+            ->withPivot('status');
     }
 
     /**
@@ -116,7 +116,7 @@ trait ActsAsCommunityMember
      */
     public function followedUsers(): BelongsToMany
     {
-        return $this->relatedUsers()->where('Friendship', '=', UserRelationship::Following);
+        return $this->relatedUsers()->where('status', '=', UserRelationStatus::Following);
     }
 
     /**
@@ -124,24 +124,29 @@ trait ActsAsCommunityMember
      */
     public function followerUsers(): BelongsToMany
     {
-        return $this->inverseRelatedUsers()->where('Friendship', '=', UserRelationship::Following);
+        return $this->inverseRelatedUsers()->where('status', '=', UserRelationStatus::Following);
     }
 
-    public function getRelationship(User $user): int
+    public function getRelationship(User $user): UserRelationStatus
     {
         $relatedUser = $this->relatedUsers()->where('related_user_id', $user->id)->first();
 
-        return $relatedUser ? $relatedUser->pivot->Friendship : UserRelationship::NotFollowing;
+        if (!$relatedUser) {
+            return UserRelationStatus::NotFollowing;
+        }
+
+        // The pivot doesn't automatically apply casts, so we cast it manually.
+        return UserRelationStatus::from($relatedUser->pivot->status);
     }
 
     public function isFollowing(User $user): bool
     {
-        return $this->getRelationship($user) === UserRelationship::Following;
+        return $this->getRelationship($user) === UserRelationStatus::Following;
     }
 
     public function isBlocking(User $user): bool
     {
-        return $this->getRelationship($user) === UserRelationship::Blocked;
+        return $this->getRelationship($user) === UserRelationStatus::Blocked;
     }
 
     public function isFreshAccount(): bool

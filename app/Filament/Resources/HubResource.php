@@ -153,7 +153,7 @@ class HubResource extends Resource
                             ->label('Sort Title')
                             ->required()
                             ->minLength(2)
-                            ->visible(fn () => $user->can('updateField', [$schema->model, 'sort_title']))
+                            ->visible(fn ($record) => $user->can('updateField', [$record, 'sort_title']))
                             ->helperText('Normalized title for sorting. DON\'T CHANGE UNLESS YOU KNOW WHAT YOU\'RE DOING.'),
 
                         Forms\Components\TextInput::make('forum_topic_id')

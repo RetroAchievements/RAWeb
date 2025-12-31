@@ -80,14 +80,14 @@ class UserGameListApiControllerTest extends TestCase
                 'success' => true,
                 'data' => [
                     'user_id' => $user->id,
-                    'GameID' => $game->id,
+                    'game_id' => $game->id,
                     'type' => UserGameListType::Play->value,
                 ],
             ]);
 
         $this->assertDatabaseHas(UserGameListEntry::getFullTableName(), [
             'user_id' => $user->id,
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'type' => UserGameListType::Play->value,
         ]);
     }
@@ -117,7 +117,7 @@ class UserGameListApiControllerTest extends TestCase
 
         $this->assertDatabaseMissing(UserGameListEntry::getFullTableName(), [
             'user_id' => $user->id,
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'type' => UserGameListType::Play->value,
         ]);
     }
