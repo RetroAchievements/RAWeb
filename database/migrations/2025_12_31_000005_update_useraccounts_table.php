@@ -10,13 +10,6 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        // Drop foreign key constraint on UserAccounts that references columns we're renaming.
-        if (DB::connection()->getDriverName() !== 'sqlite') {
-            Schema::table('UserAccounts', function (Blueprint $table) {
-                $table->dropForeign('useraccounts_visible_role_id_foreign');
-            });
-        }
-
         // Rename columns.
         Schema::table('UserAccounts', function (Blueprint $table) {
             $table->renameColumn('ID', 'id');
@@ -50,16 +43,6 @@ return new class extends Migration {
 
         // Rename the table.
         Schema::rename('UserAccounts', 'users');
-
-        // Recreate foreign key constraint with new column names.
-        if (DB::connection()->getDriverName() !== 'sqlite') {
-            Schema::table('users', function (Blueprint $table) {
-                $table->foreign('visible_role_id', 'users_visible_role_id_foreign')
-                    ->references('id')
-                    ->on('auth_roles')
-                    ->onDelete('set null');
-            });
-        }
 
         // Rename indexes to match the new table and column names.
         if (DB::connection()->getDriverName() !== 'sqlite') {
@@ -157,13 +140,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        // Drop new foreign key constraint.
-        if (DB::connection()->getDriverName() !== 'sqlite') {
-            Schema::table('users', function (Blueprint $table) {
-                $table->dropForeign('users_visible_role_id_foreign');
-            });
-        }
-
         // Restore original column order (before renaming columns back).
         DB::statement(<<<SQL
             ALTER TABLE users
@@ -265,15 +241,5 @@ return new class extends Migration {
             $table->renameColumn('deleted_at', 'Deleted');
             $table->renameColumn('email_original', 'email_backup');
         });
-
-        // Recreate original foreign key constraint.
-        if (DB::connection()->getDriverName() !== 'sqlite') {
-            Schema::table('UserAccounts', function (Blueprint $table) {
-                $table->foreign('visible_role_id', 'useraccounts_visible_role_id_foreign')
-                    ->references('id')
-                    ->on('auth_roles')
-                    ->onDelete('set null');
-            });
-        }
     }
 };
