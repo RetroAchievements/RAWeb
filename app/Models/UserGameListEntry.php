@@ -7,7 +7,6 @@ namespace App\Models;
 use App\Community\Enums\UserGameListType;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\UserGameListEntryFactory;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -17,22 +16,16 @@ class UserGameListEntry extends BaseModel
     /** @use HasFactory<UserGameListEntryFactory> */
     use HasFactory;
 
-    // TODO rename SetRequest to user_game_list_entry or integrate into player_games table
-    // TODO rename GameID to game_id
-    // TODO drop user_game_list_entry_username_game_id_type_unique
-    protected $table = 'SetRequest';
-
-    public const CREATED_AT = 'created_at';
-    public const UPDATED_AT = 'Updated';
+    // TODO if we ever create a user_game_lists table for multiple "play" etc lists, drop user_game_list_entry_username_game_id_type_unique
+    protected $table = 'user_game_list_entries';
 
     protected $fillable = [
         'user_id',
         'type',
-        'GameID',
+        'game_id',
     ];
 
     protected $casts = [
-        'GameID' => 'integer',
         'type' => UserGameListType::class,
     ];
 
@@ -41,7 +34,7 @@ class UserGameListEntry extends BaseModel
         return UserGameListEntryFactory::new();
     }
 
-    // helpers
+    // == helpers
 
     public static function getUserSetRequestsInformation(User $user): array
     {
@@ -106,21 +99,8 @@ class UserGameListEntry extends BaseModel
      */
     public function game(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'GameID', 'ID');
+        return $this->belongsTo(Game::class, 'game_id', 'ID');
     }
 
     // == scopes
-
-    /**
-     * @param Builder<UserGameListEntry> $query
-     * @return Builder<UserGameListEntry>
-     */
-    public function scopeWithoutAchievements(Builder $query): Builder
-    {
-        return $query
-            ->select('SetRequest.*')
-            ->leftJoin('Achievements', 'SetRequest.GameID', '=', 'Achievements.GameID')
-            ->groupBy('SetRequest.GameID')
-            ->havingRaw('count(Achievements.ID) = 0');
-    }
 }

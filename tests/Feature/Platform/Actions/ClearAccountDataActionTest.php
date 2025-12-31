@@ -56,7 +56,7 @@ class ClearAccountDataActionTest extends TestCase
         UserGameListEntry::create([
             'user_id' => $user2->id,
             'type' => UserGameListType::AchievementSetRequest,
-            'GameID' => 1234,
+            'game_id' => 1234,
         ]);
 
         Subscription::create([

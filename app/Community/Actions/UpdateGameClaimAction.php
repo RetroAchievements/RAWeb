@@ -126,7 +126,7 @@ class UpdateGameClaimAction
                 }
             }
         } else {
-            $setRequests = UserGameListEntry::where('GameID', $game->id)
+            $setRequests = UserGameListEntry::where('game_id', $game->id)
                 ->where('type', UserGameListType::AchievementSetRequest)
                 ->with('user')
                 ->get();
