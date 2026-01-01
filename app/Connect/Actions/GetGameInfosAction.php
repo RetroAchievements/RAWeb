@@ -36,8 +36,8 @@ class GetGameInfosAction extends BaseApiAction
             return $this->invalidParameter("You must specify at least one game ID.");
         }
 
-        $games = Game::whereIn('ID', $this->gameIds)
-            ->select(['ID', 'Title', 'ImageIcon'])
+        $games = Game::whereIn('id', $this->gameIds)
+            ->select(['id', 'title', 'image_icon_asset_path'])
             ->get();
         if ($games->isEmpty()) {
             return $this->resourceNotFound('games');
@@ -46,9 +46,9 @@ class GetGameInfosAction extends BaseApiAction
         $response = [];
         foreach ($games as $game) {
             $response[] = [
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ImageIcon' => $game->ImageIcon,
+                'ID' => $game->id,
+                'Title' => $game->title,
+                'ImageIcon' => $game->image_icon_asset_path,
                 'ImageUrl' => $game->badge_url,
             ];
         }

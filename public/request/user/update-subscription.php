@@ -27,7 +27,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, $requiredPermissi
 
 $service = new SubscriptionService();
 $service->updateSubscription(
-    User::find($userDetails['ID']),
+    User::find($userDetails['id']),
     SubscriptionSubjectType::from($subjectType),
     $subjectID,
     $input['operation'] === "subscribe");

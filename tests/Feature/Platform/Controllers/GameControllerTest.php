@@ -23,18 +23,18 @@ class GameControllerTest extends TestCase
     public function testIndexReturnsCorrectInertiaResponse(): void
     {
         // Arrange
-        $activeGameSystem = System::factory()->create(['ID' => 1, 'name' => 'NES/Famicom', 'name_short' => 'NES', 'active' => true]);
-        $inactiveGameSystem = System::factory()->create(['ID' => 2, 'name' => 'PlayStation 5', 'name_short' => 'PS5', 'active' => false]);
+        $activeGameSystem = System::factory()->create(['id' => 1, 'name' => 'NES/Famicom', 'name_short' => 'NES', 'active' => true]);
+        $inactiveGameSystem = System::factory()->create(['id' => 2, 'name' => 'PlayStation 5', 'name_short' => 'PS5', 'active' => false]);
 
         /** @var Game $gameOne */
-        $gameOne = Game::factory()->create(['Title' => 'AAAAAAA', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
-        Game::factory()->create(['Title' => 'BBBBBBB', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
+        $gameOne = Game::factory()->create(['title' => 'AAAAAAA', 'achievements_published' => 50, 'system_id' => $activeGameSystem->id]);
+        Game::factory()->create(['title' => 'BBBBBBB', 'achievements_published' => 50, 'system_id' => $activeGameSystem->id]);
 
         // Event, hub, inactive system, and subset games should all be excluded from the "All Games" list.
-        Game::factory()->create(['Title' => 'CCCCCCC', 'achievements_published' => 50, 'ConsoleID' => System::Events]);
-        Game::factory()->create(['Title' => 'DDDDDDD', 'achievements_published' => 50, 'ConsoleID' => System::Hubs]);
-        Game::factory()->create(['Title' => 'EEEEEEE', 'achievements_published' => 50, 'ConsoleID' => $inactiveGameSystem->id]);
-        Game::factory()->create(['Title' => 'AAAAAAA [Subset - Bonus]', 'achievements_published' => 50, 'ConsoleID' => $activeGameSystem->id]);
+        Game::factory()->create(['title' => 'CCCCCCC', 'achievements_published' => 50, 'system_id' => System::Events]);
+        Game::factory()->create(['title' => 'DDDDDDD', 'achievements_published' => 50, 'system_id' => System::Hubs]);
+        Game::factory()->create(['title' => 'EEEEEEE', 'achievements_published' => 50, 'system_id' => $inactiveGameSystem->id]);
+        Game::factory()->create(['title' => 'AAAAAAA [Subset - Bonus]', 'achievements_published' => 50, 'system_id' => $activeGameSystem->id]);
 
         // Act
         $response = $this->get(route('game.index'));
@@ -55,10 +55,10 @@ class GameControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
 
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $this->actingAs($user);
 
         // Act
@@ -74,10 +74,10 @@ class GameControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
 
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::DEVELOPER_JUNIOR);
         $this->actingAs($user);
 
@@ -94,10 +94,10 @@ class GameControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
 
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::DEVELOPER);
         $this->actingAs($user);
 
@@ -114,18 +114,18 @@ class GameControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
 
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::DEVELOPER);
         $this->actingAs($user);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Active,
         ]);
 
         // Act
@@ -141,18 +141,18 @@ class GameControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
 
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::DEVELOPER);
         $this->actingAs($user);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Collaboration,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Collaboration,
+            'status' => ClaimStatus::Active,
         ]);
 
         // Act
@@ -168,17 +168,17 @@ class GameControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         $system = System::factory()->create(['name' => 'Nintendo 64', 'active' => true]);
-        $game = Game::factory()->create(['title' => 'StarCraft 64', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'StarCraft 64', 'system_id' => $system->id]);
 
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::DEVELOPER);
         $this->actingAs($user);
 
         AchievementSetClaim::factory()->create([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'Status' => ClaimStatus::Active,
+            'status' => ClaimStatus::Active,
         ]);
 
         // Act

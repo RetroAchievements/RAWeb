@@ -69,23 +69,23 @@ class UserSchema extends Schema
             Str::make('displayName', 'display_name')->readOnly(),
 
             Str::make('avatarUrl')->readOnly(),
-            Str::make('motto', 'Motto')->readOnly(),
+            Str::make('motto')->readOnly(),
 
-            Number::make('points', 'RASoftcorePoints')->sortable()->readOnly(),
-            Number::make('pointsHardcore', 'RAPoints')->sortable()->readOnly(),
-            Number::make('pointsWeighted', 'TrueRAPoints')->sortable()->readOnly(),
+            Number::make('points', 'points')->sortable()->readOnly(),
+            Number::make('pointsHardcore', 'points_hardcore')->sortable()->readOnly(),
+            Number::make('pointsWeighted', 'points_weighted')->sortable()->readOnly(),
 
-            Number::make('yieldUnlocks', 'ContribCount')->sortable()->readOnly(),
-            Number::make('yieldPoints', 'ContribYield')->sortable()->readOnly(),
+            Number::make('yieldUnlocks', 'yield_unlocks')->sortable()->readOnly(),
+            Number::make('yieldPoints', 'yield_points')->sortable()->readOnly(),
 
-            DateTime::make('joinedAt', 'Created')->sortable()->readOnly(),
-            DateTime::make('lastActivityAt', 'LastLogin')->sortable()->readOnly(),
+            DateTime::make('joinedAt', 'created_at')->sortable()->readOnly(),
+            DateTime::make('lastActivityAt', 'last_activity_at')->sortable()->readOnly(),
 
             Boolean::make('isUnranked')->readOnly(),
-            Boolean::make('isUserWallActive', 'UserWallActive')->readOnly(),
+            Boolean::make('isUserWallActive', 'is_user_wall_active')->readOnly(),
 
-            Str::make('richPresenceMessage', 'RichPresenceMsg')->readOnly(),
-            DateTime::make('richPresenceUpdatedAt', 'RichPresenceMsgDate')->readOnly(),
+            Str::make('richPresence', 'rich_presence')->readOnly(),
+            DateTime::make('richPresenceUpdatedAt', 'rich_presence_updated_at')->readOnly(),
 
             Str::make('visibleRole')->readOnly(),
             ArrayList::make('displayableRoles')->readOnly(),
@@ -100,7 +100,7 @@ class UserSchema extends Schema
             // - followers (BelongsToMany User) - users following this user
             // - authoredAchievements (HasMany Achievement)
             // - claims (HasMany AchievementSetClaim)
-            // - wall comments (HasMany Comment, ArticleType=3 ArticleID=self)
+            // - wall comments (HasMany Comment, commentable_type=user.comment, commentable_id=self)
         ];
     }
 

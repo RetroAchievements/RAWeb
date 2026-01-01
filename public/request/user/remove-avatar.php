@@ -9,7 +9,7 @@ if (!authenticateFromCookie($actingUser, $permissions, $actingUserDetails, Permi
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'user' => 'sometimes|string|exists:UserAccounts,User',
+    'user' => 'sometimes|string|exists:users,username',
 ]);
 
 $targetUser = $input['user'] ?? null;

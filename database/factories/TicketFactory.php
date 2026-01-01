@@ -20,11 +20,12 @@ class TicketFactory extends Factory
     public function definition(): array
     {
         return [
-            'ReportNotes' => $this->faker->sentence(),
-            'ReportType' => TicketType::DidNotTrigger,
-            'ReportState' => TicketState::Open,
-            'ReportedAt' => Carbon::now()->subDays(3),
-            'Hardcore' => 1,
+            'ticketable_type' => 'achievement',
+            'body' => $this->faker->sentence(),
+            'type' => TicketType::DidNotTrigger,
+            'state' => TicketState::Open,
+            'created_at' => Carbon::now()->subDays(3),
+            'hardcore' => true,
         ];
     }
 }

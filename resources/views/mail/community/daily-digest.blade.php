@@ -1,4 +1,7 @@
-<x-mail::message>
+<x-mail::message
+    :categoryUrl="$categoryUrl"
+    :categoryText="$categoryText"
+>
 Hello {{ $user->display_name }},
 
 The following conversations that you have participated in were updated recently:

@@ -4,35 +4,64 @@ declare(strict_types=1);
 
 namespace App\Community\Enums;
 
+use InvalidArgumentException;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
-abstract class TicketState
+enum TicketState: string
 {
-    public const Closed = 0;
-    public const Open = 1;
-    public const Resolved = 2;
-    public const Request = 3;
+    case Closed = 'closed';
+    case Open = 'open';
+    case Resolved = 'resolved';
+    case Request = 'request';
 
     public const REASON_DEMOTED = 'Demoted';
 
-    public static function toString(int $type): string
+    public function label(): string
     {
-        return match ($type) {
-            TicketState::Closed => "Closed",
-            TicketState::Open => "Open",
-            TicketState::Resolved => "Resolved",
-            TicketState::Request => "Request",
-            default => "Invalid state",
+        return match ($this) {
+            self::Closed => 'Closed',
+            self::Open => 'Open',
+            self::Resolved => 'Resolved',
+            self::Request => 'Request',
         };
     }
 
-    public static function isOpen(int $type): bool
+    public function isOpen(): bool
     {
-        return match ($type) {
-            TicketState::Open => true,
-            TicketState::Request => true,
+        return match ($this) {
+            self::Open, self::Request => true,
             default => false,
+        };
+    }
+
+    /**
+     * Returns the legacy integer value for V1 API backwards compatibility.
+     * These values were used when TicketState was an integer-backed enum
+     * and must remain stable for existing API consumers.
+     */
+    public function toLegacyInteger(): int
+    {
+        return match ($this) {
+            self::Closed => 0,
+            self::Open => 1,
+            self::Resolved => 2,
+            self::Request => 3,
+        };
+    }
+
+    /**
+     * Creates a TicketState from a legacy integer value.
+     * Used for backwards compatibility with legacy code that still uses integer values.
+     */
+    public static function fromLegacyInteger(int $value): self
+    {
+        return match ($value) {
+            0 => self::Closed,
+            1 => self::Open,
+            2 => self::Resolved,
+            3 => self::Request,
+            default => throw new InvalidArgumentException("Invalid legacy TicketState value: {$value}"),
         };
     }
 }

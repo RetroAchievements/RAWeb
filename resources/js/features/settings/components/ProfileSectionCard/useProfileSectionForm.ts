@@ -7,8 +7,8 @@ import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { useUpdateProfileMutation } from '@/features/settings/hooks/mutations/useUpdateProfileMutation';
 
 const profileFormSchema = z.object({
+  isUserWallActive: z.boolean(),
   motto: z.string().max(50),
-  userWallActive: z.boolean(),
   visibleRoleId: z.coerce
     .number() // The incoming value is a string from a select field.
     .nullable()

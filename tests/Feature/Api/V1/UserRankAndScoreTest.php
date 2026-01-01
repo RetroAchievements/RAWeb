@@ -23,7 +23,7 @@ class UserRankAndScoreTest extends TestCase
 
     public function testGetUserRankAndScoreUnknownUser(): void
     {
-        $this->user->RAPoints = 600; // make sure enough points to be ranked
+        $this->user->points_hardcore = 600; // make sure enough points to be ranked
         $this->user->save();
 
         $this->get($this->apiUrl('GetUserRankAndScore', ['u' => 'nonExistant']))
@@ -38,20 +38,20 @@ class UserRankAndScoreTest extends TestCase
 
     public function testGetUserRankAndScoreByName(): void
     {
-        $this->user->RAPoints = 600; // make sure enough points to be ranked
+        $this->user->points_hardcore = 600; // make sure enough points to be ranked
         $this->user->save();
 
         /** @var User $user */
         $user = User::factory()->create([
-            'RASoftcorePoints' => 371,
-            'RAPoints' => 25842,
+            'points' => 371,
+            'points_hardcore' => 25842,
         ]);
 
-        $this->get($this->apiUrl('GetUserRankAndScore', ['u' => $user->User]))
+        $this->get($this->apiUrl('GetUserRankAndScore', ['u' => $user->username]))
             ->assertSuccessful()
             ->assertJson([
-                'Score' => $user->RAPoints,
-                'SoftcoreScore' => $user->RASoftcorePoints,
+                'Score' => $user->points_hardcore,
+                'SoftcoreScore' => $user->points,
                 'Rank' => 1,
                 'TotalRanked' => 2, // $this->user and $user
             ]);
@@ -59,20 +59,20 @@ class UserRankAndScoreTest extends TestCase
 
     public function testGetUserRankAndScoreByUlid(): void
     {
-        $this->user->RAPoints = 600; // make sure enough points to be ranked
+        $this->user->points_hardcore = 600; // make sure enough points to be ranked
         $this->user->save();
 
         /** @var User $user */
         $user = User::factory()->create([
-            'RASoftcorePoints' => 371,
-            'RAPoints' => 25842,
+            'points' => 371,
+            'points_hardcore' => 25842,
         ]);
 
         $this->get($this->apiUrl('GetUserRankAndScore', ['u' => $user->ulid]))
             ->assertSuccessful()
             ->assertJson([
-                'Score' => $user->RAPoints,
-                'SoftcoreScore' => $user->RASoftcorePoints,
+                'Score' => $user->points_hardcore,
+                'SoftcoreScore' => $user->points,
                 'Rank' => 1,
                 'TotalRanked' => 2, // $this->user and $user
             ]);

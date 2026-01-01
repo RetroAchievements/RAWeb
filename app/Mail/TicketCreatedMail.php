@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Mail;
 
 use App\Community\Enums\SubscriptionSubjectType;
-use App\Community\Enums\TicketType;
 use App\Enums\UserPreference;
 use App\Mail\Services\UnsubscribeService;
 use App\Models\Achievement;
@@ -84,7 +83,7 @@ class TicketCreatedMail extends Mailable
         return new Content(
             markdown: 'mail.ticket.created',
             with: [
-                'problemType' => TicketType::toString($this->ticket->ReportType),
+                'problemType' => $this->ticket->type->label(),
                 'ticketUrl' => route('ticket.show', ['ticket' => $this->ticket->id]),
                 'granularUrl' => $this->granularUrl,
                 'granularText' => 'Unsubscribe from tickets for this game',

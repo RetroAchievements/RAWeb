@@ -38,8 +38,8 @@ class UpdatePlayerPointsStatsActionTest extends TestCase
 
         $untrackedUser = User::factory()->create(['Untracked' => true, 'unranked_at' => Carbon::now()]);
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 100]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 100]);
 
         $this->addHardcoreUnlock($untrackedUser, $achievement);
 
@@ -58,13 +58,13 @@ class UpdatePlayerPointsStatsActionTest extends TestCase
 
         $user = User::factory()->create(); // Initially tracked
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $achievementOne = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 10]);
-        $achievementTwo = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 10]);
-        $achievementThree = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 10]);
-        $achievementFour = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 10]);
-        $achievementFive = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 10]); // deliberate no unlock
+        $achievementOne = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 10]);
+        $achievementTwo = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 10]);
+        $achievementThree = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 10]);
+        $achievementFour = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 10]);
+        $achievementFive = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 10]); // deliberate no unlock
 
         $this->addHardcoreUnlock($user, $achievementOne, Carbon::now()->subMinutes(10));
         $this->addHardcoreUnlock($user, $achievementTwo, Carbon::now()->subMinutes(10));
@@ -115,13 +115,13 @@ class UpdatePlayerPointsStatsActionTest extends TestCase
 
         $user = User::factory()->create(); // Initially tracked
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $achievementOne = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 10]);
-        $achievementTwo = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 10]);
-        $achievementThree = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 10]);
-        $achievementFour = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 10]);
-        $achievementFive = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 10]);
+        $achievementOne = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 10]);
+        $achievementTwo = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 10]);
+        $achievementThree = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 10]);
+        $achievementFour = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 10]);
+        $achievementFive = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 10]);
 
         $this->addHardcoreUnlock($user, $achievementOne, Carbon::now()->subMinutes(10));
         $this->addHardcoreUnlock($user, $achievementTwo, Carbon::now()->subMinutes(10));
@@ -175,8 +175,8 @@ class UpdatePlayerPointsStatsActionTest extends TestCase
 
         $user = User::factory()->create(); // Initially tracked
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 100]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 100]);
 
         $this->addHardcoreUnlock($user, $achievement);
 
@@ -201,8 +201,8 @@ class UpdatePlayerPointsStatsActionTest extends TestCase
 
         $user = User::factory()->create();
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 10]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 10]);
 
         $this->addHardcoreUnlock($user, $achievement, Carbon::now()->subMinutes(10));
 
@@ -238,8 +238,8 @@ class UpdatePlayerPointsStatsActionTest extends TestCase
 
         $user = User::factory()->create();
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 50]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 50]);
 
         $this->addHardcoreUnlock($user, $achievement, Carbon::now()->subHours(2)); // !! earlier today
 

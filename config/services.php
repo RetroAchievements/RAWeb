@@ -89,6 +89,15 @@ return [
                 'url' => env('DISCORD_WEBHOOK_RANEWS'),
             ],
         ],
+        'alerts_webhook' => [
+            /**
+             * Keys here are automatically inherited from their alert class names.
+             *
+             * @example "FooBarAlert" -> "foo_bar"
+             * @example "SuspiciousBeatTimeAlert" -> "suspicious_beat_time"
+             */
+            'suspicious_beat_time' => env('DISCORD_WEBHOOK_ALERT_SUSPICIOUS_BEAT_TIME'),
+        ],
     ],
 
     'facebook' => [

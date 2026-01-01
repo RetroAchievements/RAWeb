@@ -36,7 +36,7 @@ render(function (View $view, Game $game, TicketListService $ticketListService) {
     'numFilteredTickets' => 0,
 ])
 
-<x-app-layout pageTitle="Tickets - {{ $game->Title }}">
+<x-app-layout pageTitle="Tickets - {{ $game->title }}">
     <x-game.breadcrumbs
         :game="$game"
         currentPageLabel="Tickets"

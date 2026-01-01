@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community;
 
+use App\Community\Commands\BackfillModerationActions;
 use App\Community\Commands\DeleteOldUserActivities;
 use App\Community\Commands\GenerateAnnualRecap;
 use App\Community\Commands\MigrateTicketCommentMetadata;
@@ -26,11 +27,9 @@ use App\Models\ForumTopicComment;
 use App\Models\GameComment;
 use App\Models\Message;
 use App\Models\News;
-use App\Models\NewsComment;
 use App\Models\Subscription;
 use App\Models\Ticket;
-use App\Models\TriggerTicket;
-use App\Models\TriggerTicketComment;
+use App\Models\TicketComment;
 use App\Models\UserActivity;
 use App\Models\UserComment;
 use App\Models\UserGameListEntry;
@@ -47,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                BackfillModerationActions::class,
                 DeleteOldUserActivities::class,
                 GenerateAnnualRecap::class,
                 MigrateTicketCommentMetadata::class,
@@ -75,11 +75,9 @@ class AppServiceProvider extends ServiceProvider
             'game.comment' => GameComment::class,
             'message' => Message::class,
             'news' => News::class,
-            'news.comment' => NewsComment::class,
             'subscription' => Subscription::class,
             'ticket' => Ticket::class,
-            'trigger.ticket' => TriggerTicket::class,
-            'trigger.ticket.comment' => TriggerTicketComment::class,
+            'ticket.comment' => TicketComment::class,
             'user.comment' => UserComment::class,
             'user-activity' => UserActivity::class,
             'user-game-list-entry' => UserGameListEntry::class,

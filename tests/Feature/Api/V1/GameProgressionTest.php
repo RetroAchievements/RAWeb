@@ -45,15 +45,15 @@ class GameProgressionTest extends TestCase
         int $medianTimeToUnlock, int $unlockHardcoreTimesCount, int $medianTimeToUnlockHardcore): array
     {
         return [
-            'ID' => $achievement->ID,
-            'Title' => $achievement->Title,
-            'Description' => $achievement->Description,
-            'Points' => $achievement->Points,
-            'TrueRatio' => $achievement->TrueRatio,
+            'ID' => $achievement->id,
+            'Title' => $achievement->title,
+            'Description' => $achievement->description,
+            'Points' => $achievement->points,
+            'TrueRatio' => $achievement->points_weighted,
             'Type' => $achievement->type,
-            'BadgeName' => $achievement->BadgeName,
+            'BadgeName' => $achievement->image_name,
             'NumAwarded' => $achievement->unlocks_total,
-            'NumAwardedHardcore' => $achievement->unlocks_hardcore_total,
+            'NumAwardedHardcore' => $achievement->unlocks_hardcore,
             'TimesUsedInUnlockMedian' => $unlockTimesCount,
             'TimesUsedInHardcoreUnlockMedian' => $unlockHardcoreTimesCount,
             'MedianTimeToUnlock' => $medianTimeToUnlock,
@@ -105,14 +105,14 @@ class GameProgressionTest extends TestCase
         $achievement3->refresh();
         $achievement4->refresh();
 
-        $this->get($this->apiUrl('GetGameProgression', ['i' => $game->ID]))
+        $this->get($this->apiUrl('GetGameProgression', ['i' => $game->id]))
             ->assertSuccessful()
             ->assertExactJson([
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => $game->system->ID,
-                'ConsoleName' => $game->system->Name,
-                'ImageIcon' => $game->ImageIcon,
+                'ID' => $game->id,
+                'Title' => $game->title,
+                'ConsoleID' => $game->system->id,
+                'ConsoleName' => $game->system->name,
+                'ImageIcon' => $game->image_icon_asset_path,
                 'NumAchievements' => 4,
                 'NumDistinctPlayers' => 1,
                 'TimesUsedInBeatMedian' => $game->times_beaten,
@@ -144,14 +144,14 @@ class GameProgressionTest extends TestCase
         $achievement3->refresh();
         $achievement4->refresh();
 
-        $this->get($this->apiUrl('GetGameProgression', ['i' => $game->ID]))
+        $this->get($this->apiUrl('GetGameProgression', ['i' => $game->id]))
             ->assertSuccessful()
             ->assertExactJson([
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => $game->system->ID,
-                'ConsoleName' => $game->system->Name,
-                'ImageIcon' => $game->ImageIcon,
+                'ID' => $game->id,
+                'Title' => $game->title,
+                'ConsoleID' => $game->system->id,
+                'ConsoleName' => $game->system->name,
+                'ImageIcon' => $game->image_icon_asset_path,
                 'NumAchievements' => 4,
                 'NumDistinctPlayers' => 2,
                 'TimesUsedInBeatMedian' => $game->times_beaten,
@@ -187,14 +187,14 @@ class GameProgressionTest extends TestCase
         $achievement3->refresh();
         $achievement4->refresh();
 
-        $this->get($this->apiUrl('GetGameProgression', ['i' => $game->ID]))
+        $this->get($this->apiUrl('GetGameProgression', ['i' => $game->id]))
             ->assertSuccessful()
             ->assertExactJson([
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => $game->system->ID,
-                'ConsoleName' => $game->system->Name,
-                'ImageIcon' => $game->ImageIcon,
+                'ID' => $game->id,
+                'Title' => $game->title,
+                'ConsoleID' => $game->system->id,
+                'ConsoleName' => $game->system->name,
+                'ImageIcon' => $game->image_icon_asset_path,
                 'NumAchievements' => 4,
                 'NumDistinctPlayers' => 3,
                 'TimesUsedInBeatMedian' => $game->times_beaten,
@@ -214,14 +214,14 @@ class GameProgressionTest extends TestCase
             ]);
 
         // request hardcore players ignores user3
-        $this->get($this->apiUrl('GetGameProgression', ['i' => $game->ID, 'h' => 1]))
+        $this->get($this->apiUrl('GetGameProgression', ['i' => $game->id, 'h' => 1]))
             ->assertSuccessful()
             ->assertExactJson([
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => $game->system->ID,
-                'ConsoleName' => $game->system->Name,
-                'ImageIcon' => $game->ImageIcon,
+                'ID' => $game->id,
+                'Title' => $game->title,
+                'ConsoleID' => $game->system->id,
+                'ConsoleName' => $game->system->name,
+                'ImageIcon' => $game->image_icon_asset_path,
                 'NumAchievements' => 4,
                 'NumDistinctPlayers' => 3,
                 'TimesUsedInBeatMedian' => $game->times_beaten,

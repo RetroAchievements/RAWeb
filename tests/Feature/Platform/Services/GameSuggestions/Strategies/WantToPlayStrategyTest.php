@@ -21,8 +21,8 @@ class WantToPlayStrategyTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $game1 = Game::factory()->create(['Title' => 'Game 1', 'achievements_published' => 6]);
-        $game2 = Game::factory()->create(['Title' => 'Game 2', 'achievements_published' => 6]);
+        $game1 = Game::factory()->create(['title' => 'Game 1', 'achievements_published' => 6]);
+        $game2 = Game::factory()->create(['title' => 'Game 2', 'achievements_published' => 6]);
 
         $addGameToListAction = new AddGameToListAction();
         $addGameToListAction->execute($user, $game1, UserGameListType::Play);

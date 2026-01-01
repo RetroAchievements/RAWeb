@@ -49,7 +49,7 @@ class UpdateBeatenGamesLeaderboard extends Command
 
         if ($systemOption !== null) {
             $systemId = (int) $systemOption;
-            if (!System::where('ID', $systemId)->exists()) {
+            if (!System::where('id', $systemId)->exists()) {
                 $this->error("System ID {$systemId} not found.");
 
                 return null;
@@ -58,7 +58,7 @@ class UpdateBeatenGamesLeaderboard extends Command
             return [$systemId];
         }
 
-        $systemIds = System::gameSystems()->active()->pluck('ID')->toArray();
+        $systemIds = System::gameSystems()->active()->pluck('id')->toArray();
         $systemIds[] = null;
 
         return $systemIds;

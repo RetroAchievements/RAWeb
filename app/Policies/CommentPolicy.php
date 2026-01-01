@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Models\Comment;
 use App\Models\Game;
 use App\Models\GameComment;
@@ -27,6 +27,11 @@ class CommentPolicy
 
     public function view(?User $user, Comment $comment): bool
     {
+        // Guests can view comments.
+        if (!$user) {
+            return true;
+        }
+
         return $user->isNotBanned();
     }
 
@@ -46,7 +51,7 @@ class CommentPolicy
         return true;
     }
 
-    public function create(?User $user, ?Model $commentable = null, ?int $articleType = null): bool
+    public function create(?User $user, ?Model $commentable = null, CommentableType|int|null $commentableType = null): bool
     {
         if ($user?->isMuted()) {
             return false;
@@ -60,10 +65,15 @@ class CommentPolicy
             return $user?->can('create', [GameComment::class, $commentable]) ?? false;
         }
 
+        // Normalize to CommentableType enum if needed.
+        if (is_int($commentableType)) {
+            $commentableType = CommentableType::fromLegacyInteger($commentableType);
+        }
+
         if (
             $commentable !== null
             && $commentable instanceof User
-            && $articleType !== ArticleType::UserModeration
+            && $commentableType !== CommentableType::UserModeration
         ) {
             return $user?->can('create', [UserComment::class, $commentable]);
         }
@@ -84,7 +94,7 @@ class CommentPolicy
         }
 
         // users can delete any comment off of their wall
-        if ($comment->ArticleType == ArticleType::User && $comment->ArticleID == $user->id) {
+        if ($comment->commentable_type === CommentableType::User && $comment->commentable_id === $user->id) {
             return true;
         }
 
