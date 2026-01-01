@@ -47,7 +47,7 @@ class SendAlertWebhookJobTest extends TestCase
 
         $system = System::factory()->create();
         $user = User::factory()->create(['display_name' => 'Scott']);
-        $game = Game::factory()->create(['Title' => 'Sonic', 'ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['title' => 'Sonic', 'system_id' => $system->id]);
 
         $alert = new SuspiciousBeatTimeAlert(
             user: $user,

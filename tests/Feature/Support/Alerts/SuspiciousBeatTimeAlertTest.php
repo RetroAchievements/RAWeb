@@ -21,8 +21,8 @@ class SuspiciousBeatTimeAlertTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $user = User::factory()->create(['User' => 'Scott', 'display_name' => 'Scott']);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
+        $user = User::factory()->create(['username' => 'Scott', 'display_name' => 'Scott']);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
 
         $alert = new SuspiciousBeatTimeAlert(
             user: $user,
@@ -53,7 +53,7 @@ class SuspiciousBeatTimeAlertTest extends TestCase
 
         $system = System::factory()->create();
         $user = User::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $alert = new SuspiciousBeatTimeAlert(
             user: $user,

@@ -29,7 +29,7 @@ class TriggerSuspiciousBeatTimeAlertTest extends TestCase
         $system = System::factory()->create();
         $user = User::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'times_beaten_hardcore' => 100,
             'median_time_to_beat_hardcore' => 3600, // 1 hour
         ]);
@@ -60,7 +60,7 @@ class TriggerSuspiciousBeatTimeAlertTest extends TestCase
         $system = System::factory()->create();
         $user = User::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
+            'system_id' => $system->id,
             'times_beaten_hardcore' => 100,
             'median_time_to_beat_hardcore' => 3600, // 1 hour
         ]);
