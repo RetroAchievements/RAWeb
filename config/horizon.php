@@ -195,7 +195,7 @@ return [
      * for a CCX53 server upgrade which doubled the CPU and RAM. The architecture isolates
      * high-volume and slow queues to prevent them from monopolizing shared workers.
      *
-     * Total Workers: 44 (19+10+1+8+4+2)
+     * Total Workers: 45 (19+10+2+8+4+2)
      * - supervisor-1: General queues (fast, medium volume)
      * - supervisor-2: Batch processing (slower, larger timeout)
      * - supervisor-3: Search indexing (very fast, isolated)
@@ -270,7 +270,7 @@ return [
                 'scout',
             ],
             'balance' => 'simple',
-            'processes' => 1, // Pinned at 1 - search indexing is not time-critical.
+            'processes' => 2, // Pinned at 2 - search indexing is not time-critical.
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 128,
