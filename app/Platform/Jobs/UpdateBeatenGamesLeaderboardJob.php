@@ -21,6 +21,10 @@ class UpdateBeatenGamesLeaderboardJob implements ShouldQueue, ShouldBeUniqueUnti
     use Queueable;
     use SerializesModels;
 
+    // Retry on transient deadlocks when multiple jobs update player_stat_rankings concurrently.
+    public int $tries = 3;
+    public int $backoff = 10;
+
     public function __construct(
         private readonly ?int $systemId,
         private readonly PlayerStatRankingKind $kind,

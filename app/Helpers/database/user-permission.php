@@ -12,7 +12,7 @@ function getUserPermissions(?string $user): int
         return 0;
     }
 
-    $query = "SELECT Permissions FROM UserAccounts WHERE User=:user";
+    $query = "SELECT Permissions FROM users WHERE username = :user";
     $row = legacyDbFetch($query, ['user' => $user]);
 
     return $row ? (int) $row['Permissions'] : Permissions::Unregistered;
@@ -118,7 +118,7 @@ function setAccountForumPostAuth(User $sourceUser, int $sourcePermissions, User 
         })->delete();
 
         // Also ban the spammy user!
-        SetAccountPermissionsJSON($sourceUser->User, $sourcePermissions, $targetUser->User, Permissions::Spam);
+        SetAccountPermissionsJSON($sourceUser->username, $sourcePermissions, $targetUser->username, Permissions::Spam);
         $targetUser->roles()->detach();
 
         return true;
@@ -154,21 +154,21 @@ function banAccountByUsername(string $username, int $permissions): void
 
     $user->email_verified_at = null;
     $user->password = null;
-    $user->SaltedPass = '';
+    $user->legacy_salted_password = '';
     $user->setAttribute('Permissions', $permissions);
-    $user->appToken = null;
-    $user->appTokenExpiry = null;
+    $user->connect_token = null;
+    $user->connect_token_expires_at = null;
     $user->ManuallyVerified = 0;
     $user->forum_verified_at = null;
-    $user->Motto = '';
+    $user->motto = '';
     $user->Untracked = 1;
     $user->unranked_at = now();
-    $user->APIKey = null;
-    $user->UserWallActive = 0;
-    $user->RichPresenceMsg = null;
-    $user->RichPresenceMsgDate = null;
+    $user->web_api_key = null;
+    $user->is_user_wall_active = false;
+    $user->rich_presence = null;
+    $user->rich_presence_updated_at = null;
     $user->banned_at = now();
-    $user->Updated = now();
+    $user->updated_at = now();
 
     $user->save();
 

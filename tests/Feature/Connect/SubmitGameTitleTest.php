@@ -29,7 +29,7 @@ class SubmitGameTitleTest extends TestCase
         /** @var System $system2 */
         $system2 = System::factory()->create();
         /** @var Game $game1 */
-        $game1 = Game::factory()->create(['ConsoleID' => $system2->id]);
+        $game1 = Game::factory()->create(['system_id' => $system2->id]);
 
         $this->seed(RolesTableSeeder::class);
         $this->addServerUser();
@@ -252,7 +252,7 @@ class SubmitGameTitleTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create(['active' => false]);
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $this->seed(RolesTableSeeder::class);
         $this->addServerUser();

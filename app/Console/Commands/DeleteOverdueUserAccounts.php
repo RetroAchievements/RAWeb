@@ -30,8 +30,8 @@ class DeleteOverdueUserAccounts extends Command
         $threshold = Carbon::today()->setTime(8, 0)->subWeeks(2);
 
         /** @var Collection<int, User> $users */
-        $users = User::where('DeleteRequested', '<=', $threshold)
-            ->orderBy('DeleteRequested')
+        $users = User::where('delete_requested_at', '<=', $threshold)
+            ->orderBy('delete_requested_at')
             ->get();
 
         foreach ($users as $user) {

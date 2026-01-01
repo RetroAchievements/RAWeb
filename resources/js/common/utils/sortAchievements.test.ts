@@ -254,13 +254,13 @@ describe('Util: sortAchievements', () => {
     expect(result.map((a) => a.id)).toEqual([3, 2, 1]);
   });
 
-  it('given wonBy sort, sorts by unlocksHardcoreTotal descending', () => {
+  it('given wonBy sort, sorts by unlocksHardcore descending', () => {
     // ARRANGE
     const baseAchievement = createAchievement();
     const achievements = [
-      { ...baseAchievement, id: 1, unlocksHardcoreTotal: 10 },
-      { ...baseAchievement, id: 2, unlocksHardcoreTotal: 20 },
-      { ...baseAchievement, id: 3, unlocksHardcoreTotal: 30 },
+      { ...baseAchievement, id: 1, unlocksHardcore: 10 },
+      { ...baseAchievement, id: 2, unlocksHardcore: 20 },
+      { ...baseAchievement, id: 3, unlocksHardcore: 30 },
     ];
 
     // ACT
@@ -270,13 +270,13 @@ describe('Util: sortAchievements', () => {
     expect(result.map((a) => a.id)).toEqual([3, 2, 1]);
   });
 
-  it('given -wonBy sort, sorts by unlocksHardcoreTotal ascending', () => {
+  it('given -wonBy sort, sorts by unlocksHardcore ascending', () => {
     // ARRANGE
     const baseAchievement = createAchievement();
     const achievements = [
-      { ...baseAchievement, id: 1, unlocksHardcoreTotal: 10 },
-      { ...baseAchievement, id: 2, unlocksHardcoreTotal: 20 },
-      { ...baseAchievement, id: 3, unlocksHardcoreTotal: 30 },
+      { ...baseAchievement, id: 1, unlocksHardcore: 10 },
+      { ...baseAchievement, id: 2, unlocksHardcore: 20 },
+      { ...baseAchievement, id: 3, unlocksHardcore: 30 },
     ];
 
     // ACT
@@ -365,12 +365,12 @@ describe('Util: sortAchievements', () => {
     expect(result).toEqual(achievements);
   });
 
-  it('given wonBy sort and achievements with same unlock status, sorts by unlocksHardcoreTotal', () => {
+  it('given wonBy sort and achievements with same unlock status, sorts by unlocksHardcore', () => {
     // ARRANGE
     const baseAchievement = createAchievement();
     const achievements = [
-      { ...baseAchievement, id: 1, unlockedAt: '2023-01-01', unlocksHardcoreTotal: 10 },
-      { ...baseAchievement, id: 2, unlockedAt: '2023-01-02', unlocksHardcoreTotal: 20 },
+      { ...baseAchievement, id: 1, unlockedAt: '2023-01-01', unlocksHardcore: 10 },
+      { ...baseAchievement, id: 2, unlockedAt: '2023-01-02', unlocksHardcore: 20 },
     ];
 
     // ACT
@@ -412,12 +412,12 @@ describe('Util: sortAchievements', () => {
     expect(result.map((a) => a.id)).toEqual([2, 1]);
   });
 
-  it('given wonBy sort and different unlock status, prioritizes unlocked achievements regardless of unlocksHardcoreTotal', () => {
+  it('given wonBy sort and different unlock status, prioritizes unlocked achievements regardless of unlocksHardcore', () => {
     // ARRANGE
     const baseAchievement = createAchievement();
     const achievements = [
-      { ...baseAchievement, id: 1, unlocksHardcoreTotal: 100 }, // Not unlocked, higher count
-      { ...baseAchievement, id: 2, unlockedAt: '2023-01-01', unlocksHardcoreTotal: 10 }, // Unlocked, lower count
+      { ...baseAchievement, id: 1, unlocksHardcore: 100 }, // Not unlocked, higher count
+      { ...baseAchievement, id: 2, unlockedAt: '2023-01-01', unlocksHardcore: 10 }, // Unlocked, lower count
     ];
 
     // ACT
@@ -427,12 +427,12 @@ describe('Util: sortAchievements', () => {
     expect(result.map((a) => a.id)).toEqual([2, 1]);
   });
 
-  it('given wonBy sort and unlocksHardcoreTotal is the same, sorts by orderColumn', () => {
+  it('given wonBy sort and unlocksHardcore is the same, sorts by orderColumn', () => {
     // ARRANGE
     const baseAchievement = createAchievement();
     const achievements = [
-      { ...baseAchievement, id: 1, unlocksHardcoreTotal: 10, orderColumn: 2 },
-      { ...baseAchievement, id: 2, unlocksHardcoreTotal: 10, orderColumn: 1 },
+      { ...baseAchievement, id: 1, unlocksHardcore: 10, orderColumn: 2 },
+      { ...baseAchievement, id: 2, unlocksHardcore: 10, orderColumn: 1 },
     ];
 
     // ACT

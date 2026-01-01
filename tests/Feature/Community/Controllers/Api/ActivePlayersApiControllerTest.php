@@ -20,11 +20,11 @@ class ActivePlayersApiControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         User::factory()->create([
-            'LastGameID' => $game->id,
-            'RichPresenceMsgDate' => now(),
+            'rich_presence_game_id' => $game->id,
+            'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
         ]);
 
@@ -47,11 +47,11 @@ class ActivePlayersApiControllerTest extends TestCase
     {
         // Arrange
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $users = User::factory()->count(5)->create([
-            'LastGameID' => $game->id,
-            'RichPresenceMsgDate' => now(),
+            'rich_presence_game_id' => $game->id,
+            'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
         ]);
 

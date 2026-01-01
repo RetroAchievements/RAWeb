@@ -11,7 +11,6 @@ use App\Models\System;
 use App\Models\User;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSuggestionContextData;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\GameSuggestionReason;
 use App\Platform\Services\GameSuggestions\Enums\SourceGameKind;
 
@@ -30,11 +29,11 @@ class SharedAuthorStrategy implements GameSuggestionStrategy
     public function select(): ?Game
     {
         // First, find the main author of the source game's achievement set
-        $author = Achievement::where('GameID', $this->sourceGame->id)
-            ->where('Flags', AchievementFlag::OfficialCore->value)
+        $author = Achievement::where('game_id', $this->sourceGame->id)
+            ->where('is_promoted', true)
             ->select('user_id')
             ->selectRaw('COUNT(*) as achievement_count')
-            ->with(['developer:ID,User'])
+            ->with(['developer:id,username'])
             ->groupBy('user_id')
             ->orderByDesc('achievement_count')
             ->first();
@@ -47,12 +46,12 @@ class SharedAuthorStrategy implements GameSuggestionStrategy
 
         // Then, find another game with achievements by this author
         $this->selectedGame = Game::query()
-            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+            ->whereNotIn('system_id', System::getNonGameSystems())
             ->whereHas('achievements', function ($query) use ($author) {
                 $query->where('user_id', $author->user_id)
-                    ->where('Flags', AchievementFlag::OfficialCore->value);
+                    ->where('is_promoted', true);
             })
-            ->where('ID', '!=', $this->sourceGame->id)
+            ->where('id', '!=', $this->sourceGame->id)
             ->whereHasPublishedAchievements()
             ->inRandomOrder()
             ->first();

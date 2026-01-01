@@ -34,8 +34,8 @@ class GetHashLibraryAction extends BaseApiAction
         $query = GameHash::compatible()
             ->select('game_hashes.md5', 'game_hashes.game_id')
             ->when($this->consoleId > 0, function ($q) {
-                $q->leftJoin('GameData as gd', 'gd.ID', '=', 'game_hashes.game_id')
-                    ->where(DB::raw('gd.ConsoleID'), $this->consoleId);
+                $q->leftJoin('games as gd', 'gd.id', '=', 'game_hashes.game_id')
+                    ->where(DB::raw('gd.system_id'), $this->consoleId);
             });
 
         $hashes = $query->pluck('game_id', 'md5')->toArray();

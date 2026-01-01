@@ -51,10 +51,10 @@ class UserSettingsController extends Controller
 
         $userSettings = UserData::fromUser($user)->include(
             'apiKey',
-            'deleteRequested',
-            'emailAddress',
+            'deleteRequestedAt',
+            'email',
             'motto',
-            'userWallActive',
+            'isUserWallActive',
             'visibleRole',
         );
 
@@ -134,7 +134,7 @@ class UserSettingsController extends Controller
         $user = $request->user();
 
         // The user will need to reconfirm their email address.
-        $user->EmailAddress = $data->newEmail;
+        $user->email = $data->newEmail;
         $user->setAttribute('Permissions', Permissions::Unregistered);
         $user->roles()->detach();
         $user->email_verified_at = null;
@@ -187,10 +187,10 @@ class UserSettingsController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        $currentPreferences = (int) $user->getAttribute('websitePrefs');
+        $currentPreferences = (int) $user->getAttribute('preferences_bitfield');
         $newPreferences = $currentPreferences | (1 << UserPreference::Site_SuppressMatureContentWarning);
 
-        $user->websitePrefs = $newPreferences;
+        $user->preferences_bitfield = $newPreferences;
         $user->saveQUietly();
 
         return response()->json(['success' => true]);

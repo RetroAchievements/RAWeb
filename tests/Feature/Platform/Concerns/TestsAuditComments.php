@@ -17,14 +17,15 @@ trait TestsAuditComments
     protected function addServerUser(): void
     {
         $this->serverUser = User::factory()->create([
-            'ID' => Comment::SYSTEM_USER_ID,
-            'User' => 'Server',
+            'id' => Comment::SYSTEM_USER_ID,
+            'username' => 'Server',
             'Permissions' => Permissions::Unregistered,
-            'EmailAddress' => '',
+            'email' => '',
             'email_verified_at' => null,
-            'Password' => null,
-            'RAPoints' => 0,
-            'APIKey' => null,
+            'password' => null,
+            'points_hardcore' => 0,
+            'points' => 0,
+            'web_api_key' => null,
             'remember_token' => null,
         ]);
     }
@@ -34,7 +35,7 @@ trait TestsAuditComments
         $foundDate = null;
         $comments = Comment::where('commentable_type', $commentableType)
             ->where('commentable_id', $commentableId)
-            ->where('user_id', $this->serverUser->ID);
+            ->where('user_id', $this->serverUser->id);
         foreach ($comments->get() as $comment) {
             if ($comment->body === $message) {
                 if ($when === null || $when->eq($comment->created_at)) {

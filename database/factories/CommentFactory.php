@@ -25,7 +25,7 @@ class CommentFactory extends Factory
             'body' => $this->faker->paragraph,
             'created_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
             'updated_at' => $isEdited ? $this->faker->dateTimeBetween('now', '+1 year') : null,
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
             'commentable_id' => $this->faker->numberBetween(1, 100),
             'commentable_type' => $this->faker->randomElement([
                 CommentableType::Game,

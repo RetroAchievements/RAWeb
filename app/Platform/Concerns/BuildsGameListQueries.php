@@ -15,7 +15,6 @@ use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\UserGameListEntry;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\GameListProgressFilterValue;
 use App\Platform\Enums\GameListSetTypeFilterValue;
 use App\Platform\Enums\GameListSortField;
@@ -42,23 +41,23 @@ trait BuildsGameListQueries
                 'achievementSetClaims' => function ($query) {
                     $query->activeOrInReview()->with(['user' => function ($query) {
                         // Only select the fields we need for the UserData DTO.
-                        $query->select(['ID', 'User', 'display_name', 'Permissions']);
+                        $query->select(['id', 'username', 'display_name', 'Permissions']);
                     }]);
                 },
             ])
             ->withLastAchievementUpdate()
-            ->addSelect(['GameData.*'])
+            ->addSelect(['games.*'])
             ->addSelect([
                 // Fetch counts here to avoid N+1 query problems.
 
                 'has_active_or_in_review_claims' => AchievementSetClaim::selectRaw('CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END')
-                    ->whereColumn('SetClaim.game_id', 'GameData.ID')
-                    ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
+                    ->whereColumn('achievement_set_claims.game_id', 'games.id')
+                    ->whereIn('status', [ClaimStatus::Active->value, ClaimStatus::InReview->value])
                     ->limit(1),
 
                 'num_visible_leaderboards' => Leaderboard::selectRaw('COUNT(*)')
-                    ->whereColumn('LeaderboardDef.GameID', 'GameData.ID')
-                    ->where(DB::raw('LeaderboardDef.DisplayOrder'), '>=', 0),
+                    ->whereColumn('leaderboards.game_id', 'games.id')
+                    ->where(DB::raw('leaderboards.order_column'), '>=', 0),
             ]);
 
         // Only attempt to fetch the "Requests" column counts if we're on
@@ -66,8 +65,8 @@ trait BuildsGameListQueries
         if ($listType === GameListType::SetRequests) {
             $query->addSelect([
                 'num_requests' => UserGameListEntry::selectRaw('COUNT(*)')
-                    ->whereColumn('SetRequest.GameID', 'GameData.ID')
-                    ->where(DB::raw('SetRequest.type'), UserGameListType::AchievementSetRequest),
+                    ->whereColumn('user_game_list_entries.game_id', 'games.id')
+                    ->where(DB::raw('user_game_list_entries.type'), UserGameListType::AchievementSetRequest),
             ]);
         }
 
@@ -76,9 +75,9 @@ trait BuildsGameListQueries
         if ($user?->can('develop')) {
             $query->addSelect([
                 'num_unresolved_tickets' => Ticket::selectRaw('COUNT(*)')
-                    ->join('Achievements', 'Ticket.AchievementID', '=', 'Achievements.ID')
-                    ->whereColumn('Achievements.GameID', 'GameData.ID')
-                    ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore->value)
+                    ->join('achievements', 'Ticket.AchievementID', '=', 'achievements.id')
+                    ->whereColumn('achievements.game_id', 'games.id')
+                    ->where(DB::raw('achievements.is_promoted'), true)
                     ->whereIn('Ticket.ReportState', [TicketState::Open, TicketState::Request]),
             ]);
         }
@@ -88,42 +87,42 @@ trait BuildsGameListQueries
                 // Exclude non game systems, inactive systems, and subsets.
                 $validSystemIds = System::active()
                     ->gameSystems()
-                    ->pluck('ID')
+                    ->pluck('id')
                     ->all();
 
-                $query->whereIn(DB::raw('GameData.ConsoleID'), $validSystemIds);
+                $query->whereIn(DB::raw('games.system_id'), $validSystemIds);
                 break;
 
             case GameListType::SetRequests:
                 // Only show games with at least 1 request.
                 // We also don't care if the system is active or not.
                 $validSystemIds = System::gameSystems()
-                    ->pluck('ID')
+                    ->pluck('id')
                     ->all();
 
-                $query->whereIn(DB::raw('GameData.ConsoleID'), $validSystemIds)
+                $query->whereIn(DB::raw('games.system_id'), $validSystemIds)
                     ->whereExists(function ($subquery) {
                         $subquery->select(DB::raw(1))
-                            ->from('SetRequest')
-                            ->whereColumn('SetRequest.GameID', 'GameData.ID')
-                            ->where(DB::raw('SetRequest.type'), UserGameListType::AchievementSetRequest);
+                            ->from('user_game_list_entries')
+                            ->whereColumn('user_game_list_entries.game_id', 'games.id')
+                            ->where(DB::raw('user_game_list_entries.type'), UserGameListType::AchievementSetRequest);
                     });
                 break;
 
             case GameListType::Hub:
                 $query
-                    ->join('game_set_games', 'GameData.ID', '=', 'game_set_games.game_id')
+                    ->join('game_set_games', 'games.id', '=', 'game_set_games.game_id')
                     ->join('game_sets', 'game_sets.id', 'game_set_games.game_set_id')
                     ->whereNull('game_sets.deleted_at')
                     ->where('game_sets.id', $targetId)
-                    ->where(DB::raw('GameData.ConsoleID'), '!=', System::Hubs);
+                    ->where(DB::raw('games.system_id'), '!=', System::Hubs);
                 break;
 
             case GameListType::System:
                 $query
-                    ->where(DB::raw('GameData.ConsoleID'), $targetId);
+                    ->where(DB::raw('games.system_id'), $targetId);
                     // TODO we need some kind of special visual treatment for subsets on the game lists
-                    // ->where(DB::raw('GameData.Title'), 'not like', "%[Subset -%");
+                    // ->where(DB::raw('games.title'), 'not like', "%[Subset -%");
                 break;
 
             case GameListType::UserPlay:
@@ -140,7 +139,7 @@ trait BuildsGameListQueries
                 }
 
                 $gameIds = array_map(fn ($suggestion) => $suggestion->gameId, $this->suggestions);
-                $query->whereIn('GameData.ID', $gameIds);
+                $query->whereIn('games.id', $gameIds);
                 break;
 
             // TODO implement these other use cases
@@ -164,7 +163,7 @@ trait BuildsGameListQueries
              * only show games matching a specific game title pattern
              */
             if ($filterKey === 'title' && !empty($filterValues[0])) {
-                $query->where(DB::raw('GameData.Title'), 'LIKE', '%' . $filterValues[0] . '%');
+                $query->where(DB::raw('games.title'), 'LIKE', '%' . $filterValues[0] . '%');
                 continue;
             }
 
@@ -178,9 +177,9 @@ trait BuildsGameListQueries
                 }
 
                 $systemIds = in_array('supported', $filterValues)
-                    ? System::active()->gameSystems()->pluck('ID')->all()
+                    ? System::active()->gameSystems()->pluck('id')->all()
                     : $filterValues;
-                $query->whereIn(DB::raw('GameData.ConsoleID'), $systemIds);
+                $query->whereIn(DB::raw('games.system_id'), $systemIds);
                 continue;
             }
 
@@ -197,10 +196,10 @@ trait BuildsGameListQueries
              */
             if ($filterKey === 'subsets') {
                 if ($filterValues[0] === GameListSetTypeFilterValue::OnlyGames->value) {
-                    $query->where(DB::raw('GameData.Title'), 'not like', '%[Subset -%');
+                    $query->where(DB::raw('games.title'), 'not like', '%[Subset -%');
                 }
                 if ($filterValues[0] === GameListSetTypeFilterValue::OnlySubsets->value) {
-                    $query->where(DB::raw('GameData.Title'), 'like', '%[Subset -%');
+                    $query->where(DB::raw('games.title'), 'like', '%[Subset -%');
                 }
                 continue;
             }
@@ -229,16 +228,16 @@ trait BuildsGameListQueries
                     if ($filterValues[0] === 'claimed') {
                         $query->whereExists(function ($subquery) {
                             $subquery->select(DB::raw(1))
-                                ->from('SetClaim')
-                                ->whereColumn('SetClaim.game_id', 'GameData.ID')
-                                ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview]);
+                                ->from('achievement_set_claims')
+                                ->whereColumn('achievement_set_claims.game_id', 'games.id')
+                                ->whereIn('status', [ClaimStatus::Active->value, ClaimStatus::InReview->value]);
                         });
                     } elseif ($filterValues[0] === 'unclaimed') {
                         $query->whereNotExists(function ($subquery) {
                             $subquery->select(DB::raw(1))
-                                ->from('SetClaim')
-                                ->whereColumn('SetClaim.game_id', 'GameData.ID')
-                                ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview]);
+                                ->from('achievement_set_claims')
+                                ->whereColumn('achievement_set_claims.game_id', 'games.id')
+                                ->whereIn('status', [ClaimStatus::Active->value, ClaimStatus::InReview->value]);
                         });
                     }
                 }
@@ -251,11 +250,11 @@ trait BuildsGameListQueries
             if ($filterKey === 'user' && !empty($filterValues[0])) {
                 $query->whereExists(function ($subquery) use ($filterValues) {
                     $subquery->select(DB::raw(1))
-                        ->from('SetRequest')
-                        ->join('UserAccounts', 'UserAccounts.ID', '=', 'SetRequest.user_id')
-                        ->whereColumn('SetRequest.GameID', 'GameData.ID')
-                        ->where(DB::raw('SetRequest.type'), UserGameListType::AchievementSetRequest)
-                        ->where('UserAccounts.display_name', $filterValues[0]);
+                        ->from('user_game_list_entries')
+                        ->join('users', 'users.id', '=', 'user_game_list_entries.user_id')
+                        ->whereColumn('user_game_list_entries.game_id', 'games.id')
+                        ->where(DB::raw('user_game_list_entries.type'), UserGameListType::AchievementSetRequest)
+                        ->where('users.display_name', $filterValues[0]);
                 });
                 continue;
             }
@@ -276,7 +275,7 @@ trait BuildsGameListQueries
                  * game title, with tagged games placed at the bottom of the list
                  */
                 case GameListSortField::Title->value:
-                    $query->orderBy(DB::raw('GameData.sort_title'), $sortDirection);
+                    $query->orderBy(DB::raw('games.sort_title'), $sortDirection);
                     break;
 
                 /*
@@ -284,15 +283,15 @@ trait BuildsGameListQueries
                  */
                 case GameListSortField::System->value:
                     $query
-                        ->join('Console', 'GameData.ConsoleID', '=', 'Console.ID')
-                        ->orderBy('Console.name_short', $sortDirection);
+                        ->join('systems', 'games.system_id', '=', 'systems.id')
+                        ->orderBy('systems.name_short', $sortDirection);
                     break;
 
                 /*
                  * count of official achievements associated with the game's core set
                  */
                 case GameListSortField::AchievementsPublished->value:
-                    $query->orderBy(DB::raw('GameData.achievements_published'), $sortDirection);
+                    $query->orderBy(DB::raw('games.achievements_published'), $sortDirection);
                     break;
 
                 /*
@@ -306,7 +305,7 @@ trait BuildsGameListQueries
                  * count of points from core/official achievements associated with the game's core set
                  */
                 case GameListSortField::PointsTotal->value:
-                    $query->orderBy(DB::raw('GameData.points_total'), $sortDirection);
+                    $query->orderBy(DB::raw('games.points_total'), $sortDirection);
                     break;
 
                 /*
@@ -317,8 +316,8 @@ trait BuildsGameListQueries
                     $query
                         ->selectRaw(
                             "CASE
-                                WHEN GameData.points_total = 0 THEN 0
-                                ELSE GameData.TotalTruePoints / GameData.points_total
+                                WHEN games.points_total = 0 THEN 0
+                                ELSE games.points_weighted / games.points_total
                             END AS retro_ratio"
                         )
                         ->orderBy('retro_ratio', $sortDirection);
@@ -333,8 +332,8 @@ trait BuildsGameListQueries
                     $query
                         ->selectRaw(
                             "COALESCE(
-                                (SELECT MAX(DateModified) FROM Achievements WHERE Achievements.GameID = GameData.ID),
-                                GameData.Updated
+                                (SELECT MAX(modified_at) FROM achievements WHERE achievements.game_id = games.id),
+                                games.updated_at
                             ) AS last_updated"
                         )
                         ->orderBy('last_updated', $sortDirection);
@@ -351,7 +350,7 @@ trait BuildsGameListQueries
                  * count of all players (softcore and hardcore) for the game
                  */
                 case GameListSortField::PlayersTotal->value:
-                    $query->orderBy(DB::raw('GameData.players_total'), $sortDirection);
+                    $query->orderBy(DB::raw('games.players_total'), $sortDirection);
                     break;
 
                 /*
@@ -388,14 +387,14 @@ trait BuildsGameListQueries
                  * if we have no idea what the user is trying to sort by, fall back to sorting by title
                  */
                 default:
-                    $query->orderBy(DB::raw('GameData.sort_title'), $sortDirection);
+                    $query->orderBy(DB::raw('games.sort_title'), $sortDirection);
                     break;
             }
         }
 
         // Default to sorting by title if no valid sort field is provided.
         // Otherwise, always secondary sort by title.
-        $query->orderBy(DB::raw('GameData.sort_title'), 'asc');
+        $query->orderBy(DB::raw('games.sort_title'), 'asc');
     }
 
     /**
@@ -425,16 +424,16 @@ trait BuildsGameListQueries
         // SQLite, because if we do so then we can't actually trust any test results.
         $query
             ->selectRaw(<<<SQL
-                GameData.*,
-                CASE GameData.released_at_granularity
-                    WHEN 'year' THEN 
-                        CONCAT(SUBSTR(GameData.released_at, 1, 4), '-12-31-3')
-                    WHEN 'month' THEN 
-                        CONCAT(SUBSTR(GameData.released_at, 1, 7), '-31-2')
-                    WHEN 'day' THEN 
-                        CONCAT(GameData.released_at, '-1')
-                    ELSE 
-                        CONCAT(COALESCE(GameData.released_at, '9999-12-31'), '-4')
+                games.*,
+                CASE games.released_at_granularity
+                    WHEN 'year' THEN
+                        CONCAT(SUBSTR(games.released_at, 1, 4), '-12-31-3')
+                    WHEN 'month' THEN
+                        CONCAT(SUBSTR(games.released_at, 1, 7), '-31-2')
+                    WHEN 'day' THEN
+                        CONCAT(games.released_at, '-1')
+                    ELSE
+                        CONCAT(COALESCE(games.released_at, '9999-12-31'), '-4')
                 END AS release_sort_key
             SQL)
             ->orderByRaw('released_at IS NULL') // Ensure NULL release dates always sort to the end, regardless of sort direction.
@@ -456,14 +455,14 @@ trait BuildsGameListQueries
     {
         // If there's no user, then we have no progress to sort by. Bail.
         if (!$user) {
-            $query->orderBy(DB::raw('GameData.sort_title'), $sortDirection);
+            $query->orderBy(DB::raw('games.sort_title'), $sortDirection);
 
             return;
         }
 
         $query
             ->leftJoin('player_games', function ($join) use ($user) {
-                $join->on('player_games.game_id', '=', 'GameData.ID')
+                $join->on('player_games.game_id', '=', 'games.id')
                     ->where('player_games.user_id', '=', $user->id);
             })
             ->selectRaw("
@@ -473,7 +472,7 @@ trait BuildsGameListQueries
                 END AS progress_percentage
             ")
             ->orderBy('progress_percentage', $sortDirection)
-            ->orderBy(DB::raw('GameData.achievements_published'), $sortDirection);
+            ->orderBy(DB::raw('games.achievements_published'), $sortDirection);
     }
 
     /**
@@ -496,13 +495,13 @@ trait BuildsGameListQueries
 
         switch ($value) {
             case 'has':
-                $query->where(DB::raw('GameData.achievements_published'), '>', 0);
+                $query->where(DB::raw('games.achievements_published'), '>', 0);
                 break;
 
             case 'none':
                 $query->where(function ($q) {
-                    $q->where(DB::raw('GameData.achievements_published'), 0)
-                        ->orWhereNull(DB::raw('GameData.achievements_published'));
+                    $q->where(DB::raw('games.achievements_published'), 0)
+                        ->orWhereNull(DB::raw('games.achievements_published'));
                 });
                 break;
 
@@ -534,7 +533,7 @@ trait BuildsGameListQueries
                 $subquery->select(DB::raw(1))
                     ->from('tags')
                     ->join('taggables', 'tags.id', '=', 'taggables.tag_id')
-                    ->whereColumn('taggables.taggable_id', 'GameData.ID')
+                    ->whereColumn('taggables.taggable_id', 'games.id')
                     ->where('taggables.taggable_type', 'game')
                     ->where('tags.type', 'game');
             });
@@ -547,7 +546,7 @@ trait BuildsGameListQueries
                     $subquery->select(DB::raw(1))
                         ->from('tags')
                         ->join('taggables', 'tags.id', '=', 'taggables.tag_id')
-                        ->whereColumn('taggables.taggable_id', 'GameData.ID')
+                        ->whereColumn('taggables.taggable_id', 'games.id')
                         ->where('taggables.taggable_type', 'game')
                         ->where('tags.type', 'game');
                 })
@@ -564,7 +563,7 @@ trait BuildsGameListQueries
     /**
      * Filter games based on the player's progress.
      *
-     * The SiteAwards.AwardDataExtra field is used to differentiate between softcore (0) and hardcore (1).
+     * The user_awards.award_tier field is used to differentiate between softcore (0) and hardcore (1).
      *
      * If the user is not provided (ie: they aren't logged in), no filtering will be performed.
      *
@@ -578,11 +577,11 @@ trait BuildsGameListQueries
         }
 
         /**
-         * We'll pull this data from SiteAwards. Similar data does exist on
+         * We'll pull this data from user_awards. Similar data does exist on
          * player_games, but it is not static. In other words, on player_games,
          * we revoke the "100% completion" when a set gets revised. This is not
          * how we communicate the mastery awards UX to players, so we reach for
-         * SiteAwards data instead.
+         * user_awards data instead.
          */
         $query->where(function ($query) use ($filterValue, $user) {
             switch ($filterValue) {
@@ -597,7 +596,7 @@ trait BuildsGameListQueries
                         })
                         ->whereNotExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
-                                ->whereIn('SiteAwards.AwardType', [AwardType::GameBeaten, AwardType::Mastery]);
+                                ->whereIn('user_awards.award_type', [AwardType::GameBeaten, AwardType::Mastery]);
                         });
                     });
                     break;
@@ -615,7 +614,7 @@ trait BuildsGameListQueries
                         // ... but no game award.
                         ->whereNotExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
-                                ->whereIn('SiteAwards.AwardType', [AwardType::GameBeaten, AwardType::Mastery]);
+                                ->whereIn('user_awards.award_type', [AwardType::GameBeaten, AwardType::Mastery]);
                         });
                     });
                     break;
@@ -626,7 +625,7 @@ trait BuildsGameListQueries
                 case GameListProgressFilterValue::GteBeatenSoftcore->value:
                     $query->orWhereExists(function ($subQuery) use ($user) {
                         $this->baseAwardsQuery($user)($subQuery)
-                            ->whereIn('SiteAwards.AwardType', [AwardType::GameBeaten, AwardType::Mastery]);
+                            ->whereIn('user_awards.award_type', [AwardType::GameBeaten, AwardType::Mastery]);
                     });
                     break;
 
@@ -639,10 +638,10 @@ trait BuildsGameListQueries
                         $this->baseAwardsQuery($user)($subQuery)
                             ->where(function ($q) {
                                 $q->where(function ($q2) {
-                                    $q2->where('SiteAwards.AwardType', AwardType::GameBeaten)
-                                        ->where('SiteAwards.AwardDataExtra', UnlockMode::Hardcore);
+                                    $q2->where('user_awards.award_type', AwardType::GameBeaten)
+                                        ->where('user_awards.award_tier', UnlockMode::Hardcore);
                                 })
-                                ->orWhere('SiteAwards.AwardType', AwardType::Mastery);
+                                ->orWhere('user_awards.award_type', AwardType::Mastery);
                             });
                     });
                     break;
@@ -654,12 +653,12 @@ trait BuildsGameListQueries
                     $query->orWhere(function ($subQuery) use ($user) {
                         $subQuery->whereExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
-                                ->where('SiteAwards.AwardType', AwardType::GameBeaten)
-                                ->where('SiteAwards.AwardDataExtra', UnlockMode::Softcore);
+                                ->where('user_awards.award_type', AwardType::GameBeaten)
+                                ->where('user_awards.award_tier', UnlockMode::Softcore);
                         })
                         ->whereNotExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
-                                ->where('SiteAwards.AwardType', AwardType::Mastery);
+                                ->where('user_awards.award_type', AwardType::Mastery);
                         });
                     });
                     break;
@@ -671,12 +670,12 @@ trait BuildsGameListQueries
                     $query->orWhere(function ($subQuery) use ($user) {
                         $subQuery->whereExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
-                                ->where('SiteAwards.AwardType', AwardType::GameBeaten)
-                                ->where('SiteAwards.AwardDataExtra', UnlockMode::Hardcore);
+                                ->where('user_awards.award_type', AwardType::GameBeaten)
+                                ->where('user_awards.award_tier', UnlockMode::Hardcore);
                         })
                         ->whereNotExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
-                                ->where('SiteAwards.AwardType', AwardType::Mastery);
+                                ->where('user_awards.award_type', AwardType::Mastery);
                         });
                     });
                     break;
@@ -688,7 +687,7 @@ trait BuildsGameListQueries
                 case GameListProgressFilterValue::GteCompleted->value:
                     $query->orWhereExists(function ($subQuery) use ($user) {
                         $this->baseAwardsQuery($user)($subQuery)
-                            ->where('SiteAwards.AwardType', AwardType::Mastery);
+                            ->where('user_awards.award_type', AwardType::Mastery);
                     });
                     break;
 
@@ -699,8 +698,8 @@ trait BuildsGameListQueries
                     $query->orWhere(function ($subQuery) use ($user) {
                         $subQuery->whereExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
-                                ->where('SiteAwards.AwardType', AwardType::Mastery)
-                                ->where('SiteAwards.AwardDataExtra', UnlockMode::Softcore);
+                                ->where('user_awards.award_type', AwardType::Mastery)
+                                ->where('user_awards.award_tier', UnlockMode::Softcore);
                         });
                     });
                     break;
@@ -711,8 +710,8 @@ trait BuildsGameListQueries
                 case GameListProgressFilterValue::EqMastered->value:
                     $query->orWhereExists(function ($subQuery) use ($user) {
                         $this->baseAwardsQuery($user)($subQuery)
-                            ->where('SiteAwards.AwardType', AwardType::Mastery)
-                            ->where('SiteAwards.AwardDataExtra', UnlockMode::Hardcore);
+                            ->where('user_awards.award_type', AwardType::Mastery)
+                            ->where('user_awards.award_tier', UnlockMode::Hardcore);
                     });
                     break;
 
@@ -729,8 +728,8 @@ trait BuildsGameListQueries
                                     $q->where(function ($q2) use ($user) {
                                         // Find games where the user has softcore mastery (completion),
                                         // but softcore completion is <100%.
-                                        $q2->where('SiteAwards.AwardType', AwardType::Mastery)
-                                            ->where('SiteAwards.AwardDataExtra', UnlockMode::Softcore)
+                                        $q2->where('user_awards.award_type', AwardType::Mastery)
+                                            ->where('user_awards.award_tier', UnlockMode::Softcore)
                                             ->whereExists(function ($progress) use ($user) {
                                                 $this->baseProgressQuery($user)($progress)
                                                     ->where('player_games.completion_percentage', '<', 1);
@@ -738,8 +737,8 @@ trait BuildsGameListQueries
                                     })
                                     ->orWhere(function ($q2) use ($user) {
                                         // Find games where the user has mastery, but completion is <100%.
-                                        $q2->where('SiteAwards.AwardType', AwardType::Mastery)
-                                            ->where('SiteAwards.AwardDataExtra', UnlockMode::Hardcore)
+                                        $q2->where('user_awards.award_type', AwardType::Mastery)
+                                            ->where('user_awards.award_tier', UnlockMode::Hardcore)
                                             ->whereExists(function ($progress) use ($user) {
                                                 $this->baseProgressQuery($user)($progress)
                                                     ->where('player_games.completion_percentage_hardcore', '<', 1);
@@ -756,7 +755,7 @@ trait BuildsGameListQueries
                 case GameListProgressFilterValue::NeqMastered->value:
                     $query->orWhereNotExists(function ($subQuery) use ($user) {
                         $this->baseAwardsQuery($user)($subQuery)
-                            ->where('SiteAwards.AwardType', AwardType::Mastery);
+                            ->where('user_awards.award_type', AwardType::Mastery);
                     });
                     break;
 
@@ -767,15 +766,15 @@ trait BuildsGameListQueries
     }
 
     /**
-     * Create a base subquery for checking a user's SiteAwards data.
+     * Create a base subquery for checking a user's user_awards data.
      */
     private function baseAwardsQuery(User $user): Closure
     {
         return function ($query) use ($user) {
             return $query->select(DB::raw(1))
-                ->from('SiteAwards')
-                ->whereColumn('SiteAwards.AwardData', 'GameData.ID')
-                ->where('SiteAwards.user_id', $user->id);
+                ->from('user_awards')
+                ->whereColumn('user_awards.award_key', 'games.id')
+                ->where('user_awards.user_id', $user->id);
         };
     }
 
@@ -787,7 +786,7 @@ trait BuildsGameListQueries
         return function ($query) use ($user) {
             return $query->select(DB::raw(1))
                 ->from('player_games')
-                ->whereColumn('player_games.game_id', 'GameData.ID')
+                ->whereColumn('player_games.game_id', 'games.id')
                 ->where('player_games.user_id', $user->id);
         };
     }

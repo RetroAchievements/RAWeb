@@ -85,7 +85,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
 
         $checksum = request()->input('h') ?? '';
         if (!$this->checksumMatches($checksum, $this->user->display_name)) {
-            if ($this->user->User === $this->user->display_name || !$this->checksumMatches($checksum, $this->user->User)) {
+            if ($this->user->username === $this->user->display_name || !$this->checksumMatches($checksum, $this->user->username)) {
                 return $this->accessDenied('Invalid checksum.');
             }
         }
@@ -128,33 +128,32 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
 
         $fields = [];
 
-        if ($leaderboard->Title !== $this->title) {
-            $leaderboard->Title = $this->title;
+        if ($leaderboard->title !== $this->title) {
+            $leaderboard->title = $this->title;
             $fields[] = 'title';
         }
 
-        if ($leaderboard->Description !== $this->description) {
-            $leaderboard->Description = $this->description;
+        if ($leaderboard->description !== $this->description) {
+            $leaderboard->description = $this->description;
             $fields[] = 'description';
         }
 
         if (!ValueFormat::isValid($this->format)) {
             return $this->invalidParameter('Unknown format: ' . $this->format);
         }
-        if ($leaderboard->Format !== $this->format) {
-            $leaderboard->Format = $this->format;
+        if ($leaderboard->format !== $this->format) {
+            $leaderboard->format = $this->format;
             $fields[] = 'format';
         }
 
-        // Leaderboard::LowerIsBetter is not yet being cast to boolean. Use non-strict comparison
-        if ($leaderboard->LowerIsBetter != $this->lowerIsBetter) {
-            $leaderboard->LowerIsBetter = $this->lowerIsBetter;
+        if ($leaderboard->rank_asc != $this->lowerIsBetter) {
+            $leaderboard->rank_asc = $this->lowerIsBetter;
             $fields[] = 'order';
         }
 
         $newMem = $this->buildMemString();
-        if ($leaderboard->Mem != $newMem) {
-            $leaderboard->Mem = $newMem;
+        if ($leaderboard->trigger_definition != $newMem) {
+            $leaderboard->trigger_definition = $newMem;
             $fields[] = 'logic';
         }
 
@@ -211,7 +210,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
         //       in regards to a dev-rolled task in Devember (add 3 leaderboards to a game for DQ14 credit).
 
         // Make sure the user has a claim on the game.
-        // if (!hasSetClaimed($this->user, $game->ID, false)) {
+        // if (!hasSetClaimed($this->user, $game->id, false)) {
         //     return $this->accessDenied('You must have an active claim on this game to perform this action.');
         // }
 
@@ -219,18 +218,18 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
             return $this->invalidParameter('Unknown format: ' . $this->format);
         }
 
-        $maxDisplayOrder = Leaderboard::where('GameID', $game->ID)->max('DisplayOrder') ?? 0;
+        $maxOrderColumn = Leaderboard::where('game_id', $game->id)->max('order_column') ?? 0;
 
         $newMem = $this->buildMemString();
         $leaderboard = Leaderboard::create([
-            'GameID' => $this->gameId,
+            'game_id' => $this->gameId,
             'author_id' => $this->user->id,
-            'DisplayOrder' => $maxDisplayOrder + 1,
-            'Title' => $this->title,
-            'Description' => $this->description,
-            'Mem' => $newMem,
-            'LowerIsBetter' => $this->lowerIsBetter,
-            'Format' => $this->format,
+            'order_column' => $maxOrderColumn + 1,
+            'title' => $this->title,
+            'description' => $this->description,
+            'trigger_definition' => $newMem,
+            'rank_asc' => $this->lowerIsBetter,
+            'format' => $this->format,
         ]);
 
         (new UpsertTriggerVersionAction())->execute(

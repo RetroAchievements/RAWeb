@@ -4,7 +4,6 @@ use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -13,7 +12,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'achievement' => 'required|integer|exists:Achievements,ID',
+    'achievement' => 'required|integer|exists:achievements,id',
     'video' => 'nullable|url',
 ]);
 
@@ -22,19 +21,19 @@ $embedUrl = $input['video'];
 
 $achievement = Achievement::find($achievementId);
 
-$currentVideoUrl = $achievement->AssocVideo;
+$currentVideoUrl = $achievement->embed_url;
 
 // Only allow jr. devs to update achievement embed if they are the author and the achievement is not core/official
 if (
     $permissions === Permissions::JuniorDeveloper
-    && ($user !== $achievement->developer?->User || $achievement->Flags === AchievementFlag::OfficialCore->value)
+    && ($user !== $achievement->developer?->username || $achievement->is_promoted)
 ) {
     abort(403);
 }
 
 $userModel = User::whereName($user)->first();
 
-$achievement->AssocVideo = strip_tags($embedUrl);
+$achievement->embed_url = strip_tags($embedUrl);
 $achievement->save();
 
 $auditLog = "{$userModel->display_name} set this achievement's embed URL.";

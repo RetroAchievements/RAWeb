@@ -28,11 +28,11 @@ if ($onlyActive) {
 }
 
 $response = $systems->get()->map(fn ($system) => [
-    'ID' => $system->ID,
-    'Name' => $system->Name,
+    'ID' => $system->id,
+    'Name' => $system->name,
     'IconURL' => $system->icon_url,
     'Active' => boolval($system->active),
-    'IsGameSystem' => System::isGameSystem($system->ID),
+    'IsGameSystem' => System::isGameSystem($system->id),
 ])
     ->values();
 

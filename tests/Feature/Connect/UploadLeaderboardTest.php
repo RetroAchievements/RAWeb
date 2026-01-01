@@ -45,7 +45,7 @@ class UploadLeaderboardTest extends TestCase
 
     public function testUploadLeaderboardDeveloper(): void
     {
-        $this->user = User::factory()->create(['appToken' => Str::random(16), 'Permissions' => Permissions::Developer]);
+        $this->user = User::factory()->create(['connect_token' => Str::random(16), 'Permissions' => Permissions::Developer]);
         $this->user->assignRole(Role::DEVELOPER);
 
         $game = $this->seedGame();
@@ -56,7 +56,7 @@ class UploadLeaderboardTest extends TestCase
         // TODO: temporarily disabled and duplicated below. when the claim check is restored,
         //       re-enable this code and remove the duplicated code.
         // $this->post('dorequest.php', $this->checksumParams([
-        //     'g' => $game->ID,
+        //     'g' => $game->id,
         //     'n' => 'Title',
         //     'd' => 'Description',
         //     's' => '1=0',
@@ -82,7 +82,7 @@ class UploadLeaderboardTest extends TestCase
         ]);
 
         $this->post('dorequest.php', $this->checksumParams([
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title',
             'd' => 'Description',
             's' => '1=0',
@@ -99,17 +99,17 @@ class UploadLeaderboardTest extends TestCase
             ]);
 
         $leaderboard1 = Leaderboard::find(1);
-        $this->assertEquals('Title', $leaderboard1->Title);
-        $this->assertEquals('Description', $leaderboard1->Description);
-        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->Mem);
-        $this->assertEquals(true, $leaderboard1->LowerIsBetter);
-        $this->assertEquals('VALUE', $leaderboard1->Format);
-        $this->assertEquals(1, $leaderboard1->DisplayOrder);
+        $this->assertEquals('Title', $leaderboard1->title);
+        $this->assertEquals('Description', $leaderboard1->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->trigger_definition);
+        $this->assertEquals(true, $leaderboard1->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard1->format);
+        $this->assertEquals(1, $leaderboard1->order_column);
 
         // ----------------------------
         // second new leaderboard for valid game
         $this->post('dorequest.php', $this->checksumParams([
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title2',
             'd' => 'Description2',
             's' => '5=0',
@@ -126,17 +126,17 @@ class UploadLeaderboardTest extends TestCase
             ]);
 
         $leaderboard2 = Leaderboard::find(2);
-        $this->assertEquals('Title2', $leaderboard2->Title);
-        $this->assertEquals('Description2', $leaderboard2->Description);
-        $this->assertEquals('STA:5=0::CAN:7=0::SUB:6=0::VAL:8=0', $leaderboard2->Mem);
-        $this->assertEquals(false, $leaderboard2->LowerIsBetter);
-        $this->assertEquals('SCORE', $leaderboard2->Format);
-        $this->assertEquals(2, $leaderboard2->DisplayOrder);
+        $this->assertEquals('Title2', $leaderboard2->title);
+        $this->assertEquals('Description2', $leaderboard2->description);
+        $this->assertEquals('STA:5=0::CAN:7=0::SUB:6=0::VAL:8=0', $leaderboard2->trigger_definition);
+        $this->assertEquals(false, $leaderboard2->rank_asc);
+        $this->assertEquals('SCORE', $leaderboard2->format);
+        $this->assertEquals(2, $leaderboard2->order_column);
 
         // ----------------------------
         // update first leaderboard title
         $this->post('dorequest.php', $this->checksumParams([
-            'i' => $leaderboard1->ID,
+            'i' => $leaderboard1->id,
             'g' => $game->id,
             'n' => 'Title3',
             'd' => 'Description',
@@ -154,19 +154,19 @@ class UploadLeaderboardTest extends TestCase
             ]);
 
         $leaderboard1->refresh();
-        $this->assertEquals('Title3', $leaderboard1->Title);
-        $this->assertEquals('Description', $leaderboard1->Description);
-        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->Mem);
-        $this->assertEquals(true, $leaderboard1->LowerIsBetter);
-        $this->assertEquals('VALUE', $leaderboard1->Format);
-        $this->assertEquals(1, $leaderboard1->DisplayOrder);
+        $this->assertEquals('Title3', $leaderboard1->title);
+        $this->assertEquals('Description', $leaderboard1->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->trigger_definition);
+        $this->assertEquals(true, $leaderboard1->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard1->format);
+        $this->assertEquals(1, $leaderboard1->order_column);
         $this->assertAuditComment(CommentableType::Leaderboard, $leaderboard1->id,
             "{$this->user->display_name} edited this leaderboard's title.");
 
         // ----------------------------
         // update second leaderboard everything
         $this->post('dorequest.php', $this->checksumParams([
-            'i' => $leaderboard2->ID,
+            'i' => $leaderboard2->id,
             'g' => $game->id,
             'n' => 'Title4',
             'd' => 'Description4',
@@ -184,12 +184,12 @@ class UploadLeaderboardTest extends TestCase
             ]);
 
         $leaderboard2->refresh();
-        $this->assertEquals('Title4', $leaderboard2->Title);
-        $this->assertEquals('Description4', $leaderboard2->Description);
-        $this->assertEquals('STA:11=0::CAN:13=0::SUB:12=0::VAL:14=0', $leaderboard2->Mem);
-        $this->assertEquals(true, $leaderboard2->LowerIsBetter);
-        $this->assertEquals('TIMESECS', $leaderboard2->Format);
-        $this->assertEquals(2, $leaderboard2->DisplayOrder);
+        $this->assertEquals('Title4', $leaderboard2->title);
+        $this->assertEquals('Description4', $leaderboard2->description);
+        $this->assertEquals('STA:11=0::CAN:13=0::SUB:12=0::VAL:14=0', $leaderboard2->trigger_definition);
+        $this->assertEquals(true, $leaderboard2->rank_asc);
+        $this->assertEquals('TIMESECS', $leaderboard2->format);
+        $this->assertEquals(2, $leaderboard2->order_column);
         $this->assertAuditComment(CommentableType::Leaderboard, $leaderboard2->id,
             "{$this->user->display_name} edited this leaderboard's title, description, format, order, logic.");
 
@@ -218,7 +218,7 @@ class UploadLeaderboardTest extends TestCase
         // ----------------------------
         // update second leaderboard unknown format
         $this->post('dorequest.php', $this->checksumParams([
-            'i' => $leaderboard2->ID,
+            'i' => $leaderboard2->id,
             'g' => $game->id,
             'n' => 'Title4',
             'd' => 'Description4',
@@ -238,7 +238,7 @@ class UploadLeaderboardTest extends TestCase
             ]);
 
         $leaderboard2->refresh();
-        $this->assertEquals('TIMESECS', $leaderboard2->Format);
+        $this->assertEquals('TIMESECS', $leaderboard2->format);
 
         // ----------------------------
         // create new leaderboard unknown format
@@ -284,13 +284,13 @@ class UploadLeaderboardTest extends TestCase
             ]);
 
         $leaderboard3 = Leaderboard::find(3);
-        $this->assertEquals('Title5', $leaderboard3->Title);
-        $this->assertEquals('Description5', $leaderboard3->Description);
-        $this->assertEquals('STA:15=0::CAN:17=0::SUB:16=0::VAL:18=0', $leaderboard3->Mem);
-        $this->assertEquals(true, $leaderboard3->LowerIsBetter);
-        $this->assertEquals('UNSIGNED', $leaderboard3->Format);
-        $this->assertEquals($game->id, $leaderboard3->GameID);
-        $this->assertEquals(3, $leaderboard3->DisplayOrder);
+        $this->assertEquals('Title5', $leaderboard3->title);
+        $this->assertEquals('Description5', $leaderboard3->description);
+        $this->assertEquals('STA:15=0::CAN:17=0::SUB:16=0::VAL:18=0', $leaderboard3->trigger_definition);
+        $this->assertEquals(true, $leaderboard3->rank_asc);
+        $this->assertEquals('UNSIGNED', $leaderboard3->format);
+        $this->assertEquals($game->id, $leaderboard3->game_id);
+        $this->assertEquals(3, $leaderboard3->order_column);
 
         // ----------------------------
         // create new leaderboard invalid checksum
@@ -328,7 +328,7 @@ class UploadLeaderboardTest extends TestCase
 
         $this->assertEquals(3, Leaderboard::count());
 
-        $params['i'] = $leaderboard2->ID; // also try updating
+        $params['i'] = $leaderboard2->id; // also try updating
         $this->post('dorequest.php', $params)
             ->assertStatus(403)
             ->assertExactJson([
@@ -340,7 +340,7 @@ class UploadLeaderboardTest extends TestCase
 
         $this->assertEquals(3, Leaderboard::count());
         $leaderboard2->refresh();
-        $this->assertEquals('Title4', $leaderboard2->Title);
+        $this->assertEquals('Title4', $leaderboard2->title);
 
         // TODO: this is a duplicate of the first commented out subtest above. it was
         //       commented out to avoid updating all of the intermediate IDs given that
@@ -351,7 +351,7 @@ class UploadLeaderboardTest extends TestCase
         // new leaderboard for unclaimed game
         $game2 = $this->seedGame();
         $this->post('dorequest.php', $this->checksumParams([
-            'g' => $game2->ID,
+            'g' => $game2->id,
             'n' => 'Title',
             'd' => 'Description',
             's' => '1=0',
@@ -368,17 +368,17 @@ class UploadLeaderboardTest extends TestCase
             ]);
 
         $leaderboard4 = Leaderboard::find(4);
-        $this->assertEquals('Title', $leaderboard4->Title);
-        $this->assertEquals('Description', $leaderboard4->Description);
-        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard4->Mem);
-        $this->assertEquals(true, $leaderboard4->LowerIsBetter);
-        $this->assertEquals('VALUE', $leaderboard4->Format);
-        $this->assertEquals(1, $leaderboard4->DisplayOrder);
+        $this->assertEquals('Title', $leaderboard4->title);
+        $this->assertEquals('Description', $leaderboard4->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard4->trigger_definition);
+        $this->assertEquals(true, $leaderboard4->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard4->format);
+        $this->assertEquals(1, $leaderboard4->order_column);
    }
 
     public function testUploadLeaderboardJuniorDeveloper(): void
     {
-        $this->user = User::factory()->create(['appToken' => Str::random(16), 'Permissions' => Permissions::JuniorDeveloper]);
+        $this->user = User::factory()->create(['connect_token' => Str::random(16), 'Permissions' => Permissions::JuniorDeveloper]);
         $this->user->assignRole(Role::DEVELOPER_JUNIOR);
 
         $game = $this->seedGame();
@@ -388,7 +388,7 @@ class UploadLeaderboardTest extends TestCase
         // new leaderboard for unclaimed game
         // NOTE: LeaderboardPolicy::create validates claim, so junior only gets a generic access denied message
         $this->post('dorequest.php', $this->checksumParams([
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title',
             'd' => 'Description',
             's' => '1=0',
@@ -414,7 +414,7 @@ class UploadLeaderboardTest extends TestCase
         ]);
 
         $this->post('dorequest.php', $this->checksumParams([
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title',
             'd' => 'Description',
             's' => '1=0',
@@ -431,17 +431,17 @@ class UploadLeaderboardTest extends TestCase
             ]);
 
         $leaderboard1 = Leaderboard::find(1);
-        $this->assertEquals('Title', $leaderboard1->Title);
-        $this->assertEquals('Description', $leaderboard1->Description);
-        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->Mem);
-        $this->assertEquals(true, $leaderboard1->LowerIsBetter);
-        $this->assertEquals('VALUE', $leaderboard1->Format);
+        $this->assertEquals('Title', $leaderboard1->title);
+        $this->assertEquals('Description', $leaderboard1->description);
+        $this->assertEquals('STA:1=0::CAN:3=0::SUB:2=0::VAL:4=0', $leaderboard1->trigger_definition);
+        $this->assertEquals(true, $leaderboard1->rank_asc);
+        $this->assertEquals('VALUE', $leaderboard1->format);
 
         // ----------------------------
         // update leaderboard
         $this->post('dorequest.php', $this->checksumParams([
             'i' => $leaderboard1->id,
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title2',
             'd' => 'Description2',
             's' => '11=0',
@@ -458,11 +458,11 @@ class UploadLeaderboardTest extends TestCase
             ]);
 
         $leaderboard1->refresh();
-        $this->assertEquals('Title2', $leaderboard1->Title);
-        $this->assertEquals('Description2', $leaderboard1->Description);
-        $this->assertEquals('STA:11=0::CAN:13=0::SUB:12=0::VAL:14=0', $leaderboard1->Mem);
-        $this->assertEquals(false, $leaderboard1->LowerIsBetter);
-        $this->assertEquals('SCORE', $leaderboard1->Format);
+        $this->assertEquals('Title2', $leaderboard1->title);
+        $this->assertEquals('Description2', $leaderboard1->description);
+        $this->assertEquals('STA:11=0::CAN:13=0::SUB:12=0::VAL:14=0', $leaderboard1->trigger_definition);
+        $this->assertEquals(false, $leaderboard1->rank_asc);
+        $this->assertEquals('SCORE', $leaderboard1->format);
         $this->assertAuditComment(CommentableType::Leaderboard, $leaderboard1->id,
             "{$this->user->display_name} edited this leaderboard's title, description, format, order, logic.");
 
@@ -473,7 +473,7 @@ class UploadLeaderboardTest extends TestCase
 
         $this->post('dorequest.php', $this->checksumParams([
             'i' => $leaderboard2->id,
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title2',
             'd' => 'Description2',
             's' => '11=0',
@@ -492,13 +492,13 @@ class UploadLeaderboardTest extends TestCase
             ]);
 
         $leaderboard2->refresh();
-        $this->assertNotEquals('Title2', $leaderboard2->Title);
-        $this->assertNotEquals('Description2', $leaderboard2->Description);
+        $this->assertNotEquals('Title2', $leaderboard2->title);
+        $this->assertNotEquals('Description2', $leaderboard2->description);
     }
 
     public function testUploadLeaderboardNonDeveloper(): void
     {
-        $this->user = User::factory()->create(['appToken' => Str::random(16), 'Permissions' => Permissions::Registered]);
+        $this->user = User::factory()->create(['connect_token' => Str::random(16), 'Permissions' => Permissions::Registered]);
 
         $game = $this->seedGame();
         $this->addServerUser();
@@ -506,7 +506,7 @@ class UploadLeaderboardTest extends TestCase
         // ----------------------------
         // new leaderboard for valid game
         $this->post('dorequest.php', $this->checksumParams([
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title',
             'd' => 'Description',
             's' => '1=0',
@@ -531,7 +531,7 @@ class UploadLeaderboardTest extends TestCase
 
         $this->post('dorequest.php', $this->checksumParams([
             'i' => $leaderboard2->id,
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title2',
             'd' => 'Description2',
             's' => '11=0',
@@ -550,7 +550,7 @@ class UploadLeaderboardTest extends TestCase
             ]);
 
         $leaderboard2->refresh();
-        $this->assertNotEquals('Title2', $leaderboard2->Title);
-        $this->assertNotEquals('Description2', $leaderboard2->Description);
+        $this->assertNotEquals('Title2', $leaderboard2->title);
+        $this->assertNotEquals('Description2', $leaderboard2->description);
     }
 }

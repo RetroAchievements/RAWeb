@@ -185,7 +185,7 @@ function informAllSubscribersAboutActivity(
                 return;
             }
 
-            $articleTitle = "{$game->Title} ({$game->system->Name})";
+            $articleTitle = "{$game->title} ({$game->system->name})";
             $urlTarget = route('game.show', ['game' => $game, 'tab' => 'community']);
             $articleEmailPreference = UserPreference::EmailOn_AchievementComment;
             $subscriptionSubjectType = SubscriptionSubjectType::GameWall;
@@ -197,7 +197,7 @@ function informAllSubscribersAboutActivity(
                 return;
             }
 
-            $articleTitle = "{$achievement->Title} ({$achievement->game->Title})";
+            $articleTitle = "{$achievement->title} ({$achievement->game->title})";
             $urlTarget = route('achievement.show', $achievement);
             $subjectAuthor = $achievement->developer;
             $articleEmailPreference = UserPreference::EmailOn_AchievementComment;
@@ -224,7 +224,7 @@ function informAllSubscribersAboutActivity(
                 return;
             }
 
-            $articleTitle = "{$leaderboard->Title} ({$leaderboard->game->Title})";
+            $articleTitle = "{$leaderboard->title} ({$leaderboard->game->title})";
             $urlTarget = "leaderboardinfo.php?i=$commentableId";
             $articleEmailPreference = UserPreference::EmailOn_AchievementComment;
             $subscriptionSubjectType = SubscriptionSubjectType::Leaderboard;
@@ -236,7 +236,7 @@ function informAllSubscribersAboutActivity(
                 return;
             }
 
-            $articleTitle = "{$ticket->achievement->Title} ({$ticket->achievement->game->Title})";
+            $articleTitle = "{$ticket->achievement->title} ({$ticket->achievement->game->title})";
             $urlTarget = route('ticket.show', ['ticket' => $ticket->ID]);
             $subjectAuthor = $ticket->reporter;
             $articleEmailPreference = UserPreference::EmailOn_TicketActivity;
@@ -281,7 +281,7 @@ function informAllSubscribersAboutActivity(
     }
 
     $subscriptionService = new SubscriptionService();
-    $subscribers = $subscriptionService->getSegmentedSubscriberIds($subscriptionSubjectType, $commentableId, $subjectAuthor?->ID);
+    $subscribers = $subscriptionService->getSegmentedSubscriberIds($subscriptionSubjectType, $commentableId, $subjectAuthor?->id);
 
     $notificationService = new SubscriptionNotificationService();
     $notificationService->queueNotifications($subscribers['implicitlySubscribedNotifyLater'],
@@ -323,15 +323,15 @@ function sendActivityEmail(
         $user->is($activityCommenter)
         || $user->isGone()
         || $user->isInactive()
-        || empty($user->EmailAddress)
+        || empty($user->email)
     ) {
         return false;
     }
 
-    Mail::to($user->EmailAddress)->queue(new CommunityActivityMail(
+    Mail::to($user->email)->queue(new CommunityActivityMail(
         $user,
         $actID,
-        $activityCommenter?->display_name ?? $activityCommenter?->User,
+        $activityCommenter?->display_name ?? $activityCommenter?->username,
         $commentableType,
         $articleTitle,
         $urlTarget,

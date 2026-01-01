@@ -98,10 +98,10 @@ class AchievementSetsRelationManager extends RelationManager
                     }),
 
                 Tables\Columns\TextColumn::make('achievements_published')
-                    ->label('Published Achievements'),
+                    ->label('Promoted Achievements'),
 
                 Tables\Columns\TextColumn::make('achievements_unpublished')
-                    ->label('Unpublished Achievements'),
+                    ->label('Unpromoted Achievements'),
 
                 Tables\Columns\TextInputColumn::make('order_column')
                     ->label('Display Order')
@@ -146,8 +146,8 @@ class AchievementSetsRelationManager extends RelationManager
                                     ->helperText('Find the current subset game in the database. For example: "Mega Man 2 [Subset - Bonus]".')
                                     ->searchable()
                                     ->options(
-                                        Game::where('Title', 'like', "%[Subset -%")
-                                            ->where('ConsoleID', $game->ConsoleID)
+                                        Game::where('title', 'like', "%[Subset -%")
+                                            ->where('system_id', $game->system_id)
                                             ->where(function ($query) {
                                                 $query->where('achievements_published', '>', 0)
                                                     ->orWhere('achievements_unpublished', '>', 0);
@@ -183,7 +183,7 @@ class AchievementSetsRelationManager extends RelationManager
                                 $legacySubsetAchievementSet = $game->gameAchievementSets()->core()->first()->achievementSet;
                                 $attachedGame = $legacySubsetAchievementSet->games()
                                     ->wherePivot('type', '!=', AchievementSetType::Core->value)
-                                    ->where(DB::raw('GameData.id'), '!=', $game->id)
+                                    ->where(DB::raw('games.id'), '!=', $game->id)
                                     ->first();
 
                                 // Set the flag in the form data.
@@ -313,7 +313,7 @@ class AchievementSetsRelationManager extends RelationManager
                             $backingGame = Game::find($backingGameId);
                             if ($backingGame && str_contains($backingGame->title, '[Subset -')) {
                                 $baseTitle = trim(preg_replace('/\s*\[Subset\s*-.*\]$/', '', $backingGame->title));
-                                $backingGame->Title = "{$baseTitle} [Subset - {$data['title']}]";
+                                $backingGame->title = "{$baseTitle} [Subset - {$data['title']}]";
                                 $backingGame->save();
                             }
                         }

@@ -88,7 +88,7 @@ if ($usernameOrUlid) {
     }
 }
 
-$commentableId = $user ? $user->ID : $gameOrAchievementId;
+$commentableId = $user ? $user->id : $gameOrAchievementId;
 
 $commentsQuery = Comment::withTrashed()
     ->with('user')

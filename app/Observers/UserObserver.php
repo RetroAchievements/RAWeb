@@ -58,13 +58,13 @@ class UserObserver
             $this->syncSearchIndex($user, shouldIndex: $user->banned_at === null);
         }
 
-        if ($user->wasChanged('UserWallActive')) {
+        if ($user->wasChanged('is_user_wall_active')) {
             $wallComments = Comment::query()
                 ->where('commentable_type', CommentableType::User)
                 ->where('commentable_id', $user->id)
                 ->get();
 
-            $this->syncSearchIndex($wallComments, shouldIndex: $user->UserWallActive);
+            $this->syncSearchIndex($wallComments, shouldIndex: $user->is_user_wall_active);
         }
     }
 

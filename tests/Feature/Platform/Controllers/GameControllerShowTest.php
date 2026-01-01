@@ -30,7 +30,6 @@ use App\Models\UserGameListEntry;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementAuthorTask;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameSetRolePermission;
 use App\Platform\Enums\GameSetType;
@@ -58,13 +57,13 @@ function createGameWithAchievements(
 ): Game {
     $developer = User::factory()->create();
 
-    $game = Game::factory()->create(['Title' => $title, 'ConsoleID' => $system->id]);
-    Achievement::factory()->published()->count($publishedCount)->create([
-        'GameID' => $game->id,
+    $game = Game::factory()->create(['title' => $title, 'system_id' => $system->id]);
+    Achievement::factory()->promoted()->count($publishedCount)->create([
+        'game_id' => $game->id,
         'user_id' => $developer->id,
     ]);
     Achievement::factory()->count($unpublishedCount)->create([
-        'GameID' => $game->id,
+        'game_id' => $game->id,
         'user_id' => $developer->id,
     ]);
 
@@ -110,7 +109,7 @@ function createGameWithSubset(
 describe('Redirects', function () {
     it('given the game is a legacy "hub game", redirects to hub.show', function () {
         // ARRANGE
-        $hubGame = Game::factory()->create(['ConsoleID' => System::Hubs, 'Title' => '[Central - Test Hub]']);
+        $hubGame = Game::factory()->create(['system_id' => System::Hubs, 'title' => '[Central - Test Hub]']);
         $gameSet = GameSet::factory()->create([
             'type' => GameSetType::Hub,
             'game_id' => $hubGame->id,
@@ -126,7 +125,7 @@ describe('Redirects', function () {
 
     it('given the game is a hub with no GameSet entity, returns a 404', function () {
         // ARRANGE
-        $hubGame = Game::factory()->create(['ConsoleID' => System::Hubs, 'Title' => 'Hub Game Without Set']);
+        $hubGame = Game::factory()->create(['system_id' => System::Hubs, 'title' => 'Hub Game Without Set']);
 
         // ACT
         $response = get(route('game.show', ['game' => $hubGame]));
@@ -137,7 +136,7 @@ describe('Redirects', function () {
 
     it('given the game is an "event game", redirects to event.show', function () {
         // ARRANGE
-        $eventGame = Game::factory()->create(['ConsoleID' => System::Events, 'Title' => 'Event Game']);
+        $eventGame = Game::factory()->create(['system_id' => System::Events, 'title' => 'Event Game']);
         $event = Event::factory()->create(['legacy_game_id' => $eventGame->id]);
 
         // ACT
@@ -352,7 +351,7 @@ describe('User State Props', function () {
 
         UserGameListEntry::create([
             'user_id' => $user->id,
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'type' => UserGameListType::Play,
         ]);
 
@@ -376,7 +375,7 @@ describe('User State Props', function () {
 
         UserGameListEntry::create([
             'user_id' => $user->id,
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'type' => UserGameListType::Develop,
         ]);
 
@@ -419,8 +418,8 @@ describe('Claims Props', function () {
         AchievementSetClaim::factory()->create([
             'user_id' => $developer->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Active,
         ]);
 
         // ACT
@@ -447,8 +446,8 @@ describe('Claims Props', function () {
         AchievementSetClaim::factory()->create([
             'user_id' => $developer->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::InReview,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::InReview,
         ]);
 
         // ACT
@@ -474,8 +473,8 @@ describe('Claims Props', function () {
         AchievementSetClaim::factory()->create([
             'user_id' => $developer->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Complete,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Complete,
         ]);
 
         // ACT
@@ -544,7 +543,7 @@ describe('Permissions Props', function () {
 
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
-        $game->update(['ForumTopicID' => 12345]); // jr devs can't create claims without a forum topic
+        $game->update(['forum_topic_id' => 12345]); // jr devs can't create claims without a forum topic
 
         $juniorDeveloper = User::factory()->create();
         $juniorDeveloper->assignRole(Role::DEVELOPER_JUNIOR);
@@ -610,8 +609,8 @@ describe('Permissions Props', function () {
         AchievementSetClaim::factory()->create([
             'user_id' => $developer->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Active,
         ]);
 
         // ACT
@@ -630,7 +629,7 @@ describe('Permissions Props', function () {
 
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
-        $game->update(['ForumTopicID' => 12345]);
+        $game->update(['forum_topic_id' => 12345]);
 
         $juniorDeveloper = User::factory()->create();
         $juniorDeveloper->assignRole(Role::DEVELOPER_JUNIOR);
@@ -638,8 +637,8 @@ describe('Permissions Props', function () {
         AchievementSetClaim::factory()->create([
             'user_id' => $juniorDeveloper->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Active,
         ]);
 
         // ACT
@@ -659,7 +658,7 @@ describe('Permissions Props', function () {
 
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
-        $game->update(['ForumTopicID' => 12345]);
+        $game->update(['forum_topic_id' => 12345]);
 
         $codeReviewer = User::factory()->create();
         $codeReviewer->assignRole(Role::DEVELOPER);
@@ -672,8 +671,8 @@ describe('Permissions Props', function () {
         AchievementSetClaim::factory()->create([
             'user_id' => $juniorDeveloper->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Active,
         ]);
 
         // ACT
@@ -692,7 +691,7 @@ describe('Permissions Props', function () {
 
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
-        $game->update(['ForumTopicID' => 12345]);
+        $game->update(['forum_topic_id' => 12345]);
 
         $moderator = User::factory()->create();
         $moderator->assignRole(Role::MODERATOR);
@@ -703,8 +702,8 @@ describe('Permissions Props', function () {
         AchievementSetClaim::factory()->create([
             'user_id' => $juniorDeveloper->id,
             'game_id' => $game->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Active,
         ]);
 
         // ACT
@@ -770,8 +769,8 @@ describe('Count Props', function () {
         ]);
 
         Leaderboard::factory()->count(2)->create([
-            'GameID' => $game->id,
-            'DisplayOrder' => 1,
+            'game_id' => $game->id,
+            'order_column' => 1,
         ]);
 
         GameHash::factory()->count(4)->create([
@@ -915,19 +914,19 @@ describe('Leaderboard State Props', function () {
         $game = createGameWithAchievements($system, 'Test Game');
 
         $activeLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Active,
-            'DisplayOrder' => 2,
+            'order_column' => 2,
         ]);
         $disabledLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Disabled,
-            'DisplayOrder' => 1,
+            'order_column' => 1,
         ]);
         $unpublishedLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Unpublished,
-            'DisplayOrder' => 0,
+            'order_column' => 0,
         ]);
 
         // ACT
@@ -951,19 +950,19 @@ describe('Leaderboard State Props', function () {
         $game = createGameWithAchievements($system, 'Test Game', 5, 2);
 
         Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Active,
-            'DisplayOrder' => 1,
+            'order_column' => 1,
         ]);
         Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Disabled,
-            'DisplayOrder' => 2,
+            'order_column' => 2,
         ]);
         $unpublishedLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Unpublished,
-            'DisplayOrder' => 0,
+            'order_column' => 0,
         ]);
 
         // ACT
@@ -986,19 +985,19 @@ describe('Leaderboard State Props', function () {
         $game = createGameWithAchievements($system, 'Test Game');
 
         $activeLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Active,
-            'DisplayOrder' => 1,
+            'order_column' => 1,
         ]);
         Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Disabled,
-            'DisplayOrder' => 2,
+            'order_column' => 2,
         ]);
         Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Unpublished,
-            'DisplayOrder' => 0,
+            'order_column' => 0,
         ]);
 
         // ACT
@@ -1017,9 +1016,9 @@ describe('Leaderboard State Props', function () {
         $game = createGameWithAchievements($system, 'Test Game');
 
         Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Disabled,
-            'DisplayOrder' => 1,
+            'order_column' => 1,
         ]);
 
         // ACT
@@ -1063,8 +1062,8 @@ describe('Related Content Props', function () {
         $similarGame = createGameWithAchievements($system, 'Super Mario Bros. 2');
 
         $subsetGame = Game::factory()->create([
-            'Title' => 'Super Mario Bros. [Subset - Bonus]',
-            'ConsoleID' => $system->id,
+            'title' => 'Super Mario Bros. [Subset - Bonus]',
+            'system_id' => $system->id,
             'achievements_published' => 6,
         ]);
 
@@ -1143,8 +1142,8 @@ describe('Related Content Props', function () {
 
         $gameWithAchievements = createGameWithAchievements($system, 'AAA Game With Achievements', 10);
         $gameWithoutAchievements = Game::factory()->create([
-            'Title' => 'AAA Game Without Achievements',
-            'ConsoleID' => $system->id,
+            'title' => 'AAA Game Without Achievements',
+            'system_id' => $system->id,
             'achievements_published' => 0,
         ]);
 
@@ -1282,17 +1281,17 @@ describe('Open Tickets Props', function () {
         // ARRANGE
         $system = System::factory()->create();
         $developer = User::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $publishedAchievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+        $publishedAchievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
 
         $unpublishedAchievement = Achievement::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::Unofficial->value,
+            'is_promoted' => false,
         ]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
@@ -1327,17 +1326,17 @@ describe('Open Tickets Props', function () {
         // ARRANGE
         $system = System::factory()->create();
         $developer = User::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $publishedAchievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+        $publishedAchievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
 
         $unpublishedAchievement = Achievement::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::Unofficial->value,
+            'is_promoted' => false,
         ]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
@@ -1377,10 +1376,10 @@ describe('Open Tickets Props', function () {
         // ARRANGE
         $system = System::factory()->create();
         $developer = User::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
 
@@ -1516,9 +1515,9 @@ describe('Aggregate Credits Props', function () {
         $originalAuthor = User::factory()->create();
         $maintainer = User::factory()->create();
 
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $originalAuthor->id,
         ]);
 
@@ -1545,9 +1544,9 @@ describe('Aggregate Credits Props', function () {
         $system = System::factory()->create();
         $originalAuthor = User::factory()->create();
 
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $originalAuthor->id,
         ]);
 
@@ -1574,9 +1573,9 @@ describe('Aggregate Credits Props', function () {
         $developer = User::factory()->create();
         $artworkAuthor = User::factory()->create();
 
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
 
@@ -1630,10 +1629,10 @@ describe('Achievement Groups Props', function () {
         // ARRANGE
         $system = System::factory()->create();
         $developer = User::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $achievement = Achievement::factory()->published()->create([
-            'GameID' => $game->id,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $developer->id,
         ]);
 
@@ -1723,8 +1722,8 @@ describe('Subset Context Props', function () {
         AchievementSetClaim::factory()->create([
             'user_id' => $developer->id,
             'game_id' => $subsetGame->id,
-            'ClaimType' => ClaimType::Primary,
-            'Status' => ClaimStatus::Active,
+            'claim_type' => ClaimType::Primary,
+            'status' => ClaimStatus::Active,
         ]);
 
         // ACT
@@ -1752,7 +1751,7 @@ describe('Subset Context Props', function () {
         // ... add the "subset game" (backing game) to the user's Want to Play list, but not the base game ...
         UserGameListEntry::create([
             'user_id' => $user->id,
-            'GameID' => $subsetGame->id,
+            'game_id' => $subsetGame->id,
             'type' => UserGameListType::Play,
         ]);
 
@@ -1779,8 +1778,8 @@ describe('Subset Context Props', function () {
 
         // ... create leaderboards on the "subset game" (backing game) ...
         Leaderboard::factory()->count(3)->create([
-            'GameID' => $subsetGame->id,
-            'DisplayOrder' => 1,
+            'game_id' => $subsetGame->id,
+            'order_column' => 1,
         ]);
 
         // ACT

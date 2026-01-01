@@ -1,7 +1,5 @@
 import type { FC } from 'react';
 
-import { AwardType } from '@/common/utils/generatedAppConstants';
-
 import { AwardIndicator } from '../AwardIndicator';
 
 interface PlayerBadgeIndicatorProps {
@@ -11,15 +9,15 @@ interface PlayerBadgeIndicatorProps {
 }
 
 export const PlayerBadgeIndicator: FC<PlayerBadgeIndicatorProps> = ({ playerBadge, className }) => {
-  const { awardType, awardDataExtra } = playerBadge;
+  const { awardType, awardTier } = playerBadge;
 
   let indicator: 'mastery' | 'completion' | 'beaten-hardcore' | 'beaten-softcore' =
     'beaten-softcore';
-  if (awardType === AwardType.Mastery && awardDataExtra) {
+  if (awardType === 'mastery' && awardTier) {
     indicator = 'mastery';
-  } else if (awardType === AwardType.Mastery && !awardDataExtra) {
+  } else if (awardType === 'mastery' && !awardTier) {
     indicator = 'completion';
-  } else if (awardType === AwardType.GameBeaten && awardDataExtra) {
+  } else if (awardType === 'game_beaten' && awardTier) {
     indicator = 'beaten-hardcore';
   }
 

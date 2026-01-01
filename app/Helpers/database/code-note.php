@@ -36,18 +36,18 @@ function getCodeNotes(int $gameId, array &$codeNotesOut): bool
  */
 function getCodeNoteCounts(User $user): array
 {
-    $userId = $user->ID;
+    $userId = $user->id;
 
     $retVal = [];
-    $query = "SELECT gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, mn.game_id as GameID, COUNT(mn.game_id) as TotalNotes,
+    $query = "SELECT gd.title as GameTitle, gd.image_icon_asset_path as GameIcon, s.name as ConsoleName, mn.game_id as GameID, COUNT(mn.game_id) as TotalNotes,
               SUM(CASE WHEN mn.user_id = $userId THEN 1 ELSE 0 END) AS NoteCount
               FROM memory_notes AS mn
-              LEFT JOIN GameData AS gd ON gd.ID = mn.game_id
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              LEFT JOIN games AS gd ON gd.id = mn.game_id
+              LEFT JOIN systems AS s ON s.id = gd.system_id
               WHERE LENGTH(body) > 0
               AND mn.deleted_at IS NULL
-              AND gd.ID IN (SELECT DISTINCT game_id from memory_notes WHERE user_id = $userId AND deleted_at IS NULL)
-              AND gd.Title IS NOT NULL
+              AND gd.id IN (SELECT DISTINCT game_id from memory_notes WHERE user_id = $userId AND deleted_at IS NULL)
+              AND gd.title IS NOT NULL
               GROUP BY GameID, GameTitle
               HAVING NoteCount > 0
               ORDER BY NoteCount DESC, GameTitle";

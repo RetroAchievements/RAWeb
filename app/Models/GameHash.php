@@ -198,7 +198,7 @@ class GameHash extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
@@ -206,7 +206,7 @@ class GameHash extends BaseModel
      */
     public function compatibilityTester(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'compatibility_tester_id', 'ID');
+        return $this->belongsTo(User::class, 'compatibility_tester_id');
     }
 
     // == scopes

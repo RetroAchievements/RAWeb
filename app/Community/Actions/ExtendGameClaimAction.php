@@ -15,12 +15,12 @@ class ExtendGameClaimAction
 {
     public function execute(AchievementSetClaim $claim, User $actingUser): void
     {
-        $claim->Finished = $claim->Finished->addMonths(3);
-        $claim->Extension++;
+        $claim->finished_at = $claim->finished_at->addMonths(3);
+        $claim->extensions_count++;
         $claim->save();
 
-        Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($claim->user->User));
-        addArticleComment("Server", CommentableType::SetClaim, $claim->game->ID, "Claim extended by " . $actingUser->display_name);
+        Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($claim->user->username));
+        addArticleComment("Server", CommentableType::SetClaim, $claim->game->id, "Claim extended by " . $actingUser->display_name);
 
         $webhookUrl = config('services.discord.webhook.claims');
         if (!empty($webhookUrl)) {
@@ -39,12 +39,12 @@ class ExtendGameClaimAction
             ->with('user')
             ->get();
         foreach ($collaborationClaims as $collaborationClaim) {
-            $collaborationClaim->Finished = $claim->Finished;
-            $collaborationClaim->Extension++;
+            $collaborationClaim->finished_at = $claim->finished_at;
+            $collaborationClaim->extensions_count++;
             $collaborationClaim->save();
 
-            Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($collaborationClaim->user->User));
-            addArticleComment("Server", CommentableType::SetClaim, $claim->game->ID,
+            Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($collaborationClaim->user->username));
+            addArticleComment("Server", CommentableType::SetClaim, $claim->game->id,
                 $collaborationClaim->user->display_name . "'s collaboration claim extended by " . $actingUser->display_name);
         }
     }

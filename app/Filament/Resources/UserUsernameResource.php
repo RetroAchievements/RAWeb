@@ -57,11 +57,15 @@ class UserUsernameResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->where(function ($query) {
-                $query->whereNotNull('approved_at')
-                    ->orWhereNotNull('denied_at')
-                    ->orWhere('created_at', '>', now()->subDays(30));
-            }))
+            ->modifyQueryUsing(fn (Builder $query) => $query
+                ->with('user')
+                ->whereHas('user')
+                ->where(function ($query) {
+                    $query->whereNotNull('approved_at')
+                        ->orWhereNotNull('denied_at')
+                        ->orWhere('created_at', '>', now()->subDays(30));
+                })
+            )
             ->columns([
                 Tables\Columns\TextColumn::make('user.username')
                     ->label('Original Username')

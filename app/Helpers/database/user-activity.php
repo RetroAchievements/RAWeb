@@ -67,7 +67,7 @@ function getRecentlyPlayedGames(User $user, int $offset, int $count, array &$dat
 
     $playerGames = PlayerGame::where('user_id', $user->id)
         ->whereHas('game', function ($query) {
-            $query->whereNotIn('ConsoleId', System::getNonGameSystems());
+            $query->whereNotIn('system_id', System::getNonGameSystems());
         })
         ->with('game.system')
         ->orderByDesc('last_played_at')
@@ -76,14 +76,14 @@ function getRecentlyPlayedGames(User $user, int $offset, int $count, array &$dat
 
     foreach ($playerGames->get() as $playerGame) {
         $dataOut[] = [
-            'GameID' => $playerGame->game->ID,
+            'GameID' => $playerGame->game->id,
             'ConsoleID' => $playerGame->game->system->id,
             'ConsoleName' => $playerGame->game->system->name,
-            'Title' => $playerGame->game->Title,
-            'ImageIcon' => $playerGame->game->ImageIcon,
-            'ImageTitle' => $playerGame->game->ImageTitle,
-            'ImageIngame' => $playerGame->game->ImageIngame,
-            'ImageBoxArt' => $playerGame->game->ImageBoxArt,
+            'Title' => $playerGame->game->title,
+            'ImageIcon' => $playerGame->game->image_icon_asset_path,
+            'ImageTitle' => $playerGame->game->image_title_asset_path,
+            'ImageIngame' => $playerGame->game->image_ingame_asset_path,
+            'ImageBoxArt' => $playerGame->game->image_box_art_asset_path,
             'LastPlayed' => $playerGame->last_played_at
                 ? $playerGame->last_played_at->format("Y-m-d H:i:s")
                 : null,
@@ -108,11 +108,11 @@ function getArticleComments(
 
     $commentableTypeValue = $commentableType->value;
 
-    $query = "SELECT SQL_CALC_FOUND_ROWS ua.User, ua.RAPoints, ua.banned_at, c.id AS ID, c.user_id,
+    $query = "SELECT SQL_CALC_FOUND_ROWS ua.username AS User, ua.banned_at, c.id AS ID, c.user_id,
                      c.body AS CommentPayload,
                      UNIX_TIMESTAMP(c.created_at) AS Submitted, c.updated_at AS Edited
               FROM comments AS c
-              LEFT JOIN UserAccounts AS ua ON ua.ID = c.user_id
+              LEFT JOIN users AS ua ON ua.id = c.user_id
               WHERE c.commentable_type='$commentableTypeValue' AND c.commentable_id=$commentableId AND c.deleted_at IS NULL
               ORDER BY c.created_at$order, c.id$order
               LIMIT $offset, $count";
@@ -159,19 +159,19 @@ function getLatestRichPresenceUpdates(): array
     $recentMinutes = 10;
     $permissionsCutoff = Permissions::Registered;
 
-    $ifRAPoints = ifStatement('ua.Untracked', 0, 'ua.RAPoints');
-    $ifRASoftcorePoints = ifStatement('ua.Untracked', 0, 'ua.RASoftcorePoints');
+    $ifRAPoints = ifStatement('ua.Untracked', 0, 'ua.points_hardcore');
+    $ifRASoftcorePoints = ifStatement('ua.Untracked', 0, 'ua.points');
     $timestampStatement = timestampAddMinutesStatement(-$recentMinutes);
 
-    $query = "SELECT ua.User, $ifRAPoints as RAPoints, $ifRASoftcorePoints as RASoftcorePoints,
-                     ua.RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
-              FROM UserAccounts AS ua
-              LEFT JOIN GameData AS gd ON gd.ID = ua.LastGameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE ua.RichPresenceMsgDate > $timestampStatement
-                AND ua.LastGameID != 0
+    $query = "SELECT ua.username AS User, $ifRAPoints as RAPoints, $ifRASoftcorePoints as RASoftcorePoints,
+                     ua.rich_presence AS RichPresenceMsg, gd.id AS GameID, gd.title AS GameTitle, gd.image_icon_asset_path AS GameIcon, s.name AS ConsoleName
+              FROM users AS ua
+              LEFT JOIN games AS gd ON gd.id = ua.rich_presence_game_id
+              LEFT JOIN systems AS s ON s.id = gd.system_id
+              WHERE ua.rich_presence_updated_at > $timestampStatement
+                AND ua.rich_presence_game_id != 0
                 AND ua.Permissions >= $permissionsCutoff
-              ORDER BY RAPoints DESC, RASoftcorePoints DESC, ua.User ASC";
+              ORDER BY RAPoints DESC, RASoftcorePoints DESC, ua.username ASC";
 
     $dbResult = legacyDbFetchAll($query);
 

@@ -19,12 +19,12 @@ class ShortcodeEmbedTest extends TestCase
     public function testStripAndClampGame(): void
     {
         /** @var System $system */
-        $system = System::factory()->create(['ID' => 1, 'Name' => 'Mega Drive']);
+        $system = System::factory()->create(['id' => 1, 'name' => 'Mega Drive']);
 
         Game::factory()->create([
-            'ID' => 1,
-            'Title' => 'Sonic the Hedgehog',
-            'ConsoleID' => $system->ID,
+            'id' => 1,
+            'title' => 'Sonic the Hedgehog',
+            'system_id' => $system->id,
         ]);
 
         $this->assertSame(
@@ -38,15 +38,15 @@ class ShortcodeEmbedTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         /** @var User $user */
         $user = User::factory()->create();
 
-        Achievement::factory()->published()->create([
-            'ID' => 1,
-            'GameID' => $game->ID,
-            'Title' => 'Ring Collector',
-            'Points' => 5,
+        Achievement::factory()->promoted()->create([
+            'id' => 1,
+            'game_id' => $game->id,
+            'title' => 'Ring Collector',
+            'points' => 5,
             'user_id' => $user->id,
         ]);
 
@@ -72,12 +72,12 @@ class ShortcodeEmbedTest extends TestCase
     public function testStripAndClampGameTitlesWithSpecialCharacters(): void
     {
         /** @var System $system */
-        $system = System::factory()->create(['ID' => 100, 'Name' => 'Hubs']);
+        $system = System::factory()->create(['id' => 100, 'name' => 'Hubs']);
 
         Game::factory()->create([
-            'ID' => 1,
-            'Title' => '[Series - Star Wars]',
-            'ConsoleID' => $system->ID,
+            'id' => 1,
+            'title' => '[Series - Star Wars]',
+            'system_id' => $system->id,
         ]);
 
         $this->assertSame(
@@ -89,23 +89,23 @@ class ShortcodeEmbedTest extends TestCase
     public function testStripAndClampMultipleShortcodes(): void
     {
         /** @var System $system */
-        $system = System::factory()->create(['ID' => 100, 'Name' => 'Hubs']);
+        $system = System::factory()->create(['id' => 100, 'name' => 'Hubs']);
 
         /** @var Game $game */
         $game = Game::factory()->create([
-            'ID' => 1,
-            'Title' => '[Series - Star Wars]',
-            'ConsoleID' => $system->ID,
+            'id' => 1,
+            'title' => '[Series - Star Wars]',
+            'system_id' => $system->id,
         ]);
 
         /** @var User $user */
         $user = User::factory()->create();
 
-        Achievement::factory()->published()->create([
-            'ID' => 1,
-            'GameID' => $game->ID,
-            'Title' => 'Finish the Game [100% Completion]',
-            'Points' => 50,
+        Achievement::factory()->promoted()->create([
+            'id' => 1,
+            'game_id' => $game->id,
+            'title' => 'Finish the Game [100% Completion]',
+            'points' => 50,
             'user_id' => $user->id,
         ]);
 

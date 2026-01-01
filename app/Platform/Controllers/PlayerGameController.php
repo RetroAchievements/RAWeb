@@ -155,9 +155,9 @@ class PlayerGameController extends Controller
             ->games()
             ->with('system')
             ->where('player_games.achievements_unlocked', '>', 0)
-            ->whereNotIn('ConsoleID', System::getNonGameSystems())
-            ->orderBy('Title')
-            ->select(['GameData.ID', 'Title', 'ConsoleID', 'achievements_published', 'player_games.achievements_unlocked'])
+            ->whereNotIn('system_id', System::getNonGameSystems())
+            ->orderBy('title')
+            ->select(['games.id', 'title', 'system_id', 'achievements_published', 'player_games.achievements_unlocked'])
             ->get()
             ->map(function ($game) {
                 return new PlayerResettableGameData(

@@ -160,7 +160,7 @@ return [
                     'id',
                     'title',
                     'unlocks_total',
-                    'unlocks_hardcore_total',
+                    'unlocks_hardcore',
                 ],
             ],
 

@@ -10,7 +10,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class AchievementUnpublished
+class AchievementPromoted
 {
     use Dispatchable;
     use InteractsWithSockets;

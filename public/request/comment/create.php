@@ -39,7 +39,7 @@ $commentable = match ($commentableType) {
     default => null,
 };
 
-$userModel = User::find($userDetails['ID']);
+$userModel = User::find($userDetails['id']);
 if (!$userModel->can('create', [Comment::class, $commentable, $commentableType])) {
     return back()->withErrors(__('legacy.error.error'));
 }

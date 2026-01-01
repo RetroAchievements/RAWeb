@@ -10,7 +10,7 @@ use App\Enums\Permissions;
 
 <?php
 $isTargetUserUntracked = $targetUser->Untracked;
-$targetUsername = $targetUser->User;
+$targetUsername = $targetUser->username;
 $targetUserPermissions = $targetUser->getAttribute('Permissions');
 
 $me = Auth::user();
@@ -35,7 +35,7 @@ $hasCertifiedLegendBadge = HasCertifiedLegendBadge($targetUser);
     class="bg-embed hidden border-x border-b border-text-muted py-2 px-4 w-[calc(100%+40px)] -mx-5 -mt-3 sm:-mt-1.5 mb-4"
 >
     <table>
-        @if ($me->getAttribute('Permissions') >= $targetUserPermissions && $me->User !== $targetUsername)
+        @if ($me->getAttribute('Permissions') >= $targetUserPermissions && $me->username !== $targetUsername)
             <tr>
                 <form method="post" action="/request/user/update.php">
                     @csrf

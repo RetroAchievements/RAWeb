@@ -36,13 +36,13 @@ $canCreateModerationReports = (
     && $userModel->can('createModerationReports', $userModel)
     && $author
     && $author->id !== auth()->user()->id
-    && $author->User !== 'Server'
+    && $author->username !== 'Server'
     && !in_array($commentableType, $nonReportableCommentableTypes, true)
 );
 
 @endphp
 
-@if ($author && $author->User === 'Server')
+@if ($author && $author->username === 'Server')
     <tr class="comment system">
         <td class="align-top py-2">
             @if ($commentId > 0)
