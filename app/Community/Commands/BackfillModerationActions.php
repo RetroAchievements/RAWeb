@@ -233,7 +233,7 @@ class BackfillModerationActions extends Command
                 ->where('actioned_by_id', $note->user_id)
                 ->whereBetween('created_at', [
                     $noteTimestamp->copy()->subMinutes(5),
-                    $noteTimestamp->copy()->addMinutes(5),
+                    $noteTimestamp->copy()->addMinutes(30),
                 ])
                 ->whereNull('reason')
                 ->first();
