@@ -97,7 +97,7 @@ class GameRelease extends BaseModel
      */
     public function game(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'game_id', 'ID');
+        return $this->belongsTo(Game::class, 'game_id', 'id');
     }
 
     // == scopes

@@ -1,5 +1,5 @@
 @php
-    $deleteDate = getDeleteDate($user->DeleteRequested);
+    $deleteDate = getDeleteDate($user->delete_requested_at);
 @endphp
 
 <x-mail::message>

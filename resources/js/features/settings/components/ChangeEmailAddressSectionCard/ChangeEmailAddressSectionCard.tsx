@@ -18,7 +18,7 @@ export const ChangeEmailAddressSectionCard: FC = () => {
   const { userSettings } = usePageProps<App.Community.Data.UserSettingsPageProps>();
   const { t } = useTranslation();
 
-  const [currentEmailAddress, setCurrentEmailAddress] = useState(userSettings.emailAddress ?? '');
+  const [currentEmailAddress, setCurrentEmailAddress] = useState(userSettings.email ?? '');
 
   const { form, mutation, onSubmit } = useChangeEmailAddressForm({ setCurrentEmailAddress });
 

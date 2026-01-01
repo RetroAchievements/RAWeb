@@ -34,7 +34,7 @@ $count = $input['c'] ?? 100;
 
 $leaderboardId = request()->query('i');
 
-$leaderboard = Leaderboard::firstWhere("ID", $leaderboardId);
+$leaderboard = Leaderboard::firstWhere("id", $leaderboardId);
 
 if (!$leaderboard) {
     return response()->json([], 404);
@@ -49,7 +49,7 @@ foreach ($entries as $entry) {
         'ULID' => $entry->user->ulid,
         'DateSubmitted' => $entry->updated_at->toIso8601String(),
         'Score' => $entry->score,
-        'FormattedScore' => ValueFormat::format($entry->score, $leaderboard->Format),
+        'FormattedScore' => ValueFormat::format($entry->score, $leaderboard->format),
         'Rank' => $entry->rank,
     ];
 }

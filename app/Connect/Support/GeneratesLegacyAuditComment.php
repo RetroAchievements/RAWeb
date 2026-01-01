@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace App\Connect\Support;
 
+use App\Community\Enums\CommentableType;
 use App\Models\Comment;
 
 trait GeneratesLegacyAuditComment
 {
-    protected function addLegacyAuditComment(int $articleType, int $articleId, string $payload): void
+    protected function addLegacyAuditComment(CommentableType $commentableType, int $commentableId, string $payload): void
     {
         $comment = Comment::create([
-            'ArticleType' => $articleType,
-            'ArticleID' => $articleId,
+            'commentable_type' => $commentableType,
+            'commentable_id' => $commentableId,
             'user_id' => Comment::SYSTEM_USER_ID,
-            'Payload' => $payload,
+            'body' => $payload,
         ]);
 
-        informAllSubscribersAboutActivity($articleType, $articleId, $this->user, $comment->ID);
+        informAllSubscribersAboutActivity($commentableType, $commentableId, $this->user, $comment->id);
     }
 }

@@ -1,5 +1,4 @@
 import { createAuthenticatedUser } from '@/common/models';
-import { ArticleType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
 import { createComment, createUser, createZiggyProps } from '@/test/factories';
 
@@ -15,7 +14,7 @@ describe('Component: CommentListItem', () => {
       <CommentListProvider
         canComment={false}
         commentableId={1}
-        commentableType="User"
+        commentableType="user.comment"
         onDeleteSuccess={vi.fn()}
       >
         <CommentListItem {...comment} />
@@ -35,7 +34,7 @@ describe('Component: CommentListItem', () => {
     // ARRANGE
     const comment = createComment({
       canReport: true, // !!
-      commentableType: ArticleType.User,
+      commentableType: 'user.comment',
       user: createUser({ displayName: 'SomeUser' }),
     });
 
@@ -43,7 +42,7 @@ describe('Component: CommentListItem', () => {
       <CommentListProvider
         canComment={false}
         commentableId={1}
-        commentableType="User"
+        commentableType="user.comment"
         onDeleteSuccess={vi.fn()}
       >
         <CommentListItem {...comment} />
@@ -65,7 +64,7 @@ describe('Component: CommentListItem', () => {
     // ARRANGE
     const comment = createComment({
       canReport: false, // !!
-      commentableType: ArticleType.User,
+      commentableType: 'user.comment',
       user: createUser({ displayName: 'SomeUser' }),
     });
 
@@ -73,7 +72,7 @@ describe('Component: CommentListItem', () => {
       <CommentListProvider
         canComment={false}
         commentableId={1}
-        commentableType="User"
+        commentableType="user.comment"
         onDeleteSuccess={vi.fn()}
       >
         <CommentListItem {...comment} />
@@ -95,7 +94,7 @@ describe('Component: CommentListItem', () => {
     // ARRANGE
     const comment = createComment({
       canReport: true,
-      commentableType: ArticleType.User,
+      commentableType: 'user.comment',
       isAutomated: true, // !!
     });
 
@@ -103,7 +102,7 @@ describe('Component: CommentListItem', () => {
       <CommentListProvider
         canComment={false}
         commentableId={1}
-        commentableType="User"
+        commentableType="user.comment"
         onDeleteSuccess={vi.fn()}
       >
         <CommentListItem {...comment} />
@@ -121,11 +120,11 @@ describe('Component: CommentListItem', () => {
     expect(reportButton).not.toBeInTheDocument();
   });
 
-  it('given ArticleType is News, hides the report button', () => {
+  it('given commentableType is user-moderation.comment, hides the report button', () => {
     // ARRANGE
     const comment = createComment({
       canReport: true,
-      commentableType: ArticleType.News, // !!
+      commentableType: 'user-moderation.comment', // !!
       user: createUser({ displayName: 'SomeUser' }),
     });
 
@@ -133,7 +132,7 @@ describe('Component: CommentListItem', () => {
       <CommentListProvider
         canComment={false}
         commentableId={1}
-        commentableType="User"
+        commentableType="user.comment"
         onDeleteSuccess={vi.fn()}
       >
         <CommentListItem {...comment} />
@@ -151,11 +150,11 @@ describe('Component: CommentListItem', () => {
     expect(reportButton).not.toBeInTheDocument();
   });
 
-  it('given ArticleType is UserModeration, hides the report button', () => {
+  it('given commentableType is game-hash.comment, hides the report button', () => {
     // ARRANGE
     const comment = createComment({
       canReport: true,
-      commentableType: ArticleType.UserModeration, // !!
+      commentableType: 'game-hash.comment', // !!
       user: createUser({ displayName: 'SomeUser' }),
     });
 
@@ -163,7 +162,7 @@ describe('Component: CommentListItem', () => {
       <CommentListProvider
         canComment={false}
         commentableId={1}
-        commentableType="User"
+        commentableType="user.comment"
         onDeleteSuccess={vi.fn()}
       >
         <CommentListItem {...comment} />
@@ -181,11 +180,11 @@ describe('Component: CommentListItem', () => {
     expect(reportButton).not.toBeInTheDocument();
   });
 
-  it('given ArticleType is GameHash, hides the report button', () => {
+  it('given commentableType is achievement-set-claim.comment, hides the report button', () => {
     // ARRANGE
     const comment = createComment({
       canReport: true,
-      commentableType: ArticleType.GameHash, // !!
+      commentableType: 'achievement-set-claim.comment', // !!
       user: createUser({ displayName: 'SomeUser' }),
     });
 
@@ -193,7 +192,7 @@ describe('Component: CommentListItem', () => {
       <CommentListProvider
         canComment={false}
         commentableId={1}
-        commentableType="User"
+        commentableType="user.comment"
         onDeleteSuccess={vi.fn()}
       >
         <CommentListItem {...comment} />
@@ -211,11 +210,11 @@ describe('Component: CommentListItem', () => {
     expect(reportButton).not.toBeInTheDocument();
   });
 
-  it('given ArticleType is SetClaim, hides the report button', () => {
+  it('given commentableType is game-modification.comment, hides the report button', () => {
     // ARRANGE
     const comment = createComment({
       canReport: true,
-      commentableType: ArticleType.SetClaim, // !!
+      commentableType: 'game-modification.comment', // !!
       user: createUser({ displayName: 'SomeUser' }),
     });
 
@@ -223,7 +222,7 @@ describe('Component: CommentListItem', () => {
       <CommentListProvider
         canComment={false}
         commentableId={1}
-        commentableType="User"
+        commentableType="user.comment"
         onDeleteSuccess={vi.fn()}
       >
         <CommentListItem {...comment} />
@@ -241,41 +240,11 @@ describe('Component: CommentListItem', () => {
     expect(reportButton).not.toBeInTheDocument();
   });
 
-  it('given ArticleType is GameModification, hides the report button', () => {
+  it('given the user can report and the comment has the game.comment type, shows the report button', () => {
     // ARRANGE
     const comment = createComment({
       canReport: true,
-      commentableType: ArticleType.GameModification, // !!
-      user: createUser({ displayName: 'SomeUser' }),
-    });
-
-    render(
-      <CommentListProvider
-        canComment={false}
-        commentableId={1}
-        commentableType="User"
-        onDeleteSuccess={vi.fn()}
-      >
-        <CommentListItem {...comment} />
-      </CommentListProvider>,
-      {
-        pageProps: {
-          auth: { user: createAuthenticatedUser() },
-          ziggy: createZiggyProps({ device: 'desktop' }),
-        },
-      },
-    );
-
-    // ASSERT
-    const reportButton = screen.queryByRole('link', { name: /report/i });
-    expect(reportButton).not.toBeInTheDocument();
-  });
-
-  it('given the user can report and the comment has the Game ArticleType, shows the report button', () => {
-    // ARRANGE
-    const comment = createComment({
-      canReport: true,
-      commentableType: ArticleType.Game, // !!
+      commentableType: 'game.comment', // !!
       user: createUser({ displayName: 'ReportedUser' }),
     });
 
@@ -283,7 +252,7 @@ describe('Component: CommentListItem', () => {
       <CommentListProvider
         canComment={false}
         commentableId={1}
-        commentableType="User"
+        commentableType="user.comment"
         onDeleteSuccess={vi.fn()}
       >
         <CommentListItem {...comment} />
@@ -301,11 +270,11 @@ describe('Component: CommentListItem', () => {
     expect(reportIcon).toBeVisible();
   });
 
-  it('given the user can report and the comment has the Achievement ArticleType, shows the report button', () => {
+  it('given the user can report and the comment has the achievement.comment type, shows the report button', () => {
     // ARRANGE
     const comment = createComment({
       canReport: true,
-      commentableType: ArticleType.Achievement, // !!
+      commentableType: 'achievement.comment', // !!
       user: createUser({ displayName: 'ReportedUser' }),
     });
 
@@ -313,7 +282,7 @@ describe('Component: CommentListItem', () => {
       <CommentListProvider
         canComment={false}
         commentableId={1}
-        commentableType="User"
+        commentableType="user.comment"
         onDeleteSuccess={vi.fn()}
       >
         <CommentListItem {...comment} />
@@ -335,7 +304,7 @@ describe('Component: CommentListItem', () => {
     // ARRANGE
     const comment = createComment({
       canReport: true,
-      commentableType: ArticleType.User,
+      commentableType: 'user.comment',
       user: createUser({ displayName: 'SomeUser' }),
     });
 
@@ -343,7 +312,7 @@ describe('Component: CommentListItem', () => {
       <CommentListProvider
         canComment={false}
         commentableId={1}
-        commentableType="User"
+        commentableType="user.comment"
         onDeleteSuccess={vi.fn()}
       >
         <CommentListItem {...comment} />
@@ -371,7 +340,7 @@ describe('Component: CommentListItem', () => {
       <CommentListProvider
         canComment={false}
         commentableId={1}
-        commentableType="User"
+        commentableType="user.comment"
         onDeleteSuccess={vi.fn()}
       >
         <CommentListItem {...comment} />
@@ -398,7 +367,7 @@ describe('Component: CommentListItem', () => {
       <CommentListProvider
         canComment={false}
         commentableId={1}
-        commentableType="User"
+        commentableType="user.comment"
         onDeleteSuccess={vi.fn()}
       >
         <CommentListItem {...comment} />

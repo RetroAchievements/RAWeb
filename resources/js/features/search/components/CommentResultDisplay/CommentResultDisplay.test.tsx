@@ -1,4 +1,3 @@
-import { ArticleType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
 import { createComment, createUser } from '@/test/factories';
 
@@ -61,7 +60,7 @@ describe('Component: CommentResultDisplay', () => {
 
   it('given the comment is a game comment, displays the game comment label', () => {
     // ARRANGE
-    const comment = createComment({ commentableType: ArticleType.Game });
+    const comment = createComment({ commentableType: 'game.comment' });
 
     render(<CommentResultDisplay comment={comment} />);
 
@@ -71,7 +70,7 @@ describe('Component: CommentResultDisplay', () => {
 
   it('given the comment is an achievement comment, displays the achievement comment label', () => {
     // ARRANGE
-    const comment = createComment({ commentableType: ArticleType.Achievement });
+    const comment = createComment({ commentableType: 'achievement.comment' });
 
     render(<CommentResultDisplay comment={comment} />);
 
@@ -81,7 +80,7 @@ describe('Component: CommentResultDisplay', () => {
 
   it('given the comment is a wall comment, displays the wall comment label', () => {
     // ARRANGE
-    const comment = createComment({ commentableType: ArticleType.User });
+    const comment = createComment({ commentableType: 'user.comment' });
 
     render(<CommentResultDisplay comment={comment} />);
 
@@ -91,7 +90,7 @@ describe('Component: CommentResultDisplay', () => {
 
   it('given the comment is a leaderboard comment, displays the leaderboard comment label', () => {
     // ARRANGE
-    const comment = createComment({ commentableType: ArticleType.Leaderboard });
+    const comment = createComment({ commentableType: 'leaderboard.comment' });
 
     render(<CommentResultDisplay comment={comment} />);
 
@@ -101,21 +100,11 @@ describe('Component: CommentResultDisplay', () => {
 
   it('given the comment is a ticket comment, displays the ticket comment label', () => {
     // ARRANGE
-    const comment = createComment({ commentableType: ArticleType.AchievementTicket });
+    const comment = createComment({ commentableType: 'trigger.ticket.comment' });
 
     render(<CommentResultDisplay comment={comment} />);
 
     // ASSERT
     expect(screen.getByText(/ticket comment/i)).toBeVisible();
-  });
-
-  it('given the comment has an unknown type, displays the default comment label', () => {
-    // ARRANGE
-    const comment = createComment({ commentableType: 999 });
-
-    render(<CommentResultDisplay comment={comment} />);
-
-    // ASSERT
-    expect(screen.getByText('Comment')).toBeVisible();
   });
 });

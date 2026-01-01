@@ -38,11 +38,11 @@ $user = request()->user();
             </div>
         </x-container>
     @endif
-    @if ($user->DeleteRequested)
+    @if ($user->delete_requested_at)
         <x-container>
             <div class="bg-orange-500 my-2 text-gray-200 px-5 py-2 rounded-sm">
                 <x-fas-exclamation-triangle/>
-                Your account is marked to be deleted on {{ getDeleteDate($user->DeleteRequested) }}.
+                Your account is marked to be deleted on {{ getDeleteDate($user->delete_requested_at) }}.
             </div>
         </x-container>
     @endif

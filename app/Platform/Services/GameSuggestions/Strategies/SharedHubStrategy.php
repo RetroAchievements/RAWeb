@@ -38,11 +38,11 @@ class SharedHubStrategy implements GameSuggestionStrategy
 
         // Then, get a random game from the hub that isn't our source game.
         $this->selectedGame = Game::query()
-            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+            ->whereNotIn('system_id', System::getNonGameSystems())
             ->whereHas('gameSets', function ($query) {
                 $query->whereGameSetId($this->selectedHub->id);
             })
-            ->where('ID', '!=', $this->sourceGame->id)
+            ->where('id', '!=', $this->sourceGame->id)
             ->whereHasPublishedAchievements()
             ->inRandomOrder()
             ->first();

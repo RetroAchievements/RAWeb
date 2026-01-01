@@ -77,8 +77,8 @@ class ForumTopicApiController extends Controller
         // if this was the official forum topic for a game, clear out the association
         // so another forum topic can be created - soft deletes don't cascade update
         // the field to null. this also creates an audit log entry on the game.
-        foreach (Game::where('ForumTopicID', $topic->id)->get() as $game) {
-            $game->ForumTopicID = null;
+        foreach (Game::where('forum_topic_id', $topic->id)->get() as $game) {
+            $game->forum_topic_id = null;
             $game->save();
         }
 

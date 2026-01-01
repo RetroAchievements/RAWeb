@@ -80,8 +80,8 @@ class TicketListService
             'label' => 'Ticket Type',
             'options' => [
                 0 => 'All',
-                TicketType::TriggeredAtWrongTime => TicketType::toString(TicketType::TriggeredAtWrongTime),
-                TicketType::DidNotTrigger => TicketType::toString(TicketType::DidNotTrigger),
+                TicketType::TriggeredAtWrongTime->toLegacyInteger() => TicketType::TriggeredAtWrongTime->label(),
+                TicketType::DidNotTrigger->toLegacyInteger() => TicketType::DidNotTrigger->label(),
             ],
         ];
 
@@ -172,7 +172,7 @@ class TicketListService
      */
     public function getTickets(array $filterOptions, ?Builder $tickets = null): Collection
     {
-        return $this->buildQuery($filterOptions, $tickets)->orderBy('ReportedAt', 'DESC')->get();
+        return $this->buildQuery($filterOptions, $tickets)->orderBy('created_at', 'DESC')->get();
     }
 
     /**
@@ -199,7 +199,8 @@ class TicketListService
         }
 
         if ($filterOptions['type'] > 0) {
-            $tickets->where('ReportType', $filterOptions['type']);
+            $ticketType = TicketType::fromLegacyInteger($filterOptions['type']);
+            $tickets->where('type', $ticketType);
         }
 
         switch ($filterOptions['achievement']) {
@@ -214,15 +215,15 @@ class TicketListService
 
         switch ($filterOptions['mode']) {
             case 'hardcore':
-                $tickets->where('Hardcore', 1);
+                $tickets->where('hardcore', true);
                 break;
 
             case 'softcore':
-                $tickets->where('Hardcore', 0);
+                $tickets->where('hardcore', false);
                 break;
 
             case 'unspecified':
-                $tickets->whereNull('Hardcore');
+                $tickets->whereNull('hardcore');
                 break;
         }
 

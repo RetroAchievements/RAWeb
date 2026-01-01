@@ -23,7 +23,7 @@ class UserCommentPolicy
 
     public function viewAny(?User $user, User $commentable): bool
     {
-        if (!$commentable->UserWallActive || $commentable->banned_at) {
+        if (!$commentable->is_user_wall_active || $commentable->banned_at) {
             return false;
         }
 
@@ -59,7 +59,7 @@ class UserCommentPolicy
             || !$user->hasVerifiedEmail()
             || $user->isFreshAccount()
             || $commentable->isBlocking($user)
-            || !$commentable->UserWallActive
+            || !$commentable->is_user_wall_active
             || (
                 !$user->is($commentable)
                 && $commentable->only_allows_contact_from_followers

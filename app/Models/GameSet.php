@@ -127,16 +127,16 @@ class GameSet extends BaseModel
                 /** @var User $user */
                 $user = Auth::user();
 
-                $attachedGames = Game::whereIn('ID', $pivotIds)
-                    ->select(['ID', 'Title', 'ConsoleID'])
+                $attachedGames = Game::whereIn('id', $pivotIds)
+                    ->select(['id', 'title', 'system_id'])
                     ->get();
 
                 activity()->causedBy($user)->performedOn($model)
                     ->withProperty('old', [$relationName => null])
                     ->withProperty('attributes', [$relationName => $attachedGames
                         ->map(fn ($game) => [
-                            'id' => $game->ID,
-                            'system_id' => $game->ConsoleID,
+                            'id' => $game->id,
+                            'system_id' => $game->system_id,
                             'title' => $game->title,
                         ]),
                     ])
@@ -215,15 +215,15 @@ class GameSet extends BaseModel
                 /** @var User $user */
                 $user = Auth::user();
 
-                $detachedGames = Game::whereIn('ID', $pivotIds)
-                    ->select(['ID', 'Title', 'ConsoleID'])
+                $detachedGames = Game::whereIn('id', $pivotIds)
+                    ->select(['id', 'title', 'system_id'])
                     ->get();
 
                 activity()->causedBy($user)->performedOn($model)
                     ->withProperty('old', [$relationName => $detachedGames
                         ->map(fn ($game) => [
-                            'id' => $game->ID,
-                            'system_id' => $game->ConsoleID,
+                            'id' => $game->id,
+                            'system_id' => $game->system_id,
                             'title' => $game->title,
                         ]),
                     ])
@@ -358,7 +358,7 @@ class GameSet extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**

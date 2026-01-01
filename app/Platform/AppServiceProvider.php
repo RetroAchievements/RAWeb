@@ -143,6 +143,7 @@ class AppServiceProvider extends ServiceProvider
             'emulator' => Emulator::class,
             'emulator.release' => EmulatorRelease::class,
             'game' => Game::class,
+            'game.rich-presence' => Game::class,
             'game-hash' => GameHash::class,
             'game-hash-set' => GameHashSet::class,
             'game-hash-set.game-hash' => GameHashSetHash::class,

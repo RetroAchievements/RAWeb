@@ -22,17 +22,17 @@ class TicketNotificationsIcon extends Component
 
         // Open ticket notifications
         $openTicketsData = countOpenTicketsByDev($user);
-        if ($openTicketsData[TicketState::Open]) {
+        if ($openTicketsData[TicketState::Open->value]) {
             $notifications->push([
                 'link' => route('developer.tickets', ['user' => $user->display_name]),
-                'title' => $openTicketsData[TicketState::Open] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Open]) . ' for you to resolve',
+                'title' => $openTicketsData[TicketState::Open->value] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Open->value]) . ' for you to resolve',
                 'class' => 'text-danger',
             ]);
         }
-        if ($openTicketsData[TicketState::Request]) {
+        if ($openTicketsData[TicketState::Request->value]) {
             $notifications->push([
                 'link' => route('developer.tickets', ['user' => $user->display_name]),
-                'title' => $openTicketsData[TicketState::Request] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Request]) . ' pending feedback',
+                'title' => $openTicketsData[TicketState::Request->value] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Request->value]) . ' pending feedback',
                 'read' => true,
             ]);
         }

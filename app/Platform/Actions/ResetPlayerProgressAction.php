@@ -7,7 +7,6 @@ use App\Models\Achievement;
 use App\Models\AchievementMaintainerUnlock;
 use App\Models\PlayerProgressReset;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\PlayerProgressResetType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeLost;
@@ -24,58 +23,57 @@ class ResetPlayerProgressAction
     {
         $clause = '';
         if ($achievementID !== null) {
-            $clause = "AND ach.ID=$achievementID";
+            $clause = "AND ach.id=$achievementID";
         } elseif ($gameID !== null) {
-            $clause = "AND ach.GameID=$gameID";
+            $clause = "AND ach.game_id=$gameID";
         }
 
         $affectedAchievements = legacyDbFetchAll("
             SELECT
-                COALESCE(ua.display_name, ua.User) AS Author,
-                ach.GameID,
+                COALESCE(ua.display_name, ua.username) AS Author,
+                ach.game_id AS GameID,
                 CASE WHEN pa.unlocked_hardcore_at THEN 1 ELSE 0 END AS HardcoreMode,
-                COUNT(ach.ID) AS Count, SUM(ach.Points) AS Points,
-                SUM(ach.TrueRatio) AS TruePoints
+                COUNT(ach.id) AS Count, SUM(ach.points) AS Points,
+                SUM(ach.points_weighted) AS TruePoints
             FROM player_achievements pa
-            INNER JOIN Achievements ach ON ach.ID = pa.achievement_id
-            INNER JOIN UserAccounts ua ON ua.ID = ach.user_id
-            WHERE ach.Flags = " . AchievementFlag::OfficialCore->value . "
+            INNER JOIN achievements ach ON ach.id = pa.achievement_id
+            INNER JOIN users AS ua ON ua.id = ach.user_id
+            WHERE ach.is_promoted = 1
             AND pa.user_id = {$user->id} $clause
-            GROUP BY ach.user_id, ach.GameID, HardcoreMode
+            GROUP BY ach.user_id, ach.game_id, HardcoreMode
         ");
 
         $affectedGames = collect();
         $authorUsernames = collect();
         foreach ($affectedAchievements as $achievementData) {
-            if ($achievementData['Author'] !== $user->User) {
+            if ($achievementData['Author'] !== $user->username) {
                 $authorUsernames->push($achievementData['Author']);
             }
             $affectedGames->push($achievementData['GameID']);
         }
 
         $maintainers = DB::select("
-            SELECT DISTINCT COALESCE(ua.display_name, ua.User) AS Username
+            SELECT DISTINCT COALESCE(ua.display_name, ua.username) AS Username
             FROM player_achievements pa
-            INNER JOIN Achievements ach ON ach.ID = pa.achievement_id
-            INNER JOIN achievement_maintainers m ON m.achievement_id = ach.ID
-            INNER JOIN UserAccounts ua ON ua.ID = m.user_id
-            WHERE ach.Flags = :flags
+            INNER JOIN achievements ach ON ach.id = pa.achievement_id
+            INNER JOIN achievement_maintainers m ON m.achievement_id = ach.id
+            INNER JOIN users AS ua ON ua.id = m.user_id
+            WHERE ach.is_promoted = 1
                 AND pa.user_id = :user_id
                 " . $clause . "
                 AND COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) >= m.effective_from
                 AND (
-                    m.effective_until IS NULL 
+                    m.effective_until IS NULL
                     OR COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) < m.effective_until
                 )
-                AND ua.ID != :user_id2
+                AND ua.id != :user_id2
         ", [
-            'flags' => AchievementFlag::OfficialCore->value,
             'user_id' => $user->id,
             'user_id2' => $user->id,
         ]);
 
         foreach ($maintainers as $maintainer) {
-            $authorUsernames->push($maintainer->Username);
+            $authorUsernames->push($maintainer->username);
         }
 
         if ($achievementID !== null) {
@@ -88,7 +86,7 @@ class ResetPlayerProgressAction
             $achievement = $playerAchievement->achievement;
 
             // Handle decrement for developer contribution credit before player_achievement deletion.
-            if ($achievement->is_published) {
+            if ($achievement->is_promoted) {
                 // Check if there's a maintainer unlock record.
                 $maintainerUnlock = AchievementMaintainerUnlock::query()
                     ->where('player_achievement_id', $playerAchievement->id)
@@ -118,18 +116,18 @@ class ResetPlayerProgressAction
             // Delete any maintainer unlock records related to this player_achievement entity.
             AchievementMaintainerUnlock::where('player_achievement_id', $playerAchievement->id)->delete();
 
-            if ($achievement->is_published) {
+            if ($achievement->is_promoted) {
                 // resetting a published achievement removes the completion/mastery badge.
                 // RevalidateAchievementSetBadgeEligibilityAction will be called indirectly
                 // from the UpdatePlayerGameMetricsJob, but it does not revoke badges unless
                 // all achievements for a game are reset.
                 $playerBadge = $user->playerBadges()
-                    ->where('AwardType', AwardType::Mastery)
-                    ->where('AwardData', $achievement->game_id)
-                    ->where('AwardDataExtra', $playerAchievement->unlocked_hardcore_at ? UnlockMode::Hardcore : UnlockMode::Softcore)
+                    ->where('award_type', AwardType::Mastery)
+                    ->where('award_key', $achievement->game_id)
+                    ->where('award_tier', $playerAchievement->unlocked_hardcore_at ? UnlockMode::Hardcore : UnlockMode::Softcore)
                     ->first();
                 if ($playerBadge) {
-                    PlayerBadgeLost::dispatch($user, $playerBadge->AwardType, $playerBadge->AwardData, $playerBadge->AwardDataExtra);
+                    PlayerBadgeLost::dispatch($user, $playerBadge->award_type, $playerBadge->award_key, $playerBadge->award_tier);
                     $playerBadge->delete();
                 }
             }
@@ -139,9 +137,9 @@ class ResetPlayerProgressAction
             // If it is, we'll create a game reset record.
             // If it's not, we'll create an achievement reset record.
             $remainingAchievements = $user->playerAchievements()
-                ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
-                ->where(DB::raw('Achievements.GameID'), $achievement->game_id)
-                ->where(DB::raw('Achievements.Flags'), AchievementFlag::OfficialCore->value)
+                ->join('achievements', 'player_achievements.achievement_id', '=', 'achievements.id')
+                ->where(DB::raw('achievements.game_id'), $achievement->game_id)
+                ->where(DB::raw('achievements.is_promoted'), true)
                 ->count();
 
             if ($remainingAchievements === 0) {
@@ -158,7 +156,7 @@ class ResetPlayerProgressAction
                 ]);
             }
         } elseif ($gameID !== null) {
-            $achievementIds = Achievement::where('GameID', $gameID)->pluck('ID');
+            $achievementIds = Achievement::where('game_id', $gameID)->pluck('id');
 
             // Delete any maintainer unlock records related to these player_achievement entities.
             $playerAchievementIds = $user->playerAchievements()->whereIn('achievement_id', $achievementIds)->pluck('id');
@@ -194,18 +192,18 @@ class ResetPlayerProgressAction
                 $user->playerBadges()->delete();
             } else {
                 $user->playerBadges()
-                    ->whereIn('AwardType', [AwardType::Mastery, AwardType::GameBeaten, AwardType::Event])
+                    ->whereIn('award_type', [AwardType::Mastery, AwardType::GameBeaten, AwardType::Event])
                     ->delete();
             }
 
             $user->playerAchievements()->delete();
             $user->leaderboardEntries()->delete();
 
-            $user->RAPoints = 0;
-            $user->RASoftcorePoints = 0;
-            $user->TrueRAPoints = 0;
-            $user->ContribCount = 0;
-            $user->ContribYield = 0;
+            $user->points_hardcore = 0;
+            $user->points = 0;
+            $user->points_weighted = 0;
+            $user->yield_unlocks = 0;
+            $user->yield_points = 0;
             $user->saveQuietly();
 
             PlayerProgressReset::create([
@@ -220,10 +218,10 @@ class ResetPlayerProgressAction
         if ($achievementID === null) {
             $authors = User::query()
                 ->where(function ($query) use ($authorUsernames) {
-                    $query->whereIn('User', $authorUsernames->unique())
+                    $query->whereIn('username', $authorUsernames->unique())
                         ->orWhereIn('display_name', $authorUsernames->unique());
                 })
-                ->get('ID');
+                ->get('id');
             foreach ($authors as $author) {
                 dispatch(new UpdateDeveloperContributionYieldJob($author->id));
             }

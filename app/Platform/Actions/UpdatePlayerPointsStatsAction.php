@@ -31,10 +31,10 @@ class UpdatePlayerPointsStatsAction
         $recentPlayerAchievements = $user->playerAchievements()
             ->whereBetween('unlocked_at', [Carbon::now()->subDays(8), Carbon::now()])
             ->with(['achievement.game' => function ($query) {
-                $query->where('ConsoleID', '!=', System::Events);
+                $query->where('system_id', '!=', System::Events);
             }])
             ->whereHas('achievement.game', function ($query) {
-                $query->where('ConsoleID', '!=', System::Events);
+                $query->where('system_id', '!=', System::Events);
             })
             ->get();
 

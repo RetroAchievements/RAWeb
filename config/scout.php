@@ -160,14 +160,12 @@ return [
                     'id',
                     'title',
                     'unlocks_total',
-                    'unlocks_hardcore_total',
+                    'unlocks_hardcore',
                 ],
             ],
 
             Comment::class => [
                 'filterableAttributes' => [
-                    'ArticleID',
-                    'ArticleType',
                     'commentable_id',
                     'commentable_type',
                     'created_at',

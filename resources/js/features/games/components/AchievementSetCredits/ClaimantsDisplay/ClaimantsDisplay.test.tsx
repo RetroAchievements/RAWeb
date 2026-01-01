@@ -1,6 +1,5 @@
 import userEvent from '@testing-library/user-event';
 
-import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { render, screen, waitFor } from '@/test';
 import { createAchievementSetClaim, createUser } from '@/test/factories';
 
@@ -34,11 +33,11 @@ describe('Component: ClaimantsDisplay', () => {
     const achievementSetClaims = [
       createAchievementSetClaim({
         user: createUser({ displayName: 'Alice' }),
-        finishedAt: '2025-12-31T23:59:59Z', // !! future date shows "Expires"
+        finishedAt: '2099-12-31T23:59:59Z', // !! future date shows "Expires"
       }),
       createAchievementSetClaim({
         user: createUser({ displayName: 'Bob' }),
-        finishedAt: '2025-06-30T23:59:59Z', // !! future date shows "Expires"
+        finishedAt: '2099-06-30T23:59:59Z', // !! future date shows "Expires"
       }),
     ];
 
@@ -171,7 +170,7 @@ describe('Component: ClaimantsDisplay', () => {
     const achievementSetClaims = [
       createAchievementSetClaim({
         user: createUser({ displayName: 'Alice' }),
-        status: ClaimStatus.InReview, // !!
+        status: 'in_review', // !!
       }),
     ];
 
@@ -193,7 +192,7 @@ describe('Component: ClaimantsDisplay', () => {
     const achievementSetClaims = [
       createAchievementSetClaim({
         user: createUser({ displayName: 'Alice' }),
-        status: ClaimStatus.InReview, // !!
+        status: 'in_review', // !!
       }),
     ];
 
@@ -209,7 +208,7 @@ describe('Component: ClaimantsDisplay', () => {
     const achievementSetClaims = [
       createAchievementSetClaim({
         user: createUser({ displayName: 'Alice' }),
-        status: ClaimStatus.Active, // !! not In Review
+        status: 'active', // !! not In Review
       }),
     ];
 

@@ -18,8 +18,8 @@ class UpdateTotalGamesCountAction
         // - It has at least 6 core achievements.
 
         $gameCount = Game::query()
-            ->whereNotIn("ConsoleID", System::getNonGameSystems())
-            ->where("Title", "not like", "%[Subset%") // TODO this can probably be removed after multiset
+            ->whereNotIn("system_id", System::getNonGameSystems())
+            ->where("title", "not like", "%[Subset%") // TODO this can probably be removed after multiset
             ->where('achievements_published', '>=', 6)
             ->count();
 

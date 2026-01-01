@@ -204,7 +204,7 @@ class UnsubscribeControllerTest extends TestCase
     {
         // Arrange
         $initialPrefs = (1 << UserPreference::EmailOn_ForumReply);
-        $user = User::factory()->create(['websitePrefs' => $initialPrefs]);
+        $user = User::factory()->create(['preferences_bitfield' => $initialPrefs]);
 
         $url = $this->service->generateCategoryUrl(
             $user,
@@ -221,7 +221,7 @@ class UnsubscribeControllerTest extends TestCase
 
         // ... verify the preference bit was turned off ...
         $user->refresh();
-        $isSet = ($user->websitePrefs & (1 << UserPreference::EmailOn_ForumReply)) !== 0;
+        $isSet = ($user->preferences_bitfield & (1 << UserPreference::EmailOn_ForumReply)) !== 0;
         $this->assertFalse($isSet);
     }
 }

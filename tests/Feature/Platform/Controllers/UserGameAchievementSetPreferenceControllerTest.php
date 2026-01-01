@@ -25,9 +25,9 @@ class UserGameAchievementSetPreferenceControllerTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $achievements = Achievement::factory()->published()->count(10)->create(['GameID' => $game->id]);
+        $achievements = Achievement::factory()->promoted()->count(10)->create(['game_id' => $game->id]);
 
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
         $gameAchievementSet = GameAchievementSet::first();
@@ -62,10 +62,10 @@ class UserGameAchievementSetPreferenceControllerTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         // ... create a core set ...
-        Achievement::factory()->published()->count(5)->create(['GameID' => $game->id]);
+        Achievement::factory()->promoted()->count(5)->create(['game_id' => $game->id]);
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
         $coreSet = GameAchievementSet::where('type', AchievementSetType::Core)->first();
 

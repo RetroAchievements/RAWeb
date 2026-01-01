@@ -8,7 +8,6 @@ use App\Community\Enums\ClaimStatus;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\AchievementType;
 use Illuminate\Support\Collection;
@@ -19,11 +18,11 @@ class LoadGameWithRelationsAction
      * Efficiently load a game for the game show page with all its required relations.
      *
      * @param Game $game the game to load relations for
-     * @param AchievementFlag $flag the achievement flag to filter by
+     * @param bool $isPromoted whether to load published or unpublished assets
      * @param GameAchievementSet|null $targetAchievementSet if provided, only load this specific achievement set
      * @return Game the game with properly loaded relations
      */
-    public function execute(Game $game, AchievementFlag $flag, ?GameAchievementSet $targetAchievementSet = null): Game
+    public function execute(Game $game, bool $isPromoted = true, ?GameAchievementSet $targetAchievementSet = null): Game
     {
         // First, load all the missing relations.
         $game->loadMissing([
@@ -47,13 +46,13 @@ class LoadGameWithRelationsAction
                 $query->with(['viewRoles']);
             },
             'leaderboards' => function ($query) {
-                $query->where('DisplayOrder', '>=', 0) // only show visible leaderboards on the page
-                    ->orderBy('DisplayOrder')
+                $query->where('order_column', '>=', 0) // only show visible leaderboards on the page
+                    ->orderBy('order_column')
                     ->with(['topEntry.user']);
             },
             'releases',
             'visibleComments' => function ($query) {
-                $query->latest('Submitted')
+                $query->latest('created_at')
                     ->limit(20)
                     ->with(['user' => function ($userQuery) {
                         $userQuery->withTrashed();
@@ -63,13 +62,13 @@ class LoadGameWithRelationsAction
 
         // Then, load the related achievements for the filtered sets.
         $game->gameAchievementSets->load([
-            'achievementSet.achievements' => function ($query) use ($flag) {
-                $query->where('Flags', $flag->value);
+            'achievementSet.achievements' => function ($query) use ($isPromoted) {
+                $query->where('is_promoted', $isPromoted);
             },
 
             'achievementSet.achievements.developer',
             'achievementSet.achievementGroups' => fn ($query) => $query->withCount([
-                'achievements' => fn ($q) => $q->where('Flags', $flag->value),
+                'achievements' => fn ($q) => $q->where('is_promoted', $isPromoted),
             ]),
             'achievementSet.achievementSetAuthors.user',
         ]);
@@ -129,7 +128,7 @@ class LoadGameWithRelationsAction
             return null;
         }
 
-        $sortedAchievements = $achievements->sortBy(fn (Achievement $a) => $a->pivot->order_column ?? $a->DisplayOrder);
+        $sortedAchievements = $achievements->sortBy(fn (Achievement $a) => $a->pivot->order_column ?? $a->order_column);
 
         // Priority 1: Last win condition achievement.
         $winConditions = $sortedAchievements->filter(fn (Achievement $a) => $a->type === AchievementType::WinCondition);

@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace App\Platform\Data;
 
+use App\Community\Enums\TicketType;
 use App\Models\Achievement;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
-use App\Platform\Requests\StoreTriggerTicketRequest;
+use App\Platform\Requests\StoreTicketRequest;
 use Spatie\LaravelData\Data;
 
-class StoreTriggerTicketData extends Data
+class StoreTicketData extends Data
 {
     public function __construct(
         public Achievement|Leaderboard $ticketable,
         public string $mode,
-        public int $issue,
+        public TicketType $issue,
         public string $description,
         public string $emulator,
         public ?string $emulatorVersion,
@@ -25,7 +26,7 @@ class StoreTriggerTicketData extends Data
     ) {
     }
 
-    public static function fromRequest(StoreTriggerTicketRequest $request): self
+    public static function fromRequest(StoreTicketRequest $request): self
     {
         $ticketableModel = $request->ticketableModel === 'achievement' ? Achievement::class : Leaderboard::class;
         /** @var Achievement|Leaderboard $ticketable */
@@ -34,7 +35,7 @@ class StoreTriggerTicketData extends Data
         return new self(
             ticketable: $ticketable,
             mode: $request->mode,
-            issue: $request->issue,
+            issue: TicketType::from($request->issue),
             description: $request->description,
             emulator: $request->emulator,
             emulatorVersion: $request->emulatorVersion,

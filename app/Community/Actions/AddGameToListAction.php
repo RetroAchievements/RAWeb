@@ -14,7 +14,7 @@ class AddGameToListAction
 {
     public function execute(User $user, Game $game, UserGameListType $type): ?UserGameListEntry
     {
-        if ($user->gameListEntries($type)->where('GameID', $game->id)->exists()) {
+        if ($user->gameListEntries($type)->where('game_id', $game->id)->exists()) {
             return null;
         }
 
@@ -37,7 +37,7 @@ class AddGameToListAction
                 $entry = new UserGameListEntry([
                     'user_id' => $user->id,
                     'type' => $type,
-                    'GameID' => $game->id,
+                    'game_id' => $game->id,
                 ]);
                 $user->gameListEntries($type)->save($entry);
 
@@ -48,7 +48,7 @@ class AddGameToListAction
         $entry = new UserGameListEntry([
             'user_id' => $user->id,
             'type' => $type,
-            'GameID' => $game->id,
+            'game_id' => $game->id,
         ]);
 
         $user->gameListEntries($type)->save($entry);

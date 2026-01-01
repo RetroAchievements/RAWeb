@@ -12,15 +12,15 @@ import { NotificationsTableRow } from './NotificationsTableRow';
 import { useNotificationsSectionForm } from './useNotificationsSectionForm';
 
 interface NotificationsSectionCardProps {
-  currentWebsitePrefs: number;
+  currentPreferencesBitfield: number;
 }
 
 export const NotificationsSectionCard: FC<NotificationsSectionCardProps> = ({
-  currentWebsitePrefs,
+  currentPreferencesBitfield,
 }) => {
   const { t } = useTranslation();
 
-  const { form, mutation, onSubmit } = useNotificationsSectionForm(currentWebsitePrefs);
+  const { form, mutation, onSubmit } = useNotificationsSectionForm(currentPreferencesBitfield);
 
   const notificationSettings = useNotificationSettings();
 
