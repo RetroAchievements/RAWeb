@@ -48,7 +48,7 @@ class AchievementSetClaimPolicy
         }
 
         // Junior developers can only create claims for games with forum topics.
-        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && !$game->ForumTopicID) {
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && !$game->forum_topic_id) {
             return false;
         }
 
@@ -93,7 +93,7 @@ class AchievementSetClaimPolicy
         // User can't update their own claim if the claim is in review status.
         return
             $achievementSetClaim->user_id === $user->id
-            && $achievementSetClaim->Status !== ClaimStatus::InReview;
+            && $achievementSetClaim->status !== ClaimStatus::InReview;
     }
 
     public function delete(User $user, AchievementSetClaim $achievementSetClaim): bool
@@ -101,7 +101,7 @@ class AchievementSetClaimPolicy
         // Users can only drop their own claims (as long as they're not in review status).
         return
             $achievementSetClaim->user_id === $user->id
-            && $achievementSetClaim->Status !== ClaimStatus::InReview;
+            && $achievementSetClaim->status !== ClaimStatus::InReview;
     }
 
     public function review(User $user, AchievementSetClaim $achievementSetClaim): bool
@@ -115,7 +115,7 @@ class AchievementSetClaimPolicy
         return
             $user->hasAnyRole([Role::CODE_REVIEWER, Role::MODERATOR])
             && $achievementSetClaim->user_id !== $user->id
-            && $achievementSetClaim->ClaimType === ClaimType::Primary
+            && $achievementSetClaim->claim_type === ClaimType::Primary
             && $achievementSetClaim->user->hasRole(Role::DEVELOPER_JUNIOR);
     }
 
@@ -127,14 +127,14 @@ class AchievementSetClaimPolicy
         }
 
         // The claim cannot be in review status.
-        if ($achievementSetClaim->Status === ClaimStatus::InReview) {
+        if ($achievementSetClaim->status === ClaimStatus::InReview) {
             return false;
         }
 
         $game = $achievementSetClaim->game;
 
-        // For valid/active systems, require published/official achievements to complete the claim.
-        if (isValidConsoleId($game->ConsoleID)) {
+        // For valid/active systems, require promoted/official achievements to complete the claim.
+        if (isValidConsoleId($game->system_id)) {
             return $game->achievements_published > 0; // TODO this probably needs to use achievement sets at some point in the future
         }
 

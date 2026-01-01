@@ -19,7 +19,7 @@ class MultiAuthTest extends TestCase
     public function testItAuthenticatesViaXApiKeyHeader(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-api-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-api-key']);
         System::factory()->create();
 
         // Act
@@ -35,7 +35,7 @@ class MultiAuthTest extends TestCase
     public function testItAuthenticatesViaBearerTokenAsApiKey(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-api-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-api-key']);
         System::factory()->create();
 
         // Act
@@ -97,7 +97,7 @@ class MultiAuthTest extends TestCase
     public function testItSetsCorrectUserOnRequestWithApiKey(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-api-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-api-key']);
         System::factory()->create();
 
         // Act

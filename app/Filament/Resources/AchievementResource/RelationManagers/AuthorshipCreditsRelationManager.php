@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\Auth;
 class AuthorshipCreditsRelationManager extends RelationManager
 {
     protected static string $relationship = 'authorshipCredits';
-
     protected static ?string $title = 'Credits';
 
     public function form(Schemas\Schema $schema): Schemas\Schema
@@ -110,25 +109,25 @@ class AuthorshipCreditsRelationManager extends RelationManager
                                 if ($task === AchievementAuthorTask::Artwork->value) {
                                     $firstBadgeComment = $achievement->legacyComments()
                                         ->automated()
-                                        ->where('Payload', 'LIKE', "{$developer->display_name}%")
-                                        ->where('Payload', 'LIKE', "%badge%")
+                                        ->where('body', 'LIKE', "{$developer->display_name}%")
+                                        ->where('body', 'LIKE', "%badge%")
                                         ->first();
 
                                     if ($firstBadgeComment) {
-                                        $backdate = $firstBadgeComment->Submitted;
+                                        $backdate = $firstBadgeComment->created_at;
                                     }
                                 } elseif ($task === AchievementAuthorTask::Writing->value) {
                                     $firstWritingComment = $achievement->legacyComments()
                                         ->automated()
-                                        ->where('Payload', 'LIKE', "{$developer->display_name}%")
+                                        ->where('body', 'LIKE', "{$developer->display_name}%")
                                         ->where(function ($query) {
-                                            $query->where('Payload', 'LIKE', "%title%")
-                                                ->orWhere('Payload', 'LIKE', "%description%");
+                                            $query->where('body', 'LIKE', "%title%")
+                                                ->orWhere('body', 'LIKE', "%description%");
                                         })
                                         ->first();
 
                                     if ($firstWritingComment) {
-                                        $backdate = $firstWritingComment->Submitted;
+                                        $backdate = $firstWritingComment->created_at;
                                     }
                                 }
 
@@ -139,7 +138,7 @@ class AuthorshipCreditsRelationManager extends RelationManager
                                         'task' => $task,
                                     ],
                                     [
-                                        'created_at' => $backdate ?? $achievement->DateCreated,
+                                        'created_at' => $backdate ?? $achievement->created_at,
                                     ]
                                 );
                             }

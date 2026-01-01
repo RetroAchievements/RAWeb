@@ -15,7 +15,7 @@
         "test:coverage": "TZ=UTC vitest --ui --coverage --reporter=dot",
         "test:run": "TZ=UTC vitest --run",
         "test:watch": "TZ=UTC vitest",
-        "verify": "npm run lint:fix && npm run tsc && npm run test",
+        "verify": "pnpm lint:fix && pnpm tsc && pnpm test",
         "analyze": "cross-env ANALYZE=true pnpm prod",
         "crowdin:download": "tsx resources/js/tools/crowdin-download.ts",
         "crowdin:upload": "tsx resources/js/tools/crowdin-upload.ts",

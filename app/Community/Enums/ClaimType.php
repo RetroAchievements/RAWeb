@@ -7,25 +7,29 @@ namespace App\Community\Enums;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
-abstract class ClaimType
+enum ClaimType: string
 {
-    public const Primary = 0;
-    public const Collaboration = 1;
+    case Primary = 'primary';
+    case Collaboration = 'collaboration';
 
-    public static function cases(): array
+    public function label(): string
     {
-        return [
-            self::Primary,
-            self::Collaboration,
-        ];
+        return match ($this) {
+            self::Primary => 'Primary',
+            self::Collaboration => 'Collaboration',
+        };
     }
 
-    public static function toString(int $type): string
+    /**
+     * Returns the legacy integer value for V1 API backwards compatibility.
+     * These values were used when ClaimType was an integer-backed enum
+     * and must remain stable for existing API consumers.
+     */
+    public function toLegacyInteger(): int
     {
-        return match ($type) {
-            self::Primary => "Primary",
-            self::Collaboration => "Collaboration",
-            default => "Invalid state",
+        return match ($this) {
+            self::Primary => 0,
+            self::Collaboration => 1,
         };
     }
 }

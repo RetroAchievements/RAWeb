@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\URL;
  *
  * The temporary URLs aren't stored anywhere. They're generated on-demand and
  * validated cryptographically.
- * @see https://laravel.com/docs/11.x/urls
+ * @see https://laravel.com/docs/12.x/urls
  *
  * Two unsubscribe strategies are supported:
  *
@@ -141,9 +141,21 @@ class UnsubscribeService
 
             $descriptionData = $this->getGranularDescription($data->subjectType, $data->subjectId);
         } elseif ($data instanceof CategoryUnsubscribeData) {
-            $currentPrefs = $user->websitePrefs;
-            $newPrefs = $currentPrefs & ~(1 << $data->preference);
-            $user->websitePrefs = $newPrefs;
+            $currentPrefs = $user->preferences_bitfield;
+
+            switch ($data->preference) {
+                case UserPreference::EmailOff_DailyDigest:
+                    // For "*Off_*" preferences, unsubscribing means setting the bit.
+                    $newPrefs = $currentPrefs | (1 << $data->preference);
+                    break;
+
+                default:
+                    // For "*On_*" preferences, unsubscribing means clearing the bit.
+                    $newPrefs = $currentPrefs & ~(1 << $data->preference);
+                    break;
+            }
+
+            $user->preferences_bitfield = $newPrefs;
             $user->save();
 
             $descriptionData = $this->getCategoryDescription($data->preference);
@@ -221,9 +233,21 @@ class UnsubscribeService
                     ->update(['state' => $data->previousState]);
             }
         } elseif ($data instanceof CategoryUnsubscribeData) {
-            $currentPrefs = $user->websitePrefs;
-            $newPrefs = $currentPrefs | (1 << $data->preference);
-            $user->websitePrefs = $newPrefs;
+            $currentPrefs = $user->preferences_bitfield;
+
+            switch ($data->preference) {
+                case UserPreference::EmailOff_DailyDigest:
+                    // For "*Off_*" preferences, undo means clearing the bit.
+                    $newPrefs = $currentPrefs & ~(1 << $data->preference);
+                    break;
+
+                default:
+                    // For "*On_*" preferences, undo means setting the bit.
+                    $newPrefs = $currentPrefs | (1 << $data->preference);
+                    break;
+            }
+
+            $user->preferences_bitfield = $newPrefs;
             $user->save();
         }
 
@@ -307,6 +331,9 @@ class UnsubscribeService
 
             case UserPreference::EmailOn_TicketActivity:
                 return ['key' => 'unsubscribeSuccess-allTicketActivity'];
+
+            case UserPreference::EmailOff_DailyDigest:
+                return ['key' => 'unsubscribeSuccess-dailyDigest'];
 
             default:
                 return ['key' => 'unsubscribeSuccess-unknown'];

@@ -15,9 +15,11 @@ class SyncEventAchievementMetadataAction
      */
     public function execute(Achievement $achievement): void
     {
-        if ($achievement->isDirty('BadgeName')
-            || $achievement->isDirty('Title')
-            || $achievement->isDirty('Description')) {
+        if (
+            $achievement->isDirty('image_name')
+            || $achievement->isDirty('title')
+            || $achievement->isDirty('description')
+        ) {
 
             $eventAchievements = EventAchievement::with(['achievement'])
                 ->where('source_achievement_id', $achievement->id)
@@ -25,9 +27,9 @@ class SyncEventAchievementMetadataAction
                 ->get();
 
             foreach ($eventAchievements as $eventAchievement) {
-                $eventAchievement->achievement->BadgeName = $achievement->BadgeName;
-                $eventAchievement->achievement->Title = $achievement->Title;
-                $eventAchievement->achievement->Description = $achievement->Description;
+                $eventAchievement->achievement->image_name = $achievement->image_name;
+                $eventAchievement->achievement->title = $achievement->title;
+                $eventAchievement->achievement->description = $achievement->description;
                 $eventAchievement->achievement->save();
             }
         }

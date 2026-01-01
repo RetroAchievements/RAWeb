@@ -25,10 +25,10 @@ class GetBadgeIdRangeAction extends BaseApiAction
     {
         $data = Achievement::query()
             ->select([
-                DB::raw("MIN(CAST(BadgeName AS UNSIGNED)) AS first_badge"),
-                DB::raw("MAX(CAST(BadgeName AS UNSIGNED)) AS last_badge"),
+                DB::raw("MIN(CAST(image_name AS UNSIGNED)) AS first_badge"),
+                DB::raw("MAX(CAST(image_name AS UNSIGNED)) AS last_badge"),
             ])
-            ->where('BadgeName', '>', '00002')
+            ->where('image_name', '>', '00002')
             ->first();
 
         // 00001 is still the first selectable image, even if there aren't

@@ -57,11 +57,11 @@ $coreSet = $game->gameAchievementSets()->core()->first()?->achievementSet;
 $achievementsFirstPublishedAt = $coreSet?->achievements_first_published_at;
 
 $response = [
-    'ID' => $game->ID,
-    'Title' => $game->Title,
-    'ConsoleID' => $game->system->ID,
-    'ConsoleName' => $game->system->Name,
-    'ImageIcon' => $game->ImageIcon,
+    'ID' => $game->id,
+    'Title' => $game->title,
+    'ConsoleID' => $game->system->id,
+    'ConsoleName' => $game->system->name,
+    'ImageIcon' => $game->image_icon_asset_path,
     'NumDistinctPlayers' => $game->players_total,
     'TimesUsedInBeatMedian' => $game->times_beaten,
     'TimesUsedInHardcoreBeatMedian' => $game->times_beaten_hardcore,
@@ -75,8 +75,8 @@ $response = [
     'Achievements' => [],
 ];
 
-$achievements = $game->achievements()->published()->get();
-$achievementIds = $achievements->pluck('ID');
+$achievements = $game->achievements()->promoted()->get();
+$achievementIds = $achievements->pluck('id');
 $unlock_times = [];
 $unlock_hardcore_times = [];
 foreach ($achievementIds as $achievementId) {
@@ -99,7 +99,7 @@ $recentPlayerIds = [];
 $unlockThreshold = ($game->players_total > 500) ? 0 : (($game->players_total > 200) ? 1 : 2);
 while (true) {
     $playerIds = PlayerGame::query()
-        ->where('game_id', $game->ID)
+        ->where('game_id', $game->id)
         ->where($preferHardcore ? 'achievements_unlocked_hardcore' : 'achievements_unlocked', '>=', $unlockThresholds[$unlockThreshold])
         ->orderByDesc('last_unlock_at')
         ->limit(100)
@@ -119,7 +119,7 @@ while (true) {
 
 $resets = PlayerProgressReset::query()
     ->where('type', PlayerProgressResetType::Game)
-    ->where('type_id', $game->ID)
+    ->where('type_id', $game->id)
     ->whereIn('user_id', $recentPlayerIds)
     ->pluck('created_at', 'user_id');
 
@@ -227,19 +227,19 @@ $get_median = function (array $a): int {
 
 foreach ($achievements as $achievement) {
     $response['Achievements'][] = [
-        'ID' => $achievement->ID,
-        'Title' => $achievement->Title,
-        'Description' => $achievement->Description,
-        'Points' => $achievement->Points,
-        'TrueRatio' => $achievement->TrueRatio,
+        'ID' => $achievement->id,
+        'Title' => $achievement->title,
+        'Description' => $achievement->description,
+        'Points' => $achievement->points,
+        'TrueRatio' => $achievement->points_weighted,
         'Type' => $achievement->type,
-        'BadgeName' => $achievement->BadgeName,
+        'BadgeName' => $achievement->image_name,
         'NumAwarded' => $achievement->unlocks_total,
-        'NumAwardedHardcore' => $achievement->unlocks_hardcore_total,
-        'TimesUsedInUnlockMedian' => count($unlock_times[$achievement->ID]),
-        'TimesUsedInHardcoreUnlockMedian' => count($unlock_hardcore_times[$achievement->ID]),
-        'MedianTimeToUnlock' => $get_median($unlock_times[$achievement->ID]),
-        'MedianTimeToUnlockHardcore' => $get_median($unlock_hardcore_times[$achievement->ID]),
+        'NumAwardedHardcore' => $achievement->unlocks_hardcore,
+        'TimesUsedInUnlockMedian' => count($unlock_times[$achievement->id]),
+        'TimesUsedInHardcoreUnlockMedian' => count($unlock_hardcore_times[$achievement->id]),
+        'MedianTimeToUnlock' => $get_median($unlock_times[$achievement->id]),
+        'MedianTimeToUnlockHardcore' => $get_median($unlock_hardcore_times[$achievement->id]),
     ];
 }
 

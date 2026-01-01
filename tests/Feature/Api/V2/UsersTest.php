@@ -47,7 +47,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItListsUsers(): void
     {
         // Arrange
-        $apiUser = User::factory()->create(['APIKey' => 'test-key']);
+        $apiUser = User::factory()->create(['web_api_key' => 'test-key']);
         $user = User::factory()->create(['display_name' => 'TestUser']);
 
         // Act
@@ -66,7 +66,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItPaginatesBy50ByDefault(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         User::factory()->count(60)->create();
 
         // Act
@@ -88,7 +88,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItExcludesBannedUsers(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $normalUser = User::factory()->create();
         $bannedUser = User::factory()->create(['banned_at' => now()]);
 
@@ -108,7 +108,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItExcludesUnverifiedUsers(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $verifiedUser = User::factory()->create();
         $unverifiedUser = User::factory()->create(['email_verified_at' => null]);
 
@@ -128,9 +128,9 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItSortsByPointsByDefault(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
-        User::factory()->create(['RAPoints' => 100]);
-        User::factory()->create(['RAPoints' => 500]);
+        User::factory()->create(['web_api_key' => 'test-key']);
+        User::factory()->create(['points_hardcore' => 100]);
+        User::factory()->create(['points_hardcore' => 500]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -147,9 +147,9 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItSortsByPointsWeighted(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
-        User::factory()->create(['TrueRAPoints' => 100]);
-        User::factory()->create(['TrueRAPoints' => 500]);
+        User::factory()->create(['web_api_key' => 'test-key']);
+        User::factory()->create(['points_weighted' => 100]);
+        User::factory()->create(['points_weighted' => 500]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -166,7 +166,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItReturnsUserByUlid(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $user = User::factory()->create(['display_name' => 'TestUser']);
 
         // Act
@@ -185,7 +185,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItReturnsUlidAsIdField(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $user = User::factory()->create();
 
         // Act
@@ -203,7 +203,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItReturns404ForInvalidUlid(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -218,7 +218,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItReturnsUserByDisplayName(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $user = User::factory()->create(['display_name' => 'UniqueTestUser']);
 
         // Act
@@ -237,8 +237,8 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItReturnsUserByUsername(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
-        $user = User::factory()->create(['User' => 'LegacyUsername', 'display_name' => 'DifferentDisplayName']);
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $user = User::factory()->create(['username' => 'LegacyUsername', 'display_name' => 'DifferentDisplayName']);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -256,7 +256,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItReturns404ForNonExistentUser(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -271,7 +271,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItReturns404ForBannedUser(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         User::factory()->create(['display_name' => 'BannedUser', 'banned_at' => now()]);
 
         // Act
@@ -287,7 +287,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItReturns404ForUnverifiedUser(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         User::factory()->create(['display_name' => 'UnverifiedUser', 'email_verified_at' => null]);
 
         // Act
@@ -303,18 +303,18 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItReturnsCorrectAttributes(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $user = User::factory()->create([
             'display_name' => 'TestPlayer',
-            'User' => 'TestPlayer',
-            'Motto' => 'Test motto',
-            'RAPoints' => 5000,
-            'RASoftcorePoints' => 100,
-            'TrueRAPoints' => 15000,
-            'ContribCount' => 50,
-            'ContribYield' => 1000,
-            'UserWallActive' => true,
-            'RichPresenceMsg' => 'Playing a game',
+            'username' => 'TestPlayer',
+            'motto' => 'Test motto',
+            'points_hardcore' => 5000,
+            'points' => 100,
+            'points_weighted' => 15000,
+            'yield_unlocks' => 50,
+            'yield_points' => 1000,
+            'is_user_wall_active' => true,
+            'rich_presence' => 'Playing a game',
         ]);
 
         // Act
@@ -329,14 +329,14 @@ class UsersTest extends JsonApiResourceTestCase
 
         $this->assertEquals('TestPlayer', $attributes['displayName']);
         $this->assertEquals('Test motto', $attributes['motto']);
-        $this->assertEquals(5000, $attributes['pointsHardcore']);
         $this->assertEquals(100, $attributes['points']);
+        $this->assertEquals(5000, $attributes['pointsHardcore']);
         $this->assertEquals(15000, $attributes['pointsWeighted']);
         $this->assertEquals(50, $attributes['yieldUnlocks']);
         $this->assertEquals(1000, $attributes['yieldPoints']);
         $this->assertTrue($attributes['isUserWallActive']);
         $this->assertFalse($attributes['isUnranked']);
-        $this->assertEquals('Playing a game', $attributes['richPresenceMessage']);
+        $this->assertEquals('Playing a game', $attributes['richPresence']);
         $this->assertArrayHasKey('avatarUrl', $attributes);
         $this->assertArrayHasKey('joinedAt', $attributes);
         $this->assertArrayHasKey('lastActivityAt', $attributes);
@@ -348,7 +348,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItIncludesProfileLink(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $user = User::factory()->create(['display_name' => 'LinkTestUser']);
 
         // Act
@@ -369,7 +369,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItReturnsVisibleRole(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $user = User::factory()->create();
 
         $role = Role::create(['name' => 'developer', 'display' => 1]);
@@ -389,7 +389,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItReturnsDisplayableRoles(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $user = User::factory()->create();
 
         $role1 = Role::create(['name' => 'developer', 'display' => 1]);
@@ -414,7 +414,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItFiltersByDisplayableRole(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $developer = User::factory()->create();
         $artist = User::factory()->create();
 
@@ -439,7 +439,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItDoesNotExposeHiddenRolesViaFilter(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $user = User::factory()->create();
 
         $hiddenRole = Role::create([
@@ -463,7 +463,7 @@ class UsersTest extends JsonApiResourceTestCase
     public function testItReturnsUnrankedStatus(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $user = User::factory()->create(['unranked_at' => now()]);
 
         // Act

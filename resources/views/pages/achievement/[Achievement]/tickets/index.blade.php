@@ -36,7 +36,7 @@ render(function (View $view, Achievement $achievement, TicketListService $ticket
     'numFilteredTickets' => 0,
 ])
 
-<x-app-layout pageTitle="Tickets - {{ $achievement->Title }}">
+<x-app-layout pageTitle="Tickets - {{ $achievement->title }}">
     <x-achievement.breadcrumbs
         :achievement="$achievement"
         currentPageLabel="Tickets"

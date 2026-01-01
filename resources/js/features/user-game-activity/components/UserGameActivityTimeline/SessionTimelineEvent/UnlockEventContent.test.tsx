@@ -12,7 +12,7 @@ describe('Component: UnlockEventContent', () => {
       description: 'Test Description',
       points: 10,
       badgeUnlockedUrl: '/Images/1234.png',
-      flags: 3,
+      isPromoted: true,
     });
 
     const { container } = render(
@@ -41,7 +41,7 @@ describe('Component: UnlockEventContent', () => {
       description: 'Test Description',
       points: 10,
       badgeUnlockedUrl: '/Images/1234.png',
-      flags: 5, // !!
+      isPromoted: false, // !!
     });
 
     render(
@@ -71,7 +71,7 @@ describe('Component: UnlockEventContent', () => {
       description: 'Test Description',
       points: 10,
       badgeUnlockedUrl: '/Images/1234.png',
-      flags: 3,
+      isPromoted: true,
     });
 
     render(
@@ -100,7 +100,7 @@ describe('Component: UnlockEventContent', () => {
       description: 'Test Description',
       points: 10,
       badgeUnlockedUrl: '/Images/1234.png',
-      flags: 3,
+      isPromoted: true,
     });
 
     render(
@@ -129,7 +129,7 @@ describe('Component: UnlockEventContent', () => {
       description: 'Test Description',
       points: 10,
       badgeUnlockedUrl: '/Images/1234.png',
-      flags: 3,
+      isPromoted: true,
     });
 
     render(
@@ -158,7 +158,7 @@ describe('Component: UnlockEventContent', () => {
       description: 'Test Description',
       points: 10,
       badgeUnlockedUrl: '/Images/1234.png',
-      flags: 3,
+      isPromoted: true,
     });
 
     render(
@@ -187,7 +187,7 @@ describe('Component: UnlockEventContent', () => {
       description: 'Test Description',
       points: 10,
       badgeUnlockedUrl: '/Images/1234.png',
-      flags: 3,
+      isPromoted: true,
     });
 
     render(
@@ -216,7 +216,7 @@ describe('Component: UnlockEventContent', () => {
       description: 'Test Description',
       points: 10,
       badgeUnlockedUrl: '/Images/1234.png',
-      flags: 3,
+      isPromoted: true,
     });
 
     render(
@@ -245,7 +245,7 @@ describe('Component: UnlockEventContent', () => {
       description: 'Test Description',
       points: 10,
       badgeUnlockedUrl: '/Images/1234.png',
-      flags: 3,
+      isPromoted: true,
     });
 
     render(
@@ -278,7 +278,7 @@ describe('Component: UnlockEventContent', () => {
       description: 'Test Description',
       points: 10,
       badgeUnlockedUrl: '/Images/1234.png',
-      flags: 3,
+      isPromoted: true,
     });
 
     render(
@@ -307,7 +307,7 @@ describe('Component: UnlockEventContent', () => {
       description: 'Test Description',
       points: 10,
       badgeUnlockedUrl: '/Images/1234.png',
-      flags: 3,
+      isPromoted: true,
     });
 
     render(

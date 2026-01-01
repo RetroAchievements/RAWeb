@@ -18,7 +18,7 @@ class UpdateLastLogin
         $user = Auth::user();
 
         if ($user) {
-            $user->LastLogin = Carbon::now();
+            $user->last_activity_at = Carbon::now();
             $user->saveQuietly(); // don't trigger search reindexing
         }
 

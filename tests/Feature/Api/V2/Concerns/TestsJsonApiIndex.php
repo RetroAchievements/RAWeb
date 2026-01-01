@@ -15,7 +15,7 @@ trait TestsJsonApiIndex
     public function testItRejectsPageSizeTooLarge(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -30,7 +30,7 @@ trait TestsJsonApiIndex
     public function testItAcceptsPageSize100(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -45,7 +45,7 @@ trait TestsJsonApiIndex
     public function testItRejectsInvalidPageNumber(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -60,7 +60,7 @@ trait TestsJsonApiIndex
     public function testItRejectsInvalidSortField(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -75,7 +75,7 @@ trait TestsJsonApiIndex
     public function testItSupportsPagination(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
 
         // ... create enough resources to trigger pagination ...
         for ($i = 0; $i < 30; $i++) {

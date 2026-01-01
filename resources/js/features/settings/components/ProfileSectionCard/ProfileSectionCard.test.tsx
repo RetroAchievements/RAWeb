@@ -127,7 +127,7 @@ describe('Component: ProfileSectionCard', () => {
   it("correctly prepopulates the user's motto and wall preference", () => {
     // ARRANGE
     const mockMotto = 'my motto';
-    const mockUserWallActive = true;
+    const mockIsUserWallActive = true;
 
     render(<ProfileSectionCard />, {
       pageProps: {
@@ -136,8 +136,8 @@ describe('Component: ProfileSectionCard', () => {
         },
         can: {},
         userSettings: createUser({
+          isUserWallActive: mockIsUserWallActive,
           motto: mockMotto,
-          userWallActive: mockUserWallActive,
         }),
       },
     });
@@ -152,7 +152,7 @@ describe('Component: ProfileSectionCard', () => {
     const putSpy = vi.spyOn(axios, 'put').mockResolvedValueOnce({ success: true });
 
     const mockMotto = 'my motto';
-    const mockUserWallActive = true;
+    const mockIsUserWallActive = true;
 
     render(<ProfileSectionCard />, {
       pageProps: {
@@ -166,8 +166,8 @@ describe('Component: ProfileSectionCard', () => {
           updateMotto: true,
         },
         userSettings: createUser({
+          isUserWallActive: mockIsUserWallActive,
           motto: mockMotto,
-          userWallActive: mockUserWallActive,
         }),
       },
     });
@@ -185,7 +185,7 @@ describe('Component: ProfileSectionCard', () => {
     // ASSERT
     expect(putSpy).toHaveBeenCalledWith(route('api.settings.profile.update'), {
       motto: 'https://www.youtube.com/watch?v=YYOKMUTTDdA',
-      userWallActive: false,
+      isUserWallActive: false,
     });
   });
 
@@ -194,7 +194,7 @@ describe('Component: ProfileSectionCard', () => {
     const putSpy = vi.spyOn(axios, 'put').mockResolvedValueOnce({ success: true });
 
     const mockMotto = 'my motto';
-    const mockUserWallActive = true;
+    const mockIsUserWallActive = true;
 
     const displayableRoles: App.Data.Role[] = [
       { id: 2, name: 'administrator' },
@@ -217,7 +217,7 @@ describe('Component: ProfileSectionCard', () => {
         },
         userSettings: createUser({
           motto: mockMotto,
-          userWallActive: mockUserWallActive,
+          isUserWallActive: mockIsUserWallActive,
         }),
       },
     });
@@ -231,7 +231,7 @@ describe('Component: ProfileSectionCard', () => {
     // ASSERT
     expect(putSpy).toHaveBeenCalledWith(route('api.settings.profile.update'), {
       motto: 'my motto',
-      userWallActive: true,
+      isUserWallActive: true,
       visibleRoleId: 2,
     });
   });
@@ -287,7 +287,7 @@ describe('Component: ProfileSectionCard', () => {
         can: {
           updateMotto: true,
         },
-        userSettings: createUser({ userWallActive: false }),
+        userSettings: createUser({ isUserWallActive: false }),
       },
     });
 
@@ -304,7 +304,7 @@ describe('Component: ProfileSectionCard', () => {
     // ASSERT
     expect(putSpy).toHaveBeenCalledWith(route('api.settings.profile.update'), {
       motto: 'https://www.youtube.com/watch?v=YYOKMUTTDdA',
-      userWallActive: true,
+      isUserWallActive: true,
       visibleRoleId: 1,
     });
   });

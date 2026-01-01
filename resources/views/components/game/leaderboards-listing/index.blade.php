@@ -11,7 +11,18 @@
         @php
             $gameLeaderboards = $game->visibleLeaderboards()
                 ->withTopEntry()
-                ->orderBy('DisplayOrder')
+                ->whereIn('state', [
+                    \App\Platform\Enums\LeaderboardState::Active->value,
+                    \App\Platform\Enums\LeaderboardState::Disabled->value,
+                ])
+                ->orderByRaw("
+                    CASE state
+                        WHEN '" . \App\Platform\Enums\LeaderboardState::Active->value . "' THEN 0
+                        WHEN '" . \App\Platform\Enums\LeaderboardState::Disabled->value . "' THEN 1
+                        ELSE 2
+                    END
+                ")
+                ->orderBy('order_column')
                 ->get();
         @endphp
 

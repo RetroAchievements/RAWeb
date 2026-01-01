@@ -93,11 +93,11 @@ class HandleInertiaRequests extends Middleware
 
             'auth' => $user ? [
                 'user' => UserData::fromUser($user)->include(
+                    'enableBetaFeatures',
                     'id',
                     'isEmailVerified',
                     'isMuted',
                     'isNew',
-                    'enableBetaFeatures',
                     'legacyPermissions',
                     'locale',
                     'mutedUntil',
@@ -105,11 +105,11 @@ class HandleInertiaRequests extends Middleware
                     'points',
                     'pointsSoftcore',
                     'preferences',
+                    'preferencesBitfield',
                     'roles',
-                    'unreadMessageCount',
+                    'unreadMessages',
                     'username',
                     'visibleRole',
-                    'websitePrefs',
                 ),
             ] : null,
 

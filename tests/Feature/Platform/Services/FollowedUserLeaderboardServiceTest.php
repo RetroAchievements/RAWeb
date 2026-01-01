@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Services;
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\User;
 use App\Models\UserRelation;
 use App\Platform\Enums\PlayerStatType;
@@ -24,7 +24,7 @@ class FollowedUserLeaderboardServiceTest extends TestCase
         UserRelation::create([
             'user_id' => $user->id,
             'related_user_id' => $followedUser->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         // Act
@@ -54,7 +54,7 @@ class FollowedUserLeaderboardServiceTest extends TestCase
     public function testItBuildsFollowedUserStats(): void
     {
         // Arrange
-        $user = User::factory()->create(['RAPoints' => 125]);
+        $user = User::factory()->create(['points_hardcore' => 125]);
         $followedUsers = User::factory()->count(3)->create();
 
         // Have $user follow all the $followedUsers.
@@ -62,7 +62,7 @@ class FollowedUserLeaderboardServiceTest extends TestCase
             UserRelation::create([
                 'user_id' => $user->id,
                 'related_user_id' => $followedUser->id,
-                'Friendship' => UserRelationship::Following,
+                'status' => UserRelationStatus::Following,
             ]);
         }
 
@@ -82,7 +82,7 @@ class FollowedUserLeaderboardServiceTest extends TestCase
                 'value' => $stats[$index]['week'],
             ]);
             $followedUser->update([
-                'RAPoints' => $stats[$index]['alltime'],
+                'points_hardcore' => $stats[$index]['alltime'],
             ]);
         }
 

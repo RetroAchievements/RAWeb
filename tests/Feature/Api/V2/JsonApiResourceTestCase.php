@@ -78,7 +78,7 @@ abstract class JsonApiResourceTestCase extends TestCase
     public function testItLogsApiRequest(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $resource = $this->createResource();
 
         $this->assertDatabaseCount('api_logs', 0);
@@ -94,14 +94,14 @@ abstract class JsonApiResourceTestCase extends TestCase
         $this->assertDatabaseCount('api_logs', 1);
         $this->assertDatabaseHas('api_logs', [
             'api_version' => 'v2',
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
         ]);
     }
 
     public function testItFetchesSingleResource(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $resource = $this->createResource();
 
         // Act

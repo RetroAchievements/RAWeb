@@ -156,7 +156,7 @@ class AchievementSet extends BaseModel
      */
     public function achievements(): BelongsToMany
     {
-        return $this->belongsToMany(Achievement::class, 'achievement_set_achievements', 'achievement_set_id', 'achievement_id', 'id', 'ID')
+        return $this->belongsToMany(Achievement::class, 'achievement_set_achievements', 'achievement_set_id', 'achievement_id', 'id', 'id')
             ->withPivot('order_column', 'achievement_group_id')
             ->withTimestamps();
     }
@@ -174,7 +174,7 @@ class AchievementSet extends BaseModel
      */
     public function games(): BelongsToMany
     {
-        return $this->belongsToMany(Game::class, 'game_achievement_sets', 'achievement_set_id', 'game_id', 'id', 'ID');
+        return $this->belongsToMany(Game::class, 'game_achievement_sets', 'achievement_set_id', 'game_id', 'id', 'id');
     }
 
     /**
@@ -186,7 +186,7 @@ class AchievementSet extends BaseModel
      */
     public function linkedGames(): BelongsToMany
     {
-        return $this->belongsToMany(Game::class, 'game_achievement_sets', 'achievement_set_id', 'game_id', 'id', 'ID')
+        return $this->belongsToMany(Game::class, 'game_achievement_sets', 'achievement_set_id', 'game_id', 'id', 'id')
             ->where(function ($query) {
                 $query->where('game_achievement_sets.type', '!=', AchievementSetType::Core->value)
                     ->orWhere(function ($subQuery) {
@@ -206,7 +206,7 @@ class AchievementSet extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     // == scopes

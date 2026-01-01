@@ -20,7 +20,7 @@ class UpdateDeveloperContributionYield extends Command
         if (!empty($username)) {
             $users = User::whereName($username)->get();
         } else {
-            $users = User::where('ContribCount', '>', 0)->get();
+            $users = User::where('yield_unlocks', '>', 0)->get();
         }
 
         $this->info("Dispatching {$users->count()} developer contribution yield update jobs...");

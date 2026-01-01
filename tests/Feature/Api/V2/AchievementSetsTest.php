@@ -27,7 +27,7 @@ class AchievementSetsTest extends JsonApiResourceTestCase
     protected function createResource(): Model
     {
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $achievementSet = AchievementSet::factory()->create();
 
         GameAchievementSet::factory()->create([
@@ -42,9 +42,9 @@ class AchievementSetsTest extends JsonApiResourceTestCase
     public function testItReturnsCorrectAttributes(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $achievementSet = AchievementSet::factory()->create([
             'points_total' => 500,
             'points_weighted' => 1000,
@@ -86,11 +86,11 @@ class AchievementSetsTest extends JsonApiResourceTestCase
     public function testItCanIncludeGamesRelationship(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'Title' => 'Test Game',
-            'ConsoleID' => $system->id,
+            'title' => 'Test Game',
+            'system_id' => $system->id,
         ]);
         $achievementSet = AchievementSet::factory()->create();
 
@@ -118,7 +118,7 @@ class AchievementSetsTest extends JsonApiResourceTestCase
     public function testTypeAttributeIsNullWhenAccessedDirectly(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $achievementSet = $this->createResource();
 
         // Act
@@ -138,9 +138,9 @@ class AchievementSetsTest extends JsonApiResourceTestCase
     public function testTypeAttributeIsPresentWhenIncludedViaGame(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $achievementSet = AchievementSet::factory()->create();
 
         GameAchievementSet::factory()->create([
@@ -169,9 +169,9 @@ class AchievementSetsTest extends JsonApiResourceTestCase
     public function testItReturnsGameIdsAttribute(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $achievementSet = AchievementSet::factory()->create();
 
         GameAchievementSet::factory()->create([
@@ -197,16 +197,16 @@ class AchievementSetsTest extends JsonApiResourceTestCase
     public function testItExcludesSubsetBackingGames(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $system = System::factory()->create();
 
         $actualGame = Game::factory()->create([
-            'Title' => 'Pokemon Red',
-            'ConsoleID' => $system->id,
+            'title' => 'Pokemon Red',
+            'system_id' => $system->id,
         ]);
         $subsetGame = Game::factory()->create([
-            'Title' => 'Pokemon Red [Subset - Professor Oak Challenge]',
-            'ConsoleID' => $system->id,
+            'title' => 'Pokemon Red [Subset - Professor Oak Challenge]',
+            'system_id' => $system->id,
         ]);
 
         $achievementSet = AchievementSet::factory()->create();

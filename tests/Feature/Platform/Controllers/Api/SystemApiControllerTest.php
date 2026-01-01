@@ -16,14 +16,14 @@ class SystemApiControllerTest extends TestCase
     public function testGamesReturnsCorrectJsonResponse(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => 4, 'name' => 'Game Boy', 'name_short' => 'GB', 'active' => true]);
+        $system = System::factory()->create(['id' => 4, 'name' => 'Game Boy', 'name_short' => 'GB', 'active' => true]);
 
         /** @var Game $gameOne */
-        $gameOne = Game::factory()->create(['Title' => 'AAAAAAA', 'achievements_published' => 50, 'ConsoleID' => $system->id]);
+        $gameOne = Game::factory()->create(['title' => 'AAAAAAA', 'achievements_published' => 50, 'system_id' => $system->id]);
 
         // Subset games are currently included, pending a rework.
         /** @var Game $gameTwo */
-        $gameTwo = Game::factory()->create(['Title' => 'AAAAAAA [Subset - Bonus]', 'achievements_published' => 50, 'ConsoleID' => $system->id]);
+        $gameTwo = Game::factory()->create(['title' => 'AAAAAAA [Subset - Bonus]', 'achievements_published' => 50, 'system_id' => $system->id]);
 
         // Act
         $response = $this->get(route('api.system.game.index', ['systemId' => $system->id]));

@@ -17,7 +17,7 @@ export const ProgressBarMetaText: FC<ProgressBarMetaTextProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const unlocksHardcoreTotal = achievement.unlocksHardcoreTotal ?? 0;
+  const unlocksHardcoreTotal = achievement.unlocksHardcore ?? 0;
   const unlocksTotal = achievement.unlocksTotal ?? 0;
   const unlockPercentage = achievement.unlockPercentage ? Number(achievement.unlockPercentage) : 0;
 
