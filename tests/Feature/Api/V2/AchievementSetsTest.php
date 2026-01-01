@@ -74,13 +74,13 @@ class AchievementSetsTest extends JsonApiResourceTestCase
         $this->assertEquals(5, $attributes['achievementsUnpublished']);
         $this->assertArrayHasKey('title', $attributes);
         $this->assertArrayHasKey('badgeUrl', $attributes);
-        $this->assertArrayHasKey('gameIds', $attributes);
-        $this->assertArrayHasKey('type', $attributes);
+        $this->assertArrayHasKey('types', $attributes);
         $this->assertArrayHasKey('achievementsFirstPublishedAt', $attributes);
         $this->assertArrayHasKey('createdAt', $attributes);
         $this->assertArrayHasKey('updatedAt', $attributes);
         $this->assertArrayNotHasKey('playersTotal', $attributes);
         $this->assertArrayNotHasKey('playersHardcore', $attributes);
+        $this->assertArrayNotHasKey('gameIds', $attributes);
     }
 
     public function testItCanIncludeGamesRelationship(): void
@@ -115,11 +115,19 @@ class AchievementSetsTest extends JsonApiResourceTestCase
         $this->assertEquals((string) $game->id, $included[0]['id']);
     }
 
-    public function testTypeAttributeIsNullWhenAccessedDirectly(): void
+    public function testTypesAttributeReturnsGameContextWhenAccessedDirectly(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
-        $achievementSet = $this->createResource();
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievementSet = AchievementSet::factory()->create();
+
+        GameAchievementSet::factory()->create([
+            'game_id' => $game->id,
+            'achievement_set_id' => $achievementSet->id,
+            'type' => AchievementSetType::Core,
+        ]);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -131,11 +139,13 @@ class AchievementSetsTest extends JsonApiResourceTestCase
         $response->assertSuccessful();
         $attributes = $response->json('data.attributes');
 
-        // ... types come from game_achievement_sets - with no game, we have no type ...
-        $this->assertNull($attributes['type']);
+        $this->assertIsArray($attributes['types']);
+        $this->assertCount(1, $attributes['types']);
+        $this->assertEquals($game->id, $attributes['types'][0]['gameId']);
+        $this->assertEquals('core', $attributes['types'][0]['type']);
     }
 
-    public function testTypeAttributeIsPresentWhenIncludedViaGame(): void
+    public function testTypesAttributeReturnsSingleEntryWhenIncludedViaGame(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
@@ -163,38 +173,15 @@ class AchievementSetsTest extends JsonApiResourceTestCase
 
         $achievementSetData = collect($included)->firstWhere('type', 'achievement-sets');
         $this->assertNotNull($achievementSetData);
-        $this->assertEquals('core', $achievementSetData['attributes']['type']);
+
+        $types = $achievementSetData['attributes']['types'];
+        $this->assertIsArray($types);
+        $this->assertCount(1, $types);
+        $this->assertEquals($game->id, $types[0]['gameId']);
+        $this->assertEquals('core', $types[0]['type']);
     }
 
-    public function testItReturnsGameIdsAttribute(): void
-    {
-        // Arrange
-        User::factory()->create(['web_api_key' => 'test-key']);
-        $system = System::factory()->create();
-        $game = Game::factory()->create(['system_id' => $system->id]);
-        $achievementSet = AchievementSet::factory()->create();
-
-        GameAchievementSet::factory()->create([
-            'game_id' => $game->id,
-            'achievement_set_id' => $achievementSet->id,
-            'type' => AchievementSetType::Core,
-        ]);
-
-        // Act
-        $response = $this->jsonApi('v2')
-            ->expects('achievement-sets')
-            ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/achievement-sets/{$achievementSet->id}");
-
-        // Assert
-        $response->assertSuccessful();
-        $attributes = $response->json('data.attributes');
-
-        $this->assertArrayHasKey('gameIds', $attributes);
-        $this->assertEquals([$game->id], $attributes['gameIds']);
-    }
-
-    public function testItExcludesSubsetBackingGames(): void
+    public function testTypesAttributeExcludesSubsetBackingGames(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
@@ -231,9 +218,12 @@ class AchievementSetsTest extends JsonApiResourceTestCase
         // Assert
         $response->assertSuccessful();
 
-        // ... the gameIds attribute should exclude the backing game ...
+        // ... the types attribute should exclude the backing game ...
         $attributes = $response->json('data.attributes');
-        $this->assertEquals([$actualGame->id], $attributes['gameIds']);
+        $types = $attributes['types'];
+        $this->assertCount(1, $types);
+        $this->assertEquals($actualGame->id, $types[0]['gameId']);
+        $this->assertEquals('bonus', $types[0]['type']);
 
         // ... the games relationship should also exclude the backing game ...
         $included = $response->json('included');

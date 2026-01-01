@@ -48,20 +48,20 @@ class AchievementSetSchema extends Schema
 
             Str::make('title')->readOnly(),
 
-            Number::make('pointsTotal', 'points_total')->readOnly()->sortable(),
-            Number::make('pointsWeighted', 'points_weighted')->readOnly()->sortable(),
+            Number::make('pointsTotal', 'points_total')->readOnly(),
+            Number::make('pointsWeighted', 'points_weighted')->readOnly(),
 
-            Number::make('achievementsPublished', 'achievements_published')->readOnly()->sortable(),
+            Number::make('achievementsPublished', 'achievements_published')->readOnly(),
             Number::make('achievementsUnpublished', 'achievements_unpublished')->readOnly(),
 
             Str::make('badgeUrl')->readOnly(),
 
-            DateTime::make('achievementsFirstPublishedAt', 'achievements_first_published_at')->readOnly()->sortable(),
+            DateTime::make('achievementsFirstPublishedAt', 'achievements_first_published_at')->readOnly(),
 
-            ArrayList::make('gameIds')->readOnly(),
+            ArrayList::make('types')->readOnly(),
 
-            DateTime::make('createdAt', 'created_at')->readOnly()->sortable(),
-            DateTime::make('updatedAt', 'updated_at')->readOnly()->sortable(),
+            DateTime::make('createdAt', 'created_at')->readOnly(),
+            DateTime::make('updatedAt', 'updated_at')->readOnly(),
 
             BelongsToMany::make('games', 'linkedGames')->type('games')->readOnly(),
         ];

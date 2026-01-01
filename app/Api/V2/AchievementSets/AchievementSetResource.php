@@ -37,9 +37,7 @@ class AchievementSetResource extends BaseJsonApiResource
             'createdAt' => $this->resource->created_at,
             'updatedAt' => $this->resource->updated_at,
 
-            'type' => $this->getTypeFromPivot(),
-
-            'gameIds' => $this->getGameIds(),
+            'types' => $this->getGameTypes(),
         ];
     }
 
@@ -88,36 +86,24 @@ class AchievementSetResource extends BaseJsonApiResource
     }
 
     /**
-     * Get the achievement set type from the pivot when loaded via a Game relationship.
-     * Returns null when the achievement set is accessed directly.
-     */
-    private function getTypeFromPivot(): ?string
-    {
-        if (!isset($this->resource->pivot)) {
-            return null;
-        }
-
-        $type = $this->resource->pivot->type;
-        if ($type instanceof AchievementSetType) {
-            return $type->value;
-        }
-
-        return $type;
-    }
-
-    /**
-     * Get the IDs of games this achievement set is linked to.
-     * Excludes legacy "subset backing games" - games where the set is type=core
-     * but also exists as non-core on another game.
+     * Get game/type pairs for this achievement set.
+     * Excludes subset backing games (where set is core but also exists as non-core elsewhere).
      *
-     * @return array<int>
+     * @return array<array{gameId: int, type: string}>
      */
-    private function getGameIds(): array
+    private function getGameTypes(): array
     {
+        // When accessed via a Game relationship, return just that game's context.
         if (isset($this->resource->pivot)) {
-            return [$this->resource->pivot->game_id];
+            $type = $this->resource->pivot->type;
+
+            return [[
+                'gameId' => $this->resource->pivot->game_id,
+                'type' => $type instanceof AchievementSetType ? $type->value : $type,
+            ]];
         }
 
+        // When accessed directly, return all game/type pairs (excluding backing games).
         $gameAchievementSets = $this->resource->gameAchievementSets;
 
         $hasCoreAttachment = $gameAchievementSets->contains(
@@ -127,19 +113,14 @@ class AchievementSetResource extends BaseJsonApiResource
             fn ($gas) => $gas->type !== AchievementSetType::Core
         );
 
-        // If it's attached as both core and non-core, exclude core (the subset backing game).
-        if ($hasCoreAttachment && $hasNonCoreAttachment) {
-            return $gameAchievementSets
-                ->filter(fn ($gas) => $gas->type !== AchievementSetType::Core)
-                ->pluck('game_id')
-                ->values()
-                ->all();
-        }
+        // If attached as both core and non-core, exclude core (the subset backing game).
+        $setsToInclude = ($hasCoreAttachment && $hasNonCoreAttachment)
+            ? $gameAchievementSets->filter(fn ($gas) => $gas->type !== AchievementSetType::Core)
+            : $gameAchievementSets;
 
-        // Otherwise, include all linked games.
-        return $gameAchievementSets
-            ->pluck('game_id')
-            ->values()
-            ->all();
+        return $setsToInclude->map(fn ($gas) => [
+            'gameId' => $gas->game_id,
+            'type' => $gas->type instanceof AchievementSetType ? $gas->type->value : $gas->type,
+        ])->values()->all();
     }
 }
