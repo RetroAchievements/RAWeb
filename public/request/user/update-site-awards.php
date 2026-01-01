@@ -52,7 +52,7 @@ $sortedAwards = $parseCsv($sortedCsv);
 
 $awards = array_merge($hiddenAwards, $sortedAwards);
 
-$userId = $userDetails['ID'];
+$userId = $userDetails['id'];
 
 foreach ($awards as $award) {
     $awardType = $award['type'];
@@ -61,14 +61,16 @@ foreach ($awards as $award) {
     $value = $award['number'];
 
     // Change display order for all entries if it's a "stacking" award type.
-    if (in_array($awardType, [AwardType::AchievementUnlocksYield, AwardType::AchievementPointsYield])) {
-        $query = "UPDATE SiteAwards SET DisplayOrder = $value WHERE user_id = $userId " .
-            "AND AwardType = $awardType " .
-            "AND AwardDataExtra = $awardDataExtra";
+    $awardTypeEnum = AwardType::fromLegacyInteger($awardType);
+    $awardTypeValue = $awardTypeEnum->value;
+    if (in_array($awardTypeEnum, [AwardType::AchievementUnlocksYield, AwardType::AchievementPointsYield])) {
+        $query = "UPDATE user_awards SET order_column = $value WHERE user_id = $userId " .
+            "AND award_type = '$awardTypeValue' " .
+            "AND award_tier = $awardDataExtra";
     } else {
-        $query = "UPDATE SiteAwards SET DisplayOrder = $value WHERE user_id = $userId " .
-            "AND AwardType = $awardType " .
-            "AND AwardData = $awardData";
+        $query = "UPDATE user_awards SET order_column = $value WHERE user_id = $userId " .
+            "AND award_type = '$awardTypeValue' " .
+            "AND award_key = $awardData";
     }
 
     if (!s_mysql_query($query)) {

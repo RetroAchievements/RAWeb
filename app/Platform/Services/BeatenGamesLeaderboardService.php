@@ -80,7 +80,7 @@ class BeatenGamesLeaderboardService
         }
 
         // Grab all the systems so we can build the system filter options.
-        $allSystems = System::gameSystems()->active()->orderBy('Name')->get(['ID', 'Name']);
+        $allSystems = System::gameSystems()->active()->orderBy('name')->get(['id', 'name']);
 
         return [
             'allSystems' => $allSystems,
@@ -98,24 +98,24 @@ class BeatenGamesLeaderboardService
     {
         // Fetch all the usernames for the current page.
         $userIds = $rankingRows->pluck('user_id')->unique();
-        $usernames = User::whereIn('ID', $userIds)->get(['ID', 'User'])->keyBy('ID');
+        $usernames = User::whereIn('id', $userIds)->get(['id', 'username'])->keyBy('id');
 
         // Fetch all the game metadata for the current page.
         $gameIds = $rankingRows->pluck('last_game_id')->unique()->filter();
-        $gameData = Game::whereIn('ID', $gameIds)->get(['ID', 'Title', 'ImageIcon', 'ConsoleID'])->keyBy('ID');
+        $gameData = Game::whereIn('id', $gameIds)->get(['id', 'title', 'image_icon_asset_path', 'system_id'])->keyBy('id');
 
         // Fetch all the console metadata for the current page.
-        $consoleIds = $gameData->pluck('ConsoleID')->unique()->filter();
-        $consoleData = System::whereIn('ID', $consoleIds)->get(['ID', 'Name'])->keyBy('ID');
+        $consoleIds = $gameData->pluck('system_id')->unique()->filter();
+        $consoleData = System::whereIn('id', $consoleIds)->get(['id', 'name'])->keyBy('id');
 
         // Stitch all the fetched metadata back onto the rankings.
         $rankingRows->transform(function ($ranking) use ($usernames, $gameData, $consoleData) {
-            $ranking->User = $usernames[$ranking->user_id]->User ?? null;
-            $ranking->GameTitle = $gameData[$ranking->last_game_id]->Title ?? null;
-            $ranking->GameIcon = $gameData[$ranking->last_game_id]->ImageIcon ?? null;
+            $ranking->User = $usernames[$ranking->user_id]->username ?? null;
+            $ranking->GameTitle = $gameData[$ranking->last_game_id]->title ?? null;
+            $ranking->GameIcon = $gameData[$ranking->last_game_id]->image_icon_asset_path ?? null;
 
-            $consoleId = $gameData[$ranking->last_game_id]->ConsoleID ?? null;
-            $ranking->ConsoleName = $consoleId ? $consoleData[$consoleId]->Name ?? null : null;
+            $consoleId = $gameData[$ranking->last_game_id]->system_id ?? null;
+            $ranking->ConsoleName = $consoleId ? $consoleData[$consoleId]->name ?? null : null;
 
             return $ranking;
         });

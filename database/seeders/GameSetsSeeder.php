@@ -134,37 +134,37 @@ class GameSetsSeeder extends Seeder
             if ($index < $developerCount) {
                 GameSetGame::create([
                     'game_set_id' => $developerHubIds[$index][0],
-                    'game_id' => $game->ID,
+                    'game_id' => $game->id,
                 ]);
-                $game->Developer = $developerHubIds[$index][1];
+                $game->developer = $developerHubIds[$index][1];
             } elseif ($index > $developerCount) {
-                $game->Developer = ucwords($faker->words(random_int(1, 3), true));
+                $game->developer = ucwords($faker->words(random_int(1, 3), true));
             }
 
             $index = rand(0, $publisherCount + 10);
             if ($index < $publisherCount) {
                 GameSetGame::create([
                     'game_set_id' => $publisherHubIds[$index][0],
-                    'game_id' => $game->ID,
+                    'game_id' => $game->id,
                 ]);
-                $game->Publisher = $publisherHubIds[$index][1];
+                $game->publisher = $publisherHubIds[$index][1];
             } elseif ($index > $publisherCount) {
-                $game->Publisher = ucwords($faker->words(random_int(1, 3), true));
+                $game->publisher = ucwords($faker->words(random_int(1, 3), true));
             }
 
             $index = rand(0, $genreCount);
             if ($index != $genreCount) {
                 GameSetGame::create([
                     'game_set_id' => $genreHubIds[$index][0],
-                    'game_id' => $game->ID,
+                    'game_id' => $game->id,
                 ]);
-                $game->Genre = $genreHubIds[$index][1];
+                $game->genre = $genreHubIds[$index][1];
             }
 
             $game->saveQuietly();
 
-            if (str_ends_with($game->Title, " II")) {
-                $seriesTitle = substr($game->Title, 0, strlen($game->Title) - 3);
+            if (str_ends_with($game->title, " II")) {
+                $seriesTitle = substr($game->title, 0, strlen($game->title) - 3);
                 $genre = GameSet::create(['title' => "[Series - $seriesTitle]", 'type' => GameSetType::Hub]);
                 GameSetLink::create([
                     'parent_game_set_id' => GameSet::SeriesHubId,
@@ -175,7 +175,7 @@ class GameSetsSeeder extends Seeder
                     'child_game_set_id' => GameSet::SeriesHubId,
                 ]);
 
-                foreach (Game::where('Title', 'LIKE', "$seriesTitle %")->orWhere('Title', $seriesTitle)->pluck('ID')->toArray() as $seriesGameId) {
+                foreach (Game::where('title', 'LIKE', "$seriesTitle %")->orWhere('title', $seriesTitle)->pluck('id')->toArray() as $seriesGameId) {
                     GameSetGame::create([
                         'game_set_id' => $genre->id,
                         'game_id' => $seriesGameId,

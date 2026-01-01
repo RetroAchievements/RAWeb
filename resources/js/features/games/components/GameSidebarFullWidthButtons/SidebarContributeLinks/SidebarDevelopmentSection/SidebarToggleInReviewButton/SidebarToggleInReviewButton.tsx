@@ -17,7 +17,6 @@ import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { GameTitle } from '@/common/components/GameTitle';
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { ClaimStatus, ClaimType } from '@/common/utils/generatedAppConstants';
 import { useUpdateClaimStatusMutation } from '@/features/games/hooks/mutations/useUpdateClaimStatusMutation';
 
 export const SidebarToggleInReviewButton: FC = () => {
@@ -33,8 +32,8 @@ export const SidebarToggleInReviewButton: FC = () => {
   const primaryClaim = useMemo(() => {
     return achievementSetClaims.find(
       (claim) =>
-        claim.claimType === ClaimType.Primary &&
-        (claim.status === ClaimStatus.Active || claim.status === ClaimStatus.InReview),
+        claim.claimType === 'primary' &&
+        (claim.status === 'active' || claim.status === 'in_review'),
     );
   }, [achievementSetClaims]);
 
@@ -43,12 +42,12 @@ export const SidebarToggleInReviewButton: FC = () => {
     return null;
   }
 
-  const isInReview = primaryClaim.status === ClaimStatus.InReview;
+  const isInReview = primaryClaim.status === 'in_review';
 
   const handleConfirmClick = async () => {
     setIsDialogOpen(false);
 
-    const newStatus = isInReview ? ClaimStatus.Active : ClaimStatus.InReview;
+    const newStatus = isInReview ? 'active' : 'in_review';
     const loadingMessage = isInReview
       ? t('Completing the review...')
       : t('Marking the claim for review...');

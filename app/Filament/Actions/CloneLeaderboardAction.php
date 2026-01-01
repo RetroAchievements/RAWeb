@@ -27,8 +27,8 @@ class CloneLeaderboardAction extends Action
             ->modalSubmitAction(fn (Action $action) => $action->color('primary'))
             ->fillForm(function (Leaderboard $leaderboard) {
                 return [
-                    'title' => $leaderboard->Title . ' (Clone)',
-                    'description' => $leaderboard->Description,
+                    'title' => $leaderboard->title . ' (Clone)',
+                    'description' => $leaderboard->description,
                 ];
             })
             ->schema([
@@ -46,14 +46,14 @@ class CloneLeaderboardAction extends Action
                     'top_entry_id',  // Also excludes this since it's specific to the original leaderboard
                     'trigger_id', // Exclude original trigger association
                 ]);
-                $clonedLeaderboard->Title = $data['title'];
-                $clonedLeaderboard->Description = $data['description'];
+                $clonedLeaderboard->title = $data['title'];
+                $clonedLeaderboard->description = $data['description'];
                 $clonedLeaderboard->author_id = $user->id;
 
-                // Set DisplayOrder to be last
-                $maxDisplayOrder = Leaderboard::where('GameID', $leaderboard->GameID)
-                    ->max('DisplayOrder') ?? 0;
-                $clonedLeaderboard->DisplayOrder = $maxDisplayOrder + 1;
+                // Set order_column to be last.
+                $maxOrderColumn = Leaderboard::where('game_id', $leaderboard->game_id)
+                    ->max('order_column') ?? 0;
+                $clonedLeaderboard->order_column = $maxOrderColumn + 1;
 
                 $clonedLeaderboard->push();
 

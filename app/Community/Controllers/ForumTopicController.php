@@ -45,7 +45,7 @@ class ForumTopicController extends Controller
 
         $accessibleTeamAccounts = null;
         if (!empty($accessibleTeamUsernames)) {
-            $teamUsers = User::whereIn('User', $accessibleTeamUsernames)->get();
+            $teamUsers = User::whereIn('username', $accessibleTeamUsernames)->get();
             $accessibleTeamAccounts = $teamUsers->map(fn ($teamUser) => UserData::fromUser($teamUser)->include('id'));
         }
 

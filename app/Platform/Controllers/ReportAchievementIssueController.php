@@ -41,7 +41,7 @@ class ReportAchievementIssueController extends Controller
             'game.system',
         );
 
-        $can = UserPermissionsData::fromUser($user, triggerable: $achievement)->include('createTriggerTicket');
+        $can = UserPermissionsData::fromUser($user, triggerable: $achievement)->include('createTicket');
 
         $props = new ReportAchievementIssuePagePropsData(
             achievement: $achievementData,
@@ -81,7 +81,7 @@ class ReportAchievementIssueController extends Controller
     /**
      * @param Collection<int, PlayerAchievement> $allPlayerAchievements
      */
-    private function determineTicketType(?PlayerAchievement $playerAchievement, Collection $allPlayerAchievements): int
+    private function determineTicketType(?PlayerAchievement $playerAchievement, Collection $allPlayerAchievements): TicketType
     {
         $ticketType = TicketType::DidNotTrigger;
 

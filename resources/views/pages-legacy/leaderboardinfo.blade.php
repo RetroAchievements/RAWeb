@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Leaderboard;
 use App\Models\User;
@@ -55,14 +55,14 @@ $lbFormat = $leaderboard->format;
 $lbAuthor = $leaderboard?->developer?->display_name;
 $lbCreated = $leaderboard->created_at;
 $lbUpdated = $leaderboard->updated_at;
-$lbMemory = $leaderboard->Mem;
+$lbMemory = $leaderboard->trigger_definition;
 
 $gameID = $leaderboard->game->id;
 $gameTitle = $leaderboard->game->title;
-$gameIcon = $leaderboard->game->ImageIcon;
+$gameIcon = $leaderboard->game->image_icon_asset_path;
 $consoleID = $leaderboard->game->system->id;
 $consoleName = $leaderboard->game->system->name;
-$forumTopicID = $leaderboard->game->ForumTopicID;
+$forumTopicID = $leaderboard->game->forum_topic_id;
 
 $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
 
@@ -138,7 +138,7 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
             echo "<ul>";
             $manageLeaderboardsRoute = route('filament.admin.resources.leaderboards.index', [
                 'tableFilters[game][id]' => $gameID,
-                'tableSortColumn' => 'DisplayOrder',
+                'tableSortColumn' => 'order_column',
                 'tableSortDirection' => 'asc',
             ]);
             echo "<a href='$manageLeaderboardsRoute'>Leaderboard Management for $gameTitle</a>";
@@ -314,8 +314,8 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
         echo "</div>";
 
         // Render article comments
-        echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
-            ['articleType' => ArticleType::Leaderboard, 'articleId' => $leaderboard->id]
+        echo Blade::render("<x-comment.list :commentableType=\"\$commentableType\" :commentableId=\"\$commentableId\" />",
+            ['commentableType' => CommentableType::Leaderboard, 'commentableId' => $leaderboard->id]
         );
 
         RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);

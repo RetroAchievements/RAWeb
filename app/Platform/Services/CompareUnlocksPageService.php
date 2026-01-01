@@ -21,8 +21,8 @@ class CompareUnlocksPageService
         $sortOrder = $validatedData['sort'] ?? 'display';
 
         $achievements = [];
-        foreach ($game->achievements()->published()->get() as $achievement) {
-            $achievements[$achievement->ID] = $achievement->toArray();
+        foreach ($game->achievements()->promoted()->get() as $achievement) {
+            $achievements[$achievement->id] = $achievement->toArray();
         }
 
         $this->mergeUserUnlocks($achievements, $activeUser, 'user');
@@ -103,10 +103,10 @@ class CompareUnlocksPageService
                 return $this->sortByUnlockTimestamps($a, $b, 'otherUserTimestampRaw');
             },
             'display' => function ($a, $b) {
-                return $a['DisplayOrder'] <=> $b['DisplayOrder'];
+                return $a['order_column'] <=> $b['order_column'];
             },
             'title' => function ($a, $b) {
-                return $a['Title'] <=> $b['Title'];
+                return $a['title'] <=> $b['title'];
             },
         };
 
@@ -123,6 +123,6 @@ class CompareUnlocksPageService
             return $aTimestamp <=> $bTimestamp;
         }
 
-        return $a['DisplayOrder'] <=> $b['DisplayOrder'];
+        return $a['order_column'] <=> $b['order_column'];
     }
 }

@@ -10,9 +10,9 @@ export function collectMappedTableRows(): MappedTableRow[] {
   for (const rowEl of awardTableRowEls) {
     const awardType =
       rowEl.querySelector<HTMLInputElement>("input[type='hidden'][name='type']")?.value ?? '';
-    const awardData =
+    const awardKey =
       rowEl.querySelector<HTMLInputElement>("input[type='hidden'][name='data']")?.value ?? '';
-    const awardDataExtra =
+    const awardTier =
       rowEl.querySelector<HTMLInputElement>("input[type='hidden'][name='extra']")?.value ?? '';
     const awardKind = rowEl.dataset.awardKind ?? '';
     const isHidden = !!rowEl.querySelector<HTMLInputElement>('input[type="checkbox"]')?.checked;
@@ -20,8 +20,8 @@ export function collectMappedTableRows(): MappedTableRow[] {
     mappedTableRows.push({
       isHidden,
       type: awardType,
-      data: awardData,
-      extra: awardDataExtra,
+      data: awardKey,
+      extra: awardTier,
       kind: awardKind,
     });
   }

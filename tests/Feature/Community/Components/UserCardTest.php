@@ -19,15 +19,15 @@ class UserCardTest extends TestCase
     public function testItRendersRegisteredUserData(): void
     {
         User::factory()->create([
-            'User' => 'mockUser',
-            'Motto' => 'mockMotto',
-            'RAPoints' => 5000,
-            'RASoftcorePoints' => 50,
-            'TrueRAPoints' => 6500,
+            'username' => 'mockUser',
+            'motto' => 'mockMotto',
+            'points_hardcore' => 5000,
+            'points' => 50,
+            'points_weighted' => 6500,
             'Untracked' => false,
             'Permissions' => Permissions::Registered,
-            'Created' => '2023-07-01 00:00:00',
-            'LastLogin' => '2023-07-10 00:00:00',
+            'created_at' => '2023-07-01 00:00:00',
+            'last_activity_at' => '2023-07-10 00:00:00',
         ]);
 
         $view = $this->blade('<x-user-card user="mockUser" />');
@@ -47,14 +47,14 @@ class UserCardTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'User' => 'mockUser',
-            'Motto' => 'mockMotto',
-            'RAPoints' => 5000,
-            'RASoftcorePoints' => 50,
-            'TrueRAPoints' => 6500,
+            'username' => 'mockUser',
+            'motto' => 'mockMotto',
+            'points_hardcore' => 5000,
+            'points' => 50,
+            'points_weighted' => 6500,
             'Untracked' => false,
-            'Created' => '2023-07-01 00:00:00',
-            'LastLogin' => '2023-07-10 00:00:00',
+            'created_at' => '2023-07-01 00:00:00',
+            'last_activity_at' => '2023-07-10 00:00:00',
         ]);
         $user->assignRole(Role::DEVELOPER_JUNIOR);
 
@@ -66,15 +66,15 @@ class UserCardTest extends TestCase
     public function testItDoesntDisplayIfUserIsBanned(): void
     {
         User::factory()->create([
-            'User' => 'mockUser',
-            'Motto' => 'mockMotto',
-            'RAPoints' => 5000,
-            'RASoftcorePoints' => 50,
-            'TrueRAPoints' => 6500,
+            'username' => 'mockUser',
+            'motto' => 'mockMotto',
+            'points_hardcore' => 5000,
+            'points' => 50,
+            'points_weighted' => 6500,
             'Untracked' => false,
             'Permissions' => Permissions::Banned,
-            'Created' => '2023-07-01 00:00:00',
-            'LastLogin' => '2023-07-10 00:00:00',
+            'created_at' => '2023-07-01 00:00:00',
+            'last_activity_at' => '2023-07-10 00:00:00',
         ]);
 
         $view = $this->blade('<x-user-card user="mockUser" />');
@@ -85,15 +85,15 @@ class UserCardTest extends TestCase
     public function testItShowsSoftcoreStandingsWhenAppropriate(): void
     {
         User::factory()->create([
-            'User' => 'mockUser',
-            'Motto' => 'mockMotto',
-            'RAPoints' => 50,
-            'RASoftcorePoints' => 5000,
-            'TrueRAPoints' => 6500,
+            'username' => 'mockUser',
+            'motto' => 'mockMotto',
+            'points_hardcore' => 50,
+            'points' => 5000,
+            'points_weighted' => 6500,
             'Untracked' => false,
             'Permissions' => Permissions::Banned,
-            'Created' => '2023-07-01 00:00:00',
-            'LastLogin' => '2023-07-10 00:00:00',
+            'created_at' => '2023-07-01 00:00:00',
+            'last_activity_at' => '2023-07-10 00:00:00',
         ]);
 
         $view = $this->blade('<x-user-card user="mockUser" />');
@@ -105,15 +105,15 @@ class UserCardTest extends TestCase
     public function testItSaysIfUserIsUntracked(): void
     {
         User::factory()->create([
-            'User' => 'mockUser',
-            'Motto' => 'mockMotto',
-            'RAPoints' => 5000,
-            'RASoftcorePoints' => 50,
-            'TrueRAPoints' => 6500,
+            'username' => 'mockUser',
+            'motto' => 'mockMotto',
+            'points_hardcore' => 5000,
+            'points' => 50,
+            'points_weighted' => 6500,
             'Untracked' => true,
             'Permissions' => Permissions::Banned,
-            'Created' => '2023-07-01 00:00:00',
-            'LastLogin' => '2023-07-10 00:00:00',
+            'created_at' => '2023-07-01 00:00:00',
+            'last_activity_at' => '2023-07-10 00:00:00',
         ]);
 
         $view = $this->blade('<x-user-card user="mockUser" />');
@@ -124,15 +124,15 @@ class UserCardTest extends TestCase
     public function testItSaysIfUserDoesntMeetRankMinimumPointsThreshold(): void
     {
         User::factory()->create([
-            'User' => 'mockUser',
-            'Motto' => 'mockMotto',
-            'RAPoints' => 1,
-            'RASoftcorePoints' => 1,
-            'TrueRAPoints' => 1,
+            'username' => 'mockUser',
+            'motto' => 'mockMotto',
+            'points_hardcore' => 1,
+            'points' => 1,
+            'points_weighted' => 1,
             'Untracked' => false,
             'Permissions' => Permissions::Banned,
-            'Created' => '2023-07-01 00:00:00',
-            'LastLogin' => '2023-07-10 00:00:00',
+            'created_at' => '2023-07-01 00:00:00',
+            'last_activity_at' => '2023-07-10 00:00:00',
         ]);
 
         $view = $this->blade('<x-user-card user="mockUser" />');

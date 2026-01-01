@@ -25,7 +25,7 @@ class HealthControllerTest extends TestCase
     public function testItReturnsForbiddenWhenUserIsNotServiceAccount(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'regular-user-api-key']);
+        User::factory()->create(['web_api_key' => 'regular-user-api-key']);
 
         // ... this user is not in the allowed service accounts list ...
         config(['api.internal.allowed_user_ids' => '99999']);
@@ -53,8 +53,8 @@ class HealthControllerTest extends TestCase
     {
         // Arrange
         $serviceAccount = User::factory()->create([
-            'User' => 'RABot',
-            'APIKey' => 'rabot-api-key',
+            'username' => 'RABot',
+            'web_api_key' => 'rabot-api-key',
         ]);
 
         // ... this is an actual service account ...
@@ -78,12 +78,12 @@ class HealthControllerTest extends TestCase
     {
         // Arrange
         $serviceAccount1 = User::factory()->create([
-            'User' => 'RABot',
-            'APIKey' => 'rabot-api-key',
+            'username' => 'RABot',
+            'web_api_key' => 'rabot-api-key',
         ]);
         $serviceAccount2 = User::factory()->create([
-            'User' => 'CronService',
-            'APIKey' => 'cron-api-key',
+            'username' => 'CronService',
+            'web_api_key' => 'cron-api-key',
         ]);
 
         // ... configure multiple service accounts as comma-separated IDs ...
@@ -106,8 +106,8 @@ class HealthControllerTest extends TestCase
     {
         // Arrange
         User::factory()->create([
-            'User' => 'RABot',
-            'APIKey' => 'rabot-api-key',
+            'username' => 'RABot',
+            'web_api_key' => 'rabot-api-key',
         ]);
 
         // ... no service accounts are configured ...

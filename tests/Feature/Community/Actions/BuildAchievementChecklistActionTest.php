@@ -232,19 +232,19 @@ class BuildAchievementChecklistActionTest extends TestCase
         $achievement->refresh(); // fetch updated aggregate values
 
         return [
-            'id' => $achievement->ID,
-            'title' => $achievement->Title,
-            'description' => $achievement->Description,
-            'points' => $achievement->Points,
+            'id' => $achievement->id,
+            'title' => $achievement->title,
+            'description' => $achievement->description,
+            'points' => $achievement->points,
             'badgeUnlockedUrl' => $achievement->badgeUnlockedUrl,
             'badgeLockedUrl' => $achievement->badgeLockedUrl,
             'unlockedAt' => $softcoreUnlock ? $softcoreUnlock->format('c') : ($hardcoreUnlock ? $hardcoreUnlock->format('c') : null),
             'unlockedHardcoreAt' => $hardcoreUnlock ? $hardcoreUnlock->format('c') : null,
             'unlocksTotal' => $achievement->unlocks_total,
-            'unlocksHardcoreTotal' => $achievement->unlocks_hardcore_total,
+            'unlocksHardcore' => $achievement->unlocks_hardcore,
             'unlockPercentage' => $achievement->unlock_percentage,
             'unlockHardcorePercentage' => $achievement->unlock_hardcore_percentage,
-            'flags' => $achievement->Flags,
+            'isPromoted' => $achievement->is_promoted,
             'game' => [
                 'id' => $achievement->game->id,
                 'title' => $achievement->game->title,

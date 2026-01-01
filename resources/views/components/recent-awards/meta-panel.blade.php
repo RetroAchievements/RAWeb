@@ -8,8 +8,8 @@
 <?php
 use App\Community\Enums\AwardType;
 
-$awardTypeMastery = AwardType::Mastery;
-$awardTypeGameBeaten = AwardType::GameBeaten;
+$awardTypeMastery = AwardType::Mastery->toLegacyInteger();
+$awardTypeGameBeaten = AwardType::GameBeaten->toLegacyInteger();
 ?>
 
 <script>

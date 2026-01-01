@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\User;
 use App\Models\UserRelation;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -21,9 +21,7 @@ class UserRelationFactory extends Factory
         return [
             'user_id' => User::factory(),
             'related_user_id' => User::factory(),
-            'Friendship' => fake()->randomElement(UserRelationship::cases()),
-            'Created' => now(),
-            'Updated' => now(),
+            'status' => fake()->randomElement(UserRelationStatus::cases()),
         ];
     }
 
@@ -31,7 +29,7 @@ class UserRelationFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'Friendship' => UserRelationship::Following,
+                'status' => UserRelationStatus::Following,
             ];
         });
     }
@@ -40,7 +38,7 @@ class UserRelationFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'Friendship' => UserRelationship::NotFollowing,
+                'status' => UserRelationStatus::NotFollowing,
             ];
         });
     }
@@ -49,7 +47,7 @@ class UserRelationFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'Friendship' => UserRelationship::Blocked,
+                'status' => UserRelationStatus::Blocked,
             ];
         });
     }

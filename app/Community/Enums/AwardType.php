@@ -4,32 +4,33 @@ declare(strict_types=1);
 
 namespace App\Community\Enums;
 
+use InvalidArgumentException;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript('AwardType')]
-abstract class AwardType
+#[TypeScript]
+enum AwardType: string
 {
     // TODO refactor to AchievementSetCompleted
-    public const Mastery = 1;
+    case Mastery = 'mastery';
 
-    public const AchievementUnlocksYield = 2;
+    case AchievementUnlocksYield = 'achievement_unlocks_yield';
 
-    public const AchievementPointsYield = 3;
+    case AchievementPointsYield = 'achievement_points_yield';
 
-    // public const Referrals = 4;
+    case PatreonSupporter = 'patreon_supporter';
 
-    // public const FacebookConnect = 5;
+    case CertifiedLegend = 'certified_legend';
 
-    public const PatreonSupporter = 6;
+    case GameBeaten = 'game_beaten';
 
-    public const CertifiedLegend = 7;
+    case Event = 'event';
 
-    // TODO refactor to AchievementSetBeaten
-    public const GameBeaten = 8;
-
-    public const Event = 9;
-
-    public static function cases(): array
+    /**
+     * Returns all standard award type cases, excluding Event.
+     * Event is excluded because it's handled specially and shouldn't
+     * appear in typical award type iterations.
+     */
+    public static function standardCases(): array
     {
         return [
             self::Mastery,
@@ -41,25 +42,71 @@ abstract class AwardType
         ];
     }
 
-    public static function isActive(int $value): bool
+    public static function isActive(self|int $value): bool
     {
-        return in_array($value, self::cases());
+        if (is_int($value)) {
+            try {
+                $value = self::fromLegacyInteger($value);
+            } catch (InvalidArgumentException) {
+                return false;
+            }
+        }
+
+        return in_array($value, self::standardCases());
     }
 
-    public static function toString(int $awardType): string
+    public function label(): string
     {
-        return match ($awardType) {
-            AwardType::Mastery => 'Mastery/Completion',
-            AwardType::AchievementUnlocksYield => 'Achievement Unlocks Yield',
-            AwardType::AchievementPointsYield => 'Achievement Points Yield',
-            AwardType::PatreonSupporter => 'Patreon Supporter',
-            AwardType::CertifiedLegend => 'Certified Legend',
-            AwardType::GameBeaten => 'Game Beaten',
-            AwardType::Event => 'Event',
-            default => 'Invalid or deprecated award type',
+        return match ($this) {
+            self::Mastery => 'Mastery/Completion',
+            self::AchievementUnlocksYield => 'Achievement Unlocks Yield',
+            self::AchievementPointsYield => 'Achievement Points Yield',
+            self::PatreonSupporter => 'Patreon Supporter',
+            self::CertifiedLegend => 'Certified Legend',
+            self::GameBeaten => 'Game Beaten',
+            self::Event => 'Event',
         };
     }
 
+    /**
+     * Returns the legacy integer value for V1 API backwards compatibility.
+     * These values were used when AwardType was an integer-backed enum
+     * and must remain stable for existing API consumers.
+     */
+    public function toLegacyInteger(): int
+    {
+        return match ($this) {
+            self::Mastery => 1,
+            self::AchievementUnlocksYield => 2,
+            self::AchievementPointsYield => 3,
+            self::PatreonSupporter => 6,
+            self::CertifiedLegend => 7,
+            self::GameBeaten => 8,
+            self::Event => 9,
+        };
+    }
+
+    /**
+     * Creates an AwardType from a legacy integer value.
+     * Used for backwards compatibility with legacy code that still uses integer values.
+     */
+    public static function fromLegacyInteger(int $value): self
+    {
+        return match ($value) {
+            1 => self::Mastery,
+            2 => self::AchievementUnlocksYield,
+            3 => self::AchievementPointsYield,
+            6 => self::PatreonSupporter,
+            7 => self::CertifiedLegend,
+            8 => self::GameBeaten,
+            9 => self::Event,
+            default => throw new InvalidArgumentException("Invalid legacy AwardType value: {$value}"),
+        };
+    }
+
+    /**
+     * Returns game-related award types (Mastery, GameBeaten).
+     */
     public static function game(): array
     {
         return [
@@ -68,8 +115,28 @@ abstract class AwardType
         ];
     }
 
-    public static function isGame(int $type): bool
+    /**
+     * Returns game-related award type values as strings for SQL queries.
+     */
+    public static function gameValues(): array
     {
-        return in_array($type, static::game());
+        return array_map(fn (self $type) => $type->value, self::game());
+    }
+
+    /**
+     * Checks if the given award type is game-related (Mastery or GameBeaten).
+     * Accepts either an AwardType enum or a legacy integer value.
+     */
+    public static function isGame(self|int $type): bool
+    {
+        if (is_int($type)) {
+            try {
+                $type = self::fromLegacyInteger($type);
+            } catch (InvalidArgumentException) {
+                return false;
+            }
+        }
+
+        return in_array($type, self::game());
     }
 }

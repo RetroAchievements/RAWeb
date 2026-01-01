@@ -58,7 +58,7 @@ class UpdateGameBeatenMetricsAction
 
     private function dispatchPlayerStatRankingJobs(Game $game): void
     {
-        $systemId = $game->ConsoleID;
+        $systemId = $game->system_id;
         $specificKind = $this->determineRankingKindForGame($game, $systemId);
 
         // Update system-specific leaderboards.
@@ -82,10 +82,13 @@ class UpdateGameBeatenMetricsAction
 
     private function determineRankingKindForGame(Game $game, int $systemId): ?PlayerStatRankingKind
     {
+        // Use get()->pluck() instead of pluck() directly because the JSON
+        // arrow syntax doesn't work with pluck() through relationship queries.
         $tags = $game->tags()
             ->whereType('game')
             ->whereIn('name->en', ['Hack', 'Homebrew', 'Demo', 'Prototype', 'Unlicensed'])
-            ->pluck('name->en');
+            ->get()
+            ->pluck('name');
 
         if ($tags->contains('Hack')) {
             return PlayerStatRankingKind::HacksBeaten;

@@ -50,8 +50,8 @@ class BuildPlayerGameActivityDataActionTest extends TestCase
     public function testExecuteIncludesAchievementData(): void
     {
         // Arrange
-        Achievement::factory()->published()->count(3)->create([
-            'GameID' => $this->game->id,
+        Achievement::factory()->promoted()->count(3)->create([
+            'game_id' => $this->game->id,
         ]);
 
         // ... create some unlocks ...
@@ -105,8 +105,8 @@ class BuildPlayerGameActivityDataActionTest extends TestCase
     public function testExecuteCalculatesSummaryDataCorrectly(): void
     {
         // Arrange
-        Achievement::factory()->published()->count(2)->create([
-            'GameID' => $this->game->id,
+        Achievement::factory()->promoted()->count(2)->create([
+            'game_id' => $this->game->id,
         ]);
 
         $baseTime = now()->subHours(2);
@@ -139,8 +139,8 @@ class BuildPlayerGameActivityDataActionTest extends TestCase
     public function testExecuteCreatesMultipleSessionsForSpreadOutUnlocks(): void
     {
         // Arrange
-        Achievement::factory()->published()->count(3)->create([
-            'GameID' => $this->game->id,
+        Achievement::factory()->promoted()->count(3)->create([
+            'game_id' => $this->game->id,
         ]);
 
         $achievements = $this->game->achievements;

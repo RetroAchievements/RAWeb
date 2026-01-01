@@ -34,7 +34,7 @@ class LeaderboardData extends Data
             format: Lazy::create(fn () => $leaderboard->format),
             game: Lazy::create(fn () => GameData::fromGame($leaderboard->game)),
             id: $leaderboard->id,
-            orderColumn: Lazy::create(fn () => $leaderboard->DisplayOrder),
+            orderColumn: Lazy::create(fn () => $leaderboard->order_column),
             title: $leaderboard->title,
             topEntry: Lazy::create(fn () => $leaderboard->topEntry
                 ? LeaderboardEntryData::fromLeaderboardEntry($leaderboard->topEntry, $leaderboard->format)

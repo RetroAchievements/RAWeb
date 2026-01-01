@@ -14,7 +14,7 @@ if (!authenticateFromCookie($username, $permissions, $userDetail)) {
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'ticket' => 'required|integer|exists:Ticket,ID',
+    'ticket' => 'required|integer|exists:tickets,id',
     'action' => ['required', 'string', Rule::in(TicketAction::cases())],
 ]);
 
@@ -41,7 +41,7 @@ switch ($input['action']) {
     case TicketAction::Demoted:
         if ($permissions >= Permissions::Developer) {
             $ticketState = TicketState::Closed;
-            $reason = "Demoted";
+            $reason = TicketState::REASON_DEMOTED;
         }
         break;
 
@@ -88,7 +88,7 @@ switch ($input['action']) {
         break;
 
     case TicketAction::Request:
-        if (!User::where('ID', $ticket->reporter_id)->exists()) {
+        if (!User::where('id', $ticket->reporter_id)->exists()) {
             return back()->withErrors(__('legacy.error.error'));
         }
 
@@ -100,7 +100,7 @@ switch ($input['action']) {
         break;
 }
 
-if ($ticketState !== null && $ticketState !== $ticket->ReportState) {
+if ($ticketState !== null && $ticketState !== $ticket->state) {
     $userModel = User::whereName($username)->first();
     if ($userModel
         && ($permissions >= Permissions::Developer || $userModel->id === $ticket->reporter_id)

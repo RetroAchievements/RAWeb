@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Concerns;
 
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Comment;
 use App\Models\User;
@@ -16,35 +17,36 @@ trait TestsAuditComments
     protected function addServerUser(): void
     {
         $this->serverUser = User::factory()->create([
-            'ID' => Comment::SYSTEM_USER_ID,
-            'User' => 'Server',
+            'id' => Comment::SYSTEM_USER_ID,
+            'username' => 'Server',
             'Permissions' => Permissions::Unregistered,
-            'EmailAddress' => '',
+            'email' => '',
             'email_verified_at' => null,
-            'Password' => null,
-            'RAPoints' => 0,
-            'APIKey' => null,
+            'password' => null,
+            'points_hardcore' => 0,
+            'points' => 0,
+            'web_api_key' => null,
             'remember_token' => null,
         ]);
     }
 
-    protected function assertAuditComment(int $articleType, int $articleID, string $message, ?Carbon $when = null): void
+    protected function assertAuditComment(CommentableType $commentableType, int $commentableId, string $message, ?Carbon $when = null): void
     {
         $foundDate = null;
-        $comments = Comment::where('ArticleType', $articleType)
-            ->where('ArticleID', $articleID)
-            ->where('user_id', $this->serverUser->ID);
+        $comments = Comment::where('commentable_type', $commentableType)
+            ->where('commentable_id', $commentableId)
+            ->where('user_id', $this->serverUser->id);
         foreach ($comments->get() as $comment) {
-            if ($comment->Payload === $message) {
-                if ($when === null || $when === $comment->Submitted) {
+            if ($comment->body === $message) {
+                if ($when === null || $when->eq($comment->created_at)) {
                     return;
                 }
-                $foundDate = $comment->Submitted;
+                $foundDate = $comment->created_at;
             }
         }
 
         if ($comments->count() === 1) {
-            $this->assertEquals($message, $comments->first()->Payload);
+            $this->assertEquals($message, $comments->first()->body);
         } elseif ($foundDate !== null) {
             $this->fail("Date mismatch for audit comment. Expected: {$when->toDateTimeString()}, found {$foundDate->toDateTimeString()}");
         } else {

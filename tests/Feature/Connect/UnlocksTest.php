@@ -38,7 +38,7 @@ class UnlocksTest extends TestCase
         $this->associateAchievementSetToGameAction = new AssociateAchievementSetToGameAction();
 
         /** @var User $user */
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $this->user = $user;
     }
 
@@ -46,25 +46,25 @@ class UnlocksTest extends TestCase
     {
         $game = $this->seedGame(withHash: false);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
+        $achievement1 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
+        $achievement4 = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
 
         $this->upsertGameCoreSetAction->execute($game);
 
         /** @var Game $bonusGame */
         $bonusGame = Game::factory()->create([
-            'ConsoleID' => $game->ConsoleID,
-            'Title' => $game->title . ' [Subset - Bonus]',
+            'system_id' => $game->system_id,
+            'title' => $game->title . ' [Subset - Bonus]',
         ]);
         /** @var Achievement $bonusAchievement1 */
-        $bonusAchievement1 = Achievement::factory()->published()->create(['GameID' => $bonusGame->id]);
+        $bonusAchievement1 = Achievement::factory()->promoted()->create(['game_id' => $bonusGame->id]);
         /** @var Achievement $bonusAchievement2 */
-        $bonusAchievement2 = Achievement::factory()->published()->create(['GameID' => $bonusGame->id]);
+        $bonusAchievement2 = Achievement::factory()->promoted()->create(['game_id' => $bonusGame->id]);
 
         $this->upsertGameCoreSetAction->execute($bonusGame);
         $this->associateAchievementSetToGameAction->execute($game, $bonusGame, AchievementSetType::Bonus, 'Bonus');
@@ -87,92 +87,92 @@ class UnlocksTest extends TestCase
 
         // all unlocks for the game
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('unlocks', ['g' => $game->ID, 'h' => 0]))
+            ->get($this->apiUrl('unlocks', ['g' => $game->id, 'h' => 0]))
             ->assertExactJson([
                 'Success' => true,
-                'GameID' => $game->ID,
+                'GameID' => $game->id,
                 'HardcoreMode' => false,
                 'UserUnlocks' => [
-                    $achievement1->ID,
-                    $achievement2->ID,
-                    $achievement3->ID,
-                    $bonusAchievement1->ID,
-                    $bonusAchievement2->ID,
+                    $achievement1->id,
+                    $achievement2->id,
+                    $achievement3->id,
+                    $bonusAchievement1->id,
+                    $bonusAchievement2->id,
                 ],
             ]);
 
         // hardcore unlocks for the game
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('unlocks', ['g' => $game->ID, 'h' => 1]))
+            ->get($this->apiUrl('unlocks', ['g' => $game->id, 'h' => 1]))
             ->assertExactJson([
                 'Success' => true,
-                'GameID' => $game->ID,
+                'GameID' => $game->id,
                 'HardcoreMode' => true,
                 'UserUnlocks' => [
-                    $achievement1->ID,
-                    $achievement2->ID,
-                    $bonusAchievement1->ID,
+                    $achievement1->id,
+                    $achievement2->id,
+                    $bonusAchievement1->id,
                 ],
             ]);
 
         // hardcore filter not specified, return all unlocks for the game
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('unlocks', ['g' => $game->ID]))
+            ->get($this->apiUrl('unlocks', ['g' => $game->id]))
             ->assertExactJson([
                 'Success' => true,
-                'GameID' => $game->ID,
+                'GameID' => $game->id,
                 'HardcoreMode' => false,
                 'UserUnlocks' => [
-                    $achievement1->ID,
-                    $achievement2->ID,
-                    $achievement3->ID,
-                    $bonusAchievement1->ID,
-                    $bonusAchievement2->ID,
+                    $achievement1->id,
+                    $achievement2->id,
+                    $achievement3->id,
+                    $bonusAchievement1->id,
+                    $bonusAchievement2->id,
                 ],
             ]);
 
         // all unlocks for the game (outdated client)
         $this->withHeaders(['User-Agent' => $this->userAgentOutdated])
-            ->get($this->apiUrl('unlocks', ['g' => $game->ID, 'h' => 0]))
+            ->get($this->apiUrl('unlocks', ['g' => $game->id, 'h' => 0]))
             ->assertExactJson([
                 'Success' => true,
-                'GameID' => $game->ID,
+                'GameID' => $game->id,
                 'HardcoreMode' => false,
                 'UserUnlocks' => [
-                    $achievement1->ID,
-                    $achievement2->ID,
-                    $achievement3->ID,
-                    $bonusAchievement1->ID,
-                    $bonusAchievement2->ID,
+                    $achievement1->id,
+                    $achievement2->id,
+                    $achievement3->id,
+                    $bonusAchievement1->id,
+                    $bonusAchievement2->id,
                     Achievement::CLIENT_WARNING_ID,
                 ],
             ]);
 
         // hardcore unlocks for the game (outdated client)
         $this->withHeaders(['User-Agent' => $this->userAgentOutdated])
-            ->get($this->apiUrl('unlocks', ['g' => $game->ID, 'h' => 1]))
+            ->get($this->apiUrl('unlocks', ['g' => $game->id, 'h' => 1]))
             ->assertExactJson([
                 'Success' => true,
-                'GameID' => $game->ID,
+                'GameID' => $game->id,
                 'HardcoreMode' => true,
                 'UserUnlocks' => [
-                    $achievement1->ID,
-                    $achievement2->ID,
-                    $bonusAchievement1->ID,
+                    $achievement1->id,
+                    $achievement2->id,
+                    $bonusAchievement1->id,
                 ],
             ]);
 
         // hardcore unlocks for the game (unsupported client)
         $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
-            ->get($this->apiUrl('unlocks', ['g' => $game->ID, 'h' => 1]))
+            ->get($this->apiUrl('unlocks', ['g' => $game->id, 'h' => 1]))
             ->assertExactJson([
                 'Success' => true,
-                'GameID' => $game->ID,
+                'GameID' => $game->id,
                 'HardcoreMode' => true,
                 'UserUnlocks' => [
-                    $achievement1->ID,
-                    $achievement2->ID,
-                    $bonusAchievement1->ID,
+                    $achievement1->id,
+                    $achievement2->id,
+                    $bonusAchievement1->id,
                 ],
             ]);
 
@@ -188,48 +188,48 @@ class UnlocksTest extends TestCase
 
         // via POST
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('unlocks', ['g' => $game->ID, 'h' => 1]))
+            ->post('dorequest.php', $this->apiParams('unlocks', ['g' => $game->id, 'h' => 1]))
             ->assertExactJson([
                 'Success' => true,
-                'GameID' => $game->ID,
+                'GameID' => $game->id,
                 'HardcoreMode' => true,
                 'UserUnlocks' => [
-                    $achievement1->ID,
-                    $achievement2->ID,
-                    $bonusAchievement1->ID,
+                    $achievement1->id,
+                    $achievement2->id,
+                    $bonusAchievement1->id,
                 ],
             ]);
 
         // not-unlocked event achievement hides hardcore unlock when active
-        System::factory()->create(['ID' => System::Events]);
+        System::factory()->create(['id' => System::Events]);
         /** @var Game $eventGame */
-        $eventGame = Game::factory()->create(['ConsoleID' => System::Events]);
+        $eventGame = Game::factory()->create(['system_id' => System::Events]);
         /** @var Achievement $eventAchievement1 */
-        $eventAchievement1 = Achievement::factory()->published()->create(['GameID' => $eventGame->ID]);
+        $eventAchievement1 = Achievement::factory()->promoted()->create(['game_id' => $eventGame->id]);
 
         $this->upsertGameCoreSetAction->execute($eventGame);
 
         Carbon::setTestNow($now->addWeeks(1));
         EventAchievement::create([
-            'achievement_id' => $eventAchievement1->ID,
-            'source_achievement_id' => $achievement1->ID,
+            'achievement_id' => $eventAchievement1->id,
+            'source_achievement_id' => $achievement1->id,
             'active_from' => $now->clone()->subDays(1),
             'active_until' => $now->clone()->addDays(2),
         ]);
 
         // softcore ignores event achievement
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('unlocks', ['g' => $game->ID, 'h' => 0]))
+            ->get($this->apiUrl('unlocks', ['g' => $game->id, 'h' => 0]))
             ->assertExactJson([
                 'Success' => true,
-                'GameID' => $game->ID,
+                'GameID' => $game->id,
                 'HardcoreMode' => false,
                 'UserUnlocks' => [
-                    $achievement1->ID,
-                    $achievement2->ID,
-                    $achievement3->ID,
-                    $bonusAchievement1->ID,
-                    $bonusAchievement2->ID,
+                    $achievement1->id,
+                    $achievement2->id,
+                    $achievement3->id,
+                    $bonusAchievement1->id,
+                    $bonusAchievement2->id,
                 ],
             ]);
 
@@ -237,15 +237,15 @@ class UnlocksTest extends TestCase
         $this->user->unranked_at = Carbon::now();
         $this->user->save();
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('unlocks', ['g' => $game->ID, 'h' => 1]))
+            ->get($this->apiUrl('unlocks', ['g' => $game->id, 'h' => 1]))
             ->assertExactJson([
                 'Success' => true,
-                'GameID' => $game->ID,
+                'GameID' => $game->id,
                 'HardcoreMode' => true,
                 'UserUnlocks' => [
-                    $achievement1->ID,
-                    $achievement2->ID,
-                    $bonusAchievement1->ID,
+                    $achievement1->id,
+                    $achievement2->id,
+                    $bonusAchievement1->id,
                 ],
             ]);
         $this->user->unranked_at = null;
@@ -253,39 +253,39 @@ class UnlocksTest extends TestCase
 
         // hardcore excludes active event achievement
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('unlocks', ['g' => $game->ID, 'h' => 1]))
+            ->get($this->apiUrl('unlocks', ['g' => $game->id, 'h' => 1]))
             ->assertExactJson([
                 'Success' => true,
-                'GameID' => $game->ID,
+                'GameID' => $game->id,
                 'HardcoreMode' => true,
                 'UserUnlocks' => [
-                    $achievement2->ID,
-                    $bonusAchievement1->ID,
+                    $achievement2->id,
+                    $bonusAchievement1->id,
                 ],
             ]);
 
         // event achievement returned as unlocked after unlocking it
         $this->addHardcoreUnlock($this->user, $eventAchievement1, $now);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('unlocks', ['g' => $game->ID, 'h' => 1]))
+            ->get($this->apiUrl('unlocks', ['g' => $game->id, 'h' => 1]))
             ->assertExactJson([
                 'Success' => true,
-                'GameID' => $game->ID,
+                'GameID' => $game->id,
                 'HardcoreMode' => true,
                 'UserUnlocks' => [
-                    $achievement1->ID,
-                    $achievement2->ID,
-                    $bonusAchievement1->ID,
+                    $achievement1->id,
+                    $achievement2->id,
+                    $bonusAchievement1->id,
                 ],
             ]);
 
         // empty response when passing incompatible game id
         $this->addHardcoreUnlock($this->user, $eventAchievement1, $now);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('unlocks', ['g' => $game->ID + VirtualGameIdService::IncompatibleIdBase, 'h' => 1]))
+            ->get($this->apiUrl('unlocks', ['g' => $game->id + VirtualGameIdService::IncompatibleIdBase, 'h' => 1]))
             ->assertExactJson([
                 'Success' => true,
-                'GameID' => $game->ID,
+                'GameID' => $game->id,
                 'HardcoreMode' => true,
                 'UserUnlocks' => [],
             ]);

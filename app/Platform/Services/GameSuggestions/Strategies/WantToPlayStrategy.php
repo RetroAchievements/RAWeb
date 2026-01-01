@@ -24,7 +24,7 @@ class WantToPlayStrategy implements GameSuggestionStrategy
             ->whereType(UserGameListType::Play)
             ->whereHas('game', function ($query) {
                 $query->whereHasPublishedAchievements()
-                    ->whereNotIn('ConsoleID', System::getNonGameSystems());
+                    ->whereNotIn('system_id', System::getNonGameSystems());
             })
             ->with('game')
             ->inRandomOrder()

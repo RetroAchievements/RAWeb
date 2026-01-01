@@ -23,15 +23,15 @@ class StaticTableSeeder extends Seeder
         }
 
         $game = Game::orderByDesc('Updated')->first();
-        $achievement = Achievement::orderByDesc('Updated')->first();
+        $achievement = Achievement::orderByDesc('updated_at')->first();
         $lastUnlock = PlayerAchievement::orderByDesc('unlocked_at')->first();
         $user = User::orderByDesc('email_verified_at')->first();
         $forumTopic = ForumTopic::first();
 
         $points = User::tracked()
             ->select([
-                DB::raw('SUM(RAPoints) AS HardcorePoints'),
-                DB::raw('SUM(RASoftcorePoints) AS SoftcorePoints'),
+                DB::raw('SUM(points_hardcore) AS HardcorePoints'),
+                DB::raw('SUM(points) AS SoftcorePoints'),
             ])
             ->first();
 
@@ -43,7 +43,7 @@ class StaticTableSeeder extends Seeder
             'TotalPointsEarned' => $points['HardcorePoints'] + $points['SoftcorePoints'],
             'LastAchievementEarnedID' => $lastUnlock?->achievement_id ?? $achievement->id,
             'LastAchievementEarnedByUser' => $lastUnlock?->user_id ?? $user->id,
-            'LastRegisteredUser' => $user->User,
+            'LastRegisteredUser' => $user->username,
             'LastUpdatedGameID' => $game->id,
             'LastUpdatedAchievementID' => $achievement->id,
             'LastCreatedGameID' => $game->id,
