@@ -240,7 +240,7 @@ class ProcessPlausibleUrlActionTest extends TestCase
     public function testItCorrectlyHandlesTicketUrls(): void
     {
         // Arrange
-        Ticket::factory()->create(['ID' => 1]);
+        Ticket::factory()->create(['id' => 1]);
 
         // Act
         $result = $this->action->execute('ticket/1', [], $this->defaultProps);

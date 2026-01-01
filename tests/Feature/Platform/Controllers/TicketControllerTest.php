@@ -23,7 +23,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
-class TriggerTicketControllerTest extends TestCase
+class TicketControllerTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -140,8 +140,8 @@ class TriggerTicketControllerTest extends TestCase
         // !! they have an existing ticket !!
         $existingTicket = Ticket::factory()->create([
             'reporter_id' => $user->id,
-            'AchievementID' => $achievement->id,
-            'ReportState' => TicketState::Open, // !!
+            'ticketable_id' => $achievement->id,
+            'state' => TicketState::Open, // !!
         ]);
 
         // Act

@@ -237,7 +237,7 @@ function informAllSubscribersAboutActivity(
             }
 
             $articleTitle = "{$ticket->achievement->title} ({$ticket->achievement->game->title})";
-            $urlTarget = route('ticket.show', ['ticket' => $ticket->ID]);
+            $urlTarget = route('ticket.show', ['ticket' => $ticket->id]);
             $subjectAuthor = $ticket->reporter;
             $articleEmailPreference = UserPreference::EmailOn_TicketActivity;
             $subscriptionSubjectType = SubscriptionSubjectType::AchievementTicket;

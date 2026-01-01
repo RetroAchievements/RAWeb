@@ -1300,16 +1300,16 @@ describe('Open Tickets Props', function () {
 
         // ... create tickets for both achievements ...
         Ticket::factory()->create([
-            'AchievementID' => $publishedAchievement->id,
+            'ticketable_id' => $publishedAchievement->id,
             'reporter_id' => $reporter->id,
             'ticketable_author_id' => $developer->id,
-            'ReportState' => TicketState::Open,
+            'state' => TicketState::Open,
         ]);
         Ticket::factory()->create([
-            'AchievementID' => $unpublishedAchievement->id,
+            'ticketable_id' => $unpublishedAchievement->id,
             'reporter_id' => $reporter->id,
             'ticketable_author_id' => $developer->id,
-            'ReportState' => TicketState::Open,
+            'state' => TicketState::Open,
         ]);
 
         // ACT
@@ -1342,25 +1342,26 @@ describe('Open Tickets Props', function () {
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
 
         $reporter = User::factory()->create();
+        $reporter2 = User::factory()->create();
 
         // ... create tickets for both achievements ...
         Ticket::factory()->create([
-            'AchievementID' => $publishedAchievement->id,
+            'ticketable_id' => $publishedAchievement->id,
             'reporter_id' => $reporter->id,
             'ticketable_author_id' => $developer->id,
-            'ReportState' => TicketState::Open,
+            'state' => TicketState::Open,
         ]);
         Ticket::factory()->create([
-            'AchievementID' => $unpublishedAchievement->id,
+            'ticketable_id' => $unpublishedAchievement->id,
             'reporter_id' => $reporter->id,
             'ticketable_author_id' => $developer->id,
-            'ReportState' => TicketState::Open,
+            'state' => TicketState::Open,
         ]);
         Ticket::factory()->create([
-            'AchievementID' => $unpublishedAchievement->id,
-            'reporter_id' => $reporter->id,
+            'ticketable_id' => $unpublishedAchievement->id,
+            'reporter_id' => $reporter2->id, // Use different reporter to avoid unique constraint.
             'ticketable_author_id' => $developer->id,
-            'ReportState' => TicketState::Open,
+            'state' => TicketState::Open,
         ]);
 
         // ACT
@@ -1386,19 +1387,20 @@ describe('Open Tickets Props', function () {
         (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
 
         $reporter = User::factory()->create();
+        $reporter2 = User::factory()->create();
 
         // ... create an open ticket and a resolved ticket ...
         Ticket::factory()->create([
-            'AchievementID' => $achievement->id,
+            'ticketable_id' => $achievement->id,
             'reporter_id' => $reporter->id,
             'ticketable_author_id' => $developer->id,
-            'ReportState' => TicketState::Open,
+            'state' => TicketState::Open,
         ]);
         Ticket::factory()->create([
-            'AchievementID' => $achievement->id,
-            'reporter_id' => $reporter->id,
+            'ticketable_id' => $achievement->id,
+            'reporter_id' => $reporter2->id, // Use different reporter to avoid unique constraint.
             'ticketable_author_id' => $developer->id,
-            'ReportState' => TicketState::Resolved, // !!
+            'state' => TicketState::Resolved, // !!
         ]);
 
         // ACT

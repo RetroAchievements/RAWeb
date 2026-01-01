@@ -247,10 +247,10 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     // determine the top N accounts for each search criteria
     // - use LEFT JOINs and SUM(!ISNULL) to return entries with 0s
     if ($sortBy == 3) { // OpenTickets DESC
-        $query = "SELECT ua.id, SUM(!ISNULL(tick.ID)) AS OpenTickets
+        $query = "SELECT ua.id, SUM(!ISNULL(tick.id)) AS OpenTickets
                   FROM users ua
                   LEFT JOIN achievements ach ON ach.user_id = ua.id
-                  LEFT JOIN Ticket tick ON tick.AchievementID=ach.id AND tick.ReportState IN (1,3)
+                  LEFT JOIN tickets tick ON tick.ticketable_id=ach.id AND tick.ticketable_type='achievement' AND tick.state IN ('open','request')
                   WHERE $stateCond
                   GROUP BY ua.id
                   ORDER BY OpenTickets DESC, ua.display_name";
@@ -258,8 +258,8 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     } elseif ($sortBy == 4) { // TicketsResolvedForOthers DESC
         $query = "SELECT ua.id, SUM(!ISNULL(ach.id)) as total
                   FROM users as ua
-                  LEFT JOIN Ticket tick ON tick.resolver_id = ua.id AND tick.ReportState = 2 AND tick.resolver_id != tick.reporter_id
-                  LEFT JOIN achievements as ach ON ach.id = tick.AchievementID AND ach.is_promoted = 1 AND ach.user_id != ua.id
+                  LEFT JOIN tickets tick ON tick.resolver_id = ua.id AND tick.state = 'resolved' AND tick.resolver_id != tick.reporter_id
+                  LEFT JOIN achievements as ach ON ach.id = tick.ticketable_id AND ach.is_promoted = 1 AND ach.user_id != ua.id
                   WHERE $stateCond
                   GROUP BY ua.id
                   ORDER BY total DESC, ua.display_name";
@@ -303,10 +303,11 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
 
     // merge in open tickets
     $query = "SELECT ach.user_id as id, COUNT(*) AS OpenTickets
-              FROM Ticket tick
-              INNER JOIN achievements ach ON ach.id=tick.AchievementID
-              WHERE ach.user_id IN ($devList)
-              AND tick.ReportState IN (1,3)
+              FROM tickets tick
+              INNER JOIN achievements ach ON ach.id=tick.ticketable_id
+              WHERE tick.ticketable_type = 'achievement'
+              AND ach.user_id IN ($devList)
+              AND tick.state IN ('open','request')
               GROUP BY ach.user_id";
     foreach (legacyDbFetchAll($query) as $row) {
         $data[$row['id']]['OpenTickets'] = $row['OpenTickets'];
@@ -314,12 +315,13 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
 
     // merge in tickets resolved for others
     $query = "SELECT tick.resolver_id AS id, COUNT(*) as total
-              FROM Ticket AS tick
-              INNER JOIN achievements as ach ON ach.id = tick.AchievementID
-              WHERE tick.resolver_id != tick.reporter_id
+              FROM tickets AS tick
+              INNER JOIN achievements as ach ON ach.id = tick.ticketable_id
+              WHERE tick.ticketable_type = 'achievement'
+              AND tick.resolver_id != tick.reporter_id
               AND ach.user_id != tick.resolver_id
               AND ach.is_promoted = 1
-              AND tick.ReportState = " . TicketState::Resolved . "
+              AND tick.state = '" . TicketState::Resolved->value . "'
               AND tick.resolver_id IN ($devList)
               GROUP BY tick.resolver_id";
     foreach (legacyDbFetchAll($query) as $row) {

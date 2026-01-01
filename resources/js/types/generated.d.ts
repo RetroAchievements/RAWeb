@@ -222,8 +222,6 @@ declare namespace App.Community.Data {
   };
 }
 declare namespace App.Community.Enums {
-  export type TicketState = 0 | 1 | 2 | 3 | 'Demoted';
-  export type TicketType = 1 | 2;
   export type AwardType =
     | 'mastery'
     | 'achievement_unlocks_yield'
@@ -276,6 +274,8 @@ declare namespace App.Community.Enums {
     | 'GameTickets'
     | 'GameAchievements'
     | 'AchievementTicket';
+  export type TicketState = 'closed' | 'open' | 'resolved' | 'request';
+  export type TicketType = 'triggered_at_wrong_time' | 'did_not_trigger';
   export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
   export type UserRelationStatus = 'blocked' | 'not_following' | 'following';
 }
@@ -482,7 +482,7 @@ declare namespace App.Data {
     createGameForumTopic?: boolean;
     createMessageThreads?: boolean;
     createModerationReports?: boolean;
-    createTriggerTicket?: boolean;
+    createTicket?: boolean;
     createUserBetaFeedbackSubmission?: boolean;
     createUsernameChangeRequest?: boolean;
     deleteForumTopic?: boolean;
@@ -1139,7 +1139,7 @@ declare namespace App.Platform.Data {
   export type ReportAchievementIssuePageProps = {
     achievement: App.Platform.Data.Achievement;
     hasSession: boolean;
-    ticketType: number;
+    ticketType: App.Community.Enums.TicketType;
     extra: string | null;
     can: App.Data.UserPermissions;
   };
@@ -1170,7 +1170,7 @@ declare namespace App.Platform.Data {
   export type Ticket = {
     id: number;
     ticketableType: App.Platform.Enums.TicketableType;
-    state?: number;
+    state?: App.Community.Enums.TicketState;
     ticketable?:
       | App.Platform.Data.Achievement
       | App.Platform.Data.Leaderboard
@@ -1288,7 +1288,7 @@ declare namespace App.Platform.Enums {
     | 'hacks_beaten'
     | 'all_beaten';
   export type ReleasedAtGranularity = 'day' | 'month' | 'year';
-  export type TicketableType = 'achievement' | 'leaderboard' | 'rich-presence';
+  export type TicketableType = 'achievement' | 'leaderboard' | 'game.rich-presence';
   export type TriggerableType = 'achievement' | 'leaderboard' | 'game';
 }
 declare namespace App.Platform.Services.GameSuggestions.Enums {

@@ -48,7 +48,7 @@ if (addArticleComment($userModel->username, $commentableType, $commentableId, $i
     // If a user is responding to a ticket in the Request state,
     // automatically change the state back to Open.
     if ($commentableType === CommentableType::AchievementTicket) {
-        if ($commentable->ReportState === TicketState::Request && $commentable->reporter_id === $userModel->id) {
+        if ($commentable->state === TicketState::Request && $commentable->reporter_id === $userModel->id) {
             updateTicket($userModel, $commentableId, TicketState::Open);
         }
     }

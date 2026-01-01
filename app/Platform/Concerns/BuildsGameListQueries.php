@@ -75,10 +75,11 @@ trait BuildsGameListQueries
         if ($user?->can('develop')) {
             $query->addSelect([
                 'num_unresolved_tickets' => Ticket::selectRaw('COUNT(*)')
-                    ->join('achievements', 'Ticket.AchievementID', '=', 'achievements.id')
+                    ->where('ticketable_type', 'achievement')
+                    ->join('achievements', 'tickets.ticketable_id', '=', 'achievements.id')
                     ->whereColumn('achievements.game_id', 'games.id')
                     ->where(DB::raw('achievements.is_promoted'), true)
-                    ->whereIn('Ticket.ReportState', [TicketState::Open, TicketState::Request]),
+                    ->whereIn('tickets.state', [TicketState::Open, TicketState::Request]),
             ]);
         }
 

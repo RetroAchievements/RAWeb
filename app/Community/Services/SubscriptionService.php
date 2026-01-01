@@ -451,10 +451,11 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = Ticket::whereIn('Ticket.ID', $subjectIds)
-            ->join('achievements', 'Ticket.AchievementID', '=', 'achievements.id')
+        $query = Ticket::whereIn(DB::raw('tickets.id'), $subjectIds)
+            ->join('achievements', DB::raw('tickets.ticketable_id'), '=', 'achievements.id')
+            ->where(DB::raw('tickets.ticketable_type'), 'achievement')
             ->select([
-                DB::raw('Ticket.ID as subject_id'),
+                DB::raw('tickets.id as subject_id'),
                 DB::raw('achievements.title as title'),
             ])
             ->orderBy('title');
@@ -500,10 +501,10 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
                 if ($includeReporter) {
                     /** @var Builder<Model> $query3 */
                     $query3 = Ticket::query()
-                        ->where('ID', $ticket->ID)
+                        ->where('id', $ticket->id)
                         ->select([
                             DB::raw('reporter_id as user_id'),
-                            DB::raw('ID as subject_id'),
+                            DB::raw('id as subject_id'),
                         ]);
 
                     $query->union($query3);
@@ -523,10 +524,10 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
                 if ($includeMaintainer) {
                     /** @var Builder<Model> $query4 */
                     $query4 = Ticket::query()
-                        ->where('ID', $ticket->ID)
+                        ->where('id', $ticket->id)
                         ->select([
                             DB::raw($maintainer->id . ' as user_id'),
-                            DB::raw('ID as subject_id'),
+                            DB::raw('id as subject_id'),
                         ]);
 
                     $query->union($query4);
@@ -542,10 +543,10 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
                 ->where('reporter_id', $forUserId)
                 ->select([
                     DB::raw('reporter_id as user_id'),
-                    DB::raw('ID as subject_id'),
+                    DB::raw('id as subject_id'),
                 ]);
             if (!empty($ignoreSubjectIds)) {
-                $query3->whereNotIn('ID', $ignoreSubjectIds);
+                $query3->whereNotIn('id', $ignoreSubjectIds);
             }
             $query->union($query3);
         }

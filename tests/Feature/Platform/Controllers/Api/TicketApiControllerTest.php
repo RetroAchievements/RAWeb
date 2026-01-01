@@ -18,7 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class TriggerTicketApiControllerTest extends TestCase
+class TicketApiControllerTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -45,7 +45,7 @@ class TriggerTicketApiControllerTest extends TestCase
             'ticketableModel' => 'achievement',
             'ticketableId' => $achievement->id,
             'mode' => 'hardcore',
-            'issue' => TicketType::TriggeredAtWrongTime,
+            'issue' => TicketType::TriggeredAtWrongTime->value,
             'description' => 'Test description',
             'emulator' => 'RetroArch',
             'emulatorVersion' => '1.16.0',
@@ -79,7 +79,7 @@ class TriggerTicketApiControllerTest extends TestCase
             'ticketableModel' => 'achievement',
             'ticketableId' => $achievement->id,
             'mode' => 'hardcore',
-            'issue' => TicketType::TriggeredAtWrongTime,
+            'issue' => TicketType::TriggeredAtWrongTime->value,
             'description' => 'Test description',
             'emulator' => 'RetroArch',
             'emulatorVersion' => '1.16.0',
@@ -115,7 +115,7 @@ class TriggerTicketApiControllerTest extends TestCase
             'ticketableModel' => 'achievement',
             'ticketableId' => $achievement->id,
             'mode' => 'hardcore',
-            'issue' => TicketType::TriggeredAtWrongTime,
+            'issue' => TicketType::TriggeredAtWrongTime->value,
             'description' => 'Test description',
             'emulator' => 'RetroArch',
             'emulatorVersion' => '1.16.0',
@@ -126,17 +126,17 @@ class TriggerTicketApiControllerTest extends TestCase
         // Assert
         $response->assertOk();
 
-        $this->assertDatabaseHas('Ticket', [
+        $this->assertDatabaseHas('tickets', [
             'ticketable_author_id' => $developer->id,
-            'AchievementID' => $achievement->id,
+            'ticketable_id' => $achievement->id,
             'reporter_id' => $user->id,
-            'ReportType' => TicketType::TriggeredAtWrongTime,
+            'type' => TicketType::TriggeredAtWrongTime,
             'hardcore' => 1,
             'emulator_id' => $emulator->id,
             'emulator_version' => '1.16.0',
             'emulator_core' => 'mupen64plus',
             'game_hash_id' => $gameHash->id,
-            "ReportNotes" => "Test description", // emulator data is not captured when an emulator record is found
+            "body" => "Test description", // emulator data is not captured when an emulator record is found
         ]);
     }
 
@@ -163,7 +163,7 @@ class TriggerTicketApiControllerTest extends TestCase
             'ticketableModel' => 'achievement',
             'ticketableId' => $achievement->id,
             'mode' => 'hardcore',
-            'issue' => TicketType::TriggeredAtWrongTime,
+            'issue' => TicketType::TriggeredAtWrongTime->value,
             'description' => 'Test description',
             'emulator' => 'RetroArch',
             'emulatorVersion' => '1.16.0',
@@ -175,8 +175,8 @@ class TriggerTicketApiControllerTest extends TestCase
         // Assert
         $response->assertOk();
 
-        $this->assertDatabaseHas('Ticket', [
-            "ReportNotes" => "Test description\n\n" .
+        $this->assertDatabaseHas('tickets', [
+            "body" => "Test description\n\n" .
                 "Rich Presence at time of trigger:\n" .
                 "🐺Link 🗺️Death Mountain ❤️3/3 👥1/4 🧿0/4 👻0/60 🐜0/24 💀5 🕙12:00 AM🌙\n" .
                 "Emulator: RetroArch (mupen64plus)\n" .
@@ -205,8 +205,8 @@ class TriggerTicketApiControllerTest extends TestCase
         // !!! the user already has a ticket open !!!
         $existingTicket = Ticket::factory()->create([
             'reporter_id' => $user->id,
-            'AchievementID' => $achievement->id,
-            'ReportState' => TicketState::Open,
+            'ticketable_id' => $achievement->id,
+            'state' => TicketState::Open,
         ]);
 
         // Act
@@ -214,7 +214,7 @@ class TriggerTicketApiControllerTest extends TestCase
             'ticketableModel' => 'achievement',
             'ticketableId' => $achievement->id,
             'mode' => 'hardcore',
-            'issue' => 1,
+            'issue' => TicketType::TriggeredAtWrongTime->value,
             'description' => 'Test description',
             'emulator' => 'RetroArch',
             'emulatorVersion' => '1.9.0',
@@ -254,7 +254,7 @@ class TriggerTicketApiControllerTest extends TestCase
             'ticketableModel' => 'achievement',
             'ticketableId' => $achievement->id,
             'mode' => 'hardcore',
-            'issue' => 1,
+            'issue' => TicketType::TriggeredAtWrongTime->value,
             'description' => 'Test description',
             'emulator' => 'RAP64',
             'emulatorVersion' => '1.9.0',
@@ -265,8 +265,8 @@ class TriggerTicketApiControllerTest extends TestCase
         // Assert
         $response->assertOk();
 
-        $this->assertDatabaseHas('Ticket', [
-            'ReportNotes' => "Test description\n\n" .
+        $this->assertDatabaseHas('tickets', [
+            'body' => "Test description\n\n" .
                 "Emulator: RAP64\n" .
                 "Emulator Version: 1.9.0",
         ]);

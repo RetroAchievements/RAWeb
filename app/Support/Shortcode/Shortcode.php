@@ -255,9 +255,9 @@ final class Shortcode
                     break;
 
                 case 'ticketIds':
-                    $results[$key] = Ticket::whereIn('ID', $ids)
+                    $results[$key] = Ticket::whereIn('id', $ids)
                         ->get()->mapWithKeys(function ($ticket) {
-                            return [$ticket->ID => $ticket];
+                            return [$ticket->id => $ticket];
                         });
                     break;
 

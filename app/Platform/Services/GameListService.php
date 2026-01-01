@@ -42,12 +42,13 @@ class GameListService
     public function initializeGameList(array $gameIds, bool $allowNonGameSystems = false): void
     {
         if ($this->withTicketCounts) {
-            $gameTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
-                ->join('achievements', 'achievements.id', '=', 'Ticket.AchievementID')
+            $gameTicketsList = Ticket::whereIn('state', [TicketState::Open, TicketState::Request])
+                ->join('achievements', 'achievements.id', '=', 'tickets.ticketable_id')
+                ->where(DB::raw('tickets.ticketable_type'), 'achievement')
                 ->whereIn('achievements.game_id', $gameIds)
                 ->where(DB::raw('achievements.is_promoted'), true)
                 ->select(['game_id',
-                    DB::raw('COUNT(Ticket.ID) AS NumTickets'),
+                    DB::raw('COUNT(tickets.id) AS NumTickets'),
                 ])
                 ->groupBy('game_id')
                 ->get()

@@ -72,7 +72,7 @@ class FetchDynamicShortcodeContentAction
         }
 
         return Ticket::with('achievement')
-            ->whereIn('ID', $ticketIds)
+            ->whereIn('id', $ticketIds)
             ->get()
             ->map(fn (Ticket $ticket) => TicketData::fromTicket($ticket)->include('state', 'ticketable'));
     }

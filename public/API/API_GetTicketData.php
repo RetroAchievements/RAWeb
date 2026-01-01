@@ -165,8 +165,14 @@ if ($ticketID > 0) {
         return response()->json(['error' => "Ticket ID $ticketID not found"], 404);
     }
 
-    $ticketData['ReportStateDescription'] = TicketState::toString($ticketData['ReportState']);
-    $ticketData['ReportTypeDescription'] = TicketType::toString($ticketData['ReportType']);
+    // Convert string enum values to legacy integers for backwards compatibility.
+    $ticketState = TicketState::from($ticketData['ReportState']);
+    $ticketType = TicketType::from($ticketData['ReportType']);
+
+    $ticketData['ReportState'] = $ticketState->toLegacyInteger();
+    $ticketData['ReportStateDescription'] = $ticketState->label();
+    $ticketData['ReportType'] = $ticketType->toLegacyInteger();
+    $ticketData['ReportTypeDescription'] = $ticketType->label();
 
     $ticketData['URL'] = route('ticket.show', ['ticket' => $ticketID]);
 
@@ -204,22 +210,23 @@ if (!empty($assignedToUser)) {
 
     $userTicketInfo = getTicketsForUser($foundUser);
     foreach ($userTicketInfo as $ticket) {
-        switch ($ticket['ReportState']) {
-            case TicketState::Closed:
+        $ticketState = $ticket['state'];
+        switch ($ticketState) {
+            case TicketState::Closed->value:
                 $ticketData['Closed'] += $ticket['TicketCount'];
                 $ticketData['Total'] += $ticket['TicketCount'];
                 break;
-            case TicketState::Open:
+            case TicketState::Open->value:
                 $ticketData['Open'] += $ticket['TicketCount'];
                 $ticketData['Total'] += $ticket['TicketCount'];
                 break;
-            case TicketState::Resolved:
+            case TicketState::Resolved->value:
                 $ticketData['Resolved'] += $ticket['TicketCount'];
                 $ticketData['Total'] += $ticket['TicketCount'];
                 break;
         }
-        if ($prevID != $ticket['AchievementID']) {
-            $prevID = $ticket['AchievementID'];
+        if ($prevID != $ticket['ticketable_id']) {
+            $prevID = $ticket['ticketable_id'];
         }
     }
     $ticketData['URL'] = route('developer.tickets', ['user' => $foundUser->display_name]);
@@ -231,7 +238,8 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
     $result = [];
 
     $tickets = $builder->with(['achievement.game.system', 'reporter', 'resolver'])
-       ->orderBy('ReportedAt', 'DESC')
+       ->orderBy('created_at', 'DESC')
+       ->orderBy('id', 'DESC')
        ->offset($offset)
        ->take($count)
        ->get();
@@ -241,7 +249,7 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
     /** @var Ticket $ticket */
     foreach ($tickets as $ticket) {
         $result[] = [
-            'ID' => $ticket->ID,
+            'ID' => $ticket->id,
             'AchievementID' => $ticket->achievement->id,
             'AchievementTitle' => $ticket->achievement->title,
             'AchievementDesc' => $ticket->achievement->description,
@@ -254,18 +262,18 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
             'ConsoleName' => $ticket->achievement->game->system->name,
             'GameTitle' => $ticket->achievement->game->title,
             'GameIcon' => $ticket->achievement->game->image_icon_asset_path,
-            'ReportedAt' => $ticket->ReportedAt->__toString(),
-            'ReportType' => $ticket->ReportType,
-            'ReportTypeDescription' => TicketType::toString($ticket->ReportType),
-            'ReportNotes' => $ticket->ReportNotes,
+            'ReportedAt' => $ticket->created_at->__toString(),
+            'ReportType' => $ticket->type->toLegacyInteger(),
+            'ReportTypeDescription' => $ticket->type->label(),
+            'ReportNotes' => $ticket->body,
             'ReportedBy' => $ticket->reporter?->display_name,
             'ReportedByULID' => $ticket->reporter?->ulid,
-            'ResolvedAt' => $ticket->ResolvedAt?->__toString(),
+            'ResolvedAt' => $ticket->resolved_at?->__toString(),
             'ResolvedBy' => $ticket->resolver?->display_name,
             'ResolvedByULID' => $ticket->resolver?->ulid,
-            'ReportState' => $ticket->ReportState,
-            'ReportStateDescription' => TicketState::toString($ticket->ReportState),
-            'Hardcore' => $ticket->Hardcore,
+            'ReportState' => $ticket->state->toLegacyInteger(),
+            'ReportStateDescription' => $ticket->state->label(),
+            'Hardcore' => $ticket->hardcore,
         ];
     }
 

@@ -438,8 +438,8 @@ class BuildGameListActionTest extends TestCase
         $achievement1001 = Achievement::factory()->promoted()->create(['game_id' => 1001]);
         $achievement1003 = Achievement::factory()->promoted()->create(['game_id' => 1003]);
 
-        Ticket::factory()->count(3)->create(['AchievementID' => $achievement1001->id, 'ReportState' => TicketState::Open]);
-        Ticket::factory()->count(27)->create(['AchievementID' => $achievement1003->id, 'ReportState' => TicketState::Closed]);
+        Ticket::factory()->count(3)->create(['ticketable_id' => $achievement1001->id, 'state' => TicketState::Open]);
+        Ticket::factory()->count(27)->create(['ticketable_id' => $achievement1003->id, 'state' => TicketState::Closed]);
 
         // Act
         $result = (new BuildGameListAction())->execute(
@@ -492,8 +492,8 @@ class BuildGameListActionTest extends TestCase
         $achievement1001 = Achievement::factory()->promoted()->create(['game_id' => 1001]);
         $achievement1003 = Achievement::factory()->promoted()->create(['game_id' => 1003]);
 
-        Ticket::factory()->count(3)->create(['AchievementID' => $achievement1001->id, 'ReportState' => TicketState::Open]);
-        Ticket::factory()->count(27)->create(['AchievementID' => $achievement1003->id, 'ReportState' => TicketState::Closed]);
+        Ticket::factory()->count(3)->create(['ticketable_id' => $achievement1001->id, 'state' => TicketState::Open]);
+        Ticket::factory()->count(27)->create(['ticketable_id' => $achievement1003->id, 'state' => TicketState::Closed]);
 
         // Act
         $result = (new BuildGameListAction())->execute(

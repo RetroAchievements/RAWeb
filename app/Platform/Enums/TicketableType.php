@@ -11,5 +11,5 @@ enum TicketableType: string
 {
     case Achievement = 'achievement';
     case Leaderboard = 'leaderboard';
-    case RichPresence = 'rich-presence';
+    case RichPresence = 'game.rich-presence';
 }

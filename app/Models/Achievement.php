@@ -11,6 +11,7 @@ use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\TicketableType;
 use App\Platform\Events\AchievementCreated;
 use App\Platform\Events\AchievementDeleted;
 use App\Platform\Events\AchievementMoved;
@@ -510,7 +511,8 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function tickets()
     {
-        return $this->hasMany(Ticket::class, 'AchievementID');
+        return $this->hasMany(Ticket::class, 'ticketable_id')
+            ->where('ticketable_type', TicketableType::Achievement);
     }
 
     /**

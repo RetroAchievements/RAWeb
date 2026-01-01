@@ -727,7 +727,7 @@ final class ShortcodeTest extends TestCase
         /** @var Ticket $ticket */
         $ticket = Ticket::factory()->create([
             'id' => 12345,
-            'AchievementID' => $achievement->id,
+            'ticketable_id' => $achievement->id,
         ]);
 
         // Act

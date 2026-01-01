@@ -62,12 +62,13 @@ class DeveloperSetsService
         $gameIDs = array_keys($gameAuthoredAchievementsList) +
             array_keys($gameAuthoredLeaderboardsList);
 
-        $gameAuthoredTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
-            ->join('achievements', 'achievements.id', '=', 'Ticket.AchievementID')
+        $gameAuthoredTicketsList = Ticket::whereIn('state', [TicketState::Open, TicketState::Request])
+            ->where('ticketable_type', 'achievement')
+            ->join('achievements', 'achievements.id', '=', 'tickets.ticketable_id')
             ->whereIn('achievements.game_id', $gameIDs)
             ->where(DB::raw('achievements.user_id'), $user->id)
             ->select(['game_id',
-                DB::raw('COUNT(Ticket.ID) AS NumAuthoredTickets'),
+                DB::raw('COUNT(tickets.id) AS NumAuthoredTickets'),
             ])
             ->groupBy('game_id')
             ->get()

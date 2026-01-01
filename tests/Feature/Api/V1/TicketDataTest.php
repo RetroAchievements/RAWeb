@@ -30,15 +30,15 @@ class TicketDataTest extends TestCase
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Ticket $ticket */
         $ticket = Ticket::factory()->create([
-            'AchievementID' => $achievement->id,
+            'ticketable_id' => $achievement->id,
             'reporter_id' => $this->user->id,
             'ticketable_author_id' => $achievement->user_id,
         ]);
 
-        $this->get($this->apiUrl('GetTicketData', ['i' => $ticket->ID]))
+        $this->get($this->apiUrl('GetTicketData', ['i' => $ticket->id]))
             ->assertSuccessful()
             ->assertJson([
-                'ID' => $ticket->ID,
+                'ID' => $ticket->id,
                 'AchievementID' => $achievement->id,
                 'AchievementTitle' => $achievement->title,
                 'AchievementDesc' => $achievement->description,
@@ -50,19 +50,19 @@ class TicketDataTest extends TestCase
                 'GameTitle' => $game->title,
                 'GameIcon' => $game->image_icon_asset_path,
                 'ConsoleName' => $system->name,
-                'ReportedAt' => $ticket->ReportedAt->__toString(),
+                'ReportedAt' => $ticket->created_at->__toString(),
                 'ReportType' => 2,
                 'ReportTypeDescription' => 'Did not trigger',
                 'ReportState' => 1,
                 'ReportStateDescription' => 'Open',
                 'Hardcore' => 1,
-                'ReportNotes' => $ticket->ReportNotes,
+                'ReportNotes' => $ticket->body,
                 'ReportedBy' => $this->user->username,
                 'ReportedByULID' => $this->user->ulid,
                 'ResolvedAt' => null,
                 'ResolvedBy' => null,
                 'ResolvedByULID' => null,
-                'URL' => config('app.url') . '/ticket/' . $ticket->ID,
+                'URL' => config('app.url') . '/ticket/' . $ticket->id,
             ]);
     }
 
@@ -76,7 +76,7 @@ class TicketDataTest extends TestCase
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
         /** @var Ticket $ticket */
         $ticket = Ticket::factory()->create([
-            'AchievementID' => $achievement->id,
+            'ticketable_id' => $achievement->id,
             'reporter_id' => $this->user->id,
             'ticketable_author_id' => $achievement->user_id,
         ]);
@@ -88,9 +88,9 @@ class TicketDataTest extends TestCase
         $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game2->id]);
         /** @var Ticket $ticket2 */
         $ticket2 = Ticket::factory()->create([
-            'AchievementID' => $achievement2->id,
-            'reporter_id' => $user2->id, 'Hardcore' => 0,
-            'ReportType' => TicketType::TriggeredAtWrongTime,
+            'ticketable_id' => $achievement2->id,
+            'reporter_id' => $user2->id, 'hardcore' => 0,
+            'type' => TicketType::TriggeredAtWrongTime,
             'ticketable_author_id' => $achievement2->user_id,
         ]);
         /** @var User $user3 */
@@ -100,9 +100,9 @@ class TicketDataTest extends TestCase
         /** @var Achievement $achievement3 */
         $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game3->id]);
         Ticket::factory()->create([
-            'AchievementID' => $achievement3->id,
-            'reporter_id' => $user2->id, 'ReportState' => TicketState::Resolved,
-            'resolver_id' => $user3->id, 'ResolvedAt' => Carbon::now(),
+            'ticketable_id' => $achievement3->id,
+            'reporter_id' => $user2->id, 'state' => TicketState::Resolved,
+            'resolver_id' => $user3->id, 'resolved_at' => Carbon::now(),
             'ticketable_author_id' => $achievement3->user_id,
         ]);
 
@@ -111,7 +111,7 @@ class TicketDataTest extends TestCase
             ->assertJson([
                 'RecentTickets' => [ // tickets returned newest id first (open only)
                     [
-                        'ID' => $ticket2->ID,
+                        'ID' => $ticket2->id,
                         'AchievementID' => $achievement2->id,
                         'AchievementTitle' => $achievement2->title,
                         'AchievementDesc' => $achievement2->description,
@@ -123,13 +123,13 @@ class TicketDataTest extends TestCase
                         'GameTitle' => $game2->title,
                         'GameIcon' => $game2->image_icon_asset_path,
                         'ConsoleName' => $system->name,
-                        'ReportedAt' => $ticket2->ReportedAt->__toString(),
+                        'ReportedAt' => $ticket2->created_at->__toString(),
                         'ReportType' => 1,
                         'ReportTypeDescription' => 'Triggered at the wrong time',
                         'ReportState' => 1,
                         'ReportStateDescription' => 'Open',
                         'Hardcore' => 0,
-                        'ReportNotes' => $ticket2->ReportNotes,
+                        'ReportNotes' => $ticket2->body,
                         'ReportedBy' => $user2->username,
                         'ReportedByULID' => $user2->ulid,
                         'ResolvedAt' => null,
@@ -137,7 +137,7 @@ class TicketDataTest extends TestCase
                         'ResolvedByULID' => null,
                     ],
                     [
-                        'ID' => $ticket->ID,
+                        'ID' => $ticket->id,
                         'AchievementID' => $achievement->id,
                         'AchievementTitle' => $achievement->title,
                         'AchievementDesc' => $achievement->description,
@@ -149,13 +149,13 @@ class TicketDataTest extends TestCase
                         'GameTitle' => $game->title,
                         'GameIcon' => $game->image_icon_asset_path,
                         'ConsoleName' => $system->name,
-                        'ReportedAt' => $ticket->ReportedAt->__toString(),
+                        'ReportedAt' => $ticket->created_at->__toString(),
                         'ReportType' => 2,
                         'ReportTypeDescription' => 'Did not trigger',
                         'ReportState' => 1,
                         'ReportStateDescription' => 'Open',
                         'Hardcore' => 1,
-                        'ReportNotes' => $ticket->ReportNotes,
+                        'ReportNotes' => $ticket->body,
                         'ReportedBy' => $this->user->username,
                         'ReportedByULID' => $this->user->ulid,
                         'ResolvedAt' => null,
@@ -184,21 +184,21 @@ class TicketDataTest extends TestCase
 
         for ($i = 0; $i < 1; $i++) {
             Ticket::factory()->create([
-                'AchievementID' => $achievements->get($i)->id,
+                'ticketable_id' => $achievements->get($i)->id,
                 'reporter_id' => $this->user->id,
                 'ticketable_author_id' => $achievements->get($i)->user_id,
             ]);
         }
         for ($i = 0; $i < 5; $i++) {
             Ticket::factory()->create([
-                'AchievementID' => $achievements2->get($i)->id,
+                'ticketable_id' => $achievements2->get($i)->id,
                 'reporter_id' => $this->user->id,
                 'ticketable_author_id' => $achievements2->get($i)->user_id,
             ]);
         }
         for ($i = 0; $i < 3; $i++) {
             Ticket::factory()->create([
-                'AchievementID' => $achievements3->get($i)->id,
+                'ticketable_id' => $achievements3->get($i)->id,
                 'reporter_id' => $this->user->id,
                 'ticketable_author_id' => $achievements3->get($i)->user_id,
             ]);
@@ -244,7 +244,7 @@ class TicketDataTest extends TestCase
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket */
         $ticket = Ticket::factory()->create([
-            'AchievementID' => $achievement->id,
+            'ticketable_id' => $achievement->id,
             'reporter_id' => $this->user->id,
             'ticketable_author_id' => $achievement->user_id,
         ]);
@@ -256,10 +256,10 @@ class TicketDataTest extends TestCase
         $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game2->id, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket2 */
         $ticket2 = Ticket::factory()->create([
-            'AchievementID' => $achievement2->id,
+            'ticketable_id' => $achievement2->id,
             'reporter_id' => $user2->id,
-            'Hardcore' => 0,
-            'ReportType' => TicketType::TriggeredAtWrongTime,
+            'hardcore' => 0,
+            'type' => TicketType::TriggeredAtWrongTime,
             'ticketable_author_id' => $achievement2->user_id,
         ]);
         /** @var User $user3 */
@@ -269,11 +269,11 @@ class TicketDataTest extends TestCase
         /** @var Achievement $achievement3 */
         $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game3->id, 'user_id' => $this->user->id]);
         Ticket::factory()->create([
-            'AchievementID' => $achievement3->id,
+            'ticketable_id' => $achievement3->id,
             'reporter_id' => $user2->id,
-            'ReportState' => TicketState::Resolved,
+            'state' => TicketState::Resolved,
             'resolver_id' => $user3->id,
-            'ResolvedAt' => Carbon::now(),
+            'resolved_at' => Carbon::now(),
             'ticketable_author_id' => $achievement3->user_id,
         ]);
 
@@ -300,7 +300,7 @@ class TicketDataTest extends TestCase
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket */
         $ticket = Ticket::factory()->create([
-            'AchievementID' => $achievement->id,
+            'ticketable_id' => $achievement->id,
             'reporter_id' => $this->user->id,
             'ticketable_author_id' => $achievement->user_id,
         ]);
@@ -312,10 +312,10 @@ class TicketDataTest extends TestCase
         $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game2->id, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket2 */
         $ticket2 = Ticket::factory()->create([
-            'AchievementID' => $achievement2->id,
+            'ticketable_id' => $achievement2->id,
             'reporter_id' => $user2->id,
-            'Hardcore' => 0,
-            'ReportType' => TicketType::TriggeredAtWrongTime,
+            'hardcore' => 0,
+            'type' => TicketType::TriggeredAtWrongTime,
             'ticketable_author_id' => $achievement2->user_id,
         ]);
         /** @var User $user3 */
@@ -325,11 +325,11 @@ class TicketDataTest extends TestCase
         /** @var Achievement $achievement3 */
         $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game3->id, 'user_id' => $this->user->id]);
         Ticket::factory()->create([
-            'AchievementID' => $achievement3->id,
+            'ticketable_id' => $achievement3->id,
             'reporter_id' => $user2->id,
-            'ReportState' => TicketState::Resolved,
+            'state' => TicketState::Resolved,
             'resolver_id' => $user3->id,
-            'ResolvedAt' => Carbon::now(),
+            'resolved_at' => Carbon::now(),
             'ticketable_author_id' => $achievement3->user_id,
         ]);
 
@@ -364,16 +364,16 @@ class TicketDataTest extends TestCase
 
         /** @var Ticket $ticket */
         $ticket = Ticket::factory()->create([
-            'AchievementID' => $achievement1->id,
+            'ticketable_id' => $achievement1->id,
             'reporter_id' => $this->user->id,
             'ticketable_author_id' => $achievement1->user_id,
         ]);
         /** @var Ticket $ticket2 */
         $ticket2 = Ticket::factory()->create([
-            'AchievementID' => $achievement2->id,
+            'ticketable_id' => $achievement2->id,
             'reporter_id' => $this->user->id,
-            'Hardcore' => 0,
-            'ReportType' => TicketType::TriggeredAtWrongTime,
+            'hardcore' => 0,
+            'type' => TicketType::TriggeredAtWrongTime,
             'ticketable_author_id' => $achievement2->user_id,
         ]);
 
@@ -385,7 +385,7 @@ class TicketDataTest extends TestCase
                 'OpenTickets' => 2,
                 'Tickets' => [ // tickets returned newest id first (open only)
                     [
-                        'ID' => $ticket2->ID,
+                        'ID' => $ticket2->id,
                         'AchievementID' => $achievement2->id,
                         'AchievementTitle' => $achievement2->title,
                         'AchievementDesc' => $achievement2->description,
@@ -397,13 +397,13 @@ class TicketDataTest extends TestCase
                         'GameTitle' => $game->title,
                         'GameIcon' => $game->image_icon_asset_path,
                         'ConsoleName' => $system->name,
-                        'ReportedAt' => $ticket2->ReportedAt->__toString(),
+                        'ReportedAt' => $ticket2->created_at->__toString(),
                         'ReportType' => 1,
                         'ReportTypeDescription' => 'Triggered at the wrong time',
                         'ReportState' => 1,
                         'ReportStateDescription' => 'Open',
                         'Hardcore' => 0,
-                        'ReportNotes' => $ticket2->ReportNotes,
+                        'ReportNotes' => $ticket2->body,
                         'ReportedBy' => $this->user->username,
                         'ReportedByULID' => $this->user->ulid,
                         'ResolvedAt' => null,
@@ -411,7 +411,7 @@ class TicketDataTest extends TestCase
                         'ResolvedByULID' => null,
                     ],
                     [
-                        'ID' => $ticket->ID,
+                        'ID' => $ticket->id,
                         'AchievementID' => $achievement1->id,
                         'AchievementTitle' => $achievement1->title,
                         'AchievementDesc' => $achievement1->description,
@@ -423,13 +423,13 @@ class TicketDataTest extends TestCase
                         'GameTitle' => $game->title,
                         'GameIcon' => $game->image_icon_asset_path,
                         'ConsoleName' => $system->name,
-                        'ReportedAt' => $ticket->ReportedAt->__toString(),
+                        'ReportedAt' => $ticket->created_at->__toString(),
                         'ReportType' => 2,
                         'ReportTypeDescription' => 'Did not trigger',
                         'ReportState' => 1,
                         'ReportStateDescription' => 'Open',
                         'Hardcore' => 1,
-                        'ReportNotes' => $ticket->ReportNotes,
+                        'ReportNotes' => $ticket->body,
                         'ReportedBy' => $this->user->username,
                         'ReportedByULID' => $this->user->ulid,
                         'ResolvedAt' => null,
@@ -451,7 +451,7 @@ class TicketDataTest extends TestCase
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket */
         $ticket = Ticket::factory()->create([
-            'AchievementID' => $achievement->id,
+            'ticketable_id' => $achievement->id,
             'reporter_id' => $this->user->id,
             'ticketable_author_id' => $achievement->user_id,
         ]);
@@ -459,10 +459,10 @@ class TicketDataTest extends TestCase
         $user2 = User::factory()->create();
         /** @var Ticket $ticket2 */
         $ticket2 = Ticket::factory()->create([
-            'AchievementID' => $achievement->id,
+            'ticketable_id' => $achievement->id,
             'reporter_id' => $user2->id,
-            'Hardcore' => 0,
-            'ReportType' => TicketType::TriggeredAtWrongTime,
+            'hardcore' => 0,
+            'type' => TicketType::TriggeredAtWrongTime,
             'ticketable_author_id' => $achievement->user_id,
         ]);
 

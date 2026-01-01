@@ -200,9 +200,9 @@ class SendDailyDigestAction
     {
         $result = [];
 
-        $tickets = Ticket::whereIn('ID', $ids)->with('achievement')->get();
+        $tickets = Ticket::whereIn('id', $ids)->with('achievement')->get();
         foreach ($tickets as $ticket) {
-            $result[$ticket->ID] = "{$ticket->achievement->title}";
+            $result[$ticket->id] = "{$ticket->achievement->title}";
         }
 
         return $result;

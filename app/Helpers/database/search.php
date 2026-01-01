@@ -169,14 +169,14 @@ function performSearch(
             AND cua.username != 'Server' AND c.commentable_type IN (" . $commentableTypesQuoted . ")
             AND ua.deleted_at IS NULL AND (ua.is_user_wall_active OR ua.is_user_wall_active IS NULL)";
 
-        // If searching ticket comments, also count ReportNotes from tickets.
+        // If searching ticket comments, also count body from tickets.
         if ($includeTicketComments) {
             $countsQuery = "SELECT SUM(Count) AS Count FROM (
                 $countsQuery
                 UNION ALL
-                SELECT COUNT(*) AS Count FROM Ticket AS t
+                SELECT COUNT(*) AS Count FROM tickets AS t
                 LEFT JOIN users AS reporter ON reporter.id=t.reporter_id
-                WHERE t.ReportNotes LIKE '%$searchQuery%'
+                WHERE t.body LIKE '%$searchQuery%'
                 AND reporter.username != 'Server'
                 AND t.deleted_at IS NULL
             ) AS combined_counts";
@@ -221,7 +221,7 @@ function performSearch(
             AND cua.username != 'Server' AND c.commentable_type IN (" . $commentableTypesQuoted . ")
             AND ua.deleted_at IS NULL AND (ua.is_user_wall_active OR ua.is_user_wall_active IS NULL)";
 
-        // If searching ticket comments, also include ReportNotes from tickets via a UNION.
+        // If searching ticket comments, also include body from tickets via a UNION.
         if ($includeTicketComments) {
             $partsQuery = "
                 SELECT Type, ID, Target, Title, SortDate FROM (
@@ -229,15 +229,15 @@ function performSearch(
                     UNION ALL
                     SELECT " . SearchType::TicketComment . " AS Type,
                         reporter.username AS ID,
-                        CONCAT('/ticket/', t.ID) AS Target,
+                        CONCAT('/ticket/', t.id) AS Target,
                         CASE
-                            WHEN CHAR_LENGTH(t.ReportNotes) <= 64 THEN t.ReportNotes
-                            ELSE CONCAT( '...', MID( t.ReportNotes, GREATEST( LOCATE('$searchQuery', t.ReportNotes)-25, 1), 60 ), '...' )
+                            WHEN CHAR_LENGTH(t.body) <= 64 THEN t.body
+                            ELSE CONCAT( '...', MID( t.body, GREATEST( LOCATE('$searchQuery', t.body)-25, 1), 60 ), '...' )
                         END AS Title,
-                        t.ReportedAt AS SortDate
-                    FROM Ticket AS t
+                        t.created_at AS SortDate
+                    FROM tickets AS t
                     LEFT JOIN users AS reporter ON reporter.id=t.reporter_id
-                    WHERE t.ReportNotes LIKE '%$searchQuery%'
+                    WHERE t.body LIKE '%$searchQuery%'
                     AND reporter.username != 'Server'
                     AND t.deleted_at IS NULL
                 ) AS combined_results

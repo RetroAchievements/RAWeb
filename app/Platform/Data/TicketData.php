@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Data;
 
+use App\Community\Enums\TicketState;
 use App\Models\Ticket;
 use App\Platform\Enums\TicketableType;
 use Spatie\LaravelData\Data;
@@ -16,7 +17,7 @@ class TicketData extends Data
     public function __construct(
         public int $id,
         public TicketableType $ticketableType,
-        public Lazy|int $state,
+        public Lazy|TicketState $state,
         public Lazy|AchievementData|LeaderboardData|GameData $ticketable,
     ) {
     }

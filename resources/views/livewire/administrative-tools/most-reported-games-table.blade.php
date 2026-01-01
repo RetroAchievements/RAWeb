@@ -73,35 +73,36 @@ new class extends Component implements HasForms, HasTable, HasActions {
     {
         $oldestTicketSubquery = Ticket::unresolved()
             ->officialCore()
-            ->select('AchievementID', DB::raw('MIN(ReportedAt) as OldestTicketDate'))
-            ->groupBy('AchievementID');
+            ->select('ticketable_id', DB::raw('MIN(created_at) as OldestTicketDate'))
+            ->groupBy('ticketable_id');
 
         $newestTicketSubquery = Ticket::unresolved()
             ->officialCore()
-            ->select('AchievementID', DB::raw('MAX(ReportedAt) as NewestTicketDate'))
-            ->groupBy('AchievementID');
+            ->select('ticketable_id', DB::raw('MAX(created_at) as NewestTicketDate'))
+            ->groupBy('ticketable_id');
 
         return (
             Ticket::unresolved()
                 ->officialCore()
-                ->join('achievements', 'achievements.id', '=', 'Ticket.AchievementID')
+                ->join('achievements', 'achievements.id', '=', 'tickets.ticketable_id')
                 ->join('games', 'games.id', '=', 'achievements.game_id')
                 ->join('systems', 'systems.id', '=', 'games.system_id')
                 ->leftJoinSub($oldestTicketSubquery, 'oldest_tickets', function ($join) {
-                    $join->on('Ticket.AchievementID', '=', 'oldest_tickets.AchievementID');
+                    $join->on('tickets.ticketable_id', '=', 'oldest_tickets.ticketable_id');
                 })
                 ->leftJoinSub($newestTicketSubquery, 'newest_tickets', function ($join) {
-                    $join->on('Ticket.AchievementID', '=', 'newest_tickets.AchievementID');
+                    $join->on('tickets.ticketable_id', '=', 'newest_tickets.ticketable_id');
                 })
                 ->select(
+                    DB::raw('MIN(tickets.id) as id'),
                     'games.id as ID',
                     'games.title as Title',
                     'games.system_id as ConsoleID',
                     'games.image_icon_asset_path as ImageIcon',
                     'games.players_total',
                     'systems.name as ConsoleName',
-                    DB::raw('count(Ticket.ID) AS TicketCount'),
-                    DB::raw('count(DISTINCT Ticket.AchievementID) AS UniquelyTicketedAchievements'),
+                    DB::raw('count(tickets.id) AS TicketCount'),
+                    DB::raw('count(DISTINCT tickets.ticketable_id) AS UniquelyTicketedAchievements'),
                     DB::raw('MIN(oldest_tickets.OldestTicketDate) AS OldestTicketDate'),
                     DB::raw('MAX(newest_tickets.NewestTicketDate) AS NewestTicketDate'),
                 )
