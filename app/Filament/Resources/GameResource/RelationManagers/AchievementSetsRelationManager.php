@@ -156,7 +156,7 @@ class AchievementSetsRelationManager extends RelationManager
                                                 /** @var Builder<GameAchievementSet> $query */
                                                 $query->core()->whereIn('achievement_set_id', $attachedAchievementSetIds);
                                             })
-                                            ->orderBy('Title')
+                                            ->orderBy('title')
                                             ->with('system')
                                             ->get()
                                             ->mapWithKeys(function ($game) {

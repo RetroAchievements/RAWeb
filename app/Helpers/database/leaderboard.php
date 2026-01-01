@@ -139,7 +139,7 @@ function SubmitLeaderboardEntry(
     $retVal['TopEntriesFriends'] = $getEntries($entries->whereHas('user', function ($query) use ($user) {
         $friends = $user->followedUsers()->pluck('related_user_id');
         $friends[] = $user->id;
-        $query->whereIn('ID', $friends);
+        $query->whereIn('id', $friends);
     })->getQuery());
 
     return $retVal;

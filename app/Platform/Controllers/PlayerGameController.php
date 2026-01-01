@@ -180,9 +180,9 @@ class PlayerGameController extends Controller
 
         $resettableGameAchievements = $user
             ->achievements()
-            ->where('GameID', $game->id)
+            ->where('game_id', $game->id)
             ->withPivot(['unlocked_at', 'unlocked_hardcore_at'])
-            ->orderBy('Title')
+            ->orderBy('title')
             ->get()
             ->map(function ($unlockedAchievement) {
                 return new PlayerResettableGameAchievementData(

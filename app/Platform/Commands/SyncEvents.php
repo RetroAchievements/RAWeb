@@ -1177,7 +1177,7 @@ class ConvertCollapse extends ConvertGame
 
                 $achievement->is_promoted = true;
                 $achievement->points = 1;
-                $achievement->title = $event->Title;
+                $achievement->title = $event->title;
                 if (empty(trim($achievement->description))) {
                     $achievement->description = "Earned enough points for the badge";
                 }

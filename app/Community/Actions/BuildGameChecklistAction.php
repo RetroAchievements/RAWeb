@@ -79,7 +79,7 @@ class BuildGameChecklistAction
 
             $gameList = [];
             foreach ($group['gameIds'] as $gameId) {
-                $game = $games->filter(fn ($g) => $g->ID === $gameId)->first();
+                $game = $games->filter(fn ($g) => $g->id === $gameId)->first();
                 if ($game) {
                     $playerGame = $playerGames->filter(fn ($pg) => $pg->game_id === $gameId)->first();
                     if ($playerGame) {
