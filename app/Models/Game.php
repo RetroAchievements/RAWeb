@@ -689,7 +689,7 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
      */
     public function leaderboards(): HasMany
     {
-        return $this->hasMany(Leaderboard::class, 'GameID', 'id');
+        return $this->hasMany(Leaderboard::class, 'game_id', 'id');
     }
 
     /**

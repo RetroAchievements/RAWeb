@@ -56,8 +56,8 @@ trait BuildsGameListQueries
                     ->limit(1),
 
                 'num_visible_leaderboards' => Leaderboard::selectRaw('COUNT(*)')
-                    ->whereColumn('LeaderboardDef.GameID', 'games.id')
-                    ->where(DB::raw('LeaderboardDef.DisplayOrder'), '>=', 0),
+                    ->whereColumn('leaderboards.game_id', 'games.id')
+                    ->where(DB::raw('leaderboards.order_column'), '>=', 0),
             ]);
 
         // Only attempt to fetch the "Requests" column counts if we're on

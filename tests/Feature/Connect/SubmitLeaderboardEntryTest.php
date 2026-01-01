@@ -35,11 +35,11 @@ class SubmitLeaderboardEntryTest extends TestCase
     private function buildLBData(Leaderboard $leaderboard): array
     {
         return [
-            'LeaderboardID' => $leaderboard->ID,
-            'Title' => $leaderboard->Title,
-            'Format' => $leaderboard->Format,
-            'LowerIsBetter' => $leaderboard->LowerIsBetter,
-            'GameID' => $leaderboard->GameID,
+            'LeaderboardID' => $leaderboard->id,
+            'Title' => $leaderboard->title,
+            'Format' => $leaderboard->format,
+            'LowerIsBetter' => $leaderboard->rank_asc,
+            'GameID' => $leaderboard->game_id,
         ];
     }
 
@@ -62,21 +62,21 @@ class SubmitLeaderboardEntryTest extends TestCase
         $game = $this->seedGame();
         $gameHash = $game->hashes()->first();
         /** @var Leaderboard $leaderboard */
-        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
 
         $this->seedEmulatorUserAgents();
 
         // first submission
         $score = $bestScore = 55555;
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->md5]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -98,14 +98,14 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         $score = 44444;
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->md5]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -127,14 +127,14 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         $score = $bestScore = 66666;
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->md5]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -168,7 +168,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         /** @var Game $game */
         $game = $this->seedGame();
         /** @var Leaderboard $leaderboard */
-        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -245,14 +245,14 @@ class SubmitLeaderboardEntryTest extends TestCase
         Carbon::setTestNow($now);
         $score = $bestScore = 6000; // this should make the player rank 5
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -291,14 +291,14 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         $score = 5300;
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -337,14 +337,14 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         $score = $bestScore = 7000; // this should make the player rank 2
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -378,7 +378,7 @@ class SubmitLeaderboardEntryTest extends TestCase
             ]);
 
         // lower is better
-        $leaderboard->LowerIsBetter = 1;
+        $leaderboard->rank_asc = 1;
         $leaderboard->save();
 
         $now4 = $now3->clone()->addMinutes(5)->startOfSecond();
@@ -386,14 +386,14 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         $score = 7100;
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -432,14 +432,14 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         $score = $bestScore = 3526;
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -481,14 +481,14 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         $score = $bestScore = 4500;
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -529,7 +529,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         /** @var Game $game */
         $game = $this->seedGame();
         /** @var Leaderboard $leaderboard */
-        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id, 'Format' => ValueFormat::ValueUnsigned]);
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id, 'format' => ValueFormat::ValueUnsigned]);
 
         $this->seedEmulatorUserAgents();
 
@@ -564,14 +564,14 @@ class SubmitLeaderboardEntryTest extends TestCase
         Carbon::setTestNow($now);
         $score = $bestScore = $oneBillion;
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -595,14 +595,14 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         $score = 800_000_000;
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -627,14 +627,14 @@ class SubmitLeaderboardEntryTest extends TestCase
         // 2.5million is 0x9502F900, which is -1794967296
         $score = $bestScore = -1_794_967_296; // this should make the player rank 2
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -653,7 +653,7 @@ class SubmitLeaderboardEntryTest extends TestCase
             ]);
 
         // lower is better
-        $leaderboard->LowerIsBetter = 1;
+        $leaderboard->rank_asc = 1;
         $leaderboard->save();
 
         $now4 = $now3->clone()->addMinutes(5)->startOfSecond();
@@ -661,14 +661,14 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         $score = -1_594_967_296; // 2.7million -> 0xA0EEBB00 -> -1594967296
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -692,14 +692,14 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         $score = $bestScore = $twoBillion;
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -727,7 +727,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         $game = $this->seedGame();
         $gameHash = $game->hashes()->first();
         /** @var Leaderboard $leaderboard */
-        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -737,14 +737,14 @@ class SubmitLeaderboardEntryTest extends TestCase
         $score = $bestScore = 55555;
         $validationHash = $this->buildValidationHash($leaderboard, $this->user, $score, $offset);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -766,14 +766,14 @@ class SubmitLeaderboardEntryTest extends TestCase
         $score = $bestScore = 66666;
         $validationHash = $this->buildValidationHash($leaderboard, $this->user, $score, $offset);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -794,14 +794,14 @@ class SubmitLeaderboardEntryTest extends TestCase
         $score = $bestScore = 77777;
         $validationHash = $this->buildValidationHash($leaderboard, $this->user, $score, $offset);
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $gameHash->md5, 'o' => $offset, 'v' => $validationHash]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'Response' => [
                     'Success' => true,
                     'Score' => $score,
-                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
                     'BestScore' => $bestScore,
                     'LBData' => $this->buildLBData($leaderboard),
                     'RankInfo' => [
@@ -827,7 +827,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         $game = $this->seedGame();
         $md5 = $game->hashes()->first()->md5;
         /** @var Leaderboard $leaderboard */
-        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
 
         $this->seedEmulatorUserAgents();
 
@@ -835,7 +835,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         $validResponse = [
             'Success' => true,
             'Score' => $score,
-            'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+            'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
             'BestScore' => $score,
             'LBData' => $this->buildLBData($leaderboard),
             'RankInfo' => [
@@ -856,7 +856,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         $invalidClientResponse = [
             'Success' => true,
             'Score' => $score,
-            'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+            'ScoreFormatted' => ValueFormat::format($score, $leaderboard->format),
             'BestScore' => 0,
             'LBData' => $this->buildLBData($leaderboard),
             'RankInfo' => [
@@ -868,7 +868,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         ];
 
         // no user agent
-        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $md5]))
+        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -877,7 +877,7 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         // unknown user agent
         $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $md5]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -886,7 +886,7 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         // outdated user agent
         $this->withHeaders(['User-Agent' => $this->userAgentOutdated])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $md5]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -895,7 +895,7 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         // unsupported user agent
         $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $md5]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -904,7 +904,7 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         // valid user agent
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $md5]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -913,7 +913,7 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         // blocked user agent
         $this->withHeaders(['User-Agent' => $this->userAgentBlocked])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $md5]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $score, 'm' => $md5]))
             ->assertStatus(403)
             ->assertExactJson([
                 'Status' => 403,
@@ -924,9 +924,9 @@ class SubmitLeaderboardEntryTest extends TestCase
         // unsupported user agent (better score not submitted, existing score data returned for everything but current value)
         $newScore = $score + 5;
         $validResponse['Score'] = $newScore;
-        $validResponse['ScoreFormatted'] = ValueFormat::format($newScore, $leaderboard->Format);
+        $validResponse['ScoreFormatted'] = ValueFormat::format($newScore, $leaderboard->format);
         $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
-            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $newScore, 'm' => $md5]))
+            ->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->id, 's' => $newScore, 'm' => $md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,

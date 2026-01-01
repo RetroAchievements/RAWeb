@@ -99,8 +99,8 @@ class BuildGameShowPagePropsAction
                         ->with('user');
                 },
                 'leaderboards' => function ($query) {
-                    $query->where('DisplayOrder', '>=', 0) // only show visible leaderboards on the page
-                        ->orderBy('DisplayOrder')
+                    $query->where('order_column', '>=', 0) // only show visible leaderboards on the page
+                        ->orderBy('order_column')
                         ->with(['topEntry.user']);
                 },
                 'visibleComments' => function ($query) {
@@ -765,7 +765,7 @@ class BuildGameShowPagePropsAction
         // If the user is authenticated, fetch all their leaderboard entries for the game.
         $userEntriesByLeaderboardId = collect();
         if ($user) {
-            $leaderboardIds = $game->leaderboards->pluck('ID');
+            $leaderboardIds = $game->leaderboards->pluck('id');
             $userEntries = LeaderboardEntry::whereIn('leaderboard_id', $leaderboardIds)
                 ->where('user_id', $user->id)
                 ->get();

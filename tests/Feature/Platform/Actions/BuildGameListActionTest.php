@@ -410,8 +410,8 @@ class BuildGameListActionTest extends TestCase
         $this->seedGamesForLists();
         $this->addGameIdsToUserPlayList($user, gameIds: [1000, 1001, 1002, 1003, 1004, 1005]);
 
-        Leaderboard::factory()->count(3)->create(['GameID' => 1004, 'DisplayOrder' => 1]);
-        Leaderboard::factory()->count(5)->create(['GameID' => 1005, 'DisplayOrder' => -1]);
+        Leaderboard::factory()->count(3)->create(['game_id' => 1004, 'order_column' => 1]);
+        Leaderboard::factory()->count(5)->create(['game_id' => 1005, 'order_column' => -1]);
 
         // Act
         $result = (new BuildGameListAction())->execute(

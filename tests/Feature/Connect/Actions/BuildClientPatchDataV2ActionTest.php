@@ -249,19 +249,19 @@ class BuildClientPatchDataV2ActionTest extends TestCase
         $this->upsertGameCoreSetAction->execute($game);
 
         $leaderboard1 = Leaderboard::factory()->create([
-            'GameID' => $game->id,
-            'DisplayOrder' => 0,
-            'Format' => 'SCORE',
+            'game_id' => $game->id,
+            'order_column' => 0,
+            'format' => 'SCORE',
         ]);
         $leaderboard2 = Leaderboard::factory()->create([
-            'GameID' => $game->id,
-            'DisplayOrder' => -1, // !! hidden
-            'Format' => 'VALUE',
+            'game_id' => $game->id,
+            'order_column' => -1, // !! hidden
+            'format' => 'VALUE',
         ]);
         $leaderboard3 = Leaderboard::factory()->create([
-            'GameID' => $game->id,
-            'DisplayOrder' => 1,
-            'Format' => 'VALUE',
+            'game_id' => $game->id,
+            'order_column' => 1,
+            'format' => 'VALUE',
             'state' => LeaderboardState::Disabled,
         ]);
 

@@ -22,7 +22,7 @@
                         ELSE 2
                     END
                 ")
-                ->orderBy('DisplayOrder')
+                ->orderBy('order_column')
                 ->get();
         @endphp
 

@@ -768,8 +768,8 @@ describe('Count Props', function () {
         ]);
 
         Leaderboard::factory()->count(2)->create([
-            'GameID' => $game->id,
-            'DisplayOrder' => 1,
+            'game_id' => $game->id,
+            'order_column' => 1,
         ]);
 
         GameHash::factory()->count(4)->create([
@@ -913,19 +913,19 @@ describe('Leaderboard State Props', function () {
         $game = createGameWithAchievements($system, 'Test Game');
 
         $activeLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Active,
-            'DisplayOrder' => 2,
+            'order_column' => 2,
         ]);
         $disabledLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Disabled,
-            'DisplayOrder' => 1,
+            'order_column' => 1,
         ]);
         $unpublishedLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Unpublished,
-            'DisplayOrder' => 0,
+            'order_column' => 0,
         ]);
 
         // ACT
@@ -949,19 +949,19 @@ describe('Leaderboard State Props', function () {
         $game = createGameWithAchievements($system, 'Test Game', 5, 2);
 
         Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Active,
-            'DisplayOrder' => 1,
+            'order_column' => 1,
         ]);
         Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Disabled,
-            'DisplayOrder' => 2,
+            'order_column' => 2,
         ]);
         $unpublishedLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Unpublished,
-            'DisplayOrder' => 0,
+            'order_column' => 0,
         ]);
 
         // ACT
@@ -984,19 +984,19 @@ describe('Leaderboard State Props', function () {
         $game = createGameWithAchievements($system, 'Test Game');
 
         $activeLeaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Active,
-            'DisplayOrder' => 1,
+            'order_column' => 1,
         ]);
         Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Disabled,
-            'DisplayOrder' => 2,
+            'order_column' => 2,
         ]);
         Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Unpublished,
-            'DisplayOrder' => 0,
+            'order_column' => 0,
         ]);
 
         // ACT
@@ -1015,9 +1015,9 @@ describe('Leaderboard State Props', function () {
         $game = createGameWithAchievements($system, 'Test Game');
 
         Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'state' => LeaderboardState::Disabled,
-            'DisplayOrder' => 1,
+            'order_column' => 1,
         ]);
 
         // ACT
@@ -1777,8 +1777,8 @@ describe('Subset Context Props', function () {
 
         // ... create leaderboards on the "subset game" (backing game) ...
         Leaderboard::factory()->count(3)->create([
-            'GameID' => $subsetGame->id,
-            'DisplayOrder' => 1,
+            'game_id' => $subsetGame->id,
+            'order_column' => 1,
         ]);
 
         // ACT

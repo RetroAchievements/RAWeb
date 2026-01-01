@@ -46,8 +46,8 @@ class LoadGameWithRelationsAction
                 $query->with(['viewRoles']);
             },
             'leaderboards' => function ($query) {
-                $query->where('DisplayOrder', '>=', 0) // only show visible leaderboards on the page
-                    ->orderBy('DisplayOrder')
+                $query->where('order_column', '>=', 0) // only show visible leaderboards on the page
+                    ->orderBy('order_column')
                     ->with(['topEntry.user']);
             },
             'releases',

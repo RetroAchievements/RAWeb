@@ -55,7 +55,7 @@ $lbFormat = $leaderboard->format;
 $lbAuthor = $leaderboard?->developer?->display_name;
 $lbCreated = $leaderboard->created_at;
 $lbUpdated = $leaderboard->updated_at;
-$lbMemory = $leaderboard->Mem;
+$lbMemory = $leaderboard->trigger_definition;
 
 $gameID = $leaderboard->game->id;
 $gameTitle = $leaderboard->game->title;
@@ -138,7 +138,7 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
             echo "<ul>";
             $manageLeaderboardsRoute = route('filament.admin.resources.leaderboards.index', [
                 'tableFilters[game][id]' => $gameID,
-                'tableSortColumn' => 'DisplayOrder',
+                'tableSortColumn' => 'order_column',
                 'tableSortDirection' => 'asc',
             ]);
             echo "<a href='$manageLeaderboardsRoute'>Leaderboard Management for $gameTitle</a>";

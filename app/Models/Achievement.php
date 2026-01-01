@@ -38,6 +38,8 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 
+// TODO implements HasComments
+
 /**
  * @implements HasVersionedTrigger<Achievement>
  */

@@ -231,7 +231,7 @@ class CommentControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
         $user = User::factory()->create();
 
         $comment = Comment::factory()->create([
@@ -345,7 +345,7 @@ class CommentControllerTest extends TestCase
         // Arrange
         $system = System::factory()->create(['id' => 1]);
         $game = Game::factory()->create(['system_id' => $system->id]);
-        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
         $user = User::factory()->create();
 
         $oldComment = Comment::factory()->create([

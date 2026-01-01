@@ -25,9 +25,9 @@ class LeaderboardInfoTest extends TestCase
         $game = $this->seedGame();
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
-            'LowerIsBetter' => false,
-            'Format' => ValueFormat::Score,
+            'game_id' => $game->id,
+            'rank_asc' => false,
+            'format' => ValueFormat::Score,
             'state' => LeaderboardState::Active,
         ]);
 
@@ -43,7 +43,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBDesc' => $leaderboard->description,
                     'LBFormat' => $leaderboard->format,
                     'LBID' => $leaderboard->id,
-                    'LBMem' => $leaderboard->Mem,
+                    'LBMem' => $leaderboard->trigger_definition,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
                     'LBState' => $leaderboard->state->value,
@@ -103,7 +103,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBDesc' => $leaderboard->description,
                     'LBFormat' => $leaderboard->format,
                     'LBID' => $leaderboard->id,
-                    'LBMem' => $leaderboard->Mem,
+                    'LBMem' => $leaderboard->trigger_definition,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
                     'LBState' => $leaderboard->state->value,
@@ -121,7 +121,9 @@ class LeaderboardInfoTest extends TestCase
         $game = $this->seedGame();
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
+            'rank_asc' => true,
+            'format' => ValueFormat::Score,
             'state' => LeaderboardState::Disabled,
         ]);
 
@@ -137,7 +139,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBDesc' => $leaderboard->description,
                     'LBFormat' => $leaderboard->format,
                     'LBID' => $leaderboard->id,
-                    'LBMem' => $leaderboard->Mem,
+                    'LBMem' => $leaderboard->trigger_definition,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
                     'LBState' => $leaderboard->state->value,
@@ -155,9 +157,9 @@ class LeaderboardInfoTest extends TestCase
         $game = $this->seedGame();
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
-            'LowerIsBetter' => 1,
-            'Format' => ValueFormat::Score,
+            'game_id' => $game->id,
+            'rank_asc' => true,
+            'format' => ValueFormat::Score,
             'state' => LeaderboardState::Active,
         ]);
 
@@ -173,7 +175,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBDesc' => $leaderboard->description,
                     'LBFormat' => $leaderboard->format,
                     'LBID' => $leaderboard->id,
-                    'LBMem' => $leaderboard->Mem,
+                    'LBMem' => $leaderboard->trigger_definition,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
                     'LBState' => $leaderboard->state->value,
@@ -261,7 +263,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBDesc' => $leaderboard->description,
                     'LBFormat' => $leaderboard->format,
                     'LBID' => $leaderboard->id,
-                    'LBMem' => $leaderboard->Mem,
+                    'LBMem' => $leaderboard->trigger_definition,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
                     'LBState' => $leaderboard->state->value,
@@ -311,7 +313,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBDesc' => $leaderboard->description,
                     'LBFormat' => $leaderboard->format,
                     'LBID' => $leaderboard->id,
-                    'LBMem' => $leaderboard->Mem,
+                    'LBMem' => $leaderboard->trigger_definition,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
                     'LBState' => $leaderboard->state->value,
@@ -360,7 +362,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBDesc' => $leaderboard->description,
                     'LBFormat' => $leaderboard->format,
                     'LBID' => $leaderboard->id,
-                    'LBMem' => $leaderboard->Mem,
+                    'LBMem' => $leaderboard->trigger_definition,
                     'LBTitle' => $leaderboard->title,
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
                     'LBState' => $leaderboard->state->value,

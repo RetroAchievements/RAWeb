@@ -88,7 +88,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
 
         $game = Game::factory()->create(['system_id' => $system->id]);
         $leaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'author_id' => $developer->id,
         ]);
 
@@ -210,7 +210,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
 
         $game = Game::factory()->create(['system_id' => $system->id]);
         $leaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'author_id' => $developer->id,
         ]);
 
@@ -243,11 +243,11 @@ class BuildDeveloperFeedDataActionTest extends TestCase
 
         $game = Game::factory()->create(['system_id' => $system->id]);
         $leaderboard1 = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'author_id' => $developer->id,
         ]);
         $leaderboard2 = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'author_id' => $developer->id,
         ]);
 

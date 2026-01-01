@@ -15,7 +15,7 @@ $currentUser = User::find($userDetails['id']);
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'user' => 'required|string|exists:users,display_name',
-    'leaderboard' => 'required|integer|exists:LeaderboardDef,ID',
+    'leaderboard' => 'required|integer|exists:leaderboards,id',
     'reason' => 'nullable|string|max:200',
 ]);
 

@@ -185,7 +185,7 @@ class GamesTableSeeder extends Seeder
             $user_id = $game->achievements()->first()->user_id ?? $developers[array_rand($developers)];
 
             $game->leaderboards()->saveMany(Leaderboard::factory()->count(random_int(0, 10))->create([
-                'GameID' => $game->id,
+                'game_id' => $game->id,
                 'author_id' => $user_id,
             ]));
         });

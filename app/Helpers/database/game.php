@@ -250,10 +250,10 @@ function getGamesListByDev(
 
     $initialQuery = true;
     if ($sortBy === 4 || $sortBy === 14) { // NumLBs
-        $query = "SELECT $foundRows gd.id AS ID, gd.points_total AS MaxPointsAvailable, SUM(!ISNULL(lb.ID)) AS NumLBs
+        $query = "SELECT $foundRows gd.id AS ID, gd.points_total AS MaxPointsAvailable, SUM(!ISNULL(lb.id)) AS NumLBs
                   FROM games gd
                   INNER JOIN systems s ON s.id = gd.system_id $listJoin
-                  LEFT JOIN LeaderboardDef lb ON lb.GameID = gd.id
+                  LEFT JOIN leaderboards lb ON lb.game_id = gd.id
                   WHERE 1=1 $whereClause
                   GROUP BY gd.id, gd.points_total $orderBy";
     } elseif ($sortBy === 5 || $sortBy === 15) { // OpenTickets
@@ -392,22 +392,22 @@ function getGamesListByDev(
     }
 
     // merge leaderboards
-    $query = "SELECT GameID, COUNT(*) AS NumLBs
-              FROM LeaderboardDef
-              WHERE GameID IN ($gameList)
-              GROUP BY GameID";
+    $query = "SELECT game_id, COUNT(*) AS NumLBs
+              FROM leaderboards
+              WHERE game_id IN ($gameList)
+              GROUP BY game_id";
     foreach (legacyDBFetchAll($query) as $row) {
-        $games[$row['GameID']]['NumLBs'] = $row['NumLBs'];
+        $games[$row['game_id']]['NumLBs'] = $row['NumLBs'];
     }
 
     if ($dev !== null) {
-        $query = "SELECT GameID, COUNT(*) AS NumLBs
-                  FROM LeaderboardDef
-                  WHERE GameID IN ($gameList)
+        $query = "SELECT game_id, COUNT(*) AS NumLBs
+                  FROM leaderboards
+                  WHERE game_id IN ($gameList)
                   AND author_id = :authorId
-                  GROUP BY GameID";
+                  GROUP BY game_id";
         foreach (legacyDBFetchAll($query, ['authorId' => $dev->id]) as $row) {
-            $games[$row['GameID']]['MyLBs'] = $row['NumLBs'];
+            $games[$row['game_id']]['MyLBs'] = $row['NumLBs'];
         }
     }
 
