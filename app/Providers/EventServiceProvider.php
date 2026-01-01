@@ -6,13 +6,11 @@ namespace App\Providers;
 
 use App\Events\UserDeleted;
 use App\Listeners\SendUserRegistrationNotification;
-use App\Models\Comment;
 use App\Models\EventAchievement;
 use App\Models\GameSet;
 use App\Models\GameSetLink;
 use App\Models\LeaderboardEntry;
 use App\Models\User;
-use App\Observers\CommentObserver;
 use App\Observers\EventAchievementObserver;
 use App\Observers\GameSetLinkObserver;
 use App\Observers\GameSetObserver;
@@ -76,8 +74,6 @@ class EventServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Comment::observe(CommentObserver::class);
-
         User::observe(UserObserver::class);
 
         EventAchievement::observe(EventAchievementObserver::class);
