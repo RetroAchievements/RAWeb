@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Internal\Controllers;
 
 use App\Api\Internal\Requests\UpdateAchievementRequest;
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\Role;
@@ -114,7 +114,7 @@ class AchievementController extends Controller
                 }
                 addArticleComment(
                     "Server",
-                    ArticleType::Achievement,
+                    CommentableType::Achievement,
                     $achievement->id,
                     $comment,
                     $user->display_name
@@ -129,7 +129,7 @@ class AchievementController extends Controller
 
                 addArticleComment(
                     "Server",
-                    ArticleType::Achievement,
+                    CommentableType::Achievement,
                     $achievement->id,
                     "{$user->display_name} edited this achievement's title.",
                     $user->display_name,

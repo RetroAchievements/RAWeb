@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Services;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\Achievement;
 use App\Models\Comment;
@@ -313,7 +313,7 @@ abstract class BaseSubscriptionHandler
 
 abstract class CommentSubscriptionHandler extends BaseSubscriptionHandler
 {
-    abstract protected function getArticleType(): int;
+    abstract protected function getCommentableType(): CommentableType;
 
     /**
      * @return Builder<Model>
@@ -321,12 +321,12 @@ abstract class CommentSubscriptionHandler extends BaseSubscriptionHandler
     public function getImplicitSubscriptionQuery(?int $subjectId, ?int $forUserId, ?array $ignoreSubjectIds, ?array $ignoreUserIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = Comment::where('ArticleType', $this->getArticleType());
+        $query = Comment::where('commentable_type', $this->getCommentableType());
 
         if ($subjectId !== null) {
-            $query->where('ArticleId', $subjectId);
+            $query->where('commentable_id', $subjectId);
         } elseif (!empty($ignoreSubjectIds)) {
-            $query->whereNotIn('ArticleId', $ignoreSubjectIds);
+            $query->whereNotIn('commentable_id', $ignoreSubjectIds);
         }
 
         if ($forUserId !== null) {
@@ -339,7 +339,7 @@ abstract class CommentSubscriptionHandler extends BaseSubscriptionHandler
             }
         }
 
-        $query->select(['user_id', DB::raw('ArticleId as subject_id')])->distinct();
+        $query->select(['user_id', DB::raw('commentable_id as subject_id')])->distinct();
 
         return $query;
     }
@@ -347,9 +347,9 @@ abstract class CommentSubscriptionHandler extends BaseSubscriptionHandler
     public function getRecentParticipants(int $subjectId, Carbon $since): array
     {
         return Comment::query()
-            ->where('ArticleType', $this->getArticleType())
-            ->where('ArticleId', $subjectId)
-            ->where('Submitted', '>=', $since)
+            ->where('commentable_type', $this->getCommentableType())
+            ->where('commentable_id', $subjectId)
+            ->where('created_at', '>=', $since)
             ->distinct()
             ->pluck('user_id')
             ->toArray();
@@ -358,9 +358,9 @@ abstract class CommentSubscriptionHandler extends BaseSubscriptionHandler
 
 class AchievementWallSubscriptionHandler extends CommentSubscriptionHandler
 {
-    protected function getArticleType(): int
+    protected function getCommentableType(): CommentableType
     {
-        return ArticleType::Achievement;
+        return CommentableType::Achievement;
     }
 
     /**
@@ -440,9 +440,9 @@ class AchievementWallSubscriptionHandler extends CommentSubscriptionHandler
 
 class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
 {
-    protected function getArticleType(): int
+    protected function getCommentableType(): CommentableType
     {
-        return ArticleType::AchievementTicket;
+        return CommentableType::AchievementTicket;
     }
 
     /**
@@ -671,9 +671,9 @@ class GameTicketsSubscriptionHandler extends BaseSubscriptionHandler
 
 class GameWallSubscriptionHandler extends CommentSubscriptionHandler
 {
-    protected function getArticleType(): int
+    protected function getCommentableType(): CommentableType
     {
-        return ArticleType::Game;
+        return CommentableType::Game;
     }
 
     /**
@@ -695,9 +695,9 @@ class GameWallSubscriptionHandler extends CommentSubscriptionHandler
 
 class LeaderboardWallSubscriptionHandler extends CommentSubscriptionHandler
 {
-    protected function getArticleType(): int
+    protected function getCommentableType(): CommentableType
     {
-        return ArticleType::Leaderboard;
+        return CommentableType::Leaderboard;
     }
 
     /**
@@ -719,9 +719,9 @@ class LeaderboardWallSubscriptionHandler extends CommentSubscriptionHandler
 
 class UserWallSubscriptionHandler extends CommentSubscriptionHandler
 {
-    protected function getArticleType(): int
+    protected function getCommentableType(): CommentableType
     {
-        return ArticleType::User;
+        return CommentableType::User;
     }
 
     /**

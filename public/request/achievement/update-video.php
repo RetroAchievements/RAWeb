@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\User;
@@ -38,6 +38,6 @@ $achievement->save();
 
 $auditLog = "{$userModel->display_name} set this achievement's embed URL.";
 
-addArticleComment('Server', ArticleType::Achievement, $achievementId, $auditLog, $userModel->display_name);
+addArticleComment('Server', CommentableType::Achievement, $achievementId, $auditLog, $userModel->display_name);
 
 return response()->json(['message' => __('legacy.success.ok')]);

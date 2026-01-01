@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Platform\Actions\RecalculateLeaderboardTopEntryAction;
 use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Enums\LeaderboardState;
@@ -188,7 +188,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
      */
     public function comments(): HasMany
     {
-        return $this->hasMany(Comment::class, 'ArticleID')->where('ArticleType', ArticleType::Leaderboard);
+        return $this->hasMany(Comment::class, 'commentable_id')->where('commentable_type', CommentableType::Leaderboard);
     }
 
     /**

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Concerns;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\UserGameListType;
 use App\Community\Enums\UserRelationStatus;
 use App\Models\Comment;
@@ -255,7 +255,7 @@ trait ActsAsCommunityMember
      */
     public function comments(): HasMany
     {
-        return $this->hasMany(UserComment::class, 'ArticleID')->where('ArticleType', ArticleType::User);
+        return $this->hasMany(UserComment::class, 'commentable_id')->where('commentable_type', CommentableType::User);
     }
 
     /**
@@ -278,7 +278,7 @@ trait ActsAsCommunityMember
      */
     public function moderationComments(): HasMany
     {
-        return $this->hasMany(Comment::class, 'ArticleID')->where('ArticleType', ArticleType::UserModeration);
+        return $this->hasMany(Comment::class, 'commentable_id')->where('commentable_type', CommentableType::UserModeration);
     }
 
     /**

@@ -1,8 +1,8 @@
 <?php
 
 use App\Community\Actions\AddGameBadgeCreditAction;
-use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Game;
 use App\Models\GameSet;
@@ -95,6 +95,6 @@ $label = match ($imageType) {
     default => '?', // should never hit this because of the match above
 };
 
-addArticleComment('Server', ArticleType::GameModification, $gameID, "{$userModel->display_name} changed the $label");
+addArticleComment('Server', CommentableType::GameModification, $gameID, "{$userModel->display_name} changed the $label");
 
 return back()->with('success', __('legacy.success.image_upload'));

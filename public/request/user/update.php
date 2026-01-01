@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\UserAction;
 use App\Enums\Permissions;
 use App\Models\AchievementMaintainer;
@@ -93,7 +93,7 @@ if ($propertyType === UserAction::PatreonBadge) {
 
     addArticleComment(
         'Server',
-        ArticleType::UserModeration,
+        CommentableType::UserModeration,
         $foundTargetUser->id,
         $foundSourceUser->display_name . ($hasBadge ? ' revoked' : ' awarded') . ' Patreon badge'
     );
@@ -107,7 +107,7 @@ if ($propertyType === UserAction::LegendBadge) {
 
     addArticleComment(
         'Server',
-        ArticleType::UserModeration,
+        CommentableType::UserModeration,
         $foundTargetUser->id,
         $foundSourceUser->display_name . ($hasBadge ? ' revoked' : ' awarded') . ' Certified Legend badge'
     );
@@ -120,7 +120,7 @@ if ($propertyType === UserAction::TrackedStatus) {
 
     addArticleComment(
         'Server',
-        ArticleType::UserModeration,
+        CommentableType::UserModeration,
         $foundTargetUser->id,
         $foundSourceUser->display_name . ' set status to ' . ($value ? 'Untracked' : 'Tracked')
     );

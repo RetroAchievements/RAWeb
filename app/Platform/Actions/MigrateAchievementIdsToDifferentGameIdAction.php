@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\PlayerAchievement;
@@ -28,7 +28,7 @@ class MigrateAchievementIdsToDifferentGameIdAction
         // Add an audit comment to the new game.
         addArticleComment(
             'Server',
-            ArticleType::GameModification,
+            CommentableType::GameModification,
             $gameId,
             "{$user->display_name} migrated " . Str::plural('achievement', count($achievementIds)) . ' ' .
                 implode(',', $achievementIds) . ' from ' .

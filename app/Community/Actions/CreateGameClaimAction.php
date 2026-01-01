@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Services\SubscriptionService;
 use App\Models\AchievementSetClaim;
@@ -67,7 +67,7 @@ class CreateGameClaimAction
 
         Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($currentUser->username));
 
-        addArticleComment("Server", ArticleType::SetClaim, $game->id,
+        addArticleComment("Server", CommentableType::SetClaim, $game->id,
             $claimType->label() . " " . ($setType === ClaimSetType::Revision ? "revision" : "") . " claim made by " . $currentUser->display_name);
 
         if ($claimType === ClaimType::Primary) {

@@ -29,9 +29,7 @@ use Illuminate\Support\Facades\Auth;
 class CoreSetAuthorshipCreditsRelationManager extends RelationManager
 {
     protected static string $relationship = 'coreSetAuthorshipCredits';
-
     protected static ?string $title = 'Set Credits';
-
     protected static string|BackedEnum|null $icon = 'fas-users';
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string

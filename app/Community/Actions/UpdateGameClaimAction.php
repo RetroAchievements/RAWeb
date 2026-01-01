@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Enums\ArticleType;
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\UserGameListType;
 use App\Mail\SetAchievementsPublishedNotificationMail;
 use App\Mail\SetRevisionNotificationMail;
@@ -97,13 +97,13 @@ class UpdateGameClaimAction
         if ($claim->isDirty()) {
             $claim->save();
 
-            addArticleComment("Server", ArticleType::SetClaim, $claim->game_id, $auditMessage);
+            addArticleComment("Server", CommentableType::SetClaim, $claim->game_id, $auditMessage);
         }
     }
 
     private function processCompletedClaim(AchievementSetClaim $claim, User $currentUser): void
     {
-        addArticleComment("Server", ArticleType::SetClaim, $claim->game_id, "Claim completed by {$currentUser->display_name}");
+        addArticleComment("Server", CommentableType::SetClaim, $claim->game_id, "Claim completed by {$currentUser->display_name}");
 
         // Also complete any collaboration claims.
         $game = Game::find($claim->game_id);

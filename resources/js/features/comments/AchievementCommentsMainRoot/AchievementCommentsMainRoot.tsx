@@ -20,7 +20,7 @@ export const AchievementCommentsMainRoot: FC = memo(() => {
     useCommentPagination({
       paginatedComments,
       entityId: achievement.id,
-      entityType: 'Achievement',
+      commentableType: 'achievement.comment',
       routeName: 'achievement.comment.index',
     });
 
@@ -55,7 +55,7 @@ export const AchievementCommentsMainRoot: FC = memo(() => {
         canComment={canComment}
         comments={paginatedComments.items}
         commentableId={achievement.id}
-        commentableType="Achievement"
+        commentableType="achievement.comment"
         onDeleteSuccess={handleCommentDeleteSuccess}
         onSubmitSuccess={handleCommentSubmitSuccess}
       />

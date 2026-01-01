@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\Pages;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Filament\Pages\ResourceAuditLog;
 use App\Filament\Resources\GameResource;
 use App\Models\Comment;
@@ -38,8 +38,8 @@ class AuditLog extends ResourceAuditLog
         /** @var Game $record */
         $record = $this->record;
 
-        $legacyCommentsCount = Comment::where('ArticleType', ArticleType::GameModification)
-            ->where('ArticleID', $record->id)
+        $legacyCommentsCount = Comment::where('commentable_type', CommentableType::GameModification)
+            ->where('commentable_id', $record->id)
             ->count();
 
         if ($legacyCommentsCount === 0) {

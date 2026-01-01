@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -27,7 +27,7 @@ function cancelDeleteRequest(string $username): bool
     $dbResult = s_mysql_query($query);
 
     if ($dbResult !== false) {
-        addArticleComment('Server', ArticleType::UserModeration, $user->id,
+        addArticleComment('Server', CommentableType::UserModeration, $user->id,
             $user->display_name . ' canceled account deletion'
         );
     }

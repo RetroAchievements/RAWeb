@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Community\Services;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Services\SubscriptionService;
 use App\Models\Achievement;
@@ -115,10 +115,10 @@ class SubscriptionServiceTest extends TestCase
         $game = Game::factory()->create(['id' => 3]);
 
         Comment::create([
-            'ArticleType' => ArticleType::Game,
-            'ArticleID' => 3,
+            'commentable_type' => CommentableType::Game,
+            'commentable_id' => 3,
             'user_id' => $user->id,
-            'Payload' => 'Test',
+            'body' => 'Test',
         ]);
 
         $service = new SubscriptionService();
@@ -148,10 +148,10 @@ class SubscriptionServiceTest extends TestCase
         $game = Game::factory()->create(['id' => 3]);
 
         Comment::create([
-            'ArticleType' => ArticleType::Game,
-            'ArticleID' => 3,
+            'commentable_type' => CommentableType::Game,
+            'commentable_id' => 3,
             'user_id' => $user->id,
-            'Payload' => 'Test',
+            'body' => 'Test',
         ]);
         $this->updateSubscription($user, SubscriptionSubjectType::GameWall, 3, true);
 
@@ -182,10 +182,10 @@ class SubscriptionServiceTest extends TestCase
         $game = Game::factory()->create(['id' => 3]);
 
         Comment::create([
-            'ArticleType' => ArticleType::Game,
-            'ArticleID' => 3,
+            'commentable_type' => CommentableType::Game,
+            'commentable_id' => 3,
             'user_id' => $user->id,
-            'Payload' => 'Test',
+            'body' => 'Test',
         ]);
         $this->updateSubscription($user, SubscriptionSubjectType::GameWall, 3, false);
 
@@ -230,11 +230,11 @@ class SubscriptionServiceTest extends TestCase
 
         // user1 implicitly subscribed to achievement via comment
         Comment::create([
-            'ArticleType' => ArticleType::Achievement,
-            'ArticleID' => $achievement->id,
+            'commentable_type' => CommentableType::Achievement,
+            'commentable_id' => $achievement->id,
             'user_id' => $user1->id,
-            'Payload' => 'Test',
-            'Submitted' => Carbon::now()->subDays(8),
+            'body' => 'Test',
+            'created_at' => Carbon::now()->subDays(8),
         ]);
 
         // user2 explicitly subscribed to achievement
@@ -242,11 +242,11 @@ class SubscriptionServiceTest extends TestCase
 
         // user3 implicitly subscribed to achievement via comment, but explicitly unsubscribed
         Comment::create([
-            'ArticleType' => ArticleType::Achievement,
-            'ArticleID' => $achievement->id,
+            'commentable_type' => CommentableType::Achievement,
+            'commentable_id' => $achievement->id,
             'user_id' => $user3->id,
-            'Payload' => 'Test',
-            'Submitted' => Carbon::now()->subDays(4),
+            'body' => 'Test',
+            'created_at' => Carbon::now()->subDays(4),
         ]);
         $this->updateSubscription($user3, SubscriptionSubjectType::Achievement, $achievement->id, false);
 
@@ -255,11 +255,11 @@ class SubscriptionServiceTest extends TestCase
 
         // user5 implicitly subscribed to achievement via comment, but explicitly unsubscribed from GameAchievements - implicit achievement subscription wins
         Comment::create([
-            'ArticleType' => ArticleType::Achievement,
-            'ArticleID' => $achievement->id,
+            'commentable_type' => CommentableType::Achievement,
+            'commentable_id' => $achievement->id,
             'user_id' => $user5->id,
-            'Payload' => 'Test',
-            'Submitted' => Carbon::now()->subDays(2),
+            'body' => 'Test',
+            'created_at' => Carbon::now()->subDays(2),
         ]);
         $this->updateSubscription($user5, SubscriptionSubjectType::GameAchievements, $achievement->game->id, false);
 
@@ -328,10 +328,10 @@ class SubscriptionServiceTest extends TestCase
 
         // user1 implicitly subscribed to achievement via comment
         Comment::create([
-            'ArticleType' => ArticleType::AchievementTicket,
-            'ArticleID' => $achievement->id,
+            'commentable_type' => CommentableType::AchievementTicket,
+            'commentable_id' => $achievement->id,
             'user_id' => $user1->id,
-            'Payload' => 'Test',
+            'body' => 'Test',
         ]);
 
         // user2 explicitly subscribed to ticket
@@ -339,10 +339,10 @@ class SubscriptionServiceTest extends TestCase
 
         // user3 implicitly subscribed to ticket via comment, but explicitly unsubscribed
         Comment::create([
-            'ArticleType' => ArticleType::AchievementTicket,
-            'ArticleID' => $ticket->ID,
+            'commentable_type' => CommentableType::AchievementTicket,
+            'commentable_id' => $ticket->ID,
             'user_id' => $user3->id,
-            'Payload' => 'Test',
+            'body' => 'Test',
         ]);
         $this->updateSubscription($user3, SubscriptionSubjectType::AchievementTicket, $ticket->ID, false);
 
@@ -351,10 +351,10 @@ class SubscriptionServiceTest extends TestCase
 
         // user5 implicitly subscribed to ticket via comment, but explicitly unsubscribed from GameTickets - implicit ticket subscription wins
         Comment::create([
-            'ArticleType' => ArticleType::AchievementTicket,
-            'ArticleID' => $ticket->ID,
+            'commentable_type' => CommentableType::AchievementTicket,
+            'commentable_id' => $ticket->ID,
             'user_id' => $user5->id,
-            'Payload' => 'Test',
+            'body' => 'Test',
         ]);
         $this->updateSubscription($user5, SubscriptionSubjectType::GameTickets, $achievement->game->id, false);
 
@@ -494,10 +494,10 @@ class SubscriptionServiceTest extends TestCase
 
         // user2 implicitly subscribed to wall via comment
         Comment::create([
-            'ArticleType' => ArticleType::User,
-            'ArticleID' => $user1->id,
+            'commentable_type' => CommentableType::User,
+            'commentable_id' => $user1->id,
             'user_id' => $user2->id,
-            'Payload' => 'Test',
+            'body' => 'Test',
         ]);
 
         // user4 explicitly subscribed to wall
@@ -505,10 +505,10 @@ class SubscriptionServiceTest extends TestCase
 
         // user5 implicitly subscribed to achievement via comment, but explicitly unsubscribed
         Comment::create([
-            'ArticleType' => ArticleType::User,
-            'ArticleID' => $user1->id,
+            'commentable_type' => CommentableType::User,
+            'commentable_id' => $user1->id,
             'user_id' => $user5->id,
-            'Payload' => 'Test',
+            'body' => 'Test',
         ]);
         $this->updateSubscription($user5, SubscriptionSubjectType::UserWall, $user1->id, false);
 
@@ -545,10 +545,10 @@ class SubscriptionServiceTest extends TestCase
 
         // implicitly subscribed to GameWall 3
         Comment::create([
-            'ArticleType' => ArticleType::Game,
-            'ArticleID' => 3,
+            'commentable_type' => CommentableType::Game,
+            'commentable_id' => 3,
             'user_id' => $user->id,
-            'Payload' => 'Test',
+            'body' => 'Test',
         ]);
 
         // explicitly subscribed to GameAchievements 3

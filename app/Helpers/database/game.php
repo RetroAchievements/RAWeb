@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\User;
@@ -583,7 +583,7 @@ function modifyGameData(
     $game->save();
     addArticleComment(
         "Server",
-        ArticleType::GameModification,
+        CommentableType::GameModification,
         $gameId,
         "{$user->display_name} changed the " .
             implode(", ", $modifications) .
@@ -628,7 +628,7 @@ function modifyGameTitle(string $username, int $gameId, string $value): bool
             $canonicalTitle->save();
         }
 
-        addArticleComment('Server', ArticleType::GameModification, $gameId, "{$user->display_name} changed the game name");
+        addArticleComment('Server', CommentableType::GameModification, $gameId, "{$user->display_name} changed the game name");
     }
 
     return true;
@@ -653,7 +653,7 @@ function modifyGameForumTopic(string $username, int $gameId, int $newForumTopicI
     $game->forum_topic_id = $newForumTopicId;
     $game->save();
 
-    addArticleComment('Server', ArticleType::GameModification, $gameId, "{$user->display_name} changed the forum topic");
+    addArticleComment('Server', CommentableType::GameModification, $gameId, "{$user->display_name} changed the forum topic");
 
     return true;
 }

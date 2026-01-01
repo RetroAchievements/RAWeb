@@ -166,8 +166,6 @@ return [
 
             Comment::class => [
                 'filterableAttributes' => [
-                    'ArticleID',
-                    'ArticleType',
                     'commentable_id',
                     'commentable_type',
                     'created_at',

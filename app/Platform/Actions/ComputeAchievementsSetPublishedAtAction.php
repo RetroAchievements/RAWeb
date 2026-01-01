@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Models\Achievement;
 use App\Models\AchievementSet;
 use App\Models\Comment;
@@ -29,12 +29,12 @@ class ComputeAchievementsSetPublishedAtAction
         // sets predate that, so we also need to check for the primary set claim
         // completion timestamp and the first unlocked achievement timestamp.
         $firstPromotionComment = Comment::query()
-            ->where('ArticleType', ArticleType::Achievement)
-            ->whereIn('ArticleID', $achievementIds)
+            ->where('commentable_type', CommentableType::Achievement)
+            ->whereIn('commentable_id', $achievementIds)
             ->automated()
-            ->whereLike('Payload', '%promoted%')
+            ->whereLike('body', '%promoted%')
             ->first();
-        $publishedAt = $firstPromotionComment?->Submitted;
+        $publishedAt = $firstPromotionComment?->created_at;
 
         $promotionLogs = Activity::query()
             ->where('subject_type', (new Achievement())->getMorphClass())

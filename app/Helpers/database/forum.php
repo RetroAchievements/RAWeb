@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Services\SubscriptionNotificationService;
 use App\Community\Services\SubscriptionService;
@@ -250,7 +250,7 @@ function notifyUsersAboutForumActivity(ForumTopic $topic, User $author, ForumTop
                 $subscriber,
                 $topic->id,
                 $author,
-                ArticleType::Forum,
+                CommentableType::Forum,
                 $topic->title ?? '',
                 $urlTarget,
                 payload: $payload

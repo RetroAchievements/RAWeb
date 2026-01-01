@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connect\Actions;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Connect\Support\BaseAuthenticatedApiAction;
 use App\Connect\Support\GeneratesLegacyAuditComment;
 use App\Enums\GameHashCompatibility;
@@ -138,7 +138,7 @@ class SubmitGameTitleAction extends BaseAuthenticatedApiAction
                 $message .= " Description: \"$this->hashDescription\"";
             }
 
-            $this->addLegacyAuditComment(ArticleType::GameHash, $game->id, $message);
+            $this->addLegacyAuditComment(CommentableType::GameHash, $game->id, $message);
         }
 
         return [

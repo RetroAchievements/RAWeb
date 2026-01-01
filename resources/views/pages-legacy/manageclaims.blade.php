@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimSorting;
 use App\Community\Enums\ClaimSpecial;
@@ -189,8 +189,8 @@ $gameIcon = $gameData['ImageIcon'];
     }
     echo "</tbody></table></div>";
 
-    echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
-        ['articleType' => ArticleType::SetClaim, 'articleId' => $gameID]
+    echo Blade::render("<x-comment.list :commentableType=\"\$commentableType\" :commentableId=\"\$commentableId\" />",
+        ['commentableType' => CommentableType::SetClaim, 'commentableId' => $gameID]
     );
 
     echo "</div>";

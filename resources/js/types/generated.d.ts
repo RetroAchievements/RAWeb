@@ -20,7 +20,7 @@ declare namespace App.Community.Data {
   export type Comment = {
     id: number;
     commentableId: number;
-    commentableType: number;
+    commentableType: App.Community.Enums.CommentableType;
     payload: string;
     createdAt: string;
     updatedAt: string | null;
@@ -222,9 +222,7 @@ declare namespace App.Community.Data {
   };
 }
 declare namespace App.Community.Enums {
-  export type ArticleType = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
   export type TicketState = 0 | 1 | 2 | 3 | 'Demoted';
-  export type ClaimSpecial = 'none' | 'own_revision' | 'free_rollout' | 'scheduled_release';
   export type TicketType = 1 | 2;
   export type AwardType =
     | 'mastery'
@@ -235,8 +233,21 @@ declare namespace App.Community.Enums {
     | 'game_beaten'
     | 'event';
   export type ClaimSetType = 'new_set' | 'revision';
+  export type ClaimSpecial = 'none' | 'own_revision' | 'free_rollout' | 'scheduled_release';
   export type ClaimStatus = 'active' | 'complete' | 'dropped' | 'in_review';
   export type ClaimType = 'primary' | 'collaboration';
+  export type CommentableType =
+    | 'achievement.comment'
+    | 'trigger.ticket.comment'
+    | 'forum-topic-comment'
+    | 'game.comment'
+    | 'game-hash.comment'
+    | 'game-modification.comment'
+    | 'leaderboard.comment'
+    | 'achievement-set-claim.comment'
+    | 'user.comment'
+    | 'user-activity.comment'
+    | 'user-moderation.comment';
   export type MessageThreadTemplateKind =
     | 'achievement-issue'
     | 'manual-unlock'

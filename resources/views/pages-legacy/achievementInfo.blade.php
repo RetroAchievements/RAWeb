@@ -2,7 +2,7 @@
 
 // TODO migrate to AchievementController::show()
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\EventAchievement;
@@ -283,8 +283,8 @@ if ($game->system->id === System::Events) {
 
     if (!$isEventGame) {
         echo "<div class='mb-4'>";
-            echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
-                ['articleType' => ArticleType::Achievement, 'articleId' => $achievementID]
+            echo Blade::render("<x-comment.list :commentableType=\"\$commentableType\" :commentableId=\"\$commentableId\" />",
+                ['commentableType' => CommentableType::Achievement, 'commentableId' => $achievementID]
             );
         echo "</div>";
     }

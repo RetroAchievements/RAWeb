@@ -104,7 +104,7 @@ class BuildGameShowPagePropsAction
                         ->with(['topEntry.user']);
                 },
                 'visibleComments' => function ($query) {
-                    $query->latest('Submitted')
+                    $query->latest('created_at')
                         ->limit(20)
                         ->with(['user' => function ($userQuery) {
                             $userQuery->withTrashed();
@@ -755,10 +755,10 @@ class BuildGameShowPagePropsAction
             ->values();
 
         if (!$activeOnly) {
-            // Sort: Active/Unpublished first, Disabled last, then by DisplayOrder.
+            // Sort: Active/Unpublished first, Disabled last, then by order_column.
             $leaderboards = $leaderboards->sortBy([
                 fn ($leaderboard) => $leaderboard->state === LeaderboardState::Disabled ? 1 : 0,
-                fn ($a, $b) => $a->DisplayOrder <=> $b->DisplayOrder,
+                fn ($a, $b) => $a->order_column <=> $b->order_column,
             ])->values();
         }
 

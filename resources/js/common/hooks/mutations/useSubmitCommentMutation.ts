@@ -5,7 +5,7 @@ interface Variables {
   route: string;
   payload: {
     commentableId: string | number;
-    commentableType: number;
+    commentableType: App.Community.Enums.CommentableType;
     body: string;
   };
 }

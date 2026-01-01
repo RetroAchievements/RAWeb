@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Community\Concerns\HasAchievementCommunityFeatures;
-use App\Community\Enums\ArticleType;
+use App\Community\Contracts\HasComments;
+use App\Community\Enums\CommentableType;
 use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementSetType;
@@ -427,8 +428,8 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function legacyComments(): HasMany
     {
-        return $this->hasMany(Comment::class, 'ArticleID')
-            ->where('ArticleType', ArticleType::Achievement);
+        return $this->hasMany(Comment::class, 'commentable_id', 'id')
+            ->where('commentable_type', CommentableType::Achievement);
     }
 
     /**
@@ -488,7 +489,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function comments(): HasMany
     {
-        return $this->hasMany(Comment::class, 'ArticleID')->where('ArticleType', ArticleType::Achievement);
+        return $this->hasMany(Comment::class, 'commentable_id')->where('commentable_type', CommentableType::Achievement);
     }
 
     /**

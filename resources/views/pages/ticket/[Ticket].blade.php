@@ -48,7 +48,7 @@ render(function (View $view, Ticket $ticket) {
 
 @php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\TicketAction;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
@@ -264,12 +264,12 @@ $commentData = [];
             <table id="feed" class="table-highlight">
                 <tbody>
                     <x-comment.item
-                        articleType="{{ ArticleType::AchievementTicket }}"
+                        :commentableType="CommentableType::AchievementTicket"
                         :author="$ticket->reporter"
                         :when="$ticket->ReportedAt"
                         :payload="$ticketNotes"
                     />
-                    @php $numArticleComments = getRecentArticleComments(ArticleType::AchievementTicket, $ticket->ID, $commentData) @endphp
+                    @php $numArticleComments = getRecentArticleComments(CommentableType::AchievementTicket, $ticket->ID, $commentData) @endphp
                     @php $allowDelete = $user->hasRole(Role::MODERATOR) @endphp
                     @foreach ($commentData as $comment)
                         @php
@@ -284,16 +284,16 @@ $commentData = [];
                             :author="$commentUser"
                             :when="$when"
                             :payload="nl2br($comment['CommentPayload'])"
-                            articleType="{{ ArticleType::AchievementTicket }}"
-                            :articleId="$ticket->ID"
+                            :commentableType="CommentableType::AchievementTicket"
+                            :commentableId="$ticket->ID"
                             :commentId="$comment['ID']"
                             :allowDelete="$allowDelete || $comment['User'] === $user->username"
                         />
                     @endforeach
 
                     <x-comment.input-row
-                        articleType="{{ ArticleType::AchievementTicket }}"
-                        articleId="{{ $ticket->ID }}"
+                        :commentableType="CommentableType::AchievementTicket"
+                        :commentableId="$ticket->ID"
                         :article="$ticket"
                     />
                 </tbody>

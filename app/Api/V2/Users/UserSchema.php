@@ -100,7 +100,7 @@ class UserSchema extends Schema
             // - followers (BelongsToMany User) - users following this user
             // - authoredAchievements (HasMany Achievement)
             // - claims (HasMany AchievementSetClaim)
-            // - wall comments (HasMany Comment, ArticleType=3 ArticleID=self)
+            // - wall comments (HasMany Comment, commentable_type=user.comment, commentable_id=self)
         ];
     }
 

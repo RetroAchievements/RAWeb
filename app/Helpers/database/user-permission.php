@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Comment;
 use App\Models\User;
@@ -94,7 +94,7 @@ function SetAccountPermissionsJSON(
 
     $retVal['Success'] = true;
 
-    addArticleComment('Server', ArticleType::UserModeration, $targetUser->id,
+    addArticleComment('Server', CommentableType::UserModeration, $targetUser->id,
         $actingUsername . ' set account type to ' . Permissions::toString($targetUserNewPermissions)
     );
 
@@ -131,7 +131,7 @@ function setAccountForumPostAuth(User $sourceUser, int $sourcePermissions, User 
 
     authorizeAllForumPostsForUser($targetUser);
 
-    addArticleComment('Server', ArticleType::UserModeration, $targetUser->id,
+    addArticleComment('Server', CommentableType::UserModeration, $targetUser->id,
         $sourceUser->display_name . ' authorized user\'s forum posts'
     );
 
