@@ -17,7 +17,6 @@ use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use BackedEnum;
 use Filament\Actions;
 use Filament\Actions\ActionGroup;
@@ -73,15 +72,18 @@ class GameResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['ID', 'Title'];
+        return ['id', 'title'];
     }
 
     public static function infolist(Schema $schema): Schema
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $schema
             ->components([
                 Infolists\Components\ImageEntry::make('badge_url')
-                    ->label('')
+                    ->label('Badge')
                     ->size(config('media.icon.lg.width')),
 
                 Schemas\Components\Section::make('Primary Details')
@@ -99,7 +101,8 @@ class GameResource extends Resource
                         Infolists\Components\TextEntry::make('title'),
 
                         Infolists\Components\TextEntry::make('sort_title')
-                            ->label('Sort Title'),
+                            ->label('Sort Title')
+                            ->visible(fn (Game $record): bool => $user->can('updateField', [$record, 'sort_title']) ?? false),
 
                         Infolists\Components\TextEntry::make('forumTopic.id')
                             ->label('Forum Topic ID')
@@ -136,18 +139,18 @@ class GameResource extends Resource
                     ->description('While optional, this metadata can help more players find the game. It also gets fed to various apps plugged in to the RetroAchievements API.')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('Developer'),
+                        Infolists\Components\TextEntry::make('developer'),
 
-                        Infolists\Components\TextEntry::make('Publisher'),
+                        Infolists\Components\TextEntry::make('publisher'),
 
-                        Infolists\Components\TextEntry::make('Genre'),
+                        Infolists\Components\TextEntry::make('genre'),
 
-                        Infolists\Components\TextEntry::make('GuideURL')
+                        Infolists\Components\TextEntry::make('legacy_guide_url')
                             ->label('RAGuide URL')
                             ->placeholder('none')
-                            ->url(fn (Game $record): ?string => $record->GuideURL)
+                            ->url(fn (Game $record): ?string => $record->legacy_guide_url)
                             ->extraAttributes(function (Game $game): array {
-                                if ($game->GuideURL) {
+                                if ($game->legacy_guide_url) {
                                     return ['class' => 'underline'];
                                 }
 
@@ -179,11 +182,11 @@ class GameResource extends Resource
                         Schemas\Components\Fieldset::make('Achievements')
                             ->schema([
                                 Infolists\Components\TextEntry::make('achievements_published')
-                                    ->label('Published')
+                                    ->label('Promoted')
                                     ->numeric(),
 
                                 Infolists\Components\TextEntry::make('achievements_unpublished')
-                                    ->label('Unofficial')
+                                    ->label('Unpromoted')
                                     ->numeric(),
                             ])
                             ->columns(2)
@@ -195,7 +198,7 @@ class GameResource extends Resource
                                     ->label('Points')
                                     ->numeric(),
 
-                                Infolists\Components\TextEntry::make('TotalTruePoints')
+                                Infolists\Components\TextEntry::make('points_weighted')
                                     ->label('RetroPoints')
                                     ->numeric(),
                             ])
@@ -207,7 +210,7 @@ class GameResource extends Resource
                     ->icon('heroicon-s-chat-bubble-left-right')
                     ->description('Rich Presence scripts display dynamic game information to players.')
                     ->schema([
-                        Infolists\Components\ViewEntry::make('RichPresencePatch')
+                        Infolists\Components\ViewEntry::make('trigger_definition')
                             ->label('Rich Presence Script')
                             ->view('filament.components.rich-presence-script'),
                     ]),
@@ -225,29 +228,25 @@ class GameResource extends Resource
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Forms\Components\TextInput::make('Title')
+                        Forms\Components\TextInput::make('title')
                             ->label('Canonical Title')
                             ->required()
                             ->minLength(2)
                             ->maxLength(80)
-                            ->disabled(!$user->can('updateField', [$schema->model, 'Title'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'title'])),
 
                         Forms\Components\TextInput::make('sort_title')
-                            ->required()
                             ->label('Sort Title')
+                            ->required()
                             ->minLength(2)
-                            ->disabled(!$user->can('updateField', [$schema->model, 'sort_title']))
-                            ->helperText('Normalized title for sorting purposes. For example, "The Goonies II" would sort as "goonies 02". DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.')
-                            ->live()
-                            ->afterStateHydrated(function (callable $set, callable $get, ?string $state) {
-                                $set('original_sort_title', $state ?? '');
-                            }),
+                            ->visible(fn () => $user->can('updateField', [$schema->model, 'sort_title']))
+                            ->helperText('Normalized title for sorting. DON\'T CHANGE THIS UNLESS YOU KNOW WHAT YOU\'RE DOING.'),
 
-                        Forms\Components\TextInput::make('ForumTopicID')
+                        Forms\Components\TextInput::make('forum_topic_id')
                             ->label('Forum Topic ID')
                             ->numeric()
                             ->rules([new ExistsInForumTopics()])
-                            ->disabled(!$user->can('updateField', [$schema->model, 'ForumTopicID'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'forum_topic_id'])),
                     ]),
 
                 Schemas\Components\Section::make('Metadata')
@@ -255,32 +254,38 @@ class GameResource extends Resource
                     ->description('While optional, this metadata can help more players find the game. It also gets fed to various apps plugged in to the RetroAchievements API.')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Forms\Components\TextInput::make('Developer')
+                        Forms\Components\TextInput::make('developer')
                             ->maxLength(50)
-                            ->disabled(!$user->can('updateField', [$schema->model, 'Developer'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'developer'])),
 
-                        Forms\Components\TextInput::make('Publisher')
+                        Forms\Components\TextInput::make('publisher')
                             ->maxLength(50)
-                            ->disabled(!$user->can('updateField', [$schema->model, 'Publisher'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'publisher'])),
 
-                        Forms\Components\TextInput::make('Genre')
+                        Forms\Components\TextInput::make('genre')
                             ->maxLength(50)
-                            ->disabled(!$user->can('updateField', [$schema->model, 'Genre'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'genre'])),
 
-                        Forms\Components\TextInput::make('GuideURL')
+                        Forms\Components\TextInput::make('legacy_guide_url')
                             ->label('RAGuide URL')
                             ->url()
                             ->rules([new IsAllowedGuideUrl()])
                             ->suffixIcon('heroicon-m-globe-alt')
-                            ->disabled(!$user->can('updateField', [$schema->model, 'GuideURL'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'legacy_guide_url'])),
                     ]),
 
                 Schemas\Components\Section::make('Media')
                     ->icon('heroicon-s-photo')
+                    ->hidden(
+                        !$user->can('updateField', [$schema->model, 'image_icon_asset_path'])
+                        && !$user->can('updateField', [$schema->model, 'image_box_art_asset_path'])
+                        && !$user->can('updateField', [$schema->model, 'image_title_asset_path'])
+                        && !$user->can('updateField', [$schema->model, 'image_ingame_asset_path'])
+                    )
                     ->schema([
                         // Store a temporary file on disk until the user submits.
                         // When the user submits, put in storage.
-                        Forms\Components\FileUpload::make('ImageIcon')
+                        Forms\Components\FileUpload::make('image_icon_asset_path')
                             ->label('Badge')
                             ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
                             ->image()
@@ -290,48 +295,52 @@ class GameResource extends Resource
                             ->acceptedFileTypes(['image/png', 'image/jpeg'])
                             ->maxSize(1024)
                             ->maxFiles(1)
-                            ->previewable(true),
+                            ->previewable(true)
+                            ->hidden(!$user->can('updateField', [$schema->model, 'image_icon_asset_path'])),
 
-                        Forms\Components\FileUpload::make('ImageBoxArt')
+                        Forms\Components\FileUpload::make('image_box_art_asset_path')
                             ->label('Box Art')
                             ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
                             ->image()
                             ->acceptedFileTypes(['image/png', 'image/jpeg'])
                             ->maxSize(1024)
                             ->maxFiles(1)
-                            ->previewable(true),
+                            ->previewable(true)
+                            ->hidden(!$user->can('updateField', [$schema->model, 'image_box_art_asset_path'])),
 
-                        Forms\Components\FileUpload::make('ImageTitle')
+                        Forms\Components\FileUpload::make('image_title_asset_path')
                             ->label('Title')
                             ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
                             ->image()
                             ->acceptedFileTypes(['image/png', 'image/jpeg'])
                             ->maxSize(1024)
                             ->maxFiles(1)
-                            ->previewable(true),
+                            ->previewable(true)
+                            ->hidden(!$user->can('updateField', [$schema->model, 'image_title_asset_path'])),
 
-                        Forms\Components\FileUpload::make('ImageIngame')
+                        Forms\Components\FileUpload::make('image_ingame_asset_path')
                             ->label('In Game')
                             ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
                             ->image()
                             ->acceptedFileTypes(['image/png', 'image/jpeg'])
                             ->maxSize(1024)
                             ->maxFiles(1)
-                            ->previewable(true),
+                            ->previewable(true)
+                            ->hidden(!$user->can('updateField', [$schema->model, 'image_ingame_asset_path'])),
                     ])
                     ->columns(2),
 
                 Schemas\Components\Section::make('Rich Presence')
                     ->icon('heroicon-s-chat-bubble-left-right')
                     ->schema([
-                        Forms\Components\Textarea::make('RichPresencePatch')
+                        Forms\Components\Textarea::make('trigger_definition')
                             ->label('Rich Presence Script')
                             ->maxLength(60000)
                             ->rows(10)
                             ->helperText(new HtmlString('<a href="https://docs.retroachievements.org/developer-docs/rich-presence.html" target="_blank" class="underline">Learn more about Rich Presence</a>'))
                             ->placeholder("Format:Number\nFormatType=VALUE")
                             ->extraInputAttributes(['class' => 'font-mono'])
-                            ->disabled(!$user->can('updateField', [$schema->model, 'RichPresencePatch'])),
+                            ->disabled(!$user->can('updateField', [$schema->model, 'trigger_definition'])),
                     ]),
             ]);
     }
@@ -344,13 +353,14 @@ class GameResource extends Resource
                     ->label('')
                     ->size(config('media.icon.sm.width')),
 
-                Tables\Columns\TextColumn::make('ID')
+                Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('Title')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('title')
+                    ->searchable()
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy('sort_title', $direction)),
 
                 Tables\Columns\TextColumn::make('system')
                     ->label('System')
@@ -368,17 +378,17 @@ class GameResource extends Resource
                     ->url(fn (?int $state) => $state ? route('forum-topic.show', ['topic' => $state]) : null)
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('Publisher')
+                Tables\Columns\TextColumn::make('publisher')
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('Developer')
+                Tables\Columns\TextColumn::make('developer')
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('Genre')
+                Tables\Columns\TextColumn::make('genre')
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -398,13 +408,13 @@ class GameResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('achievements_published')
-                    ->label('Achievements (Published)')
+                    ->label('Achievements (Promoted)')
                     ->numeric()
                     ->sortable()
                     ->alignEnd(),
 
                 Tables\Columns\TextColumn::make('achievements_unpublished')
-                    ->label('Achievements (Unofficial)')
+                    ->label('Achievements (Unpromoted)')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
@@ -417,7 +427,7 @@ class GameResource extends Resource
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('TotalTruePoints')
+                Tables\Columns\TextColumn::make('points_weighted')
                     ->label('RetroPoints')
                     ->numeric()
                     ->sortable()
@@ -428,8 +438,8 @@ class GameResource extends Resource
                 Tables\Filters\SelectFilter::make('system')
                     ->options(function () {
                         $options = ['active' => 'All Active Systems'];
-                        $systemOptions = System::orderBy('Name')
-                            ->pluck('Name', 'ID')
+                        $systemOptions = System::orderBy('name')
+                            ->pluck('name', 'id')
                             ->toArray();
 
                         return $options + $systemOptions;
@@ -438,9 +448,9 @@ class GameResource extends Resource
                         $value = $data['value'] ?? null;
 
                         if ($value === 'active') {
-                            $query->whereIn('ConsoleID', System::active()->pluck('ID'));
+                            $query->whereIn('system_id', System::active()->pluck('id'));
                         } elseif ($value) {
-                            $query->where('ConsoleID', $value);
+                            $query->where('system_id', $value);
                         }
                     }),
 
@@ -472,62 +482,62 @@ class GameResource extends Resource
                             return $query;
                         }
 
-                        $query = $query->whereNotIn('ConsoleID', System::getNonGameSystems());
+                        $query = $query->whereNotIn('system_id', System::getNonGameSystems());
 
                         switch ($data['value']) {
                             case 'none':
-                                return $query->whereNotNull('ImageIcon')
-                                    ->where('ImageIcon', '!=', '/Images/000001.png')
-                                    ->whereNotNull('ImageTitle')
-                                    ->where('ImageTitle', '!=', '/Images/000002.png')
-                                    ->whereNotNull('ImageIngame')
-                                    ->where('ImageIngame', '!=', '/Images/000002.png')
-                                    ->whereNotNull('ImageBoxArt')
-                                    ->where('ImageBoxArt', '!=', '/Images/000002.png');
+                                return $query->whereNotNull('image_icon_asset_path')
+                                    ->where('image_icon_asset_path', '!=', '/Images/000001.png')
+                                    ->whereNotNull('image_title_asset_path')
+                                    ->where('image_title_asset_path', '!=', '/Images/000002.png')
+                                    ->whereNotNull('image_ingame_asset_path')
+                                    ->where('image_ingame_asset_path', '!=', '/Images/000002.png')
+                                    ->whereNotNull('image_box_art_asset_path')
+                                    ->where('image_box_art_asset_path', '!=', '/Images/000002.png');
                             case 'all':
                                 return $query->where(function ($query) {
-                                    $query->whereNull('ImageIcon')
-                                        ->orWhere('ImageIcon', '/Images/000001.png');
+                                    $query->whereNull('image_icon_asset_path')
+                                        ->orWhere('image_icon_asset_path', '/Images/000001.png');
                                 })->where(function ($query) {
-                                    $query->whereNull('ImageTitle')
-                                        ->orWhere('ImageTitle', '/Images/000002.png');
+                                    $query->whereNull('image_title_asset_path')
+                                        ->orWhere('image_title_asset_path', '/Images/000002.png');
                                 })->where(function ($query) {
-                                    $query->whereNull('ImageIngame')
-                                        ->orWhere('ImageIngame', '/Images/000002.png');
+                                    $query->whereNull('image_ingame_asset_path')
+                                        ->orWhere('image_ingame_asset_path', '/Images/000002.png');
                                 })->where(function ($query) {
-                                    $query->whereNull('ImageBoxArt')
-                                        ->orWhere('ImageBoxArt', '/Images/000002.png');
+                                    $query->whereNull('image_box_art_asset_path')
+                                        ->orWhere('image_box_art_asset_path', '/Images/000002.png');
                                 });
                             case 'any':
                                 return $query->where(function ($query) {
-                                    $query->whereNull('ImageIcon')
-                                        ->orWhere('ImageIcon', '/Images/000001.png')
-                                        ->orWhereNull('ImageTitle')
-                                        ->orWhere('ImageTitle', '/Images/000002.png')
-                                        ->orWhereNull('ImageIngame')
-                                        ->orWhere('ImageIngame', '/Images/000002.png')
-                                        ->orWhereNull('ImageBoxArt')
-                                        ->orWhere('ImageBoxArt', '/Images/000002.png');
+                                    $query->whereNull('image_icon_asset_path')
+                                        ->orWhere('image_icon_asset_path', '/Images/000001.png')
+                                        ->orWhereNull('image_title_asset_path')
+                                        ->orWhere('image_title_asset_path', '/Images/000002.png')
+                                        ->orWhereNull('image_ingame_asset_path')
+                                        ->orWhere('image_ingame_asset_path', '/Images/000002.png')
+                                        ->orWhereNull('image_box_art_asset_path')
+                                        ->orWhere('image_box_art_asset_path', '/Images/000002.png');
                                 });
                             case 'badge':
                                 return $query->where(function ($query) {
-                                    $query->whereNull('ImageIcon')
-                                        ->orWhere('ImageIcon', '/Images/000001.png');
+                                    $query->whereNull('image_icon_asset_path')
+                                        ->orWhere('image_icon_asset_path', '/Images/000001.png');
                                 });
                             case 'boxart':
                                 return $query->where(function ($query) {
-                                    $query->whereNull('ImageBoxArt')
-                                        ->orWhere('ImageBoxArt', '/Images/000002.png');
+                                    $query->whereNull('image_box_art_asset_path')
+                                        ->orWhere('image_box_art_asset_path', '/Images/000002.png');
                                 });
                             case 'title':
                                 return $query->where(function ($query) {
-                                    $query->whereNull('ImageTitle')
-                                        ->orWhere('ImageTitle', '/Images/000002.png');
+                                    $query->whereNull('image_title_asset_path')
+                                        ->orWhere('image_title_asset_path', '/Images/000002.png');
                                 });
                             case 'ingame':
                                 return $query->where(function ($query) {
-                                    $query->whereNull('ImageIngame')
-                                        ->orWhere('ImageIngame', '/Images/000002.png');
+                                    $query->whereNull('image_ingame_asset_path')
+                                        ->orWhere('image_ingame_asset_path', '/Images/000002.png');
                                 });
                             default:
                                 return $query;
@@ -541,19 +551,19 @@ class GameResource extends Resource
                     ->falseLabel('No')
                     ->queries(
                         true: fn (Builder $query): Builder => $query
-                            ->whereNotNull('RichPresencePatch')
-                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+                            ->whereNotNull('trigger_definition')
+                            ->whereNotIn('system_id', System::getNonGameSystems())
                             ->where(function (Builder $query) {
-                                $query->where('RichPresencePatch', 'LIKE', '%@%')
-                                    ->orWhere('RichPresencePatch', 'LIKE', '%?%');
+                                $query->where('trigger_definition', 'LIKE', '%@%')
+                                    ->orWhere('trigger_definition', 'LIKE', '%?%');
                             }),
                         false: fn (Builder $query): Builder => $query
-                            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+                            ->whereNotIn('system_id', System::getNonGameSystems())
                             ->where(function (Builder $query) {
-                                $query->whereNull('RichPresencePatch')
+                                $query->whereNull('trigger_definition')
                                     ->orWhere(function (Builder $query) {
-                                        $query->where('RichPresencePatch', 'NOT LIKE', '%@%')
-                                            ->where('RichPresencePatch', 'NOT LIKE', '%?%');
+                                        $query->where('trigger_definition', 'NOT LIKE', '%@%')
+                                            ->where('trigger_definition', 'NOT LIKE', '%?%');
                                     });
                             }),
                         blank: fn (Builder $query): Builder => $query,
@@ -567,20 +577,20 @@ class GameResource extends Resource
                     ->queries(
                         true: fn (Builder $query): Builder => $query->whereExists(function ($subquery) {
                             $subquery->selectRaw('1')
-                                ->from('Achievements')
-                                ->whereColumn('Achievements.GameID', 'GameData.ID')
-                                ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
-                                ->whereNull('Achievements.deleted_at')
-                                ->groupBy('Achievements.GameID', 'Achievements.BadgeName')
+                                ->from('achievements')
+                                ->whereColumn('achievements.game_id', 'games.id')
+                                ->where('achievements.is_promoted', true)
+                                ->whereNull('achievements.deleted_at')
+                                ->groupBy('achievements.game_id', 'achievements.image_name')
                                 ->havingRaw('COUNT(*) > 1');
                         }),
                         false: fn (Builder $query): Builder => $query->whereNotExists(function ($subquery) {
                             $subquery->selectRaw('1')
-                                ->from('Achievements')
-                                ->whereColumn('Achievements.GameID', 'GameData.ID')
-                                ->where('Achievements.Flags', AchievementFlag::OfficialCore->value)
-                                ->whereNull('Achievements.deleted_at')
-                                ->groupBy('Achievements.GameID', 'Achievements.BadgeName')
+                                ->from('achievements')
+                                ->whereColumn('achievements.game_id', 'games.id')
+                                ->where('achievements.is_promoted', true)
+                                ->whereNull('achievements.deleted_at')
+                                ->groupBy('achievements.game_id', 'achievements.image_name')
                                 ->havingRaw('COUNT(*) > 1');
                         }),
                         blank: fn (Builder $query): Builder => $query,

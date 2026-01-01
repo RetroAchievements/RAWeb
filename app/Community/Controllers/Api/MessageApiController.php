@@ -48,7 +48,7 @@ class MessageApiController extends Controller
 
             // Is the current user a participant? If not, they may be replying while
             // viewing a team account inbox they have permission to access.
-            $isUserParticipant = $participants->contains('ID', $user->ID);
+            $isUserParticipant = $participants->contains('id', $user->id);
             if (!$isUserParticipant) {
                 $policy = new MessageThreadPolicy();
                 $accessibleTeamIds = $policy->getAccessibleTeamIds($user);
@@ -69,7 +69,7 @@ class MessageApiController extends Controller
                 $authorId = $foundTeamParticipant->id;
             }
 
-            $userFrom = User::firstWhere('ID', $authorId);
+            $userFrom = User::firstWhere('id', $authorId);
 
             foreach ($thread->users as $threadUser) {
                 if (!$threadUser->is($userFrom) && !$userFrom->can('sendToRecipient', [Message::class, $threadUser])) {
@@ -91,7 +91,7 @@ class MessageApiController extends Controller
                 && !empty($input['senderUserDisplayName'])
                 && $user->display_name !== $input['senderUserDisplayName']
             ) {
-                $teamAccount = User::firstWhere('User', $input['senderUserDisplayName']);
+                $teamAccount = User::firstWhere('username', $input['senderUserDisplayName']);
                 if ($teamAccount) {
                     $authorId = $teamAccount->id;
                 }
@@ -103,7 +103,7 @@ class MessageApiController extends Controller
                 return response()->json(['error' => 'cannot_message_user'], 403);
             }
 
-            $userFrom = User::firstWhere('ID', $authorId);
+            $userFrom = User::firstWhere('id', $authorId);
 
             if (!$userFrom->can('sendToRecipient', [Message::class, $recipient])) {
                 return response()->json([

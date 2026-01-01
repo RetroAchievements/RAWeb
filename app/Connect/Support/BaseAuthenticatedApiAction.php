@@ -53,7 +53,7 @@ abstract class BaseAuthenticatedApiAction extends BaseApiAction
             return $this->invalidCredentials();
         }
 
-        if (strcasecmp($this->user->User, $username) === 0) {
+        if (strcasecmp($this->user->username, $username) === 0) {
             // matched user name
         } elseif (strcasecmp($this->user->display_name, $username) === 0) {
             // matched display name

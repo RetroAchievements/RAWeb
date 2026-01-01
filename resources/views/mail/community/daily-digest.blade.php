@@ -1,4 +1,7 @@
-<x-mail::message>
+<x-mail::message
+    :categoryUrl="$categoryUrl"
+    :categoryText="$categoryText"
+>
 Hello {{ $user->display_name }},
 
 The following conversations that you have participated in were updated recently:
@@ -7,12 +10,20 @@ The following conversations that you have participated in were updated recently:
 @php
     switch ($notificationItem['type']) {
         case 'ForumTopic':
-            $clause = "in [${notificationItem['title']}](${notificationItem['link']}) (forum topic)";
+            $clause = "in the forum topic [${notificationItem['title']}](${notificationItem['link']})";
             $postType = 'post';
             break;
+        case 'AchievementTicket':
+            $clause = "on the ticket for [${notificationItem['title']}](${notificationItem['link']})";
+            $postType = 'comment';
+            break;
         default:
-            $lowerType = strtolower($notificationItem['type']);
-            $clause = "on [${notificationItem['title']}](${notificationItem['link']}) ($lowerType)";
+            $lowerType = match ($notificationItem['type']) {
+                'GameWall' => 'game',
+                'UserWall' => 'user',
+                default => strtolower($notificationItem['type']),
+            };
+            $clause = "on the {$lowerType} wall for [${notificationItem['title']}](${notificationItem['link']})";
             $postType = 'comment';
             break;
     }

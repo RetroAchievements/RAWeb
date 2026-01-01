@@ -18,7 +18,7 @@ class BuildSeriesHubDataActionTest extends TestCase
     public function testItReturnsNullWhenGameHasNoHubs(): void
     {
         // Arrange
-        $game = Game::factory()->create(['Title' => 'Test Game']);
+        $game = Game::factory()->create(['title' => 'Test Game']);
 
         // Act
         $result = (new BuildSeriesHubDataAction())->execute($game);
@@ -31,7 +31,7 @@ class BuildSeriesHubDataActionTest extends TestCase
     {
         // Arrange
         $game = Game::factory()->create([
-            'Title' => 'Super Mario Bros.',
+            'title' => 'Super Mario Bros.',
             'released_at' => '1985-09-13',
         ]);
         $seriesHub = GameSet::factory()->create([
@@ -41,25 +41,25 @@ class BuildSeriesHubDataActionTest extends TestCase
 
         // ... create some games in the series with release dates ...
         $game1 = Game::factory()->create([
-            'Title' => 'Super Mario Bros. 2',
+            'title' => 'Super Mario Bros. 2',
             'released_at' => '1988-10-09',
             'achievements_published' => 10,
             'points_total' => 100,
         ]);
         $game2 = Game::factory()->create([
-            'Title' => 'Super Mario Bros. 3',
+            'title' => 'Super Mario Bros. 3',
             'released_at' => '1988-10-23',
             'achievements_published' => 20,
             'points_total' => 200,
         ]);
         $game3 = Game::factory()->create([
-            'Title' => 'Super Mario World',
+            'title' => 'Super Mario World',
             'released_at' => '1990-11-21',
             'achievements_published' => 30,
             'points_total' => 300,
         ]);
         $subset = Game::factory()->create([
-            'Title' => 'Super Mario Bros. [Subset - Hard Mode]',
+            'title' => 'Super Mario Bros. [Subset - Hard Mode]',
             'released_at' => '1985-09-13',
             'achievements_published' => 5,
             'points_total' => 50,
@@ -82,7 +82,7 @@ class BuildSeriesHubDataActionTest extends TestCase
     public function testItPrefersSubseriesHubOverSeriesHub(): void
     {
         // Arrange
-        $game = Game::factory()->create(['Title' => 'Zelda II: The Adventure of Link']);
+        $game = Game::factory()->create(['title' => 'Zelda II: The Adventure of Link']);
 
         $seriesHub = GameSet::factory()->create([
             'title' => 'Series - The Legend of Zelda',

@@ -29,7 +29,7 @@ render(function (View $view) {
 
     $completedClaims = AchievementSetClaim::primaryClaim()
         ->complete()
-        ->where('Finished', '>', Carbon::now()->subDays(90));
+        ->where('finished_at', '>', Carbon::now()->subDays(90));
     $completedClaimsCount = $completedClaims->count();
 
     $filterOptions = $claimsService->getFilterOptions(request());

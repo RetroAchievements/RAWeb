@@ -20,7 +20,7 @@ class StoreCommentRequest extends FormRequest
                 new ContainsRegularCharacter(),
             ],
             'commentableId' => 'required|integer',
-            'commentableType' => 'required|integer',
+            'commentableType' => 'required|string',
         ];
     }
 }

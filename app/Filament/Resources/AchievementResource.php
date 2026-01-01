@@ -12,10 +12,10 @@ use App\Models\Game;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
 use BackedEnum;
+use Closure;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Infolists;
@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 use UnitEnum;
 
 class AchievementResource extends Resource
@@ -64,7 +65,7 @@ class AchievementResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['ID', 'Title', 'Description'];
+        return ['id', 'title', 'description'];
     }
 
     public static function infolist(Schema $schema): Schema
@@ -73,117 +74,108 @@ class AchievementResource extends Resource
         $user = Auth::user();
 
         return $schema
-            ->columns(1)
             ->components([
                 Schemas\Components\Flex::make([
-                    Schemas\Components\Section::make()
-                        ->columns(['xl' => 2, '2xl' => 3])
-                        ->schema([
-                            Schemas\Components\Group::make()
-                                ->schema([
-                                    Infolists\Components\ImageEntry::make('badge_url')
-                                        ->label('Badge')
-                                        ->size(config('media.icon.lg.width')),
-                                    Infolists\Components\ImageEntry::make('badge_locked_url')
-                                        ->label('Badge (locked)')
-                                        ->size(config('media.icon.lg.width')),
-                                ]),
+                    Infolists\Components\ImageEntry::make('badge_url')
+                        ->label('Icon')
+                        ->size(config('media.icon.md.width')),
 
-                            Schemas\Components\Group::make()
-                                ->schema([
-                                    Infolists\Components\TextEntry::make('Title'),
+                    Infolists\Components\ImageEntry::make('badge_locked_url')
+                        ->label('Icon (Locked)')
+                        ->size(config('media.icon.md.width')),
+                ])->from('md'),
 
-                                    Infolists\Components\TextEntry::make('Description'),
-
-                                    Infolists\Components\TextEntry::make('game')
-                                        ->label('Game')
-                                        ->formatStateUsing(fn (Game $state) => '[' . $state->id . '] ' . $state->title),
-
-                                    Infolists\Components\TextEntry::make('developer')
-                                        ->label('Author')
-                                        ->formatStateUsing(fn (User $state) => $state->display_name),
-                                ]),
-
-                            Schemas\Components\Group::make()
-                                ->schema([
-                                    Infolists\Components\TextEntry::make('canonical_url')
-                                        ->label('Canonical URL')
-                                        ->url(fn (Achievement $record): string => $record->getCanonicalUrlAttribute()),
-
-                                    Infolists\Components\TextEntry::make('permalink')
-                                        ->url(fn (Achievement $record): string => $record->getPermalinkAttribute()),
-
-                                    Infolists\Components\TextEntry::make('activeMaintainer.user.display_name')
-                                        ->label('Current Maintainer')
-                                        ->placeholder(fn (Achievement $record) => $record->developer->display_name . ' (original developer)')
-                                        ->formatStateUsing(fn ($state, Achievement $record) => $state . ' (since ' .
-                                            ($record->activeMaintainer?->effective_from?->format('Y-m-d') ?? 'N/A') . ')')
-                                        ->extraAttributes(['class' => 'font-medium']),
-
-                                    Schemas\Components\Actions::make([
-                                        Actions\Action::make('setMaintainer')
-                                            ->label('Change Maintainer')
-                                            ->icon('heroicon-o-user')
-                                            ->schema(fn (Achievement $record) => static::buildMaintainerForm($record))
-                                            ->action(function (Achievement $record, array $data): void {
-                                                static::handleSetMaintainer($record, $data);
-
-                                                Notification::make()
-                                                    ->success()
-                                                    ->title('Success')
-                                                    ->body('Set achievement maintainer.')
-                                                    ->send();
-                                            }),
-                                    ])
-                                        ->visible(fn (): bool => $user->can('assignMaintainer', [Achievement::class])),
-                                ]),
-                        ]),
-
-                    Schemas\Components\Section::make([
+                Schemas\Components\Section::make('Primary Details')
+                    ->icon('heroicon-m-key')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
 
-                        Infolists\Components\TextEntry::make('Created')
-                            ->label('Created at')
-                            ->dateTime()
-                            ->hidden(fn ($state) => !$state),
+                        Infolists\Components\TextEntry::make('title'),
 
-                        Infolists\Components\TextEntry::make('DateModified')
-                            ->label('Modified at')
-                            ->dateTime()
-                            ->hidden(fn ($state) => !$state),
+                        Infolists\Components\TextEntry::make('description'),
 
-                        Infolists\Components\TextEntry::make('Updated')
-                            ->label('Updated at')
-                            ->dateTime()
-                            ->hidden(fn ($state) => !$state),
+                        Infolists\Components\TextEntry::make('game')
+                            ->label('Game')
+                            ->formatStateUsing(fn (Game $state) => "[{$state->id}] {$state->title} ({$state->system->name_short})")
+                            ->url(fn (Game $state): string => GameResource::getUrl('view', ['record' => $state->id]))
+                            ->extraAttributes(['class' => 'underline']),
 
-                        Infolists\Components\TextEntry::make('Flags')
+                        Infolists\Components\TextEntry::make('developer')
+                            ->label('Author')
+                            ->formatStateUsing(fn (User $state) => $state->display_name)
+                            ->url(fn (User $state): string => route('user.show', $state->display_name))
+                            ->extraAttributes(['class' => 'underline']),
+
+                        Infolists\Components\TextEntry::make('permalink')
+                            ->url(fn (Achievement $record): string => $record->getPermalinkAttribute())
+                            ->extraAttributes(['class' => 'underline'])
+                            ->openUrlInNewTab(),
+                    ]),
+
+                Schemas\Components\Section::make('Classification')
+                    ->icon('heroicon-o-tag')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Infolists\Components\TextEntry::make('is_promoted')
+                            ->label('Promotion Status')
                             ->badge()
-                            ->wrap()
-                            ->formatStateUsing(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
-                                AchievementFlag::OfficialCore => AchievementFlag::OfficialCore->label(),
-                                AchievementFlag::Unofficial => AchievementFlag::Unofficial->label(),
-                                default => '',
-                            })
-                            ->color(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
-                                AchievementFlag::OfficialCore => 'success',
-                                AchievementFlag::Unofficial => 'info',
-                                default => '',
-                            }),
+                            ->formatStateUsing(fn (bool $state): string => $state ? 'Promoted' : 'Unpromoted')
+                            ->color(fn (bool $state): string => $state ? 'success' : 'info'),
 
                         Infolists\Components\TextEntry::make('type')
-                            ->hidden(fn ($record) => $record->game->system->id === System::Events)
+                            ->label('Type')
                             ->badge()
-                            ->wrap(),
+                            ->placeholder('none')
+                            ->formatStateUsing(fn (?string $state): string => $state ? __('achievement-type.' . $state) : '')
+                            ->color(fn (?string $state): string => match ($state) {
+                                AchievementType::Missable => 'warning',
+                                AchievementType::Progression => 'info',
+                                AchievementType::WinCondition => 'success',
+                                default => 'gray',
+                            })
+                            ->hidden(fn ($record) => $record->game->system->id === System::Events),
 
-                        Infolists\Components\TextEntry::make('Points'),
+                        Infolists\Components\TextEntry::make('points'),
 
-                        Infolists\Components\TextEntry::make('DisplayOrder'),
-                    ])->grow(false),
-                ])->from('md'),
+                        Infolists\Components\TextEntry::make('order_column')
+                            ->label('Display Order'),
+                    ]),
+
+                Schemas\Components\Section::make('Maintainer')
+                    ->icon('heroicon-o-user')
+                    ->description('The developer responsible for maintaining this achievement. All new tickets will be assigned to the maintainer.')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('activeMaintainer.user.display_name')
+                            ->label('Current Maintainer')
+                            ->placeholder(fn (Achievement $record) => $record->developer->display_name . ' (original developer)')
+                            ->formatStateUsing(fn ($state, Achievement $record) => $state . ' (since ' .
+                                ($record->activeMaintainer?->effective_from?->format('Y-m-d') ?? 'N/A') . ')')
+                            ->extraAttributes(['class' => 'font-medium']),
+
+                        Schemas\Components\Actions::make([
+                            Actions\Action::make('setMaintainer')
+                                ->label('Change Maintainer')
+                                ->icon('heroicon-o-user')
+                                ->schema(fn (Achievement $record) => static::buildMaintainerForm($record))
+                                ->action(function (Achievement $record, array $data): void {
+                                    static::handleSetMaintainer($record, $data);
+
+                                    Notification::make()
+                                        ->success()
+                                        ->title('Success')
+                                        ->body('Set achievement maintainer.')
+                                        ->send();
+                                }),
+                        ])
+                            ->visible(fn (): bool => $user->can('assignMaintainer', [Achievement::class])),
+                    ])
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4]),
 
                 Schemas\Components\Section::make('Event Association')
+                    ->icon('heroicon-o-calendar')
+                    ->columns(['md' => 2, 'xl' => 4])
                     ->schema([
                         Infolists\Components\TextEntry::make('eventData.source_achievement_id')
                             ->label('Source Achievement')
@@ -193,14 +185,15 @@ class AchievementResource extends Resource
 
                                 return "[{$achievement->id}] {$achievement->title}";
                             }),
+
                         Infolists\Components\TextEntry::make('eventData.active_from')
                             ->label('Active From')
                             ->date(),
+
                         Infolists\Components\TextEntry::make('eventData.active_through')
                             ->label('Active Through')
                             ->date(),
                     ])
-                    ->columns(['xl' => 4, 'md' => 2])
                     ->hidden(fn ($record) => $record->game->system->id !== System::Events),
             ]);
     }
@@ -213,100 +206,83 @@ class AchievementResource extends Resource
         $schema->model?->loadMissing('game.system');
 
         return $schema
-            ->columns(1)
             ->components([
-                Schemas\Components\Flex::make([
-                    Schemas\Components\Section::make()
-                        ->columns(['xl' => 2, '2xl' => 2])
-                        ->schema([
-                            Forms\Components\TextInput::make('Title')
-                                ->required()
-                                ->maxLength(64)
-                                ->disabled(!$user->can('updateField', [$schema->model, 'Title'])),
+                Schemas\Components\Section::make('Details')
+                    ->icon('heroicon-m-key')
+                    ->columns(['md' => 2, 'xl' => 2])
+                    ->schema([
+                        Forms\Components\TextInput::make('title')
+                            ->required()
+                            ->maxLength(64)
+                            ->disabled(!$user->can('updateField', [$schema->model, 'title'])),
 
-                            Forms\Components\TextInput::make('Description')
-                                ->required()
-                                ->maxLength(255)
-                                ->disabled(!$user->can('updateField', [$schema->model, 'Description'])),
+                        Forms\Components\TextInput::make('description')
+                            ->required()
+                            ->maxLength(255)
+                            ->disabled(!$user->can('updateField', [$schema->model, 'description'])),
+                    ]),
 
-                            Schemas\Components\Section::make('Maintainer')
-                                ->schema([
-                                    Forms\Components\Placeholder::make('current_maintainer')
-                                        ->label('Current Maintainer')
-                                        ->content(function (Achievement $record) {
-                                            if ($record->activeMaintainer?->user) {
-                                                return $record->activeMaintainer->user->display_name . ' (since ' .
-                                                    $record->activeMaintainer->effective_from->format('Y-m-d') . ')';
-                                            }
+                Schemas\Components\Section::make('Classification')
+                    ->icon('heroicon-o-tag')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Forms\Components\Toggle::make('is_promoted')
+                            ->label('Promoted')
+                            ->inline(false)
+                            ->disabled(!$user->can('updateField', [$schema->model, 'is_promoted'])),
 
-                                            return $record->developer->display_name . ' (original developer)';
-                                        }),
+                        Forms\Components\Select::make('points')
+                            ->required()
+                            ->default(0)
+                            ->options(
+                                collect(AchievementPoints::cases())
+                                    ->mapWithKeys(fn ($value) => [$value => $value])
+                            )
+                            ->disabled(!$user->can('updateField', [$schema->model, 'points'])),
 
-                                    Schemas\Components\Actions::make([
-                                        Actions\Action::make('setMaintainer')
-                                            ->label('Change Maintainer')
-                                            ->icon('heroicon-o-user')
-                                            ->schema(fn (Achievement $record) => static::buildMaintainerForm($record))
-                                            ->action(function (Achievement $record, array $data): void {
-                                                static::handleSetMaintainer($record, $data);
+                        Forms\Components\Select::make('type')
+                            ->label('Type')
+                            ->placeholder('None')
+                            ->options(function (?Achievement $record) {
+                                $canHaveBeatenTypes = $record?->getCanHaveBeatenTypes() ?? true;
 
-                                                Notification::make()
-                                                    ->success()
-                                                    ->title('Success')
-                                                    ->body('Set achievement maintainer.')
-                                                    ->send();
-                                            }),
-                                    ]),
-                                ])
-                                ->columns(1)
-                                ->visible(fn (): bool => $user->can('assignMaintainer', [Achievement::class])),
-                        ]),
+                                $types = collect(AchievementType::cases());
+                                if (!$canHaveBeatenTypes) {
+                                    $types = $types->filter(fn ($type) => $type === AchievementType::Missable);
+                                }
 
-                    Schemas\Components\Section::make()
-                        ->grow(false)
-                        ->schema([
-                            Forms\Components\Select::make('Flags')
-                                ->options([
-                                    AchievementFlag::OfficialCore->value => AchievementFlag::OfficialCore->label(),
-                                    AchievementFlag::Unofficial->value => AchievementFlag::Unofficial->label(),
-                                ])
-                                ->default(AchievementFlag::Unofficial->value)
-                                ->required()
-                                ->disabled(!$user->can('updateField', [$schema->model, 'Flags'])),
+                                return $types->mapWithKeys(fn ($value) => [$value => __('achievement-type.' . $value)]);
+                            })
+                            ->helperText('A game is considered beaten if ALL Progression achievements are unlocked and ANY Win Condition achievements are unlocked.')
+                            ->hidden(fn (?Achievement $record) => !System::isGameSystem($record?->game?->system?->id ?? 0))
+                            ->disabled(!$user->can('updateField', [$schema->model, 'type'])),
+                    ]),
 
-                            Forms\Components\Select::make('type')
-                                ->options(
-                                    collect(AchievementType::cases())
-                                        ->mapWithKeys(fn ($value) => [$value => __($value)])
-                                )
-                                ->hidden(fn (?Achievement $record) => $record?->game?->system?->id === System::Events)
-                                ->disabled(!$user->can('updateField', [$schema->model, 'type'])),
-
-                            Forms\Components\Select::make('Points')
-                                ->required()
-                                ->default(0)
-                                ->options(
-                                    collect(AchievementPoints::cases())
-                                        ->mapWithKeys(fn ($value) => [$value => $value])
-                                )
-                                ->disabled(!$user->can('updateField', [$schema->model, 'Points'])),
-
-                            Forms\Components\TextInput::make('DisplayOrder')
-                                ->required()
-                                ->numeric()
-                                ->default(0)
-                                ->disabled(!$user->can('updateField', [$schema->model, 'DisplayOrder'])),
-                        ]),
-                ])->from('md'),
+                Schemas\Components\Section::make('Video (Deprecated)')
+                    ->icon('heroicon-o-video-camera')
+                    ->description(new HtmlString('This field is deprecated and will be replaced with on-site guides. <a href="https://github.com/RetroAchievements/RAWeb/discussions/4196" target="_blank" class="underline">See RFC</a>'))
+                    ->schema([
+                        Forms\Components\TextInput::make('embed_url')
+                            ->label('Video URL')
+                            ->maxLength(255)
+                            ->disabled(!$user->can('updateField', [$schema->model, 'embed_url']))
+                            ->rules([
+                                fn (?Achievement $record): Closure => function (string $attribute, $value, Closure $fail) use ($record) {
+                                    // Only allow clearing the field, not changing to a different value.
+                                    if (!empty($value) && $value !== $record?->embed_url) {
+                                        $fail('This field is deprecated. You can only clear it, not change it to a different URL.');
+                                    }
+                                },
+                            ]),
+                    ])
+                    ->visible(fn (?Achievement $record): bool => !empty($record?->embed_url)),
 
                 Schemas\Components\Section::make('Media')
                     ->icon('heroicon-s-photo')
                     ->schema([
-                        // Store a temporary file on disk until the user submits.
-                        // When the user submits, put in storage.
-                        Forms\Components\FileUpload::make('BadgeName')
-                            ->label('Badge')
-                            ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk.
+                        Forms\Components\FileUpload::make('image_name')
+                            ->label('Icon')
+                            ->disk('livewire-tmp')
                             ->image()
                             ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/gif'])
                             ->maxSize(1024)
@@ -314,7 +290,41 @@ class AchievementResource extends Resource
                             ->previewable(true),
                     ])
                     ->columns(2)
-                    ->hidden(!$user->can('updateField', [$schema->model, 'BadgeName'])),
+                    ->hidden(!$user->can('updateField', [$schema->model, 'image_name'])),
+
+                Schemas\Components\Section::make('Maintainer')
+                    ->icon('heroicon-o-user')
+                    ->description('The developer responsible for maintaining this achievement. All new tickets will be assigned to the maintainer.')
+                    ->schema([
+                        Forms\Components\Placeholder::make('current_maintainer')
+                            ->label('Current Maintainer')
+                            ->content(function (Achievement $record) {
+                                if ($record->activeMaintainer?->user) {
+                                    return $record->activeMaintainer->user->display_name . ' (since ' .
+                                        $record->activeMaintainer->effective_from->format('Y-m-d') . ')';
+                                }
+
+                                return $record->developer->display_name . ' (original developer)';
+                            }),
+
+                        Schemas\Components\Actions::make([
+                            Actions\Action::make('setMaintainer')
+                                ->label('Change Maintainer')
+                                ->icon('heroicon-o-user')
+                                ->schema(fn (Achievement $record) => static::buildMaintainerForm($record))
+                                ->action(function (Achievement $record, array $data): void {
+                                    static::handleSetMaintainer($record, $data);
+
+                                    Notification::make()
+                                        ->success()
+                                        ->title('Success')
+                                        ->body('Set achievement maintainer.')
+                                        ->send();
+                                }),
+                        ]),
+                    ])
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->visible(fn (): bool => $user->can('assignMaintainer', [Achievement::class])),
             ]);
     }
 
@@ -326,18 +336,18 @@ class AchievementResource extends Resource
                     ->label('')
                     ->size(config('media.icon.sm.width')),
 
-                Tables\Columns\TextColumn::make('ID')
+                Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('Title')
+                Tables\Columns\TextColumn::make('title')
                     ->label('Achievement')
                     ->wrap()
                     ->description(fn (Achievement $record): string => $record->description)
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('Description')
+                Tables\Columns\TextColumn::make('description')
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
@@ -347,19 +357,12 @@ class AchievementResource extends Resource
                     ->formatStateUsing(fn (Game $state) => "[{$state->id}] {$state->title}")
                     ->url(fn (Game $state) => GameResource::getUrl('view', ['record' => $state->id])),
 
-                Tables\Columns\TextColumn::make('Flags')
+                Tables\Columns\TextColumn::make('is_promoted')
+                    ->label('Status')
                     ->badge()
                     ->wrap()
-                    ->formatStateUsing(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
-                        AchievementFlag::OfficialCore => AchievementFlag::OfficialCore->label(),
-                        AchievementFlag::Unofficial => AchievementFlag::Unofficial->label(),
-                        default => '',
-                    })
-                    ->color(fn (int $state): string => match (AchievementFlag::tryFrom($state)) {
-                        AchievementFlag::OfficialCore => 'success',
-                        AchievementFlag::Unofficial => 'info',
-                        default => '',
-                    }),
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'Promoted' : 'Unpromoted')
+                    ->color(fn (bool $state): string => $state ? 'success' : 'info'),
 
                 Tables\Columns\TextColumn::make('type')
                     ->formatStateUsing(fn (string $state): string => match ($state) {
@@ -377,13 +380,13 @@ class AchievementResource extends Resource
                     ->badge()
                     ->wrap(),
 
-                Tables\Columns\TextColumn::make('Points')
+                Tables\Columns\TextColumn::make('points')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('TrueRatio')
+                Tables\Columns\TextColumn::make('points_weighted')
                     ->label('RetroPoints')
                     ->numeric()
                     ->sortable()
@@ -396,7 +399,7 @@ class AchievementResource extends Resource
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('unlocks_hardcore_total')
+                Tables\Columns\TextColumn::make('unlocks_hardcore')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
@@ -414,27 +417,28 @@ class AchievementResource extends Resource
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('BadgeName')
+                Tables\Columns\TextColumn::make('image_name')
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('DisplayOrder')
+                Tables\Columns\TextColumn::make('order_column')
+                    ->label('Display Order')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('DateCreated')
+                Tables\Columns\TextColumn::make('created_at')
                     ->label('Created at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('DateModified')
+                Tables\Columns\TextColumn::make('modified_at')
                     ->label('Modified at')
                     ->dateTime()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('Updated')
+                Tables\Columns\TextColumn::make('updated_at')
                     ->label('Updated at')
                     ->dateTime()
                     ->sortable()
@@ -445,7 +449,7 @@ class AchievementResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('DateModified', 'desc')
+            ->defaultSort('modified_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
                     ->multiple()

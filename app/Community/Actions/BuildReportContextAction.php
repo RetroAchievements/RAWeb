@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\ModerationReportableType;
 use App\Models\Comment;
 use App\Support\Shortcode\Shortcode;
@@ -106,24 +106,24 @@ class BuildReportContextAction
     }
 
     /**
-     * Build a link to a comment based on its ArticleType.
+     * Build a link to a comment based on its commentable_type.
      * Handles all comment types: user walls, game walls, achievement walls, etc.
      */
     private function buildCommentLink(Comment $comment): ?string
     {
-        if (!$comment->ArticleID) {
+        if (!$comment->commentable_id) {
             return null;
         }
 
         // For supported types, use the intelligent redirect route that handles pagination.
-        if (ArticleType::supportsCommentRedirect($comment->ArticleType)) {
-            return route('comment.show', ['comment' => $comment->ID]);
+        if ($comment->commentable_type->supportsCommentRedirect()) {
+            return route('comment.show', ['comment' => $comment->id]);
         }
 
-        $anchor = '#comment_' . $comment->ID;
+        $anchor = '#comment_' . $comment->id;
 
-        return match ($comment->ArticleType) {
-            ArticleType::AchievementTicket => route('ticket.show', ['ticket' => $comment->ArticleID]) . $anchor,
+        return match ($comment->commentable_type) {
+            CommentableType::AchievementTicket => route('ticket.show', ['ticket' => $comment->commentable_id]) . $anchor,
 
             default => null,
         };

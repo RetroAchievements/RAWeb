@@ -1,8 +1,9 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketState;
+use App\Community\Enums\TicketType;
 use App\Community\Services\SubscriptionService;
 use App\Enums\UserPreference;
 use App\Mail\TicketCreatedMail;
@@ -14,7 +15,6 @@ use App\Models\GameHash;
 use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -110,9 +110,9 @@ function sendInitialTicketEmailToAssignee(Ticket $ticket, Game $game, Achievemen
     if (
         $maintainer
         && $maintainer->hasAnyRole([Role::DEVELOPER, Role::DEVELOPER_JUNIOR])
-        && BitSet($maintainer->websitePrefs, UserPreference::EmailOn_TicketActivity)
+        && BitSet($maintainer->preferences_bitfield, UserPreference::EmailOn_TicketActivity)
     ) {
-        Mail::to($maintainer->EmailAddress)->queue(
+        Mail::to($maintainer->email)->queue(
             new TicketCreatedMail($maintainer, $ticket, $game, $achievement, isMaintainer: true)
         );
     }
@@ -124,7 +124,7 @@ function sendInitialTicketEmailsToSubscribers(Ticket $ticket, Game $game, Achiev
 
     $subscriptionService = new SubscriptionService();
     $subscribers = $subscriptionService->getSubscribers(SubscriptionSubjectType::GameTickets, $game->id)
-        ->filter(fn ($s) => isset($s->EmailAddress) && BitSet($s->websitePrefs, UserPreference::EmailOn_TicketActivity));
+        ->filter(fn ($s) => isset($s->email) && BitSet($s->preferences_bitfield, UserPreference::EmailOn_TicketActivity));
 
     foreach ($subscribers as $subscriber) {
         if ($subscriber->is($maintainer)) {
@@ -133,7 +133,7 @@ function sendInitialTicketEmailsToSubscribers(Ticket $ticket, Game $game, Achiev
         } elseif ($subscriber->is($ticket->reporter)) {
             // reporter doesn't need to be notified of the new ticket. they just created it!
         } else {
-            Mail::to($subscriber->EmailAddress)->queue(
+            Mail::to($subscriber->email)->queue(
                 new TicketCreatedMail($subscriber, $ticket, $game, $achievement, isMaintainer: false)
             );
         }
@@ -147,16 +147,17 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
         return 0;
     }
 
-    $hardcoreValue = $hardcore === null ? 'NULL' : (string) $hardcore;
+    $hardcoreValue = $hardcore === null ? null : (bool) $hardcore;
     $maintainer = $achievement->getMaintainerAt(now());
 
     $newTicket = Ticket::create([
-        'AchievementID' => $achievement->id,
+        'ticketable_type' => 'achievement',
+        'ticketable_id' => $achievement->id,
         'reporter_id' => $user->id,
         'ticketable_author_id' => $maintainer?->id,
-        'ReportType' => $reportType,
-        'Hardcore' => $hardcoreValue,
-        'ReportNotes' => $note,
+        'type' => TicketType::fromLegacyInteger($reportType),
+        'hardcore' => $hardcoreValue,
+        'body' => $note,
     ]);
 
     expireUserTicketCounts($maintainer);
@@ -172,9 +173,10 @@ function _createTicket(User $user, int $achievementId, int $reportType, ?int $ha
 
 function getExistingTicketID(User $user, int $achievementID): int
 {
-    $ticket = Ticket::whereReporterId($user->id)
-        ->where('AchievementID', $achievementID)
-        ->whereNotIn('ReportState', [TicketState::Closed, TicketState::Resolved])
+    $ticket = Ticket::where('reporter_id', $user->id)
+        ->where('ticketable_id', $achievementID)
+        ->where('ticketable_type', 'achievement')
+        ->whereNotIn('state', [TicketState::Closed, TicketState::Resolved])
         ->first();
 
     return $ticket ? $ticket->id : 0;
@@ -182,23 +184,24 @@ function getExistingTicketID(User $user, int $achievementID): int
 
 function getTicket(int $ticketID): ?array
 {
-    $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.type AS AchievementType, ach.Points, ach.BadgeName,
-                COALESCE(ua3.display_name, ua3.User) AS AchievementAuthor, ua3.ulid AS AchievementAuthorULID, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
-                tick.ReportedAt, tick.ReportType, tick.ReportState, tick.Hardcore, tick.ReportNotes, COALESCE(ua.display_name, ua.User) AS ReportedBy, ua.ulid AS ReportedByULID, tick.ResolvedAt, COALESCE(ua2.display_name, ua2.User) AS ResolvedBy, ua2.ulid AS ResolvedByULID
-              FROM Ticket AS tick
-              LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
-              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              LEFT JOIN UserAccounts AS ua ON ua.ID = tick.reporter_id
-              LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.resolver_id
-              LEFT JOIN UserAccounts AS ua3 ON ua3.ID = tick.ticketable_author_id
-              WHERE tick.ID = $ticketID
+    $query = "SELECT tick.id AS ID, tick.ticketable_id AS AchievementID, ach.title AS AchievementTitle, ach.description AS AchievementDesc, ach.type AS AchievementType, ach.points AS Points, ach.image_name AS BadgeName,
+                COALESCE(ua3.display_name, ua3.username) AS AchievementAuthor, ua3.ulid AS AchievementAuthorULID, ach.game_id AS GameID, s.name AS ConsoleName, gd.title AS GameTitle, gd.image_icon_asset_path AS GameIcon,
+                tick.created_at AS ReportedAt, tick.type AS ReportType, tick.state AS ReportState, tick.hardcore AS Hardcore, tick.body AS ReportNotes, COALESCE(ua.display_name, ua.username) AS ReportedBy, ua.ulid AS ReportedByULID, tick.resolved_at AS ResolvedAt, COALESCE(ua2.display_name, ua2.username) AS ResolvedBy, ua2.ulid AS ResolvedByULID
+              FROM tickets AS tick
+              LEFT JOIN achievements AS ach ON ach.id = tick.ticketable_id
+              LEFT JOIN games AS gd ON gd.id = ach.game_id
+              LEFT JOIN systems AS s ON s.id = gd.system_id
+              LEFT JOIN users AS ua ON ua.id = tick.reporter_id
+              LEFT JOIN users AS ua2 ON ua2.id = tick.resolver_id
+              LEFT JOIN users AS ua3 ON ua3.id = tick.ticketable_author_id
+              WHERE tick.id = $ticketID
+              AND tick.ticketable_type = 'achievement'
               ";
 
     return legacyDbFetch($query);
 }
 
-function updateTicket(User $userModel, int $ticketID, int $ticketVal, ?string $reason = null): bool
+function updateTicket(User $userModel, int $ticketID, TicketState $ticketVal, ?string $reason = null): bool
 {
     $ticket = Ticket::with(['reporter', 'author', 'achievement.game.system'])->find($ticketID);
 
@@ -206,34 +209,34 @@ function updateTicket(User $userModel, int $ticketID, int $ticketVal, ?string $r
         return false;
     }
 
-    $previousState = $ticket->ReportState;
-    $ticket->ReportState = $ticketVal;
+    $previousState = $ticket->state;
+    $ticket->state = $ticketVal;
 
-    if ($ticketVal == TicketState::Resolved || $ticketVal == TicketState::Closed) {
-        $ticket->ResolvedAt = now();
+    if ($ticketVal === TicketState::Resolved || $ticketVal === TicketState::Closed) {
+        $ticket->resolved_at = now();
         $ticket->resolver_id = $userModel->id;
     } elseif (in_array($previousState, [TicketState::Resolved, TicketState::Closed])) {
         // Clear any resolver info when reopening a previously resolved ticket.
-        $ticket->ResolvedAt = null;
+        $ticket->resolved_at = null;
         $ticket->resolver_id = null;
     }
 
     $ticket->save();
 
-    $status = TicketState::toString($ticketVal);
+    $status = $ticketVal->label();
     $comment = null;
 
     switch ($ticketVal) {
         case TicketState::Closed:
             if ($reason == TicketState::REASON_DEMOTED && $ticket->achievement) {
-                updateAchievementFlag($ticket->achievement->id, AchievementFlag::Unofficial);
-                addArticleComment("Server", ArticleType::Achievement, $ticket->achievement->id, "{$userModel->display_name} demoted this achievement to Unofficial.", $userModel->display_name);
+                updateAchievementPromotedStatus($ticket->achievement->id, false);
+                addArticleComment("Server", CommentableType::Achievement, $ticket->achievement->id, "{$userModel->display_name} demoted this achievement to Unofficial.", $userModel->display_name);
             }
             $comment = "Ticket closed by {$userModel->display_name}. Reason: \"$reason\".";
             break;
 
         case TicketState::Open:
-            if ($previousState == TicketState::Request) {
+            if ($previousState === TicketState::Request) {
                 $comment = "Ticket reassigned to author by {$userModel->display_name}.";
             } else {
                 $comment = "Ticket reopened by {$userModel->display_name}.";
@@ -253,9 +256,9 @@ function updateTicket(User $userModel, int $ticketID, int $ticketVal, ?string $r
     $serverUserId = getUserIDFromUser('Server');
     if ($serverUserId > 0) {
         Comment::create([
-            'ArticleType' => ArticleType::AchievementTicket,
-            'ArticleID' => $ticketID,
-            'Payload' => $comment,
+            'commentable_type' => CommentableType::AchievementTicket,
+            'commentable_id' => $ticketID,
+            'body' => $comment,
             'user_id' => $serverUserId,
         ]);
     }
@@ -268,8 +271,8 @@ function updateTicket(User $userModel, int $ticketID, int $ticketVal, ?string $r
         expireUserTicketCounts($ticket->reporter);
 
         // Only send email if the reporter has email notifications enabled for ticket activity.
-        if (BitSet($ticket->reporter->websitePrefs, UserPreference::EmailOn_TicketActivity)) {
-            Mail::to($ticket->reporter->EmailAddress)->queue(
+        if (BitSet($ticket->reporter->preferences_bitfield, UserPreference::EmailOn_TicketActivity)) {
+            Mail::to($ticket->reporter->email)->queue(
                 new TicketStatusUpdatedMail($ticket, $userModel, $status, $comment)
             );
         }
@@ -284,11 +287,11 @@ function countRequestTicketsByUser(?User $user = null): int
         return 0;
     }
 
-    $cacheKey = CacheKey::buildUserRequestTicketsCacheKey($user->User);
+    $cacheKey = CacheKey::buildUserRequestTicketsCacheKey($user->username);
 
     return Cache::remember($cacheKey, Carbon::now()->addHours(20), function () use ($user) {
-        return Ticket::where('ReportState', TicketState::Request)
-            ->where('reporter_id', $user->ID)
+        return Ticket::where('state', TicketState::Request)
+            ->where('reporter_id', $user->id)
             ->count();
     });
 }
@@ -296,19 +299,17 @@ function countRequestTicketsByUser(?User $user = null): int
 function countOpenTicketsByDev(User $dev): array
 {
     $retVal = [
-        TicketState::Open => 0,
-        TicketState::Request => 0,
+        TicketState::Open->value => 0,
+        TicketState::Request->value => 0,
     ];
 
     $counts = Ticket::with('achievement')
         ->where('ticketable_author_id', $dev->id)
-        ->whereHas('achievement', function ($query) {
-            $query->whereIn('Flags', [AchievementFlag::OfficialCore->value, AchievementFlag::Unofficial->value]);
-        })
-        ->whereIn('ReportState', [TicketState::Open, TicketState::Request])
-        ->select('ReportState', DB::raw('count(*) as Count'))
-        ->groupBy('ReportState')
-        ->pluck('Count', 'ReportState');
+        ->whereHas('achievement')
+        ->whereIn('state', [TicketState::Open, TicketState::Request])
+        ->select('state', DB::raw('count(*) as Count'))
+        ->groupBy('state')
+        ->pluck('Count', 'state');
 
     foreach ($counts as $state => $count) {
         $retVal[$state] = (int) $count;
@@ -320,7 +321,7 @@ function countOpenTicketsByDev(User $dev): array
 function expireUserTicketCounts(?User $user): void
 {
     if ($user) {
-        $cacheKey = CacheKey::buildUserRequestTicketsCacheKey($user->User);
+        $cacheKey = CacheKey::buildUserRequestTicketsCacheKey($user->username);
         Cache::forget($cacheKey);
     }
 }
@@ -331,14 +332,10 @@ function countOpenTicketsByAchievement(int $achievementID): int
         return 0;
     }
 
-    $query = "
-        SELECT COUNT(*) as count
-        FROM Ticket
-        WHERE AchievementID = $achievementID AND ReportState IN (" . TicketState::Open . "," . TicketState::Request . ')';
-
-    $results = legacyDbFetch($query);
-
-    return ($results != null) ? $results['count'] : 0;
+    return Ticket::where('ticketable_id', $achievementID)
+        ->where('ticketable_type', 'achievement')
+        ->whereIn('state', [TicketState::Open, TicketState::Request])
+        ->count();
 }
 
 function gamesSortedByOpenTickets(int $count): array
@@ -349,23 +346,25 @@ function gamesSortedByOpenTickets(int $count): array
 
     $query = "
         SELECT
-            gd.ID AS GameID,
-            gd.Title AS GameTitle,
-            gd.ImageIcon AS GameIcon,
-            cons.Name AS Console,
+            gd.id AS GameID,
+            gd.title AS GameTitle,
+            gd.image_icon_asset_path AS GameIcon,
+            s.name AS Console,
             COUNT(*) as OpenTickets
         FROM
-            Ticket AS tick
+            tickets AS tick
         LEFT JOIN
-            Achievements AS ach ON ach.ID = tick.AchievementID
+            achievements AS ach ON ach.id = tick.ticketable_id
         LEFT JOIN
-            GameData AS gd ON gd.ID = ach.GameID
+            games AS gd ON gd.id = ach.game_id
         LEFT JOIN
-            Console AS cons ON cons.ID = gd.ConsoleID
+            systems AS s ON s.id = gd.system_id
         WHERE
-            tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ") AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
+            tick.state IN ('open', 'request')
+            AND tick.ticketable_type = 'achievement'
+            AND ach.is_promoted = 1
         GROUP BY
-            gd.ID
+            gd.id
         ORDER BY
             OpenTickets DESC
         LIMIT 0, $count";
@@ -378,15 +377,15 @@ function gamesSortedByOpenTickets(int $count): array
  */
 function getTicketsForUser(User $user): array
 {
-    $query = Ticket::select('AchievementID', 'ReportState', DB::raw('COUNT(*) as TicketCount'))
+    $query = Ticket::select('ticketable_id', 'state', DB::raw('COUNT(*) as TicketCount'))
         ->whereHas('author', function ($query) use ($user) {
             $query->where('ID', $user->id);
         })
         ->whereHas('achievement', function ($query) {
-            $query->where('Flags', AchievementFlag::OfficialCore->value);
+            $query->where('is_promoted', true);
         })
-        ->groupBy('AchievementID', 'ReportState')
-        ->orderBy('AchievementID')
+        ->groupBy('ticketable_id', 'state')
+        ->orderBy('ticketable_id')
         ->get();
 
     return $query->toArray();
@@ -397,15 +396,16 @@ function getTicketsForUser(User $user): array
  */
 function getUserGameWithMostTickets(User $user): ?array
 {
-    $query = "SELECT gd.ID as GameID, gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, COUNT(*) as TicketCount
-              FROM Ticket AS t
-              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
-              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+    $query = "SELECT gd.id as GameID, gd.title as GameTitle, gd.image_icon_asset_path as GameIcon, s.name as ConsoleName, COUNT(*) as TicketCount
+              FROM tickets AS t
+              LEFT JOIN achievements as ach ON ach.id = t.ticketable_id
+              LEFT JOIN games AS gd ON gd.id = ach.game_id
+              LEFT JOIN systems AS s ON s.id = gd.system_id
               WHERE t.ticketable_author_id = {$user->id}
-              AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
-              AND t.ReportState != " . TicketState::Closed . "
-              GROUP BY gd.Title
+              AND t.ticketable_type = 'achievement'
+              AND ach.is_promoted = 1
+              AND t.state != 'closed'
+              GROUP BY gd.title
               ORDER BY TicketCount DESC
               LIMIT 1";
 
@@ -422,15 +422,16 @@ function getUserGameWithMostTickets(User $user): ?array
  */
 function getUserAchievementWithMostTickets(User $user): ?array
 {
-    $query = "SELECT ach.ID, ach.Title, ach.Description, ach.Points, ach.BadgeName, gd.Title AS GameTitle, COUNT(*) as TicketCount
-              FROM Ticket AS t
-              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
-              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+    $query = "SELECT ach.id AS ID, ach.title AS Title, ach.description AS Description, ach.points AS Points, ach.image_name AS BadgeName, gd.title AS GameTitle, COUNT(*) as TicketCount
+              FROM tickets AS t
+              LEFT JOIN achievements as ach ON ach.id = t.ticketable_id
+              LEFT JOIN games AS gd ON gd.id = ach.game_id
+              LEFT JOIN systems AS s ON s.id = gd.system_id
               WHERE t.ticketable_author_id = {$user->id}
-              AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
-              AND t.ReportState != " . TicketState::Closed . "
-              GROUP BY ach.ID
+              AND t.ticketable_type = 'achievement'
+              AND ach.is_promoted = 1
+              AND t.state != 'closed'
+              GROUP BY ach.id
               ORDER BY TicketCount DESC
               LIMIT 1";
 
@@ -447,12 +448,13 @@ function getUserAchievementWithMostTickets(User $user): ?array
  */
 function getUserWhoCreatedMostTickets(User $user): ?array
 {
-    $query = "SELECT ua.User as TicketCreator, COUNT(*) as TicketCount
-              FROM Ticket AS t
-              LEFT JOIN UserAccounts as ua ON ua.ID = t.reporter_id
-              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
+    $query = "SELECT ua.username as TicketCreator, COUNT(*) as TicketCount
+              FROM tickets AS t
+              LEFT JOIN users as ua ON ua.id = t.reporter_id
+              LEFT JOIN achievements as ach ON ach.id = t.ticketable_id
               WHERE t.ticketable_author_id = {$user->id}
-              AND t.ReportState != " . TicketState::Closed . "
+              AND t.ticketable_type = 'achievement'
+              AND t.state != 'closed'
               GROUP BY t.reporter_id
               ORDER BY TicketCount DESC
               LIMIT 1";
@@ -471,19 +473,20 @@ function getUserWhoCreatedMostTickets(User $user): ?array
 function getNumberOfTicketsClosedForOthers(User $user): array
 {
     $retVal = [];
-    $query = "SELECT ua3.User AS Author, COUNT(t.ticketable_author_id) AS TicketCount,
-              SUM(CASE WHEN t.ReportState = " . TicketState::Closed . " THEN 1 ELSE 0 END) AS ClosedCount,
-              SUM(CASE WHEN t.ReportState = " . TicketState::Resolved . " THEN 1 ELSE 0 END) AS ResolvedCount
-              FROM Ticket AS t
-              LEFT JOIN UserAccounts as ua ON ua.ID = t.reporter_id
-              LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.resolver_id
-              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
-              LEFT JOIN UserAccounts as ua3 ON ua3.ID = t.ticketable_author_id
-              WHERE t.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")
-              AND ua.ID != {$user->id}
+    $query = "SELECT ua3.username AS Author, COUNT(t.ticketable_author_id) AS TicketCount,
+              SUM(CASE WHEN t.state = 'closed' THEN 1 ELSE 0 END) AS ClosedCount,
+              SUM(CASE WHEN t.state = 'resolved' THEN 1 ELSE 0 END) AS ResolvedCount
+              FROM tickets AS t
+              LEFT JOIN users as ua ON ua.id = t.reporter_id
+              LEFT JOIN users as ua2 ON ua2.id = t.resolver_id
+              LEFT JOIN achievements as ach ON ach.id = t.ticketable_id
+              LEFT JOIN users as ua3 ON ua3.id = t.ticketable_author_id
+              WHERE t.state IN ('closed', 'resolved')
+              AND t.ticketable_type = 'achievement'
+              AND ua.id != {$user->id}
               AND t.ticketable_author_id != {$user->id}
-              AND ua2.ID = {$user->id}
-              AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
+              AND ua2.id = {$user->id}
+              AND ach.is_promoted = 1
               GROUP BY t.ticketable_author_id
               ORDER BY TicketCount DESC, Author";
 
@@ -503,16 +506,17 @@ function getNumberOfTicketsClosedForOthers(User $user): array
 function getNumberOfTicketsClosed(User $user): array
 {
     $retVal = [];
-    $query = "SELECT ua2.User AS ResolvedByUser, COUNT(ua2.User) AS TicketCount,
-              SUM(CASE WHEN t.ReportState = " . TicketState::Closed . " THEN 1 ELSE 0 END) AS ClosedCount,
-              SUM(CASE WHEN t.ReportState = " . TicketState::Resolved . " THEN 1 ELSE 0 END) AS ResolvedCount
-              FROM Ticket AS t
-              LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.resolver_id
-              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
-              WHERE t.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")
+    $query = "SELECT ua2.username AS ResolvedByUser, COUNT(ua2.username) AS TicketCount,
+              SUM(CASE WHEN t.state = 'closed' THEN 1 ELSE 0 END) AS ClosedCount,
+              SUM(CASE WHEN t.state = 'resolved' THEN 1 ELSE 0 END) AS ResolvedCount
+              FROM tickets AS t
+              LEFT JOIN users as ua2 ON ua2.id = t.resolver_id
+              LEFT JOIN achievements as ach ON ach.id = t.ticketable_id
+              WHERE t.state IN ('closed', 'resolved')
+              AND t.ticketable_type = 'achievement'
               AND t.reporter_id != {$user->id}
               AND t.ticketable_author_id = {$user->id}
-              AND ach.Flags = " . AchievementFlag::OfficialCore->value . "
+              AND ach.is_promoted = 1
               GROUP BY ResolvedByUser
               ORDER BY TicketCount DESC, ResolvedByUser";
 

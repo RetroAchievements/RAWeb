@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\User;
 use App\Models\UserRelation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -22,13 +22,13 @@ class GetUsersIFollowTest extends TestCase
         parent::setUp();
 
         /** @var User $user */
-        $user = User::factory()->create(['User' => 'myUser']);
+        $user = User::factory()->create(['username' => 'myUser']);
         $this->user = $user;
     }
 
     protected function apiUrl(string $method, array $params = []): string
     {
-        $params = array_merge(['y' => $this->user->APIKey], $params);
+        $params = array_merge(['y' => $this->user->web_api_key], $params);
 
         return sprintf('API/API_%s.php?%s', $method, http_build_query($params));
     }
@@ -40,48 +40,48 @@ class GetUsersIFollowTest extends TestCase
         $api = "GetUsersIFollow";
 
         /** @var User $followedUser1 */
-        $followedUser1 = User::factory()->create(['User' => 'myFollowedUser1']);
+        $followedUser1 = User::factory()->create(['username' => 'myFollowedUser1']);
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $followedUser1->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
         UserRelation::create([
             'user_id' => $followedUser1->id,
             'related_user_id' => $this->user->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         /** @var User $followedUser2 */
-        $followedUser2 = User::factory()->create(['User' => 'myFollowedUser2']);
+        $followedUser2 = User::factory()->create(['username' => 'myFollowedUser2']);
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $followedUser2->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         /** @var User $followedUser3 */
-        $followedUser3 = User::factory()->create(['User' => 'myFollowedUser3']);
+        $followedUser3 = User::factory()->create(['username' => 'myFollowedUser3']);
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $followedUser3->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         /** @var User $followedUser4 */
-        $followedUser4 = User::factory()->create(['User' => 'myFollowedUser4']);
+        $followedUser4 = User::factory()->create(['username' => 'myFollowedUser4']);
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $followedUser4->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         /** @var User $followedUser5 */
-        $followedUser5 = User::factory()->create(['User' => 'myFollowedUser5']);
+        $followedUser5 = User::factory()->create(['username' => 'myFollowedUser5']);
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $followedUser5->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         $this->get($this->apiUrl($api))
@@ -93,36 +93,36 @@ class GetUsersIFollowTest extends TestCase
                     [
                         "User" => $followedUser1->display_name,
                         "ULID" => $followedUser1->ulid,
-                        "Points" => $followedUser1->Points,
-                        "PointsSoftcore" => $followedUser1->points_softcore,
+                        "Points" => $followedUser1->points_hardcore,
+                        "PointsSoftcore" => $followedUser1->points,
                         "IsFollowingMe" => true,
                     ],
                     [
                         "User" => $followedUser2->display_name,
                         "ULID" => $followedUser2->ulid,
-                        "Points" => $followedUser2->Points,
-                        "PointsSoftcore" => $followedUser2->points_softcore,
+                        "Points" => $followedUser2->points_hardcore,
+                        "PointsSoftcore" => $followedUser2->points,
                         "IsFollowingMe" => false,
                     ],
                     [
                         "User" => $followedUser3->display_name,
                         "ULID" => $followedUser3->ulid,
-                        "Points" => $followedUser3->Points,
-                        "PointsSoftcore" => $followedUser3->points_softcore,
+                        "Points" => $followedUser3->points_hardcore,
+                        "PointsSoftcore" => $followedUser3->points,
                         "IsFollowingMe" => false,
                     ],
                     [
                         "User" => $followedUser4->display_name,
                         "ULID" => $followedUser4->ulid,
-                        "Points" => $followedUser4->Points,
-                        "PointsSoftcore" => $followedUser4->points_softcore,
+                        "Points" => $followedUser4->points_hardcore,
+                        "PointsSoftcore" => $followedUser4->points,
                         "IsFollowingMe" => false,
                     ],
                     [
                         "User" => $followedUser5->display_name,
                         "ULID" => $followedUser5->ulid,
-                        "Points" => $followedUser5->Points,
-                        "PointsSoftcore" => $followedUser5->points_softcore,
+                        "Points" => $followedUser5->points_hardcore,
+                        "PointsSoftcore" => $followedUser5->points,
                         "IsFollowingMe" => false,
                     ],
                 ],
@@ -137,15 +137,15 @@ class GetUsersIFollowTest extends TestCase
                         [
                             "User" => $followedUser4->display_name,
                             "ULID" => $followedUser4->ulid,
-                            "Points" => $followedUser4->Points,
-                            "PointsSoftcore" => $followedUser4->points_softcore,
+                            "Points" => $followedUser4->points_hardcore,
+                            "PointsSoftcore" => $followedUser4->points,
                             "IsFollowingMe" => false,
                         ],
                         [
                             "User" => $followedUser5->display_name,
                             "ULID" => $followedUser5->ulid,
-                            "Points" => $followedUser5->Points,
-                            "PointsSoftcore" => $followedUser5->points_softcore,
+                            "Points" => $followedUser5->points_hardcore,
+                            "PointsSoftcore" => $followedUser5->points,
                             "IsFollowingMe" => false,
                         ],
                     ],
@@ -160,15 +160,15 @@ class GetUsersIFollowTest extends TestCase
                         [
                             "User" => $followedUser1->display_name,
                             "ULID" => $followedUser1->ulid,
-                            "Points" => $followedUser1->Points,
-                            "PointsSoftcore" => $followedUser1->points_softcore,
+                            "Points" => $followedUser1->points_hardcore,
+                            "PointsSoftcore" => $followedUser1->points,
                             "IsFollowingMe" => true,
                         ],
                         [
                             "User" => $followedUser2->display_name,
                             "ULID" => $followedUser2->ulid,
-                            "Points" => $followedUser2->Points,
-                            "PointsSoftcore" => $followedUser2->points_softcore,
+                            "Points" => $followedUser2->points_hardcore,
+                            "PointsSoftcore" => $followedUser2->points,
                             "IsFollowingMe" => false,
                         ],
                     ],
@@ -194,15 +194,15 @@ class GetUsersIFollowTest extends TestCase
                         [
                             "User" => $followedUser2->display_name,
                             "ULID" => $followedUser2->ulid,
-                            "Points" => $followedUser2->Points,
-                            "PointsSoftcore" => $followedUser2->points_softcore,
+                            "Points" => $followedUser2->points_hardcore,
+                            "PointsSoftcore" => $followedUser2->points,
                             "IsFollowingMe" => false,
                         ],
                         [
                             "User" => $followedUser3->display_name,
                             "ULID" => $followedUser3->ulid,
-                            "Points" => $followedUser3->Points,
-                            "PointsSoftcore" => $followedUser3->points_softcore,
+                            "Points" => $followedUser3->points_hardcore,
+                            "PointsSoftcore" => $followedUser3->points,
                             "IsFollowingMe" => false,
                         ],
                     ],

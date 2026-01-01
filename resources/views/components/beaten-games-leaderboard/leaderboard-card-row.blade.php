@@ -14,6 +14,6 @@
             {!! userAvatar($paginatedRow->User, iconClass: 'rounded-sm mr-1') !!}
         </div>
 
-        <p>{{ localized_number($paginatedRow->total_awards) }} games</p>
+        <p>{{ localized_number($paginatedRow->total) }} games</p>
     </div>
 </div>

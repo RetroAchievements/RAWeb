@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { route } from 'ziggy-js';
@@ -98,7 +99,6 @@ describe('Component: ContentWarningDialog', () => {
   it('given the user clicks "Yes", closes the dialog without making any API calls and adds a special URL parameter', async () => {
     // ARRANGE
     const patchSpy = vi.spyOn(axios, 'patch');
-    const replaceStateSpy = vi.spyOn(window.history, 'replaceState');
 
     render(<MatureContentWarningDialog />, {
       pageProps: {
@@ -121,9 +121,9 @@ describe('Component: ContentWarningDialog', () => {
     expect(patchSpy).not.toHaveBeenCalled();
     expect(screen.queryByText(/content warning/i)).not.toBeInTheDocument();
 
-    expect(replaceStateSpy).toHaveBeenCalled();
-    const calledUrl = replaceStateSpy.mock.calls[0][2];
-    expect(calledUrl).toContain('mature_content_accepted=1');
+    expect(router.replace).toHaveBeenCalled();
+    const calledUrl = vi.mocked(router.replace).mock.calls[0][0] as { url: string };
+    expect(calledUrl.url).toContain('mature_content_accepted=1');
   });
 
   it('given the user clicks "Always allow mature content", makes an API call and closes the dialog', async () => {

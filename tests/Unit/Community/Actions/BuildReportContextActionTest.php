@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Community\Actions;
 
 use App\Community\Actions\BuildReportContextAction;
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\ModerationReportableType;
 use App\Models\Comment;
 use App\Models\ForumTopic;
@@ -31,7 +31,7 @@ class BuildReportContextActionTest extends TestCase
     public function testItBuildsForumTopicCommentContextForInbox(): void
     {
         // Arrange
-        $author = User::factory()->create(['User' => 'ReportedUser']);
+        $author = User::factory()->create(['username' => 'ReportedUser']);
         $topic = ForumTopic::factory()->create();
         $comment = ForumTopicComment::factory()->create([
             'body' => 'This is the reported comment content.',
@@ -64,7 +64,7 @@ class BuildReportContextActionTest extends TestCase
     public function testItBuildsForumTopicCommentContextForDiscord(): void
     {
         // Arrange
-        $author = User::factory()->create(['User' => 'ReportedUser', 'display_name' => 'Reported User']);
+        $author = User::factory()->create(['username' => 'ReportedUser', 'display_name' => 'Reported User']);
         $topic = ForumTopic::factory()->create();
         $comment = ForumTopicComment::factory()->create([
             'body' => 'This is the reported comment content.',
@@ -98,7 +98,7 @@ class BuildReportContextActionTest extends TestCase
     public function testItBuildsDirectMessageContextForInbox(): void
     {
         // Arrange
-        $author = User::factory()->create(['User' => 'MessageSender']);
+        $author = User::factory()->create(['username' => 'MessageSender']);
         $message = Message::factory()->create([
             'body' => 'This is an inappropriate direct message.',
             'author_id' => $author->id,
@@ -129,7 +129,7 @@ class BuildReportContextActionTest extends TestCase
     public function testItBuildsDirectMessageContextForDiscord(): void
     {
         // Arrange
-        $author = User::factory()->create(['User' => 'MessageSender', 'display_name' => 'Message Sender']);
+        $author = User::factory()->create(['username' => 'MessageSender', 'display_name' => 'Message Sender']);
         $message = Message::factory()->create([
             'body' => 'This is an inappropriate direct message.',
             'author_id' => $author->id,
@@ -160,12 +160,12 @@ class BuildReportContextActionTest extends TestCase
     public function testItBuildsCommentContextForInbox(): void
     {
         // Arrange
-        $author = User::factory()->create(['User' => 'CommentAuthor']);
-        $targetUser = User::factory()->create(['User' => 'WallOwner']);
+        $author = User::factory()->create(['username' => 'CommentAuthor']);
+        $targetUser = User::factory()->create(['username' => 'WallOwner']);
         $comment = Comment::factory()->create([
-            'ArticleType' => ArticleType::User, // !!
-            'ArticleID' => $targetUser->id, // !!
-            'Payload' => 'This is the reported wall comment.',
+            'commentable_type' => CommentableType::User, // !!
+            'commentable_id' => $targetUser->id, // !!
+            'body' => 'This is the reported wall comment.',
             'user_id' => $author->id,
         ]);
 
@@ -175,14 +175,14 @@ class BuildReportContextActionTest extends TestCase
         $result = $this->action->execute(
             $userMessage,
             ModerationReportableType::Comment,
-            $comment->ID,
+            $comment->id,
             forDiscord: false // !!
         );
 
         // Assert
         $this->assertStringContainsString('[b]Reported Content:[/b]', $result);
         $this->assertStringContainsString('[url=', $result);
-        $this->assertStringContainsString('/comment/' . $comment->ID, $result);
+        $this->assertStringContainsString('/comment/' . $comment->id, $result);
         $this->assertStringContainsString('[b]Author:[/b] [user=' . $author->id . ']', $result);
         $this->assertStringContainsString('[b]Posted:[/b]', $result);
         $this->assertStringContainsString('[b]Report Details:[/b]', $result);
@@ -194,12 +194,12 @@ class BuildReportContextActionTest extends TestCase
     public function testItBuildsCommentContextForDiscord(): void
     {
         // Arrange
-        $author = User::factory()->create(['User' => 'CommentAuthor', 'display_name' => 'SomeGuy']);
-        $targetUser = User::factory()->create(['User' => 'WallOwner']);
+        $author = User::factory()->create(['username' => 'CommentAuthor', 'display_name' => 'SomeGuy']);
+        $targetUser = User::factory()->create(['username' => 'WallOwner']);
         $comment = Comment::factory()->create([
-            'ArticleType' => ArticleType::User, // !!
-            'ArticleID' => $targetUser->id, // !!
-            'Payload' => 'This is the reported wall comment.',
+            'commentable_type' => CommentableType::User, // !!
+            'commentable_id' => $targetUser->id, // !!
+            'body' => 'This is the reported wall comment.',
             'user_id' => $author->id,
         ]);
 
@@ -209,13 +209,13 @@ class BuildReportContextActionTest extends TestCase
         $result = $this->action->execute(
             $userMessage,
             ModerationReportableType::Comment,
-            $comment->ID,
+            $comment->id,
             forDiscord: true // !!
         );
 
         // Assert
         $this->assertStringContainsString('**Reported Content:**', $result);
-        $this->assertStringContainsString('/comment/' . $comment->ID, $result);
+        $this->assertStringContainsString('/comment/' . $comment->id, $result);
         $this->assertStringContainsString('**Author:** [SomeGuy](', $result);
 
         $this->assertStringContainsString('**Posted:** <t:', $result); // discord timestamp format

@@ -34,7 +34,6 @@ use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\PlayerAchievement;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Platform\Services\UserAgentService;
 use App\Platform\Services\VirtualGameIdService;
@@ -244,8 +243,8 @@ switch ($requestType) {
         if ($achIDToAward == Achievement::CLIENT_WARNING_ID) {
             $response = [
                 'Success' => true,
-                'Score' => $user->RAPoints,
-                'SoftcoreScore' => $user->RASoftcorePoints,
+                'Score' => $user->points_hardcore,
+                'SoftcoreScore' => $user->points,
                 'AchievementID' => $achIDToAward,
                 'AchievementsRemaining' => 9999,
             ];
@@ -267,7 +266,7 @@ switch ($requestType) {
         $maxOffset = 14 * 24 * 60 * 60; // 14 days
         $offset = min(max((int) request()->input('o', 0), 0), $maxOffset);
 
-        $foundAchievement = Achievement::where('ID', $achIDToAward)->first();
+        $foundAchievement = Achievement::where('id', $achIDToAward)->first();
         if ($foundAchievement !== null) {
             // delegated unlocks will be rejected if the appropriate validation hash is not provided
             // backdated unlocks will not be backdated if the appropriate validation hash is not provided
@@ -313,8 +312,8 @@ switch ($requestType) {
         }
 
         if (empty($response['Score'])) {
-            $response['Score'] = $user->RAPoints;
-            $response['SoftcoreScore'] = $user->RASoftcorePoints;
+            $response['Score'] = $user->points_hardcore;
+            $response['SoftcoreScore'] = $user->points;
         }
 
         $response['AchievementID'] = $achIDToAward;
@@ -394,7 +393,7 @@ switch ($requestType) {
             return Achievement::find($id)->getCanDelegateUnlocks($user);
         });
 
-        $awardableAchievements = Achievement::whereIn('ID', $filteredAchievementIds)
+        $awardableAchievements = Achievement::whereIn('id', $filteredAchievementIds)
             ->with('game')
             ->get();
 
@@ -410,8 +409,8 @@ switch ($requestType) {
             }
         }
 
-        $response['Score'] = $targetUser->RAPoints;
-        $response['SoftcoreScore'] = $targetUser->RASoftcorePoints;
+        $response['Score'] = $targetUser->points_hardcore;
+        $response['SoftcoreScore'] = $targetUser->points;
         $response['ExistingIDs'] = $alreadyAwardedIds;
         $response['SuccessfulIDs'] = $newAwardedIds;
 
@@ -461,7 +460,7 @@ switch ($requestType) {
                 gameHash: $gameHash,
                 game: $game,
                 user: $user,
-                flag: AchievementFlag::tryFrom($flag),
+                isPromoted: Achievement::isPromotedFromLegacyFlags($flag),
             );
 
             // Based on the user's current client support level, we may want to attach
@@ -504,7 +503,7 @@ switch ($requestType) {
         $maxOffset = 14 * 24 * 60 * 60; // 14 days
         $offset = min(max((int) request()->input('o', 0), 0), $maxOffset);
 
-        $foundLeaderboard = Leaderboard::where('ID', $lbID)->first();
+        $foundLeaderboard = Leaderboard::where('id', $lbID)->first();
         if (!$foundLeaderboard) {
             $response['Success'] = false;
             $response['Error'] = "Cannot find the leaderboard with ID: $lbID";
@@ -567,7 +566,7 @@ switch ($requestType) {
             points: (int) request()->input('z', 0),
             type: request()->input('x', 'not-given'), // `null` is a valid achievement type value, so we use a different fallback value.
             mem: request()->input('m'),
-            flag: (int) request()->input('f', AchievementFlag::Unofficial->value),
+            flag: (int) request()->input('f', Achievement::FLAG_UNPROMOTED),
             idInOut: $achievementID,
             badge: request()->input('b'),
             errorOut: $errorOut,

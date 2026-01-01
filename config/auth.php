@@ -47,16 +47,14 @@ return [
             'driver' => 'token', // 'sanctum', 'passport',
             'provider' => 'users',
             'input_key' => 'y',
-            'storage_key' => 'APIKey',
-            // TODO 'storage_key' => 'api_token',
+            'storage_key' => 'web_api_key',
         ],
 
         'api-token-header' => [
             'driver' => 'header-token',
             'provider' => 'users',
             'input_key' => 'api_key',
-            'storage_key' => 'APIKey',
-            // TODO 'storage_key' => 'api_token',
+            'storage_key' => 'web_api_key',
             'header_name' => 'X-API-Key',
             'hash' => false,
         ],
@@ -65,8 +63,7 @@ return [
             'driver' => 'token', // 'sanctum', 'passport',
             'provider' => 'users',
             'input_key' => 't',
-            'storage_key' => 'appToken',
-            // TODO 'storage_key' => 'connect_token',
+            'storage_key' => 'connect_token',
         ],
 
         'oauth' => [

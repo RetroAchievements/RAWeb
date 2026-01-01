@@ -4,7 +4,7 @@ import { route } from 'ziggy-js';
 
 interface Variables {
   payload: Partial<{
-    websitePrefs: number;
+    preferencesBitfield: number;
     suppressMatureContentWarning: boolean;
   }>;
 }

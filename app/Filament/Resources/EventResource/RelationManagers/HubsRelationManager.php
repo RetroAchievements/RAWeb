@@ -15,6 +15,7 @@ use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
@@ -56,7 +57,7 @@ class HubsRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('title')
                     ->label('Title')
-                    ->sortable()
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy('sort_title', $direction))
                     ->searchable()
                     ->url(function (GameSet $record) {
                         if (request()->user()->can('manage', GameSet::class)) {

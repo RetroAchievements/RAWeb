@@ -22,7 +22,7 @@ class UpsertForumTopicCommentRequest extends FormRequest
             'postAsUserId' => [
                 'nullable',
                 'integer',
-                'exists:UserAccounts,ID',
+                'exists:users,id',
             ],
         ];
     }

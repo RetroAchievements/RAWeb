@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Community\Enums\TicketState;
-use App\Platform\Enums\AchievementFlag;
+use App\Community\Enums\TicketType;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\TicketFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Ticket extends BaseModel
@@ -19,35 +21,22 @@ class Ticket extends BaseModel
     use HasFactory;
     use SoftDeletes;
 
-    // TODO rename Ticket table to trigger_tickets
-    // TODO rename ID column to id, remove getIdAttribute()
-    // TODO rename ReportType column to type
-    // TODO rename ReportNotes column to body, remove getBodyAttribute()
-    // TODO rename ReportedAt column to created_at
-    // TODO rename ResolvedAt column to resolved_at
-    // TODO rename ReportState column to state, remove getStateAttribute()
-    // TODO rename Updated column to updated_at
-    // TODO drop AchievementID, use ticketable morph instead
-    // TODO drop Hardcore, derived from player_session
-    // TODO rename ticketable_model to ticketable_type
-    protected $table = 'Ticket';
-
-    protected $primaryKey = 'ID';
-
-    public const CREATED_AT = 'ReportedAt';
-    public const UPDATED_AT = 'Updated';
+    protected $table = 'tickets';
 
     protected $fillable = [
-        'AchievementID',
-        'reporter_id',
+        'ticketable_type',
+        'ticketable_id',
         'ticketable_author_id',
-        'ReportType',
-        'Hardcore',
-        'ReportNotes',
+        'reporter_id',
+        'type',
+        'hardcore',
+        'body',
     ];
 
     protected $casts = [
-        'ResolvedAt' => 'datetime',
+        'type' => TicketType::class,
+        'state' => TicketState::class,
+        'resolved_at' => 'datetime',
     ];
 
     protected static function newFactory(): TicketFactory
@@ -57,27 +46,9 @@ class Ticket extends BaseModel
 
     // == accessors
 
-    // TODO remove after rename
-    public function getBodyAttribute(): string
-    {
-        return $this->attributes['ReportNotes'];
-    }
-
-    // TODO remove after rename
-    public function getIdAttribute(): int
-    {
-        return $this->attributes['ID'];
-    }
-
     public function getIsOpenAttribute(): bool
     {
-        return TicketState::isOpen($this->state);
-    }
-
-    // TODO remove after renaming "ReportState" to "state"
-    public function getStateAttribute(): int
-    {
-        return $this->attributes['ReportState'];
+        return $this->state->isOpen();
     }
 
     // == mutators
@@ -85,11 +56,19 @@ class Ticket extends BaseModel
     // == relations
 
     /**
+     * @return MorphTo<Model, $this>
+     */
+    public function ticketable(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    /**
      * @return BelongsTo<Achievement, $this>
      */
     public function achievement(): BelongsTo
     {
-        return $this->belongsTo(Achievement::class, 'AchievementID');
+        return $this->belongsTo(Achievement::class, 'ticketable_id');
     }
 
     /**
@@ -97,7 +76,7 @@ class Ticket extends BaseModel
      */
     public function author(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'ticketable_author_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'ticketable_author_id')->withTrashed();
     }
 
     /**
@@ -105,7 +84,7 @@ class Ticket extends BaseModel
      */
     public function reporter(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'reporter_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'reporter_id')->withTrashed();
     }
 
     /**
@@ -113,7 +92,7 @@ class Ticket extends BaseModel
      */
     public function resolver(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'resolver_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'resolver_id')->withTrashed();
     }
 
     /**
@@ -140,7 +119,7 @@ class Ticket extends BaseModel
      */
     public function scopeUnresolved(Builder $query): Builder
     {
-        return $query->whereIn('ReportState', [TicketState::Open, TicketState::Request]);
+        return $query->whereIn('state', [TicketState::Open, TicketState::Request]);
     }
 
     /**
@@ -152,7 +131,7 @@ class Ticket extends BaseModel
      */
     public function scopeAwaitingDeveloper(Builder $query): Builder
     {
-        return $query->where('ReportState', TicketState::Open);
+        return $query->where('state', TicketState::Open);
     }
 
     /**
@@ -161,7 +140,7 @@ class Ticket extends BaseModel
      */
     public function scopeResolved(Builder $query): Builder
     {
-        return $query->whereIn('ReportState', [TicketState::Resolved, TicketState::Closed]);
+        return $query->whereIn('state', [TicketState::Resolved, TicketState::Closed]);
     }
 
     /**
@@ -171,7 +150,7 @@ class Ticket extends BaseModel
     public function scopeForGame(Builder $query, Game $game): Builder
     {
         return $query->whereHas('achievement', function ($query) use ($game) {
-            $query->where('GameID', $game->id);
+            $query->where('game_id', $game->id);
         });
     }
 
@@ -181,7 +160,8 @@ class Ticket extends BaseModel
      */
     public function scopeForAchievement(Builder $query, Achievement $achievement): Builder
     {
-        return $query->where('AchievementID', $achievement->id);
+        return $query->where('ticketable_id', $achievement->id)
+            ->where('ticketable_type', 'achievement');
     }
 
     /**
@@ -200,7 +180,7 @@ class Ticket extends BaseModel
     public function scopeOfficialCore(Builder $query): Builder
     {
         return $query->whereHas('achievement', function ($query) {
-            $query->where('Flags', AchievementFlag::OfficialCore->value);
+            $query->where('is_promoted', true);
         });
     }
 
@@ -211,7 +191,7 @@ class Ticket extends BaseModel
     public function scopeUnofficial(Builder $query): Builder
     {
         return $query->whereHas('achievement', function ($query) {
-            $query->where('Flags', AchievementFlag::Unofficial->value);
+            $query->where('is_promoted', false);
         });
     }
 }

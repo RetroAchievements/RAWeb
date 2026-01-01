@@ -20,8 +20,8 @@ class GameHashesCommentControllerTest extends TestCase
     public function testIndexDoesNotAuthorizeGuests(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
 
         // Act
         $response = $this->get(route('game.hashes.comment.index', ['game' => $game]));
@@ -36,12 +36,12 @@ class GameHashesCommentControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::DEVELOPER_JUNIOR);
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
 
         // Act
         $response = $this->get(route('game.hashes.comment.index', ['game' => $game]));
@@ -56,12 +56,12 @@ class GameHashesCommentControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::DEVELOPER);
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
 
         // Act
         $response = $this->get(route('game.hashes.comment.index', ['game' => $game]));
@@ -76,12 +76,12 @@ class GameHashesCommentControllerTest extends TestCase
         $this->seed(RolesTableSeeder::class);
 
         /** @var User $user */
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::DEVELOPER);
         $this->actingAs($user);
 
-        $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['ID' => 1, 'Title' => 'Sonic the Hedgehog', 'ConsoleID' => $system->id]);
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['id' => 1, 'title' => 'Sonic the Hedgehog', 'system_id' => $system->id]);
 
         // Act
         $response = $this->get(route('game.hashes.comment.index', ['game' => $game]));

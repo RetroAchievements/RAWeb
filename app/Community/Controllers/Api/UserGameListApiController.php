@@ -38,7 +38,7 @@ class UserGameListApiController extends Controller
 
         $userGameListEntry = UserGameListEntry::firstOrCreate([
             'user_id' => $user->id,
-            'GameID' => $gameId,
+            'game_id' => $gameId,
             'type' => $request->input('userGameListType'),
         ]);
 
@@ -60,7 +60,7 @@ class UserGameListApiController extends Controller
         $type = $request->input('userGameListType');
 
         $userGameListEntry = UserGameListEntry::where('user_id', $user->id)
-            ->where('GameID', $gameId)
+            ->where('game_id', $gameId)
             ->where('type', $type)
             ->first();
 

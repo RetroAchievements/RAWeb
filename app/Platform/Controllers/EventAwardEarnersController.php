@@ -74,7 +74,7 @@ class EventAwardEarnersController extends Controller
         foreach ($paginatedUsers->items() as $playerBadge) {
             $items[] = new AwardEarnerData(
                 user: UserData::fromUser($playerBadge->user),
-                dateEarned: $playerBadge->AwardDate,
+                dateEarned: $playerBadge->awarded_at,
             );
         }
 

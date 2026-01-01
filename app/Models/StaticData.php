@@ -40,6 +40,6 @@ class StaticData extends BaseModel
      */
     public function lastRegisteredUser(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'LastRegisteredUser', 'User');
+        return $this->belongsTo(User::class, 'LastRegisteredUser', 'username');
     }
 }

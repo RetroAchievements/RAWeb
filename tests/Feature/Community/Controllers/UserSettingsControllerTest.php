@@ -22,8 +22,8 @@ class UserSettingsControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'Password' => Hash::make('oldPassword123'),
-            'appToken' => 'foo',
+            'password' => Hash::make('oldPassword123'),
+            'connect_token' => 'foo',
         ]);
 
         // Act
@@ -37,8 +37,8 @@ class UserSettingsControllerTest extends TestCase
         $response->assertStatus(200)->assertJson(['success' => true]);
 
         $user = $user->fresh();
-        $this->assertTrue(Hash::check('newPassword123', $user->Password));
-        $this->assertTrue($user->appToken !== 'foo');
+        $this->assertTrue(Hash::check('newPassword123', $user->password));
+        $this->assertTrue($user->connect_token !== 'foo');
     }
 
     public function testUpdatePasswordWithWrongCurrentPassword(): void
@@ -48,8 +48,8 @@ class UserSettingsControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'Password' => Hash::make('oldPassword123'),
-            'appToken' => 'foo',
+            'password' => Hash::make('oldPassword123'),
+            'connect_token' => 'foo',
         ]);
 
         // Act
@@ -70,9 +70,9 @@ class UserSettingsControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'User' => 'MyUsername',
-            'Password' => Hash::make('oldPassword123'),
-            'appToken' => 'foo',
+            'username' => 'MyUsername',
+            'password' => Hash::make('oldPassword123'),
+            'connect_token' => 'foo',
         ]);
 
         // Act
@@ -94,7 +94,7 @@ class UserSettingsControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'EmailAddress' => 'foo@bar.com',
+            'email' => 'foo@bar.com',
         ]);
 
         // Act
@@ -107,7 +107,7 @@ class UserSettingsControllerTest extends TestCase
         $response->assertStatus(200);
 
         $user = $user->fresh();
-        $this->assertEquals('bar@baz.com', $user->EmailAddress);
+        $this->assertEquals('bar@baz.com', $user->email);
         $this->assertEquals(Permissions::Unregistered, (int) $user->getAttribute('Permissions'));
         $this->assertNull($user->email_verified_at);
     }
@@ -119,7 +119,7 @@ class UserSettingsControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'User' => 'Scott',
+            'username' => 'Scott',
             'display_name' => 'Scott',
         ]);
 
@@ -146,7 +146,7 @@ class UserSettingsControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'User' => 'scott',
+            'username' => 'scott',
             'display_name' => 'scott',
         ]);
 
@@ -176,23 +176,23 @@ class UserSettingsControllerTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'email_verified_at' => Carbon::now(),
-            'Motto' => '',
-            'UserWallActive' => false,
+            'motto' => '',
+            'is_user_wall_active' => false,
         ]);
 
         // Act
         $response = $this->actingAs($user)
             ->putJson(route('api.settings.profile.update'), [
+                'isUserWallActive' => true,
                 'motto' => 'New motto',
-                'userWallActive' => true,
             ]);
 
         // Assert
         $response->assertStatus(200);
 
         $user = $user->fresh();
-        $this->assertEquals('New motto', $user->Motto);
-        $this->assertEquals(true, $user->UserWallActive);
+        $this->assertEquals('New motto', $user->motto);
+        $this->assertEquals(true, $user->is_user_wall_active);
     }
 
     public function testUpdateLocale(): void
@@ -246,20 +246,20 @@ class UserSettingsControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'websitePrefs' => 1111,
+            'preferences_bitfield' => 1111,
         ]);
 
         // Act
         $response = $this->actingAs($user)
             ->putJson(route('api.settings.preferences.update'), [
-                'websitePrefs' => 2222,
+                'preferencesBitfield' => 2222,
             ]);
 
         // Assert
         $response->assertStatus(200);
 
         $user = $user->fresh();
-        $this->assertEquals(2222, $user->websitePrefs);
+        $this->assertEquals(2222, $user->preferences_bitfield);
     }
 
     public function testResetWebApiKey(): void
@@ -269,7 +269,7 @@ class UserSettingsControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'APIKey' => 'foo',
+            'web_api_key' => 'foo',
         ]);
 
         // Act
@@ -287,7 +287,7 @@ class UserSettingsControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'appToken' => 'foo',
+            'connect_token' => 'foo',
         ]);
 
         // Act
@@ -297,6 +297,6 @@ class UserSettingsControllerTest extends TestCase
         $response->assertStatus(200)->assertJson(['success' => true]);
 
         $user = $user->fresh();
-        $this->assertNotEquals('foo', $user->appToken);
+        $this->assertNotEquals('foo', $user->connect_token);
     }
 }

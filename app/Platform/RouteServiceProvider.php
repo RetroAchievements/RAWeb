@@ -11,7 +11,7 @@ use App\Platform\Controllers\Api\GameApiController;
 use App\Platform\Controllers\Api\GameSetRequestApiController;
 use App\Platform\Controllers\Api\HubApiController;
 use App\Platform\Controllers\Api\SystemApiController;
-use App\Platform\Controllers\Api\TriggerTicketApiController;
+use App\Platform\Controllers\Api\TicketApiController;
 use App\Platform\Controllers\EventAwardEarnersController;
 use App\Platform\Controllers\EventController;
 use App\Platform\Controllers\GameController;
@@ -22,7 +22,7 @@ use App\Platform\Controllers\PlayerAchievementController;
 use App\Platform\Controllers\PlayerGameController;
 use App\Platform\Controllers\ReportAchievementIssueController;
 use App\Platform\Controllers\SystemController;
-use App\Platform\Controllers\TriggerTicketController;
+use App\Platform\Controllers\TicketController;
 use App\Platform\Controllers\UserGameAchievementSetPreferenceController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -147,7 +147,7 @@ class RouteServiceProvider extends ServiceProvider
                     Route::put('user/game-achievement-set/preferences', [UserGameAchievementSetPreferenceController::class, 'update'])
                         ->name('api.user.game-achievement-set.preferences.update');
 
-                    Route::post('ticket', [TriggerTicketApiController::class, 'store'])->name('api.ticket.store');
+                    Route::post('ticket', [TicketApiController::class, 'store'])->name('api.ticket.store');
                 });
 
                 Route::get('games/resettable', [PlayerGameController::class, 'resettableGames'])->name('player.games.resettable');
@@ -155,7 +155,7 @@ class RouteServiceProvider extends ServiceProvider
 
                 Route::middleware(['inertia'])->group(function () {
                     Route::get('achievement/{achievement}/report-issue', [ReportAchievementIssueController::class, 'index'])->name('achievement.report-issue.index');
-                    Route::get('achievement/{achievement}/tickets/create', [TriggerTicketController::class, 'create'])->name('achievement.tickets.create');
+                    Route::get('achievement/{achievement}/tickets/create', [TicketController::class, 'create'])->name('achievement.tickets.create');
                 });
             });
         });
