@@ -30,10 +30,10 @@ class Create extends CreateRecord
 
         // create the legacy game record
         $game = Game::create([
-            'Title' => 'Temporary Event Title',
-            'Publisher' => 'RetroAchievements',
-            'ConsoleID' => System::Events,
-            'ImageIcon' => $data['image_asset_path'],
+            'title' => 'Temporary Event Title',
+            'publisher' => 'RetroAchievements',
+            'system_id' => System::Events,
+            'image_icon_asset_path' => $data['image_asset_path'],
         ]);
         $data['legacy_game_id'] = $game->id;
 

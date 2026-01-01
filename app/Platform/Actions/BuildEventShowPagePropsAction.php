@@ -35,8 +35,8 @@ class BuildEventShowPagePropsAction
         // If this is the case, we need to make an extra query to get the real
         // mastery count of the event.
         if ($numMasters === 0 && !$event->awards->count()) {
-            $numMasters = PlayerBadge::where('AwardType', AwardType::Event)
-                ->where('AwardData', $event->id)
+            $numMasters = PlayerBadge::where('award_type', AwardType::Event)
+                ->where('award_key', $event->id)
                 ->count();
         }
 
@@ -61,10 +61,10 @@ class BuildEventShowPagePropsAction
                 'eventAchievements.achievement.unlockedHardcoreAt',
                 'eventAchievements.achievement.unlockHardcorePercentage',
                 'eventAchievements.achievement.unlockPercentage',
-                'eventAchievements.achievement.unlocksHardcoreTotal',
+                'eventAchievements.achievement.unlocksHardcore',
                 'eventAchievements.achievement.unlocksTotal',
                 'eventAchievements.achievement',
-                'eventAchievements.sourceAchievement.flags',
+                'eventAchievements.sourceAchievement.isPromoted',
                 'eventAchievements.sourceAchievement.game',
                 'eventAchievements.sourceAchievement.game.system',
                 'eventAchievements.sourceAchievement.game.system.nameShort',

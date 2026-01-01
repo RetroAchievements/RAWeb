@@ -48,7 +48,7 @@ $visibleTools = collect($tools)->filter(fn($tool) => $user?->can($tool['abilitie
 
                 @can('manage', App\Models\AchievementSetClaim::class)
                     <x-dropdown-item
-                        :href="route('filament.admin.resources.achievement-set-claims.index', ['tableSortColumn' => 'Finished', 'tableSortDirection' => 'asc'])"
+                        :href="route('filament.admin.resources.achievement-set-claims.index', ['tableSortColumn' => 'finished_at', 'tableSortDirection' => 'asc'])"
                     >
                         Expiring Claims
                     </x-dropdown-item>

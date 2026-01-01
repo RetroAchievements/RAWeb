@@ -12,7 +12,7 @@ describe('Component: ChangeEmailAddressSectionCard', () => {
     // ARRANGE
     const { container } = render(<ChangeEmailAddressSectionCard />, {
       pageProps: {
-        userSettings: { emailAddress: 'foo@bar.com' },
+        userSettings: { email: 'foo@bar.com' },
       },
     });
 
@@ -24,7 +24,7 @@ describe('Component: ChangeEmailAddressSectionCard', () => {
     // ARRANGE
     render(<ChangeEmailAddressSectionCard />, {
       pageProps: {
-        userSettings: { emailAddress: 'foo@bar.com' },
+        userSettings: { email: 'foo@bar.com' },
       },
     });
 
@@ -39,7 +39,7 @@ describe('Component: ChangeEmailAddressSectionCard', () => {
 
     render(<ChangeEmailAddressSectionCard />, {
       pageProps: {
-        userSettings: { emailAddress: 'foo@bar.com' },
+        userSettings: { email: 'foo@bar.com' },
       },
     });
 
@@ -60,7 +60,7 @@ describe('Component: ChangeEmailAddressSectionCard', () => {
 
     render(<ChangeEmailAddressSectionCard />, {
       pageProps: {
-        userSettings: { emailAddress: 'foo@bar.com' },
+        userSettings: { email: 'foo@bar.com' },
       },
     });
 
@@ -81,7 +81,7 @@ describe('Component: ChangeEmailAddressSectionCard', () => {
 
     render(<ChangeEmailAddressSectionCard />, {
       pageProps: {
-        userSettings: { emailAddress: 'foo@bar.com' },
+        userSettings: { email: 'foo@bar.com' },
       },
     });
 
@@ -102,7 +102,7 @@ describe('Component: ChangeEmailAddressSectionCard', () => {
 
     render(<ChangeEmailAddressSectionCard />, {
       pageProps: {
-        userSettings: { emailAddress: 'foo@bar.com' },
+        userSettings: { email: 'foo@bar.com' },
       },
     });
 
@@ -128,7 +128,7 @@ describe('Component: ChangeEmailAddressSectionCard', () => {
     render(<ChangeEmailAddressSectionCard />, {
       pageProps: {
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
-        userSettings: { emailAddress: 'foo@bar.com' },
+        userSettings: { email: 'foo@bar.com' },
       },
     });
 
@@ -157,7 +157,7 @@ describe('Component: ChangeEmailAddressSectionCard', () => {
 
     render(<ChangeEmailAddressSectionCard />, {
       pageProps: {
-        userSettings: { emailAddress: 'foo@bar.com' },
+        userSettings: { email: 'foo@bar.com' },
       },
     });
 
@@ -185,7 +185,7 @@ describe('Component: ChangeEmailAddressSectionCard', () => {
 
     render(<ChangeEmailAddressSectionCard />, {
       pageProps: {
-        userSettings: { emailAddress: 'foo@bar.com' },
+        userSettings: { email: 'foo@bar.com' },
       },
     });
 

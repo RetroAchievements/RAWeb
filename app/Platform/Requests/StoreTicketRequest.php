@@ -14,7 +14,7 @@ class StoreTicketRequest extends FormRequest
     {
         return [
             'ticketableModel' => 'required|string|in:achievement', // TODO or in:leaderboard
-            'ticketableId' => 'required|integer|exists:Achievements,ID', // TODO could also be a leaderboard id
+            'ticketableId' => 'required|integer|exists:achievements,id', // TODO could also be a leaderboard id
             'mode' => 'required|string|in:hardcore,softcore',
             'issue' => ['required', new Enum(TicketType::class)],
             'description' => 'required|string|max:2000',

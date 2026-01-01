@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Enums\SearchType;
 use App\Platform\Enums\GameSetType;
@@ -40,22 +40,22 @@ function performSearch(
     $parts = [];
 
     if (in_array(SearchType::Game, $searchType)) {
-        $counts[] = "SELECT COUNT(*) AS Count FROM GameData WHERE Title LIKE '%$searchQuery%'";
+        $counts[] = "SELECT COUNT(*) AS Count FROM games WHERE title LIKE '%$searchQuery%'";
         $parts[] = "
-        SELECT " . SearchType::Game . " AS Type, gd.ID, CONCAT( '/game/', gd.ID ) AS Target,
-               CONCAT(gd.Title, ' (', c.Name, ')') AS Title,
+        SELECT " . SearchType::Game . " AS Type, gd.id AS ID, CONCAT( '/game/', gd.id ) AS Target,
+               CONCAT(gd.title, ' (', s.name, ')') AS Title,
                CASE
-                   WHEN gd.Title LIKE '$searchQuery%' THEN 0
-                   WHEN gd.Title LIKE '%~ $searchQuery%' THEN 1
+                   WHEN gd.title LIKE '$searchQuery%' THEN 0
+                   WHEN gd.title LIKE '%~ $searchQuery%' THEN 1
                    ELSE 2
                END AS SecondarySort
-        FROM GameData AS gd
-        LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID AND ach.Flags = 3
-        LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
-        WHERE gd.ConsoleID != 100
-        AND gd.Title LIKE '%$searchQuery%'
-        GROUP BY gd.ID, gd.Title
-        ORDER BY SecondarySort, REPLACE(gd.Title, '|', ''), gd.Title";
+        FROM games AS gd
+        LEFT JOIN achievements AS ach ON ach.game_id = gd.id AND ach.is_promoted = 1
+        LEFT JOIN systems AS s ON gd.system_id = s.id
+        WHERE gd.system_id != 100
+        AND gd.title LIKE '%$searchQuery%'
+        GROUP BY gd.id, gd.title
+        ORDER BY SecondarySort, REPLACE(gd.title, '|', ''), gd.title";
     }
 
     if (in_array(SearchType::Hub, $searchType)) {
@@ -77,37 +77,37 @@ function performSearch(
     }
 
     if (in_array(SearchType::Achievement, $searchType)) {
-        $counts[] = "SELECT COUNT(*) AS Count FROM Achievements WHERE Title LIKE '%$searchQuery%'";
+        $counts[] = "SELECT COUNT(*) AS Count FROM achievements WHERE title LIKE '%$searchQuery%'";
         $parts[] = "
-        SELECT " . SearchType::Achievement . " AS Type, ach.ID, CONCAT( '/achievement/', ach.ID ) AS Target,
-               CONCAT(ach.Title, ' (', gd.Title, ')') AS Title,
-               CASE WHEN ach.Title LIKE '$searchQuery%' THEN 0 ELSE 1 END AS SecondarySort
-        FROM Achievements AS ach
-        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        WHERE ach.Flags = 3 AND ach.Title LIKE '%$searchQuery%'
-        ORDER BY SecondarySort, ach.Title";
+        SELECT " . SearchType::Achievement . " AS Type, ach.id, CONCAT( '/achievement/', ach.id ) AS Target,
+               CONCAT(ach.title, ' (', gd.title, ')') AS Title,
+               CASE WHEN ach.title LIKE '$searchQuery%' THEN 0 ELSE 1 END AS SecondarySort
+        FROM achievements AS ach
+        LEFT JOIN games AS gd ON gd.id = ach.game_id
+        WHERE ach.is_promoted = 1 AND ach.title LIKE '%$searchQuery%'
+        ORDER BY SecondarySort, ach.title";
     }
 
     if (in_array(SearchType::User, $searchType)) {
-        $counts[] = "SELECT COUNT(*) AS Count FROM UserAccounts WHERE display_name LIKE '%$searchQuery%'";
+        $counts[] = "SELECT COUNT(*) AS Count FROM users WHERE display_name LIKE '%$searchQuery%'";
         $parts[] = "
             SELECT " . SearchType::User . " AS Type, ua.display_name AS ID,
                 CONCAT( '/user/', ua.display_name ) AS Target, ua.display_name AS Title,
                 CASE WHEN ua.display_name LIKE '$searchQuery%' THEN 0 ELSE 1 END AS SecondarySort
-            FROM UserAccounts AS ua
-            WHERE ua.display_name LIKE '%$searchQuery%' AND ua.Permissions >= 0 AND ua.Deleted IS NULL
+            FROM users AS ua
+            WHERE ua.display_name LIKE '%$searchQuery%' AND ua.Permissions >= 0 AND ua.deleted_at IS NULL
             ORDER BY SecondarySort, ua.display_name";
     }
 
     if (in_array(SearchType::Forum, $searchType)) {
         $counts[] = "SELECT COUNT(*) AS Count FROM forum_topic_comments WHERE body LIKE '%$searchQuery%'";
         $parts[] = "
-        SELECT " . SearchType::Forum . " AS Type, ua.User AS ID,
+        SELECT " . SearchType::Forum . " AS Type, ua.username AS ID,
                CONCAT( '/forums/topic/', ftc.forum_topic_id, '?comment=', ftc.id, '#', ftc.id ) AS Target,
                CASE WHEN CHAR_LENGTH(ftc.body) <= 64 THEN ftc.body ELSE
                CONCAT( '...', MID( ftc.body, GREATEST( LOCATE('$searchQuery', ftc.body)-25, 1), 60 ), '...' ) END AS Title
         FROM forum_topic_comments AS ftc
-        LEFT JOIN UserAccounts AS ua ON ua.ID = ftc.author_id
+        LEFT JOIN users AS ua ON ua.id = ftc.author_id
         LEFT JOIN forum_topics AS ft ON ft.id = ftc.forum_topic_id
         WHERE ftc.body LIKE '%$searchQuery%' AND ft.deleted_at IS NULL
         AND ft.required_permissions <= '$permissions'
@@ -115,58 +115,59 @@ function performSearch(
         ORDER BY IFNULL(ftc.updated_at, ftc.created_at) DESC";
     }
 
-    $articleTypes = [];
+    $commentableTypes = [];
 
     if (in_array(SearchType::GameComment, $searchType)) {
-        $articleTypes[] = ArticleType::Game;
+        $commentableTypes[] = CommentableType::Game->value;
     }
 
     if (in_array(SearchType::AchievementComment, $searchType)) {
-        $articleTypes[] = ArticleType::Achievement;
+        $commentableTypes[] = CommentableType::Achievement->value;
     }
 
     if (in_array(SearchType::LeaderboardComment, $searchType)) {
-        $articleTypes[] = ArticleType::Leaderboard;
+        $commentableTypes[] = CommentableType::Leaderboard->value;
     }
 
     $includeTicketComments = false;
     if (in_array(SearchType::TicketComment, $searchType)) {
         if (canSearch(SearchType::GameHashComment, $permissions)) {
-            $articleTypes[] = ArticleType::AchievementTicket;
+            $commentableTypes[] = CommentableType::AchievementTicket->value;
             $includeTicketComments = true;
         }
     }
 
     if (in_array(SearchType::UserComment, $searchType)) {
-        $articleTypes[] = ArticleType::User;
+        $commentableTypes[] = CommentableType::User->value;
     }
 
     if (in_array(SearchType::UserModerationComment, $searchType)) {
         if (canSearch(SearchType::UserModerationComment, $permissions)) {
-            $articleTypes[] = ArticleType::UserModeration;
+            $commentableTypes[] = CommentableType::UserModeration->value;
         }
     }
 
     if (in_array(SearchType::GameHashComment, $searchType)) {
         if (canSearch(SearchType::GameHashComment, $permissions)) {
-            $articleTypes[] = ArticleType::GameHash;
+            $commentableTypes[] = CommentableType::GameHash->value;
         }
     }
 
     if (in_array(SearchType::SetClaimComment, $searchType)) {
         if (canSearch(SearchType::SetClaimComment, $permissions)) {
-            $articleTypes[] = ArticleType::SetClaim;
+            $commentableTypes[] = CommentableType::SetClaim->value;
         }
     }
 
-    if ($articleTypes !== []) {
+    if ($commentableTypes !== []) {
         // Count regular comments.
-        $countsQuery = "SELECT COUNT(*) AS Count FROM Comment AS c
-            LEFT JOIN UserAccounts AS cua ON cua.ID=c.user_id
-            LEFT JOIN UserAccounts AS ua ON ua.ID=c.ArticleID AND c.articletype=" . ArticleType::User . "
-            WHERE c.Payload LIKE '%$searchQuery%'
-            AND cua.User != 'Server' AND c.articletype IN (" . implode(',', $articleTypes) . ")
-            AND ua.Deleted IS NULL AND (ua.UserWallActive OR ua.UserWallActive IS NULL)";
+        $commentableTypesQuoted = "'" . implode("','", $commentableTypes) . "'";
+        $countsQuery = "SELECT COUNT(*) AS Count FROM comments AS c
+            LEFT JOIN users AS cua ON cua.id=c.user_id
+            LEFT JOIN users AS ua ON ua.id=c.commentable_id AND c.commentable_type='" . CommentableType::User->value . "'
+            WHERE c.body LIKE '%$searchQuery%'
+            AND cua.username != 'Server' AND c.commentable_type IN (" . $commentableTypesQuoted . ")
+            AND ua.deleted_at IS NULL AND (ua.is_user_wall_active OR ua.is_user_wall_active IS NULL)";
 
         // If searching ticket comments, also count body from tickets.
         if ($includeTicketComments) {
@@ -174,9 +175,9 @@ function performSearch(
                 $countsQuery
                 UNION ALL
                 SELECT COUNT(*) AS Count FROM tickets AS t
-                LEFT JOIN UserAccounts AS reporter ON reporter.ID=t.reporter_id
+                LEFT JOIN users AS reporter ON reporter.id=t.reporter_id
                 WHERE t.body LIKE '%$searchQuery%'
-                AND reporter.User != 'Server'
+                AND reporter.username != 'Server'
                 AND t.deleted_at IS NULL
             ) AS combined_counts";
         }
@@ -186,39 +187,39 @@ function performSearch(
         // Build the query for regular comments.
         $partsQuery = "
             SELECT CASE
-                WHEN c.articletype=" . ArticleType::Game . " THEN " . SearchType::GameComment . "
-                WHEN c.articletype=" . ArticleType::Achievement . " THEN " . SearchType::AchievementComment . "
-                WHEN c.articletype=" . ArticleType::Leaderboard . " THEN " . SearchType::LeaderboardComment . "
-                WHEN c.articletype=" . ArticleType::AchievementTicket . " THEN " . SearchType::TicketComment . "
-                WHEN c.articletype=" . ArticleType::User . " THEN " . SearchType::UserComment . "
-                WHEN c.articletype=" . ArticleType::UserModeration . " THEN " . SearchType::UserModerationComment . "
-                WHEN c.articletype=" . ArticleType::GameHash . " THEN " . SearchType::GameHashComment . "
-                WHEN c.articletype=" . ArticleType::SetClaim . " THEN " . SearchType::SetClaimComment . "
+                WHEN c.commentable_type='" . CommentableType::Game->value . "' THEN " . SearchType::GameComment . "
+                WHEN c.commentable_type='" . CommentableType::Achievement->value . "' THEN " . SearchType::AchievementComment . "
+                WHEN c.commentable_type='" . CommentableType::Leaderboard->value . "' THEN " . SearchType::LeaderboardComment . "
+                WHEN c.commentable_type='" . CommentableType::AchievementTicket->value . "' THEN " . SearchType::TicketComment . "
+                WHEN c.commentable_type='" . CommentableType::User->value . "' THEN " . SearchType::UserComment . "
+                WHEN c.commentable_type='" . CommentableType::UserModeration->value . "' THEN " . SearchType::UserModerationComment . "
+                WHEN c.commentable_type='" . CommentableType::GameHash->value . "' THEN " . SearchType::GameHashComment . "
+                WHEN c.commentable_type='" . CommentableType::SetClaim->value . "' THEN " . SearchType::SetClaimComment . "
                 ELSE 9999
             END AS Type,
-            cua.User AS ID,
+            cua.username AS ID,
             CASE
-                WHEN c.articletype=" . ArticleType::Game . " THEN CONCAT('/game/', c.ArticleID, '#comment_', c.ID)
-                WHEN c.articletype=" . ArticleType::Achievement . " THEN CONCAT('/achievement/', c.ArticleID, '#comment_', c.ID)
-                WHEN c.articletype=" . ArticleType::Leaderboard . " THEN CONCAT('/leaderboardinfo.php?i=', c.ArticleID, '#comment_', c.ID)
-                WHEN c.articletype=" . ArticleType::AchievementTicket . " THEN CONCAT('/ticket/', c.ArticleID, '#comment_', c.ID)
-                WHEN c.articletype=" . ArticleType::User . " THEN CONCAT('/user/', ua.display_name, '#comment_', c.ID)
-                WHEN c.articletype=" . ArticleType::UserModeration . " THEN CONCAT('/user/', ua.display_name, '#comment_', c.ID)
-                WHEN c.articletype=" . ArticleType::GameHash . " THEN CONCAT('/game/', c.ArticleID, '/hashes/manage', '#comment_', c.ID)
-                WHEN c.articletype=" . ArticleType::SetClaim . " THEN CONCAT('/manageclaims.php?g=', c.ArticleID, '#comment_', c.ID)
-                ELSE CONCAT(c.articletype, '/', c.ArticleID)
+                WHEN c.commentable_type='" . CommentableType::Game->value . "' THEN CONCAT('/game/', c.commentable_id, '#comment_', c.id)
+                WHEN c.commentable_type='" . CommentableType::Achievement->value . "' THEN CONCAT('/achievement/', c.commentable_id, '#comment_', c.id)
+                WHEN c.commentable_type='" . CommentableType::Leaderboard->value . "' THEN CONCAT('/leaderboardinfo.php?i=', c.commentable_id, '#comment_', c.id)
+                WHEN c.commentable_type='" . CommentableType::AchievementTicket->value . "' THEN CONCAT('/ticket/', c.commentable_id, '#comment_', c.id)
+                WHEN c.commentable_type='" . CommentableType::User->value . "' THEN CONCAT('/user/', ua.display_name, '#comment_', c.id)
+                WHEN c.commentable_type='" . CommentableType::UserModeration->value . "' THEN CONCAT('/user/', ua.display_name, '#comment_', c.id)
+                WHEN c.commentable_type='" . CommentableType::GameHash->value . "' THEN CONCAT('/game/', c.commentable_id, '/hashes/manage', '#comment_', c.id)
+                WHEN c.commentable_type='" . CommentableType::SetClaim->value . "' THEN CONCAT('/manageclaims.php?g=', c.commentable_id, '#comment_', c.id)
+                ELSE CONCAT(c.commentable_type, '/', c.commentable_id)
             END AS Target,
             CASE
-                WHEN CHAR_LENGTH(c.Payload) <= 64 THEN c.Payload
-                ELSE CONCAT( '...', MID( c.Payload, GREATEST( LOCATE('$searchQuery', c.Payload)-25, 1), 60 ), '...' )
+                WHEN CHAR_LENGTH(c.body) <= 64 THEN c.body
+                ELSE CONCAT( '...', MID( c.body, GREATEST( LOCATE('$searchQuery', c.body)-25, 1), 60 ), '...' )
             END AS Title,
-            c.Submitted AS SortDate
-            FROM Comment AS c
-            LEFT JOIN UserAccounts AS cua ON cua.ID=c.user_id
-            LEFT JOIN UserAccounts AS ua ON ua.ID=c.ArticleID AND c.articletype in (" . ArticleType::User . "," . ArticleType::UserModeration . ")
-            WHERE c.Payload LIKE '%$searchQuery%'
-            AND cua.User != 'Server' AND c.articletype IN (" . implode(',', $articleTypes) . ")
-            AND ua.Deleted IS NULL AND (ua.UserWallActive OR ua.UserWallActive IS NULL)";
+            c.created_at AS SortDate
+            FROM comments AS c
+            LEFT JOIN users AS cua ON cua.id=c.user_id
+            LEFT JOIN users AS ua ON ua.id=c.commentable_id AND c.commentable_type in ('" . CommentableType::User->value . "','" . CommentableType::UserModeration->value . "')
+            WHERE c.body LIKE '%$searchQuery%'
+            AND cua.username != 'Server' AND c.commentable_type IN (" . $commentableTypesQuoted . ")
+            AND ua.deleted_at IS NULL AND (ua.is_user_wall_active OR ua.is_user_wall_active IS NULL)";
 
         // If searching ticket comments, also include body from tickets via a UNION.
         if ($includeTicketComments) {
@@ -227,7 +228,7 @@ function performSearch(
                     $partsQuery
                     UNION ALL
                     SELECT " . SearchType::TicketComment . " AS Type,
-                        reporter.User AS ID,
+                        reporter.username AS ID,
                         CONCAT('/ticket/', t.id) AS Target,
                         CASE
                             WHEN CHAR_LENGTH(t.body) <= 64 THEN t.body
@@ -235,14 +236,14 @@ function performSearch(
                         END AS Title,
                         t.created_at AS SortDate
                     FROM tickets AS t
-                    LEFT JOIN UserAccounts AS reporter ON reporter.ID=t.reporter_id
+                    LEFT JOIN users AS reporter ON reporter.id=t.reporter_id
                     WHERE t.body LIKE '%$searchQuery%'
-                    AND reporter.User != 'Server'
+                    AND reporter.username != 'Server'
                     AND t.deleted_at IS NULL
                 ) AS combined_results
                 ORDER BY Type, SortDate DESC";
         } else {
-            $partsQuery .= " ORDER BY c.articletype, c.Submitted DESC";
+            $partsQuery .= " ORDER BY c.commentable_type, c.created_at DESC";
         }
 
         $parts[] = $partsQuery;

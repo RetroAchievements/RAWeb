@@ -6,7 +6,6 @@ namespace App\Models;
 
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
-use App\Platform\Enums\AchievementFlag;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\TicketFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -77,7 +76,7 @@ class Ticket extends BaseModel
      */
     public function author(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'ticketable_author_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'ticketable_author_id')->withTrashed();
     }
 
     /**
@@ -85,7 +84,7 @@ class Ticket extends BaseModel
      */
     public function reporter(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'reporter_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'reporter_id')->withTrashed();
     }
 
     /**
@@ -93,7 +92,7 @@ class Ticket extends BaseModel
      */
     public function resolver(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'resolver_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'resolver_id')->withTrashed();
     }
 
     /**
@@ -151,7 +150,7 @@ class Ticket extends BaseModel
     public function scopeForGame(Builder $query, Game $game): Builder
     {
         return $query->whereHas('achievement', function ($query) use ($game) {
-            $query->where('GameID', $game->id);
+            $query->where('game_id', $game->id);
         });
     }
 
@@ -181,7 +180,7 @@ class Ticket extends BaseModel
     public function scopeOfficialCore(Builder $query): Builder
     {
         return $query->whereHas('achievement', function ($query) {
-            $query->where('Flags', AchievementFlag::OfficialCore->value);
+            $query->where('is_promoted', true);
         });
     }
 
@@ -192,7 +191,7 @@ class Ticket extends BaseModel
     public function scopeUnofficial(Builder $query): Builder
     {
         return $query->whereHas('achievement', function ($query) {
-            $query->where('Flags', AchievementFlag::Unofficial->value);
+            $query->where('is_promoted', false);
         });
     }
 }

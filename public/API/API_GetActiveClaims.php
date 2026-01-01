@@ -33,5 +33,6 @@ use App\Community\Enums\ClaimFilters;
 return response()->json(
     getFilteredClaims(
         claimFilter: ClaimFilters::AllActiveClaims,
+        useLegacyIntegers: true,
     )
 );

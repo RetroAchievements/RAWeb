@@ -10,21 +10,21 @@ use Spatie\LaravelData\Data;
 class UpdateWebsitePrefsData extends Data
 {
     public function __construct(
-        public int $websitePrefs,
+        public int $preferences_bitfield,
     ) {
     }
 
     public static function fromRequest(UpdateWebsitePrefsRequest $request): self
     {
         return new self(
-            websitePrefs: $request->websitePrefs,
+            preferences_bitfield: $request->preferencesBitfield,
         );
     }
 
     public function toArray(): array
     {
         return [
-            'websitePrefs' => $this->websitePrefs,
+            'preferences_bitfield' => $this->preferences_bitfield,
         ];
     }
 }

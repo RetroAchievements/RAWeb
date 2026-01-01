@@ -6,7 +6,7 @@ namespace App\Observers;
 
 use App\Community\Actions\AddUserDiscordRolesAction;
 use App\Community\Actions\RemoveUserDiscordRolesAction;
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Models\Comment;
 use App\Models\User;
 use Carbon\Carbon;
@@ -58,13 +58,13 @@ class UserObserver
             $this->syncSearchIndex($user, shouldIndex: $user->banned_at === null);
         }
 
-        if ($user->wasChanged('UserWallActive')) {
+        if ($user->wasChanged('is_user_wall_active')) {
             $wallComments = Comment::query()
-                ->where('ArticleType', ArticleType::User)
-                ->where('ArticleID', $user->id)
+                ->where('commentable_type', CommentableType::User)
+                ->where('commentable_id', $user->id)
                 ->get();
 
-            $this->syncSearchIndex($wallComments, shouldIndex: $user->UserWallActive);
+            $this->syncSearchIndex($wallComments, shouldIndex: $user->is_user_wall_active);
         }
     }
 

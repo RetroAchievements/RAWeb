@@ -26,7 +26,6 @@ use App\Models\ForumTopicComment;
 use App\Models\GameComment;
 use App\Models\Message;
 use App\Models\News;
-use App\Models\NewsComment;
 use App\Models\Subscription;
 use App\Models\Ticket;
 use App\Models\TicketComment;
@@ -74,7 +73,6 @@ class AppServiceProvider extends ServiceProvider
             'game.comment' => GameComment::class,
             'message' => Message::class,
             'news' => News::class,
-            'news.comment' => NewsComment::class,
             'subscription' => Subscription::class,
             'ticket' => Ticket::class,
             'ticket.comment' => TicketComment::class,

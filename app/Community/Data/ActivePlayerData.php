@@ -23,7 +23,7 @@ class ActivePlayerData extends Data
     public static function fromHydratedCachedValue(User $user, Game $game): self
     {
         return new self(
-            user: UserData::fromUser($user)->include('richPresenceMsg'),
+            user: UserData::fromUser($user)->include('richPresence'),
             game: GameData::fromGame($game)->include('badgeUrl'),
         );
     }

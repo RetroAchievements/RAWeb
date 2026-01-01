@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\GameAchievementSet;
@@ -11,7 +11,6 @@ use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrdersAction;
 use App\Platform\Actions\SyncEventAchievementMetadataAction;
 use App\Platform\Actions\UpsertTriggerVersionAction;
 use App\Platform\Enums\AchievementAuthorTask;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
@@ -28,13 +27,13 @@ function getAchievementsList(
     int $params,
     int $limit,
     int $offset,
-    ?AchievementFlag $achievementFlag = null,
+    ?bool $isPromoted = null,
     ?User $developer = null,
 ): Collection {
     $bindings = [
         'offset' => $offset,
         'limit' => $limit,
-        'achievementFlag' => $achievementFlag?->value ?? AchievementFlag::OfficialCore->value,
+        'isPromoted' => $isPromoted ?? true,
     ];
 
     $selectAwardedDate = ", NULL AS AwardedDate";
@@ -52,7 +51,7 @@ function getAchievementsList(
         // Achievements the user has unlocked.
         $bindings['userId'] = $user->id;
 
-        $joinPlayerAchievements = "INNER JOIN player_achievements AS pa ON pa.achievement_id = ach.ID AND pa.user_id = :userId";
+        $joinPlayerAchievements = "INNER JOIN player_achievements AS pa ON pa.achievement_id = ach.id AND pa.user_id = :userId";
         $selectAwardedDate = ", COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS AwardedDate";
         $additionalWhereClauses .= "AND pa.unlocked_at IS NOT NULL ";
     } elseif ($params === 2) {
@@ -61,35 +60,35 @@ function getAchievementsList(
 
         $notExistsSubquery = "AND NOT EXISTS (
             SELECT 1 FROM player_achievements pa
-            WHERE pa.achievement_id = ach.ID AND pa.user_id = :userId
+            WHERE pa.achievement_id = ach.id AND pa.user_id = :userId
         ) ";
     }
 
     // TODO slow query (18)
     $query = "SELECT
-                ach.ID,
-                ach.Title AS AchievementTitle,
-                ach.Description,
-                ach.Points,
-                ach.TrueRatio,
+                ach.id,
+                ach.title AS AchievementTitle,
+                ach.description,
+                ach.points,
+                ach.points_weighted AS TrueRatio,
                 ach.type,
-                ach.DateCreated,
-                ach.DateModified,
-                ach.BadgeName,
-                ach.GameID,
-                gd.Title AS GameTitle,
-                gd.ImageIcon AS GameIcon,
-                gd.ConsoleID,
-                c.Name AS ConsoleName,
-                ua.User AS Author
+                ach.created_at AS DateCreated,
+                ach.modified_at AS DateModified,
+                ach.image_name AS BadgeName,
+                ach.game_id AS GameID,
+                gd.title AS GameTitle,
+                gd.image_icon_asset_path AS GameIcon,
+                gd.system_id AS ConsoleID,
+                s.name AS ConsoleName,
+                ua.username AS Author
                 $selectAwardedDate
-            FROM Achievements AS ach
+            FROM achievements AS ach
             $joinPlayerAchievements
-            INNER JOIN UserAccounts AS ua ON ua.ID = ach.user_id
-            INNER JOIN GameData AS gd ON gd.ID = ach.GameID
-            INNER JOIN Console AS c ON c.ID = gd.ConsoleID
-            WHERE gd.ConsoleID != " . System::Events . "
-            AND ach.Flags = :achievementFlag
+            INNER JOIN users AS ua ON ua.id = ach.user_id
+            INNER JOIN games AS gd ON gd.id = ach.game_id
+            INNER JOIN systems AS s ON s.id = gd.system_id
+            WHERE gd.system_id != " . System::Events . "
+            AND ach.is_promoted = :isPromoted
             AND ach.deleted_at IS NULL ";
 
     if ($developer) {
@@ -98,7 +97,7 @@ function getAchievementsList(
     }
 
     if ($sortBy === 4) {
-        $query .= "AND ach.TrueRatio > 0 ";
+        $query .= "AND ach.points_weighted > 0 ";
     }
 
     $query .= $additionalWhereClauses;
@@ -110,61 +109,61 @@ function getAchievementsList(
     switch ($sortBy) {
         case 0:
         case 1:
-            $query .= "ORDER BY ach.Title ";
+            $query .= "ORDER BY ach.title ";
             break;
         case 2:
-            $query .= "ORDER BY ach.Description ";
+            $query .= "ORDER BY ach.description ";
             break;
         case 3:
-            $query .= "ORDER BY ach.Points, GameTitle ";
+            $query .= "ORDER BY ach.points, GameTitle ";
             break;
         case 4:
-            $query .= "ORDER BY ach.TrueRatio, ach.Points DESC, GameTitle ";
+            $query .= "ORDER BY ach.points_weighted, ach.points DESC, GameTitle ";
             break;
         case 5:
-            $query .= "ORDER BY ua.User ";
+            $query .= "ORDER BY ua.username ";
             break;
         case 6:
             $query .= "ORDER BY GameTitle ";
             break;
         case 7:
-            $query .= "ORDER BY ach.DateCreated ";
+            $query .= "ORDER BY ach.created_at ";
             break;
         case 8:
-            $query .= "ORDER BY ach.DateModified ";
+            $query .= "ORDER BY ach.modified_at ";
             break;
         case 9:
             $query .= "ORDER BY AwardedDate ";
             break;
         case 11:
-            $query .= "ORDER BY ach.Title DESC ";
+            $query .= "ORDER BY ach.title DESC ";
             break;
         case 12:
-            $query .= "ORDER BY ach.Description DESC ";
+            $query .= "ORDER BY ach.description DESC ";
             break;
         case 13:
-            $query .= "ORDER BY ach.Points DESC, GameTitle ";
+            $query .= "ORDER BY ach.points DESC, GameTitle ";
             break;
         case 14:
-            $query .= "ORDER BY ach.TrueRatio DESC, ach.Points, GameTitle ";
+            $query .= "ORDER BY ach.points_weighted DESC, ach.points, GameTitle ";
             break;
         case 15:
-            $query .= "ORDER BY ua.User DESC ";
+            $query .= "ORDER BY ua.username DESC ";
             break;
         case 16:
             $query .= "ORDER BY GameTitle DESC ";
             break;
         case 17:
-            $query .= "ORDER BY ach.DateCreated DESC ";
+            $query .= "ORDER BY ach.created_at DESC ";
             break;
         case 18:
-            $query .= "ORDER BY ach.DateModified DESC ";
+            $query .= "ORDER BY ach.modified_at DESC ";
             break;
         case 19:
             $query .= "ORDER BY AwardedDate DESC ";
             break;
         default:
-            $query .= "ORDER BY ach.ID ";
+            $query .= "ORDER BY ach.id ";
             break;
     }
 
@@ -190,20 +189,20 @@ function GetAchievementData(int $achievementId): ?array
         'Description' => $achievement->description,
         'Points' => $achievement->points,
         'TrueRatio' => $achievement->points_weighted,
-        'Flags' => $achievement->Flags,
+        'Flags' => $achievement->is_promoted ? Achievement::FLAG_PROMOTED : Achievement::FLAG_UNPROMOTED,
         'type' => $achievement->type,
         'Author' => $achievement->developer?->display_name,
         'AuthorULID' => $achievement->developer?->ulid,
-        'DateCreated' => $achievement->DateCreated->format('Y-m-d H:i:s'),
-        'DateModified' => $achievement->DateModified->format('Y-m-d H:i:s'),
-        'BadgeName' => $achievement->badge_name,
-        'DisplayOrder' => $achievement->DisplayOrder,
-        'AssocVideo' => $achievement->AssocVideo,
-        'MemAddr' => $achievement->MemAddr,
+        'DateCreated' => $achievement->created_at->format('Y-m-d H:i:s'),
+        'DateModified' => $achievement->modified_at->format('Y-m-d H:i:s'),
+        'BadgeName' => $achievement->image_name,
+        'DisplayOrder' => $achievement->order_column,
+        'AssocVideo' => $achievement->embed_url,
+        'MemAddr' => $achievement->trigger_definition,
         'ConsoleID' => $achievement->game->system->id,
         'ConsoleName' => $achievement->game->system->name,
         'GameTitle' => $achievement->game->title,
-        'GameIcon' => $achievement->game->ImageIcon,
+        'GameIcon' => $achievement->game->image_icon_asset_path,
     ];
 }
 
@@ -251,20 +250,21 @@ function UploadNewAchievement(
     $author = User::whereName($authorUsername)->first();
     $authorPermissions = (int) $author?->getAttribute('Permissions');
 
-    // Prevent <= registered users from uploading or modifying achievements
+    // Prevent <= registered users from uploading or modifying achievements.
     if ($authorPermissions < Permissions::JuniorDeveloper) {
         $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
         return false;
     }
 
-    if (!AchievementFlag::tryFrom($flag)) {
+    $isPromoted = $flag === Achievement::FLAG_PROMOTED;
+    if ($flag !== Achievement::FLAG_PROMOTED && $flag !== Achievement::FLAG_UNPROMOTED) {
         $errorOut = "Invalid achievement flag";
 
         return false;
     }
 
-    if ($flag === AchievementFlag::OfficialCore->value && !isValidConsoleId($consoleID)) {
+    if ($isPromoted && !isValidConsoleId($consoleID)) {
         $errorOut = "You cannot promote achievements for a game from an unsupported console (console ID: " . $consoleID . ").";
 
         return false;
@@ -284,8 +284,8 @@ function UploadNewAchievement(
         }
 
         $isForSubsetOrTestKit = (
-            mb_strpos($gameData['Title'], '[Subset') !== false
-            || mb_strpos($gameData['Title'], '~Test Kit~') !== false
+            mb_strpos($gameData['title'], '[Subset') !== false
+            || mb_strpos($gameData['title'], '~Test Kit~') !== false
         );
 
         if (
@@ -315,26 +315,27 @@ function UploadNewAchievement(
         }
 
         $achievement = new Achievement();
-        $achievement->GameID = $gameID;
-        $achievement->Title = $title;
-        $achievement->Description = $desc;
-        $achievement->MemAddr = $mem;
-        $achievement->Points = $points;
-        $achievement->Flags = $flag;
+        $achievement->game_id = $gameID;
+        $achievement->title = $title;
+        $achievement->description = $desc;
+        $achievement->trigger_definition = $mem;
+        $achievement->points = $points;
+        $achievement->is_promoted = $isPromoted;
         $achievement->type = ($typeValue == 'NULL') ? null : $type;
         $achievement->user_id = $author->id;
-        $achievement->BadgeName = $badge;
+        $achievement->image_name = $badge;
+        $achievement->modified_at = now();
 
         CauserResolver::setCauser($author);
 
         $achievement->save();
-        $idInOut = $achievement->ID;
+        $idInOut = $achievement->id;
 
         // It's a new achievement, so create the initial trigger version.
         (new UpsertTriggerVersionAction())->execute(
             $achievement,
             $mem,
-            versioned: $flag === AchievementFlag::OfficialCore->value,
+            versioned: $isPromoted,
             user: $author
         );
 
@@ -343,7 +344,7 @@ function UploadNewAchievement(
         static_addnewachievement($idInOut);
         addArticleComment(
             "Server",
-            ArticleType::Achievement,
+            CommentableType::Achievement,
             $idInOut,
             "{$author->display_name} uploaded this achievement.",
             $author->display_name
@@ -357,24 +358,24 @@ function UploadNewAchievement(
     if ($achievement) {
         $fields = [];
 
-        $changingPoints = ($achievement->Points != $points);
+        $changingPoints = ($achievement->points != $points);
         if ($changingPoints) {
-            $achievement->Points = $points;
+            $achievement->points = $points;
             $fields[] = "points";
         }
 
-        if ($achievement->BadgeName !== $badge) {
-            $achievement->BadgeName = $badge;
+        if ($achievement->image_name !== $badge) {
+            $achievement->image_name = $badge;
             $fields[] = "badge";
         }
 
-        if ($achievement->Title !== $title) {
-            $achievement->Title = $title;
+        if ($achievement->title !== $title) {
+            $achievement->title = $title;
             $fields[] = "title";
         }
 
-        if ($achievement->Description !== $desc) {
-            $achievement->Description = $desc;
+        if ($achievement->description !== $desc) {
+            $achievement->description = $desc;
             $fields[] = "description";
         }
 
@@ -388,23 +389,23 @@ function UploadNewAchievement(
             $fields[] = "type";
         }
 
-        $changingLogic = ($achievement->MemAddr != $mem);
+        $changingLogic = ($achievement->trigger_definition != $mem);
         if ($changingLogic) {
-            $achievement->MemAddr = $mem;
+            $achievement->trigger_definition = $mem;
             $fields[] = "logic";
         }
 
-        $changingAchSet = ($achievement->Flags != $flag);
-        if ($changingAchSet) {
-            $achievement->Flags = $flag;
+        $changingPromotedStatus = ($achievement->is_promoted != $isPromoted);
+        if ($changingPromotedStatus) {
+            $achievement->is_promoted = $isPromoted;
         }
 
-        if ($flag === AchievementFlag::OfficialCore->value || $changingAchSet) { // If modifying core or changing achievement state
+        if ($isPromoted || $changingPromotedStatus) { // If modifying core or changing achievement state.
             // changing ach set detected; user is $author, permissions is $authorPermissions, target set is $flag
 
             // Only allow jr. devs to modify core achievements if they are the author and not updating logic or state
             // TODO use a policy
-            if ($authorPermissions < Permissions::Developer && ($changingLogic || $changingAchSet || $achievement->user_id !== $author->id)) {
+            if ($authorPermissions < Permissions::Developer && ($changingLogic || $changingPromotedStatus || $achievement->user_id !== $author->id)) {
                 // Must be developer to modify core logic!
                 $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
@@ -412,7 +413,7 @@ function UploadNewAchievement(
             }
         }
 
-        if ($flag === AchievementFlag::Unofficial->value) { // If modifying unofficial
+        if (!$isPromoted) { // If modifying unofficial
             // Only allow jr. devs to modify unofficial if they are the author
             // TODO use a policy
             if ($authorPermissions == Permissions::JuniorDeveloper && $achievement->user_id !== $author->id) {
@@ -427,7 +428,7 @@ function UploadNewAchievement(
 
             (new SyncEventAchievementMetadataAction())->execute($achievement);
 
-            $achievement->DateModified = now();
+            $achievement->modified_at = now();
             $achievement->save();
 
             static_setlastupdatedgame($gameID);
@@ -438,12 +439,12 @@ function UploadNewAchievement(
 
                 (new UpsertTriggerVersionAction())->execute(
                     $achievement,
-                    $achievement->MemAddr,
-                    versioned: $achievement->Flags === AchievementFlag::OfficialCore->value,
+                    $achievement->trigger_definition,
+                    versioned: $achievement->is_promoted,
                     user: $author
                 );
-            } elseif ($changingAchSet && $achievement->trigger && $achievement->Flags === AchievementFlag::OfficialCore->value) {
-                // If only flags changed, re-version the existing trigger (if it exists).
+            } elseif ($changingPromotedStatus && $achievement->trigger && $achievement->is_promoted) {
+                // If only published status changed, re-version the existing trigger (if it exists).
                 (new UpsertTriggerVersionAction())->execute(
                     $achievement,
                     $achievement->trigger->conditions,
@@ -452,19 +453,19 @@ function UploadNewAchievement(
                 );
             }
 
-            if ($changingAchSet) {
-                if ($flag === AchievementFlag::OfficialCore->value) {
+            if ($changingPromotedStatus) {
+                if ($isPromoted) {
                     addArticleComment(
                         "Server",
-                        ArticleType::Achievement,
+                        CommentableType::Achievement,
                         $idInOut,
                         "{$author->display_name} promoted this achievement to the Core set.",
                         $author->display_name
                     );
-                } elseif ($flag === AchievementFlag::Unofficial->value) {
+                } else {
                     addArticleComment(
                         "Server",
-                        ArticleType::Achievement,
+                        CommentableType::Achievement,
                         $idInOut,
                         "{$author->display_name} demoted this achievement to Unofficial.",
                         $author->display_name
@@ -480,7 +481,7 @@ function UploadNewAchievement(
                 if (!empty($editString)) {
                     addArticleComment(
                         "Server",
-                        ArticleType::Achievement,
+                        CommentableType::Achievement,
                         $idInOut,
                         "{$author->display_name} edited this achievement's $editString.",
                         $author->display_name
@@ -492,12 +493,12 @@ function UploadNewAchievement(
                 // changing the type of an achievement or promoting/demoting it can affect
                 // the time to beat a game. recalculate them for anyone who has beaten the game.
                 $affectedUserIds = PlayerGame::query()
-                    ->where('game_id', $achievement->GameID)
+                    ->where('game_id', $achievement->game_id)
                     ->whereNotNull('beaten_at')
                     ->select(['user_id'])
                     ->pluck('user_id');
                 foreach ($affectedUserIds as $userId) {
-                    dispatch(new UpdatePlayerGameMetricsJob($userId, $achievement->GameID));
+                    dispatch(new UpdatePlayerGameMetricsJob($userId, $achievement->game_id));
                 }
             }
         }
@@ -516,7 +517,7 @@ function updateAchievementDisplayOrder(int $achievementId, int $newDisplayOrder)
         return false;
     }
 
-    $achievement->DisplayOrder = $newDisplayOrder;
+    $achievement->order_column = $newDisplayOrder;
     $achievement->save();
 
     // Double write to achievement_set_achievements to ensure it remains in sync.
@@ -525,16 +526,16 @@ function updateAchievementDisplayOrder(int $achievementId, int $newDisplayOrder)
     return true;
 }
 
-function updateAchievementFlag(int|string|array $inputAchievementIds, AchievementFlag $newFlag): void
+function updateAchievementPromotedStatus(int|string|array $inputAchievementIds, bool $isPromoted): void
 {
     $achievementIds = is_array($inputAchievementIds) ? $inputAchievementIds : [$inputAchievementIds];
 
-    $achievements = Achievement::whereIn('ID', $achievementIds)
-        ->where('Flags', '!=', $newFlag->value)
+    $achievements = Achievement::whereIn('id', $achievementIds)
+        ->where('is_promoted', '!=', $isPromoted)
         ->get();
 
     foreach ($achievements as $achievement) {
-        $achievement->Flags = $newFlag->value;
+        $achievement->is_promoted = $isPromoted;
         $achievement->save();
     }
 }
@@ -543,11 +544,11 @@ function updateAchievementType(int|string|array $inputAchievementIds, ?string $n
 {
     $achievementIds = is_array($inputAchievementIds) ? $inputAchievementIds : [$inputAchievementIds];
 
-    $achievements = Achievement::whereIn('ID', $achievementIds)->get();
+    $achievements = Achievement::whereIn('id', $achievementIds)->get();
 
     foreach ($achievements as $achievement) {
         $achievement->type = $newType;
-        $achievement->Updated = Carbon::now();
+        $achievement->updated_at = Carbon::now();
         $achievement->save();
     }
 }

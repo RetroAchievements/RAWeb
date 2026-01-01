@@ -36,11 +36,11 @@ class SimilarGameStrategy implements GameSuggestionStrategy
         }
 
         $this->selectedGame = Game::query()
-            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+            ->whereNotIn('system_id', System::getNonGameSystems())
             ->whereHas('gameSets', function ($query) use ($gameSetIds) {
                 $query->whereIn('game_sets.id', $gameSetIds);
             })
-            ->where('ID', '!=', $this->sourceGame->id)
+            ->where('id', '!=', $this->sourceGame->id)
             ->whereHasPublishedAchievements()
             ->inRandomOrder()
             ->first();

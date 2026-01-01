@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\UserPreference;
 use App\Mail\Services\UnsubscribeService;
@@ -38,7 +38,7 @@ class CommunityActivityMail extends Mailable
         public User $toUser,
         public int $activityId,
         public string $activityCommenterDisplayName,
-        public int $articleType,
+        public CommentableType $commentableType,
         public string $articleTitle,
         public string $urlTarget,
         public bool $isThreadInvolved = false,
@@ -47,7 +47,7 @@ class CommunityActivityMail extends Mailable
         $this->setupUnsubscribeLinks();
 
         // If this is a ticket comment, fetch the ticket data.
-        if ($this->articleType === ArticleType::AchievementTicket) {
+        if ($this->commentableType === CommentableType::AchievementTicket) {
             $ticket = Ticket::with(['achievement.game.system'])->find($this->activityId);
             if ($ticket) {
                 $this->ticketable = $ticket->achievement;
@@ -63,7 +63,7 @@ class CommunityActivityMail extends Mailable
     {
         return new Envelope(
             subject: $this->buildEmailSubject(
-                $this->articleType,
+                $this->commentableType,
                 $this->activityCommenterDisplayName
             ),
         );
@@ -93,7 +93,7 @@ class CommunityActivityMail extends Mailable
             markdown: 'mail.community.activity',
             with: [
                 'activityDescription' => $this->buildActivityDescription(
-                    $this->articleType,
+                    $this->commentableType,
                     $this->articleTitle,
                     $this->toUser->display_name,
                     $this->isThreadInvolved,
@@ -120,93 +120,45 @@ class CommunityActivityMail extends Mailable
     }
 
     private function buildActivityDescription(
-        int $articleType,
+        CommentableType $commentableType,
         string $articleTitle,
         string $toUserDisplayName,
         bool $isThreadInvolved,
     ): string {
-        $activityDescription = $isThreadInvolved ? "a thread you've commented in" : "your latest activity";
-
-        switch ($articleType) {
-            case ArticleType::Game:
-                $activityDescription = "the game wall for {$articleTitle}";
-                break;
-
-            case ArticleType::Achievement:
-                $activityDescription = "the achievement wall for {$articleTitle}";
-                break;
-
-            case ArticleType::User:
-                $activityDescription = "your user wall";
-                if ($articleTitle !== $toUserDisplayName) {
-                    $activityDescription = "{$articleTitle}'s user wall";
-                }
-                break;
-
-            case ArticleType::Leaderboard:
-                $activityDescription = "the leaderboard wall for {$articleTitle}";
-                break;
-
-            case ArticleType::Forum:
-                $activityDescription = "the forum thread \"{$articleTitle}\"";
-                break;
-
-            case ArticleType::AchievementTicket:
-                $activityDescription = "the ticket you reported";
-                if ($isThreadInvolved) {
-                    $activityDescription = "a ticket you're subscribed to";
-                }
-                break;
-
-            default:
-                break;
-        }
-
-        return $activityDescription;
+        return match ($commentableType) {
+            CommentableType::Game => "the game wall for {$articleTitle}",
+            CommentableType::Achievement => "the achievement wall for {$articleTitle}",
+            CommentableType::User => $articleTitle === $toUserDisplayName
+                ? "your user wall"
+                : "{$articleTitle}'s user wall",
+            CommentableType::Leaderboard => "the leaderboard wall for {$articleTitle}",
+            CommentableType::Forum => "the forum thread \"{$articleTitle}\"",
+            CommentableType::AchievementTicket => $isThreadInvolved
+                ? "a ticket you're subscribed to"
+                : "the ticket you reported",
+            default => $isThreadInvolved ? "a thread you've commented in" : "your latest activity",
+        };
     }
 
-    private function buildEmailSubject(int $articleType, string $activityCommenterDisplayName): string
+    private function buildEmailSubject(CommentableType $commentableType, string $activityCommenterDisplayName): string
     {
-        $title = "New Activity Comment from {$activityCommenterDisplayName}";
-
-        switch ($articleType) {
-            case ArticleType::Game:
-                $title = "New Game Wall Comment from {$activityCommenterDisplayName}";
-                break;
-
-            case ArticleType::Achievement:
-                $title = "New Achievement Comment from {$activityCommenterDisplayName}";
-                break;
-
-            case ArticleType::User:
-                $title = "New User Wall Comment from {$activityCommenterDisplayName}";
-                break;
-
-            case ArticleType::Leaderboard:
-                $title = "New Leaderboard Comment from {$activityCommenterDisplayName}";
-                break;
-
-            case ArticleType::Forum:
-                $title = "New Forum Comment from {$activityCommenterDisplayName}";
-                break;
-
-            case ArticleType::AchievementTicket:
-                $title = "New Ticket Comment from {$activityCommenterDisplayName}";
-                break;
-
-            default:
-                break;
-        }
-
-        return $title;
+        return match ($commentableType) {
+            CommentableType::Game => "New Game Wall Comment from {$activityCommenterDisplayName}",
+            CommentableType::Achievement => "New Achievement Comment from {$activityCommenterDisplayName}",
+            CommentableType::User => "New User Wall Comment from {$activityCommenterDisplayName}",
+            CommentableType::Leaderboard => "New Leaderboard Comment from {$activityCommenterDisplayName}",
+            CommentableType::Forum => "New Forum Comment from {$activityCommenterDisplayName}",
+            CommentableType::AchievementTicket => "New Ticket Comment from {$activityCommenterDisplayName}",
+            default => "New Activity Comment from {$activityCommenterDisplayName}",
+        };
     }
 
     private function setupUnsubscribeLinks(): void
     {
         $unsubscribeService = app(UnsubscribeService::class);
 
-        switch ($this->articleType) {
-            case ArticleType::Game:
+        switch ($this->commentableType) {
+            case CommentableType::Game:
                 $this->granularUrl = $unsubscribeService->generateGranularUrl(
                     $this->toUser,
                     SubscriptionSubjectType::GameWall,
@@ -221,7 +173,7 @@ class CommunityActivityMail extends Mailable
                 $this->categoryText = 'Unsubscribe from all wall comment emails';
                 break;
 
-            case ArticleType::Achievement:
+            case CommentableType::Achievement:
                 $this->granularUrl = $unsubscribeService->generateGranularUrl(
                     $this->toUser,
                     SubscriptionSubjectType::Achievement,
@@ -236,7 +188,7 @@ class CommunityActivityMail extends Mailable
                 $this->categoryText = 'Unsubscribe from all achievement comment emails';
                 break;
 
-            case ArticleType::User:
+            case CommentableType::User:
                 $this->granularUrl = $unsubscribeService->generateGranularUrl(
                     $this->toUser,
                     SubscriptionSubjectType::UserWall,
@@ -251,7 +203,7 @@ class CommunityActivityMail extends Mailable
                 $this->categoryText = 'Unsubscribe from all user wall comment emails';
                 break;
 
-            case ArticleType::Forum:
+            case CommentableType::Forum:
                 $this->granularUrl = $unsubscribeService->generateGranularUrl(
                     $this->toUser,
                     SubscriptionSubjectType::ForumTopic,
@@ -266,7 +218,7 @@ class CommunityActivityMail extends Mailable
                 $this->categoryText = 'Unsubscribe from all forum reply emails';
                 break;
 
-            case ArticleType::AchievementTicket:
+            case CommentableType::AchievementTicket:
                 $this->categoryUrl = $unsubscribeService->generateCategoryUrl(
                     $this->toUser,
                     UserPreference::EmailOn_TicketActivity

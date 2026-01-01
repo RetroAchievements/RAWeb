@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
 use App\Models\Comment;
@@ -25,26 +25,31 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'commentable_type' => 'required|integer',
 ]);
 
-$articleID = (int) $input['commentable_id'];
-$articleType = (int) $input['commentable_type'];
+$commentableId = (int) $input['commentable_id'];
+$commentableTypeInt = (int) $input['commentable_type'];
 
-$commentable = match ($articleType) {
-    ArticleType::AchievementTicket => Ticket::find($articleID),
-    ArticleType::User, ArticleType::UserModeration => User::find($articleID),
-    default => null,
-};
-
-$userModel = User::find($userDetails['ID']);
-if (!$userModel->can('create', [Comment::class, $commentable, $articleType])) {
+$commentableType = CommentableType::fromLegacyInteger($commentableTypeInt);
+if ($commentableType === null) {
     return back()->withErrors(__('legacy.error.error'));
 }
 
-if (addArticleComment($user, $articleType, $articleID, $input['body'])) {
-    // if a user is responding to a ticket in the Request state,
-    // automatically change the state back to Open
-    if ($articleType === ArticleType::AchievementTicket) {
+$commentable = match ($commentableType) {
+    CommentableType::AchievementTicket => Ticket::find($commentableId),
+    CommentableType::User, CommentableType::UserModeration => User::find($commentableId),
+    default => null,
+};
+
+$userModel = User::find($userDetails['id']);
+if (!$userModel->can('create', [Comment::class, $commentable, $commentableType])) {
+    return back()->withErrors(__('legacy.error.error'));
+}
+
+if (addArticleComment($userModel->username, $commentableType, $commentableId, $input['body'])) {
+    // If a user is responding to a ticket in the Request state,
+    // automatically change the state back to Open.
+    if ($commentableType === CommentableType::AchievementTicket) {
         if ($commentable->state === TicketState::Request && $commentable->reporter_id === $userModel->id) {
-            updateTicket($userModel, $articleID, TicketState::Open);
+            updateTicket($userModel, $commentableId, TicketState::Open);
         }
     }
 

@@ -10,7 +10,7 @@ describe('Component: DeleteAccountSectionCard', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(<DeleteAccountSectionCard />, {
-      pageProps: { userSettings: { deleteRequested: null } },
+      pageProps: { userSettings: { deleteRequestedAt: null } },
     });
 
     // ASSERT
@@ -20,7 +20,7 @@ describe('Component: DeleteAccountSectionCard', () => {
   it('given the user has not yet requested deletion, does not show a notice indicating they have', () => {
     // ARRANGE
     render(<DeleteAccountSectionCard />, {
-      pageProps: { userSettings: { deleteRequested: null } },
+      pageProps: { userSettings: { deleteRequestedAt: null } },
     });
 
     // ASSERT
@@ -32,7 +32,7 @@ describe('Component: DeleteAccountSectionCard', () => {
   it('given the user has requested deletion, shows a notice and a cancel button', () => {
     // ARRANGE
     render(<DeleteAccountSectionCard />, {
-      pageProps: { userSettings: { deleteRequested: new Date('2024-09-01').toISOString() } },
+      pageProps: { userSettings: { deleteRequestedAt: new Date('2024-09-01').toISOString() } },
     });
 
     // ASSERT
@@ -52,7 +52,7 @@ describe('Component: DeleteAccountSectionCard', () => {
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValue({ success: true });
 
     render(<DeleteAccountSectionCard />, {
-      pageProps: { userSettings: { deleteRequested: null } },
+      pageProps: { userSettings: { deleteRequestedAt: null } },
     });
 
     // ACT
@@ -70,7 +70,7 @@ describe('Component: DeleteAccountSectionCard', () => {
     const deleteSpy = vi.spyOn(axios, 'delete').mockResolvedValueOnce({ success: true });
 
     render(<DeleteAccountSectionCard />, {
-      pageProps: { userSettings: { deleteRequested: new Date('2024-09-01').toISOString() } },
+      pageProps: { userSettings: { deleteRequestedAt: new Date('2024-09-01').toISOString() } },
     });
 
     // ACT
@@ -88,7 +88,7 @@ describe('Component: DeleteAccountSectionCard', () => {
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValue({ success: true });
 
     render(<DeleteAccountSectionCard />, {
-      pageProps: { userSettings: { deleteRequested: null } },
+      pageProps: { userSettings: { deleteRequestedAt: null } },
     });
 
     // ACT

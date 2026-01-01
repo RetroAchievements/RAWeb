@@ -8,7 +8,6 @@ use App\Community\Enums\AwardType;
 use App\Models\Achievement;
 use App\Models\User;
 use App\Platform\Actions\UpdateDeveloperContributionYieldAction;
-use App\Platform\Enums\AchievementFlag;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
@@ -50,21 +49,21 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
 
     protected function assertPointBadgeTier(User $user, int $expectedTier, ?int $displayOrder = null): void
     {
-        $badge = $user->playerBadges()->where('AwardType', AwardType::AchievementPointsYield)->orderBy('AwardData', 'DESC')->first();
+        $badge = $user->playerBadges()->where('award_type', AwardType::AchievementPointsYield)->orderBy('award_key', 'DESC')->first();
         if ($expectedTier === 0) {
             $this->assertNull($badge);
         } else {
-            $this->assertGreaterThanOrEqual($badge?->AwardData, $expectedTier);
+            $this->assertGreaterThanOrEqual($badge?->award_key, $expectedTier);
         }
 
         if ($displayOrder !== null) {
-            $this->assertEquals($displayOrder, $badge?->DisplayOrder);
+            $this->assertEquals($displayOrder, $badge?->order_column);
         }
     }
 
     protected function removeUnlock(User $user, Achievement $achievement): void
     {
-        $user->playerAchievements()->where('achievement_id', $achievement->ID)->delete();
+        $user->playerAchievements()->where('achievement_id', $achievement->id)->delete();
     }
 
     public function testBadgeUpgrades(): void
@@ -81,9 +80,9 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         $points = [1, 999, 1500, 2500, 2500];
         $achievements = [];
         foreach ($points as $pointValue) {
-            $achievements[] = Achievement::factory()->published()->create([
-                'GameID' => $game->id,
-                'Points' => $pointValue,
+            $achievements[] = Achievement::factory()->promoted()->create([
+                'game_id' => $game->id,
+                'points' => $pointValue,
                 'user_id' => $author->id,
             ]);
         }
@@ -91,73 +90,73 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         // no unlocks yet
         $action = new UpdateDeveloperContributionYieldAction();
         $action->execute($author);
-        $this->assertEquals($author->ContribCount, 0);
-        $this->assertEquals($author->ContribYield, 0);
+        $this->assertEquals($author->yield_unlocks, 0);
+        $this->assertEquals($author->yield_points, 0);
         $this->assertPointBadgeTier($author, 0);
 
         // not enough points to cross tier
         $this->addHardcoreUnlock($player1, $achievements[1]);
         $action->execute($author);
-        $this->assertEquals(1, $author->ContribCount);
-        $this->assertEquals(999, $author->ContribYield);
+        $this->assertEquals(1, $author->yield_unlocks);
+        $this->assertEquals(999, $author->yield_points);
         $this->assertPointBadgeTier($author, 0);
 
         // ignore unlocks from author
         $this->addHardcoreUnlock($author, $achievements[2]);
         $action->execute($author);
-        $this->assertEquals(1, $author->ContribCount);
-        $this->assertEquals(999, $author->ContribYield);
+        $this->assertEquals(1, $author->yield_unlocks);
+        $this->assertEquals(999, $author->yield_points);
         $this->assertPointBadgeTier($author, 0);
 
         // single point unlock to cross first tier
         $this->addHardcoreUnlock($player2, $achievements[0]);
         $action->execute($author);
-        $this->assertEquals(2, $author->ContribCount);
-        $this->assertEquals(1000, $author->ContribYield);
+        $this->assertEquals(2, $author->yield_unlocks);
+        $this->assertEquals(1000, $author->yield_points);
         $this->assertPointBadgeTier($author, 1, 1);
 
         // reset unlock does remove contributions, but does not remove award
         $this->removeUnlock($player2, $achievements[0]);
         $action->execute($author);
-        $this->assertEquals(1, $author->ContribCount);
-        $this->assertEquals(999, $author->ContribYield);
+        $this->assertEquals(1, $author->yield_unlocks);
+        $this->assertEquals(999, $author->yield_points);
         $this->assertPointBadgeTier($author, 1);
 
         // new unlock does not reach next tier (softcode vs. hardcore doesn't matter)
         $this->addSoftcoreUnlock($player2, $achievements[2]);
         $action->execute($author);
-        $this->assertEquals(2, $author->ContribCount);
-        $this->assertEquals(2499, $author->ContribYield);
+        $this->assertEquals(2, $author->yield_unlocks);
+        $this->assertEquals(2499, $author->yield_points);
         $this->assertPointBadgeTier($author, 1);
 
         // new unlock does reach next tier
         $this->addHardcoreUnlock($player2, $achievements[3]);
         $action->execute($author);
-        $this->assertEquals(3, $author->ContribCount);
-        $this->assertEquals(4999, $author->ContribYield);
+        $this->assertEquals(3, $author->yield_unlocks);
+        $this->assertEquals(4999, $author->yield_points);
         $this->assertPointBadgeTier($author, 2, 1);
 
         // demoted achievement removes contributions, but not badge.
-        $achievements[3]->Flags = AchievementFlag::Unofficial->value;
+        $achievements[3]->is_promoted = false;
         $achievements[3]->save();
         $action->execute($author);
-        $this->assertEquals(2, $author->ContribCount);
-        $this->assertEquals(2499, $author->ContribYield);
+        $this->assertEquals(2, $author->yield_unlocks);
+        $this->assertEquals(2499, $author->yield_points);
         $this->assertPointBadgeTier($author, 2);
 
         // new unlock does not reach next tier
         $this->addHardcoreUnlock($player2, $achievements[4]);
         $action->execute($author);
-        $this->assertEquals(3, $author->ContribCount);
-        $this->assertEquals(4999, $author->ContribYield);
+        $this->assertEquals(3, $author->yield_unlocks);
+        $this->assertEquals(4999, $author->yield_points);
         $this->assertPointBadgeTier($author, 2);
 
         // promoted achievement restores contributions, crosses tier, and awards new badge.
-        $achievements[3]->Flags = AchievementFlag::OfficialCore->value;
+        $achievements[3]->is_promoted = true;
         $achievements[3]->save();
         $action->execute($author);
-        $this->assertEquals(4, $author->ContribCount);
-        $this->assertEquals(7499, $author->ContribYield);
+        $this->assertEquals(4, $author->yield_unlocks);
+        $this->assertEquals(7499, $author->yield_points);
         $this->assertPointBadgeTier($author, 3, 1);
     }
 
@@ -173,9 +172,9 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         $points = [1000, 1500, 2500, 5000];
         $achievements = [];
         foreach ($points as $pointValue) {
-            $achievements[] = Achievement::factory()->published()->create([
-                'GameID' => $game->id,
-                'Points' => $pointValue,
+            $achievements[] = Achievement::factory()->promoted()->create([
+                'game_id' => $game->id,
+                'points' => $pointValue,
                 'user_id' => $author->id,
             ]);
         }
@@ -183,8 +182,8 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         // no unlocks yet
         $action = new UpdateDeveloperContributionYieldAction();
         $action->execute($author);
-        $this->assertEquals($author->ContribCount, 0);
-        $this->assertEquals($author->ContribYield, 0);
+        $this->assertEquals($author->yield_unlocks, 0);
+        $this->assertEquals($author->yield_points, 0);
         $this->assertPointBadgeTier($author, 0);
 
         $now = Carbon::parse('2020-05-05');
@@ -194,8 +193,8 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         $date1 = Carbon::parse('2020-01-01');
         $this->addHardcoreUnlock($player, $achievements[0], $date1);
         $action->execute($author);
-        $this->assertEquals(1, $author->ContribCount);
-        $this->assertEquals(1000, $author->ContribYield);
+        $this->assertEquals(1, $author->yield_unlocks);
+        $this->assertEquals(1000, $author->yield_points);
         $this->assertPointBadgeTier($author, 1, 1);
 
         // enough points for fourth tier
@@ -206,14 +205,14 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
         $date4 = Carbon::parse('2020-04-04');
         $this->addHardcoreUnlock($player, $achievements[3], $date4);
         $action->execute($author);
-        $this->assertEquals(4, $author->ContribCount);
-        $this->assertEquals(10000, $author->ContribYield);
+        $this->assertEquals(4, $author->yield_unlocks);
+        $this->assertEquals(10000, $author->yield_points);
         $this->assertPointBadgeTier($author, 3, 1);
 
-        $badges = $author->playerBadges()->where('AwardType', AwardType::AchievementPointsYield)->orderBy('AwardData', 'DESC')->get();
-        $this->assertEquals($now, $badges->get(0)->AwardDate); // non-backfilled always set to now
-        $this->assertEquals($date3, $badges->get(1)->AwardDate); // backfilled should have extrapolated date
-        $this->assertEquals($date2, $badges->get(2)->AwardDate); // backfilled should have extrapolated date
-        $this->assertEquals($now, $badges->get(3)->AwardDate); // non-backfilled, despite being valid historically
+        $badges = $author->playerBadges()->where('award_type', AwardType::AchievementPointsYield)->orderBy('award_key', 'DESC')->get();
+        $this->assertEquals($now, $badges->get(0)->awarded_at); // non-backfilled always set to now
+        $this->assertEquals($date3, $badges->get(1)->awarded_at); // backfilled should have extrapolated date
+        $this->assertEquals($date2, $badges->get(2)->awarded_at); // backfilled should have extrapolated date
+        $this->assertEquals($now, $badges->get(3)->awarded_at); // non-backfilled, despite being valid historically
     }
 }

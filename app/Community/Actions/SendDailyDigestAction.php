@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\UserPreference;
 use App\Mail\DailyDigestMail;
@@ -41,7 +41,7 @@ class SendDailyDigestAction
 
         // if the user doesn't have an email address or is opted out, bail.
         // do this after deleting the pending subscriptions.
-        if (!$user->EmailAddress || BitSet($user->websitePrefs, UserPreference::EmailOff_DailyDigest)) {
+        if (!$user->email || BitSet($user->preferences_bitfield, UserPreference::EmailOff_DailyDigest)) {
             return;
         }
 
@@ -61,7 +61,7 @@ class SendDailyDigestAction
                 SubscriptionSubjectType::ForumTopic->value => ForumTopic::whereIn('id', $typeIds)->pluck('title', 'id'),
                 SubscriptionSubjectType::GameWall->value => $this->buildGameWallTitles($typeIds),
                 SubscriptionSubjectType::Achievement->value => $this->buildAchievementWallTitles($typeIds),
-                SubscriptionSubjectType::UserWall->value => User::whereIn('ID', $typeIds)->pluck('display_name', 'ID'),
+                SubscriptionSubjectType::UserWall->value => User::whereIn('id', $typeIds)->pluck('display_name', 'id'),
                 SubscriptionSubjectType::Leaderboard->value => $this->buildLeaderboardTitles($typeIds),
                 SubscriptionSubjectType::AchievementTicket->value => $this->buildTicketTitles($typeIds),
                 default => [],
@@ -112,7 +112,7 @@ class SendDailyDigestAction
             foreach ($ids as $type => $typeIds) {
                 $posts[$type] = match ($type) {
                     SubscriptionSubjectType::ForumTopic->value => ForumTopic::whereIn('id', $typeIds)->with('latestComment.user')->get()->keyBy('id'),
-                    default => Comment::whereIn('id', $typeIds)->with('user')->get()->keyBy('ArticleID'),
+                    default => Comment::whereIn('id', $typeIds)->with('user')->get()->keyBy('commentable_id'),
                 };
             }
 
@@ -124,7 +124,7 @@ class SendDailyDigestAction
                 if ($post) {
                     $summary = match ($type) {
                         SubscriptionSubjectType::ForumTopic->value => Shortcode::stripAndClamp($post->latestComment->body, previewLength: 200, preserveWhitespace: true),
-                        default => mb_strlen($post->Payload) > 200 ? mb_substr($post->Payload, 0, 200) . '...' : $post->Payload,
+                        default => mb_strlen($post->body) > 200 ? mb_substr($post->body, 0, 200) . '...' : $post->body,
                     };
                     $displayName = match ($type) {
                         SubscriptionSubjectType::ForumTopic->value => $post->latestComment->user->display_name,
@@ -140,7 +140,7 @@ class SendDailyDigestAction
         }
 
         // send the mail
-        Mail::to($user->EmailAddress)->queue(
+        Mail::to($user->email)->queue(
             new DailyDigestMail($user, $notificationItems)
         );
     }
@@ -149,11 +149,11 @@ class SendDailyDigestAction
     {
         return match ($subjectType) {
             SubscriptionSubjectType::ForumTopic => new ForumTopicDelayedSubscriptionHandler(),
-            SubscriptionSubjectType::GameWall => new CommentDelayedSubscriptionHandler(ArticleType::Game),
-            SubscriptionSubjectType::Achievement => new CommentDelayedSubscriptionHandler(ArticleType::Achievement),
-            SubscriptionSubjectType::UserWall => new CommentDelayedSubscriptionHandler(ArticleType::User),
-            SubscriptionSubjectType::Leaderboard => new CommentDelayedSubscriptionHandler(ArticleType::Leaderboard),
-            SubscriptionSubjectType::AchievementTicket => new CommentDelayedSubscriptionHandler(ArticleType::AchievementTicket),
+            SubscriptionSubjectType::GameWall => new CommentDelayedSubscriptionHandler(CommentableType::Game),
+            SubscriptionSubjectType::Achievement => new CommentDelayedSubscriptionHandler(CommentableType::Achievement),
+            SubscriptionSubjectType::UserWall => new CommentDelayedSubscriptionHandler(CommentableType::User),
+            SubscriptionSubjectType::Leaderboard => new CommentDelayedSubscriptionHandler(CommentableType::Leaderboard),
+            SubscriptionSubjectType::AchievementTicket => new CommentDelayedSubscriptionHandler(CommentableType::AchievementTicket),
 
             // other cases will be filled in as the calls are updated.
             default => throw new InvalidArgumentException("No handler for {$subjectType->value}"),
@@ -164,9 +164,9 @@ class SendDailyDigestAction
     {
         $result = [];
 
-        $games = Game::whereIn('ID', $ids)->with('system')->get();
+        $games = Game::whereIn('id', $ids)->with('system')->get();
         foreach ($games as $game) {
-            $result[$game->ID] = "{$game->Title} ({$game->system->Name})";
+            $result[$game->id] = "{$game->title} ({$game->system->name})";
         }
 
         return $result;
@@ -176,9 +176,9 @@ class SendDailyDigestAction
     {
         $result = [];
 
-        $achievements = Achievement::whereIn('ID', $ids)->with('game')->get();
+        $achievements = Achievement::whereIn('id', $ids)->with('game')->get();
         foreach ($achievements as $achievement) {
-            $result[$achievement->ID] = "{$achievement->Title} ({$achievement->game->Title})";
+            $result[$achievement->id] = "{$achievement->title} ({$achievement->game->title})";
         }
 
         return $result;
@@ -188,9 +188,9 @@ class SendDailyDigestAction
     {
         $result = [];
 
-        $leaderboards = Leaderboard::whereIn('ID', $ids)->with('game')->get();
+        $leaderboards = Leaderboard::whereIn('id', $ids)->with('game')->get();
         foreach ($leaderboards as $leaderboard) {
-            $result[$leaderboard->ID] = "{$leaderboard->Title} ({$leaderboard->game->Title})";
+            $result[$leaderboard->id] = "{$leaderboard->title} ({$leaderboard->game->title})";
         }
 
         return $result;
@@ -202,7 +202,7 @@ class SendDailyDigestAction
 
         $tickets = Ticket::whereIn('id', $ids)->with('achievement')->get();
         foreach ($tickets as $ticket) {
-            $result[$ticket->id] = "{$ticket->achievement->Title}";
+            $result[$ticket->id] = "{$ticket->achievement->title}";
         }
 
         return $result;
@@ -242,30 +242,30 @@ class ForumTopicDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandle
 
 class CommentDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
 {
-    protected int $articleType;
+    protected CommentableType $commentableType;
 
-    public function __construct(int $articleType)
+    public function __construct(CommentableType $commentableType)
     {
-        $this->articleType = $articleType;
+        $this->commentableType = $commentableType;
     }
 
     public function getUpdatesSince(UserDelayedSubscription $delayedSubscription): int
     {
         return Comment::query()
-            ->where('ArticleType', $this->articleType)
-            ->where('ArticleID', $delayedSubscription->subject_id)
-            ->where('ID', '>=', $delayedSubscription->first_update_id)
+            ->where('commentable_type', $this->commentableType)
+            ->where('commentable_id', $delayedSubscription->subject_id)
+            ->where('id', '>=', $delayedSubscription->first_update_id)
             ->where('user_id', '!=', $delayedSubscription->user_id)
             ->count();
     }
 
     public function getLink(int $subjectId, int $firstUpdateId): string
     {
-        if (ArticleType::supportsCommentRedirect($this->articleType)) {
+        if ($this->commentableType->supportsCommentRedirect()) {
             return route('comment.show', ['comment' => $firstUpdateId]);
         }
 
-        if ($this->articleType === ArticleType::AchievementTicket) {
+        if ($this->commentableType === CommentableType::AchievementTicket) {
             return route('ticket.show', ['ticket' => $subjectId]) . "#comment_{$firstUpdateId}";
         }
 

@@ -17,7 +17,7 @@ class UpdateWebsitePrefsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'websitePrefs' => 'required|integer',
+            'preferencesBitfield' => 'required|integer',
         ];
     }
 }

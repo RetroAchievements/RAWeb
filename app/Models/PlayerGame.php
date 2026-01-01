@@ -52,7 +52,7 @@ class PlayerGame extends BasePivot
      */
     public function achievements(): HasMany
     {
-        return $this->hasMany(Achievement::class, 'GameID', 'game_id');
+        return $this->hasMany(Achievement::class, 'game_id', 'game_id');
     }
 
     /**
@@ -60,8 +60,8 @@ class PlayerGame extends BasePivot
      */
     public function badges(): HasMany
     {
-        return $this->hasMany(PlayerBadge::class, 'AwardData', 'game_id')
-            ->whereIn('AwardType', [AwardType::GameBeaten, AwardType::Mastery]);
+        return $this->hasMany(PlayerBadge::class, 'award_key', 'game_id')
+            ->whereIn('award_type', [AwardType::GameBeaten, AwardType::Mastery]);
     }
 
     /**

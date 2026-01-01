@@ -60,7 +60,6 @@ use App\Actions\FindUserByIdentifierAction;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\PlayerBadge;
-use App\Platform\Enums\AchievementFlag;
 use App\Support\Rules\ValidUserIdentifier;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -76,7 +75,7 @@ if (!$targetUser) {
 }
 
 $gameId = (int) $input['g'];
-$game = Game::where('ID', $gameId)->with('system')->first();
+$game = Game::where('id', $gameId)->with('system')->first();
 if (!$game) {
     return response()->json([]);
 }
@@ -98,19 +97,19 @@ $gameData = [
     'UserCompletion' => sprintf("%01.2f%%", ($playerGame->completion_percentage ?? 0) * 100),
     'UserCompletionHardcore' => sprintf("%01.2f%%", ($playerGame->completion_percentage_hardcore ?? 0) * 100),
     'UserTotalPlaytime' => $playerGame->playtime_total ?? 0,
-    'ForumTopicID' => $game->ForumTopicID,
+    'ForumTopicID' => $game->forum_topic_id,
     'Flags' => 0,
-    'ImageIcon' => $game->ImageIcon,
-    'ImageTitle' => $game->ImageTitle,
-    'ImageIngame' => $game->ImageIngame,
-    'ImageBoxArt' => $game->ImageBoxArt,
-    'Publisher' => $game->Publisher,
-    'Developer' => $game->Developer,
-    'Genre' => $game->Genre,
+    'ImageIcon' => $game->image_icon_asset_path,
+    'ImageTitle' => $game->image_title_asset_path,
+    'ImageIngame' => $game->image_ingame_asset_path,
+    'ImageBoxArt' => $game->image_box_art_asset_path,
+    'Publisher' => $game->publisher,
+    'Developer' => $game->developer,
+    'Genre' => $game->genre,
     'Released' => $game->released_at ? $game->released_at->format('Y-m-d') : null,
     'ReleasedAtGranularity' => $game->released_at_granularity,
     'IsFinal' => false,
-    'RichPresencePatch' => md5($game->RichPresencePatch),
+    'RichPresencePatch' => md5($game->trigger_definition ?? ''),
 ];
 
 if (!$game->achievements_published) {
@@ -118,29 +117,29 @@ if (!$game->achievements_published) {
 } else {
     $achievements = [];
 
-    $publishedAchievements = Achievement::query()
-        ->where('GameID', $gameId)
-        ->where('Flags', AchievementFlag::OfficialCore->value)
+    $promotedAchievements = Achievement::query()
+        ->where('game_id', $gameId)
+        ->where('is_promoted', true)
         ->with('developer')
-        ->orderBy('DisplayOrder')
+        ->orderBy('order_column')
         ->get();
-    foreach ($publishedAchievements as $achievement) {
-        $achievements[strval($achievement->ID)] = [
-            'ID' => $achievement->ID,
-            'Title' => $achievement->Title,
-            'Description' => $achievement->Description,
-            'Points' => $achievement->Points,
-            'TrueRatio' => $achievement->TrueRatio,
+    foreach ($promotedAchievements as $achievement) {
+        $achievements[strval($achievement->id)] = [
+            'ID' => $achievement->id,
+            'Title' => $achievement->title,
+            'Description' => $achievement->description,
+            'Points' => $achievement->points,
+            'TrueRatio' => $achievement->points_weighted,
             'Type' => $achievement->type,
-            'BadgeName' => $achievement->BadgeName,
+            'BadgeName' => $achievement->image_name,
             'NumAwarded' => $achievement->unlocks_total,
-            'NumAwardedHardcore' => $achievement->unlocks_hardcore_total,
-            'DisplayOrder' => $achievement->DisplayOrder,
+            'NumAwardedHardcore' => $achievement->unlocks_hardcore,
+            'DisplayOrder' => $achievement->order_column,
             'Author' => $achievement->developer->display_name,
             'AuthorULID' => $achievement->developer->ulid,
-            'DateCreated' => $achievement->DateCreated->format('Y-m-d H:i:s'),
-            'DateModified' => $achievement->DateModified->format('Y-m-d H:i:s'),
-            'MemAddr' => md5($achievement->MemAddr),
+            'DateCreated' => $achievement->created_at->format('Y-m-d H:i:s'),
+            'DateModified' => $achievement->modified_at->format('Y-m-d H:i:s'),
+            'MemAddr' => md5($achievement->trigger_definition),
         ];
     }
 
@@ -163,7 +162,7 @@ if ($includeAwardMetadata == '1') {
 
     if ($highestAwardMetadata) {
         $gameData['HighestAwardKind'] = $highestAwardMetadata['highestAwardKind'];
-        $gameData['HighestAwardDate'] = $highestAwardMetadata['highestAward']->AwardDate->toIso8601String();
+        $gameData['HighestAwardDate'] = $highestAwardMetadata['highestAward']->awarded_at->toIso8601String();
     } else {
         $gameData['HighestAwardKind'] = null;
         $gameData['HighestAwardDate'] = null;

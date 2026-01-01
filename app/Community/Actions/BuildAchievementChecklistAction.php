@@ -59,14 +59,14 @@ class BuildAchievementChecklistAction
         }
         $ids = array_unique($ids);
 
-        $achievements = Achievement::whereIn('ID', $ids)->with('game.system')->get();
+        $achievements = Achievement::whereIn('id', $ids)->with('game.system')->get();
         $unlocks = PlayerAchievement::where('user_id', $user->id)->whereIn('achievement_id', $ids)->get();
 
         $result = [];
         foreach ($groups as $group) {
             $achievementList = [];
             foreach ($group['achievementIds'] as $achievementId) {
-                $achievement = $achievements->filter(fn ($a) => $a->ID === $achievementId)->first();
+                $achievement = $achievements->filter(fn ($a) => $a->id === $achievementId)->first();
                 if ($achievement) {
                     $unlock = $unlocks->filter(fn ($u) => $u->achievement_id === $achievementId)->first();
                     $achievementList[] = AchievementData::from($achievement, $unlock)->include(
@@ -75,10 +75,10 @@ class BuildAchievementChecklistAction
                         'unlockedAt',
                         'unlockedHardcoreAt',
                         'unlocksTotal',
-                        'unlocksHardcoreTotal',
+                        'unlocksHardcore',
                         'unlockHardcorePercentage',
                         'unlockPercentage',
-                        'flags',
+                        'isPromoted',
                         'game.badgeUrl',
                         'game.playersTotal',
                         'game.system.nameShort',

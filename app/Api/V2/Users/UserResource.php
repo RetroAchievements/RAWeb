@@ -33,23 +33,23 @@ class UserResource extends JsonApiResource
             'displayName' => $this->resource->display_name,
 
             'avatarUrl' => $this->resource->avatarUrl,
-            'motto' => $this->resource->Motto,
+            'motto' => $this->resource->motto,
 
-            'points' => $this->resource->RASoftcorePoints,
-            'pointsHardcore' => $this->resource->RAPoints,
-            'pointsWeighted' => $this->resource->TrueRAPoints,
+            'points' => $this->resource->points,
+            'pointsHardcore' => $this->resource->points_hardcore,
+            'pointsWeighted' => $this->resource->points_weighted,
 
-            'yieldUnlocks' => $this->resource->ContribCount,
-            'yieldPoints' => $this->resource->ContribYield,
+            'yieldUnlocks' => $this->resource->yield_unlocks,
+            'yieldPoints' => $this->resource->yield_points,
 
-            'joinedAt' => $this->resource->Created,
-            'lastActivityAt' => $this->resource->LastLogin,
+            'joinedAt' => $this->resource->created_at,
+            'lastActivityAt' => $this->resource->last_activity_at,
 
             'isUnranked' => $this->resource->unranked_at !== null,
-            'isUserWallActive' => (bool) $this->resource->UserWallActive,
+            'isUserWallActive' => (bool) $this->resource->is_user_wall_active,
 
-            'richPresenceMessage' => $this->resource->RichPresenceMsg,
-            'richPresenceUpdatedAt' => $this->resource->RichPresenceMsgDate,
+            'richPresence' => $this->resource->rich_presence,
+            'richPresenceUpdatedAt' => $this->resource->rich_presence_updated_at,
 
             'visibleRole' => $this->resource->visibleRole?->name,
             'displayableRoles' => $this->resource->displayableRoles()
