@@ -18,7 +18,7 @@ class SyncAchievementSetOrderColumnsFromDisplayOrdersAction
             foreach ($gameAchievements as $gameAchievement) {
                 $achievementSet->achievements()->updateExistingPivot(
                     $gameAchievement->id,
-                    ['order_column' => $gameAchievement->DisplayOrder]
+                    ['order_column' => $gameAchievement->order_column]
                 );
             }
         }

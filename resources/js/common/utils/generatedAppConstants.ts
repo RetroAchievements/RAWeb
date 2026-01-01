@@ -91,56 +91,6 @@ export const UserRole = {
 } as const;
 
 
-export const ClaimStatus = {
-    Active: 0,
-    Complete: 1,
-    Dropped: 2,
-    InReview: 3,
-} as const;
-
-
-export const StringifiedClaimStatus = {
-    Active: '0',
-    Complete: '1',
-    Dropped: '2',
-    InReview: '3',
-} as const;
-
-
-export const ClaimType = {
-    Primary: 0,
-    Collaboration: 1,
-} as const;
-
-
-export const StringifiedClaimType = {
-    Primary: '0',
-    Collaboration: '1',
-} as const;
-
-
-export const AwardType = {
-    Mastery: 1,
-    AchievementUnlocksYield: 2,
-    AchievementPointsYield: 3,
-    PatreonSupporter: 6,
-    CertifiedLegend: 7,
-    GameBeaten: 8,
-    Event: 9,
-} as const;
-
-
-export const StringifiedAwardType = {
-    Mastery: '1',
-    AchievementUnlocksYield: '2',
-    AchievementPointsYield: '3',
-    PatreonSupporter: '6',
-    CertifiedLegend: '7',
-    GameBeaten: '8',
-    Event: '9',
-} as const;
-
-
 export const ArticleType = {
     Game: 1,
     Achievement: 2,
@@ -189,17 +139,5 @@ export const TicketState = {
     Resolved: 2,
     Request: 3,
     REASON_DEMOTED: 'Demoted',
-} as const;
-
-
-export const ClaimSetType = {
-    NewSet: 0,
-    Revision: 1,
-} as const;
-
-
-export const StringifiedClaimSetType = {
-    NewSet: '0',
-    Revision: '1',
 } as const;
 

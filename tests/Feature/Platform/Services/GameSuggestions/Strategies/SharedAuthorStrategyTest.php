@@ -7,7 +7,6 @@ namespace Tests\Feature\Platform\Services\GameSuggestions\Strategies;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\GameSuggestionReason;
 use App\Platform\Services\GameSuggestions\Enums\SourceGameKind;
 use App\Platform\Services\GameSuggestions\Strategies\SharedAuthorStrategy;
@@ -21,7 +20,7 @@ class SharedAuthorStrategyTest extends TestCase
     public function testItSelectsGameBySharedAuthor(): void
     {
         // Arrange
-        $author = User::factory()->create(['User' => 'Scott']);
+        $author = User::factory()->create(['username' => 'Scott']);
 
         $sourceGame = Game::factory()->create(['achievements_published' => 10]);
         $authoredGame = Game::factory()->create(['achievements_published' => 10]);
@@ -29,19 +28,19 @@ class SharedAuthorStrategyTest extends TestCase
 
         // ... create achievements by the same author ...
         Achievement::factory()->create([
-            'GameID' => $sourceGame->id,
+            'game_id' => $sourceGame->id,
             'user_id' => $author->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
+            'is_promoted' => true,
         ]);
         Achievement::factory()->create([
-            'GameID' => $authoredGame->id,
+            'game_id' => $authoredGame->id,
             'user_id' => $author->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
+            'is_promoted' => true,
         ]);
         Achievement::factory()->create([
-            'GameID' => $unrelatedGame->id,
+            'game_id' => $unrelatedGame->id,
             'user_id' => User::factory()->create()->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
+            'is_promoted' => true,
         ]);
 
         // Act
@@ -69,9 +68,9 @@ class SharedAuthorStrategyTest extends TestCase
         $sourceGame = Game::factory()->create(['achievements_published' => 10]);
 
         Achievement::factory()->create([
-            'GameID' => $sourceGame->id,
+            'game_id' => $sourceGame->id,
             'user_id' => $author->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
+            'is_promoted' => true,
         ]);
 
         // Act
@@ -91,14 +90,14 @@ class SharedAuthorStrategyTest extends TestCase
         $unofficialGame = Game::factory()->create(['achievements_published' => 10]);
 
         Achievement::factory()->create([
-            'GameID' => $sourceGame->id,
+            'game_id' => $sourceGame->id,
             'user_id' => $author->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
+            'is_promoted' => true,
         ]);
         Achievement::factory()->create([
-            'GameID' => $unofficialGame->id,
+            'game_id' => $unofficialGame->id,
             'user_id' => $author->id,
-            'Flags' => AchievementFlag::Unofficial->value, // !!
+            'is_promoted' => false, // !!
         ]);
 
         // Act

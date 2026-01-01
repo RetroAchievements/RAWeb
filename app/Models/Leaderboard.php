@@ -128,7 +128,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
      */
     public function developer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'author_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'author_id')->withTrashed();
     }
 
     /**
@@ -170,7 +170,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
      */
     public function game(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'game_id', 'ID');
+        return $this->belongsTo(Game::class, 'game_id', 'id');
     }
 
     /**

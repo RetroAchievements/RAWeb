@@ -31,7 +31,7 @@ class GetUrlToCommentDestinationAction
         abort_if($commentable === null, 404);
 
         // For user walls, check if the wall is active.
-        abort_if($commentable instanceof User && !$commentable->UserWallActive, 404);
+        abort_if($commentable instanceof User && !$commentable->is_user_wall_active, 404);
 
         $isVisibleOnResourcePage = $this->getIsCommentVisibleOnResourcePage($comment, $commentable);
 

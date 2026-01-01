@@ -1,4 +1,3 @@
-import { AwardType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
 import {
   createGame,
@@ -49,8 +48,8 @@ describe('Component: TopAchieversList', () => {
             user,
             score: 753,
             badge: createPlayerBadge({
-              awardType: AwardType.Mastery,
-              awardDataExtra: 1,
+              awardType: 'mastery',
+              awardTier: 1,
               awardDate: '2024-11-01 05:55:55',
             }),
           }),
@@ -76,8 +75,8 @@ describe('Component: TopAchieversList', () => {
             user,
             score: 222,
             badge: createPlayerBadge({
-              awardType: AwardType.GameBeaten,
-              awardDataExtra: 1,
+              awardType: 'game_beaten',
+              awardTier: 1,
               awardDate: '2024-11-01 05:55:55',
             }),
           }),

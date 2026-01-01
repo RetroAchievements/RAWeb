@@ -17,22 +17,16 @@ class UserGameListEntry extends BaseModel
     /** @use HasFactory<UserGameListEntryFactory> */
     use HasFactory;
 
-    // TODO rename SetRequest to user_game_list_entry or integrate into player_games table
-    // TODO rename GameID to game_id
-    // TODO drop user_game_list_entry_username_game_id_type_unique
-    protected $table = 'SetRequest';
-
-    public const CREATED_AT = 'created_at';
-    public const UPDATED_AT = 'Updated';
+    // TODO if we ever create a user_game_lists table for multiple "play" etc lists, drop user_game_list_entry_username_game_id_type_unique
+    protected $table = 'user_game_list_entries';
 
     protected $fillable = [
         'user_id',
         'type',
-        'GameID',
+        'game_id',
     ];
 
     protected $casts = [
-        'GameID' => 'integer',
         'type' => UserGameListType::class,
     ];
 
@@ -41,7 +35,7 @@ class UserGameListEntry extends BaseModel
         return UserGameListEntryFactory::new();
     }
 
-    // helpers
+    // == helpers
 
     public static function getUserSetRequestsInformation(User $user): array
     {
@@ -50,7 +44,7 @@ class UserGameListEntry extends BaseModel
         $requests['pointsForNext'] = 0;
         $points = 0;
 
-        $points += $user->RAPoints + $user->RASoftcorePoints;
+        $points += $user->points_hardcore + $user->points;
 
         // logic behind the amount of requests based on player's score:
         $boundariesAndChunks = [
@@ -98,7 +92,7 @@ class UserGameListEntry extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
@@ -106,7 +100,7 @@ class UserGameListEntry extends BaseModel
      */
     public function game(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'GameID', 'ID');
+        return $this->belongsTo(Game::class, 'game_id', 'id');
     }
 
     // == scopes
@@ -118,9 +112,9 @@ class UserGameListEntry extends BaseModel
     public function scopeWithoutAchievements(Builder $query): Builder
     {
         return $query
-            ->select('SetRequest.*')
-            ->leftJoin('Achievements', 'SetRequest.GameID', '=', 'Achievements.GameID')
-            ->groupBy('SetRequest.GameID')
-            ->havingRaw('count(Achievements.ID) = 0');
+            ->select('user_game_list_entries.*')
+            ->leftJoin('achievements', 'user_game_list_entries.game_id', '=', 'achievements.game_id')
+            ->groupBy('user_game_list_entries.game_id')
+            ->havingRaw('count(achievements.id) = 0');
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
@@ -47,7 +47,7 @@ class SubmitLeaderboardEntryTest extends TestCase
     {
         return [
             'Rank' => $rank,
-            'User' => $user->User,
+            'User' => $user->username,
             'Score' => $score,
             'DateSubmitted' => $when->unix(),
         ];
@@ -196,7 +196,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         ]);
         $timestamps[$user->id] = Carbon::now()->clone();
 
-        $user = User::factory()->create(['Untracked' => 1]);
+        $user = User::factory()->create(['Untracked' => true]);
         LeaderboardEntry::create([
             'leaderboard_id' => $leaderboard->id,
             'user_id' => $user->id,
@@ -206,9 +206,9 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         $addFollowing = function ($id) {
             UserRelation::create([
-                'user_id' => $this->user->ID,
+                'user_id' => $this->user->id,
                 'related_user_id' => $id,
-                'Friendship' => UserRelationship::Following,
+                'status' => UserRelationStatus::Following,
             ]);
         };
         $addFollowing(2);
@@ -473,7 +473,7 @@ class SubmitLeaderboardEntryTest extends TestCase
             ]);
 
         // delete entry
-        LeaderboardEntry::where('leaderboard_id', $leaderboard->id)->where('user_id', $this->user->ID)->delete();
+        LeaderboardEntry::where('leaderboard_id', $leaderboard->id)->where('user_id', $this->user->id)->delete();
 
         // submit worse
         $now6 = $now5->clone()->addMinutes(5)->startOfSecond();
@@ -539,7 +539,7 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         $time1 = $now->clone()->subMinutes(5)->startOfSecond();
         Carbon::setTestNow($time1);
-        $user1 = User::factory()->create(['User' => 'user1']);
+        $user1 = User::factory()->create(['username' => 'userOne']);
         LeaderboardEntry::create([
             'leaderboard_id' => $leaderboard->id,
             'user_id' => $user1->id,
@@ -548,7 +548,7 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         $time2 = $time1->clone()->subMinutes(5)->startOfSecond();
         Carbon::setTestNow($time2);
-        $user2 = User::factory()->create(['User' => 'user2']);
+        $user2 = User::factory()->create(['username' => 'userTwo']);
         LeaderboardEntry::create([
             'leaderboard_id' => $leaderboard->id,
             'user_id' => $user2->id,

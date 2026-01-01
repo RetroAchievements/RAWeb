@@ -6,7 +6,6 @@ namespace App\Platform\Actions;
 
 use App\Models\Event;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 
 class LoadEventWithRelationsAction
 {
@@ -23,7 +22,7 @@ class LoadEventWithRelationsAction
             'legacyGame',
             'achievements' => function ($query) use ($user) {
                 $query->with(['sourceAchievement.game.system'])
-                    ->where('Flags', AchievementFlag::OfficialCore->value);
+                    ->where('is_promoted', true);
 
                 if ($user) {
                     $query->with(['achievement.playerAchievements' => function ($query) use ($user) {
@@ -42,7 +41,7 @@ class LoadEventWithRelationsAction
                     $query->with(['playerBadges' => function ($query) use ($user, $event) {
                         $query
                             ->where('user_id', $user->id)
-                            ->where('AwardData', $event->id);
+                            ->where('award_key', $event->id);
                     }]);
                 }
             },

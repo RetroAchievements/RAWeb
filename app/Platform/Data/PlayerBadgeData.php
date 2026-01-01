@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Data;
 
+use App\Community\Enums\AwardType;
 use App\Models\PlayerBadge;
 use Carbon\Carbon;
 use Spatie\LaravelData\Data;
@@ -13,9 +14,9 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class PlayerBadgeData extends Data
 {
     public function __construct(
-        public int $awardType,
-        public int $awardData,
-        public int $awardDataExtra,
+        public AwardType $awardType,
+        public int $awardKey,
+        public int $awardTier,
         public Carbon $awardDate,
     ) {
     }
@@ -23,10 +24,10 @@ class PlayerBadgeData extends Data
     public static function fromPlayerBadge(PlayerBadge $playerBadge): self
     {
         return new self(
-            awardType: $playerBadge->AwardType,
-            awardData: $playerBadge->AwardData,
-            awardDataExtra: $playerBadge->AwardDataExtra,
-            awardDate: $playerBadge->AwardDate,
+            awardType: $playerBadge->award_type,
+            awardKey: $playerBadge->award_key,
+            awardTier: $playerBadge->award_tier,
+            awardDate: $playerBadge->awarded_at,
         );
     }
 }

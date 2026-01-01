@@ -33,14 +33,14 @@ class SubmitRichPresenceTest extends TestCase
     public function testDeveloperCanSubmitRichPresence(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER);
         $this->user = $user;
 
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'RichPresencePatch' => 'Display:\nOriginal RP',
+            'system_id' => $system->id,
+            'trigger_definition' => 'Display:\nOriginal RP',
         ]);
 
         // Act
@@ -52,20 +52,20 @@ class SubmitRichPresenceTest extends TestCase
 
         // Assert
         $game->refresh();
-        $this->assertEquals('Display:\nNew RP', $game->RichPresencePatch);
+        $this->assertEquals('Display:\nNew RP', $game->trigger_definition);
     }
 
     public function testJuniorDeveloperWithClaimCanSubmitRichPresence(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER_JUNIOR);
         $this->user = $user;
 
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'RichPresencePatch' => 'Display:\nOriginal RP',
+            'system_id' => $system->id,
+            'trigger_definition' => 'Display:\nOriginal RP',
         ]);
 
         // ... create an active claim for the Junior Developer ...
@@ -83,25 +83,25 @@ class SubmitRichPresenceTest extends TestCase
 
         // Assert
         $game->refresh();
-        $this->assertEquals('Display:\nJunior RP', $game->RichPresencePatch);
+        $this->assertEquals('Display:\nJunior RP', $game->trigger_definition);
     }
 
     public function testJuniorDeveloperAsSoleAuthorCanSubmitRichPresence(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER_JUNIOR);
         $this->user = $user;
 
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'RichPresencePatch' => 'Display:\nOriginal RP',
+            'system_id' => $system->id,
+            'trigger_definition' => 'Display:\nOriginal RP',
         ]);
 
         // ... make the Junior Developer the sole author of all achievements ...
         Achievement::factory()->count(3)->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $user->id,
         ]);
 
@@ -114,20 +114,20 @@ class SubmitRichPresenceTest extends TestCase
 
         // Assert
         $game->refresh();
-        $this->assertEquals('Display:\nSole Author RP', $game->RichPresencePatch);
+        $this->assertEquals('Display:\nSole Author RP', $game->trigger_definition);
     }
 
     public function testJuniorDeveloperWithoutPermissionCannotSubmitRichPresence(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER_JUNIOR);
         $this->user = $user;
 
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'RichPresencePatch' => 'Display:\nOriginal RP',
+            'system_id' => $system->id,
+            'trigger_definition' => 'Display:\nOriginal RP',
         ]);
 
         // ... they have no active claim and they're not the sole achievement author ...
@@ -147,13 +147,13 @@ class SubmitRichPresenceTest extends TestCase
 
         // Assert
         $game->refresh();
-        $this->assertEquals('Display:\nOriginal RP', $game->RichPresencePatch); // !! unchanged
+        $this->assertEquals('Display:\nOriginal RP', $game->trigger_definition); // !! unchanged
     }
 
     public function testJuniorDeveloperWithMixedAuthorshipCannotSubmitRichPresence(): void
     {
         // Arrange
-        $juniorDev = User::factory()->create(['appToken' => Str::random(16)]);
+        $juniorDev = User::factory()->create(['connect_token' => Str::random(16)]);
         $juniorDev->assignRole(Role::DEVELOPER_JUNIOR);
         $this->user = $juniorDev;
 
@@ -162,17 +162,17 @@ class SubmitRichPresenceTest extends TestCase
 
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'RichPresencePatch' => 'Display:\nOriginal RP',
+            'system_id' => $system->id,
+            'trigger_definition' => 'Display:\nOriginal RP',
         ]);
 
         // ... create achievements with mixed authorship ...
         Achievement::factory()->count(3)->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $juniorDev->id, // !! junior dev authored some achievements
         ]);
         Achievement::factory()->count(3)->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'user_id' => $otherDev->id, // !! but another dev also authored achievements
         ]);
 
@@ -191,21 +191,21 @@ class SubmitRichPresenceTest extends TestCase
 
         // Assert
         $game->refresh();
-        $this->assertEquals('Display:\nOriginal RP', $game->RichPresencePatch); // !! unchanged
+        $this->assertEquals('Display:\nOriginal RP', $game->trigger_definition); // !! unchanged
     }
 
     public function testRegularUserCannotSubmitRichPresence(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $this->user = $user;
 
         // ... no developer role! ...
 
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'RichPresencePatch' => 'Display:\nOriginal RP',
+            'system_id' => $system->id,
+            'trigger_definition' => 'Display:\nOriginal RP',
         ]);
 
         // Act
@@ -223,20 +223,20 @@ class SubmitRichPresenceTest extends TestCase
 
         // Assert
         $game->refresh();
-        $this->assertEquals('Display:\nOriginal RP', $game->RichPresencePatch); // !! unchanged
+        $this->assertEquals('Display:\nOriginal RP', $game->trigger_definition); // !! unchanged
     }
 
     public function testInvalidCredentialsCannotSubmitRichPresence(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER);
         $this->user = $user;
 
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'RichPresencePatch' => 'Display:\nOriginal RP',
+            'system_id' => $system->id,
+            'trigger_definition' => 'Display:\nOriginal RP',
         ]);
 
         // Act
@@ -254,20 +254,20 @@ class SubmitRichPresenceTest extends TestCase
 
         // Assert
         $game->refresh();
-        $this->assertEquals('Display:\nOriginal RP', $game->RichPresencePatch); // !! unchanged
+        $this->assertEquals('Display:\nOriginal RP', $game->trigger_definition); // !! unchanged
     }
 
     public function testSubmitUnchangedRichPresenceReturnsSuccessWithoutModifying(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER);
         $this->user = $user;
 
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'RichPresencePatch' => 'Display:\nOriginal RP',
+            'system_id' => $system->id,
+            'trigger_definition' => 'Display:\nOriginal RP',
         ]);
 
         // Act
@@ -279,20 +279,20 @@ class SubmitRichPresenceTest extends TestCase
 
         // Assert
         $game->refresh();
-        $this->assertEquals('Display:\nOriginal RP', $game->RichPresencePatch); // !! unchanged
+        $this->assertEquals('Display:\nOriginal RP', $game->trigger_definition); // !! unchanged
     }
 
     public function testSubmitEmptyRichPresenceClearsIt(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER);
         $this->user = $user;
 
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'RichPresencePatch' => 'Display:\nOriginal RP',
+            'system_id' => $system->id,
+            'trigger_definition' => 'Display:\nOriginal RP',
         ]);
 
         // Act
@@ -304,20 +304,20 @@ class SubmitRichPresenceTest extends TestCase
 
         // Assert
         $game->refresh();
-        $this->assertEquals('', $game->RichPresencePatch);
+        $this->assertEquals('', $game->trigger_definition);
     }
 
     public function testMissingDataParameterReturnsError(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER);
         $this->user = $user;
 
         $system = System::factory()->create();
         $game = Game::factory()->create([
-            'ConsoleID' => $system->id,
-            'RichPresencePatch' => 'Display:\nOriginal RP',
+            'system_id' => $system->id,
+            'trigger_definition' => 'Display:\nOriginal RP',
         ]);
 
         // Act
@@ -336,13 +336,13 @@ class SubmitRichPresenceTest extends TestCase
 
         // Assert
         $game->refresh();
-        $this->assertEquals('Display:\nOriginal RP', $game->RichPresencePatch); // !! unchanged
+        $this->assertEquals('Display:\nOriginal RP', $game->trigger_definition); // !! unchanged
     }
 
     public function testReturnsErrorForNonexistentGame(): void
     {
         // Arrange
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER);
         $this->user = $user;
 
@@ -364,7 +364,7 @@ class SubmitRichPresenceTest extends TestCase
     {
         // Arrange
         /** @var User $user */
-        $user = User::factory()->create(['appToken' => Str::random(16)]);
+        $user = User::factory()->create(['connect_token' => Str::random(16)]);
         $user->assignRole(Role::DEVELOPER);
         $this->user = $user;
 

@@ -19,7 +19,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'game' => 'required|integer|exists:GameData,ID',
+    'game' => 'required|integer|exists:games,id',
     'type' => ['required', 'string', Rule::in(ImageType::cases())],
     'file' => ['image'],
 ]);
@@ -52,10 +52,10 @@ try {
 }
 
 $field = match ($imageType) {
-    ImageType::GameIcon => 'ImageIcon',
-    ImageType::GameTitle => 'ImageTitle',
-    ImageType::GameInGame => 'ImageIngame',
-    ImageType::GameBoxArt => 'ImageBoxArt',
+    ImageType::GameIcon => 'image_icon_asset_path',
+    ImageType::GameTitle => 'image_title_asset_path',
+    ImageType::GameInGame => 'image_ingame_asset_path',
+    ImageType::GameBoxArt => 'image_box_art_asset_path',
     default => null, // should never hit this because of the match above
 };
 if (!$field) {
@@ -72,13 +72,13 @@ if (!$game->save()) {
     return back()->withErrors(__('legacy.error.image_upload'));
 }
 
-if ($field === 'ImageIcon') {
+if ($field === 'image_icon_asset_path') {
     // Credit the uploader for artwork. Note that this is smart
     // enough to not create duplicate credit entries.
     (new AddGameBadgeCreditAction())->execute($game, $userModel);
 
     // Double write to game_sets.
-    if ($game->ConsoleID === System::Hubs) {
+    if ($game->system_id === System::Hubs) {
         $hubGameSet = GameSet::whereType(GameSetType::Hub)->whereGameId($game->id)->first();
         if ($hubGameSet) {
             $hubGameSet->image_asset_path = $imagePath;

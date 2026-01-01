@@ -69,7 +69,7 @@ class AchievementSetClaimResource extends Resource
                             return UserResource::getUrl('view', ['record' => $record->user]);
                         }
 
-                        if ($record->user && is_null($record->user->Deleted)) {
+                        if ($record->user && is_null($record->user->deleted_at)) {
                             return route('user.show', $record->user);
                         }
 
@@ -78,73 +78,75 @@ class AchievementSetClaimResource extends Resource
                     ->searchable()
                     ->sortable(query: function (Builder $query, string $direction): Builder {
                         return $query
-                            ->join('UserAccounts', 'SetClaim.user_id', '=', 'UserAccounts.id')
-                            ->orderByRaw('COALESCE(UserAccounts.display_name, "") ' . $direction) // Sort by display_name, treating null as empty string.
-                            ->orderBy('UserAccounts.User', $direction);
+                            ->join('users', 'achievement_set_claims.user_id', '=', 'users.id')
+                            ->orderByRaw('COALESCE(users.display_name, "") ' . $direction) // Sort by display_name, treating null as empty string.
+                            ->orderBy('users.username', $direction);
                     }),
 
-                Tables\Columns\TextColumn::make('ClaimType')
+                Tables\Columns\TextColumn::make('claim_type')
                     ->label('Claim Type')
-                    ->formatStateUsing(fn ($record) => ClaimType::toString($record->ClaimType)),
+                    ->formatStateUsing(fn ($record) => $record->claim_type->label()),
 
-                Tables\Columns\TextColumn::make('Status')
-                    ->formatStateUsing(fn ($record) => ClaimStatus::toString($record->Status)),
+                Tables\Columns\TextColumn::make('status')
+                    ->formatStateUsing(fn ($record) => $record->status->label()),
 
-                Tables\Columns\TextColumn::make('SetType')
+                Tables\Columns\TextColumn::make('set_type')
                     ->label('Set Type')
-                    ->formatStateUsing(fn ($record) => ClaimSetType::toString($record->SetType)),
+                    ->formatStateUsing(fn ($record) => $record->set_type->label()),
 
-                Tables\Columns\TextColumn::make('Special')
-                    ->formatStateUsing(fn ($record) => ClaimSpecial::toString($record->Special)),
+                Tables\Columns\TextColumn::make('special_type')
+                    ->label('Special')
+                    ->formatStateUsing(fn ($record) => $record->special_type->label()),
 
-                Tables\Columns\TextColumn::make('Created')
+                Tables\Columns\TextColumn::make('created_at')
                     ->label('Claimed At')
                     ->dateTime('d M Y')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('Finished')
+                Tables\Columns\TextColumn::make('finished_at')
                     ->label('Expires At')
                     ->dateTime('d M Y')
                     ->description(function ($record) {
                         $diffForHumansLabel = $record->finished_at->diffForHumans();
-                        $isExpired = $record->finished_at->isPast() && $record->Status === ClaimStatus::Active;
+                        $isExpired = $record->finished_at->isPast() && $record->status === ClaimStatus::Active;
 
                         $label = $isExpired ? "EXPIRED " : '';
                         $label .= $diffForHumansLabel;
 
                         return $label;
                     })
-                    ->color(fn ($record) => $record->finished_at->isPast() && $record->Status === ClaimStatus::Active ? 'danger' : null)
+                    ->color(fn ($record) => $record->finished_at->isPast() && $record->status === ClaimStatus::Active ? 'danger' : null)
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('Status')
+                Tables\Filters\SelectFilter::make('status')
                     ->label('Status')
                     ->options(
                         collect(ClaimStatus::cases())
-                            ->mapWithKeys(fn ($value) => [$value => ClaimStatus::toString($value)])
+                            ->mapWithKeys(fn (ClaimStatus $status) => [$status->value => $status->label()])
                     )
                     ->multiple()
-                    ->default([ClaimStatus::Active, ClaimStatus::InReview]),
+                    ->default([ClaimStatus::Active->value, ClaimStatus::InReview->value]),
 
-                Tables\Filters\SelectFilter::make('ClaimType')
+                Tables\Filters\SelectFilter::make('claim_type')
                     ->label('Claim Type')
                     ->options(
                         collect(ClaimType::cases())
-                            ->mapWithKeys(fn ($value) => [$value => ClaimType::toString($value)])
+                            ->mapWithKeys(fn (ClaimType $type) => [$type->value => $type->label()])
                     ),
 
-                Tables\Filters\SelectFilter::make('SetType')
+                Tables\Filters\SelectFilter::make('set_type')
                     ->label('Set Type')
                     ->options(
                         collect(ClaimSetType::cases())
-                            ->mapWithKeys(fn ($value) => [$value => ClaimSetType::toString($value)])
+                            ->mapWithKeys(fn (ClaimSetType $type) => [$type->value => $type->label()])
                     ),
 
-                Tables\Filters\SelectFilter::make('Special')
+                Tables\Filters\SelectFilter::make('special_type')
+                    ->label('Special')
                     ->options(
                         collect(ClaimSpecial::cases())
-                            ->mapWithKeys(fn ($value) => [$value => ClaimSpecial::toString($value)])
+                            ->mapWithKeys(fn (ClaimSpecial $special) => [$special->value => $special->label()])
                     ),
 
                 Tables\Filters\SelectFilter::make('system')
@@ -175,7 +177,7 @@ class AchievementSetClaimResource extends Resource
 
             ])
             ->paginated([50, 100, 150])
-            ->defaultSort('Created', 'desc');
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array

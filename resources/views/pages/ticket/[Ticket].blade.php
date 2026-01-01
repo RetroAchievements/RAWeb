@@ -65,22 +65,22 @@ $commentData = [];
 @endphp
 
 <x-app-layout
-    pageTitle="Ticket {{ $ticket->ID }}: {!! $ticket->achievement->Title !!} ({!! TicketType::toString($ticket->ReportType) !!})"
-    pageDescription="{{ $ticket->achievement->Description }}"
-    pageImage="{{ media_asset('/Badge/' . $ticket->achievement->BadgeName . '.png') }}"
+    pageTitle="Ticket {{ $ticket->ID }}: {!! $ticket->achievement->title !!} ({!! TicketType::toString($ticket->ReportType) !!})"
+    pageDescription="{{ $ticket->achievement->description }}"
+    pageImage="{{ media_asset('/Badge/' . $ticket->achievement->image_name . '.png') }}"
     pageType="retroachievements:ticket"
 >
     <div class="navpath">
         <a href="{{ route('tickets.index') }}">Open Tickets</a>
         &raquo;
-        <a href="{{ route('game.tickets', ['game' => $ticket->achievement->game]) }}">{{ $ticket->achievement->game->Title }}</a>
+        <a href="{{ route('game.tickets', ['game' => $ticket->achievement->game]) }}">{{ $ticket->achievement->game->title }}</a>
         &raquo;
         <span class="font-bold">Ticket {{ $ticket->ID }}</span>
     </div>
 
     <div class="mt-3 mb-1 w-full flex gap-x-3">
         {!! achievementAvatar($ticket->achievement, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
-        <h1 class="mt-[10px] w-full">{{ $ticket->achievement->Title }} ({{ TicketType::toString($ticket->ReportType) }})</h1>
+        <h1 class="mt-[10px] w-full">{{ $ticket->achievement->title }} ({{ TicketType::toString($ticket->ReportType) }})</h1>
     </div>
 
     <div class="grid md:grid-cols-2 gap-x-12 gap-y-1">
@@ -275,9 +275,9 @@ $commentData = [];
                         @php
                             $when = Carbon::createFromTimestampUTC($comment['Submitted']);
                             $commentUser = match($comment['User']) {
-                                $ticket->reporter?->User => $ticket->reporter,
-                                $user->User => $user,
-                                default => User::withTrashed()->where('User', $comment['User'])->first()
+                                $ticket->reporter?->username => $ticket->reporter,
+                                $user->username => $user,
+                                default => User::withTrashed()->where('username', $comment['User'])->first()
                             };
                         @endphp
                         <x-comment.item
@@ -287,7 +287,7 @@ $commentData = [];
                             articleType="{{ ArticleType::AchievementTicket }}"
                             :articleId="$ticket->ID"
                             :commentId="$comment['ID']"
-                            :allowDelete="$allowDelete || $comment['User'] === $user->User"
+                            :allowDelete="$allowDelete || $comment['User'] === $user->username"
                         />
                     @endforeach
 
@@ -319,7 +319,7 @@ $commentData = [];
                                     }
                                 }
                             @endphp
-                            @if ($lastComment != null && ($lastComment['User'] === $user->User || $lastComment['User'] === $ticket->achievement->developer->display_name) && !$ticket->reporter->trashed())
+                            @if ($lastComment != null && ($lastComment['User'] === $user->username || $lastComment['User'] === $ticket->achievement->developer->display_name) && !$ticket->reporter->trashed())
                                 <option value="{{ TicketAction::Request }}">Transfer to reporter - {{ $ticket->reporter->display_name }}</option>
                             @endif
                         @else
@@ -375,7 +375,7 @@ $commentData = [];
                     <li>Achievement ID: {{ $ticket->achievement->id }}</li>
                     <li>
                         Mem:
-                        <code>{{ $ticket->achievement->MemAddr }}</code>
+                        <code>{{ $ticket->achievement->trigger_definition }}</code>
                     </li>
                 </ul>
 
@@ -383,8 +383,8 @@ $commentData = [];
                 <div>
                     @php
                         $triggerDecoderService = new TriggerDecoderService();
-                        $groups = $triggerDecoderService->decode($ticket->achievement->MemAddr);
-                        $triggerDecoderService->addCodeNotes($groups, $ticket->achievement->GameID);
+                        $groups = $triggerDecoderService->decode($ticket->achievement->trigger_definition);
+                        $triggerDecoderService->addCodeNotes($groups, $ticket->achievement->game_id);
                     @endphp
                     <x-trigger.viewer :groups="$groups" />
                 </div>

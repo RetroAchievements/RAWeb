@@ -70,7 +70,7 @@ class LegacyRedirector implements Redirector
             // remove remaining, unused markers
             $parsedRedirectUrl = Url::fromString($redirectUrl);
             foreach ($parsedRedirectUrl->getAllQueryParameters() as $queryParameter => $queryParameterValue) {
-                if (str_starts_with($queryParameterValue, '{')) {
+                if (is_string($queryParameterValue) && str_starts_with($queryParameterValue, '{')) {
                     $parsedRedirectUrl = $parsedRedirectUrl->withoutQueryParameter($queryParameter);
                 }
             }

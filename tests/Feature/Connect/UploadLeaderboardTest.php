@@ -45,7 +45,7 @@ class UploadLeaderboardTest extends TestCase
 
     public function testUploadLeaderboardDeveloper(): void
     {
-        $this->user = User::factory()->create(['appToken' => Str::random(16), 'Permissions' => Permissions::Developer]);
+        $this->user = User::factory()->create(['connect_token' => Str::random(16), 'Permissions' => Permissions::Developer]);
         $this->user->assignRole(Role::DEVELOPER);
 
         $game = $this->seedGame();
@@ -56,7 +56,7 @@ class UploadLeaderboardTest extends TestCase
         // TODO: temporarily disabled and duplicated below. when the claim check is restored,
         //       re-enable this code and remove the duplicated code.
         // $this->post('dorequest.php', $this->checksumParams([
-        //     'g' => $game->ID,
+        //     'g' => $game->id,
         //     'n' => 'Title',
         //     'd' => 'Description',
         //     's' => '1=0',
@@ -82,7 +82,7 @@ class UploadLeaderboardTest extends TestCase
         ]);
 
         $this->post('dorequest.php', $this->checksumParams([
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title',
             'd' => 'Description',
             's' => '1=0',
@@ -109,7 +109,7 @@ class UploadLeaderboardTest extends TestCase
         // ----------------------------
         // second new leaderboard for valid game
         $this->post('dorequest.php', $this->checksumParams([
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title2',
             'd' => 'Description2',
             's' => '5=0',
@@ -351,7 +351,7 @@ class UploadLeaderboardTest extends TestCase
         // new leaderboard for unclaimed game
         $game2 = $this->seedGame();
         $this->post('dorequest.php', $this->checksumParams([
-            'g' => $game2->ID,
+            'g' => $game2->id,
             'n' => 'Title',
             'd' => 'Description',
             's' => '1=0',
@@ -378,7 +378,7 @@ class UploadLeaderboardTest extends TestCase
 
     public function testUploadLeaderboardJuniorDeveloper(): void
     {
-        $this->user = User::factory()->create(['appToken' => Str::random(16), 'Permissions' => Permissions::JuniorDeveloper]);
+        $this->user = User::factory()->create(['connect_token' => Str::random(16), 'Permissions' => Permissions::JuniorDeveloper]);
         $this->user->assignRole(Role::DEVELOPER_JUNIOR);
 
         $game = $this->seedGame();
@@ -388,7 +388,7 @@ class UploadLeaderboardTest extends TestCase
         // new leaderboard for unclaimed game
         // NOTE: LeaderboardPolicy::create validates claim, so junior only gets a generic access denied message
         $this->post('dorequest.php', $this->checksumParams([
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title',
             'd' => 'Description',
             's' => '1=0',
@@ -414,7 +414,7 @@ class UploadLeaderboardTest extends TestCase
         ]);
 
         $this->post('dorequest.php', $this->checksumParams([
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title',
             'd' => 'Description',
             's' => '1=0',
@@ -441,7 +441,7 @@ class UploadLeaderboardTest extends TestCase
         // update leaderboard
         $this->post('dorequest.php', $this->checksumParams([
             'i' => $leaderboard1->id,
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title2',
             'd' => 'Description2',
             's' => '11=0',
@@ -473,7 +473,7 @@ class UploadLeaderboardTest extends TestCase
 
         $this->post('dorequest.php', $this->checksumParams([
             'i' => $leaderboard2->id,
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title2',
             'd' => 'Description2',
             's' => '11=0',
@@ -498,7 +498,7 @@ class UploadLeaderboardTest extends TestCase
 
     public function testUploadLeaderboardNonDeveloper(): void
     {
-        $this->user = User::factory()->create(['appToken' => Str::random(16), 'Permissions' => Permissions::Registered]);
+        $this->user = User::factory()->create(['connect_token' => Str::random(16), 'Permissions' => Permissions::Registered]);
 
         $game = $this->seedGame();
         $this->addServerUser();
@@ -506,7 +506,7 @@ class UploadLeaderboardTest extends TestCase
         // ----------------------------
         // new leaderboard for valid game
         $this->post('dorequest.php', $this->checksumParams([
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title',
             'd' => 'Description',
             's' => '1=0',
@@ -531,7 +531,7 @@ class UploadLeaderboardTest extends TestCase
 
         $this->post('dorequest.php', $this->checksumParams([
             'i' => $leaderboard2->id,
-            'g' => $game->ID,
+            'g' => $game->id,
             'n' => 'Title2',
             'd' => 'Description2',
             's' => '11=0',

@@ -64,6 +64,8 @@ class AuditLog extends ResourceAuditLog
     {
         $fieldLabelMap = parent::createFieldLabelMap();
 
+        // Support both new and legacy column names for historical audit log entries.
+        $fieldLabelMap['image_icon_asset_path'] = 'Badge';
         $fieldLabelMap['ImageIcon'] = 'Badge';
 
         $fieldLabelMap['release_title'] = 'Release Title';
@@ -83,13 +85,13 @@ class AuditLog extends ResourceAuditLog
     }
 
     /**
-     * @return Collection<string, Closure(int): string>
+     * @return Collection<string, Closure(mixed): string>
      */
     protected function createFieldValueMap(): Collection
     {
         $fieldValueMap = parent::createFieldValueMap();
 
-        $fieldValueMap['hash_compatibility_tester_id'] = function (?int $userId): string {
+        $fieldValueMap['hash_compatibility_tester_id'] = function (mixed $userId): string {
             if (!$userId) {
                 return '';
             }

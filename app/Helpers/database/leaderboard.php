@@ -23,7 +23,7 @@ function SubmitLeaderboardEntry(
     $retVal = ['Success' => true];
 
     $leaderboard->loadMissing('game');
-    if ($leaderboard->game->ConsoleID && !isValidConsoleId($leaderboard->game->ConsoleID)) {
+    if ($leaderboard->game->system_id && !isValidConsoleId($leaderboard->game->system_id)) {
         $retVal['Success'] = false;
         $retVal['Error'] = "Cannot submit entry for unsupported console";
 

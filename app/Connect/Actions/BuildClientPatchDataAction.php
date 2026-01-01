@@ -12,7 +12,6 @@ use App\Models\GameHash;
 use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\LeaderboardState;
 use App\Platform\Services\VirtualGameIdService;
 use Illuminate\Database\Eloquent\Collection;
@@ -33,14 +32,14 @@ class BuildClientPatchDataAction
      * @param GameHash|null $gameHash The game hash to build patch data for
      * @param Game|null $game The game to build patch data for
      * @param User|null $user The current user requesting the patch data (for player count calculations)
-     * @param AchievementFlag|null $flag Optional flag to filter the achievements by (eg: only official achievements)
+     * @param bool|null $isPromoted Optional flag to filter the assets by (eg: only published assets)
      * @throws InvalidArgumentException when neither $gameHash nor $game is provided
      */
     public function execute(
         ?GameHash $gameHash = null,
         ?Game $game = null,
         ?User $user = null,
-        ?AchievementFlag $flag = null,
+        ?bool $isPromoted = null,
     ): array {
         if (!$gameHash && !$game) {
             throw new InvalidArgumentException('Either gameHash or game must be provided to build patch data.');
@@ -48,7 +47,7 @@ class BuildClientPatchDataAction
 
         // For legacy clients that don't provide a hash, just use the game directly.
         if (!$gameHash) {
-            return $this->buildPatchData($game, $user, $flag);
+            return $this->buildPatchData($game, $user, $isPromoted);
         }
 
         // If the hash is not marked as compatible, and the current user is not flagged to
@@ -64,19 +63,19 @@ class BuildClientPatchDataAction
         }
 
         // Use the game from the hash for legacy clients.
-        return $this->buildPatchData($gameHash->game, $user, $flag, $gameHash->compatibility);
+        return $this->buildPatchData($gameHash->game, $user, $isPromoted, $gameHash->compatibility);
     }
 
     /**
      * @param Game $game The game to build root-level data for
      * @param User|null $user The current user requesting the patch data (for player count calculations)
-     * @param AchievementFlag|null $flag Optional flag to filter the achievements by (eg: only official achievements)
+     * @param bool|null $isPromoted Optional flag to filter the assets by (eg: only published assets)
      * @param GameHashCompatibility $compatibility Indicates the compatibility of the hash being loaded (affects game title)
      */
     private function buildPatchData(
         Game $game,
         ?User $user,
-        ?AchievementFlag $flag,
+        ?bool $isPromoted,
         GameHashCompatibility $compatibility = GameHashCompatibility::Compatible,
     ): array {
         $gamePlayerCount = $this->calculateGamePlayerCount($game, $user);
@@ -91,7 +90,7 @@ class BuildClientPatchDataAction
             'PatchData' => [
                 ...$this->buildBaseGameData($game, $compatibility),
                 'Achievements' => $coreAchievementSet
-                    ? $this->buildAchievementsData($coreAchievementSet, $gamePlayerCount, $flag)
+                    ? $this->buildAchievementsData($coreAchievementSet, $gamePlayerCount, $isPromoted)
                     : [],
                 'Leaderboards' => $this->buildLeaderboardsData($game),
             ],
@@ -103,49 +102,44 @@ class BuildClientPatchDataAction
      *
      * @param GameAchievementSet $gameAchievementSet The achievement set to build achievement data for
      * @param int $gamePlayerCount The total number of players (minimum of 1 to prevent division by zero)
-     * @param AchievementFlag|null $flag Optional flag to filter the achievements by (eg: only official achievements)
+     * @param bool|null $isPromoted Optional flag to filter the assets by (eg: only published assets)
      */
     private function buildAchievementsData(
         GameAchievementSet $gameAchievementSet,
         int $gamePlayerCount,
-        ?AchievementFlag $flag,
+        ?bool $isPromoted,
     ): array {
         /** @var Collection<int, Achievement> $achievements */
         $achievements = $gameAchievementSet->achievementSet
             ->achievements()
             ->with('developer')
-            ->orderBy('DisplayOrder') // explicit display order
-            ->orderBy('ID')           // tiebreaker on creation sequence
+            ->orderBy('order_column') // explicit display order
+            ->orderBy('id')           // tiebreaker on creation sequence
             ->get();
 
-        if ($flag) {
-            $achievements = $achievements->where('Flags', '=', $flag->value);
+        if ($isPromoted !== null) {
+            $achievements = $achievements->where('is_promoted', '=', $isPromoted);
         }
 
         $achievementsData = [];
 
         foreach ($achievements as $achievement) {
-            // If an achievement has an invalid flag, skip it.
-            if (!AchievementFlag::tryFrom($achievement->Flags)) {
-                continue;
-            }
-
             // Calculate rarity assuming it will be used when the player unlocks the achievement,
             // which implies they haven't already unlocked it.
             $rarity = min(100.0, round((float) ($achievement->unlocks_total + 1) * 100 / $gamePlayerCount, 2));
-            $rarityHardcore = min(100.0, round((float) ($achievement->unlocks_hardcore_total + 1) * 100 / $gamePlayerCount, 2));
+            $rarityHardcore = min(100.0, round((float) ($achievement->unlocks_hardcore + 1) * 100 / $gamePlayerCount, 2));
 
             $achievementsData[] = [
                 'ID' => $achievement->id,
-                'MemAddr' => $achievement->MemAddr,
+                'MemAddr' => $achievement->trigger_definition,
                 'Title' => $achievement->title,
                 'Description' => $achievement->description,
                 'Points' => $achievement->points,
                 'Author' => $achievement->developer->display_name ?? '',
-                'Modified' => $achievement->DateModified->unix(),
-                'Created' => $achievement->DateCreated->unix(),
-                'BadgeName' => $achievement->BadgeName,
-                'Flags' => $achievement->Flags,
+                'Modified' => $achievement->modified_at->unix(),
+                'Created' => $achievement->created_at->unix(),
+                'BadgeName' => $achievement->image_name,
+                'Flags' => $achievement->is_promoted ? Achievement::FLAG_PROMOTED : Achievement::FLAG_UNPROMOTED,
                 'Type' => $achievement->type,
                 'Rarity' => $rarity,
                 'RarityHardcore' => $rarityHardcore,
@@ -170,10 +164,10 @@ class BuildClientPatchDataAction
             'ID' => $game->id,
             'ParentID' => $game->id,
             'Title' => $title,
-            'ImageIcon' => $game->ImageIcon,
-            'RichPresencePatch' => $game->RichPresencePatch,
-            'ConsoleID' => $game->ConsoleID,
-            'ImageIconURL' => media_asset($game->ImageIcon),
+            'ImageIcon' => $game->image_icon_asset_path,
+            'RichPresencePatch' => $game->trigger_definition,
+            'ConsoleID' => $game->system_id,
+            'ImageIconURL' => media_asset($game->image_icon_asset_path),
         ];
     }
 
@@ -251,9 +245,9 @@ class BuildClientPatchDataAction
             'PatchData' => [
                 'ID' => VirtualGameIdService::encodeVirtualGameId($game->id, $gameHashCompatibility),
                 'Title' => "Unsupported Game Version ($game->title)",
-                'ConsoleID' => $game->ConsoleID,
-                'ImageIcon' => $game->ImageIcon,
-                'ImageIconURL' => media_asset($game->ImageIcon),
+                'ConsoleID' => $game->system_id,
+                'ImageIcon' => $game->image_icon_asset_path,
+                'ImageIconURL' => media_asset($game->image_icon_asset_path),
                 'Achievements' => [
                     (new CreateWarningAchievementAction())->execute(
                         title: 'Unsupported Game Version',

@@ -7,16 +7,18 @@ namespace App\Models;
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-// TODO drop User
 class EmailConfirmation extends BaseModel
 {
-    protected $table = 'EmailConfirmations';
+    protected $table = 'email_confirmations';
 
     protected $fillable = [
-        'User',
-        'EmailCookie',
-        'Expires',
         'user_id',
+        'email_cookie',
+        'expires_at',
+    ];
+
+    protected $casts = [
+        'expires_at' => 'datetime',
     ];
 
     public $timestamps = false;
@@ -32,7 +34,7 @@ class EmailConfirmation extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     // == scopes

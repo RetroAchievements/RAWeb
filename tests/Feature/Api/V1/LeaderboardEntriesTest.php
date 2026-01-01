@@ -44,53 +44,53 @@ class LeaderboardEntriesTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create([
-            'game_id' => $game->ID,
+            'game_id' => $game->id,
             'title' => "Test leaderboard 1",
             'description' => "I am the first leaderboard",
         ]);
 
-        $userOne = User::factory()->create(['User' => 'myUser1']);
+        $userOne = User::factory()->create(['username' => 'myUser1']);
         $leaderboardEntryOne = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->id,
-            'user_id' => $userOne->ID,
+            'user_id' => $userOne->id,
             'score' => 1,
         ]);
 
-        $userTwo = User::factory()->create(['User' => 'myUser2']);
+        $userTwo = User::factory()->create(['username' => 'myUser2']);
         $leaderboardEntryTwo = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->id,
-            'user_id' => $userTwo->ID,
+            'user_id' => $userTwo->id,
             'score' => 1,
         ]);
 
-        $userThree = User::factory()->create(['User' => 'myUser3']);
+        $userThree = User::factory()->create(['username' => 'myUser3']);
         $leaderboardEntryThree = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->id,
-            'user_id' => $userThree->ID,
+            'user_id' => $userThree->id,
             'score' => 100,
         ]);
 
-        $userFour = User::factory()->create(['User' => 'myUser4']);
+        $userFour = User::factory()->create(['username' => 'myUser4']);
         $leaderboardEntryFour = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->id,
-            'user_id' => $userFour->ID,
+            'user_id' => $userFour->id,
             'score' => 300,
         ]);
 
-        $userFive = User::factory()->create(['User' => 'myUser5']);
+        $userFive = User::factory()->create(['username' => 'myUser5']);
         $leaderboardEntryFive = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->id,
-            'user_id' => $userFive->ID,
+            'user_id' => $userFive->id,
             'score' => 200,
         ]);
 
         /** @var Leaderboard $timedLeaderboard */
         $timedLeaderboard = Leaderboard::factory()->create([
-            'game_id' => $game->ID,
+            'game_id' => $game->id,
             'title' => "Test leaderboard 2",
             'description' => "I am a timed leaderboard",
             'format' => "TIME",
@@ -98,7 +98,7 @@ class LeaderboardEntriesTest extends TestCase
 
         $timedLeaderboardEntryOne = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $timedLeaderboard->id,
-            'user_id' => $userOne->ID,
+            'user_id' => $userOne->id,
             'score' => 123,
         ]);
 
@@ -110,7 +110,7 @@ class LeaderboardEntriesTest extends TestCase
                 'Results' => [
                     [
                         "Rank" => 1,
-                        'User' => $userFour->User,
+                        'User' => $userFour->username,
                         'ULID' => $userFour->ulid,
                         'Score' => $leaderboardEntryFour->score,
                         'FormattedScore' => ValueFormat::format($leaderboardEntryFour->score, $leaderboard->format),
@@ -118,7 +118,7 @@ class LeaderboardEntriesTest extends TestCase
                     ],
                     [
                         "Rank" => 2,
-                        'User' => $userFive->User,
+                        'User' => $userFive->username,
                         'ULID' => $userFive->ulid,
                         'Score' => $leaderboardEntryFive->score,
                         'FormattedScore' => ValueFormat::format($leaderboardEntryFive->score, $leaderboard->format),
@@ -126,7 +126,7 @@ class LeaderboardEntriesTest extends TestCase
                     ],
                     [
                         "Rank" => 3,
-                        'User' => $userThree->User,
+                        'User' => $userThree->username,
                         'ULID' => $userThree->ulid,
                         'Score' => $leaderboardEntryThree->score,
                         'FormattedScore' => ValueFormat::format($leaderboardEntryThree->score, $leaderboard->format),
@@ -134,7 +134,7 @@ class LeaderboardEntriesTest extends TestCase
                     ],
                     [
                         "Rank" => 4,
-                        'User' => $userOne->User,
+                        'User' => $userOne->username,
                         'ULID' => $userOne->ulid,
                         'Score' => $leaderboardEntryOne->score,
                         'FormattedScore' => ValueFormat::format($leaderboardEntryOne->score, $leaderboard->format),
@@ -142,7 +142,7 @@ class LeaderboardEntriesTest extends TestCase
                     ],
                     [
                         "Rank" => 4,
-                        'User' => $userTwo->User,
+                        'User' => $userTwo->username,
                         'ULID' => $userTwo->ulid,
                         'Score' => $leaderboardEntryTwo->score,
                         'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->format),
@@ -159,7 +159,7 @@ class LeaderboardEntriesTest extends TestCase
                     'Results' => [
                         [
                             "Rank" => 4,
-                            'User' => $userOne->User,
+                            'User' => $userOne->username,
                             'ULID' => $userOne->ulid,
                             'Score' => $leaderboardEntryOne->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryOne->score, $leaderboard->format),
@@ -167,7 +167,7 @@ class LeaderboardEntriesTest extends TestCase
                         ],
                         [
                             "Rank" => 4,
-                            'User' => $userTwo->User,
+                            'User' => $userTwo->username,
                             'ULID' => $userTwo->ulid,
                             'Score' => $leaderboardEntryTwo->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryTwo->score, $leaderboard->format),
@@ -184,7 +184,7 @@ class LeaderboardEntriesTest extends TestCase
                     'Results' => [
                         [
                             "Rank" => 1,
-                            'User' => $userFour->User,
+                            'User' => $userFour->username,
                             'ULID' => $userFour->ulid,
                             'Score' => $leaderboardEntryFour->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryFour->score, $leaderboard->format),
@@ -192,7 +192,7 @@ class LeaderboardEntriesTest extends TestCase
                         ],
                         [
                             "Rank" => 2,
-                            'User' => $userFive->User,
+                            'User' => $userFive->username,
                             'ULID' => $userFive->ulid,
                             'Score' => $leaderboardEntryFive->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryFive->score, $leaderboard->format),
@@ -209,7 +209,7 @@ class LeaderboardEntriesTest extends TestCase
                     'Results' => [
                         [
                             "Rank" => 2,
-                            'User' => $userFive->User,
+                            'User' => $userFive->username,
                             'ULID' => $userFive->ulid,
                             'Score' => $leaderboardEntryFive->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryFive->score, $leaderboard->format),
@@ -217,7 +217,7 @@ class LeaderboardEntriesTest extends TestCase
                         ],
                         [
                             "Rank" => 3,
-                            'User' => $userThree->User,
+                            'User' => $userThree->username,
                             'ULID' => $userThree->ulid,
                             'Score' => $leaderboardEntryThree->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryThree->score, $leaderboard->format),
@@ -234,7 +234,7 @@ class LeaderboardEntriesTest extends TestCase
                     'Results' => [
                         [
                             "Rank" => 1,
-                            'User' => $userOne->User,
+                            'User' => $userOne->username,
                             'ULID' => $userOne->ulid,
                             'Score' => $timedLeaderboardEntryOne->score,
                             'FormattedScore' => ValueFormat::format($timedLeaderboardEntryOne->score, $timedLeaderboard->format),

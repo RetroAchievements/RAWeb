@@ -41,7 +41,7 @@ class UpsertGameCoreAchievementSetFromLegacyFlagsAction
     private function createNewAchievementSetFromGame(Game $game): AchievementSet
     {
         list($officialAchievements, $unofficialAchievements) = $game->achievements->partition(function ($achievement) {
-            return $achievement->is_published;
+            return $achievement->is_promoted;
         });
         $allAchievements = $officialAchievements->merge($unofficialAchievements);
 
@@ -52,21 +52,21 @@ class UpsertGameCoreAchievementSetFromLegacyFlagsAction
             'players_hardcore' => $game->players_hardcore,
             'players_total' => $game->players_total,
             'points_total' => $officialAchievements->sum('points'),
-            'points_weighted' => $officialAchievements->sum('TrueRatio'),
+            'points_weighted' => $officialAchievements->sum('points_weighted'),
 
             // Preserve the existing timestamps as best as we can.
-            'created_at' => $allAchievements->min(fn ($achievement) => $achievement->DateCreated ?? now()),
-            'updated_at' => $allAchievements->max(fn ($achievement) => $achievement->DateModified ?? now()),
+            'created_at' => $allAchievements->min(fn ($achievement) => $achievement->created_at ?? now()),
+            'updated_at' => $allAchievements->max(fn ($achievement) => $achievement->modified_at ?? now()),
         ]);
 
         // Next, attach all the achievements to the set.
         $allAchievements->each(function ($achievement) use ($achievementSet) {
-            $achievementSet->achievements()->attach($achievement->ID, [
-                'order_column' => $achievement->DisplayOrder,
+            $achievementSet->achievements()->attach($achievement->id, [
+                'order_column' => $achievement->order_column,
 
                 // Preserve the existing timestamps as best as we can.
-                'created_at' => $achievement->DateCreated ?? now(),
-                'updated_at' => $achievement->DateModified ?? now(),
+                'created_at' => $achievement->created_at ?? now(),
+                'updated_at' => $achievement->modified_at ?? now(),
             ]);
         });
 
@@ -81,7 +81,7 @@ class UpsertGameCoreAchievementSetFromLegacyFlagsAction
         $coreSet = $game->gameAchievementSets()->core()->first()->achievementSet;
 
         list($officialAchievements, $unofficialAchievements) = $game->achievements->partition(function ($achievement) {
-            return $achievement->is_published;
+            return $achievement->is_promoted;
         });
         $allAchievements = $officialAchievements->merge($unofficialAchievements);
 
@@ -92,7 +92,7 @@ class UpsertGameCoreAchievementSetFromLegacyFlagsAction
             'players_hardcore' => $game->players_hardcore,
             'players_total' => $game->players_total,
             'points_total' => $officialAchievements->sum('points'),
-            'points_weighted' => $officialAchievements->sum('TrueRatio'),
+            'points_weighted' => $officialAchievements->sum('points_weighted'),
             'updated_at' => now(),
         ]);
 
@@ -101,10 +101,10 @@ class UpsertGameCoreAchievementSetFromLegacyFlagsAction
         /** @var Collection<int, array{created_at: Carbon|string, updated_at: Carbon|string, order_column: int}> $syncData */
         $syncData = $allAchievements->mapWithKeys(function ($achievement) {
             return [
-                $achievement->ID => [
-                    'created_at' => $achievement->DateCreated ?? now(),
-                    'updated_at' => $achievement->DateModified ?? now(),
-                    'order_column' => $achievement->DisplayOrder,
+                $achievement->id => [
+                    'created_at' => $achievement->created_at ?? now(),
+                    'updated_at' => $achievement->modified_at ?? now(),
+                    'order_column' => $achievement->order_column,
                 ],
             ];
         });

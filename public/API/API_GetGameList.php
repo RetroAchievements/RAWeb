@@ -44,40 +44,40 @@ $count = (int) request()->query('c');
 
 // Build subqueries for aggregated data to avoid an expensive GROUP BY on joined data.
 $gameIdsSubquery = Game::query()
-    ->select('ID')
-    ->where('ConsoleID', $consoleID)
+    ->select('id')
+    ->where('system_id', $consoleID)
     ->when($withAchievements, function ($query) {
         return $query->where('achievements_published', '>', 0);
     });
 
 $achievementsSubquery = Achievement::query()
-    ->selectRaw('GameID, MAX(DateModified) as DateModified')
-    ->whereIn('GameID', $gameIdsSubquery)
-    ->groupBy('GameID');
+    ->selectRaw('game_id as GameID, MAX(modified_at) as DateModified')
+    ->whereIn('game_id', $gameIdsSubquery)
+    ->groupBy('game_id');
 
 $leaderboardsSubquery = Leaderboard::query()
     ->selectRaw('game_id, COUNT(*) as NumLBs')
     ->whereIn('game_id', $gameIdsSubquery)
     ->groupBy('game_id');
 
-$query = DB::table('GameData')
-    ->leftJoin('Console AS c', 'c.ID', '=', 'GameData.ConsoleID')
+$query = DB::table('games')
+    ->leftJoin('systems AS s', 's.id', '=', 'games.system_id')
     ->leftJoinSub($achievementsSubquery, 'ach_data', function ($join) {
-        $join->on('ach_data.GameID', '=', 'GameData.ID');
+        $join->on('ach_data.GameID', '=', 'games.id');
     })
     ->leftJoinSub($leaderboardsSubquery, 'lb_data', function ($join) {
-        $join->on('lb_data.game_id', '=', 'GameData.ID');
+        $join->on('lb_data.game_id', '=', 'games.id');
     })
     ->select(
-        'GameData.*',
-        'c.Name as ConsoleName',
-        DB::raw('COALESCE(GameData.achievements_published, 0) AS NumAchievements'),
+        'games.*',
+        's.name as ConsoleName',
+        DB::raw('COALESCE(games.achievements_published, 0) AS NumAchievements'),
         DB::raw('COALESCE(ach_data.DateModified, NULL) AS DateModified'),
         DB::raw('COALESCE(lb_data.NumLBs, 0) AS NumLBs')
     )
-    ->where('GameData.ConsoleID', $consoleID)
+    ->where('games.system_id', $consoleID)
     ->when($withAchievements, function ($query) {
-        return $query->where('GameData.achievements_published', '>', 0);
+        return $query->where('games.achievements_published', '>', 0);
     })
     ->when($offset > 0, function ($query) use ($offset) {
         return $query->offset($offset);
@@ -88,7 +88,7 @@ $query = DB::table('GameData')
     ->when($count == 0, function ($query) {
         return $query->limit(9999999);
     })
-    ->orderBy('GameData.Title', 'asc');
+    ->orderBy('games.title', 'asc');
 
 $queryResponse = $query->get();
 
@@ -96,16 +96,16 @@ $response = [];
 
 foreach ($queryResponse as $game) {
     $responseEntry = [
-        'Title' => $game->Title,
-        'ID' => $game->ID,
-        'ConsoleID' => $game->ConsoleID,
+        'Title' => $game->title,
+        'ID' => $game->id,
+        'ConsoleID' => $game->system_id,
         'ConsoleName' => $game->ConsoleName,
-        'ImageIcon' => $game->ImageIcon,
+        'ImageIcon' => $game->image_icon_asset_path,
         'NumAchievements' => (int) $game->NumAchievements,
         'NumLeaderboards' => $game->NumLBs ?? 0,
         'Points' => $game->points_total ?? 0,
         'DateModified' => $game->DateModified,
-        'ForumTopicID' => $game->ForumTopicID,
+        'ForumTopicID' => $game->forum_topic_id,
     ];
 
     if ($withHashes) {

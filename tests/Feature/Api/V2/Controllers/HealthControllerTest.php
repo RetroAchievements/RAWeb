@@ -26,7 +26,7 @@ class HealthControllerTest extends TestCase
     public function testItReturnsOkWhenAuthenticated(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-api-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-api-key']);
 
         // Act
         $response = $this->getJson('/api/v2/health', [
@@ -41,7 +41,7 @@ class HealthControllerTest extends TestCase
     public function testItReturnsCorrectJsonStructure(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-api-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-api-key']);
 
         // Act
         $response = $this->getJson('/api/v2/health', [
@@ -63,7 +63,7 @@ class HealthControllerTest extends TestCase
     public function testItLogsApiRequest(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-api-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-api-key']);
 
         $this->assertDatabaseCount('api_logs', 0); // no logs before request
 

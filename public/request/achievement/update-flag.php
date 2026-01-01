@@ -2,8 +2,8 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\Achievement;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -14,26 +14,25 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'achievements' => 'required',
-    'flag' => ['required', 'integer', Rule::in(array_map(fn ($case) => $case->value, AchievementFlag::cases()))],
+    'flag' => ['required', 'integer', Rule::in([Achievement::FLAG_PROMOTED, Achievement::FLAG_UNPROMOTED])],
 ]);
 
 $achievementIds = $input['achievements'];
-$flag = AchievementFlag::from((int) $input['flag']);
+$isPromoted = Achievement::isPromotedFromLegacyFlags((int) $input['flag']);
 
 $achievement = GetAchievementData((int) (is_array($achievementIds) ? $achievementIds[0] : $achievementIds));
-if ($flag === AchievementFlag::OfficialCore && !isValidConsoleId($achievement['ConsoleID'])) {
+if ($isPromoted && !isValidConsoleId($achievement['ConsoleID'])) {
     abort(400, 'Invalid console');
 }
 
-updateAchievementFlag($achievementIds, $flag);
+updateAchievementPromotedStatus($achievementIds, $isPromoted);
 
 $userModel = User::whereName($user)->first();
 
 $commentText = '';
-if ($flag === AchievementFlag::OfficialCore) {
+if ($isPromoted) {
     $commentText = 'promoted this achievement to the Core set';
-}
-if ($flag === AchievementFlag::Unofficial) {
+} else {
     $commentText = 'demoted this achievement to Unofficial';
 }
 addArticleComment("Server", ArticleType::Achievement, $achievementIds, "{$userModel->display_name} $commentText.", $userModel->display_name);

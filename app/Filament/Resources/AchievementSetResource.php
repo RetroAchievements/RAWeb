@@ -27,17 +27,12 @@ use UnitEnum;
 class AchievementSetResource extends Resource
 {
     protected static ?string $model = AchievementSet::class;
-
+    protected static ?string $modelLabel = 'Achievement Set';
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
-
     protected static ?string $navigationLabel = 'Sets';
-
     protected static string|UnitEnum|null $navigationGroup = 'Platform';
-
     protected static ?int $navigationSort = 52;
-
     protected static bool $shouldRegisterNavigation = false;
-
     protected static bool $isGloballySearchable = false;
 
     public static function infolist(Schema $schema): Schema
@@ -75,11 +70,11 @@ class AchievementSetResource extends Resource
                         Schemas\Components\Fieldset::make('Achievements')
                             ->schema([
                                 Infolists\Components\TextEntry::make('achievements_published')
-                                    ->label('Published')
+                                    ->label('Promoted')
                                     ->numeric(),
 
                                 Infolists\Components\TextEntry::make('achievements_unpublished')
-                                    ->label('Unofficial')
+                                    ->label('Unpromoted')
                                     ->numeric(),
                             ])
                             ->columns(2)
@@ -155,8 +150,8 @@ class AchievementSetResource extends Resource
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         // Search by game ID, game title, or set title.
                         return $query->whereHas('gameAchievementSets.game', function (Builder $gameQuery) use ($search) {
-                            $gameQuery->where(DB::raw('GameData.ID'), 'LIKE', "%{$search}%")
-                                ->orWhere(DB::raw('GameData.Title'), 'LIKE', "%{$search}%")
+                            $gameQuery->where(DB::raw('games.id'), 'LIKE', "%{$search}%")
+                                ->orWhere(DB::raw('games.title'), 'LIKE', "%{$search}%")
                                 ->orWhereHas('gameAchievementSets', function (Builder $setQuery) use ($search) {
                                     $setQuery->where('title', 'LIKE', "%{$search}%");
                                 });
@@ -178,13 +173,13 @@ class AchievementSetResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('achievements_published')
-                    ->label('Achievements (Published)')
+                    ->label('Achievements (Promoted)')
                     ->numeric()
                     ->sortable()
                     ->alignEnd(),
 
                 Tables\Columns\TextColumn::make('achievements_unpublished')
-                    ->label('Achievements (Unofficial)')
+                    ->label('Achievements (Unpromoted)')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()

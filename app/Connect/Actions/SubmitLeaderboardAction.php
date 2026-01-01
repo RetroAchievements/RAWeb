@@ -85,7 +85,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
 
         $checksum = request()->input('h') ?? '';
         if (!$this->checksumMatches($checksum, $this->user->display_name)) {
-            if ($this->user->User === $this->user->display_name || !$this->checksumMatches($checksum, $this->user->User)) {
+            if ($this->user->username === $this->user->display_name || !$this->checksumMatches($checksum, $this->user->username)) {
                 return $this->accessDenied('Invalid checksum.');
             }
         }
@@ -210,7 +210,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
         //       in regards to a dev-rolled task in Devember (add 3 leaderboards to a game for DQ14 credit).
 
         // Make sure the user has a claim on the game.
-        // if (!hasSetClaimed($this->user, $game->ID, false)) {
+        // if (!hasSetClaimed($this->user, $game->id, false)) {
         //     return $this->accessDenied('You must have an active claim on this game to perform this action.');
         // }
 
@@ -218,7 +218,7 @@ class SubmitLeaderboardAction extends BaseAuthenticatedApiAction
             return $this->invalidParameter('Unknown format: ' . $this->format);
         }
 
-        $maxOrderColumn = Leaderboard::where('game_id', $game->ID)->max('order_column') ?? 0;
+        $maxOrderColumn = Leaderboard::where('game_id', $game->id)->max('order_column') ?? 0;
 
         $newMem = $this->buildMemString();
         $leaderboard = Leaderboard::create([
