@@ -76,7 +76,7 @@ class GameCard extends Component
             $foundGame = Game::with([
                 'system',
                 'achievements' => function ($query) {
-                    $query->published();
+                    $query->promoted();
                 },
             ])->find($gameId);
 
@@ -84,7 +84,7 @@ class GameCard extends Component
                 return null;
             }
 
-            $foundGameConsoleId = $foundGame->system->ID;
+            $foundGameConsoleId = $foundGame->system->id;
             $foundGameAchievements = $foundGame->achievements->toArray();
 
             $foundClaims = AchievementSetClaim::with('user')->where('game_id', $gameId)->get();
@@ -100,7 +100,7 @@ class GameCard extends Component
             return array_merge(
                 $foundGame->toArray(), [
                     'ConsoleID' => $foundGameConsoleId,
-                    'ConsoleName' => $foundGame->system->Name,
+                    'ConsoleName' => $foundGame->system->name,
                     'Achievements' => $foundGameAchievements,
                     'Claims' => $processedClaims,
                 ]
@@ -152,8 +152,8 @@ class GameCard extends Component
      */
     private function buildAllCardViewValues(array $rawGameData, ?array $userHighestGameAward): array
     {
-        $rawTitle = $rawGameData['Title'];
-        $badgeUrl = media_asset($rawGameData['ImageIcon']);
+        $rawTitle = $rawGameData['title'];
+        $badgeUrl = media_asset($rawGameData['image_icon_asset_path']);
         $gameSystemIconSrc = getSystemIconUrl($rawGameData['ConsoleID']);
         $consoleName = $rawGameData['ConsoleName'];
         $achievementsCount = count($rawGameData['Achievements']);
@@ -161,7 +161,7 @@ class GameCard extends Component
 
         [$pointsSum, $retroPointsSum, $retroRatio, $lastUpdated] = $this->buildCardAchievementsData(
             $rawGameData['Achievements'],
-            $rawGameData['Updated'],
+            $rawGameData['updated_at'],
         );
 
         [$highestProgressionStatus, $highestProgressionAwardDate] = $this->buildCardUserProgressionData(
@@ -169,7 +169,7 @@ class GameCard extends Component
             $isEvent,
         );
 
-        $activeClaims = array_filter($rawGameData['Claims'], fn ($claim) => ClaimStatus::isActive($claim['Status']));
+        $activeClaims = array_filter($rawGameData['Claims'], fn ($claim) => ClaimStatus::from($claim['status'])->isActive());
         $activeDeveloperUsernames = array_map(fn ($activeClaim) => $activeClaim['User'], array_values($activeClaims));
         $activeDeveloperDisplayNames = array_map(fn ($activeClaim) => $activeClaim['DisplayName'], array_values($activeClaims));
         $activeDevelopersLabel = $this->buildActiveDevelopersLabel($activeDeveloperDisplayNames);
@@ -209,12 +209,12 @@ class GameCard extends Component
         $lastUpdated = Carbon::parse($gameLastUpdated);
 
         if (!empty($rawAchievements)) {
-            $lastUpdated = Carbon::parse($rawAchievements[0]['DateModified']);
+            $lastUpdated = Carbon::parse($rawAchievements[0]['modified_at']);
 
             foreach ($rawAchievements as $achievement) {
-                $pointsSum += $achievement['Points'];
-                $retroPointsSum += $achievement['TrueRatio'];
-                $achievementDate = Carbon::parse($achievement['DateModified']);
+                $pointsSum += $achievement['points'];
+                $retroPointsSum += $achievement['points_weighted'];
+                $achievementDate = Carbon::parse($achievement['modified_at']);
                 if ($achievementDate->gt($lastUpdated)) {
                     $lastUpdated = $achievementDate;
                 }
@@ -241,7 +241,7 @@ class GameCard extends Component
             // 'beaten-softcore', 'beaten-hardcore', 'completed', 'mastered'
             $highestProgressionStatus = $userHighestGameAward['highestAwardKind'];
 
-            $highestProgressionAwardDate = Carbon::parse($userHighestGameAward['highestAward']->AwardDate);
+            $highestProgressionAwardDate = Carbon::parse($userHighestGameAward['highestAward']->awarded_at);
         }
 
         return [$highestProgressionStatus, $highestProgressionAwardDate];

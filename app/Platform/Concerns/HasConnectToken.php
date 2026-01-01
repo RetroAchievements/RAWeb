@@ -30,7 +30,7 @@ trait HasConnectToken
      */
     public function isConnectTokenValid(): bool
     {
-        return !empty($this->appToken) && strlen($this->appToken) === self::CONNECT_TOKEN_LENGTH;
+        return !empty($this->connect_token) && strlen($this->connect_token) === self::CONNECT_TOKEN_LENGTH;
     }
 
     /**
@@ -38,7 +38,7 @@ trait HasConnectToken
      */
     public function isConnectTokenExpired(): bool
     {
-        return $this->appTokenExpiry && $this->appTokenExpiry < Carbon::now();
+        return $this->connect_token_expires_at && $this->connect_token_expires_at < Carbon::now();
     }
 
     /**
@@ -49,8 +49,8 @@ trait HasConnectToken
     public function generateNewConnectToken(): void
     {
         do {
-            $this->appToken = Str::random(self::CONNECT_TOKEN_LENGTH);
-        } while ($this->where('appToken', $this->appToken)->exists());
+            $this->connect_token = Str::random(self::CONNECT_TOKEN_LENGTH);
+        } while ($this->where('connect_token', $this->connect_token)->exists());
 
         $this->extendConnectTokenExpiry();
     }
@@ -62,6 +62,6 @@ trait HasConnectToken
      */
     public function extendConnectTokenExpiry(): void
     {
-        $this->appTokenExpiry = Carbon::now()->addDays(self::CONNECT_TOKEN_EXPIRY_DAYS);
+        $this->connect_token_expires_at = Carbon::now()->addDays(self::CONNECT_TOKEN_EXPIRY_DAYS);
     }
 }

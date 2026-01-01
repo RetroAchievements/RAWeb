@@ -28,12 +28,12 @@ class AchievementSetClaimController extends Controller
 
         $claim = $action->execute($game);
 
-        if (!$game->ForumTopicID && $this->authorize('update', $game)) {
-            generateGameForumTopic(Auth::user(), $game->ID);
+        if (!$game->forum_topic_id && $this->authorize('update', $game)) {
+            generateGameForumTopic(Auth::user(), $game->id);
         }
 
         return back()->with('success', $this->resourceActionSuccessMessage('claim',
-            $claim->Created->equalTo($claim->Updated) ? 'create' : 'update'));
+            $claim->created_at->equalTo($claim->updated_at) ? 'create' : 'update'));
     }
 
     public function update(
@@ -45,14 +45,14 @@ class AchievementSetClaimController extends Controller
 
         // Determine which policy to use based on the status change.
         if (isset($status)) {
-            $statusInt = (int) $status;
+            $statusValue = is_string($status) ? $status : $status->value;
 
             if (
-                in_array($statusInt, [ClaimStatus::InReview, ClaimStatus::Active])
-                && $claim->Status !== $statusInt
+                ($statusValue === ClaimStatus::InReview->value || $claim->status === ClaimStatus::InReview)
+                && $claim->status->value !== $statusValue
             ) {
                 $this->authorize('review', $claim);
-            } elseif ($statusInt === ClaimStatus::Complete) {
+            } elseif ($statusValue === ClaimStatus::Complete->value && $claim->user_id === Auth::id()) {
                 $this->authorize('complete', $claim);
             } else {
                 $this->authorize('update', $claim);

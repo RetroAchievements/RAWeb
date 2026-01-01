@@ -51,7 +51,7 @@ describe('Component: ActivePlayerFeed', () => {
     // ARRANGE
     const user = createUser({
       displayName: 'Scott',
-      richPresenceMsg: 'Playing Sonic the Hedgehog',
+      richPresence: 'Playing Sonic the Hedgehog',
     });
     const game = createGame({ title: 'Sonic the Hedgehog' });
 

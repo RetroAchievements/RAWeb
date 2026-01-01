@@ -1,13 +1,13 @@
 @props([
-    'articleType' => 0,
-    'articleId' => 0,
+    'commentableType' => null,
+    'commentableId' => 0,
     'article' => null,
     'embedded' => true,
 ])
 
 @php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Services\SubscriptionService;
 use App\Models\Comment;
@@ -15,10 +15,10 @@ use App\Models\User;
 
 $perPage = $embedded ? 20 : 50;
 
-$comments = Comment::where('ArticleType', $articleType)
-    ->where('ArticleID', $articleId)
+$comments = Comment::where('commentable_type', $commentableType)
+    ->where('commentable_id', $commentableId)
     ->with(['user' => fn($q) => $q->withTrashed()])
-    ->orderBy('Submitted');
+    ->orderBy('created_at');
 
 $totalComments = $comments->count();
 $totalPages = floor(($totalComments + $perPage - 1) / $perPage);
@@ -46,24 +46,24 @@ $canSubscribe = false;
 
 $user = request()->user();
 if ($user) {
-    $subjectType = SubscriptionSubjectType::fromArticleType($articleType);
+    $subjectType = SubscriptionSubjectType::fromCommentableType($commentableType);
     if ($subjectType !== null) {
         $canSubscribe = true;
         $service = new SubscriptionService();
-        $isSubscribed = $service->isSubscribed($user, $subjectType, $articleId);
+        $isSubscribed = $service->isSubscribed($user, $subjectType, $commentableId);
     }
 }
 
-$route = match((int) $articleType) {
-    ArticleType::Game => route('game.comment.index', ['game' => $articleId]),
-    ArticleType::GameModification => route('game.modification-comment.index', ['game' => $articleId]),
-    ArticleType::GameHash => route('game.hashes.comment.index', ['game' => $articleId]),
-    ArticleType::SetClaim => route('game.claims.comment.index', ['game' => $articleId]),
-    ArticleType::Achievement => route('achievement.comment.index', ['achievement' => $articleId]),
-    ArticleType::Leaderboard => route('leaderboard.comment.index', ['leaderboard' => $articleId]),
-    ArticleType::User => route('user.comment.index', ['user' => $article ?? User::find($articleId)]),
-    ArticleType::UserModeration => route('user.moderation-comment.index', ['user' => $article ?? User::find($articleId)]),
-    default => 'unsupported type ' . $articleType,
+$route = match($commentableType) {
+    CommentableType::Game => route('game.comment.index', ['game' => $commentableId]),
+    CommentableType::GameModification => route('game.modification-comment.index', ['game' => $commentableId]),
+    CommentableType::GameHash => route('game.hashes.comment.index', ['game' => $commentableId]),
+    CommentableType::SetClaim => route('game.claims.comment.index', ['game' => $commentableId]),
+    CommentableType::Achievement => route('achievement.comment.index', ['achievement' => $commentableId]),
+    CommentableType::Leaderboard => route('leaderboard.comment.index', ['leaderboard' => $commentableId]),
+    CommentableType::User => route('user.comment.index', ['user' => $article ?? User::find($commentableId)]),
+    CommentableType::UserModeration => route('user.moderation-comment.index', ['user' => $article ?? User::find($commentableId)]),
+    default => 'unsupported type ' . $commentableType?->value,
 };
 
 @endphp
@@ -96,7 +96,7 @@ $route = match((int) $articleType) {
         @if ($canSubscribe)
             <x-update-subscription-button
                 :subjectType="$subjectType"
-                :subjectId="$articleId"
+                :subjectId="$commentableId"
                 :isSubscribed="$isSubscribed"
                 resource="{{ $embedded ? 'comments' : null }}"
             />
@@ -108,16 +108,16 @@ $route = match((int) $articleType) {
             @foreach ($comments as $comment)
                 <x-comment.item
                     :author="$comment->user"
-                    :when="$comment->Submitted"
-                    :payload="nl2br($comment->Payload)"
-                    :articleType="$articleType"
-                    :articleId="$articleId"
-                    :commentId="$comment->ID"
+                    :when="$comment->created_at"
+                    :payload="nl2br($comment->body)"
+                    :commentableType="$commentableType"
+                    :commentableId="$commentableId"
+                    :commentId="$comment->id"
                     :allowDelete="$user?->can('delete', [App\Models\Comment::class, $comment])"
                 />
             @endforeach
 
-            <x-comment.input-row articleType="{{ $articleType }}" articleId="{{ $articleId }}" :article="$article" />
+            <x-comment.input-row :commentableType="$commentableType" :commentableId="$commentableId" :article="$article" />
         </tbody>
     </table>
 

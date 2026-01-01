@@ -183,8 +183,8 @@ export function sortAchievements(
           return unlockedResult;
         }
 
-        // Then, sort by unlocksHardcoreTotal within each group (unlocked and not unlocked).
-        const unlocksDiff = (a.unlocksHardcoreTotal as number) - (b.unlocksHardcoreTotal as number);
+        // Then, sort by unlocksHardcore within each group (unlocked and not unlocked).
+        const unlocksDiff = (a.unlocksHardcore as number) - (b.unlocksHardcore as number);
         if (unlocksDiff !== 0) {
           return unlocksDiff * multiplier;
         }

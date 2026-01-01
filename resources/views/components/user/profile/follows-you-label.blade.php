@@ -1,6 +1,5 @@
 <?php
 
-use App\Community\Enums\UserRelationship;
 use Illuminate\Support\Facades\Auth;
 ?>
 

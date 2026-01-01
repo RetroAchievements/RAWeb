@@ -12,7 +12,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'game' => 'required|integer|exists:GameData,ID',
+    'game' => 'required|integer|exists:games,id',
     'rich_presence' => 'nullable|string|max:60000',
 ]);
 

@@ -38,9 +38,9 @@ class ConvertUserShortcodesFromIdsToDisplayNamesAction
 
         // Otherwise, fetch all referenced users in a single query.
         $users = User::withTrashed()
-            ->whereIn('ID', $userIds->unique())
-            ->get(['ID', 'display_name'])
-            ->keyBy('ID');
+            ->whereIn('id', $userIds->unique())
+            ->get(['id', 'display_name'])
+            ->keyBy('id');
 
         // Process each body and replace user IDs with display names.
         return array_map(function (string $body) use ($users, $pattern) {

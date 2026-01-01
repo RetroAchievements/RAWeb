@@ -18,13 +18,14 @@ enum SubscriptionSubjectType: string
     case GameAchievements = "GameAchievements";
     case AchievementTicket = "AchievementTicket";
 
-    public static function fromArticleType(int $articleType): ?SubscriptionSubjectType
+    public static function fromCommentableType(CommentableType $commentableType): ?SubscriptionSubjectType
     {
-        return match ($articleType) {
-            ArticleType::Game => SubscriptionSubjectType::GameWall,
-            ArticleType::Achievement => SubscriptionSubjectType::Achievement,
-            ArticleType::User => SubscriptionSubjectType::UserWall,
-            ArticleType::AchievementTicket => SubscriptionSubjectType::AchievementTicket,
+        return match ($commentableType) {
+            CommentableType::Game => SubscriptionSubjectType::GameWall,
+            CommentableType::Achievement => SubscriptionSubjectType::Achievement,
+            CommentableType::Leaderboard => SubscriptionSubjectType::Leaderboard,
+            CommentableType::User => SubscriptionSubjectType::UserWall,
+            CommentableType::AchievementTicket => SubscriptionSubjectType::AchievementTicket,
             default => null,
         };
     }

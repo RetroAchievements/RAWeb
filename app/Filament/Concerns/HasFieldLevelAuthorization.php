@@ -35,7 +35,7 @@ trait HasFieldLevelAuthorization
                 // The only way we've landed here is if there's a major logic error
                 // or if the user is doing something they weren't supposed to do.
                 // Explode.
-                throw new UnauthorizedException("[{$user->User}:{$user->id}] does not have permission to edit {$field}.");
+                throw new UnauthorizedException("[{$user->username}:{$user->id}] does not have permission to edit {$field}.");
             }
         }
     }

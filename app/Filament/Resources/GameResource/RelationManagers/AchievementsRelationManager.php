@@ -10,13 +10,14 @@ use App\Models\Achievement;
 use App\Models\AchievementAuthor;
 use App\Models\AchievementGroup;
 use App\Models\AchievementSet;
+use App\Models\AchievementSetAchievement;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\LogAchievementGroupActivityAction;
 use App\Platform\Actions\SyncAchievementSetOrderColumnsFromDisplayOrdersAction;
 use App\Platform\Enums\AchievementAuthorTask;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\AchievementType;
 use BackedEnum;
@@ -42,15 +43,19 @@ use Illuminate\Support\Facades\DB;
 class AchievementsRelationManager extends RelationManager
 {
     protected static string $relationship = 'achievements';
-
     protected static ?string $title = 'Achievements';
-
     protected static string|BackedEnum|null $icon = 'fas-trophy';
 
     public bool $isEditingDisplayOrders = false;
 
     /** @var array<int, string> */
     public array $pendingDisplayOrders = [];
+
+    private ?AchievementSet $cachedCoreAchievementSet = null;
+    private bool $isCoreAchievementSetLoaded = false;
+
+    /** @var array<int, int|null> */
+    private array $achievementGroupAssignments = [];
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
@@ -69,7 +74,7 @@ class AchievementsRelationManager extends RelationManager
         /** @var Game $game */
         $game = $ownerRecord;
 
-        $count = $game->achievements()->published()->count();
+        $count = $game->achievements()->promoted()->count();
 
         return $count > 0 ? "{$count}" : null;
     }
@@ -91,13 +96,13 @@ class AchievementsRelationManager extends RelationManager
 
         return $table
             ->recordTitleAttribute('title')
-            ->modifyQueryUsing(fn (Builder $query) => $query->with('activeMaintainer.user'))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['activeMaintainer.user', 'developer', 'game']))
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
                     ->size(config('media.icon.md.width')),
 
-                Tables\Columns\TextColumn::make('ID')
+                Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->searchable()
                     ->toggleable(),
@@ -106,7 +111,7 @@ class AchievementsRelationManager extends RelationManager
                     ->description(fn (Achievement $record): string => $record->description)
                     ->wrap(),
 
-                Tables\Columns\ViewColumn::make('MemAddr')
+                Tables\Columns\ViewColumn::make('trigger_definition')
                     ->label('Code')
                     ->view('filament.tables.columns.achievement-code')
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -130,15 +135,16 @@ class AchievementsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('points')
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('DateCreated')
+                Tables\Columns\TextColumn::make('created_at')
                     ->date()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('DateModified')
+                Tables\Columns\TextColumn::make('modified_at')
                     ->date()
                     ->toggleable(),
 
-                Tables\Columns\ViewColumn::make('DisplayOrder')
+                Tables\Columns\ViewColumn::make('order_column')
+                    ->label('Display Order')
                     ->view('filament.tables.columns.display-order-column')
                     ->toggleable(),
 
@@ -152,18 +158,12 @@ class AchievementsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('achievement_group')
                     ->label('Group')
                     ->getStateUsing(function (Achievement $record): string {
-                        $coreSet = $this->getCoreAchievementSet(withGroups: true);
-                        // defensive, but it may not actually be possible to fall into this branch
+                        $coreSet = $this->getCoreAchievementSet();
                         if (!$coreSet) {
                             return '-';
                         }
 
-                        $pivot = $coreSet->achievements()
-                            ->where('achievement_id', $record->id)
-                            ->first()
-                            ?->pivot;
-
-                        $groupId = $pivot?->achievement_group_id;
+                        $groupId = $this->achievementGroupAssignments[$record->id] ?? null;
                         if (!$groupId) {
                             return '-';
                         }
@@ -173,20 +173,12 @@ class AchievementsRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('Flags')
-                    ->options([
-                        0 => 'All',
-                        AchievementFlag::OfficialCore->value => AchievementFlag::OfficialCore->label(),
-                        AchievementFlag::Unofficial->value => AchievementFlag::Unofficial->label(),
-                    ])
-                    ->default(AchievementFlag::OfficialCore->value)
-                    ->selectablePlaceholder(false)
+                Tables\Filters\TernaryFilter::make('is_promoted')
+                    ->label('Promoted Status')
                     ->placeholder('All')
-                    ->query(function (array $data, Builder $query) {
-                        if ((bool) $data['value']) {
-                            $query->where('Flags', $data['value']);
-                        }
-                    }),
+                    ->trueLabel('Promoted')
+                    ->falseLabel('Unpromoted')
+                    ->default(true),
 
                 Tables\Filters\TernaryFilter::make('duplicate_badges')
                     ->label('Has duplicate badge')
@@ -196,19 +188,19 @@ class AchievementsRelationManager extends RelationManager
                     ->queries(
                         true: fn (Builder $query): Builder => $query->whereExists(function ($subquery) {
                             $subquery->selectRaw('1')
-                                ->from('Achievements as a2')
-                                ->whereColumn('a2.GameID', 'Achievements.GameID')
-                                ->whereColumn('a2.BadgeName', 'Achievements.BadgeName')
-                                ->where('a2.ID', '!=', DB::raw('Achievements.ID'))
+                                ->from('achievements as a2')
+                                ->whereColumn('a2.game_id', 'achievements.game_id')
+                                ->whereColumn('a2.image_name', 'achievements.image_name')
+                                ->where('a2.id', '!=', DB::raw('achievements.id'))
                                 ->whereNull('a2.deleted_at')
                                 ->limit(1);
                         }),
                         false: fn (Builder $query): Builder => $query->whereNotExists(function ($subquery) {
                             $subquery->selectRaw('1')
-                                ->from('Achievements as a2')
-                                ->whereColumn('a2.GameID', 'Achievements.GameID')
-                                ->whereColumn('a2.BadgeName', 'Achievements.BadgeName')
-                                ->where('a2.ID', '!=', DB::raw('Achievements.ID'))
+                                ->from('achievements as a2')
+                                ->whereColumn('a2.game_id', 'achievements.game_id')
+                                ->whereColumn('a2.image_name', 'achievements.image_name')
+                                ->where('a2.id', '!=', DB::raw('achievements.id'))
                                 ->whereNull('a2.deleted_at')
                                 ->limit(1);
                         }),
@@ -261,13 +253,13 @@ class AchievementsRelationManager extends RelationManager
                                     ->success()
                                     ->send();
                             })
-                            ->visible(fn () => $user->can('assignMaintainer', Achievement::class)),
+                            ->visible(fn () => $this->canAssignMaintainer()),
 
                         Actions\Action::make('assign-to-group')
                             ->label('Assign to Group')
                             ->icon('heroicon-o-folder')
                             ->schema(function (Achievement $record): array {
-                                $coreSet = $this->getCoreAchievementSet(withGroups: true);
+                                $coreSet = $this->getCoreAchievementSet();
                                 if (!$coreSet || $coreSet->achievementGroups->isEmpty()) {
                                     return [
                                         Text::make('No achievement groups have been created. Use the "Manage groups" button to create groups first.'),
@@ -297,7 +289,7 @@ class AchievementsRelationManager extends RelationManager
                                     return;
                                 }
 
-                                $coreSet = $this->getCoreAchievementSet(withGroups: true);
+                                $coreSet = $this->getCoreAchievementSet();
                                 if (!$coreSet) {
                                     return;
                                 }
@@ -323,18 +315,20 @@ class AchievementsRelationManager extends RelationManager
                                     ]
                                 );
 
+                                $this->invalidateCoreAchievementSetCache();
+
                                 Notification::make()
                                     ->title('Success')
                                     ->body('Successfully assigned achievement to group.')
                                     ->success()
                                     ->send();
                             })
-                            ->visible(function () use ($user): bool {
-                                if (!$user->can('manage', AchievementGroup::class)) {
+                            ->visible(function (): bool {
+                                if (!$this->canManageAchievementGroups()) {
                                     return false;
                                 }
 
-                                $coreSet = $this->getCoreAchievementSet(withGroups: true);
+                                $coreSet = $this->getCoreAchievementSet();
 
                                 return $coreSet && $coreSet->achievementGroups->isNotEmpty();
                             }),
@@ -343,9 +337,9 @@ class AchievementsRelationManager extends RelationManager
                     DeleteAction::make(),
                 ])
                     ->visible(fn (Achievement $record): bool => $this->canReorderAchievements()
-                        || $user->can('assignMaintainer', Achievement::class)
-                        || $user->can('manage', AchievementGroup::class)
-                        || $user->can('delete', $record)
+                        || $this->canAssignMaintainer()
+                        || $this->canManageAchievementGroups()
+                        || request()->user()->can('delete', $record)
                     ),
             ])
             ->toolbarActions([
@@ -366,7 +360,7 @@ class AchievementsRelationManager extends RelationManager
                     ->modalDescription('Create and organize achievement groups for this game. Groups allow you to organize achievements into collapsible sections on the game page (eg: "Final Fantasy I", "Final Fantasy II").')
                     ->modalSubmitActionLabel('Save Groups')
                     ->schema(function (): array {
-                        $coreSet = $this->getCoreAchievementSet(withGroups: true);
+                        $coreSet = $this->getCoreAchievementSet();
                         if (!$coreSet) {
                             return [
                                 Text::make('This game does not have an achievement set. Groups cannot be created.'),
@@ -405,7 +399,7 @@ class AchievementsRelationManager extends RelationManager
                         ];
                     })
                     ->action(function (array $data): void {
-                        $coreSet = $this->getCoreAchievementSet(withGroups: true);
+                        $coreSet = $this->getCoreAchievementSet();
                         if (!$coreSet) {
                             return;
                         }
@@ -466,22 +460,18 @@ class AchievementsRelationManager extends RelationManager
                             AchievementGroup::whereIn('id', $groupsToDelete)->delete();
                         }
 
+                        $this->invalidateCoreAchievementSetCache();
+
                         Notification::make()
                             ->title('Success')
                             ->body('Achievement groups updated successfully.')
                             ->success()
                             ->send();
                     })
-                    ->visible(function () use ($user): bool {
-                        if ($this->isEditingDisplayOrders) {
-                            return false;
-                        }
-
-                        return $user->can('manage', AchievementGroup::class);
-                    }),
+                    ->visible(fn (): bool => !$this->isEditingDisplayOrders && $this->canManageAchievementGroups()),
 
                 BulkActionGroup::make([
-                    BulkAction::make('flags-core')
+                    BulkAction::make('is-published-true')
                         ->label('Promote selected')
                         ->icon('heroicon-o-arrow-up-right')
                         ->color('success')
@@ -489,11 +479,11 @@ class AchievementsRelationManager extends RelationManager
                         ->deselectRecordsAfterCompletion()
                         ->action(function (Collection $records) use ($user) {
                             $records->each(function (Achievement $record) use ($user) {
-                                if (!$user->can('updateField', [$record, 'Flags'])) {
+                                if (!$user->can('updateField', [$record, 'is_promoted'])) {
                                     return;
                                 }
 
-                                $record->Flags = AchievementFlag::OfficialCore->value;
+                                $record->is_promoted = true;
                                 $record->save();
                             });
 
@@ -504,7 +494,7 @@ class AchievementsRelationManager extends RelationManager
                                 ->send();
                         }),
 
-                    BulkAction::make('flags-unofficial')
+                    BulkAction::make('is-published-false')
                         ->label('Demote selected')
                         ->icon('heroicon-o-arrow-down-right')
                         ->color('danger')
@@ -512,11 +502,11 @@ class AchievementsRelationManager extends RelationManager
                         ->deselectRecordsAfterCompletion()
                         ->action(function (Collection $records) use ($user) {
                             $records->each(function (Achievement $record) use ($user) {
-                                if (!$user->can('updateField', [$record, 'Flags'])) {
+                                if (!$user->can('updateField', [$record, 'is_promoted'])) {
                                     return;
                                 }
 
-                                $record->Flags = AchievementFlag::Unofficial->value;
+                                $record->is_promoted = false;
                                 $record->save();
                             });
 
@@ -528,7 +518,7 @@ class AchievementsRelationManager extends RelationManager
                         }),
                 ])
                     ->label('Bulk promote or demote')
-                    ->visible(fn (): bool => $user->can('updateField', [Achievement::class, null, 'Flags'])),
+                    ->visible(fn (): bool => $user->can('updateField', [Achievement::class, null, 'is_promoted'])),
 
                 BulkActionGroup::make([
                     BulkAction::make('type-progression')
@@ -691,14 +681,14 @@ class AchievementsRelationManager extends RelationManager
                             ->success()
                             ->send();
                     })
-                    ->visible(fn (): bool => $user->can('assignMaintainer', [Achievement::class])),
+                    ->visible(fn (): bool => $this->canAssignMaintainer()),
 
                 BulkAction::make('assign-to-group')
                     ->label('Assign to group')
                     ->color('gray')
                     ->icon('heroicon-o-folder')
                     ->schema(function (): array {
-                        $coreSet = $this->getCoreAchievementSet(withGroups: true);
+                        $coreSet = $this->getCoreAchievementSet();
                         if (!$coreSet || $coreSet->achievementGroups->isEmpty()) {
                             return [
                                 Text::make('No achievement groups have been created for this achievement set. Use the "Manage groups" button to create groups first.'),
@@ -722,7 +712,7 @@ class AchievementsRelationManager extends RelationManager
                             return;
                         }
 
-                        $coreSet = $this->getCoreAchievementSet(withGroups: true);
+                        $coreSet = $this->getCoreAchievementSet();
                         if (!$coreSet) {
                             return;
                         }
@@ -752,31 +742,30 @@ class AchievementsRelationManager extends RelationManager
                             ]
                         );
 
+                        $this->invalidateCoreAchievementSetCache();
+
                         Notification::make()
                             ->title('Success')
                             ->body('Successfully assigned achievements to group.')
                             ->success()
                             ->send();
                     })
-                    ->visible(function () use ($user): bool {
-                        if (!$user->can('manage', AchievementGroup::class)) {
+                    ->visible(function (): bool {
+                        if (!$this->canManageAchievementGroups()) {
                             return false;
                         }
 
-                        $coreSet = $this->getCoreAchievementSet(withGroups: true);
+                        $coreSet = $this->getCoreAchievementSet();
 
                         return $coreSet && $coreSet->achievementGroups->isNotEmpty();
                     }),
             ])
-            ->recordUrl(function (Achievement $record): ?string {
+            ->recordUrl(function (Achievement $record) use ($user): ?string {
                 if ($this->isEditingDisplayOrders) {
                     return null;
                 }
 
-                /** @var User $user */
-                $user = Auth::user();
-
-                if ($user->can('update', $record)) {
+                if ($this->canUpdateAnyAchievement() || $user->can('update', $record)) {
                     return route('filament.admin.resources.achievements.edit', ['record' => $record]);
                 }
 
@@ -786,8 +775,8 @@ class AchievementsRelationManager extends RelationManager
             ->defaultPaginationPageOption(400)
             ->defaultSort(function (Builder $query): Builder {
                 return $query
-                    ->orderBy('DisplayOrder')
-                    ->orderBy('DateCreated', 'asc');
+                    ->orderBy('order_column')
+                    ->orderBy('created_at', 'asc');
             })
             ->reorderRecordsTriggerAction(
                 fn (Actions\Action $action, bool $isReordering) => $action
@@ -795,8 +784,8 @@ class AchievementsRelationManager extends RelationManager
                     ->label($isReordering ? 'Done dragging' : 'Drag to reorder')
                     ->visible(fn () => $this->canReorderAchievements() && !$this->isEditingDisplayOrders),
             )
-            ->reorderable('DisplayOrder', $this->canReorderAchievements() && !$this->isEditingDisplayOrders)
-            ->checkIfRecordIsSelectableUsing(fn (): bool => !$this->isEditingDisplayOrders);
+            ->reorderable('order_column', $this->canReorderAchievements() && !$this->isEditingDisplayOrders)
+            ->selectable(!$this->isEditingDisplayOrders);
     }
 
     public function reorderTable(array $order, string|int|null $draggedRecordKey = null): void
@@ -822,23 +811,23 @@ class AchievementsRelationManager extends RelationManager
         /** @var Game $game */
         $game = $this->getOwnerRecord();
 
-        $achievements = $game->achievements()->orderBy('DisplayOrder')->get();
+        $achievements = $game->achievements()->orderBy('order_column')->get();
 
         if ($position === 'top') {
-            $minOrder = $achievements->min('DisplayOrder') ?? 0;
+            $minOrder = $achievements->min('order_column') ?? 0;
 
             if ($minOrder > 0) {
                 $newOrder = $minOrder - 1;
             } else {
-                $game->achievements()->where('ID', '!=', $record->id)->increment('DisplayOrder');
+                $game->achievements()->where('id', '!=', $record->id)->increment('order_column');
                 $newOrder = 0;
             }
         } else {
-            $maxOrder = $achievements->max('DisplayOrder') ?? 0;
+            $maxOrder = $achievements->max('order_column') ?? 0;
             $newOrder = $maxOrder + 1;
         }
 
-        $record->DisplayOrder = $newOrder;
+        $record->order_column = $newOrder;
         $record->save();
 
         (new SyncAchievementSetOrderColumnsFromDisplayOrdersAction())->execute($record);
@@ -886,7 +875,7 @@ class AchievementsRelationManager extends RelationManager
 
         // Pre-populate with current values so inputs have initial values.
         $this->pendingDisplayOrders = $game->achievements()
-            ->pluck('DisplayOrder', 'ID')
+            ->pluck('order_column', 'id')
             ->map(fn ($value) => (string) $value)
             ->toArray();
 
@@ -901,7 +890,7 @@ class AchievementsRelationManager extends RelationManager
         $game = $this->getOwnerRecord();
 
         // Get original values to detect actual changes.
-        $originalOrders = $game->achievements()->pluck('DisplayOrder', 'ID')->toArray();
+        $originalOrders = $game->achievements()->pluck('order_column', 'id')->toArray();
 
         $changedAchievements = [];
         foreach ($this->pendingDisplayOrders as $id => $newOrder) {
@@ -920,9 +909,9 @@ class AchievementsRelationManager extends RelationManager
         // Update all changed achievements in a single query.
         $updates = [];
         foreach ($changedAchievements as $id => $newOrder) {
-            $updates[] = ['ID' => $id, 'DisplayOrder' => $newOrder];
+            $updates[] = ['id' => $id, 'order_column' => $newOrder];
         }
-        Achievement::upsert($updates, ['ID'], ['DisplayOrder']);
+        Achievement::upsert($updates, ['id'], ['order_column']);
 
         // Be sure we also sync the achievement set order column values.
         $firstAchievement = Achievement::find(array_key_first($changedAchievements));
@@ -952,23 +941,81 @@ class AchievementsRelationManager extends RelationManager
 
     private function canReorderAchievements(): bool
     {
-        /** @var User $user */
+        /** @var User */
         $user = Auth::user();
 
-        return $user->can('updateField', [Achievement::class, null, 'DisplayOrder']);
+        return once(function () use ($user) {
+            if ($user->can('updateField', [Achievement::class, null, 'order_column'])) {
+                return true;
+            }
+
+            // Junior developers can reorder if they have an active claim on this game.
+            if ($user->hasRole(Role::DEVELOPER_JUNIOR)) {
+                /** @var Game $game */
+                $game = $this->getOwnerRecord();
+
+                return $user->hasActiveClaimOnGameId($game->id);
+            }
+
+            return false;
+        });
     }
 
-    private function getCoreAchievementSet(bool $withGroups = false): ?AchievementSet
+    private function canAssignMaintainer(): bool
     {
+        /** @var User */
+        $user = Auth::user();
+
+        return once(fn () => $user->can('assignMaintainer', Achievement::class));
+    }
+
+    private function canManageAchievementGroups(): bool
+    {
+        /** @var User */
+        $user = Auth::user();
+
+        return once(fn () => $user->can('manage', AchievementGroup::class));
+    }
+
+    private function canUpdateAnyAchievement(): bool
+    {
+        /** @var User */
+        $user = Auth::user();
+
+        return once(fn () => $user->can('updateAny', Achievement::class));
+    }
+
+    private function invalidateCoreAchievementSetCache(): void
+    {
+        $this->cachedCoreAchievementSet = null;
+        $this->isCoreAchievementSetLoaded = false;
+        $this->achievementGroupAssignments = [];
+    }
+
+    private function getCoreAchievementSet(): ?AchievementSet
+    {
+        if ($this->isCoreAchievementSetLoaded) {
+            return $this->cachedCoreAchievementSet;
+        }
+
         /** @var Game $game */
         $game = $this->getOwnerRecord();
 
-        $query = $game->gameAchievementSets()->where('type', AchievementSetType::Core);
+        $query = $game->gameAchievementSets()
+            ->where('type', AchievementSetType::Core)
+            ->with('achievementSet.achievementGroups');
 
-        if ($withGroups) {
-            $query->with('achievementSet.achievementGroups');
+        $this->cachedCoreAchievementSet = $query->first()?->achievementSet;
+        $this->isCoreAchievementSetLoaded = true;
+
+        // Pre-load all achievement group assignments in a single query.
+        if ($this->cachedCoreAchievementSet) {
+            $this->achievementGroupAssignments = AchievementSetAchievement::query()
+                ->where('achievement_set_id', $this->cachedCoreAchievementSet->id)
+                ->pluck('achievement_group_id', 'achievement_id')
+                ->toArray();
         }
 
-        return $query->first()?->achievementSet;
+        return $this->cachedCoreAchievementSet;
     }
 }

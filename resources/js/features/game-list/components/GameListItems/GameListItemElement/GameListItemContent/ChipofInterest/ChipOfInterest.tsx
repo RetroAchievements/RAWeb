@@ -136,13 +136,14 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
               !isComplete ? 'px-2' : null,
               buildAwardLabelColorClassNames(
                 playerGame?.highestAward?.awardType,
-                playerGame?.highestAward?.awardDataExtra,
+                playerGame?.highestAward?.awardTier,
               ),
             )}
           >
-            {playerGame?.highestAward && !getIsEventGame(game) && (
+            {playerGame?.highestAward && !getIsEventGame(game) ? (
               <PlayerBadgeIndicator playerBadge={playerGame.highestAward} />
-            )}
+            ) : null}
+
             {!isComplete &&
               formatPercentage(playerGame.achievementsUnlocked / game.achievementsPublished, {
                 maximumFractionDigits: 0,

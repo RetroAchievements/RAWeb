@@ -48,7 +48,7 @@ class GetLeaderboardEntriesAction extends BaseApiAction
     protected function process(): array
     {
         $leaderboard = Leaderboard::query()
-            ->where('ID', $this->leaderboardId)
+            ->where('id', $this->leaderboardId)
             ->with('developer')
             ->first();
         if (!$leaderboard) {
@@ -104,16 +104,17 @@ class GetLeaderboardEntriesAction extends BaseApiAction
         return [
             'Success' => true,
             'LeaderboardData' => [
-                'LBID' => $leaderboard->ID,
-                'GameID' => $leaderboard->GameID,
-                'LowerIsBetter' => $leaderboard->LowerIsBetter,
-                'LBTitle' => $leaderboard->Title,
-                'LBDesc' => $leaderboard->Description,
-                'LBFormat' => $leaderboard->Format,
-                'LBMem' => $leaderboard->Mem,
-                'LBAuthor' => $leaderboard->developer?->User,
-                'LBCreated' => $leaderboard->Created?->format('Y-m-d H:i:s'),
-                'LBUpdated' => $leaderboard->Updated?->format('Y-m-d H:i:s'),
+                'LBID' => $leaderboard->id,
+                'GameID' => $leaderboard->game_id,
+                'LowerIsBetter' => (int) $leaderboard->rank_asc,
+                'LBTitle' => $leaderboard->title,
+                'LBDesc' => $leaderboard->description,
+                'LBFormat' => $leaderboard->format,
+                'LBMem' => $leaderboard->trigger_definition,
+                'LBAuthor' => $leaderboard->developer?->username,
+                'LBCreated' => $leaderboard->created_at?->format('Y-m-d H:i:s'),
+                'LBUpdated' => $leaderboard->updated_at?->format('Y-m-d H:i:s'),
+                'LBState' => $leaderboard->state->value,
                 'TotalEntries' => $totalEntries,
                 'Entries' => $entries,
             ],

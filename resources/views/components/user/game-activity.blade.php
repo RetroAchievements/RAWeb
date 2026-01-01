@@ -2,7 +2,7 @@
 
 use App\Enums\PlayerGameActivityEventType;
 use App\Enums\PlayerGameActivitySessionType;
-use App\Platform\Enums\AchievementFlag;
+use App\Models\Achievement;
 
 ?>
 
@@ -14,7 +14,7 @@ use App\Platform\Enums\AchievementFlag;
 ])
 
 @if (empty($sessions))
-    <p>{{ $user->User }} has not played {{ $game->Title }}.</p>
+    <p>{{ $user->display_name }} has not played {{ $game->title }}.</p>
 @else
     <div class="overflow-x-auto lg:overflow-x-visible">
         <table class="do-not-highlight mb-4">
@@ -77,7 +77,7 @@ use App\Platform\Enums\AchievementFlag;
                                 @if ($event['type'] === PlayerGameActivityEventType::Unlock)
                                     @php $achievement = $event['achievement'] @endphp
                                     {!! achievementAvatar($achievement) !!}
-                                    @if ($achievement['Flags'] != AchievementFlag::OfficialCore->value)
+                                    @if ($achievement['Flags'] != Achievement::FLAG_PROMOTED)
                                         (Unofficial)
                                     @endif
                                     @if ($event['hardcoreLater'] ?? false)

@@ -49,12 +49,12 @@ if [ "$is_php_changed" = true ]; then
     # Check the OS. Windows does not support the --parallel flag.
     if [ "$(uname)" = "Linux" ] || [ "$(uname)" = "Darwin" ]; then
         # Use --parallel if macOS or Linux are detected.
-        printf "\n⏳ composer test -- --parallel\n"
-        vendor/bin/paratest
+        printf "\n⏳ vendor/bin/pest --parallel\n"
+        vendor/bin/pest --parallel
     else
         # If neither of those are detected, don't use --parallel.
-        printf "\n⏳ composer test\n"
-        vendor/bin/phpunit
+        printf "\n⏳ vendor/bin/pest\n"
+        vendor/bin/pest
     fi
 fi
 

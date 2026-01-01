@@ -20,6 +20,10 @@ class UpdateGamePlayerCountJob implements ShouldQueue, ShouldBeUniqueUntilProces
     use Queueable;
     use SerializesModels;
 
+    // Retry on transient deadlocks when multiple jobs update the achievements table concurrently.
+    public int $tries = 3;
+    public int $backoff = 10;
+
     public function __construct(
         private readonly int $gameId,
     ) {

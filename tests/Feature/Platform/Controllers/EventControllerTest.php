@@ -23,10 +23,10 @@ class EventControllerTest extends TestCase
     public function testShowReturnsCorrectPageForUnauthenticatedUsers(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => System::Events]);
+        $system = System::factory()->create(['id' => System::Events]);
         $game = Game::factory()->create([
-            'Title' => 'Event 001',
-            'ConsoleID' => $system->id,
+            'title' => 'Event 001',
+            'system_id' => $system->id,
             'players_total' => 0,
             'achievements_published' => 0,
         ]);
@@ -54,10 +54,10 @@ class EventControllerTest extends TestCase
         // Arrange
         $this->seed(RolesTableSeeder::class);
 
-        $system = System::factory()->create(['ID' => System::Events]);
+        $system = System::factory()->create(['id' => System::Events]);
         $game = Game::factory()->create([
-            'Title' => 'Event 001',
-            'ConsoleID' => $system->id,
+            'title' => 'Event 001',
+            'system_id' => $system->id,
             'players_total' => 0,
             'achievements_published' => 0,
         ]);
@@ -66,7 +66,7 @@ class EventControllerTest extends TestCase
             'active_from' => '2020-01-01',
         ]);
 
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::EVENT_MANAGER);
         $this->actingAs($user);
 
@@ -84,10 +84,10 @@ class EventControllerTest extends TestCase
     public function testPreventsAccessForFutureEventsForNonEventManagers(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => System::Events]);
+        $system = System::factory()->create(['id' => System::Events]);
         $game = Game::factory()->create([
-            'Title' => 'Event 001',
-            'ConsoleID' => $system->id,
+            'title' => 'Event 001',
+            'system_id' => $system->id,
             'players_total' => 0,
             'achievements_published' => 0,
         ]);
@@ -96,7 +96,7 @@ class EventControllerTest extends TestCase
             'active_from' => Carbon::now()->addMonth(),
         ]);
 
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $this->actingAs($user);
 
         // Act
@@ -111,10 +111,10 @@ class EventControllerTest extends TestCase
         // Arrange
         $this->seed(RolesTableSeeder::class);
 
-        $system = System::factory()->create(['ID' => System::Events]);
+        $system = System::factory()->create(['id' => System::Events]);
         $game = Game::factory()->create([
-            'Title' => 'Event 001',
-            'ConsoleID' => $system->id,
+            'title' => 'Event 001',
+            'system_id' => $system->id,
             'players_total' => 0,
             'achievements_published' => 0,
         ]);
@@ -123,7 +123,7 @@ class EventControllerTest extends TestCase
             'active_from' => Carbon::now()->addMonth(),
         ]);
 
-        $user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
         $user->assignRole(Role::EVENT_MANAGER);
         $this->actingAs($user);
 
@@ -137,10 +137,10 @@ class EventControllerTest extends TestCase
     public function testShowIncludesHubsAssociatedWithEventGame(): void
     {
         // Arrange
-        $system = System::factory()->create(['ID' => System::Events]);
+        $system = System::factory()->create(['id' => System::Events]);
         $game = Game::factory()->create([
-            'Title' => 'Event 001',
-            'ConsoleID' => $system->id,
+            'title' => 'Event 001',
+            'system_id' => $system->id,
             'players_total' => 0,
             'achievements_published' => 0,
         ]);

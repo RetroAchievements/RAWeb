@@ -1,5 +1,5 @@
 <x-filament-panels::page>
-    <h2>{{ $this->record->User }} [{{ $this->record->ID }}]</h2>
+    <h2>{{ $this->record->username }} [{{ $this->record->id }}]</h2>
 
     <x-filament-panels::form wire:submit="save">
         {{ $this->form }}

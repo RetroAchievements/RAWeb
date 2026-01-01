@@ -26,7 +26,7 @@ class UserGameListTest extends TestCase
     public function testSetRequestLimitNewUser(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 0, 'RASoftcorePoints' => 0]);
+        $user = User::factory()->create(['points_hardcore' => 0, 'points' => 0]);
 
         $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
@@ -39,8 +39,8 @@ class UserGameListTest extends TestCase
     public function testSetRequestLimitFromAge(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 0, 'RASoftcorePoints' => 0,
-            'Created' => Carbon::now()->subDays(370),
+        $user = User::factory()->create(['points_hardcore' => 0, 'points' => 0,
+            'created_at' => Carbon::now()->subDays(370),
         ]);
 
         $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
@@ -54,13 +54,13 @@ class UserGameListTest extends TestCase
     public function testSetRequestLimitFromAwards(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 0, 'RASoftcorePoints' => 0]);
+        $user = User::factory()->create(['points_hardcore' => 0, 'points' => 0]);
 
         /** @var System $system */
-        $system = System::factory()->create(['ID' => System::Events]);
+        $system = System::factory()->create(['id' => System::Events]);
 
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         $this->addMasteryBadge($user, $game, UnlockMode::Hardcore);
 
@@ -75,7 +75,7 @@ class UserGameListTest extends TestCase
     public function testSetRequestLimitFromPoints(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 123456, 'RASoftcorePoints' => 0]);
+        $user = User::factory()->create(['points_hardcore' => 123456, 'points' => 0]);
 
         $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
@@ -88,7 +88,7 @@ class UserGameListTest extends TestCase
     public function testSetRequestLimitFromManyPoints(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 12345678, 'RASoftcorePoints' => 0]);
+        $user = User::factory()->create(['points_hardcore' => 12345678, 'points' => 0]);
 
         $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
@@ -101,7 +101,7 @@ class UserGameListTest extends TestCase
     public function testSetRequestLimitFromSoftcorePoints(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 23456, 'RASoftcorePoints' => 1111]);
+        $user = User::factory()->create(['points_hardcore' => 23456, 'points' => 1111]);
 
         $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
@@ -114,7 +114,7 @@ class UserGameListTest extends TestCase
     public function testSetRequestLimitFromManySoftcorePoints(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 1234, 'RASoftcorePoints' => 11111]);
+        $user = User::factory()->create(['points_hardcore' => 1234, 'points' => 11111]);
 
         $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
@@ -131,7 +131,7 @@ class UserGameListTest extends TestCase
         $now = Carbon::now()->toISOString();
 
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 10000]);
+        $user = User::factory()->create(['points_hardcore' => 10000]);
         /** @var Game $game1 */
         $game1 = Game::factory()->create();
         /** @var Game $game2 */
@@ -149,9 +149,9 @@ class UserGameListTest extends TestCase
 
         $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
         $this->assertCount(3, $entries);
-        $this->assertEquals($game1->ID, $entries[0]->GameID);
-        $this->assertEquals($game2->ID, $entries[1]->GameID);
-        $this->assertEquals($game3->ID, $entries[2]->GameID);
+        $this->assertEquals($game1->id, $entries[0]->game_id);
+        $this->assertEquals($game2->id, $entries[1]->game_id);
+        $this->assertEquals($game3->id, $entries[2]->game_id);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[2]->type);
@@ -161,8 +161,8 @@ class UserGameListTest extends TestCase
 
         $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
         $this->assertCount(2, $entries);
-        $this->assertEquals($game1->ID, $entries[0]->GameID);
-        $this->assertEquals($game3->ID, $entries[1]->GameID);
+        $this->assertEquals($game1->id, $entries[0]->game_id);
+        $this->assertEquals($game3->id, $entries[1]->game_id);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
 
@@ -175,9 +175,9 @@ class UserGameListTest extends TestCase
 
         $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
         $this->assertCount(3, $entries);
-        $this->assertEquals($game1->ID, $entries[0]->GameID);
-        $this->assertEquals($game2->ID, $entries[1]->GameID);
-        $this->assertEquals($game3->ID, $entries[2]->GameID);
+        $this->assertEquals($game1->id, $entries[0]->game_id);
+        $this->assertEquals($game2->id, $entries[1]->game_id);
+        $this->assertEquals($game3->id, $entries[2]->game_id);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[2]->type);
@@ -190,7 +190,7 @@ class UserGameListTest extends TestCase
         $now = Carbon::now()->toISOString();
 
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 10000]);
+        $user = User::factory()->create(['points_hardcore' => 10000]);
         /** @var Game $game1 */
         $game1 = Game::factory()->create();
         /** @var Game $game2 */
@@ -206,8 +206,8 @@ class UserGameListTest extends TestCase
 
         $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
         $this->assertCount(2, $entries);
-        $this->assertEquals($game1->ID, $entries[0]->GameID);
-        $this->assertEquals($game2->ID, $entries[1]->GameID);
+        $this->assertEquals($game1->id, $entries[0]->game_id);
+        $this->assertEquals($game2->id, $entries[1]->game_id);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
     }
@@ -219,7 +219,7 @@ class UserGameListTest extends TestCase
         $now = Carbon::now()->toISOString();
 
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 2345, 'RASoftcorePoints' => 0]);
+        $user = User::factory()->create(['points_hardcore' => 2345, 'points' => 0]);
         /** @var Game $game1 */
         $game1 = Game::factory()->create();
         /** @var Game $game2 */
@@ -233,7 +233,7 @@ class UserGameListTest extends TestCase
 
         $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
         $this->assertCount(1, $entries);
-        $this->assertEquals($game1->ID, $entries[0]->GameID);
+        $this->assertEquals($game1->id, $entries[0]->game_id);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
     }
 
@@ -244,12 +244,12 @@ class UserGameListTest extends TestCase
         $now = Carbon::now()->toISOString();
 
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 10000]);
+        $user = User::factory()->create(['points_hardcore' => 10000]);
         /** @var Game $game1 */
         $game1 = Game::factory()->create();
         /** @var Game $game2 */
         $game2 = Game::factory()->create();
-        Achievement::factory()->published()->create(['GameID' => $game2->ID]);
+        Achievement::factory()->promoted()->create(['game_id' => $game2->id]);
         /** @var Game $game3 */
         $game3 = Game::factory()->create();
 
@@ -263,17 +263,17 @@ class UserGameListTest extends TestCase
 
         $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->get();
         $this->assertCount(3, $entries);
-        $this->assertEquals($game1->ID, $entries[0]->GameID);
-        $this->assertEquals($game2->ID, $entries[1]->GameID);
-        $this->assertEquals($game3->ID, $entries[2]->GameID);
+        $this->assertEquals($game1->id, $entries[0]->game_id);
+        $this->assertEquals($game2->id, $entries[1]->game_id);
+        $this->assertEquals($game3->id, $entries[2]->game_id);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[2]->type);
 
         $entries = $user->gameListEntries(UserGameListType::AchievementSetRequest)->withoutAchievements()->get();
         $this->assertCount(2, $entries);
-        $this->assertEquals($game1->ID, $entries[0]->GameID);
-        $this->assertEquals($game3->ID, $entries[1]->GameID);
+        $this->assertEquals($game1->id, $entries[0]->game_id);
+        $this->assertEquals($game3->id, $entries[1]->game_id);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[0]->type);
         $this->assertEquals(UserGameListType::AchievementSetRequest, $entries[1]->type);
     }
