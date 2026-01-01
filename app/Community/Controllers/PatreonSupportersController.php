@@ -17,16 +17,16 @@ class PatreonSupportersController extends Controller
     public function index(): InertiaResponse
     {
         $baseQuery = PlayerBadge::query()
-            ->where('AwardType', AwardType::PatreonSupporter)
-            ->join('users', 'SiteAwards.user_id', '=', 'users.id')
+            ->where('award_type', AwardType::PatreonSupporter)
+            ->join('users', 'user_awards.user_id', '=', 'users.id')
             ->whereNull('users.deleted_at')
             ->whereNull('users.banned_at')
-            ->select('SiteAwards.*', 'users.display_name', 'users.username')
+            ->select('user_awards.*', 'users.display_name', 'users.username')
             ->with('user');
 
         // Get the 4 most recent supporters.
         $recentSupporters = (clone $baseQuery)
-            ->orderBy('SiteAwards.AwardDate', 'desc')
+            ->orderBy('user_awards.awarded_at', 'desc')
             ->limit(4)
             ->get()
             ->map(fn ($badge) => UserData::fromUser($badge->user)->include('displayName', 'avatarUrl', 'id'))

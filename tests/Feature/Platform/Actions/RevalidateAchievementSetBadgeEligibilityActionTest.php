@@ -24,8 +24,8 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
 
     private function getPlayerBadge(User $user, Event $event): ?PlayerBadge
     {
-        return $user->playerBadges->where('AwardType', AwardType::Event)
-            ->where('AwardData', $event->id)
+        return $user->playerBadges->where('award_type', AwardType::Event)
+            ->where('award_key', $event->id)
             ->first();
     }
 
@@ -60,8 +60,8 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievements->skip(1)->first());
         $badge = $this->getPlayerBadge($user, $event);
         $this->assertNotNull($badge);
-        $this->assertEquals(1, $badge->AwardDataExtra);
-        $this->assertEquals($now, $badge->AwardDate);
+        $this->assertEquals(1, $badge->award_tier);
+        $this->assertEquals($now, $badge->awarded_at);
 
         $later = $now->clone()->addMinutes(10);
         Carbon::setTestNow($later);
@@ -70,16 +70,16 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievements->skip(2)->first());
         $badge = $this->getPlayerBadge($user, $event);
         $this->assertNotNull($badge);
-        $this->assertEquals(1, $badge->AwardDataExtra);
-        $this->assertEquals($now, $badge->AwardDate);
+        $this->assertEquals(1, $badge->award_tier);
+        $this->assertEquals($now, $badge->awarded_at);
 
         // badge upgraded after four unlocks
         $this->addHardcoreUnlock($user, $achievements->skip(3)->first());
         $badge = $this->getPlayerBadge($user, $event);
         $this->assertNotNull($badge);
-        $this->assertEquals(2, $badge->AwardDataExtra);
+        $this->assertEquals(2, $badge->award_tier);
         $this->assertEquals(1, $user->playerBadges()->count()); // badge should be upgraded, not new badge awarded
-        $this->assertEquals($later, $badge->AwardDate);
+        $this->assertEquals($later, $badge->awarded_at);
 
         $tomorrow = $now->clone()->addHours(30);
         Carbon::setTestNow($tomorrow);
@@ -88,30 +88,30 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievements->skip(4)->first());
         $badge = $this->getPlayerBadge($user, $event);
         $this->assertNotNull($badge);
-        $this->assertEquals(2, $badge->AwardDataExtra);
-        $this->assertEquals($later, $badge->AwardDate);
+        $this->assertEquals(2, $badge->award_tier);
+        $this->assertEquals($later, $badge->awarded_at);
 
         // badge upgraded after six unlocks
         $this->addHardcoreUnlock($user, $achievements->skip(5)->first());
         $badge = $this->getPlayerBadge($user, $event);
         $this->assertNotNull($badge);
-        $this->assertEquals(3, $badge->AwardDataExtra);
+        $this->assertEquals(3, $badge->award_tier);
         $this->assertEquals(1, $user->playerBadges()->count()); // badge should be upgraded, not new badge awarded
-        $this->assertEquals($tomorrow, $badge->AwardDate);
+        $this->assertEquals($tomorrow, $badge->awarded_at);
 
         // badge not upgraded after seven unlocks
         $this->addHardcoreUnlock($user, $achievements->skip(6)->first());
         $badge = $this->getPlayerBadge($user, $event);
         $this->assertNotNull($badge);
-        $this->assertEquals(3, $badge->AwardDataExtra);
-        $this->assertEquals($tomorrow, $badge->AwardDate);
+        $this->assertEquals(3, $badge->award_tier);
+        $this->assertEquals($tomorrow, $badge->awarded_at);
 
         // badge not upgraded after eight unlocks (no 'mastery' on this event)
         $this->addHardcoreUnlock($user, $achievements->skip(7)->first());
         $badge = $this->getPlayerBadge($user, $event);
         $this->assertNotNull($badge);
-        $this->assertEquals(3, $badge->AwardDataExtra);
-        $this->assertEquals($tomorrow, $badge->AwardDate);
+        $this->assertEquals(3, $badge->award_tier);
+        $this->assertEquals($tomorrow, $badge->awarded_at);
     }
 
     public function testBadgeUpgradeWeighted(): void
@@ -138,8 +138,8 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievement3);
         $badge = $this->getPlayerBadge($user, $event);
         $this->assertNotNull($badge);
-        $this->assertEquals(1, $badge->AwardDataExtra);
-        $this->assertEquals($now, $badge->AwardDate);
+        $this->assertEquals(1, $badge->award_tier);
+        $this->assertEquals($now, $badge->awarded_at);
 
         $later = $now->clone()->addMinutes(10);
         Carbon::setTestNow($later);
@@ -148,16 +148,16 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievement1);
         $badge = $this->getPlayerBadge($user, $event);
         $this->assertNotNull($badge);
-        $this->assertEquals(1, $badge->AwardDataExtra);
-        $this->assertEquals($now, $badge->AwardDate);
+        $this->assertEquals(1, $badge->award_tier);
+        $this->assertEquals($now, $badge->awarded_at);
 
         // additional 2 pointer bumps the user to 5 points, which is enough for the 4 point badge
         $this->addHardcoreUnlock($user, $achievement4);
         $badge = $this->getPlayerBadge($user, $event);
         $this->assertNotNull($badge);
-        $this->assertEquals(2, $badge->AwardDataExtra);
+        $this->assertEquals(2, $badge->award_tier);
         $this->assertEquals(1, $user->playerBadges()->count()); // badge should be upgraded, not new badge awarded
-        $this->assertEquals($later, $badge->AwardDate);
+        $this->assertEquals($later, $badge->awarded_at);
 
         $tomorrow = $now->clone()->addHours(30);
         Carbon::setTestNow($tomorrow);
@@ -166,8 +166,8 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievement2);
         $badge = $this->getPlayerBadge($user, $event);
         $this->assertNotNull($badge);
-        $this->assertEquals(3, $badge->AwardDataExtra);
-        $this->assertEquals($tomorrow, $badge->AwardDate);
+        $this->assertEquals(3, $badge->award_tier);
+        $this->assertEquals($tomorrow, $badge->awarded_at);
     }
 
     public function testNonTieredEvent(): void
@@ -194,6 +194,6 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievements->skip(2)->first());
         $badge = $this->getPlayerBadge($user, $event);
         $this->assertNotNull($badge);
-        $this->assertEquals(0, $badge->AwardDataExtra);
+        $this->assertEquals(0, $badge->award_tier);
     }
 }

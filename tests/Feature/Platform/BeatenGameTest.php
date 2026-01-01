@@ -215,13 +215,13 @@ class BeatenGameTest extends TestCase
         $this->addSoftcoreUnlock($user, $progressionAchievements->get(4), Carbon::now()->subMinutes(15));
         $this->addHardcoreUnlock($user, $winConditionAchievement, Carbon::now()->subMinutes(10));
 
-        $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('AwardType', AwardType::GameBeaten)->count());
+        $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
         $this->assertNotNull(
             $user->playerBadges()
-                ->where('AwardType', AwardType::GameBeaten)
-                ->where('AwardData', $game->id)
-                ->where('AwardDataExtra', UnlockMode::Softcore)
-                ->where('AwardDate', Carbon::now()->subMinutes(10))
+                ->where('award_type', AwardType::GameBeaten)
+                ->where('award_key', $game->id)
+                ->where('award_tier', UnlockMode::Softcore)
+                ->where('awarded_at', Carbon::now()->subMinutes(10))
                 ->first()
         );
     }
@@ -244,12 +244,12 @@ class BeatenGameTest extends TestCase
         $this->addHardcoreUnlock($user, $progressionAchievements->get(4), Carbon::now()->subMinutes(25));
         $this->addHardcoreUnlock($user, $winConditionAchievement, Carbon::now()->subMinutes(20));
 
-        $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('AwardType', AwardType::GameBeaten)->count());
+        $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
         $this->assertNotNull(PlayerBadge::where('user_id', $user->id)
-            ->where('AwardType', AwardType::GameBeaten)
-            ->where('AwardData', $game->id)
-            ->where('AwardDataExtra', UnlockMode::Hardcore)
-            ->where('AwardDate', Carbon::now()->subMinutes(20))
+            ->where('award_type', AwardType::GameBeaten)
+            ->where('award_key', $game->id)
+            ->where('award_tier', UnlockMode::Hardcore)
+            ->where('awarded_at', Carbon::now()->subMinutes(20))
             ->first()
         );
     }
@@ -275,7 +275,7 @@ class BeatenGameTest extends TestCase
         // TODO trigger achievement set update which will trigger UpdatePlayerGameMetricsAction
         (new UpdatePlayerGameMetricsAction())->execute($user->playerGame($game));
 
-        $this->assertEquals(0, PlayerBadge::where('user_id', $user->id)->where('AwardType', AwardType::GameBeaten)->count());
+        $this->assertEquals(0, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
     }
 
     public function testBeatenAwardRevocation2(): void
@@ -309,27 +309,27 @@ class BeatenGameTest extends TestCase
         // TODO trigger achievement set update which will trigger UpdatePlayerGameMetricsAction
         (new UpdatePlayerGameMetricsAction())->execute($user->playerGame($game));
 
-        $this->assertEquals(0, PlayerBadge::where('user_id', $user->id)->where('AwardType', AwardType::GameBeaten)->count());
+        $this->assertEquals(0, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
 
         // The user unlocks it in softcore.
         $this->addSoftcoreUnlock($user, $newAchievement, Carbon::now()->subMinutes(10));
-        $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('AwardType', AwardType::GameBeaten)->count());
+        $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
         $this->assertNotNull(PlayerBadge::where('user_id', $user->id)
-            ->where('AwardType', AwardType::GameBeaten)
-            ->where('AwardData', $game->id)
-            ->where('AwardDataExtra', UnlockMode::Softcore)
-            ->where('AwardDate', Carbon::now()->subMinutes(10))
+            ->where('award_type', AwardType::GameBeaten)
+            ->where('award_key', $game->id)
+            ->where('award_tier', UnlockMode::Softcore)
+            ->where('awarded_at', Carbon::now()->subMinutes(10))
             ->first()
         );
 
         // The user unlocks it in hardcore.
         $this->addHardcoreUnlock($user, $newAchievement, Carbon::now()->subMinutes(5));
-        $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('AwardType', AwardType::GameBeaten)->count());
+        $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
         $this->assertNotNull(PlayerBadge::where('user_id', $user->id)
-            ->where('AwardType', AwardType::GameBeaten)
-            ->where('AwardData', $game->id)
-            ->where('AwardDataExtra', UnlockMode::Hardcore)
-            ->where('AwardDate', Carbon::now()->subMinutes(5))
+            ->where('award_type', AwardType::GameBeaten)
+            ->where('award_key', $game->id)
+            ->where('award_tier', UnlockMode::Hardcore)
+            ->where('awarded_at', Carbon::now()->subMinutes(5))
             ->first()
         );
     }
@@ -348,7 +348,7 @@ class BeatenGameTest extends TestCase
 
         // The user unlocks the one progression achievement. They should be given beaten game credit.
         $this->addHardcoreUnlock($user, $progressionAchievement);
-        $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('AwardType', AwardType::GameBeaten)->count());
+        $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
 
         // Now, pretend a dev removes the progression type from the achievement.
         $progressionAchievement->type = null;
@@ -356,7 +356,7 @@ class BeatenGameTest extends TestCase
         $progressionAchievement->refresh();
 
         // The beaten game award should be revoked.
-        $this->assertEquals(0, PlayerBadge::where('user_id', $user->id)->where('AwardType', AwardType::GameBeaten)->count());
+        $this->assertEquals(0, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
     }
 
     public function testRetroactiveAward1(): void
@@ -383,12 +383,12 @@ class BeatenGameTest extends TestCase
 
         // TODO trigger achievement set update which will trigger UpdatePlayerGameMetricsAction
         (new UpdatePlayerGameMetricsAction())->execute($user->playerGame($game));
-        $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('AwardType', AwardType::GameBeaten)->count());
+        $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
         $this->assertNotNull(PlayerBadge::where('user_id', $user->id)
-            ->where('AwardType', AwardType::GameBeaten)
-            ->where('AwardData', $game->id)
-            ->where('AwardDataExtra', UnlockMode::Hardcore)
-            ->where('AwardDate', Carbon::now()->subHours(3))
+            ->where('award_type', AwardType::GameBeaten)
+            ->where('award_key', $game->id)
+            ->where('award_tier', UnlockMode::Hardcore)
+            ->where('awarded_at', Carbon::now()->subHours(3))
             ->first()
         );
     }
@@ -407,12 +407,12 @@ class BeatenGameTest extends TestCase
         $this->addHardcoreUnlock($user, $winConditionAchievements->get(0), Carbon::now()->subHours(12));
         $this->addHardcoreUnlock($user, $winConditionAchievements->get(1), Carbon::now()->subHours(6));
 
-        $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('AwardType', AwardType::GameBeaten)->count());
+        $this->assertEquals(1, PlayerBadge::where('user_id', $user->id)->where('award_type', AwardType::GameBeaten)->count());
         $this->assertNotNull(PlayerBadge::where('user_id', $user->id)
-            ->where('AwardType', AwardType::GameBeaten)
-            ->where('AwardData', $game->id)
-            ->where('AwardDataExtra', UnlockMode::Hardcore)
-            ->where('AwardDate', Carbon::now()->subHours(12))
+            ->where('award_type', AwardType::GameBeaten)
+            ->where('award_key', $game->id)
+            ->where('award_tier', UnlockMode::Hardcore)
+            ->where('awarded_at', Carbon::now()->subHours(12))
             ->first()
         );
     }
@@ -451,10 +451,10 @@ class BeatenGameTest extends TestCase
         (new UpdatePlayerGameMetricsAction())->execute($user->playerGame($game));
 
         $this->assertNotNull(PlayerBadge::where('user_id', $user->id)
-            ->where('AwardType', AwardType::GameBeaten)
-            ->where('AwardData', $game->id)
-            ->where('AwardDataExtra', UnlockMode::Hardcore)
-            ->where('AwardDate', Carbon::now()->subHours(1))
+            ->where('award_type', AwardType::GameBeaten)
+            ->where('award_key', $game->id)
+            ->where('award_tier', UnlockMode::Hardcore)
+            ->where('awarded_at', Carbon::now()->subHours(1))
             ->first()
         );
     }

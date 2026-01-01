@@ -127,7 +127,7 @@ function getGlobalRankingData(
             break;
     }
 
-    $masteryCond = "AND AwardType = " . AwardType::Mastery;
+    $masteryCond = "AND award_type = '" . AwardType::Mastery->value . "'";
 
     $untrackedCond = match ($untracked) {
         0 => "AND Untracked = 0",
@@ -136,7 +136,7 @@ function getGlobalRankingData(
     };
 
     if ($unlockMode == UnlockMode::Hardcore) {
-        $totalAwards = "SUM(IF(AwardDataExtra > 0, 1, 0))";
+        $totalAwards = "SUM(IF(award_tier > 0, 1, 0))";
     } else {
         $totalAwards = "COUNT(*)";
         $pointRequirement = "AND ua.points >= 0"; // if someone resets a softcore achievement without resetting the hardcore, the query can return negative points
@@ -199,7 +199,7 @@ function getGlobalRankingData(
             // Get site award info for each user.
             $usersCount = count($userIds);
             for ($i = 0; $i < $usersCount; $i++) {
-                $query2 = "SELECT $totalAwards AS TotalAwards FROM SiteAwards WHERE user_id = '" . $userIds[$i] . "' " . $masteryCond;
+                $query2 = "SELECT $totalAwards AS TotalAwards FROM user_awards WHERE user_id = '" . $userIds[$i] . "' " . $masteryCond;
 
                 $dbResult2 = s_mysql_query($query2);
                 if ($dbResult2 !== false) {
@@ -284,9 +284,9 @@ function getGlobalRankingData(
                     NULL AS Points,
                     NULL AS RetroPoints,
                     $totalAwards AS TotalAwards
-                FROM SiteAwards AS sa
+                FROM user_awards AS sa
                 LEFT JOIN users AS ua ON ua.id = sa.user_id
-                WHERE TRUE AND sa.AwardDate $typeCond
+                WHERE TRUE AND sa.awarded_at $typeCond
                     $friendCondAward
                     $singleUserAwardCond
                     $masteryCond

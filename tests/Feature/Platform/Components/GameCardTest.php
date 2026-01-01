@@ -239,11 +239,11 @@ class GameCardTest extends TestCase
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
             'user_id' => $user->id,
-            'AwardType' => AwardType::GameBeaten,
-            'AwardData' => $game->id,
-            'AwardDataExtra' => 0,
-            'AwardDate' => $awardDate,
-            'DisplayOrder' => 0,
+            'award_type' => AwardType::GameBeaten,
+            'award_key' => $game->id,
+            'award_tier' => 0,
+            'awarded_at' => $awardDate,
+            'order_column' => 0,
         ]);
 
         // Act
@@ -267,11 +267,11 @@ class GameCardTest extends TestCase
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
             'user_id' => $user->id,
-            'AwardType' => AwardType::GameBeaten,
-            'AwardData' => $game->id,
-            'AwardDataExtra' => 1,
-            'AwardDate' => $awardDate,
-            'DisplayOrder' => 0,
+            'award_type' => AwardType::GameBeaten,
+            'award_key' => $game->id,
+            'award_tier' => 1,
+            'awarded_at' => $awardDate,
+            'order_column' => 0,
         ]);
 
         // Act
@@ -295,11 +295,11 @@ class GameCardTest extends TestCase
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
             'user_id' => $user->id,
-            'AwardType' => AwardType::Mastery,
-            'AwardData' => $game->id,
-            'AwardDataExtra' => 0,
-            'AwardDate' => $awardDate,
-            'DisplayOrder' => 0,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => 0,
+            'awarded_at' => $awardDate,
+            'order_column' => 0,
         ]);
 
         // Act
@@ -323,11 +323,11 @@ class GameCardTest extends TestCase
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
             'user_id' => $user->id,
-            'AwardType' => AwardType::Mastery,
-            'AwardData' => $game->id,
-            'AwardDataExtra' => 1,
-            'AwardDate' => $awardDate,
-            'DisplayOrder' => 0,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => 1,
+            'awarded_at' => $awardDate,
+            'order_column' => 0,
         ]);
 
         // Act
@@ -351,11 +351,11 @@ class GameCardTest extends TestCase
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
             'user_id' => $user->id,
-            'AwardType' => AwardType::Mastery,
-            'AwardData' => $game->id,
-            'AwardDataExtra' => 1,
-            'AwardDate' => $awardDate,
-            'DisplayOrder' => 0,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => 1,
+            'awarded_at' => $awardDate,
+            'order_column' => 0,
         ]);
 
         // Act

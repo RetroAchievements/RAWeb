@@ -91,28 +91,6 @@ export const UserRole = {
 } as const;
 
 
-export const AwardType = {
-    Mastery: 1,
-    AchievementUnlocksYield: 2,
-    AchievementPointsYield: 3,
-    PatreonSupporter: 6,
-    CertifiedLegend: 7,
-    GameBeaten: 8,
-    Event: 9,
-} as const;
-
-
-export const StringifiedAwardType = {
-    Mastery: '1',
-    AchievementUnlocksYield: '2',
-    AchievementPointsYield: '3',
-    PatreonSupporter: '6',
-    CertifiedLegend: '7',
-    GameBeaten: '8',
-    Event: '9',
-} as const;
-
-
 export const ArticleType = {
     Game: 1,
     Achievement: 2,

@@ -37,7 +37,7 @@ class GetUserProgressionStatusCountsAction
             AND gas2.type != '" . AchievementSetType::Core->value . "'
         )";
 
-        // Use SiteAwards (badges) for progression status counting.
+        // Use user_awards (badges) for progression status counting.
         // This ensures "revised masteries" (where achievements were added after mastery) are still counted as mastered.
         $masteryAwardType = AwardType::Mastery;
         $beatenAwardType = AwardType::GameBeaten;
@@ -61,29 +61,29 @@ class GetUserProgressionStatusCountsAction
                     AND NOT {$subsetExistsSubquery}
                 ) as unfinished_count
             ")
-            ->leftJoin('SiteAwards as mastery_hc', function ($join) use ($masteryAwardType, $hardcoreMode) {
+            ->leftJoin('user_awards as mastery_hc', function ($join) use ($masteryAwardType, $hardcoreMode) {
                 $join->on('mastery_hc.user_id', '=', 'player_games.user_id')
-                    ->on('mastery_hc.AwardData', '=', 'player_games.game_id')
-                    ->where('mastery_hc.AwardType', '=', $masteryAwardType)
-                    ->where('mastery_hc.AwardDataExtra', '=', $hardcoreMode);
+                    ->on('mastery_hc.award_key', '=', 'player_games.game_id')
+                    ->where('mastery_hc.award_type', '=', $masteryAwardType)
+                    ->where('mastery_hc.award_tier', '=', $hardcoreMode);
             })
-            ->leftJoin('SiteAwards as mastery_sc', function ($join) use ($masteryAwardType, $softcoreMode) {
+            ->leftJoin('user_awards as mastery_sc', function ($join) use ($masteryAwardType, $softcoreMode) {
                 $join->on('mastery_sc.user_id', '=', 'player_games.user_id')
-                    ->on('mastery_sc.AwardData', '=', 'player_games.game_id')
-                    ->where('mastery_sc.AwardType', '=', $masteryAwardType)
-                    ->where('mastery_sc.AwardDataExtra', '=', $softcoreMode);
+                    ->on('mastery_sc.award_key', '=', 'player_games.game_id')
+                    ->where('mastery_sc.award_type', '=', $masteryAwardType)
+                    ->where('mastery_sc.award_tier', '=', $softcoreMode);
             })
-            ->leftJoin('SiteAwards as beaten_hc', function ($join) use ($beatenAwardType, $hardcoreMode) {
+            ->leftJoin('user_awards as beaten_hc', function ($join) use ($beatenAwardType, $hardcoreMode) {
                 $join->on('beaten_hc.user_id', '=', 'player_games.user_id')
-                    ->on('beaten_hc.AwardData', '=', 'player_games.game_id')
-                    ->where('beaten_hc.AwardType', '=', $beatenAwardType)
-                    ->where('beaten_hc.AwardDataExtra', '=', $hardcoreMode);
+                    ->on('beaten_hc.award_key', '=', 'player_games.game_id')
+                    ->where('beaten_hc.award_type', '=', $beatenAwardType)
+                    ->where('beaten_hc.award_tier', '=', $hardcoreMode);
             })
-            ->leftJoin('SiteAwards as beaten_sc', function ($join) use ($beatenAwardType, $softcoreMode) {
+            ->leftJoin('user_awards as beaten_sc', function ($join) use ($beatenAwardType, $softcoreMode) {
                 $join->on('beaten_sc.user_id', '=', 'player_games.user_id')
-                    ->on('beaten_sc.AwardData', '=', 'player_games.game_id')
-                    ->where('beaten_sc.AwardType', '=', $beatenAwardType)
-                    ->where('beaten_sc.AwardDataExtra', '=', $softcoreMode);
+                    ->on('beaten_sc.award_key', '=', 'player_games.game_id')
+                    ->where('beaten_sc.award_type', '=', $beatenAwardType)
+                    ->where('beaten_sc.award_tier', '=', $softcoreMode);
             })
             ->groupBy('games.system_id')
             ->get();
@@ -171,16 +171,16 @@ class GetUserProgressionStatusCountsAction
         // Find awards for stuff _not_ in the main query.
         $orphanBadges = PlayerBadge::query()
             ->select([
-                'SiteAwards.AwardData as game_id',
-                'SiteAwards.AwardType',
-                'SiteAwards.AwardDataExtra',
+                'user_awards.award_key as game_id',
+                'user_awards.award_type',
+                'user_awards.award_tier',
                 'games.system_id',
             ])
-            ->join('games', 'games.id', '=', 'SiteAwards.AwardData')
+            ->join('games', 'games.id', '=', 'user_awards.award_key')
             ->join('systems', 'systems.id', '=', 'games.system_id')
-            ->where('SiteAwards.user_id', $user->id)
-            ->whereIn('SiteAwards.AwardType', [AwardType::Mastery, AwardType::GameBeaten])
-            ->whereNotIn('SiteAwards.AwardData', $countedGameIds)
+            ->where('user_awards.user_id', $user->id)
+            ->whereIn('user_awards.award_type', [AwardType::Mastery, AwardType::GameBeaten])
+            ->whereNotIn('user_awards.award_key', $countedGameIds)
             ->whereRaw('systems.active = true')
             ->whereNotIn('games.system_id', System::getNonGameSystems())
             ->get();
@@ -194,10 +194,10 @@ class GetUserProgressionStatusCountsAction
             $systemId = (int) $badge->system_id;
 
             $awardKind = match (true) {
-                $badge->AwardType === AwardType::Mastery && $badge->AwardDataExtra === UnlockMode::Hardcore => 'mastered',
-                $badge->AwardType === AwardType::Mastery && $badge->AwardDataExtra === UnlockMode::Softcore => 'completed',
-                $badge->AwardType === AwardType::GameBeaten && $badge->AwardDataExtra === UnlockMode::Hardcore => 'beatenHardcore',
-                $badge->AwardType === AwardType::GameBeaten && $badge->AwardDataExtra === UnlockMode::Softcore => 'beatenSoftcore',
+                $badge->award_type === AwardType::Mastery && $badge->award_tier === UnlockMode::Hardcore => 'mastered',
+                $badge->award_type === AwardType::Mastery && $badge->award_tier === UnlockMode::Softcore => 'completed',
+                $badge->award_type === AwardType::GameBeaten && $badge->award_tier === UnlockMode::Hardcore => 'beatenHardcore',
+                $badge->award_type === AwardType::GameBeaten && $badge->award_tier === UnlockMode::Softcore => 'beatenSoftcore',
                 default => null,
             };
 

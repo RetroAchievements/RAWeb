@@ -122,12 +122,12 @@ class ResetPlayerProgressAction
                 // from the UpdatePlayerGameMetricsJob, but it does not revoke badges unless
                 // all achievements for a game are reset.
                 $playerBadge = $user->playerBadges()
-                    ->where('AwardType', AwardType::Mastery)
-                    ->where('AwardData', $achievement->game_id)
-                    ->where('AwardDataExtra', $playerAchievement->unlocked_hardcore_at ? UnlockMode::Hardcore : UnlockMode::Softcore)
+                    ->where('award_type', AwardType::Mastery)
+                    ->where('award_key', $achievement->game_id)
+                    ->where('award_tier', $playerAchievement->unlocked_hardcore_at ? UnlockMode::Hardcore : UnlockMode::Softcore)
                     ->first();
                 if ($playerBadge) {
-                    PlayerBadgeLost::dispatch($user, $playerBadge->AwardType, $playerBadge->AwardData, $playerBadge->AwardDataExtra);
+                    PlayerBadgeLost::dispatch($user, $playerBadge->award_type, $playerBadge->award_key, $playerBadge->award_tier);
                     $playerBadge->delete();
                 }
             }
@@ -192,7 +192,7 @@ class ResetPlayerProgressAction
                 $user->playerBadges()->delete();
             } else {
                 $user->playerBadges()
-                    ->whereIn('AwardType', [AwardType::Mastery, AwardType::GameBeaten, AwardType::Event])
+                    ->whereIn('award_type', [AwardType::Mastery, AwardType::GameBeaten, AwardType::Event])
                     ->delete();
             }
 

@@ -33,11 +33,11 @@ describe('Component: ClaimantsDisplay', () => {
     const achievementSetClaims = [
       createAchievementSetClaim({
         user: createUser({ displayName: 'Alice' }),
-        finishedAt: '2025-12-31T23:59:59Z', // !! future date shows "Expires"
+        finishedAt: '2099-12-31T23:59:59Z', // !! future date shows "Expires"
       }),
       createAchievementSetClaim({
         user: createUser({ displayName: 'Bob' }),
-        finishedAt: '2025-06-30T23:59:59Z', // !! future date shows "Expires"
+        finishedAt: '2099-06-30T23:59:59Z', // !! future date shows "Expires"
       }),
     ];
 

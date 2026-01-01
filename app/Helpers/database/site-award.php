@@ -13,7 +13,7 @@ use Carbon\Carbon;
  */
 function AddSiteAward(
     User $user,
-    int $awardType,
+    AwardType $awardType,
     ?int $data = null,
     int $dataExtra = 0,
     ?Carbon $awardDate = null,
@@ -21,7 +21,7 @@ function AddSiteAward(
 ): PlayerBadge {
     if (!isset($displayOrder)) {
         $displayOrder = 0;
-        $maxDisplayOrder = PlayerBadge::where('user_id', $user->id)->max('DisplayOrder');
+        $maxDisplayOrder = PlayerBadge::where('user_id', $user->id)->max('order_column');
         if ($maxDisplayOrder) {
             $displayOrder = $maxDisplayOrder + 1;
         }
@@ -30,20 +30,20 @@ function AddSiteAward(
     PlayerBadge::updateOrInsert(
         [
             'user_id' => $user->id,
-            'AwardType' => $awardType,
-            'AwardData' => $data,
-            'AwardDataExtra' => $dataExtra,
+            'award_type' => $awardType,
+            'award_key' => $data,
+            'award_tier' => $dataExtra,
         ],
         [
-            'AwardDate' => $awardDate ?? Carbon::now(),
-            'DisplayOrder' => $displayOrder,
+            'awarded_at' => $awardDate ?? Carbon::now(),
+            'order_column' => $displayOrder,
         ]
     );
 
     return PlayerBadge::where('user_id', $user->id)
-        ->where('AwardType', $awardType)
-        ->where('AwardData', $data)
-        ->where('AwardDataExtra', $dataExtra)
+        ->where('award_type', $awardType)
+        ->where('award_key', $data)
+        ->where('award_tier', $dataExtra)
         ->first();
 }
 
@@ -61,57 +61,63 @@ function getUsersSiteAwards(?User $user): array
         'userId3' => $user->id,
     ];
 
+    $gameAwardValues = implode("','", AwardType::gameValues());
+
     $query = "
         -- game awards (mastery, beaten)
-        SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.user_id, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.title AS Title, s.id AS ConsoleID, s.name AS ConsoleName, NULL AS Flags, gd.image_icon_asset_path AS ImageIcon
-            FROM SiteAwards AS saw
-            LEFT JOIN games AS gd ON ( gd.id = saw.AwardData AND saw.AwardType IN (" . implode(',', AwardType::game()) . ") )
+        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.title AS Title, s.id AS ConsoleID, s.name AS ConsoleName, NULL AS Flags, gd.image_icon_asset_path AS ImageIcon
+            FROM user_awards AS saw
+            LEFT JOIN games AS gd ON ( gd.id = saw.award_key AND saw.award_type IN ('{$gameAwardValues}') )
             LEFT JOIN systems AS s ON s.id = gd.system_id
             WHERE
-                saw.AwardType IN(" . implode(',', AwardType::game()) . ")
+                saw.award_type IN('{$gameAwardValues}')
                 AND saw.user_id = :userId
-            GROUP BY saw.AwardType, saw.AwardData, saw.AwardDataExtra
+            GROUP BY saw.award_type, saw.award_key, saw.award_tier
             HAVING
-                -- Remove duplicate game beaten awards
-                (saw.AwardType != " . AwardType::GameBeaten . " OR saw.AwardDataExtra = 1 OR NOT EXISTS (
-                    SELECT 1 FROM SiteAwards AS saw2
-                    WHERE saw2.AwardType = saw.AwardType AND saw2.AwardData = saw.AwardData AND saw2.AwardDataExtra = 1 AND saw2.user_id = saw.user_id
+                -- Remove duplicate game beaten awards.
+                (saw.award_type != '" . AwardType::GameBeaten->value . "' OR saw.award_tier = 1 OR NOT EXISTS (
+                    SELECT 1 FROM user_awards AS saw2
+                    WHERE saw2.award_type = saw.award_type AND saw2.award_key = saw.award_key AND saw2.award_tier = 1 AND saw2.user_id = saw.user_id
                 ))
-                -- Remove duplicate mastery awards
-                AND (saw.AwardType != " . AwardType::Mastery . " OR saw.AwardDataExtra = 1 OR NOT EXISTS (
-                    SELECT 1 FROM SiteAwards AS saw3
-                    WHERE saw3.AwardType = saw.AwardType AND saw3.AwardData = saw.AwardData AND saw3.AwardDataExtra = 1 AND saw3.user_id = saw.user_id
+                -- Remove duplicate mastery awards.
+                AND (saw.award_type != '" . AwardType::Mastery->value . "' OR saw.award_tier = 1 OR NOT EXISTS (
+                    SELECT 1 FROM user_awards AS saw3
+                    WHERE saw3.award_type = saw.award_type AND saw3.award_key = saw.award_key AND saw3.award_tier = 1 AND saw3.user_id = saw.user_id
                 ))
         UNION
         -- event awards
-        SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.user_id, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.title AS Title, " . System::Events . ", 'Events', NULL, e.image_asset_path AS ImageIcon
-            FROM SiteAwards AS saw
-            LEFT JOIN events e ON e.id = saw.AwardData
+        SELECT " . unixTimestampStatement('saw.awarded_at', 'AwardedAt') . ", saw.award_type, saw.user_id, saw.award_key, saw.award_tier, saw.order_column, gd.title AS Title, " . System::Events . ", 'Events', NULL, e.image_asset_path AS ImageIcon
+            FROM user_awards AS saw
+            LEFT JOIN events e ON e.id = saw.award_key
             LEFT JOIN games gd ON gd.id = e.legacy_game_id
             WHERE
-                saw.AwardType = " . AwardType::Event . "
+                saw.award_type = '" . AwardType::Event->value . "'
                 AND saw.user_id = :userId3
         UNION
         -- non-game awards (developer contribution, ...)
-        SELECT " . unixTimestampStatement('MAX(saw.AwardDate)', 'AwardedAt') . ", saw.AwardType, saw.user_id, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL, NULL
-            FROM SiteAwards AS saw
+        SELECT " . unixTimestampStatement('MAX(saw.awarded_at)', 'AwardedAt') . ", saw.award_type, saw.user_id, MAX( saw.award_key ), saw.award_tier, saw.order_column, NULL, NULL, NULL, NULL, NULL
+            FROM user_awards AS saw
             WHERE
-                saw.AwardType NOT IN(" . implode(',', AwardType::game()) . "," . AwardType::Event . ")
+                saw.award_type NOT IN('{$gameAwardValues}','" . AwardType::Event->value . "')
                 AND saw.user_id = :userId2
-            GROUP BY saw.AwardType
-        ORDER BY DisplayOrder, AwardedAt, AwardType, AwardDataExtra ASC";
+            GROUP BY saw.award_type
+        ORDER BY order_column, AwardedAt, award_type, award_tier ASC";
 
     $dbResult = legacyDbFetchAll($query, $bindings)->toArray();
 
     foreach ($dbResult as &$award) {
         unset($award['user_id']);
 
+        $award['AwardType'] = AwardType::from($award['award_type'])->toLegacyInteger();
+        $award['AwardData'] = (int) $award['award_key'];
+        $award['AwardDataExtra'] = (int) $award['award_tier'];
+        $award['DisplayOrder'] = (int) $award['order_column'];
+
         if ($award['ConsoleID']) {
-            settype($award['AwardType'], 'integer');
-            settype($award['AwardData'], 'integer');
-            settype($award['AwardDataExtra'], 'integer');
             settype($award['ConsoleID'], 'integer');
         }
+
+        unset($award['award_type'], $award['award_key'], $award['award_tier'], $award['order_column']);
     }
 
     return $dbResult;
@@ -120,7 +126,7 @@ function getUsersSiteAwards(?User $user): array
 function HasPatreonBadge(User $user): bool
 {
     return $user->playerBadges()
-        ->where('AwardType', AwardType::PatreonSupporter)
+        ->where('award_type', AwardType::PatreonSupporter)
         ->exists();
 }
 
@@ -131,7 +137,7 @@ function SetPatreonSupporter(User $user, bool $enable): void
         SiteBadgeAwarded::dispatch($badge);
         // TODO PatreonSupporterAdded::dispatch($user);
     } else {
-        $user->playerBadges()->where('AwardType', AwardType::PatreonSupporter)->delete();
+        $user->playerBadges()->where('award_type', AwardType::PatreonSupporter)->delete();
         // TODO PatreonSupporterRemoved::dispatch($user);
     }
 }
@@ -139,7 +145,7 @@ function SetPatreonSupporter(User $user, bool $enable): void
 function HasCertifiedLegendBadge(User $user): bool
 {
     return $user->playerBadges()
-        ->where('AwardType', AwardType::CertifiedLegend)
+        ->where('award_type', AwardType::CertifiedLegend)
         ->exists();
 }
 
@@ -149,7 +155,7 @@ function SetCertifiedLegend(User $user, bool $enable): void
         $badge = AddSiteAward($user, AwardType::CertifiedLegend, 0, 0);
         SiteBadgeAwarded::dispatch($badge);
     } else {
-        $user->playerBadges()->where('AwardType', AwardType::CertifiedLegend)->delete();
+        $user->playerBadges()->where('award_type', AwardType::CertifiedLegend)->delete();
     }
 }
 
@@ -165,7 +171,7 @@ function getRecentProgressionAwardData(
     ?User $friendsOfUser = null,
     int $offset = 0,
     int $count = 50,
-    ?int $onlyAwardType = null,
+    ?AwardType $onlyAwardType = null,
     ?int $onlyUnlockMode = null,
 ): array {
     // Determine the friends condition
@@ -176,30 +182,30 @@ function getRecentProgressionAwardData(
     }
 
     $onlyAwardTypeClause = "
-        WHERE saw.AwardType IN (" . AwardType::Mastery . ", " . AwardType::GameBeaten . ")
+        WHERE saw.award_type IN ('" . AwardType::Mastery->value . "', '" . AwardType::GameBeaten->value . "')
     ";
     if ($onlyAwardType) {
-        $onlyAwardTypeClause = "WHERE saw.AwardType = $onlyAwardType";
+        $onlyAwardTypeClause = "WHERE saw.award_type = '" . $onlyAwardType->value . "'";
     }
 
-    $onlyUnlockModeClause = "saw.AwardDataExtra IS NOT NULL";
+    $onlyUnlockModeClause = "saw.award_tier IS NOT NULL";
     if (isset($onlyUnlockMode)) {
-        $onlyUnlockModeClause = "saw.AwardDataExtra = $onlyUnlockMode";
+        $onlyUnlockModeClause = "saw.award_tier = $onlyUnlockMode";
     }
 
     $retVal = [];
-    $query = "SELECT ua.username AS User, sub.AwardedAt, sub.AwardedAtUnix, sub.AwardType, sub.AwardData, sub.AwardDataExtra, sub.GameTitle, sub.GameID, sub.ConsoleName, sub.GameIcon
+    $query = "SELECT ua.username AS User, sub.AwardedAt, sub.AwardedAtUnix, sub.award_type, sub.award_key, sub.award_tier, sub.GameTitle, sub.GameID, sub.ConsoleName, sub.GameIcon
         FROM (
             SELECT
-                saw.user_id, saw.AwardDate as AwardedAt, UNIX_TIMESTAMP(saw.AwardDate) as AwardedAtUnix, saw.AwardType,
-                saw.AwardData, saw.AwardDataExtra, gd.title AS GameTitle, gd.id AS GameID, s.name AS ConsoleName, gd.image_icon_asset_path AS GameIcon,
-                ROW_NUMBER() OVER (PARTITION BY saw.user_id, saw.AwardData, TIMESTAMPDIFF(MINUTE, saw.AwardDate, saw2.AwardDate) ORDER BY saw.AwardType ASC) AS rn
-            FROM SiteAwards AS saw
-            LEFT JOIN games AS gd ON gd.id = saw.AwardData
-            LEFT JOIN systems AS s ON s.id = gd.system_id
-            LEFT JOIN SiteAwards AS saw2 ON saw2.user_id = saw.user_id AND saw2.AwardData = saw.AwardData AND TIMESTAMPDIFF(MINUTE, saw.AwardDate, saw2.AwardDate) BETWEEN 0 AND 1
-            $onlyAwardTypeClause AND saw.AwardData > 0 AND $onlyUnlockModeClause $friendCondAward
-            AND saw.AwardDate BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)
+                saw.user_id, saw.awarded_at as AwardedAt, UNIX_TIMESTAMP(saw.awarded_at) as AwardedAtUnix, saw.award_type,
+                saw.award_key, saw.award_tier, gd.title AS GameTitle, gd.id AS GameID, sys.name AS ConsoleName, gd.image_icon_asset_path AS GameIcon,
+                ROW_NUMBER() OVER (PARTITION BY saw.user_id, saw.award_key, TIMESTAMPDIFF(MINUTE, saw.awarded_at, saw2.awarded_at) ORDER BY saw.award_type ASC) AS rn
+            FROM user_awards AS saw
+            LEFT JOIN games AS gd ON gd.id = saw.award_key
+            LEFT JOIN systems AS sys ON sys.id = gd.system_id
+            LEFT JOIN user_awards AS saw2 ON saw2.user_id = saw.user_id AND saw2.award_key = saw.award_key AND TIMESTAMPDIFF(MINUTE, saw.awarded_at, saw2.awarded_at) BETWEEN 0 AND 1
+            $onlyAwardTypeClause AND saw.award_key > 0 AND $onlyUnlockModeClause $friendCondAward
+            AND saw.awarded_at BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)
         ) sub
         JOIN users AS ua ON ua.id = sub.user_id
         WHERE sub.rn = 1
@@ -209,6 +215,11 @@ function getRecentProgressionAwardData(
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $db_entry['AwardType'] = AwardType::from($db_entry['award_type'])->toLegacyInteger();
+            $db_entry['AwardData'] = (int) $db_entry['award_key'];
+            $db_entry['AwardDataExtra'] = (int) $db_entry['award_tier'];
+            unset($db_entry['award_type'], $db_entry['award_key'], $db_entry['award_tier']);
+
             $retVal[] = $db_entry;
         }
     }
@@ -222,17 +233,17 @@ function getRecentProgressionAwardData(
 function getUserEventAwardCount(User $user): int
 {
     $eventGameBadgeCount = $user->playerBadges()
-        ->where('AwardType', AwardType::Mastery)
+        ->where('award_type', AwardType::Mastery)
         ->whereHas('gameIfApplicable.system', function ($query) {
             $query->where('id', System::Events);
         })
-        ->distinct('AwardData')
-        ->count('AwardData');
+        ->distinct('award_key')
+        ->count('award_key');
 
     $eventBadgeCount = $user->playerBadges()
-        ->where('AwardType', AwardType::Event)
-        ->distinct('AwardData')
-        ->count('AwardData');
+        ->where('award_type', AwardType::Event)
+        ->distinct('award_key')
+        ->count('award_key');
 
     return $eventGameBadgeCount + $eventBadgeCount;
 }
@@ -256,17 +267,17 @@ function getUserGameProgressionAwards(int $gameId, User $user): array
     ];
 
     $foundAwards = PlayerBadge::where('user_id', $user->id)
-        ->where('AwardData', $gameId)
+        ->where('award_key', $gameId)
         ->get();
 
     foreach ($foundAwards as $award) {
-        $awardExtra = $award['AwardDataExtra'];
-        $awardType = $award->AwardType;
+        $awardExtra = $award->award_tier;
+        $awardType = $award->award_type;
 
         $key = '';
-        if ($awardType == AwardType::Mastery) {
+        if ($awardType === AwardType::Mastery) {
             $key = $awardExtra == UnlockMode::Softcore ? 'completed' : 'mastered';
-        } elseif ($awardType == AwardType::GameBeaten) {
+        } elseif ($awardType === AwardType::GameBeaten) {
             $key = $awardExtra == UnlockMode::Softcore ? 'beaten-softcore' : 'beaten-hardcore';
         }
 

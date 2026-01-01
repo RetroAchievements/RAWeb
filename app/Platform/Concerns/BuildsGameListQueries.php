@@ -563,7 +563,7 @@ trait BuildsGameListQueries
     /**
      * Filter games based on the player's progress.
      *
-     * The SiteAwards.AwardDataExtra field is used to differentiate between softcore (0) and hardcore (1).
+     * The user_awards.award_tier field is used to differentiate between softcore (0) and hardcore (1).
      *
      * If the user is not provided (ie: they aren't logged in), no filtering will be performed.
      *
@@ -577,11 +577,11 @@ trait BuildsGameListQueries
         }
 
         /**
-         * We'll pull this data from SiteAwards. Similar data does exist on
+         * We'll pull this data from user_awards. Similar data does exist on
          * player_games, but it is not static. In other words, on player_games,
          * we revoke the "100% completion" when a set gets revised. This is not
          * how we communicate the mastery awards UX to players, so we reach for
-         * SiteAwards data instead.
+         * user_awards data instead.
          */
         $query->where(function ($query) use ($filterValue, $user) {
             switch ($filterValue) {
@@ -596,7 +596,7 @@ trait BuildsGameListQueries
                         })
                         ->whereNotExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
-                                ->whereIn('SiteAwards.AwardType', [AwardType::GameBeaten, AwardType::Mastery]);
+                                ->whereIn('user_awards.award_type', [AwardType::GameBeaten, AwardType::Mastery]);
                         });
                     });
                     break;
@@ -614,7 +614,7 @@ trait BuildsGameListQueries
                         // ... but no game award.
                         ->whereNotExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
-                                ->whereIn('SiteAwards.AwardType', [AwardType::GameBeaten, AwardType::Mastery]);
+                                ->whereIn('user_awards.award_type', [AwardType::GameBeaten, AwardType::Mastery]);
                         });
                     });
                     break;
@@ -625,7 +625,7 @@ trait BuildsGameListQueries
                 case GameListProgressFilterValue::GteBeatenSoftcore->value:
                     $query->orWhereExists(function ($subQuery) use ($user) {
                         $this->baseAwardsQuery($user)($subQuery)
-                            ->whereIn('SiteAwards.AwardType', [AwardType::GameBeaten, AwardType::Mastery]);
+                            ->whereIn('user_awards.award_type', [AwardType::GameBeaten, AwardType::Mastery]);
                     });
                     break;
 
@@ -638,10 +638,10 @@ trait BuildsGameListQueries
                         $this->baseAwardsQuery($user)($subQuery)
                             ->where(function ($q) {
                                 $q->where(function ($q2) {
-                                    $q2->where('SiteAwards.AwardType', AwardType::GameBeaten)
-                                        ->where('SiteAwards.AwardDataExtra', UnlockMode::Hardcore);
+                                    $q2->where('user_awards.award_type', AwardType::GameBeaten)
+                                        ->where('user_awards.award_tier', UnlockMode::Hardcore);
                                 })
-                                ->orWhere('SiteAwards.AwardType', AwardType::Mastery);
+                                ->orWhere('user_awards.award_type', AwardType::Mastery);
                             });
                     });
                     break;
@@ -653,12 +653,12 @@ trait BuildsGameListQueries
                     $query->orWhere(function ($subQuery) use ($user) {
                         $subQuery->whereExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
-                                ->where('SiteAwards.AwardType', AwardType::GameBeaten)
-                                ->where('SiteAwards.AwardDataExtra', UnlockMode::Softcore);
+                                ->where('user_awards.award_type', AwardType::GameBeaten)
+                                ->where('user_awards.award_tier', UnlockMode::Softcore);
                         })
                         ->whereNotExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
-                                ->where('SiteAwards.AwardType', AwardType::Mastery);
+                                ->where('user_awards.award_type', AwardType::Mastery);
                         });
                     });
                     break;
@@ -670,12 +670,12 @@ trait BuildsGameListQueries
                     $query->orWhere(function ($subQuery) use ($user) {
                         $subQuery->whereExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
-                                ->where('SiteAwards.AwardType', AwardType::GameBeaten)
-                                ->where('SiteAwards.AwardDataExtra', UnlockMode::Hardcore);
+                                ->where('user_awards.award_type', AwardType::GameBeaten)
+                                ->where('user_awards.award_tier', UnlockMode::Hardcore);
                         })
                         ->whereNotExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
-                                ->where('SiteAwards.AwardType', AwardType::Mastery);
+                                ->where('user_awards.award_type', AwardType::Mastery);
                         });
                     });
                     break;
@@ -687,7 +687,7 @@ trait BuildsGameListQueries
                 case GameListProgressFilterValue::GteCompleted->value:
                     $query->orWhereExists(function ($subQuery) use ($user) {
                         $this->baseAwardsQuery($user)($subQuery)
-                            ->where('SiteAwards.AwardType', AwardType::Mastery);
+                            ->where('user_awards.award_type', AwardType::Mastery);
                     });
                     break;
 
@@ -698,8 +698,8 @@ trait BuildsGameListQueries
                     $query->orWhere(function ($subQuery) use ($user) {
                         $subQuery->whereExists(function ($q) use ($user) {
                             $this->baseAwardsQuery($user)($q)
-                                ->where('SiteAwards.AwardType', AwardType::Mastery)
-                                ->where('SiteAwards.AwardDataExtra', UnlockMode::Softcore);
+                                ->where('user_awards.award_type', AwardType::Mastery)
+                                ->where('user_awards.award_tier', UnlockMode::Softcore);
                         });
                     });
                     break;
@@ -710,8 +710,8 @@ trait BuildsGameListQueries
                 case GameListProgressFilterValue::EqMastered->value:
                     $query->orWhereExists(function ($subQuery) use ($user) {
                         $this->baseAwardsQuery($user)($subQuery)
-                            ->where('SiteAwards.AwardType', AwardType::Mastery)
-                            ->where('SiteAwards.AwardDataExtra', UnlockMode::Hardcore);
+                            ->where('user_awards.award_type', AwardType::Mastery)
+                            ->where('user_awards.award_tier', UnlockMode::Hardcore);
                     });
                     break;
 
@@ -728,8 +728,8 @@ trait BuildsGameListQueries
                                     $q->where(function ($q2) use ($user) {
                                         // Find games where the user has softcore mastery (completion),
                                         // but softcore completion is <100%.
-                                        $q2->where('SiteAwards.AwardType', AwardType::Mastery)
-                                            ->where('SiteAwards.AwardDataExtra', UnlockMode::Softcore)
+                                        $q2->where('user_awards.award_type', AwardType::Mastery)
+                                            ->where('user_awards.award_tier', UnlockMode::Softcore)
                                             ->whereExists(function ($progress) use ($user) {
                                                 $this->baseProgressQuery($user)($progress)
                                                     ->where('player_games.completion_percentage', '<', 1);
@@ -737,8 +737,8 @@ trait BuildsGameListQueries
                                     })
                                     ->orWhere(function ($q2) use ($user) {
                                         // Find games where the user has mastery, but completion is <100%.
-                                        $q2->where('SiteAwards.AwardType', AwardType::Mastery)
-                                            ->where('SiteAwards.AwardDataExtra', UnlockMode::Hardcore)
+                                        $q2->where('user_awards.award_type', AwardType::Mastery)
+                                            ->where('user_awards.award_tier', UnlockMode::Hardcore)
                                             ->whereExists(function ($progress) use ($user) {
                                                 $this->baseProgressQuery($user)($progress)
                                                     ->where('player_games.completion_percentage_hardcore', '<', 1);
@@ -755,7 +755,7 @@ trait BuildsGameListQueries
                 case GameListProgressFilterValue::NeqMastered->value:
                     $query->orWhereNotExists(function ($subQuery) use ($user) {
                         $this->baseAwardsQuery($user)($subQuery)
-                            ->where('SiteAwards.AwardType', AwardType::Mastery);
+                            ->where('user_awards.award_type', AwardType::Mastery);
                     });
                     break;
 
@@ -766,15 +766,15 @@ trait BuildsGameListQueries
     }
 
     /**
-     * Create a base subquery for checking a user's SiteAwards data.
+     * Create a base subquery for checking a user's user_awards data.
      */
     private function baseAwardsQuery(User $user): Closure
     {
         return function ($query) use ($user) {
             return $query->select(DB::raw(1))
-                ->from('SiteAwards')
-                ->whereColumn('SiteAwards.AwardData', 'games.id')
-                ->where('SiteAwards.user_id', $user->id);
+                ->from('user_awards')
+                ->whereColumn('user_awards.award_key', 'games.id')
+                ->where('user_awards.user_id', $user->id);
         };
     }
 
