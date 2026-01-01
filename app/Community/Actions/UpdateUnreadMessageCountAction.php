@@ -15,7 +15,7 @@ class UpdateUnreadMessageCountAction
             ->whereNull('deleted_at')
             ->sum('num_unread');
 
-        $user->UnreadMessageCount = $totalUnread;
+        $user->unread_messages = $totalUnread;
         $user->saveQuietly();
     }
 }

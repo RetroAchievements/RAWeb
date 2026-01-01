@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import userEvent from '@testing-library/user-event';
 
-import { createAuthenticatedUser } from '@/common/models';
+import { createAuthenticatedUser, createAuthenticatedUserPreferences } from '@/common/models';
 import { render, screen } from '@/test';
 import { createComment, createUser, createZiggyProps } from '@/test/factories';
 
@@ -131,7 +131,10 @@ describe('Component: CommentsPreviewCard', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            preferences: { prefersAbsoluteDates: true, shouldAlwaysBypassContentWarnings: false },
+            preferences: createAuthenticatedUserPreferences({
+              prefersAbsoluteDates: true,
+              shouldAlwaysBypassContentWarnings: false,
+            }),
           }),
         },
         numComments: 5,

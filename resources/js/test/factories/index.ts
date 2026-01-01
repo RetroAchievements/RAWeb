@@ -1,8 +1,9 @@
 export * from './createAchievement';
-export * from './createAchievementGroup';
+export * from './createAchievementChecklistGroup';
 export * from './createAchievementSet';
 export * from './createAchievementSetClaim';
 export * from './createAchievementSetClaimGroup';
+export * from './createAchievementSetGroup';
 export * from './createActivePlayer';
 export * from './createAggregateAchievementSetCredits';
 export * from './createAwardEarner';
@@ -61,4 +62,5 @@ export * from './createTicket';
 export * from './createTrendingGame';
 export * from './createUser';
 export * from './createUserCredits';
+export * from './createUserGameAchievementSetPreference';
 export * from './createZiggyProps';

@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import { useAtom } from 'jotai';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
@@ -24,7 +25,11 @@ export function useCurrentPlayableListSort() {
       url.searchParams.set('sort', sort);
     }
 
-    window.history.replaceState({}, '', url.toString());
+    router.replace({
+      url: url.toString(),
+      preserveScroll: true,
+      preserveState: true,
+    });
   };
 
   return { currentPlayableListSort, setCurrentPlayableListSort };

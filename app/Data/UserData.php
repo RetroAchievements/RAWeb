@@ -22,12 +22,12 @@ class UserData extends Data
 
         public Lazy|string|null $apiKey = null,
         public Lazy|Carbon|null $createdAt = null,
-        public Lazy|string|null $deleteRequested = null,
+        public Lazy|string|null $deleteRequestedAt = null,
         /** @deprecated use $isGone instead - it hides the delete date from page props */
         public Lazy|Carbon|null $deletedAt = null,
         /** @var RoleData[] */
         public Lazy|array|null $displayableRoles = null,
-        public Lazy|string|null $emailAddress = null,
+        public Lazy|string|null $email = null,
         public Lazy|bool|null $enableBetaFeatures = null,
         public Lazy|int $id = 0,
         public Lazy|bool $isBanned = false,
@@ -35,6 +35,7 @@ class UserData extends Data
         public Lazy|bool $isGone = false,
         public Lazy|bool $isMuted = false,
         public Lazy|bool $isNew = false,
+        public Lazy|bool|null $isUserWallActive = null,
         public Lazy|Carbon|null $lastActivityAt = null,
         public Lazy|int|null $legacyPermissions = null,
         public Lazy|string|null $locale = null,
@@ -43,16 +44,16 @@ class UserData extends Data
         public Lazy|PlayerPreferredMode $playerPreferredMode = PlayerPreferredMode::Hardcore,
         public Lazy|int $points = 0,
         public Lazy|int $pointsSoftcore = 0,
-        public Lazy|string|null $richPresenceMsg = null,
-        public Lazy|int|null $unreadMessageCount = null,
+        public Lazy|int|null $preferencesBitfield = null,
+        public Lazy|string|null $richPresence = null,
+        public Lazy|int|null $unreadMessages = null,
         public Lazy|string|null $username = null,
-        public Lazy|bool|null $userWallActive = null,
         public Lazy|RoleData|null $visibleRole = null,
-        public Lazy|int|null $websitePrefs = null,
 
         #[TypeScriptType([
-            'shouldAlwaysBypassContentWarnings' => 'boolean',
+            'isGloballyOptedOutOfSubsets' => 'boolean',
             'prefersAbsoluteDates' => 'boolean',
+            'shouldAlwaysBypassContentWarnings' => 'boolean',
         ])]
         public Lazy|array|null $preferences = [],
         #[LiteralTypeScriptType('App.Models.UserRole[]')]
@@ -78,12 +79,12 @@ class UserData extends Data
             avatarUrl: $user->avatar_url,
 
             // == lazy fields
-            apiKey: Lazy::create(fn () => $user->APIKey),
-            createdAt: Lazy::create(fn () => Carbon::parse($user->Created)),
-            deletedAt: Lazy::create(fn () => $user->Deleted ? Carbon::parse($user->Deleted) : null),
-            deleteRequested: Lazy::create(fn () => $user->DeleteRequested),
+            apiKey: Lazy::create(fn () => $user->web_api_key),
+            createdAt: Lazy::create(fn () => Carbon::parse($user->created_at)),
+            deletedAt: Lazy::create(fn () => $user->deleted_at ? Carbon::parse($user->deleted_at) : null),
+            deleteRequestedAt: Lazy::create(fn () => $user->delete_requested_at),
             displayableRoles: Lazy::create(fn () => $user->displayableRoles),
-            emailAddress: Lazy::create(fn () => $user->EmailAddress),
+            email: Lazy::create(fn () => $user->email),
             enableBetaFeatures: Lazy::create(fn () => $user->enable_beta_features),
             mutedUntil: Lazy::create(fn () => $user->muted_until),
             id: Lazy::create(fn () => $user->id),
@@ -92,26 +93,27 @@ class UserData extends Data
             isGone: Lazy::create(fn () => $user->is_gone),
             isMuted: Lazy::create(fn () => $user->isMuted()),
             isNew: Lazy::create(fn () => $user->isNew()),
-            lastActivityAt: Lazy::create(fn () => $user->LastLogin),
+            isUserWallActive: Lazy::create(fn () => $user->is_user_wall_active),
+            lastActivityAt: Lazy::create(fn () => $user->last_activity_at),
             legacyPermissions: Lazy::create(fn () => (int) $user->getAttribute('Permissions')),
             locale: Lazy::create(fn () => $user->locale === 'en' ? 'en_US' : $user->locale), // TODO remove conditional after renaming "en" to "en_US"
-            motto: Lazy::create(fn () => $user->Motto),
+            motto: Lazy::create(fn () => $user->motto),
             preferences: Lazy::create(
                 fn () => [
-                    'shouldAlwaysBypassContentWarnings' => $user->should_always_bypass_content_warnings,
+                    'isGloballyOptedOutOfSubsets' => $user->is_globally_opted_out_of_subsets,
                     'prefersAbsoluteDates' => $user->prefers_absolute_dates,
+                    'shouldAlwaysBypassContentWarnings' => $user->should_always_bypass_content_warnings,
                 ]
             ),
+            preferencesBitfield: Lazy::create(fn () => $user->preferences_bitfield),
             playerPreferredMode: Lazy::create(fn () => $user->player_preferred_mode),
-            points: Lazy::create(fn () => $user->points),
-            pointsSoftcore: Lazy::create(fn () => $user->points_softcore),
-            richPresenceMsg: Lazy::create(fn () => $user->RichPresenceMsg),
+            points: Lazy::create(fn () => $user->points_hardcore),
+            pointsSoftcore: Lazy::create(fn () => $user->points),
+            richPresence: Lazy::create(fn () => $user->rich_presence),
             roles: Lazy::create(fn () => $user->getRoleNames()->toArray()),
-            unreadMessageCount: Lazy::create(fn () => $user->UnreadMessageCount),
+            unreadMessages: Lazy::create(fn () => $user->unread_messages),
             username: Lazy::create(fn () => $user->username),
-            userWallActive: Lazy::create(fn () => $user->UserWallActive),
             visibleRole: Lazy::create(fn () => $user->visible_role ? RoleData::fromRole($user->visible_role) : null),
-            websitePrefs: Lazy::create(fn () => $user->websitePrefs),
         );
     }
 }

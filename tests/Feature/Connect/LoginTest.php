@@ -27,20 +27,20 @@ class LoginTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'display_name' => 'MyDisplayName',
-            'appToken' => Str::random(16),
-            'Password' => Hash::make($password),
+            'connect_token' => Str::random(16),
+            'password' => Hash::make($password),
             'Permissions' => Permissions::JuniorDeveloper,
-            'RAPoints' => 12345,
-            'RASoftcorePoints' => 4321,
+            'points_hardcore' => 12345,
+            'points' => 4321,
         ]);
 
-        $this->get($this->apiUrl('login', ['u' => $user->User, 'p' => $password], credentials: false))
+        $this->get($this->apiUrl('login', ['u' => $user->username, 'p' => $password], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'User' => $user->display_name,
                 'AvatarUrl' => $user->avatar_url,
-                'Token' => $user->appToken,
+                'Token' => $user->connect_token,
                 'Score' => 12345,
                 'SoftcoreScore' => 4321,
                 'Messages' => 0,
@@ -49,18 +49,18 @@ class LoginTest extends TestCase
             ]);
 
         /** @var User $user1 */
-        $user1 = User::whereName($user->User)->first();
-        $this->assertEquals(Carbon::now()->clone()->addDays(14)->startOfSecond(), $user1->appTokenExpiry);
+        $user1 = User::whereName($user->username)->first();
+        $this->assertEquals(Carbon::now()->clone()->addDays(14)->startOfSecond(), $user1->connect_token_expires_at);
 
         // === with token ===
 
-        $this->get($this->apiUrl('login', ['u' => $user->User, 't' => $user->appToken], credentials: false))
+        $this->get($this->apiUrl('login', ['u' => $user->username, 't' => $user->connect_token], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
                 'User' => $user->display_name,
                 'AvatarUrl' => $user->avatar_url,
-                'Token' => $user->appToken,
+                'Token' => $user->connect_token,
                 'Score' => 12345,
                 'SoftcoreScore' => 4321,
                 'Messages' => 0,
@@ -68,30 +68,30 @@ class LoginTest extends TestCase
                 'AccountType' => 'Junior Developer',
             ]);
 
-        // === with legacy password (and no previous appToken) ===
+        // === with legacy password (and no previous connect_token) ===
 
         /** @var User $user2 */
         $user2 = User::factory()->create([
-            'appToken' => '',
-            'SaltedPass' => md5($password . config('app.legacy_password_salt')),
+            'connect_token' => '',
+            'legacy_salted_password' => md5($password . config('app.legacy_password_salt')),
             'Permissions' => Permissions::Developer,
-            'RAPoints' => 99999,
-            'RASoftcorePoints' => 99,
+            'points_hardcore' => 99999,
+            'points' => 99,
         ]);
 
-        $response = $this->get($this->apiUrl('login', ['u' => $user2->User, 'p' => $password], credentials: false));
+        $response = $this->get($this->apiUrl('login', ['u' => $user2->username, 'p' => $password], credentials: false));
 
         /* direct query to access non-visible attributes */
-        $data = legacyDbFetch('SELECT appToken, SaltedPass, Password FROM UserAccounts WHERE User=:user', ['user' => $user2->User]);
-        $this->assertNotEquals('', $data['appToken']);
-        $this->assertEquals('', $data['SaltedPass']);
-        $this->assertTrue(Hash::check($password, $data['Password']));
+        $data = legacyDbFetch('SELECT connect_token, legacy_salted_password, password FROM users WHERE username=:user', ['user' => $user2->username]);
+        $this->assertNotEquals('', $data['connect_token']);
+        $this->assertEquals('', $data['legacy_salted_password']);
+        $this->assertTrue(Hash::check($password, $data['password']));
 
         $response->assertStatus(200)->assertExactJson([
             'Success' => true,
             'User' => $user2->display_name,
             'AvatarUrl' => $user2->avatar_url,
-            'Token' => $data['appToken'],
+            'Token' => $data['connect_token'],
             'Score' => 99999,
             'SoftcoreScore' => 99,
             'Messages' => 0,
@@ -108,12 +108,12 @@ class LoginTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'appToken' => Str::random(16),
-            'Password' => Hash::make($password),
+            'connect_token' => Str::random(16),
+            'password' => Hash::make($password),
         ]);
 
         // invalid password
-        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->User, 'p' => $password . '1'])
+        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->username, 'p' => $password . '1'])
             ->assertStatus(401)
             ->assertHeader('WWW-Authenticate', 'Bearer')
             ->assertExactJson([
@@ -124,7 +124,7 @@ class LoginTest extends TestCase
             ]);
 
         // invalid token
-        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->User, 't' => $user->appToken . '1'])
+        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->username, 't' => $user->connect_token . '1'])
             ->assertStatus(401)
             ->assertHeader('WWW-Authenticate', 'Bearer')
             ->assertExactJson([
@@ -135,7 +135,7 @@ class LoginTest extends TestCase
             ]);
 
         // unknown user
-        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->User . '1', 'p' => $password])
+        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->username . '1', 'p' => $password])
             ->assertStatus(401)
             ->assertHeader('WWW-Authenticate', 'Bearer')
             ->assertExactJson([
@@ -166,7 +166,7 @@ class LoginTest extends TestCase
             ]);
 
         // no password or token
-        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->User])
+        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->username])
             ->assertStatus(422)
             ->assertExactJson([
                 'Success' => false,
@@ -186,7 +186,7 @@ class LoginTest extends TestCase
             ]);
 
         // blank password
-        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->User, 'p' => ''])
+        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->username, 'p' => ''])
             ->assertStatus(401)
             ->assertExactJson([
                 'Success' => false,
@@ -196,10 +196,10 @@ class LoginTest extends TestCase
             ]);
 
         // expired token
-        $user->appTokenExpiry = Carbon::now()->clone()->subDays(15);
+        $user->connect_token_expires_at = Carbon::now()->clone()->subDays(15);
         $user->timestamps = false;
         $user->save();
-        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->User, 't' => $user->appToken])
+        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->username, 't' => $user->connect_token])
             ->assertStatus(401)
             ->assertHeader('WWW-Authenticate', 'Bearer')
             ->assertExactJson([
@@ -211,8 +211,8 @@ class LoginTest extends TestCase
 
         // try with banned user - response should be the same as a non-existent user
         /** @var User $user2 */
-        $user2 = User::factory()->create(['Permissions' => Permissions::Banned, 'banned_at' => Carbon::now()->clone()->subMonths(2), 'Password' => Hash::make($password)]);
-        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user2->User, 'p' => $password])
+        $user2 = User::factory()->create(['Permissions' => Permissions::Banned, 'banned_at' => Carbon::now()->clone()->subMonths(2), 'password' => Hash::make($password)]);
+        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user2->username, 'p' => $password])
             ->assertStatus(401)
             ->assertHeader('WWW-Authenticate', 'Bearer')
             ->assertExactJson([
@@ -224,8 +224,8 @@ class LoginTest extends TestCase
 
         // try with unregistered user - expect permissions error
         /** @var User $user3 */
-        $user3 = User::factory()->create(['Permissions' => Permissions::Unregistered, 'Password' => Hash::make($password)]);
-        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user3->User, 'p' => $password])
+        $user3 = User::factory()->create(['Permissions' => Permissions::Unregistered, 'password' => Hash::make($password)]);
+        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user3->username, 'p' => $password])
             ->assertStatus(403)
             ->assertExactJson([
                 'Success' => false,
@@ -247,12 +247,12 @@ class LoginTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'appToken' => Str::random(16),
-            'Password' => Hash::make($password),
+            'connect_token' => Str::random(16),
+            'password' => Hash::make($password),
         ]);
 
         // invalid password
-        $this->get($this->apiUrl('login', ['u' => $user->User, 'p' => $password . '1'], credentials: false))
+        $this->get($this->apiUrl('login', ['u' => $user->username, 'p' => $password . '1'], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => false,
@@ -262,7 +262,7 @@ class LoginTest extends TestCase
             ]);
 
         // invalid token
-        $this->get($this->apiUrl('login', ['u' => $user->User, 't' => $user->appToken . '1'], credentials: false))
+        $this->get($this->apiUrl('login', ['u' => $user->username, 't' => $user->connect_token . '1'], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => false,
@@ -272,7 +272,7 @@ class LoginTest extends TestCase
             ]);
 
         // unknown user
-        $this->get($this->apiUrl('login', ['u' => $user->User . '1', 'p' => $password], credentials: false))
+        $this->get($this->apiUrl('login', ['u' => $user->username . '1', 'p' => $password], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => false,
@@ -302,7 +302,7 @@ class LoginTest extends TestCase
             ]);
 
         // no password or token
-        $this->get($this->apiUrl('login', ['u' => $user->User], credentials: false))
+        $this->get($this->apiUrl('login', ['u' => $user->username], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => false,
@@ -312,7 +312,7 @@ class LoginTest extends TestCase
             ]);
 
         // blank password
-        $this->get($this->apiUrl('login', ['u' => $user->User, 'p' => ''], credentials: false))
+        $this->get($this->apiUrl('login', ['u' => $user->username, 'p' => ''], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => false,
@@ -332,10 +332,10 @@ class LoginTest extends TestCase
             ]);
 
         // expired token
-        $user->appTokenExpiry = Carbon::now()->clone()->subDays(15);
+        $user->connect_token_expires_at = Carbon::now()->clone()->subDays(15);
         $user->timestamps = false;
         $user->save();
-        $this->get($this->apiUrl('login', ['u' => $user->User, 't' => $user->appToken], credentials: false))
+        $this->get($this->apiUrl('login', ['u' => $user->username, 't' => $user->connect_token], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => false,
@@ -346,8 +346,8 @@ class LoginTest extends TestCase
 
         // try with banned user - response should be the same as a non-existent user
         /** @var User $user2 */
-        $user2 = User::factory()->create(['Permissions' => Permissions::Banned, 'banned_at' => Carbon::now()->clone()->subMonths(2), 'Password' => Hash::make($password)]);
-        $this->get($this->apiUrl('login', ['u' => $user2->User, 'p' => $password], credentials: false))
+        $user2 = User::factory()->create(['Permissions' => Permissions::Banned, 'banned_at' => Carbon::now()->clone()->subMonths(2), 'password' => Hash::make($password)]);
+        $this->get($this->apiUrl('login', ['u' => $user2->username, 'p' => $password], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => false,
@@ -358,8 +358,8 @@ class LoginTest extends TestCase
 
         // try with unregistered user - expect permissions error
         /** @var User $user3 */
-        $user3 = User::factory()->create(['Permissions' => Permissions::Unregistered, 'Password' => Hash::make($password)]);
-        $this->get($this->apiUrl('login', ['u' => $user3->User, 'p' => $password], credentials: false))
+        $user3 = User::factory()->create(['Permissions' => Permissions::Unregistered, 'password' => Hash::make($password)]);
+        $this->get($this->apiUrl('login', ['u' => $user3->username, 'p' => $password], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => false,

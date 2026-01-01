@@ -13,10 +13,13 @@ export type AuthenticatedUser = SetRequired<
   | 'pointsSoftcore'
   | 'preferences'
   | 'roles'
-  | 'unreadMessageCount'
-  | 'websitePrefs'
+  | 'unreadMessages'
+  | 'preferencesBitfield'
 >;
 
+/**
+ * @see HandleInertiaRequests.php
+ */
 export interface AppGlobalProps extends PageProps {
   auth: { user: AuthenticatedUser } | null;
 
@@ -29,8 +32,11 @@ export interface AppGlobalProps extends PageProps {
     };
   };
 
+  csrfToken: string;
   metaKey: string;
   ziggy: ZiggyProps;
+
+  flash?: { status?: string | null };
 }
 
 export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) => ({
@@ -43,14 +49,19 @@ export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) 
   legacyPermissions: 8447,
   points: faker.number.int({ min: 0, max: 100000 }),
   pointsSoftcore: faker.number.int({ min: 0, max: 100000 }),
-  preferences: {
+  preferences: createAuthenticatedUserPreferences(),
+  roles: [],
+  unreadMessages: 0,
+  preferencesBitfield: 63, // The default when a new account is created.
+}));
+
+export const createAuthenticatedUserPreferences = createFactory<AuthenticatedUser['preferences']>(
+  () => ({
+    isGloballyOptedOutOfSubsets: false,
     prefersAbsoluteDates: false,
     shouldAlwaysBypassContentWarnings: false,
-  },
-  roles: [],
-  unreadMessageCount: 0,
-  websitePrefs: 63, // The default when a new account is created.
-}));
+  }),
+);
 
 export const createAppGlobalProps = createFactory<AppGlobalProps>(() => ({
   auth: { user: createAuthenticatedUser() },
@@ -62,6 +73,7 @@ export const createAppGlobalProps = createFactory<AppGlobalProps>(() => ({
     services: { patreon: {} },
   },
 
+  csrfToken: 'test-csrf-token',
   metaKey: 'Ctrl',
   ziggy: { defaults: [], device: 'desktop', location: '', port: 8080, query: {}, url: '' },
 }));

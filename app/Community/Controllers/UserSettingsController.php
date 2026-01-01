@@ -11,7 +11,7 @@ use App\Community\Data\UpdatePasswordData;
 use App\Community\Data\UpdateProfileData;
 use App\Community\Data\UpdateWebsitePrefsData;
 use App\Community\Data\UserSettingsPagePropsData;
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Requests\ResetConnectApiKeyRequest;
 use App\Community\Requests\ResetWebApiKeyRequest;
 use App\Community\Requests\StoreUsernameChangeRequest;
@@ -51,10 +51,10 @@ class UserSettingsController extends Controller
 
         $userSettings = UserData::fromUser($user)->include(
             'apiKey',
-            'deleteRequested',
-            'emailAddress',
+            'deleteRequestedAt',
+            'email',
             'motto',
-            'userWallActive',
+            'isUserWallActive',
             'visibleRole',
         );
 
@@ -134,7 +134,7 @@ class UserSettingsController extends Controller
         $user = $request->user();
 
         // The user will need to reconfirm their email address.
-        $user->EmailAddress = $data->newEmail;
+        $user->email = $data->newEmail;
         $user->setAttribute('Permissions', Permissions::Unregistered);
         $user->roles()->detach();
         $user->email_verified_at = null;
@@ -148,7 +148,7 @@ class UserSettingsController extends Controller
 
         addArticleComment(
             'Server',
-            ArticleType::UserModeration,
+            CommentableType::UserModeration,
             $user->id,
             "{$user->display_name} changed their email address"
         );
@@ -187,10 +187,10 @@ class UserSettingsController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        $currentPreferences = (int) $user->getAttribute('websitePrefs');
+        $currentPreferences = (int) $user->getAttribute('preferences_bitfield');
         $newPreferences = $currentPreferences | (1 << UserPreference::Site_SuppressMatureContentWarning);
 
-        $user->websitePrefs = $newPreferences;
+        $user->preferences_bitfield = $newPreferences;
         $user->saveQUietly();
 
         return response()->json(['success' => true]);

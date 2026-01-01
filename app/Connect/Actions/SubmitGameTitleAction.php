@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Connect\Actions;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Connect\Support\BaseAuthenticatedApiAction;
+use App\Connect\Support\GeneratesLegacyAuditComment;
 use App\Enums\GameHashCompatibility;
 use App\Models\Game;
 use App\Models\GameHash;
@@ -17,6 +18,8 @@ use Illuminate\Http\Request;
 
 class SubmitGameTitleAction extends BaseAuthenticatedApiAction
 {
+    use GeneratesLegacyAuditComment;
+
     protected string $hash;
     protected ?string $hashDescription;
     protected string $gameTitle;
@@ -91,14 +94,14 @@ class SubmitGameTitleAction extends BaseAuthenticatedApiAction
                 ->where('title', $this->gameTitle)
                 ->with('game')
                 ->whereHas('game.system', function ($query) {
-                    $query->where('ID', $this->systemId);
+                    $query->where('id', $this->systemId);
                 })
                 ->first();
             if ($release) {
                 $game = $release->game;
             } else {
                 // no title match, it's a new game
-                $game = new Game(['Title' => $this->gameTitle, 'ConsoleID' => $this->systemId]);
+                $game = new Game(['title' => $this->gameTitle, 'system_id' => $this->systemId]);
                 // these properties are not fillable, so have to be set manually
                 $game->players_total = 0;
                 $game->players_hardcore = 0;
@@ -134,7 +137,8 @@ class SubmitGameTitleAction extends BaseAuthenticatedApiAction
             if (!empty($this->hashDescription)) {
                 $message .= " Description: \"$this->hashDescription\"";
             }
-            addArticleComment('Server', ArticleType::GameHash, $game->id, $message);
+
+            $this->addLegacyAuditComment(CommentableType::GameHash, $game->id, $message);
         }
 
         return [

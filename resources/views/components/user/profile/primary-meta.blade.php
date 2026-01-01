@@ -40,7 +40,7 @@ if ($hasVisibleRole) {
 $roleLabel = $hasVisibleRole ? Permissions::toString($userMassData['Permissions']) : '';
 $shouldMoveRoleToNextLine =
     $hasVisibleRole
-    && ((mb_strlen($roleLabel) >= 12 && mb_strlen($user->User) >= 12) || mb_strlen($user->User) >= 16);
+    && ((mb_strlen($roleLabel) >= 12 && mb_strlen($user->username) >= 12) || mb_strlen($user->username) >= 16);
 
 $previousUsernames = '';
 if ($me && $me->can('viewDisplayNameHistory', $user)) {
@@ -92,7 +92,7 @@ $usernameTitle = $previousUsernames ? "Username history:\n{$previousUsernames}" 
                     @if ($fullRolesLabel) title="{{ $fullRolesLabel }}" @endif
                 >
                     <p class="text-2xs -mb-0.5">
-                        {{ __('permission.role.' . $user->visible_role->name) }}
+                        {{ __('permission.role.' . $user->visible_role?->name) }}
                     </p>
                 </div>
             @endif
@@ -121,7 +121,7 @@ $usernameTitle = $previousUsernames ? "Username history:\n{$previousUsernames}" 
                 :hardcoreRankMeta="$hardcoreRankMeta"
                 :softcoreRankMeta="$softcoreRankMeta"
                 :userMassData="$userMassData"
-                :username="$user->User"
+                :username="$user->username"
             />
 
             {{-- Last Activity --}}

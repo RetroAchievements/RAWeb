@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
-import { createAuthenticatedUser } from '@/common/models';
+import { createAuthenticatedUser, createAuthenticatedUserPreferences } from '@/common/models';
 import { render, screen } from '@/test';
 import { createComment, createUser } from '@/test/factories';
 
@@ -12,7 +12,12 @@ describe('Component: CommentList', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <CommentList canComment={true} commentableId={1} commentableType="Game" comments={[]} />,
+      <CommentList
+        canComment={true}
+        commentableId={1}
+        commentableType="game.comment"
+        comments={[]}
+      />,
     );
 
     // ASSERT
@@ -22,7 +27,12 @@ describe('Component: CommentList', () => {
   it('given there are no comments, displays an empty state message', () => {
     // ARRANGE
     render(
-      <CommentList canComment={true} commentableId={1} commentableType="Game" comments={[]} />,
+      <CommentList
+        canComment={true}
+        commentableId={1}
+        commentableType="game.comment"
+        comments={[]}
+      />,
     );
 
     // ASSERT
@@ -32,7 +42,12 @@ describe('Component: CommentList', () => {
   it('given the current user is muted, tells them and does not show an input field', () => {
     // ARRANGE
     render(
-      <CommentList canComment={false} commentableId={1} commentableType="Game" comments={[]} />,
+      <CommentList
+        canComment={false}
+        commentableId={1}
+        commentableType="game.comment"
+        comments={[]}
+      />,
       {
         pageProps: {
           auth: {
@@ -53,7 +68,12 @@ describe('Component: CommentList', () => {
   it('given the current user is not muted, displays an input field', () => {
     // ARRANGE
     render(
-      <CommentList canComment={true} commentableId={1} commentableType="Game" comments={[]} />,
+      <CommentList
+        canComment={true}
+        commentableId={1}
+        commentableType="game.comment"
+        comments={[]}
+      />,
       {
         pageProps: {
           auth: {
@@ -74,7 +94,12 @@ describe('Component: CommentList', () => {
   it('given the current user is unauthenticated, prompts them to sign in', () => {
     // ARRANGE
     render(
-      <CommentList canComment={false} commentableId={1} commentableType="Game" comments={[]} />,
+      <CommentList
+        canComment={false}
+        commentableId={1}
+        commentableType="game.comment"
+        comments={[]}
+      />,
       {
         pageProps: { auth: null },
       },
@@ -99,7 +124,7 @@ describe('Component: CommentList', () => {
       <CommentList
         canComment={true}
         commentableId={1}
-        commentableType="Game"
+        commentableType="game.comment"
         comments={comments}
       />,
     );
@@ -120,14 +145,17 @@ describe('Component: CommentList', () => {
       <CommentList
         canComment={true}
         commentableId={1}
-        commentableType="Game"
+        commentableType="game.comment"
         comments={comments}
       />,
       {
         pageProps: {
           auth: {
             user: createAuthenticatedUser({
-              preferences: { prefersAbsoluteDates: true, shouldAlwaysBypassContentWarnings: false },
+              preferences: createAuthenticatedUserPreferences({
+                prefersAbsoluteDates: true,
+                shouldAlwaysBypassContentWarnings: false,
+              }),
             }),
           },
         },
@@ -150,7 +178,7 @@ describe('Component: CommentList', () => {
       <CommentList
         canComment={true}
         commentableId={1}
-        commentableType="Game"
+        commentableType="game.comment"
         comments={comments}
       />,
     );
@@ -174,7 +202,7 @@ describe('Component: CommentList', () => {
       <CommentList
         canComment={true}
         commentableId={1}
-        commentableType="Game"
+        commentableType="game.comment"
         comments={comments}
       />,
     );
@@ -201,7 +229,7 @@ describe('Component: CommentList', () => {
       <CommentList
         canComment={true}
         commentableId={1}
-        commentableType="Game"
+        commentableType="game.comment"
         comments={comments}
       />,
     );
@@ -225,7 +253,12 @@ describe('Component: CommentList', () => {
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
 
     render(
-      <CommentList canComment={true} commentableId={1} commentableType="Game" comments={[]} />,
+      <CommentList
+        canComment={true}
+        commentableId={1}
+        commentableType="game.comment"
+        comments={[]}
+      />,
       {
         pageProps: { auth: { user: createAuthenticatedUser() } },
       },
@@ -240,14 +273,19 @@ describe('Component: CommentList', () => {
     expect(postSpy).toHaveBeenCalledWith(['api.game.comment.store', { game: 1 }], {
       body: 'this is my comment',
       commentableId: 1,
-      commentableType: 1,
+      commentableType: 'game.comment',
     });
   });
 
   it('given the form is invalid, the submit button is disabled', async () => {
     // ARRANGE
     render(
-      <CommentList canComment={true} commentableId={1} commentableType="Game" comments={[]} />,
+      <CommentList
+        canComment={true}
+        commentableId={1}
+        commentableType="game.comment"
+        comments={[]}
+      />,
       {
         pageProps: { auth: { user: createAuthenticatedUser() } },
       },
@@ -274,7 +312,7 @@ describe('Component: CommentList', () => {
       <CommentList
         canComment={true}
         commentableId={1}
-        commentableType="Game"
+        commentableType="game.comment"
         comments={comments}
       />,
     );
@@ -290,7 +328,12 @@ describe('Component: CommentList', () => {
     const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
 
     render(
-      <CommentList canComment={true} commentableId={1} commentableType="Game" comments={[]} />,
+      <CommentList
+        canComment={true}
+        commentableId={1}
+        commentableType="game.comment"
+        comments={[]}
+      />,
       {
         pageProps: { auth: { user: createAuthenticatedUser() } },
       },
@@ -306,7 +349,7 @@ describe('Component: CommentList', () => {
     expect(postSpy).toHaveBeenCalledWith(['api.game.comment.store', { game: 1 }], {
       body: 'this is my comment',
       commentableId: 1,
-      commentableType: 1,
+      commentableType: 'game.comment',
     });
   });
 });

@@ -64,10 +64,10 @@ class GameData extends Data
             achievementsPublished: Lazy::create(fn () => $game->achievements_published),
             achievementsUnpublished: Lazy::create(fn () => $game->achievements_unpublished ?? 0),
             badgeUrl: Lazy::create(fn () => $game->badge_url),
-            developer: Lazy::create(fn () => $game->Developer),
-            forumTopicId: Lazy::create(fn () => $game->ForumTopicID),
-            genre: Lazy::create(fn () => $game->Genre),
-            guideUrl: Lazy::create(fn () => $game->GuideURL),
+            developer: Lazy::create(fn () => $game->developer),
+            forumTopicId: Lazy::create(fn () => $game->forum_topic_id),
+            genre: Lazy::create(fn () => $game->genre),
+            guideUrl: Lazy::create(fn () => $game->legacy_guide_url),
             hasActiveOrInReviewClaims: Lazy::create(fn () => $game->has_active_or_in_review_claims ?? false),
             imageBoxArtUrl: Lazy::create(fn () => $game->image_box_art_url),
             imageIngameUrl: Lazy::create(fn () => $game->image_ingame_url),
@@ -82,8 +82,8 @@ class GameData extends Data
             playersHardcore: Lazy::create(fn () => $game->players_hardcore),
             playersTotal: Lazy::create(fn () => $game->players_total),
             pointsTotal: Lazy::create(fn () => $game->points_total),
-            pointsWeighted: Lazy::create(fn () => $game->TotalTruePoints),
-            publisher: Lazy::create(fn () => $game->Publisher),
+            pointsWeighted: Lazy::create(fn () => $game->points_weighted),
+            publisher: Lazy::create(fn () => $game->publisher),
             releasedAt: Lazy::create(fn () => $game->released_at),
             releasedAtGranularity: Lazy::create(fn () => $game->released_at_granularity),
             system: Lazy::create(fn () => SystemData::fromSystem($game->system)),
@@ -93,7 +93,7 @@ class GameData extends Data
             claimants: Lazy::create(fn () => $game->achievementSetClaims->map(
                 fn ($claim) => GameClaimantData::fromUser(
                     $claim->user,
-                    $claim->ClaimType === ClaimType::Primary ? 'primary' : 'collaboration'
+                    $claim->claim_type === ClaimType::Primary ? 'primary' : 'collaboration'
                 )
             )->all()),
 

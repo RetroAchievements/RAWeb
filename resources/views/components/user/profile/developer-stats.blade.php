@@ -22,9 +22,9 @@ $collabClaims = [];
 
 if (!empty($userClaims)) {
     foreach ($userClaims as $claim) {
-        if ($claim['ClaimType'] === ClaimType::Collaboration) {
+        if ($claim['ClaimType'] === ClaimType::Collaboration->value) {
             $collabClaims[] = $claim;
-        } elseif ($claim['Special'] !== ClaimSpecial::None) {
+        } elseif ($claim['Special'] !== ClaimSpecial::None->value) {
             $specialClaims[] = $claim;
         } else {
             $primaryClaims[] = $claim;

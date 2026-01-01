@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Commands;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\ModerationActionType;
 use App\Models\Comment;
 use App\Models\UserModerationAction;
@@ -218,18 +218,18 @@ class BackfillModerationActions extends Command
     {
         $this->info('Correlating moderator notes from Comment table...');
 
-        $notes = Comment::where('ArticleType', ArticleType::UserModeration)
+        $notes = Comment::where('commentable_type', CommentableType::UserModeration)
             ->notAutomated()
             ->whereNotNull('user_id')
-            ->where('Submitted', '>=', '2024-03-31')
+            ->where('created_at', '>=', '2024-03-31')
             ->get();
 
         $numCorrelated = 0;
         foreach ($notes as $note) {
             /** @var Carbon $noteTimestamp */
-            $noteTimestamp = $note->Submitted;
+            $noteTimestamp = $note->created_at;
 
-            $action = UserModerationAction::where('user_id', $note->ArticleID)
+            $action = UserModerationAction::where('user_id', $note->commentable_id)
                 ->where('actioned_by_id', $note->user_id)
                 ->whereBetween('created_at', [
                     $noteTimestamp->copy()->subMinutes(5),
@@ -239,7 +239,7 @@ class BackfillModerationActions extends Command
                 ->first();
 
             if ($action) {
-                $action->update(['reason' => $note->Payload]);
+                $action->update(['reason' => $note->body]);
                 $numCorrelated++;
             }
         }

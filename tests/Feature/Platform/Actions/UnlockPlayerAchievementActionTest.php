@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Actions;
 
 use App\Models\Game;
+use App\Models\PlayerGame;
+use App\Models\PlayerSession;
 use App\Models\User;
+use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Actions\UnlockPlayerAchievementAction;
 use App\Platform\Enums\AchievementType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,7 +19,7 @@ class UnlockPlayerAchievementActionTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function testManualUnlockDoesntUpdateLastLogin(): void
+    public function testManualUnlockDoesntUpdateLastActivityAt(): void
     {
         $action = new UnlockPlayerAchievementAction();
 
@@ -27,9 +30,9 @@ class UnlockPlayerAchievementActionTest extends TestCase
         $user2 = User::factory()->create();
 
         $lastLogin = $now->clone()->subDays(7);
-        $user1->LastLogin = $lastLogin;
+        $user1->last_activity_at = $lastLogin;
         $user1->save();
-        $this->assertEquals($lastLogin, $user1->LastLogin);
+        $this->assertEquals($lastLogin, $user1->last_activity_at);
 
         $system = $this->seedSystem();
         $game = $this->seedGame($system);
@@ -38,10 +41,10 @@ class UnlockPlayerAchievementActionTest extends TestCase
         $achievement2 = $achievements->slice(1, 1)->first();
 
         // if we don't create a player_game record before calling unlock, it will do so,
-        // which updates the LastLogin.
+        // which updates the last_activity_at.
         $user1->games()->attach($game);
 
-        // manual unlock (should not create a player session or update LastLogin)
+        // manual unlock (should not create a player session or update last_activity_at)
         $action->execute($user1, $achievement1, true, unlockedBy: $user2);
 
         $playerAchievement = $user1->playerAchievements()->firstWhere('achievement_id', $achievement1->id);
@@ -49,10 +52,10 @@ class UnlockPlayerAchievementActionTest extends TestCase
         $this->assertEquals($user2->id, $playerAchievement->unlocker_id);
 
         $user1->refresh();
-        $this->assertEquals($lastLogin, $user1->LastLogin);
+        $this->assertEquals($lastLogin, $user1->last_activity_at);
         $this->assertEquals(0, $user1->playerSessions()->count());
 
-        // normal unlock (LastLogin is actually updated twice by WriteUserActivity -
+        // normal unlock (last_activity_at is actually updated twice by WriteUserActivity -
         // once for the PlayerSessionStarted/PlayerSessionResumed event and once for
         // the PlayerAchievementUnlocked event)
         $action->execute($user1, $achievement2, true);
@@ -62,7 +65,7 @@ class UnlockPlayerAchievementActionTest extends TestCase
         $this->assertNull($playerAchievement->unlocker_id);
 
         $user1->refresh();
-        $this->assertEquals($now, $user1->LastLogin);
+        $this->assertEquals($now, $user1->last_activity_at);
         $this->assertEquals(1, $user1->playerSessions()->count());
     }
 
@@ -129,5 +132,41 @@ class UnlockPlayerAchievementActionTest extends TestCase
         // there still shouldn't be any player sessions
         $user1->refresh();
         $this->assertEquals(0, $user1->playerSessions()->count());
+    }
+
+    public function testSubsetAchievementThroughCoreSetDoesntCreateSubsetSession(): void
+    {
+        $coreGame = $this->seedGame(achievements: 6);
+        $coreGameHash = $coreGame->hashes()->first();
+        $subsetGame = $this->seedGame(achievements: 2);
+        $subsetAchievement = $subsetGame->achievements->get(0);
+
+        $user = User::factory()->create();
+
+        $now = Carbon::now()->startOfSecond();
+        Carbon::setTestNow($now);
+
+        // create a session for the core game
+        $sessionLength = 10;
+        (new ResumePlayerSessionAction())->execute($user, $coreGame, timestamp: $now->clone()->subMinutes($sessionLength), presence: 'Doing things');
+
+        // unlock an achievement from the subset using the core game's hash
+        $action = new UnlockPlayerAchievementAction();
+        $action->execute($user, $subsetAchievement, true, gameHash: $coreGameHash);
+
+        // core session should be extended
+        $corePlayerSession = PlayerSession::where('user_id', $user->id)->where('game_id', $coreGame->id)->first();
+        $this->assertNotNull($corePlayerSession);
+        $this->assertEquals('Doing things', $corePlayerSession->rich_presence);
+        $this->assertEquals($sessionLength, $corePlayerSession->duration);
+
+        // subset session should not be created
+        $subsetPlayerSession = PlayerSession::where('user_id', $user->id)->where('game_id', $subsetGame->id)->first();
+        $this->assertNull($subsetPlayerSession);
+
+        // subset player_games record should be created and have points from the unlock
+        $subsetPlayerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $subsetGame->id)->first();
+        $this->assertNotNull($subsetPlayerGame);
+        $this->assertEquals($subsetAchievement->points, $subsetPlayerGame->points_hardcore);
     }
 }

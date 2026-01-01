@@ -18,11 +18,9 @@ const PersonalizedGameSuggestions: AppPage = () => {
         description={`Personalized game suggestions for ${auth!.user.displayName}`}
       />
 
-      <div className="container">
-        <AppLayout.Main>
-          <PersonalizedSuggestionsMainRoot />
-        </AppLayout.Main>
-      </div>
+      <AppLayout.Main>
+        <PersonalizedSuggestionsMainRoot />
+      </AppLayout.Main>
     </>
   );
 };

@@ -6,11 +6,12 @@ namespace App\Platform;
 
 use App\Events\UserDeleted;
 use App\Platform\Events\AchievementCreated;
+use App\Platform\Events\AchievementDeleted;
 use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
-use App\Platform\Events\AchievementPublished;
+use App\Platform\Events\AchievementPromoted;
 use App\Platform\Events\AchievementTypeChanged;
-use App\Platform\Events\AchievementUnpublished;
+use App\Platform\Events\AchievementUnpromoted;
 use App\Platform\Events\GameMetricsUpdated;
 use App\Platform\Events\GamePlayerGameMetricsUpdated;
 use App\Platform\Events\PlayerAchievementLocked;
@@ -49,18 +50,21 @@ class EventServiceProvider extends ServiceProvider
         AchievementCreated::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
+        AchievementDeleted::class => [
+            DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+        ],
         AchievementMoved::class => [
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
-        AchievementPublished::class => [
+        AchievementPromoted::class => [
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
             UpdateTotalGamesCount::class,
             // TODO Notify player/developer when moved to AchievementSetPublished event
         ],
-        AchievementUnpublished::class => [
+        AchievementUnpromoted::class => [
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield

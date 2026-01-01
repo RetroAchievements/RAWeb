@@ -50,7 +50,7 @@ class UserGameAchievementSetPreference extends BaseModel
      */
     public function user(): HasOne
     {
-        return $this->hasOne(User::class, 'user_id', 'ID');
+        return $this->hasOne(User::class, 'user_id', 'id');
     }
 
     // == scopes

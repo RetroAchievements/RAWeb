@@ -26,7 +26,6 @@ use App\Platform\Data\GameData;
 use App\Platform\Data\GameListPagePropsData;
 use App\Platform\Data\GameSuggestPagePropsData;
 use App\Platform\Data\SystemData;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameListSetTypeFilterValue;
 use App\Platform\Enums\GameListSortField;
@@ -104,7 +103,7 @@ class GameController extends Controller
         $user = $request->user();
 
         // Redirect hubs to the dedicated hub page.
-        if ($game->ConsoleID === System::Hubs) {
+        if ($game->system_id === System::Hubs) {
             $gameSet = GameSet::whereType(GameSetType::Hub)
                 ->whereGameId($game->id)
                 ->first();
@@ -117,7 +116,7 @@ class GameController extends Controller
         }
 
         // Redirect events to the dedicated event page.
-        if ($game->ConsoleID === System::Events && $game->event) {
+        if ($game->system_id === System::Events && $game->event) {
             return redirect()->route('event.show', ['event' => $game->event]);
         }
 
@@ -143,10 +142,7 @@ class GameController extends Controller
         }
 
         // Get whether to show published or unpublished achievements from query params.
-        $targetAchievementFlag =
-            $request->query('unpublished') === 'true'
-                ? AchievementFlag::Unofficial
-                : AchievementFlag::OfficialCore;
+        $isPromoted = $request->query('unpublished') !== 'true';
 
         // Load the target achievement set if requested.
         $targetAchievementSet = null;
@@ -168,11 +164,11 @@ class GameController extends Controller
         // Get the initial sort from query params.
         $initialSort = $request->query('sort') ? GamePageListSort::tryFrom($request->query('sort')) : null;
 
-        $game = $loadGameWithRelationsAction->execute($game, $targetAchievementFlag, $targetAchievementSet);
+        $game = $loadGameWithRelationsAction->execute($game, $isPromoted, $targetAchievementSet);
         $props = $buildGameShowPagePropsAction->execute(
             $game,
             $user,
-            $targetAchievementFlag,
+            $isPromoted,
             $targetAchievementSet,
             $initialView,
             $initialSort
@@ -261,10 +257,10 @@ class GameController extends Controller
      */
     public function setRequests(Request $request, Game $game): InertiaResponse
     {
-        $allRequestors = UserGameListEntry::where('GameID', $game->id)
+        $allRequestors = UserGameListEntry::where('game_id', $game->id)
             ->where('type', UserGameListType::AchievementSetRequest)
-            ->join('UserAccounts', 'SetRequest.user_id', '=', 'UserAccounts.ID')
-            ->orderBy('UserAccounts.display_name')
+            ->join('users', 'user_game_list_entries.user_id', '=', 'users.id')
+            ->orderBy('users.display_name')
             ->with('user')
             ->get();
 

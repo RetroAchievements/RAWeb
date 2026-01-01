@@ -2,12 +2,13 @@
 
 namespace App\Filament\Pages;
 
-use App\Platform\Enums\AchievementFlag;
+use App\Models\Achievement;
 use BackedEnum;
 use Closure;
 use Filament\Forms;
 use Filament\Pages;
 use Filament\Schemas;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -29,6 +30,19 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     {
         $this->record = $this->resolveRecord($record);
         $this->tableRecordsPerPage = $this->getTableRecordsPerPageSelectOptions()[0];
+    }
+
+    public function getTitle(): string|Htmlable
+    {
+        $resourceClass = static::getResource();
+        $recordTitle = $resourceClass::getRecordTitle($this->record);
+
+        return "{$recordTitle} - Audit Log";
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Audit Log';
     }
 
     /**
@@ -81,12 +95,15 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     }
 
     /**
-     * @return Collection<string, Closure(int): string>
+     * @return Collection<string, Closure(mixed): string>
      */
     protected function createFieldValueMap(): Collection
     {
         return collect([
-            'Flags' => fn (int $flag): string => AchievementFlag::tryFrom($flag)?->label() ?? 'Invalid flag',
+            'is_promoted' => fn (mixed $value): string => $value ? __('Promoted') : __('Unpromoted'),
+
+            // Support legacy audit log records that used the Flags column.
+            'Flags' => fn (mixed $value): string => $value === Achievement::FLAG_PROMOTED ? __('Promoted') : __('Unpromoted'),
         ]);
     }
 
@@ -110,8 +127,16 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     protected function getIsImageField(string $fieldName): bool
     {
         return in_array($fieldName, [
-            'BadgeName',
+            'image_name',
             'image_asset_path',
+
+            // New column names.
+            'image_icon_asset_path',
+            'image_box_art_asset_path',
+            'image_title_asset_path',
+            'image_ingame_asset_path',
+
+            // Legacy column names for historical audit log entries.
             'ImageIcon',
             'ImageBoxArt',
             'ImageTitle',
@@ -122,11 +147,8 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     protected function getImageUrl(string $fieldName, string $path): string
     {
         switch ($fieldName) {
-            case 'BadgeName':
+            case 'image_name':
                 return media_asset("/Badge/{$path}.png");
-
-            case 'ImageIcon':
-                return media_asset($path);
 
             default:
                 return media_asset($path);
@@ -138,6 +160,7 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
         return match ($event) {
             'created' => 'success',
             'deleted' => 'danger',
+            'linkedHash' => 'success',
             'pivotAttached' => 'info',
             'pivotDetached' => 'warning',
             'releaseCreated' => 'success',
@@ -145,12 +168,13 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
             'releaseUpdated' => 'info',
             'resetAllLeaderboardEntries' => 'danger',
             'unlinkedHash' => 'danger',
+            'updatedHash' => 'info',
             default => 'info',
         };
     }
 
     protected function getTableRecordsPerPageSelectOptions(): array
     {
-        return config('filament.default_page_options');
+        return [50];
     }
 }

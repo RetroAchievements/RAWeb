@@ -6,7 +6,9 @@ namespace App\Observers;
 
 use App\Community\Actions\AddUserDiscordRolesAction;
 use App\Community\Actions\RemoveUserDiscordRolesAction;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\ModerationActionType;
+use App\Models\Comment;
 use App\Models\User;
 use App\Models\UserModerationAction;
 use Carbon\Carbon;
@@ -99,6 +101,26 @@ class UserObserver
                 'actioned_by_id' => $actionedBy?->id,
                 'action' => ModerationActionType::Rerank,
             ]);
+        }
+    }
+
+    /**
+     * Use `updated` for search index changes. We only want to update the
+     * index after the save is successful - not prematurely.
+     */
+    public function updated(User $user): void
+    {
+        if ($user->wasChanged('banned_at')) {
+            $this->syncSearchIndex($user, shouldIndex: $user->banned_at === null);
+        }
+
+        if ($user->wasChanged('is_user_wall_active')) {
+            $wallComments = Comment::query()
+                ->where('commentable_type', CommentableType::User)
+                ->where('commentable_id', $user->id)
+                ->get();
+
+            $this->syncSearchIndex($wallComments, shouldIndex: $user->is_user_wall_active);
         }
     }
 
@@ -227,5 +249,14 @@ class UserObserver
         $newUnrankedAt = $user->unranked_at;
 
         return $oldUnrankedAt !== null && $newUnrankedAt === null;
+    }
+
+    private function syncSearchIndex(mixed $searchable, bool $shouldIndex): void
+    {
+        if ($shouldIndex) {
+            $searchable->searchable();
+        } else {
+            $searchable->unsearchable();
+        }
     }
 }

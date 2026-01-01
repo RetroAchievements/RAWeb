@@ -1,4 +1,4 @@
-import { createAuthenticatedUser } from '@/common/models';
+import { createAuthenticatedUser, createAuthenticatedUserPreferences } from '@/common/models';
 import { render, screen } from '@/test';
 import { createMessage, createUser } from '@/test/factories';
 
@@ -46,7 +46,10 @@ describe('Component: ReadableMessageCard', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: false },
+            preferences: createAuthenticatedUserPreferences({
+              prefersAbsoluteDates: false,
+              shouldAlwaysBypassContentWarnings: false,
+            }),
           }),
         },
       },
@@ -68,7 +71,10 @@ describe('Component: ReadableMessageCard', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            preferences: { prefersAbsoluteDates: true, shouldAlwaysBypassContentWarnings: false },
+            preferences: createAuthenticatedUserPreferences({
+              prefersAbsoluteDates: true,
+              shouldAlwaysBypassContentWarnings: false,
+            }),
           }),
         },
       },
@@ -107,7 +113,10 @@ describe('Component: ReadableMessageCard', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            preferences: { prefersAbsoluteDates: false, shouldAlwaysBypassContentWarnings: false },
+            preferences: createAuthenticatedUserPreferences({
+              prefersAbsoluteDates: false,
+              shouldAlwaysBypassContentWarnings: false,
+            }),
           }),
         },
       },

@@ -9,11 +9,13 @@ use App\Connect\Actions\GetClientSupportLevelAction;
 use App\Connect\Actions\GetCodeNotesAction;
 use App\Connect\Actions\GetFriendListAction;
 use App\Connect\Actions\GetGameIdFromHashAction;
+use App\Connect\Actions\GetGameInfosAction;
 use App\Connect\Actions\GetHashLibraryAction;
 use App\Connect\Actions\GetLatestClientVersionAction;
 use App\Connect\Actions\GetLatestIntegrationVersionAction;
 use App\Connect\Actions\GetLeaderboardEntriesAction;
 use App\Connect\Actions\GetPlayerGameUnlocksAction;
+use App\Connect\Actions\GetUserProgressForConsoleAction;
 use App\Connect\Actions\InjectPatchClientSupportLevelDataAction;
 use App\Connect\Actions\LegacyLoginAction;
 use App\Connect\Actions\LoginAction;
@@ -22,6 +24,7 @@ use App\Connect\Actions\PostActivityAction;
 use App\Connect\Actions\StartSessionAction;
 use App\Connect\Actions\SubmitCodeNoteAction;
 use App\Connect\Actions\SubmitGameTitleAction;
+use App\Connect\Actions\SubmitLeaderboardAction;
 use App\Connect\Actions\SubmitRichPresenceAction;
 use App\Enums\ClientSupportLevel;
 use App\Enums\Permissions;
@@ -31,7 +34,6 @@ use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\PlayerAchievement;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Platform\Services\UserAgentService;
 use App\Platform\Services\VirtualGameIdService;
@@ -41,9 +43,11 @@ use Illuminate\Support\Carbon;
 $requestType = request()->input('r');
 $handler = match ($requestType) {
     'achievementwondata' => new GetAchievementUnlocksAction(),
+    'allprogress' => new GetUserProgressForConsoleAction(),
     'badgeiter' => new GetBadgeIdRangeAction(),
     'codenotes2' => new GetCodeNotesAction(),
     'gameid' => new GetGameIdFromHashAction(),
+    'gameinfolist' => new GetGameInfosAction(),
     'getfriendlist' => new GetFriendListAction(),
     'hashlibrary' => new GetHashLibraryAction(),
     'latestclient' => new GetLatestClientVersionAction(),
@@ -58,6 +62,7 @@ $handler = match ($requestType) {
     'submitgametitle' => new SubmitGameTitleAction(),
     'submitrichpresence' => new SubmitRichPresenceAction(),
     'unlocks' => new GetPlayerGameUnlocksAction(),
+    'uploadleaderboard' => new SubmitLeaderboardAction(),
     default => null,
 };
 if ($handler) {
@@ -141,8 +146,7 @@ $credentialsOK = match ($requestType) {
     "submitgametitle",
     "submitlbentry",
     "submitrichpresence",
-    "uploadachievement",
-    "uploadleaderboard" => $validLogin && ($permissions >= Permissions::Registered),
+    "uploadachievement" => $validLogin && ($permissions >= Permissions::Registered),
     /*
      * Anything else is public. Includes login
      */
@@ -216,11 +220,6 @@ switch ($requestType) {
     /*
      * Global, no permissions required
      */
-    case "allprogress":
-        $consoleID = (int) request()->input('c');
-        $response['Response'] = GetAllUserProgress($user, $consoleID);
-        break;
-
     case "gameslist":
         $consoleID = (int) request()->input('c', 0);
         $response['Response'] = getGamesListDataNamesOnly($consoleID);
@@ -229,15 +228,6 @@ switch ($requestType) {
     case "officialgameslist": // TODO: is this used anymore? It's not used by the DLL.
         $consoleID = (int) request()->input('c', 0);
         $response['Response'] = getGamesListDataNamesOnly($consoleID, true);
-        break;
-
-    case "gameinfolist":
-        $gamesCSV = request()->input('g', '');
-        if (empty($gamesCSV)) {
-            return DoRequestError("You must specify which games to retrieve info for", 400);
-        }
-        $response['Response'] = Game::whereIn('ID', explode(',', $gamesCSV, 100))
-            ->select('Title', 'ID', 'ImageIcon')->get()->toArray();
         break;
 
     /*
@@ -253,8 +243,8 @@ switch ($requestType) {
         if ($achIDToAward == Achievement::CLIENT_WARNING_ID) {
             $response = [
                 'Success' => true,
-                'Score' => $user->RAPoints,
-                'SoftcoreScore' => $user->RASoftcorePoints,
+                'Score' => $user->points_hardcore,
+                'SoftcoreScore' => $user->points,
                 'AchievementID' => $achIDToAward,
                 'AchievementsRemaining' => 9999,
             ];
@@ -276,7 +266,7 @@ switch ($requestType) {
         $maxOffset = 14 * 24 * 60 * 60; // 14 days
         $offset = min(max((int) request()->input('o', 0), 0), $maxOffset);
 
-        $foundAchievement = Achievement::where('ID', $achIDToAward)->first();
+        $foundAchievement = Achievement::where('id', $achIDToAward)->first();
         if ($foundAchievement !== null) {
             // delegated unlocks will be rejected if the appropriate validation hash is not provided
             // backdated unlocks will not be backdated if the appropriate validation hash is not provided
@@ -322,8 +312,8 @@ switch ($requestType) {
         }
 
         if (empty($response['Score'])) {
-            $response['Score'] = $user->RAPoints;
-            $response['SoftcoreScore'] = $user->RASoftcorePoints;
+            $response['Score'] = $user->points_hardcore;
+            $response['SoftcoreScore'] = $user->points;
         }
 
         $response['AchievementID'] = $achIDToAward;
@@ -403,7 +393,7 @@ switch ($requestType) {
             return Achievement::find($id)->getCanDelegateUnlocks($user);
         });
 
-        $awardableAchievements = Achievement::whereIn('ID', $filteredAchievementIds)
+        $awardableAchievements = Achievement::whereIn('id', $filteredAchievementIds)
             ->with('game')
             ->get();
 
@@ -419,8 +409,8 @@ switch ($requestType) {
             }
         }
 
-        $response['Score'] = $targetUser->RAPoints;
-        $response['SoftcoreScore'] = $targetUser->RASoftcorePoints;
+        $response['Score'] = $targetUser->points_hardcore;
+        $response['SoftcoreScore'] = $targetUser->points;
         $response['ExistingIDs'] = $alreadyAwardedIds;
         $response['SuccessfulIDs'] = $newAwardedIds;
 
@@ -470,7 +460,7 @@ switch ($requestType) {
                 gameHash: $gameHash,
                 game: $game,
                 user: $user,
-                flag: AchievementFlag::tryFrom($flag),
+                isPromoted: Achievement::isPromotedFromLegacyFlags($flag),
             );
 
             // Based on the user's current client support level, we may want to attach
@@ -513,7 +503,7 @@ switch ($requestType) {
         $maxOffset = 14 * 24 * 60 * 60; // 14 days
         $offset = min(max((int) request()->input('o', 0), 0), $maxOffset);
 
-        $foundLeaderboard = Leaderboard::where('ID', $lbID)->first();
+        $foundLeaderboard = Leaderboard::where('id', $lbID)->first();
         if (!$foundLeaderboard) {
             $response['Success'] = false;
             $response['Error'] = "Cannot find the leaderboard with ID: $lbID";
@@ -576,47 +566,13 @@ switch ($requestType) {
             points: (int) request()->input('z', 0),
             type: request()->input('x', 'not-given'), // `null` is a valid achievement type value, so we use a different fallback value.
             mem: request()->input('m'),
-            flag: (int) request()->input('f', AchievementFlag::Unofficial->value),
+            flag: (int) request()->input('f', Achievement::FLAG_UNPROMOTED),
             idInOut: $achievementID,
             badge: request()->input('b'),
             errorOut: $errorOut,
             gameAchievementSetID: request()->input('s')
         );
         $response['AchievementID'] = $achievementID;
-        $response['Error'] = $errorOut;
-        break;
-
-    case "uploadleaderboard":
-        if (VirtualGameIdService::isVirtualGameId($gameID)) {
-            [$gameID, $compatibility] = VirtualGameIdService::decodeVirtualGameId($gameID);
-        }
-
-        $leaderboardID = (int) request()->input('i', 0);
-        $newTitle = request()->input('n');
-        $newDesc = request()->input('d') ?? '';
-        $newStartMemString = request()->input('s');
-        $newSubmitMemString = request()->input('b');
-        $newCancelMemString = request()->input('c');
-        $newValueMemString = request()->input('l');
-        $gameAchievementSetID = request()->input('p');
-        $newLowerIsBetter = (bool) request()->input('w', 0);
-        $newFormat = request()->input('f');
-        $newMemString = "STA:$newStartMemString::CAN:$newCancelMemString::SUB:$newSubmitMemString::VAL:$newValueMemString";
-
-        $errorOut = "";
-        $response['Success'] = UploadNewLeaderboard(
-            $username,
-            $gameID,
-            $newTitle,
-            $newDesc,
-            $newFormat,
-            $newLowerIsBetter,
-            $newMemString,
-            $leaderboardID,
-            $errorOut,
-            $gameAchievementSetID
-        );
-        $response['LeaderboardID'] = $leaderboardID;
         $response['Error'] = $errorOut;
         break;
 

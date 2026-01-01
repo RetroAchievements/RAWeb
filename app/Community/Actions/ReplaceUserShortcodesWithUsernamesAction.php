@@ -19,13 +19,13 @@ class ReplaceUserShortcodesWithUsernamesAction
             return $messageBody;
         }
 
-        $users = User::whereIn('ID', $userIds)
-            ->get(['ID', 'User', 'display_name'])
-            ->keyBy('ID');
+        $users = User::whereIn('id', $userIds)
+            ->get(['id', 'username', 'display_name'])
+            ->keyBy('id');
 
         // Replace each shortcode with the corresponding username.
         return preg_replace_callback('/\[user=(\d+)\]/', function ($matches) use ($users) {
-            $userId = $matches[1];
+            $userId = (int) $matches[1];
             $user = $users->get($userId);
 
             $username = $user ? ($user->display_name ?? $user->username) : $userId;

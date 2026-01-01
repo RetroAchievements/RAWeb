@@ -1,5 +1,5 @@
 import type { UseQueryResult } from '@tanstack/react-query';
-import type { Dispatch, SetStateAction } from 'react';
+import type { Dispatch, FC, SetStateAction } from 'react';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { LuCheck, LuChevronsUpDown, LuLoaderCircle, LuSearch } from 'react-icons/lu';
 import { useDebounce } from 'react-use';
@@ -148,20 +148,22 @@ export function BaseSelectAsync<T>({
               className="flex-1 rounded-b-none border-none pl-8 focus-visible:ring-0"
               autoComplete="off"
             />
-            {query.isFetching && (
+
+            {query.isFetching ? (
               <div className="absolute right-2 top-1/2 flex -translate-y-1/2 transform items-center">
                 <LuLoaderCircle className="h-4 w-4 animate-spin" />
               </div>
-            )}
+            ) : null}
           </div>
+
           <BaseCommandList>
-            {query.error && (
+            {query.error ? (
               <div className="text-destructive p-4 text-center">
                 {query.error instanceof Error ? query.error.message : 'Failed to fetch options'}
               </div>
-            )}
+            ) : null}
 
-            {query.isLoading && !query.data && (loadingSkeleton || <DefaultLoadingSkeleton />)}
+            {query.isLoading && !query.data ? loadingSkeleton || <DefaultLoadingSkeleton /> : null}
 
             {!query.isLoading &&
               !query.error &&
@@ -197,7 +199,7 @@ export function BaseSelectAsync<T>({
   );
 }
 
-function DefaultLoadingSkeleton() {
+const DefaultLoadingSkeleton: FC = () => {
   return (
     <BaseCommandGroup>
       {[1, 2, 3].map((i) => (
@@ -213,4 +215,4 @@ function DefaultLoadingSkeleton() {
       ))}
     </BaseCommandGroup>
   );
-}
+};

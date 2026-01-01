@@ -27,10 +27,10 @@ class BadgeIterTest extends TestCase
     public function testGetBadgeIterFromAchievements(): void
     {
         $game = $this->seedGame();
-        Achievement::factory()->create(['BadgeName' => '00345']);
-        Achievement::factory()->create(['BadgeName' => '10942']);
-        Achievement::factory()->create(['BadgeName' => '00611']);
-        Achievement::factory()->create(['BadgeName' => '02577']);
+        Achievement::factory()->create(['image_name' => '00345']);
+        Achievement::factory()->create(['image_name' => '10942']);
+        Achievement::factory()->create(['image_name' => '00611']);
+        Achievement::factory()->create(['image_name' => '02577']);
 
         $this->get($this->apiUrl('badgeiter', credentials: false))
             ->assertStatus(200)

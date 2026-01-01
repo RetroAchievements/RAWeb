@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\GameHashCompatibility;
+use App\Platform\Actions\LogGameHashActivityAction;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\GameHashFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -53,6 +54,22 @@ class GameHash extends BaseModel
     ];
 
     // == logging
+
+    public static function boot(): void
+    {
+        parent::boot();
+
+        static::created(function (GameHash $gameHash) {
+            (new LogGameHashActivityAction())->execute('link', $gameHash);
+        });
+
+        static::updated(function (GameHash $gameHash) {
+            $original = $gameHash->getOriginal();
+            $changes = $gameHash->getChanges();
+
+            (new LogGameHashActivityAction())->execute('update', $gameHash, $original, $changes);
+        });
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -181,7 +198,7 @@ class GameHash extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
@@ -189,7 +206,7 @@ class GameHash extends BaseModel
      */
     public function compatibilityTester(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'compatibility_tester_id', 'ID');
+        return $this->belongsTo(User::class, 'compatibility_tester_id');
     }
 
     // == scopes

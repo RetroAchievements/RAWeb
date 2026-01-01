@@ -52,7 +52,7 @@
                                         <x-game.multiline-avatar
                                             :gameId="$value->id"
                                             :gameTitle="$value->title"
-                                            :gameImageIcon="$value->ImageIcon"
+                                            :gameImageIcon="$value->image_icon_asset_path"
                                             :consoleName="$value->system->name"
                                         />
                                     @elseif ($column['type'] === 'user')

@@ -22,7 +22,7 @@ class FindUserByIdentifierAction
         return User::query()
             ->where(function ($query) use ($identifier) {
                 $query->where('display_name', $identifier)
-                    ->orWhere('User', $identifier);
+                    ->orWhere('username', $identifier);
             })
             ->first();
     }

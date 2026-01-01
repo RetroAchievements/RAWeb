@@ -25,8 +25,8 @@ if (empty($userArchInfo)) {
     abort_with(redirect(route('user.show', $dev)));
 }
 
-$userContribCount = $devUser->ContribCount;
-$userContribYield = $devUser->ContribYield;
+$userContribCount = $devUser->yield_unlocks;
+$userContribYield = $devUser->yield_points;
 
 // Get sets and achievements per console data for pie charts
 $setsPerConsole = getUserSetsPerConsole($devUser);
@@ -236,18 +236,18 @@ $prevID = 0;
 $userTicketInfo = getTicketsForUser($devUser);
 $counted = false;
 foreach ($userTicketInfo as $ticketData) {
-    if ($prevID != $ticketData['AchievementID']) { // relies on getTicketsForUser sorting by ID
-        $prevID = $ticketData['AchievementID'];
+    if ($prevID != $ticketData['ticketable_id']) { // relies on getTicketsForUser sorting by ID
+        $prevID = $ticketData['ticketable_id'];
         $userTickets['uniqueTotal']++;
         $counted = false;
     }
-    switch ($ticketData['ReportState']) {
-        case TicketState::Closed:
+    switch ($ticketData['state']) {
+        case TicketState::Closed->value:
             $userTickets['closed'] += $ticketData['TicketCount'];
             $userTickets['total'] += $ticketData['TicketCount'];
             $userTickets['uniqueClosed']++;
             break;
-        case TicketState::Open:
+        case TicketState::Open->value:
             $userTickets['open'] += $ticketData['TicketCount'];
             $userTickets['total'] += $ticketData['TicketCount'];
             $userTickets['uniqueOpen']++;
@@ -256,7 +256,7 @@ foreach ($userTicketInfo as $ticketData) {
                 $userTickets['uniqueValid']++;
             }
             break;
-        case TicketState::Resolved:
+        case TicketState::Resolved->value:
             $userTickets['resolved'] += $ticketData['TicketCount'];
             $userTickets['total'] += $ticketData['TicketCount'];
             $userTickets['uniqueResolved']++;
@@ -265,7 +265,7 @@ foreach ($userTicketInfo as $ticketData) {
                 $userTickets['uniqueValid']++;
             }
             break;
-        case TicketState::Request:
+        case TicketState::Request->value:
             $userTickets['request'] += $ticketData['TicketCount'];
             $userTickets['total'] += $ticketData['TicketCount'];
             $userTickets['uniqueRequest']++;
@@ -771,7 +771,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
         // Tickets resolved
         echo "<tr><td>Tickets Resolved:</td><td>";
         echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev]) . "\">";
-        echo $devUser->resolvedTickets()->where('ReportState', '=', TicketState::Resolved)->count();
+        echo $devUser->resolvedTickets()->where('state', '=', TicketState::Resolved)->count();
         echo "</a>";
         echo "</td></tr>";
 

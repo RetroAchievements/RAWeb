@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Actions\GetUrlToCommentDestinationAction;
 use App\Community\Concerns\IndexesComments;
 use App\Community\Data\CommentData;
 use App\Community\Data\UserCommentsPagePropsData;
-use App\Community\Enums\ArticleType;
-use App\Community\Requests\StoreCommentRequest;
+use App\Community\Enums\CommentableType;
 use App\Data\PaginatedData;
 use App\Data\UserData;
 use App\Models\Comment;
@@ -74,17 +72,8 @@ class UserCommentController extends CommentController
             ->with('comment', $comment);
     }
 
-    protected function update(
-        StoreCommentRequest $request,
-        UserComment $comment,
-        GetUrlToCommentDestinationAction $getUrlToCommentDestinationAction,
-    ): RedirectResponse {
-        $this->authorize('update', $comment);
-
-        $comment->fill($request->validated())->save();
-
-        return redirect($getUrlToCommentDestinationAction->execute($comment))
-            ->with('success', $this->resourceActionSuccessMessage('user.comment', 'update'));
+    protected function update(): void
+    {
     }
 
     protected function destroy(UserComment $comment): RedirectResponse
@@ -108,8 +97,8 @@ class UserCommentController extends CommentController
         $targetUser = User::findOrFail($targetUserId);
         $this->authorize('clearUserWall', $targetUser);
 
-        Comment::where('ArticleType', ArticleType::User)
-            ->where('ArticleID', $targetUser->id)
+        Comment::where('commentable_type', CommentableType::User)
+            ->where('commentable_id', $targetUser->id)
             ->delete();
 
         return response()->json(['success' => true]);

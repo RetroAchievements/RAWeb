@@ -181,7 +181,7 @@ class GameTopAchieversService
         $retval = Cache::get($cacheKey);
         if ($retval !== null) {
             $userIds = array_column($retval[1], 'user_id');
-            $numTrashed = User::onlyTrashed()->whereIn('ID', $userIds)->count();
+            $numTrashed = User::onlyTrashed()->whereIn('id', $userIds)->count();
             if ($numTrashed === 0) {
                 return $retval;
             }

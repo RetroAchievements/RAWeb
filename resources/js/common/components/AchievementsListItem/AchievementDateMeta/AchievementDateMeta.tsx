@@ -3,10 +3,18 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import utc from 'dayjs/plugin/utc';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuCircleAlert } from 'react-icons/lu';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { formatDate } from '@/common/utils/l10n/formatDate';
+
+import {
+  BaseTooltip,
+  BaseTooltipContent,
+  BaseTooltipPortal,
+  BaseTooltipTrigger,
+} from '../../+vendor/BaseTooltip';
 
 dayjs.extend(utc);
 dayjs.extend(isSameOrBefore);
@@ -32,6 +40,8 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
   const activeFrom = eventAchievement?.activeFrom;
   const activeThrough = eventAchievement?.activeThrough;
 
+  let isDemoted =
+    achievement.isPromoted === false || eventAchievement?.sourceAchievement?.isPromoted === false;
   let isActive = false;
   let isExpired = false;
   let isUpcoming = false;
@@ -43,9 +53,10 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
     isActive = activeFrom.isSameOrBefore(now) && now.isBefore(activeUntil);
     isExpired = activeUntil.isSameOrBefore(now);
     isUpcoming = activeFrom.isAfter(now);
+    isDemoted = isActive && isDemoted;
   }
 
-  if (!unlockedAt && !unlockedHardcoreAt && !isActive && !isExpired && !isUpcoming) {
+  if (!unlockedAt && !unlockedHardcoreAt && !isActive && !isExpired && !isUpcoming && !isDemoted) {
     return null;
   }
 
@@ -68,6 +79,26 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
         <p className="text-neutral-300 light:text-neutral-800">
           {t('Ended {{endDate}}', { endDate: formatDate(activeThrough, 'll') })}
         </p>
+      ) : null}
+
+      {isDemoted ? (
+        <BaseTooltip>
+          <BaseTooltipTrigger asChild>
+            <span className="flex items-center gap-1">
+              <LuCircleAlert data-testid="warning-icon" className="size-4 text-text-danger" />
+              <span className="text-text-danger">{t('Unavailable')}</span>
+            </span>
+          </BaseTooltipTrigger>
+          <BaseTooltipPortal>
+            <BaseTooltipContent>
+              {achievement.isPromoted === false
+                ? t('This achievement cannot currently be earned because it has been demoted.')
+                : t(
+                    'This achievement cannot currently be earned because the source achievement has been demoted.',
+                  )}
+            </BaseTooltipContent>
+          </BaseTooltipPortal>
+        </BaseTooltip>
       ) : null}
 
       {unlockedAt ? (

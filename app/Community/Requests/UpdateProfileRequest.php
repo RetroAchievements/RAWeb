@@ -18,7 +18,7 @@ class UpdateProfileRequest extends FormRequest
             return false;
         }
 
-        $isMottoBeingUpdated = $this->has('motto') && $this->input('motto') !== $user->Motto;
+        $isMottoBeingUpdated = $this->has('motto') && $this->input('motto') !== $user->motto;
         if ($isMottoBeingUpdated && !$user->can('updateMotto', $user)) {
             return false;
         }
@@ -29,8 +29,8 @@ class UpdateProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'isUserWallActive' => 'nullable|boolean',
             'motto' => 'nullable|string|max:50',
-            'userWallActive' => 'nullable|boolean',
             'visibleRoleId' => 'nullable|integer',
         ];
     }

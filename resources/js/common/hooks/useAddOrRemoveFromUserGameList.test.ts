@@ -1,10 +1,11 @@
-import userEvent from '@testing-library/user-event';
+// eslint-disable-next-line no-restricted-imports -- needed for this specific test suite
+import { fireEvent } from '@testing-library/react';
 import axios from 'axios';
 // eslint-disable-next-line no-restricted-imports -- this is fine in a test
 import { toast } from 'sonner';
 
 import i18n from '@/i18n-client';
-import { renderHook, screen, waitFor } from '@/test';
+import { act, renderHook, screen } from '@/test';
 
 import { useAddOrRemoveFromUserGameList } from './useAddOrRemoveFromUserGameList';
 
@@ -12,14 +13,17 @@ window.HTMLElement.prototype.setPointerCapture = vi.fn();
 
 describe('Hook: useAddOrRemoveFromUserGameList', () => {
   beforeEach(() => {
-    // Clear all timers before each test.
-    vi.clearAllTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     // Clean up all active toasts after each test to prevent timers from running after teardown.
-    toast.dismiss();
-    vi.clearAllTimers();
+    await act(async () => {
+      toast.dismiss();
+      await vi.advanceTimersByTimeAsync(500);
+    });
+
+    vi.useRealTimers();
   });
 
   it('renders without crashing', () => {
@@ -47,8 +51,12 @@ describe('Hook: useAddOrRemoveFromUserGameList', () => {
     const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ACT
-    const response = await result.current.addToGameList(1, 'Sonic the Hedgehog', {
-      shouldEnableToast: true,
+    let response: unknown;
+    await act(async () => {
+      response = await result.current.addToGameList(1, 'Sonic the Hedgehog', {
+        shouldEnableToast: true,
+      });
+      await vi.advanceTimersByTimeAsync(100);
     });
 
     // ASSERT
@@ -66,12 +74,13 @@ describe('Hook: useAddOrRemoveFromUserGameList', () => {
     const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ACT
-    await result.current.addToGameList(1, 'Sonic the Hedgehog');
+    await act(async () => {
+      await result.current.addToGameList(1, 'Sonic the Hedgehog');
+      await vi.advanceTimersByTimeAsync(100);
+    });
 
     // ASSERT
-    await waitFor(() => {
-      expect(screen.getByText(/added sonic the hedgehog/i)).toBeVisible();
-    });
+    expect(screen.getByText(/added sonic the hedgehog/i)).toBeVisible();
   });
 
   it('given a game is being added as a restore/undo, slightly tweaks the toast message', async () => {
@@ -81,12 +90,13 @@ describe('Hook: useAddOrRemoveFromUserGameList', () => {
     const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ACT
-    await result.current.addToGameList(1, 'Sonic the Hedgehog', { isUndo: true });
+    await act(async () => {
+      await result.current.addToGameList(1, 'Sonic the Hedgehog', { isUndo: true });
+      await vi.advanceTimersByTimeAsync(100);
+    });
 
     // ASSERT
-    await waitFor(() => {
-      expect(screen.getByText(/restored sonic the hedgehog/i)).toBeVisible();
-    });
+    expect(screen.getByText(/restored sonic the hedgehog/i)).toBeVisible();
   });
 
   it('on add, a custom toast success message can be used', async () => {
@@ -96,12 +106,15 @@ describe('Hook: useAddOrRemoveFromUserGameList', () => {
     const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ACT
-    await result.current.addToGameList(1, 'Sonic the Hedgehog', {
-      t_successMessage: i18n.t('Added {{gameTitle}}!'),
+    await act(async () => {
+      await result.current.addToGameList(1, 'Sonic the Hedgehog', {
+        t_successMessage: i18n.t('Added {{gameTitle}}!'),
+      });
+      await vi.advanceTimersByTimeAsync(100);
     });
 
     // ASSERT
-    expect(await screen.findByText(/added/i)).toBeVisible();
+    expect(screen.getByText(/added/i)).toBeVisible();
   });
 
   it("allows the consumer to make a call to remove a game to the user's backlog", async () => {
@@ -111,8 +124,12 @@ describe('Hook: useAddOrRemoveFromUserGameList', () => {
     const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ACT
-    const response = await result.current.removeFromGameList(1, 'Sonic the Hedgehog', {
-      shouldEnableToast: true,
+    let response: unknown;
+    await act(async () => {
+      response = await result.current.removeFromGameList(1, 'Sonic the Hedgehog', {
+        shouldEnableToast: true,
+      });
+      await vi.advanceTimersByTimeAsync(100);
     });
 
     // ASSERT
@@ -132,13 +149,13 @@ describe('Hook: useAddOrRemoveFromUserGameList', () => {
     const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ACT
-    await result.current.removeFromGameList(1, 'Sonic the Hedgehog');
-
-    // ASSERT
-    await waitFor(() => {
-      expect(screen.getByText(/removed sonic the hedgehog/i)).toBeVisible();
+    await act(async () => {
+      await result.current.removeFromGameList(1, 'Sonic the Hedgehog');
+      await vi.advanceTimersByTimeAsync(100);
     });
 
+    // ASSERT
+    expect(screen.getByText(/removed sonic the hedgehog/i)).toBeVisible();
     expect(screen.getByRole('button', { name: /undo/i })).toBeVisible();
   });
 
@@ -149,14 +166,15 @@ describe('Hook: useAddOrRemoveFromUserGameList', () => {
     const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ACT
-    await result.current.removeFromGameList(1, 'Sonic the Hedgehog', {
-      t_successMessage: i18n.t('Removed {{gameTitle}}!'),
+    await act(async () => {
+      await result.current.removeFromGameList(1, 'Sonic the Hedgehog', {
+        t_successMessage: i18n.t('Removed {{gameTitle}}!'),
+      });
+      await vi.advanceTimersByTimeAsync(100);
     });
 
     // ASSERT
-    await waitFor(() => {
-      expect(screen.getByText(/removed/i)).toBeVisible();
-    });
+    expect(screen.getByText(/removed/i)).toBeVisible();
   });
 
   it('on remove, the user can click an undo button in the popped toast to re-add the game to their backlog', async () => {
@@ -167,13 +185,19 @@ describe('Hook: useAddOrRemoveFromUserGameList', () => {
     const { result } = renderHook(() => useAddOrRemoveFromUserGameList());
 
     // ACT
-    await result.current.removeFromGameList(1, 'Sonic the Hedgehog');
-    await userEvent.click(await screen.findByRole('button', { name: /undo/i }));
+    await act(async () => {
+      await result.current.removeFromGameList(1, 'Sonic the Hedgehog');
+      await vi.advanceTimersByTimeAsync(100);
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /undo/i }));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
+    });
 
     // ASSERT
-    await waitFor(() => {
-      expect(screen.getByText(/restored sonic the hedgehog/i)).toBeVisible();
-    });
+    expect(screen.getByText(/restored sonic the hedgehog/i)).toBeVisible();
 
     expect(postSpy).toHaveBeenCalledTimes(1);
     expect(postSpy).toHaveBeenCalledWith(['api.user-game-list.store', 1], {

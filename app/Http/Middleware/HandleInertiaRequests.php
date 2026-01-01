@@ -85,13 +85,19 @@ class HandleInertiaRequests extends Middleware
         };
 
         return array_merge(parent::share($request), [
+            'csrfToken' => csrf_token(),
+
+            'flash' => [
+                'status' => fn () => $request->session()->get('status'),
+            ],
+
             'auth' => $user ? [
                 'user' => UserData::fromUser($user)->include(
+                    'enableBetaFeatures',
                     'id',
                     'isEmailVerified',
                     'isMuted',
                     'isNew',
-                    'enableBetaFeatures',
                     'legacyPermissions',
                     'locale',
                     'mutedUntil',
@@ -99,11 +105,11 @@ class HandleInertiaRequests extends Middleware
                     'points',
                     'pointsSoftcore',
                     'preferences',
+                    'preferencesBitfield',
                     'roles',
-                    'unreadMessageCount',
+                    'unreadMessages',
                     'username',
                     'visibleRole',
-                    'websitePrefs',
                 ),
             ] : null,
 

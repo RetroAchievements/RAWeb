@@ -15,7 +15,7 @@ class LogLegacyApiUsage
         /** @var User $user */
         $user = $request->user('api-token');
 
-        $user->increment('APIUses');
+        $user->increment('web_api_calls');
 
         return $next($request);
     }

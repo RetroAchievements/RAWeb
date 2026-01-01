@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -21,13 +21,13 @@ function cancelDeleteRequest(string $username): bool
 {
     $user = User::whereName($username)->first();
 
-    $query = "UPDATE UserAccounts u 
-        SET u.DeleteRequested = NULL 
-        WHERE u.User = '$username' OR u.display_name = '$username'";
+    $query = "UPDATE users u
+        SET u.delete_requested_at = NULL
+        WHERE u.username = '$username' OR u.display_name = '$username'";
     $dbResult = s_mysql_query($query);
 
     if ($dbResult !== false) {
-        addArticleComment('Server', ArticleType::UserModeration, $user->id,
+        addArticleComment('Server', CommentableType::UserModeration, $user->id,
             $user->display_name . ' canceled account deletion'
         );
     }

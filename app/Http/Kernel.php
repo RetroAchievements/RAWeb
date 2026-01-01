@@ -84,6 +84,7 @@ class Kernel extends HttpKernel
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => Middleware\RedirectIfAuthenticated::class,
         'inertia' => Middleware\HandleInertiaRequests::class,
+        'jsonapi' => \LaravelJsonApi\Laravel\Http\Middleware\BootJsonApi::class,
         'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
         'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
         'signed' => Middleware\ValidateSignature::class,

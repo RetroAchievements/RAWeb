@@ -29,12 +29,14 @@ use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
 use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ProcessExpiringClaims;
+use App\Platform\Commands\PruneDuplicateSubsetNotes;
 use App\Platform\Commands\PruneGameRecentPlayers;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\RevertManualUnlocks;
 use App\Platform\Commands\SyncEvents;
 use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAwardsStaticData;
+use App\Platform\Commands\UpdateBeatenGamesLeaderboard;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
 use App\Platform\Commands\UpdateGameAchievementsMetrics;
 use App\Platform\Commands\UpdateGameBeatenMetrics;
@@ -50,6 +52,7 @@ use App\Platform\Commands\UpdatePlayerPointsStats;
 use App\Platform\Commands\UpdateSearchIndexForQueuedEntities;
 use App\Platform\Commands\UpdateTotalGamesCount;
 use App\Platform\Commands\VerifyAchievementSetIntegrity;
+use App\Platform\Commands\WriteGameSetSortTitles;
 use App\Platform\Commands\WriteGameSortTitles;
 use App\Platform\Components\GameCard;
 use App\Platform\Components\GameTitle;
@@ -65,6 +68,7 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 // Games
+                PruneDuplicateSubsetNotes::class,
                 PruneGameRecentPlayers::class,
                 UpdateGameAchievementsMetrics::class,
                 UpdateGameBeatenMetrics::class,
@@ -72,6 +76,7 @@ class AppServiceProvider extends ServiceProvider
                 UpdateGamePlayerCount::class,
                 UpdateGamePlayerGames::class,
                 VerifyAchievementSetIntegrity::class,
+                WriteGameSetSortTitles::class,
                 WriteGameSortTitles::class,
 
                 // Game Hashes
@@ -91,6 +96,7 @@ class AppServiceProvider extends ServiceProvider
 
                 // Player Stats
                 DeleteStalePlayerPointsStatsEntries::class,
+                UpdateBeatenGamesLeaderboard::class,
                 UpdatePlayerBeatenGamesStats::class,
                 UpdatePlayerPointsStats::class,
 
@@ -137,6 +143,7 @@ class AppServiceProvider extends ServiceProvider
             'emulator' => Emulator::class,
             'emulator.release' => EmulatorRelease::class,
             'game' => Game::class,
+            'game.rich-presence' => Game::class,
             'game-hash' => GameHash::class,
             'game-hash-set' => GameHashSet::class,
             'game-hash-set.game-hash' => GameHashSetHash::class,
