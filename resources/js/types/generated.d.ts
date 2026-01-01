@@ -252,6 +252,7 @@ declare namespace App.Community.Enums {
     | 'misclassification'
     | 'unwelcome-concept'
     | 'writing-error';
+  export type ModerationActionType = 'mute' | 'unmute' | 'ban' | 'unban' | 'unrank' | 'rerank';
   export type ModerationReportableType =
     | 'Comment'
     | 'DirectMessage'
