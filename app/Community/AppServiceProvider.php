@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community;
 
+use App\Community\Commands\BackfillModerationActions;
 use App\Community\Commands\DeleteOldUserActivities;
 use App\Community\Commands\GenerateAnnualRecap;
 use App\Community\Commands\MigrateTicketCommentMetadata;
@@ -45,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                BackfillModerationActions::class,
                 DeleteOldUserActivities::class,
                 GenerateAnnualRecap::class,
                 MigrateTicketCommentMetadata::class,

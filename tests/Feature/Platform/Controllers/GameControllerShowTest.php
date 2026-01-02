@@ -516,7 +516,7 @@ describe('Permissions Props', function () {
         // ARRANGE
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
-        $user = User::factory()->create();
+        $user = User::factory()->create(['points_hardcore' => 100]);
 
         // ACT
         $response = actingAs($user)->get(route('game.show', ['game' => $game]));
@@ -525,7 +525,7 @@ describe('Permissions Props', function () {
         $response->assertInertia(fn (Assert $page) => $page
             ->has('can')
             ->where('can.createAchievementSetClaims', false)
-            ->where('can.createGameComments', true) // !!
+            ->where('can.createGameComments', true)
             ->where('can.createGameForumTopic', false)
             ->where('can.manageAchievementSetClaims', false)
             ->where('can.manageGameHashes', false)
@@ -545,7 +545,7 @@ describe('Permissions Props', function () {
         $game = createGameWithAchievements($system, 'Test Game');
         $game->update(['forum_topic_id' => 12345]); // jr devs can't create claims without a forum topic
 
-        $juniorDeveloper = User::factory()->create();
+        $juniorDeveloper = User::factory()->create(['points_hardcore' => 100]);
         $juniorDeveloper->assignRole(Role::DEVELOPER_JUNIOR);
 
         // ACT
