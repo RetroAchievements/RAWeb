@@ -17,6 +17,7 @@ use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -59,13 +60,13 @@ class GamesRelationManager extends RelationManager
                         }
                     }),
 
-                Tables\Columns\TextColumn::make('ID')
+                Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->sortable(query: function (Builder $query, string $direction): Builder {
-                        return $query->orderBy(DB::raw('GameData.ID'), $direction);
+                        return $query->orderBy(DB::raw('games.id'), $direction);
                     })
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->where(DB::raw('GameData.ID'), 'like', "%{$search}%");
+                        return $query->where(DB::raw('games.id'), 'like', "%{$search}%");
                     })
                     ->url(function (Game $record) {
                         if (request()->user()->can('manage', Game::class)) {
@@ -126,41 +127,44 @@ class GamesRelationManager extends RelationManager
                             ->label('Game IDs (CSV)')
                             ->placeholder('729,2204,3987,53')
                             ->helperText('Enter game IDs separated by commas or spaces. URLs are also supported.')
-                            ->hidden(fn (Get $get): bool => filled($get('game_ids')))
                             ->disabled(fn (Get $get): bool => filled($get('game_ids')))
-                            ->live(debounce: 200),
+                            ->live(debounce: 200)
+                            ->afterStateUpdated(fn (Set $set) => $set('game_ids', null)),
 
                         Forms\Components\Select::make('game_ids')
                             ->label('Games')
                             ->multiple()
                             ->options(function () {
-                                return Game::whereNotIn('ID', $this->getOwnerRecord()->games->pluck('ID'))
-                                    ->where('ConsoleID', '!=', System::Hubs)
+                                return Game::whereNotIn('id', $this->getOwnerRecord()->games->pluck('id'))
+                                    ->where('system_id', '!=', System::Hubs)
                                     ->limit(50)
+                                    ->with('system')
                                     ->get()
-                                    ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title}"]);
+                                    ->mapWithKeys(fn ($game) => [$game->id => "[{$game->id}] {$game->title} ({$game->system->name})"]);
                             })
                             ->searchable()
                             ->getSearchResultsUsing(function (string $search) {
-                                return Game::whereNotIn('ID', $this->getOwnerRecord()->games->pluck('ID'))
-                                    ->where('ConsoleID', '!=', System::Hubs)
+                                return Game::whereNotIn('id', $this->getOwnerRecord()->games->pluck('id'))
+                                    ->where('system_id', '!=', System::Hubs)
                                     ->where(function ($query) use ($search) {
-                                        $query->where('ID', 'LIKE', "%{$search}%")
-                                            ->orWhere('Title', 'LIKE', "%{$search}%");
+                                        $query->where('id', 'LIKE', "%{$search}%")
+                                            ->orWhere('title', 'LIKE', "%{$search}%");
                                     })
                                     ->limit(50)
+                                    ->with('system')
                                     ->get()
-                                    ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title}"]);
+                                    ->mapWithKeys(fn ($game) => [$game->id => "[{$game->id}] {$game->title} ({$game->system->name})"]);
                             })
                             ->getOptionLabelsUsing(function (array $values): array {
-                                return Game::whereIn('ID', $values)
+                                return Game::whereIn('id', $values)
+                                    ->with('system')
                                     ->get()
-                                    ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title}"])
+                                    ->mapWithKeys(fn ($game) => [$game->id => "[{$game->id}] {$game->title} ({$game->system->name})"])
                                     ->toArray();
                             })
-                            ->hidden(fn (Get $get): bool => filled($get('game_ids_csv')))
                             ->disabled(fn (Get $get): bool => filled($get('game_ids_csv')))
                             ->live()
+                            ->afterStateUpdated(fn (Set $set) => $set('game_ids_csv', null))
                             ->helperText('... or search and select games to add.'),
                     ])
                     ->modalHeading('Add games to hub')
@@ -181,10 +185,10 @@ class GamesRelationManager extends RelationManager
                             $gameIds = (new ParseIdsFromCsvAction())->execute($data['game_ids_csv']);
 
                             // Validate that these games can be attached.
-                            $validGameIds = Game::whereIn('ID', $gameIds)
-                                ->where('ConsoleID', '!=', System::Hubs)
-                                ->whereNotIn('ID', $this->getOwnerRecord()->games->pluck('ID'))
-                                ->pluck('ID')
+                            $validGameIds = Game::whereIn('id', $gameIds)
+                                ->where('system_id', '!=', System::Hubs)
+                                ->whereNotIn('id', $this->getOwnerRecord()->games->pluck('id'))
+                                ->pluck('id')
                                 ->toArray();
 
                             if (!empty($validGameIds)) {

@@ -53,7 +53,7 @@ export const AchievementsListItem: FC<AchievementsListItemProps> = ({
 
   const unlockPercentage = achievement.unlockPercentage ? Number(achievement.unlockPercentage) : 0;
 
-  const unlocksHardcoreTotal = achievement.unlocksHardcoreTotal ?? 0;
+  const unlocksHardcoreTotal = achievement.unlocksHardcore ?? 0;
   const unlocksTotal = achievement.unlocksTotal ?? 0;
 
   return (

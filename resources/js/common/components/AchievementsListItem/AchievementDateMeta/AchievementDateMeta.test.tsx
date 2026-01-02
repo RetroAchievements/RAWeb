@@ -189,7 +189,7 @@ describe('AchievementDateMeta', () => {
   it('should show unavailable warning for demoted event achievement.', () => {
     // ARRANGE
     const eventAchievement = createEventAchievement({
-      sourceAchievement: createAchievement({ flags: 5 }),
+      sourceAchievement: createAchievement({ isPromoted: false }),
     });
 
     render(
@@ -205,7 +205,7 @@ describe('AchievementDateMeta', () => {
     // ARRANGE
     const now = dayjs.utc();
     const eventAchievement = createEventAchievement({
-      sourceAchievement: createAchievement({ flags: 5 }),
+      sourceAchievement: createAchievement({ isPromoted: false }),
       activeFrom: now.subtract(2, 'day').toISOString(),
       activeThrough: now.subtract(1, 'day').toISOString(),
       activeUntil: now.toISOString(),
@@ -214,6 +214,39 @@ describe('AchievementDateMeta', () => {
     render(
       <AchievementDateMeta achievement={createAchievement()} eventAchievement={eventAchievement} />,
     );
+
+    // ASSERT
+    expect(screen.queryByText(/Unavailable/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('warning-icon')).not.toBeInTheDocument();
+  });
+
+  it('given an unpublished achievement, should show unavailable warning', () => {
+    // ARRANGE
+    const achievement = createAchievement({ isPromoted: false });
+
+    render(<AchievementDateMeta achievement={achievement} />);
+
+    // ASSERT
+    expect(screen.getByText(/Unavailable/)).toBeInTheDocument();
+    expect(screen.getByTestId('warning-icon')).toBeVisible();
+  });
+
+  it('given a published achievement, should not show unavailable warning', () => {
+    // ARRANGE
+    const achievement = createAchievement({ isPromoted: true });
+
+    render(<AchievementDateMeta achievement={achievement} />);
+
+    // ASSERT
+    expect(screen.queryByText(/Unavailable/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('warning-icon')).not.toBeInTheDocument();
+  });
+
+  it('given isPromoted is not provided, should not show unavailable warning', () => {
+    // ARRANGE
+    const achievement = createAchievement({ isPromoted: undefined });
+
+    render(<AchievementDateMeta achievement={achievement} />);
 
     // ASSERT
     expect(screen.queryByText(/Unavailable/)).not.toBeInTheDocument();

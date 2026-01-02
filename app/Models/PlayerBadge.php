@@ -16,26 +16,26 @@ class PlayerBadge extends BaseModel
     /** @use HasFactory<PlayerBadgeFactory> */
     use HasFactory;
 
-    // TODO Note: will be renamed and split into Community/UserBadge and Platform/PlayerBadge
-    protected $table = 'SiteAwards';
+    // TODO rename PlayerBadge to UserAward
+    protected $table = 'user_awards';
 
-    public const CREATED_AT = 'AwardDate';
+    public const CREATED_AT = 'awarded_at';
     public const UPDATED_AT = null;
 
     protected $fillable = [
         'user_id',
-        'AwardType',
-        'AwardData',
-        'AwardDataExtra',
-        'AwardDate',
-        'DisplayOrder',
+        'award_type',
+        'award_key',
+        'award_tier',
+        'awarded_at',
+        'order_column',
     ];
 
     protected $casts = [
-        'AwardType' => 'int',
-        'AwardData' => 'int',
-        'AwardDataExtra' => 'int',
-        'DisplayOrder' => 'int',
+        'award_type' => AwardType::class,
+        'award_key' => 'int',
+        'award_tier' => 'int',
+        'order_column' => 'int',
     ];
 
     public const MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY = 6;
@@ -76,7 +76,7 @@ class PlayerBadge extends BaseModel
         50_000_000,
     ];
 
-    private static function getThresholds(int $awardType): ?array
+    private static function getThresholds(AwardType $awardType): ?array
     {
         return match ($awardType) {
             AwardType::AchievementUnlocksYield => self::DEVELOPER_COUNT_BOUNDARIES,
@@ -90,7 +90,7 @@ class PlayerBadge extends BaseModel
         return PlayerBadgeFactory::new();
     }
 
-    public static function getBadgeThreshold(int $awardType, int $tier): int
+    public static function getBadgeThreshold(AwardType $awardType, int $tier): int
     {
         $thresholds = self::getThresholds($awardType);
         if ($thresholds === null) {
@@ -104,7 +104,7 @@ class PlayerBadge extends BaseModel
         return $thresholds[$tier];
     }
 
-    public static function getNewBadgeTier(int $awardType, int $oldValue, int $newValue): ?int
+    public static function getNewBadgeTier(AwardType $awardType, int $oldValue, int $newValue): ?int
     {
         $thresholds = self::getThresholds($awardType);
         if ($thresholds !== null) {
@@ -120,7 +120,7 @@ class PlayerBadge extends BaseModel
 
     public static function getNextDisplayOrder(User $user): int
     {
-        return PlayerBadge::where('user_id', $user->id)->max('DisplayOrder') + 1;
+        return PlayerBadge::where('user_id', $user->id)->max('order_column') + 1;
     }
 
     public static function getHighestUserAwardForGameId(User $user, int $gameId): ?array
@@ -137,8 +137,8 @@ class PlayerBadge extends BaseModel
         foreach ($prestigeOrder as $prestigeOrderKind) {
             $found = $userAwards->first(function ($userAward) use ($prestigeOrderKind) {
                 return
-                    $userAward->AwardType === $prestigeOrderKind['type']
-                    && $userAward->AwardDataExtra === $prestigeOrderKind['isHardcore']
+                    $userAward->award_type === $prestigeOrderKind['type']
+                    && $userAward->award_tier === $prestigeOrderKind['isHardcore']
                 ;
             });
 
@@ -158,7 +158,7 @@ class PlayerBadge extends BaseModel
 
     private function isGameRelated(): bool
     {
-        return in_array($this->AwardType, [AwardType::Mastery, AwardType::GameBeaten]);
+        return in_array($this->award_type, [AwardType::Mastery, AwardType::GameBeaten]);
     }
 
     // == accessors
@@ -184,7 +184,7 @@ class PlayerBadge extends BaseModel
      */
     public function gameIfApplicable(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'AwardData', 'id');
+        return $this->belongsTo(Game::class, 'award_key', 'id');
     }
 
     /**
@@ -192,7 +192,7 @@ class PlayerBadge extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     // == scopes
@@ -213,11 +213,11 @@ class PlayerBadge extends BaseModel
     public function scopeForGameId(Builder $query, int $gameId): Builder
     {
         $query->where(function ($query) {
-            $query->where('AwardType', AwardType::GameBeaten)
-                ->orWhere('AwardType', AwardType::Mastery);
+            $query->where('award_type', AwardType::GameBeaten)
+                ->orWhere('award_type', AwardType::Mastery);
         });
 
-        $query->where('AwardData', $gameId);
+        $query->where('award_key', $gameId);
 
         return $query;
     }

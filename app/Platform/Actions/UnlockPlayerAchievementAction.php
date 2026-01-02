@@ -53,6 +53,13 @@ class UnlockPlayerAchievementAction
             // make sure to resume the player session which will attach the game to the player, too
             $playerSession = app()->make(ResumePlayerSessionAction::class)
                 ->execute($user, $gameHash?->game ?? $achievement->game, gameHash: $gameHash, timestamp: $timestamp);
+
+            // if the gameHash isn't associated with the achievement game, make sure a player_games record
+            // exists for the achievement game so points for unlocking the achievement can be captured.
+            if ($gameHash?->game && $gameHash?->game->id !== $achievement->game->id) {
+                // this is normally done by ResumePlayerSessionAction, but we just called it with a different game
+                app()->make(AttachPlayerGameAction::class)->execute($user, $achievement->game);
+            }
         }
 
         $unlock = $user->playerAchievements()->firstOrCreate([
@@ -96,7 +103,7 @@ class UnlockPlayerAchievementAction
         }
 
         // commit the unlock
-        if ($achievement->is_published) {
+        if ($achievement->is_promoted) {
             $unlock->save();
 
             // Check if this achievement is currently maintained by someone other than the author.

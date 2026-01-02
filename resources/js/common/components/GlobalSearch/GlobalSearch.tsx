@@ -17,6 +17,7 @@ import {
 } from '@/common/components/+vendor/BaseDialog';
 import { BaseSeparator } from '@/common/components/+vendor/BaseSeparator';
 import { useSearchQuery } from '@/common/hooks/queries/useSearchQuery';
+import type { SearchMode } from '@/common/models';
 import { cn } from '@/common/utils/cn';
 
 import { BootState } from './components/BootState';
@@ -27,7 +28,7 @@ import { SearchResultsSkeleton } from './components/SearchResultsSkeleton';
 import { useGlobalSearchDebounce } from './hooks/useGlobalSearchDebounce';
 import { useGlobalSearchHotkey } from './hooks/useGlobalSearchHotkey';
 import { useScrollToTopOnSearchResults } from './hooks/useScrollToTopOnSearchResults';
-import type { SearchMode } from './models';
+import { buildSearchUrl } from './utils/buildSearchUrl';
 
 interface GlobalSearchProps {
   isOpen: boolean;
@@ -166,10 +167,8 @@ export const GlobalSearch: FC<GlobalSearchProps> = ({ isOpen, onOpenChange }) =>
               rawQuery={rawQuery}
             />
 
-            <a
-              href={rawQuery ? `/searchresults.php?s=${rawQuery}` : '/searchresults.php'}
-              className="hidden items-center sm:flex"
-            >
+            {/* Because this is a React island, we can't use InertiaLink. */}
+            <a href={buildSearchUrl(rawQuery, searchMode)} className="hidden items-center sm:flex">
               {t('Browse')} <LuChevronRight className="size-4" />
             </a>
           </div>

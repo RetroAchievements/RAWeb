@@ -145,7 +145,7 @@ describe('Component: SubsetConfigurationButton', () => {
     });
 
     // ACT
-    await userEvent.click(screen.getByRole('button', { name: /subset configuration/i }));
+    await userEvent.click(await screen.findByRole('button', { name: /subset configuration/i }));
 
     // ASSERT
     await waitFor(() => {

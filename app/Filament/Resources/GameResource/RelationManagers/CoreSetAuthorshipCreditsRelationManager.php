@@ -29,9 +29,7 @@ use Illuminate\Support\Facades\Auth;
 class CoreSetAuthorshipCreditsRelationManager extends RelationManager
 {
     protected static string $relationship = 'coreSetAuthorshipCredits';
-
     protected static ?string $title = 'Set Credits';
-
     protected static string|BackedEnum|null $icon = 'fas-users';
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
@@ -142,11 +140,11 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
             ->recordActions([
                 EditAction::make()
                     ->modalHeading('Edit contribution credit')
-                    ->visible(fn () => $canManageContributionCredit),
+                    ->visible(fn (AchievementSetAuthor $record): bool => $user->can('update', $record)),
 
                 DeleteAction::make()
                     ->modalHeading('Delete contribution credit')
-                    ->visible(fn () => $canManageContributionCredit),
+                    ->visible(fn (AchievementSetAuthor $record): bool => $user->can('delete', $record)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

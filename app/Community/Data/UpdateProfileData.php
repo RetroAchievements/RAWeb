@@ -10,17 +10,17 @@ use Spatie\LaravelData\Data;
 class UpdateProfileData extends Data
 {
     public function __construct(
-        public string $motto,
-        public bool $userWallActive,
         public ?int $visibleRoleId,
+        public bool $isUserWallActive,
+        public string $motto,
     ) {
     }
 
     public static function fromRequest(UpdateProfileRequest $request): self
     {
         return new self(
+            isUserWallActive: $request->isUserWallActive,
             motto: $request->motto,
-            userWallActive: $request->userWallActive,
             visibleRoleId: $request->visibleRoleId,
         );
     }
@@ -28,8 +28,8 @@ class UpdateProfileData extends Data
     public function toArray(): array
     {
         return [
-            'Motto' => $this->motto,
-            'UserWallActive' => $this->userWallActive,
+            'is_user_wall_active' => $this->isUserWallActive,
+            'motto' => $this->motto,
             'visible_role_id' => $this->visibleRoleId,
         ];
     }

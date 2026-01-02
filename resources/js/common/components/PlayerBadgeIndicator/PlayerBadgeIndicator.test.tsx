@@ -1,4 +1,3 @@
-import { AwardType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
 import { createPlayerBadge } from '@/test/factories';
 
@@ -16,8 +15,8 @@ describe('Component: PlayerBadgeIndicator', () => {
   it('renders an accessible label for mastery', () => {
     // ARRANGE
     const playerBadge = createPlayerBadge({
-      awardType: AwardType.Mastery,
-      awardDataExtra: 1,
+      awardType: 'mastery',
+      awardTier: 1,
     });
 
     render(<PlayerBadgeIndicator playerBadge={playerBadge} />);
@@ -29,8 +28,8 @@ describe('Component: PlayerBadgeIndicator', () => {
   it('renders an accessible label for completion', () => {
     // ARRANGE
     const playerBadge = createPlayerBadge({
-      awardType: AwardType.Mastery,
-      awardDataExtra: 0,
+      awardType: 'mastery',
+      awardTier: 0,
     });
 
     render(<PlayerBadgeIndicator playerBadge={playerBadge} />);
@@ -42,8 +41,8 @@ describe('Component: PlayerBadgeIndicator', () => {
   it('renders an accessible label for beaten', () => {
     // ARRANGE
     const playerBadge = createPlayerBadge({
-      awardType: AwardType.GameBeaten,
-      awardDataExtra: 1,
+      awardType: 'game_beaten',
+      awardTier: 1,
     });
 
     render(<PlayerBadgeIndicator playerBadge={playerBadge} />);
@@ -55,8 +54,8 @@ describe('Component: PlayerBadgeIndicator', () => {
   it('renders an accessible label for beaten softcore', () => {
     // ARRANGE
     const playerBadge = createPlayerBadge({
-      awardType: AwardType.GameBeaten,
-      awardDataExtra: 0,
+      awardType: 'game_beaten',
+      awardTier: 0,
     });
 
     render(<PlayerBadgeIndicator playerBadge={playerBadge} />);

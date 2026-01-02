@@ -22,7 +22,7 @@ export const DeleteAccountSectionCard: FC = () => {
   const { t } = useTranslation();
 
   const [isDeleteAlreadyRequested, setIsDeleteAlreadyRequested] = useState(
-    !!userSettings.deleteRequested,
+    !!userSettings.deleteRequestedAt,
   );
 
   const cancelDeleteMutation = useCancelAccountDeletionMutation();
@@ -60,8 +60,8 @@ export const DeleteAccountSectionCard: FC = () => {
     }
   };
 
-  const deletionDate = userSettings.deleteRequested
-    ? dayjs(userSettings.deleteRequested).add(2, 'weeks')
+  const deletionDate = userSettings.deleteRequestedAt
+    ? dayjs(userSettings.deleteRequestedAt).add(2, 'weeks')
     : dayjs().add(2, 'weeks');
 
   return (

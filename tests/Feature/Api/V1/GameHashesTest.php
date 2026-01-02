@@ -39,7 +39,7 @@ class GameHashesTest extends TestCase
         $system = System::factory()->create();
 
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
         /** @var GameHash $gameHashOne */
         $gameHashOne = GameHash::factory()->create([

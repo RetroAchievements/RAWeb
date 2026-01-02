@@ -16,8 +16,10 @@ use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -66,7 +68,7 @@ class ParentHubsRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('title')
                     ->label('Title')
-                    ->sortable()
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy('sort_title', $direction))
                     ->searchable()
                     ->url(function (GameSet $record) {
                         if (request()->user()->can('manage', GameSet::class)) {
@@ -86,9 +88,9 @@ class ParentHubsRelationManager extends RelationManager
                             ->label('Hub IDs (CSV)')
                             ->placeholder('729,2204,3987,53')
                             ->helperText('Enter hub IDs separated by commas or spaces. URLs are also supported.')
-                            ->hidden(fn (Get $get): bool => filled($get('hub_ids')))
                             ->disabled(fn (Get $get): bool => filled($get('hub_ids')))
-                            ->live(debounce: 200),
+                            ->live(debounce: 200)
+                            ->afterStateUpdated(fn (Set $set) => $set('hub_ids', null)),
 
                         Forms\Components\Select::make('hub_ids')
                             ->label('Hubs')
@@ -118,9 +120,9 @@ class ParentHubsRelationManager extends RelationManager
                                     ->mapWithKeys(fn ($gameSet) => [$gameSet->id => "[{$gameSet->id} {$gameSet->title}]"])
                                     ->toArray();
                             })
-                            ->hidden(fn (Get $get): bool => filled($get('hub_ids_csv')))
                             ->disabled(fn (Get $get): bool => filled($get('hub_ids_csv')))
                             ->live()
+                            ->afterStateUpdated(fn (Set $set) => $set('hub_ids_csv', null))
                             ->helperText('... or search and select hubs to add.'),
                     ])
                     ->modalHeading('Add related hub links to hub')

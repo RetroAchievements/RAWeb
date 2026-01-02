@@ -9,7 +9,6 @@ use App\Enums\Permissions;
 use App\Models\Game;
 use App\Models\PlayerSession;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class GetFriendListAction extends BaseAuthenticatedApiAction
 {
@@ -27,19 +26,19 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
     {
         // only return the 100 most recently active friends (some users have more than 1000!)
         $friends = $this->user->followedUsers()
-            ->where(DB::raw('UserAccounts.Permissions'), '>=', Permissions::Unregistered)
-            ->whereNull(DB::raw('UserAccounts.Deleted'))
-            ->orderBy('UserAccounts.LastLogin', 'DESC')
+            ->where('users.Permissions', '>=', Permissions::Unregistered)
+            ->whereNull('users.deleted_at')
+            ->orderBy('users.last_activity_at', 'DESC')
             ->limit(100)
             ->select([
-                'UserAccounts.ID',
-                'UserAccounts.User',
-                'UserAccounts.display_name',
-                'UserAccounts.RAPoints',
-                'UserAccounts.RichPresenceMsg',
-                'UserAccounts.RichPresenceMsgDate',
-                'UserAccounts.LastLogin',
-                'UserAccounts.LastGameID',
+                'users.id',
+                'users.username',
+                'users.display_name',
+                'users.points_hardcore',
+                'users.rich_presence',
+                'users.rich_presence_updated_at',
+                'users.last_activity_at',
+                'users.rich_presence_game_id',
             ])
             ->get();
 
@@ -50,7 +49,7 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
             ];
         }
 
-        $friendIds = $friends->pluck('ID')->toArray();
+        $friendIds = $friends->pluck('id')->toArray();
 
         // Get the most recent session date for each friend.
         $subQuery = PlayerSession::selectRaw('user_id, MAX(rich_presence_updated_at) as max_date')
@@ -65,7 +64,7 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
                     ->on('ps.user_id', '=', 'latest.user_id')
                     ->on('ps.rich_presence_updated_at', '=', 'latest.max_date');
             })
-            ->with(['game:ID,Title,ImageIcon'])
+            ->with(['game:id,title,image_icon_asset_path'])
             ->select([
                 'ps.user_id',
                 'ps.rich_presence',
@@ -78,9 +77,9 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
         // Get game IDs for users without recent sessions.
         $gameIds = $friends
             ->filter(function ($friend) use ($latestSessions) {
-                return !isset($latestSessions[$friend->ID]) && $friend->LastGameID > 0;
+                return !isset($latestSessions[$friend->id]) && $friend->rich_presence_game_id > 0;
             })
-            ->pluck('LastGameID')
+            ->pluck('rich_presence_game_id')
             ->unique()
             ->toArray();
 
@@ -88,20 +87,20 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
         $games = empty($gameIds)
             ? collect()
             : Game::query()
-                ->whereIn('ID', $gameIds)
-                ->select(['ID', 'Title', 'ImageIcon'])
+                ->whereIn('id', $gameIds)
+                ->select(['id', 'title', 'image_icon_asset_path'])
                 ->get()
-                ->keyBy('ID');
+                ->keyBy('id');
 
         $friendList = [];
 
         foreach ($friends as $friend) {
             $entry = [
                 'Friend' => $friend->display_name,
-                'AvatarUrl' => media_asset('UserPic/' . $friend->User . '.png'),
-                'RAPoints' => $friend->RAPoints,
-                'LastSeen' => empty($friend->RichPresenceMsg) ? 'Unknown' : strip_tags($friend->RichPresenceMsg),
-                'LastSeenTime' => ($friend->RichPresenceMsgDate ?? $friend->LastLogin)?->unix(),
+                'AvatarUrl' => media_asset('UserPic/' . $friend->username . '.png'),
+                'RAPoints' => $friend->points_hardcore,
+                'LastSeen' => empty($friend->rich_presence) ? 'Unknown' : strip_tags($friend->rich_presence),
+                'LastSeenTime' => ($friend->rich_presence_updated_at ?? $friend->last_activity_at)?->unix(),
             ];
 
             if (isset($latestSessions[$friend->id])) {
@@ -112,17 +111,17 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
                 if ($mostRecentSession->game) {
                     $entry['LastGameId'] = $mostRecentSession->game_id;
                     $entry['LastGameTitle'] = $mostRecentSession->game->title;
-                    $entry['LastGameIconUrl'] = media_asset($mostRecentSession->game->ImageIcon);
+                    $entry['LastGameIconUrl'] = media_asset($mostRecentSession->game->image_icon_asset_path);
                 } else {
                     $entry['LastGameId'] = $mostRecentSession->game_id;
                     $entry['LastGameTitle'] = null;
                     $entry['LastGameIconUrl'] = null;
                 }
-            } elseif ($friend->LastGameID && isset($games[$friend->LastGameID])) {
-                $lastGame = $games[$friend->LastGameID];
+            } elseif ($friend->rich_presence_game_id && isset($games[$friend->rich_presence_game_id])) {
+                $lastGame = $games[$friend->rich_presence_game_id];
                 $entry['LastGameId'] = $lastGame->id;
                 $entry['LastGameTitle'] = $lastGame->title;
-                $entry['LastGameIconUrl'] = media_asset($lastGame->ImageIcon);
+                $entry['LastGameIconUrl'] = media_asset($lastGame->image_icon_asset_path);
             } else {
                 $entry['LastGameId'] = null;
                 $entry['LastGameTitle'] = null;
@@ -133,7 +132,7 @@ class GetFriendListAction extends BaseAuthenticatedApiAction
         }
 
         usort($friendList, function ($a, $b) {
-            $diff = $b['LastSeenTime'] - $a['LastSeenTime'];
+            $diff = ($b['LastSeenTime'] ?? 0) - ($a['LastSeenTime'] ?? 0);
             if ($diff === 0) {
                 $diff = $b['RAPoints'] - $a['RAPoints'];
             }

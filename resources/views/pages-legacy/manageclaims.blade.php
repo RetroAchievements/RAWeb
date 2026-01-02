@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimSorting;
 use App\Community\Enums\ClaimSpecial;
@@ -41,33 +41,33 @@ $gameIcon = $gameData['ImageIcon'];
   function UpdateClaimDetails(claimID, claimUser, claimType, setType, claimStatus, claimSpecial, claimDate, doneDate) {
     var somethingChanged = 0;
 
-    var newClaimType = parseInt($('#claimType_' + claimID).val());
-    if (newClaimType != claimType) {
+    var newClaimType = $('#claimType_' + claimID).val();
+    if (newClaimType !== claimType) {
         somethingChanged = 1;
     }
 
-    var newSetType = parseInt($('#setType_' + claimID).val());
-    if (newSetType != setType) {
+    var newSetType = $('#setType_' + claimID).val();
+    if (newSetType !== setType) {
         somethingChanged = 1;
     }
 
-    var newClaimStatus = parseInt($('#status_' + claimID).val());
-    if (newClaimStatus != claimStatus) {
+    var newClaimStatus = $('#status_' + claimID).val();
+    if (newClaimStatus !== claimStatus) {
         somethingChanged = 1;
     }
 
-    var newClaimSpecial = parseInt($('#special_' + claimID).val());
-    if (newClaimSpecial != claimSpecial) {
+    var newClaimSpecial = $('#special_' + claimID).val();
+    if (newClaimSpecial !== claimSpecial) {
         somethingChanged = 1;
     }
 
     var newClaimDate = $('#claimDate_' + claimID).val();
-    if (newClaimDate != claimDate) {
+    if (newClaimDate !== claimDate) {
         somethingChanged = 1;
     }
 
     var newDoneDate = $('#doneDate_' + claimID).val();
-    if (newDoneDate != doneDate) {
+    if (newDoneDate !== doneDate) {
         somethingChanged = 1;
     }
 
@@ -98,21 +98,21 @@ $gameIcon = $gameData['ImageIcon'];
     echo "<div class='embedded mb-1'>";
     echo "<div><b>Field Values:</b></div>";
     echo "</br><u>Claim Type</u></br>";
-    echo "<b>" . ClaimType::toString(ClaimType::Primary) . "</b> - Developer has the main claim on the game, this takes up a reservation spot.</br>";
-    echo "<b>" . ClaimType::toString(ClaimType::Collaboration) . "</b> - Developer is collaborating with another developer, this does not take up a reservation spot.</br>";
+    echo "<b>" . ClaimType::Primary->label() . "</b> - Developer has the main claim on the game, this takes up a reservation spot.</br>";
+    echo "<b>" . ClaimType::Collaboration->label() . "</b> - Developer is collaborating with another developer, this does not take up a reservation spot.</br>";
     echo "</br><u>Claim Type</u></br>";
-    echo "<b>" . ClaimSetType::toString(ClaimSetType::NewSet) . "</b> - Claim is for a game with no core achievements.</br>";
-    echo "<b>" . ClaimSetType::toString(ClaimSetType::Revision) . "</b> - Claim is for a game with core achievements.</br>";
+    echo "<b>" . ClaimSetType::NewSet->label() . "</b> - Claim is for a game with no core achievements.</br>";
+    echo "<b>" . ClaimSetType::Revision->label() . "</b> - Claim is for a game with core achievements.</br>";
     echo "</br><u>Claim Status</u></br>";
-    echo "<b>" . ClaimStatus::toString(ClaimStatus::Active) . "</b> - Claim is currently active.</br>";
-    echo "<b>" . ClaimStatus::toString(ClaimStatus::InReview) . "</b> - Claim is active and in review.</br>";
-    echo "<b>" . ClaimStatus::toString(ClaimStatus::Complete) . "</b> - Claim has been marked as complete by the developer.</br>";
-    echo "<b>" . ClaimStatus::toString(ClaimStatus::Dropped) . "</b> - Claim has been dropped by the developer.</br>";
+    echo "<b>" . ClaimStatus::Active->label() . "</b> - Claim is currently active.</br>";
+    echo "<b>" . ClaimStatus::InReview->label() . "</b> - Claim is active and in review.</br>";
+    echo "<b>" . ClaimStatus::Complete->label() . "</b> - Claim has been marked as complete by the developer.</br>";
+    echo "<b>" . ClaimStatus::Dropped->label() . "</b> - Claim has been dropped by the developer.</br>";
     echo "</br><u>Special</u></br>";
-    echo "<b>" . ClaimSpecial::toString(ClaimSpecial::None) . "</b> - Standard claim taking up a reservation spot.</br>";
-    echo "<b>" . ClaimSpecial::toString(ClaimSpecial::OwnRevision) . "</b> - Own revision claim, does not take up a claim spot.</br>";
-    echo "<b>" . ClaimSpecial::toString(ClaimSpecial::FreeRollout) . "</b> - Free rollout claim, does not take up a claim spot.</br>";
-    echo "<b>" . ClaimSpecial::toString(ClaimSpecial::ScheduledRelease) . "</b> - Set approved for future release, does not take up a claim spot.</br>";
+    echo "<b>" . ClaimSpecial::None->label() . "</b> - Standard claim taking up a reservation spot.</br>";
+    echo "<b>" . ClaimSpecial::OwnRevision->label() . "</b> - Own revision claim, does not take up a claim spot.</br>";
+    echo "<b>" . ClaimSpecial::FreeRollout->label() . "</b> - Free rollout claim, does not take up a claim spot.</br>";
+    echo "<b>" . ClaimSpecial::ScheduledRelease->label() . "</b> - Set approved for future release, does not take up a claim spot.</br>";
     echo "</br><u>Claim Date</u></br>";
     echo "Date the developer made the claim.</br>";
     echo "</br><u>End Date</u></br>";
@@ -143,15 +143,15 @@ $gameIcon = $gameData['ImageIcon'];
 
         echo "<td>";
         echo "<select id='claimType_$claimID'>";
-        echo "<option " . ($claim['ClaimType'] == ClaimType::Primary ? "selected" : "") . " value=" . ClaimType::Primary . ">" . ClaimType::toString(ClaimType::Primary) . "</option>";
-        echo "<option " . ($claim['ClaimType'] == ClaimType::Primary ? "" : "selected") . " value=" . ClaimType::Collaboration . ">" . ClaimType::toString(ClaimType::Collaboration) . "</option>";
+        echo "<option " . ($claim['ClaimType'] == ClaimType::Primary->value ? "selected" : "") . " value=" . ClaimType::Primary->value . ">" . ClaimType::Primary->label() . "</option>";
+        echo "<option " . ($claim['ClaimType'] == ClaimType::Primary->value ? "" : "selected") . " value=" . ClaimType::Collaboration->value . ">" . ClaimType::Collaboration->label() . "</option>";
         echo "</select>";
         echo "</td>";
 
         echo "<td>";
         echo "<select id='setType_$claimID'>";
-        echo "<option " . ($claim['SetType'] == ClaimSetType::NewSet ? "selected" : "") . " value=" . ClaimSetType::NewSet . ">" . ClaimSetType::toString(ClaimSetType::NewSet) . "</option>";
-        echo "<option " . ($claim['SetType'] == ClaimSetType::NewSet ? "" : "selected") . " value=" . ClaimSetType::Revision . ">" . ClaimSetType::toString(ClaimSetType::Revision) . "</option>";
+        echo "<option " . ($claim['SetType'] == ClaimSetType::NewSet->value ? "selected" : "") . " value=" . ClaimSetType::NewSet->value . ">" . ClaimSetType::NewSet->label() . "</option>";
+        echo "<option " . ($claim['SetType'] == ClaimSetType::NewSet->value ? "" : "selected") . " value=" . ClaimSetType::Revision->value . ">" . ClaimSetType::Revision->label() . "</option>";
         echo "</select>";
         echo "</td>";
 
@@ -161,19 +161,19 @@ $gameIcon = $gameData['ImageIcon'];
         } else {
             echo "<select id='status_$claimID'>";
         }
-        echo "<option " . ($claim['Status'] == ClaimStatus::Active ? "selected" : "") . " value=" . ClaimStatus::Active . ">" . ClaimStatus::toString(ClaimStatus::Active) . "</option>";
-        echo "<option " . ($claim['Status'] == ClaimStatus::InReview ? "selected" : "") . " value=" . ClaimStatus::InReview . ">" . ClaimStatus::toString(ClaimStatus::InReview) . "</option>";
-        echo "<option " . ($claim['Status'] == ClaimStatus::Complete ? "selected" : "") . " value=" . ClaimStatus::Complete . ">" . ClaimStatus::toString(ClaimStatus::Complete) . "</option>";
-        echo "<option " . ($claim['Status'] == ClaimStatus::Dropped ? "selected" : "") . " value=" . ClaimStatus::Dropped . ">" . ClaimStatus::toString(ClaimStatus::Dropped) . "</option>";
+        echo "<option " . ($claim['Status'] == ClaimStatus::Active->value ? "selected" : "") . " value=" . ClaimStatus::Active->value . ">" . ClaimStatus::Active->label() . "</option>";
+        echo "<option " . ($claim['Status'] == ClaimStatus::InReview->value ? "selected" : "") . " value=" . ClaimStatus::InReview->value . ">" . ClaimStatus::InReview->label() . "</option>";
+        echo "<option " . ($claim['Status'] == ClaimStatus::Complete->value ? "selected" : "") . " value=" . ClaimStatus::Complete->value . ">" . ClaimStatus::Complete->label() . "</option>";
+        echo "<option " . ($claim['Status'] == ClaimStatus::Dropped->value ? "selected" : "") . " value=" . ClaimStatus::Dropped->value . ">" . ClaimStatus::Dropped->label() . "</option>";
         echo "</select>";
         echo "</td>";
 
         echo "<td>";
         echo "<select id='special_$claimID'>";
-        echo "<option " . ($claim['Special'] == ClaimSpecial::None ? "selected" : "") . " value=" . ClaimSpecial::None . ">" . ClaimSpecial::toString(ClaimSpecial::None) . "</option>";
-        echo "<option " . ($claim['Special'] == ClaimSpecial::OwnRevision ? "selected" : "") . " value=" . ClaimSpecial::OwnRevision . ">" . ClaimSpecial::toString(ClaimSpecial::OwnRevision) . "</option>";
-        echo "<option " . ($claim['Special'] == ClaimSpecial::FreeRollout ? "selected" : "") . " value=" . ClaimSpecial::FreeRollout . ">" . ClaimSpecial::toString(ClaimSpecial::FreeRollout) . "</option>";
-        echo "<option " . ($claim['Special'] == ClaimSpecial::ScheduledRelease ? "selected" : "") . " value=" . ClaimSpecial::ScheduledRelease . ">" . ClaimSpecial::toString(ClaimSpecial::ScheduledRelease) . "</option>";
+        echo "<option " . ($claim['Special'] == ClaimSpecial::None->value ? "selected" : "") . " value=" . ClaimSpecial::None->value . ">" . ClaimSpecial::None->label() . "</option>";
+        echo "<option " . ($claim['Special'] == ClaimSpecial::OwnRevision->value ? "selected" : "") . " value=" . ClaimSpecial::OwnRevision->value . ">" . ClaimSpecial::OwnRevision->label() . "</option>";
+        echo "<option " . ($claim['Special'] == ClaimSpecial::FreeRollout->value ? "selected" : "") . " value=" . ClaimSpecial::FreeRollout->value . ">" . ClaimSpecial::FreeRollout->label() . "</option>";
+        echo "<option " . ($claim['Special'] == ClaimSpecial::ScheduledRelease->value ? "selected" : "") . " value=" . ClaimSpecial::ScheduledRelease->value . ">" . ClaimSpecial::ScheduledRelease->label() . "</option>";
         echo "</select>";
         echo "</td>";
 
@@ -185,12 +185,12 @@ $gameIcon = $gameData['ImageIcon'];
         echo "<input id='doneDate_$claimID' size='18' value='" . $claim['DoneTime'] . "'>";
         echo "</td>";
 
-        echo "<td><button class='btn' type='button' onclick=\"UpdateClaimDetails($claimID, '$claimUser', " . $claim['ClaimType'] . ", " . $claim['SetType'] . ", " . $claim['Status'] . ", " . $claim['Special'] . ", '" . $claim['Created'] . "', '" . $claim['DoneTime'] . "');\">Update</button></td>";
+        echo "<td><button class='btn' type='button' onclick=\"UpdateClaimDetails($claimID, '$claimUser', '" . $claim['ClaimType'] . "', '" . $claim['SetType'] . "', '" . $claim['Status'] . "', '" . $claim['Special'] . "', '" . $claim['Created'] . "', '" . $claim['DoneTime'] . "');\">Update</button></td>";
     }
     echo "</tbody></table></div>";
 
-    echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
-        ['articleType' => ArticleType::SetClaim, 'articleId' => $gameID]
+    echo Blade::render("<x-comment.list :commentableType=\"\$commentableType\" :commentableId=\"\$commentableId\" />",
+        ['commentableType' => CommentableType::SetClaim, 'commentableId' => $gameID]
     );
 
     echo "</div>";

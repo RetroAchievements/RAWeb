@@ -10,7 +10,7 @@ describe('Component: ProgressBarMetaText', () => {
       <ProgressBarMetaText
         achievement={createAchievement({
           unlocksTotal: 100,
-          unlocksHardcoreTotal: 50,
+          unlocksHardcore: 50,
           unlockPercentage: '0.5',
         })}
         playersTotal={200}
@@ -28,7 +28,7 @@ describe('Component: ProgressBarMetaText', () => {
       <ProgressBarMetaText
         achievement={createAchievement({
           unlocksTotal: 100,
-          unlocksHardcoreTotal: 50,
+          unlocksHardcore: 50,
           unlockPercentage: '0.5',
         })}
         playersTotal={200}
@@ -49,7 +49,7 @@ describe('Component: ProgressBarMetaText', () => {
       <ProgressBarMetaText
         achievement={createAchievement({
           unlocksTotal: 75,
-          unlocksHardcoreTotal: 75, // !! equal counts
+          unlocksHardcore: 75, // !! equal counts
           unlockPercentage: '0.375',
         })}
         playersTotal={200}
@@ -68,7 +68,7 @@ describe('Component: ProgressBarMetaText', () => {
       <ProgressBarMetaText
         achievement={createAchievement({
           unlocksTotal: 75,
-          unlocksHardcoreTotal: 75, // !! equal counts
+          unlocksHardcore: 75, // !! equal counts
           unlockPercentage: '0.375',
         })}
         playersTotal={200}
@@ -88,7 +88,7 @@ describe('Component: ProgressBarMetaText', () => {
       <ProgressBarMetaText
         achievement={createAchievement({
           unlocksTotal: 75,
-          unlocksHardcoreTotal: 75,
+          unlocksHardcore: 75,
           unlockPercentage: '0.375',
         })}
         playersTotal={200}
@@ -107,7 +107,7 @@ describe('Component: ProgressBarMetaText', () => {
       <ProgressBarMetaText
         achievement={createAchievement({
           unlocksTotal: 100,
-          unlocksHardcoreTotal: 50,
+          unlocksHardcore: 50,
           unlockPercentage: '0.5',
         })}
         playersTotal={200}
@@ -126,7 +126,7 @@ describe('Component: ProgressBarMetaText', () => {
       <ProgressBarMetaText
         achievement={createAchievement({
           unlocksTotal: 0,
-          unlocksHardcoreTotal: 0,
+          unlocksHardcore: 0,
           unlockPercentage: '0.0',
         })}
         playersTotal={0}
@@ -146,7 +146,7 @@ describe('Component: ProgressBarMetaText', () => {
       <ProgressBarMetaText
         achievement={createAchievement({
           unlocksTotal: undefined,
-          unlocksHardcoreTotal: undefined,
+          unlocksHardcore: undefined,
           unlockPercentage: undefined,
         })}
         playersTotal={200}

@@ -1,4 +1,3 @@
-import { AwardType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
 import { createGame, createPlayerBadge, createPlayerGame, createSystem } from '@/test/factories';
 
@@ -226,8 +225,8 @@ describe('Component: ChipOfInterest', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 100,
       highestAward: createPlayerBadge({
-        awardType: AwardType.Mastery,
-        awardDataExtra: 1,
+        awardType: 'mastery',
+        awardTier: 1,
       }),
     });
 
@@ -278,8 +277,8 @@ describe('Component: ChipOfInterest', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 11,
       highestAward: createPlayerBadge({
-        awardType: AwardType.GameBeaten,
-        awardDataExtra: 1,
+        awardType: 'game_beaten',
+        awardTier: 1,
       }),
     });
 
@@ -298,8 +297,8 @@ describe('Component: ChipOfInterest', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 99,
       highestAward: createPlayerBadge({
-        awardType: AwardType.Mastery,
-        awardDataExtra: 1,
+        awardType: 'mastery',
+        awardTier: 1,
       }),
     });
 
@@ -318,8 +317,8 @@ describe('Component: ChipOfInterest', () => {
     const playerGame = createPlayerGame({
       achievementsUnlocked: 100,
       highestAward: createPlayerBadge({
-        awardType: AwardType.Mastery,
-        awardDataExtra: 1,
+        awardType: 'mastery',
+        awardTier: 1,
       }),
     });
 

@@ -5,173 +5,29 @@ declare(strict_types=1);
 namespace App\Community\Components;
 
 use App\Models\System;
-use App\Platform\Services\PlayerProgressionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
 class UserProgressionStatus extends Component
 {
-    public array $subsetGameIds = [];
-    public array $userCompletionProgress = [];
-    public array $userJoinedGamesAndAwards = [];
-    public array $userRecentlyPlayed = [];
-    public array $userSiteAwards = [];
-    public int $userHardcorePoints = 0;
-    public int $userSoftcorePoints = 0;
-
     public function __construct(
-        protected PlayerProgressionService $playerProgressionService,
-        array $subsetGameIds = [],
-        array $userCompletionProgress = [],
-        int $userHardcorePoints = 0,
-        array $userJoinedGamesAndAwards = [],
-        array $userRecentlyPlayed = [],
-        array $userSiteAwards = [],
-        int $userSoftcorePoints = 0,
+        public array $systemProgress = [],
+        public array $totalCounts = [],
+        public ?int $topSystemId = null,
+        public int $userHardcorePoints = 0,
+        public int $userSoftcorePoints = 0,
     ) {
-        $this->subsetGameIds = $subsetGameIds;
-        $this->userCompletionProgress = $userCompletionProgress;
-        $this->userHardcorePoints = $userHardcorePoints;
-        $this->userJoinedGamesAndAwards = $userJoinedGamesAndAwards;
-        $this->userRecentlyPlayed = $userRecentlyPlayed;
-        $this->userSiteAwards = $userSiteAwards;
-        $this->userSoftcorePoints = $userSoftcorePoints;
     }
 
     public function render(): ?View
     {
-        [$totalCountsMetrics, $consoleProgress] = $this->buildProgressMetrics(
-            $this->userJoinedGamesAndAwards
-        );
-
-        [$consoleProgress, $topConsole] = $this->sortConsoleProgress(
-            $consoleProgress,
-            $this->userRecentlyPlayed,
-            $this->userCompletionProgress,
-            $this->userSiteAwards
-        );
-
-        $totalUnfinishedCount = $totalCountsMetrics['numUnfinished'];
-        $totalBeatenSoftcoreCount = $totalCountsMetrics['numBeatenSoftcore'];
-        $totalBeatenHardcoreCount = $totalCountsMetrics['numBeatenHardcore'];
-        $totalCompletedCount = $totalCountsMetrics['numCompleted'];
-        $totalMasteredCount = $totalCountsMetrics['numMastered'];
-
-        $systemIds = array_keys($consoleProgress);
-        $systems = System::whereIn('ID', $systemIds)->get()->keyBy('ID');
-
         return view('components.user.progression-status.root', [
-            'userCompletionProgress' => $this->userCompletionProgress,
-            'userSiteAwards' => $this->userSiteAwards,
-            'userRecentlyPlayed' => $this->userRecentlyPlayed,
-            'consoleProgress' => $consoleProgress,
-            'topConsole' => $topConsole,
-            'totalUnfinishedCount' => $totalUnfinishedCount,
-            'totalBeatenSoftcoreCount' => $totalBeatenSoftcoreCount,
-            'totalBeatenHardcoreCount' => $totalBeatenHardcoreCount,
-            'totalCompletedCount' => $totalCompletedCount,
-            'totalMasteredCount' => $totalMasteredCount,
+            'systemProgress' => $this->systemProgress,
+            'topSystem' => $this->topSystemId,
+            'totalCounts' => $this->totalCounts,
             'userHardcorePoints' => $this->userHardcorePoints,
             'userSoftcorePoints' => $this->userSoftcorePoints,
-            'systems' => $systems,
+            'systems' => System::whereIn('id', array_keys($this->systemProgress))->get()->keyBy('id'),
         ]);
-    }
-
-    private function buildProgressMetrics(array $userJoinedGamesAndAwards): array
-    {
-        $allConsoleIds = array_unique(array_map(function ($game) {
-            return $game['ConsoleID'] ?? 0;
-        }, $userJoinedGamesAndAwards));
-
-        // Initialize the result array.
-        $consoleProgress = [];
-
-        $totalCountsMetrics = $this->playerProgressionService->buildPrimaryCountsMetrics(
-            $userJoinedGamesAndAwards,
-            excludedGameIdsFromUnfinished: $this->subsetGameIds
-        );
-
-        $validConsoleIds = array_filter(getValidConsoleIds(), fn ($n) => System::isGameSystem($n));
-
-        // Loop through joinedData to calculate counts for individual consoles.
-        foreach ($allConsoleIds as $consoleId) {
-            if ($consoleId !== -1 && (!in_array($consoleId, $validConsoleIds))) {
-                continue;
-            }
-
-            $consoleCountsMetrics = $this->playerProgressionService->buildPrimaryCountsMetrics(
-                $userJoinedGamesAndAwards,
-                $consoleId,
-                excludedGameIdsFromUnfinished: $this->subsetGameIds
-            );
-
-            $consoleProgress[$consoleId] = [
-                'unfinishedCount' => $consoleCountsMetrics['numUnfinished'],
-                'beatenSoftcoreCount' => $consoleCountsMetrics['numBeatenSoftcore'],
-                'beatenHardcoreCount' => $consoleCountsMetrics['numBeatenHardcore'],
-                'completedCount' => $consoleCountsMetrics['numCompleted'],
-                'masteredCount' => $consoleCountsMetrics['numMastered'],
-                'ConsoleID' => $consoleId,
-            ];
-        }
-
-        return [$totalCountsMetrics, $consoleProgress];
-    }
-
-    private function sortConsoleProgress(
-        array $consoleProgress,
-        array $userRecentlyPlayed,
-        array $userCompletionProgress,
-        array $userSiteAwards,
-    ): array {
-        $validConsoleIds = getValidConsoleIds();
-
-        $mostRecentlyPlayedConsole = collect($userRecentlyPlayed)
-            ->reject(fn ($game) => (
-                !System::isGameSystem($game['ConsoleID'])
-                || !$game['AchievementsTotal']
-                || !in_array($game['ConsoleID'], $validConsoleIds)
-            ))
-            ->groupBy('ConsoleID')
-            ->map(fn ($games) => $games->max('LastPlayed'))
-            ->sortDesc()
-            ->keys()
-            ->first();
-
-        $gameToConsoleMap = collect($userCompletionProgress)->pluck('ConsoleID', 'GameID');
-        $userSiteAwardsWithConsoleID = collect($userSiteAwards)->map(function ($award) use ($gameToConsoleMap) {
-            $award['ConsoleID'] = $gameToConsoleMap->get($award['AwardData'], null);
-
-            return $award;
-        });
-
-        $mostRecentlyAwardedConsole = collect($userSiteAwardsWithConsoleID)
-            ->reject(fn ($award) => $award['ConsoleID'] == 101
-                || (isset($award['ConsoleID']) && !in_array($award['ConsoleID'], $validConsoleIds))
-            )
-            ->groupBy('ConsoleID')
-            ->map(fn ($awards) => $awards->max('AwardedAt'))
-            ->sortDesc()
-            ->keys()
-            ->first();
-
-        $topConsole = $mostRecentlyPlayedConsole ?? $mostRecentlyAwardedConsole;
-
-        uasort($consoleProgress, function ($a, $b) use ($topConsole) {
-            if ($a['ConsoleID'] === $topConsole) {
-                return -1;
-            }
-
-            if ($b['ConsoleID'] === $topConsole) {
-                return 1;
-            }
-
-            $sumA = $a['unfinishedCount'] + $a['beatenSoftcoreCount'] + $a['beatenHardcoreCount'] + $a['completedCount'] + $a['masteredCount'];
-            $sumB = $b['unfinishedCount'] + $b['beatenSoftcoreCount'] + $b['beatenHardcoreCount'] + $b['completedCount'] + $b['masteredCount'];
-
-            return $sumB <=> $sumA;
-        });
-
-        return [$consoleProgress, $topConsole];
     }
 }

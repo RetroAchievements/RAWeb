@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Support\MediaLibrary\Actions\ExtractBannerEdgeColorsAction;
 use Exception;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,30 +24,43 @@ class Edit extends EditRecord
 
     protected static string $resource = GameResource::class;
 
+    public function getTitle(): string|Htmlable
+    {
+        /** @var Game $game */
+        $game = $this->getRecord();
+
+        return "{$game->title} ({$game->system->name_short}) - Edit";
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Edit';
+    }
+
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $this->authorizeFields($this->record, $data);
 
         $action = new ApplyUploadedImageToDataAction();
 
-        $action->execute($data, 'ImageIcon', ImageUploadType::GameBadge);
-        $action->execute($data, 'ImageTitle', ImageUploadType::GameTitle);
-        $action->execute($data, 'ImageIngame', ImageUploadType::GameInGame);
-        $action->execute($data, 'ImageBoxArt', ImageUploadType::GameBoxArt);
+        $action->execute($data, 'image_icon_asset_path', ImageUploadType::GameBadge);
+        $action->execute($data, 'image_title_asset_path', ImageUploadType::GameTitle);
+        $action->execute($data, 'image_ingame_asset_path', ImageUploadType::GameInGame);
+        $action->execute($data, 'image_box_art_asset_path', ImageUploadType::GameBoxArt);
 
-        // Handle RichPresencePatch separately to ensure trigger versioning is captured.
-        if (array_key_exists('RichPresencePatch', $data)) {
+        // Handle trigger_definition separately to ensure trigger versioning is captured.
+        if (array_key_exists('trigger_definition', $data)) {
             /** @var User $user */
             $user = Auth::user();
             /** @var Game $game */
             $game = $this->record;
 
-            if ($user && $user->can('updateField', [$game, 'RichPresencePatch'])) {
-                (new SubmitRichPresenceAction())->execute($game->id, $data['RichPresencePatch'] ?? '', $user);
+            if ($user && $user->can('updateField', [$game, 'trigger_definition'])) {
+                (new SubmitRichPresenceAction())->execute($game->id, $data['trigger_definition'] ?? '', $user);
             }
 
             // Remove from data array so it doesn't get saved directly by Filament.
-            unset($data['RichPresencePatch']);
+            unset($data['trigger_definition']);
         }
 
         // Remove banner from the data array - it's handled by MediaLibrary, not a database column.
@@ -57,6 +71,9 @@ class Edit extends EditRecord
 
     protected function afterSave(): void
     {
+        $this->record->refresh();
+        $this->refreshFormData(['sort_title']);
+
         /** @var Game $game */
         $game = $this->record;
         $banner = $game->getFirstMedia('banner');

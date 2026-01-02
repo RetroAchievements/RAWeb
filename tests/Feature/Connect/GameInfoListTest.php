@@ -22,25 +22,25 @@ class GameInfoListTest extends TestCase
         $system2 = System::factory()->create();
 
         /** @var Game $game1 */
-        $game1 = Game::factory()->create(['Title' => 'One', 'ConsoleID' => $system1->ID, 'ImageIcon' => '/Images/000001.png', 'achievements_published' => 3]);
+        $game1 = Game::factory()->create(['title' => 'One', 'system_id' => $system1->id, 'image_icon_asset_path' => '/Images/000001.png', 'achievements_published' => 3]);
         /** @var Game $game2 */
-        $game2 = Game::factory()->create(['Title' => 'Two', 'ConsoleID' => $system2->ID, 'ImageIcon' => '/Images/000002.png', 'achievements_published' => 7]);
+        $game2 = Game::factory()->create(['title' => 'Two', 'system_id' => $system2->id, 'image_icon_asset_path' => '/Images/000002.png', 'achievements_published' => 7]);
         /** @var Game $game3 */
-        $game3 = Game::factory()->create(['Title' => 'Three', 'ConsoleID' => $system1->ID, 'ImageIcon' => '/Images/000003.png', 'achievements_published' => 11]);
+        $game3 = Game::factory()->create(['title' => 'Three', 'system_id' => $system1->id, 'image_icon_asset_path' => '/Images/000003.png', 'achievements_published' => 11]);
         /** @var Game $game4 */
-        $game4 = Game::factory()->create(['Title' => 'Four', 'ConsoleID' => $system2->ID, 'ImageIcon' => '/Images/000004.png', 'achievements_unpublished' => 5]);
+        $game4 = Game::factory()->create(['title' => 'Four', 'system_id' => $system2->id, 'image_icon_asset_path' => '/Images/000004.png', 'achievements_unpublished' => 5]);
         /** @var Game $game5 */
-        $game5 = Game::factory()->create(['Title' => 'Five', 'ConsoleID' => $system1->ID, 'ImageIcon' => '/Images/000005.png', 'achievements_unpublished' => 9]);
+        $game5 = Game::factory()->create(['title' => 'Five', 'system_id' => $system1->id, 'image_icon_asset_path' => '/Images/000005.png', 'achievements_unpublished' => 9]);
         /** @var Game $game6 */
-        $game6 = Game::factory()->create(['Title' => 'Six', 'ConsoleID' => $system2->ID, 'ImageIcon' => '/Images/000006.png', 'achievements_unpublished' => 1]);
+        $game6 = Game::factory()->create(['title' => 'Six', 'system_id' => $system2->id, 'image_icon_asset_path' => '/Images/000006.png', 'achievements_unpublished' => 1]);
         /** @var Game $game7 */
-        $game7 = Game::factory()->create(['Title' => 'Seven', 'ConsoleID' => $system1->ID, 'ImageIcon' => '/Images/000007.png']);
+        $game7 = Game::factory()->create(['title' => 'Seven', 'system_id' => $system1->id, 'image_icon_asset_path' => '/Images/000007.png']);
         /** @var Game $game8 */
-        $game8 = Game::factory()->create(['Title' => 'Eight', 'ConsoleID' => $system2->ID, 'ImageIcon' => '/Images/000008.png']);
+        $game8 = Game::factory()->create(['title' => 'Eight', 'system_id' => $system2->id, 'image_icon_asset_path' => '/Images/000008.png']);
         /** @var Game $game9 */
-        $game9 = Game::factory()->create(['Title' => 'Nine', 'ConsoleID' => $system1->ID, 'ImageIcon' => '/Images/000009.png']);
+        $game9 = Game::factory()->create(['title' => 'Nine', 'system_id' => $system1->id, 'image_icon_asset_path' => '/Images/000009.png']);
         /** @var Game $game10 */
-        $game10 = Game::factory()->create(['Title' => 'Ten', 'ConsoleID' => $system2->ID, 'ImageIcon' => '/Images/000010.png', 'achievements_published' => 2, 'achievements_unpublished' => 1]);
+        $game10 = Game::factory()->create(['title' => 'Ten', 'system_id' => $system2->id, 'image_icon_asset_path' => '/Images/000010.png', 'achievements_published' => 2, 'achievements_unpublished' => 1]);
 
         // one game
         $this->get($this->apiUrl('gameinfolist', ['g' => '4']))

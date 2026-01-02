@@ -40,11 +40,7 @@ class ReleasesRelationManager extends RelationManager
         /** @var User $user */
         $user = Auth::user();
 
-        if ($ownerRecord instanceof Game) {
-            return $user->can('manage', $ownerRecord);
-        }
-
-        return false;
+        return $user->can('manage', GameRelease::class);
     }
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
@@ -245,7 +241,7 @@ class ReleasesRelationManager extends RelationManager
                         if ($record->is_canonical_game_title) {
                             /** @var Game $game */
                             $game = $this->getOwnerRecord();
-                            $game->Title = $record->title;
+                            $game->title = $record->title;
                             $game->save();
 
                             // Redirect to refresh the page and show the updated title.
@@ -281,7 +277,7 @@ class ReleasesRelationManager extends RelationManager
                         if ($record->is_canonical_game_title) {
                             /** @var Game $game */
                             $game = $this->getOwnerRecord();
-                            $game->Title = $record->title;
+                            $game->title = $record->title;
                             $game->save();
 
                             // Redirect to refresh the page and show the updated title.

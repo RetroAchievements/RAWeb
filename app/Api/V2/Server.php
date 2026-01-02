@@ -3,6 +3,7 @@
 namespace App\Api\V2;
 
 use LaravelJsonApi\Core\Server\Server as BaseServer;
+use LaravelJsonApi\Laravel\Http\Requests\RequestResolver;
 
 class Server extends BaseServer
 {
@@ -16,7 +17,10 @@ class Server extends BaseServer
      */
     public function serving(): void
     {
-        // no-op
+        RequestResolver::useDefault(
+            RequestResolver::COLLECTION_QUERY,
+            DefaultCollectionQuery::class
+        );
     }
 
     /**
@@ -25,7 +29,9 @@ class Server extends BaseServer
     protected function allSchemas(): array
     {
         return [
+            Games\GameSchema::class,
             Systems\SystemSchema::class,
+            Users\UserSchema::class,
         ];
     }
 }

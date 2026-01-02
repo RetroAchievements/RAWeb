@@ -11,7 +11,7 @@ use Illuminate\Support\Carbon;
 
 <?php
 $isHighlighted = $isHighlighted || ($paginatedRow->User === $myUsername);
-$lastBeatenDate = Carbon::parse($paginatedRow->last_beaten_date)->format('F j Y');
+$lastAffectedAt = Carbon::parse($paginatedRow->last_affected_at)->format('F j Y');
 ?>
 
 <tr
@@ -36,13 +36,13 @@ $lastBeatenDate = Carbon::parse($paginatedRow->last_beaten_date)->format('F j Y'
     </td>
 
     <td>
-        {{ $lastBeatenDate }}
+        {{ $lastAffectedAt }}
     </td>
 
     <td
         class='text-right'
-        data-testid="{{ $paginatedRow->User }}-count-{{ $paginatedRow->total_awards }}"
+        data-testid="{{ $paginatedRow->User }}-count-{{ $paginatedRow->total }}"
     >
-        {{ localized_number($paginatedRow->total_awards) }}
+        {{ localized_number($paginatedRow->total) }}
     </td>
 </tr>

@@ -46,7 +46,7 @@ function static_addnewhardcoremastery(int $gameId, string $username): void
             last_game_hardcore_mastered_at = :now
     ";
 
-    legacyDbStatement($query, ['gameId' => $gameId, 'userId' => $foundUser->ID, 'now' => Carbon::now()]);
+    legacyDbStatement($query, ['gameId' => $gameId, 'userId' => $foundUser->id, 'now' => Carbon::now()]);
 }
 
 /**
@@ -67,7 +67,7 @@ function static_addnewhardcoregamebeaten(int $gameId, string $username): void
             last_game_hardcore_beaten_at = :now
     ";
 
-    legacyDbStatement($query, ['gameId' => $gameId, 'userId' => $foundUser->ID, 'now' => Carbon::now()]);
+    legacyDbStatement($query, ['gameId' => $gameId, 'userId' => $foundUser->id, 'now' => Carbon::now()]);
 }
 
 /**

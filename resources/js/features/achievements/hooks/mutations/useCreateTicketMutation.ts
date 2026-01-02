@@ -7,7 +7,7 @@ interface Variables {
     ticketableModel: 'achievement' | 'leaderboard';
     ticketableId: number;
     mode: 'hardcore' | 'softcore';
-    issue: number;
+    issue: App.Community.Enums.TicketType;
     description: string;
     emulator: string;
     emulatorVersion: string | null;

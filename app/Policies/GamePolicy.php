@@ -22,6 +22,9 @@ class GamePolicy
             Role::DEVELOPER_JUNIOR,
 
             Role::ARTIST,
+
+            // needs to view leaderboards for games
+            Role::EVENT_MANAGER,
         ]);
     }
 
@@ -50,6 +53,7 @@ class GamePolicy
         $canAlwaysUpdate = $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
             Role::DEVELOPER,
+            Role::ARTIST,
         ]);
 
         if ($canAlwaysUpdate) {
@@ -92,33 +96,37 @@ class GamePolicy
             // Junior Developers cannot edit the game title.
             Role::DEVELOPER_JUNIOR => [
                 'banner',
-                'GuideURL',
-                'Developer',
-                'Publisher',
-                'Genre',
-                'ImageIcon',
-                'ImageBoxArt',
-                'ImageTitle',
-                'ImageIngame',
+                'legacy_guide_url',
+                'developer',
+                'publisher',
+                'genre',
+                'image_icon_asset_path',
+                'image_box_art_asset_path',
+                'image_title_asset_path',
+                'image_ingame_asset_path',
                 'released_at',
                 'released_at_granularity',
-                'RichPresencePatch',
+                'trigger_definition',
             ],
 
             Role::DEVELOPER => [
                 'banner',
-                'Title',
-                'GuideURL',
-                'Developer',
-                'Publisher',
-                'Genre',
-                'ImageIcon',
-                'ImageBoxArt',
-                'ImageTitle',
-                'ImageIngame',
+                'title',
+                'legacy_guide_url',
+                'developer',
+                'publisher',
+                'genre',
+                'image_icon_asset_path',
+                'image_box_art_asset_path',
+                'image_title_asset_path',
+                'image_ingame_asset_path',
                 'released_at',
                 'released_at_granularity',
-                'RichPresencePatch',
+                'trigger_definition',
+            ],
+
+            Role::ARTIST => [
+                'image_icon_asset_path',
             ],
         ];
 
@@ -145,7 +153,7 @@ class GamePolicy
 
     public function createForumTopic(User $user, Game $game): bool
     {
-        if ($game->ForumTopicID) {
+        if ($game->forum_topic_id) {
             return false;
         }
 

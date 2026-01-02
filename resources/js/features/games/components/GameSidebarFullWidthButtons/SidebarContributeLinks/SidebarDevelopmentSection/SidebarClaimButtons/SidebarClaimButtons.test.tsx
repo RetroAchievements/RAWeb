@@ -1,5 +1,4 @@
 import { createAuthenticatedUser } from '@/common/models';
-import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
 import {
   createAchievement,
@@ -34,7 +33,7 @@ describe('Component: SidebarClaimButtons', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {
       pageProps: {
-        achievementSetClaims: [createAchievementSetClaim({ status: ClaimStatus.InReview })],
+        achievementSetClaims: [createAchievementSetClaim({ status: 'in_review' })],
         auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
         backingGame: createGame(),
         claimData: createGamePageClaimData(),

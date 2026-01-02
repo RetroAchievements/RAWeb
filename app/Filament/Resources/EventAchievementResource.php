@@ -56,7 +56,7 @@ class EventAchievementResource extends Resource
                             ->columnSpan(2)
                             ->label('Decorator'),
 
-                        Infolists\Components\TextEntry::make('achievement.Points')
+                        Infolists\Components\TextEntry::make('achievement.points')
                             ->label('Points'),
                     ])
                     ->columns(['xl' => 4, 'md' => 2]),
@@ -77,9 +77,9 @@ class EventAchievementResource extends Resource
 
                         Schemas\Components\Group::make()
                             ->schema([
-                                Infolists\Components\TextEntry::make('Title'),
+                                Infolists\Components\TextEntry::make('title'),
 
-                                Infolists\Components\TextEntry::make('Description'),
+                                Infolists\Components\TextEntry::make('description'),
 
                                 Infolists\Components\TextEntry::make('game')
                                     ->label('Game')
@@ -120,9 +120,9 @@ class EventAchievementResource extends Resource
 
                         Schemas\Components\Group::make()
                             ->schema([
-                                Infolists\Components\TextEntry::make('Title'),
+                                Infolists\Components\TextEntry::make('title'),
 
-                                Infolists\Components\TextEntry::make('Description'),
+                                Infolists\Components\TextEntry::make('description'),
                             ]),
                     ])
                     ->hidden(fn ($record) => $record->sourceAchievement),
@@ -142,8 +142,9 @@ class EventAchievementResource extends Resource
                             ->columnSpan(2)
                             ->searchable()
                             ->getSearchResultsUsing(function (string $search): array {
-                                return Achievement::where('Title', 'like', "%{$search}%")
-                                    ->orWhere('ID', 'like', "%{$search}%")
+                                // TODO use scout
+                                return Achievement::where('title', 'like', "%{$search}%")
+                                    ->orWhere('id', 'like', "%{$search}%")
                                     ->limit(50)
                                     ->get()
                                     ->mapWithKeys(function ($achievement) {
@@ -175,7 +176,7 @@ class EventAchievementResource extends Resource
                         Schemas\Components\Group::make()
                             ->relationship('achievement')
                             ->schema([
-                                Forms\Components\Select::make('Points')
+                                Forms\Components\Select::make('points')
                                     ->options([
                                         1 => '1',
                                         2 => '2',
@@ -196,17 +197,17 @@ class EventAchievementResource extends Resource
                     ->relationship('achievement')
                     ->columns(['xl' => 2, '2xl' => 2])
                     ->schema([
-                        Forms\Components\TextInput::make('Title')
+                        Forms\Components\TextInput::make('title')
                             ->required()
                             ->maxLength(64),
 
-                        Forms\Components\TextInput::make('Description')
+                        Forms\Components\TextInput::make('description')
                             ->required()
                             ->maxLength(255),
 
                         // Store a temporary file on disk until the user submits.
                         // When the user submits, put in storage.
-                        Forms\Components\FileUpload::make('BadgeName')
+                        Forms\Components\FileUpload::make('image_name')
                             ->label('Badge')
                             ->disk('livewire-tmp') // Use Livewire's self-cleaning temporary disk
                             ->image()
@@ -216,7 +217,7 @@ class EventAchievementResource extends Resource
                             ->previewable(true),
                     ])
                     ->mutateRelationshipDataBeforeSaveUsing(function (array $data): array {
-                        (new ApplyUploadedImageToDataAction())->execute($data, 'BadgeName', ImageUploadType::AchievementBadge);
+                        (new ApplyUploadedImageToDataAction())->execute($data, 'image_name', ImageUploadType::AchievementBadge);
 
                         return $data;
                     })

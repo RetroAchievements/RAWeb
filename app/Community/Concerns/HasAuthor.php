@@ -13,7 +13,7 @@ trait HasAuthor
              * Make sure an user id is set for the author when creating this model
              */
             if (request()->user()) {
-                $model->setAttribute('user_id', request()->user()->ID);
+                $model->setAttribute('user_id', request()->user()->id);
             }
         });
     }

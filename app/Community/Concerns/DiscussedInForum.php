@@ -16,6 +16,6 @@ trait DiscussedInForum
     // @phpstan-ignore-next-line
     public function forumTopic(): BelongsTo
     {
-        return $this->belongsTo(ForumTopic::class, 'ForumTopicID', 'id');
+        return $this->belongsTo(ForumTopic::class, 'forum_topic_id', 'id');
     }
 }

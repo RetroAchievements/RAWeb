@@ -19,7 +19,7 @@ export const UserModerationCommentsMainRoot: FC = memo(() => {
     useCommentPagination({
       paginatedComments,
       entityId: targetUser.id!,
-      entityType: 'User', // required to build the /user/{game}/moderation-comments routes correctly
+      commentableType: 'user-moderation.comment',
       routeName: 'user.moderation-comment.index',
       displayName: targetUser.displayName,
     });
@@ -42,7 +42,7 @@ export const UserModerationCommentsMainRoot: FC = memo(() => {
         canComment={canComment}
         comments={paginatedComments.items}
         commentableId={targetUser.id!}
-        commentableType="UserModeration"
+        commentableType="user-moderation.comment"
         onDeleteSuccess={handleCommentDeleteSuccess}
         onSubmitSuccess={handleCommentSubmitSuccess}
         targetUserDisplayName={targetUser.displayName}

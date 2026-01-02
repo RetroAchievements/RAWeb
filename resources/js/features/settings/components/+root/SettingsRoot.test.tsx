@@ -24,7 +24,7 @@ describe('Component: SettingsRoot', () => {
     // ARRANGE
     const { container } = render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser({ websitePrefs: 139687 }) },
+        auth: { user: createAuthenticatedUser({ preferencesBitfield: 139687 }) },
         userSettings: createUser(),
         can: { updateMotto: true },
       },
@@ -40,7 +40,7 @@ describe('Component: SettingsRoot', () => {
 
     render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser({ websitePrefs: 139471 }) },
+        auth: { user: createAuthenticatedUser({ preferencesBitfield: 139471 }) },
         userSettings: createUser(),
         can: { updateMotto: true },
       },
@@ -52,7 +52,7 @@ describe('Component: SettingsRoot', () => {
 
     // ASSERT
     expect(putSpy).toHaveBeenCalledWith(route('api.settings.preferences.update'), {
-      websitePrefs: 8399,
+      preferencesBitfield: 8399,
     });
   });
 
@@ -62,7 +62,7 @@ describe('Component: SettingsRoot', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            websitePrefs: 139687,
+            preferencesBitfield: 139687,
             isMuted: true,
             isEmailVerified: true,
           }),
@@ -82,7 +82,7 @@ describe('Component: SettingsRoot', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            websitePrefs: 139687,
+            preferencesBitfield: 139687,
             isMuted: false,
             isEmailVerified: true,
           }),
@@ -102,7 +102,7 @@ describe('Component: SettingsRoot', () => {
       pageProps: {
         auth: {
           user: createAuthenticatedUser({
-            websitePrefs: 139687,
+            preferencesBitfield: 139687,
             isMuted: false,
             isEmailVerified: false,
           }),
@@ -120,7 +120,7 @@ describe('Component: SettingsRoot', () => {
     // ARRANGE
     render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser({ websitePrefs: 139687 }) },
+        auth: { user: createAuthenticatedUser({ preferencesBitfield: 139687 }) },
         userSettings: createUser(),
         can: { updateMotto: true, resetEntireAccount: true }, // !!
       },
@@ -134,7 +134,7 @@ describe('Component: SettingsRoot', () => {
     // ARRANGE
     render<App.Community.Data.UserSettingsPageProps>(<SettingsRoot />, {
       pageProps: {
-        auth: { user: createAuthenticatedUser({ websitePrefs: 139687 }) },
+        auth: { user: createAuthenticatedUser({ preferencesBitfield: 139687 }) },
         userSettings: createUser(),
         can: { updateMotto: true, resetEntireAccount: false }, // !!
       },

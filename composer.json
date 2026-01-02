@@ -85,7 +85,8 @@
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.1",
-        "phpunit/phpunit": "^11.0",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0",
         "predis/predis": "^2.0",
         "rector/rector": "^2.0",
         "spatie/laravel-ignition": "^2.9",
@@ -149,7 +150,8 @@
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate --ansi",
             "@php -r \"copy('storage/app/releases.dist.php', 'storage/app/releases.php');\"",
-            "@php -r \"file_exists('storage/app/settings.json') || copy('storage/app/settings.dist.json', 'storage/app/settings.json');\""
+            "@php -r \"file_exists('storage/app/settings.json') || copy('storage/app/settings.dist.json', 'storage/app/settings.json');\"",
+            "@php -r \"(file_exists('storage/oauth-private.key') && file_exists('storage/oauth-public.key')) ? print('Passport Keys already exist, to regenerate them run: php artisan passport:keys --force' . PHP_EOL) : passthru('php artisan passport:keys');\""
         ],
         "stan": "@php vendor/bin/phpstan analyse --memory-limit 768M --ansi",
         "stan-baseline": "@php vendor/bin/phpstan analyse --generate-baseline --memory-limit 1G",
@@ -182,9 +184,9 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "platform": {
-            "ext-pcntl": "8.2",
-            "ext-posix": "8.2",
-            "php": "8.2.8"
+            "ext-pcntl": "8.4",
+            "ext-posix": "8.4",
+            "php": "8.4"
         },
         "process-timeout": 0,
         "sort-packages": true,

@@ -35,10 +35,10 @@
                 />
             @endif
 
-            @if ($targetUser->DeleteRequested)
+            @if ($targetUser->delete_requested_at)
                 <x-user.profile.stat-element
                     label="Delete requested at"
-                    value="{{ $targetUser->DeleteRequested->format('Y-m-d') }}"
+                    value="{{ $targetUser->delete_requested_at->format('Y-m-d') }}"
                 />
             @endif
         </div>

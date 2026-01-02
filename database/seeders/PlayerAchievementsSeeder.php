@@ -30,8 +30,8 @@ class PlayerAchievementsSeeder extends Seeder
         $faker = Faker::create();
 
         Game::where('achievements_published', '>', 0)->each(function (Game $game) use ($maxPlayers, $faker) {
-            $numWinConditions = $game->achievements()->published()->where('type', AchievementType::WinCondition)->count();
-            $numAchievements = $game->achievements()->published()->count();
+            $numWinConditions = $game->achievements()->promoted()->where('type', AchievementType::WinCondition)->count();
+            $numAchievements = $game->achievements()->promoted()->count();
 
             $updatePlayerGameMetricsAction = new UpdatePlayerGameMetricsAction();
             $resumePlayerSessionAction = new ResumePlayerSessionAction();
@@ -39,10 +39,10 @@ class PlayerAchievementsSeeder extends Seeder
             $numPlayers = (int) sqrt(random_int(1, $maxPlayers * $maxPlayers));
             foreach (User::inRandomOrder()->limit($numPlayers)->get() as $user) {
                 $achievementsRemaining = $numAchievements;
-                if ($user->RAPoints + $user->RASoftcorePoints === 0) {
+                if ($user->points_hardcore + $user->points === 0) {
                     $hardcore = (random_int(0, 1) === 1);
                 } else {
-                    $hardcore = ($user->RAPoints > $user->RASoftcorePoints);
+                    $hardcore = ($user->points_hardcore > $user->points);
                 }
                 $keepPlayingChance = random_int(75, 100);
                 $num_sessions = 1;
@@ -56,7 +56,7 @@ class PlayerAchievementsSeeder extends Seeder
 
                 $date = $date->addSeconds(random_int(100, 2000));
 
-                foreach ($game->achievements()->published()->get() as $achievement) {
+                foreach ($game->achievements()->promoted()->get() as $achievement) {
                     if ($achievement->type !== AchievementType::Progression) {
                         if ($achievement->type === AchievementType::WinCondition) {
                             if (random_int(1, $numWinConditions) !== 1) {
@@ -131,8 +131,8 @@ class PlayerAchievementsSeeder extends Seeder
 
                 // update points
                 $playerGame->refresh();
-                $user->RAPoints += $playerGame->points_hardcore;
-                $user->RASoftcorePoints += $playerGame->points;
+                $user->points_hardcore += $playerGame->points_hardcore;
+                $user->points += $playerGame->points;
                 $user->save();
             }
 
@@ -145,7 +145,7 @@ class PlayerAchievementsSeeder extends Seeder
 
         // update player metrics
         $updatePlayerMetricsAction = new UpdatePlayerMetricsAction();
-        foreach (User::where('RAPoints', '>', 0)->orWhere('RASoftcorePoints', '>', 0)->get() as $player) {
+        foreach (User::where('points_hardcore', '>', 0)->orWhere('points', '>', 0)->get() as $player) {
             $updatePlayerMetricsAction->execute($player);
         }
 

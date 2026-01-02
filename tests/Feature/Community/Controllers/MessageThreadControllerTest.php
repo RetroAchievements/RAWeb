@@ -22,7 +22,7 @@ class MessageThreadControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::factory()->create(['websitePrefs' => 63, 'UnreadMessageCount' => 0]);
+        $this->user = User::factory()->create(['preferences_bitfield' => 63, 'unread_messages' => 0]);
     }
 
     private function createMessageThreadWithParticipant(User $participant): MessageThread

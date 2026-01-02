@@ -65,7 +65,7 @@ class SubmitCodeNoteAction extends BaseAuthenticatedApiAction
                     return $this->accessDenied();
                 }
 
-                if (!Game::where('ID', $this->gameId)->exists()) {
+                if (!Game::where('id', $this->gameId)->exists()) {
                     return $this->gameNotFound();
                 }
 

@@ -20,7 +20,7 @@ export const UserCommentsMainRoot: FC = memo(() => {
     useCommentPagination({
       paginatedComments,
       entityId: targetUser.id!,
-      entityType: 'User',
+      commentableType: 'user.comment',
       routeName: 'user.comment.index',
       displayName: targetUser.displayName,
     });
@@ -51,7 +51,7 @@ export const UserCommentsMainRoot: FC = memo(() => {
         canComment={canComment}
         comments={paginatedComments.items}
         commentableId={targetUser.id!}
-        commentableType="User"
+        commentableType="user.comment"
         onDeleteSuccess={handleCommentDeleteSuccess}
         onSubmitSuccess={handleCommentSubmitSuccess}
         targetUserDisplayName={targetUser.displayName}

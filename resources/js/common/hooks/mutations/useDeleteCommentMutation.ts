@@ -2,8 +2,6 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { route } from 'ziggy-js';
 
-import { ArticleType } from '@/common/utils/generatedAppConstants';
-
 interface Variables {
   comment: App.Community.Data.Comment & { targetUserDisplayName?: string };
 }
@@ -22,46 +20,46 @@ function buildDeleteRoute({
   id,
   targetUserDisplayName = '',
 }: Variables['comment']): string {
-  const commentableTypeRouteMap: Record<number, string> = {
-    [ArticleType.Achievement]: route('api.achievement.comment.destroy', {
+  const commentableTypeRouteMap: Record<App.Community.Enums.CommentableType, string> = {
+    'achievement.comment': route('api.achievement.comment.destroy', {
       achievement: commentableId,
       comment: id,
     }),
 
-    [ArticleType.AchievementTicket]: 'TODO',
+    'trigger.ticket.comment': 'TODO',
 
-    [ArticleType.Forum]: 'TODO',
+    'forum-topic-comment': 'TODO',
 
-    [ArticleType.Game]: route('api.game.comment.destroy', { game: commentableId, comment: id }),
+    'game.comment': route('api.game.comment.destroy', { game: commentableId, comment: id }),
 
-    [ArticleType.GameHash]: route('api.game.hashes.comment.destroy', {
+    'game-hash.comment': route('api.game.hashes.comment.destroy', {
       game: commentableId,
       comment: id,
     }),
 
-    [ArticleType.GameModification]: route('api.game.modification-comment.destroy', {
+    'game-modification.comment': route('api.game.modification-comment.destroy', {
       game: commentableId,
       comment: id,
     }),
 
-    [ArticleType.Leaderboard]: route('api.leaderboard.comment.destroy', {
+    'leaderboard.comment': route('api.leaderboard.comment.destroy', {
       leaderboard: commentableId,
       comment: id,
     }),
 
-    [ArticleType.News]: 'TODO',
-
-    [ArticleType.SetClaim]: route('api.game.claims.comment.destroy', {
+    'achievement-set-claim.comment': route('api.game.claims.comment.destroy', {
       game: commentableId,
       comment: id,
     }),
 
-    [ArticleType.User]: route('api.user.comment.destroy', {
+    'user.comment': route('api.user.comment.destroy', {
       user: targetUserDisplayName,
       comment: id,
     }),
 
-    [ArticleType.UserModeration]: route('api.user.moderation-comment.destroy', {
+    'user-activity.comment': 'TODO',
+
+    'user-moderation.comment': route('api.user.moderation-comment.destroy', {
       user: targetUserDisplayName,
       comment: id,
     }),

@@ -14,7 +14,6 @@ use App\Models\PlayerAchievement;
 use App\Models\PlayerBadge;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -26,7 +25,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
     public function testItReturnsEmptyDataWhenDeveloperHasNoContent(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 100]);
+        $developer = User::factory()->create(['yield_unlocks' => 100]);
 
         // Act
         $result = (new BuildDeveloperFeedDataAction())->execute($developer);
@@ -43,37 +42,35 @@ class BuildDeveloperFeedDataActionTest extends TestCase
     public function testItCountsAwardsAcrossAllGames(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 100]);
+        $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
 
-        $game1 = Game::factory()->create(['ConsoleID' => $system->id]);
-        $game2 = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game1 = Game::factory()->create(['system_id' => $system->id]);
+        $game2 = Game::factory()->create(['system_id' => $system->id]);
 
-        Achievement::factory()->count(5)->create([
-            'GameID' => $game1->id,
+        Achievement::factory()->count(5)->promoted()->create([
+            'game_id' => $game1->id,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
         ]);
-        Achievement::factory()->count(3)->create([
-            'GameID' => $game2->id,
+        Achievement::factory()->count(3)->promoted()->create([
+            'game_id' => $game2->id,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
         ]);
 
         PlayerBadge::factory()->count(2)->create([
-            'AwardType' => AwardType::Mastery,
-            'AwardData' => $game1->id,
-            'AwardDataExtra' => UnlockMode::Softcore,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game1->id,
+            'award_tier' => UnlockMode::Softcore,
         ]);
         PlayerBadge::factory()->create([
-            'AwardType' => AwardType::Mastery,
-            'AwardData' => $game1->id,
-            'AwardDataExtra' => UnlockMode::Hardcore,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game1->id,
+            'award_tier' => UnlockMode::Hardcore,
         ]);
         PlayerBadge::factory()->count(2)->create([
-            'AwardType' => AwardType::GameBeaten,
-            'AwardData' => $game2->id,
-            'AwardDataExtra' => UnlockMode::Softcore,
+            'award_type' => AwardType::GameBeaten,
+            'award_key' => $game2->id,
+            'award_tier' => UnlockMode::Softcore,
         ]);
 
         // Act
@@ -86,12 +83,12 @@ class BuildDeveloperFeedDataActionTest extends TestCase
     public function testItCountsLeaderboardEntries(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 100]);
+        $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
 
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $leaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'author_id' => $developer->id,
         ]);
 
@@ -113,14 +110,13 @@ class BuildDeveloperFeedDataActionTest extends TestCase
     public function testItFetchesRecentUnlocksWithinThirtyDaysForSmallContributors(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 100]);
+        $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
         ]);
 
         $players = User::factory()->count(2)->create();
@@ -145,14 +141,13 @@ class BuildDeveloperFeedDataActionTest extends TestCase
     public function testItFetchesAllRecentUnlocksForLargeContributors(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 25000]);
+        $developer = User::factory()->create(['yield_unlocks' => 25000]);
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
         ]);
 
         $players = User::factory()->count(5)->create();
@@ -176,14 +171,13 @@ class BuildDeveloperFeedDataActionTest extends TestCase
     public function testItExcludesUntrackedPlayersFromUnlocks(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 100]);
+        $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
 
-        $achievement = Achievement::factory()->create([
-            'GameID' => $game->id,
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
             'user_id' => $developer->id,
-            'Flags' => AchievementFlag::OfficialCore->value,
         ]);
 
         $untrackedUser = User::factory()->create(['Untracked' => 1]);
@@ -211,12 +205,12 @@ class BuildDeveloperFeedDataActionTest extends TestCase
     public function testItExcludedUntrackedPlayersFromLeaderboardEntries(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 100]);
+        $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
 
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $leaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'author_id' => $developer->id,
         ]);
 
@@ -244,16 +238,16 @@ class BuildDeveloperFeedDataActionTest extends TestCase
     public function testItExcludedDeletedLeaderboardsFromLeaderboardEntries(): void
     {
         // Arrange
-        $developer = User::factory()->create(['ContribCount' => 100]);
+        $developer = User::factory()->create(['yield_unlocks' => 100]);
         $system = System::factory()->create();
 
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $leaderboard1 = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'author_id' => $developer->id,
         ]);
         $leaderboard2 = Leaderboard::factory()->create([
-            'GameID' => $game->id,
+            'game_id' => $game->id,
             'author_id' => $developer->id,
         ]);
 

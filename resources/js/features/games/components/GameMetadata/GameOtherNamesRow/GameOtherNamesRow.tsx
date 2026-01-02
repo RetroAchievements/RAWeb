@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next';
 
 import { BaseTableCell, BaseTableHead, BaseTableRow } from '@/common/components/+vendor/BaseTable';
 import {
-  BaseTooltip,
-  BaseTooltipContent,
-  BaseTooltipTrigger,
-} from '@/common/components/+vendor/BaseTooltip';
+  ResponsiveTooltip,
+  ResponsiveTooltipContent,
+  ResponsiveTooltipTrigger,
+} from '@/common/components/ResponsiveTooltip';
 
 interface GameOtherNamesRowProps {
   nonCanonicalTitles: string[];
@@ -38,21 +38,21 @@ export const GameOtherNamesRow: FC<GameOtherNamesRowProps> = ({ nonCanonicalTitl
           ))}
 
           {hiddenCount > 0 ? (
-            <BaseTooltip>
-              <BaseTooltipTrigger asChild>
+            <ResponsiveTooltip>
+              <ResponsiveTooltipTrigger asChild>
                 <span className="max-w-fit text-neutral-400 underline decoration-dotted light:text-neutral-700">
                   {t('+{{val, number}} more', { val: hiddenCount })}
                 </span>
-              </BaseTooltipTrigger>
+              </ResponsiveTooltipTrigger>
 
-              <BaseTooltipContent className="max-w-xs">
+              <ResponsiveTooltipContent className="max-w-xs">
                 <div className="flex flex-col gap-1">
                   {hiddenTitles.map((title, titleIndex) => (
                     <span key={`hidden-title-${titleIndex}`}>{title}</span>
                   ))}
                 </div>
-              </BaseTooltipContent>
-            </BaseTooltip>
+              </ResponsiveTooltipContent>
+            </ResponsiveTooltip>
           ) : null}
         </div>
       </BaseTableCell>
