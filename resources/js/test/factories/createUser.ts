@@ -17,6 +17,6 @@ export const createUser = createFactory<App.Data.User>((faker) => {
     preferences: createAuthenticatedUserPreferences(),
     playerPreferredMode: 'hardcore',
     roles: [],
-    unreadMessageCount: faker.number.int({ min: 0, max: 3 }),
+    unreadMessages: faker.number.int({ min: 0, max: 3 }),
   };
 });

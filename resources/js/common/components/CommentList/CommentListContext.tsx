@@ -1,12 +1,10 @@
 import { createContext, type FC, type ReactNode, useContext } from 'react';
 
-import type { ArticleType } from '@/common/utils/generatedAppConstants';
-
 interface CommentListContextValue {
   /** Can the currently-authenticated user write a comment on this wall? */
   canComment: boolean;
   commentableId: number;
-  commentableType: keyof typeof ArticleType;
+  commentableType: App.Community.Enums.CommentableType;
 
   onDeleteSuccess?: () => void;
   onSubmitSuccess?: () => void;

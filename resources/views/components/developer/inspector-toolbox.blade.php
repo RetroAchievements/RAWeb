@@ -1,5 +1,5 @@
 <?php
-use App\Platform\Enums\AchievementFlag;
+use App\Models\Achievement;
 use App\Platform\Enums\AchievementType;
 ?>
 
@@ -14,8 +14,8 @@ use App\Platform\Enums\AchievementType;
 $progressionType = AchievementType::Progression;
 $winConditionType = AchievementType::WinCondition;
 $missableType = AchievementType::Missable;
-$officialFlag = AchievementFlag::OfficialCore->value;
-$unofficialFlag = AchievementFlag::Unofficial->value;
+$officialFlag = Achievement::FLAG_PROMOTED;
+$unofficialFlag = Achievement::FLAG_UNPROMOTED;
 ?>
 
 @if ($modificationLevel !== 'none')

@@ -23,19 +23,19 @@ class SubscriptionNotificationServiceTest extends TestCase
         $websitePrefs = 1 << $userPreference;
 
         /** @var User $user1 */
-        $user1 = User::factory()->create(['websitePrefs' => $websitePrefs]);
+        $user1 = User::factory()->create(['preferences_bitfield' => $websitePrefs]);
         /** @var User $user2 */
-        $user2 = User::factory()->create(['websitePrefs' => 0xFFFF & ~$websitePrefs]);
+        $user2 = User::factory()->create(['preferences_bitfield' => 0xFFFF & ~$websitePrefs]);
         /** @var User $user3 */
-        $user3 = User::factory()->create(['websitePrefs' => $websitePrefs, 'EmailAddress' => '']);
+        $user3 = User::factory()->create(['preferences_bitfield' => $websitePrefs, 'email' => '']);
         /** @var User $user4 */
-        $user4 = User::factory()->create(['websitePrefs' => 0]);
+        $user4 = User::factory()->create(['preferences_bitfield' => 0]);
         /** @var User $user5 */
-        $user5 = User::factory()->create(['websitePrefs' => $websitePrefs]);
+        $user5 = User::factory()->create(['preferences_bitfield' => $websitePrefs]);
 
         $service = new SubscriptionNotificationService();
         $emailTargets = $service->getEmailTargets([$user1->id, $user2->id, $user3->id, $user4->id, $user5->id], $userPreference);
-        $emailTargetUserIds = $emailTargets->pluck('ID')->toArray();
+        $emailTargetUserIds = $emailTargets->pluck('id')->toArray();
         $this->assertEqualsCanonicalizing([$user1->id, $user5->id], $emailTargetUserIds);
     }
 
@@ -45,17 +45,17 @@ class SubscriptionNotificationServiceTest extends TestCase
         $websitePrefs = 1 << $userPreference;
 
         /** @var User $user1 */
-        $user1 = User::factory()->create(['websitePrefs' => $websitePrefs]);
+        $user1 = User::factory()->create(['preferences_bitfield' => $websitePrefs]);
         /** @var User $user2 */
-        $user2 = User::factory()->create(['websitePrefs' => 0xFFFF & ~$websitePrefs]);
+        $user2 = User::factory()->create(['preferences_bitfield' => 0xFFFF & ~$websitePrefs]);
         /** @var User $user3 */
-        $user3 = User::factory()->create(['websitePrefs' => $websitePrefs, 'EmailAddress' => '']);
+        $user3 = User::factory()->create(['preferences_bitfield' => $websitePrefs, 'email' => '']);
         /** @var User $user4 */
-        $user4 = User::factory()->create(['websitePrefs' => 0]);
+        $user4 = User::factory()->create(['preferences_bitfield' => 0]);
         /** @var User $user5 */
-        $user5 = User::factory()->create(['websitePrefs' => $websitePrefs]);
+        $user5 = User::factory()->create(['preferences_bitfield' => $websitePrefs]);
         /** @var User $user6 */
-        $user6 = User::factory()->create(['websitePrefs' => $websitePrefs]);
+        $user6 = User::factory()->create(['preferences_bitfield' => $websitePrefs]);
 
         $service = new SubscriptionNotificationService();
 
@@ -105,9 +105,9 @@ class SubscriptionNotificationServiceTest extends TestCase
         $websitePrefs = 1 << $userPreference;
 
         /** @var User $user1 */
-        $user1 = User::factory()->create(['websitePrefs' => $websitePrefs]);
+        $user1 = User::factory()->create(['preferences_bitfield' => $websitePrefs]);
         /** @var User $user2 */
-        $user2 = User::factory()->create(['websitePrefs' => $websitePrefs]);
+        $user2 = User::factory()->create(['preferences_bitfield' => $websitePrefs]);
 
         $service = new SubscriptionNotificationService();
 

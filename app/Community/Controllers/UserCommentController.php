@@ -7,7 +7,7 @@ namespace App\Community\Controllers;
 use App\Community\Concerns\IndexesComments;
 use App\Community\Data\CommentData;
 use App\Community\Data\UserCommentsPagePropsData;
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Data\PaginatedData;
 use App\Data\UserData;
 use App\Models\Comment;
@@ -97,8 +97,8 @@ class UserCommentController extends CommentController
         $targetUser = User::findOrFail($targetUserId);
         $this->authorize('clearUserWall', $targetUser);
 
-        Comment::where('ArticleType', ArticleType::User)
-            ->where('ArticleID', $targetUser->id)
+        Comment::where('commentable_type', CommentableType::User)
+            ->where('commentable_id', $targetUser->id)
             ->delete();
 
         return response()->json(['success' => true]);

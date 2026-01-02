@@ -57,28 +57,28 @@ $gameCache = [];
                     @foreach ($tickets as $ticket)
                         <tr>
                             <td class="text-right">
-                                <a href="{{ route('ticket.show', ['ticket' => $ticket]) }}">{{ $ticket->ID }}</a>
+                                <a href="{{ route('ticket.show', ['ticket' => $ticket]) }}">{{ $ticket->id }}</a>
                             </td>
-                            <td>{{ TicketState::toString($ticket->ReportState) }}</td>
+                            <td>{{ $ticket->state->label() }}</td>
                             <td>{!! achievementAvatar($ticket->achievement) !!}</td>
                             <td>
                                 @php
-                                    $game = $gameCache[$ticket->achievement->GameID] ??=
-                                        Game::where('ID', $ticket->achievement->GameID)->with('system')->first();
+                                    $game = $gameCache[$ticket->achievement->game_id] ??=
+                                        Game::where('id', $ticket->achievement->game_id)->with('system')->first();
                                 @endphp
                                 <x-game.multiline-avatar
-                                    :gameId="$game->ID"
-                                    :gameTitle="$game->Title"
-                                    :gameImageIcon="$game->ImageIcon"
-                                    :consoleName="$game->system->Name"
+                                    :gameId="$game->id"
+                                    :gameTitle="$game->title"
+                                    :gameImageIcon="$game->image_icon_asset_path"
+                                    :consoleName="$game->system->name"
                                 />
                             </td>
                             <td>{!! userAvatar($ticket->author ?? 'Deleted User') !!}</td>
                             <td>{!! userAvatar($ticket->reporter ?? 'Deleted User') !!}</td>
-                            <td class="smalldate">{{ getNiceDate($ticket->ReportedAt->unix()) }}</td>
+                            <td class="smalldate">{{ getNiceDate($ticket->created_at->unix()) }}</td>
                             @if ($showResolver)
                                 <td>
-                                    @if (!TicketState::isOpen($ticket->ReportState))
+                                    @if (!$ticket->state->isOpen())
                                         {!! userAvatar($ticket->resolver ?? 'Deleted User') !!}
                                     @endif
                                 </td>

@@ -7,7 +7,7 @@ namespace Tests\Feature\Platform\Actions;
 use App\Actions\ClearAccountDataAction;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
@@ -39,24 +39,24 @@ class ClearAccountDataActionTest extends TestCase
         /** @var User $user2 */
         $user2 = User::factory()->create();
 
-        $this->assertNotEquals('', $user2->EmailAddress);
+        $this->assertNotEquals('', $user2->email);
 
         UserRelation::create([
             'user_id' => $user1->id,
             'related_user_id' => $user2->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         UserRelation::create([
             'user_id' => $user2->id,
             'related_user_id' => $user1->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         UserGameListEntry::create([
             'user_id' => $user2->id,
             'type' => UserGameListType::AchievementSetRequest,
-            'GameID' => 1234,
+            'game_id' => 1234,
         ]);
 
         Subscription::create([
@@ -66,8 +66,8 @@ class ClearAccountDataActionTest extends TestCase
             'state' => true,
         ]);
 
-        $system = System::factory()->create(['ID' => 1]);
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
         $this->addMasteryBadge($user2, $game);
 
         $thread = MessageThread::create([
@@ -83,7 +83,7 @@ class ClearAccountDataActionTest extends TestCase
         ]);
 
         $game = Game::factory()->create();
-        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
         $leaderboardEntry = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->id,
             'user_id' => $user2->id,
@@ -112,6 +112,6 @@ class ClearAccountDataActionTest extends TestCase
         $this->assertEquals(0, PlayerStat::where('user_id', $user2->id)->count());
 
         $user2->refresh();
-        $this->assertEquals('', $user2->EmailAddress);
+        $this->assertEquals('', $user2->email);
     }
 }

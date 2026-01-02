@@ -33,7 +33,7 @@ class UserRegistrationNotification extends Notification implements ShouldQueue
     {
         $user = $this->user;
 
-        $username = $user->User ?? '';
+        $username = $user->username ?? '';
         // TODO $username = $user->display_name ?? '';
         $username = \mb_strlen($username) < 2 ? '???' : $username;
         $username = \mb_strlen($username) > 32 ? \mb_substr($username, 0, 29) . '..' : $username;

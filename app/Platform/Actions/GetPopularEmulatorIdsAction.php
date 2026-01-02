@@ -25,15 +25,15 @@ class GetPopularEmulatorIdsAction
         // We use a raw query here because it's significantly faster than using Eloquent.
         $sql = <<<SQL
             WITH sampled_sessions AS (
-                SELECT 
+                SELECT
                     ps.id,
                     ps.user_id,
                     ps.game_id,
                     ps.user_agent
                 FROM player_sessions ps
-                JOIN GameData g ON ps.game_id = g.ID
-                WHERE 
-                    g.ConsoleID = {$system->id}
+                JOIN games g ON ps.game_id = g.id
+                WHERE
+                    g.system_id = {$system->id}
                     AND ps.created_at >= DATE_SUB(NOW(), INTERVAL 1 YEAR)
                     AND ps.user_id IS NOT NULL
                     AND RAND() < 0.2

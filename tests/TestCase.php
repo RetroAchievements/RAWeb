@@ -18,6 +18,7 @@ use Database\Seeders\RolesTableSeeder;
 use Database\Seeders\UsersTableSeeder;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Validator;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -29,6 +30,10 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         $this->withoutVite();
+
+        // Override the not_disposable_email validator to avoid memory exhaustion.
+        // The DisposableEmailRule loads a large domain list which causes OOM in parallel tests.
+        Validator::extend('not_disposable_email', fn () => true);
     }
 
     protected function assertPathEquals(string $expected, string $actual, string $message = ''): void
@@ -125,7 +130,7 @@ abstract class TestCase extends BaseTestCase
         }
 
         /** @var Collection<int, Achievement> $achievements */
-        $achievements = $game->achievements()->saveMany(Achievement::factory()->published()->count($amount)->create());
+        $achievements = $game->achievements()->saveMany(Achievement::factory()->promoted()->count($amount)->create());
 
         $game->achievements_published += $amount;
 

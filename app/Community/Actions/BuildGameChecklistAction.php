@@ -63,11 +63,11 @@ class BuildGameChecklistAction
         }
         $ids = array_unique($ids);
 
-        $games = Game::whereIn('ID', $ids)->with('system')->get();
+        $games = Game::whereIn('id', $ids)->with('system')->get();
         $playerGames = PlayerGame::where('user_id', $user->id)->whereIn('game_id', $ids)->get();
         $gameBadges = PlayerBadge::where('user_id', $user->id)
-            ->whereIn('AwardType', [AwardType::Mastery, AwardType::GameBeaten])
-            ->whereIn('AwardData', $ids)
+            ->whereIn('award_type', [AwardType::Mastery, AwardType::GameBeaten])
+            ->whereIn('award_key', $ids)
             ->get();
 
         $result = [];
@@ -79,7 +79,7 @@ class BuildGameChecklistAction
 
             $gameList = [];
             foreach ($group['gameIds'] as $gameId) {
-                $game = $games->filter(fn ($g) => $g->ID === $gameId)->first();
+                $game = $games->filter(fn ($g) => $g->id === $gameId)->first();
                 if ($game) {
                     $playerGame = $playerGames->filter(fn ($pg) => $pg->game_id === $gameId)->first();
                     if ($playerGame) {
@@ -88,14 +88,14 @@ class BuildGameChecklistAction
                         } elseif ($playerGame->completed_at) {
                             $completedCount++;
                         } else {
-                            $gameBadge = $gameBadges->filter(fn ($gb) => $gb->AwardData === $gameId && $gb->AwardType === AwardType::Mastery)->first();
+                            $gameBadge = $gameBadges->filter(fn ($gb) => $gb->award_key === $gameId && $gb->award_type === AwardType::Mastery)->first();
                             if ($gameBadge) {
-                                if ($gameBadge->AwardDataExtra) {
+                                if ($gameBadge->award_tier) {
                                     $masteredCount++;
-                                    $playerGame->completed_hardcore_at = $gameBadge->AwardDate;
+                                    $playerGame->completed_hardcore_at = $gameBadge->awarded_at;
                                 } else {
                                     $completedCount++;
-                                    $playerGame->completed_at = $gameBadge->AwardDate;
+                                    $playerGame->completed_at = $gameBadge->awarded_at;
                                 }
                             }
                         }
@@ -105,14 +105,14 @@ class BuildGameChecklistAction
                         } elseif ($playerGame->beaten_at) {
                             $beatenSoftcoreCount++;
                         } else {
-                            $gameBadge = $gameBadges->filter(fn ($gb) => $gb->AwardData === $gameId && $gb->AwardType === AwardType::GameBeaten)->first();
+                            $gameBadge = $gameBadges->filter(fn ($gb) => $gb->award_key === $gameId && $gb->award_type === AwardType::GameBeaten)->first();
                             if ($gameBadge) {
-                                if ($gameBadge->AwardDataExtra) {
+                                if ($gameBadge->award_tier) {
                                     $beatenCount++;
-                                    $playerGame->beaten_hardcore_at = $gameBadge->AwardDate;
+                                    $playerGame->beaten_hardcore_at = $gameBadge->awarded_at;
                                 } else {
                                     $beatenSoftcoreCount++;
-                                    $playerGame->beaten_at = $gameBadge->AwardDate;
+                                    $playerGame->beaten_at = $gameBadge->awarded_at;
                                 }
                             }
                         }

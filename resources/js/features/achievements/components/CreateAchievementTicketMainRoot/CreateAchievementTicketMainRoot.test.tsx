@@ -111,7 +111,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     expect(issueFieldEl).toHaveTextContent(/select an issue/i);
   });
 
-  it('given there is a type=1 query param, sets the Issue select to "Triggered at the wrong time"', () => {
+  it('given there is a type=triggered_at_wrong_time query param, sets the Issue select to "Triggered at the wrong time"', () => {
     // ARRANGE
     render<App.Platform.Data.CreateAchievementTicketPageProps>(
       <CreateAchievementTicketMainRoot />,
@@ -121,7 +121,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
           auth: { user: createAuthenticatedUser() },
           gameHashes: [createGameHash()],
           emulators: [createEmulator()],
-          ziggy: createZiggyProps({ query: { type: '1' } }),
+          ziggy: createZiggyProps({ query: { type: 'triggered_at_wrong_time' } }),
         },
       },
     );
@@ -134,7 +134,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
     expect(screen.getByText(/the achievement unlocked unexpectedly/i)).toBeVisible();
   });
 
-  it('given there is a type=2 query param, sets the Issue select to "Did not trigger"', () => {
+  it('given there is a type=did_not_trigger query param, sets the Issue select to "Did not trigger"', () => {
     // ARRANGE
     render<App.Platform.Data.CreateAchievementTicketPageProps>(
       <CreateAchievementTicketMainRoot />,
@@ -144,7 +144,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
           auth: { user: createAuthenticatedUser() },
           gameHashes: [createGameHash()],
           emulators: [createEmulator()],
-          ziggy: createZiggyProps({ query: { type: '2' } }),
+          ziggy: createZiggyProps({ query: { type: 'did_not_trigger' } }),
         },
       },
     );
@@ -663,7 +663,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
         emulatorVersion: '1.16.0',
         extra: null,
         gameHashId: gameHashes[0].id,
-        issue: 1,
+        issue: 'triggered_at_wrong_time',
         mode: 'softcore',
         ticketableId: achievement.id,
         ticketableModel: 'achievement',
@@ -749,7 +749,7 @@ describe('Component: CreateAchievementTicketMainRoot', () => {
         extra:
           'eyJ0cmlnZ2VyUmljaFByZXNlbmNlIjoi8J+Qukxpbmsg8J+Xuu+4j0RlYXRoIE1vdW50YWluIOKdpO+4jzMvMyDwn5GlMS80IPCfp78wLzQg8J+RuzAvNjAg8J+QnDAvMjQg8J+SgDUg8J+VmTEyOjAwIEFN8J+MmSJ9',
         gameHashId: gameHashes[0].id,
-        issue: 2,
+        issue: 'did_not_trigger',
         mode: 'softcore',
         ticketableId: achievement.id,
         ticketableModel: 'achievement',

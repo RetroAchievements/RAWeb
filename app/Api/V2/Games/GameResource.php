@@ -23,7 +23,7 @@ class GameResource extends BaseJsonApiResource
     public function attributes($request): iterable
     {
         return [
-            'title' => $this->resource->Title,
+            'title' => $this->resource->title,
             'sortTitle' => $this->resource->sort_title,
 
             'badgeUrl' => $this->resource->badge_url,
@@ -58,6 +58,7 @@ class GameResource extends BaseJsonApiResource
     public function relationships($request): iterable
     {
         return [
+            'achievementSets' => $this->relation('achievementSets')->withoutLinks(),
             'system' => $this->relation('system')->withoutLinks(),
         ];
     }
@@ -73,10 +74,10 @@ class GameResource extends BaseJsonApiResource
             $this->selfLink(),
         ];
 
-        if ($this->resource->ForumTopicID) {
+        if ($this->resource->forum_topic_id) {
             $links[] = new Link(
                 'forumTopic',
-                route('forum-topic.show', ['topic' => $this->resource->ForumTopicID])
+                route('forum-topic.show', ['topic' => $this->resource->forum_topic_id])
             );
         }
 

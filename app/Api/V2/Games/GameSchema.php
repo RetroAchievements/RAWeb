@@ -12,6 +12,7 @@ use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
+use LaravelJsonApi\Eloquent\Fields\Relations\BelongsToMany;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
@@ -47,7 +48,7 @@ class GameSchema extends Schema
         return [
             ID::make(),
 
-            Str::make('title', 'Title')->sortable(),
+            Str::make('title', 'title')->sortable(),
             Str::make('sortTitle', 'sort_title')->sortable(),
 
             Str::make('badgeUrl')->readOnly(),
@@ -65,7 +66,7 @@ class GameSchema extends Schema
             Number::make('achievementsUnpublished', 'achievements_unpublished'),
 
             Number::make('pointsTotal', 'points_total')->sortable(),
-            Number::make('pointsWeighted', 'TotalTruePoints')->sortable(),
+            Number::make('pointsWeighted', 'points_weighted')->sortable(),
 
             Number::make('timesBeaten', 'times_beaten'),
             Number::make('timesBeatenHardcore', 'times_beaten_hardcore'),
@@ -73,6 +74,8 @@ class GameSchema extends Schema
             Number::make('medianTimeToBeatHardcoreMinutes', 'median_time_to_beat_hardcore'),
 
             BelongsTo::make('system')->readOnly(),
+
+            BelongsToMany::make('achievementSets')->readOnly(),
         ];
     }
 
@@ -83,7 +86,7 @@ class GameSchema extends Schema
     {
         return [
             WhereIdIn::make($this),
-            Where::make('systemId', 'ConsoleID'),
+            Where::make('systemId', 'system_id'),
         ];
     }
 
@@ -98,7 +101,7 @@ class GameSchema extends Schema
 
     /**
      * Build an index query for this resource.
-     * Excludes Hub games (ConsoleID=100), Event games (ConsoleID=101),
+     * Excludes Hub games (system_id=100), Event games (system_id=101),
      * and subset games (titles containing "[Subset -").
      *
      * @param Builder<Game> $query
@@ -106,8 +109,8 @@ class GameSchema extends Schema
      */
     public function indexQuery(?object $model, Builder $query): Builder
     {
-        return $query->where('ConsoleID', '!=', System::Hubs)
-            ->where('ConsoleID', '!=', System::Events)
-            ->where('Title', 'NOT LIKE', '%[Subset -%');
+        return $query->where('system_id', '!=', System::Hubs)
+            ->where('system_id', '!=', System::Events)
+            ->where('title', 'NOT LIKE', '%[Subset -%');
     }
 }

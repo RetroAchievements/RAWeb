@@ -36,6 +36,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Translation\PotentiallyTranslatedString;
 use Inertia\ResponseFactory;
+use Jenssegers\Optimus\Optimus;
 use Laravel\Pulse\Facades\Pulse;
 use Livewire\Livewire;
 
@@ -49,6 +50,15 @@ class AppServiceProvider extends ServiceProvider
         // Override Inertia's ResponseFactory to use our custom factory that strips nulls.
         // This can eliminate unnecessary props and speed up hydration.
         $this->app->singleton(ResponseFactory::class, InertiaResponseFactory::class);
+
+        // Register Optimus for ID obfuscation. Required for spatie/laravel-medialibrary paths.
+        $this->app->singleton(Optimus::class, function () {
+            return new Optimus(
+                (int) config('optimus.prime'),
+                (int) config('optimus.inverse'),
+                (int) config('optimus.random'),
+            );
+        });
     }
 
     /**
@@ -91,7 +101,7 @@ class AppServiceProvider extends ServiceProvider
             ->uniqueValidationIgnoresRecordByDefault(false));
 
         Pulse::user(fn (User $user) => [
-            'name' => $user->User,
+            'name' => $user->username,
             'avatar' => $user->avatarUrl,
         ]);
 

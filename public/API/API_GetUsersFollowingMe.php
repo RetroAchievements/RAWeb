@@ -15,7 +15,7 @@
  *    boolean    AmIFollowing               whether the caller user follows the follower user back
  */
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -33,32 +33,31 @@ $count = $input['c'] ?? 100;
 $user = Auth::user();
 
 $totalUsers = $user->followerUsers()
-    ->whereNull('Deleted')
+    ->whereNull('deleted_at')
     ->count();
 
 $usersList = $user
-  ->followerUsers()
-  ->whereNull("Deleted")
-  ->with([
-      "inverseRelatedUsers" => fn ($q) => $q
-        ->select(sprintf("%s.ID", $user->getTable()), "related_user_id")
-        ->where("user_id", $user->id)
-        ->withPivot("Friendship"),
-  ])
-  ->orderByDesc("LastLogin")
-  ->skip($offset)
-  ->take($count)
-  ->get()
-  ->map(
-    fn ($followerUser) => [
-        "User" => $followerUser->display_name,
-        "ULID" => $followerUser->ulid,
-        "Points" => $followerUser->points,
-        "PointsSoftcore" => $followerUser->points_softcore,
-        "AmIFollowing" => $followerUser->inverseRelatedUsers->first()?->pivot?->Friendship ===
-          UserRelationship::Following,
-    ]
-  );
+    ->followerUsers()
+    ->whereNull('deleted_at')
+    ->with([
+        'inverseRelatedUsers' => fn ($q) => $q
+            ->select(sprintf('%s.id', $user->getTable()), 'related_user_id')
+            ->where('user_id', $user->id)
+            ->withPivot('status'),
+    ])
+    ->orderByDesc('last_activity_at')
+    ->skip($offset)
+    ->take($count)
+    ->get()
+    ->map(
+        fn ($followerUser) => [
+            'User' => $followerUser->display_name,
+            'ULID' => $followerUser->ulid,
+            'Points' => $followerUser->points_hardcore,
+            'PointsSoftcore' => $followerUser->points,
+            'AmIFollowing' => $followerUser->inverseRelatedUsers->first()?->pivot?->status === UserRelationStatus::Following->value,
+        ]
+    );
 
 return response()->json([
     'Count' => count($usersList),

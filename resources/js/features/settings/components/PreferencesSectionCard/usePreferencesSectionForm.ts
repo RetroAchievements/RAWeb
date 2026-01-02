@@ -34,15 +34,18 @@ export function usePreferencesSectionForm(websitePrefs: number) {
   const onSubmit = (formValues: FormValues) => {
     const newWebsitePrefs = convertObjectToWebsitePrefs(formValues);
 
-    toastMessage.promise(mutation.mutateAsync({ payload: { websitePrefs: newWebsitePrefs } }), {
-      loading: t('Updating...'),
-      success: () => {
-        router.reload();
+    toastMessage.promise(
+      mutation.mutateAsync({ payload: { preferencesBitfield: newWebsitePrefs } }),
+      {
+        loading: t('Updating...'),
+        success: () => {
+          router.reload();
 
-        return t('Updated.');
+          return t('Updated.');
+        },
+        error: t('Something went wrong.'),
       },
-      error: t('Something went wrong.'),
-    });
+    );
   };
 
   return { form, mutation, onSubmit };

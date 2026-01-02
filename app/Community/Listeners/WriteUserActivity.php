@@ -96,7 +96,7 @@ class WriteUserActivity
                 $storeActivity = !empty($subjectId);
 
                 // don't update user's LastLogin when creating player_game entries for events
-                $updateLastLogin = System::isGameSystem($event->game->ConsoleID);
+                $updateLastLogin = System::isGameSystem($event->game->system_id);
                 break;
             default:
         }
@@ -114,7 +114,7 @@ class WriteUserActivity
             /*
             * update last activity timestamp regardless of whether an activity was stored as some might have been suppressed
             */
-            $user->LastLogin = Carbon::now();
+            $user->last_activity_at = Carbon::now();
             $user->saveQuietly();
         }
     }

@@ -26,8 +26,8 @@ if ($sortBy == 2 || $sortBy == 12) {
     $sortByGraphName = 'Num Achievements Earned';
 }
 
-$userPageHardcorePoints = $userDetails->RAPoints;
-$userPageSoftcorePoints = $userDetails->RASoftcorePoints;
+$userPageHardcorePoints = $userDetails->points_hardcore;
+$userPageSoftcorePoints = $userDetails->points;
 
 //	the past week
 $userScoreData = getAwardedList($userDetails);
@@ -135,7 +135,7 @@ $userScoreData = getAwardedList($userDetails);
     function selectHandlerBestDays(e) {
       if (chartBestDays.getSelection().length >= 1) {
         var dateAbbr = dataBestDays.getFormattedValue(chartBestDays.getSelection()[0].row, 0);
-        var dateParsed = Date.parse(dateAbbr) / 1000;
+        var dateParsed = Date.parse(dateAbbr + ' UTC') / 1000;
         window.location = '/historyexamine.php?d=' + dateParsed + '&u=<?= $userPage ?>';
       }
     }

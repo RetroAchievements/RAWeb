@@ -1,11 +1,13 @@
 <?php
 
 use App\Actions\FindUserByIdentifierAction;
+use App\Community\Enums\CommentableType;
 use App\Models\Comment;
 use App\Models\User;
 use App\Policies\CommentPolicy;
 use App\Policies\UserCommentPolicy;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -47,6 +49,11 @@ $rules = [
     't' => [
         Rule::requiredIf($inputIsGameOrAchievement()),
         'integer',
+        Rule::in([
+            CommentableType::Game->toLegacyInteger(),
+            CommentableType::Achievement->toLegacyInteger(),
+            CommentableType::User->toLegacyInteger(),
+        ]),
     ],
     'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
     'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable'],
@@ -66,14 +73,14 @@ $sortOrder = isset($input['sort']) ? $input['sort'] : 'submitted';
 
 $usernameOrUlid = null;
 $gameOrAchievementId = 0;
-$commentType = 0;
+$commentType = null;
 
 if ($inputIsGameOrAchievement()) {
     $gameOrAchievementId = $query['i'];
-    $commentType = $query['t'];
+    $commentType = CommentableType::fromLegacyInteger((int) $query['t']);
 } else {
     $usernameOrUlid = $query['i'];
-    $commentType = 3;
+    $commentType = CommentableType::User;
 }
 
 $user = null;
@@ -86,12 +93,12 @@ if ($usernameOrUlid) {
     }
 }
 
-$articleId = $user ? $user->ID : $gameOrAchievementId;
+$commentableId = $user ? $user->id : $gameOrAchievementId;
 
 $commentsQuery = Comment::withTrashed()
     ->with('user')
-    ->where('ArticleType', $commentType)
-    ->where('ArticleID', $articleId)
+    ->where('commentable_type', $commentType)
+    ->where('commentable_id', $commentableId)
     ->whereNull('deleted_at')
     ->whereHas('user', function ($query) {
         $query->whereNull('banned_at');
@@ -99,13 +106,13 @@ $commentsQuery = Comment::withTrashed()
     ->offset($offset)
     ->limit($count);
 
-$commentsQuery->orderBy('Submitted', $sortOptions[$sortOrder]);
+$commentsQuery->orderBy('created_at', $sortOptions[$sortOrder]);
 
 $comments = $commentsQuery->get();
 
 $totalComments = Comment::withTrashed()
-    ->where('ArticleType', $commentType)
-    ->where('ArticleID', $articleId)
+    ->where('commentable_type', $commentType)
+    ->where('commentable_id', $commentableId)
     ->whereNull('deleted_at')
     ->whereHas('user', function ($query) {
         $query->whereNull('banned_at');
@@ -122,8 +129,8 @@ $results = $comments->filter(function ($nextComment) use ($commentPolicy) {
     return [
         'User' => $nextComment->user->display_name,
         'ULID' => $nextComment->user->ulid,
-        'Submitted' => $nextComment->Submitted,
-        'CommentText' => $nextComment->Payload,
+        'Submitted' => $nextComment->created_at,
+        'CommentText' => $nextComment->body,
     ];
 });
 

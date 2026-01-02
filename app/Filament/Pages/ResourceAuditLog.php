@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages;
 
-use App\Platform\Enums\AchievementFlag;
+use App\Models\Achievement;
 use BackedEnum;
 use Closure;
 use Filament\Forms;
@@ -95,12 +95,15 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     }
 
     /**
-     * @return Collection<string, Closure(int): string>
+     * @return Collection<string, Closure(mixed): string>
      */
     protected function createFieldValueMap(): Collection
     {
         return collect([
-            'Flags' => fn (int $flag): string => AchievementFlag::tryFrom($flag)?->label() ?? 'Invalid flag',
+            'is_promoted' => fn (mixed $value): string => $value ? __('Promoted') : __('Unpromoted'),
+
+            // Support legacy audit log records that used the Flags column.
+            'Flags' => fn (mixed $value): string => $value === Achievement::FLAG_PROMOTED ? __('Promoted') : __('Unpromoted'),
         ]);
     }
 
@@ -124,8 +127,16 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     protected function getIsImageField(string $fieldName): bool
     {
         return in_array($fieldName, [
-            'BadgeName',
+            'image_name',
             'image_asset_path',
+
+            // New column names.
+            'image_icon_asset_path',
+            'image_box_art_asset_path',
+            'image_title_asset_path',
+            'image_ingame_asset_path',
+
+            // Legacy column names for historical audit log entries.
             'ImageIcon',
             'ImageBoxArt',
             'ImageTitle',
@@ -136,11 +147,8 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     protected function getImageUrl(string $fieldName, string $path): string
     {
         switch ($fieldName) {
-            case 'BadgeName':
+            case 'image_name':
                 return media_asset("/Badge/{$path}.png");
-
-            case 'ImageIcon':
-                return media_asset($path);
 
             default:
                 return media_asset($path);

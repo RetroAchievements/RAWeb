@@ -19,7 +19,7 @@ class LogUsersOnlineCount extends Command
      */
     public function handle(): void
     {
-        $playersOnline = User::where('LastLogin', '>', Carbon::now()->subMinutes(10))->count();
+        $playersOnline = User::where('last_activity_at', '>', Carbon::now()->subMinutes(10))->count();
 
         file_put_contents(storage_path('logs/playersonline.log'), $playersOnline . PHP_EOL, FILE_APPEND);
     }

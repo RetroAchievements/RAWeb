@@ -41,7 +41,7 @@ class UserBetaFeedbackSubmissionPolicy
         }
 
         $hasMinimumMembershipDuration = $user->created_at < now()->subWeeks(2);
-        $hasMinimumPoints = $user->points >= 3000 || $user->points_softcore >= 3000;
+        $hasMinimumPoints = $user->points_hardcore >= 3000 || $user->points >= 3000;
 
         return $hasMinimumMembershipDuration && $hasMinimumPoints;
     }

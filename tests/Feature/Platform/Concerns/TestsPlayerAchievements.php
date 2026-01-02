@@ -46,18 +46,18 @@ trait TestsPlayerAchievements
 
     protected function removeUnlock(User $user, Achievement $achievement): void
     {
-        $user->playerAchievements()->where('achievement_id', $achievement->ID)->delete();
+        $user->playerAchievements()->where('achievement_id', $achievement->id)->delete();
     }
 
     protected function assertHasUnlock(User $user, Achievement $achievement, int $mode): void
     {
-        $query = $user->playerAchievements()->where('achievement_id', $achievement->ID);
+        $query = $user->playerAchievements()->where('achievement_id', $achievement->id);
         if ($mode === UnlockMode::Hardcore) {
             $query->whereNotNull('unlocked_hardcore_at');
         }
         $this->assertTrue(
             $query->exists(),
-            "No " . UnlockMode::toString($mode) . " unlock for achievement " . $achievement->ID . "/user " . $user->ID
+            "No " . UnlockMode::toString($mode) . " unlock for achievement " . $achievement->id . "/user " . $user->id
         );
     }
 
@@ -73,13 +73,13 @@ trait TestsPlayerAchievements
 
     protected function assertDoesNotHaveUnlockInMode(User $user, Achievement $achievement, int $mode): void
     {
-        $query = $user->playerAchievements()->where('achievement_id', $achievement->ID);
+        $query = $user->playerAchievements()->where('achievement_id', $achievement->id);
         if ($mode === UnlockMode::Hardcore) {
             $query->whereNotNull('unlocked_hardcore_at');
         }
         $this->assertFalse(
             $query->exists(),
-            "Found " . UnlockMode::toString($mode) . " unlock for achievement " . $achievement->ID . "/user " . $user->ID
+            "Found " . UnlockMode::toString($mode) . " unlock for achievement " . $achievement->id . "/user " . $user->id
         );
     }
 
@@ -96,14 +96,14 @@ trait TestsPlayerAchievements
     protected function assertDoesNotHaveAnyUnlock(User $user, Achievement $achievement): void
     {
         $this->assertFalse(
-            $user->playerAchievements()->where('achievement_id', $achievement->ID)->exists(),
-            "Found unlock for achievement " . $achievement->ID . "/user " . $user->ID
+            $user->playerAchievements()->where('achievement_id', $achievement->id)->exists(),
+            "Found unlock for achievement " . $achievement->id . "/user " . $user->id
         );
     }
 
     protected function getUnlockTime(User $user, Achievement $achievement, int $mode): ?Carbon
     {
-        $unlock = $user->playerAchievements()->where('achievement_id', $achievement->ID)->first();
+        $unlock = $user->playerAchievements()->where('achievement_id', $achievement->id)->first();
 
         if (!$unlock) {
             return null;

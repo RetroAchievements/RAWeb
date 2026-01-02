@@ -12,15 +12,15 @@ import { NotificationsTableRow } from './NotificationsTableRow';
 import { useNotificationsSectionForm } from './useNotificationsSectionForm';
 
 interface NotificationsSectionCardProps {
-  currentWebsitePrefs: number;
+  currentPreferencesBitfield: number;
 }
 
 export const NotificationsSectionCard: FC<NotificationsSectionCardProps> = ({
-  currentWebsitePrefs,
+  currentPreferencesBitfield,
 }) => {
   const { t } = useTranslation();
 
-  const { form, mutation, onSubmit } = useNotificationsSectionForm(currentWebsitePrefs);
+  const { form, mutation, onSubmit } = useNotificationsSectionForm(currentPreferencesBitfield);
 
   const notificationSettings = useNotificationSettings();
 
@@ -43,6 +43,7 @@ export const NotificationsSectionCard: FC<NotificationsSectionCardProps> = ({
                 key={setting.t_label}
                 t_label={setting.t_label}
                 emailFieldName={setting.emailFieldName}
+                isInverted={setting.isInverted}
               />
             ))}
           </div>
@@ -61,6 +62,7 @@ export const NotificationsSectionCard: FC<NotificationsSectionCardProps> = ({
                   key={setting.t_label}
                   t_label={setting.t_label}
                   emailFieldName={setting.emailFieldName}
+                  isInverted={setting.isInverted}
                 />
               ))}
             </tbody>
@@ -79,6 +81,7 @@ function useNotificationSettings() {
     t_label: TranslatedString;
     emailFieldName?: UserPreferenceValue;
     canShow?: boolean;
+    isInverted?: boolean;
   }> = [
     {
       t_label: t(
@@ -111,6 +114,11 @@ function useNotificationSettings() {
     {
       t_label: t("There's activity on a ticket I'm associated with"),
       emailFieldName: StringifiedUserPreference.EmailOn_TicketActivity,
+    },
+    {
+      t_label: t("There's a daily summary of my subscription activity"),
+      emailFieldName: StringifiedUserPreference.EmailOff_DailyDigest,
+      isInverted: true,
     },
   ];
 

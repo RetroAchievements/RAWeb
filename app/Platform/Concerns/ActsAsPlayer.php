@@ -32,9 +32,16 @@ trait ActsAsPlayer
 
     // == instance methods
 
-    public function hasPlayed(Game $game): bool
+    public function hasPlayedGame(Game $game): bool
     {
         return $this->playerGames()->where('game_id', $game->id)->exists();
+    }
+
+    public function hasPlayedGameForAchievement(Achievement $achievement): bool
+    {
+        return $this->playerGames()
+            ->whereIn('game_id', $achievement->getRelatedGameIds())
+            ->exists();
     }
 
     public function playerGame(Game $game): ?PlayerGame
@@ -46,14 +53,14 @@ trait ActsAsPlayer
 
     public function getPointsRatioAttribute(): float|string
     {
-        return $this->points ? ($this->points_weighted / $this->points) : 0;
+        return $this->points_hardcore ? ($this->points_weighted / $this->points_hardcore) : 0;
     }
 
     public function getPlayerPreferredModeAttribute(): PlayerPreferredMode
     {
         // This attribute doesn't care if the user is untracked.
-        $hasHardcoreRank = $this->points >= Rank::MIN_POINTS;
-        $hasSoftcoreRank = $this->points_softcore >= Rank::MIN_POINTS;
+        $hasHardcoreRank = $this->points_hardcore >= Rank::MIN_POINTS;
+        $hasSoftcoreRank = $this->points >= Rank::MIN_POINTS;
 
         if ($hasHardcoreRank && $hasSoftcoreRank) {
             return PlayerPreferredMode::Mixed;
@@ -97,7 +104,7 @@ trait ActsAsPlayer
      */
     public function lastGame(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'LastGameID', 'ID');
+        return $this->belongsTo(Game::class, 'rich_presence_game_id', 'id');
     }
 
     /**
@@ -105,7 +112,7 @@ trait ActsAsPlayer
      */
     public function leaderboardEntries(): HasMany
     {
-        return $this->hasMany(LeaderboardEntry::class, 'user_id', 'ID');
+        return $this->hasMany(LeaderboardEntry::class, 'user_id', 'id');
     }
 
     /**
@@ -123,7 +130,7 @@ trait ActsAsPlayer
      */
     public function playerBadges(): HasMany
     {
-        return $this->hasMany(PlayerBadge::class, 'user_id', 'ID');
+        return $this->hasMany(PlayerBadge::class, 'user_id', 'id');
     }
 
     /**
@@ -155,7 +162,7 @@ trait ActsAsPlayer
      */
     public function playerStats(): HasMany
     {
-        return $this->hasMany(PlayerStat::class, 'user_id', 'ID');
+        return $this->hasMany(PlayerStat::class, 'user_id', 'id');
     }
 
     /**
@@ -163,7 +170,7 @@ trait ActsAsPlayer
      */
     public function reportedTickets(): HasMany
     {
-        return $this->hasMany(Ticket::class, 'reporter_id', 'ID');
+        return $this->hasMany(Ticket::class, 'reporter_id', 'id');
     }
 
     // == scopes
@@ -186,7 +193,7 @@ trait ActsAsPlayer
     public function scopeCurrentlyOnline(Builder $query): Builder
     {
         $recentMinutes = 10;
-        $query->where('LastLogin', '>', Carbon::now()->subMinutes($recentMinutes));
+        $query->where('last_activity_at', '>', Carbon::now()->subMinutes($recentMinutes));
 
         return $query;
     }

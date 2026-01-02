@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Community\Data\CommentData;
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Data\ForumTopicCommentData;
 use App\Data\UserData;
 use App\Http\Controller;
@@ -554,12 +554,11 @@ class SearchApiController extends Controller
 
         // Guests should not see ticket comments.
         if (!$user) {
-            $searchQuery->whereIn('ArticleType', [
-                ArticleType::Game,
-                ArticleType::Achievement,
-                ArticleType::User,
-                ArticleType::News,
-                ArticleType::Leaderboard,
+            $searchQuery->whereIn('commentable_type', [
+                CommentableType::Game->value,
+                CommentableType::Achievement->value,
+                CommentableType::User->value,
+                CommentableType::Leaderboard->value,
             ]);
         }
 
