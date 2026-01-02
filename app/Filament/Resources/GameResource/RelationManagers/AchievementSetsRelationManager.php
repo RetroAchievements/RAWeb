@@ -138,7 +138,7 @@ class AchievementSetsRelationManager extends RelationManager
                             AchievementSetType::WillBeSpecialty->value,
                         ])->exists())
                     ->label(fn () => $this->hasWillBeTypes($game) ? 'Enable Multiset' : 'Disable Multiset')
-                    ->icon(fn () => $this->hasWillBeTypes($game) ? 'heroicon-o-play' : 'heroicon-o-pause')
+                    ->icon(fn () => $this->hasWillBeTypes($game) ? 'heroicon-o-play' : null)
                     ->color(fn () => $this->hasWillBeTypes($game) ? 'primary' : 'danger')
                     ->requiresConfirmation()
                     ->modalHeading(fn () => $this->hasWillBeTypes($game) ? 'Enable Multiset' : 'Disable Multiset')
