@@ -31,6 +31,7 @@ use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ProcessExpiringClaims;
 use App\Platform\Commands\PruneDuplicateSubsetNotes;
 use App\Platform\Commands\PruneGameRecentPlayers;
+use App\Platform\Commands\RebuildAllSearchIndexes;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\RevertManualUnlocks;
 use App\Platform\Commands\SyncEvents;
@@ -105,6 +106,7 @@ class AppServiceProvider extends ServiceProvider
                 UpdateTotalGamesCount::class,
 
                 // Search
+                RebuildAllSearchIndexes::class,
                 UpdateSearchIndexForQueuedEntities::class,
 
                 // Developer
