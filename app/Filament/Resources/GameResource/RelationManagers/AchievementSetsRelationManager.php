@@ -80,7 +80,7 @@ class AchievementSetsRelationManager extends RelationManager
                     ->placeholder(fn ($record) => $record->type === AchievementSetType::Core->value ? 'Base Set' : null),
 
                 Tables\Columns\TextColumn::make('type')
-                    ->formatStateUsing(fn ($state): string => AchievementSetType::tryFrom($state)?->label())
+                    ->formatStateUsing(fn ($state): ?string => AchievementSetType::tryFrom($state)?->label())
                     ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
                         $state = $column->getState();
 
@@ -88,8 +88,6 @@ class AchievementSetsRelationManager extends RelationManager
                             return 'Will be Bonus when multiset is enabled';
                         } elseif ($state === AchievementSetType::WillBeSpecialty->value) {
                             return 'Will be Specialty when multiset is enabled';
-                        } elseif ($state === AchievementSetType::WillBeExclusive->value) {
-                            return 'Will be Exclusive when multiset is enabled';
                         }
 
                         return null;
@@ -231,7 +229,7 @@ class AchievementSetsRelationManager extends RelationManager
                                     ->options([
                                         AchievementSetType::WillBeBonus->value => AchievementSetType::Bonus->label(),
                                         AchievementSetType::WillBeSpecialty->value => AchievementSetType::Specialty->label(),
-                                        AchievementSetType::WillBeExclusive->value => AchievementSetType::Exclusive->label(),
+                                        AchievementSetType::Exclusive->value => AchievementSetType::Exclusive->label(),
                                     ])
                                     ->helperText("
                                         Bonus loads with any hashes supported by Core.
@@ -295,7 +293,7 @@ class AchievementSetsRelationManager extends RelationManager
                             ->options([
                                 AchievementSetType::WillBeBonus->value => AchievementSetType::Bonus->label(),
                                 AchievementSetType::WillBeSpecialty->value => AchievementSetType::Specialty->label(),
-                                AchievementSetType::WillBeExclusive->value => AchievementSetType::Exclusive->label(),
+                                AchievementSetType::Exclusive->value => AchievementSetType::Exclusive->label(),
                             ])
                             ->required()
                             ->helperText('Bonus loads with any hashes supported by Core. Specialty requires a unique hash, but also loads Core and Bonus. Exclusive requires a unique hash, but does not load Core or Bonus.'),
@@ -305,7 +303,7 @@ class AchievementSetsRelationManager extends RelationManager
                         $typeMapping = [
                             AchievementSetType::Bonus->value => AchievementSetType::WillBeBonus->value,
                             AchievementSetType::Specialty->value => AchievementSetType::WillBeSpecialty->value,
-                            AchievementSetType::Exclusive->value => AchievementSetType::WillBeExclusive->value,
+                            AchievementSetType::Exclusive->value => AchievementSetType::Exclusive->value,
                         ];
 
                         return [

@@ -39,9 +39,6 @@ enum AchievementSetType: string
     case WillBeBonus = "will_be_bonus";
     case WillBeSpecialty = "will_be_specialty";
 
-    // TODO this is redundant. remove it and only have "exclusive", maybe with a note explaining why.
-    case WillBeExclusive = "will_be_exclusive";
-
     public function label(): string
     {
         return match ($this) {
@@ -51,7 +48,6 @@ enum AchievementSetType: string
             self::Exclusive => 'Exclusive',
             self::WillBeBonus => 'Bonus*',
             self::WillBeSpecialty => 'Specialty*',
-            self::WillBeExclusive => 'Exclusive*', // TODO remove
         };
     }
 }
