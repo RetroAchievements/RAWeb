@@ -44,7 +44,7 @@
         "meilisearch/meilisearch-php": "^1.14",
         "nesbot/carbon": "^3.9",
         "opcodesio/log-viewer": "^3.1",
-        "owenvoke/blade-fontawesome": "^2.9",
+        "owenvoke/blade-fontawesome": "^3.0",
         "sentry/sentry-laravel": "^4.13",
         "snipe/banbuilder": "dev-master",
         "socialiteproviders/discord": "^4.1",
