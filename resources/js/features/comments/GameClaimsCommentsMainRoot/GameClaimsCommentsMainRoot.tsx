@@ -19,7 +19,7 @@ export const GameClaimsCommentsMainRoot: FC = memo(() => {
     useCommentPagination({
       paginatedComments,
       entityId: game.id,
-      entityType: 'Game', // required to build the /game/{game}/claims/comments routes correctly
+      commentableType: 'achievement-set-claim.comment',
       routeName: 'game.claims.comment.index',
     });
 
@@ -41,7 +41,7 @@ export const GameClaimsCommentsMainRoot: FC = memo(() => {
         canComment={canComment}
         comments={paginatedComments.items}
         commentableId={game.id}
-        commentableType="SetClaim"
+        commentableType="achievement-set-claim.comment"
         onDeleteSuccess={handleCommentDeleteSuccess}
         onSubmitSuccess={handleCommentSubmitSuccess}
       />

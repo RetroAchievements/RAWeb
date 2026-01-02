@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\PlayerAchievement;
@@ -18,17 +18,17 @@ class MigrateAchievementIdsToDifferentGameIdAction
     public function execute(array $achievementIds, int $gameId, User $user): void
     {
         // Determine which game(s) the achievements are coming from.
-        $oldGameIds = Achievement::whereIn('ID', $achievementIds)->select(['GameID'])->distinct()->pluck('GameID');
+        $oldGameIds = Achievement::whereIn('id', $achievementIds)->select(['game_id'])->distinct()->pluck('game_id');
 
         // Associate the achievements to the new game.
-        Achievement::whereIn('ID', $achievementIds)->get()->each(function ($achievement) use ($gameId) {
-            $achievement->update(['GameID' => $gameId]);
+        Achievement::whereIn('id', $achievementIds)->get()->each(function ($achievement) use ($gameId) {
+            $achievement->update(['game_id' => $gameId]);
         });
 
         // Add an audit comment to the new game.
         addArticleComment(
             'Server',
-            ArticleType::GameModification,
+            CommentableType::GameModification,
             $gameId,
             "{$user->display_name} migrated " . Str::plural('achievement', count($achievementIds)) . ' ' .
                 implode(',', $achievementIds) . ' from ' .

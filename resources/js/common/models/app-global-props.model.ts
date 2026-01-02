@@ -13,8 +13,8 @@ export type AuthenticatedUser = SetRequired<
   | 'pointsSoftcore'
   | 'preferences'
   | 'roles'
-  | 'unreadMessageCount'
-  | 'websitePrefs'
+  | 'unreadMessages'
+  | 'preferencesBitfield'
 >;
 
 /**
@@ -51,8 +51,8 @@ export const createAuthenticatedUser = createFactory<AuthenticatedUser>((faker) 
   pointsSoftcore: faker.number.int({ min: 0, max: 100000 }),
   preferences: createAuthenticatedUserPreferences(),
   roles: [],
-  unreadMessageCount: 0,
-  websitePrefs: 63, // The default when a new account is created.
+  unreadMessages: 0,
+  preferencesBitfield: 63, // The default when a new account is created.
 }));
 
 export const createAuthenticatedUserPreferences = createFactory<AuthenticatedUser['preferences']>(

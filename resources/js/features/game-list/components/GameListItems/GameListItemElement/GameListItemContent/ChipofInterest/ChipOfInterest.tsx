@@ -136,7 +136,7 @@ export const ChipOfInterest: FC<ChipOfInterestProps> = ({ game, playerGame, fiel
               !isComplete ? 'px-2' : null,
               buildAwardLabelColorClassNames(
                 playerGame?.highestAward?.awardType,
-                playerGame?.highestAward?.awardDataExtra,
+                playerGame?.highestAward?.awardTier,
               ),
             )}
           >

@@ -68,7 +68,7 @@ class BuildShowForumTopicPagePropsAction
         if ($user) {
             $accessibleTeamIds = (new ForumTopicCommentPolicy())->getAccessibleTeamIds($user);
             if (!empty($accessibleTeamIds)) {
-                $teamUsers = User::whereIn('ID', $accessibleTeamIds)->get();
+                $teamUsers = User::whereIn('id', $accessibleTeamIds)->get();
                 $accessibleTeamAccounts = $teamUsers->map(fn ($teamUser) => UserData::fromUser($teamUser)->include('id'));
             }
         }

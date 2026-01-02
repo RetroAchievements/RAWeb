@@ -21,7 +21,7 @@ class SyncAchievementSetImageAssetPathFromGameAction
             return;
         }
 
-        $coreAchievementSet->image_asset_path = $game->ImageIcon;
+        $coreAchievementSet->image_asset_path = $game->image_icon_asset_path;
         $coreAchievementSet->timestamps = false;
         $coreAchievementSet->save();
     }

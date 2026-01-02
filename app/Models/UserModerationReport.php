@@ -38,7 +38,7 @@ class UserModerationReport extends BaseModel
      */
     public function reporter(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'reporter_user_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'reporter_user_id')->withTrashed();
     }
 
     /**
@@ -46,7 +46,7 @@ class UserModerationReport extends BaseModel
      */
     public function reportedUser(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'reported_user_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'reported_user_id')->withTrashed();
     }
 
     /**

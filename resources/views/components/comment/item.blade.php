@@ -2,8 +2,8 @@
     'author' => null, // ?User
     'when' => null, // ?Carbon
     'payload' => '',
-    'articleType' => 0,
-    'articleId' => 0,
+    'commentableType' => null,
+    'commentableId' => 0,
     'commentId' => 0,
     'allowDelete' => false,
 ])
@@ -11,26 +11,23 @@
 @php
 
 use App\Community\Actions\FormatLegacyCommentPayloadAction;
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use Illuminate\Support\Facades\Auth;
 
-settype($articleType, 'integer');
-
-$commentTypeLabel = match ($articleType) {
-    ArticleType::Game => 'Game Wall Comment',
-    ArticleType::Achievement => 'Achievement Wall Comment',
-    ArticleType::User => 'User Wall Comment',
-    ArticleType::Leaderboard => 'Leaderboard Comment',
-    ArticleType::AchievementTicket => 'Ticket Comment',
+$commentTypeLabel = match ($commentableType) {
+    CommentableType::Game => 'Game Wall Comment',
+    CommentableType::Achievement => 'Achievement Wall Comment',
+    CommentableType::User => 'User Wall Comment',
+    CommentableType::Leaderboard => 'Leaderboard Comment',
+    CommentableType::AchievementTicket => 'Ticket Comment',
     default => 'Wall Comment',
 };
 
-$nonReportableArticleTypes = [
-    ArticleType::News,
-    ArticleType::UserModeration,
-    ArticleType::GameHash,
-    ArticleType::SetClaim,
-    ArticleType::GameModification,
+$nonReportableCommentableTypes = [
+    CommentableType::UserModeration,
+    CommentableType::GameHash,
+    CommentableType::SetClaim,
+    CommentableType::GameModification,
 ];
 
 $userModel = Auth::user();
@@ -39,13 +36,13 @@ $canCreateModerationReports = (
     && $userModel->can('createModerationReports', $userModel)
     && $author
     && $author->id !== auth()->user()->id
-    && $author->User !== 'Server'
-    && !in_array($articleType, $nonReportableArticleTypes)
+    && $author->username !== 'Server'
+    && !in_array($commentableType, $nonReportableCommentableTypes, true)
 );
 
 @endphp
 
-@if ($author && $author->User === 'Server')
+@if ($author && $author->username === 'Server')
     <tr class="comment system">
         <td class="align-top py-2">
             @if ($commentId > 0)
@@ -64,7 +61,7 @@ $canCreateModerationReports = (
             </div>
         </td>
     </tr>
-@elseif ($articleType !== ArticleType::AchievementTicket &&
+@elseif ($commentableType !== CommentableType::AchievementTicket &&
          $author && $author->banned_at && !request()->user()?->can('manage', $author))
     {{-- banned user comments are only visible to moderators --}}
 @else
@@ -98,7 +95,7 @@ $canCreateModerationReports = (
                     @endif
 
                     @if ($allowDelete)
-                        <a onclick="removeComment({{ $articleType }}, {{ $articleId }}, {{ $commentId }}); return false;" href="#" aria-label="Delete comment" title="Delete comment">
+                        <a onclick="removeComment('{{ $commentableType?->value }}', {{ $commentableId }}, {{ $commentId }}); return false;" href="#" aria-label="Delete comment" title="Delete comment">
                             <x-fas-xmark class="text-red-600 h-5 w-5" />
                         </a>
                     @endif
@@ -130,7 +127,7 @@ $canCreateModerationReports = (
             @php
                 $formattedPayload = (new FormatLegacyCommentPayloadAction())->execute(
                     $payload,
-                    isTicketComment: (int) $articleType === ArticleType::AchievementTicket,
+                    isTicketComment: $commentableType === CommentableType::AchievementTicket,
                 );
             @endphp
             <div style="word-break: break-word;">

@@ -17,7 +17,7 @@ use Illuminate\Support\Carbon;
 $isUnlocked = $isUnlocked || isset($achievement['DateEarnedHardcore']) || isset($achievement['DateEarned']);
 $isUnlockedOnHardcore = $isUnlockedHardcore || isset($achievement['DateEarnedHardcore']);
 
-$achBadgeName = $achievement['BadgeName'];
+$achBadgeName = $achievement['BadgeName'] ?? $achievement['image_name'];
 if (!$isUnlocked) {
     $achBadgeName .= "_lock";
 }
@@ -51,17 +51,24 @@ $renderedAchievementAvatar = achievementAvatar(
     <div class="grid w-full gap-y-1.5 gap-x-5 leading-4 md:grid-cols-6 mt-1">
         <div class="md:col-span-4">
             <div class="flex justify-between gap-x-2 mb-0.5">
+                @php
+                    $achId = $achievement['ID'] ?? $achievement['id'];
+                    $achTitle = $achievement['Title'] ?? $achievement['title'];
+                    $achPoints = $achievement['Points'] ?? $achievement['points'];
+                    $achTrueRatio = $achievement['TrueRatio'] ?? $achievement['points_weighted'];
+                @endphp
+
                 <div>
-                    <a class="inline mr-1" href="{{ route('achievement.show', $achievement['ID']) }}">
-                        <x-achievement.title :rawTitle="$achievement['Title']" />
+                    <a class="inline mr-1" href="{{ route('achievement.show', $achId) }}">
+                        <x-achievement.title :rawTitle="$achTitle" />
                     </a>
 
-                    @if ($achievement['Points'] > 0 || $achievement['TrueRatio'] > 0)
+                    @if ($achPoints > 0 || $achTrueRatio > 0)
                         <p class="inline text-xs whitespace-nowrap">
-                            <span>({{ $achievement['Points'] }})</span>
-                            @if ($achievement['TrueRatio'] > 0)
+                            <span>({{ $achPoints }})</span>
+                            @if ($achTrueRatio > 0)
                                 <x-points-weighted-container>
-                                    ({{ localized_number($achievement['TrueRatio']) }})
+                                    ({{ localized_number($achTrueRatio) }})
                                 </x-points-weighted-container>
                             @endif
                         </p>
@@ -80,7 +87,7 @@ $renderedAchievementAvatar = achievementAvatar(
             </div>
 
             <p class="leading-4">
-                {{ $achievement['Description'] }}
+                {{ $achievement['Description'] ?? $achievement['description'] }}
 
                 @if ($showAuthorName && $achievement['Author']) {{-- TODO: handle deleted author --}}
                     <span class="flex gap-x-1 text-[0.6rem] mt-2">

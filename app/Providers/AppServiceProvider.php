@@ -91,7 +91,7 @@ class AppServiceProvider extends ServiceProvider
             ->uniqueValidationIgnoresRecordByDefault(false));
 
         Pulse::user(fn (User $user) => [
-            'name' => $user->User,
+            'name' => $user->username,
             'avatar' => $user->avatarUrl,
         ]);
 

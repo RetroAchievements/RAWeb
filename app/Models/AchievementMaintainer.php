@@ -36,7 +36,7 @@ class AchievementMaintainer extends BaseModel
      */
     public function achievement(): BelongsTo
     {
-        return $this->belongsTo(Achievement::class, 'achievement_id', 'ID');
+        return $this->belongsTo(Achievement::class, 'achievement_id', 'id');
     }
 
     /**
@@ -44,7 +44,7 @@ class AchievementMaintainer extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     // == scopes

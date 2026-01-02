@@ -2,7 +2,7 @@
 
 // TODO migrate to UserController::show()
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\ClaimFilters;
 use App\Community\Enums\ClaimSorting;
 use App\Community\Enums\UserAction;
@@ -59,12 +59,18 @@ $totalHardcoreAchievements = $progressionCounts['totalHardcoreAchievements'];
 $totalSoftcoreAchievements = $progressionCounts['totalSoftcoreAchievements'];
 
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage, limit: 200);
+$userIncompleteGamesList = getUsersCompletedGamesAndMax($userPage, limit: 200, isExcludingCompleted: true);
 $userCompletedGamesListFull = getUsersCompletedGamesAndMax($userPage);
 $userAwards = getUsersSiteAwards($userPageModel);
 
 $playerProgressionService = new PlayerProgressionService();
 $userJoinedGamesAndAwards = $playerProgressionService->filterAndJoinGames(
     $userCompletedGamesList,
+    $userAwards,
+    $userPageID,
+);
+$userJoinedIncompleteGames = $playerProgressionService->filterAndJoinGames(
+    $userIncompleteGamesList,
     $userAwards,
     $userPageID,
 );
@@ -161,8 +167,8 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
     echo "<h2 class='text-h4'>User Wall</h2>";
 
     if ($userWallActive) {
-        echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" :article=\"\$article\" />",
-            ['articleType' => ArticleType::User, 'articleId' => $userPageModel->id, 'article' => $userPageModel]
+        echo Blade::render("<x-comment.list :commentableType=\"\$commentableType\" :commentableId=\"\$commentableId\" :article=\"\$article\" />",
+            ['commentableType' => CommentableType::User, 'commentableId' => $userPageModel->id, 'article' => $userPageModel]
         );
     } else {
         echo "<div>";
@@ -179,9 +185,10 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
         RenderSiteAwards($userAwards, $userPage);
         ?>
 
-        @if (count($userCompletedGamesList) >= 1)
+        @if (count($userCompletedGamesList) >= 1 || count($userIncompleteGamesList) >= 1)
             <x-user.completion-progress
                 :userJoinedGamesAndAwards="$userJoinedGamesAndAwards"
+                :userJoinedIncompleteGames="$userJoinedIncompleteGames"
                 :username="$userPage"
             />
         @endif
@@ -192,7 +199,7 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
             :userScoreData="$userScoreData"
         />
 
-        @if ($user !== null && $user === $userPageModel['User'])
+        @if ($user !== null && $user === $userPageModel['username'])
             <x-user.followed-leaderboard :user="$userPageModel" />
         @endif
     </x-slot>

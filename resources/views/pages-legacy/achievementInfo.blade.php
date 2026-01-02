@@ -2,7 +2,7 @@
 
 // TODO migrate to AchievementController::show()
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\EventAchievement;
@@ -11,7 +11,7 @@ use App\Models\PlayerAchievement;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
+use App\Platform\Services\TriggerDecoderService;
 use App\Support\Shortcode\Shortcode;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Blade;
@@ -53,7 +53,7 @@ $achievementDescriptionRaw = $dataOut['Description'];
 $gameTitleRaw = $dataOut['GameTitle'];
 
 $game = Game::find($dataOut['GameID']);
-$isEventGame = $game->ConsoleID === System::Events;
+$isEventGame = $game->system_id === System::Events;
 
 sanitize_outputs(
     $achievementTitle,
@@ -135,7 +135,7 @@ if ($game->system->id === System::Events) {
             $dataOut['SourceGameId'] = null;
         } else {
             // update the ID of the dataOut so the link goes to the source achievement
-            $dataOut['ID'] = $eventAchievement->sourceAchievement->ID;
+            $dataOut['ID'] = $eventAchievement->sourceAchievement->id;
         }
     }
 }
@@ -183,7 +183,7 @@ if ($game->system->id === System::Events) {
             <x-game.multiline-avatar
                 :gameId="$eventAchievement->sourceAchievement->game->id"
                 :gameTitle="$eventAchievement->sourceAchievement->game->title"
-                :gameImageIcon="$eventAchievement->sourceAchievement->game->ImageIcon"
+                :gameImageIcon="$eventAchievement->sourceAchievement->game->image_icon_asset_path"
                 :consoleId="$eventAchievement->sourceAchievement->game->system->id"
                 :consoleName="$eventAchievement->sourceAchievement->game->system->name"
             />
@@ -196,7 +196,7 @@ if ($game->system->id === System::Events) {
 
         echo "<p class='embedded smalldata mb-3'>";
         echo "<small>";
-        if ($achFlags === AchievementFlag::Unofficial->value) {
+        if ($achFlags === Achievement::FLAG_UNPROMOTED) {
             echo "<b>Unofficial Achievement</b><br>";
         }
         echo "Created by " . userAvatar($author, icon: false) . " on: $niceDateCreated<br>";
@@ -256,8 +256,8 @@ if ($game->system->id === System::Events) {
 
     if (!$isEventGame) {
         echo "<div class='mb-4'>";
-            echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
-                ['articleType' => ArticleType::Achievement, 'articleId' => $achievementID]
+            echo Blade::render("<x-comment.list :commentableType=\"\$commentableType\" :commentableId=\"\$commentableId\" />",
+                ['commentableType' => CommentableType::Achievement, 'commentableId' => $achievementID]
             );
         echo "</div>";
     }

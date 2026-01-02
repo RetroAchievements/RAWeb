@@ -10,10 +10,10 @@ class TrimGameMetadataAction
 {
     public function execute(Game $game): void
     {
-        $game->Title = $this->trimWhitespace($game->Title);
-        $game->Publisher = $this->trimWhitespace($game->Publisher);
-        $game->Developer = $this->trimWhitespace($game->Developer);
-        $game->Genre = $this->trimWhitespace($game->Genre);
+        $game->title = $this->trimWhitespace($game->title);
+        $game->publisher = $this->trimWhitespace($game->publisher);
+        $game->developer = $this->trimWhitespace($game->developer);
+        $game->genre = $this->trimWhitespace($game->genre);
         $game->save();
     }
 

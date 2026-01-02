@@ -72,7 +72,7 @@ abstract class JsonApiResourceTestCase extends TestCase
     public function testItRejectsPageSizeTooLarge(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -87,7 +87,7 @@ abstract class JsonApiResourceTestCase extends TestCase
     public function testItAcceptsPageSize100(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -102,7 +102,7 @@ abstract class JsonApiResourceTestCase extends TestCase
     public function testItRejectsInvalidPageNumber(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -117,7 +117,7 @@ abstract class JsonApiResourceTestCase extends TestCase
     public function testItRejectsInvalidSortField(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
 
         // Act
         $response = $this->jsonApi('v2')
@@ -132,7 +132,7 @@ abstract class JsonApiResourceTestCase extends TestCase
     public function testItLogsApiRequest(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
         $resource = $this->createResource();
 
         $this->assertDatabaseCount('api_logs', 0);
@@ -148,14 +148,14 @@ abstract class JsonApiResourceTestCase extends TestCase
         $this->assertDatabaseCount('api_logs', 1);
         $this->assertDatabaseHas('api_logs', [
             'api_version' => 'v2',
-            'user_id' => $user->ID,
+            'user_id' => $user->id,
         ]);
     }
 
     public function testItSupportsPagination(): void
     {
         // Arrange
-        $user = User::factory()->create(['APIKey' => 'test-key']);
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
 
         // ... create enough resources to trigger pagination ...
         for ($i = 0; $i < 30; $i++) {
@@ -176,7 +176,7 @@ abstract class JsonApiResourceTestCase extends TestCase
     public function testItFetchesSingleResource(): void
     {
         // Arrange
-        User::factory()->create(['APIKey' => 'test-key']);
+        User::factory()->create(['web_api_key' => 'test-key']);
         $resource = $this->createResource();
 
         // Act

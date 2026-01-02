@@ -4,8 +4,8 @@ namespace App\Platform\Listeners;
 
 use App\Models\User;
 use App\Platform\Events\AchievementPointsChanged;
-use App\Platform\Events\AchievementPublished;
-use App\Platform\Events\AchievementUnpublished;
+use App\Platform\Events\AchievementPromoted;
+use App\Platform\Events\AchievementUnpromoted;
 use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Carbon;
@@ -17,8 +17,8 @@ class DispatchUpdateDeveloperContributionYieldJob implements ShouldQueue
         $user = null;
 
         switch ($event::class) {
-            case AchievementPublished::class:
-            case AchievementUnpublished::class:
+            case AchievementPromoted::class:
+            case AchievementUnpromoted::class:
             case AchievementPointsChanged::class:
                 $achievement = $event->achievement;
 

@@ -1,36 +1,34 @@
-import { AwardType } from '@/common/utils/generatedAppConstants';
-
 /**
  * Generates CSS class names for game award labels based on the award type and
- * whether the award is for hardcore mode (awardDataExtra 0 or 1).
+ * whether the award is for hardcore mode (awardTier 0 or 1).
  *
- * Acceptable awardType values are AwardType.Mastery and AwardType.GameBeaten.
+ * Acceptable awardType values are 'mastery' and 'game_beaten'.
  * Unknown awards will fall back to null.
  */
 export function buildAwardLabelColorClassNames(
-  awardType?: number,
-  awardDataExtra?: number,
+  awardType?: App.Community.Enums.AwardType,
+  awardTier?: number,
   variant: 'base' | 'muted-group' = 'base',
 ): string | null {
-  if (awardType === undefined || awardDataExtra === undefined) {
+  if (awardType === undefined || awardTier === undefined) {
     return null;
   }
 
-  const baseColors: Record<number, string> = {
-    [AwardType.Mastery]: awardDataExtra
+  const baseColors: Partial<Record<App.Community.Enums.AwardType, string>> = {
+    mastery: awardTier
       ? 'text-[gold] light:text-yellow-600' // Mastery
       : 'text-yellow-600', // Completion
-    [AwardType.GameBeaten]: awardDataExtra
+    game_beaten: awardTier
       ? 'text-zinc-300' // Beaten
       : 'text-zinc-400', // Beaten (softcore)
   };
 
-  const mutedGroupColors: Record<number, string> = {
-    [AwardType.Mastery]: awardDataExtra
+  const mutedGroupColors: Partial<Record<App.Community.Enums.AwardType, string>> = {
+    mastery: awardTier
       ? 'transition text-muted group-hover:text-[gold] group-hover:light:text-yellow-600' // Mastery
       : 'transition text-muted group-hover:text-yellow-600', // Completion
 
-    [AwardType.GameBeaten]: awardDataExtra
+    game_beaten: awardTier
       ? 'transition text-muted group-hover:text-zinc-300' // Beaten
       : 'transition text-muted group-hover:text-zinc-400', // Beaten (softcore)
   };

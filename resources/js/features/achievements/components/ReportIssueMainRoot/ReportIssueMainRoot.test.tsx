@@ -1,6 +1,5 @@
 import { faker } from '@faker-js/faker';
 
-import { TicketType } from '@/common/utils/generatedAppConstants';
 import { render, screen } from '@/test';
 import { createAchievement } from '@/test/factories';
 
@@ -15,7 +14,7 @@ describe('Component: ReportIssueMainRoot', () => {
       {
         pageProps: {
           achievement: createAchievement(),
-          can: { createTriggerTicket: true },
+          can: { createTicket: true },
         },
       },
     );
@@ -31,7 +30,7 @@ describe('Component: ReportIssueMainRoot', () => {
     render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
       pageProps: {
         achievement,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -48,7 +47,7 @@ describe('Component: ReportIssueMainRoot', () => {
     render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
       pageProps: {
         achievement,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -64,7 +63,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: false,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -81,7 +80,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -103,7 +102,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -125,7 +124,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -148,7 +147,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: false,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -174,7 +173,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -198,8 +197,8 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        ticketType: TicketType.DidNotTrigger,
-        can: { createTriggerTicket: true },
+        ticketType: 'did_not_trigger',
+        can: { createTicket: true },
       },
     });
 
@@ -226,8 +225,8 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        ticketType: TicketType.TriggeredAtWrongTime,
-        can: { createTriggerTicket: true },
+        ticketType: 'triggered_at_wrong_time',
+        can: { createTicket: true },
       },
     });
 
@@ -261,8 +260,8 @@ describe('Component: ReportIssueMainRoot', () => {
         achievement,
         extra,
         hasSession: true,
-        ticketType: TicketType.TriggeredAtWrongTime,
-        can: { createTriggerTicket: true },
+        ticketType: 'triggered_at_wrong_time',
+        can: { createTicket: true },
       },
     });
 
@@ -283,7 +282,7 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        can: { createTriggerTicket: true },
+        can: { createTicket: true },
       },
     });
 
@@ -310,9 +309,9 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        ticketType: TicketType.DidNotTrigger,
+        ticketType: 'did_not_trigger',
         can: {
-          createTriggerTicket: false, // !!
+          createTicket: false, // !!
         },
       },
     });
@@ -340,9 +339,9 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: true,
-        ticketType: TicketType.TriggeredAtWrongTime,
+        ticketType: 'triggered_at_wrong_time',
         can: {
-          createTriggerTicket: false, // !!
+          createTicket: false, // !!
         },
       },
     });

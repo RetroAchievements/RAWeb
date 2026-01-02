@@ -22,10 +22,10 @@ class PlayerBadgeFactory extends Factory
 
         return [
             'user_id' => $user?->id ?? 1,
-            'AwardType' => AwardType::Mastery,
-            'AwardData' => fake()->numberBetween(0, 9999) * 10,
-            'AwardDataExtra' => 0,
-            'DisplayOrder' => 0,
+            'award_type' => AwardType::Mastery,
+            'award_key' => fake()->numberBetween(0, 9999) * 10,
+            'award_tier' => 0,
+            'order_column' => 0,
         ];
     }
 }

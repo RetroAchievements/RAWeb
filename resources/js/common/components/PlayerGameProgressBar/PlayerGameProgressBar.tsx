@@ -176,7 +176,7 @@ export const PlayerGameProgressBar: FC<PlayerGameProgressBarProps> = ({
                   achievementsUnlocked
                     ? buildAwardLabelColorClassNames(
                         highestAward?.awardType,
-                        highestAward?.awardDataExtra,
+                        highestAward?.awardTier,
                       )
                     : 'text-muted italic',
                   'mt-0.5 text-2xs tracking-tighter',

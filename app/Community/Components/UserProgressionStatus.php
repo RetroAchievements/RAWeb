@@ -27,7 +27,7 @@ class UserProgressionStatus extends Component
             'totalCounts' => $this->totalCounts,
             'userHardcorePoints' => $this->userHardcorePoints,
             'userSoftcorePoints' => $this->userSoftcorePoints,
-            'systems' => System::whereIn('ID', array_keys($this->systemProgress))->get()->keyBy('ID'),
+            'systems' => System::whereIn('id', array_keys($this->systemProgress))->get()->keyBy('id'),
         ]);
     }
 }

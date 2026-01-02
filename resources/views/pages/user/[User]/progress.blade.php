@@ -80,7 +80,7 @@ render(function (View $view, User $user, PlayerCompletionProgressPageService $pa
             @endif
 
             @if ($isFiltering || $selectedSortOrder !== 'unlock_date')
-                <a href="{{ route('user.completion-progress', ['user' => $targetUsername]) }}" class="btn flex items-center gap-x-0.5 transition lg:active:scale-95">
+                <a href="{{ route('user.completion-progress', ['user' => $user]) }}" class="btn flex items-center gap-x-0.5 transition lg:active:scale-95">
                     <x-fas-undo />
                     <span>Reset filters/sort</span>
                 </a>
@@ -114,7 +114,7 @@ render(function (View $view, User $user, PlayerCompletionProgressPageService $pa
             :milestones="$milestones"
             :isFiltering="$isFiltering"
             :isMe="$isMe"
-            :targetUsername="$targetUsername"
+            :user="$user"
         />
     </x-slot>
 </x-app-layout>

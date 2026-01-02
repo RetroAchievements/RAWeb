@@ -2,7 +2,7 @@
 
 namespace App\Platform\Actions;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Models\LeaderboardEntry;
 use App\Models\User;
 use App\Platform\Enums\ValueFormat;
@@ -33,7 +33,7 @@ class RemoveLeaderboardEntryAction
 
             addArticleComment(
                 "Server",
-                ArticleType::Leaderboard,
+                CommentableType::Leaderboard,
                 $entry->leaderboard->id,
                 "{$currentUser->display_name} {$commentText}",
                 $currentUser->display_name
