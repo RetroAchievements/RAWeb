@@ -82,6 +82,11 @@ parameters:
         # These functions (sanitize_sql_inputs, sanitize_outputs) are marked @deprecated and will eventually be removed.
         - identifier: parameterByRef.unusedType
 
+        # ImageDriver isn't reporting internal types correctly.
+        -
+            identifier: method.notFound
+            message: '#ImageDriver::performOnCollections#'
+
         # Temporary: Untracked column type mismatch.
         # The User model's $table is 'users' but schema still has 'UserAccounts'.
         # PHPStan reads Untracked as int from schema, but code uses bool.

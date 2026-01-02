@@ -23,7 +23,8 @@ class GamePolicy
 
             Role::ARTIST,
 
-            Role::EVENT_MANAGER, // requires manage access to view leaderboards for games
+            // needs to view leaderboards for games
+            Role::EVENT_MANAGER,
         ]);
     }
 
@@ -94,6 +95,7 @@ class GamePolicy
         $roleFieldPermissions = [
             // Junior Developers cannot edit the game title.
             Role::DEVELOPER_JUNIOR => [
+                'banner',
                 'legacy_guide_url',
                 'developer',
                 'publisher',
@@ -108,6 +110,7 @@ class GamePolicy
             ],
 
             Role::DEVELOPER => [
+                'banner',
                 'title',
                 'legacy_guide_url',
                 'developer',
