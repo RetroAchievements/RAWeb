@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Process;
 
 class RebuildAllSearchIndexes extends Command
 {
-    protected $signature = 'ra:search:rebuild';
+    protected $signature = 'ra:search:rebuild {--concurrency=1 : Number of models to process in parallel (default: 1 for sequential)}';
     protected $description = 'Sync Scout index settings, flush all indexes, and re-import all searchable models';
 
     /**
@@ -73,11 +73,24 @@ class RebuildAllSearchIndexes extends Command
 
     private function runParallelCommands(string $command): void
     {
+        $concurrency = max(1, (int) $this->option('concurrency'));
+        $modelChunks = array_chunk($this->searchableModels, $concurrency);
+
+        foreach ($modelChunks as $models) {
+            $this->processModelBatch($command, $models);
+        }
+    }
+
+    /**
+     * @param array<class-string> $models
+     */
+    private function processModelBatch(string $command, array $models): void
+    {
         /** @var array<string, InvokedProcess> $processes */
         $processes = [];
 
-        // Start all processes in parallel.
-        foreach ($this->searchableModels as $model) {
+        // Start processes for this batch.
+        foreach ($models as $model) {
             $shortName = class_basename($model);
             $processes[$shortName] = Process::path(base_path())
                 ->timeout(1800)
