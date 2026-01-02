@@ -127,7 +127,6 @@
                                         $hasTargetNote = ($condition['TargetTooltip'] ?? '') !== '';
                                         $hitTarget = $condition['HitTarget'] ?? '';
 
-                                        // Check if this row is at the end of an AddAddress chain.
                                         $chainRows = $addAddressChains[$loop->iteration] ?? [];
                                         $isEndOfAddAddressChain = !empty($chainRows);
                                     @endphp
