@@ -1222,8 +1222,7 @@ declare namespace App.Platform.Enums {
     | 'specialty'
     | 'exclusive'
     | 'will_be_bonus'
-    | 'will_be_specialty'
-    | 'will_be_exclusive';
+    | 'will_be_specialty';
   export type EventState = 'active' | 'concluded' | 'evergreen';
   export type GameListProgressFilterValue =
     | 'unstarted'

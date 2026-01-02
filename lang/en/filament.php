@@ -16,6 +16,8 @@ return [
             'created' => 'Created',
             'deleted' => 'Deleted',
             'linkedHash' => 'Linked Hash',
+            'multisetDisabled' => 'Disabled Multiset',
+            'multisetEnabled' => 'Enabled Multiset',
             'pivotAttached' => 'Attached',
             'pivotDetached' => 'Detached',
             'releaseCreated' => 'Release Added',
