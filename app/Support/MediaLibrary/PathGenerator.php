@@ -53,6 +53,13 @@ class PathGenerator implements \Spatie\MediaLibrary\Support\PathGenerator\PathGe
         $prefixFolder = mb_substr((string) $hashId, 0, 3);
         $sha1 = $media->getCustomProperty('sha1');
 
-        return $type . '/' . $media->collection_name . '/' . $prefixFolder . '/' . $hashId . '/' . $sha1 . '/';
+        $path = $type . '/' . $media->collection_name . '/' . $prefixFolder . '/' . $hashId . '/';
+
+        // Only add the sha1 subdirectory if a sha1 custom property exists.
+        if ($sha1) {
+            $path .= $sha1 . '/';
+        }
+
+        return $path;
     }
 }
