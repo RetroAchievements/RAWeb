@@ -214,7 +214,7 @@ abstract class BaseDelayedSubscriptionHandler
     /**
      * Gets the number of updates that have been made by users other than the subscriber since the notification was delayed.
      */
-    abstract public function getUpdatesSince(UserDelayedSubscription $delayedSubscription): int;
+    abstract public function getUpdatesSince(UserDelayedSubscription &$delayedSubscription): int;
 
     /**
      * Gets a link to the first updated subrecord of the subject.
@@ -224,7 +224,7 @@ abstract class BaseDelayedSubscriptionHandler
 
 class ForumTopicDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
 {
-    public function getUpdatesSince(UserDelayedSubscription $delayedSubscription): int
+    public function getUpdatesSince(UserDelayedSubscription &$delayedSubscription): int
     {
         return ForumTopicComment::query()
             ->where('forum_topic_id', $delayedSubscription->subject_id)
@@ -249,8 +249,25 @@ class CommentDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
         $this->commentableType = $commentableType;
     }
 
-    public function getUpdatesSince(UserDelayedSubscription $delayedSubscription): int
+    public function getUpdatesSince(UserDelayedSubscription &$delayedSubscription): int
     {
+        // If the first comment was deleted, find the next valid one.
+        if (!Comment::where('id', $delayedSubscription->first_update_id)->exists()) {
+            $nextComment = Comment::where('commentable_type', $this->commentableType)
+                ->where('commentable_id', $delayedSubscription->subject_id)
+                ->where('id', '>', $delayedSubscription->first_update_id)
+                ->where('user_id', '!=', $delayedSubscription->user_id)
+                ->orderBy('id')
+                ->first();
+
+            // If there isn't a valid one, don't include the notification.
+            if (!$nextComment) {
+                return 0;
+            }
+
+            $delayedSubscription->first_update_id = $nextComment->id;
+        }
+
         return Comment::query()
             ->where('commentable_type', $this->commentableType)
             ->where('commentable_id', $delayedSubscription->subject_id)
