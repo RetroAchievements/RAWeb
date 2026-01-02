@@ -52,6 +52,14 @@ class AchievementPolicy
         return true;
     }
 
+    public function viewLogic(User $user, Achievement $achievement): bool
+    {
+        return $user->hasAnyRole([
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+        ]);
+    }
+
     public function create(User $user): bool
     {
         return $user->hasAnyRole([
