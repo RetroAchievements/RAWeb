@@ -548,6 +548,44 @@ class TriggerViewerServiceTest extends TestCase
         $this->assertFalse($result);
     }
 
+    public function testComputeAddAddressChainsReturnsChainsForEndOfChainRows(): void
+    {
+        $conditions = [
+            ['Flag' => 'Add Address'],
+            ['Flag' => 'Add Address'],
+            ['Flag' => ''],              // End of chain at row 3.
+            ['Flag' => ''],              // Not in a chain.
+            ['Flag' => 'Add Address'],
+            ['Flag' => 'Reset If'],      // End of chain at row 6.
+        ];
+
+        $result = $this->service->computeAddAddressChains($conditions);
+
+        $this->assertCount(2, $result);
+        $this->assertEquals([1, 2], $result[3]);
+        $this->assertEquals([5], $result[6]);
+    }
+
+    public function testComputeAddAddressChainsReturnsEmptyForNoChains(): void
+    {
+        $conditions = [
+            ['Flag' => ''],
+            ['Flag' => 'Reset If'],
+            ['Flag' => 'Pause If'],
+        ];
+
+        $result = $this->service->computeAddAddressChains($conditions);
+
+        $this->assertEmpty($result);
+    }
+
+    public function testComputeAddAddressChainsHandlesEmptyConditions(): void
+    {
+        $result = $this->service->computeAddAddressChains([]);
+
+        $this->assertEmpty($result);
+    }
+
     public function testGetAddressFormatReturns24BitFormatByDefault(): void
     {
         $groups = [
@@ -702,6 +740,60 @@ class TriggerViewerServiceTest extends TestCase
         $result = $this->service->resolveValueAlias(3, '0x000003', '8-bit', $noteSection);
 
         $this->assertEquals('Co-op', $result);
+    }
+
+    public function testResolveValueAliasHandlesParenthesizedCsv(): void
+    {
+        $noteSection = "screen (2=logos,4=title song,6=menus,7=game)\nrace\n0=Championship, 1=Arcade, 2=Multiplayer";
+
+        $result = $this->service->resolveValueAlias(7, '0x000007', '8-bit', $noteSection);
+
+        $this->assertEquals('game', $result);
+    }
+
+    public function testResolveValueAliasHandlesLineLevelCsv(): void
+    {
+        $noteSection = "Mode Selection\n0=Championship, 1=Arcade, 2=Multiplayer";
+
+        $result = $this->service->resolveValueAlias(0, '0x000000', '8-bit', $noteSection);
+
+        $this->assertEquals('Championship', $result);
+    }
+
+    public function testResolveValueAliasHandlesLineLevelCsvMiddleValue(): void
+    {
+        $noteSection = "Mode Selection\n0=Championship, 1=Arcade, 2=Multiplayer";
+
+        $result = $this->service->resolveValueAlias(1, '0x000001', '8-bit', $noteSection);
+
+        $this->assertEquals('Arcade', $result);
+    }
+
+    public function testResolveValueAliasHandlesCsvWithColonDelimiter(): void
+    {
+        $noteSection = "States (0:Off, 1:On, 2:Paused)";
+
+        $result = $this->service->resolveValueAlias(2, '0x000002', '8-bit', $noteSection);
+
+        $this->assertEquals('Paused', $result);
+    }
+
+    public function testResolveValueAliasHandlesCsvWithSemicolonSeparator(): void
+    {
+        $noteSection = "Options (0=None; 1=Low; 2=High)";
+
+        $result = $this->service->resolveValueAlias(1, '0x000001', '8-bit', $noteSection);
+
+        $this->assertEquals('Low', $result);
+    }
+
+    public function testResolveValueAliasHandlesCsvWithSpacesInValues(): void
+    {
+        $noteSection = "screen (2=logos,4=title song,6=menus,7=game)";
+
+        $result = $this->service->resolveValueAlias(4, '0x000004', '8-bit', $noteSection);
+
+        $this->assertEquals('title song', $result);
     }
 
     public function testGenerateMarkdownUsesAutoCRGroupNames(): void

@@ -46,8 +46,9 @@
             @php
                 $versionData = $this->getVersionHistoryData();
                 $triggers = $versionData['triggers'];
-                $summaries = $versionData['summaries'];
-                $diffs = $versionData['diffs'];
+                $lazyLoad = $versionData['lazyLoad'];
+                $summaries = $versionData['summaries'] ?? [];
+                $diffs = $versionData['diffs'] ?? [];
             @endphp
             @include('filament.resources.achievement-resource.partials.version-history')
 
@@ -114,6 +115,10 @@
                                 </tr>
                             </thead>
 
+                            @php
+                                $addAddressChains = $triggerViewerService->computeAddAddressChains($group['Conditions']);
+                            @endphp
+
                             <tbody class="font-mono">
                                 @foreach ($group['Conditions'] as $condition)
                                     @php
@@ -121,14 +126,35 @@
                                         $hasSourceNote = ($condition['SourceTooltip'] ?? '') !== '';
                                         $hasTargetNote = ($condition['TargetTooltip'] ?? '') !== '';
                                         $hitTarget = $condition['HitTarget'] ?? '';
+
+                                        // Check if this row is at the end of an AddAddress chain.
+                                        $chainRows = $addAddressChains[$loop->iteration] ?? [];
+                                        $isEndOfAddAddressChain = !empty($chainRows);
                                     @endphp
 
                                     <tr
                                         x-show="!collapseAddAddress || {{ $condition['Flag'] === 'Add Address' ? 'false' : 'true' }}"
                                         class="{{ $loop->even ? 'bg-gray-950/[0.025] dark:bg-white/[0.04]' : '' }} hover:bg-gray-950/[0.05] dark:hover:bg-white/[0.06]"
+                                        :class="{ 'border-l-2 border-l-purple-500 dark:border-l-purple-400': collapseAddAddress && {{ $isEndOfAddAddressChain ? 'true' : 'false' }} }"
                                     >
                                         {{-- Condition number --}}
-                                        <td class="px-4 py-1.5 text-right text-neutral-400 dark:text-neutral-500 tabular-nums">{{ $loop->iteration }}</td>
+                                        <td class="px-4 py-1.5 text-right text-neutral-400 dark:text-neutral-500 tabular-nums">
+                                            @if ($isEndOfAddAddressChain)
+                                                @php
+                                                    $rowLabel = count($chainRows) === 1 ? 'row' : 'rows';
+                                                    $chainRowsList = implode(', ', $chainRows);
+                                                @endphp
+                                                <span
+                                                    x-show="collapseAddAddress"
+                                                    x-cloak
+                                                    class="text-purple-500 dark:text-purple-400 underline decoration-dotted underline-offset-2 cursor-help"
+                                                    x-tooltip="{ content: 'AddAddress: {{ $rowLabel }} {{ $chainRowsList }}', theme: $store.theme, placement: 'left' }"
+                                                >{{ $loop->iteration }}</span>
+                                                <span x-show="!collapseAddAddress" x-cloak>{{ $loop->iteration }}</span>
+                                            @else
+                                                {{ $loop->iteration }}
+                                            @endif
+                                        </td>
 
                                         {{-- Condition flag with our semantic color choice --}}
                                         <td class="px-2 py-1.5 font-medium {{ $flagClass }}">
@@ -141,19 +167,30 @@
                                         <td class="px-2 py-1.5">
                                             @php
                                                 $sourceDisplay = $triggerViewerService->formatOperandDisplay($condition, 'Source', $group['Notes'] ?? []);
+                                                $isSourceTooltipRedundant = $sourceDisplay['display'] === Str::before($condition['SourceTooltip'] ?? '', "\n");
                                             @endphp
 
                                             @if ($condition['SourceType'] === 'Recall')
                                                 <span class="{{ $sourceDisplay['cssClass'] }}">{recall}</span>
                                             @elseif ($hasSourceNote)
-                                                <span
-                                                    x-show="showAliases"
-                                                    x-cloak
-                                                    class="text-emerald-600 dark:text-emerald-400 cursor-help"
-                                                    x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($condition['SourceTooltip']) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left' }"
-                                                >
-                                                    {{ $sourceDisplay['display'] }}
-                                                </span>
+                                                @if ($isSourceTooltipRedundant)
+                                                    <span
+                                                        x-show="showAliases"
+                                                        x-cloak
+                                                        class="text-emerald-600 dark:text-emerald-400"
+                                                    >
+                                                        {{ $sourceDisplay['display'] }}
+                                                    </span>
+                                                @else
+                                                    <span
+                                                        x-show="showAliases"
+                                                        x-cloak
+                                                        class="text-emerald-600 dark:text-emerald-400 cursor-help underline decoration-dotted underline-offset-2"
+                                                        x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($condition['SourceTooltip']) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left' }"
+                                                    >
+                                                        {{ $sourceDisplay['display'] }}
+                                                    </span>
+                                                @endif
 
                                                 <span
                                                     x-show="!showAliases"
@@ -183,6 +220,7 @@
                                             <td class="px-2 py-1.5">
                                                 @php
                                                     $targetDisplay = $triggerViewerService->formatOperandDisplay($condition, 'Target', $group['Notes'] ?? []);
+                                                    $isTargetTooltipRedundant = $targetDisplay['display'] === Str::before($condition['TargetTooltip'] ?? '', "\n");
                                                 @endphp
 
                                                 @if ($condition['TargetType'] === 'Recall')
@@ -191,20 +229,48 @@
                                                     @if ($targetDisplay['valueAlias'])
                                                         <span x-show="showAliases" x-cloak class="text-emerald-600 dark:text-emerald-400">{{ $targetDisplay['valueAlias'] }}</span>
                                                         <span x-show="!showAliases && showDecimal" x-cloak>{{ $targetDisplay['decimalDisplay'] }}</span>
-                                                        <span x-show="!showAliases && !showDecimal" x-cloak>{{ $targetDisplay['hexDisplay'] }}</span>
+                                                        @if ($targetDisplay['decimalDisplay'] >= 10)
+                                                            <span
+                                                                x-show="!showAliases && !showDecimal"
+                                                                x-cloak
+                                                                class="cursor-help underline decoration-dotted underline-offset-2"
+                                                                x-tooltip="{ content: '{{ $targetDisplay['decimalDisplay'] }}', theme: $store.theme, placement: 'left' }"
+                                                            >{{ $targetDisplay['hexDisplay'] }}</span>
+                                                        @else
+                                                            <span x-show="!showAliases && !showDecimal" x-cloak>{{ $targetDisplay['hexDisplay'] }}</span>
+                                                        @endif
                                                     @else
                                                         <span x-show="showDecimal" x-cloak>{{ $targetDisplay['decimalDisplay'] }}</span>
-                                                        <span x-show="!showDecimal" x-cloak>{{ $targetDisplay['hexDisplay'] }}</span>
+                                                        @if ($targetDisplay['decimalDisplay'] >= 10)
+                                                            <span
+                                                                x-show="!showDecimal"
+                                                                x-cloak
+                                                                class="cursor-help underline decoration-dotted underline-offset-2"
+                                                                x-tooltip="{ content: '{{ $targetDisplay['decimalDisplay'] }}', theme: $store.theme, placement: 'left' }"
+                                                            >{{ $targetDisplay['hexDisplay'] }}</span>
+                                                        @else
+                                                            <span x-show="!showDecimal" x-cloak>{{ $targetDisplay['hexDisplay'] }}</span>
+                                                        @endif
                                                     @endif
                                                 @elseif ($hasTargetNote)
-                                                    <span
-                                                        x-show="showAliases"
-                                                        x-cloak
-                                                        class="text-emerald-600 dark:text-emerald-400 cursor-help"
-                                                        x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($condition['TargetTooltip']) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left' }"
-                                                    >
-                                                        {{ $targetDisplay['display'] }}
-                                                    </span>
+                                                    @if ($isTargetTooltipRedundant)
+                                                        <span
+                                                            x-show="showAliases"
+                                                            x-cloak
+                                                            class="text-emerald-600 dark:text-emerald-400"
+                                                        >
+                                                            {{ $targetDisplay['display'] }}
+                                                        </span>
+                                                    @else
+                                                        <span
+                                                            x-show="showAliases"
+                                                            x-cloak
+                                                            class="text-emerald-600 dark:text-emerald-400 cursor-help underline decoration-dotted underline-offset-2"
+                                                            x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($condition['TargetTooltip']) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left' }"
+                                                        >
+                                                            {{ $targetDisplay['display'] }}
+                                                        </span>
+                                                    @endif
 
                                                     <span
                                                         x-show="!showAliases"

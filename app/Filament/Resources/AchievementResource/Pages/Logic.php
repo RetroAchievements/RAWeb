@@ -6,6 +6,7 @@ namespace App\Filament\Resources\AchievementResource\Pages;
 
 use App\Filament\Resources\AchievementResource;
 use App\Models\Achievement;
+use App\Models\Trigger;
 use App\Models\User;
 use App\Platform\Services\TriggerDecoderService;
 use App\Platform\Services\TriggerDiffService;
@@ -13,6 +14,7 @@ use BackedEnum;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class Logic extends Page
@@ -23,6 +25,12 @@ class Logic extends Page
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-code-bracket';
     protected string $view = 'filament.resources.achievement-resource.pages.logic';
 
+    /**
+     * Complexity threshold for lazy loading (in bytes of raw condition strings).
+     * ~50KB total is approximately 1000-2500+ conditions across all versions.
+     */
+    private const LAZY_LOAD_THRESHOLD = 50000;
+
     public function mount(int|string $record): void
     {
         $this->record = $this->resolveRecord($record);
@@ -30,10 +38,7 @@ class Logic extends Page
 
     public function getTitle(): string|Htmlable
     {
-        /** @var Achievement $achievement */
-        $achievement = $this->record;
-
-        return "{$achievement->title} - Logic";
+        return "{$this->getAchievement()->title} - Logic";
     }
 
     public function getBreadcrumb(): string
@@ -43,8 +48,7 @@ class Logic extends Page
 
     public function getBreadcrumbs(): array
     {
-        /** @var Achievement $achievement */
-        $achievement = $this->record;
+        $achievement = $this->getAchievement();
         $game = $achievement->game;
 
         return [
@@ -77,49 +81,170 @@ class Logic extends Page
     }
 
     /**
+     * Returns trigger metadata and optionally pre-computed summaries/diffs.
+     * For simple achievements, data is computed inline for instant display.
+     * For complex achievements, data is lazy loaded via Livewire to avoid server memory issues.
+     *
      * @return array{
-     *     triggers: \Illuminate\Support\Collection<int, \App\Models\Trigger>,
-     *     summaries: array<int, string>,
-     *     diffs: array<int, array>
+     *     triggers: Collection<int, Trigger>,
+     *     lazyLoad: bool,
+     *     summaries?: array<int|null, string>,
+     *     diffs?: array<int|null, array>
      * }
      */
     public function getVersionHistoryData(): array
     {
-        /** @var Achievement $achievement */
-        $achievement = $this->record;
-
-        $triggers = $achievement->triggers()->with('user')->reorder()->orderByDesc('version')->get();
+        $triggers = $this->getOrderedTriggerVersions(withUser: true);
 
         if ($triggers->isEmpty()) {
-            return ['triggers' => $triggers, 'summaries' => [], 'diffs' => []];
+            return ['triggers' => $triggers, 'lazyLoad' => false, 'summaries' => [], 'diffs' => []];
         }
 
+        $totalConditionLength = $triggers->sum(fn ($t) => strlen($t->conditions ?? ''));
+        $shouldLazyLoad = $totalConditionLength > self::LAZY_LOAD_THRESHOLD;
+        if ($shouldLazyLoad) {
+            return ['triggers' => $triggers, 'lazyLoad' => true];
+        }
+
+        // For simple achievements, compute everything inline for instant display.
+        [$summaries, $decodedTriggers] = $this->computeSummariesForTriggers($triggers);
+        $diffs = $this->computeDiffsForTriggers($triggers, $decodedTriggers);
+
+        return [
+            'triggers' => $triggers,
+            'lazyLoad' => false,
+            'summaries' => $summaries,
+            'diffs' => $diffs,
+        ];
+    }
+
+    /**
+     * Livewire action: Load all version summaries asynchronously.
+     * Called via Alpine on page init to populate summary labels.
+     *
+     * @return array<int|null, string>
+     */
+    public function loadAllSummaries(): array
+    {
+        $triggers = $this->getOrderedTriggerVersions();
+
+        if ($triggers->isEmpty()) {
+            return [];
+        }
+
+        [$summaries] = $this->computeSummariesForTriggers($triggers);
+
+        return $summaries;
+    }
+
+    /**
+     * Livewire action: Load full diff for a single version on-demand.
+     * Called via Alpine when user expands a version row.
+     *
+     * @return array{diff: array<int, array<string, mixed>>}
+     */
+    public function loadVersionDiff(?int $version): array
+    {
+        $triggers = $this->getOrderedTriggerVersions();
+
+        $currentTrigger = $triggers->firstWhere('version', $version);
+        if (!$currentTrigger) {
+            return ['diff' => []];
+        }
+
+        $currentIndex = $triggers->search(fn ($t) => $t->version === $version);
+
+        $decoderService = new TriggerDecoderService();
+        $diffService = new TriggerDiffService();
+
+        $currentGroups = $decoderService->decode($currentTrigger->conditions ?? '');
+
+        $isOldestVersion = ($currentIndex === $triggers->count() - 1);
+        $previousGroups = $isOldestVersion
+            ? []
+            : $decoderService->decode($triggers[$currentIndex + 1]->conditions ?? '');
+
+        return ['diff' => $diffService->computeDiff($previousGroups, $currentGroups)];
+    }
+
+    private function getAchievement(): Achievement
+    {
+        /** @var Achievement */
+        return $this->record;
+    }
+
+    /**
+     * @return Collection<int, Trigger>
+     */
+    private function getOrderedTriggerVersions(bool $withUser = false): Collection
+    {
+        $query = $this->getAchievement()->triggers()->reorder()->orderByDesc('version');
+
+        if ($withUser) {
+            $query->with('user');
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Compute version summaries for all triggers.
+     *
+     * @param Collection<int, Trigger> $triggers
+     * @return array{0: array<int|null, string>, 1: array<int|null, array>}
+     */
+    private function computeSummariesForTriggers(Collection $triggers): array
+    {
         $diffService = new TriggerDiffService();
         $decoderService = new TriggerDecoderService();
 
         $summaries = [];
-        $diffs = [];
+        $decodedTriggers = [];
 
-        for ($i = 0; $i < $triggers->count(); $i++) {
-            $currentConditions = $triggers[$i]->conditions ?? '';
-            $currentGroups = $decoderService->decode($currentConditions);
+        foreach ($triggers as $index => $trigger) {
+            $currentGroups = $decodedTriggers[$trigger->version]
+                ??= $decoderService->decode($trigger->conditions ?? '');
 
-            // For the oldest version (last in the list), compare against empty to show everything as "added".
-            $isOldestVersion = ($i === $triggers->count() - 1);
+            $isOldestVersion = ($index === $triggers->count() - 1);
             if ($isOldestVersion) {
-                $previousGroups = [];
+                $summaries[$trigger->version] = 'Initial version';
             } else {
-                $previousConditions = $triggers[$i + 1]->conditions ?? '';
-                $previousGroups = $decoderService->decode($previousConditions);
+                $previousTrigger = $triggers[$index + 1];
+                $previousGroups = $decodedTriggers[$previousTrigger->version]
+                    ??= $decoderService->decode($previousTrigger->conditions ?? '');
+
+                $summaryData = $diffService->computeSummary($previousGroups, $currentGroups);
+                $summaries[$trigger->version] = $diffService->formatSummary($summaryData);
             }
-
-            $diff = $diffService->computeDiff($previousGroups, $currentGroups);
-            $summary = $diffService->computeSummary($previousGroups, $currentGroups);
-
-            $summaries[$triggers[$i]->version] = $isOldestVersion ? 'Initial version' : $diffService->formatSummary($summary);
-            $diffs[$triggers[$i]->version] = $diff;
         }
 
-        return ['triggers' => $triggers, 'summaries' => $summaries, 'diffs' => $diffs];
+        return [$summaries, $decodedTriggers];
+    }
+
+    /**
+     * Compute diffs for all triggers using pre-decoded trigger data.
+     *
+     * @param Collection<int, Trigger> $triggers
+     * @param array<int|null, array> $decodedTriggers
+     * @return array<int|null, array>
+     */
+    private function computeDiffsForTriggers(Collection $triggers, array $decodedTriggers): array
+    {
+        $diffService = new TriggerDiffService();
+
+        $diffs = [];
+
+        foreach ($triggers as $index => $trigger) {
+            $currentGroups = $decodedTriggers[$trigger->version];
+
+            $isOldestVersion = ($index === $triggers->count() - 1);
+            $previousGroups = $isOldestVersion
+                ? []
+                : $decodedTriggers[$triggers[$index + 1]->version];
+
+            $diffs[$trigger->version] = $diffService->computeDiff($previousGroups, $currentGroups);
+        }
+
+        return $diffs;
     }
 }

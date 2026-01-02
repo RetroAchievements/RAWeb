@@ -7,6 +7,23 @@ namespace App\Platform\Services;
 class TriggerDiffService
 {
     /**
+     * Keys used when comparing conditions for equality.
+     *
+     * @var array<int, string>
+     */
+    private const COMPARABLE_KEYS = [
+        'Flag',
+        'SourceType',
+        'SourceSize',
+        'SourceAddress',
+        'Operator',
+        'TargetType',
+        'TargetSize',
+        'TargetAddress',
+        'HitTarget',
+    ];
+
+    /**
      * Compute the detailed diff between two decoded trigger groups.
      * Returns groups with conditions marked with DiffStatus: 'added', 'removed', 'modified', 'unchanged'.
      *
@@ -162,7 +179,25 @@ class TriggerDiffService
     }
 
     /**
-     * Diff two arrays of conditions.
+     * Create a hash string for a condition for fast comparison.
+     *
+     * @param array<string, mixed> $condition
+     */
+    private function hashCondition(array $condition): string
+    {
+        $parts = [];
+        foreach (self::COMPARABLE_KEYS as $key) {
+            $parts[] = $condition[$key] ?? '';
+        }
+
+        return implode('|', $parts);
+    }
+
+    /**
+     * Diff two arrays of conditions using hybrid matching.
+     *
+     * Pass 1: Find exact matches greedily (handles insertions/deletions properly).
+     * Pass 2: Pair remaining unmatched conditions by proximity to detect modifications.
      *
      * @param array<int, array<string, mixed>> $oldConditions
      * @param array<int, array<string, mixed>> $newConditions
@@ -170,42 +205,113 @@ class TriggerDiffService
      */
     private function diffConditions(array $oldConditions, array $newConditions): array
     {
-        // Compare conditions by position since order matters in triggers.
+        // Pass 1: Build a hash map and find exact matches greedily.
+        $oldByHash = [];
+        foreach ($oldConditions as $i => $c) {
+            $hash = $this->hashCondition($c);
+            $oldByHash[$hash][] = $i;
+        }
+
+        $matchedOld = [];
+        $matchedNew = [];
+        $lastMatchedOldIdx = -1;
+        foreach ($newConditions as $newIdx => $newCond) {
+            $hash = $this->hashCondition($newCond);
+
+            if (isset($oldByHash[$hash])) {
+                foreach ($oldByHash[$hash] as $oldIdx) {
+                    if ($oldIdx > $lastMatchedOldIdx && !isset($matchedOld[$oldIdx])) {
+                        $matchedOld[$oldIdx] = $newIdx;
+                        $matchedNew[$newIdx] = $oldIdx;
+                        $lastMatchedOldIdx = $oldIdx;
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Pass 2: Pair unmatched conditions for "modified" detection.
+        $unmatchedOld = [];
+        $unmatchedNew = [];
+        for ($i = 0; $i < count($oldConditions); $i++) {
+            if (!isset($matchedOld[$i])) {
+                $unmatchedOld[] = $i;
+            }
+        }
+        for ($i = 0; $i < count($newConditions); $i++) {
+            if (!isset($matchedNew[$i])) {
+                $unmatchedNew[] = $i;
+            }
+        }
+
+        // Pair unmatched conditions as "modified" only when they're at the exact same position.
+        $modifiedPairs = [];
+        foreach ($unmatchedOld as $oldIdx) {
+            if (in_array($oldIdx, $unmatchedNew, true)) {
+                $modifiedPairs[$oldIdx] = $oldIdx;
+            }
+        }
+
+        // Build the result by quickly walking through both arrays.
         $result = [];
+        $processedOld = [];
+        $processedNew = [];
+        $rowIndex = 1;
+
         $maxLen = max(count($oldConditions), count($newConditions));
-
         for ($i = 0; $i < $maxLen; $i++) {
-            $old = $oldConditions[$i] ?? null;
-            $new = $newConditions[$i] ?? null;
-            $rowIndex = $i + 1;
-
-            if ($old === null) {
-                // This condition was added.
-                $result[] = array_merge($new, [
-                    'DiffStatus' => 'added',
-                    'RowIndex' => $rowIndex,
-                ]);
-            } elseif ($new === null) {
-                // This condition was removed.
-                $result[] = array_merge($old, [
-                    'DiffStatus' => 'removed',
-                    'RowIndex' => $rowIndex,
-                ]);
-            } elseif ($this->conditionsMatch($old, $new)) {
-                // These conditions are identical.
-                $result[] = array_merge($new, [
+            // Handle exact matches at this position.
+            if (isset($matchedOld[$i]) && $matchedOld[$i] === $i) {
+                $result[] = array_merge($newConditions[$i], [
                     'DiffStatus' => 'unchanged',
-                    'RowIndex' => $rowIndex,
+                    'RowIndex' => $rowIndex++,
                 ]);
-            } else {
-                // This condition was modified, so track what fields actually changed.
-                $changedFields = $this->getChangedFields($old, $new);
-                $result[] = array_merge($new, [
-                    'DiffStatus' => 'modified',
-                    'RowIndex' => $rowIndex,
-                    'OldValues' => $old,
-                    'ChangedFields' => $changedFields,
+                $processedOld[$i] = true;
+                $processedNew[$i] = true;
+                continue;
+            }
+
+            // Handle an unmatched old condition (removed or modified).
+            if ($i < count($oldConditions) && !isset($matchedOld[$i]) && !isset($processedOld[$i])) {
+                if (isset($modifiedPairs[$i])) {
+                    $newIdx = $modifiedPairs[$i];
+                    $changedFields = $this->getChangedFields($oldConditions[$i], $newConditions[$newIdx]);
+                    $result[] = array_merge($newConditions[$newIdx], [
+                        'DiffStatus' => 'modified',
+                        'RowIndex' => $rowIndex++,
+                        'OldValues' => $oldConditions[$i],
+                        'ChangedFields' => $changedFields,
+                    ]);
+                    $processedOld[$i] = true;
+                    $processedNew[$newIdx] = true;
+                } else {
+                    $result[] = array_merge($oldConditions[$i], [
+                        'DiffStatus' => 'removed',
+                        'RowIndex' => $rowIndex++,
+                    ]);
+                    $processedOld[$i] = true;
+                }
+            }
+
+            // Handle an unmatched new condition (added).
+            if ($i < count($newConditions) && !isset($matchedNew[$i]) && !isset($processedNew[$i])) {
+                $result[] = array_merge($newConditions[$i], [
+                    'DiffStatus' => 'added',
+                    'RowIndex' => $rowIndex++,
                 ]);
+                $processedNew[$i] = true;
+            }
+
+            // Handle matched but shifted conditions (unchanged).
+            if ($i < count($newConditions) && isset($matchedNew[$i]) && !isset($processedNew[$i])) {
+                $result[] = array_merge($newConditions[$i], [
+                    'DiffStatus' => 'unchanged',
+                    'RowIndex' => $rowIndex++,
+                ]);
+                $processedNew[$i] = true;
+                $oldIdx = $matchedNew[$i];
+                $processedOld[$oldIdx] = true;
             }
         }
 
@@ -221,54 +327,13 @@ class TriggerDiffService
      */
     private function getChangedFields(array $old, array $new): array
     {
-        $keysToCompare = [
-            'Flag',
-            'SourceType',
-            'SourceSize',
-            'SourceAddress',
-            'Operator',
-            'TargetType',
-            'TargetSize',
-            'TargetAddress',
-            'HitTarget',
-        ];
-
         $changed = [];
-        foreach ($keysToCompare as $key) {
+        foreach (self::COMPARABLE_KEYS as $key) {
             if (($old[$key] ?? '') !== ($new[$key] ?? '')) {
                 $changed[] = $key;
             }
         }
 
         return $changed;
-    }
-
-    /**
-     * Check if two conditions are identical.
-     *
-     * @param array<string, mixed> $a
-     * @param array<string, mixed> $b
-     */
-    private function conditionsMatch(array $a, array $b): bool
-    {
-        $keysToCompare = [
-            'Flag',
-            'SourceType',
-            'SourceSize',
-            'SourceAddress',
-            'Operator',
-            'TargetType',
-            'TargetSize',
-            'TargetAddress',
-            'HitTarget',
-        ];
-
-        foreach ($keysToCompare as $key) {
-            if (($a[$key] ?? '') !== ($b[$key] ?? '')) {
-                return false;
-            }
-        }
-
-        return true;
     }
 }

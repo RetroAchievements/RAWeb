@@ -329,6 +329,32 @@ class TriggerViewerService
     }
 
     /**
+     * Computes which AddAddress rows precede each end-of-chain row.
+     * Returns a map of row number -> array of AddAddress row numbers that feed into it.
+     *
+     * @param array<int, array<string, mixed>> $conditions the conditions array from a group
+     * @return array<int, int[]>
+     */
+    public function computeAddAddressChains(array $conditions): array
+    {
+        $chains = [];
+        $currentChain = [];
+
+        foreach ($conditions as $index => $condition) {
+            $rowNum = $index + 1;
+
+            if (($condition['Flag'] ?? '') === 'Add Address') {
+                $currentChain[] = $rowNum;
+            } elseif (!empty($currentChain)) {
+                $chains[$rowNum] = $currentChain;
+                $currentChain = [];
+            }
+        }
+
+        return $chains;
+    }
+
+    /**
      * Determines the appropriate address format string based on address sizes.
      * Returns '0x%08x' for 32-bit addresses, '0x%06x' otherwise.
      *
@@ -628,6 +654,58 @@ class TriggerViewerService
     }
 
     /**
+     * Extracts value pairs from comma/semicolon-separated code note content.
+     *
+     * @param string $content the CSV-like content to parse
+     * @param array<int, string> &$result the result array to populate
+     */
+    private function extractCsvPairs(string $content, array &$result): void
+    {
+        $clauses = preg_split('/[,;]/', $content);
+
+        foreach ($clauses as $clause) {
+            $clause = trim($clause);
+
+            // Match patterns like "7=game" or "7: game" or "7 = game".
+            if (preg_match('/(\d+)\s*[=:]\s*(.+)$/i', $clause, $match)) {
+                $value = (int) $match[1];
+                $description = rtrim(trim($match[2]), ')'); // trim any trailing parens
+
+                if (!empty($description)) {
+                    $result[$value] = $description;
+                }
+            }
+        }
+    }
+
+    /**
+     * Parses inline CSV formats like "(2=logos,4=title song,7=game)" or "0=A, 1=B, 2=C".
+     *
+     * @param string $noteSection the code note text
+     * @return array<int, string>|null map of numeric values to labels, or null if no CSV found
+     */
+    private function parseInlineCsv(string $noteSection): ?array
+    {
+        $result = [];
+
+        // Check for parenthesized CSV: "label (0=A, 1=B, 2=C)".
+        if (preg_match_all('/\(([^)]*\d+\s*[=:][^)]+)\)/i', $noteSection, $parenMatches)) {
+            foreach ($parenMatches[1] as $content) {
+                $this->extractCsvPairs($content, $result);
+            }
+        }
+
+        // Check for line-level CSV: "0=A, 1=B, 2=C" (line has multiple value assignments).
+        foreach (explode("\n", $noteSection) as $line) {
+            if (preg_match_all('/\d+\s*[=:]/', $line, $assignments) && count($assignments[0]) > 1) {
+                $this->extractCsvPairs($line, $result);
+            }
+        }
+
+        return empty($result) ? null : $result;
+    }
+
+    /**
      * Matches integer values against note patterns like "16 = Label".
      */
     private function resolveIntegerValue(int $decimalValue, string $noteSection): ?string
@@ -635,6 +713,12 @@ class TriggerViewerService
         $enumerations = $this->parseEnumerations($noteSection);
         if ($enumerations !== null && isset($enumerations[$decimalValue])) {
             return $enumerations[$decimalValue];
+        }
+
+        // Try inline CSV format (parenthesized or comma-separated on single line).
+        $csvValues = $this->parseInlineCsv($noteSection);
+        if ($csvValues !== null && isset($csvValues[$decimalValue])) {
+            return $csvValues[$decimalValue];
         }
 
         // Fallback for notes that don't meet the parseEnumerations threshold.
