@@ -133,7 +133,7 @@ class EventAchievement extends BaseModel
     {
         return $query->active()
             ->whereHas('achievement.game', function ($query) { // only from the current AotW event
-                $query->where('Title', 'like', '%of the week%');
+                $query->where('title', 'like', '%of the week%');
             })
             ->whereNotNull('active_from')
             ->whereNotNull('active_until')

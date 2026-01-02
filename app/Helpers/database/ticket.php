@@ -379,7 +379,7 @@ function getTicketsForUser(User $user): array
 {
     $query = Ticket::select('ticketable_id', 'state', DB::raw('COUNT(*) as TicketCount'))
         ->whereHas('author', function ($query) use ($user) {
-            $query->where('ID', $user->id);
+            $query->where('id', $user->id);
         })
         ->whereHas('achievement', function ($query) {
             $query->where('is_promoted', true);

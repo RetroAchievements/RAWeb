@@ -119,7 +119,7 @@ class SubmitGameTitleTest extends TestCase
                 ],
             ]);
 
-        $this->assertFalse(Game::where('ID', $newGame->id + 1)->exists());
+        $this->assertFalse(Game::where('id', $newGame->id + 1)->exists());
 
         $newGame->refresh();
         $this->assertEquals($title, $newGame->title);
@@ -277,7 +277,7 @@ class SubmitGameTitleTest extends TestCase
                 'Success' => false,
             ]);
 
-        $this->assertFalse(Game::where('ID', $game->id + 1)->exists());
+        $this->assertFalse(Game::where('id', $game->id + 1)->exists());
 
         /* new md5 for existing game */
         $this->get($this->apiUrl('submitgametitle', [

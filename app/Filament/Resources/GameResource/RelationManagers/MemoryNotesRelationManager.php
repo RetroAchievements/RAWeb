@@ -86,7 +86,7 @@ class MemoryNotesRelationManager extends RelationManager
             ->filters([
                 Tables\Filters\SelectFilter::make('user_id')
                     ->label('Author')
-                    ->options($associatedUsers->pluck('display_name', 'ID'))
+                    ->options($associatedUsers->pluck('display_name', 'id'))
                     ->searchable(),
             ])
             ->headerActions([

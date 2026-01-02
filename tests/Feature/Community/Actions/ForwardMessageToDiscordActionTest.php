@@ -74,7 +74,7 @@ class ForwardMessageToDiscordActionTest extends TestCase
         MessageThread $thread,
     ): UserModerationReport {
         $reportedItem = $reportableType->getReportedItem($reportableId);
-        $reportedUserId = $reportedItem?->user_id ?? $reportedItem?->author_id ?? $reportedItem?->ID ?? null;
+        $reportedUserId = $reportedItem?->user_id ?? $reportedItem?->author_id ?? $reportedItem?->id ?? null;
 
         return UserModerationReport::create([
             'reporter_user_id' => $reporter->id,
