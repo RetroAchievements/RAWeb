@@ -435,24 +435,24 @@ class UserProfileMeta extends Component
         $dateColumn = $preferredMode === 'hardcore' ? 'unlocked_hardcore_at' : 'unlocked_at';
 
         $pointsLast7Days = (int) Achievement::query()
-            ->whereIn('ID', function ($query) use ($user, $dateColumn) {
+            ->whereIn('id', function ($query) use ($user, $dateColumn) {
                 $sevenDaysAgo = now()->subDays(7)->startOfDay();
                 $query->select('achievement_id')
                     ->from('player_achievements')
                     ->where($dateColumn, '>=', $sevenDaysAgo)
                     ->where('user_id', $user->id);
             })
-            ->sum('Points');
+            ->sum('points');
 
         $pointsLast30Days = (int) Achievement::query()
-            ->whereIn('ID', function ($query) use ($user, $dateColumn) {
+            ->whereIn('id', function ($query) use ($user, $dateColumn) {
                 $thirtyDaysAgo = now()->subDays(30)->startOfDay();
                 $query->select('achievement_id')
                     ->from('player_achievements')
                     ->where($dateColumn, '>=', $thirtyDaysAgo)
                     ->where('user_id', $user->id);
             })
-            ->sum('Points');
+            ->sum('points');
 
         return compact('pointsLast30Days', 'pointsLast7Days');
     }

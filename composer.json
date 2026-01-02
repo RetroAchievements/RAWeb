@@ -19,6 +19,7 @@
         "erag/laravel-disposable-email": "^3.7",
         "fico7489/laravel-pivot": "^3.0",
         "filament/filament": "^4.0",
+        "filament/spatie-laravel-media-library-plugin": "^4.0",
         "graham-campbell/markdown": "^16.0",
         "guzzlehttp/guzzle": "^7.5",
         "http-interop/http-factory-guzzle": "^1.2",
@@ -149,7 +150,8 @@
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate --ansi",
             "@php -r \"copy('storage/app/releases.dist.php', 'storage/app/releases.php');\"",
-            "@php -r \"file_exists('storage/app/settings.json') || copy('storage/app/settings.dist.json', 'storage/app/settings.json');\""
+            "@php -r \"file_exists('storage/app/settings.json') || copy('storage/app/settings.dist.json', 'storage/app/settings.json');\"",
+            "@php -r \"(file_exists('storage/oauth-private.key') && file_exists('storage/oauth-public.key')) ? print('Passport Keys already exist, to regenerate them run: php artisan passport:keys --force' . PHP_EOL) : passthru('php artisan passport:keys');\""
         ],
         "stan": "@php vendor/bin/phpstan analyse --memory-limit 768M --ansi",
         "stan-baseline": "@php vendor/bin/phpstan analyse --generate-baseline --memory-limit 1G",

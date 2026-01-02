@@ -213,6 +213,7 @@ return [
             'connection' => 'redis',
             'queue' => [
                 'achievement-metrics',
+                'alerts',
                 'default',
                 'developer-metrics',
                 'game-metrics',

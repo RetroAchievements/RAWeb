@@ -338,7 +338,7 @@ class ResetPlayerProgressActionTest extends TestCase
         // author contributions should have been updated and only have user2's unlocks attributed
         $author->refresh();
         // $this->assertEquals($user2->achievements()->count(), $author->yield_unlocks);
-        // $this->assertEquals($user2->achievements()->sum('Points'), $author->yield_points);
+        // $this->assertEquals($user2->achievements()->sum('points'), $author->yield_points);
 
         // secondary user should not have been affected
         $this->assertHasHardcoreUnlock($user2, $achievements->get(0));
@@ -433,7 +433,7 @@ class ResetPlayerProgressActionTest extends TestCase
         // author contributions should have been updated and only have user2's unlocks attributed
         $author->refresh();
         // $this->assertEquals($user2->achievements()->count(), $author->yield_unlocks);
-        // $this->assertEquals($user2->achievements()->sum('Points'), $author->yield_points);
+        // $this->assertEquals($user2->achievements()->sum('points'), $author->yield_points);
 
         // secondary user should not have been affected
         foreach ($achievements as $achievement) {

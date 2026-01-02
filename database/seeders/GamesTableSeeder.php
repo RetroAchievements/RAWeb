@@ -51,7 +51,7 @@ class GamesTableSeeder extends Seeder
          */
         $developers = User::whereHas('roles', function ($q) {
             $q->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR, Role::DEVELOPER_RETIRED]);
-        })->pluck('ID')->toArray();
+        })->pluck('id')->toArray();
 
         Game::all()->each(function (Game $game) use ($developers, $faker) {
             // GameFactory appends a sequence number to every title to ensure uniqueness.

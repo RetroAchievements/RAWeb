@@ -103,7 +103,7 @@ class FetchDynamicShortcodeContentAction
         }
 
         return Game::with('system')
-            ->whereIn('ID', $gameIds)
+            ->whereIn('id', $gameIds)
             ->get()
             ->map(fn (Game $game) => GameData::fromGame($game)->include('badgeUrl', 'system.name'));
     }

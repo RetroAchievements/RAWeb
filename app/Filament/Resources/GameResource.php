@@ -17,6 +17,7 @@ use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
+use App\Rules\UploadedImageAspectRatioRule;
 use BackedEnum;
 use Filament\Actions;
 use Filament\Actions\ActionGroup;
@@ -85,6 +86,11 @@ class GameResource extends Resource
                 Infolists\Components\ImageEntry::make('badge_url')
                     ->label('Badge')
                     ->size(config('media.icon.lg.width')),
+
+                Infolists\Components\SpatieMediaLibraryImageEntry::make('banner')
+                    ->label('Banner Image')
+                    ->collection('banner')
+                    ->conversion('lg-webp'),
 
                 Schemas\Components\Section::make('Primary Details')
                     ->icon('heroicon-m-key')
@@ -327,6 +333,24 @@ class GameResource extends Resource
                             ->maxFiles(1)
                             ->previewable(true)
                             ->hidden(!$user->can('updateField', [$schema->model, 'image_ingame_asset_path'])),
+
+                        Forms\Components\SpatieMediaLibraryFileUpload::make('banner')
+                            ->label('Banner Image')
+                            ->collection('banner')
+                            ->disk('s3')
+                            ->visibility('public')
+                            ->image()
+                            ->rules([
+                                'dimensions:min_width=1920,min_height=540',
+                                new UploadedImageAspectRatioRule(32 / 9, 0.15), // 32:9 aspect ratio with a ±15% tolerance.
+                            ])
+                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
+                            ->maxSize(5120)
+                            ->maxFiles(1)
+                            ->helperText('Upload a high-quality 32:9 ultra-wide banner image (minimum: 1920x540, recommended: 3200x900). The image must be approximately 32:9 aspect ratio (±15% tolerance). The image will be processed to multiple sizes for mobile and desktop.')
+                            ->previewable(true)
+                            ->downloadable(false)
+                            ->hidden(!$user->can('updateField', [$schema->model, 'banner'])),
                     ])
                     ->columns(2),
 

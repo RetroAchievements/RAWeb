@@ -44,8 +44,8 @@ new class extends Component implements HasForms {
                     ->searchable()
                     ->getSearchResultsUsing(function (string $search): array {
                         return Achievement::with('game')
-                            ->where('Title', 'like', "%{$search}%")
-                            ->orWhere('ID', 'like', "%{$search}%")
+                            ->where('title', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
                             ->limit(50)
                             ->get()
                             ->mapWithKeys(function ($achievement) {
@@ -55,7 +55,7 @@ new class extends Component implements HasForms {
                     })
                     ->getOptionLabelsUsing(function (array $values): array {
                         return Achievement::with('game')
-                            ->whereIn('ID', $values)
+                            ->whereIn('id', $values)
                             ->get()
                             ->mapWithKeys(function ($achievement) {
                                 return [$achievement->id => "ID: {$achievement->id} - Title: {$achievement->title} - Game: {$achievement->game->title}"];

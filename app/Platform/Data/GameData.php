@@ -46,6 +46,7 @@ class GameData extends Data
         public Lazy|SystemData $system,
         public Lazy|int $timesBeaten,
         public Lazy|int $timesBeatenHardcore,
+        public Lazy|GameBannerData $banner,
 
         /** @var Lazy|array<GameClaimantData> */
         public Lazy|array $claimants,
@@ -89,6 +90,7 @@ class GameData extends Data
             system: Lazy::create(fn () => SystemData::fromSystem($game->system)),
             timesBeaten: Lazy::create(fn () => $game->times_beaten),
             timesBeatenHardcore: Lazy::create(fn () => $game->times_beaten_hardcore),
+            banner: Lazy::create(fn () => $game->banner),
 
             claimants: Lazy::create(fn () => $game->achievementSetClaims->map(
                 fn ($claim) => GameClaimantData::fromUser(

@@ -48,11 +48,11 @@ class AchievementSetClaimController extends Controller
             $statusValue = is_string($status) ? $status : $status->value;
 
             if (
-                in_array($statusValue, [ClaimStatus::InReview->value, ClaimStatus::Active->value])
+                ($statusValue === ClaimStatus::InReview->value || $claim->status === ClaimStatus::InReview)
                 && $claim->status->value !== $statusValue
             ) {
                 $this->authorize('review', $claim);
-            } elseif ($statusValue === ClaimStatus::Complete->value) {
+            } elseif ($statusValue === ClaimStatus::Complete->value && $claim->user_id === Auth::id()) {
                 $this->authorize('complete', $claim);
             } else {
                 $this->authorize('update', $claim);

@@ -53,7 +53,7 @@ class AchievementGroup extends BaseModel
             'achievement_group_id',
             'achievement_id',
             'id',
-            'ID'
+            'id'
         )->withPivot('order_column')->withTimestamps();
     }
 
