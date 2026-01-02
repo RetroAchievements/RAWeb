@@ -7,9 +7,12 @@ namespace Tests\Feature\Api\V2;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Tests\Feature\Api\V2\Concerns\TestsJsonApiIndex;
 
 class UsersTest extends JsonApiResourceTestCase
 {
+    use TestsJsonApiIndex;
+
     protected function resourceType(): string
     {
         return 'users';
