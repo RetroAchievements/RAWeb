@@ -60,7 +60,7 @@ function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, User $
         'isPromoted' => 1,
     ];
 
-    $query = "SELECT COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS Date,
+    $query = "SELECT pa.unlocked_effective_at AS Date,
                      CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode,
                      ach.id AS AchievementID, ach.title AS Title, ach.description AS Description,
                      ach.image_name AS BadgeName, ach.points AS Points, ach.points_weighted AS TrueRatio, ach.type as Type,
@@ -73,7 +73,7 @@ function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, User $
               INNER JOIN systems AS s ON s.id = gd.system_id
               INNER JOIN users AS ua on ua.id = ach.user_id
               WHERE pa.user_id = :userid AND ach.is_promoted = :isPromoted
-              AND COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) BETWEEN :dateStart AND :dateEnd
+              AND pa.unlocked_effective_at BETWEEN :dateStart AND :dateEnd
               ORDER BY Date, HardcoreMode DESC
               LIMIT 500";
 
@@ -128,10 +128,10 @@ function getAwardedList(
     if (isset($dateFrom) && isset($dateTo)) {
         $dateFromFormatted = $dateFrom; // 2013-07-01
         $dateToFormatted = $dateTo;
-        $dateCondition .= "AND COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) BETWEEN '$dateFromFormatted' AND '$dateToFormatted' ";
+        $dateCondition .= "AND pa.unlocked_effective_at BETWEEN '$dateFromFormatted' AND '$dateToFormatted' ";
     }
 
-    $query = "SELECT DATE(COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at)) AS Date,
+    $query = "SELECT DATE(pa.unlocked_effective_at) AS Date,
                 SUM(IF(pa.unlocked_hardcore_at IS NOT NULL, ach.points, 0)) AS HardcorePoints,
                 SUM(ach.points) AS SoftcorePoints
                 FROM player_achievements pa

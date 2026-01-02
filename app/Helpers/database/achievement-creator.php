@@ -141,7 +141,7 @@ function getObtainersOfSpecificUser(User $user): array
 function getRecentUnlocksForDev(User $user, int $offset = 0, int $count = 200): array
 {
     $query = "SELECT ua.username AS User,
-                     COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS Date,
+                     pa.unlocked_effective_at AS Date,
                      CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode,
                      ach.id AS AchievementID, ach.game_id AS GameID, ach.title AS Title, ach.description AS Description,
                      ach.image_name AS BadgeName, ach.points AS Points, ach.points_weighted AS TrueRatio,
