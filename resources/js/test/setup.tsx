@@ -66,14 +66,15 @@ export function render<TPageProps = Record<string, unknown>>(
   }: RenderOptions<TPageProps> = {},
 ) {
   vi.spyOn(InertiajsReactModule, 'usePage').mockImplementation(() => ({
+    clearHistory: false,
     component: '',
+    encryptHistory: false,
+    flash: {},
     props: pageProps as any,
     rememberedState: {},
     scrollRegions: vi.fn() as any,
     url: '',
     version: '',
-    clearHistory: false,
-    encryptHistory: false,
   }));
 
   if (!wrapper) {
@@ -118,14 +119,15 @@ export function renderHook<Result, Props = undefined>(
   }: RenderHookOptions<Props> = {},
 ) {
   vi.spyOn(InertiajsReactModule, 'usePage').mockImplementation(() => ({
+    clearHistory: false,
     component: '',
+    encryptHistory: false,
+    flash: {},
     props: pageProps as any,
     rememberedState: {},
     scrollRegions: vi.fn() as any,
     url: url ?? '',
     version: '',
-    clearHistory: false,
-    encryptHistory: false,
   }));
 
   if (!wrapper) {
