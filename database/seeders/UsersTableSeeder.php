@@ -112,7 +112,7 @@ class UsersTableSeeder extends Seeder
                     break;
                 case 10:
                     if ($username !== '') {
-                        $username .= str(rand(1, 500)); // random numeric suffix
+                        $username .= strval(rand(1, 500)); // random numeric suffix
                         $stop = true;
                     }
                     break;

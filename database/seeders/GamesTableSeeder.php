@@ -175,7 +175,7 @@ class GamesTableSeeder extends Seeder
 
             if ($game->achievements_published > 0) {
                 $set = $game->achievementSets()->first();
-                $set->achievements_first_published_at = Carbon::parse($game->achievements()->promoted()->max('created_at'))->addSeconds(30, 3600);
+                $set->achievements_first_published_at = Carbon::parse($game->achievements()->promoted()->max('created_at'))->addSeconds(rand(30, 3600));
                 $set->save();
             }
         });
