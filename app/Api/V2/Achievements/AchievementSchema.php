@@ -67,16 +67,16 @@ class AchievementSchema extends Schema
             Str::make('badgeUrl')->readOnly(),
             Str::make('badgeLockedUrl')->readOnly(),
 
-            Str::make('type')->readOnly(),
+            Str::make('type')->sortable()->readOnly(),
 
             Boolean::make('isPromoted', 'is_promoted')->readOnly(),
 
-            Number::make('orderColumn')->readOnly(),
+            Number::make('orderColumn')->sortable()->readOnly(),
 
-            Number::make('unlocksTotal', 'unlocks_total')->readOnly(),
-            Number::make('unlocksHardcore', 'unlocks_hardcore')->readOnly(),
-            Number::make('unlockPercentage', 'unlock_percentage')->readOnly(),
-            Number::make('unlockHardcorePercentage', 'unlock_hardcore_percentage')->readOnly(),
+            Number::make('unlocksTotal', 'unlocks_total')->sortable()->readOnly(),
+            Number::make('unlocksHardcore', 'unlocks_hardcore')->sortable()->readOnly(),
+            Number::make('unlockPercentage', 'unlock_percentage')->sortable()->readOnly(),
+            Number::make('unlockHardcorePercentage', 'unlock_hardcore_percentage')->sortable()->readOnly(),
 
             DateTime::make('createdAt', 'created_at')->readOnly(),
             DateTime::make('modifiedAt', 'modified_at')->readOnly(),
