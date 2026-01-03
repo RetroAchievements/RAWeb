@@ -30,13 +30,13 @@ Before submitting a pull request:
 
 - Check the codebase to ensure that your feature doesn't already exist.
 - Check the pull requests to ensure that another person hasn't already submitted the feature or fix.
-- Test your changes locally. As an open source project maintained by volunteers, we rely on contributors to verify their changes before submission. This includes running the test suite and manually testing the feature or fix. This helps maintain quality and allows maintainers to focus on reviewing your contribution rather than basic testing.
+- Test your changes locally. As an open source project maintained by volunteers, we rely on contributors to verify their changes before submission. This includes running the test suite and manually testing the feature or fix.
 
 ## Requirements
 
 - Follow **[PSR-12 Coding Standard](https://www.php-fig.org/psr/psr-12/)**. Run `composer fix` to fix most code style issues automatically.
 
-- Ensure ESLint rules are followed. Run `pnpm fix` to fix most code style issues automatically.
+- Ensure ESLint rules are followed. Run `pnpm lint:fix` to fix most code style issues automatically.
 
 - **Add tests!** - Your patch won't be accepted if it doesn't have tests.
 
@@ -50,17 +50,27 @@ Before submitting a pull request:
 
 ## Testing, Code Style, and Static Analysis
 
-**Pest** is used for testing. Write feature and/or unit tests where applicable.  
+**Backend (PHP)**
 
-**PHP CS Fixer** comes as a dev dependency. Use it before you commit. See the [README](https://github.com/RetroAchievements/RAWeb/blob/master/README.md).
+- **Pest** is used for testing. Write feature and/or unit tests.
+- **PHP CS Fixer** comes as a dev dependency. Run `composer fix` before you commit.
+- **PHPStan** is used for static analysis. Run `composer analyse` and ensure your code follows its advice.
 
-**PHPStan** is used for static analysis. Make sure to run it and that your code follows its advice.
+**Frontend (TypeScript/React)**
+
+- **Vitest** with **Testing Library** is used for testing React components.
+- We target 100% test coverage for frontend code. All React components and utilities should have accompanying tests.
+- Run `pnpm verify` to check linting, TypeScript errors, and run all tests.
+- Run `pnpm test:run SomeFile` to run specific tests.
 
 ## APIs, Backwards Compatibility, and Deprecation
 
 APIs have to accommodate to old clients' requirements as upgrade paths are very slow for some of them.
 
 Deprecations have to be communicated to users upfront.
+
+> **Note**
+> The V1 Web API (`public/API/API_*.php` files) is in maintenance mode. Bug fixes are acceptable, but new features should be implemented in the V2 JSON:API instead.
 
 ## Implementation Details
 
@@ -83,11 +93,15 @@ Especially if it's something that can be reused.
 
 **Frontend assets**
 
-This is not a Single Page Application.
+This is not a Single Page Application. The project uses [Inertia.js](https://inertiajs.com/) with React for page components.
 
 Avoid inline styles and custom CSS unless there's a compelling reason. The project uses [TailwindCSS](https://tailwindcss.com/docs) and it should cover most styling needs.
 
-The UI is currently undergoing a migration from PHP to React. All React components should be use TypeScript and be well-tested.
+The UI is actively migrating from Blade/Livewire to React. All new frontend work should use React with TypeScript and have comprehensive test coverage.
+
+**"Management app"**
+
+Back-office administration uses [Filament](https://filamentphp.com/). Admin resources, pages, and widgets are located in `app/Filament/`. Use Filament for internal management tools rather than building custom React admin interfaces.
 
 **Routes**
 
