@@ -68,13 +68,18 @@ class AchievementSetResource extends BaseJsonApiResource
     /**
      * Get the title from the GameAchievementSet pivot.
      * When accessed via a Game relationship, uses the pivot's title.
-     * When accessed directly, finds the first GameAchievementSet with a title.
+     * When accessed directly (or via Achievement relationship), finds the first GameAchievementSet with a title.
      */
     private function getTitleFromPivot(): ?string
     {
-        // If pivot data exists (loaded via BelongsToMany relationship), use it.
+        // If pivot data exists and has a title column (game_achievement_sets pivot), use it.
+        // Note: When accessed via Achievement->achievementSets, the pivot is
+        // achievement_set_achievements which doesn't have a title column.
         if (isset($this->resource->pivot)) {
-            return $this->resource->pivot->title;
+            $pivotAttributes = $this->resource->pivot->getAttributes();
+            if (array_key_exists('title', $pivotAttributes)) {
+                return $this->resource->pivot->title;
+            }
         }
 
         // Otherwise, find the first GameAchievementSet entity that has a title.
@@ -93,17 +98,22 @@ class AchievementSetResource extends BaseJsonApiResource
      */
     private function getGameTypes(): array
     {
-        // When accessed via a Game relationship, return just that game's context.
+        // When accessed via a Game relationship (game_achievement_sets pivot), return just that game's context.
+        // Note: When accessed via Achievement->achievementSets, the pivot is
+        // achievement_set_achievements which doesn't have game_id or type columns.
         if (isset($this->resource->pivot)) {
-            $type = $this->resource->pivot->type;
+            $pivotAttributes = $this->resource->pivot->getAttributes();
+            if (array_key_exists('game_id', $pivotAttributes)) {
+                $type = $this->resource->pivot->type;
 
-            return [[
-                'gameId' => $this->resource->pivot->game_id,
-                'type' => $type instanceof AchievementSetType ? $type->value : $type,
-            ]];
+                return [[
+                    'gameId' => $this->resource->pivot->game_id,
+                    'type' => $type instanceof AchievementSetType ? $type->value : $type,
+                ]];
+            }
         }
 
-        // When accessed directly, return all game/type pairs (excluding backing games).
+        // When accessed directly (or via an Achievement relationship), return all game/type pairs (excluding backing games).
         $gameAchievementSets = $this->resource->gameAchievementSets;
 
         $hasCoreAttachment = $gameAchievementSets->contains(
