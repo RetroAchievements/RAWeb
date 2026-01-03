@@ -9,11 +9,16 @@ export function useAchievementSetCredits() {
   const artCreditUsers = useMemo(() => {
     return [
       ...aggregateCredits.achievementSetArtwork,
+      ...aggregateCredits.achievementSetBanner,
       ...aggregateCredits.achievementsArtwork,
     ].filter(
       (user, index, self) => index === self.findIndex((u) => u.displayName === user.displayName),
     );
-  }, [aggregateCredits.achievementSetArtwork, aggregateCredits.achievementsArtwork]);
+  }, [
+    aggregateCredits.achievementSetArtwork,
+    aggregateCredits.achievementSetBanner,
+    aggregateCredits.achievementsArtwork,
+  ]);
 
   const logicCreditUsers = useMemo(() => {
     return aggregateCredits.achievementsLogic.filter(

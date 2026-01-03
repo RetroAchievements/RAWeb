@@ -16,6 +16,7 @@ class AggregateAchievementSetCreditsData extends Data
      * @param UserCreditsData[] $achievementsArtwork
      * @param UserCreditsData[] $achievementsDesign
      * @param UserCreditsData[] $achievementSetArtwork
+     * @param UserCreditsData[] $achievementSetBanner
      * @param UserCreditsData[] $achievementsLogic
      * @param UserCreditsData[] $achievementsTesting
      * @param UserCreditsData[] $achievementsWriting
@@ -27,6 +28,7 @@ class AggregateAchievementSetCreditsData extends Data
         public array $achievementsArtwork,
         public array $achievementsDesign,
         public array $achievementSetArtwork,
+        public array $achievementSetBanner,
         public array $achievementsLogic,
         public array $achievementsTesting,
         public array $achievementsWriting,

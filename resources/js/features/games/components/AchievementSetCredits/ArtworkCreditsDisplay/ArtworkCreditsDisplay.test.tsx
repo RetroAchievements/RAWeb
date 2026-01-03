@@ -9,7 +9,11 @@ describe('Component: ArtworkCreditsDisplay', () => {
   it('renders without crashing', () => {
     // ARRANGE
     const { container } = render(
-      <ArtworkCreditsDisplay achievementArtworkCredits={[]} badgeArtworkCredits={[]} />,
+      <ArtworkCreditsDisplay
+        achievementArtworkCredits={[]}
+        badgeArtworkCredits={[]}
+        bannerArtworkCredits={[]}
+      />,
     );
 
     // ASSERT
@@ -27,6 +31,7 @@ describe('Component: ArtworkCreditsDisplay', () => {
       <ArtworkCreditsDisplay
         achievementArtworkCredits={[]}
         badgeArtworkCredits={badgeArtworkCredits}
+        bannerArtworkCredits={[]}
       />,
     );
 
@@ -52,6 +57,7 @@ describe('Component: ArtworkCreditsDisplay', () => {
       <ArtworkCreditsDisplay
         achievementArtworkCredits={achievementArtworkCredits}
         badgeArtworkCredits={[]}
+        bannerArtworkCredits={[]}
       />,
     );
 
@@ -66,6 +72,32 @@ describe('Component: ArtworkCreditsDisplay', () => {
     expect(screen.getAllByText('David')[0]).toBeVisible();
   });
 
+  it('given banner artwork credits exist, shows them in the tooltip', async () => {
+    // ARRANGE
+    const bannerArtworkCredits = [
+      createUserCredits({ displayName: 'Eve' }),
+      createUserCredits({ displayName: 'Frank' }),
+    ];
+
+    render(
+      <ArtworkCreditsDisplay
+        achievementArtworkCredits={[]}
+        badgeArtworkCredits={[]}
+        bannerArtworkCredits={bannerArtworkCredits}
+      />,
+    );
+
+    // ACT
+    await userEvent.hover(screen.getByRole('button'));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getAllByText(/banner artwork/i)[0]).toBeVisible();
+    });
+    expect(screen.getAllByText('Eve')[0]).toBeVisible();
+    expect(screen.getAllByText('Frank')[0]).toBeVisible();
+  });
+
   it('given both credit types have users, shows all sections in the tooltip', async () => {
     // ARRANGE
     const badgeArtworkCredits = [createUserCredits({ displayName: 'Alice' })];
@@ -75,6 +107,7 @@ describe('Component: ArtworkCreditsDisplay', () => {
       <ArtworkCreditsDisplay
         achievementArtworkCredits={achievementArtworkCredits}
         badgeArtworkCredits={badgeArtworkCredits}
+        bannerArtworkCredits={[]}
       />,
     );
 
@@ -101,6 +134,7 @@ describe('Component: ArtworkCreditsDisplay', () => {
       <ArtworkCreditsDisplay
         achievementArtworkCredits={achievementArtworkCredits}
         badgeArtworkCredits={badgeArtworkCredits}
+        bannerArtworkCredits={[]}
       />,
     );
 
@@ -118,6 +152,7 @@ describe('Component: ArtworkCreditsDisplay', () => {
       <ArtworkCreditsDisplay
         achievementArtworkCredits={[]}
         badgeArtworkCredits={badgeArtworkCredits}
+        bannerArtworkCredits={[]}
       />,
     );
 
