@@ -28,10 +28,19 @@ class UsersTableSeeder extends Seeder
         $this->seedUserByUsername('banned', ['banned_at' => Carbon::now(), 'Permissions' => Permissions::Banned]);
         $this->seedUserByUsername('spammer', ['banned_at' => Carbon::now(), 'Permissions' => Permissions::Spam]);
 
+        // set the password for all users to their username
+        $salt = config('app.legacy_password_salt');
+        User::all()->each(function (User $user) use ($salt) {
+            $user->legacy_salted_password = md5($user->username . $salt);
+            $user->saveQuietly();
+        });
+
         $faker = Faker::create();
 
         // add a few developers (including juniors and retired developers)
-        User::factory()->count(rand(10, 30))->make()->each(function (User $user) use ($faker) {
+        User::factory()->count(rand(10, 30))->make()->each(function (User $user) use ($faker, $salt) {
+            $user->username = $user->display_name = $this->generateUsername();
+            $user->legacy_salted_password = md5($user->username . $salt);
             $user->setAttribute('Permissions', Permissions::Developer);
             $user->assignRole(Role::DEVELOPER);
             $user->created_at = Carbon::parse($faker->dateTimeBetween('-3 years', '-2 months')->format(DateTime::ATOM));
@@ -39,7 +48,9 @@ class UsersTableSeeder extends Seeder
             $user->save();
         });
 
-        User::factory()->count(rand(5, 10))->make()->each(function (User $user) use ($faker) {
+        User::factory()->count(rand(5, 10))->make()->each(function (User $user) use ($faker, $salt) {
+            $user->username = $user->display_name = $this->generateUsername();
+            $user->legacy_salted_password = md5($user->username . $salt);
             $user->setAttribute('Permissions', Permissions::JuniorDeveloper);
             $user->assignRole(Role::DEVELOPER_JUNIOR);
             $user->created_at = Carbon::parse($faker->dateTimeBetween('-3 years', '-2 days')->format(DateTime::ATOM));
@@ -47,7 +58,9 @@ class UsersTableSeeder extends Seeder
             $user->save();
         });
 
-        User::factory()->count(rand(2, 5))->make()->each(function (User $user) use ($faker) {
+        User::factory()->count(rand(2, 5))->make()->each(function (User $user) use ($faker, $salt) {
+            $user->username = $user->display_name = $this->generateUsername();
+            $user->legacy_salted_password = md5($user->username . $salt);
             $user->setAttribute('Permissions', Permissions::Registered);
             $user->assignRole(Role::DEVELOPER_RETIRED);
             $user->created_at = Carbon::parse($faker->dateTimeBetween('-3 years', '-6 months')->format(DateTime::ATOM));
@@ -56,10 +69,65 @@ class UsersTableSeeder extends Seeder
         });
 
         // and a bunch of players
-        User::factory()->count(rand(20, 100))->make()->each(function (User $user) use ($faker) {
+        User::factory()->count(rand(20, 100))->make()->each(function (User $user) use ($faker, $salt) {
+            $user->username = $user->display_name = $this->generateUsername();
+            $user->legacy_salted_password = md5($user->username . $salt);
             $user->created_at = Carbon::parse($faker->dateTimeBetween('-3 years', '-2 hours')->format(DateTime::ATOM));
             $user->timestamps = false;
             $user->save();
         });
+    }
+
+    private function generateUsername(): string
+    {
+        $stop = false;
+        $username = '';
+        do {
+            switch (rand(0, 10)) {
+                case 0:
+                    if ($username === '') {
+                        $username = ucfirst(fake()->word());
+                    } else {
+                        $username .= fake()->word();
+                    }
+                    break;
+                case 1:
+                    $username .= fake()->word();
+                    break;
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                    $username .= ucfirst(fake()->word());
+                    break;
+                case 7:
+                    $username .= chr(rand(65, 90)); // random uppercase letter
+                    break;
+                case 8:
+                    $username .= chr(rand(97, 122)); // random lowercase letter
+                    break;
+                case 9:
+                    $username .= chr(rand(48, 57)); // random digit
+                    break;
+                case 10:
+                    if ($username !== '') {
+                        $username .= str(rand(1, 500)); // random numeric suffix
+                        $stop = true;
+                    }
+                    break;
+            }
+
+            $len = strlen($username);
+            if ($len >= 12 || ($len > 4 && rand(0, 12 - $len) === 0)) {
+                break;
+            }
+        } while (!$stop);
+
+        if (User::where('username', $username)->exists()) {
+            return $this->generateUsername();
+        }
+
+        return $username;
     }
 }

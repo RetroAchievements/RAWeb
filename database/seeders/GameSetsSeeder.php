@@ -129,7 +129,7 @@ class GameSetsSeeder extends Seeder
         $publisherCount = count($publisherHubIds);
         $developerCount = count($developerHubIds);
         $genreCount = count($genreHubIds);
-        foreach (Game::all() as $game) {
+        foreach (Game::orderBy('released_at')->get() as $game) {
             $index = rand(0, $developerCount + 10);
             if ($index < $developerCount) {
                 GameSetGame::create([
@@ -161,28 +161,238 @@ class GameSetsSeeder extends Seeder
                 $game->genre = $genreHubIds[$index][1];
             }
 
-            $game->saveQuietly();
+            $game->title = $this->generateTitle($game);
+            $game->save();
+        }
+    }
 
-            if (str_ends_with($game->title, " II")) {
-                $seriesTitle = substr($game->title, 0, strlen($game->title) - 3);
-                $genre = GameSet::create(['title' => "[Series - $seriesTitle]", 'type' => GameSetType::Hub]);
-                GameSetLink::create([
-                    'parent_game_set_id' => GameSet::SeriesHubId,
-                    'child_game_set_id' => $genre->id,
-                ]);
-                GameSetLink::create([
-                    'parent_game_set_id' => $genre->id,
-                    'child_game_set_id' => GameSet::SeriesHubId,
-                ]);
-
-                foreach (Game::where('title', 'LIKE', "$seriesTitle %")->orWhere('title', $seriesTitle)->pluck('id')->toArray() as $seriesGameId) {
-                    GameSetGame::create([
-                        'game_set_id' => $genre->id,
-                        'game_id' => $seriesGameId,
-                    ]);
-                }
+    private function generateTitle(Game $game): string
+    {
+        if (rand(1, 10) === 1) {
+            // 10% chance of creating a sequel
+            $title = $this->generateSequelTitle($game);
+            if ($title) {
+                return $title;
             }
         }
 
+        $genre = $game->genre ?? '';
+
+        $parts = [];
+        $adjectives = [
+            'Amazing',
+            'Crooked',
+            'Dark',
+            'Demon',
+            'Golden',
+            'Haunted',
+            'Hidden',
+            'Ice',
+            'Immortal',
+            'Lost',
+            'Magic',
+            'Strange',
+            'Super',
+            'The Last',
+            'Twisted',
+            'Ultimate',
+        ];
+
+        $bodies = [
+            'Cave',
+            'Castle',
+            'Tower',
+            'Star',
+            'Dungeon',
+            'Forest',
+            'Sword',
+            'Crystal',
+        ];
+
+        $suffixes = [
+            'Legend',
+            'of Darkness',
+            'Quest',
+            'Saga',
+            'Slayer',
+            'Story',
+            'Tale',
+            'Warrior',
+            'World',
+        ];
+
+        if ($genre === 'Simulation') {
+            $suffixes = [
+                'Builder',
+                'Racer',
+                'World',
+            ];
+        }
+
+        if (str_starts_with($genre, 'Sports')) {
+            $adjectives = [
+                'Extreme',
+                'Super',
+                'Ultimate',
+            ];
+
+            if (str_contains($genre, 'Basketball')) {
+                $bodies = ['Basketball'];
+            } elseif (str_contains($genre, 'Soccer')) {
+                $bodies = ['Soccer'];
+            } else {
+                $bodies = [
+                    'Baseball',
+                    'Golf',
+                    'Hockey',
+                    'Tennis',
+                    'Track',
+                    'Volleyball',
+                    'Wrestling',
+                ];
+            }
+
+            $suffixes = [
+                'Clash',
+                'Jam',
+                'Showdown',
+                'Story',
+            ];
+        } elseif (rand(0, 7) === 0) {
+            // 12% chance of prefixing 'The'
+            $parts[] = 'The';
+        }
+
+        if (rand(0, 3) === 0) {
+            // 25% chance of random name for title
+            $faker = Faker::create();
+            $word = $faker->word();
+            while (strlen($word) < 4) {
+                $word = $faker->word();
+            }
+            $bodies = [ucfirst($word)];
+
+            if (rand(0, 1) === 0) {
+                // 50% chance of not having an adjective
+                $adjectives = [];
+            }
+
+            if (rand(0, 2) !== 2) {
+                // 66% chance of not having a suffix
+                $suffixes = [];
+            }
+        }
+
+        if ($genre === 'Adventure' || $genre === 'Role-Playing Game' || $genre === 'Action RPG') {
+            $prefixes = ['The Legend of', 'King of'];
+            $prefixIndex = rand(0, 10);
+            if ($prefixIndex < count($prefixes)) {
+                $parts[] = $prefixes[$prefixIndex];
+                $suffixes = []; // prefix trumps suffix
+            }
+        }
+
+        $adjectiveIndex = rand(0, count($adjectives) + 2);
+        if ($adjectiveIndex < count($adjectives)) {
+            $parts[] = $adjectives[$adjectiveIndex];
+        }
+
+        $bodyIndex = rand(0, count($bodies) - 1);
+        $parts[] = $bodies[$bodyIndex];
+
+        $suffixIndex = rand(0, count($suffixes) + 3);
+        if ($suffixIndex < count($suffixes)) {
+            $parts[] = $suffixes[$suffixIndex];
+        }
+
+        $newTitle = str_replace('The The', 'The', implode(' ', $parts));
+
+        $otherGame = Game::firstWhere('title', $newTitle);
+        if ($otherGame && $otherGame->system_id === $game->system_id) {
+            // game already exists with this title on this system, try again.
+            return $this->generateTitle($game);
+        }
+
+        return $newTitle;
+    }
+
+    private function generateSequelTitle(Game $game): ?string
+    {
+        $priorGame = Game::where('genre', $game->genre)->inRandomOrder()->first();
+        if (!$priorGame) {
+            return null;
+        }
+
+        $sequelSuffixes = [
+            'II',
+            'III',
+            'IV',
+            'V',
+            'VI',
+            'VII',
+            'VIII',
+            'IX',
+            'X',
+
+            '2',
+            '3',
+            '4',
+            '5',
+            '6',
+            '7',
+            '8',
+            '9',
+        ];
+
+        $sequelSuffixIndex = 0;
+        if (rand(0, 1) === 0) {
+            $sequelSuffixIndex = array_search('2', $sequelSuffixes);
+        }
+
+        $title = $priorGame->title;
+        $space = strrpos($priorGame->title, ' ');
+        if ($space) {
+            $lastWord = substr($priorGame->title, $space + 1);
+            $index = array_search($lastWord, $sequelSuffixes);
+            if ($index !== false) {
+                $title = substr($priorGame->title, 0, $space);
+                $sequelSuffixIndex = $index + 1;
+            }
+        }
+
+        do {
+            $newTitle = $title . ' ' . $sequelSuffixes[$sequelSuffixIndex];
+            if (!Game::where('title', $newTitle)->exists()) {
+                $series = GameSet::firstWhere('title', "[Series - $title]");
+                if (!$series) {
+                    $series = GameSet::create(['title' => "[Series - $title]", 'type' => GameSetType::Hub]);
+
+                    GameSetLink::create([
+                        'parent_game_set_id' => GameSet::SeriesHubId,
+                        'child_game_set_id' => $series->id,
+                    ]);
+                    GameSetLink::create([
+                        'parent_game_set_id' => $series->id,
+                        'child_game_set_id' => GameSet::SeriesHubId,
+                    ]);
+
+                    GameSetGame::create([
+                        'game_set_id' => $series->id,
+                        'game_id' => $priorGame->id,
+                    ]);
+                }
+
+                GameSetGame::create([
+                    'game_set_id' => $series->id,
+                    'game_id' => $game->id,
+                ]);
+
+                return $newTitle;
+            }
+
+            $sequelSuffixIndex++;
+        } while ($sequelSuffixIndex < count($sequelSuffixes));
+
+        return null;
     }
 }

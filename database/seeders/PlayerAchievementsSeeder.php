@@ -6,6 +6,7 @@ namespace Database\Seeders;
 
 use App\Models\Game;
 use App\Models\PlayerGame;
+use App\Models\PlayerSession;
 use App\Models\Role;
 use App\Models\User;
 use App\Platform\Actions\ResumePlayerSessionAction;
@@ -191,6 +192,38 @@ class PlayerAchievementsSeeder extends Seeder
             // update player count metrics
             (new UpdateGameMetricsAction())->execute($game);
             (new UpdateGamePlayerCountAction())->execute($game);
+        });
+
+        // update most recent rich presence and last activity for each user
+        User::all()->each(function (User $user) {
+            $lastSession = PlayerSession::where('user_id', $user->id)->orderByDesc('rich_presence_updated_at')->first();
+            if ($lastSession) {
+                $user->rich_presence = $lastSession->rich_presence;
+                $user->rich_presence_game_id = $lastSession->game_id;
+                $user->rich_presence_updated_at = $lastSession->rich_presence_updated_at;
+
+                switch (rand(0, 3)) {
+                    case 0:
+                        $user->last_activity_at = $lastSession->rich_presence_updated_at->addMinutes(rand(0, 60));
+                        break;
+                    case 1:
+                        $user->last_activity_at = $lastSession->rich_presence_updated_at->addMinutes(rand(60, 500));
+                        break;
+                    case 2:
+                        $user->last_activity_at = $lastSession->rich_presence_updated_at->addMinutes(rand(500, 2000));
+                        break;
+                    case 3:
+                        $user->last_activity_at = $lastSession->rich_presence_updated_at->addMinutes(rand(2000, 10000));
+                        break;
+                }
+
+                $user->last_activity_at = $user->last_activity_at->addSeconds(rand(0, 60));
+                if ($user->last_activity_at > Carbon::now()) {
+                    $user->last_activity_at = Carbon::now();
+                }
+
+                $user->saveQuietly();
+            }
         });
 
         // update player metrics

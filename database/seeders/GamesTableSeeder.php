@@ -56,35 +56,6 @@ class GamesTableSeeder extends Seeder
         })->pluck('id')->toArray();
 
         Game::all()->each(function (Game $game) use ($developers, $faker) {
-            // GameFactory appends a sequence number to every title to ensure uniqueness.
-            // Generate a new title using sequel numbering to ensure uniqueness.
-            do {
-                $newTitle = ucwords($faker->words(rand(1, 4), true));
-            } while (strlen($newTitle) < rand(3, 6));
-
-            if (Game::where('title', $newTitle)->exists()) {
-                $index = 2;
-                while (true) {
-                    $testTitle = $newTitle . ' ' . match ($index) {
-                        2 => 'II',
-                        3 => 'III',
-                        4 => 'IV',
-                        5 => 'V',
-                        6 => 'VI',
-                        7 => 'VII',
-                        default => strval($index),
-                    };
-
-                    if (!Game::where('title', $testTitle)->exists()) {
-                        $newTitle = $testTitle;
-                        break;
-                    }
-                    $index++;
-                }
-            }
-            $game->title = $newTitle;
-            $game->save();
-
             if (!isValidConsoleId($game->system_id)) {
                 // don't populate games for inactive systems
                 return;
