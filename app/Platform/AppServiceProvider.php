@@ -24,6 +24,7 @@ use App\Models\PlayerBadge;
 use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
+use App\Platform\Commands\BackfillAuthorYieldUnlocks;
 use App\Platform\Commands\CrawlPlayerWeightedPoints;
 use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
@@ -108,6 +109,7 @@ class AppServiceProvider extends ServiceProvider
                 UpdateSearchIndexForQueuedEntities::class,
 
                 // Developer
+                BackfillAuthorYieldUnlocks::class,
                 ProcessExpiringClaims::class,
                 UpdateDeveloperContributionYield::class,
 
