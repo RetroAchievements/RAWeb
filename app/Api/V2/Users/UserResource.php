@@ -42,8 +42,9 @@ class UserResource extends JsonApiResource
             'yieldUnlocks' => $this->resource->yield_unlocks,
             'yieldPoints' => $this->resource->yield_points,
 
-            'joinedAt' => $this->resource->created_at,
+            'joinedAt' => $this->resource->trashed() ? null : $this->resource->created_at,
             'lastActivityAt' => $this->resource->last_activity_at,
+            'deletedAt' => $this->when($this->resource->trashed(), $this->resource->deleted_at),
 
             'isUnranked' => $this->resource->unranked_at !== null,
             'isUserWallActive' => (bool) $this->resource->is_user_wall_active,

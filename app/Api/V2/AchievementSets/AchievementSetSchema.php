@@ -64,6 +64,9 @@ class AchievementSetSchema extends Schema
             DateTime::make('updatedAt', 'updated_at')->readOnly(),
 
             BelongsToMany::make('games', 'linkedGames')->type('games')->readOnly(),
+
+            // TODO implement relationship endpoints to enable links
+            // - /achievement-sets/{id}/games
         ];
     }
 

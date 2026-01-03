@@ -150,7 +150,7 @@ class BuildTicketCreationDataAction
         Achievement $achievement,
         User $user,
     ): void {
-        $achievementSet = $achievement->achievementSets()->first();
+        $achievementSet = $achievement->achievementSet;
         if (!$achievementSet) {
             return;
         }

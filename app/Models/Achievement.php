@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -39,6 +40,8 @@ use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Staudenmeir\EloquentHasManyDeep\HasManyDeep;
+use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 // TODO implements HasComments
 
@@ -57,6 +60,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     /** @use HasFactory<AchievementFactory> */
     use HasFactory;
+    use HasRelationships;
 
     use Searchable;
     use SoftDeletes;
@@ -291,7 +295,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function getRelatedGameIds(): array
     {
-        $achievementSet = $this->achievementSets()->first();
+        $achievementSet = $this->achievementSet;
         if (!$achievementSet) {
             return [$this->game_id];
         }
@@ -391,16 +395,18 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return BelongsToMany<AchievementSet, $this>
+     * @return HasOneThrough<AchievementSet, AchievementSetAchievement, $this>
      */
-    public function achievementSets(): BelongsToMany
+    public function achievementSet(): HasOneThrough
     {
-        return $this->belongsToMany(
+        return $this->hasOneThrough(
             AchievementSet::class,
-            'achievement_set_achievements',
+            AchievementSetAchievement::class,
             'achievement_id',
+            'id',
+            'id',
             'achievement_set_id'
-        )->withPivot('order_column', 'achievement_group_id', 'created_at', 'updated_at');
+        );
     }
 
     /**
@@ -415,10 +421,39 @@ class Achievement extends BaseModel implements HasVersionedTrigger
 
     /**
      * @return BelongsTo<Game, $this>
+     *
+     * @deprecated use games(), which goes through achievement sets. achievements.game_id will eventually be dropped.
      */
     public function game(): BelongsTo
     {
         return $this->belongsTo(Game::class, 'game_id');
+    }
+
+    /**
+     * Get all base games that include this achievement through achievement sets.
+     * Excludes "subset backing games" by filtering out Core-type links when non-Core links exist.
+     *
+     * @return HasManyDeep<Game, $this>
+     */
+    public function games(): HasManyDeep
+    {
+        return $this->hasManyDeep(
+            Game::class,
+            [AchievementSetAchievement::class, AchievementSet::class, GameAchievementSet::class],
+            ['achievement_id', 'id', 'achievement_set_id', 'id'],
+            ['id', 'achievement_set_id', 'id', 'game_id']
+        )->where(function ($query) {
+            $query->where('game_achievement_sets.type', '!=', AchievementSetType::Core)
+                ->orWhere(function ($q) {
+                    $q->where('game_achievement_sets.type', AchievementSetType::Core)
+                        ->whereNotExists(function ($sub) {
+                            $sub->selectRaw('1')
+                                ->from('game_achievement_sets as gas2')
+                                ->whereColumn('gas2.achievement_set_id', 'game_achievement_sets.achievement_set_id')
+                                ->where('gas2.type', '!=', AchievementSetType::Core);
+                        });
+                });
+        });
     }
 
     /**
@@ -611,6 +646,44 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         $query->addSelect('player_achievements.unlocked_at');
         $query->addSelect('player_achievements.unlocked_hardcore_at');
         $query->addSelect(DB::raw('player_achievements.id as player_achievement_id'));
+
+        return $query;
+    }
+
+    /**
+     * achievements -> achievement_set_achievements -> game_achievement_sets
+     *
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
+    public function scopeForGame(Builder $query, int $gameId): Builder
+    {
+        return $query->whereExists(function ($subQuery) use ($gameId) {
+            $subQuery->select(DB::raw(1))
+                ->from('achievement_set_achievements')
+                ->join('game_achievement_sets', 'achievement_set_achievements.achievement_set_id', '=', 'game_achievement_sets.achievement_set_id')
+                ->whereColumn('achievement_set_achievements.achievement_id', 'achievements.id')
+                ->where('game_achievement_sets.game_id', $gameId);
+        });
+    }
+
+    /**
+     * Supports tri-state: 'true' (promoted only), 'false' (unpromoted only), and 'all' (no filter).
+     *
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
+    public function scopeWithPromotedStatus(Builder $query, string $value): Builder
+    {
+        if ($value === 'all') {
+            return $query;
+        }
+
+        $isPromoted = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+        if ($isPromoted !== null) {
+            return $query->where('is_promoted', $isPromoted);
+        }
 
         return $query;
     }
