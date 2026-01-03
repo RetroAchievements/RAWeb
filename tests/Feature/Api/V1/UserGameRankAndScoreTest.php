@@ -103,7 +103,7 @@ class UserGameRankAndScoreTest extends TestCase
         $secondAchievement = $publishedAchievements->get(1);
         $thirdAchievement = $publishedAchievements->get(2);
         /** @var User $user */
-        $user = User::factory()->create(['Untracked' => true]);
+        $user = User::factory()->create(['unranked_at' => now()]);
         $this->addHardcoreUnlock($user, $firstAchievement);
         $unlock2Time = Carbon::now();
         $this->addHardcoreUnlock($user, $secondAchievement, $unlock2Time);

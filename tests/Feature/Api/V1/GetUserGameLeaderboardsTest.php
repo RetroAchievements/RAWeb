@@ -184,7 +184,7 @@ class GetUserGameLeaderboardsTest extends TestCase
     public function testGetUserGameLeaderboardsUserIsUnRanked(): void
     {
        /** @var User $user */
-       $user = User::factory()->create(['unranked_at' => Carbon::now(), 'Untracked' => 1]);
+       $user = User::factory()->create(['unranked_at' => Carbon::now()]);
 
        /** @var System $system */
        $system = System::factory()->create();
@@ -700,7 +700,7 @@ class GetUserGameLeaderboardsTest extends TestCase
             'score' => 100,
         ]);
 
-        $userTwo = User::factory()->create(['username' => 'myUser2', 'unranked_at' => Carbon::now(), 'Untracked' => 1]);
+        $userTwo = User::factory()->create(['username' => 'myUser2', 'unranked_at' => Carbon::now()]);
         LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->id,
             'user_id' => $userTwo->id,

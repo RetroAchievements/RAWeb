@@ -73,7 +73,7 @@ class UserCard extends Component
     private function buildAllCardViewValues(string $username, array $rawUserData): array
     {
         $cardBioData = $this->buildCardBioData($rawUserData);
-        $cardRankData = $this->buildCardRankData($username, $rawUserData['points_hardcore'], $rawUserData['points'] ?? 0, $rawUserData['Untracked'] ? true : false);
+        $cardRankData = $this->buildCardRankData($username, $rawUserData['points_hardcore'], $rawUserData['points'] ?? 0, $rawUserData['unranked_at'] !== null);
         $cardRoleData = $this->buildCardRoleData($username, $rawUserData['visibleRoleName'], $rawUserData['isBanned'], $rawUserData['isMuted']);
 
         return array_merge($cardBioData, $cardRankData, $cardRoleData);
@@ -87,7 +87,7 @@ class UserCard extends Component
         $hardcorePoints = $rawUserData['points_hardcore'] ?? 0;
         $softcorePoints = $rawUserData['points'] ?? 0;
         $retroPoints = $rawUserData['points_weighted'] ?? 0;
-        $isUntracked = $rawUserData['Untracked'] ? true : false;
+        $isUntracked = $rawUserData['unranked_at'] !== null;
         $permissions = $rawUserData['Permissions'] ?? Permissions::Unregistered;
         $memberSince = $rawUserData['created_at'] ?? Carbon::now();
         $lastActivity = $rawUserData['last_activity_at'] ? Carbon::parse($rawUserData['last_activity_at'])->diffForHumans() : null;

@@ -161,7 +161,6 @@ function banAccountByUsername(string $username, int $permissions): void
     $user->ManuallyVerified = 0;
     $user->forum_verified_at = null;
     $user->motto = '';
-    $user->Untracked = 1;
     $user->unranked_at = now();
     $user->web_api_key = null;
     $user->is_user_wall_active = false;

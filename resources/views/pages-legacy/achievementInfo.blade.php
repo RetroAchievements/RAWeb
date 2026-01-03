@@ -78,7 +78,7 @@ $unlocks = getAchievementUnlocksData(
 );
 
 $trackedUnlocksUsers = User::whereIn('display_name', $unlocks->pluck('User')->unique())
-    ->where('Untracked', false)
+    ->whereNull('unranked_at')
     ->pluck('display_name');
 
 $unlocks = $unlocks->filter(fn ($unlock) => $trackedUnlocksUsers->contains($unlock['User']));

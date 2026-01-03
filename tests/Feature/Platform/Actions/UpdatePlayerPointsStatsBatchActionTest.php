@@ -71,7 +71,7 @@ class UpdatePlayerPointsStatsBatchActionTest extends TestCase
         Carbon::setTestNow(Carbon::create(2023, 11, 18, 15, 0, 0));
 
         $trackedUser = User::factory()->create();
-        $untrackedUser = User::factory()->create(['Untracked' => true, 'unranked_at' => Carbon::now()]);
+        $untrackedUser = User::factory()->create(['unranked_at' => Carbon::now()]);
 
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);

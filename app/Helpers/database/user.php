@@ -68,7 +68,7 @@ function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchi
     $libraryOut['TotalSoftcorePoints'] = (int) $user->points;
     $libraryOut['TotalTruePoints'] = (int) $user->points_weighted;
     $libraryOut['Permissions'] = (int) $user->getAttribute('Permissions');
-    $libraryOut['Untracked'] = (int) $user->Untracked;
+    $libraryOut['Untracked'] = (int) ($user->unranked_at !== null);
     $libraryOut['ID'] = (int) $user->id;
     $libraryOut['UserWallActive'] = (int) $user->is_user_wall_active;
     $libraryOut['Motto'] = $user->motto;
@@ -111,7 +111,7 @@ function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataO
     } elseif ($perms >= Permissions::Registered && $perms <= Permissions::Moderator) {
         $permsFilter = "ua.Permissions >= $perms ";
     } elseif ($showUntracked) {
-        $whereQuery = "WHERE ua.Untracked ";
+        $whereQuery = "WHERE ua.unranked_at IS NOT NULL ";
     } else {
         return 0;
     }
@@ -121,7 +121,7 @@ function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataO
             $whereQuery = "WHERE $permsFilter ";
         }
     } else {
-        $whereQuery = "WHERE ( NOT ua.Untracked || ua.username = \"$requestedBy\" OR ua.display_name = \"$requestedBy\" ) AND $permsFilter";
+        $whereQuery = "WHERE ( ua.unranked_at IS NULL OR ua.username = \"$requestedBy\" OR ua.display_name = \"$requestedBy\" ) AND $permsFilter";
     }
 
     $orderBy = match ($sortBy) {
@@ -385,7 +385,7 @@ function getMostAwardedUsers(array $gameIDs): array
               LEFT JOIN users AS ua ON ua.id = sa.user_id
               WHERE sa.award_type IN ('{$gameAwardValues}')
               AND award_key IN (" . implode(",", $gameIDs) . ")
-              AND Untracked = 0
+              AND ua.unranked_at IS NULL
               GROUP BY ua.username
               ORDER BY ua.username";
 
@@ -412,10 +412,10 @@ function getMostAwardedGames(array $gameIDs): array
     $gameAwardValues = implode("','", AwardType::gameValues());
 
     $query = "SELECT gd.title AS Title, sa.award_key AS ID, s.name AS ConsoleName, gd.image_icon_asset_path as GameIcon,
-              SUM(IF(award_type = '" . AwardType::GameBeaten->value . "' AND award_tier = 0 AND Untracked = 0, 1, 0)) AS BeatenSoftcore,
-              SUM(IF(award_type = '" . AwardType::GameBeaten->value . "' AND award_tier = 1 AND Untracked = 0, 1, 0)) AS BeatenHardcore,
-              SUM(IF(award_type = '" . AwardType::Mastery->value . "' AND award_tier = 0 AND Untracked = 0, 1, 0)) AS Completed,
-              SUM(IF(award_type = '" . AwardType::Mastery->value . "' AND award_tier = 1 AND Untracked = 0, 1, 0)) AS Mastered
+              SUM(IF(award_type = '" . AwardType::GameBeaten->value . "' AND award_tier = 0 AND ua.unranked_at IS NULL, 1, 0)) AS BeatenSoftcore,
+              SUM(IF(award_type = '" . AwardType::GameBeaten->value . "' AND award_tier = 1 AND ua.unranked_at IS NULL, 1, 0)) AS BeatenHardcore,
+              SUM(IF(award_type = '" . AwardType::Mastery->value . "' AND award_tier = 0 AND ua.unranked_at IS NULL, 1, 0)) AS Completed,
+              SUM(IF(award_type = '" . AwardType::Mastery->value . "' AND award_tier = 1 AND ua.unranked_at IS NULL, 1, 0)) AS Mastered
               FROM user_awards AS sa
               LEFT JOIN games AS gd ON gd.id = sa.award_key
               LEFT JOIN systems AS s ON s.id = gd.system_id

@@ -139,8 +139,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
         return $this->hasMany(LeaderboardEntry::class, 'leaderboard_id')
             ->whereHas('user', function ($query) use ($includeUnrankedUsers) {
                 if (!$includeUnrankedUsers) {
-                    $query->where('Untracked', '!=', 1)
-                        ->whereNull('unranked_at');
+                    $query->whereNull('unranked_at');
                 }
             });
     }

@@ -159,9 +159,10 @@ class UserResource extends Resource
                                 ->hidden(fn ($state) => !$state)
                                 ->color('danger'),
 
-                            Infolists\Components\IconEntry::make('Untracked')
+                            Infolists\Components\IconEntry::make('unranked_at')
                                 ->label('Ranked')
                                 ->boolean()
+                                ->getStateUsing(fn ($record) => $record->unranked_at !== null)
                                 ->trueColor('danger')
                                 ->trueIcon('heroicon-o-x-circle')
                                 ->falseColor('success')
@@ -225,7 +226,11 @@ class UserResource extends Resource
                             Forms\Components\Toggle::make('ManuallyVerified')
                                 ->label('Forum verified'),
 
-                            Forms\Components\Toggle::make('Untracked'),
+                            Forms\Components\Toggle::make('is_unranked')
+                                ->label('Untracked')
+                                ->afterStateHydrated(function (Forms\Components\Toggle $component, $record) {
+                                    $component->state($record?->unranked_at !== null);
+                                }),
                         ]),
                 ])->from('md'),
             ]);
@@ -288,18 +293,15 @@ class UserResource extends Resource
                 //     ->sortable()
                 //     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\IconColumn::make('Untracked')
+                Tables\Columns\IconColumn::make('unranked_at')
                     ->label('Ranked')
                     ->boolean()
+                    ->getStateUsing(fn ($record) => $record->unranked_at !== null)
                     ->trueColor('danger')
                     ->trueIcon('heroicon-o-x-circle')
                     ->falseColor('success')
                     ->falseIcon('heroicon-o-check-circle')
                     ->alignCenter(),
-
-                // Tables\Columns\TextColumn::make('unranked_at')
-                //     ->dateTime()
-                //     ->sortable(),
 
                 // Tables\Columns\TextColumn::make('banned_at')
                 //     ->dateTime()

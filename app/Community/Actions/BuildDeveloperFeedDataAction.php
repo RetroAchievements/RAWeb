@@ -119,7 +119,7 @@ class BuildDeveloperFeedDataAction
         return $query
             ->take(200)
             ->get()
-            ->reject(fn ($unlock) => $unlock->user->Untracked)
+            ->reject(fn ($unlock) => $unlock->user->unranked_at !== null)
             ->map(fn ($unlock) => new RecentUnlockData(
                 achievement: AchievementData::fromAchievement($unlock->achievement)->include('points'),
                 game: GameData::fromGame($unlock->achievement->game)->include('badgeUrl', 'system.iconUrl', 'system.nameShort'),
@@ -157,7 +157,7 @@ class BuildDeveloperFeedDataAction
             ->orderByDesc('pb.awarded_at')
             ->take(50)
             ->get()
-            ->reject(fn ($award) => $award->user->Untracked)
+            ->reject(fn ($award) => $award->user->unranked_at !== null)
             ->map(fn ($award) => new RecentPlayerBadgeData(
                 game: GameData::fromGame($award->gameIfApplicable)->include('badgeUrl', 'system.iconUrl', 'system.nameShort'),
                 awardType: $award->award_tier === UnlockMode::Hardcore
@@ -185,7 +185,7 @@ class BuildDeveloperFeedDataAction
             ->orderBy('leaderboard_entries.updated_at', 'desc')
             ->take(200)
             ->get()
-            ->reject(fn ($entry) => $entry->user->Untracked)
+            ->reject(fn ($entry) => $entry->user->unranked_at !== null)
             ->map(fn ($entry) => new RecentLeaderboardEntryData(
                 leaderboard: LeaderboardData::fromLeaderboard($entry->leaderboard),
                 leaderboardEntry: LeaderboardEntryData::fromLeaderboardEntry($entry, $entry->leaderboard->format)->include('formattedScore'),

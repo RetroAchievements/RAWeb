@@ -49,7 +49,7 @@ return response()->json([
     'TotalSoftcorePoints' => $user->points,
     'TotalTruePoints' => $user->points_weighted,
     'Permissions' => $user->getAttribute('Permissions'),
-    'Untracked' => $user->Untracked,
+    'Untracked' => $user->unranked_at !== null,
     'ID' => $user->id,
     'UserWallActive' => $user->is_user_wall_active,
     'Motto' => $user->motto,
