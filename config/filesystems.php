@@ -122,6 +122,8 @@ return [
          */
         storage_path('app/media/UserPic/_User.png') => public_path('assets/images/user/avatar-safe.png'),
         storage_path('app/media/Images/000001.png') => public_path('assets/images/game/icon-safe.png'),
+        storage_path('app/media/Badge/00000.png') => public_path('assets/images/achievement/badge.png'),
+        storage_path('app/media/Badge/00000_lock.png') => public_path('assets/images/achievement/badge-locked.png'),
     ],
 
 ];

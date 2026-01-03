@@ -22,7 +22,7 @@ class StaticTableSeeder extends Seeder
             return;
         }
 
-        $game = Game::orderByDesc('Updated')->first();
+        $game = Game::orderByDesc('updated_at')->first();
         $achievement = Achievement::orderByDesc('updated_at')->first();
         $lastUnlock = PlayerAchievement::orderByDesc('unlocked_at')->first();
         $user = User::orderByDesc('email_verified_at')->first();

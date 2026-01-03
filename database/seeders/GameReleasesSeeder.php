@@ -43,8 +43,14 @@ class GameReleasesSeeder extends Seeder
                 case 7: // NES
                     $range = [1983, 1995];
                     break;
+                case 8: // PC-Engine
+                    $range = [1987, 1994];
+                    break;
                 case 1: // MegaDrive
                     $range = [1988, 1997];
+                    break;
+                case 13: // Atari Lynx
+                    $range = [1989, 1995];
                     break;
                 case 4: // GameBoy
                     $range = [1989, 2003];
@@ -63,6 +69,9 @@ class GameReleasesSeeder extends Seeder
                     break;
                 case 6: // GameBoy Color
                     $range = [1998, 2003];
+                    break;
+                case 14: // NeoGeo Pocket
+                    $range = [1999, 2001];
                     break;
                 case 21: // PS2
                     $range = [2000, 2013];
