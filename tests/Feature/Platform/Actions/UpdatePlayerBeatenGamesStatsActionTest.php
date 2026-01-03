@@ -137,7 +137,7 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
     public function testItDoesntAddStatsForUntrackedUsers(): void
     {
         // Arrange
-        $untrackedUser = User::factory()->create(['Untracked' => true]);
+        $untrackedUser = User::factory()->create(['unranked_at' => now()]);
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id, 'title' => 'Super Mario Bros.']);
 
@@ -160,7 +160,7 @@ class UpdatePlayerBeatenGamesStatsActionTest extends TestCase
 
         (new UpdatePlayerBeatenGamesStatsAction())->execute($user);
 
-        $user->Untracked = true;
+        $user->unranked_at = now();
         $user->save();
 
         // Act

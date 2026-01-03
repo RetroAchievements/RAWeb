@@ -87,16 +87,6 @@ parameters:
             identifier: method.notFound
             message: '#ImageDriver::performOnCollections#'
 
-        # Temporary: Untracked column type mismatch.
-        # The User model's $table is 'users' but schema still has 'UserAccounts'.
-        # PHPStan reads Untracked as int from schema, but code uses bool.
-        # This will be resolved after the users table migration runs and schema is regenerated.
-        -
-          message: '#Property App\\Models\\User::\$Untracked \(int\) does not accept (bool|true)#'
-        -
-          message: '#Closure\(mixed\): int given#'
-          path: app/Community/Actions/BuildDeveloperFeedDataAction.php
-
     excludePaths:
         # unrelated directories
         - public/storage (?)

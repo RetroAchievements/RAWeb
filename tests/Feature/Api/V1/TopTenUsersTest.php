@@ -15,7 +15,7 @@ class TopTenUsersTest extends TestCase
 
     public function testGetTopTenUsers(): void
     {
-        $this->user->Untracked = true; // prevent random points from appearing in list
+        $this->user->unranked_at = now(); // prevent random points from appearing in list
         $this->user->save();
 
         /** @var User $user1 */

@@ -208,7 +208,7 @@ function getUnlocksInDateRange(array $achievementIDs, string $startTime, string 
                       FROM player_achievements AS pa
                       INNER JOIN users AS ua ON ua.id = pa.user_id
                       WHERE pa.achievement_id = $nextID
-                      AND ua.Untracked = 0
+                      AND ua.unranked_at IS NULL
                       $dateQuery
                       ORDER BY ua.username";
         $dbResult = s_mysql_query($query);
@@ -259,7 +259,7 @@ function getAchievementDistribution(
         if ($shouldJoinUsers) {
             $countQuery->join("users", "player_games.user_id", "=", "users.id")
                 ->where(fn ($query) => $query
-                    ->where("users.Untracked", 0)
+                    ->whereNull("users.unranked_at")
                     ->orWhere("users.username", $requestedBy)
             );
         }
@@ -282,7 +282,7 @@ function getAchievementDistribution(
         if ($shouldJoinUsers) {
             $subQuery->join("users", "player_achievements.user_id", "=", "users.id")
                 ->where(fn ($query) => $query
-                    ->where(DB::raw("users.Untracked"), 0)
+                    ->whereNull(DB::raw("users.unranked_at"))
                     ->orWhere(DB::raw("users.username"), $requestedBy)
             );
         }

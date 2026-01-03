@@ -124,7 +124,7 @@ function getObtainersOfSpecificUser(User $user): array
               AND pa.user_id != :userId
               AND ach.is_promoted = :isPromoted
               AND gd.system_id NOT IN (100, 101)
-              AND ua.Untracked = 0
+              AND ua.unranked_at IS NULL
               GROUP BY ua.username
               ORDER BY ObtainCount DESC";
 
