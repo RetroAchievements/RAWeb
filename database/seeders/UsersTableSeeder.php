@@ -108,10 +108,12 @@ class UsersTableSeeder extends Seeder
                     $username .= chr(rand(97, 122)); // random lowercase letter
                     break;
                 case 9:
-                    $username .= chr(rand(48, 57)); // random digit
+                    if ($username !== '') { // username cannot start with digit
+                        $username .= chr(rand(48, 57)); // random digit
+                    }
                     break;
                 case 10:
-                    if ($username !== '') {
+                    if ($username !== '') { // username cannot start with digit
                         $username .= strval(rand(1, 500)); // random numeric suffix
                         $stop = true;
                     }
