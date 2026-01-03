@@ -54,12 +54,12 @@ Before submitting a pull request:
 
 - **Pest** is used for testing. Write feature and/or unit tests.
 - **PHP CS Fixer** comes as a dev dependency. Run `composer fix` before you commit.
-- **PHPStan** is used for static analysis. Run `composer analyse` and ensure your code follows its advice.
+- **PHPStan** is used for static analysis. Run `composer analyse` and ensure your code has no errors.
 
 **Frontend (TypeScript/React)**
 
 - **Vitest** with **Testing Library** is used for testing React components.
-- We target 100% test coverage for frontend code. All React components and utilities should have accompanying tests.
+- We target 100% test coverage for frontend code. All React components and utilities should have accompanying tests to verify their functionality.
 - Run `pnpm verify` to check linting, TypeScript errors, and run all tests.
 - Run `pnpm test:run SomeFile` to run specific tests.
 

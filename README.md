@@ -1,7 +1,7 @@
 <p align="center" dir="auto"><a href="https://retroachievements.org" rel="nofollow"><img src="https://raw.githubusercontent.com/RetroAchievements/RAWeb/master/public/assets/images/ra-icon.webp" width="200" alt="RetroAchievements Logo" style="max-width: 100%;"></a></p>
 
 **RAWeb** is [RetroAchievements.org](https://retroachievements.org)'s platform application.
-It is a Laravel 12 application using [Inertia.js](https://inertiajs.com/) with React 19, TypeScript, and server-side rendering (SSR). The frontend is actively migrating from Blade/Livewire to React. Back-office administration is built with [Filament](https://filamentphp.com/).
+It is a Laravel application using [Inertia.js](https://inertiajs.com/) with React, TypeScript, and server-side rendering (SSR). The frontend is actively migrating from Blade/Livewire to React. Back-office administration is built with [Filament](https://filamentphp.com/).
 
 ## Requirements
 
