@@ -40,7 +40,7 @@ class AchievementSetClaimSeeder extends Seeder
         AchievementSet::query()
             ->where('achievements_published', 0)
             ->inRandomOrder()
-            ->get()->each(function (AchievementSet $set) use ($count) {
+            ->get()->each(function (AchievementSet $set) use (&$count) {
                 $game = $set->games()->first();
                 if (!isValidConsoleId($game->system_id)) {
                     return;

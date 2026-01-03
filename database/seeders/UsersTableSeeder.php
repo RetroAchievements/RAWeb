@@ -29,53 +29,53 @@ class UsersTableSeeder extends Seeder
         $this->seedUserByUsername('spammer', ['banned_at' => Carbon::now(), 'Permissions' => Permissions::Spam]);
 
         // set the password for all users to their username
-        $salt = config('app.legacy_password_salt');
-        User::all()->each(function (User $user) use ($salt) {
-            $user->legacy_salted_password = md5($user->username . $salt);
+        User::all()->each(function (User $user) {
+            $this->prepareUser($user);
             $user->saveQuietly();
         });
 
-        $faker = Faker::create();
-
         // add a few developers (including juniors and retired developers)
-        User::factory()->count(rand(10, 30))->make()->each(function (User $user) use ($faker, $salt) {
+        User::factory()->count(rand(10, 20))->make()->each(function (User $user) {
             $user->username = $user->display_name = $this->generateUsername();
-            $user->legacy_salted_password = md5($user->username . $salt);
+            $this->prepareUser($user);
             $user->setAttribute('Permissions', Permissions::Developer);
             $user->assignRole(Role::DEVELOPER);
-            $user->created_at = Carbon::parse($faker->dateTimeBetween('-3 years', '-2 months')->format(DateTime::ATOM));
-            $user->timestamps = false;
             $user->save();
         });
 
-        User::factory()->count(rand(5, 10))->make()->each(function (User $user) use ($faker, $salt) {
+        User::factory()->count(rand(5, 10))->make()->each(function (User $user) {
             $user->username = $user->display_name = $this->generateUsername();
-            $user->legacy_salted_password = md5($user->username . $salt);
+            $this->prepareUser($user);
             $user->setAttribute('Permissions', Permissions::JuniorDeveloper);
             $user->assignRole(Role::DEVELOPER_JUNIOR);
-            $user->created_at = Carbon::parse($faker->dateTimeBetween('-3 years', '-2 days')->format(DateTime::ATOM));
-            $user->timestamps = false;
             $user->save();
         });
 
-        User::factory()->count(rand(2, 5))->make()->each(function (User $user) use ($faker, $salt) {
+        User::factory()->count(rand(2, 5))->make()->each(function (User $user) {
             $user->username = $user->display_name = $this->generateUsername();
-            $user->legacy_salted_password = md5($user->username . $salt);
+            $this->prepareUser($user);
             $user->setAttribute('Permissions', Permissions::Registered);
             $user->assignRole(Role::DEVELOPER_RETIRED);
-            $user->created_at = Carbon::parse($faker->dateTimeBetween('-3 years', '-6 months')->format(DateTime::ATOM));
-            $user->timestamps = false;
             $user->save();
         });
 
         // and a bunch of players
-        User::factory()->count(rand(20, 100))->make()->each(function (User $user) use ($faker, $salt) {
+        User::factory()->count(rand(50, 100))->make()->each(function (User $user) {
             $user->username = $user->display_name = $this->generateUsername();
-            $user->legacy_salted_password = md5($user->username . $salt);
-            $user->created_at = Carbon::parse($faker->dateTimeBetween('-3 years', '-2 hours')->format(DateTime::ATOM));
-            $user->timestamps = false;
+            $this->prepareUser($user);
             $user->save();
         });
+    }
+
+    private function prepareUser(User &$user): void
+    {
+        $faker = Faker::create();
+        $salt = config('app.legacy_password_salt');
+
+        $user->legacy_salted_password = md5($user->username . $salt);
+        $user->points_hardcore = $user->points = 0; // factory seeds a user with hardcore points
+        $user->created_at = Carbon::parse($faker->dateTimeBetween('-3 years', '-6 months')->format(DateTime::ATOM));
+        $user->timestamps = false;
     }
 
     private function generateUsername(): string
@@ -122,6 +122,9 @@ class UsersTableSeeder extends Seeder
 
             $len = strlen($username);
             if ($len >= 12 || ($len > 4 && rand(0, 12 - $len) === 0)) {
+                if ($len > 20) {
+                    $username = substr($username, 0, 20);
+                }
                 break;
             }
         } while (!$stop);
