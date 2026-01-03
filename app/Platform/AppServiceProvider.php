@@ -130,6 +130,7 @@ class AppServiceProvider extends ServiceProvider
             if (app()->environment() === 'production') {
                 $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
                 $schedule->command(CrawlPlayerWeightedPoints::class)->everyFiveMinutes();
+                $schedule->command(UpdateBeatenGamesLeaderboard::class)->everyFiveMinutes();
                 $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
                 $schedule->command(ProcessExpiringClaims::class)->hourly();
                 $schedule->command(UpdateDeveloperContributionYield::class)->weeklyOn(2, '10:00'); // Tuesdays at 10AM UTC

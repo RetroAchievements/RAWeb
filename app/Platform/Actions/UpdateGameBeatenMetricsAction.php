@@ -8,9 +8,6 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
-use App\Models\System;
-use App\Platform\Enums\PlayerStatRankingKind;
-use App\Platform\Jobs\UpdateBeatenGamesLeaderboardJob;
 use Illuminate\Database\Eloquent\Builder;
 
 class UpdateGameBeatenMetricsAction
@@ -52,59 +49,6 @@ class UpdateGameBeatenMetricsAction
 
             $achievementSet->save();
         }
-
-        $this->dispatchPlayerStatRankingJobs($game);
-    }
-
-    private function dispatchPlayerStatRankingJobs(Game $game): void
-    {
-        $systemId = $game->system_id;
-        $specificKind = $this->determineRankingKindForGame($game, $systemId);
-
-        // Update system-specific leaderboards.
-        UpdateBeatenGamesLeaderboardJob::dispatch($systemId, PlayerStatRankingKind::AllBeaten)
-            ->onQueue('game-beaten-metrics');
-
-        if ($specificKind !== null) {
-            UpdateBeatenGamesLeaderboardJob::dispatch($systemId, $specificKind)
-                ->onQueue('game-beaten-metrics');
-        }
-
-        // Update overall leaderboards.
-        UpdateBeatenGamesLeaderboardJob::dispatch(null, PlayerStatRankingKind::AllBeaten)
-            ->onQueue('game-beaten-metrics');
-
-        if ($specificKind !== null) {
-            UpdateBeatenGamesLeaderboardJob::dispatch(null, $specificKind)
-                ->onQueue('game-beaten-metrics');
-        }
-    }
-
-    private function determineRankingKindForGame(Game $game, int $systemId): ?PlayerStatRankingKind
-    {
-        // Use get()->pluck() instead of pluck() directly because the JSON
-        // arrow syntax doesn't work with pluck() through relationship queries.
-        $tags = $game->tags()
-            ->whereType('game')
-            ->whereIn('name->en', ['Hack', 'Homebrew', 'Demo', 'Prototype', 'Unlicensed'])
-            ->get()
-            ->pluck('name');
-
-        if ($tags->contains('Hack')) {
-            return PlayerStatRankingKind::HacksBeaten;
-        }
-
-        if ($tags->contains('Homebrew') || System::isHomebrewSystem($systemId)) {
-            return PlayerStatRankingKind::HomebrewBeaten;
-        }
-
-        // Demos and prototypes only contribute to "all", not a specific/filtered leaderboard.
-        if ($tags->contains('Demo') || $tags->contains('Prototype')) {
-            return null;
-        }
-
-        // Unlicensed games are bundled with retail in the RetailBeaten leaderboard.
-        return PlayerStatRankingKind::RetailBeaten;
     }
 
     /**
