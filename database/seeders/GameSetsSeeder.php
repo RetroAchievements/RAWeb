@@ -307,8 +307,7 @@ class GameSetsSeeder extends Seeder
 
         $newTitle = str_replace('The The', 'The', implode(' ', $parts));
 
-        $otherGame = Game::firstWhere('title', $newTitle);
-        if ($otherGame && $otherGame->system_id === $game->system_id) {
+        if (Game::where('title', $newTitle)->where('system_id', $game->system_id)->exists()) {
             // game already exists with this title on this system, try again.
             return $this->generateTitle($game);
         }
