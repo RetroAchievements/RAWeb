@@ -430,8 +430,8 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * Get all games that include this achievement through achievement sets.
-     * An achievement belongs to one set, but that set can be linked to multiple games.
+     * Get all base games that include this achievement through achievement sets.
+     * Excludes "subset backing games" by filtering out Core-type links when non-Core links exist.
      *
      * @return HasManyDeep<Game, $this>
      */
@@ -442,7 +442,18 @@ class Achievement extends BaseModel implements HasVersionedTrigger
             [AchievementSetAchievement::class, AchievementSet::class, GameAchievementSet::class],
             ['achievement_id', 'id', 'achievement_set_id', 'id'],
             ['id', 'achievement_set_id', 'id', 'game_id']
-        );
+        )->where(function ($query) {
+            $query->where('game_achievement_sets.type', '!=', AchievementSetType::Core)
+                ->orWhere(function ($q) {
+                    $q->where('game_achievement_sets.type', AchievementSetType::Core)
+                        ->whereNotExists(function ($sub) {
+                            $sub->selectRaw('1')
+                                ->from('game_achievement_sets as gas2')
+                                ->whereColumn('gas2.achievement_set_id', 'game_achievement_sets.achievement_set_id')
+                                ->where('gas2.type', '!=', AchievementSetType::Core);
+                        });
+                });
+        });
     }
 
     /**

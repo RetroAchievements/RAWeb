@@ -482,6 +482,74 @@ class AchievementsTest extends JsonApiResourceTestCase
         $this->assertEquals((string) $game->id, $included[0]['id']);
     }
 
+    public function testGamesRelationshipExcludesSubsetBackingGames(): void
+    {
+        /**
+         * This test models a real scenario like Pokemon FireRed/LeafGreen [Subset - Shiny Pokemon].
+         *
+         * In prod, achievement set 8831 contains shiny-catching achievements:
+         * - Game 24875 (the "subset game") links with type=Core (it "owns" the set).
+         * - Games 515, 788 (FireRed/LeafGreen) link with type=Specialty (base games).
+         *
+         * The games relationship should return the base games (515, 788), NOT the "subset game" (24875).
+         */
+
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+
+        $fireRed = Game::factory()->create([
+            'system_id' => $system->id,
+            'title' => 'Pokemon FireRed Version',
+        ]);
+        $leafGreen = Game::factory()->create([
+            'system_id' => $system->id,
+            'title' => 'Pokemon LeafGreen Version',
+        ]);
+        $shinySubset = Game::factory()->create([
+            'system_id' => $system->id,
+            'title' => 'Pokemon FireRed Version | Pokemon LeafGreen Version [Subset - Shiny Pokemon+]',
+        ]);
+
+        $shinyAchievementSet = AchievementSet::factory()->create();
+        GameAchievementSet::factory()->create([
+            'game_id' => $shinySubset->id, // linked to the subset "backing game" as core
+            'achievement_set_id' => $shinyAchievementSet->id,
+            'type' => AchievementSetType::Core,
+        ]);
+        GameAchievementSet::factory()->create([
+            'game_id' => $fireRed->id,
+            'achievement_set_id' => $shinyAchievementSet->id,
+            'type' => AchievementSetType::Specialty,
+        ]);
+        GameAchievementSet::factory()->create([
+            'game_id' => $leafGreen->id,
+            'achievement_set_id' => $shinyAchievementSet->id,
+            'type' => AchievementSetType::Specialty,
+        ]);
+
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $shinySubset->id]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('achievements')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/achievements/{$achievement->id}?include=games");
+
+        // Assert
+        $response->assertSuccessful();
+
+        $included = collect($response->json('included'));
+        $gameIds = $included->where('type', 'games')->pluck('id')->toArray();
+
+        // ... the base games should be included ...
+        $this->assertContains((string) $fireRed->id, $gameIds);
+        $this->assertContains((string) $leafGreen->id, $gameIds);
+
+        // ... the subset backing game should not be included ...
+        $this->assertNotContains((string) $shinySubset->id, $gameIds);
+    }
+
     public function testItCanSortByPoints(): void
     {
         // Arrange
