@@ -34,22 +34,14 @@ class UpdateDeveloperContributionYieldAction
         // Calculate author contributions (achievements created by the user where credit wasn't given to a maintainer).
         $authorSql = <<<SQL
             SELECT
-                SUM(a.points) as author_points,
-                COUNT(*) as author_count
-            FROM achievements a
-            JOIN player_achievements pa ON pa.achievement_id = a.id
-            WHERE a.user_id = :user_id
-                AND a.is_promoted = 1
-                AND pa.user_id != :user_id2
-                AND NOT EXISTS (
-                    SELECT 1
-                    FROM achievement_maintainer_unlocks amu
-                    WHERE amu.player_achievement_id = pa.id
-                )
+                COALESCE(SUM(author_yield_unlocks * points), 0) as author_points,
+                COALESCE(SUM(author_yield_unlocks), 0) as author_count
+            FROM achievements
+            WHERE user_id = :user_id
+                AND is_promoted = 1
         SQL;
         $authorResults = DB::select($authorSql, [
             'user_id' => $user->id,
-            'user_id2' => $user->id,
         ]);
 
         // Calculate maintainer contributions (unlocks credited to the user as a maintainer).

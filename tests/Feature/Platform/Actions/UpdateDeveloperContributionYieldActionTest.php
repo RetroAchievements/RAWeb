@@ -33,6 +33,10 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
             'unlocked_at' => $when,
             'unlocked_hardcore_at' => $when,
         ]);
+
+        if ($user->id !== $achievement->user_id) {
+            $achievement->increment('author_yield_unlocks');
+        }
     }
 
     protected function addSoftcoreUnlock(User $user, Achievement $achievement, ?Carbon $when = null): void
@@ -45,6 +49,10 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
             'achievement_id' => $achievement->id,
             'unlocked_at' => $when,
         ]);
+
+        if ($user->id !== $achievement->user_id) {
+            $achievement->increment('author_yield_unlocks');
+        }
     }
 
     protected function assertPointBadgeTier(User $user, int $expectedTier, ?int $displayOrder = null): void
@@ -64,6 +72,10 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
     protected function removeUnlock(User $user, Achievement $achievement): void
     {
         $user->playerAchievements()->where('achievement_id', $achievement->id)->delete();
+
+        if ($user->id !== $achievement->user_id) {
+            $achievement->decrement('author_yield_unlocks');
+        }
     }
 
     public function testBadgeUpgrades(): void
