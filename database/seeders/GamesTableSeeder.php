@@ -12,7 +12,6 @@ use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\UpdateGameMetricsAction;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
@@ -33,7 +32,7 @@ class GamesTableSeeder extends Seeder
          */
         System::all()->each(function (System $system) {
             $num_to_create = random_int(0, 10) + random_int(0, 2) + random_int(0, 2) + random_int(0, 2);
-            $system->games()->saveMany(Game::factory()->count($num_to_create)->create(['ConsoleID' => $system->ID]));
+            $system->games()->saveMany(Game::factory()->count($num_to_create)->create(['system_id' => $system->id]));
         });
 
         /*
@@ -41,7 +40,7 @@ class GamesTableSeeder extends Seeder
          */
         Game::all()->each(function (Game $game) {
             $game->hashes()->save(new GameHash([
-                'system_id' => $game->ConsoleID,
+                'system_id' => $game->system_id,
                 'hash' => Str::random(32),
                 'md5' => Str::random(32),
             ]));
@@ -52,13 +51,16 @@ class GamesTableSeeder extends Seeder
          */
         $developers = User::whereHas('roles', function ($q) {
             $q->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR, Role::DEVELOPER_RETIRED]);
-        })->pluck('ID')->toArray();
+        })->pluck('id')->toArray();
 
         Game::all()->each(function (Game $game) use ($developers, $faker) {
             // GameFactory appends a sequence number to every title to ensure uniqueness.
             // Generate a new title using sequel numbering to ensure uniqueness.
-            $newTitle = ucwords($faker->words(random_int(1, 4), true));
-            if (Game::where('Title', $newTitle)->exists()) {
+            do {
+                $newTitle = ucwords($faker->words(random_int(1, 4), true));
+            } while (strlen($newTitle) < random_int(3, 6));
+
+            if (Game::where('title', $newTitle)->exists()) {
                 $index = 2;
                 while (true) {
                     $testTitle = $newTitle . ' ' . match ($index) {
@@ -71,17 +73,17 @@ class GamesTableSeeder extends Seeder
                         default => strval($index),
                     };
 
-                    if (!Game::where('Title', $testTitle)->exists()) {
+                    if (!Game::where('title', $testTitle)->exists()) {
                         $newTitle = $testTitle;
                         break;
                     }
                     $index++;
                 }
             }
-            $game->Title = $newTitle;
+            $game->title = $newTitle;
             $game->save();
 
-            if (!isValidConsoleId($game->ConsoleID)) {
+            if (!isValidConsoleId($game->system_id)) {
                 // don't populate games for inactive systems
                 return;
             }
@@ -94,8 +96,8 @@ class GamesTableSeeder extends Seeder
                     $user_id = $developers[array_rand($developers)];
 
                     $game->achievements()->saveMany(Achievement::factory()->count(random_int(1, 5))->create([
-                        'GameID' => $game->ID,
-                        'Flags' => AchievementFlag::Unofficial->value,
+                        'game_id' => $game->id,
+                        'is_promoted' => false,
                         'user_id' => $user_id,
                     ]));
                 }
@@ -106,15 +108,15 @@ class GamesTableSeeder extends Seeder
             /* create published achievements */
             $user_id = $developers[array_rand($developers)];
             $game->achievements()->saveMany(Achievement::factory()->count(random_int(5, 20))->create([
-                'GameID' => $game->ID,
-                'Flags' => AchievementFlag::OfficialCore->value,
+                'game_id' => $game->id,
+                'is_promoted' => true,
                 'user_id' => $user_id,
             ]));
 
             if (random_int(0, 100) <= 10) { // 10% chance to create unofficial achievements
                 $game->achievements()->saveMany(Achievement::factory()->count(random_int(0, 5))->create([
-                    'GameID' => $game->ID,
-                    'Flags' => AchievementFlag::Unofficial->value,
+                    'game_id' => $game->id,
+                    'is_promoted' => false,
                     'user_id' => $user_id,
                 ]));
             }
@@ -123,14 +125,14 @@ class GamesTableSeeder extends Seeder
                 $user_id = $developers[array_rand($developers)];
 
                 $game->achievements()->saveMany(Achievement::factory()->count(random_int(0, 10))->create([
-                    'GameID' => $game->ID,
-                    'Flags' => AchievementFlag::OfficialCore->value,
+                    'game_id' => $game->id,
+                    'is_promoted' => true,
                     'user_id' => $user_id,
                 ]));
             }
 
             /* assign display order and type */
-            $num_achievements = $game->achievements()->published()->count();
+            $num_achievements = $game->achievements()->promoted()->count();
             $num_progression = random_int(3, max(3, (int) floor($num_achievements / 2)));
             $num_win = 1;
             if ($num_achievements > 7 && random_int(1, 30) === 1) {
@@ -145,8 +147,8 @@ class GamesTableSeeder extends Seeder
             $num_remaining -= $num_missable;
 
             $index = 1;
-            foreach ($game->achievements()->published()->get() as $achievement) {
-                $achievement->DisplayOrder = $index++;
+            foreach ($game->achievements()->promoted()->get() as $achievement) {
+                $achievement->order_column = $index++;
 
                 $type = random_int(0, 2);
                   while (true) {
@@ -183,7 +185,7 @@ class GamesTableSeeder extends Seeder
             $user_id = $game->achievements()->first()->user_id ?? $developers[array_rand($developers)];
 
             $game->leaderboards()->saveMany(Leaderboard::factory()->count(random_int(0, 10))->create([
-                'GameID' => $game->ID,
+                'game_id' => $game->id,
                 'author_id' => $user_id,
             ]));
         });

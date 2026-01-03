@@ -284,7 +284,7 @@ class PlayerCompletionProgressPageService
             return false;
         }
 
-        $targetUsername = $user->User;
+        $targetUsername = $user->username;
 
         if (!isValidUsername($targetUsername)) {
             return false;

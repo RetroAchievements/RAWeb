@@ -1,12 +1,12 @@
 services:
     laravel.test:
         build:
-            context: ./docker/8.2
+            context: ./docker/8.4
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
-                NODE_VERSION: '20'
-        image: raweb-8.2/app
+                NODE_VERSION: '24'
+        image: raweb-8.4/app
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
@@ -107,7 +107,7 @@ services:
         networks:
             - raweb
     minio:
-        image: 'minio/minio:latest'
+        image: 'minio/minio:RELEASE.2025-04-08T15-41-24Z' # later versions remove the admin UI
         ports:
             - '${FORWARD_MINIO_PORT:-9000}:9000'
             - '${FORWARD_MINIO_CONSOLE_PORT:-8900}:8900'

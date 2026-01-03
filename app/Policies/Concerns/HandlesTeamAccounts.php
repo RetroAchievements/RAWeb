@@ -41,8 +41,8 @@ trait HandlesTeamAccounts
             return [];
         }
 
-        return User::whereIn('User', $accessibleTeamUsernames)
-            ->pluck('ID')
+        return User::whereIn('username', $accessibleTeamUsernames)
+            ->pluck('id')
             ->toArray();
     }
 

@@ -1,33 +1,21 @@
 <?php
 
-use App\Models\PlayerSession;
 use App\Models\Game;
-use Illuminate\Support\Carbon;
+use App\Models\User;
 ?>
 
 @props([
-    'userMassData' => [],
+    'user' => null, // User
 ])
 
 <?php
-$mostRecentSession = PlayerSession::where('user_id', $userMassData['ID'])
-    ->with('game')
-    ->orderBy('created_at', 'desc')
-    ->first();
+/** @var ?User $user */
+$sessionGame = $user?->rich_presence_game_id
+    ? Game::with('system')->find($user->rich_presence_game_id)
+    : null;
 
-// If there's no session for some reason, try to fall back to the user record.
-$sessionGame = $mostRecentSession?->game;
-if (!$mostRecentSession) {
-    $sessionGame = Game::with('system')->find($userMassData['LastGame']['ID']);
-}
-
-$mostRecentRichPresenceMessage = (
-    $mostRecentSession?->rich_presence
-    ?? $userMassData['RichPresenceMsg']
-    ?? null
-);
-
-$parsedDate = Carbon::parse($mostRecentSession?->rich_presence_updated_at);
+$richPresenceMessage = $user?->rich_presence;
+$richPresenceDate = $user?->rich_presence_updated_at;
 ?>
 
 @if ($sessionGame)
@@ -36,9 +24,9 @@ $parsedDate = Carbon::parse($mostRecentSession?->rich_presence_updated_at);
             <p role="heading" aria-level="2" class="text-2xs font-bold">
                 Most Recently Played
 
-                @if ($mostRecentSession?->rich_presence_updated_at)
-                    <p class="smalldate min-w-auto cursor-help" title="{{ $parsedDate->format('F j Y, g:ia') }}">
-                        {{ $parsedDate->diffForHumans() }}
+                @if ($richPresenceDate)
+                    <p class="smalldate min-w-auto cursor-help" title="{{ $richPresenceDate->format('F j Y, g:ia') }}">
+                        {{ $richPresenceDate->diffForHumans() }}
                     </p>
                 @endif
             </p>
@@ -46,20 +34,20 @@ $parsedDate = Carbon::parse($mostRecentSession?->rich_presence_updated_at);
 
         <div class="w-full p-2 bg-embed flex flex-col gap-y-2 rounded">
             <x-game.multiline-avatar
-                :gameId="$sessionGame->ID"
-                :gameTitle="$sessionGame->Title"
-                :gameImageIcon="$sessionGame->ImageIcon"
-                :consoleId="$sessionGame->system->ID"
-                :consoleName="$sessionGame->system->Name"
+                :gameId="$sessionGame->id"
+                :gameTitle="$sessionGame->title"
+                :gameImageIcon="$sessionGame->image_icon_asset_path"
+                :consoleId="$sessionGame->system->id"
+                :consoleName="$sessionGame->system->name"
             />
 
             @if (
-                $mostRecentRichPresenceMessage
-                && $mostRecentRichPresenceMessage !== 'Unknown'
-                && $mostRecentRichPresenceMessage !== 'Playing ' . $sessionGame->Title
+                $richPresenceMessage
+                && $richPresenceMessage !== 'Unknown'
+                && $richPresenceMessage !== 'Playing ' . $sessionGame->title
             )
                 <p class="text-2xs" style="word-break: break-word;">
-                    {{ $mostRecentRichPresenceMessage }}
+                    {{ $richPresenceMessage }}
                 </p>
             @endif
         </div>

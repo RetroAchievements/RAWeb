@@ -25,7 +25,7 @@ Hello {{ $toUserDisplayName }}!
 
 {{ $activityCommenterDisplayName }} has commented on {{ $activityDescription }}.
 
-@if ($articleType === \App\Community\Enums\ArticleType::AchievementTicket && isset($ticketable) && isset($game))
+@if ($commentableType === \App\Community\Enums\CommentableType::AchievementTicket && isset($ticketable) && isset($game))
 @php
     $ticketableType = $ticketable instanceof \App\Models\Achievement ? 'achievement' : 'leaderboard';
 @endphp
@@ -42,7 +42,7 @@ Hello {{ $toUserDisplayName }}!
 @endif
 
 <x-mail::button :url="$url">
-@if ($articleType === \App\Community\Enums\ArticleType::Forum)
+@if ($commentableType === \App\Community\Enums\CommentableType::Forum)
 View post
 @else
 View comment

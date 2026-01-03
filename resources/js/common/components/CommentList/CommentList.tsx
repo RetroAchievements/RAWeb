@@ -1,8 +1,6 @@
 import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { ArticleType } from '@/common/utils/generatedAppConstants';
-
 import { usePageProps } from '../../hooks/usePageProps';
 import { SignInMessage } from '../SignInMessage';
 import { CommentInput } from './CommentInput';
@@ -14,7 +12,7 @@ interface CommentListProps {
   /** Can the currently-authenticated user write a comment on this wall? */
   canComment: boolean;
   commentableId: number;
-  commentableType: keyof typeof ArticleType;
+  commentableType: App.Community.Enums.CommentableType;
   comments: App.Community.Data.Comment[];
 
   onDeleteSuccess?: () => void;

@@ -43,14 +43,26 @@ class GenerateAnnualRecap extends Command
             $december = Carbon::create($year, 12, 1, 0, 0, 0);
             $september = Carbon::create($year, 9, 1, 0, 0, 0);
 
-            $users = User::where('LastLogin', '>=', $december)
-                ->where('Created', '<', $september)
-                ->orderByDesc('LastLogin')
-                ->pluck('ID');
+            $users = User::where('last_activity_at', '>=', $december)
+                ->where('created_at', '<', $september)
+                ->whereNotNull('email_verified_at')
+                ->whereNull('banned_at')
+                ->orderByDesc('last_activity_at')
+                ->pluck('id');
+
+            $userCount = $users->count();
+            $this->info("Queueing {$userCount} annual recap emails.");
+
+            $progressBar = $this->output->createProgressBar($userCount);
+            $progressBar->start();
 
             foreach ($users as $userId) {
-                GenerateAnnualRecapJob::dispatch($userId)->onQueue('player-metrics');
+                GenerateAnnualRecapJob::dispatch($userId)->onQueue('summary-emails');
+                $progressBar->advance();
             }
+
+            $progressBar->finish();
+            $this->newLine();
         }
     }
 }

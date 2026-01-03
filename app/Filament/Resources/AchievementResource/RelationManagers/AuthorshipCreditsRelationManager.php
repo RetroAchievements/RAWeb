@@ -9,8 +9,9 @@ use App\Models\Achievement;
 use App\Models\AchievementAuthor;
 use App\Models\User;
 use App\Platform\Enums\AchievementAuthorTask;
-use Filament\Forms\Form;
+use Filament\Actions;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -19,13 +20,12 @@ use Illuminate\Support\Facades\Auth;
 class AuthorshipCreditsRelationManager extends RelationManager
 {
     protected static string $relationship = 'authorshipCredits';
-
     protected static ?string $title = 'Credits';
 
-    public function form(Form $form): Form
+    public function form(Schemas\Schema $schema): Schemas\Schema
     {
-        return $form
-            ->schema(AchievementAuthorshipCreditFormSchema::getSchema());
+        return $schema
+            ->components(AchievementAuthorshipCreditFormSchema::getSchema());
     }
 
     public function table(Table $table): Table
@@ -62,7 +62,7 @@ class AuthorshipCreditsRelationManager extends RelationManager
 
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                Actions\CreateAction::make()
                     ->label('Add contribution credit')
                     ->modalHeading('Add contribution credit')
                     ->using(function (array $data, string $model): Model {
@@ -109,25 +109,25 @@ class AuthorshipCreditsRelationManager extends RelationManager
                                 if ($task === AchievementAuthorTask::Artwork->value) {
                                     $firstBadgeComment = $achievement->legacyComments()
                                         ->automated()
-                                        ->where('Payload', 'LIKE', "{$developer->display_name}%")
-                                        ->where('Payload', 'LIKE', "%badge%")
+                                        ->where('body', 'LIKE', "{$developer->display_name}%")
+                                        ->where('body', 'LIKE', "%badge%")
                                         ->first();
 
                                     if ($firstBadgeComment) {
-                                        $backdate = $firstBadgeComment->Submitted;
+                                        $backdate = $firstBadgeComment->created_at;
                                     }
                                 } elseif ($task === AchievementAuthorTask::Writing->value) {
                                     $firstWritingComment = $achievement->legacyComments()
                                         ->automated()
-                                        ->where('Payload', 'LIKE', "{$developer->display_name}%")
+                                        ->where('body', 'LIKE', "{$developer->display_name}%")
                                         ->where(function ($query) {
-                                            $query->where('Payload', 'LIKE', "%title%")
-                                                ->orWhere('Payload', 'LIKE', "%description%");
+                                            $query->where('body', 'LIKE', "%title%")
+                                                ->orWhere('body', 'LIKE', "%description%");
                                         })
                                         ->first();
 
                                     if ($firstWritingComment) {
-                                        $backdate = $firstWritingComment->Submitted;
+                                        $backdate = $firstWritingComment->created_at;
                                     }
                                 }
 
@@ -138,7 +138,7 @@ class AuthorshipCreditsRelationManager extends RelationManager
                                         'task' => $task,
                                     ],
                                     [
-                                        'created_at' => $backdate ?? $achievement->DateCreated,
+                                        'created_at' => $backdate ?? $achievement->created_at,
                                     ]
                                 );
                             }
@@ -157,21 +157,21 @@ class AuthorshipCreditsRelationManager extends RelationManager
                     })
                     ->visible(fn () => $canCreate),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                Actions\EditAction::make()
                     ->modalHeading('Edit contribution credit')
                     ->visible(fn () => $canUpdate),
 
-                Tables\Actions\DeleteAction::make()
+                Actions\DeleteAction::make()
                     ->modalHeading('Delete contribution credit')
                     ->visible(fn (AchievementAuthor $record) => $user->can('delete', $record)
                         && !($earliestLogicCredit && $earliestLogicCredit->id === $record->id)
                     ),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->before(function (Tables\Actions\DeleteBulkAction $action, $records) use ($earliestLogicCredit) {
+            ->toolbarActions([
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make()
+                        ->before(function (Actions\DeleteBulkAction $action, $records) use ($earliestLogicCredit) {
                             // Filter out the earliest logic credit from deletion.
                             if ($earliestLogicCredit) {
                                 $records = $records->filter(fn ($record) => $record->id !== $earliestLogicCredit->id);

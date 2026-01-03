@@ -4,19 +4,24 @@ declare(strict_types=1);
 
 namespace App\Api;
 
+use App\Api\Controllers\CatchAllController;
+use App\Api\Controllers\HealthController;
 use App\Api\Internal\Controllers\AchievementController;
-use App\Api\Internal\Controllers\HealthController;
 use App\Api\Middleware\AddContentLengthHeader;
 use App\Api\Middleware\LogApiRequest;
 use App\Api\Middleware\LogLegacyApiUsage;
 use App\Api\Middleware\ServiceAccountOnly;
 use App\Api\V1\Controllers\WebApiV1Controller;
-use App\Api\V2\Controllers\WebApiController;
+use App\Api\V2\Controllers\AchievementSetController;
+use App\Api\V2\Controllers\GameController;
+use App\Api\V2\Controllers\SystemController;
+use App\Api\V2\Controllers\UserController;
 use App\Http\Concerns\HandlesPublicFileRequests;
 use App\Models\Achievement;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 use LaravelJsonApi\Core\Exceptions\JsonApiException;
+use LaravelJsonApi\Laravel\Facades\JsonApiRoute;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -57,7 +62,7 @@ class RouteServiceProvider extends ServiceProvider
     private function apiRoutes(): void
     {
         /**
-         * JSON-API (REST)
+         * JSON:API (REST)
          * Served from api subdomain in production to be replaceable eventually
          */
         Route::domain($this->apiDomain())
@@ -71,21 +76,46 @@ class RouteServiceProvider extends ServiceProvider
                     });
                 });
 
-                // TODO JSON:API
                 Route::prefix('v2')->group(function () {
                     /**
-                     * list the available connect servers for clients
+                     * API token authenticated endpoints (header-based).
+                     * Logs all requests to track V2 API usage.
                      */
-                    Route::get('connect', [WebApiController::class, 'connectServers']);
+                    $rateLimit = config('api.v2.rate_limit.requests', 60) . ',' . config('api.v2.rate_limit.minutes', 1);
 
-                    /**
-                     * Passport guarded
-                     * Note: To have connected clients have access to the web api, too, the client has to send
-                     * auth to both. This is not granted inherently here.
-                     */
-                    Route::middleware(['auth:passport'])->group(function () {
-                        Route::get('users', [WebApiController::class, 'users']);
+                    Route::middleware([
+                        LogApiRequest::class . ':v2',
+                        'auth:api-token-header,oauth',
+                        AddContentLengthHeader::class,
+                        'throttle:' . $rateLimit,
+                    ])->group(function () {
+                        Route::get('health', [HealthController::class, 'check'])->name('v2.health');
                     });
+
+                    JsonApiRoute::server('v2')
+                        ->middleware(
+                            LogApiRequest::class . ':v2',
+                            'auth:api-token-header,oauth',
+                            AddContentLengthHeader::class,
+                            'throttle:' . $rateLimit
+                        )
+                        ->resources(function ($server) {
+                            $server->resource('achievement-sets', AchievementSetController::class)
+                                ->only('show')
+                                ->readOnly();
+
+                            $server->resource('games', GameController::class)
+                                ->only('index', 'show')
+                                ->readOnly();
+
+                            $server->resource('systems', SystemController::class)
+                                ->only('index', 'show')
+                                ->readOnly();
+
+                            $server->resource('users', UserController::class)
+                                ->only('index', 'show')
+                                ->readOnly();
+                        });
                 });
 
                 /**
@@ -94,7 +124,7 @@ class RouteServiceProvider extends ServiceProvider
                  * This is not intended for regular users to access.
                  */
                 Route::prefix('internal')->group(function () {
-                    $rateLimit = config('internal-api.rate_limit.requests', 60) . ',' . config('internal-api.rate_limit.minutes', 1);
+                    $rateLimit = config('api.internal.rate_limit.requests', 60) . ',' . config('api.internal.rate_limit.minutes', 1);
 
                     Route::middleware([
                         LogApiRequest::class . ':internal',
@@ -104,9 +134,9 @@ class RouteServiceProvider extends ServiceProvider
                         'throttle:' . $rateLimit,
                     ])->group(function () {
                         Route::patch('achievements/{achievement}', [AchievementController::class, 'update'])
-                            ->name('api.internal.achievements.update');
+                            ->name('internal.achievements.update');
 
-                        Route::get('health', [HealthController::class, 'check'])->name('api.internal.health');
+                        Route::get('health', [HealthController::class, 'check'])->name('internal.health');
 
                         // Add more internal service routes here as needed.
                     });
@@ -115,7 +145,7 @@ class RouteServiceProvider extends ServiceProvider
                 /**
                  * Make sure to register a catch-all, too, to prevent the web app from ever responding
                  */
-                Route::any('/{path?}', [WebApiController::class, 'noop'])->where('path', '(.*)');
+                Route::any('/{path?}', [CatchAllController::class, 'handle'])->where('path', '(.*)');
 
             });
     }
@@ -124,7 +154,7 @@ class RouteServiceProvider extends ServiceProvider
     {
         /**
          * Backwards compatibility for "web" api clients.
-         * Only a subset of endpoints that the JSON-API (REST) has.
+         * Only a subset of endpoints that the JSON:API (REST) has.
          * Prefix is always set for those as that's how it used to be.
          * Casing should be handled by web server (API vs api).
          * Always has to be authenticated with an api token.
@@ -139,7 +169,7 @@ class RouteServiceProvider extends ServiceProvider
             /**
              * Nothing to do on root level
              */
-            Route::any('/', [WebApiController::class, 'noop']);
+            Route::any('/', [CatchAllController::class, 'handle']);
         });
     }
 

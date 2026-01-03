@@ -87,14 +87,18 @@ class HubController extends Controller
         );
 
         // Only allow filtering by systems the hub has games linked for.
-        $filterableSystemIds = $gameSet->games()->distinct()->pluck(DB::raw('GameData.ConsoleID'));
-        $filterableSystemOptions = System::whereIn('ID', $filterableSystemIds)
+        $filterableSystemIds = $gameSet->games()->distinct()->pluck(DB::raw('games.system_id'));
+        $filterableSystemOptions = System::whereIn('id', $filterableSystemIds)
             ->get()
             ->map(fn ($system) => SystemData::fromSystem($system)->include('nameShort'))
             ->values()
             ->all();
 
-        $can = UserPermissionsData::fromUser($user)->include('develop', 'manageGameSets');
+        $can = UserPermissionsData::fromUser($user, gameSet: $gameSet)->include(
+            'develop',
+            'manageGameSets',
+            'updateGameSet',
+        );
 
         $props = new HubPagePropsData(
             hub: GameSetData::from($gameSet)->include(

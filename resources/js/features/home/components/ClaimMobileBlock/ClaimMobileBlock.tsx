@@ -5,9 +5,9 @@ import { route } from 'ziggy-js';
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
 import { GameAvatar } from '@/common/components/GameAvatar';
 import { GameTitle } from '@/common/components/GameTitle';
+import { InertiaLink } from '@/common/components/InertiaLink';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import type { AvatarSize } from '@/common/models';
-import { ClaimSetType } from '@/common/utils/generatedAppConstants';
 
 interface ClaimMobileBlockProps {
   claim: App.Data.AchievementSetClaimGroup;
@@ -25,9 +25,13 @@ export const ClaimMobileBlock: FC<ClaimMobileBlockProps> = ({ claim, variant }) 
         <GameAvatar {...game} showLabel={false} size={48} />
 
         <div className="flex w-full flex-col gap-y-0.5">
-          <a href={route('game.show', { game: game.id })} className="cursor-pointer leading-4">
+          <InertiaLink
+            href={route('game.show', { game: game.id })}
+            prefetch="desktop-hover-only"
+            className="cursor-pointer leading-4"
+          >
             <GameTitle title={game.title} />
-          </a>
+          </InertiaLink>
 
           {game.system ? (
             <div
@@ -41,8 +45,8 @@ export const ClaimMobileBlock: FC<ClaimMobileBlockProps> = ({ claim, variant }) 
           <div className="flex justify-between text-xs">
             <UserAvatar {...users[0]} size={14 as AvatarSize} />
             <span className="text-xs tracking-tighter">
-              {claim.setType === ClaimSetType.NewSet && t('New')}
-              {claim.setType === ClaimSetType.Revision && t('Revision')}
+              {claim.setType === 'new_set' && t('New')}
+              {claim.setType === 'revision' && t('Revision')}
               {', '}
               <DiffTimestamp at={variant === 'completed' ? claim.finished : claim.created} />
             </span>

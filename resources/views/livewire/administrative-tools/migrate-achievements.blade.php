@@ -7,7 +7,7 @@ use App\Platform\Actions\MigrateAchievementIdsToDifferentGameIdAction;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Component;
@@ -60,9 +60,9 @@ new class extends Component implements HasForms {
         $this->gameId = null;
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\Textarea::make('achievementIdsCsv')
                     ->label('Achievement IDs (CSV)')
@@ -78,8 +78,8 @@ new class extends Component implements HasForms {
                     ->searchable()
                     ->getSearchResultsUsing(function (string $search): array {
                         return Game::with('system')
-                            ->where('Title', 'like', "%{$search}%")
-                            ->orWhere('ID', 'like', "%{$search}%")
+                            ->where('title', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
                             ->limit(50)
                             ->get()
                             ->mapWithKeys(function ($game) {

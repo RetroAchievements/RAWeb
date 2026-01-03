@@ -95,7 +95,7 @@ class BuildAggregateRecentForumPostsDataAction
                 lftc.id AS CommentID, 
                 lftc.created_at AS PostedAt, 
                 lftc.author_id,
-                ua.User AS Author, 
+                ua.username AS Author, 
                 ua.display_name AS AuthorDisplayName,
                 lftc.body AS ShortMsg,
                 0 AS IsTruncated,
@@ -112,7 +112,7 @@ class BuildAggregateRecentForumPostsDataAction
             ) AS ft
             INNER JOIN forums AS f ON f.id = ft.forum_id
             INNER JOIN forum_topic_comments AS lftc ON lftc.id = ft.latest_comment_id AND lftc.is_authorized = 1
-            LEFT JOIN UserAccounts AS ua ON ua.ID = lftc.author_id
+            LEFT JOIN users AS ua ON ua.id = lftc.author_id
             LEFT JOIN (
                 SELECT forum_topic_id, MIN(id) AS CommentID, COUNT(*) AS Count
                 FROM forum_topic_comments

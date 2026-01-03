@@ -6,11 +6,9 @@ namespace App\Filament\Resources\AchievementSetResource\RelationManagers;
 
 use App\Models\Achievement;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
-use Filament\Tables\Filters;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -56,42 +54,38 @@ class AchievementsRelationManager extends RelationManager
                         AchievementType::WinCondition => 'success',
                         default => '',
                     })
-                    ->badge(),
+                    ->badge()
+                    ->wrap(),
 
                 Tables\Columns\TextColumn::make('points')
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('DateCreated')
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Date Created')
                     ->date()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('DateModified')
+                Tables\Columns\TextColumn::make('modified_at')
+                    ->label('Date Modified')
                     ->date()
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('DisplayOrder')
+                Tables\Columns\TextColumn::make('order_column')
+                    ->label('Display Order')
                     ->toggleable(),
             ])
             ->filters([
-                Filters\SelectFilter::make('Flags')
-                    ->options([
-                        0 => 'All',
-                        AchievementFlag::OfficialCore->value => AchievementFlag::OfficialCore->label(),
-                        AchievementFlag::Unofficial->value => AchievementFlag::Unofficial->label(),
-                    ])
-                    ->default(AchievementFlag::OfficialCore->value)
-                    ->selectablePlaceholder(false)
+                Tables\Filters\TernaryFilter::make('is_promoted')
+                    ->label('Promoted Status')
                     ->placeholder('All')
-                    ->query(function (array $data, Builder $query) {
-                        if ((bool) $data['value']) {
-                            $query->where('Flags', $data['value']);
-                        }
-                    }),
+                    ->trueLabel('Promoted')
+                    ->falseLabel('Unpromoted')
+                    ->default(true),
             ])
             ->headerActions([
 
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ])
             ->recordUrl(function (Achievement $record) use ($user): string {
@@ -105,8 +99,8 @@ class AchievementsRelationManager extends RelationManager
             ->defaultPaginationPageOption(50)
             ->defaultSort(function (Builder $query): Builder {
                 return $query
-                    ->orderBy('DisplayOrder')
-                    ->orderBy('DateCreated', 'asc');
+                    ->orderBy('achievements.order_column')
+                    ->orderBy('achievements.created_at', 'asc');
             })
             ->checkIfRecordIsSelectableUsing(
                 fn (Model $record): bool => $user->can('update', $record->loadMissing('game')),

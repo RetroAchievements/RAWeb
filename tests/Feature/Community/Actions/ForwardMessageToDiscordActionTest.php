@@ -50,8 +50,8 @@ class ForwardMessageToDiscordActionTest extends TestCase
         $this->action = new ForwardMessageToDiscordAction($mockClient);
 
         // Create test users and thread.
-        $this->sender = User::factory()->create(['User' => 'TestSender']);
-        $this->recipient = User::factory()->create(['User' => 'TestRecipient']);
+        $this->sender = User::factory()->create(['username' => 'TestSender']);
+        $this->recipient = User::factory()->create(['username' => 'TestRecipient']);
         $this->thread = MessageThread::factory()->create(['title' => 'Test Thread']);
     }
 
@@ -74,7 +74,7 @@ class ForwardMessageToDiscordActionTest extends TestCase
         MessageThread $thread,
     ): UserModerationReport {
         $reportedItem = $reportableType->getReportedItem($reportableId);
-        $reportedUserId = $reportedItem?->user_id ?? $reportedItem?->author_id ?? $reportedItem?->ID ?? null;
+        $reportedUserId = $reportedItem?->user_id ?? $reportedItem?->author_id ?? $reportedItem?->id ?? null;
 
         return UserModerationReport::create([
             'reporter_user_id' => $reporter->id,
@@ -564,8 +564,8 @@ class ForwardMessageToDiscordActionTest extends TestCase
     public function testItForwardsTeamAccountRepliesToExistingDiscordThread(): void
     {
         // Arrange
-        $teamAccount = User::factory()->create(['User' => 'QATeam']);
-        $regularUser = User::factory()->create(['User' => 'JohnDoe']);
+        $teamAccount = User::factory()->create(['username' => 'QATeam']);
+        $regularUser = User::factory()->create(['username' => 'JohnDoe']);
 
         $this->setDiscordConfig($teamAccount, isForum: true);
 
@@ -602,8 +602,8 @@ class ForwardMessageToDiscordActionTest extends TestCase
     public function testItHandlesLongTeamAccountReplies(): void
     {
         // Arrange
-        $teamAccount = User::factory()->create(['User' => 'QATeam']);
-        $regularUser = User::factory()->create(['User' => 'JohnDoe']);
+        $teamAccount = User::factory()->create(['username' => 'QATeam']);
+        $regularUser = User::factory()->create(['username' => 'JohnDoe']);
 
         $this->setDiscordConfig($teamAccount, isForum: true);
 
@@ -683,6 +683,71 @@ class ForwardMessageToDiscordActionTest extends TestCase
 
         $request = $this->webhookHistory[0]['request'];
         $this->assertEquals('https://discord.com/api/webhooks/reports/xyz?wait=true', (string) $request->getUri());
+    }
+
+    public function testItAppliesOpenTagToNewReportThreads(): void
+    {
+        // Arrange
+        $this->setDiscordConfig(
+            $this->recipient,
+            reportsUrl: 'https://discord.com/api/webhooks/reports/tags',
+            isForum: true
+        );
+        $this->thread->title = 'Report: Forum Post by TestUser';
+        $this->thread->save();
+
+        $reportedComment = ForumTopicComment::factory()->create([
+            'body' => 'This is the reported content',
+            'author_id' => $this->sender->id,
+        ]);
+        $reportedComment->load('forumTopic');
+
+        $message = $this->createMessage('This post violates the rules');
+        $this->queueDiscordResponses(1, ['channel_id' => 'report_thread_123']);
+
+        $report = $this->createModerationReport(
+            $this->sender,
+            ModerationReportableType::ForumTopicComment,
+            $reportedComment->id,
+            $this->thread
+        );
+
+        // Act
+        $this->action->execute(
+            $this->sender,
+            $this->recipient,
+            $this->thread,
+            $message,
+            $report->id
+        );
+
+        // Assert
+        $payload = $this->getLastWebhookPayload();
+        $this->assertArrayHasKey('applied_tags', $payload);
+
+        $correctTagId = '1442949578629578882'; // see ForwardMessageToDiscordAction
+        $this->assertContains($correctTagId, $payload['applied_tags']);
+    }
+
+    public function testItDoesNotApplyOpenTagToNonReportMessages(): void
+    {
+        // Arrange
+        $this->setDiscordConfig($this->recipient, isForum: true);
+        $message = $this->createMessage('Regular message to some forum');
+        $this->queueDiscordResponses(1);
+
+        // Act
+        $this->action->execute(
+            $this->sender,
+            $this->recipient,
+            $this->thread,
+            $message,
+            null
+        );
+
+        // Assert
+        $payload = $this->getLastWebhookPayload();
+        $this->assertArrayNotHasKey('applied_tags', $payload);
     }
 
     public function testItDeduplicatesReportsOfTheSameItem(): void
@@ -970,7 +1035,7 @@ class ForwardMessageToDiscordActionTest extends TestCase
     {
         // Arrange
         // ... team account has reports_url but url is empty ...
-        $teamAccount = User::factory()->create(['User' => 'TestTeam']);
+        $teamAccount = User::factory()->create(['username' => 'TestTeam']);
         $this->setDiscordConfig(
             $teamAccount,
             webhookUrl: '', // !! empty, not null
@@ -1071,5 +1136,62 @@ class ForwardMessageToDiscordActionTest extends TestCase
         $queryParams = [];
         parse_str($request->getUri()->getQuery(), $queryParams);
         $this->assertEquals('existing_thread_456', $queryParams['thread_id']); // found thread via message_thread_id
+    }
+
+    public function testItUsesReportsUrlWhenTeamRepliesEvenWhenUrlIsConfigured(): void
+    {
+        // Arrange
+        // ... team account has both url AND reports_url configured ...
+        $teamAccount = User::factory()->create(['username' => 'RAdmin']);
+        $this->setDiscordConfig(
+            $teamAccount,
+            webhookUrl: 'https://discord.com/api/webhooks/inbox/general',
+            isForum: true,
+            reportsUrl: 'https://discord.com/api/webhooks/reports/moderation'
+        );
+
+        // ... user reports something to the team account ...
+        $reportedComment = ForumTopicComment::factory()->create([
+            'body' => 'Spam content',
+            'author_id' => $this->sender->id,
+        ]);
+        $reportedComment->load('forumTopic');
+
+        $reportThread = MessageThread::factory()->create(['title' => 'Report: Spam']);
+        $reportMessage = Message::factory()->create([
+            'thread_id' => $reportThread->id,
+            'author_id' => $this->sender->id,
+            'body' => 'This is spam',
+        ]);
+        $this->queueDiscordResponses(1, ['channel_id' => 'report_thread_abc']);
+
+        $report = $this->createModerationReport(
+            $this->sender,
+            ModerationReportableType::ForumTopicComment,
+            $reportedComment->id,
+            $reportThread
+        );
+
+        $this->action->execute($this->sender, $teamAccount, $reportThread, $reportMessage, $report->id);
+
+        // ... team account replies to the report ...
+        $this->webhookHistory = [];
+        $replyMessage = Message::factory()->create([
+            'thread_id' => $reportThread->id,
+            'author_id' => $teamAccount->id,
+            'body' => 'We are looking into this',
+        ]);
+        $this->queueDiscordResponses(1);
+
+        // Act
+        // ... team replies, userFrom=team, userTo=reporter ...
+        $this->action->execute($teamAccount, $this->sender, $reportThread, $replyMessage);
+
+        // Assert
+        // ... the reply should use reports_url, NOT the general inbox url ...
+        $this->assertCount(1, $this->webhookHistory);
+        $request = $this->webhookHistory[0]['request'];
+        $this->assertStringContainsString('/webhooks/reports/moderation', $request->getUri()->getPath());
+        $this->assertStringContainsString('thread_id=report_thread_abc', $request->getUri()->getQuery());
     }
 }

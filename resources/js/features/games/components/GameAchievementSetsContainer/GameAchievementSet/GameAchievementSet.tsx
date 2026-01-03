@@ -2,12 +2,16 @@ import { useAtomValue } from 'jotai';
 import { AnimatePresence } from 'motion/react';
 import * as motion from 'motion/react-m';
 import { type FC, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
+import { BaseSeparator } from '@/common/components/+vendor/BaseSeparator';
 import { AchievementsListItem } from '@/common/components/AchievementsListItem';
+import { useIsHydrated } from '@/common/hooks/useIsHydrated';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import { sortAchievements } from '@/common/utils/sortAchievements';
 import { sortLeaderboards } from '@/common/utils/sortLeaderboards';
+import { useAchievementGrouping } from '@/features/games/hooks/useAchievementGrouping';
 import {
   currentListViewAtom,
   currentPlayableListSortAtom,
@@ -16,10 +20,12 @@ import {
   userAchievementListChangeCounterAtom,
 } from '@/features/games/state/games.atoms';
 import { filterAchievements } from '@/features/games/utils/filterAchievements';
+import { UNGROUPED_BUCKET_ID } from '@/features/games/utils/UNGROUPED_BUCKET_ID';
 
 import { AchievementSetCredits } from '../../AchievementSetCredits';
 import { BeatenCreditDialog } from '../../BeatenCreditDialog';
 import { LeaderboardsListItem } from '../../LeaderboardsListItem';
+import { AchievementGroupSection } from './AchievementGroupSection';
 import { GameAchievementSetHeader } from './GameAchievementSetHeader';
 import { GameAchievementSetProgress } from './GameAchievementSetProgress';
 import { GameAchievementSetToolbar } from './GameAchievementSetToolbar';
@@ -35,6 +41,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
 }) => {
   const { allLeaderboards, auth, isViewingPublishedAchievements, numLeaderboards } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { t } = useTranslation();
 
   const currentAchievementSort = useAtomValue(currentPlayableListSortAtom);
   const currentListView = useAtomValue(currentListViewAtom);
@@ -75,6 +82,46 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
 
   const isLargeAchievementsList = sortedAchievements.length > 50;
   const isLargeLeaderboardsList = numLeaderboards > 50;
+
+  /**
+   * Limit SSR to the first 20 achievements, and then show all when hydration kicks in.
+   * This dramatically reduces the amount of HTML that needs to be sent through Node.js
+   * and ultimately reconciled.
+   */
+  const isHydrated = useIsHydrated();
+  const achievementsToRender = isHydrated
+    ? filteredAndSortedAchievements
+    : filteredAndSortedAchievements.slice(0, 20);
+
+  const { achievementGroups, bucketedAchievements, hasGroups, ungroupedAchievementCount } =
+    useAchievementGrouping({
+      allAchievements: achievements,
+      ssrLimitedAchievements: achievementsToRender,
+      rawAchievementGroups: gameAchievementSet.achievementSet.achievementGroups,
+    });
+
+  /**
+   * It's also important to reserve space for the remaining achievements that aren't
+   * rendered yet during SSR so the height of the achievement list itself doesn't change
+   * during hydration. If the height changes, we get a layout shift, which adversely
+   * affects our Core Web Vitals.
+   */
+  const remainingAchievementsCount =
+    filteredAndSortedAchievements.length - achievementsToRender.length;
+
+  const visibleLeaderboards = sortedLeaderboards.filter(
+    (leaderboard) =>
+      leaderboard.state === 'active' ||
+      (!isViewingPublishedAchievements && leaderboard.state === 'unpublished'),
+  );
+  const disabledLeaderboards = sortedLeaderboards.filter(
+    (leaderboard) => leaderboard.state === 'disabled',
+  );
+
+  const leaderboardHasMultipleSections =
+    visibleLeaderboards.length > 0 &&
+    disabledLeaderboards.length > 0 &&
+    isViewingPublishedAchievements;
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -120,23 +167,99 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
           >
             {currentListView === 'achievements' ? (
               <>
-                {filteredAndSortedAchievements.map((achievement, index) => (
-                  <AchievementsListItem
-                    key={`ach-${achievement.id}`}
-                    achievement={achievement}
-                    beatenDialogContent={<BeatenCreditDialog />}
-                    index={index}
-                    isLargeList={isLargeAchievementsList}
-                    shouldShowAuthor={!isViewingPublishedAchievements}
-                    playersTotal={gameAchievementSet.achievementSet.playersTotal}
-                  />
-                ))}
+                {hasGroups && bucketedAchievements ? (
+                  <>
+                    {achievementGroups.map((group) => {
+                      const groupAchievements = bucketedAchievements[group.id];
+                      if (groupAchievements.length === 0 && group.achievementCount === 0) {
+                        return null;
+                      }
+
+                      return (
+                        <AchievementGroupSection
+                          key={`group-${group.id}`}
+                          achievementCount={group.achievementCount}
+                          iconUrl={group.badgeUrl ?? undefined}
+                          isInitiallyOpened={true}
+                          title={group.label}
+                        >
+                          {groupAchievements.map((achievement, index) => (
+                            <AchievementsListItem
+                              key={`ach-${achievement.id}`}
+                              achievement={achievement}
+                              beatenDialogContent={<BeatenCreditDialog />}
+                              index={index}
+                              isLargeList={isLargeAchievementsList}
+                              shouldShowAuthor={!isViewingPublishedAchievements}
+                              playersTotal={gameAchievementSet.achievementSet.playersTotal}
+                            />
+                          ))}
+                        </AchievementGroupSection>
+                      );
+                    })}
+
+                    {/* Render ungrouped achievements at the end if any exist. */}
+                    {ungroupedAchievementCount > 0 ? (
+                      <AchievementGroupSection
+                        achievementCount={ungroupedAchievementCount}
+                        iconUrl={gameAchievementSet.achievementSet.ungroupedBadgeUrl ?? undefined}
+                        isInitiallyOpened={true}
+                        title={t('otherAchievements')}
+                      >
+                        {bucketedAchievements[UNGROUPED_BUCKET_ID]?.map((achievement, index) => (
+                          <AchievementsListItem
+                            key={`ach-${achievement.id}`}
+                            achievement={achievement}
+                            beatenDialogContent={<BeatenCreditDialog />}
+                            index={index}
+                            isLargeList={isLargeAchievementsList}
+                            shouldShowAuthor={!isViewingPublishedAchievements}
+                            playersTotal={gameAchievementSet.achievementSet.playersTotal}
+                          />
+                        ))}
+                      </AchievementGroupSection>
+                    ) : null}
+
+                    {/* This placeholder reserves space during SSR to prevent a layout shift. */}
+                    {!isHydrated && remainingAchievementsCount > 0 ? (
+                      <li
+                        aria-hidden="true"
+                        style={{ height: remainingAchievementsCount * 96 - 10 }}
+                        data-testid="invisible-placeholder"
+                      />
+                    ) : null}
+                  </>
+                ) : (
+                  <>
+                    {achievementsToRender.map((achievement, index) => (
+                      <AchievementsListItem
+                        key={`ach-${achievement.id}`}
+                        achievement={achievement}
+                        beatenDialogContent={<BeatenCreditDialog />}
+                        index={index}
+                        isLargeList={isLargeAchievementsList}
+                        shouldShowAuthor={!isViewingPublishedAchievements}
+                        playersTotal={gameAchievementSet.achievementSet.playersTotal}
+                      />
+                    ))}
+
+                    {/* This placeholder reserves space during SSR to prevent a layout shift. */}
+                    {!isHydrated && remainingAchievementsCount > 0 ? (
+                      <li
+                        aria-hidden="true"
+                        style={{ height: remainingAchievementsCount * 96 - 10 }}
+                        data-testid="invisible-placeholder"
+                      />
+                    ) : null}
+                  </>
+                )}
               </>
             ) : null}
 
             {currentListView === 'leaderboards' ? (
               <>
-                {sortedLeaderboards.map((leaderboard, index) => (
+                {/* Active/Unpublished Leaderboards */}
+                {visibleLeaderboards.map((leaderboard, index) => (
                   <LeaderboardsListItem
                     key={`lbd-${leaderboard.id}`}
                     index={index}
@@ -144,6 +267,32 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
                     leaderboard={leaderboard}
                   />
                 ))}
+
+                {/* Separator */}
+                {leaderboardHasMultipleSections ? (
+                  <motion.li
+                    className="my-4"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: visibleLeaderboards.length * 0.015 }}
+                  >
+                    <BaseSeparator data-testid="disabled-separator" />
+                  </motion.li>
+                ) : null}
+
+                {/* Disabled Leaderboards */}
+                {isViewingPublishedAchievements ? (
+                  <>
+                    {disabledLeaderboards.map((leaderboard, index) => (
+                      <LeaderboardsListItem
+                        key={`lbd-${leaderboard.id}`}
+                        index={visibleLeaderboards.length + index}
+                        isLargeList={isLargeLeaderboardsList}
+                        leaderboard={leaderboard}
+                      />
+                    ))}
+                  </>
+                ) : null}
               </>
             ) : null}
           </motion.ul>

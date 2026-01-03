@@ -43,7 +43,7 @@ class RandomGameStrategy implements GameSuggestionStrategy
         // and randomly pick one of the values.
 
         $baseQuery = Game::whereHasPublishedAchievements()
-            ->whereNotIn('ConsoleID', System::getNonGameSystems());
+            ->whereNotIn('system_id', System::getNonGameSystems());
 
         $totalCount = $baseQuery->count();
 
@@ -53,17 +53,17 @@ class RandomGameStrategy implements GameSuggestionStrategy
 
         $randomOffset = random_int(0, $totalCount - 1);
 
-        return $baseQuery->select('ID')
+        return $baseQuery->select('id')
             ->skip($randomOffset)
-            ->value('ID');
+            ->value('id');
     }
 
     private function selectRandomGameSQLite(): ?int
     {
         // SQLite unfortunately does not support RAND().
         return Game::whereHasPublishedAchievements()
-            ->select('ID')
+            ->select('id')
             ->orderByRaw('RANDOM()')
-            ->value('ID');
+            ->value('id');
     }
 }

@@ -19,7 +19,7 @@ export const LeaderboardCommentsMainRoot: FC = memo(() => {
     useCommentPagination({
       paginatedComments,
       entityId: leaderboard.id,
-      entityType: 'Leaderboard',
+      commentableType: 'leaderboard.comment',
       routeName: 'leaderboard.comment.index',
     });
 
@@ -55,7 +55,7 @@ export const LeaderboardCommentsMainRoot: FC = memo(() => {
         canComment={canComment}
         comments={paginatedComments.items}
         commentableId={leaderboard.id}
-        commentableType="Leaderboard"
+        commentableType="leaderboard.comment"
         onDeleteSuccess={handleCommentDeleteSuccess}
         onSubmitSuccess={handleCommentSubmitSuccess}
       />

@@ -11,11 +11,11 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'comment' => 'required|integer|exists:Comment,ID',
+    'comment' => 'required|integer|exists:comments,id',
 ]);
 
 $comment = Comment::findOrFail((int) $input['comment']);
-$user = User::find($userDetails['ID']);
+$user = User::find($userDetails['id']);
 
 if (!$user->can('delete', $comment)) {
     abort(400);

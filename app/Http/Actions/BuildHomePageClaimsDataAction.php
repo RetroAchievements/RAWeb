@@ -15,11 +15,10 @@ class BuildHomePageClaimsDataAction
 {
     /**
      * Get the most recent achievement claims for the home page, grouped by game.
-     * $status corresponds to `ClaimStatus`.
      *
      * @return Collection<int, AchievementSetClaimGroupData>
      */
-    public function execute(int $status, int $count): Collection
+    public function execute(ClaimStatus $status, int $count): Collection
     {
         $claims = $this->fetchClaims($status);
 
@@ -29,19 +28,20 @@ class BuildHomePageClaimsDataAction
     /**
      * @return EloquentCollection<int, AchievementSetClaim>
      */
-    private function fetchClaims(int $status): EloquentCollection
+    private function fetchClaims(ClaimStatus $status): EloquentCollection
     {
         $query = AchievementSetClaim::query()
             ->with(['game.system', 'user'])
-            ->whereIn('ClaimType', [ClaimType::Primary, ClaimType::Collaboration])
-            ->where('Status', $status);
+            ->whereIn('claim_type', [ClaimType::Primary, ClaimType::Collaboration])
+            ->where('status', $status);
 
-        // For completed claims, only show games from valid consoles.
+        // For completed claims, only show games from valid consoles with published achievements.
         if ($status === ClaimStatus::Complete) {
-            $query->whereHas('game.system', fn ($q) => $q->whereIn('ID', getValidConsoleIds()));
+            $query->whereHas('game.system', fn ($q) => $q->whereIn('id', getValidConsoleIds()));
+            $query->whereHas('game', fn ($q) => $q->whereHasPublishedAchievements());
         }
 
-        $orderByField = $status === ClaimStatus::Complete ? 'Finished' : 'Created';
+        $orderByField = $status === ClaimStatus::Complete ? 'finished_at' : 'created_at';
 
         return $query->orderByDesc($orderByField)
             ->limit(20)
@@ -64,7 +64,7 @@ class BuildHomePageClaimsDataAction
                     ->map->first();
 
                 return [
-                    'claim' => $uniqueUserClaims->sortBy('Created')->first(),
+                    'claim' => $uniqueUserClaims->sortBy('created_at')->first(),
                     'users' => $uniqueUserClaims->pluck('user')->all(),
                 ];
             })

@@ -28,13 +28,4 @@ final class CacheKeyTest extends TestCase
 
         $this->assertEquals("user:username:rank:softcore", $cacheKey);
     }
-
-    public function testBuildUserRecentGamesCacheKey(): void
-    {
-        $username = "UserName";
-
-        $cacheKey = CacheKey::buildUserRecentGamesCacheKey($username);
-
-        $this->assertEquals("user:username:recent-games", $cacheKey);
-    }
 }

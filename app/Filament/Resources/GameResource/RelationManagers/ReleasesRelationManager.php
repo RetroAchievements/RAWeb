@@ -11,11 +11,15 @@ use App\Models\User;
 use App\Platform\Actions\FormatGameReleaseDateAction;
 use App\Platform\Enums\GameReleaseRegion;
 use App\Platform\Enums\ReleasedAtGranularity;
+use BackedEnum;
 use Carbon\Carbon;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,18 +33,14 @@ class ReleasesRelationManager extends RelationManager
 
     protected static ?string $recordTitleAttribute = 'title';
 
-    protected static ?string $icon = 'heroicon-c-shopping-bag';
+    protected static string|BackedEnum|null $icon = 'heroicon-c-shopping-bag';
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
         /** @var User $user */
         $user = Auth::user();
 
-        if ($ownerRecord instanceof Game) {
-            return $user->can('manage', $ownerRecord);
-        }
-
-        return false;
+        return $user->can('manage', GameRelease::class);
     }
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
@@ -53,10 +53,10 @@ class ReleasesRelationManager extends RelationManager
         return $count > 0 ? "{$count}" : null;
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Forms\Components\Placeholder::make('guidelines')
                     ->hiddenLabel()
                     ->columnSpan(2)
@@ -108,7 +108,7 @@ class ReleasesRelationManager extends RelationManager
                     ->minDate('1970-01-01')
                     ->maxDate(now())
                     ->displayFormat('F j, Y')
-                    ->reactive()
+                    ->live()
                     ->afterStateUpdated(function (callable $set, $state) {
                         // Set the granularity to 'day' if this is the first time released_at is set.
                         if (!empty($state)) {
@@ -124,7 +124,7 @@ class ReleasesRelationManager extends RelationManager
                         ReleasedAtGranularity::Year->value => 'Year',
                     ])
                     ->inline()
-                    ->reactive()
+                    ->live()
                     ->required(fn (callable $get) => !empty($get('released_at'))),
 
                 Forms\Components\Placeholder::make('released_at_display')
@@ -208,7 +208,7 @@ class ReleasesRelationManager extends RelationManager
 
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                CreateAction::make()
                     ->authorize(function () {
                         /** @var User $user */
                         $user = Auth::user();
@@ -216,7 +216,7 @@ class ReleasesRelationManager extends RelationManager
 
                         return $user->can('create', [GameRelease::class, $game]);
                     })
-                    ->mutateFormDataUsing(function (array $data) {
+                    ->mutateDataUsing(function (array $data) {
                         // If this is marked as canonical, unmark any other canonical titles.
                         if ($data['is_canonical_game_title'] ?? false) {
                             // Find existing canonical titles and remove their canonical status.
@@ -241,7 +241,7 @@ class ReleasesRelationManager extends RelationManager
                         if ($record->is_canonical_game_title) {
                             /** @var Game $game */
                             $game = $this->getOwnerRecord();
-                            $game->Title = $record->title;
+                            $game->title = $record->title;
                             $game->save();
 
                             // Redirect to refresh the page and show the updated title.
@@ -249,9 +249,9 @@ class ReleasesRelationManager extends RelationManager
                         }
                     }),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
-                    ->mutateFormDataUsing(function (array $data, GameRelease $record) {
+            ->recordActions([
+                EditAction::make()
+                    ->mutateDataUsing(function (array $data, GameRelease $record) {
                         // If this is now marked as canonical and wasn't before, unmark any other canonical titles.
                         if (($data['is_canonical_game_title'] ?? false) && !$record->is_canonical_game_title) {
                             // Find existing canonical titles and remove their canonical status.
@@ -277,7 +277,7 @@ class ReleasesRelationManager extends RelationManager
                         if ($record->is_canonical_game_title) {
                             /** @var Game $game */
                             $game = $this->getOwnerRecord();
-                            $game->Title = $record->title;
+                            $game->title = $record->title;
                             $game->save();
 
                             // Redirect to refresh the page and show the updated title.
@@ -285,9 +285,9 @@ class ReleasesRelationManager extends RelationManager
                         }
                     }),
 
-                Tables\Actions\DeleteAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ])
             ->defaultSort('released_at', 'asc');

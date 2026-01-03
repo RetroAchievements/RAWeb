@@ -239,7 +239,7 @@ function UploadAvatar(string $user, string $base64ImageData): void
 
     // touch user entry
     $db = getMysqliConnection();
-    mysqli_query($db, "UPDATE UserAccounts SET Updated=NOW() WHERE User='$user'");
+    mysqli_query($db, "UPDATE users SET updated_at=NOW() WHERE username = '$user'");
 }
 
 function removeAvatar(string $user): void

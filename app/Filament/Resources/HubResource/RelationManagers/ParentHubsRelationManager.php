@@ -11,10 +11,15 @@ use App\Models\User;
 use App\Platform\Actions\AttachGameLinksToGameSetAction;
 use App\Platform\Actions\DetachGameLinksFromGameSetAction;
 use App\Platform\Enums\GameSetType;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +28,7 @@ class ParentHubsRelationManager extends RelationManager
 {
     protected static string $relationship = 'parents';
     protected static ?string $title = 'Related Hubs';
-    protected static ?string $icon = 'fas-sitemap';
+    protected static string|BackedEnum|null $icon = 'fas-sitemap';
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
     {
@@ -63,7 +68,7 @@ class ParentHubsRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('title')
                     ->label('Title')
-                    ->sortable()
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy('sort_title', $direction))
                     ->searchable()
                     ->url(function (GameSet $record) {
                         if (request()->user()->can('manage', GameSet::class)) {
@@ -75,17 +80,17 @@ class ParentHubsRelationManager extends RelationManager
 
             ])
             ->headerActions([
-                Tables\Actions\Action::make('add')
+                Actions\Action::make('add')
                     ->label('Add related hubs')
                     ->visible(fn (): bool => $user->can('update', $gameSet))
-                    ->form([
+                    ->schema([
                         Forms\Components\TextInput::make('hub_ids_csv')
                             ->label('Hub IDs (CSV)')
                             ->placeholder('729,2204,3987,53')
                             ->helperText('Enter hub IDs separated by commas or spaces. URLs are also supported.')
-                            ->hidden(fn (Forms\Get $get): bool => filled($get('hub_ids')))
-                            ->disabled(fn (Forms\Get $get): bool => filled($get('hub_ids')))
-                            ->live(debounce: 200),
+                            ->disabled(fn (Get $get): bool => filled($get('hub_ids')))
+                            ->live(debounce: 200)
+                            ->afterStateUpdated(fn (Set $set) => $set('hub_ids', null)),
 
                         Forms\Components\Select::make('hub_ids')
                             ->label('Hubs')
@@ -109,9 +114,15 @@ class ParentHubsRelationManager extends RelationManager
                                     ->get()
                                     ->mapWithKeys(fn ($gameSet) => [$gameSet->id => "[{$gameSet->id} {$gameSet->title}]"]);
                             })
-                            ->hidden(fn (Forms\Get $get): bool => filled($get('hub_ids_csv')))
-                            ->disabled(fn (Forms\Get $get): bool => filled($get('hub_ids_csv')))
+                            ->getOptionLabelsUsing(function (array $values): array {
+                                return GameSet::whereIn('id', $values)
+                                    ->get()
+                                    ->mapWithKeys(fn ($gameSet) => [$gameSet->id => "[{$gameSet->id} {$gameSet->title}]"])
+                                    ->toArray();
+                            })
+                            ->disabled(fn (Get $get): bool => filled($get('hub_ids_csv')))
                             ->live()
+                            ->afterStateUpdated(fn (Set $set) => $set('hub_ids_csv', null))
                             ->helperText('... or search and select hubs to add.'),
                     ])
                     ->modalHeading('Add related hub links to hub')
@@ -143,8 +154,8 @@ class ParentHubsRelationManager extends RelationManager
                         }
                     }),
             ])
-            ->actions([
-                Tables\Actions\Action::make('remove')
+            ->recordActions([
+                Actions\Action::make('remove')
                     ->visible(function ($record) use ($user, $gameSet) {
                         // You need to be able to update both hubs to
                         // unlink them from each other.
@@ -163,15 +174,15 @@ class ParentHubsRelationManager extends RelationManager
                         (new DetachGameLinksFromGameSetAction())->execute($rootGameSet, [$gameSetToDetach->id]);
                     }),
 
-                Tables\Actions\Action::make('visit')
+                Actions\Action::make('visit')
                     ->tooltip('View on Site')
                     ->icon('heroicon-m-arrow-top-right-on-square')
                     ->iconButton()
                     ->url(fn (GameSet $record): string => route('hub.show', $record))
                     ->openUrlInNewTab(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkAction::make('remove')
+            ->toolbarActions([
+                Actions\BulkAction::make('remove')
                     ->visible(fn (): bool => $user->can('update', $gameSet))
                     ->label('Remove selected')
                     ->modalHeading('Remove selected related hub links from hub')

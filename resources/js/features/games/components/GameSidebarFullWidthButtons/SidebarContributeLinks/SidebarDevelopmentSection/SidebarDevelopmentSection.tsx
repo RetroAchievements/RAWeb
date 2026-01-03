@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuCheck, LuFolder, LuFolderLock, LuPlus, LuWrench } from 'react-icons/lu';
+import { LuCheck, LuFolder, LuFolderLock, LuHistory, LuPlus, LuUserSearch } from 'react-icons/lu';
 import { route } from 'ziggy-js';
 
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
@@ -47,7 +47,7 @@ export const SidebarDevelopmentSection: FC = () => {
       delete queryParams['unpublished'];
     }
 
-    return route('game2.show', { game: game.id, _query: queryParams });
+    return route('game.show', { game: game.id, _query: queryParams });
   };
 
   const handleTogglePublishedAchievementsClick = () => {
@@ -84,7 +84,7 @@ export const SidebarDevelopmentSection: FC = () => {
       {can.manageAchievementSetClaims ? (
         <PlayableSidebarButton
           href={route('game.claims', { game: backingGame.id })}
-          IconComponent={LuWrench}
+          IconComponent={LuHistory}
           showSubsetIndicator={game.id !== backingGame.id}
         >
           {t('View Claim History')}
@@ -96,7 +96,7 @@ export const SidebarDevelopmentSection: FC = () => {
       {can.viewDeveloperInterest ? (
         <PlayableSidebarButton
           href={route('game.dev-interest', { game: backingGame.id })}
-          IconComponent={LuWrench}
+          IconComponent={LuUserSearch}
           showSubsetIndicator={game.id !== backingGame.id}
           count={numInterestedDevelopers ?? undefined}
         >

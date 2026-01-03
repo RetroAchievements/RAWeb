@@ -52,11 +52,11 @@ jobs:
         with:
           version: 10.17
 
-      - name: Use Node 20
+      - name: Use Node 24
         if: ${{ needs.changes.outputs.node == 'true' }}
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
   php-checks:
     needs: changes
@@ -64,7 +64,7 @@ jobs:
     name: PHP Checks
     strategy:
       matrix:
-        check: ['lint', 'analyse', 'test']
+        check: ['lint', 'analyse']
         include:
           - check: lint
             command: composer lint
@@ -73,8 +73,6 @@ jobs:
             env:
               # PHPStan explodes if we're missing an APP_KEY. This is a value pulled from the Laravel docs.
               APP_KEY: 'base64:J63qRTDLub5NuZvP+kb8YIorGS6qFYHKVo6u7179stY='
-          - check: test
-            command: composer paratest -- --processes=$(nproc)
     steps:
       - name: Skip if no PHP changes
         if: ${{ needs.changes.outputs.php != 'true' }}
@@ -92,7 +90,7 @@ jobs:
         if: ${{ needs.changes.outputs.php == 'true' }}
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.2
+          php-version: 8.4
           extensions: mbstring, :psr
           coverage: none
           ini-values: memory_limit=1G
@@ -121,6 +119,66 @@ jobs:
         with:
           path: tmp
           key: phpstan-result-cache-${{ github.run_id }}
+
+  php-tests:
+    needs: changes
+    runs-on: ubuntu-22.04
+    name: PHP Checks (test)
+    strategy:
+      matrix:
+        shardIndex: [1, 2, 3, 4, 5]
+        shardTotal: [5]
+    steps:
+      - name: Skip if no PHP changes
+        if: ${{ needs.changes.outputs.php != 'true' }}
+        run: |
+          echo "No PHP changes detected - skipping tests (shard ${{ matrix.shardIndex }})"
+          exit 0
+
+      - name: Checkout code
+        if: ${{ needs.changes.outputs.php == 'true' }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup PHP
+        if: ${{ needs.changes.outputs.php == 'true' }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          extensions: mbstring, :psr
+          coverage: none
+          ini-values: memory_limit=1G
+
+      - name: Install composer packages
+        if: ${{ needs.changes.outputs.php == 'true' }}
+        run: composer install --prefer-dist
+
+      - name: Generate Passport keys
+        if: ${{ needs.changes.outputs.php == 'true' }}
+        run: php artisan passport:keys --force
+
+      - name: Run tests with sharding
+        if: ${{ needs.changes.outputs.php == 'true' }}
+        run: ./vendor/bin/pest --parallel --shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+
+  merge-php-test-reports:
+    needs: [changes, php-tests]
+    runs-on: ubuntu-22.04
+    name: Merge PHP Test Reports
+    if: ${{ always() }}
+    steps:
+      - name: Check PHP test status
+        run: |
+          if [[ "${{ needs.changes.outputs.php }}" != "true" ]]; then
+            echo "No PHP changes - skipping"
+            exit 0
+          fi
+          if [[ "${{ needs.php-tests.result }}" != "success" ]]; then
+            echo "php-tests failed"
+            exit 1
+          fi
+          echo "All PHP tests passed"
 
   node-checks:
     needs: [changes, node-setup]
@@ -153,15 +211,31 @@ jobs:
         with:
           version: 10.17
 
-      - name: Use Node 20
+      - name: Use Node 24
         if: ${{ needs.changes.outputs.node == 'true' }}
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install dependencies
         if: ${{ needs.changes.outputs.node == 'true' }}
         run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Setup PHP
+        if: ${{ needs.changes.outputs.node == 'true' }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          extensions: mbstring
+          coverage: none
+
+      - name: Install composer packages
+        if: ${{ needs.changes.outputs.node == 'true' }}
+        run: composer install --prefer-dist --no-progress
+
+      - name: Generate Ziggy routes
+        if: ${{ needs.changes.outputs.node == 'true' }}
+        run: php artisan ziggy:generate --types
 
       - name: Run ${{ matrix.check }}
         if: ${{ needs.changes.outputs.node == 'true' }}
@@ -174,8 +248,8 @@ jobs:
     name: Node.js Checks (test)
     strategy:
       matrix:
-        shardIndex: [1, 2, 3, 4, 5]
-        shardTotal: [5]
+        shardIndex: [1, 2, 3, 4, 5, 6, 7]
+        shardTotal: [7]
     steps:
       - name: Skip if no Node changes
         if: ${{ needs.changes.outputs.node != 'true' }}
@@ -195,15 +269,31 @@ jobs:
         with:
           version: 10.17
 
-      - name: Use Node 20
+      - name: Use Node 24
         if: ${{ needs.changes.outputs.node == 'true' }}
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install dependencies
         if: ${{ needs.changes.outputs.node == 'true' }}
         run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Setup PHP
+        if: ${{ needs.changes.outputs.node == 'true' }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          extensions: mbstring
+          coverage: none
+
+      - name: Install composer packages
+        if: ${{ needs.changes.outputs.node == 'true' }}
+        run: composer install --prefer-dist --no-progress
+
+      - name: Generate Ziggy routes
+        if: ${{ needs.changes.outputs.node == 'true' }}
+        run: php artisan ziggy:generate --types
 
       - name: Run tests with sharding
         if: ${{ needs.changes.outputs.node == 'true' }}
@@ -239,10 +329,10 @@ jobs:
         with:
           version: 10.17
 
-      - name: Use Node 20
+      - name: Use Node 24
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline

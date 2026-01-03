@@ -6,7 +6,7 @@ import type { RenderHookOptions as RTLRenderHookOptions } from '@testing-library
 import { render as defaultRender, renderHook as defaultRenderHook } from '@testing-library/react';
 import type { WritableAtom } from 'jotai';
 import type { useHydrateAtoms } from 'jotai/utils';
-import React, { type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 import { AppProviders } from '@/common/components/AppProviders';
 import type { AppGlobalProps } from '@/common/models';
@@ -15,33 +15,6 @@ import i18n from '@/i18n-client';
 import { HydrateAtoms } from './HydrateAtoms';
 
 export * from '@testing-library/react';
-
-vi.mock('@inertiajs/react', async (importOriginal) => {
-  const original = (await importOriginal()) as any;
-
-  return {
-    ...original,
-    __esModule: true,
-
-    Head: ({ children }: { children: ReactNode }) => {
-      // React 19 refuses to render <meta /> or <link /> tags into JSDOM.
-      // We need to convert them to <span /> tags instead if we want to peek
-      // at their attributes.
-      const convertedChildren = React.Children.map(children, (child) => {
-        if (React.isValidElement(child) && (child.type === 'meta' || child.type === 'link')) {
-          // Convert meta to span but keep all the props.
-          return <span {...(child.props as unknown as any)} />;
-        }
-
-        return child;
-      });
-
-      return <div data-testid="head-content">{convertedChildren}</div>;
-    },
-
-    usePage: vi.fn(),
-  };
-});
 
 /**
  * Before reaching for this util, make absolutely sure your problem can't
@@ -93,14 +66,15 @@ export function render<TPageProps = Record<string, unknown>>(
   }: RenderOptions<TPageProps> = {},
 ) {
   vi.spyOn(InertiajsReactModule, 'usePage').mockImplementation(() => ({
+    clearHistory: false,
     component: '',
+    encryptHistory: false,
+    flash: {},
     props: pageProps as any,
     rememberedState: {},
     scrollRegions: vi.fn() as any,
     url: '',
     version: '',
-    clearHistory: false,
-    encryptHistory: false,
   }));
 
   if (!wrapper) {
@@ -145,14 +119,15 @@ export function renderHook<Result, Props = undefined>(
   }: RenderHookOptions<Props> = {},
 ) {
   vi.spyOn(InertiajsReactModule, 'usePage').mockImplementation(() => ({
+    clearHistory: false,
     component: '',
+    encryptHistory: false,
+    flash: {},
     props: pageProps as any,
     rememberedState: {},
     scrollRegions: vi.fn() as any,
     url: url ?? '',
     version: '',
-    clearHistory: false,
-    encryptHistory: false,
   }));
 
   if (!wrapper) {

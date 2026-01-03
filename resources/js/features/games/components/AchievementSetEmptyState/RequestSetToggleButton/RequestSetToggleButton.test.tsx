@@ -96,7 +96,7 @@ describe('Component: RequestSetToggleButton', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button')).not.toBePressed();
   });
 
   it('given the set is requested, renders the button with a pressed state', () => {
@@ -110,7 +110,7 @@ describe('Component: RequestSetToggleButton', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button')).toBePressed();
   });
 
   it('given the user is not authenticated and clicks the button, redirects to login', async () => {
@@ -199,7 +199,7 @@ describe('Component: RequestSetToggleButton', () => {
 
     const button = screen.getByRole('button');
     await waitFor(() => {
-      expect(button).toHaveAttribute('aria-pressed', 'false');
+      expect(button).not.toBePressed();
     });
     expect(button).toHaveTextContent('Request Set');
   });

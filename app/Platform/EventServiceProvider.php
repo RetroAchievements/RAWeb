@@ -6,11 +6,12 @@ namespace App\Platform;
 
 use App\Events\UserDeleted;
 use App\Platform\Events\AchievementCreated;
+use App\Platform\Events\AchievementDeleted;
 use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
-use App\Platform\Events\AchievementPublished;
+use App\Platform\Events\AchievementPromoted;
 use App\Platform\Events\AchievementTypeChanged;
-use App\Platform\Events\AchievementUnpublished;
+use App\Platform\Events\AchievementUnpromoted;
 use App\Platform\Events\GameMetricsUpdated;
 use App\Platform\Events\GamePlayerGameMetricsUpdated;
 use App\Platform\Events\PlayerAchievementLocked;
@@ -41,6 +42,7 @@ use App\Platform\Listeners\RecalculateLeaderboardTopEntriesForUser;
 use App\Platform\Listeners\ResetPlayerProgress;
 use App\Platform\Listeners\ResumePlayerSession;
 use App\Platform\Listeners\UpdateTotalGamesCount;
+use App\Support\Alerts\Listeners\TriggerSuspiciousBeatTimeAlert;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -49,18 +51,21 @@ class EventServiceProvider extends ServiceProvider
         AchievementCreated::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
+        AchievementDeleted::class => [
+            DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+        ],
         AchievementMoved::class => [
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
-        AchievementPublished::class => [
+        AchievementPromoted::class => [
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
             UpdateTotalGamesCount::class,
             // TODO Notify player/developer when moved to AchievementSetPublished event
         ],
-        AchievementUnpublished::class => [
+        AchievementUnpromoted::class => [
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
@@ -108,6 +113,7 @@ class EventServiceProvider extends ServiceProvider
         PlayerGameBeaten::class => [
             // TODO Refactor to AchievementSetBeaten
             // TODO Notify player
+            TriggerSuspiciousBeatTimeAlert::class,
         ],
         PlayerGameCompleted::class => [
             // TODO Refactor to AchievementSetCompleted

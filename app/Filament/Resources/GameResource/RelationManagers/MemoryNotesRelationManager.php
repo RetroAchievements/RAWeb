@@ -6,9 +6,13 @@ namespace App\Filament\Resources\GameResource\RelationManagers;
 
 use App\Models\MemoryNote;
 use App\Models\User;
+use BackedEnum;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontFamily;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -22,7 +26,7 @@ class MemoryNotesRelationManager extends RelationManager
 
     protected static ?string $title = 'Code Notes';
 
-    protected static ?string $icon = 'fas-note-sticky';
+    protected static string|BackedEnum|null $icon = 'fas-note-sticky';
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
@@ -39,10 +43,10 @@ class MemoryNotesRelationManager extends RelationManager
         return $count > 0 ? "{$count}" : null;
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([]);
+        return $schema
+            ->components([]);
     }
 
     public function table(Table $table): Table
@@ -82,16 +86,16 @@ class MemoryNotesRelationManager extends RelationManager
             ->filters([
                 Tables\Filters\SelectFilter::make('user_id')
                     ->label('Author')
-                    ->options($associatedUsers->pluck('display_name', 'ID'))
+                    ->options($associatedUsers->pluck('display_name', 'id'))
                     ->searchable(),
             ])
             ->headerActions([
 
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make()
-                        ->form([
+            ->recordActions([
+                ActionGroup::make([
+                    EditAction::make()
+                        ->schema([
                             Forms\Components\Textarea::make('body')
                                 ->label('Body')
                                 ->autosize()
@@ -120,7 +124,7 @@ class MemoryNotesRelationManager extends RelationManager
 
                             return "Save changes and become note's author";
                         })
-                        ->mutateFormDataUsing(function (array $data): array {
+                        ->mutateDataUsing(function (array $data): array {
                             /** @var User $user */
                             $user = Auth::user();
 
@@ -130,7 +134,7 @@ class MemoryNotesRelationManager extends RelationManager
                             return $data;
                         }),
 
-                    Tables\Actions\DeleteAction::make('delete')
+                    DeleteAction::make('delete')
                         ->label('Delete')
                         ->icon('heroicon-s-trash')
                         ->color('danger')

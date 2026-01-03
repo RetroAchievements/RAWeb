@@ -3,12 +3,14 @@ import { useHydrateAtoms } from 'jotai/utils';
 import { useEffect } from 'react';
 
 import { SEO } from '@/common/components/SEO';
+import { SEOPreloadImage } from '@/common/components/SEOPreloadImage';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
 import { GameShowMainRoot } from '@/features/games/components/+show';
 import { GameShowMobileRoot } from '@/features/games/components/+show-mobile';
 import { GameShowSidebarRoot } from '@/features/games/components/+show-sidebar';
+import { useGameMetaDescription } from '@/features/games/hooks/useGameMetaDescription';
 import {
   currentListViewAtom,
   currentPlayableListSortAtom,
@@ -16,7 +18,6 @@ import {
   isLockedOnlyFilterEnabledAtom,
   isMissableOnlyFilterEnabledAtom,
 } from '@/features/games/state/games.atoms';
-import { buildGameMetaDescription } from '@/features/games/utils/buildGameMetaDescription';
 import { getInitialMobileTab } from '@/features/games/utils/getInitialMobileTab';
 import type { TranslatedString } from '@/types/i18next';
 
@@ -44,9 +45,12 @@ const GameShow: AppPage = () => {
   ]);
 
   // Reset the sort order when switching between achievement sets.
+  // TODO this probably shouldn't live at the page component level
   useEffect(() => {
     setCurrentPlayableListSort(initialSort);
   }, [targetAchievementSetId, initialSort, setCurrentPlayableListSort]);
+
+  const { description, noindex } = useGameMetaDescription();
 
   const title = `${backingGame.title} (${game.system!.name})`;
 
@@ -54,9 +58,18 @@ const GameShow: AppPage = () => {
     <>
       <SEO
         title={title as TranslatedString}
-        description={buildGameMetaDescription(game, backingGame)}
+        description={description}
         ogImage={backingGame!.badgeUrl}
+        noindex={noindex}
       />
+
+      {/* TODO desktop preload image */}
+      {ziggy.device === 'mobile' && (game.banner?.mobileSmAvif || game.imageIngameUrl) ? (
+        <SEOPreloadImage
+          src={game.banner?.mobileSmAvif ?? (game.imageIngameUrl as string)}
+          type={game.banner?.mobileSmAvif ? 'image/avif' : 'image/png'}
+        />
+      ) : null}
 
       {ziggy.device === 'mobile' ? (
         <AppLayout.Main>

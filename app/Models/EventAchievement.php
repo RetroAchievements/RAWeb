@@ -100,10 +100,10 @@ class EventAchievement extends BaseModel
         return $this->hasOneThrough(
             Event::class,
             Achievement::class,
-            'ID',             // Achievements.ID
+            'id',             // achievements.id
             'legacy_game_id', // events.legacy_game_id
             'achievement_id', // event_achievements.achievement_id
-            'GameID'          // Achievements.GameID
+            'game_id'         // achievements.game_id
         );
     }
 
@@ -112,7 +112,7 @@ class EventAchievement extends BaseModel
      */
     public function achievement(): BelongsTo
     {
-        return $this->belongsTo(Achievement::class, 'achievement_id', 'ID');
+        return $this->belongsTo(Achievement::class, 'achievement_id', 'id');
     }
 
     /**
@@ -120,7 +120,7 @@ class EventAchievement extends BaseModel
      */
     public function sourceAchievement(): BelongsTo
     {
-        return $this->belongsTo(Achievement::class, 'source_achievement_id', 'ID');
+        return $this->belongsTo(Achievement::class, 'source_achievement_id', 'id');
     }
 
     // == scopes
@@ -133,7 +133,7 @@ class EventAchievement extends BaseModel
     {
         return $query->active()
             ->whereHas('achievement.game', function ($query) { // only from the current AotW event
-                $query->where('Title', 'like', '%of the week%');
+                $query->where('title', 'like', '%of the week%');
             })
             ->whereNotNull('active_from')
             ->whereNotNull('active_until')
@@ -148,7 +148,7 @@ class EventAchievement extends BaseModel
     {
         $timestamp ??= Carbon::now();
 
-        return $query->published()->where(function ($q) use ($timestamp) {
+        return $query->promoted()->where(function ($q) use ($timestamp) {
                 $q->where('active_from', '<=', $timestamp)->orWhereNull('active_from');
             })
             ->where(function ($q) use ($timestamp) {
@@ -160,11 +160,11 @@ class EventAchievement extends BaseModel
      * @param Builder<EventAchievement> $query
      * @return Builder<EventAchievement>
      */
-    public function scopePublished(Builder $query): Builder
+    public function scopePromoted(Builder $query): Builder
     {
         return $query->whereHas('achievement', function ($q) {
             /** @var Builder<Achievement> $q */
-            $q->published();
+            $q->promoted();
         });
     }
 }

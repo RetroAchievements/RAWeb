@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Support\Database\Eloquent\BaseModel;
@@ -22,35 +23,25 @@ class AchievementSetClaim extends BaseModel
     public const MAX_CLAIMS_JUNIOR_DEVELOPER = 1;
     public const MAX_CLAIMS_DEVELOPER = 4;
 
-    // TODO rename SetClaim to achievement_set_claims
-    // TODO rename ClaimType to claim_type, remove getClaimTypeAttribute()
-    // TODO rename SetType to set_type, remove getSetTypeAttribute()
-    // TODO rename Status to status, remove getStatusAttribute()
-    // TODO rename Extension to extensions_count
-    // TODO rename Special to special_type
-    // TODO rename Finished to finished_at, remove getFinishedAtAttribute()
-    // TODO rename Created to created_at, remove getCreatedAtAttribute()
-    // TODO rename Updated to updated_at
-    protected $table = 'SetClaim';
-
-    protected $primaryKey = 'ID';
-
-    public const CREATED_AT = 'Created';
-    public const UPDATED_AT = 'Updated';
+    protected $table = 'achievement_set_claims';
 
     protected $fillable = [
         'user_id',
         'game_id',
-        'ClaimType',
-        'SetType',
-        'Status',
-        'Extension',
-        'Special',
-        'Finished',
+        'claim_type',
+        'set_type',
+        'status',
+        'extensions_count',
+        'special_type',
+        'finished_at',
     ];
 
     protected $casts = [
-        'Finished' => 'datetime',
+        'claim_type' => ClaimType::class,
+        'set_type' => ClaimSetType::class,
+        'status' => ClaimStatus::class,
+        'special_type' => ClaimSpecial::class,
+        'finished_at' => 'datetime',
     ];
 
     protected static function newFactory(): AchievementSetClaimFactory
@@ -59,24 +50,6 @@ class AchievementSetClaim extends BaseModel
     }
 
     // == accessors
-
-    // TODO remove after rename from "ClaimType" to "claim_type"
-    public function getClaimTypeAttribute(): int
-    {
-        return $this->attributes['ClaimType'];
-    }
-
-    // TODO remove after rename from "Created" to "created_at"
-    public function getCreatedAtAttribute(): Carbon
-    {
-        return Carbon::parse($this->attributes['Created']);
-    }
-
-    // TODO remove after rename from "Finished" to "finished_at"
-    public function getFinishedAtAttribute(): Carbon
-    {
-        return Carbon::parse($this->attributes['Finished']);
-    }
 
     public function getMinutesActiveAttribute(): int
     {
@@ -88,18 +61,6 @@ class AchievementSetClaim extends BaseModel
         return (int) $this->finished_at->diffInMinutes(Carbon::now());
     }
 
-    // TODO remove after rename from "SetType" to "set_type"
-    public function getSetTypeAttribute(): int
-    {
-        return $this->attributes['SetType'];
-    }
-
-    // TODO remove after rename from "Status" to "status"
-    public function getStatusAttribute(): int
-    {
-        return $this->attributes['Status'] ?? null;
-    }
-
     public function getUserLastPlayedAtAttribute(): ?\Carbon\Carbon
     {
         if (!$this->user_id || !$this->game_id) {
@@ -109,10 +70,10 @@ class AchievementSetClaim extends BaseModel
         $playerSession = PlayerSession::query()
             ->where('game_id', $this->game_id)
             ->where('user_id', $this->user_id)
-            ->orderByDesc('updated_at')
-            ->first(['updated_at']);
+            ->orderByDesc('rich_presence_updated_at')
+            ->first(['rich_presence_updated_at']);
 
-        return $playerSession?->updated_at;
+        return $playerSession?->rich_presence_updated_at;
     }
 
     // == mutators
@@ -124,7 +85,7 @@ class AchievementSetClaim extends BaseModel
      */
     public function game(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'game_id', 'ID');
+        return $this->belongsTo(Game::class, 'game_id', 'id');
     }
 
     /**
@@ -132,7 +93,7 @@ class AchievementSetClaim extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID')->withTrashed();
+        return $this->belongsTo(User::class, 'user_id')->withTrashed();
     }
 
     // == scopes
@@ -141,9 +102,9 @@ class AchievementSetClaim extends BaseModel
      * @param Builder<AchievementSetClaim> $query
      * @return Builder<AchievementSetClaim>
      */
-    public function scopeClaimType(Builder $query, int $claimType): Builder
+    public function scopeClaimType(Builder $query, ClaimType $claimType): Builder
     {
-        return $query->where('ClaimType', $claimType);
+        return $query->where('claim_type', $claimType);
     }
 
     /**
@@ -168,9 +129,9 @@ class AchievementSetClaim extends BaseModel
      * @param Builder<AchievementSetClaim> $query
      * @return Builder<AchievementSetClaim>
      */
-    public function scopeSetType(Builder $query, int $setType): Builder
+    public function scopeSetType(Builder $query, ClaimSetType $setType): Builder
     {
-        return $query->where('SetType', $setType);
+        return $query->where('set_type', $setType);
     }
 
     /**
@@ -195,9 +156,9 @@ class AchievementSetClaim extends BaseModel
      * @param Builder<AchievementSetClaim> $query
      * @return Builder<AchievementSetClaim>
      */
-    public function scopeStatus(Builder $query, int $claimStatus): Builder
+    public function scopeStatus(Builder $query, ClaimStatus $claimStatus): Builder
     {
-        return $query->where('Status', $claimStatus);
+        return $query->where('status', $claimStatus);
     }
 
     /**
@@ -251,7 +212,7 @@ class AchievementSetClaim extends BaseModel
      */
     public function scopeActiveOrInReview(Builder $query): Builder
     {
-        return $query->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview]);
+        return $query->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview]);
     }
 
     // == helpers

@@ -33,6 +33,7 @@ export const UserPreference = {
     User_OnlyContactFromFollowing: 17,
     Game_OptOutOfAllSubsets: 18,
     User_EnableBetaFeatures: 19,
+    EmailOff_DailyDigest: 20,
 } as const;
 
 
@@ -57,6 +58,7 @@ export const StringifiedUserPreference = {
     User_OnlyContactFromFollowing: '17',
     Game_OptOutOfAllSubsets: '18',
     User_EnableBetaFeatures: '19',
+    EmailOff_DailyDigest: '20',
 } as const;
 
 
@@ -86,118 +88,5 @@ export const UserRole = {
     TEAM_ACCOUNT: 'team-account',
     COMMUNITY_MANAGER: 'community-manager',
     DEVELOPER_RETIRED: 'developer-retired',
-} as const;
-
-
-export const ClaimStatus = {
-    Active: 0,
-    Complete: 1,
-    Dropped: 2,
-    InReview: 3,
-} as const;
-
-
-export const StringifiedClaimStatus = {
-    Active: '0',
-    Complete: '1',
-    Dropped: '2',
-    InReview: '3',
-} as const;
-
-
-export const ClaimType = {
-    Primary: 0,
-    Collaboration: 1,
-} as const;
-
-
-export const StringifiedClaimType = {
-    Primary: '0',
-    Collaboration: '1',
-} as const;
-
-
-export const AwardType = {
-    Mastery: 1,
-    AchievementUnlocksYield: 2,
-    AchievementPointsYield: 3,
-    PatreonSupporter: 6,
-    CertifiedLegend: 7,
-    GameBeaten: 8,
-    Event: 9,
-} as const;
-
-
-export const StringifiedAwardType = {
-    Mastery: '1',
-    AchievementUnlocksYield: '2',
-    AchievementPointsYield: '3',
-    PatreonSupporter: '6',
-    CertifiedLegend: '7',
-    GameBeaten: '8',
-    Event: '9',
-} as const;
-
-
-export const ArticleType = {
-    Game: 1,
-    Achievement: 2,
-    User: 3,
-    News: 4,
-    Leaderboard: 6,
-    AchievementTicket: 7,
-    Forum: 8,
-    UserModeration: 9,
-    GameHash: 10,
-    SetClaim: 11,
-    GameModification: 12,
-} as const;
-
-
-export const StringifiedArticleType = {
-    Game: '1',
-    Achievement: '2',
-    User: '3',
-    News: '4',
-    Leaderboard: '6',
-    AchievementTicket: '7',
-    Forum: '8',
-    UserModeration: '9',
-    GameHash: '10',
-    SetClaim: '11',
-    GameModification: '12',
-} as const;
-
-
-export const TicketType = {
-    TriggeredAtWrongTime: 1,
-    DidNotTrigger: 2,
-} as const;
-
-
-export const StringifiedTicketType = {
-    TriggeredAtWrongTime: '1',
-    DidNotTrigger: '2',
-} as const;
-
-
-export const TicketState = {
-    Closed: 0,
-    Open: 1,
-    Resolved: 2,
-    Request: 3,
-    REASON_DEMOTED: 'Demoted',
-} as const;
-
-
-export const ClaimSetType = {
-    NewSet: 0,
-    Revision: 1,
-} as const;
-
-
-export const StringifiedClaimSetType = {
-    NewSet: '0',
-    Revision: '1',
 } as const;
 

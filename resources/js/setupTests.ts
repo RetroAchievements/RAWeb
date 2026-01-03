@@ -4,6 +4,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { cleanup } from '@testing-library/react';
 
+import i18n from './i18n-client';
 import { loadFaker } from './test/createFactory';
 // @ts-expect-error -- this isn't a real ts module
 import { Ziggy } from './ziggy';
@@ -12,12 +13,57 @@ import { Ziggy } from './ziggy';
 globalThis.Ziggy = Ziggy;
 process.env.TZ = 'UTC';
 
+// Mock Inertia globally for all tests.
+vi.mock('@inertiajs/react', async (importOriginal) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const original = (await importOriginal()) as any;
+  const React = await import('react');
+
+  return {
+    ...original,
+    __esModule: true,
+
+    Head: ({ children }: { children: React.ReactNode }) => {
+      // React 19 refuses to render <meta /> or <link /> tags into JSDOM.
+      // We need to convert them to <span /> tags instead.
+      const convertedChildren = React.Children.map(children, (child) => {
+        if (React.isValidElement(child) && (child.type === 'meta' || child.type === 'link')) {
+          return React.createElement('span', child.props as React.HTMLAttributes<HTMLSpanElement>);
+        }
+
+        return child;
+      });
+
+      return React.createElement('div', { 'data-testid': 'head-content' }, convertedChildren);
+    },
+
+    router: {
+      replace: vi.fn(),
+      visit: vi.fn(),
+      reload: vi.fn(),
+      prefetch: vi.fn(),
+    },
+
+    usePage: vi.fn(),
+  };
+});
+
 beforeAll(async () => {
   /**
    * Asynchronously load faker before any tests run. `createFactory()` helpers
    * assume faker is loaded in memory and will throw an error if it's not.
    */
   await loadFaker();
+
+  /**
+   * Wait for i18n to be initialized. Without this, tests using useTranslation
+   * may fail in CI due to a race condition where the hook runs before i18n is ready.
+   */
+  if (!i18n.isInitialized) {
+    await new Promise<void>((resolve) => {
+      i18n.on('initialized', resolve);
+    });
+  }
 });
 
 beforeAll(() => {

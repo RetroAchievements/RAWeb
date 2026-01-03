@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Data\UserData;
 use App\Http\Controller;
 use App\Models\Game;
@@ -118,7 +118,7 @@ class PlayerGameController extends Controller
 
         addArticleComment(
             'Server',
-            ArticleType::UserModeration,
+            CommentableType::UserModeration,
             $user->id,
             "{$user->display_name} performed a full account reset"
         );
@@ -155,9 +155,9 @@ class PlayerGameController extends Controller
             ->games()
             ->with('system')
             ->where('player_games.achievements_unlocked', '>', 0)
-            ->whereNotIn('ConsoleID', System::getNonGameSystems())
-            ->orderBy('Title')
-            ->select(['GameData.ID', 'Title', 'ConsoleID', 'achievements_published', 'player_games.achievements_unlocked'])
+            ->whereNotIn('system_id', System::getNonGameSystems())
+            ->orderBy('title')
+            ->select(['games.id', 'title', 'system_id', 'achievements_published', 'player_games.achievements_unlocked'])
             ->get()
             ->map(function ($game) {
                 return new PlayerResettableGameData(
@@ -180,9 +180,9 @@ class PlayerGameController extends Controller
 
         $resettableGameAchievements = $user
             ->achievements()
-            ->where('GameID', $game->id)
+            ->where('game_id', $game->id)
             ->withPivot(['unlocked_at', 'unlocked_hardcore_at'])
-            ->orderBy('Title')
+            ->orderBy('title')
             ->get()
             ->map(function ($unlockedAchievement) {
                 return new PlayerResettableGameAchievementData(

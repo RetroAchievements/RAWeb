@@ -5,7 +5,7 @@ use App\Models\Game;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Livewire\Volt\Component;
 
 new class extends Component implements HasForms {
@@ -19,17 +19,17 @@ new class extends Component implements HasForms {
         // Validate.
         $this->form->getState();
 
-        $this->foundAchievementIds = Achievement::whereIn('GameID', $this->gameIds)
-            ->published()
-            ->pluck('ID')
+        $this->foundAchievementIds = Achievement::whereIn('game_id', $this->gameIds)
+            ->promoted()
+            ->pluck('id')
             ->toArray();
 
         $this->dispatch('open-modal', id: 'achievement-ids-results');
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\Select::make('games')
                     ->label('Games')
@@ -38,8 +38,8 @@ new class extends Component implements HasForms {
                     ->searchable()
                     ->getSearchResultsUsing(function (string $search): array {
                         return Game::with('system')
-                            ->where('Title', 'like', "%{$search}%")
-                            ->orWhere('ID', 'like', "%{$search}%")
+                            ->where('title', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
                             ->limit(50)
                             ->get()
                             ->mapWithKeys(function ($game) {
@@ -49,7 +49,7 @@ new class extends Component implements HasForms {
                     })
                     ->getOptionLabelsUsing(function (array $values): array {
                         return Game::with('system')
-                            ->whereIn('ID', $values)
+                            ->whereIn('id', $values)
                             ->get()
                             ->mapWithKeys(function ($game) {
                                 return [$game->id => "ID: {$game->id} - Title: {$game->title} - System: {$game->system->name}"];

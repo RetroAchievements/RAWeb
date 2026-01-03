@@ -36,6 +36,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Translation\PotentiallyTranslatedString;
 use Inertia\ResponseFactory;
+use Jenssegers\Optimus\Optimus;
 use Laravel\Pulse\Facades\Pulse;
 use Livewire\Livewire;
 
@@ -49,6 +50,15 @@ class AppServiceProvider extends ServiceProvider
         // Override Inertia's ResponseFactory to use our custom factory that strips nulls.
         // This can eliminate unnecessary props and speed up hydration.
         $this->app->singleton(ResponseFactory::class, InertiaResponseFactory::class);
+
+        // Register Optimus for ID obfuscation. Required for spatie/laravel-medialibrary paths.
+        $this->app->singleton(Optimus::class, function () {
+            return new Optimus(
+                (int) config('optimus.prime'),
+                (int) config('optimus.inverse'),
+                (int) config('optimus.random'),
+            );
+        });
     }
 
     /**
@@ -78,8 +88,20 @@ class AppServiceProvider extends ServiceProvider
 
         Model::shouldBeStrict(!$this->app->isProduction());
 
+        // Filament v4: Preserve v3 behavior for layout components spanning full width.
+        \Filament\Schemas\Components\Fieldset::configureUsing(fn (\Filament\Schemas\Components\Fieldset $fieldset) => $fieldset
+            ->columnSpanFull());
+        \Filament\Schemas\Components\Grid::configureUsing(fn (\Filament\Schemas\Components\Grid $grid) => $grid
+            ->columnSpanFull());
+        \Filament\Schemas\Components\Section::configureUsing(fn (\Filament\Schemas\Components\Section $section) => $section
+            ->columnSpanFull());
+
+        // Filament v4: Preserve v3 behavior for unique() validation not ignoring current record by default.
+        \Filament\Forms\Components\Field::configureUsing(fn (\Filament\Forms\Components\Field $field) => $field
+            ->uniqueValidationIgnoresRecordByDefault(false));
+
         Pulse::user(fn (User $user) => [
-            'name' => $user->User,
+            'name' => $user->username,
             'avatar' => $user->avatarUrl,
         ]);
 

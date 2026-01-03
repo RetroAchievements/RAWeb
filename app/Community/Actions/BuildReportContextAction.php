@@ -4,13 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\ModerationReportableType;
-use App\Models\Achievement;
 use App\Models\Comment;
-use App\Models\Game;
-use App\Models\Leaderboard;
-use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 
 class BuildReportContextAction
@@ -110,35 +106,24 @@ class BuildReportContextAction
     }
 
     /**
-     * Build a link to a comment based on its ArticleType.
+     * Build a link to a comment based on its commentable_type.
      * Handles all comment types: user walls, game walls, achievement walls, etc.
      */
     private function buildCommentLink(Comment $comment): ?string
     {
-        if (!$comment->ArticleID) {
+        if (!$comment->commentable_id) {
             return null;
         }
 
-        $anchor = '#comment_' . $comment->ID;
+        // For supported types, use the intelligent redirect route that handles pagination.
+        if ($comment->commentable_type->supportsCommentRedirect()) {
+            return route('comment.show', ['comment' => $comment->id]);
+        }
 
-        return match ($comment->ArticleType) {
-            ArticleType::Game => ($game = Game::find($comment->ArticleID))
-                ? route('game.show', ['game' => $game, 'tab' => 'community']) . $anchor
-                : null,
+        $anchor = '#comment_' . $comment->id;
 
-            ArticleType::Achievement => ($achievement = Achievement::find($comment->ArticleID))
-                ? route('achievement.show', $achievement) . $anchor
-                : null,
-
-            ArticleType::User, ArticleType::UserModeration => ($user = User::find($comment->ArticleID))
-                ? route('user.show', $user) . $anchor
-                : null,
-
-            ArticleType::Leaderboard => ($leaderboard = Leaderboard::find($comment->ArticleID))
-                ? route('leaderboard.show', $leaderboard) . $anchor
-                : null,
-
-            ArticleType::AchievementTicket => route('ticket.show', ['ticket' => $comment->ArticleID]) . $anchor,
+        return match ($comment->commentable_type) {
+            CommentableType::AchievementTicket => route('ticket.show', ['ticket' => $comment->commentable_id]) . $anchor,
 
             default => null,
         };

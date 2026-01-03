@@ -11,9 +11,13 @@ use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\System;
 use App\Models\User;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,7 +30,7 @@ class GamesRelationManager extends RelationManager
 {
     protected static string $relationship = 'games';
     protected static ?string $title = 'Games';
-    protected static ?string $icon = 'fas-gamepad';
+    protected static string|BackedEnum|null $icon = 'fas-gamepad';
 
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
     {
@@ -56,13 +60,13 @@ class GamesRelationManager extends RelationManager
                         }
                     }),
 
-                Tables\Columns\TextColumn::make('ID')
+                Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->sortable(query: function (Builder $query, string $direction): Builder {
-                        return $query->orderBy(DB::raw('GameData.ID'), $direction);
+                        return $query->orderBy(DB::raw('games.id'), $direction);
                     })
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->where(DB::raw('GameData.ID'), 'like', "%{$search}%");
+                        return $query->where(DB::raw('games.id'), 'like', "%{$search}%");
                     })
                     ->url(function (Game $record) {
                         if (request()->user()->can('manage', Game::class)) {
@@ -115,43 +119,52 @@ class GamesRelationManager extends RelationManager
                     ),
             ])
             ->headerActions([
-                Tables\Actions\Action::make('add')
+                Actions\Action::make('add')
                     ->label('Add games')
                     ->visible(fn (): bool => $user->can('update', $gameSet))
-                    ->form([
+                    ->schema([
                         Forms\Components\TextInput::make('game_ids_csv')
                             ->label('Game IDs (CSV)')
                             ->placeholder('729,2204,3987,53')
                             ->helperText('Enter game IDs separated by commas or spaces. URLs are also supported.')
-                            ->hidden(fn (Forms\Get $get): bool => filled($get('game_ids')))
-                            ->disabled(fn (Forms\Get $get): bool => filled($get('game_ids')))
-                            ->live(debounce: 200),
+                            ->disabled(fn (Get $get): bool => filled($get('game_ids')))
+                            ->live(debounce: 200)
+                            ->afterStateUpdated(fn (Set $set) => $set('game_ids', null)),
 
                         Forms\Components\Select::make('game_ids')
                             ->label('Games')
                             ->multiple()
                             ->options(function () {
-                                return Game::whereNotIn('ID', $this->getOwnerRecord()->games->pluck('ID'))
-                                    ->where('ConsoleID', '!=', System::Hubs)
+                                return Game::whereNotIn('id', $this->getOwnerRecord()->games->pluck('id'))
+                                    ->where('system_id', '!=', System::Hubs)
                                     ->limit(50)
+                                    ->with('system')
                                     ->get()
-                                    ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title}"]);
+                                    ->mapWithKeys(fn ($game) => [$game->id => "[{$game->id}] {$game->title} ({$game->system->name})"]);
                             })
                             ->searchable()
                             ->getSearchResultsUsing(function (string $search) {
-                                return Game::whereNotIn('ID', $this->getOwnerRecord()->games->pluck('ID'))
-                                    ->where('ConsoleID', '!=', System::Hubs)
+                                return Game::whereNotIn('id', $this->getOwnerRecord()->games->pluck('id'))
+                                    ->where('system_id', '!=', System::Hubs)
                                     ->where(function ($query) use ($search) {
-                                        $query->where('ID', 'LIKE', "%{$search}%")
-                                            ->orWhere('Title', 'LIKE', "%{$search}%");
+                                        $query->where('id', 'LIKE', "%{$search}%")
+                                            ->orWhere('title', 'LIKE', "%{$search}%");
                                     })
                                     ->limit(50)
+                                    ->with('system')
                                     ->get()
-                                    ->mapWithKeys(fn ($game) => [$game->ID => "[{$game->ID}] {$game->Title}"]);
+                                    ->mapWithKeys(fn ($game) => [$game->id => "[{$game->id}] {$game->title} ({$game->system->name})"]);
                             })
-                            ->hidden(fn (Forms\Get $get): bool => filled($get('game_ids_csv')))
-                            ->disabled(fn (Forms\Get $get): bool => filled($get('game_ids_csv')))
+                            ->getOptionLabelsUsing(function (array $values): array {
+                                return Game::whereIn('id', $values)
+                                    ->with('system')
+                                    ->get()
+                                    ->mapWithKeys(fn ($game) => [$game->id => "[{$game->id}] {$game->title} ({$game->system->name})"])
+                                    ->toArray();
+                            })
+                            ->disabled(fn (Get $get): bool => filled($get('game_ids_csv')))
                             ->live()
+                            ->afterStateUpdated(fn (Set $set) => $set('game_ids_csv', null))
                             ->helperText('... or search and select games to add.'),
                     ])
                     ->modalHeading('Add games to hub')
@@ -172,10 +185,10 @@ class GamesRelationManager extends RelationManager
                             $gameIds = (new ParseIdsFromCsvAction())->execute($data['game_ids_csv']);
 
                             // Validate that these games can be attached.
-                            $validGameIds = Game::whereIn('ID', $gameIds)
-                                ->where('ConsoleID', '!=', System::Hubs)
-                                ->whereNotIn('ID', $this->getOwnerRecord()->games->pluck('ID'))
-                                ->pluck('ID')
+                            $validGameIds = Game::whereIn('id', $gameIds)
+                                ->where('system_id', '!=', System::Hubs)
+                                ->whereNotIn('id', $this->getOwnerRecord()->games->pluck('id'))
+                                ->pluck('id')
                                 ->toArray();
 
                             if (!empty($validGameIds)) {
@@ -184,8 +197,8 @@ class GamesRelationManager extends RelationManager
                         }
                     }),
             ])
-            ->actions([
-                Tables\Actions\Action::make('remove')
+            ->recordActions([
+                Actions\Action::make('remove')
                     ->tooltip('Remove')
                     ->visible(fn (): bool => $user->can('update', $gameSet))
                     ->icon('heroicon-o-trash')
@@ -207,15 +220,15 @@ class GamesRelationManager extends RelationManager
                             ->send();
                     }),
 
-                Tables\Actions\Action::make('visit')
+                Actions\Action::make('visit')
                     ->tooltip('View on Site')
                     ->icon('heroicon-m-arrow-top-right-on-square')
                     ->iconButton()
                     ->url(fn (Game $record): string => route('game.show', $record))
                     ->openUrlInNewTab(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkAction::make('remove')
+            ->toolbarActions([
+                Actions\BulkAction::make('remove')
                     ->label('Remove selected')
                     ->visible(fn (): bool => $user->can('update', $gameSet))
                     ->modalHeading('Remove selected games from hub')

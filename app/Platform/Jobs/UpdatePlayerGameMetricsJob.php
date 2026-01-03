@@ -90,7 +90,7 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
             // If they do have any unlocks, we'll run a full metrics update.
             $hasAnyUnlocks = $playerGame->user->playerAchievements()
                 ->whereHas('achievement', function ($query) {
-                    $query->where('GameID', $this->gameId);
+                    $query->where('game_id', $this->gameId);
                 })
                 ->exists();
 

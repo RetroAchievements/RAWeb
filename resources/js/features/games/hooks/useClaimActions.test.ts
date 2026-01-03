@@ -2,7 +2,6 @@ import { router } from '@inertiajs/react';
 import axios from 'axios';
 import { route } from 'ziggy-js';
 
-import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { renderHook, waitFor } from '@/test';
 
 import { useClaimActions } from './useClaimActions';
@@ -101,7 +100,7 @@ describe('Hook: useClaimActions', () => {
       const [url, formData, config] = postSpy.mock.calls[0];
       expect(url).toEqual(route('achievement-set-claim.update', { claim: claimId }));
       expect(formData).toBeInstanceOf(FormData);
-      expect((formData as any).get('status')).toEqual(ClaimStatus.Complete.toString());
+      expect((formData as any).get('status')).toEqual('complete');
       expect(config).toEqual({
         headers: {
           'Content-Type': 'multipart/form-data',

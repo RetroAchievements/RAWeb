@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Services;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\Achievement;
 use App\Models\Comment;
@@ -18,6 +18,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -25,30 +26,76 @@ use Illuminate\Support\Facades\DB;
 class SubscriptionService
 {
     /**
+     * Gets all users who are explicitly or implicitly subscribed to the subject.
+     *
      * @return Collection<int, User>
      */
     public function getSubscribers(SubscriptionSubjectType $subjectType, int $subjectId): Collection
+    {
+        [$explicitSubscriberIds, $implicitSubscriberIds] = $this->getSubscriberIds($subjectType, $subjectId);
+
+        $allSubscriberIds = array_merge($explicitSubscriberIds, $implicitSubscriberIds);
+
+        return User::whereIn('id', $allSubscriberIds)->get();
+    }
+
+    /**
+     * Gets all users who are explicitly or implicitly subscribed to the subject separated into three categories.
+     *
+     * @param SubscriptionSubjectType $subjectType the type of object to get subscribers of
+     * @param int $subjectId the unique identifier of the object to get subscribers of
+     * @param ?int $subjectAuthorUserId Optionally specifies the user who originally created the object.
+     *                                  Ensures they get returned in the `implicitlySubscribedNotifyNow` bucket if they are only implicitly subscribed.
+     *
+     * @return array containing the following:
+     *   'explicitlySubscribed': Users who are explicitly subscribed to the content.
+     *   'implicitlySubscribedNotifyNow': Users who are implicitly subscribed to the content and should be notified immediately.
+     *   'implicitlySubscribedNotifyLater': Users who are implicitly subscribed to the content and should be notified when convienent.
+     */
+    public function getSegmentedSubscriberIds(SubscriptionSubjectType $subjectType, int $subjectId, ?int $subjectAuthorUserId): array
+    {
+        [$explicitSubscriberIds, $implicitSubscriberIds] = $this->getSubscriberIds($subjectType, $subjectId);
+
+        // split implicit subscriptions into recent and older
+        $recentActivityCutoff = now()->subDays(7);
+        $handler = $this->getHandler($subjectType);
+        $recentUserIds = $handler->getRecentParticipants($subjectId, $recentActivityCutoff);
+
+        if ($subjectAuthorUserId) {
+            // if the author is implicitly subscribed, ensure they get classified as "notify now"
+            $recentUserIds[] = $subjectAuthorUserId;
+        }
+
+        return [
+            'explicitlySubscribed' => $explicitSubscriberIds,
+            'implicitlySubscribedNotifyNow' => array_filter($implicitSubscriberIds, fn ($id) => in_array($id, $recentUserIds)),
+            'implicitlySubscribedNotifyLater' => array_filter($implicitSubscriberIds, fn ($id) => !in_array($id, $recentUserIds)),
+        ];
+    }
+
+    private function getSubscriberIds(SubscriptionSubjectType $subjectType, int $subjectId): array
     {
         // get explicit subscriptions (including explicitly unsubscribed so we don't fetch their implicit subscription)
         $subscribers = Subscription::query()
             ->where('subject_type', $subjectType)
             ->where('subject_id', $subjectId)
             ->get();
-        $explicitSubcriberIds = $subscribers->pluck('user_id')->toArray();
+        $explicitSubscriberIds = $subscribers->pluck('user_id')->toArray();
 
+        // get implicit subscriptions
         $handler = $this->getHandler($subjectType);
-        $implicitSubscriptionsQuery = $handler->getImplicitSubscriptionQuery($subjectId, null, null, $explicitSubcriberIds);
+        $implicitSubscriptionsQuery = $handler->getImplicitSubscriptionQuery($subjectId, null, null, $explicitSubscriberIds);
+        $implicitSubscriberIds = $implicitSubscriptionsQuery->get()->pluck('user_id')->toArray();
 
         // discard explicitly unsubscribed
-        $subscriberIds = $subscribers->filter(fn ($s) => $s->state === true)->pluck('user_id')->toArray();
+        $explicitSubscriberIds = $subscribers->filter(fn ($s) => $s->state === true)->pluck('user_id')->toArray();
 
-        // merge in implicit subscriptions
-        $implicitSubscriberIds = $implicitSubscriptionsQuery->get()->pluck('user_id')->toArray();
-        $subscriberIds = array_merge($subscriberIds, $implicitSubscriberIds);
-
-        return User::whereIn('ID', $subscriberIds)->get();
+        return [$explicitSubscriberIds, $implicitSubscriberIds];
     }
 
+    /**
+     * Determines if the user is subscribed to the subject (either implicitly or explicity).
+     */
     public function isSubscribed(User $user, SubscriptionSubjectType $subjectType, int $subjectId): bool
     {
         $subscription = Subscription::query()
@@ -67,6 +114,9 @@ class SubscriptionService
         return $handler->getImplicitSubscriptionQuery($subjectId, $user->id, null, null)->exists();
     }
 
+    /**
+     * Sets the explicit subscription state of a subject for a user.
+     */
     public function updateSubscription(User $user, SubscriptionSubjectType $subjectType, int $subjectId, bool $isSubscribed): Subscription
     {
         $subscription = Subscription::updateOrCreate([
@@ -82,6 +132,9 @@ class SubscriptionService
         return $subscription;
     }
 
+    /**
+     * Gets the number of subscriptions (explicit or implicit) a user has.
+     */
     public function getSubscriptionCount(User $user, array $subjectTypes): int
     {
         $count = 0;
@@ -94,6 +147,10 @@ class SubscriptionService
     }
 
     /**
+     * Gets all of the subscriptions (explicit or implicit) a user has.
+     *
+     * Use "subscription->exists()" to detect implicit subscriptions.
+     *
      * @return Collection<int, Subscription>
      */
     public function getSubscriptions(User $user, array $subjectTypes, int $offset = 0, int $count = 100): Collection
@@ -247,11 +304,16 @@ abstract class BaseSubscriptionHandler
     {
         return true;
     }
+
+    /**
+     * Returns IDs of users who have contributed to the subject since the provided time.
+     */
+    abstract public function getRecentParticipants(int $subjectId, Carbon $since): array;
 }
 
 abstract class CommentSubscriptionHandler extends BaseSubscriptionHandler
 {
-    abstract protected function getArticleType(): int;
+    abstract protected function getCommentableType(): CommentableType;
 
     /**
      * @return Builder<Model>
@@ -259,12 +321,12 @@ abstract class CommentSubscriptionHandler extends BaseSubscriptionHandler
     public function getImplicitSubscriptionQuery(?int $subjectId, ?int $forUserId, ?array $ignoreSubjectIds, ?array $ignoreUserIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = Comment::where('ArticleType', $this->getArticleType());
+        $query = Comment::where('commentable_type', $this->getCommentableType());
 
         if ($subjectId !== null) {
-            $query->where('ArticleId', $subjectId);
+            $query->where('commentable_id', $subjectId);
         } elseif (!empty($ignoreSubjectIds)) {
-            $query->whereNotIn('ArticleId', $ignoreSubjectIds);
+            $query->whereNotIn('commentable_id', $ignoreSubjectIds);
         }
 
         if ($forUserId !== null) {
@@ -277,17 +339,28 @@ abstract class CommentSubscriptionHandler extends BaseSubscriptionHandler
             }
         }
 
-        $query->select(['user_id', DB::raw('ArticleId as subject_id')])->distinct();
+        $query->select(['user_id', DB::raw('commentable_id as subject_id')])->distinct();
 
         return $query;
+    }
+
+    public function getRecentParticipants(int $subjectId, Carbon $since): array
+    {
+        return Comment::query()
+            ->where('commentable_type', $this->getCommentableType())
+            ->where('commentable_id', $subjectId)
+            ->where('created_at', '>=', $since)
+            ->distinct()
+            ->pluck('user_id')
+            ->toArray();
     }
 }
 
 class AchievementWallSubscriptionHandler extends CommentSubscriptionHandler
 {
-    protected function getArticleType(): int
+    protected function getCommentableType(): CommentableType
     {
-        return ArticleType::Achievement;
+        return CommentableType::Achievement;
     }
 
     /**
@@ -296,10 +369,10 @@ class AchievementWallSubscriptionHandler extends CommentSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = Achievement::whereIn('ID', $subjectIds)
+        $query = Achievement::whereIn('id', $subjectIds)
             ->select([
-                DB::raw('ID as subject_id'),
-                DB::raw('Title as title'),
+                DB::raw('id as subject_id'),
+                'title',
             ])
             ->orderBy('title');
 
@@ -321,7 +394,7 @@ class AchievementWallSubscriptionHandler extends CommentSubscriptionHandler
                 /** @var Builder<Model> $query2 */
                 $query2 = Subscription::query()
                     ->where('subject_type', SubscriptionSubjectType::GameAchievements)
-                    ->where('subject_id', $achievement->GameID)
+                    ->where('subject_id', $achievement->game_id)
                     ->where('state', true)
                     ->select(['user_id', 'subject_id']);
 
@@ -347,10 +420,10 @@ class AchievementWallSubscriptionHandler extends CommentSubscriptionHandler
                 if ($includeMaintainer) {
                     /** @var Builder<Model> $query3 */
                     $query3 = Achievement::query()
-                        ->where('ID', $achievement->ID)
+                        ->where('id', $achievement->id)
                         ->select([
                             DB::raw($maintainer->id . ' as user_id'),
-                            DB::raw('ID as subject_id'),
+                            DB::raw('id as subject_id'),
                         ]);
 
                     $query->union($query3);
@@ -367,9 +440,9 @@ class AchievementWallSubscriptionHandler extends CommentSubscriptionHandler
 
 class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
 {
-    protected function getArticleType(): int
+    protected function getCommentableType(): CommentableType
     {
-        return ArticleType::AchievementTicket;
+        return CommentableType::AchievementTicket;
     }
 
     /**
@@ -378,11 +451,12 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = Ticket::whereIn('Ticket.ID', $subjectIds)
-            ->join('Achievements', 'Ticket.AchievementID', '=', 'Achievements.ID')
+        $query = Ticket::whereIn(DB::raw('tickets.id'), $subjectIds)
+            ->join('achievements', DB::raw('tickets.ticketable_id'), '=', 'achievements.id')
+            ->where(DB::raw('tickets.ticketable_type'), 'achievement')
             ->select([
-                DB::raw('Ticket.ID as subject_id'),
-                DB::raw('Achievements.Title as title'),
+                DB::raw('tickets.id as subject_id'),
+                DB::raw('achievements.title as title'),
             ])
             ->orderBy('title');
 
@@ -404,7 +478,7 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
                 /** @var Builder<Model> $query2 */
                 $query2 = Subscription::query()
                     ->where('subject_type', SubscriptionSubjectType::GameTickets)
-                    ->where('subject_id', $ticket->achievement->GameID)
+                    ->where('subject_id', $ticket->achievement->game_id)
                     ->where('state', true)
                     ->select(['user_id', 'subject_id']);
 
@@ -427,10 +501,10 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
                 if ($includeReporter) {
                     /** @var Builder<Model> $query3 */
                     $query3 = Ticket::query()
-                        ->where('ID', $ticket->ID)
+                        ->where('id', $ticket->id)
                         ->select([
                             DB::raw('reporter_id as user_id'),
-                            DB::raw('ID as subject_id'),
+                            DB::raw('id as subject_id'),
                         ]);
 
                     $query->union($query3);
@@ -450,10 +524,10 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
                 if ($includeMaintainer) {
                     /** @var Builder<Model> $query4 */
                     $query4 = Ticket::query()
-                        ->where('ID', $ticket->ID)
+                        ->where('id', $ticket->id)
                         ->select([
                             DB::raw($maintainer->id . ' as user_id'),
-                            DB::raw('ID as subject_id'),
+                            DB::raw('id as subject_id'),
                         ]);
 
                     $query->union($query4);
@@ -469,10 +543,10 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
                 ->where('reporter_id', $forUserId)
                 ->select([
                     DB::raw('reporter_id as user_id'),
-                    DB::raw('ID as subject_id'),
+                    DB::raw('id as subject_id'),
                 ]);
             if (!empty($ignoreSubjectIds)) {
-                $query3->whereNotIn('ID', $ignoreSubjectIds);
+                $query3->whereNotIn('id', $ignoreSubjectIds);
             }
             $query->union($query3);
         }
@@ -489,7 +563,7 @@ class ForumTopicSubscriptionHandler extends BaseSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = ForumTopic::whereIn('ID', $subjectIds)
+        $query = ForumTopic::whereIn('id', $subjectIds)
             ->select([
                 DB::raw('id as subject_id'),
                 'title',
@@ -526,6 +600,16 @@ class ForumTopicSubscriptionHandler extends BaseSubscriptionHandler
 
         return $query;
     }
+
+    public function getRecentParticipants(int $subjectId, Carbon $since): array
+    {
+        return ForumTopicComment::query()
+            ->where('forum_topic_id', $subjectId)
+            ->where('created_at', '>=', $since)
+            ->distinct()
+            ->pluck('author_id')
+            ->toArray();
+    }
 }
 
 class GameAchievementsSubscriptionHandler extends BaseSubscriptionHandler
@@ -536,10 +620,10 @@ class GameAchievementsSubscriptionHandler extends BaseSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = Game::whereIn('ID', $subjectIds)
+        $query = Game::whereIn('id', $subjectIds)
             ->select([
-                DB::raw('ID as subject_id'),
-                DB::raw('Title as title'),
+                DB::raw('id as subject_id'),
+                DB::raw('title as title'),
             ])
             ->orderBy('sort_title');
 
@@ -549,6 +633,11 @@ class GameAchievementsSubscriptionHandler extends BaseSubscriptionHandler
     public function includeImplicitSubscriptionsInList(): bool
     {
         return false;
+    }
+
+    public function getRecentParticipants(int $subjectId, Carbon $since): array
+    {
+        return [];
     }
 }
 
@@ -560,10 +649,10 @@ class GameTicketsSubscriptionHandler extends BaseSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = Game::whereIn('ID', $subjectIds)
+        $query = Game::whereIn('id', $subjectIds)
             ->select([
-                DB::raw('ID as subject_id'),
-                DB::raw('Title as title'),
+                DB::raw('id as subject_id'),
+                DB::raw('title as title'),
             ])
             ->orderBy('sort_title');
 
@@ -574,13 +663,18 @@ class GameTicketsSubscriptionHandler extends BaseSubscriptionHandler
     {
         return false;
     }
+
+    public function getRecentParticipants(int $subjectId, Carbon $since): array
+    {
+        return [];
+    }
 }
 
 class GameWallSubscriptionHandler extends CommentSubscriptionHandler
 {
-    protected function getArticleType(): int
+    protected function getCommentableType(): CommentableType
     {
-        return ArticleType::Game;
+        return CommentableType::Game;
     }
 
     /**
@@ -589,10 +683,10 @@ class GameWallSubscriptionHandler extends CommentSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = Game::whereIn('ID', $subjectIds)
+        $query = Game::whereIn('id', $subjectIds)
             ->select([
-                DB::raw('ID as subject_id'),
-                DB::raw('Title as title'),
+                DB::raw('id as subject_id'),
+                DB::raw('title as title'),
             ])
             ->orderBy('sort_title');
 
@@ -602,9 +696,9 @@ class GameWallSubscriptionHandler extends CommentSubscriptionHandler
 
 class LeaderboardWallSubscriptionHandler extends CommentSubscriptionHandler
 {
-    protected function getArticleType(): int
+    protected function getCommentableType(): CommentableType
     {
-        return ArticleType::Leaderboard;
+        return CommentableType::Leaderboard;
     }
 
     /**
@@ -613,10 +707,10 @@ class LeaderboardWallSubscriptionHandler extends CommentSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = Leaderboard::whereIn('ID', $subjectIds)
+        $query = Leaderboard::whereIn('id', $subjectIds)
             ->select([
-                DB::raw('ID as subject_id'),
-                DB::raw('Title as title'),
+                DB::raw('id as subject_id'),
+                DB::raw('title as title'),
             ])
             ->orderBy('title');
 
@@ -626,9 +720,9 @@ class LeaderboardWallSubscriptionHandler extends CommentSubscriptionHandler
 
 class UserWallSubscriptionHandler extends CommentSubscriptionHandler
 {
-    protected function getArticleType(): int
+    protected function getCommentableType(): CommentableType
     {
-        return ArticleType::User;
+        return CommentableType::User;
     }
 
     /**
@@ -637,10 +731,10 @@ class UserWallSubscriptionHandler extends CommentSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = User::whereIn('ID', $subjectIds)
+        $query = User::whereIn('id', $subjectIds)
             ->select([
-                DB::raw('ID as subject_id'),
-                DB::raw('IFNULL(display_name, User) as title'),
+                DB::raw('id as subject_id'),
+                DB::raw('IFNULL(display_name, username) as title'),
             ])
             ->orderBy('title');
 
@@ -667,10 +761,10 @@ class UserWallSubscriptionHandler extends CommentSubscriptionHandler
             if ($includeWallOwner) {
                 /** @var Builder<Model> $query2 */
                 $query2 = User::query()
-                    ->where('ID', $subjectId)
+                    ->where('id', $subjectId)
                     ->select([
-                        DB::raw('ID as user_id'),
-                        DB::raw('ID as subject_id'),
+                        DB::raw('id as user_id'),
+                        DB::raw('id as subject_id'),
                     ]);
 
                 $query->union($query2);

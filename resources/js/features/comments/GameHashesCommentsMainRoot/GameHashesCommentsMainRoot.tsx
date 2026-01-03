@@ -19,7 +19,7 @@ export const GameHashesCommentsMainRoot: FC = memo(() => {
     useCommentPagination({
       paginatedComments,
       entityId: game.id,
-      entityType: 'Game', // required to build the /game/{game}/hashes/comments routes correctly
+      commentableType: 'game-hash.comment',
       routeName: 'game.hashes.comment.index',
     });
 
@@ -41,7 +41,7 @@ export const GameHashesCommentsMainRoot: FC = memo(() => {
         canComment={canComment}
         comments={paginatedComments.items}
         commentableId={game.id}
-        commentableType="GameHash"
+        commentableType="game-hash.comment"
         onDeleteSuccess={handleCommentDeleteSuccess}
         onSubmitSuccess={handleCommentSubmitSuccess}
       />

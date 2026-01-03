@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\V1;
 
 use App\Community\Enums\UserGameListType;
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
@@ -26,13 +26,13 @@ class UserWantToPlayListTest extends TestCase
         parent::setUp();
 
         /** @var User $user */
-        $user = User::factory()->create(['User' => 'myUser']);
+        $user = User::factory()->create(['username' => 'myUser']);
         $this->user = $user;
     }
 
     protected function apiUrl(string $method, array $params = []): string
     {
-        $params = array_merge(['y' => $this->user->APIKey], $params);
+        $params = array_merge(['y' => $this->user->web_api_key], $params);
 
         return sprintf('API/API_%s.php?%s', $method, http_build_query($params));
     }
@@ -59,209 +59,209 @@ class UserWantToPlayListTest extends TestCase
         /** Set up a user with 5 games on Want to Play List: */
 
         /** @var User $followedUser */
-        $followedUser = User::factory()->create(['User' => 'followedUser']);
+        $followedUser = User::factory()->create(['username' => 'followedUser']);
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $followedUser->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         /** @var User $followingUser */
-        $followingUser = User::factory()->create(['User' => 'followingUser']);
+        $followingUser = User::factory()->create(['username' => 'followingUser']);
         UserRelation::create([
             'user_id' => $followingUser->id,
             'related_user_id' => $this->user->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
 
         /** @var User $friend */
-        $friend = User::factory()->create(['User' => 'myFriend']);
+        $friend = User::factory()->create(['username' => 'myFriend']);
         UserRelation::create([
             'user_id' => $this->user->id,
             'related_user_id' => $friend->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
         UserRelation::create([
             'user_id' => $friend->id,
             'related_user_id' => $this->user->id,
-            'Friendship' => UserRelationship::Following,
+            'status' => UserRelationStatus::Following,
         ]);
         /** @var System $system */
         $system = System::factory()->create();
 
         /** @var Game $gameOne */
-        $gameOne = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameOne = Game::factory()->create(['system_id' => $system->id]);
         UserGameListEntry::create([
             'user_id' => $this->user->id,
-            'GameID' => $gameOne->ID,
+            'game_id' => $gameOne->id,
             'type' => UserGameListType::Play,
         ]);
         UserGameListEntry::create([
             'user_id' => $followedUser->id,
-            'GameID' => $gameOne->ID,
+            'game_id' => $gameOne->id,
             'type' => UserGameListType::Play,
         ]);
         UserGameListEntry::create([
             'user_id' => $followingUser->id,
-            'GameID' => $gameOne->ID,
+            'game_id' => $gameOne->id,
             'type' => UserGameListType::Play,
         ]);
         UserGameListEntry::create([
             'user_id' => $friend->id,
-            'GameID' => $gameOne->ID,
+            'game_id' => $gameOne->id,
             'type' => UserGameListType::Play,
         ]);
 
         /** @var Game $gameTwo */
-        $gameTwo = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameTwo = Game::factory()->create(['system_id' => $system->id]);
         UserGameListEntry::create([
             'user_id' => $this->user->id,
-            'GameID' => $gameTwo->ID,
+            'game_id' => $gameTwo->id,
             'type' => UserGameListType::Play,
         ]);
 
         /** @var Game $gameThree */
-        $gameThree = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameThree = Game::factory()->create(['system_id' => $system->id]);
         UserGameListEntry::create([
             'user_id' => $this->user->id,
-            'GameID' => $gameThree->ID,
+            'game_id' => $gameThree->id,
             'type' => UserGameListType::Play,
         ]);
 
         /** @var Game $gameFour */
-        $gameFour = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameFour = Game::factory()->create(['system_id' => $system->id]);
         UserGameListEntry::create([
             'user_id' => $this->user->id,
-            'GameID' => $gameFour->ID,
+            'game_id' => $gameFour->id,
             'type' => UserGameListType::Play,
         ]);
 
         /** @var Game $gameFive */
-        $gameFive = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $gameFive = Game::factory()->create(['system_id' => $system->id]);
         UserGameListEntry::create([
             'user_id' => $this->user->id,
-            'GameID' => $gameFive->ID,
+            'game_id' => $gameFive->id,
             'type' => UserGameListType::Play,
         ]);
 
-        $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->User]))
+        $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->username]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 5,
                 'Total' => 5,
                 'Results' => [
                     [
-                        "ID" => $gameOne->ID,
-                        "Title" => $gameOne->Title,
-                        "ImageIcon" => $gameOne->ImageIcon,
-                        "ConsoleID" => $system->ID,
+                        "ID" => $gameOne->id,
+                        "Title" => $gameOne->title,
+                        "ImageIcon" => $gameOne->image_icon_asset_path,
+                        "ConsoleID" => $system->id,
                         "PointsTotal" => $gameOne->points_total,
                         'AchievementsPublished' => $gameOne->achievements_published,
                     ],
                     [
-                        "ID" => $gameTwo->ID,
-                        "Title" => $gameTwo->Title,
-                        "ImageIcon" => $gameTwo->ImageIcon,
-                        "ConsoleID" => $system->ID,
+                        "ID" => $gameTwo->id,
+                        "Title" => $gameTwo->title,
+                        "ImageIcon" => $gameTwo->image_icon_asset_path,
+                        "ConsoleID" => $system->id,
                         "PointsTotal" => $gameTwo->points_total,
                         'AchievementsPublished' => $gameTwo->achievements_published,
                     ],
                     [
-                        "ID" => $gameThree->ID,
-                        "Title" => $gameThree->Title,
-                        "ImageIcon" => $gameThree->ImageIcon,
-                        "ConsoleID" => $system->ID,
+                        "ID" => $gameThree->id,
+                        "Title" => $gameThree->title,
+                        "ImageIcon" => $gameThree->image_icon_asset_path,
+                        "ConsoleID" => $system->id,
                         "PointsTotal" => $gameThree->points_total,
                         'AchievementsPublished' => $gameThree->achievements_published,
                     ],
                     [
-                        "ID" => $gameFour->ID,
-                        "Title" => $gameFour->Title,
-                        "ImageIcon" => $gameFour->ImageIcon,
-                        "ConsoleID" => $system->ID,
+                        "ID" => $gameFour->id,
+                        "Title" => $gameFour->title,
+                        "ImageIcon" => $gameFour->image_icon_asset_path,
+                        "ConsoleID" => $system->id,
                         "PointsTotal" => $gameFour->points_total,
                         'AchievementsPublished' => $gameFour->achievements_published,
                     ],
                     [
-                        "ID" => $gameFive->ID,
-                        "Title" => $gameFive->Title,
-                        "ImageIcon" => $gameFive->ImageIcon,
-                        "ConsoleID" => $system->ID,
+                        "ID" => $gameFive->id,
+                        "Title" => $gameFive->title,
+                        "ImageIcon" => $gameFive->image_icon_asset_path,
+                        "ConsoleID" => $system->id,
                         "PointsTotal" => $gameFive->points_total,
                         'AchievementsPublished' => $gameFive->achievements_published,
                     ],
                 ],
             ]);
 
-            $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->User, 'o' => 3]))
+            $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->username, 'o' => 3]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
                     'Total' => 5,
                     'Results' => [
                         [
-                            "ID" => $gameFour->ID,
-                            "Title" => $gameFour->Title,
-                            "ImageIcon" => $gameFour->ImageIcon,
-                            "ConsoleID" => $system->ID,
+                            "ID" => $gameFour->id,
+                            "Title" => $gameFour->title,
+                            "ImageIcon" => $gameFour->image_icon_asset_path,
+                            "ConsoleID" => $system->id,
                             "PointsTotal" => $gameFour->points_total,
                             'AchievementsPublished' => $gameFour->achievements_published,
                         ],
                         [
-                            "ID" => $gameFive->ID,
-                            "Title" => $gameFive->Title,
-                            "ImageIcon" => $gameFive->ImageIcon,
-                            "ConsoleID" => $system->ID,
+                            "ID" => $gameFive->id,
+                            "Title" => $gameFive->title,
+                            "ImageIcon" => $gameFive->image_icon_asset_path,
+                            "ConsoleID" => $system->id,
                             "PointsTotal" => $gameFive->points_total,
                             'AchievementsPublished' => $gameFive->achievements_published,
                         ],
                     ],
                 ]);
 
-            $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->User, 'c' => 2]))
+            $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->username, 'c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
                     'Total' => 5,
                     'Results' => [
                         [
-                            "ID" => $gameOne->ID,
-                            "Title" => $gameOne->Title,
-                            "ImageIcon" => $gameOne->ImageIcon,
-                            "ConsoleID" => $system->ID,
+                            "ID" => $gameOne->id,
+                            "Title" => $gameOne->title,
+                            "ImageIcon" => $gameOne->image_icon_asset_path,
+                            "ConsoleID" => $system->id,
                             "PointsTotal" => $gameOne->points_total,
                             'AchievementsPublished' => $gameOne->achievements_published,
                         ],
                         [
-                            "ID" => $gameTwo->ID,
-                            "Title" => $gameTwo->Title,
-                            "ImageIcon" => $gameTwo->ImageIcon,
-                            "ConsoleID" => $system->ID,
+                            "ID" => $gameTwo->id,
+                            "Title" => $gameTwo->title,
+                            "ImageIcon" => $gameTwo->image_icon_asset_path,
+                            "ConsoleID" => $system->id,
                             "PointsTotal" => $gameTwo->points_total,
                             'AchievementsPublished' => $gameTwo->achievements_published,
                         ],
                     ],
                 ]);
 
-            $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->User, 'o' => 1, 'c' => 2]))
+            $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->username, 'o' => 1, 'c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
                     'Total' => 5,
                     'Results' => [
                         [
-                            "ID" => $gameTwo->ID,
-                            "Title" => $gameTwo->Title,
-                            "ImageIcon" => $gameTwo->ImageIcon,
-                            "ConsoleID" => $system->ID,
+                            "ID" => $gameTwo->id,
+                            "Title" => $gameTwo->title,
+                            "ImageIcon" => $gameTwo->image_icon_asset_path,
+                            "ConsoleID" => $system->id,
                             "PointsTotal" => $gameTwo->points_total,
                             'AchievementsPublished' => $gameTwo->achievements_published,
                         ],
                         [
-                            "ID" => $gameThree->ID,
-                            "Title" => $gameThree->Title,
-                            "ImageIcon" => $gameThree->ImageIcon,
-                            "ConsoleID" => $system->ID,
+                            "ID" => $gameThree->id,
+                            "Title" => $gameThree->title,
+                            "ImageIcon" => $gameThree->image_icon_asset_path,
+                            "ConsoleID" => $system->id,
                             "PointsTotal" => $gameThree->points_total,
                             'AchievementsPublished' => $gameThree->achievements_published,
                         ],
@@ -269,25 +269,25 @@ class UserWantToPlayListTest extends TestCase
                 ]);
 
                 // friendship tests
-                $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $followedUser->User]))
+                $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $followedUser->username]))
                     ->assertUnauthorized()
                     ->assertJson([]);
 
-                $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $followingUser->User]))
+                $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $followingUser->username]))
                     ->assertUnauthorized()
                     ->assertJson([]);
 
-                $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $friend->User]))
+                $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $friend->username]))
                     ->assertSuccessful()
                     ->assertJson([
                         'Count' => 1,
                         'Total' => 1,
                         'Results' => [
                             [
-                                "ID" => $gameOne->ID,
-                                "Title" => $gameOne->Title,
-                                "ImageIcon" => $gameOne->ImageIcon,
-                                "ConsoleID" => $system->ID,
+                                "ID" => $gameOne->id,
+                                "Title" => $gameOne->title,
+                                "ImageIcon" => $gameOne->image_icon_asset_path,
+                                "ConsoleID" => $system->id,
                                 "PointsTotal" => $gameOne->points_total,
                                 'AchievementsPublished' => $gameOne->achievements_published,
                             ],

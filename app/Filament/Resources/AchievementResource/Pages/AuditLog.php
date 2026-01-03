@@ -11,11 +11,15 @@ class AuditLog extends ResourceAuditLog
 {
     protected static string $resource = AchievementResource::class;
 
+    /**
+     * @return Collection<string, mixed>
+     */
     protected function createFieldLabelMap(): Collection
     {
         $fieldLabelMap = parent::createFieldLabelMap();
 
         $fieldLabelMap['BadgeName'] = 'Badge';
+        $fieldLabelMap['image_name'] = 'Badge';
 
         return $fieldLabelMap;
     }

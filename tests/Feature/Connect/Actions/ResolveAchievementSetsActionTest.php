@@ -14,7 +14,6 @@ use App\Models\User;
 use App\Models\UserGameAchievementSetPreference;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementSetType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
@@ -36,7 +35,7 @@ class ResolveAchievementSetsActionTest extends TestCase
         parent::setUp();
 
         // This common system is used in all the tests.
-        $this->system = System::factory()->create(['ID' => 1, 'Name' => 'NES/Famicom']);
+        $this->system = System::factory()->create(['id' => 1, 'name' => 'NES/Famicom']);
 
         $this->upsertGameCoreSetAction = new UpsertGameCoreAchievementSetFromLegacyFlagsAction();
         $this->associateAchievementSetToGameAction = new AssociateAchievementSetToGameAction();
@@ -51,9 +50,9 @@ class ResolveAchievementSetsActionTest extends TestCase
         int $publishedCount,
         int $unpublishedCount = 0,
     ): Game {
-        $game = Game::factory()->create(['Title' => $title, 'ConsoleID' => $system->id]);
-        Achievement::factory()->published()->count($publishedCount)->create(['GameID' => $game->id]);
-        Achievement::factory()->count($unpublishedCount)->create(['GameID' => $game->id]);
+        $game = Game::factory()->create(['title' => $title, 'system_id' => $system->id]);
+        Achievement::factory()->promoted()->count($publishedCount)->create(['game_id' => $game->id]);
+        Achievement::factory()->count($unpublishedCount)->create(['game_id' => $game->id]);
 
         return $game;
     }
@@ -76,8 +75,8 @@ class ResolveAchievementSetsActionTest extends TestCase
         $achievements = $set->achievementSet->achievements;
         $this->assertCount($publishedAchievementCount + $unpublishedAchievementCount, $achievements);
 
-        $publishedCount = $achievements->where('Flags', AchievementFlag::OfficialCore->value)->count();
-        $unpublishedCount = $achievements->where('Flags', AchievementFlag::Unofficial->value)->count();
+        $publishedCount = $achievements->where('is_promoted', true)->count();
+        $unpublishedCount = $achievements->where('is_promoted', false)->count();
         $this->assertEquals($publishedAchievementCount, $publishedCount);
         $this->assertEquals($unpublishedAchievementCount, $unpublishedCount);
     }
@@ -116,7 +115,7 @@ class ResolveAchievementSetsActionTest extends TestCase
 
         $this->upsertGameCoreSetAction->execute($baseGame);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $resolved = (new ResolveAchievementSetsAction())->execute($baseGameHash, $user);
@@ -141,7 +140,7 @@ class ResolveAchievementSetsActionTest extends TestCase
 
         $baseGameHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $resolved = (new ResolveAchievementSetsAction())->execute($baseGameHash, $user);
@@ -172,7 +171,7 @@ class ResolveAchievementSetsActionTest extends TestCase
 
         $baseGameHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $resolved = (new ResolveAchievementSetsAction())->execute($baseGameHash, $user);
@@ -201,7 +200,7 @@ class ResolveAchievementSetsActionTest extends TestCase
 
         $specialtyGameHash = GameHash::factory()->create(['game_id' => $specialtyGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $resolved = (new ResolveAchievementSetsAction())->execute($specialtyGameHash, $user);
@@ -230,7 +229,7 @@ class ResolveAchievementSetsActionTest extends TestCase
 
         $specialtyGameHash = GameHash::factory()->create(['game_id' => $specialtyGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         UserGameAchievementSetPreference::factory()->create([
             'user_id' => $user->id,
@@ -268,7 +267,7 @@ class ResolveAchievementSetsActionTest extends TestCase
 
         $specialtyGameHash = GameHash::factory()->create(['game_id' => $specialtyGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         UserGameAchievementSetPreference::factory()->create([
             'user_id' => $user->id,
@@ -303,7 +302,7 @@ class ResolveAchievementSetsActionTest extends TestCase
 
         $bonusGameHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $resolved = (new ResolveAchievementSetsAction())->execute($bonusGameHash, $user);
@@ -331,7 +330,7 @@ class ResolveAchievementSetsActionTest extends TestCase
 
         $baseGameHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_DISABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_DISABLED]);
 
         // Act
         $resolved = (new ResolveAchievementSetsAction())->execute($baseGameHash, $user);
@@ -356,7 +355,7 @@ class ResolveAchievementSetsActionTest extends TestCase
 
         $baseGameHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_DISABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_DISABLED]);
 
         UserGameAchievementSetPreference::factory()->create([
             'user_id' => $user->id,
@@ -396,7 +395,7 @@ class ResolveAchievementSetsActionTest extends TestCase
 
         $exclusiveGameHash = GameHash::factory()->create(['game_id' => $exclusiveGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $resolved = (new ResolveAchievementSetsAction())->execute($exclusiveGameHash, $user);
@@ -429,7 +428,7 @@ class ResolveAchievementSetsActionTest extends TestCase
         $incompatibleHash = $gameHashes->first();
         $bonusSet->achievementSet->incompatibleGameHashes()->attach($incompatibleHash->id);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $resolved = (new ResolveAchievementSetsAction())->execute($incompatibleHash, $user); // !! $incompatibleHash
@@ -462,7 +461,7 @@ class ResolveAchievementSetsActionTest extends TestCase
 
         $specialtyGameHash = GameHash::factory()->create(['game_id' => $specialtyGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $resolved = (new ResolveAchievementSetsAction())->execute($specialtyGameHash, $user);
@@ -489,7 +488,7 @@ class ResolveAchievementSetsActionTest extends TestCase
 
         $bonusGameHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // Act
         $resolved = (new ResolveAchievementSetsAction())->execute($bonusGameHash, $user);
@@ -525,7 +524,7 @@ class ResolveAchievementSetsActionTest extends TestCase
 
         $bonusGameHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_DISABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_DISABLED]);
 
         // Act
         $resolved = (new ResolveAchievementSetsAction())->execute($bonusGameHash, $user);
@@ -558,7 +557,7 @@ class ResolveAchievementSetsActionTest extends TestCase
 
         $bonusGameHash = GameHash::factory()->create(['game_id' => $bonusGame->id]);
 
-        $user = User::factory()->create(['websitePrefs' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
 
         // They're going to load a hash for $bonusGame, but they're also locally opted out of
         // $bonusGame's achievement set.

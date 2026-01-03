@@ -1,10 +1,9 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuWrench } from 'react-icons/lu';
+import { LuFlagTriangleRight } from 'react-icons/lu';
 
 import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { ClaimStatus } from '@/common/utils/generatedAppConstants';
 import { ClaimConfirmationDialog } from '@/features/games/components/ClaimConfirmationDialog';
 import { getAllPageAchievements } from '@/features/games/utils/getAllPageAchievements';
 
@@ -13,7 +12,7 @@ export const SidebarClaimButtons: FC = () => {
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
-  const areAnyClaimsInReview = achievementSetClaims.some((c) => c.status === ClaimStatus.InReview);
+  const areAnyClaimsInReview = achievementSetClaims.some((c) => c.status === 'in_review');
   if (areAnyClaimsInReview) {
     return null;
   }
@@ -52,7 +51,7 @@ export const SidebarClaimButtons: FC = () => {
           action="create"
           trigger={
             <PlayableSidebarButton
-              IconComponent={LuWrench}
+              IconComponent={LuFlagTriangleRight}
               showSubsetIndicator={game.id !== backingGame.id}
             >
               {wouldBeRevisionClaim ? t('Create New Revision Claim') : t('Create New Claim')}
@@ -66,7 +65,7 @@ export const SidebarClaimButtons: FC = () => {
           action="complete"
           trigger={
             <PlayableSidebarButton
-              IconComponent={LuWrench}
+              IconComponent={LuFlagTriangleRight}
               showSubsetIndicator={game.id !== backingGame.id}
             >
               {t('Complete Claim')}
@@ -82,7 +81,7 @@ export const SidebarClaimButtons: FC = () => {
               action="extend"
               trigger={
                 <PlayableSidebarButton
-                  IconComponent={LuWrench}
+                  IconComponent={LuFlagTriangleRight}
                   showSubsetIndicator={game.id !== backingGame.id}
                 >
                   {t('Extend Claim')}
@@ -96,7 +95,7 @@ export const SidebarClaimButtons: FC = () => {
               action="drop"
               trigger={
                 <PlayableSidebarButton
-                  IconComponent={LuWrench}
+                  IconComponent={LuFlagTriangleRight}
                   showSubsetIndicator={game.id !== backingGame.id}
                 >
                   {t('Drop Claim')}

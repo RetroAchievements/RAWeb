@@ -50,7 +50,7 @@ Before submitting a pull request:
 
 ## Testing, Code Style, and Static Analysis
 
-**PHPUnit** is used for testing. Write feature and/or unit tests where applicable.  
+**Pest** is used for testing. Write feature and/or unit tests where applicable.  
 
 **PHP CS Fixer** comes as a dev dependency. Use it before you commit. See the [README](https://github.com/RetroAchievements/RAWeb/blob/master/README.md).
 
@@ -100,4 +100,4 @@ Route keys for route model binding should be validated in the respective RouteSe
 
 ## Translating the Application
 
-We welcome contributions to translate the RetroAchievements website into different languages. To get started, please refer to our [translations guide](TRANSLATIONS.md) for detailed instructions on how to add or update translations.
+We welcome contributions to translate the RetroAchievements website into different languages. To get started, please refer to our [translations guide](https://github.com/RetroAchievements/RAWeb/blob/master/docs/TRANSLATIONS.md) for detailed instructions on how to add or update translations.

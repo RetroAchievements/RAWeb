@@ -628,4 +628,82 @@ describe('Component: MobileCreditDialogTrigger', () => {
     expect(screen.getByText(/1 author/i)).toBeVisible();
     expect(screen.queryByText(/contributor/i)).not.toBeInTheDocument(); // !! should not be counted as contributor
   });
+
+  it('given a claim is In Review, shows a lock icon instead of a wrench', () => {
+    // ARRANGE
+    const achievementSetClaims = [
+      createAchievementSetClaim({
+        user: createUser({ displayName: 'Alice' }),
+        status: 'in_review', // !!
+      }),
+    ];
+
+    render(
+      <MobileCreditDialogTrigger
+        achievementSetClaims={achievementSetClaims}
+        aggregateCredits={createAggregateAchievementSetCredits()}
+        artCreditUsers={[]}
+        codingCreditUsers={[]}
+        designCreditUsers={[]}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByTestId('lock-icon')).toBeVisible();
+    expect(screen.queryByTestId('wrench-icon')).not.toBeInTheDocument();
+  });
+
+  it('given no claims are In Review, shows a wrench icon', () => {
+    // ARRANGE
+    const achievementSetClaims = [
+      createAchievementSetClaim({
+        user: createUser({ displayName: 'Alice' }),
+        status: 'active', // !! not In Review
+      }),
+    ];
+
+    render(
+      <MobileCreditDialogTrigger
+        achievementSetClaims={achievementSetClaims}
+        aggregateCredits={createAggregateAchievementSetCredits()}
+        artCreditUsers={[]}
+        codingCreditUsers={[]}
+        designCreditUsers={[]}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByTestId('wrench-icon')).toBeVisible();
+    expect(screen.queryByTestId('lock-icon')).not.toBeInTheDocument();
+  });
+
+  it('given a claim is In Review, shows "In Review" text in the dialog instead of the expiry date', async () => {
+    // ARRANGE
+    const achievementSetClaims = [
+      createAchievementSetClaim({
+        user: createUser({ displayName: 'Alice' }),
+        status: 'in_review', // !!
+        finishedAt: dayjs().add(1, 'month').toISOString(),
+      }),
+    ];
+
+    render(
+      <MobileCreditDialogTrigger
+        achievementSetClaims={achievementSetClaims}
+        aggregateCredits={createAggregateAchievementSetCredits()}
+        artCreditUsers={[]}
+        codingCreditUsers={[]}
+        designCreditUsers={[]}
+      />,
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('button'));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByText(/in review/i)).toBeVisible();
+    });
+    expect(screen.queryByText(/expires/i)).not.toBeInTheDocument();
+  });
 });

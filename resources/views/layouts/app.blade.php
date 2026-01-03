@@ -13,21 +13,21 @@
 <body
     data-scheme="{{ request()->cookie('scheme', '') }}"
     data-theme="{{ request()->cookie('theme', '') }}"
-    class="{{ config('app.debug') ? 'debug' : '' }} {{ !Route::is('news.index') ? 'with-news' : '' }} with-footer"
+    class="{{ config('app.debug') ? 'debug' : '' }} {{ !Route::is('passport.*') ? 'with-footer' : '' }}"
 >
-    <div data-vaul-drawer-wrapper="">
-        @if (Route::is('home'))
-            <div
-                id="brand-top-wrapper"
-                class="{{ Route::is('home') ? 'block' : 'hidden' }}"
-            >
-                <x-brand-top />
-            </div>
-        @endif
+    @if (Route::is('home'))
+        <div
+            id="brand-top-wrapper"
+            class="{{ Route::is('home') ? 'block' : 'hidden' }}"
+        >
+            <x-brand-top />
+        </div>
+    @endif
 
+    @if (!Route::is('passport.*'))
         <x-navbar class="flex flex-col w-full justify-center bg-embedded lg:sticky lg:top-0">
             <x-slot name="brand">
-                <div 
+                <div
                     id="nav-brand-wrapper"
                     class="{{ Route::is('home') ? 'lg:hidden' : '' }}"
                 >
@@ -36,7 +36,7 @@
             </x-slot>
 
             <x-menu.main />
-            
+
             <x-slot name="right">
                 <div class="ml-auto"></div>
                 <x-menu.search />
@@ -46,7 +46,7 @@
                 <x-menu.notifications class="hidden lg:inline-block" />
                 <x-menu.account />
             </x-slot>
-            
+
             <x-slot name="mobile">
                 <x-menu.main :mobile="true" />
                 <div class="ml-auto"></div>
@@ -56,57 +56,59 @@
                 <x-menu.notifications />
             </x-slot>
         </x-navbar>
+    @endif
 
-        <x-content>
-            @if (!empty($page))
-                @inertia
-            @else
-                <x-slot name="header">
-                    {{ $header ?? '' }}
+    <x-content>
+        @if (!empty($page))
+            @inertia
+        @else
+            <x-slot name="header">
+                {{ $header ?? '' }}
+            </x-slot>
+
+            <x-slot name="breadcrumb">
+                {{ $breadcrumb ?? '' }}
+            </x-slot>
+
+            <x-main :sidebarPosition="$sidebarPosition ?? 'right'">
+                @if (!empty($page))
+                    @inertia
+                @endif
+
+                <x-slot name="sidebar">
+                    {{ $sidebar ?? '' }}
                 </x-slot>
 
-                <x-slot name="breadcrumb">
-                    {{ $breadcrumb ?? '' }}
-                </x-slot>
+                {{ $slot ?? '' }}
+            </x-main>
+        @endif
+    </x-content>
 
-                <x-main :sidebarPosition="$sidebarPosition ?? 'right'">
-                    @if (!empty($page))
-                        @inertia
-                    @endif
-        
-                    <x-slot name="sidebar">
-                        {{ $sidebar ?? '' }}
-                    </x-slot>
-                    
-                    {{ $slot ?? '' }}
-                </x-main>
-            @endif
-        </x-content>
-
+    @if (!Route::is('passport.*'))
         <footer>
             {{--@if(!Route::is('news.index'))
                 <livewire:news-teaser />
             @endif--}}
             <x-footer-navigation />
         </footer>
+    @endif
 
-        <script>
-            document.addEventListener('inertia:navigate', (event) => {
-                const brandTopWrapper = document.getElementById('brand-top-wrapper');
-                const navBrandWrapper = document.getElementById('nav-brand-wrapper');
+    <script>
+        document.addEventListener('inertia:navigate', (event) => {
+            const brandTopWrapper = document.getElementById('brand-top-wrapper');
+            const navBrandWrapper = document.getElementById('nav-brand-wrapper');
 
-                const isHomeRoute = event.detail.page.url === '/';
+            const isHomeRoute = event.detail.page.url === '/';
 
-                if (brandTopWrapper) {
-                    brandTopWrapper.classList.toggle('hidden', !isHomeRoute);
-                }
-                if (navBrandWrapper) {
-                    navBrandWrapper.className = isHomeRoute ? 'lg:hidden' : '';
-                }
-            });
-        </script>
+            if (brandTopWrapper) {
+                brandTopWrapper.classList.toggle('hidden', !isHomeRoute);
+            }
+            if (navBrandWrapper) {
+                navBrandWrapper.className = isHomeRoute ? 'lg:hidden' : '';
+            }
+        });
+    </script>
 
-        <x-body-end />
-    </div>
+    <x-body-end />
 </body>
 </html>

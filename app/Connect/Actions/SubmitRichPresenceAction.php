@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Connect\Actions;
 
-use App\Community\Enums\ArticleType;
+use App\Community\Enums\CommentableType;
 use App\Connect\Support\BaseAuthenticatedApiAction;
+use App\Connect\Support\GeneratesLegacyAuditComment;
 use App\Models\Game;
 use App\Models\User;
 use App\Platform\Actions\UpsertTriggerVersionAction;
@@ -13,6 +14,8 @@ use Illuminate\Http\Request;
 
 class SubmitRichPresenceAction extends BaseAuthenticatedApiAction
 {
+    use GeneratesLegacyAuditComment;
+
     protected int $gameId;
     protected string $richPresence;
 
@@ -46,17 +49,17 @@ class SubmitRichPresenceAction extends BaseAuthenticatedApiAction
         }
 
         // Check if user has permission to update this game.
-        if (!$this->user->can('updateField', [$game, 'RichPresencePatch'])) {
+        if (!$this->user->can('updateField', [$game, 'trigger_definition'])) {
             return $this->accessDenied();
         }
 
-        if ($game->RichPresencePatch === $this->richPresence) {
+        if ($game->trigger_definition === $this->richPresence) {
             return [
                 'Success' => true,
             ];
         }
 
-        $game->RichPresencePatch = $this->richPresence;
+        $game->trigger_definition = $this->richPresence;
         $game->save();
 
         (new UpsertTriggerVersionAction())->execute(
@@ -66,10 +69,7 @@ class SubmitRichPresenceAction extends BaseAuthenticatedApiAction
             user: $this->user,
         );
 
-        addArticleComment(
-            'Server',
-            ArticleType::GameModification,
-            $game->id,
+        $this->addLegacyAuditComment(CommentableType::GameModification, $game->id,
             "{$this->user->display_name} changed the rich presence script"
         );
 

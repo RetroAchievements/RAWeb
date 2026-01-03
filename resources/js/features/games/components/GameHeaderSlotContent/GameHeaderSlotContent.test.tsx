@@ -104,7 +104,7 @@ describe('Component: GameHeaderSlotContent', () => {
     const button = screen.getByRole('button', { name: /want to play/i });
 
     expect(button).toBeVisible();
-    expect(button).toHaveAttribute('aria-pressed', 'false');
+    expect(button).not.toBePressed();
   });
 
   it('given the game is on the want to play list, the button indicates it is pressed', () => {
@@ -124,7 +124,7 @@ describe('Component: GameHeaderSlotContent', () => {
     // ASSERT
     const button = screen.getByRole('button', { name: /want to play/i });
     expect(button).toBeVisible();
-    expect(button).toHaveAttribute('aria-pressed', 'true');
+    expect(button).toBePressed();
   });
 
   it('given the user is not authenticated and clicks Want to Play, redirects to login', async () => {
@@ -186,10 +186,7 @@ describe('Component: GameHeaderSlotContent', () => {
     });
 
     // ... the button should optimistically update to show the check icon ...
-    expect(screen.getByRole('button', { name: /want to play/i })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    expect(screen.getByRole('button', { name: /want to play/i })).toBePressed();
   });
 
   it('given the user clicks Want to Play when the game is in the list, removes it from the list', async () => {
@@ -222,47 +219,6 @@ describe('Component: GameHeaderSlotContent', () => {
     });
 
     // ... the button should optimistically update to show the plus icon ...
-    expect(screen.getByRole('button', { name: /want to play/i })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    );
-  });
-
-  it('given the user is allowed to submit beta feedback, displays the corresponding button', () => {
-    // ARRANGE
-    const game = createGame();
-    const pageProps = {
-      game,
-      auth: null,
-      backingGame: game,
-      isOnWantToPlayList: false,
-      isOnWantToDevList: false,
-      canSubmitBetaFeedback: true, // !!
-      ziggy: createZiggyProps(),
-    };
-
-    render(<GameHeaderSlotContent />, { pageProps });
-
-    // ASSERT
-    expect(screen.getByRole('button', { name: /give beta feedback/i })).toBeVisible();
-  });
-
-  it('given the user is not allowed to submit beta feedback, does not display the corresponding button', () => {
-    // ARRANGE
-    const game = createGame();
-    const pageProps = {
-      game,
-      auth: null,
-      backingGame: game,
-      isOnWantToPlayList: false,
-      isOnWantToDevList: false,
-      canSubmitBetaFeedback: false, // !!
-      ziggy: createZiggyProps(),
-    };
-
-    render(<GameHeaderSlotContent />, { pageProps });
-
-    // ASSERT
-    expect(screen.queryByRole('button', { name: /give beta feedback/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /want to play/i })).not.toBePressed();
   });
 });

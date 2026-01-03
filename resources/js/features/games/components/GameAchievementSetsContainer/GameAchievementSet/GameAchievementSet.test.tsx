@@ -1,3 +1,4 @@
+import * as useIsHydratedModule from '@/common/hooks/useIsHydrated';
 import { createAuthenticatedUser } from '@/common/models';
 import {
   currentListViewAtom,
@@ -9,6 +10,7 @@ import { render, screen } from '@/test';
 import {
   createAchievement,
   createAchievementSet,
+  createAchievementSetGroup,
   createAggregateAchievementSetCredits,
   createGame,
   createGameAchievementSet,
@@ -19,6 +21,10 @@ import {
 import { GameAchievementSet } from './GameAchievementSet';
 
 describe('Component: GameAchievementSet', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('renders without crashing', () => {
     // ARRANGE
     const game = createGame();
@@ -441,5 +447,527 @@ describe('Component: GameAchievementSet', () => {
 
     // ASSERT
     expect(screen.getAllByText(/0%/i)[0]).toBeVisible();
+  });
+
+  it('given the component has not hydrated yet, limits rendered achievements and shows a placeholder', () => {
+    // ARRANGE
+    vi.spyOn(useIsHydratedModule, 'useIsHydrated').mockReturnValue(false); // we're in SSR
+
+    const game = createGame();
+    const achievements = Array.from({ length: 30 }, (_, i) =>
+      createAchievement({
+        id: i + 1,
+        title: `Achievement ${i + 1}`,
+      }),
+    );
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+      }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+        },
+      },
+    );
+
+    // ASSERT
+    // ... only the first 20 achievements should be rendered ...
+    expect(screen.getByText('Achievement 1')).toBeVisible();
+    expect(screen.getByText('Achievement 20')).toBeVisible();
+    expect(screen.queryByText('Achievement 21')).not.toBeInTheDocument();
+    expect(screen.queryByText('Achievement 30')).not.toBeInTheDocument();
+
+    // ... and there should be an invisible placeholder for the remaining 10 achievements ...
+    const placeholder = screen.getByTestId('invisible-placeholder');
+    expect(placeholder).toBeInTheDocument();
+    expect(placeholder).toHaveStyle({ height: '950px' }); // (10 * 96) - 10 = 950
+  });
+
+  it('given the component has not hydrated yet but there are 20 or fewer achievements, does not show a placeholder', () => {
+    // ARRANGE
+    vi.spyOn(useIsHydratedModule, 'useIsHydrated').mockReturnValue(false); // we're in SSR
+
+    const game = createGame();
+    const achievements = Array.from({ length: 15 }, (_, i) =>
+      createAchievement({
+        id: i + 1,
+        title: `Achievement ${i + 1}`,
+      }),
+    );
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+      }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+        },
+      },
+    );
+
+    // ASSERT
+    // ... all 15 achievements should be rendered since they fit within the SSR limit ...
+    expect(screen.getByText('Achievement 1')).toBeVisible();
+    expect(screen.getByText('Achievement 15')).toBeVisible();
+
+    // ... no placeholder needed since all achievements are rendered ...
+    expect(screen.queryByTestId('invisible-placeholder')).not.toBeInTheDocument();
+  });
+
+  it('given achievements have groups, renders them within group sections', () => {
+    // ARRANGE
+    const game = createGame();
+
+    const storyGroup = createAchievementSetGroup({
+      id: 1,
+      label: 'Story Achievements',
+      achievementCount: 2,
+      badgeUrl: 'https://example.com/story-badge.png',
+      orderColumn: 0,
+    });
+
+    const collectibleGroup = createAchievementSetGroup({
+      id: 2,
+      label: 'Collectible Achievements',
+      achievementCount: 1,
+      badgeUrl: 'https://example.com/collectible-badge.png',
+      orderColumn: 1,
+    });
+
+    const achievements = [
+      createAchievement({ id: 1, title: 'Beat Chapter 1', groupId: 1 }),
+      createAchievement({ id: 2, title: 'Beat Chapter 2', groupId: 1 }),
+      createAchievement({ id: 3, title: 'Find All Coins', groupId: 2 }),
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+        achievementGroups: [storyGroup, collectibleGroup],
+      }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+        },
+      },
+    );
+
+    // ASSERT
+    // ... group section headers should be visible ...
+    expect(screen.getByText('Story Achievements')).toBeVisible();
+    expect(screen.getByText('Collectible Achievements')).toBeVisible();
+
+    // ... achievements should be rendered ...
+    expect(screen.getByText('Beat Chapter 1')).toBeVisible();
+    expect(screen.getByText('Beat Chapter 2')).toBeVisible();
+    expect(screen.getByText('Find All Coins')).toBeVisible();
+
+    // ... achievement counts should be displayed in the group headers ...
+    expect(screen.getByText(/2 achievements/i)).toBeVisible();
+    expect(screen.getByText(/1 achievement\b/i)).toBeVisible();
+
+    // ... group badge icons should be displayed (role="presentation" because alt="") ...
+    const badgeImages = screen.getAllByRole('presentation');
+    expect(badgeImages[0]).toHaveAttribute('src', 'https://example.com/story-badge.png');
+    expect(badgeImages[1]).toHaveAttribute('src', 'https://example.com/collectible-badge.png');
+  });
+
+  it('given some achievements are ungrouped, renders them in an "Other Achievements" section', () => {
+    // ARRANGE
+    const game = createGame();
+
+    const storyGroup = createAchievementSetGroup({
+      id: 1,
+      label: 'Story Achievements',
+      achievementCount: 1,
+      orderColumn: 0,
+    });
+
+    const achievements = [
+      createAchievement({ id: 1, title: 'Beat the Game', groupId: 1 }),
+      createAchievement({ id: 2, title: 'Ungrouped Achievement 1', groupId: undefined }),
+      createAchievement({ id: 3, title: 'Ungrouped Achievement 2', groupId: undefined }),
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+        achievementGroups: [storyGroup],
+      }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByText('Story Achievements')).toBeVisible();
+    expect(screen.getByText('Other')).toBeVisible(); // i18n key "otherAchievements" translates to "Other"
+
+    expect(screen.getByText('Beat the Game')).toBeVisible();
+    expect(screen.getByText('Ungrouped Achievement 1')).toBeVisible();
+    expect(screen.getByText('Ungrouped Achievement 2')).toBeVisible();
+  });
+
+  it('given a group has zero achievements and zero achievementCount, does not render that group', () => {
+    // ARRANGE
+    const game = createGame();
+
+    const populatedGroup = createAchievementSetGroup({
+      id: 1,
+      label: 'Populated Group',
+      achievementCount: 1,
+      orderColumn: 0,
+    });
+
+    const emptyGroup = createAchievementSetGroup({
+      id: 2,
+      label: 'Empty Group',
+      achievementCount: 0, // !!
+      orderColumn: 1,
+    });
+
+    const achievements = [
+      createAchievement({ id: 1, title: 'Only Achievement', groupId: 1 }),
+      // !! no achievements with groupId: 2
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+        achievementGroups: [populatedGroup, emptyGroup],
+      }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByText('Populated Group')).toBeVisible();
+    expect(screen.queryByText('Empty Group')).not.toBeInTheDocument();
+  });
+
+  it('given we are in SSR mode and groups exist, shows a placeholder within the grouped view', () => {
+    // ARRANGE
+    vi.spyOn(useIsHydratedModule, 'useIsHydrated').mockReturnValue(false); // we're in SSR
+
+    const game = createGame();
+
+    const group = createAchievementSetGroup({
+      id: 1,
+      label: 'Story Achievements',
+      achievementCount: 30,
+      orderColumn: 0,
+    });
+
+    const achievements = Array.from({ length: 30 }, (_, i) =>
+      createAchievement({
+        id: i + 1,
+        title: `Achievement ${i + 1}`,
+        groupId: 1,
+      }),
+    );
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+        achievementGroups: [group],
+      }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+        },
+      },
+    );
+
+    // ASSERT
+    // ... only the first 20 achievements should be rendered ...
+    expect(screen.getByText('Achievement 1')).toBeVisible();
+    expect(screen.getByText('Achievement 20')).toBeVisible();
+    expect(screen.queryByText('Achievement 21')).not.toBeInTheDocument();
+
+    // ... and there should be an invisible placeholder for the remaining 10 achievements ...
+    const placeholder = screen.getByTestId('invisible-placeholder');
+    expect(placeholder).toBeInTheDocument();
+    expect(placeholder).toHaveStyle({ height: '950px' }); // (10 * 96) - 10 = 950
+  });
+
+  it('given a group has no badgeUrl, does not display an icon for that group', () => {
+    // ARRANGE
+    const game = createGame();
+
+    const group = createAchievementSetGroup({
+      id: 1,
+      label: 'Story Achievements',
+      achievementCount: 1,
+      badgeUrl: null, // !!
+      orderColumn: 0,
+    });
+
+    const achievements = [createAchievement({ id: 1, title: 'Beat the Game', groupId: 1 })];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+        achievementGroups: [group],
+      }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [[currentPlayableListSortAtom, 'normal']],
+        pageProps: {
+          game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByText('Story Achievements')).toBeVisible();
+    expect(screen.queryByRole('presentation')).not.toBeInTheDocument();
+  });
+
+  it('given a group exists but has no matching achievements in the filtered list, still renders the group header', () => {
+    // ARRANGE
+    const game = createGame();
+
+    const group = createAchievementSetGroup({
+      id: 1,
+      label: 'Story Achievements',
+      achievementCount: 5, // !! group says it has 5 achievements
+      orderColumn: 0,
+    });
+
+    const achievements = [
+      createAchievement({ id: 1, title: 'Ungrouped Achievement', groupId: undefined }),
+    ];
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({
+        achievements,
+        achievementGroups: [group],
+      }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+        },
+      },
+    );
+
+    // ASSERT
+    // ... group header should still render because achievementCount > 0 ...
+    expect(screen.getByText('Story Achievements')).toBeVisible();
+    expect(screen.getByText(/5 achievements/i)).toBeVisible();
+  });
+
+  it('given a leaderboard view, shows active and disabled leaderboards with separator', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements = [createAchievement()];
+    const allLeaderboards = [
+      createLeaderboard({ id: 1, title: 'Active Leaderboard 1', state: 'active' }),
+      createLeaderboard({ id: 2, title: 'Active Leaderboard 2', state: 'active' }),
+      createLeaderboard({ id: 3, title: 'Disabled Leaderboard', state: 'disabled' }),
+    ];
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ achievements }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          [currentListViewAtom, 'leaderboards'],
+        ],
+        pageProps: {
+          allLeaderboards,
+          game,
+          numLeaderboards: 3,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          isViewingPublishedAchievements: true,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... active and disabled leaderboards should be visible with separator ...
+    expect(screen.getByText('Active Leaderboard 1')).toBeVisible();
+    expect(screen.getByText('Active Leaderboard 2')).toBeVisible();
+    expect(screen.getByText('Disabled Leaderboard')).toBeVisible();
+
+    expect(screen.getByTestId('disabled-separator')).toBeVisible();
+  });
+
+  it('given a leaderboard view, shows unpublished leaderboards without disabled leaderboards or separator', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements = [createAchievement()];
+    const allLeaderboards = [
+      createLeaderboard({ id: 1, title: 'Unpublished Leaderboard 1', state: 'unpublished' }),
+      createLeaderboard({ id: 2, title: 'Unpublished Leaderboard 2', state: 'unpublished' }),
+      createLeaderboard({ id: 3, title: 'Disabled Leaderboard', state: 'disabled' }),
+    ];
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ achievements }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          [currentListViewAtom, 'leaderboards'],
+        ],
+        pageProps: {
+          allLeaderboards,
+          game,
+          numLeaderboards: 3,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          isViewingPublishedAchievements: false,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... only unpublished leaderboards should be visible with no separator ...
+    expect(screen.getByText('Unpublished Leaderboard 1')).toBeVisible();
+    expect(screen.getByText('Unpublished Leaderboard 2')).toBeVisible();
+    expect(screen.queryByText('Disabled Leaderboard')).not.toBeInTheDocument();
+
+    expect(screen.queryByTestId('disabled-separator')).not.toBeInTheDocument();
+  });
+
+  it('given a leaderboard view, shows only disabled leaderboards when no active ones exist', () => {
+    // ARRANGE
+    const game = createGame();
+    const achievements = [createAchievement()];
+    const allLeaderboards = [
+      createLeaderboard({ id: 1, title: 'Disabled Leaderboard 1', state: 'disabled' }),
+      createLeaderboard({ id: 2, title: 'Disabled Leaderboard 2', state: 'disabled' }),
+    ];
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ achievements }),
+    });
+
+    render(
+      <GameAchievementSet achievements={achievements} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          [currentListViewAtom, 'leaderboards'],
+        ],
+        pageProps: {
+          allLeaderboards,
+          game,
+          numLeaderboards: 2,
+          achievementSetClaims: [],
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          isViewingPublishedAchievements: true,
+          ziggy: createZiggyProps(),
+        },
+      },
+    );
+
+    // ASSERT
+    // ... only disabled leaderboards should be visible with no separator ...
+    expect(screen.getByText('Disabled Leaderboard 1')).toBeVisible();
+    expect(screen.getByText('Disabled Leaderboard 2')).toBeVisible();
+
+    expect(screen.queryByTestId('disabled-separator')).not.toBeInTheDocument();
   });
 });

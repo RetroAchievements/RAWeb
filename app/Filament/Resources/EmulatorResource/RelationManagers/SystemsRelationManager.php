@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Filament\Resources\EmulatorResource\RelationManagers;
 
 use App\Models\System;
+use Filament\Actions\AttachAction;
+use Filament\Actions\DetachAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,10 +30,10 @@ class SystemsRelationManager extends RelationManager
         return (string) $ownerRecord->systems->count();
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Forms\Components\TextInput::make('title')
                     ->required()
                     ->maxLength(255),
@@ -47,18 +49,18 @@ class SystemsRelationManager extends RelationManager
                     ->label('')
                     ->size(config('media.icon.sm.width')),
 
-                Tables\Columns\TextColumn::make('ID')
+                Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->sortable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->where(DB::raw('Console.ID'), 'like', "%{$search}%");
+                        return $query->where(DB::raw('systems.id'), 'like', "%{$search}%");
                     }),
 
                 Tables\Columns\TextColumn::make('name_full')
                     ->label('Full name')
                     ->description(fn (System $record): ?string => $record->name_short)
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->where(DB::raw('Console.name_full'), 'like', "%{$search}%");
+                        return $query->where(DB::raw('systems.name_full'), 'like', "%{$search}%");
                     })
                     ->sortable()
                     ->grow(true),
@@ -67,11 +69,11 @@ class SystemsRelationManager extends RelationManager
 
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make()
+                AttachAction::make()
                     ->preloadRecordSelect(),
             ])
-            ->actions([
-                Tables\Actions\DetachAction::make(),
+            ->recordActions([
+                DetachAction::make(),
             ])
             ->defaultSort(function (Builder $query): Builder {
                 return $query->orderBy('name_full');

@@ -14,7 +14,7 @@
  *    boolean    IsFollowingMe              whether the followed user follows the caller user back
  */
 
-use App\Community\Enums\UserRelationship;
+use App\Community\Enums\UserRelationStatus;
 use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -32,32 +32,31 @@ $count = $input['c'] ?? 100;
 $user = Auth::user();
 
 $totalUsers = $user->followedUsers()
-    ->whereNull('Deleted')
+    ->whereNull('deleted_at')
     ->count();
 
 $usersList = $user
-  ->followedUsers()
-  ->whereNull("Deleted")
-  ->with([
-      "relatedUsers" => fn ($q) => $q
-        ->select(sprintf("%s.ID", $user->getTable()), "related_user_id")
-        ->where("related_user_id", $user->id)
-        ->withPivot("Friendship"),
-  ])
-  ->orderByDesc("LastLogin")
-  ->skip($offset)
-  ->take($count)
-  ->get()
-  ->map(
-    fn ($followedUser) => [
-        "User" => $followedUser->display_name,
-        "ULID" => $followedUser->ulid,
-        "Points" => $followedUser->points,
-        "PointsSoftcore" => $followedUser->points_softcore,
-        "IsFollowingMe" => $followedUser->relatedUsers->first()?->pivot?->Friendship ===
-          UserRelationship::Following,
-    ]
-  );
+    ->followedUsers()
+    ->whereNull('deleted_at')
+    ->with([
+        'relatedUsers' => fn ($q) => $q
+            ->select(sprintf('%s.id', $user->getTable()), 'related_user_id')
+            ->where('related_user_id', $user->id)
+            ->withPivot('status'),
+    ])
+    ->orderByDesc('last_activity_at')
+    ->skip($offset)
+    ->take($count)
+    ->get()
+    ->map(
+        fn ($followedUser) => [
+            'User' => $followedUser->display_name,
+            'ULID' => $followedUser->ulid,
+            'Points' => $followedUser->points_hardcore,
+            'PointsSoftcore' => $followedUser->points,
+            'IsFollowingMe' => $followedUser->relatedUsers->first()?->pivot?->status === UserRelationStatus::Following->value,
+        ]
+    );
 
 return response()->json([
     'Count' => count($usersList),

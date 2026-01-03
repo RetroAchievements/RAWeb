@@ -9,7 +9,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'game' => 'required|integer|exists:GameData,ID',
+    'game' => 'required|integer|exists:games,id',
     'title' => 'required|string|max:80',
 ]);
 

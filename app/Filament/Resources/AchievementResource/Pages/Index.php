@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Filament\Resources\AchievementResource\Pages;
 
 use App\Filament\Resources\AchievementResource;
-use App\Platform\Enums\AchievementFlag;
 use Filament\Actions;
-use Filament\Resources\Components;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas;
 use Illuminate\Database\Eloquent\Builder;
 
 class Index extends ListRecords
@@ -25,11 +24,11 @@ class Index extends ListRecords
     public function getTabs(): array
     {
         return [
-            'all' => Components\Tab::make(),
-            'published' => Components\Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('Flags', AchievementFlag::OfficialCore->value)),
-            'unpublished' => Components\Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('Flags', AchievementFlag::Unofficial->value)),
+            'all' => Schemas\Components\Tabs\Tab::make(),
+            'published' => Schemas\Components\Tabs\Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_promoted', true)),
+            'unpublished' => Schemas\Components\Tabs\Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_promoted', false)),
         ];
     }
 }

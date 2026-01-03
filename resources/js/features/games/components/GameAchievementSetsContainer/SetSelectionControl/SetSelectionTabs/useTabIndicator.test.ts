@@ -52,15 +52,15 @@ describe('Hook: useTabIndicator', () => {
     expect(result.current.isAnimationReady).toEqual(false);
   });
 
-  it('given the hook is initialized, returns initial indicator styles with zero opacity', () => {
+  it('given the hook is initialized, returns SSR-friendly default indicator styles', () => {
     // ARRANGE
     const { result } = renderHook(() => useTabIndicator(0));
 
     // ASSERT
     expect(result.current.indicatorStyles).toEqual({
-      transform: 'translateX(0px) translateY(0px)',
-      width: '0px',
-      opacity: 0,
+      transform: 'translateX(0px) translateY(40px)',
+      width: '48px',
+      opacity: 1,
       contain: 'layout',
     });
   });
@@ -123,17 +123,24 @@ describe('Hook: useTabIndicator', () => {
 
   it('given no width is available, sets opacity to 0', () => {
     // ARRANGE
-    const { result } = renderHook(() => useTabIndicator(0));
+    const { result } = renderHook(() => useTabIndicator(1)); // !! start at index 1
 
-    const mockElement = {
-      offsetLeft: 50,
-      offsetWidth: 0, // !!
-    } as HTMLDivElement;
+    const mockElements = [
+      { offsetLeft: 50, offsetWidth: 0, offsetTop: 0, offsetHeight: 30 } as HTMLDivElement,
+      { offsetLeft: 100, offsetWidth: 60, offsetTop: 0, offsetHeight: 30 } as HTMLDivElement,
+    ];
+
+    act(() => {
+      result.current.tabRefs.current = mockElements;
+    });
 
     // ACT
     act(() => {
-      result.current.tabRefs.current[0] = mockElement;
-      result.current.setActiveIndex(0);
+      result.current.setActiveIndex(0); // !! change to index 0 which has width 0
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(50);
     });
 
     // ASSERT

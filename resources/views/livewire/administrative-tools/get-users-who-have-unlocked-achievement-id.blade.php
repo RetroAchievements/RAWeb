@@ -4,7 +4,8 @@ use App\Models\Achievement;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Carbon;
 use Livewire\Volt\Component;
 
@@ -32,9 +33,9 @@ new class extends Component implements HasForms {
         $this->dispatch('open-modal', id: 'achievement-unlockers-results');
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\Select::make('achievements')
                     ->label('Achievements')
@@ -43,8 +44,8 @@ new class extends Component implements HasForms {
                     ->searchable()
                     ->getSearchResultsUsing(function (string $search): array {
                         return Achievement::with('game')
-                            ->where('Title', 'like', "%{$search}%")
-                            ->orWhere('ID', 'like', "%{$search}%")
+                            ->where('title', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
                             ->limit(50)
                             ->get()
                             ->mapWithKeys(function ($achievement) {
@@ -54,7 +55,7 @@ new class extends Component implements HasForms {
                     })
                     ->getOptionLabelsUsing(function (array $values): array {
                         return Achievement::with('game')
-                            ->whereIn('ID', $values)
+                            ->whereIn('id', $values)
                             ->get()
                             ->mapWithKeys(function ($achievement) {
                                 return [$achievement->id => "ID: {$achievement->id} - Title: {$achievement->title} - Game: {$achievement->game->title}"];
@@ -64,7 +65,7 @@ new class extends Component implements HasForms {
                     ->statePath('achievementIds')
                     ->required(),
 
-                Forms\Components\Grid::make()
+                Schemas\Components\Grid::make()
                     ->columns(['sm' => 2, 'xl' => 1, '2xl' => 2])
                     ->schema([
                         Forms\Components\DateTimePicker::make('start_at')

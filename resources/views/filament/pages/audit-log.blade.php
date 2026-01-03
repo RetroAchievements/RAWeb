@@ -4,26 +4,24 @@ use \Illuminate\Support\Js;
 <x-filament-panels::page>
     <div class="space-y-6">
         @foreach($this->getAuditLog() as $auditLogItem)
-            <x-filament-tables::container>
-                <div class="p-2">
-                    <div class="flex justify-between">
-                        <div class="flex items-center gap-4">
-                            @if ($auditLogItem->causer)
-                                <x-filament-panels::avatar.user :user="$auditLogItem->causer" />
-                            @endif
-                            <div class="flex flex-col text-left">
-                                <span class="font-bold">{{ $auditLogItem->causer?->display_name }}</span>
-                                <span class="text-xs text-gray-500">
-                                    <div class="inline-block">
-                                        <x-filament::badge
-                                            :color="$this->getEventColor($auditLogItem->event)"
-                                        >
-                                            @lang('filament.audit-log.events.' . $auditLogItem->event)
-                                        </x-filament::badge>
-                                    </div>
-                                    {{ $auditLogItem->created_at->format('Y-m-d H:i:s') }}
-                                </span>
-                            </div>
+            <div class="fi-section overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="flex justify-between p-2">
+                    <div class="flex items-center gap-4">
+                        @if ($auditLogItem->causer)
+                            <x-filament-panels::avatar.user :user="$auditLogItem->causer" />
+                        @endif
+                        <div class="flex flex-col text-left">
+                            <span class="font-bold">{{ $auditLogItem->causer?->display_name }}</span>
+                            <span class="text-xs text-gray-500">
+                                <div class="inline-block">
+                                    <x-filament::badge
+                                        :color="$this->getEventColor($auditLogItem->event)"
+                                    >
+                                        @lang('filament.audit-log.events.' . $auditLogItem->event)
+                                    </x-filament::badge>
+                                </div>
+                                {{ $auditLogItem->created_at->format('Y-m-d H:i:s') }}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -34,31 +32,57 @@ use \Illuminate\Support\Js;
                     $changes = collect($properties);
 
                     $releaseIdentifier = data_get($properties, 'release_identifier');
+                    $hashIdentifier = data_get($properties, 'hash_identifier');
+
+                    // Pre-filter to only the fields that actually have changes.
+                    $displayableFields = collect(data_get($changes, 'attributes', []))->filter(function ($value, $field) use ($changes) {
+                        $oldValue = data_get($changes, "old.{$field}");
+                        $newValue = $value;
+
+                        return $oldValue !== $newValue && !(empty($oldValue) && empty($newValue));
+                    });
+
+                    $identifierBaseClasses = 'px-4 py-2 text-sm text-gray-600 bg-gray-50 dark:text-gray-400 dark:bg-gray-800';
                 @endphp
 
                 @if ($releaseIdentifier)
-                    <div class="px-4 py-2 text-sm text-gray-600 bg-gray-50 border-b dark:text-gray-400 dark:bg-gray-800 dark:border-gray-700">
+                    <div @class([
+                        $identifierBaseClasses,
+                        'border-b dark:border-gray-700' => $hashIdentifier || $displayableFields->isNotEmpty(),
+                    ])>
                         <strong>Release:</strong> {{ $releaseIdentifier }}
                     </div>
                 @endif
-                
-                @if ($changes->isNotEmpty())
-                    <x-filament-tables::table class="w-full overflow-hidden text-sm">
-                        <x-slot:header>
-                            <x-filament-tables::header-cell>
-                                @lang('filament.audit-log.table.field')
-                            </x-filament-tables::header-cell>
-                            <x-filament-tables::header-cell>
-                                @lang('filament.audit-log.table.old')
-                            </x-filament-tables::header-cell>
-                            <x-filament-tables::header-cell>
-                            </x-filament-tables::header-cell>
-                            <x-filament-tables::header-cell>
-                                @lang('filament.audit-log.table.new')
-                            </x-filament-tables::header-cell>
-                        </x-slot:header>
 
-                        @foreach (data_get($changes, 'attributes', []) as $field => $change)
+                @if ($hashIdentifier)
+                    <div @class([
+                        $identifierBaseClasses,
+                        'border-b dark:border-gray-700' => $displayableFields->isNotEmpty(),
+                    ])>
+                        <strong>Hash:</strong> <code class="font-mono text-xs">{{ $hashIdentifier }}</code>
+                    </div>
+                @endif
+
+                @if ($displayableFields->isNotEmpty())
+                    <table class="fi-ta-table w-full overflow-hidden text-sm">
+                        <thead>
+                            <tr>
+                                <th class="fi-ta-header-cell">
+                                    @lang('filament.audit-log.table.field')
+                                </th>
+                                <th class="fi-ta-header-cell">
+                                    @lang('filament.audit-log.table.old')
+                                </th>
+                                <th class="fi-ta-header-cell">
+                                </th>
+                                <th class="fi-ta-header-cell">
+                                    @lang('filament.audit-log.table.new')
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        @foreach ($displayableFields as $field => $change)
                             @php
                                 $oldValue = data_get($changes, "old.{$field}");
                                 $newValue = data_get($changes, "attributes.{$field}");
@@ -75,12 +99,12 @@ use \Illuminate\Support\Js;
                                 }
                             @endphp
 
-                            <x-filament-tables::row @class(['bg-gray-100/30' => $loop->even])>
-                                <x-filament-tables::cell width="15%" class="px-4 py-2 align-top sm:first-of-type:ps-6 sm:last-of-type:pe-6">
+                            <tr @class(['fi-ta-row', 'fi-striped' => $loop->even])>
+                                <td class="fi-ta-cell px-4 py-2 align-top sm:first-of-type:ps-6 sm:last-of-type:pe-6" width="15%">
                                     {{ $this->getFieldLabel($field) }}
-                                </x-filament-tables::cell>
+                                </td>
 
-                                <x-filament-tables::cell width="40%" class="px-4 py-2 align-top break-all !whitespace-normal">
+                                <td class="fi-ta-cell px-4 py-2 align-top break-all !whitespace-normal" width="40%">
                                     @if ($oldRelatedModels->isNotEmpty() && isset($oldRelatedModels->first()->name))
                                         @foreach ($oldRelatedModels as $relatedModel)
                                             <div class="inline-block">
@@ -93,17 +117,17 @@ use \Illuminate\Support\Js;
                                     @elseif ($oldValue && $this->getIsImageField($field))
                                         <img src="{{ $oldValue }}" alt="Old Image" class="max-w-full h-auto"/>
                                     @elseif (is_array($oldValue))
-                                        <pre class="text-xs text-neutral-400">{{ json_encode($oldValue, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
+                                        <pre class="text-xs dark:text-neutral-200">{{ json_encode($oldValue, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
                                     @else
                                         {{ $oldValue }}
                                     @endif
-                                </x-filament-tables::cell>
+                                </td>
 
-                                <x-filament-tables::cell width="5%" class="px-4 py-2 align-top text-center break-all !whitespace-normal">
+                                <td class="fi-ta-cell px-4 py-2 align-top text-center break-all !whitespace-normal" width="5%">
                                     <x-fas-arrow-right class="h-4 inline" />
-                                </x-filament-tables::cell>
+                                </td>
 
-                                <x-filament-tables::cell width="40%" class="px-4 py-2 align-top break-all !whitespace-normal">
+                                <td class="fi-ta-cell px-4 py-2 align-top break-all !whitespace-normal" width="40%">
                                     @if ($newRelatedModels->isNotEmpty() && isset($newRelatedModels->first()->name))
                                         @foreach ($newRelatedModels as $relatedModel)
                                             <div class="inline-block">
@@ -116,16 +140,17 @@ use \Illuminate\Support\Js;
                                     @elseif ($this->getIsImageField($field))
                                         <img src="{{ $newValue }}" alt="New Image" class="max-w-full h-auto"/>
                                     @elseif (is_array($newValue))
-                                        <pre class="text-xs text-neutral-400">{{ json_encode($newValue, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
+                                        <pre class="text-xs dark:text-neutral-200">{{ json_encode($newValue, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
                                     @else
                                         {{ $newValue }}
                                     @endif
-                                </x-filament-tables::cell>
-                            </x-filament-tables::row>
+                                </td>
+                            </tr>
                         @endforeach
-                    </x-filament-tables::table>
+                        </tbody>
+                    </table>
                 @endif
-            </x-filament-tables::container>
+            </div>
         @endforeach
 
         <x-filament::pagination
@@ -135,3 +160,4 @@ use \Illuminate\Support\Js;
         />
     </div>
 </x-filament-panels::page>
+

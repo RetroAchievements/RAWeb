@@ -31,6 +31,37 @@ class ForumTopic extends BaseModel
     // TODO populate body from the first forum topic comment
     protected $table = 'forum_topics';
 
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        /**
+         * Re-index topic posts when required_permissions changes so
+         * they are added/removed from the search index appropriately.
+         */
+        static::updated(function (ForumTopic $forumTopic) {
+            if ($forumTopic->wasChanged('required_permissions')) {
+                $comments = $forumTopic->comments()->get();
+
+                if ($forumTopic->required_permissions === 0) {
+                    $comments->searchable();
+                } else {
+                    $comments->unsearchable();
+                }
+            }
+        });
+
+        static::deleted(function (ForumTopic $forumTopic) {
+            $forumTopic->comments()->get()->unsearchable();
+        });
+
+        static::restored(function (ForumTopic $forumTopic) {
+            if ($forumTopic->required_permissions === 0) {
+                $forumTopic->comments()->get()->searchable();
+            }
+        });
+    }
+
     protected $fillable = [
         'forum_id',
         'title',
@@ -146,39 +177,6 @@ class ForumTopic extends BaseModel
     }
 
     // == scopes
-
-    /**
-     * Order by latest comment dynamic relationship
-     *
-     * @param Builder<ForumTopic> $query
-     */
-    public function scopeOrderByLatestActivity(Builder $query, string $direction = 'asc'): void
-    {
-        /*
-         * unfortunately there's no easy way to create a coalesce with the query builder to make it work with postgres
-         * mysql is ok with ordering coalescing with an alias in it
-         * otherwise the above sub-select would've been enough
-         */
-        $query->selectRaw(
-            'coalesce(
-            (
-                SELECT
-                    "created_at"
-                FROM
-                    "comments"
-                WHERE
-                    "comments"."commentable_type" = \'forum-topic\'
-                    AND "comments"."commentable_id" = "forum_topics"."id"
-                    AND "deleted_at" IS NULL
-                ORDER BY
-                    "created_at" DESC
-                LIMIT 1)
-                , created_at
-            ) as last_activity_at'
-        );
-
-        $query->orderByRaw('last_activity_at ' . $direction);
-    }
 
     /**
      * @param Builder<ForumTopic> $query

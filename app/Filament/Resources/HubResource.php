@@ -16,16 +16,22 @@ use App\Models\User;
 use App\Platform\Enums\GameSetRolePermission;
 use App\Platform\Enums\GameSetType;
 use App\Support\Rules\NoEmoji;
+use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Infolists;
-use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
+use Filament\Schemas;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
+use UnitEnum;
 
 class HubResource extends Resource
 {
@@ -34,21 +40,24 @@ class HubResource extends Resource
     protected static ?string $modelLabel = 'Hub';
     protected static ?string $pluralModelLabel = 'Hubs';
     protected static ?string $breadcrumb = 'Hubs';
-    protected static ?string $navigationIcon = 'fas-sitemap';
-    protected static ?string $navigationGroup = 'Platform';
+    protected static string|BackedEnum|null $navigationIcon = 'fas-sitemap';
+    protected static string|UnitEnum|null $navigationGroup = 'Platform';
     protected static ?string $navigationLabel = 'Hubs';
     protected static ?int $navigationSort = 51;
     protected static ?string $recordTitleAttribute = 'title';
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
+        /** @var User $user */
+        $user = Auth::user();
+
+        return $schema
+            ->components([
                 Infolists\Components\ImageEntry::make('badge_url')
                     ->label('')
                     ->size(config('media.icon.lg.width')),
 
-                Infolists\Components\Section::make('Primary Details')
+                Schemas\Components\Section::make('Primary Details')
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
@@ -73,6 +82,10 @@ class HubResource extends Resource
                                 return null;
                             }),
 
+                        Infolists\Components\TextEntry::make('sort_title')
+                            ->label('Sort Title')
+                            ->visible(fn (GameSet $record): bool => $user->can('updateField', [$record, 'sort_title']) ?? false),
+
                         Infolists\Components\TextEntry::make('forumTopic.id')
                             ->label('Forum Topic ID')
                             ->url(fn (?int $state) => $state ? route('forum-topic.show', ['topic' => $state]) : null)
@@ -89,7 +102,7 @@ class HubResource extends Resource
                             ->columnSpanFull(),
                     ]),
 
-                Infolists\Components\Section::make('Internal Notes')
+                Schemas\Components\Section::make('Internal Notes')
                     ->icon('heroicon-c-chat-bubble-bottom-center-text')
                     ->schema([
                         Infolists\Components\TextEntry::make('internal_notes')
@@ -97,18 +110,20 @@ class HubResource extends Resource
                             ->placeholder('none'),
                     ]),
 
-                Infolists\Components\Section::make('Role-Based Access Control')
+                Schemas\Components\Section::make('Role-Based Access Control')
                     ->icon('heroicon-s-lock-closed')
                     ->schema([
                         Infolists\Components\TextEntry::make('viewRoles.name')
                             ->label('Roles required to view')
                             ->badge()
+                            ->wrap()
                             ->formatStateUsing(fn ($state) => __('permission.role.' . $state))
                             ->placeholder('none (public access)'),
 
                         Infolists\Components\TextEntry::make('updateRoles.name')
                             ->label('Roles required to update')
                             ->badge()
+                            ->wrap()
                             ->formatStateUsing(fn ($state) => __('permission.role.' . $state))
                             ->placeholder('none (default permissions)'),
                     ])
@@ -116,14 +131,14 @@ class HubResource extends Resource
             ]);
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
         /** @var User $user */
         $user = Auth::user();
 
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Primary Details')
+        return $schema
+            ->components([
+                Schemas\Components\Section::make('Primary Details')
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
@@ -133,6 +148,13 @@ class HubResource extends Resource
                             ->maxLength(80)
                             ->helperText('Be sure to wrap the hub title in square brackets like "[Genre - Action]".')
                             ->rules([new NoEmoji()]),
+
+                        Forms\Components\TextInput::make('sort_title')
+                            ->label('Sort Title')
+                            ->required()
+                            ->minLength(2)
+                            ->visible(fn ($record) => $user->can('updateField', [$record, 'sort_title']))
+                            ->helperText('Normalized title for sorting. DON\'T CHANGE UNLESS YOU KNOW WHAT YOU\'RE DOING.'),
 
                         Forms\Components\TextInput::make('forum_topic_id')
                             ->label('Forum Topic ID')
@@ -148,7 +170,7 @@ class HubResource extends Resource
                             ->visible(fn ($record) => $user->can('toggleHasMatureContent', $record)),
                     ]),
 
-                Forms\Components\Section::make('Internal Notes')
+                Schemas\Components\Section::make('Internal Notes')
                     ->icon('heroicon-c-chat-bubble-bottom-center-text')
                     ->description('Use this field to document the purpose of the hub. Documentation might include the purpose of the hub, or what games should/shouldn\'t be added to the hub.')
                     ->schema([
@@ -156,7 +178,7 @@ class HubResource extends Resource
                             ->hiddenLabel(),
                     ]),
 
-                Forms\Components\Section::make('Media')
+                Schemas\Components\Section::make('Media')
                     ->icon('heroicon-s-photo')
                     ->schema([
                         // Store a temporary file on disk until the user submits.
@@ -175,7 +197,7 @@ class HubResource extends Resource
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make('Role-Based Access Control')
+                Schemas\Components\Section::make('Role-Based Access Control')
                     ->icon('heroicon-s-lock-closed')
                     ->description('Restrict access to this hub by requiring specific roles. Leave empty to allow public access.')
                     ->schema([
@@ -221,6 +243,7 @@ class HubResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
+                    ->width('60px')
                     ->size(config('media.icon.sm.width')),
 
                 Tables\Columns\TextColumn::make('id')
@@ -248,21 +271,21 @@ class HubResource extends Resource
             ->filters([
 
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\Action::make('visit')
+            ->recordActions([
+                ActionGroup::make([
+                    Action::make('visit')
                         ->label('View on Site')
                         ->icon('heroicon-m-arrow-top-right-on-square')
                         ->url(fn (GameSet $record): string => route('hub.show', $record))
                         ->openUrlInNewTab(),
 
-                    Tables\Actions\ViewAction::make()
+                    ViewAction::make()
                         ->label('Manage'),
 
-                    Tables\Actions\EditAction::make(),
+                    EditAction::make(),
                 ]),
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ])
             ->paginated([50, 100, 150]);

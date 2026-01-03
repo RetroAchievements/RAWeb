@@ -9,7 +9,7 @@ if (!$user) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-if (sendValidationEmail($user, $user->EmailAddress)) {
+if (sendValidationEmail($user, $user->email)) {
     return back()->with('message', __('legacy.email_validate'));
 }
 
