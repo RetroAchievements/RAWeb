@@ -55,7 +55,7 @@ class GetAchievementUnlocksAction extends BaseAuthenticatedApiAction
                 $q->whereIn('user_id', $friendIds);
             })
             ->with('user')
-            ->orderByRaw('COALESCE(unlocked_hardcore_at, unlocked_at) DESC')
+            ->orderByDesc('unlocked_effective_at')
             ->offset($this->offset)
             ->limit($this->count)
             ->get();
