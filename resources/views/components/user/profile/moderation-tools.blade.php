@@ -9,7 +9,7 @@ use App\Enums\Permissions;
 ])
 
 <?php
-$isTargetUserUntracked = $targetUser->Untracked;
+$isTargetUserUntracked = $targetUser->unranked_at !== null;
 $targetUsername = $targetUser->username;
 $targetUserPermissions = $targetUser->getAttribute('Permissions');
 

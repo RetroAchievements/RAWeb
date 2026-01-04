@@ -42,7 +42,6 @@ class UserFactory extends Factory
             'yield_unlocks' => 0,
             'delete_requested_at' => null,
             'unread_messages' => 0,
-            'Untracked' => 0,
             'is_user_wall_active' => 1,
             'muted_until' => null,
             'visible_role_id' => null,
@@ -84,7 +83,7 @@ class UserFactory extends Factory
     public function untracked(): static
     {
         return $this->state(fn (array $attributes) => [
-            'Untracked' => 1,
+            'unranked_at' => now(),
         ]);
     }
 }

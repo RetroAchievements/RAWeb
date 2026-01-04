@@ -180,8 +180,8 @@ class BuildDeveloperFeedDataActionTest extends TestCase
             'user_id' => $developer->id,
         ]);
 
-        $untrackedUser = User::factory()->create(['Untracked' => 1]);
-        $trackedUser = User::factory()->create(['Untracked' => 0]);
+        $untrackedUser = User::factory()->create(['unranked_at' => now()]);
+        $trackedUser = User::factory()->create();
 
         PlayerAchievement::factory()->create([
             'achievement_id' => $achievement->id,
@@ -222,7 +222,7 @@ class BuildDeveloperFeedDataActionTest extends TestCase
             ]);
         }
 
-        $players[1]->Untracked = 1;
+        $players[1]->unranked_at = now();
         $players[1]->save();
 
         // Act

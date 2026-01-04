@@ -41,8 +41,7 @@ class EventAchievementObserver
                 $winners = PlayerAchievement::where('achievement_id', '=', $sourceAchievement->id)
                     ->whereNotNull('unlocked_hardcore_at')
                     ->whereHas('user', function ($query) {
-                        $query->where('Untracked', '!=', 1)
-                            ->whereNull('unranked_at');
+                        $query->whereNull('unranked_at');
                     });
 
                 if ($eventAchievement->active_from) {

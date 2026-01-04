@@ -172,7 +172,7 @@ class ResumePlayerSessionAction
 
         // TODO deprecated, read from last player_sessions entry where needed
         $user->rich_presence = utf8_sanitize($presence);
-        $user->rich_presence_updated_at = Carbon::now();
+        $user->rich_presence_updated_at = $timestamp;
         $user->saveQuietly();
 
         // create new session

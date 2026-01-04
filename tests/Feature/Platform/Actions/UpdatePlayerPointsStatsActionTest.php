@@ -36,7 +36,7 @@ class UpdatePlayerPointsStatsActionTest extends TestCase
         // Arrange
         Carbon::setTestNow(Carbon::create(2023, 11, 18, 15, 0, 0));
 
-        $untrackedUser = User::factory()->create(['Untracked' => true, 'unranked_at' => Carbon::now()]);
+        $untrackedUser = User::factory()->create(['unranked_at' => Carbon::now()]);
         $system = System::factory()->create();
         $game = Game::factory()->create(['system_id' => $system->id]);
         $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 100]);
@@ -182,7 +182,6 @@ class UpdatePlayerPointsStatsActionTest extends TestCase
 
         (new UpdatePlayerPointsStatsAction())->execute($user);
 
-        $user->Untracked = true;
         $user->unranked_at = Carbon::now();
         $user->save();
 
