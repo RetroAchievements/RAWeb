@@ -24,7 +24,7 @@ class UsersTableSeeder extends Seeder
         }
         $this->seedUserByUsername('verified', ['Permissions' => Permissions::Registered]);
         $this->seedUserByUsername('unverified', ['email_verified_at' => null, 'Permissions' => Permissions::Unregistered]);
-        $this->seedUserByUsername('unranked', ['unranked_at' => Carbon::now(), 'Untracked' => true, 'Permissions' => Permissions::Registered]);
+        $this->seedUserByUsername('unranked', ['unranked_at' => Carbon::now(), 'Permissions' => Permissions::Registered]);
         $this->seedUserByUsername('banned', ['banned_at' => Carbon::now(), 'Permissions' => Permissions::Banned]);
         $this->seedUserByUsername('spammer', ['banned_at' => Carbon::now(), 'Permissions' => Permissions::Spam]);
 
