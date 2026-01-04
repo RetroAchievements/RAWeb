@@ -137,10 +137,10 @@ function getAchievementUnlocksData(
     $numWinnersHardcore = $achievement->unlocks_hardcore ?? 0;
     $numPossibleWinners = $achievement->game->players_total ?? 0;
 
-    // Get recent winners, and their most recent activity
+    // Get recent winners, and their most recent activity.
     return PlayerAchievement::where('achievement_id', $achievementId)
         ->join('users', 'users.id', '=', 'user_id')
-        ->orderByRaw('COALESCE(unlocked_hardcore_at, unlocked_at) DESC')
+        ->orderByDesc('unlocked_effective_at')
         ->select(['users.ulid', 'users.username', 'users.display_name', 'users.points_hardcore', 'users.points', 'unlocked_at', 'unlocked_hardcore_at'])
         ->offset($offset)
         ->limit($limit)

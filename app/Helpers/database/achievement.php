@@ -52,7 +52,7 @@ function getAchievementsList(
         $bindings['userId'] = $user->id;
 
         $joinPlayerAchievements = "INNER JOIN player_achievements AS pa ON pa.achievement_id = ach.id AND pa.user_id = :userId";
-        $selectAwardedDate = ", COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS AwardedDate";
+        $selectAwardedDate = ", pa.unlocked_effective_at AS AwardedDate";
         $additionalWhereClauses .= "AND pa.unlocked_at IS NOT NULL ";
     } elseif ($params === 2) {
         // Achievements the user hasn't unlocked.
