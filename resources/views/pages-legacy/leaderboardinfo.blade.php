@@ -137,7 +137,7 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
 
             echo "<ul>";
             $manageLeaderboardsRoute = route('filament.admin.resources.leaderboards.index', [
-                'tableFilters[game][id]' => $gameID,
+                'filters[game][id]' => $gameID,
                 'tableSortColumn' => 'order_column',
                 'tableSortDirection' => 'asc',
             ]);
