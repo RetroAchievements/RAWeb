@@ -34,7 +34,7 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
             'unlocked_hardcore_at' => $when,
         ]);
 
-        if ($user->id !== $achievement->user_id) {
+        if ($user->id !== $achievement->user_id && !$user->is_unranked) {
             $achievement->increment('author_yield_unlocks');
         }
     }
@@ -50,7 +50,7 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
             'unlocked_at' => $when,
         ]);
 
-        if ($user->id !== $achievement->user_id) {
+        if ($user->id !== $achievement->user_id && !$user->is_unranked) {
             $achievement->increment('author_yield_unlocks');
         }
     }
@@ -73,7 +73,7 @@ class UpdateDeveloperContributionYieldActionTest extends TestCase
     {
         $user->playerAchievements()->where('achievement_id', $achievement->id)->delete();
 
-        if ($user->id !== $achievement->user_id) {
+        if ($user->id !== $achievement->user_id && !$user->is_unranked) {
             $achievement->decrement('author_yield_unlocks');
         }
     }

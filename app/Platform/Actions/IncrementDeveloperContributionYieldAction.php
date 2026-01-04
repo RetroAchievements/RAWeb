@@ -68,11 +68,15 @@ class IncrementDeveloperContributionYieldAction
 
         // If credit goes to the author (not a maintainer), update the achievement's denormalized counter.
         // This counter is used by UpdateDeveloperContributionYieldAction for fast yield recalculation.
+        // Only count unlocks from tracked (ranked) users to stay consistent with unlocks_total.
         if ($developer->id === $achievement->user_id) {
-            if ($isUnlock) {
-                $achievement->increment('author_yield_unlocks');
-            } else {
-                $achievement->decrement('author_yield_unlocks');
+            $player = User::find($playerAchievement->user_id);
+            if ($player && !$player->is_unranked) {
+                if ($isUnlock) {
+                    $achievement->increment('author_yield_unlocks');
+                } else {
+                    $achievement->decrement('author_yield_unlocks');
+                }
             }
         }
 

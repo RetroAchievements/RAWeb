@@ -41,6 +41,7 @@ use App\Platform\Listeners\DispatchUpdatePlayerPointsStatsJob;
 use App\Platform\Listeners\RecalculateLeaderboardTopEntriesForUser;
 use App\Platform\Listeners\ResetPlayerProgress;
 use App\Platform\Listeners\ResumePlayerSession;
+use App\Platform\Listeners\UpdateAuthorYieldUnlocksForUser;
 use App\Platform\Listeners\UpdateTotalGamesCount;
 use App\Support\Alerts\Listeners\TriggerSuspiciousBeatTimeAlert;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -132,6 +133,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         PlayerRankedStatusChanged::class => [
             DispatchUpdateGameMetricsForGamesPlayedByUserJob::class,
+            UpdateAuthorYieldUnlocksForUser::class,
             // TODO Notify player
             DispatchUpdatePlayerBeatenGamesStatsJob::class, // dispatches PlayerBeatenGamesStatsUpdated
             DispatchUpdatePlayerPointsStatsJob::class,

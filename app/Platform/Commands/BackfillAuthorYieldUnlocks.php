@@ -26,27 +26,21 @@ class BackfillAuthorYieldUnlocks extends Command
         }
 
         /**
-         * A naive backfill approach would be a single UPDATE with a correlated subquery:
-         *   UPDATE achievements SET author_yield_unlocks = (
-         *     SELECT COUNT(*) FROM player_achievements pa
-         *     WHERE pa.achievement_id = a.id
-         *       AND pa.user_id != a.user_id
-         *       AND NOT EXISTS (SELECT 1 FROM achievement_maintainer_unlocks amu WHERE amu.player_achievement_id = pa.id)
-         *   )
-         *
-         * This is extremely slow because:
-         * 1. The NOT EXISTS subquery runs for every row in player_achievements (~500M rows).
-         * 2. Even with batching, each batch takes 2+ minutes due to the correlated subquery.
-         *
-         * Instead, we use a 5-step approach with temporary tables:
-         * 1. Count ALL unlocks per achievement (fast - simple GROUP BY with no JOINs).
-         * 2. Count author self-unlocks separately.
-         * 3. Count maintainer credits (unlocks credited to maintainers, not authors).
-         * 4. Calculate: total - self_unlocks - maintainer_credits.
+         * We use a 5-step approach with temporary tables:
+         * 1. Count tracked unlocks per achievement (all unlocks minus unranked users).
+         * 2. Count tracked author self-unlocks separately.
+         * 3. Count tracked maintainer credits (unlocks credited to maintainers).
+         * 4. Calculate: tracked_total - self_unlocks - maintainer_credits.
          * 5. Update achievements using an INNER JOIN.
          *
-         * This separates the slow JOIN from the hot path and processes each concern once
-         * instead of per-batch, reducing total runtime from hours to minutes.
+         * For each step that filters unranked users, we use a "count all, then subtract
+         * unranked" approach. This is fast because:
+         * 1. Counting all unlocks requires no joins with external tables.
+         * 2. Counting unranked unlocks starts from unranked_users (tiny table, ~200 rows),
+         *    which efficiently drives the join to player_achievements via index.
+         *
+         * The alternative (LEFT JOIN unranked_users on every player_achievements row)
+         * would scan the entire 500M+ row table, which is brutally slow and takes hours.
          */
         $this->info('Step 1/5: Counting all unlocks...');
         $this->countAllUnlocks($maxId);
@@ -73,7 +67,8 @@ class BackfillAuthorYieldUnlocks extends Command
     {
         $totalBatches = (int) ceil($maxId / $this->chunkSize);
 
-        DB::statement('CREATE TEMPORARY TABLE tmp_total_counts (achievement_id BIGINT UNSIGNED PRIMARY KEY, cnt INT UNSIGNED)');
+        // First, count ALL unlocks (no joins, fast).
+        DB::statement('CREATE TEMPORARY TABLE tmp_all_counts (achievement_id BIGINT UNSIGNED PRIMARY KEY, cnt INT UNSIGNED)');
 
         $progressBar = $this->output->createProgressBar($totalBatches);
         $progressBar->start();
@@ -83,11 +78,11 @@ class BackfillAuthorYieldUnlocks extends Command
             $endId = min($currentId + $this->chunkSize - 1, $maxId);
 
             DB::statement(<<<SQL
-                INSERT INTO tmp_total_counts
-                SELECT achievement_id, COUNT(*)
-                FROM player_achievements
-                WHERE achievement_id BETWEEN ? AND ?
-                GROUP BY achievement_id
+                INSERT INTO tmp_all_counts
+                SELECT pa.achievement_id, COUNT(*)
+                FROM player_achievements pa
+                WHERE pa.achievement_id BETWEEN ? AND ?
+                GROUP BY pa.achievement_id
             SQL, [$currentId, $endId]);
 
             $progressBar->advance();
@@ -96,6 +91,30 @@ class BackfillAuthorYieldUnlocks extends Command
 
         $progressBar->finish();
         $this->newLine();
+
+        // Next, count untracked unlocks by starting from unranked_users.
+        DB::statement(<<<SQL
+            CREATE TEMPORARY TABLE tmp_unranked_counts AS
+            SELECT pa.achievement_id, COUNT(*) as cnt
+            FROM unranked_users uu
+            INNER JOIN player_achievements pa ON pa.user_id = uu.user_id
+            GROUP BY pa.achievement_id
+        SQL);
+        DB::statement('ALTER TABLE tmp_unranked_counts ADD INDEX (achievement_id)');
+
+        // Finally, calculate tracked counts (all - unranked).
+        DB::statement('CREATE TEMPORARY TABLE tmp_total_counts (achievement_id BIGINT UNSIGNED PRIMARY KEY, cnt INT UNSIGNED)');
+        DB::statement(<<<SQL
+            INSERT INTO tmp_total_counts
+            SELECT
+                a.achievement_id,
+                a.cnt - COALESCE(u.cnt, 0)
+            FROM tmp_all_counts a
+            LEFT JOIN tmp_unranked_counts u ON u.achievement_id = a.achievement_id
+        SQL);
+
+        DB::statement('DROP TEMPORARY TABLE tmp_all_counts');
+        DB::statement('DROP TEMPORARY TABLE tmp_unranked_counts');
     }
 
     private function countSelfUnlocks(): void
@@ -108,20 +127,44 @@ class BackfillAuthorYieldUnlocks extends Command
             WHERE pa.user_id = a.user_id
             GROUP BY pa.achievement_id
         SQL);
-
         DB::statement('ALTER TABLE tmp_self_unlock_counts ADD INDEX (achievement_id)');
     }
 
     private function countMaintainerCredits(): void
     {
+        // First, count all maintainer credits.
+        DB::statement(<<<SQL
+            CREATE TEMPORARY TABLE tmp_all_maintainer AS
+            SELECT amu.achievement_id, COUNT(*) as cnt
+            FROM achievement_maintainer_unlocks amu
+            GROUP BY amu.achievement_id
+        SQL);
+        DB::statement('ALTER TABLE tmp_all_maintainer ADD INDEX (achievement_id)');
+
+        // Then, count unranked maintainer credits.
+        DB::statement(<<<SQL
+            CREATE TEMPORARY TABLE tmp_unranked_maintainer AS
+            SELECT amu.achievement_id, COUNT(*) as cnt
+            FROM unranked_users uu
+            INNER JOIN player_achievements pa ON pa.user_id = uu.user_id
+            INNER JOIN achievement_maintainer_unlocks amu ON amu.player_achievement_id = pa.id
+            GROUP BY amu.achievement_id
+        SQL);
+        DB::statement('ALTER TABLE tmp_unranked_maintainer ADD INDEX (achievement_id)');
+
+        // Finally, calculate tracked maintainer credits (all - unranked).
         DB::statement(<<<SQL
             CREATE TEMPORARY TABLE tmp_maintainer_counts AS
-            SELECT achievement_id, COUNT(*) as cnt
-            FROM achievement_maintainer_unlocks
-            GROUP BY achievement_id
+            SELECT
+                a.achievement_id,
+                a.cnt - COALESCE(u.cnt, 0) as cnt
+            FROM tmp_all_maintainer a
+            LEFT JOIN tmp_unranked_maintainer u ON u.achievement_id = a.achievement_id
         SQL);
-
         DB::statement('ALTER TABLE tmp_maintainer_counts ADD INDEX (achievement_id)');
+
+        DB::statement('DROP TEMPORARY TABLE tmp_all_maintainer');
+        DB::statement('DROP TEMPORARY TABLE tmp_unranked_maintainer');
     }
 
     private function calculateFinalCounts(): void
