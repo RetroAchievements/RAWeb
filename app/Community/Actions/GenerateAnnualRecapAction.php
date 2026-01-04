@@ -85,8 +85,8 @@ class GenerateAnnualRecapAction
     {
         $games = PlayerSession::where('user_id', $user->id)
             ->where('duration', '>=', 5)
-            ->where('created_at', '>=', $startDate)
-            ->where('created_at', '<', $endDate)
+            ->where('player_sessions.created_at', '>=', $startDate)
+            ->where('player_sessions.created_at', '<', $endDate)
             ->join('games', 'games.id', '=', 'game_id')
             ->whereNotIn('games.system_id', System::getNonGameSystems())
             ->groupBy('game_id')
@@ -184,6 +184,8 @@ class GenerateAnnualRecapAction
     private function identifyAndMergeSubsets(array &$gameData): array
     {
         $gameIds = array_keys($gameData);
+
+        // these subsets have explicit player_session entries
         $achievementSets = GameAchievementSet::whereIn('game_id', $gameIds)
             ->select(['game_id', 'achievement_set_id'])
             ->where('type', AchievementSetType::Core)
@@ -219,6 +221,24 @@ class GenerateAnnualRecapAction
                     unset($gameData[$subsetGameId]);
                 }
             }
+        }
+
+        // also get any bonus subsets for games that the user played as they might have been played through multiset
+        $bonusAchievementSetIds = GameAchievementSet::whereIn('game_id', $gameIds)
+            ->whereIn('type', [AchievementSetType::Bonus])
+            ->pluck('achievement_set_id')
+            ->toArray();
+
+        // remove any items that we've already processed
+        $bonusAchievementSetIds = array_diff($bonusAchievementSetIds, array_keys($achievementSets));
+
+        if (!empty($bonusAchievementSetIds)) {
+            $bonusCoreSetIds = GameAchievementSet::whereIn('achievement_set_id', $bonusAchievementSetIds)
+                ->where('type', '=', AchievementSetType::Core)
+                ->pluck('game_id')
+                ->toArray();
+
+            $subsetGameIds = array_merge($subsetGameIds, $bonusCoreSetIds);
         }
 
         return $subsetGameIds;
@@ -375,7 +395,7 @@ class GenerateAnnualRecapAction
         $recapData['numBeaten'] = $counts[$BEATENSOFTCORE] ?? 0;
 
         if (!empty($eventIds)) {
-            foreach (Event::whereIn('ID', $eventIds)->get() as $event) {
+            foreach (Event::whereIn('id', $eventIds)->get() as $event) {
                 if ($event->gives_site_award) {
                     $recapData['numSiteAwards']++;
                 } else {

@@ -563,7 +563,7 @@ class ForumTopicSubscriptionHandler extends BaseSubscriptionHandler
     public function getSubjectQuery(array $subjectIds): Builder
     {
         /** @var Builder<Model> $query */
-        $query = ForumTopic::whereIn('ID', $subjectIds)
+        $query = ForumTopic::whereIn('id', $subjectIds)
             ->select([
                 DB::raw('id as subject_id'),
                 'title',
@@ -761,10 +761,10 @@ class UserWallSubscriptionHandler extends CommentSubscriptionHandler
             if ($includeWallOwner) {
                 /** @var Builder<Model> $query2 */
                 $query2 = User::query()
-                    ->where('ID', $subjectId)
+                    ->where('id', $subjectId)
                     ->select([
-                        DB::raw('ID as user_id'),
-                        DB::raw('ID as subject_id'),
+                        DB::raw('id as user_id'),
+                        DB::raw('id as subject_id'),
                     ]);
 
                 $query->union($query2);

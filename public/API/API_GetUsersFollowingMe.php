@@ -37,27 +37,27 @@ $totalUsers = $user->followerUsers()
     ->count();
 
 $usersList = $user
-  ->followerUsers()
-  ->whereNull("deleted_at")
-  ->with([
-      "inverseRelatedUsers" => fn ($q) => $q
-        ->select(sprintf("%s.id", $user->getTable()), "related_user_id")
-        ->where("user_id", $user->id)
-        ->withPivot("status"),
-  ])
-  ->orderByDesc("last_activity_at")
-  ->skip($offset)
-  ->take($count)
-  ->get()
-  ->map(
-    fn ($followerUser) => [
-        "User" => $followerUser->display_name,
-        "ULID" => $followerUser->ulid,
-        "Points" => $followerUser->points_hardcore,
-        "PointsSoftcore" => $followerUser->points,
-        "AmIFollowing" => $followerUser->inverseRelatedUsers->first()?->pivot?->status === UserRelationStatus::Following->value,
-    ]
-  );
+    ->followerUsers()
+    ->whereNull('deleted_at')
+    ->with([
+        'inverseRelatedUsers' => fn ($q) => $q
+            ->select(sprintf('%s.id', $user->getTable()), 'related_user_id')
+            ->where('user_id', $user->id)
+            ->withPivot('status'),
+    ])
+    ->orderByDesc('last_activity_at')
+    ->skip($offset)
+    ->take($count)
+    ->get()
+    ->map(
+        fn ($followerUser) => [
+            'User' => $followerUser->display_name,
+            'ULID' => $followerUser->ulid,
+            'Points' => $followerUser->points_hardcore,
+            'PointsSoftcore' => $followerUser->points,
+            'AmIFollowing' => $followerUser->inverseRelatedUsers->first()?->pivot?->status === UserRelationStatus::Following->value,
+        ]
+    );
 
 return response()->json([
     'Count' => count($usersList),

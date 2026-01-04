@@ -61,7 +61,7 @@ class UserSummaryTest extends TestCase
                 'TotalTruePoints' => $this->user->points_weighted,
                 'Permissions' => $this->user->Permissions,
                 'MemberSince' => $this->user->created_at->__toString(),
-                'Untracked' => $this->user->Untracked,
+                'Untracked' => $this->user->unranked_at !== null,
                 'ULID' => $this->user->ulid,
                 'UserPic' => '/UserPic/' . $this->user->username . '.png',
                 'Motto' => $this->user->motto,
@@ -94,7 +94,7 @@ class UserSummaryTest extends TestCase
                 'TotalTruePoints' => $this->user->points_weighted,
                 'Permissions' => $this->user->Permissions,
                 'MemberSince' => $this->user->created_at->__toString(),
-                'Untracked' => $this->user->Untracked,
+                'Untracked' => $this->user->unranked_at !== null,
                 'ULID' => $this->user->ulid,
                 'UserPic' => '/UserPic/' . $this->user->username . '.png',
                 'Motto' => $this->user->motto,
@@ -216,7 +216,7 @@ class UserSummaryTest extends TestCase
                 'TotalTruePoints' => $user->points_weighted,
                 'Permissions' => $user->Permissions,
                 'MemberSince' => $user->created_at->__toString(),
-                'Untracked' => $user->Untracked,
+                'Untracked' => $user->unranked_at !== null,
                 'ULID' => $user->ulid,
                 'UserPic' => '/UserPic/' . $user->username . '.png',
                 'Motto' => $user->motto,
@@ -227,7 +227,7 @@ class UserSummaryTest extends TestCase
                 'TotalRanked' => 2, // $this->user and $user
                 'LastGameID' => $game->id,
                 'RichPresenceMsg' => 'Playing ' . $game->title,
-                'RichPresenceMsgDate' => Carbon::now()->__toString(),
+                'RichPresenceMsgDate' => $unlockTime->__toString(),
                 'RecentlyPlayedCount' => 0,
                 'RecentlyPlayed' => [],
                 'LastActivity' => [
@@ -254,7 +254,7 @@ class UserSummaryTest extends TestCase
                 'TotalTruePoints' => $user->points_weighted,
                 'Permissions' => $user->Permissions,
                 'MemberSince' => $user->created_at->__toString(),
-                'Untracked' => $user->Untracked,
+                'Untracked' => $user->unranked_at !== null,
                 'ULID' => $user->ulid,
                 'UserPic' => '/UserPic/' . $user->username . '.png',
                 'Motto' => $user->motto,
@@ -282,7 +282,7 @@ class UserSummaryTest extends TestCase
                     'ReleasedAtGranularity' => $game->released_at_granularity->value,
                 ],
                 'RichPresenceMsg' => 'Playing ' . $game->title,
-                'RichPresenceMsgDate' => Carbon::now()->__toString(),
+                'RichPresenceMsgDate' => $unlockTime->__toString(),
                 'RecentlyPlayedCount' => 2,
                 'RecentlyPlayed' => [
                     [
@@ -368,7 +368,7 @@ class UserSummaryTest extends TestCase
                 'TotalTruePoints' => $user->points_weighted,
                 'Permissions' => $user->Permissions,
                 'MemberSince' => $user->created_at->__toString(),
-                'Untracked' => $user->Untracked,
+                'Untracked' => $user->unranked_at !== null,
                 'ULID' => $user->ulid,
                 'UserPic' => '/UserPic/' . $user->username . '.png',
                 'Motto' => $user->motto,
@@ -396,7 +396,7 @@ class UserSummaryTest extends TestCase
                     'ReleasedAtGranularity' => $game->released_at_granularity->value,
                 ],
                 'RichPresenceMsg' => 'Playing ' . $game->title,
-                'RichPresenceMsgDate' => Carbon::now()->__toString(),
+                'RichPresenceMsgDate' => $unlockTime->__toString(),
                 'RecentlyPlayedCount' => 1,
                 'RecentlyPlayed' => [
                     [

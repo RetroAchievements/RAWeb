@@ -28,26 +28,8 @@ class ForumController extends \App\Http\Controller
         $this->authorize('store', [Forum::class, $forumCategory]);
     }
 
-    public function show(Forum $forum, ?string $slug = null): View|RedirectResponse
+    public function show(Forum $forum, ?string $slug = null): void
     {
-        $this->authorize('view', $forum);
-
-        if (!$this->resolvesToSlug($forum->slug, $slug)) {
-            return redirect($forum->canonicalUrl);
-        }
-
-        $forum->withCount('topics');
-
-        $topics = $forum->topics()
-            ->withCount('comments')
-            ->with('latestComment')
-            ->orderbyLatestActivity('desc')
-            ->paginate();
-
-        return view('forum.show')
-            ->with('category', $forum->category)
-            ->with('topics', $topics)
-            ->with('forum', $forum);
     }
 
     public function edit(Forum $forum): View

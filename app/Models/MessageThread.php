@@ -41,7 +41,7 @@ class MessageThread extends BaseModel
         }
 
         $participant = $this->relationLoaded('participants')
-            ? $this->participants->where('ID', Auth::id())->first()
+            ? $this->participants->where('id', Auth::id())->first()
             : $this->participants()->wherePivot('user_id', Auth::id())->first();
 
         return $participant && $participant->pivot->num_unread > 0;
@@ -100,7 +100,7 @@ class MessageThread extends BaseModel
             User::class,
             MessageThreadParticipant::class,
             'thread_id',
-            'ID',
+            'id',
             'id',
             'user_id'
         );

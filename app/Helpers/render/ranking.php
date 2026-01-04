@@ -130,8 +130,8 @@ function getGlobalRankingData(
     $masteryCond = "AND award_type = '" . AwardType::Mastery->value . "'";
 
     $untrackedCond = match ($untracked) {
-        0 => "AND Untracked = 0",
-        1 => "AND Untracked = 1",
+        0 => "AND unranked_at IS NULL",
+        1 => "AND unranked_at IS NOT NULL",
         default => "",
     };
 

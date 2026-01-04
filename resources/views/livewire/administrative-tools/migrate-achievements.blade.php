@@ -78,8 +78,8 @@ new class extends Component implements HasForms {
                     ->searchable()
                     ->getSearchResultsUsing(function (string $search): array {
                         return Game::with('system')
-                            ->where('Title', 'like', "%{$search}%")
-                            ->orWhere('ID', 'like', "%{$search}%")
+                            ->where('title', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
                             ->limit(50)
                             ->get()
                             ->mapWithKeys(function ($game) {

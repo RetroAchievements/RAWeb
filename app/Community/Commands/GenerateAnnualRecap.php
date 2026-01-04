@@ -44,11 +44,11 @@ class GenerateAnnualRecap extends Command
             $september = Carbon::create($year, 9, 1, 0, 0, 0);
 
             $users = User::where('last_activity_at', '>=', $december)
-                ->where('Created', '<', $september)
+                ->where('created_at', '<', $september)
                 ->whereNotNull('email_verified_at')
                 ->whereNull('banned_at')
                 ->orderByDesc('last_activity_at')
-                ->pluck('ID');
+                ->pluck('id');
 
             $userCount = $users->count();
             $this->info("Queueing {$userCount} annual recap emails.");
