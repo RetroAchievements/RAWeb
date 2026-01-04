@@ -395,7 +395,7 @@ class GenerateAnnualRecapAction
         $recapData['numBeaten'] = $counts[$BEATENSOFTCORE] ?? 0;
 
         if (!empty($eventIds)) {
-            foreach (Event::whereIn('ID', $eventIds)->get() as $event) {
+            foreach (Event::whereIn('id', $eventIds)->get() as $event) {
                 if ($event->gives_site_award) {
                     $recapData['numSiteAwards']++;
                 } else {

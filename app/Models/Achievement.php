@@ -520,7 +520,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
      */
     public function currentTrigger(): BelongsTo
     {
-        return $this->belongsTo(Trigger::class, 'trigger_id', 'ID');
+        return $this->belongsTo(Trigger::class, 'trigger_id', 'id');
     }
 
     /**

@@ -29,11 +29,11 @@ new class extends Component implements HasForms, HasTable, HasActions {
                     ->label('')
                     ->getStateUsing(fn ($record) => media_asset($record->ImageIcon))
                     ->size(config('media.icon.sm.width'))
-                    ->url(fn ($record) => route('game.show', ['game' => $record->ID])),
+                    ->url(fn ($record) => route('game.show', ['game' => $record->id])),
 
                 Tables\Columns\TextColumn::make('Title')
                     ->description(fn ($record) => $record->ConsoleName)
-                    ->url(fn ($record) => route('game.show', ['game' => $record->ID])),
+                    ->url(fn ($record) => route('game.show', ['game' => $record->id])),
 
                 Tables\Columns\TextColumn::make('players_total')
                     ->label('Player Count')
@@ -50,12 +50,12 @@ new class extends Component implements HasForms, HasTable, HasActions {
                 Tables\Columns\TextColumn::make('UniquelyTicketedAchievements')
                     ->label('Ticketed Achievements')
                     ->numeric()
-                    ->url(fn ($record) => route('game.tickets', ['game' => $record->ID, 'filter[achievement]' => 'core'])),
+                    ->url(fn ($record) => route('game.tickets', ['game' => $record->id, 'filter[achievement]' => 'core'])),
 
                 Tables\Columns\TextColumn::make('TicketCount')
                     ->label('Open Tickets')
                     ->numeric()
-                    ->url(fn ($record) => route('game.tickets', ['game' => $record->ID, 'filter[achievement]' => 'core']))
+                    ->url(fn ($record) => route('game.tickets', ['game' => $record->id, 'filter[achievement]' => 'core']))
                     ->color(fn ($record) => $record->TicketCount >= 10 ? 'danger' : null),
             ])
             ->filters([

@@ -48,7 +48,7 @@ class ForumTopicSeeder extends Seeder
                 ]);
                 $forumTopicComment->save();
 
-                $forumTopic->latest_comment_id = $forumTopicComment->ID;
+                $forumTopic->latest_comment_id = $forumTopicComment->id;
                 $forumTopic->save();
 
                 $numTopics++;
@@ -72,7 +72,7 @@ class ForumTopicSeeder extends Seeder
                 ]);
                 $forumTopicComment->save();
 
-                $forumTopic->latest_comment_id = $forumTopicComment->ID;
+                $forumTopic->latest_comment_id = $forumTopicComment->id;
                 $forumTopic->save();
 
                 $numComments++;

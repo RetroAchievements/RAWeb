@@ -49,7 +49,7 @@ class AddToMessageThreadAction
         $moderationReportId = null;
         if ($reportableType && $reportableId) {
             $reportedItem = $reportableType->getReportedItem($reportableId);
-            $reportedUserId = $reportedItem?->user_id ?? $reportedItem?->author_id ?? $reportedItem?->ID ?? null;
+            $reportedUserId = $reportedItem?->user_id ?? $reportedItem?->author_id ?? $reportedItem?->id ?? null;
 
             $moderationReport = UserModerationReport::create([
                 'reporter_user_id' => $trueSenderUser->id,

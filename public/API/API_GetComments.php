@@ -49,6 +49,11 @@ $rules = [
     't' => [
         Rule::requiredIf($inputIsGameOrAchievement()),
         'integer',
+        Rule::in([
+            CommentableType::Game->toLegacyInteger(),
+            CommentableType::Achievement->toLegacyInteger(),
+            CommentableType::User->toLegacyInteger(),
+        ]),
     ],
     'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
     'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable'],
