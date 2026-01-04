@@ -94,7 +94,7 @@ You spent {{ $recapData['totalPlaytime'] }} playing games {{ $playedSystemsClaus
     width="64"
     height="64"
 >
-    Your rarest achievement earned was <a href="{{ route('achievement.show', $recapData['rarestHardcoreAchievement']) }}">{{ $recapData['rarestHardcoreAchievement']->title }}</a> from {{ $recapData['rarestHardcoreAchievement']->game->Title }}, which has only been earned in hardcore by {{ $recapData['rarestHardcoreAchievementEarnRate'] }}% of players.
+    Your rarest achievement earned was <a href="{{ route('achievement.show', $recapData['rarestHardcoreAchievement']) }}">{{ $recapData['rarestHardcoreAchievement']->title }}</a> from {{ $recapData['rarestHardcoreAchievement']->game->title }}, which has only been earned in hardcore by {{ $recapData['rarestHardcoreAchievementEarnRate'] }}% of players.
 </x-mail::image-panel>
 @elseif ($recapData['rarestSoftcoreAchievement'])
 <x-mail::image-panel
@@ -104,7 +104,7 @@ You spent {{ $recapData['totalPlaytime'] }} playing games {{ $playedSystemsClaus
     width="64"
     height="64"
 >
-    Your rarest achievement earned was <a href="{{ route('achievement.show', $recapData['rarestSoftcoreAchievement']) }}">{{ $recapData['rarestSoftcoreAchievement']->title }}</a> from {{ $recapData['rarestSoftcoreAchievement']->game->Title }}, which has only been earned by {{ $recapData['rarestSoftcoreAchievementEarnRate'] }}% of players.
+    Your rarest achievement earned was <a href="{{ route('achievement.show', $recapData['rarestSoftcoreAchievement']) }}">{{ $recapData['rarestSoftcoreAchievement']->title }}</a> from {{ $recapData['rarestSoftcoreAchievement']->game->title }}, which has only been earned by {{ $recapData['rarestSoftcoreAchievementEarnRate'] }}% of players.
 </x-mail::image-panel>
 @endif
 
@@ -118,7 +118,7 @@ You also unlocked {{ $countThing($recapData['subsetAchievementsUnlocked'], 'subs
     width="64"
     height="64"
 >
-    Your rarest subset achievement earned was <a href="{{ route('achievement.show', $recapData['rarestSubsetHardcoreAchievement']) }}">{{ $recapData['rarestSubsetHardcoreAchievement']->title }}</a> from {{ $recapData['rarestSubsetHardcoreAchievement']->game->Title }}, which has only been earned in hardcore by {{ $recapData['rarestSubsetHardcoreAchievementEarnRate'] }}% of players.
+    Your rarest subset achievement earned was <a href="{{ route('achievement.show', $recapData['rarestSubsetHardcoreAchievement']) }}">{{ $recapData['rarestSubsetHardcoreAchievement']->title }}</a> from {{ $recapData['rarestSubsetHardcoreAchievement']->game->title }}, which has only been earned in hardcore by {{ $recapData['rarestSubsetHardcoreAchievementEarnRate'] }}% of players.
 </x-mail::image-panel>
 @elseif ($recapData['rarestSubsetSoftcoreAchievement'])
 <x-mail::image-panel
@@ -128,7 +128,7 @@ You also unlocked {{ $countThing($recapData['subsetAchievementsUnlocked'], 'subs
     width="64"
     height="64"
 >
-    Your rarest subset achievement earned was <a href="{{ route('achievement.show', $recapData['rarestSubsetSoftcoreAchievement']) }}">{{ $recapData['rarestSubsetSoftcoreAchievement']->title }}</a> from {{ $recapData['rarestSubsetSoftcoreAchievement']->game->Title }}, which has only been earned by {{ $recapData['rarestSubsetSoftcoreAchievementEarnRate'] }}% of players.
+    Your rarest subset achievement earned was <a href="{{ route('achievement.show', $recapData['rarestSubsetSoftcoreAchievement']) }}">{{ $recapData['rarestSubsetSoftcoreAchievement']->title }}</a> from {{ $recapData['rarestSubsetSoftcoreAchievement']->game->title }}, which has only been earned by {{ $recapData['rarestSubsetSoftcoreAchievementEarnRate'] }}% of players.
 </x-mail::image-panel>
 @endif
 @endif
