@@ -422,6 +422,7 @@ class TriggerDecoderService
                 }
             } elseif (array_key_exists($address, $codeNotes)) {
                 $note = $codeNotes[$address];
+                $note = $this->resolveNoteRedirects($note, $codeNotes);
                 if (!empty($note)) {
                     if ($condition['IsIndirect']) {
                         $condition[$type . 'Tooltip'] = "[With indirection]\n" . $note;
@@ -434,6 +435,7 @@ class TriggerDecoderService
                 $noteAddress = $this->findArrayNote($address, $codeNotes);
                 if ($noteAddress !== null) {
                     $note = $codeNotes[$noteAddress] ?? '';
+                    $note = $this->resolveNoteRedirects($note, $codeNotes);
                     if (!empty($note)) {
                         $formattedNoteAddress = '0x' . str_pad(dechex($noteAddress), 6, '0', STR_PAD_LEFT);
                         $offset = $address - $noteAddress;
@@ -508,6 +510,26 @@ class TriggerDecoderService
         }
 
         return '';
+    }
+
+    private function resolveNoteRedirects(string $note, array $codeNotes): string
+    {
+        $redirects = 0;
+        while ($redirects < 5) {
+            if (preg_match('/refer to \$0x([0-9a-fA-F]+)/i', $note, $match)) {
+                $targetAddr = hexdec($match[1]);
+                $targetNote = $codeNotes[$targetAddr] ?? null;
+                if ($targetNote) {
+                    $note = $targetNote;
+                    $redirects++;
+
+                    continue;
+                }
+            }
+            break;
+        }
+
+        return $note;
     }
 
     private function findArrayNote(int $address, array $codeNotes): ?int
