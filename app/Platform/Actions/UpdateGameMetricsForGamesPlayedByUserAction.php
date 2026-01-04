@@ -6,6 +6,7 @@ namespace App\Platform\Actions;
 
 use App\Models\PlayerGame;
 use App\Models\User;
+use App\Platform\Jobs\UpdateGameBeatenMetricsJob;
 use App\Platform\Jobs\UpdateGamePlayerCountJob;
 use App\Platform\Services\GameTopAchieversService;
 use Illuminate\Bus\Batch;
@@ -22,11 +23,18 @@ class UpdateGameMetricsForGamesPlayedByUserAction
             return;
         }
 
-        // when a player becomes unranked (or re-ranked), we have to recalculate player
-        // counts for every game they've played.
+        // When a player becomes unranked (or re-ranked), we have to recalculate player
+        // counts and beaten/mastery metrics (median times) for every game they've played.
         $user->playerGames()
             ->chunkById(1000, function (Collection $chunk, $page) use ($user) {
-                // map and dispatch this chunk as a batch of jobs
+                $finallyCallback = function (Batch $batch) {
+                    // Mark batch as finished even if jobs failed.
+                    if (!$batch->finished()) {
+                        resolve(BatchRepository::class)->markAsFinished($batch->id);
+                    }
+                };
+
+                // Dispatch player count updates.
                 Bus::batch(
                     $chunk->map(
                         fn (PlayerGame $playerGame) => new UpdateGamePlayerCountJob($playerGame->game_id)
@@ -35,12 +43,19 @@ class UpdateGameMetricsForGamesPlayedByUserAction
                     ->onQueue('game-player-count')
                     ->name('player-played-games ' . $user->id . ' ' . $page)
                     ->allowFailures()
-                    ->finally(function (Batch $batch) {
-                        // mark batch as finished even if jobs failed
-                        if (!$batch->finished()) {
-                            resolve(BatchRepository::class)->markAsFinished($batch->id);
-                        }
-                    })
+                    ->finally($finallyCallback)
+                    ->dispatch();
+
+                // Dispatch beaten/mastery metrics updates (median times).
+                Bus::batch(
+                    $chunk->map(
+                        fn (PlayerGame $playerGame) => new UpdateGameBeatenMetricsJob($playerGame->game_id)
+                    )
+                )
+                    ->onQueue('game-beaten-metrics')
+                    ->name('player-played-games-playtime-metrics ' . $user->id . ' ' . $page)
+                    ->allowFailures()
+                    ->finally($finallyCallback)
                     ->dispatch();
 
                 /** @var PlayerGame $playerGame */
