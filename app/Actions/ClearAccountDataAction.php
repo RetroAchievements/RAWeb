@@ -65,7 +65,6 @@ class ClearAccountDataAction
             ManuallyVerified = 0,
             forum_verified_at = null,
             motto = '',
-            Untracked = 1,
             unranked_at = :now2,
             web_api_key = null,
             is_user_wall_active = 0,

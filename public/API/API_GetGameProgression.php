@@ -129,7 +129,7 @@ $allUnlocks = PlayerAchievement::query()
     ->whereIn('user_id', $recentPlayerIds)
     ->whereIn('achievement_id', $achievementIds)
     ->whereNull('unlocker_id')
-    ->orderByRaw('COALESCE(unlocked_hardcore_at, unlocked_at) DESC');
+    ->orderByDesc('unlocked_effective_at');
 foreach ($allUnlocks->get() as $unlock) {
     if (!array_key_exists($unlock->user_id, $unlocks)) {
         $unlocks[$unlock->user_id] = [];

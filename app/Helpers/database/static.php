@@ -34,7 +34,7 @@ function static_addnewregistereduser(string $user): void
 function static_addnewhardcoremastery(int $gameId, string $username): void
 {
     $foundUser = User::whereName($username)->first();
-    if ($foundUser->Untracked) {
+    if ($foundUser->unranked_at !== null) {
         return;
     }
 
@@ -55,7 +55,7 @@ function static_addnewhardcoremastery(int $gameId, string $username): void
 function static_addnewhardcoregamebeaten(int $gameId, string $username): void
 {
     $foundUser = User::whereName($username)->first();
-    if ($foundUser->Untracked) {
+    if ($foundUser->unranked_at !== null) {
         return;
     }
 

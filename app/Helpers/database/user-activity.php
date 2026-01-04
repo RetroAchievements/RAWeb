@@ -159,8 +159,8 @@ function getLatestRichPresenceUpdates(): array
     $recentMinutes = 10;
     $permissionsCutoff = Permissions::Registered;
 
-    $ifRAPoints = ifStatement('ua.Untracked', 0, 'ua.points_hardcore');
-    $ifRASoftcorePoints = ifStatement('ua.Untracked', 0, 'ua.points');
+    $ifRAPoints = ifStatement('ua.unranked_at IS NOT NULL', 0, 'ua.points_hardcore');
+    $ifRASoftcorePoints = ifStatement('ua.unranked_at IS NOT NULL', 0, 'ua.points');
     $timestampStatement = timestampAddMinutesStatement(-$recentMinutes);
 
     $query = "SELECT ua.username AS User, $ifRAPoints as RAPoints, $ifRASoftcorePoints as RASoftcorePoints,

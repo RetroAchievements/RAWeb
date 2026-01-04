@@ -80,7 +80,7 @@ class GameTopAchieversControllerTest extends TestCase
         $user3 = User::factory()->create();
         $user4 = User::factory()->create();
         $user5 = User::factory()->create();
-        $user6 = User::factory()->create(['Untracked' => true, 'unranked_at' => $date2]);
+        $user6 = User::factory()->create(['unranked_at' => $date2]);
         $user7 = User::factory()->create();
         $user8 = User::factory()->create();
 

@@ -35,9 +35,14 @@ class PlayerAchievement extends BasePivot
         'unlocker_id',
     ];
 
+    protected $guarded = [
+        'unlocked_effective_at', // virtual column managed by the DB engine, we can't write to this
+    ];
+
     protected $casts = [
         'unlocked_at' => 'datetime',
         'unlocked_hardcore_at' => 'datetime',
+        'unlocked_effective_at' => 'datetime',
     ];
 
     // == accessors
