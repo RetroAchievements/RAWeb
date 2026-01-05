@@ -3,27 +3,17 @@ CREATE TABLE IF NOT EXISTS "migrations"(
   "migration" varchar not null,
   "batch" integer not null
 );
-CREATE TABLE IF NOT EXISTS "Console"(
-  "ID" integer primary key autoincrement not null,
-  "Name" varchar not null,
-  "Created" datetime,
-  "Updated" datetime,
+CREATE TABLE IF NOT EXISTS "systems"(
+  "id" integer primary key autoincrement not null,
+  "name" varchar not null,
+  "created_at" datetime,
+  "updated_at" datetime,
   "name_full" varchar,
   "name_short" varchar,
   "manufacturer" varchar,
   "active" tinyint(1),
   "order_column" integer,
   "deleted_at" datetime
-);
-CREATE TABLE IF NOT EXISTS "EmailConfirmations"(
-  "id" integer primary key autoincrement not null,
-  "User" varchar not null,
-  "user_id" integer,
-  "EmailCookie" varchar not null,
-  "Expires" date not null
-);
-CREATE INDEX "emailconfirmations_emailcookie_index" on "EmailConfirmations"(
-  "EmailCookie"
 );
 CREATE TABLE IF NOT EXISTS "forum_categories"(
   "id" integer primary key autoincrement not null,
@@ -63,12 +53,6 @@ CREATE TABLE IF NOT EXISTS "StaticData"(
   "last_game_hardcore_beaten_user_id" integer not null default '1',
   "last_game_hardcore_beaten_at" datetime
 );
-CREATE TABLE IF NOT EXISTS "password_reset_tokens"(
-  "email" varchar not null,
-  "token" varchar not null,
-  "created_at" datetime,
-  primary key("email")
-);
 CREATE TABLE IF NOT EXISTS "sessions"(
   "id" varchar not null,
   "user_id" integer,
@@ -90,61 +74,6 @@ CREATE TABLE IF NOT EXISTS "queue_jobs"(
   "created_at" integer not null
 );
 CREATE INDEX "queue_jobs_queue_index" on "queue_jobs"("queue");
-CREATE TABLE IF NOT EXISTS "oauth_auth_codes"(
-  "id" varchar not null,
-  "user_id" integer not null,
-  "client_id" integer not null,
-  "scopes" text,
-  "revoked" tinyint(1) not null,
-  "expires_at" datetime,
-  primary key("id")
-);
-CREATE INDEX "oauth_auth_codes_user_id_index" on "oauth_auth_codes"("user_id");
-CREATE TABLE IF NOT EXISTS "oauth_access_tokens"(
-  "id" varchar not null,
-  "user_id" integer,
-  "client_id" integer not null,
-  "name" varchar,
-  "scopes" text,
-  "revoked" tinyint(1) not null,
-  "created_at" datetime,
-  "updated_at" datetime,
-  "expires_at" datetime,
-  primary key("id")
-);
-CREATE INDEX "oauth_access_tokens_user_id_index" on "oauth_access_tokens"(
-  "user_id"
-);
-CREATE TABLE IF NOT EXISTS "oauth_refresh_tokens"(
-  "id" varchar not null,
-  "access_token_id" varchar not null,
-  "revoked" tinyint(1) not null,
-  "expires_at" datetime,
-  primary key("id")
-);
-CREATE INDEX "oauth_refresh_tokens_access_token_id_index" on "oauth_refresh_tokens"(
-  "access_token_id"
-);
-CREATE TABLE IF NOT EXISTS "oauth_clients"(
-  "id" integer primary key autoincrement not null,
-  "user_id" integer,
-  "name" varchar not null,
-  "secret" varchar,
-  "provider" varchar,
-  "redirect" text not null,
-  "personal_access_client" tinyint(1) not null,
-  "password_client" tinyint(1) not null,
-  "revoked" tinyint(1) not null,
-  "created_at" datetime,
-  "updated_at" datetime
-);
-CREATE INDEX "oauth_clients_user_id_index" on "oauth_clients"("user_id");
-CREATE TABLE IF NOT EXISTS "oauth_personal_access_clients"(
-  "id" integer primary key autoincrement not null,
-  "client_id" integer not null,
-  "created_at" datetime,
-  "updated_at" datetime
-);
 CREATE TABLE IF NOT EXISTS "personal_access_tokens"(
   "id" integer primary key autoincrement not null,
   "tokenable_type" varchar not null,
@@ -336,7 +265,7 @@ CREATE TABLE IF NOT EXISTS "system_emulators"(
   "emulator_id" integer not null,
   "created_at" datetime,
   "updated_at" datetime,
-  foreign key("system_id") references "Console"("ID") on delete cascade,
+  foreign key("system_id") references "systems"("id") on delete cascade,
   foreign key("emulator_id") references "emulators"("id") on delete cascade
 );
 CREATE TABLE IF NOT EXISTS "emulator_releases"(
@@ -377,7 +306,7 @@ CREATE TABLE IF NOT EXISTS "user_activities"(
   "subject_context" integer,
   "created_at" datetime,
   "updated_at" datetime,
-  foreign key("user_id") references "UserAccounts"("ID") on delete cascade
+  foreign key("user_id") references "users"("id") on delete cascade
 );
 CREATE INDEX "user_activities_subject_type_subject_id_index" on "user_activities"(
   "subject_type",
@@ -400,7 +329,7 @@ CREATE TABLE IF NOT EXISTS "user_connections"(
   "raw" text,
   "created_at" datetime,
   "updated_at" datetime,
-  foreign key("user_id") references "UserAccounts"("ID") on delete cascade
+  foreign key("user_id") references "users"("id") on delete cascade
 );
 CREATE UNIQUE INDEX "user_connections_user_id_provider_provider_user_id_unique" on "user_connections"(
   "user_id",
@@ -419,21 +348,7 @@ CREATE TABLE IF NOT EXISTS "game_set_games"(
   "updated_at" datetime,
   "deleted_at" datetime,
   foreign key("game_set_id") references "game_sets"("id") on delete cascade,
-  foreign key("game_id") references "GameData"("ID") on delete cascade
-);
-CREATE TABLE IF NOT EXISTS "achievement_set_achievements"(
-  "id" integer primary key autoincrement not null,
-  "achievement_set_id" integer not null,
-  "achievement_id" integer not null,
-  "order_column" integer,
-  "created_at" datetime,
-  "updated_at" datetime,
-  foreign key("achievement_set_id") references "achievement_sets"("id") on delete cascade,
-  foreign key("achievement_id") references "Achievements"("ID") on delete cascade
-);
-CREATE UNIQUE INDEX "achievement_set_achievement_unique" on "achievement_set_achievements"(
-  "achievement_set_id",
-  "achievement_id"
+  foreign key("game_id") references "games"("id") on delete cascade
 );
 CREATE TABLE IF NOT EXISTS "achievement_set_versions"(
   "id" integer primary key autoincrement not null,
@@ -464,7 +379,7 @@ CREATE TABLE IF NOT EXISTS "achievement_set_authors"(
   "updated_at" datetime,
   "deleted_at" datetime,
   foreign key("achievement_set_id") references "achievement_sets"("id") on delete cascade,
-  foreign key("user_id") references "UserAccounts"("ID") on delete cascade
+  foreign key("user_id") references "users"("id") on delete cascade
 );
 CREATE TABLE IF NOT EXISTS "game_achievement_sets"(
   "id" integer primary key autoincrement not null,
@@ -475,7 +390,7 @@ CREATE TABLE IF NOT EXISTS "game_achievement_sets"(
   "order_column" integer,
   "created_at" datetime,
   "updated_at" datetime,
-  foreign key("game_id") references "GameData"("ID") on delete cascade,
+  foreign key("game_id") references "games"("id") on delete cascade,
   foreign key("achievement_set_id") references "achievement_sets"("id") on delete cascade
 );
 CREATE TABLE IF NOT EXISTS "game_hash_sets"(
@@ -486,7 +401,7 @@ CREATE TABLE IF NOT EXISTS "game_hash_sets"(
   "created_at" datetime,
   "updated_at" datetime,
   "deleted_at" datetime,
-  foreign key("game_id") references "GameData"("ID") on delete cascade
+  foreign key("game_id") references "games"("id") on delete cascade
 );
 CREATE TABLE IF NOT EXISTS "game_hash_set_hashes"(
   "id" integer primary key autoincrement not null,
@@ -515,8 +430,8 @@ CREATE TABLE IF NOT EXISTS "player_sessions"(
   "updated_at" datetime,
   "user_agent" varchar,
   "ip_address" varchar,
-  foreign key("user_id") references "UserAccounts"("ID") on delete set null,
-  foreign key("game_id") references "GameData"("ID") on delete set null,
+  foreign key("user_id") references "users"("id") on delete set null,
+  foreign key("game_id") references "games"("id") on delete set null,
   foreign key("game_hash_set_id") references "game_hash_sets"("id") on delete set null,
   foreign key("game_hash_id") references "game_hashes"("id") on delete set null
 );
@@ -529,11 +444,12 @@ CREATE TABLE IF NOT EXISTS "player_achievements"(
   "unlocker_id" integer,
   "unlocked_at" datetime,
   "unlocked_hardcore_at" datetime,
-  foreign key("achievement_id") references "Achievements"("ID") on delete cascade,
-  foreign key("user_id") references "UserAccounts"("ID") on delete cascade,
+  "unlocked_effective_at" datetime as(COALESCE(unlocked_hardcore_at, unlocked_at)),
+  foreign key("achievement_id") references "Achievements"("id") on delete cascade,
+  foreign key("user_id") references "users"("id") on delete cascade,
   foreign key("trigger_id") references "triggers"("id") on delete set null,
   foreign key("player_session_id") references "player_sessions"("id") on delete set null,
-  foreign key("unlocker_id") references "UserAccounts"("ID") on delete set null
+  foreign key("unlocker_id") references "users"("id") on delete set null
 );
 CREATE UNIQUE INDEX "player_achievements_user_id_achievement_id_unique" on "player_achievements"(
   "user_id",
@@ -552,7 +468,7 @@ CREATE TABLE IF NOT EXISTS "leaderboard_entries"(
   "created_at" datetime,
   "updated_at" datetime,
   "deleted_at" datetime,
-  foreign key("user_id") references "UserAccounts"("ID") on delete cascade,
+  foreign key("user_id") references "users"("id") on delete cascade,
   foreign key("trigger_id") references "triggers"("id") on delete set null,
   foreign key("player_session_id") references "player_sessions"("id") on delete set null
 );
@@ -592,7 +508,7 @@ CREATE TABLE player_achievement_sets(
   "time_taken" integer,
   "time_taken_hardcore" integer,
   FOREIGN KEY(achievement_set_id) REFERENCES achievement_sets(id) ON UPDATE NO ACTION ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE,
-  FOREIGN KEY(user_id) REFERENCES UserAccounts(ID) ON UPDATE NO ACTION ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE
+  FOREIGN KEY(user_id) REFERENCES "users"("id") ON UPDATE NO ACTION ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE
 );
 CREATE UNIQUE INDEX player_achievement_sets_user_id_achievement_set_id_unique ON player_achievement_sets(
   user_id,
@@ -646,9 +562,9 @@ CREATE TABLE IF NOT EXISTS "player_stats"(
   "created_at" datetime,
   "updated_at" datetime,
   "stat_updated_at" datetime,
-  foreign key("user_id") references "UserAccounts"("ID") on delete cascade,
-  foreign key("system_id") references "Console"("ID") on delete cascade,
-  foreign key("last_game_id") references "GameData"("ID") on delete set null
+  foreign key("user_id") references "users"("id") on delete cascade,
+  foreign key("system_id") references "systems"("id") on delete cascade,
+  foreign key("last_game_id") references "games"("id") on delete set null
 );
 CREATE UNIQUE INDEX "player_stats_user_id_system_id_type_unique" on "player_stats"(
   "user_id",
@@ -674,30 +590,13 @@ CREATE TABLE IF NOT EXISTS "message_thread_participants"(
   "created_at" datetime,
   "updated_at" datetime,
   "deleted_at" datetime,
-  foreign key("user_id") references "UserAccounts"("ID") on delete cascade,
+  foreign key("user_id") references "users"("id") on delete cascade,
   foreign key("thread_id") references "message_threads"("ID") on delete cascade
 );
 CREATE UNIQUE INDEX "auth_roles_name_guard_name_unique" on "auth_roles"(
   "name",
   "guard_name"
 );
-CREATE TABLE Comment(
-  ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-  ArticleType INTEGER NOT NULL,
-  ArticleID INTEGER NOT NULL,
-  user_id BIGINT UNSIGNED DEFAULT NULL,
-  Payload CLOB NOT NULL COLLATE "BINARY",
-  Submitted DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  Edited DATETIME DEFAULT NULL,
-  commentable_type VARCHAR(255) DEFAULT NULL COLLATE "BINARY",
-  commentable_id INTEGER DEFAULT NULL,
-  deleted_at DATETIME DEFAULT NULL
-);
-CREATE INDEX comments_commentable_index ON Comment(
-  commentable_type,
-  commentable_id
-);
-CREATE INDEX comment_articleid_index ON Comment(ArticleID);
 CREATE TABLE IF NOT EXISTS "subscriptions"(
   id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
   subject_type VARCHAR(255) NOT NULL,
@@ -717,17 +616,17 @@ CREATE UNIQUE INDEX "subscription_subject_type_subject_id_user_id_unique" on "su
   "subject_id",
   "user_id"
 );
-CREATE TABLE SetRequest(
+CREATE TABLE IF NOT EXISTS "user_game_list_entries"(
   id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-  GameID BIGINT UNSIGNED NOT NULL,
-  Updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+  "game_id" BIGINT UNSIGNED NOT NULL,
+  "updated_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
   user_id INTEGER DEFAULT NULL,
   type VARCHAR(255) DEFAULT NULL COLLATE "BINARY",
   created_at DATETIME DEFAULT NULL
 );
-CREATE UNIQUE INDEX user_game_list_entry_user_id_game_id_type_unique ON SetRequest(
+CREATE UNIQUE INDEX user_game_list_entry_user_id_game_id_type_unique ON "user_game_list_entries"(
   user_id,
-  GameID,
+  "game_id",
   type
 );
 CREATE TABLE IF NOT EXISTS "achievement_set_incompatible_game_hashes"(
@@ -743,49 +642,40 @@ CREATE UNIQUE INDEX "set_hash_unique" on "achievement_set_incompatible_game_hash
   "achievement_set_id",
   "game_hash_id"
 );
-CREATE TABLE Friends(
-  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-  Friendship INTEGER NOT NULL,
-  Created DATETIME DEFAULT NULL,
-  Updated DATETIME DEFAULT NULL,
-  user_id INTEGER DEFAULT NULL,
-  related_user_id INTEGER DEFAULT NULL,
-  status INTEGER DEFAULT NULL
-);
-CREATE TABLE SetClaim(
-  ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+CREATE TABLE IF NOT EXISTS "achievement_set_claims"(
+  "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
   game_id BIGINT UNSIGNED NOT NULL,
-  ClaimType INTEGER NOT NULL,
-  SetType INTEGER NOT NULL,
-  Status INTEGER NOT NULL,
-  Extension INTEGER NOT NULL,
-  Special INTEGER NOT NULL,
-  Created DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  Finished DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  Updated DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "claim_type" INTEGER NOT NULL,
+  "set_type" INTEGER NOT NULL,
+  "status" INTEGER NOT NULL,
+  "extensions_count" INTEGER NOT NULL,
+  "special_type" INTEGER NOT NULL,
+  "created_at" DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "finished_at" DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "updated_at" DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
   user_id INTEGER DEFAULT NULL
 );
-CREATE TABLE SiteAwards(
+CREATE TABLE IF NOT EXISTS "user_awards"(
   id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-  AwardDate DATETIME NOT NULL,
-  AwardType INTEGER NOT NULL,
-  AwardData INTEGER DEFAULT NULL,
-  AwardDataExtra INTEGER DEFAULT 0 NOT NULL,
-  DisplayOrder INTEGER DEFAULT 0 NOT NULL,
+  "awarded_at" DATETIME NOT NULL,
+  "award_type" INTEGER NOT NULL,
+  "award_key" INTEGER DEFAULT NULL,
+  "award_tier" INTEGER DEFAULT 0 NOT NULL,
+  "order_column" INTEGER DEFAULT 0 NOT NULL,
   user_id INTEGER DEFAULT NULL
 );
-CREATE INDEX siteawards_user_id_index ON SiteAwards(user_id);
-CREATE INDEX siteawards_awarddata_awardtype_awarddate_index ON SiteAwards(
-  AwardData,
-  AwardType,
-  AwardDate
+CREATE INDEX siteawards_user_id_index ON "user_awards"(user_id);
+CREATE INDEX siteawards_awarddata_awardtype_awarddate_index ON "user_awards"(
+  "award_key",
+  "award_type",
+  "awarded_at"
 );
-CREATE INDEX siteawards_awardtype_index ON SiteAwards(AwardType);
-CREATE INDEX "siteawards_user_id_awarddata_awardtype_awarddataextra_index" on "SiteAwards"(
+CREATE INDEX siteawards_awardtype_index ON "user_awards"("award_type");
+CREATE INDEX "siteawards_user_id_awarddata_awardtype_awarddataextra_index" on "user_awards"(
   "user_id",
-  "AwardData",
-  "AwardType",
-  "AwardDataExtra"
+  "award_key",
+  "award_type",
+  "award_tier"
 );
 CREATE TABLE memory_notes(
   id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -896,8 +786,8 @@ CREATE TABLE IF NOT EXISTS "achievement_authors"(
   "created_at" datetime,
   "updated_at" datetime,
   "deleted_at" datetime,
-  foreign key("user_id") references UserAccounts("ID") on delete cascade on update no action,
-  foreign key("achievement_id") references "Achievements"("ID") on delete cascade
+  foreign key("user_id") references "users"("id") on delete cascade on update no action,
+  foreign key("achievement_id") references "Achievements"("id") on delete cascade
 );
 CREATE UNIQUE INDEX "achievement_authors_achievement_id_user_id_task_unique" on "achievement_authors"(
   "achievement_id",
@@ -911,7 +801,7 @@ CREATE TABLE IF NOT EXISTS "user_game_achievement_set_preferences"(
   "opted_in" tinyint(1) not null,
   "created_at" datetime,
   "updated_at" datetime,
-  foreign key("user_id") references "UserAccounts"("ID") on delete cascade,
+  foreign key("user_id") references "users"("id") on delete cascade,
   foreign key("game_achievement_set_id") references "game_achievement_sets"("id") on delete cascade
 );
 CREATE UNIQUE INDEX "unique_user_gasp" on "user_game_achievement_set_preferences"(
@@ -927,8 +817,8 @@ CREATE TABLE IF NOT EXISTS "event_achievements"(
   "created_at" datetime,
   "updated_at" datetime,
   "decorator" varchar,
-  foreign key("achievement_id") references "Achievements"("ID") on delete cascade,
-  foreign key("source_achievement_id") references "Achievements"("ID") on delete cascade
+  foreign key("achievement_id") references "Achievements"("id") on delete cascade,
+  foreign key("source_achievement_id") references "Achievements"("id") on delete cascade
 );
 CREATE INDEX "event_achievements_source_achievement_id_index" on "event_achievements"(
   "source_achievement_id"
@@ -985,7 +875,7 @@ CREATE TABLE IF NOT EXISTS "forum_topics"(
   "deleted_at" datetime default(NULL),
   "body" text,
   foreign key("forum_id") references forums("id") on delete set null on update no action,
-  foreign key("author_id") references "UserAccounts"("ID") on delete set null
+  foreign key("author_id") references "users"("id") on delete set null
 );
 CREATE INDEX "forum_topics_created_at_index" on "forum_topics"("created_at");
 CREATE INDEX "forum_topics_forum_id_index" on "forum_topics"("forum_id");
@@ -993,29 +883,6 @@ CREATE INDEX "idx_permissions_deleted_latest" on "forum_topics"(
   "required_permissions",
   "deleted_at",
   "latest_comment_id"
-);
-CREATE TABLE IF NOT EXISTS "forum_topic_comments"(
-  "id" integer primary key autoincrement not null,
-  "forum_topic_id" bigint unsigned default(NULL),
-  "body" clob not null collate 'binary',
-  "author_id" bigint unsigned default(NULL),
-  "created_at" datetime default(NULL),
-  "updated_at" datetime default(CURRENT_TIMESTAMP),
-  "is_authorized" integer default(NULL),
-  "authorized_at" datetime default(NULL),
-  "deleted_at" datetime default(NULL),
-  foreign key("forum_topic_id") references forum_topics("id") on delete set null on update no action,
-  foreign key("author_id") references "UserAccounts"("ID") on delete set null
-);
-CREATE INDEX "forum_topic_comments_author_id_created_at_index" on "forum_topic_comments"(
-  "author_id",
-  "created_at"
-);
-CREATE INDEX "forum_topic_comments_created_at_index" on "forum_topic_comments"(
-  "created_at"
-);
-CREATE INDEX "forum_topic_comments_forum_topic_id_index" on "forum_topic_comments"(
-  "forum_topic_id"
 );
 CREATE TABLE IF NOT EXISTS "news"(
   "id" integer primary key autoincrement not null,
@@ -1032,7 +899,7 @@ CREATE TABLE IF NOT EXISTS "news"(
   "deleted_at" datetime default(NULL),
   "pinned_at" datetime,
   "category" varchar,
-  foreign key("user_id") references "UserAccounts"("ID") on delete set null
+  foreign key("user_id") references "users"("id") on delete set null
 );
 CREATE TABLE IF NOT EXISTS "game_sets"(
   "id" integer primary key autoincrement not null,
@@ -1048,8 +915,9 @@ CREATE TABLE IF NOT EXISTS "game_sets"(
   "internal_notes" text,
   "has_mature_content" tinyint(1) not null default('0'),
   "forum_topic_id" integer,
-  foreign key("game_id") references GameData("ID") on delete cascade on update no action,
-  foreign key("user_id") references UserAccounts("ID") on delete set null on update no action,
+  "sort_title" varchar,
+  foreign key("game_id") references "games"("id") on delete cascade on update no action,
+  foreign key("user_id") references "users"("id") on delete set null on update no action,
   foreign key("forum_topic_id") references "forum_topics"("id") on delete set null
 );
 CREATE INDEX "game_sets_user_id_index" on "game_sets"("user_id");
@@ -1068,76 +936,31 @@ CREATE TABLE IF NOT EXISTS "events"(
   "created_at" datetime,
   "updated_at" datetime,
   "gives_site_award" tinyint(1) not null default '0',
-  foreign key("legacy_game_id") references "GameData"("ID") on delete cascade
+  foreign key("legacy_game_id") references "games"("id") on delete cascade
 );
-CREATE TABLE IF NOT EXISTS "Achievements"(
-  "ID" integer primary key autoincrement not null,
-  "GameID" bigint unsigned default(NULL),
-  "Title" varchar(255) not null collate 'binary',
-  "Description" varchar(255) default(NULL) collate 'binary',
-  "MemAddr" clob not null collate 'binary',
-  "Progress" varchar(255) default(NULL) collate 'binary',
-  "ProgressMax" varchar(255) default(NULL) collate 'binary',
-  "ProgressFormat" varchar(255) default(NULL) collate 'binary',
-  "Points" integer not null default(0),
-  "Flags" integer not null default(5),
-  "DateCreated" datetime default(NULL),
-  "DateModified" datetime default(CURRENT_TIMESTAMP),
-  "VotesPos" integer not null default(0),
-  "VotesNeg" integer not null default(0),
-  "BadgeName" varchar(255) default('00001') collate 'binary',
-  "DisplayOrder" integer not null default(0),
-  "AssocVideo" varchar(255) default(NULL) collate 'binary',
-  "TrueRatio" integer not null default(0),
-  "Updated" datetime default(NULL),
-  "user_id" integer default(NULL),
-  "unlocks_total" integer default(NULL),
-  "unlocks_hardcore_total" integer default(NULL),
-  "unlock_percentage" numeric(10, 0) default(NULL),
-  "unlock_hardcore_percentage" numeric(10, 0) default(NULL),
-  "deleted_at" datetime default(NULL),
-  "type" varchar(255) default(NULL) collate 'binary',
-  "trigger_id" integer,
-  foreign key("trigger_id") references "triggers"("id") on delete set null
-);
-CREATE INDEX "achievements_game_id_published_index" on "Achievements"(
-  "GameID",
-  "Flags"
-);
-CREATE INDEX "achievements_gameid_datemodified_deleted_at_index" on "Achievements"(
-  "GameID",
-  "DateModified",
-  "deleted_at"
-);
-CREATE INDEX "achievements_gameid_index" on "Achievements"("GameID");
-CREATE INDEX "achievements_points_index" on "Achievements"("Points");
-CREATE INDEX "achievements_trueratio_index" on "Achievements"("TrueRatio");
-CREATE INDEX "achievements_type_index" on "Achievements"("type");
-CREATE INDEX "achievements_trigger_id_index" on "Achievements"("trigger_id");
-CREATE TABLE IF NOT EXISTS "GameData"(
-  "ID" integer primary key autoincrement not null,
-  "Title" varchar(80) default(NULL),
-  "ConsoleID" integer unsigned default(NULL),
-  "ForumTopicID" bigint unsigned default(NULL),
-  "Flags" integer default(NULL),
-  "ImageIcon" varchar(255) default('/Images/000001.png'),
-  "ImageTitle" varchar(255) default('/Images/000002.png'),
-  "ImageIngame" varchar(255) default('/Images/000002.png'),
-  "ImageBoxArt" varchar(255) default('/Images/000002.png'),
-  "Publisher" varchar(255) default(NULL),
-  "Developer" varchar(255) default(NULL),
-  "Genre" varchar(255) default(NULL),
-  "RichPresencePatch" clob default(NULL),
-  "TotalTruePoints" integer not null default(0),
-  "Created" datetime default(NULL),
-  "Updated" datetime default(NULL),
+CREATE TABLE IF NOT EXISTS "games"(
+  "id" integer primary key autoincrement not null,
+  "title" varchar(80) default(NULL),
+  "system_id" integer unsigned default(NULL),
+  "forum_topic_id" bigint unsigned default(NULL),
+  "image_icon_asset_path" varchar(255) default('/Images/000001.png'),
+  "image_title_asset_path" varchar(255) default('/Images/000002.png'),
+  "image_ingame_asset_path" varchar(255) default('/Images/000002.png'),
+  "image_box_art_asset_path" varchar(255) default('/Images/000002.png'),
+  "publisher" varchar(255) default(NULL),
+  "developer" varchar(255) default(NULL),
+  "genre" varchar(255) default(NULL),
+  "trigger_definition" clob default(NULL),
+  "points_weighted" integer not null default(0),
+  "created_at" datetime default(NULL),
+  "updated_at" datetime default(NULL),
   "players_total" integer default(NULL),
   "achievements_published" integer default(NULL),
   "achievements_unpublished" integer default(NULL),
   "points_total" integer default(NULL),
   "released_at" datetime default(NULL),
   "deleted_at" datetime default(NULL),
-  "GuideURL" varchar(255) default(NULL),
+  "legacy_guide_url" varchar(255) default(NULL),
   "players_hardcore" integer default(NULL),
   "achievement_set_version_hash" varchar(255) default(NULL),
   "released_at_granularity" varchar,
@@ -1147,19 +970,20 @@ CREATE TABLE IF NOT EXISTS "GameData"(
   "times_beaten_hardcore" integer not null default '0',
   "median_time_to_beat" integer,
   "median_time_to_beat_hardcore" integer,
+  "comments_locked_at" datetime,
   foreign key("trigger_id") references "triggers"("id") on delete set null
 );
-CREATE INDEX "gamedata_sort_title_index" on "GameData"("sort_title");
-CREATE INDEX "games_players_hardcore_index" on "GameData"("players_hardcore");
-CREATE INDEX "games_players_total_index" on "GameData"("players_total");
-CREATE INDEX "games_released_at_index" on "GameData"("released_at");
-CREATE INDEX "games_system_id_index" on "GameData"("ConsoleID");
-CREATE INDEX "games_title_index" on "GameData"("Title");
-CREATE UNIQUE INDEX "games_title_system_id_unique" on "GameData"(
-  "Title",
-  "ConsoleID"
+CREATE INDEX "gamedata_sort_title_index" on "games"("sort_title");
+CREATE INDEX "games_players_hardcore_index" on "games"("players_hardcore");
+CREATE INDEX "games_players_total_index" on "games"("players_total");
+CREATE INDEX "games_released_at_index" on "games"("released_at");
+CREATE INDEX "games_system_id_index" on "games"("system_id");
+CREATE INDEX "games_title_index" on "games"("title");
+CREATE UNIQUE INDEX "games_title_system_id_unique" on "games"(
+  "title",
+  "system_id"
 );
-CREATE INDEX "gamedata_trigger_id_index" on "GameData"("trigger_id");
+CREATE INDEX "gamedata_trigger_id_index" on "games"("trigger_id");
 CREATE TABLE IF NOT EXISTS "triggers"(
   "id" integer primary key autoincrement not null,
   "triggerable_type" varchar not null,
@@ -1171,7 +995,7 @@ CREATE TABLE IF NOT EXISTS "triggers"(
   "created_at" datetime,
   "updated_at" datetime,
   "deleted_at" datetime,
-  foreign key("user_id") references UserAccounts("ID") on delete set null on update no action,
+  foreign key("user_id") references "users"("id") on delete set null on update no action,
   foreign key("parent_id") references "triggers"("id") on delete set null
 );
 CREATE INDEX "triggers_triggerable_type_triggerable_id_index" on "triggers"(
@@ -1207,45 +1031,39 @@ CREATE TABLE IF NOT EXISTS "user_usernames"(
   "updated_at" datetime,
   "approved_at" datetime,
   "denied_at" datetime,
-  foreign key("user_id") references "UserAccounts"("ID") on delete set null
+  foreign key("user_id") references "users"("id") on delete set null
 );
 CREATE INDEX "user_usernames_username_index" on "user_usernames"("username");
-CREATE TABLE IF NOT EXISTS "UserAccounts"(
-  "ID" integer primary key autoincrement not null,
-  "User" varchar(255) not null,
-  "SaltedPass" varchar(255) not null,
-  "EmailAddress" varchar(255) not null,
+CREATE TABLE IF NOT EXISTS "users"(
+  "id" integer primary key autoincrement not null,
+  "username" varchar(255) not null,
+  "legacy_salted_password" varchar(255) not null,
+  "email" varchar(255) not null,
   "Permissions" integer not null,
-  "RAPoints" integer not null,
-  "fbUser" integer not null,
-  "fbPrefs" integer default(NULL),
-  "cookie" varchar(255) default(NULL),
-  "appToken" varchar(255) default(NULL),
-  "appTokenExpiry" datetime default(NULL),
-  "websitePrefs" integer unsigned default(0),
-  "LastLogin" datetime default(NULL),
-  "LastActivityID" integer not null default(0),
-  "Motto" varchar(255) not null default(''),
-  "ContribCount" integer not null default(0),
-  "ContribYield" integer not null default(0),
-  "APIKey" varchar(255) default(NULL),
-  "APIUses" integer not null default(0),
-  "LastGameID" integer not null default(0),
-  "RichPresenceMsg" varchar(255) default(NULL),
-  "RichPresenceMsgDate" datetime default(NULL),
+  "points_hardcore" integer not null,
+  "connect_token" varchar(255) default(NULL),
+  "connect_token_expires_at" datetime default(NULL),
+  "preferences_bitfield" integer unsigned default(0),
+  "last_activity_at" datetime default(NULL),
+  "motto" varchar(255) not null default(''),
+  "yield_unlocks" integer not null default(0),
+  "yield_points" integer not null default(0),
+  "web_api_key" varchar(255) default(NULL),
+  "web_api_calls" integer not null default(0),
+  "rich_presence_game_id" integer not null default(0),
+  "rich_presence" varchar(255) default(NULL),
+  "rich_presence_updated_at" datetime default(NULL),
   "ManuallyVerified" integer default(0),
-  "UnreadMessageCount" integer default(NULL),
-  "TrueRAPoints" integer default(NULL),
-  "UserWallActive" boolean not null default(1),
-  "PasswordResetToken" varchar(255) default(NULL),
-  "Untracked" boolean not null default(0),
-  "email_backup" varchar(255) default(NULL),
-  "Created" datetime default(NULL),
-  "Updated" datetime default(NULL),
-  "Password" varchar(255) default(NULL),
-  "DeleteRequested" datetime default(NULL),
-  "Deleted" datetime default(NULL),
-  "RASoftcorePoints" integer default(0),
+  "unread_messages" integer default(NULL),
+  "points_weighted" integer default(NULL),
+  "is_user_wall_active" boolean not null default(1),
+  "email_original" varchar(255) default(NULL),
+  "created_at" datetime default(NULL),
+  "updated_at" datetime default(NULL),
+  "password" varchar(255) default(NULL),
+  "delete_requested_at" datetime default(NULL),
+  "deleted_at" datetime default(NULL),
+  "points" integer default(0),
   "display_name" varchar(255) default(NULL),
   "email_verified_at" datetime default(NULL),
   "remember_token" varchar(255) default(NULL),
@@ -1270,73 +1088,45 @@ CREATE TABLE IF NOT EXISTS "UserAccounts"(
   "ulid" varchar,
   foreign key("visible_role_id") references "auth_roles"("id") on delete set null
 );
-CREATE UNIQUE INDEX "useraccounts_display_name_unique" on "UserAccounts"(
+CREATE UNIQUE INDEX "useraccounts_display_name_unique" on "users"(
   "display_name"
 );
-CREATE INDEX "useraccounts_lastlogin_deleted_index" on "UserAccounts"(
-  "LastLogin",
-  "Deleted"
+CREATE INDEX "useraccounts_lastlogin_deleted_index" on "users"(
+  "last_activity_at",
+  "deleted_at"
 );
-CREATE INDEX "users_apikey_index" on "UserAccounts"("APIKey");
-CREATE INDEX "users_apptoken_index" on "UserAccounts"("appToken");
-CREATE INDEX "users_last_activity_id_index" on "UserAccounts"(
-  "LastActivityID"
-);
-CREATE INDEX "users_points_softcore_unranked_at_index" on "UserAccounts"(
-  "RASoftcorePoints",
+CREATE INDEX "users_apikey_index" on "users"("web_api_key");
+CREATE INDEX "users_apptoken_index" on "users"("connect_token");
+CREATE INDEX "users_points_softcore_unranked_at_index" on "users"(
+  "points",
   "unranked_at"
 );
-CREATE INDEX "users_points_softcore_untracked_index" on "UserAccounts"(
-  "RASoftcorePoints",
-  "Untracked"
-);
-CREATE INDEX "users_points_unranked_at_index" on "UserAccounts"(
-  "RAPoints",
+CREATE INDEX "users_points_unranked_at_index" on "users"(
+  "points_hardcore",
   "unranked_at"
 );
-CREATE INDEX "users_points_untracked_index" on "UserAccounts"(
-  "RAPoints",
-  "Untracked"
-);
-CREATE INDEX "users_points_weighted_unranked_at_index" on "UserAccounts"(
-  "TrueRAPoints",
+CREATE INDEX "users_points_weighted_unranked_at_index" on "users"(
+  "points_weighted",
   "unranked_at"
 );
-CREATE INDEX "users_points_weighted_untracked_index" on "UserAccounts"(
-  "TrueRAPoints",
-  "Untracked"
-);
-CREATE INDEX "users_unranked_at_index" on "UserAccounts"("unranked_at");
-CREATE INDEX "users_untracked_points_index" on "UserAccounts"(
-  "Untracked",
-  "RAPoints"
-);
-CREATE UNIQUE INDEX "users_username_unique" on "UserAccounts"("User");
-CREATE INDEX "users_username_untracked_index" on "UserAccounts"(
-  "User",
-  "Untracked"
-);
-CREATE INDEX "useraccounts_visible_role_id_index" on "UserAccounts"(
+CREATE INDEX "users_unranked_at_index" on "users"("unranked_at");
+CREATE UNIQUE INDEX "users_username_unique" on "users"("username");
+CREATE INDEX "useraccounts_visible_role_id_index" on "users"(
   "visible_role_id"
 );
-CREATE UNIQUE INDEX "useraccounts_ulid_unique" on "UserAccounts"("ulid");
-CREATE INDEX "comment_user_id_submitted_index" on "Comment"(
-  "user_id",
-  "Submitted"
-);
-CREATE TABLE IF NOT EXISTS "Ticket"(
-  "ID" integer primary key autoincrement not null,
-  "AchievementID" bigint unsigned default(NULL),
+CREATE UNIQUE INDEX "useraccounts_ulid_unique" on "users"("ulid");
+CREATE TABLE IF NOT EXISTS "tickets"(
+  "id" integer primary key autoincrement not null,
   "reporter_id" bigint unsigned default(NULL),
-  "ReportType" integer not null,
-  "ReportNotes" clob not null collate 'binary',
-  "ReportedAt" datetime default(NULL),
-  "ResolvedAt" datetime default(NULL),
+  "type" integer not null,
+  "body" clob not null collate 'binary',
+  "created_at" datetime default(NULL),
+  "resolved_at" datetime default(NULL),
   "resolver_id" bigint unsigned default(NULL),
-  "ReportState" integer not null default(1),
-  "Updated" datetime default(NULL),
-  "Hardcore" boolean default(NULL),
-  "ticketable_model" varchar(255) default(NULL) collate 'binary',
+  "state" integer not null default(1),
+  "updated_at" datetime default(NULL),
+  "hardcore" boolean default(NULL),
+  "ticketable_type" varchar(255) default(NULL) collate 'binary',
   "ticketable_id" integer default(NULL),
   "deleted_at" datetime default(NULL),
   "ticketable_author_id" integer,
@@ -1346,25 +1136,6 @@ CREATE TABLE IF NOT EXISTS "Ticket"(
   "emulator_core" varchar,
   foreign key("game_hash_id") references "game_hashes"("id") on delete set null,
   foreign key("emulator_id") references "emulators"("id") on delete set null
-);
-CREATE INDEX "ticket_achievementid_reportstate_deleted_at_index" on "Ticket"(
-  "AchievementID",
-  "ReportState",
-  "deleted_at"
-);
-CREATE INDEX "tickets_achievement_id_reporter_id_index" on "Ticket"(
-  "AchievementID",
-  "reporter_id"
-);
-CREATE INDEX "tickets_created_at_index" on "Ticket"("ReportedAt");
-CREATE INDEX "tickets_ticketable_index" on "Ticket"(
-  "ticketable_model",
-  "ticketable_id"
-);
-CREATE UNIQUE INDEX "tickets_ticketable_reporter_id_index" on "Ticket"(
-  "ticketable_model",
-  "ticketable_id",
-  "reporter_id"
 );
 CREATE TABLE IF NOT EXISTS "platforms"(
   "id" integer primary key autoincrement not null,
@@ -1434,7 +1205,7 @@ CREATE TABLE IF NOT EXISTS "game_hashes"(
   "patch_url" varchar(255) default(NULL) collate 'binary',
   "user_id" integer default(NULL),
   "compatibility_tester_id" integer,
-  foreign key("compatibility_tester_id") references "UserAccounts"("ID") on delete set null
+  foreign key("compatibility_tester_id") references "users"("id") on delete set null
 );
 CREATE UNIQUE INDEX "game_hashes_md5_unique" on "game_hashes"("md5");
 CREATE UNIQUE INDEX "game_hashes_system_id_hash_unique" on "game_hashes"(
@@ -1450,8 +1221,8 @@ CREATE TABLE IF NOT EXISTS "achievement_maintainers"(
   "is_active" tinyint(1) not null default('1'),
   "created_at" datetime,
   "updated_at" datetime,
-  foreign key("achievement_id") references "Achievements"("ID") on delete cascade,
-  foreign key("user_id") references "UserAccounts"("ID") on delete cascade
+  foreign key("achievement_id") references "Achievements"("id") on delete cascade,
+  foreign key("user_id") references "users"("id") on delete cascade
 );
 CREATE TABLE IF NOT EXISTS "messages"(
   "id" integer primary key autoincrement not null,
@@ -1462,8 +1233,8 @@ CREATE TABLE IF NOT EXISTS "messages"(
   "updated_at" datetime,
   "sent_by_id" integer,
   foreign key("thread_id") references message_threads("ID") on delete cascade on update no action,
-  foreign key("author_id") references UserAccounts("ID") on delete cascade on update no action,
-  foreign key("sent_by_id") references "UserAccounts"("ID") on delete set null
+  foreign key("author_id") references "users"("id") on delete cascade on update no action,
+  foreign key("sent_by_id") references "users"("id") on delete set null
 );
 CREATE TABLE IF NOT EXISTS "achievement_maintainer_unlocks"(
   "id" integer primary key autoincrement not null,
@@ -1471,8 +1242,8 @@ CREATE TABLE IF NOT EXISTS "achievement_maintainer_unlocks"(
   "maintainer_id" integer not null,
   "achievement_id" integer not null,
   foreign key("player_achievement_id") references "player_achievements"("id") on delete cascade,
-  foreign key("maintainer_id") references "UserAccounts"("ID") on delete cascade,
-  foreign key("achievement_id") references "Achievements"("ID") on delete cascade
+  foreign key("maintainer_id") references "users"("id") on delete cascade,
+  foreign key("achievement_id") references "Achievements"("id") on delete cascade
 );
 CREATE TABLE IF NOT EXISTS "downloads_popularity_metrics"(
   "id" integer primary key autoincrement not null,
@@ -1548,8 +1319,8 @@ CREATE TABLE IF NOT EXISTS "player_games"(
   "all_points" integer,
   "all_points_hardcore" integer,
   "all_points_weighted" integer,
-  foreign key("game_id") references GameData("ID") on delete cascade on update no action,
-  foreign key("user_id") references UserAccounts("ID") on delete cascade on update no action
+  foreign key("game_id") references "games"("id") on delete cascade on update no action,
+  foreign key("user_id") references "users"("id") on delete cascade on update no action
 );
 CREATE INDEX "idx_40515077a76ed395" on "player_games"("user_id");
 CREATE INDEX "idx_40515077e48fd905" on "player_games"("game_id");
@@ -1580,28 +1351,27 @@ CREATE UNIQUE INDEX "player_games_user_id_game_id_unique" on "player_games"(
   "user_id",
   "game_id"
 );
-CREATE TABLE IF NOT EXISTS "LeaderboardDef"(
-  "ID" integer primary key autoincrement not null,
-  "GameID" bigint unsigned not null default(0) collate 'binary',
-  "Mem" clob not null collate 'binary',
-  "Format" varchar(50) default('') collate 'binary',
-  "Title" varchar(255) default('Leaderboard Title') collate 'binary',
-  "Description" varchar(255) default('Leaderboard Description') collate 'binary',
-  "LowerIsBetter" boolean not null default(0),
-  "DisplayOrder" integer not null default(0),
-  "Created" datetime default(NULL),
-  "Updated" datetime default(NULL),
+CREATE TABLE IF NOT EXISTS "leaderboards"(
+  "id" integer primary key autoincrement not null,
+  "game_id" bigint unsigned not null default(0) collate 'binary',
+  "trigger_definition" clob not null collate 'binary',
+  "format" varchar(50) default('') collate 'binary',
+  "title" varchar(255) default('Leaderboard Title') collate 'binary',
+  "description" varchar(255) default('Leaderboard Description') collate 'binary',
+  "rank_asc" boolean not null default(0),
+  "order_column" integer not null default(0),
+  "created_at" datetime default(NULL),
+  "updated_at" datetime default(NULL),
   "deleted_at" datetime default(NULL),
   "author_id" integer default(NULL),
   "trigger_id" integer,
   "top_entry_id" integer,
+  "state" varchar not null default 'active',
   foreign key("trigger_id") references triggers("id") on delete set null on update no action,
   foreign key("top_entry_id") references "leaderboard_entries"("id") on delete set null
 );
-CREATE INDEX "leaderboarddef_trigger_id_index" on "LeaderboardDef"(
-  "trigger_id"
-);
-CREATE INDEX "leaderboards_game_id_index" on "LeaderboardDef"("GameID");
+CREATE INDEX "leaderboarddef_trigger_id_index" on "leaderboards"("trigger_id");
+CREATE INDEX "leaderboards_game_id_index" on "leaderboards"("game_id");
 CREATE TABLE IF NOT EXISTS "game_releases"(
   "id" integer primary key autoincrement not null,
   "game_id" integer not null,
@@ -1613,7 +1383,7 @@ CREATE TABLE IF NOT EXISTS "game_releases"(
   "created_at" datetime,
   "updated_at" datetime,
   "deleted_at" datetime,
-  foreign key("game_id") references "GameData"("ID") on delete cascade
+  foreign key("game_id") references "games"("id") on delete cascade
 );
 CREATE INDEX "game_releases_title_index" on "game_releases"("title");
 CREATE TABLE IF NOT EXISTS "game_set_roles"(
@@ -1638,7 +1408,7 @@ CREATE UNIQUE INDEX "game_set_roles_game_set_id_role_id_permission_unique" on "g
 CREATE TABLE IF NOT EXISTS "unranked_users"(
   "id" integer primary key autoincrement not null,
   "user_id" integer not null,
-  foreign key("user_id") references "UserAccounts"("ID") on delete cascade
+  foreign key("user_id") references "users"("id") on delete cascade
 );
 CREATE INDEX "unranked_users_user_id_index" on "unranked_users"("user_id");
 CREATE TABLE IF NOT EXISTS "player_progress_resets"(
@@ -1649,8 +1419,8 @@ CREATE TABLE IF NOT EXISTS "player_progress_resets"(
   "type_id" integer,
   "created_at" datetime,
   "updated_at" datetime,
-  foreign key("user_id") references "UserAccounts"("ID") on delete cascade,
-  foreign key("initiated_by_user_id") references "UserAccounts"("ID") on delete set null
+  foreign key("user_id") references "users"("id") on delete cascade,
+  foreign key("initiated_by_user_id") references "users"("id") on delete set null
 );
 CREATE INDEX "player_progress_resets_user_id_type_created_at_index" on "player_progress_resets"(
   "user_id",
@@ -1669,8 +1439,8 @@ CREATE TABLE IF NOT EXISTS "game_recent_players"(
   "user_id" integer not null,
   "rich_presence" text,
   "rich_presence_updated_at" datetime not null,
-  foreign key("game_id") references "GameData"("ID") on delete cascade,
-  foreign key("user_id") references "UserAccounts"("ID") on delete cascade
+  foreign key("game_id") references "games"("id") on delete cascade,
+  foreign key("user_id") references "users"("id") on delete cascade
 );
 CREATE UNIQUE INDEX "game_recent_players_game_id_user_id_unique" on "game_recent_players"(
   "game_id",
@@ -1680,7 +1450,402 @@ CREATE INDEX "idx_game_updated" on "game_recent_players"(
   "game_id",
   "rich_presence_updated_at"
 );
-CREATE INDEX "setrequest_gameid_type_index" on "SetRequest"("GameID", "type");
+CREATE INDEX "player_games_game_id_beaten_at_index" on "player_games"(
+  "game_id",
+  "beaten_at"
+);
+CREATE INDEX "player_games_game_id_beaten_hardcore_at_index" on "player_games"(
+  "game_id",
+  "beaten_hardcore_at"
+);
+CREATE TABLE IF NOT EXISTS "api_logs"(
+  "id" integer primary key autoincrement not null,
+  "api_version" varchar not null,
+  "user_id" integer,
+  "endpoint" varchar not null,
+  "method" varchar not null,
+  "response_code" integer not null,
+  "response_time_ms" integer,
+  "response_size_bytes" integer,
+  "ip_address" varchar not null,
+  "user_agent" text,
+  "request_data" text,
+  "error_message" varchar,
+  "created_at" datetime not null default CURRENT_TIMESTAMP,
+  foreign key("user_id") references "users"("id") on delete set null
+);
+CREATE INDEX "api_logs_user_id_index" on "api_logs"("user_id");
+CREATE INDEX "api_logs_api_version_index" on "api_logs"("api_version");
+CREATE INDEX "api_logs_created_at_index" on "api_logs"("created_at");
+CREATE INDEX "api_logs_api_version_endpoint_index" on "api_logs"(
+  "api_version",
+  "endpoint"
+);
+CREATE INDEX "api_logs_user_id_created_at_index" on "api_logs"(
+  "user_id",
+  "created_at"
+);
+CREATE TABLE IF NOT EXISTS "forum_topic_comments"(
+  "id" integer primary key autoincrement not null,
+  "forum_topic_id" bigint unsigned default(NULL),
+  "body" clob not null collate 'binary',
+  "author_id" bigint unsigned default(NULL),
+  "created_at" datetime default(NULL),
+  "updated_at" datetime default(CURRENT_TIMESTAMP),
+  "is_authorized" integer default(NULL),
+  "authorized_at" datetime default(NULL),
+  "deleted_at" datetime default(NULL),
+  "sent_by_id" integer,
+  "edited_by_id" integer,
+  foreign key("author_id") references "users"("id") on delete set null on update no action,
+  foreign key("forum_topic_id") references forum_topics("id") on delete set null on update no action,
+  foreign key("sent_by_id") references "users"("id") on delete set null,
+  foreign key("edited_by_id") references "users"("id") on delete set null
+);
+CREATE INDEX "forum_topic_comments_author_id_created_at_index" on "forum_topic_comments"(
+  "author_id",
+  "created_at"
+);
+CREATE INDEX "forum_topic_comments_created_at_index" on "forum_topic_comments"(
+  "created_at"
+);
+CREATE INDEX "forum_topic_comments_forum_topic_id_index" on "forum_topic_comments"(
+  "forum_topic_id"
+);
+CREATE TABLE IF NOT EXISTS "discord_message_thread_mappings"(
+  "id" integer primary key autoincrement not null,
+  "message_thread_id" integer not null,
+  "discord_thread_id" varchar not null,
+  "created_at" datetime,
+  "updated_at" datetime,
+  foreign key("message_thread_id") references "message_threads"("id") on delete cascade
+);
+CREATE INDEX "discord_message_thread_mappings_discord_thread_id_index" on "discord_message_thread_mappings"(
+  "discord_thread_id"
+);
+CREATE TABLE IF NOT EXISTS "user_beta_feedback_submissions"(
+  "id" integer primary key autoincrement not null,
+  "user_id" integer not null,
+  "beta_name" varchar not null,
+  "rating" integer not null,
+  "positive_feedback" text,
+  "negative_feedback" text,
+  "page_url" varchar,
+  "user_agent" varchar,
+  "visit_count" integer,
+  "first_visited_at" datetime,
+  "last_visited_at" datetime,
+  "created_at" datetime not null default CURRENT_TIMESTAMP,
+  "app_version" varchar,
+  foreign key("user_id") references "users"("id") on delete cascade
+);
+CREATE TABLE IF NOT EXISTS "password_reset_tokens"(
+  "id" integer primary key autoincrement not null,
+  "user_id" integer not null,
+  "token" varchar,
+  "ip_address" varchar,
+  "created_at" datetime not null default CURRENT_TIMESTAMP,
+  foreign key("user_id") references "users"("id") on delete cascade
+);
+CREATE TABLE IF NOT EXISTS "viewables"(
+  "id" integer primary key autoincrement not null,
+  "viewable_type" varchar not null,
+  "viewable_id" integer not null,
+  "user_id" integer not null,
+  "viewed_at" datetime not null,
+  foreign key("user_id") references "users"("id") on delete cascade
+);
+CREATE UNIQUE INDEX "viewables_viewable_type_viewable_id_user_id_unique" on "viewables"(
+  "viewable_type",
+  "viewable_id",
+  "user_id"
+);
+CREATE INDEX "viewables_user_id_index" on "viewables"("user_id");
+CREATE UNIQUE INDEX "game_achievement_sets_game_id_title_unique" on "game_achievement_sets"(
+  "game_id",
+  "title"
+);
+CREATE TABLE IF NOT EXISTS "oauth_clients"(
+  "id" varchar not null,
+  "owner_type" varchar,
+  "owner_id" integer,
+  "name" varchar not null,
+  "secret" varchar,
+  "provider" varchar,
+  "redirect_uris" text not null,
+  "grant_types" text not null,
+  "revoked" tinyint(1) not null,
+  "created_at" datetime,
+  "updated_at" datetime,
+  primary key("id")
+);
+CREATE INDEX "oauth_clients_owner_type_owner_id_index" on "oauth_clients"(
+  "owner_type",
+  "owner_id"
+);
+CREATE TABLE IF NOT EXISTS "oauth_auth_codes"(
+  "id" varchar not null,
+  "user_id" integer not null,
+  "client_id" varchar not null,
+  "scopes" text,
+  "revoked" tinyint(1) not null,
+  "expires_at" datetime,
+  primary key("id")
+);
+CREATE INDEX "oauth_auth_codes_user_id_index" on "oauth_auth_codes"("user_id");
+CREATE TABLE IF NOT EXISTS "oauth_access_tokens"(
+  "id" varchar not null,
+  "user_id" integer,
+  "client_id" varchar not null,
+  "name" varchar,
+  "scopes" text,
+  "revoked" tinyint(1) not null,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "expires_at" datetime,
+  primary key("id")
+);
+CREATE INDEX "oauth_access_tokens_user_id_index" on "oauth_access_tokens"(
+  "user_id"
+);
+CREATE TABLE IF NOT EXISTS "oauth_refresh_tokens"(
+  "id" varchar not null,
+  "access_token_id" varchar not null,
+  "revoked" tinyint(1) not null,
+  "expires_at" datetime,
+  primary key("id")
+);
+CREATE INDEX "oauth_refresh_tokens_access_token_id_index" on "oauth_refresh_tokens"(
+  "access_token_id"
+);
+CREATE TABLE IF NOT EXISTS "oauth_device_codes"(
+  "id" varchar not null,
+  "user_id" integer,
+  "client_id" varchar not null,
+  "user_code" varchar not null,
+  "scopes" text not null,
+  "revoked" tinyint(1) not null,
+  "user_approved_at" datetime,
+  "last_polled_at" datetime,
+  "expires_at" datetime,
+  primary key("id")
+);
+CREATE INDEX "oauth_device_codes_user_id_index" on "oauth_device_codes"(
+  "user_id"
+);
+CREATE INDEX "oauth_device_codes_client_id_index" on "oauth_device_codes"(
+  "client_id"
+);
+CREATE UNIQUE INDEX "oauth_device_codes_user_code_unique" on "oauth_device_codes"(
+  "user_code"
+);
+CREATE TABLE IF NOT EXISTS "player_stat_rankings"(
+  "id" integer primary key autoincrement not null,
+  "user_id" integer not null,
+  "system_id" integer,
+  "kind" varchar not null,
+  "total" integer not null,
+  "rank_number" integer not null,
+  "row_number" integer not null,
+  "last_game_id" integer,
+  "last_affected_at" datetime,
+  "created_at" datetime,
+  foreign key("user_id") references "users"("id") on delete cascade,
+  foreign key("system_id") references "systems"("id") on delete cascade,
+  foreign key("last_game_id") references "games"("id") on delete set null
+);
+CREATE UNIQUE INDEX "player_stat_rankings_leaderboard_unique" on "player_stat_rankings"(
+  "system_id",
+  "kind",
+  "row_number"
+);
+CREATE INDEX "player_stat_rankings_user_lookup_index" on "player_stat_rankings"(
+  "user_id",
+  "system_id",
+  "kind"
+);
+CREATE TABLE IF NOT EXISTS "user_delayed_subscriptions"(
+  "id" integer primary key autoincrement not null,
+  "user_id" integer not null,
+  "subject_type" varchar not null,
+  "subject_id" integer not null,
+  "first_update_id" integer not null,
+  foreign key("user_id") references "users"("id") on delete cascade
+);
+CREATE INDEX "user_delayed_subscriptions_user_id_index" on "user_delayed_subscriptions"(
+  "user_id"
+);
+CREATE INDEX "leaderboarddef_state_index" on "leaderboards"("state");
+CREATE TABLE IF NOT EXISTS "achievement_groups"(
+  "id" integer primary key autoincrement not null,
+  "achievement_set_id" integer not null,
+  "label" varchar not null,
+  "order_column" integer not null default '0',
+  "created_at" datetime,
+  "updated_at" datetime,
+  foreign key("achievement_set_id") references "achievement_sets"("id") on delete cascade
+);
+CREATE INDEX "achievement_groups_achievement_set_id_order_column_index" on "achievement_groups"(
+  "achievement_set_id",
+  "order_column"
+);
+CREATE TABLE IF NOT EXISTS "achievement_set_achievements"(
+  "id" integer primary key autoincrement not null,
+  "achievement_set_id" integer not null,
+  "achievement_id" integer not null,
+  "order_column" integer,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "achievement_group_id" integer,
+  foreign key("achievement_id") references Achievements("id") on delete cascade on update no action,
+  foreign key("achievement_set_id") references achievement_sets("id") on delete cascade on update no action,
+  foreign key("achievement_group_id") references "achievement_groups"("id") on delete set null
+);
+CREATE UNIQUE INDEX "achievement_set_achievement_unique" on "achievement_set_achievements"(
+  "achievement_set_id",
+  "achievement_id"
+);
+CREATE INDEX "game_sets_sort_title_index" on "game_sets"("sort_title");
+CREATE TABLE IF NOT EXISTS "email_confirmations"(
+  "id" integer primary key autoincrement not null,
+  "user_id" integer,
+  "email_cookie" varchar not null,
+  "expires_at" datetime not null
+);
+CREATE INDEX "emailconfirmations_emailcookie_index" on "email_confirmations"(
+  "email_cookie"
+);
+CREATE TABLE IF NOT EXISTS "user_relations"(
+  "id" integer primary key autoincrement not null,
+  "created_at" datetime default(NULL),
+  "updated_at" datetime default(NULL),
+  "user_id" integer default(NULL),
+  "related_user_id" integer default(NULL),
+  "status" varchar not null
+);
+CREATE INDEX "user_game_list_entries_game_id_type_index" on "user_game_list_entries"(
+  "game_id",
+  "type"
+);
+CREATE TABLE IF NOT EXISTS "Achievements"(
+  "id" integer primary key autoincrement not null,
+  "game_id" bigint unsigned default(NULL),
+  "title" varchar(255) not null collate 'binary',
+  "description" varchar(255) default(NULL) collate 'binary',
+  "trigger_definition" clob not null collate 'binary',
+  "points" integer not null default(0),
+  "created_at" datetime default(NULL),
+  "modified_at" datetime default(CURRENT_TIMESTAMP),
+  "image_name" varchar(255) default('00001') collate 'binary',
+  "order_column" integer not null default(0),
+  "embed_url" varchar(255) default(NULL) collate 'binary',
+  "points_weighted" integer not null default(0),
+  "updated_at" datetime default(NULL),
+  "user_id" integer default(NULL),
+  "unlocks_total" integer default(NULL),
+  "unlocks_hardcore" integer default(NULL),
+  "unlock_percentage" numeric(10, 0) default(NULL),
+  "unlock_hardcore_percentage" numeric(10, 0) default(NULL),
+  "deleted_at" datetime default(NULL),
+  "type" varchar(255) default(NULL) collate 'binary',
+  "trigger_id" integer,
+  "is_promoted" tinyint(1) not null default '0',
+  foreign key("trigger_id") references triggers("id") on delete set null on update no action
+);
+CREATE INDEX "achievements_points_index" on "Achievements"("points");
+CREATE INDEX "achievements_trigger_id_index" on "Achievements"("trigger_id");
+CREATE INDEX "achievements_type_index" on "Achievements"("type");
+CREATE INDEX "achievements_game_id_is_promoted_index" on "Achievements"(
+  "game_id",
+  "is_promoted"
+);
+CREATE INDEX "achievements_game_id_index" on "achievements"("game_id");
+CREATE INDEX "achievements_points_weighted_index" on "achievements"(
+  "points_weighted"
+);
+CREATE INDEX "achievements_game_id_modified_at_deleted_at_index" on "achievements"(
+  "game_id",
+  "modified_at",
+  "deleted_at"
+);
+CREATE TABLE IF NOT EXISTS "comments"(
+  "id" integer primary key autoincrement not null,
+  "commentable_id" integer not null,
+  "user_id" bigint unsigned default(NULL),
+  "body" clob not null collate 'binary',
+  "created_at" datetime not null default(CURRENT_TIMESTAMP),
+  "updated_at" datetime default(NULL),
+  "commentable_type" varchar not null,
+  "deleted_at" datetime default(NULL)
+);
+CREATE INDEX "comments_commentable_id_index" on "comments"("commentable_id");
+CREATE INDEX "comments_user_id_created_at_index" on "comments"(
+  "user_id",
+  "created_at"
+);
+CREATE INDEX "tickets_created_at_index" on "tickets"("created_at");
+CREATE INDEX "tickets_ticketable_index" on "tickets"(
+  "ticketable_type",
+  "ticketable_id"
+);
+CREATE INDEX "tickets_ticketable_state_index" on "tickets"(
+  "ticketable_type",
+  "ticketable_id",
+  "state",
+  "deleted_at"
+);
+CREATE TABLE IF NOT EXISTS "user_moderation_actions"(
+  "id" integer primary key autoincrement not null,
+  "user_id" integer not null,
+  "actioned_by_id" integer,
+  "action" varchar not null,
+  "reason" text,
+  "expires_at" datetime,
+  "created_at" datetime,
+  foreign key("user_id") references "users"("id") on delete cascade,
+  foreign key("actioned_by_id") references "users"("id") on delete set null
+);
+CREATE INDEX "user_moderation_actions_user_id_created_at_index" on "user_moderation_actions"(
+  "user_id",
+  "created_at"
+);
+CREATE TABLE IF NOT EXISTS "user_moderation_reports"(
+  "id" integer primary key autoincrement not null,
+  "reporter_user_id" integer not null,
+  "reported_user_id" integer,
+  "reportable_type" varchar not null,
+  "reportable_id" integer not null,
+  "message_thread_id" integer not null,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "action_id" integer,
+  foreign key("message_thread_id") references message_threads("id") on delete cascade on update no action,
+  foreign key("reported_user_id") references users("id") on delete set null on update no action,
+  foreign key("reporter_user_id") references users("id") on delete cascade on update no action,
+  foreign key("action_id") references "user_moderation_actions"("id") on delete set null
+);
+CREATE INDEX "idx_reportable" on "user_moderation_reports"(
+  "reportable_type",
+  "reportable_id"
+);
+CREATE INDEX "user_moderation_reports_reported_user_id_index" on "user_moderation_reports"(
+  "reported_user_id"
+);
+CREATE INDEX "user_moderation_reports_reporter_user_id_index" on "user_moderation_reports"(
+  "reporter_user_id"
+);
+CREATE INDEX "player_achievements_achievement_id_unlocked_effective_at_index" on "player_achievements"(
+  "achievement_id",
+  "unlocked_effective_at"
+);
+CREATE INDEX "users_username_unranked_at_index" on "users"(
+  "username",
+  "unranked_at"
+);
+CREATE INDEX "users_unranked_at_points_index" on "users"(
+  "unranked_at",
+  "points_hardcore"
+);
 
 INSERT INTO migrations VALUES(1,'2023_06_07_000001_create_pulse_tables',1);
 INSERT INTO migrations VALUES(2,'2024_06_23_000000_update_useraccounts_table',1);
@@ -1744,3 +1909,38 @@ INSERT INTO migrations VALUES(59,'2025_06_14_000000_update_gamedata_table',1);
 INSERT INTO migrations VALUES(60,'2025_06_29_000000_create_player_progress_resets_table',1);
 INSERT INTO migrations VALUES(61,'2025_07_04_000000_create_game_recent_players_table',1);
 INSERT INTO migrations VALUES(62,'2025_07_13_000000_update_setrequests_table',1);
+INSERT INTO migrations VALUES(63,'2025_07_28_000000_update_player_games_table',2);
+INSERT INTO migrations VALUES(64,'2025_07_30_000000_create_api_logs_table',2);
+INSERT INTO migrations VALUES(65,'2025_08_16_000000_update_forum_topic_comments_table',2);
+INSERT INTO migrations VALUES(66,'2025_08_17_000000_create_discord_message_thread_mappings_table',2);
+INSERT INTO migrations VALUES(67,'2025_09_13_000000_create_user_beta_feedback_submissions_table',2);
+INSERT INTO migrations VALUES(68,'2025_09_29_203842_update_user_beta_feedback_submissions_table',2);
+INSERT INTO migrations VALUES(69,'2025_10_04_000000_update_gamedata_table',2);
+INSERT INTO migrations VALUES(70,'2025_11_04_000000_update_discord_message_thread_mappings',2);
+INSERT INTO migrations VALUES(71,'2025_11_06_000000_update_password_reset_tokens_table',2);
+INSERT INTO migrations VALUES(72,'2025_11_06_000001_update_user_accounts_table',2);
+INSERT INTO migrations VALUES(73,'2025_11_10_000000_create_viewables_table',2);
+INSERT INTO migrations VALUES(74,'2025_11_10_000001_create_user_moderation_reports_table',2);
+INSERT INTO migrations VALUES(75,'2025_11_17_000000_update_game_achievement_sets_table',2);
+INSERT INTO migrations VALUES(76,'2025_11_24_000001_create_oauth_tables',2);
+INSERT INTO migrations VALUES(77,'2025_12_01_000000_create_player_stat_rankings_table',2);
+INSERT INTO migrations VALUES(78,'2025_12_06_000000_create_user_delayed_subscriptions',2);
+INSERT INTO migrations VALUES(79,'2025_12_08_145911_update_leaderboarddef_status',2);
+INSERT INTO migrations VALUES(80,'2025_12_13_000000_create_achievement_groups_table',2);
+INSERT INTO migrations VALUES(81,'2025_12_13_000000_update_game_sets_table',2);
+INSERT INTO migrations VALUES(82,'2025_12_31_000000_update_email_confirmations_table',2);
+INSERT INTO migrations VALUES(83,'2025_12_31_000001_update_friends_table',2);
+INSERT INTO migrations VALUES(84,'2025_12_31_000002_update_setrequest_table',2);
+INSERT INTO migrations VALUES(85,'2025_12_31_000003_update_console_table',2);
+INSERT INTO migrations VALUES(86,'2025_12_31_000004_update_gamedata_table',2);
+INSERT INTO migrations VALUES(87,'2025_12_31_000005_update_useraccounts_table',2);
+INSERT INTO migrations VALUES(88,'2025_12_31_000006_update_achievements_table',2);
+INSERT INTO migrations VALUES(89,'2025_12_31_000007_update_setclaim_table',2);
+INSERT INTO migrations VALUES(90,'2025_12_31_000008_update_siteawards_table',2);
+INSERT INTO migrations VALUES(91,'2025_12_31_000009_update_leaderboarddef_table',2);
+INSERT INTO migrations VALUES(92,'2025_12_31_000010_update_comment_table',2);
+INSERT INTO migrations VALUES(93,'2025_12_31_000011_update_ticket_table',2);
+INSERT INTO migrations VALUES(94,'2026_01_01_000000_create_user_moderation_actions_table',2);
+INSERT INTO migrations VALUES(95,'2026_01_01_000001_update_user_moderation_reports_table',2);
+INSERT INTO migrations VALUES(96,'2026_01_02_000000_update_player_achievements_table',2);
+INSERT INTO migrations VALUES(97,'2026_01_03_000000_update_users_table',2);
