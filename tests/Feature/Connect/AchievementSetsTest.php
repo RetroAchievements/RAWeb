@@ -8,13 +8,17 @@ use App\Enums\ClientSupportLevel;
 use App\Enums\GameHashCompatibility;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
+use App\Models\UserGameAchievementSetPreference;
+use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
+use App\Platform\Enums\AchievementSetType;
 use App\Platform\Services\VirtualGameIdService;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -30,6 +34,9 @@ class AchievementSetsTest extends TestCase
     use TestsEmulatorUserAgent;
 
     private string $unknownClientWarning = 'The server does not recognize this client and will not allow hardcore unlocks. Please send a message to RAdmin on the RetroAchievements website for information on how to submit your emulator for hardcore consideration.';
+
+    private const OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED = 8439;
+    private const OPT_IN_TO_ALL_SUBSETS_PREF_DISABLED = 270583;
 
     private function getAchievementPatchData(Achievement $achievement, float $rarity = 100.0, float $rarityHardcore = 100.0): array
     {
@@ -100,7 +107,7 @@ class AchievementSetsTest extends TestCase
         ];
     }
 
-    public function testGameData(): void
+    public function testSimpleGame(): void
     {
         /** @var System $system */
         $system = System::factory()->create();
@@ -292,9 +299,20 @@ class AchievementSetsTest extends TestCase
             ->assertStatus(404)
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'Unknown game',
+                'Error' => 'Unknown game.',
                 'Status' => 404,
                 'Code' => 'not_found',
+            ]);
+
+        // missing parameters
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets'))
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Success' => false,
+                'Error' => 'One or more required parameters is missing.',
+                'Status' => 422,
+                'Code' => 'missing_parameter',
             ]);
 
         // game without achievements/leaderboards/rich presence
@@ -315,6 +333,85 @@ class AchievementSetsTest extends TestCase
                         'Type' => 'core',
                         'GameId' => $game2->id,
                         'ImageIconUrl' => media_asset($game2->image_icon_asset_path),
+                        'Achievements' => [],
+                        'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+    }
+
+    public function testGameWithoutAchievementSets(): void
+    {
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create([
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'image_title_asset_path' => '/Images/000021.png',
+            'image_ingame_asset_path' => '/Images/000031.png',
+            'image_box_art_asset_path' => '/Images/000041.png',
+            'publisher' => 'WePublishStuff',
+            'developer' => 'WeDevelopStuff',
+            'genre' => 'Action',
+            'released_at' => Carbon::parse('1989-01-15'),
+            'released_at_granularity' => 'month',
+            'trigger_definition' => 'Display:\nTest',
+        ]);
+        /** @var GameHash $gameHash */
+        $gameHash = GameHash::create([
+            'game_id' => $game->id,
+            'system_id' => $game->system_id,
+            'compatibility' => GameHashCompatibility::Compatible,
+            'md5' => fake()->md5,
+            'name' => 'hash_' . $game->id,
+            'description' => 'hash_' . $game->id,
+        ]);
+
+        $this->seedEmulatorUserAgents();
+
+        // by hash
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $gameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => 0,
+                        'Title' => $game->title,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [],
+                        'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+
+        // by id
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['g' => $game->id]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => 0,
+                        'Title' => $game->title,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
                         'Achievements' => [],
                         'Leaderboards' => [],
                     ],
@@ -594,7 +691,7 @@ class AchievementSetsTest extends TestCase
                 'Code' => 'unsupported_client',
                 'Status' => 403,
                 'Success' => false,
-                'Error' => 'This client is not supported',
+                'Error' => 'This client is not supported.',
             ]);
 
         // valid user agent
@@ -921,7 +1018,7 @@ class AchievementSetsTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'GameId' => $game->id,
-                'Title' => $game->title,
+                'Title' => "Unsupported Game Version ($game->title)",
                 'ImageIconUrl' => media_asset($game->image_icon_asset_path),
                 'ConsoleId' => $game->system_id,
                 'RichPresenceGameId' => $game->id,
@@ -929,7 +1026,7 @@ class AchievementSetsTest extends TestCase
                 'Sets' => [
                     [
                         'AchievementSetId' => $achievementSet->id,
-                        'Title' => $game->title,
+                        'Title' => null,
                         'Type' => 'core',
                         'GameId' => $game->id,
                         'ImageIconUrl' => media_asset($game->image_icon_asset_path),
@@ -1132,6 +1229,639 @@ class AchievementSetsTest extends TestCase
                             $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
                         ],
                         'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+    }
+
+    public function testMultiSet(): void
+    {
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create([
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000011.png',
+            'image_title_asset_path' => '/Images/000021.png',
+            'image_ingame_asset_path' => '/Images/000031.png',
+            'image_box_art_asset_path' => '/Images/000041.png',
+            'publisher' => 'WePublishStuff',
+            'developer' => 'WeDevelopStuff',
+            'genre' => 'Action',
+            'released_at' => Carbon::parse('1989-01-15'),
+            'released_at_granularity' => 'month',
+            'trigger_definition' => 'Display:\nTest',
+        ]);
+        /** @var Game $bonusGame */
+        $bonusGame = Game::factory()->create([
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000012.png',
+            'trigger_definition' => 'Display:\nBonus Test',
+        ]);
+        /** @var Game $specialtyGame */
+        $specialtyGame = Game::factory()->create([
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000013.png',
+            'trigger_definition' => 'Display:\nSpecialty Test',
+        ]);
+        /** @var Game $exclusiveGame */
+        $exclusiveGame = Game::factory()->create([
+            'system_id' => $system->id,
+            'image_icon_asset_path' => '/Images/000014.png',
+            'trigger_definition' => 'Display:\nExclusive Test',
+        ]);
+        /** @var GameHash $gameHash */
+        $gameHash = GameHash::create([
+            'game_id' => $game->id,
+            'system_id' => $game->system_id,
+            'compatibility' => GameHashCompatibility::Compatible,
+            'md5' => fake()->md5,
+            'name' => 'hash_' . $game->id,
+            'description' => 'hash_' . $game->id,
+        ]);
+        /** @var GameHash $bonusGameHash */
+        $bonusGameHash = GameHash::create([
+            'game_id' => $bonusGame->id,
+            'system_id' => $bonusGame->system_id,
+            'compatibility' => GameHashCompatibility::Compatible,
+            'md5' => fake()->md5,
+            'name' => 'hash_' . $bonusGame->id,
+            'description' => 'hash_' . $bonusGame->id,
+        ]);
+        /** @var GameHash $specialtyGameHash */
+        $specialtyGameHash = GameHash::create([
+            'game_id' => $specialtyGame->id,
+            'system_id' => $specialtyGame->system_id,
+            'compatibility' => GameHashCompatibility::Compatible,
+            'md5' => fake()->md5,
+            'name' => 'hash_' . $specialtyGame->id,
+            'description' => 'hash_' . $specialtyGame->id,
+        ]);
+        /** @var GameHash $exclusiveGameHash */
+        $exclusiveGameHash = GameHash::create([
+            'game_id' => $exclusiveGame->id,
+            'system_id' => $exclusiveGame->system_id,
+            'compatibility' => GameHashCompatibility::Compatible,
+            'md5' => fake()->md5,
+            'name' => 'hash_' . $exclusiveGame->id,
+            'description' => 'hash_' . $exclusiveGame->id,
+        ]);
+
+        /** @var Achievement $achievement1 */
+        $achievement1 = Achievement::factory()->promoted()->progression()->create(['game_id' => $game->id, 'image_name' => '12345', 'order_column' => 1]);
+        /** @var Achievement $achievement2 */
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '23456', 'order_column' => 3]);
+        /** @var Achievement $achievement3 */
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'image_name' => '34567', 'order_column' => 2]);
+        /** @var Achievement $achievement4 */
+        $achievement4 = Achievement::factory()->promoted()->progression()->create(['game_id' => $game->id, 'image_name' => '45678', 'order_column' => 5]);
+        /** @var Achievement $achievement5 */
+        $achievement5 = Achievement::factory()->create(['game_id' => $game->id, 'image_name' => '56789', 'order_column' => 6, 'is_promoted' => false]);
+        /** @var Achievement $achievement6 */
+        $achievement6 = Achievement::factory()->promoted()->create(['game_id' => $bonusGame->id, 'image_name' => '98765', 'order_column' => 7]);
+        /** @var Achievement $achievement7 */
+        $achievement7 = Achievement::factory()->promoted()->winCondition()->create(['game_id' => $bonusGame->id, 'image_name' => '87654', 'order_column' => 4]);
+        /** @var Achievement $achievement8 */
+        $achievement8 = Achievement::factory()->create(['game_id' => $bonusGame->id, 'image_name' => '76543', 'order_column' => 8]);
+        /** @var Achievement $achievement9 */
+        $achievement9 = Achievement::factory()->promoted()->create(['game_id' => $bonusGame->id, 'image_name' => '65432', 'order_column' => 9]);
+        /** @var Achievement $achievement10 */
+        $achievement10 = Achievement::factory()->promoted()->create(['game_id' => $specialtyGame->id, 'image_name' => '54321', 'order_column' => 10]);
+        /** @var Achievement $achievement11 */
+        $achievement11 = Achievement::factory()->promoted()->create(['game_id' => $exclusiveGame->id, 'image_name' => '43210', 'order_column' => 11]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+        $achievementSet = $game->achievementSets()->first();
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($bonusGame);
+        $bonusAchievementSet = $bonusGame->achievementSets()->first();
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($specialtyGame);
+        $specialtyAchievementSet = $specialtyGame->achievementSets()->first();
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($exclusiveGame);
+        $exclusiveAchievementSet = $exclusiveGame->achievementSets()->first();
+
+        (new AssociateAchievementSetToGameAction())->execute($game, $bonusGame, AchievementSetType::Bonus, 'Bonus Title');
+        (new AssociateAchievementSetToGameAction())->execute($game, $specialtyGame, AchievementSetType::Specialty, 'Specialty Title');
+        (new AssociateAchievementSetToGameAction())->execute($game, $exclusiveGame, AchievementSetType::Exclusive, 'Exclusive Title');
+
+        /** @var Leaderboard $leaderboard1 */
+        $leaderboard1 = Leaderboard::factory()->create(['game_id' => $game->id, 'order_column' => 2]);
+        /** @var Leaderboard $leaderboard2 */
+        $leaderboard2 = Leaderboard::factory()->create(['game_id' => $game->id, 'order_column' => 1, 'format' => 'SCORE']);
+        /** @var Leaderboard $leaderboard3 */
+        $leaderboard3 = Leaderboard::factory()->create(['game_id' => $bonusGame->id, 'order_column' => -1, 'format' => 'SECS']);
+
+        $this->seedEmulatorUserAgents();
+
+        $this->user->preferences_bitfield = self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED;
+        $this->user->save();
+
+        // general use case (request by game hash) - game and bonus returned
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $gameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => null,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                            $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                            $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                            $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                            $this->getAchievementPatchData($achievement5), // DisplayOrder: 6 (unpublished)
+                        ],
+                        'Leaderboards' => [
+                            $this->getLeaderboardPatchData($leaderboard2), // DisplayOrder: 1
+                            $this->getLeaderboardPatchData($leaderboard1), // DisplayOrder: 2
+                        ],
+                    ],
+                    [
+                        'AchievementSetId' => $bonusAchievementSet->id,
+                        'Title' => 'Bonus Title',
+                        'Type' => 'bonus',
+                        'GameId' => $bonusGame->id,
+                        'ImageIconUrl' => media_asset($bonusGame->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement7), // DisplayOrder: 4
+                            $this->getAchievementPatchData($achievement6), // DisplayOrder: 7
+                            $this->getAchievementPatchData($achievement8), // DisplayOrder: 8 (unpublished)
+                            $this->getAchievementPatchData($achievement9), // DisplayOrder: 9
+                        ],
+                        'Leaderboards' => [
+                            $this->getLeaderboardPatchData($leaderboard3), // DisplayOrder: -1
+                        ],
+                    ],
+                ],
+            ]);
+
+        // general use case (request by bonus hash) - game and bonus returned
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $bonusGameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => null,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                            $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                            $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                            $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                            $this->getAchievementPatchData($achievement5), // DisplayOrder: 6 (unpublished)
+                        ],
+                        'Leaderboards' => [
+                            $this->getLeaderboardPatchData($leaderboard2), // DisplayOrder: 1
+                            $this->getLeaderboardPatchData($leaderboard1), // DisplayOrder: 2
+                        ],
+                    ],
+                    [
+                        'AchievementSetId' => $bonusAchievementSet->id,
+                        'Title' => 'Bonus Title',
+                        'Type' => 'bonus',
+                        'GameId' => $bonusGame->id,
+                        'ImageIconUrl' => media_asset($bonusGame->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement7), // DisplayOrder: 4
+                            $this->getAchievementPatchData($achievement6), // DisplayOrder: 7
+                            $this->getAchievementPatchData($achievement8), // DisplayOrder: 8 (unpublished)
+                            $this->getAchievementPatchData($achievement9), // DisplayOrder: 9
+                        ],
+                        'Leaderboards' => [
+                            $this->getLeaderboardPatchData($leaderboard3), // DisplayOrder: -1
+                        ],
+                    ],
+                ],
+            ]);
+
+        // general use case (request by specialty hash) - game, bonus, and specialty returned
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $specialtyGameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $specialtyGame->id,
+                'RichPresencePatch' => $specialtyGame->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => null,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                            $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                            $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                            $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                            $this->getAchievementPatchData($achievement5), // DisplayOrder: 6 (unpublished)
+                        ],
+                        'Leaderboards' => [
+                            $this->getLeaderboardPatchData($leaderboard2), // DisplayOrder: 1
+                            $this->getLeaderboardPatchData($leaderboard1), // DisplayOrder: 2
+                        ],
+                    ],
+                    [
+                        'AchievementSetId' => $specialtyAchievementSet->id,
+                        'Title' => 'Specialty Title',
+                        'Type' => 'specialty',
+                        'GameId' => $specialtyGame->id,
+                        'ImageIconUrl' => media_asset($specialtyGame->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement10), // DisplayOrder: 10
+                        ],
+                        'Leaderboards' => [],
+                    ],
+                    [
+                        'AchievementSetId' => $bonusAchievementSet->id,
+                        'Title' => 'Bonus Title',
+                        'Type' => 'bonus',
+                        'GameId' => $bonusGame->id,
+                        'ImageIconUrl' => media_asset($bonusGame->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement7), // DisplayOrder: 4
+                            $this->getAchievementPatchData($achievement6), // DisplayOrder: 7
+                            $this->getAchievementPatchData($achievement8), // DisplayOrder: 8 (unpublished)
+                            $this->getAchievementPatchData($achievement9), // DisplayOrder: 9
+                        ],
+                        'Leaderboards' => [
+                            $this->getLeaderboardPatchData($leaderboard3), // DisplayOrder: -1
+                        ],
+                    ],
+                ],
+            ]);
+
+        // general use case (request by exclusive hash) - only exclusive returned
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $exclusiveGameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $exclusiveGame->id,
+                'RichPresencePatch' => $exclusiveGame->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $exclusiveAchievementSet->id,
+                        'Title' => 'Exclusive Title',
+                        'Type' => 'exclusive',
+                        'GameId' => $exclusiveGame->id,
+                        'ImageIconUrl' => media_asset($exclusiveGame->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement11), // DisplayOrder: 11
+                        ],
+                        'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+
+        // requesting by game ID (instead of hash) only returns the base set, even if opted in
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['g' => $game->id]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => $game->title,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                            $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                            $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                            $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                            $this->getAchievementPatchData($achievement5), // DisplayOrder: 6 (unpublished)
+                        ],
+                        'Leaderboards' => [
+                            $this->getLeaderboardPatchData($leaderboard2), // DisplayOrder: 1
+                            $this->getLeaderboardPatchData($leaderboard1), // DisplayOrder: 2
+                        ],
+                    ],
+                ],
+            ]);
+
+        // requesting by subset game ID (instead of hash) only returns the subset, even if opted in
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['g' => $bonusGame->id]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $bonusGame->id,
+                'Title' => $bonusGame->title,
+                'ImageIconUrl' => media_asset($bonusGame->image_icon_asset_path),
+                'ConsoleId' => $bonusGame->system_id,
+                'RichPresenceGameId' => $bonusGame->id,
+                'RichPresencePatch' => $bonusGame->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $bonusAchievementSet->id,
+                        'Title' => $bonusGame->title,
+                        'Type' => 'core',
+                        'GameId' => $bonusGame->id,
+                        'ImageIconUrl' => media_asset($bonusGame->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement7), // DisplayOrder: 4
+                            $this->getAchievementPatchData($achievement6), // DisplayOrder: 7
+                            $this->getAchievementPatchData($achievement8), // DisplayOrder: 8 (unpublished)
+                            $this->getAchievementPatchData($achievement9), // DisplayOrder: 9
+                        ],
+                        'Leaderboards' => [
+                            $this->getLeaderboardPatchData($leaderboard3), // DisplayOrder: -1
+                        ],
+                    ],
+                ],
+            ]);
+
+        $this->user->preferences_bitfield = self::OPT_IN_TO_ALL_SUBSETS_PREF_DISABLED;
+        $this->user->save();
+
+        // core set by hash (opted out of multiset)
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $gameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => null,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                            $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                            $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                            $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                            $this->getAchievementPatchData($achievement5), // DisplayOrder: 6 (unpublished)
+                        ],
+                        'Leaderboards' => [
+                            $this->getLeaderboardPatchData($leaderboard2), // DisplayOrder: 1
+                            $this->getLeaderboardPatchData($leaderboard1), // DisplayOrder: 2
+                        ],
+                    ],
+                ],
+            ]);
+
+        // subset by hash (opted out of multiset)
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $bonusGameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $bonusGame->id,
+                'Title' => $bonusGame->title,
+                'ImageIconUrl' => media_asset($bonusGame->image_icon_asset_path),
+                'ConsoleId' => $bonusGame->system_id,
+                'RichPresenceGameId' => $bonusGame->id,
+                'RichPresencePatch' => $bonusGame->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $bonusAchievementSet->id,
+                        'Title' => 'Bonus Title',
+                        'Type' => 'bonus',
+                        'GameId' => $bonusGame->id,
+                        'ImageIconUrl' => media_asset($bonusGame->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement7), // DisplayOrder: 4
+                            $this->getAchievementPatchData($achievement6), // DisplayOrder: 7
+                            $this->getAchievementPatchData($achievement8), // DisplayOrder: 8 (unpublished)
+                            $this->getAchievementPatchData($achievement9), // DisplayOrder: 9
+                        ],
+                        'Leaderboards' => [
+                            $this->getLeaderboardPatchData($leaderboard3), // DisplayOrder: -1
+                        ],
+                    ],
+                ],
+            ]);
+
+        // if specialty hash doesn't have rich presence, no rich presence is returned when opted out
+        $specialtyGame->trigger_definition = '';
+        $specialtyGame->save();
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $specialtyGameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $specialtyGame->id,
+                'Title' => $specialtyGame->title,
+                'ImageIconUrl' => media_asset($specialtyGame->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $specialtyGame->id,
+                'RichPresencePatch' => $specialtyGame->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $specialtyAchievementSet->id,
+                        'Title' => 'Specialty Title',
+                        'Type' => 'specialty',
+                        'GameId' => $specialtyGame->id,
+                        'ImageIconUrl' => media_asset($specialtyGame->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement10), // DisplayOrder: 10
+                        ],
+                        'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+
+        // if specialty hash doesn't have rich presence, core rich presense is returned when opted in
+        $this->user->preferences_bitfield = self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED;
+        $this->user->save();
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $specialtyGameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => null,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                            $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                            $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                            $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                            $this->getAchievementPatchData($achievement5), // DisplayOrder: 6 (unpublished)
+                        ],
+                        'Leaderboards' => [
+                            $this->getLeaderboardPatchData($leaderboard2), // DisplayOrder: 1
+                            $this->getLeaderboardPatchData($leaderboard1), // DisplayOrder: 2
+                        ],
+                    ],
+                    [
+                        'AchievementSetId' => $specialtyAchievementSet->id,
+                        'Title' => 'Specialty Title',
+                        'Type' => 'specialty',
+                        'GameId' => $specialtyGame->id,
+                        'ImageIconUrl' => media_asset($specialtyGame->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement10), // DisplayOrder: 10
+                        ],
+                        'Leaderboards' => [],
+                    ],
+                    [
+                        'AchievementSetId' => $bonusAchievementSet->id,
+                        'Title' => 'Bonus Title',
+                        'Type' => 'bonus',
+                        'GameId' => $bonusGame->id,
+                        'ImageIconUrl' => media_asset($bonusGame->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement7), // DisplayOrder: 4
+                            $this->getAchievementPatchData($achievement6), // DisplayOrder: 7
+                            $this->getAchievementPatchData($achievement8), // DisplayOrder: 8 (unpublished)
+                            $this->getAchievementPatchData($achievement9), // DisplayOrder: 9
+                        ],
+                        'Leaderboards' => [
+                            $this->getLeaderboardPatchData($leaderboard3), // DisplayOrder: -1
+                        ],
+                    ],
+                ],
+            ]);
+
+        // user is globally opted in, but has opted out of bonus
+        $bonusGameAchievementSet = GameAchievementSet::whereGameId($game->id)->whereType(AchievementSetType::Bonus)->first();
+        $bonusPreference = UserGameAchievementSetPreference::factory()->create([
+            'user_id' => $this->user->id,
+            'game_achievement_set_id' => $bonusGameAchievementSet->id,
+            'opted_in' => false,
+        ]);
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $gameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => null,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                            $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                            $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                            $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                            $this->getAchievementPatchData($achievement5), // DisplayOrder: 6 (unpublished)
+                        ],
+                        'Leaderboards' => [
+                            $this->getLeaderboardPatchData($leaderboard2), // DisplayOrder: 1
+                            $this->getLeaderboardPatchData($leaderboard1), // DisplayOrder: 2
+                        ],
+                    ],
+                ],
+            ]);
+
+        // user has opted out of all achievement sets for the game
+        $gameAchievementSet = GameAchievementSet::whereGameId($game->id)->whereType(AchievementSetType::Core)->first();
+        UserGameAchievementSetPreference::factory()->create([
+            'user_id' => $this->user->id,
+            'game_achievement_set_id' => $gameAchievementSet->id,
+            'opted_in' => false,
+        ]);
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $gameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => $game->title,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getWarningAchievementPatchData('All Sets Opted Out', 'You have opted out of all achievement sets for this game. Visit the game page to change your preferences.'),
+                        ],
+                        'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+
+        // user is globally opted out, but opted in to the bonus set
+        $this->user->preferences_bitfield = self::OPT_IN_TO_ALL_SUBSETS_PREF_DISABLED;
+        $this->user->save();
+        $bonusPreference->opted_in = true;
+        $bonusPreference->save();
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $gameHash->md5]))
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $bonusAchievementSet->id,
+                        'Title' => 'Bonus Title',
+                        'Type' => 'bonus',
+                        'GameId' => $bonusGame->id,
+                        'ImageIconUrl' => media_asset($bonusGame->image_icon_asset_path),
+                        'Achievements' => [
+                            $this->getAchievementPatchData($achievement7), // DisplayOrder: 4
+                            $this->getAchievementPatchData($achievement6), // DisplayOrder: 7
+                            $this->getAchievementPatchData($achievement8), // DisplayOrder: 8 (unpublished)
+                            $this->getAchievementPatchData($achievement9), // DisplayOrder: 9
+                        ],
+                        'Leaderboards' => [
+                            $this->getLeaderboardPatchData($leaderboard3), // DisplayOrder: -1
+                        ],
                     ],
                 ],
             ]);
