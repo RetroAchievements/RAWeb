@@ -35,6 +35,7 @@ use App\Platform\Commands\RebuildAllSearchIndexes;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\RevertManualUnlocks;
 use App\Platform\Commands\SyncEvents;
+use App\Platform\Commands\SyncUnrankedUsersTable;
 use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateBeatenGamesLeaderboard;
@@ -118,6 +119,7 @@ class AppServiceProvider extends ServiceProvider
 
                 // Sync
                 SyncEvents::class,
+                SyncUnrankedUsersTable::class,
             ]);
         }
 
