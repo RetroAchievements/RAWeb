@@ -61,7 +61,7 @@ export const GameDesktopBannerImage: FC<GameDesktopBannerImageProps> = ({ banner
             ref={handleImageRef}
             src={game.imageIngameUrl}
             alt=""
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover object-[50%_10%]"
             onLoad={() => setIsImageLoaded(true)}
             fetchPriority="high"
             loading="eager"

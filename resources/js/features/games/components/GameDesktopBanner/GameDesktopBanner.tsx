@@ -50,7 +50,7 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
           <img
             src={game.imageIngameUrl}
             alt=""
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover object-[50%_10%]"
             style={{
               filter: 'blur(15px)',
             }}
@@ -94,7 +94,7 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
             {/* Game title */}
             <h1
               className={cn(
-                'font-bold leading-tight text-white',
+                'w-fit font-bold leading-tight text-white',
                 '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%),_0_0_2px_rgb(0_0_0)]',
                 'text-3xl',
                 game.title.length > 30 ? '!text-2xl' : null,
