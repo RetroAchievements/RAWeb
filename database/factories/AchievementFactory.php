@@ -46,7 +46,7 @@ class AchievementFactory extends Factory
             'type' => null,
             'points' => fake()->randomElement($pointValues),
             'points_weighted' => rand(1, 1000),
-            'image_name' => '00001',
+            'image_name' => '00000',
             'modified_at' => Carbon::now(),
             'order_column' => rand(0, 500),
         ];
