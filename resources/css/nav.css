@@ -33,3 +33,40 @@
 .dropdown-menu > ul {
   display: none;
 }
+
+/* Make the navbar transparent when a page-wide banner is present. */
+nav.has-banner {
+  isolation: isolate;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(8px);
+  box-shadow: inset 0 -1px 0 0 rgba(255, 255, 255, 0.15);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+nav.has-banner .bg-embedded {
+  background-color: transparent !important;
+}
+nav.has-banner:not(.scrolled-past-banner) #global-search {
+  @apply !bg-neutral-900 border border-neutral-800;
+}
+[data-scheme='light'] nav.has-banner,
+[data-scheme='system'] nav.has-banner {
+  background-color: rgba(245, 245, 245, 0.85) !important;
+  box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-scheme='system'] nav.has-banner {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    box-shadow: inset 0 -1px 0 0 rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Revert to a solid navbar when scrolled past the banner. */
+nav.has-banner.scrolled-past-banner {
+  background-color: var(--embed-color) !important;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+nav.has-banner.scrolled-past-banner .bg-embedded {
+  background-color: var(--embed-color) !important;
+}

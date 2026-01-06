@@ -316,6 +316,7 @@ describe('Core Props', function () {
             ->where('backingGame.id', $game->id)
             ->where('backingGame.achievementsPublished', 6)
             ->has('backingGame.badgeUrl')
+            ->has('banner')
         );
     });
 

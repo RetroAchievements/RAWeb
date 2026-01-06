@@ -109,6 +109,8 @@
         });
     </script>
 
+    <x-banner-scripts :page="$page ?? null" />
+
     <x-body-end />
 </body>
 </html>

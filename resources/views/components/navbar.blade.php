@@ -1,4 +1,8 @@
-<nav class="z-20 {{ $class }}">
+@php
+    $hasBanner = !empty($page['props']['banner']['desktopMdWebp'] ?? null);
+@endphp
+
+<nav class="z-20 {{ $class }} {{ $hasBanner ? 'has-banner' : '' }}">
     <x-container :fluid="$fluid">
         <div class="flex items-center bg-embedded flex-wrap">
             {{ $brand ?? null }}

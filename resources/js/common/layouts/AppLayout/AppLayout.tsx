@@ -24,7 +24,11 @@ interface AppLayoutMainProps {
 }
 
 const AppLayoutMain: FC<AppLayoutMainProps> = ({ children, className }) => {
-  return <article className={cn('!px-2.5 sm:!px-4 md:!px-5', className)}>{children}</article>;
+  return (
+    <article className={cn('relative z-10 !px-2.5 sm:!px-4 md:!px-5', className)}>
+      {children}
+    </article>
+  );
 };
 
 interface AppLayoutSidebarProps {
@@ -32,10 +36,21 @@ interface AppLayoutSidebarProps {
 }
 
 const AppLayoutSidebar: FC<AppLayoutSidebarProps> = ({ children }) => {
-  return <aside>{children}</aside>;
+  return <aside className="relative z-10">{children}</aside>;
+};
+
+interface AppLayoutBannerProps {
+  children: ReactNode;
+
+  className?: string;
+}
+
+const AppLayoutBanner: FC<AppLayoutBannerProps> = ({ children, className }) => {
+  return <div className={cn('col-span-full', className)}>{children}</div>;
 };
 
 export const AppLayout = Object.assign(AppLayoutBase, {
+  Banner: AppLayoutBanner,
   Main: AppLayoutMain,
   Sidebar: AppLayoutSidebar,
 });
