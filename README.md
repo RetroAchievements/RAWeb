@@ -146,9 +146,10 @@ Before submitting a pull request, verify your changes pass all checks:
 pnpm verify  # Runs linting, TypeScript checks, and Vitest tests
 
 # Backend
-composer fix      # Fix code style issues
-composer analyse  # Run PHPStan static analysis
-composer test -- --parallel  # Run Pest tests
+composer fix                            # Fix code style issues
+composer analyse                        # Run PHPStan static analysis
+composer test -- --filter=TestFileName  # Run an individual test suite
+composer test -- --parallel             # Run all back-end tests in parallel
 ```
 
 To run specific frontend tests:
