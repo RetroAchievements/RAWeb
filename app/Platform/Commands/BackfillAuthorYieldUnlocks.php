@@ -119,15 +119,41 @@ class BackfillAuthorYieldUnlocks extends Command
 
     private function countSelfUnlocks(): void
     {
+        // First, count ALL self-unlocks.
         DB::statement(<<<SQL
-            CREATE TEMPORARY TABLE tmp_self_unlock_counts AS
+            CREATE TEMPORARY TABLE tmp_all_self_unlocks AS
             SELECT pa.achievement_id, COUNT(*) as cnt
             FROM player_achievements pa
             INNER JOIN achievements a ON a.id = pa.achievement_id
             WHERE pa.user_id = a.user_id
             GROUP BY pa.achievement_id
         SQL);
+        DB::statement('ALTER TABLE tmp_all_self_unlocks ADD INDEX (achievement_id)');
+
+        // Then, count unranked self-unlocks.
+        DB::statement(<<<SQL
+            CREATE TEMPORARY TABLE tmp_unranked_self_unlocks AS
+            SELECT pa.achievement_id, COUNT(*) as cnt
+            FROM unranked_users uu
+            INNER JOIN player_achievements pa ON pa.user_id = uu.user_id
+            INNER JOIN achievements a ON a.id = pa.achievement_id AND pa.user_id = a.user_id
+            GROUP BY pa.achievement_id
+        SQL);
+        DB::statement('ALTER TABLE tmp_unranked_self_unlocks ADD INDEX (achievement_id)');
+
+        // Finally, calculate tracked self-unlocks (all - unranked).
+        DB::statement(<<<SQL
+            CREATE TEMPORARY TABLE tmp_self_unlock_counts AS
+            SELECT
+                a.achievement_id,
+                a.cnt - COALESCE(u.cnt, 0) as cnt
+            FROM tmp_all_self_unlocks a
+            LEFT JOIN tmp_unranked_self_unlocks u ON u.achievement_id = a.achievement_id
+        SQL);
         DB::statement('ALTER TABLE tmp_self_unlock_counts ADD INDEX (achievement_id)');
+
+        DB::statement('DROP TEMPORARY TABLE tmp_all_self_unlocks');
+        DB::statement('DROP TEMPORARY TABLE tmp_unranked_self_unlocks');
     }
 
     private function countMaintainerCredits(): void
