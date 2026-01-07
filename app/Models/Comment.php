@@ -47,11 +47,6 @@ class Comment extends BaseModel
 
     // == search
 
-    public function searchableAs(): string
-    {
-        return 'Comment';
-    }
-
     public function toSearchableArray(): array
     {
         return [
