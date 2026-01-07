@@ -363,11 +363,6 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
     // == search
 
-    public function searchableAs(): string
-    {
-        return 'GameData';
-    }
-
     public function toSearchableArray(): array
     {
         // Get alternative titles from the game's list of releases.

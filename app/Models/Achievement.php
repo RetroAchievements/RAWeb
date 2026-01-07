@@ -234,11 +234,6 @@ class Achievement extends BaseModel implements HasVersionedTrigger
 
     // == search
 
-    public function searchableAs(): string
-    {
-        return 'Achievements';
-    }
-
     public function toSearchableArray(): array
     {
         return [
