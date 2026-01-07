@@ -294,6 +294,11 @@ class GameSet extends BaseModel
 
     // == search
 
+    public function searchableAs(): string
+    {
+        return 'UserAccounts';
+    }
+
     public function toSearchableArray(): array
     {
         $this->loadCount('games');
