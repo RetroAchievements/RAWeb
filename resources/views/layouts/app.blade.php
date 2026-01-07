@@ -25,7 +25,7 @@
     @endif
 
     @if (!Route::is('passport.*'))
-        <x-navbar class="flex flex-col w-full justify-center bg-embedded lg:sticky lg:top-0">
+        <x-navbar class="flex flex-col w-full justify-center bg-embedded lg:sticky lg:top-0" :page="$page ?? null">
             <x-slot name="brand">
                 <div
                     id="nav-brand-wrapper"

@@ -26,7 +26,7 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
       data-testid="desktop-banner"
       className={cn(
         'relative z-0',
-        '-mt-[44px] h-[344px]',
+        '-mt-[88px] h-[388px] lg:-mt-[44px] lg:h-[344px]',
         'border-b border-neutral-700',
         'ml-[calc(50%-50vw)] w-screen',
       )}

@@ -13,6 +13,7 @@ class Navbar extends Component
         public string $breakpoint = 'lg',
         public string $class = '',
         public bool $fluid = false,
+        public mixed $page = null,
     ) {
     }
 
