@@ -494,6 +494,7 @@ class AchievementResource extends Resource
     {
         return $page->generateNavigationItems([
             Pages\Details::class,
+            Pages\Logic::class,
             Pages\AuditLog::class,
         ]);
     }
@@ -504,6 +505,7 @@ class AchievementResource extends Resource
             'index' => Pages\Index::route('/'),
             'view' => Pages\Details::route('/{record}'),
             'edit' => Pages\Edit::route('/{record}/edit'),
+            'logic' => Pages\Logic::route('/{record}/logic'),
             'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),
         ];
     }

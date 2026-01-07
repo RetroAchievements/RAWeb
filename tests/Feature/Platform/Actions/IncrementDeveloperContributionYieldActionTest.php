@@ -447,4 +447,153 @@ class IncrementDeveloperContributionYieldActionTest extends TestCase
         $this->assertEquals(0, $developer->yield_unlocks);
         $this->assertEquals(0, $developer->yield_points); // Should be 0, not negative
     }
+
+    public function testItIncrementsAuthorYieldUnlocksForTrackedUser(): void
+    {
+        // Arrange
+        $author = User::factory()->create(['yield_unlocks' => 0, 'yield_points' => 0]);
+        $player = User::factory()->create(['unranked_at' => null]); // !!
+
+        $game = $this->seedGame(withHash: false);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
+            'user_id' => $author->id,
+            'author_yield_unlocks' => 0,
+        ]);
+
+        $playerAchievement = PlayerAchievement::create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::now(),
+        ]);
+
+        // Act
+        $this->action->execute($author, $achievement, $playerAchievement, true);
+        $achievement->refresh();
+
+        // Assert
+        $this->assertEquals(1, $achievement->author_yield_unlocks);
+    }
+
+    public function testItDoesNotIncrementAuthorYieldUnlocksForUnrankedUser(): void
+    {
+        // Arrange
+        $author = User::factory()->create(['yield_unlocks' => 0, 'yield_points' => 0]);
+        $player = User::factory()->create(['unranked_at' => Carbon::now()]); // !!
+
+        $game = $this->seedGame(withHash: false);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
+            'user_id' => $author->id,
+            'author_yield_unlocks' => 0,
+        ]);
+
+        $playerAchievement = PlayerAchievement::create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::now(),
+        ]);
+
+        // Act
+        $this->action->execute($author, $achievement, $playerAchievement, true);
+        $achievement->refresh();
+
+        // Assert
+        $this->assertEquals(0, $achievement->author_yield_unlocks);
+    }
+
+    public function testItDecrementsAuthorYieldUnlocksOnResetForTrackedUser(): void
+    {
+        // Arrange
+        $author = User::factory()->create(['yield_unlocks' => 0, 'yield_points' => 0]);
+        $player = User::factory()->create(['unranked_at' => null]); // !!
+
+        $game = $this->seedGame(withHash: false);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
+            'user_id' => $author->id,
+            'author_yield_unlocks' => 5,
+        ]);
+
+        $playerAchievement = PlayerAchievement::create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::now(),
+        ]);
+
+        // Act
+        $this->action->execute($author, $achievement, $playerAchievement, false);
+        $achievement->refresh();
+
+        // Assert
+        $this->assertEquals(4, $achievement->author_yield_unlocks);
+    }
+
+    public function testItDoesNotDecrementAuthorYieldUnlocksOnResetForUnrankedUser(): void
+    {
+        // Arrange
+        $author = User::factory()->create(['yield_unlocks' => 0, 'yield_points' => 0]);
+        $player = User::factory()->create(['unranked_at' => Carbon::now()]); // !!
+
+        $game = $this->seedGame(withHash: false);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
+            'user_id' => $author->id,
+            'author_yield_unlocks' => 5,
+        ]);
+
+        $playerAchievement = PlayerAchievement::create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::now(),
+        ]);
+
+        // Act
+        $this->action->execute($author, $achievement, $playerAchievement, false);
+        $achievement->refresh();
+
+        // Assert
+        $this->assertEquals(5, $achievement->author_yield_unlocks);
+    }
+
+    public function testItDoesNotIncrementAuthorYieldUnlocksWhenCreditGoesToMaintainer(): void
+    {
+        // Arrange
+        $author = User::factory()->create(['yield_unlocks' => 0, 'yield_points' => 0]);
+        $maintainer = User::factory()->create(['yield_unlocks' => 0, 'yield_points' => 0]);
+        $player = User::factory()->create(['unranked_at' => null]);
+
+        $game = $this->seedGame(withHash: false);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'points' => 50,
+            'user_id' => $author->id,
+            'author_yield_unlocks' => 0,
+        ]);
+
+        $playerAchievement = PlayerAchievement::create([
+            'user_id' => $player->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => Carbon::now(),
+        ]);
+
+        // ... this unlock is credited to the maintainer, not the author ...
+        AchievementMaintainerUnlock::create([
+            'player_achievement_id' => $playerAchievement->id,
+            'maintainer_id' => $maintainer->id,
+            'achievement_id' => $achievement->id,
+        ]);
+
+        // Act
+        // ... credit goes to the maintainer, not the author ...
+        $this->action->execute($maintainer, $achievement, $playerAchievement, true);
+        $achievement->refresh();
+
+        // Assert
+        $this->assertEquals(0, $achievement->author_yield_unlocks);
+    }
 }

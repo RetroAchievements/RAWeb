@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
-use App\Models\UnrankedUser;
 use App\Models\User;
 use Carbon\Carbon;
 use Filament\Resources\Pages\EditRecord;
@@ -25,15 +24,15 @@ class Edit extends EditRecord
         /** @var User $record */
         $record = $this->record;
 
-        if ((bool) $record->Untracked !== $data['Untracked']) {
-            $data['unranked_at'] = $data['Untracked'] ? Carbon::now() : null;
+        $wasUnranked = $record->unranked_at !== null;
+        $isNowUnranked = $data['is_unranked'] ?? false;
 
-            if ($data['unranked_at'] !== null) {
-                UnrankedUser::firstOrCreate(['user_id' => $record->id]);
-            } else {
-                UnrankedUser::where('user_id', $record->id)->delete();
-            }
+        if ($wasUnranked !== $isNowUnranked) {
+            $data['unranked_at'] = $isNowUnranked ? Carbon::now() : null;
         }
+
+        // Remove the Filament form's virtual field before saving.
+        unset($data['is_unranked']);
 
         return $data;
     }

@@ -2,7 +2,6 @@
 
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
-use App\Models\UnrankedUser;
 use App\Models\User;
 use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Support\Cache\CacheKey;
@@ -11,15 +10,8 @@ use Illuminate\Support\Facades\Cache;
 
 function SetUserUntrackedStatus(User $user, bool $isUntracked): void
 {
-    $user->Untracked = $isUntracked;
     $user->unranked_at = $isUntracked ? now() : null;
     $user->save();
-
-    if ($isUntracked) {
-        UnrankedUser::firstOrCreate(['user_id' => $user->id]);
-    } else {
-        UnrankedUser::where('user_id', $user->id)->delete();
-    }
 
     PlayerRankedStatusChanged::dispatch($user);
 }
@@ -44,7 +36,7 @@ function countRankedUsers(int $type = RankType::Hardcore): int
                     break;
             }
 
-            $query .= " AND NOT Untracked";
+            $query .= " AND unranked_at IS NULL";
 
             return (int) legacyDbFetch($query)['count'];
         });
@@ -53,7 +45,7 @@ function countRankedUsers(int $type = RankType::Hardcore): int
 function getTopUsersByScore(int $count): array
 {
     $topUsers = User::select(['ulid', 'display_name', 'username', 'points_hardcore', 'points_weighted'])
-        ->where('Untracked', false)
+        ->whereNull('unranked_at')
         ->orderBy('points_hardcore', 'desc')
         ->take(min($count, 10))
         ->get()
@@ -82,7 +74,7 @@ function getUserRank(string $username, int $type = RankType::Hardcore): ?int
 
     return Cache::remember($key, Carbon::now()->addMinutes(15), function () use ($username, $type) {
         $user = User::whereName($username)->first();
-        if (!$user || $user->Untracked) {
+        if (!$user || $user->unranked_at !== null) {
             return null;
         }
 
@@ -100,7 +92,7 @@ function getUserRank(string $username, int $type = RankType::Hardcore): ?int
         }
 
         return User::where($field, '>', $points)
-            ->where('Untracked', false)
+            ->whereNull('unranked_at')
             ->count() + 1;
     });
 }

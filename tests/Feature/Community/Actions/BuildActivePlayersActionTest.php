@@ -278,7 +278,6 @@ class BuildActivePlayersActionTest extends TestCase
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
             'username' => 'tracked_high_points',
-            'Untracked' => 0,
             'points_hardcore' => 100000,
         ]);
         $untrackedHighPoints = User::factory()->create([
@@ -286,7 +285,7 @@ class BuildActivePlayersActionTest extends TestCase
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
             'username' => 'untracked_high_points',
-            'Untracked' => 1,
+            'unranked_at' => now(),
             'points_hardcore' => 999999,
         ]);
         $trackedLowPoints = User::factory()->create([
@@ -294,7 +293,6 @@ class BuildActivePlayersActionTest extends TestCase
             'rich_presence_updated_at' => now(),
             'Permissions' => Permissions::Registered,
             'username' => 'tracked_low_points',
-            'Untracked' => 0,
             'points_hardcore' => 50000,
         ]);
 

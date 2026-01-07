@@ -37,7 +37,7 @@ class LoadThinActivePlayersListAction
                     ->whereColumn('game_recent_players.game_id', 'users.rich_presence_game_id')
                     ->where('users.Permissions', '>=', $minimumPermissions)
                     ->whereNull('users.banned_at')
-                    ->orderBy('users.Untracked', 'asc')
+                    ->orderByRaw('users.unranked_at IS NOT NULL')
                     ->orderByDesc('users.points_hardcore')
                     ->orderByDesc('users.points')
                     ->orderBy('users.id', 'asc')
