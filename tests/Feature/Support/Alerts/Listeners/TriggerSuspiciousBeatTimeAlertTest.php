@@ -80,4 +80,35 @@ class TriggerSuspiciousBeatTimeAlertTest extends TestCase
         // Assert
         Queue::assertNothingPushed();
     }
+
+    public function testItDoesNotTriggerForFinalFantasyXIGames(): void
+    {
+        // Arrange
+        Queue::fake();
+
+        config(['services.discord.alerts_webhook.suspicious_beat_time' => 'https://discord.com/api/webhooks/test']);
+
+        $system = System::factory()->create();
+        $user = User::factory()->create();
+        $game = Game::factory()->create([
+            'title' => 'Final Fantasy XI: Rise of the Zilart',
+            'system_id' => $system->id,
+            'times_beaten_hardcore' => 100,
+            'median_time_to_beat_hardcore' => 3600,
+        ]);
+
+        PlayerGame::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'time_to_beat_hardcore' => 60, // would normally trigger an alert
+        ]);
+
+        $event = new PlayerGameBeaten($user, $game, hardcore: true);
+
+        // Act
+        (new TriggerSuspiciousBeatTimeAlert())->handle($event);
+
+        // Assert
+        Queue::assertNothingPushed();
+    }
 }
