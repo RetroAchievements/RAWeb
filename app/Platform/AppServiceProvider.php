@@ -24,6 +24,7 @@ use App\Models\PlayerBadge;
 use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
+use App\Platform\Commands\BackfillAuthorYieldUnlocks;
 use App\Platform\Commands\CrawlPlayerWeightedPoints;
 use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
@@ -35,6 +36,7 @@ use App\Platform\Commands\RebuildAllSearchIndexes;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\RevertManualUnlocks;
 use App\Platform\Commands\SyncEvents;
+use App\Platform\Commands\SyncUnrankedUsersTable;
 use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateBeatenGamesLeaderboard;
@@ -110,6 +112,7 @@ class AppServiceProvider extends ServiceProvider
                 UpdateSearchIndexForQueuedEntities::class,
 
                 // Developer
+                BackfillAuthorYieldUnlocks::class,
                 ProcessExpiringClaims::class,
                 UpdateDeveloperContributionYield::class,
 
@@ -118,6 +121,7 @@ class AppServiceProvider extends ServiceProvider
 
                 // Sync
                 SyncEvents::class,
+                SyncUnrankedUsersTable::class,
             ]);
         }
 

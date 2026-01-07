@@ -73,6 +73,28 @@ describe('Component: AchievementSetCredits', () => {
     expect(screen.getByTestId('artwork-credits-display')).toBeVisible();
   });
 
+  it('given banner artwork credits exist, shows the artwork credits display', () => {
+    // ARRANGE
+    const aggregateCredits = createAggregateAchievementSetCredits({
+      achievementSetBanner: [createUserCredits({ displayName: 'Charlie' })], // !!
+      achievementSetArtwork: [],
+      achievementsArtwork: [],
+      achievementsLogic: [],
+      achievementsMaintainers: [],
+      achievementsDesign: [],
+      achievementsTesting: [],
+      achievementsWriting: [],
+      hashCompatibilityTesting: [],
+    });
+
+    render(<AchievementSetCredits />, {
+      pageProps: { achievementSetClaims: [], aggregateCredits },
+    });
+
+    // ASSERT
+    expect(screen.getByTestId('artwork-credits-display')).toBeVisible();
+  });
+
   it('given coding credits exist, shows the code credits display', () => {
     // ARRANGE
     const aggregateCredits = createAggregateAchievementSetCredits({
@@ -114,6 +136,7 @@ describe('Component: AchievementSetCredits', () => {
     const sharedUser = createUserCredits({ displayName: 'Alice' });
     const aggregateCredits = createAggregateAchievementSetCredits({
       achievementSetArtwork: [sharedUser],
+      achievementSetBanner: [sharedUser], // !! same user in banner artwork
       achievementsArtwork: [sharedUser], // !! same user in both arrays
       achievementsLogic: [],
       achievementsMaintainers: [],
@@ -159,6 +182,7 @@ describe('Component: AchievementSetCredits', () => {
     const aggregateCredits = {
       achievementsAuthors: [],
       achievementSetArtwork: [],
+      achievementSetBanner: [],
       achievementsArtwork: [],
       achievementsLogic: [],
       achievementsMaintainers: [],
@@ -209,6 +233,7 @@ describe('Component: AchievementSetCredits', () => {
     const aggregateCredits = {
       achievementsAuthors: [],
       achievementSetArtwork: [],
+      achievementSetBanner: [],
       achievementsArtwork: [],
       achievementsLogic: [],
       achievementsMaintainers: [],
