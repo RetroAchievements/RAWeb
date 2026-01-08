@@ -10,6 +10,8 @@ class TriggerViewerService
 {
     private const SCALABLE_FLAGS = ['AddSource', 'SubSource', 'AddAddress', 'Remember'];
 
+    private const ALIAS_TRUNCATE_LENGTH = 40;
+
     private const FLAG_COLORS = [
         'Reset If' => 'text-red-500 dark:text-red-400',
         'Reset Next If' => 'text-red-500 dark:text-red-400',
@@ -44,6 +46,8 @@ class TriggerViewerService
      * @param array<int, string> $groupNotes the notes array for indirect address resolution
      * @return array{
      *     display: string,
+     *     displayTruncated: string,
+     *     isTruncated: bool,
      *     tooltip: string|null,
      *     cssClass: string|null,
      *     isAlias: bool,
@@ -51,6 +55,8 @@ class TriggerViewerService
      *     hexDisplay: string|null,
      *     alias: string|null,
      *     valueAlias: string|null,
+     *     valueAliasTruncated: string|null,
+     *     isValueAliasTruncated: bool,
      *     deltaSuffix: string
      * }
      */
@@ -67,6 +73,8 @@ class TriggerViewerService
         if ($type === 'Recall') {
             return [
                 'display' => '{recall}',
+                'displayTruncated' => '{recall}',
+                'isTruncated' => false,
                 'tooltip' => null,
                 'cssClass' => 'text-pink-500 dark:text-pink-400',
                 'isAlias' => false,
@@ -74,6 +82,8 @@ class TriggerViewerService
                 'hexDisplay' => null,
                 'alias' => null,
                 'valueAlias' => null,
+                'valueAliasTruncated' => null,
+                'isValueAliasTruncated' => false,
                 'deltaSuffix' => '',
             ];
         }
@@ -92,8 +102,14 @@ class TriggerViewerService
                 $valueAlias = $this->resolveValueAlias($decVal, $hexVal, $sourceSize, $noteSection);
             }
 
+            $display = $valueAlias ?? (string) $decVal;
+            $displayTruncated = Str::limit($display, self::ALIAS_TRUNCATE_LENGTH);
+            $valueAliasTruncated = $valueAlias !== null ? Str::limit($valueAlias, self::ALIAS_TRUNCATE_LENGTH) : null;
+
             return [
-                'display' => $valueAlias ?? (string) $decVal,
+                'display' => $display,
+                'displayTruncated' => $displayTruncated,
+                'isTruncated' => $displayTruncated !== $display,
                 'tooltip' => null,
                 'cssClass' => $valueAlias !== null ? 'text-emerald-600 dark:text-emerald-400' : null,
                 'isAlias' => $valueAlias !== null,
@@ -101,22 +117,30 @@ class TriggerViewerService
                 'hexDisplay' => $hexVal,
                 'alias' => null,
                 'valueAlias' => $valueAlias,
+                'valueAliasTruncated' => $valueAliasTruncated,
+                'isValueAliasTruncated' => $valueAlias !== null && $valueAliasTruncated !== $valueAlias,
                 'deltaSuffix' => '',
             ];
         }
 
         if (!empty($tooltip)) {
             $resolved = $this->resolveAddressAlias($tooltip, $groupNotes);
+            $display = $resolved['alias'] . $resolved['deltaSuffix'];
+            $displayTruncated = Str::limit($display, self::ALIAS_TRUNCATE_LENGTH);
 
             return [
-                'display' => $resolved['alias'] . $resolved['deltaSuffix'],
+                'display' => $display,
+                'displayTruncated' => $displayTruncated,
+                'isTruncated' => $displayTruncated !== $display,
                 'tooltip' => $tooltip,
                 'cssClass' => 'text-emerald-600 dark:text-emerald-400 cursor-help',
                 'isAlias' => true,
                 'decimalDisplay' => null,
                 'hexDisplay' => null,
-                'alias' => $resolved['alias'] . $resolved['deltaSuffix'],
+                'alias' => $display,
                 'valueAlias' => null,
+                'valueAliasTruncated' => null,
+                'isValueAliasTruncated' => false,
                 'deltaSuffix' => $resolved['deltaSuffix'],
                 'noteSection' => $resolved['noteSection'],
             ];
@@ -124,6 +148,8 @@ class TriggerViewerService
 
         return [
             'display' => $address,
+            'displayTruncated' => $address,
+            'isTruncated' => false,
             'tooltip' => null,
             'cssClass' => null,
             'isAlias' => false,
@@ -131,6 +157,8 @@ class TriggerViewerService
             'hexDisplay' => null,
             'alias' => null,
             'valueAlias' => null,
+            'valueAliasTruncated' => null,
+            'isValueAliasTruncated' => false,
             'deltaSuffix' => '',
         ];
     }
