@@ -53,7 +53,7 @@ class ResetPlayerProgressAction
         }
 
         $maintainers = DB::select("
-            SELECT DISTINCT COALESCE(ua.display_name, ua.username) AS Username
+            SELECT DISTINCT COALESCE(ua.display_name, ua.username) AS username
             FROM player_achievements pa
             INNER JOIN achievements ach ON ach.id = pa.achievement_id
             INNER JOIN achievement_maintainers m ON m.achievement_id = ach.id
