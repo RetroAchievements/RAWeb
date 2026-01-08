@@ -21,13 +21,12 @@ class BuildGameInterestedDevelopersDataAction
         $users = UserGameListEntry::whereType(UserGameListType::Develop)
             ->where('game_id', $game->id)
             ->with(['user' => function ($query) {
-                $query->orderBy('User');
+                $query->orderBy('username');
             }])
+            ->whereHas('user.roles', function ($query) {
+                $query->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]);
+            })
             ->get()
-            ->filter(fn (UserGameListEntry $entry) => $entry->user
-                && ($entry->user->hasRole(Role::DEVELOPER) || $entry->user->hasRole(Role::DEVELOPER_JUNIOR))
-            )
-            ->values()
             ->map(fn (UserGameListEntry $entry) => UserData::fromUser($entry->user));
 
         return $users;
