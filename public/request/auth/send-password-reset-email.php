@@ -26,7 +26,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 
 $targetUser = User::whereName($input['username'])->first();
 
-if ($targetUser && !$targetUser->isBanned()) {
+if ($targetUser && !$targetUser->isBanned() && !empty($targetUser->email)) {
     $newToken = Str::random(20);
 
     // discard old tokens. only the most recent should be usable to actually reset the password.
