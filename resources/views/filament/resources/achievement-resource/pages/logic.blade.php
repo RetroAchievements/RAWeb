@@ -169,25 +169,31 @@
                                                 $isSourceTooltipRedundant = $sourceDisplay['display'] === Str::before($condition['SourceTooltip'] ?? '', "\n");
                                             @endphp
 
+                                            @php
+                                                $sourceAliasTooltip = $sourceDisplay['isTruncated']
+                                                    ? $sourceDisplay['display']
+                                                    : ($isSourceTooltipRedundant ? null : ($condition['SourceTooltip'] ?? null));
+                                            @endphp
+
                                             @if ($condition['SourceType'] === 'Recall')
                                                 <span class="{{ $sourceDisplay['cssClass'] }}">{recall}</span>
                                             @elseif ($hasSourceNote)
-                                                @if ($isSourceTooltipRedundant)
+                                                @if ($sourceAliasTooltip)
                                                     <span
                                                         x-show="showAliases"
                                                         x-cloak
-                                                        class="text-emerald-600 dark:text-emerald-400"
+                                                        class="text-emerald-600 dark:text-emerald-400 cursor-help underline decoration-dotted underline-offset-2"
+                                                        x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($sourceAliasTooltip) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left' }"
                                                     >
-                                                        {{ $sourceDisplay['display'] }}
+                                                        {{ $sourceDisplay['displayTruncated'] }}
                                                     </span>
                                                 @else
                                                     <span
                                                         x-show="showAliases"
                                                         x-cloak
-                                                        class="text-emerald-600 dark:text-emerald-400 cursor-help underline decoration-dotted underline-offset-2"
-                                                        x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($condition['SourceTooltip']) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left' }"
+                                                        class="text-emerald-600 dark:text-emerald-400"
                                                     >
-                                                        {{ $sourceDisplay['display'] }}
+                                                        {{ $sourceDisplay['displayTruncated'] }}
                                                     </span>
                                                 @endif
 
@@ -226,7 +232,17 @@
                                                     <span class="text-pink-500 dark:text-pink-400">{recall}</span>
                                                 @elseif ($condition['TargetType'] === 'Value')
                                                     @if ($targetDisplay['valueAlias'])
-                                                        <span x-show="showAliases" x-cloak class="text-emerald-600 dark:text-emerald-400">{{ $targetDisplay['valueAlias'] }}</span>
+                                                        @if ($targetDisplay['isValueAliasTruncated'])
+                                                            <span
+                                                                x-show="showAliases"
+                                                                x-cloak
+                                                                class="text-emerald-600 dark:text-emerald-400 cursor-help underline decoration-dotted underline-offset-2"
+                                                                x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($targetDisplay['valueAlias']) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left' }"
+                                                            >{{ $targetDisplay['valueAliasTruncated'] }}</span>
+                                                        @else
+                                                            <span x-show="showAliases" x-cloak class="text-emerald-600 dark:text-emerald-400">{{ $targetDisplay['valueAlias'] }}</span>
+                                                        @endif
+
                                                         <span x-show="!showAliases && showDecimal" x-cloak>{{ $targetDisplay['decimalDisplay'] }}</span>
                                                         @if ($targetDisplay['decimalDisplay'] >= 10)
                                                             <span
@@ -252,22 +268,28 @@
                                                         @endif
                                                     @endif
                                                 @elseif ($hasTargetNote)
-                                                    @if ($isTargetTooltipRedundant)
+                                                    @php
+                                                        $targetAliasTooltip = $targetDisplay['isTruncated']
+                                                            ? $targetDisplay['display']
+                                                            : ($isTargetTooltipRedundant ? null : ($condition['TargetTooltip'] ?? null));
+                                                    @endphp
+
+                                                    @if ($targetAliasTooltip)
                                                         <span
                                                             x-show="showAliases"
                                                             x-cloak
-                                                            class="text-emerald-600 dark:text-emerald-400"
+                                                            class="text-emerald-600 dark:text-emerald-400 cursor-help underline decoration-dotted underline-offset-2"
+                                                            x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($targetAliasTooltip) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left' }"
                                                         >
-                                                            {{ $targetDisplay['display'] }}
+                                                            {{ $targetDisplay['displayTruncated'] }}
                                                         </span>
                                                     @else
                                                         <span
                                                             x-show="showAliases"
                                                             x-cloak
-                                                            class="text-emerald-600 dark:text-emerald-400 cursor-help underline decoration-dotted underline-offset-2"
-                                                            x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($condition['TargetTooltip']) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left' }"
+                                                            class="text-emerald-600 dark:text-emerald-400"
                                                         >
-                                                            {{ $targetDisplay['display'] }}
+                                                            {{ $targetDisplay['displayTruncated'] }}
                                                         </span>
                                                     @endif
 
