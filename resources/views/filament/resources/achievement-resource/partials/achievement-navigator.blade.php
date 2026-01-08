@@ -98,9 +98,9 @@
                 <template x-for="achievement in filteredAchievements" :key="achievement.id">
                     @php
                         $baseUrl = match ($pageType) {
-                            'edit' => \App\Filament\Resources\AchievementResource::getUrl('edit', ['record' => '__ID__']),
-                            'logic' => \App\Filament\Resources\AchievementResource::getUrl('logic', ['record' => '__ID__']),
-                            default => \App\Filament\Resources\AchievementResource::getUrl('view', ['record' => '__ID__']),
+                            'edit' => AchievementResource::getUrl('edit', ['record' => '__ID__']),
+                            'logic' => AchievementResource::getUrl('logic', ['record' => '__ID__']),
+                            default => AchievementResource::getUrl('view', ['record' => '__ID__']),
                         };
                     @endphp
                     <a
