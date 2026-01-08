@@ -359,7 +359,7 @@ class TriggerDecoderServiceTest extends TestCase
 
         $groups = $service->decode("I:0xX443dfc_I:0xX0038_I:0xX00dc_0xX00ec=10");
         $service->mergeCodeNotes($groups, [
-            0x443dfc => "[32-bit]\n" .
+            0x443DFC => "[32-bit]\n" .
                         "+0x38\n" .
                         "++0xdc\n" .
                         "+++0xec | Times talked to the epic guys",
