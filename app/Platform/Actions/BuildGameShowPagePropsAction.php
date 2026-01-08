@@ -842,8 +842,16 @@ class BuildGameShowPagePropsAction
             return null;
         }
 
-        return UserGameListEntry::where('type', UserGameListType::Develop)
-            ->where('game_id', $game->id)
+        return User::query()
+            ->whereIn('id', function ($query) use ($game) {
+                $query->select('user_id')
+                    ->from('user_game_list_entries')
+                    ->where('game_id', $game->id)
+                    ->where('type', UserGameListType::Develop);
+            })
+            ->whereHas('roles', function ($query) {
+                $query->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]);
+            })
             ->count();
     }
 
