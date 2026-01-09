@@ -20,6 +20,7 @@ use App\Models\UserGameAchievementSetPreference;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\LeaderboardState;
 use App\Platform\Services\VirtualGameIdService;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -188,6 +189,10 @@ function createGameWithUnpublishedAchievements(): array
     $leaderboard2 = Leaderboard::factory()->create(['game_id' => $game->id, 'order_column' => 1, 'format' => 'SCORE']);
     /** @var Leaderboard $leaderboard3 */
     $leaderboard3 = Leaderboard::factory()->create(['game_id' => $game->id, 'order_column' => -1, 'format' => 'SECS']);
+    /** @var Leaderboard $leaderboard4 */
+    $leaderboard4 = Leaderboard::factory()->create(['game_id' => $game->id, 'order_column' => 3, 'format' => 'SECS', 'state' => LeaderboardState::Unpublished]);
+    /** @var Leaderboard $leaderboard5 */
+    $leaderboard5 = Leaderboard::factory()->create(['game_id' => $game->id, 'order_column' => 4, 'format' => 'SECS', 'state' => LeaderboardState::Disabled]);
 
     (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
 
@@ -386,6 +391,8 @@ describe('Non multi-set', function () {
                             getLeaderboardPatchData($data['leaderboards'][2]), // DisplayOrder: -1
                             getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
                             getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
+                            // leaderboards[3] is unpublished - have to specifically ask for those as older clients don't check state
+                            // leaderboards[4] is disabled - it should never be returned to any client
                         ],
                     ],
                 ],
@@ -431,6 +438,8 @@ describe('Non multi-set', function () {
                             getLeaderboardPatchData($data['leaderboards'][2]), // DisplayOrder: -1
                             getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
                             getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
+                            // leaderboards[3] is unpublished - have to specifically ask for those as older clients don't check state
+                            // leaderboards[4] is disabled - it should never be returned to any client
                         ],
                     ],
                 ],
@@ -475,6 +484,8 @@ describe('Non multi-set', function () {
                             getLeaderboardPatchData($data['leaderboards'][2]), // DisplayOrder: -1
                             getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
                             getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
+                            // leaderboards[3] is unpublished - have to specifically ask for those as older clients don't check state
+                            // leaderboards[4] is disabled - it should never be returned to any client
                         ],
                     ],
                 ],
