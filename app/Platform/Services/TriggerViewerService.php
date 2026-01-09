@@ -489,27 +489,46 @@ class TriggerViewerService
         $plusCount = count($offsets);
         $plusPrefix = str_repeat('+', $plusCount);
 
-        // Search for pattern like "+0x00000034 | Name" or "++0x00000064 | Name".
-        $offsetHex = sprintf('0x%08x', $lastOffset);
-        $pattern = '/^' . preg_quote($plusPrefix, '/') . preg_quote($offsetHex, '/') . '\s*\|\s*(.+)$/mi';
+        // Search for pattern like "+0x64 | Name", "++100 | Name", "+++0xec | Name", etc.
+        // Supports various offset formats: padded hex (0x00000064), short hex (0x64),
+        // bare hex (64, b47), and decimal (100).
+        $pattern = '/^' . preg_quote($plusPrefix, '/') . '(0x)?([0-9a-fA-F]+)\s*\|\s*(.+)$/mi';
 
-        if (!preg_match($pattern, $baseNote, $nameMatch, PREG_OFFSET_CAPTURE)) {
+        if (!preg_match_all($pattern, $baseNote, $allMatches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
             return ['found' => false, 'alias' => $indirectPattern, 'noteSection' => ''];
         }
 
-        $alias = trim($nameMatch[1][0]);
+        // Find the match where the offset value equals our target.
+        foreach ($allMatches as $match) {
+            $has0xPrefix = !empty($match[1][0]);
+            $offsetStr = $match[2][0];
 
-        $sectionStart = (int) $nameMatch[0][1] + strlen($nameMatch[0][0]);
-        $remainingNote = substr($baseNote, $sectionStart);
+            // Parse the offset. If it has a 0x prefix, it's definitely hex. Otherwise, it could
+            // be hex or decimal. Real code notes commonly use bare hex (like "b47" or "ec"),
+            // so we interpret values with hex letters (a-f) as hex.
+            if ($has0xPrefix || preg_match('/[a-fA-F]/', $offsetStr)) {
+                $parsedOffset = hexdec($offsetStr);
+            } else {
+                $parsedOffset = (int) $offsetStr;
+            }
 
-        // Find where next offset section starts (line starting with +).
-        if (preg_match('/^[+]/m', $remainingNote, $nextMatch, PREG_OFFSET_CAPTURE)) {
-            $noteSection = substr($remainingNote, 0, (int) $nextMatch[0][1]);
-        } else {
-            $noteSection = $remainingNote;
+            if ($parsedOffset === $lastOffset) {
+                $alias = trim($match[3][0]);
+                $sectionStart = (int) $match[0][1] + strlen($match[0][0]);
+                $remainingNote = substr($baseNote, $sectionStart);
+
+                // Find where next offset section starts (line starting with +).
+                if (preg_match('/^[+]/m', $remainingNote, $nextMatch, PREG_OFFSET_CAPTURE)) {
+                    $noteSection = substr($remainingNote, 0, (int) $nextMatch[0][1]);
+                } else {
+                    $noteSection = $remainingNote;
+                }
+
+                return ['found' => true, 'alias' => $alias, 'noteSection' => $noteSection];
+            }
         }
 
-        return ['found' => true, 'alias' => $alias, 'noteSection' => $noteSection];
+        return ['found' => false, 'alias' => $indirectPattern, 'noteSection' => ''];
     }
 
     /**

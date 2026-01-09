@@ -54,7 +54,11 @@ export const SidebarClaimButtons: FC = () => {
               IconComponent={LuFlagTriangleRight}
               showSubsetIndicator={game.id !== backingGame.id}
             >
-              {wouldBeRevisionClaim ? t('Create New Revision Claim') : t('Create New Claim')}
+              {wouldBeRevisionClaim
+                ? t('Create New Revision Claim')
+                : claimData?.wouldBeCollaboration
+                  ? t('Create New Collaboration Claim')
+                  : t('Create New Claim')}
             </PlayableSidebarButton>
           }
         />
