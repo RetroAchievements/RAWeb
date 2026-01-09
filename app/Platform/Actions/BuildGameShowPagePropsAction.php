@@ -708,7 +708,6 @@ class BuildGameShowPagePropsAction
                 AchievementSetType::Specialty,
                 AchievementSetType::WillBeSpecialty,
                 AchievementSetType::Exclusive,
-                AchievementSetType::WillBeExclusive,
             ])) {
                 return $backingGame->hashes->where('compatibility', GameHashCompatibility::Compatible)->count();
             }
