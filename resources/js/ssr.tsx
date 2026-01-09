@@ -38,6 +38,12 @@ createServer(
 
       render: ReactDOMServer.renderToString,
 
+      defaults: {
+        future: {
+          useScriptElementForInitialPage: true,
+        },
+      },
+
       title: (title) => (title && title !== appName ? `${title} · ${appName}` : appName),
 
       resolve: (name) =>
