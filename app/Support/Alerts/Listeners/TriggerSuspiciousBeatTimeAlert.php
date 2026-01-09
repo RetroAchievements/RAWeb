@@ -34,6 +34,10 @@ class TriggerSuspiciousBeatTimeAlert implements ShouldQueue
 
         $game = $event->game;
 
+        if ($event->user->is_unranked) {
+            return;
+        }
+
         // Final Fantasy XI supports retroactive unlocks.
         // We use a regex so we don't match against XII or XIII.
         if (preg_match('/^Final Fantasy XI($|[:\s\-])/', $game->title)) {
