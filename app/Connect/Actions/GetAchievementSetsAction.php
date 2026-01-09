@@ -30,7 +30,7 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
 
     public function execute(User $user, int $gameId = 0, ?string $gameHash = null, ?bool $isPromoted = true): array
     {
-        $this->user = $this->user;
+        $this->user = $user;
         $this->gameId = $gameId;
         $this->gameHashMd5 = $gameHash;
         $this->isPromoted = $isPromoted;

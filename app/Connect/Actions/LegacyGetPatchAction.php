@@ -30,7 +30,7 @@ class LegacyGetPatchAction extends GetAchievementSetsAction
         }
 
         // We have to relookup the game record for the image_icon_asset_path
-        [$resolvedGameId, $compatibility] = (new VirtualGameIdService())->decodeVirtualGameId($response['GameId']);
+        [$resolvedGameId, $compatibility] = VirtualGameIdService::decodeVirtualGameId($response['GameId']);
         $game = Game::find($resolvedGameId);
 
         // Convert the response to the legacy format
@@ -89,7 +89,7 @@ class LegacyGetPatchAction extends GetAchievementSetsAction
             $legacyResponse['PatchData']['ParentID'] = $response['GameId'];
         }
 
-        // Propogate any warning that may have been returned.
+        // Propagate any warning that may have been returned.
         if (array_key_exists('Warning', $response)) {
             $legacyResponse['Warning'] = $response['Warning'];
         }
