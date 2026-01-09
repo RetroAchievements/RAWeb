@@ -121,6 +121,24 @@ describe('Component: ClaimActionButton', () => {
     expect(screen.queryByTestId('claim-button')).not.toBeInTheDocument();
   });
 
+  it('given the user can make a new claim and all conditions are met, and a claim already exists, shows a collaboration claim button', () => {
+    // ARRANGE
+    render(<ClaimActionButton />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        backingGame: createGame({ forumTopicId: 12345 }),
+        claimData: createGamePageClaimData({
+          numClaimsRemaining: 1,
+          numUnresolvedTickets: 0,
+          wouldBeCollaboration: true,
+        }),
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /collaborate/i })).toBeVisible();
+  });
+
   it('given the user can make a new claim and all conditions are met, shows the real claim button', () => {
     // ARRANGE
     render(<ClaimActionButton />, {
