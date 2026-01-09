@@ -353,6 +353,42 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertConditionHitTarget($condition, '0');
     }
 
+    public function testMergeCodeNotesIndirectWithoutPointerKeyword(): void
+    {
+        $service = new TriggerDecoderService();
+
+        $groups = $service->decode("I:0xX443dfc_I:0xX0038_I:0xX00dc_0xX00ec=10");
+        $service->mergeCodeNotes($groups, [
+            0x443DFC => "[32-bit]\n" .
+                        "+0x38\n" .
+                        "++0xdc\n" .
+                        "+++0xec | Times talked to the epic guys",
+        ]);
+
+        $this->assertEquals(1, count($groups));
+        $this->assertEquals(4, count($groups[0]['Conditions']));
+
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionFlag($condition, 'Add Address');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x443dfc');
+        $this->assertConditionSourceTooltip($condition, '[32-bit]');
+
+        $condition = $groups[0]['Conditions'][1];
+        $this->assertConditionFlag($condition, 'Add Address');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x000038');
+        $this->assertStringContainsString('[Indirect 0x443dfc + 0x000038]', $condition['SourceTooltip'] ?? '');
+
+        $condition = $groups[0]['Conditions'][2];
+        $this->assertConditionFlag($condition, 'Add Address');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x0000dc');
+        $this->assertStringContainsString('[Indirect', $condition['SourceTooltip'] ?? '');
+
+        $condition = $groups[0]['Conditions'][3];
+        $this->assertConditionFlag($condition, '');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x0000ec');
+        $this->assertStringContainsString('Times talked to the epic guys', $condition['SourceTooltip'] ?? '');
+    }
+
     public function testMergeCodeNotesIndexed(): void
     {
         $service = new TriggerDecoderService();

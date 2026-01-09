@@ -428,4 +428,55 @@ class TriggerDiffServiceTest extends TestCase
         $this->assertEquals(1, $summary['modified']);
         $this->assertEquals(['HitTarget'], $result[0]['Conditions'][1]['ChangedFields']);
     }
+
+    public function testComputeDiffGroupsRemovedConditionsBeforeUnchanged(): void
+    {
+        /**
+         * Old: [A, B, C, D] -> New: [C, D, E, F]
+         * Expected order: removed(A), removed(B), unchanged(C), unchanged(D), added(E), added(F)
+         */
+
+        // Arrange
+        $conditionA = ['Flag' => '', 'SourceType' => 'Delta', 'SourceSize' => '16-bit', 'SourceAddress' => '0x001ec676', 'Operator' => '=', 'TargetType' => 'Value', 'TargetSize' => '', 'TargetAddress' => '0x00ffff', 'HitTarget' => '0'];
+        $conditionB = ['Flag' => '', 'SourceType' => 'Mem', 'SourceSize' => '16-bit', 'SourceAddress' => '0x001ec676', 'Operator' => '=', 'TargetType' => 'Value', 'TargetSize' => '', 'TargetAddress' => '0x000036', 'HitTarget' => '0'];
+        $conditionC = ['Flag' => 'Or Next', 'SourceType' => 'Mem', 'SourceSize' => '32-bit', 'SourceAddress' => '0x001ebf88', 'Operator' => '=', 'TargetType' => 'Value', 'TargetSize' => '', 'TargetAddress' => '0x0e4897', 'HitTarget' => '0'];
+        $conditionD = ['Flag' => '', 'SourceType' => 'Mem', 'SourceSize' => '32-bit', 'SourceAddress' => '0x001ebf88', 'Operator' => '=', 'TargetType' => 'Value', 'TargetSize' => '', 'TargetAddress' => '0x0e4898', 'HitTarget' => '0'];
+        $conditionE = ['Flag' => '', 'SourceType' => 'Mem', 'SourceSize' => 'Bit6', 'SourceAddress' => '0x001ec7ce', 'Operator' => '=', 'TargetType' => 'Value', 'TargetSize' => '', 'TargetAddress' => '0x000001', 'HitTarget' => '0'];
+        $conditionF = ['Flag' => '', 'SourceType' => 'Delta', 'SourceSize' => 'Bit6', 'SourceAddress' => '0x001ec7ce', 'Operator' => '=', 'TargetType' => 'Value', 'TargetSize' => '', 'TargetAddress' => '0x000000', 'HitTarget' => '0'];
+
+        $oldGroups = [['Label' => 'Core Group', 'Conditions' => [$conditionA, $conditionB, $conditionC, $conditionD]]];
+        $newGroups = [['Label' => 'Core Group', 'Conditions' => [$conditionC, $conditionD, $conditionE, $conditionF]]];
+
+        // Act
+        $result = $this->service->computeDiff($oldGroups, $newGroups);
+
+        // Assert
+        $conditions = $result[0]['Conditions'];
+        $this->assertCount(6, $conditions);
+
+        // ... removals should be grouped before the unchanged conditions they precede ...
+        $this->assertEquals('removed', $conditions[0]['DiffStatus']);
+        $this->assertEquals('0x001ec676', $conditions[0]['SourceAddress']); // A
+
+        $this->assertEquals('removed', $conditions[1]['DiffStatus']);
+        $this->assertEquals('0x001ec676', $conditions[1]['SourceAddress']); // B
+
+        $this->assertEquals('unchanged', $conditions[2]['DiffStatus']);
+        $this->assertEquals('Or Next', $conditions[2]['Flag']); // C
+
+        $this->assertEquals('unchanged', $conditions[3]['DiffStatus']);
+        $this->assertEquals('0x001ebf88', $conditions[3]['SourceAddress']); // D
+
+        $this->assertEquals('added', $conditions[4]['DiffStatus']);
+        $this->assertEquals('Bit6', $conditions[4]['SourceSize']); // E
+
+        $this->assertEquals('added', $conditions[5]['DiffStatus']);
+        $this->assertEquals('Delta', $conditions[5]['SourceType']); // F
+
+        // ... verify the summary counts ...
+        $summary = $this->service->computeSummary($oldGroups, $newGroups);
+        $this->assertEquals(2, $summary['added']);
+        $this->assertEquals(2, $summary['removed']);
+        $this->assertEquals(0, $summary['modified']);
+    }
 }
