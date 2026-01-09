@@ -1007,4 +1007,109 @@ class TriggerViewerServiceTest extends TestCase
         $this->assertCount(1, $hitCountLines);
         $this->assertStringContainsString('(5)', $result);
     }
+
+    public function testFormatOperandDisplayTruncatesLongAliases(): void
+    {
+        $longAlias = 'Bit 6 = Denotes if you can move Serph or not. Useful for cutscenes.';
+        $condition = [
+            'SourceType' => 'Mem',
+            'SourceAddress' => '0x001234',
+            'SourceTooltip' => $longAlias,
+            'SourceSize' => '8-bit',
+        ];
+
+        $result = $this->service->formatOperandDisplay($condition, 'Source', []);
+
+        $this->assertEquals($longAlias, $result['display']);
+        $this->assertTrue($result['isTruncated']);
+        $this->assertEquals(43, strlen($result['displayTruncated'])); // 40 chars + "..."
+        $this->assertStringEndsWith('...', $result['displayTruncated']);
+    }
+
+    public function testFormatOperandDisplayDoesNotTruncateShortAliases(): void
+    {
+        $shortAlias = 'Player Health';
+        $condition = [
+            'SourceType' => 'Mem',
+            'SourceAddress' => '0x001234',
+            'SourceTooltip' => "[8-bit] $shortAlias",
+            'SourceSize' => '8-bit',
+        ];
+
+        $result = $this->service->formatOperandDisplay($condition, 'Source', []);
+
+        $this->assertEquals($shortAlias, $result['display']);
+        $this->assertEquals($shortAlias, $result['displayTruncated']);
+        $this->assertFalse($result['isTruncated']);
+    }
+
+    public function testFormatOperandDisplayTruncatesLongValueAliases(): void
+    {
+        $noteSection = "Game Mode\n0x30 = This is a very long description that exceeds forty characters";
+        $condition = [
+            'SourceType' => 'Mem',
+            'SourceAddress' => '0x001234',
+            'SourceTooltip' => $noteSection,
+            'SourceSize' => '8-bit',
+            'TargetType' => 'Value',
+            'TargetAddress' => '0x000030',
+        ];
+
+        $result = $this->service->formatOperandDisplay($condition, 'Target', []);
+
+        $this->assertEquals('This is a very long description that exceeds forty characters', $result['valueAlias']);
+        $this->assertTrue($result['isValueAliasTruncated']);
+        $this->assertStringEndsWith('...', $result['valueAliasTruncated']);
+    }
+
+    public function testFormatOperandDisplayDoesNotTruncateShortValueAliases(): void
+    {
+        $noteSection = "Game Mode\n0x01 = Title Screen";
+        $condition = [
+            'SourceType' => 'Mem',
+            'SourceAddress' => '0x001234',
+            'SourceTooltip' => $noteSection,
+            'SourceSize' => '8-bit',
+            'TargetType' => 'Value',
+            'TargetAddress' => '0x000001',
+        ];
+
+        $result = $this->service->formatOperandDisplay($condition, 'Target', []);
+
+        $this->assertEquals('Title Screen', $result['valueAlias']);
+        $this->assertEquals('Title Screen', $result['valueAliasTruncated']);
+        $this->assertFalse($result['isValueAliasTruncated']);
+    }
+
+    public function testFormatOperandDisplayRecallTypeHasTruncationFields(): void
+    {
+        $condition = [
+            'SourceType' => 'Recall',
+            'SourceAddress' => '',
+            'SourceTooltip' => '',
+            'SourceSize' => '',
+        ];
+
+        $result = $this->service->formatOperandDisplay($condition, 'Source', []);
+
+        $this->assertEquals('{recall}', $result['displayTruncated']);
+        $this->assertFalse($result['isTruncated']);
+        $this->assertNull($result['valueAliasTruncated']);
+        $this->assertFalse($result['isValueAliasTruncated']);
+    }
+
+    public function testFormatOperandDisplayRawAddressHasTruncationFields(): void
+    {
+        $condition = [
+            'SourceType' => 'Mem',
+            'SourceAddress' => '0x001234',
+            'SourceTooltip' => '',
+            'SourceSize' => '8-bit',
+        ];
+
+        $result = $this->service->formatOperandDisplay($condition, 'Source', []);
+
+        $this->assertEquals('0x001234', $result['displayTruncated']);
+        $this->assertFalse($result['isTruncated']);
+    }
 }
