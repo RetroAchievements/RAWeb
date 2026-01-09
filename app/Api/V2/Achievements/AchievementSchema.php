@@ -17,8 +17,8 @@ use LaravelJsonApi\Eloquent\Fields\Relations\HasMany;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasOne;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Scope;
-use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
+use LaravelJsonApi\Eloquent\Filters\WhereIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
 
@@ -106,7 +106,7 @@ class AchievementSchema extends Schema
             WhereIdIn::make($this),
             Scope::make('isPromoted', 'withPromotedStatus'),
             Scope::make('gameId', 'forGame'),
-            Where::make('type'),
+            WhereIn::make('type')->delimiter(','),
         ];
     }
 

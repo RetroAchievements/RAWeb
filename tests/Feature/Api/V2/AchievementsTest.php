@@ -249,6 +249,40 @@ class AchievementsTest extends JsonApiResourceTestCase
         $this->assertNotContains((string) $missableAchievement->id, $ids);
     }
 
+    public function testItFiltersByMultipleTypes(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        $progressionAchievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'type' => AchievementType::Progression,
+        ]);
+        $winConditionAchievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'type' => AchievementType::WinCondition,
+        ]);
+        $missableAchievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'type' => AchievementType::Missable,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('achievements')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/achievements?filter[type]=progression,win_condition');
+
+        // Assert
+        $response->assertSuccessful();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        $this->assertContains((string) $progressionAchievement->id, $ids);
+        $this->assertContains((string) $winConditionAchievement->id, $ids);
+        $this->assertNotContains((string) $missableAchievement->id, $ids);
+    }
+
     public function testItExcludesHubGameAchievements(): void
     {
         // Arrange
