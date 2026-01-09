@@ -41,6 +41,14 @@ class Edit extends EditRecord
     {
         $this->authorizeFields($this->record, $data);
 
+        // Normalize empty strings to null to prevent spurious activity log entries.
+        $nullableTextFields = ['developer', 'publisher', 'genre', 'legacy_guide_url'];
+        foreach ($nullableTextFields as $field) {
+            if (array_key_exists($field, $data) && $data[$field] === '') {
+                $data[$field] = null;
+            }
+        }
+
         $action = new ApplyUploadedImageToDataAction();
 
         $action->execute($data, 'image_icon_asset_path', ImageUploadType::GameBadge);

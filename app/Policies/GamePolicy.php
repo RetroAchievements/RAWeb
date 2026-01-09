@@ -126,6 +126,7 @@ class GamePolicy
             ],
 
             Role::ARTIST => [
+                'banner',
                 'image_icon_asset_path',
             ],
         ];
