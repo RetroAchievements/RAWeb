@@ -41,9 +41,9 @@ class LeaderboardEntryObserver
             return;
         }
 
-        // Skip if the user is unranked, untracked, or banned.
+        // Skip if the user is unranked or banned.
         $user = $leaderboardEntry->user;
-        if (!$user || $user->unranked_at || $user->Untracked || $user->banned_at) {
+        if (!$user || $user->unranked_at || $user->banned_at) {
             return;
         }
 
@@ -56,7 +56,6 @@ class LeaderboardEntryObserver
                 !$currentTopEntry
                 || $currentTopEntry->deleted_at
                 || !$currentTopEntry->user
-                || $currentTopEntry->user->Untracked
                 || $currentTopEntry->user->unranked_at
                 || $currentTopEntry->user->banned_at
             ) {

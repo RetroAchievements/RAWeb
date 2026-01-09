@@ -82,6 +82,21 @@ export const ClaimActionButton: FC = () => {
     );
   }
 
+  if (claimData.wouldBeCollaboration) {
+    return (
+      <ClaimConfirmationDialog
+        data-testid="claim-button"
+        action="create"
+        trigger={
+          <BaseButton className="gap-1.5">
+            <LuFlagTriangleRight />
+            {t('Collaborate')}
+          </BaseButton>
+        }
+      />
+    );
+  }
+
   return (
     <ClaimConfirmationDialog
       data-testid="claim-button"

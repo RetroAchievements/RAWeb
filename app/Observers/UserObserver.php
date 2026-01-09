@@ -9,6 +9,7 @@ use App\Community\Actions\RemoveUserDiscordRolesAction;
 use App\Community\Enums\CommentableType;
 use App\Community\Enums\ModerationActionType;
 use App\Models\Comment;
+use App\Models\UnrankedUser;
 use App\Models\User;
 use App\Models\UserModerationAction;
 use Carbon\Carbon;
@@ -66,8 +67,13 @@ class UserObserver
         }
 
         // Handle banning - remove all roles if they're a Discord member.
+        // Banned users should also be unranked.
         if ($this->isBeingBanned($user)) {
             (new RemoveUserDiscordRolesAction())->execute($user);
+
+            if ($user->unranked_at === null) {
+                $user->unranked_at = now();
+            }
 
             UserModerationAction::create([
                 'user_id' => $user->id,
@@ -121,6 +127,37 @@ class UserObserver
                 ->get();
 
             $this->syncSearchIndex($wallComments, shouldIndex: $user->is_user_wall_active);
+        }
+
+        /**
+         * We use the unranked_users table for efficiently filtering out
+         * unranked users from certain queries. Let's be sure it's kept in sync.
+         */
+        if ($user->wasChanged('unranked_at')) {
+            if ($user->unranked_at !== null) {
+                UnrankedUser::firstOrCreate(['user_id' => $user->id]);
+            } else {
+                UnrankedUser::where('user_id', $user->id)->delete();
+            }
+        }
+    }
+
+    /**
+     * Soft-deleted users should be unranked.
+     */
+    public function deleted(User $user): void
+    {
+        UnrankedUser::firstOrCreate(['user_id' => $user->id]);
+    }
+
+    /**
+     * If a user is restored from being soft deleted, clean up the
+     * unranked_users table if they shouldn't be unranked.
+     */
+    public function restored(User $user): void
+    {
+        if ($user->unranked_at === null) {
+            UnrankedUser::where('user_id', $user->id)->delete();
         }
     }
 

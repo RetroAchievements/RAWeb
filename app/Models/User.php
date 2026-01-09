@@ -93,7 +93,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
 
     // TODO drop Permissions in favor of auth_roles
     // TODO drop ManuallyVerified in favor of forum_verified_at
-    // TODO drop Untracked in favor of unranked_at
     protected $table = 'users';
 
     protected $fillable = [
@@ -128,7 +127,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         'rich_presence_updated_at',
         'timezone',
         'unranked_at',
-        'Untracked',
         'username', // fillable for registration
         'visible_role_id',
         'web_api_calls',
@@ -157,8 +155,8 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
         "points_hardcore",
         "points_weighted",
         "preferences_bitfield",
+        "unranked_at",
         "unread_messages",
-        "Untracked",
         "username",
         "yield_points",
         "yield_unlocks",
@@ -225,13 +223,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
                     ->log('pivotDetached');
             }
         });
-
-        // When a user is restored, check if they should remain unranked.
-        static::restored(function (User $user) {
-            if ($user->unranked_at === null) {
-                UnrankedUser::where('user_id', $user->id)->delete();
-            }
-        });
     }
 
     protected static function newFactory(): UserFactory
@@ -281,7 +272,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
                 'muted_until',
                 'timezone',
                 'unranked_at',
-                'Untracked',
                 'username',
             ])
             ->logOnlyDirty()
