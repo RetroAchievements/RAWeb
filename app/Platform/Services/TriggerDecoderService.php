@@ -386,17 +386,13 @@ class TriggerDecoderService
                     $indirectNote = $condition['SourceTooltip'] ?? '';
                     $index = strpos($indirectNote, "\n+");
                     if ($index !== false) {
+                        // The presence of "\n+" indicates this is a pointer chain structure.
                         $firstLine = substr($indirectNote, 0, $index);
-                        if (!empty($firstLine) && stripos($firstLine, 'pointer') !== false) {
-                            $condition['SourceTooltip'] = trim($firstLine);
-                            if (empty($indirectChain)) {
-                                $indirectChain = $condition['SourceAddress'];
-                            } else {
-                                $indirectChain .= ' + ' . $condition['SourceAddress'];
-                            }
+                        $condition['SourceTooltip'] = trim($firstLine);
+                        if (empty($indirectChain)) {
+                            $indirectChain = $condition['SourceAddress'];
                         } else {
-                            $indirectNote = '';
-                            $indirectChain = '';
+                            $indirectChain .= ' + ' . $condition['SourceAddress'];
                         }
                     }
                 } else {
