@@ -343,6 +343,7 @@ class UsersTest extends JsonApiResourceTestCase
         $this->assertArrayHasKey('richPresenceUpdatedAt', $attributes);
         $this->assertArrayHasKey('visibleRole', $attributes);
         $this->assertArrayHasKey('displayableRoles', $attributes);
+        $this->assertArrayNotHasKey('deletedAt', $attributes);
     }
 
     public function testItIncludesProfileLink(): void
