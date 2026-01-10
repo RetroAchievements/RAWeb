@@ -65,6 +65,7 @@ class BuildGameShowPagePropsAction
         protected ProcessGameReleasesForViewAction $processGameReleasesForViewAction,
         protected BuildGamePageClaimDataAction $buildGamePageClaimDataAction,
         protected BuildHubBreadcrumbsAction $buildHubBreadcrumbsAction,
+        protected ResolveHashesForAchievementSetAction $resolveHashesForAchievementSetAction,
     ) {
     }
 
@@ -364,7 +365,7 @@ class BuildGameShowPagePropsAction
                 : collect(),
 
             numComments: $backingGame->visibleComments($user)->count(),
-            numCompatibleHashes: $this->getCompatibleHashesCount($game, $backingGame, $targetAchievementSet),
+            numCompatibleHashes: $this->getCompatibleHashesCount($game, $targetAchievementSet),
             numCompletions: $numCompletions,
             numBeaten: $numBeaten,
             numBeatenSoftcore: $numBeatenSoftcore,
@@ -625,7 +626,7 @@ class BuildGameShowPagePropsAction
             ->map(fn ($item) => UserCreditsData::fromUserWithCount(
                 $item['user'],
                 $item['count'],
-                isset($item['created_at']) ? $item['created_at'] : null
+                $item['created_at'] ?? null
             )->include('isGone'))
             ->values()
             ->all();
@@ -699,22 +700,12 @@ class BuildGameShowPagePropsAction
         return in_array($gameId, $gameIds);
     }
 
-    private function getCompatibleHashesCount(Game $game, Game $backingGame, ?GameAchievementSet $targetAchievementSet): int
+    private function getCompatibleHashesCount(Game $game, ?GameAchievementSet $targetAchievementSet): int
     {
-        // Use the backing game's hashes for Specialty and Exclusive set types.
-        if ($targetAchievementSet !== null) {
-            $setType = $targetAchievementSet->type;
-            if (in_array($setType, [
-                AchievementSetType::Specialty,
-                AchievementSetType::WillBeSpecialty,
-                AchievementSetType::Exclusive,
-            ])) {
-                return $backingGame->hashes->where('compatibility', GameHashCompatibility::Compatible)->count();
-            }
-        }
-
-        // Otherwise use the main game's hashes.
-        return $game->hashes->where('compatibility', GameHashCompatibility::Compatible)->count();
+        // Use the same logic as the Supported Game Files page to ensure consistent counts.
+        return $this->resolveHashesForAchievementSetAction
+            ->execute($game, $targetAchievementSet)
+            ->count();
     }
 
     private function buildSetRequestData(Game $backingGame, ?User $user): ?GameSetRequestData

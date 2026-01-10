@@ -790,6 +790,77 @@ describe('Count Props', function () {
             ->where('numCompatibleHashes', 4)
         );
     });
+
+    it('given a multiset-enabled game, the core set view includes main, bonus, and specialty hashes', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        ['baseGame' => $baseGame, 'subsetGame' => $subsetGame] = createGameWithSubset(
+            $system,
+            'Base Game',
+            'Base Game [Subset - Bonus]',
+            AchievementSetType::Bonus
+        );
+
+        GameHash::factory()->count(3)->create([
+            'game_id' => $baseGame->id,
+            'system_id' => $system->id,
+            'compatibility' => GameHashCompatibility::Compatible,
+        ]);
+        GameHash::factory()->count(3)->create([
+            'game_id' => $baseGame->id,
+            'system_id' => $system->id,
+            'compatibility' => GameHashCompatibility::Incompatible,
+        ]);
+        GameHash::factory()->count(2)->create([
+            'game_id' => $subsetGame->id,
+            'system_id' => $system->id,
+            'compatibility' => GameHashCompatibility::Compatible,
+        ]);
+
+        $baseGame->refresh();
+
+        // ACT
+        $response = get(route('game.show', ['game' => $baseGame]));
+
+        // ASSERT
+        // ... main game hashes (3) + bonus hashes (2) ...
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('numCompatibleHashes', 5)
+        );
+    });
+
+    it('given viewing a specialty subset, only includes "backing game" hashes', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        ['baseGame' => $baseGame, 'subsetGame' => $subsetGame, 'subsetSet' => $subsetSet] = createGameWithSubset(
+            $system,
+            'Base Game',
+            'Base Game [Subset - Specialty]',
+            AchievementSetType::Specialty
+        );
+
+        GameHash::factory()->count(4)->create([
+            'game_id' => $baseGame->id,
+            'system_id' => $system->id,
+            'compatibility' => GameHashCompatibility::Compatible,
+        ]);
+        GameHash::factory()->count(2)->create([
+            'game_id' => $subsetGame->id,
+            'system_id' => $system->id,
+            'compatibility' => GameHashCompatibility::Compatible,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', [
+            'game' => $baseGame,
+            'set' => $subsetSet->achievement_set_id,
+        ]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('numCompatibleHashes', 2)
+        );
+    });
 });
 
 describe('Player Props', function () {
