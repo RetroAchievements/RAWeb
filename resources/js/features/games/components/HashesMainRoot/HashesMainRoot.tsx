@@ -44,7 +44,7 @@ export const HashesMainRoot: FC = memo(() => {
 
         <Embed className="flex flex-col gap-4">
           <p className="font-bold">
-            {t("This page shows you what ROM hashes are compatible with this game's achievements.")}
+            {t('This page shows you what ROM hashes are compatible with this achievement set.')}
           </p>
 
           <p>

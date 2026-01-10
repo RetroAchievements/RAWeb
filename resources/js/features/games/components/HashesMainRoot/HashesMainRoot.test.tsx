@@ -57,7 +57,9 @@ describe('Component: HashesMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/supported game file hash registered for this game/i)).toBeVisible();
+    expect(
+      screen.getByText(/supported game file hash registered for this achievement set/i),
+    ).toBeVisible();
   });
 
   it('given there are multiple hashes, pluralizes correctly', () => {
@@ -71,7 +73,9 @@ describe('Component: HashesMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/supported game file hashes registered for this game/i)).toBeVisible();
+    expect(
+      screen.getByText(/supported game file hashes registered for this achievement set/i),
+    ).toBeVisible();
   });
 
   it('given there are no incompatible hashes, renders nothing', async () => {
