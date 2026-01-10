@@ -47,7 +47,7 @@ class SubmitLeaderboardEntryTest extends TestCase
     {
         return [
             'Rank' => $rank,
-            'User' => $user->username,
+            'User' => $user->display_name,
             'Score' => $score,
             'DateSubmitted' => $when->unix(),
         ];
@@ -196,7 +196,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         ]);
         $timestamps[$user->id] = Carbon::now()->clone();
 
-        $user = User::factory()->create(['Untracked' => true]);
+        $user = User::factory()->create(['unranked_at' => now()]);
         LeaderboardEntry::create([
             'leaderboard_id' => $leaderboard->id,
             'user_id' => $user->id,

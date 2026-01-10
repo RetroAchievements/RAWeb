@@ -87,15 +87,14 @@ parameters:
             identifier: method.notFound
             message: '#ImageDriver::performOnCollections#'
 
-        # Temporary: Untracked column type mismatch.
-        # The User model's $table is 'users' but schema still has 'UserAccounts'.
-        # PHPStan reads Untracked as int from schema, but code uses bool.
-        # This will be resolved after the users table migration runs and schema is regenerated.
+        # Pest test traits.
+        # PHPStan doesn't understand that uses(TraitClass::class) makes trait methods
+        # available on $this within Pest test closures. This is a known limitation.
+        # See: https://github.com/pestphp/pest/discussions/670
         -
-          message: '#Property App\\Models\\User::\$Untracked \(int\) does not accept (bool|true)#'
-        -
-          message: '#Closure\(mixed\): int given#'
-          path: app/Community/Actions/BuildDeveloperFeedDataAction.php
+            identifier: method.notFound
+            message: '#Call to an undefined method PHPUnit\\Framework\\TestCase::#'
+            path: tests/*
 
     excludePaths:
         # unrelated directories

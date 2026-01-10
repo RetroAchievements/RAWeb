@@ -1,8 +1,10 @@
 <?php
 
 use App\Connect\Actions\GetBadgeIdRangeAction;
+use App\Models\User;
 use App\Platform\Enums\ImageType;
 use App\Support\Media\FilenameIterator;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 function UploadToS3(string $filenameSrc, string $filenameDest): bool
@@ -237,9 +239,20 @@ function UploadAvatar(string $user, string $base64ImageData): void
         throw new Exception('Cannot copy image to destination');
     }
 
-    // touch user entry
-    $db = getMysqliConnection();
-    mysqli_query($db, "UPDATE users SET updated_at=NOW() WHERE username = '$user'");
+    // Touch the user entry.
+    User::where('username', $user)->update(['updated_at' => now()]);
+
+    // Purge the avatar from Cloudflare's cache so the new image is served immediately.
+    $zoneId = config('services.cloudflare.zone_id');
+    $apiToken = config('services.cloudflare.api_token');
+    if ($zoneId && $apiToken) {
+        Http::withToken($apiToken)
+            ->post("https://api.cloudflare.com/client/v4/zones/{$zoneId}/purge_cache", [
+                'files' => [
+                    "https://media.retroachievements.org/UserPic/{$user}.png",
+                ],
+            ]);
+    }
 }
 
 function removeAvatar(string $user): void

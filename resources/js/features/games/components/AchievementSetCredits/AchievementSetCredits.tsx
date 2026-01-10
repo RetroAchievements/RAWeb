@@ -54,6 +54,7 @@ export const AchievementSetCredits: FC = () => {
             <ArtworkCreditsDisplay
               achievementArtworkCredits={aggregateCredits.achievementsArtwork}
               badgeArtworkCredits={aggregateCredits.achievementSetArtwork}
+              bannerArtworkCredits={aggregateCredits.achievementSetBanner}
             />
           ) : null}
 

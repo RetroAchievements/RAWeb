@@ -353,6 +353,42 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertConditionHitTarget($condition, '0');
     }
 
+    public function testMergeCodeNotesIndirectWithoutPointerKeyword(): void
+    {
+        $service = new TriggerDecoderService();
+
+        $groups = $service->decode("I:0xX443dfc_I:0xX0038_I:0xX00dc_0xX00ec=10");
+        $service->mergeCodeNotes($groups, [
+            0x443DFC => "[32-bit]\n" .
+                        "+0x38\n" .
+                        "++0xdc\n" .
+                        "+++0xec | Times talked to the epic guys",
+        ]);
+
+        $this->assertEquals(1, count($groups));
+        $this->assertEquals(4, count($groups[0]['Conditions']));
+
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionFlag($condition, 'Add Address');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x443dfc');
+        $this->assertConditionSourceTooltip($condition, '[32-bit]');
+
+        $condition = $groups[0]['Conditions'][1];
+        $this->assertConditionFlag($condition, 'Add Address');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x000038');
+        $this->assertStringContainsString('[Indirect 0x443dfc + 0x000038]', $condition['SourceTooltip'] ?? '');
+
+        $condition = $groups[0]['Conditions'][2];
+        $this->assertConditionFlag($condition, 'Add Address');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x0000dc');
+        $this->assertStringContainsString('[Indirect', $condition['SourceTooltip'] ?? '');
+
+        $condition = $groups[0]['Conditions'][3];
+        $this->assertConditionFlag($condition, '');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x0000ec');
+        $this->assertStringContainsString('Times talked to the epic guys', $condition['SourceTooltip'] ?? '');
+    }
+
     public function testMergeCodeNotesIndexed(): void
     {
         $service = new TriggerDecoderService();
@@ -403,5 +439,47 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertConditionTargetOperand($condition, 'Value', '', '0x000006');
         $this->assertConditionTargetTooltip($condition, '6');
         $this->assertConditionHitTarget($condition, '0');
+    }
+
+    public function testMergeCodeNotesWithRedirect(): void
+    {
+        $service = new TriggerDecoderService();
+        $groups = $service->decode("0xH1234=6_0xH5678=7");
+        $service->mergeCodeNotes($groups, [
+            0x001234 => 'Player Health',
+            0x005678 => 'refer to $0x001234',
+        ]);
+
+        $this->assertEquals(1, count($groups));
+        $this->assertEquals(2, count($groups[0]['Conditions']));
+
+        // ... the first condition should have a direct note ...
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionSourceTooltip($condition, 'Player Health');
+
+        // ... the second condition should follow the redirect to the first note ...
+        $condition = $groups[0]['Conditions'][1];
+        $this->assertConditionSourceTooltip($condition, 'Player Health');
+    }
+
+    public function testMergeCodeNotesWithChainedRedirect(): void
+    {
+        $service = new TriggerDecoderService();
+        $groups = $service->decode("0xH1234=6_0xH5678=7_0xH9ABC=8");
+        $service->mergeCodeNotes($groups, [
+            0x001234 => 'Player Health', // A
+            0x005678 => 'refer to $0x009ABC', // B, resolves to C, resolves to A
+            0x009ABC => 'refer to $0x001234', // C, resolves to A
+        ]);
+
+        // ... all notes should resolve to "Player Health" through the chain ...
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionSourceTooltip($condition, 'Player Health');
+
+        $condition = $groups[0]['Conditions'][1];
+        $this->assertConditionSourceTooltip($condition, 'Player Health');
+
+        $condition = $groups[0]['Conditions'][2];
+        $this->assertConditionSourceTooltip($condition, 'Player Health');
     }
 }

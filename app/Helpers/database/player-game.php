@@ -16,8 +16,8 @@ function getGameRankAndScore(int $gameID, User $user): array
 
     $dateClause = greatestStatement(['pg.last_unlock_hardcore_at', 'pg.last_unlock_at']);
     $rankClause = "ROW_NUMBER() OVER (ORDER BY pg.Points DESC, $dateClause ASC) UserRank";
-    $untrackedClause = "AND ua.Untracked = 0";
-    if ($user->Untracked) {
+    $untrackedClause = "AND ua.unranked_at IS NULL";
+    if ($user->unranked_at !== null) {
         $rankClause = "NULL AS UserRank";
         $untrackedClause = "";
     }

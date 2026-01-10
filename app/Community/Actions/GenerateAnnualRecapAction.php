@@ -85,8 +85,8 @@ class GenerateAnnualRecapAction
     {
         $games = PlayerSession::where('user_id', $user->id)
             ->where('duration', '>=', 5)
-            ->where('created_at', '>=', $startDate)
-            ->where('created_at', '<', $endDate)
+            ->where('player_sessions.created_at', '>=', $startDate)
+            ->where('player_sessions.created_at', '<', $endDate)
             ->join('games', 'games.id', '=', 'game_id')
             ->whereNotIn('games.system_id', System::getNonGameSystems())
             ->groupBy('game_id')
@@ -184,6 +184,8 @@ class GenerateAnnualRecapAction
     private function identifyAndMergeSubsets(array &$gameData): array
     {
         $gameIds = array_keys($gameData);
+
+        // these subsets have explicit player_session entries
         $achievementSets = GameAchievementSet::whereIn('game_id', $gameIds)
             ->select(['game_id', 'achievement_set_id'])
             ->where('type', AchievementSetType::Core)
@@ -219,6 +221,24 @@ class GenerateAnnualRecapAction
                     unset($gameData[$subsetGameId]);
                 }
             }
+        }
+
+        // also get any bonus subsets for games that the user played as they might have been played through multiset
+        $bonusAchievementSetIds = GameAchievementSet::whereIn('game_id', $gameIds)
+            ->whereIn('type', [AchievementSetType::Bonus])
+            ->pluck('achievement_set_id')
+            ->toArray();
+
+        // remove any items that we've already processed
+        $bonusAchievementSetIds = array_diff($bonusAchievementSetIds, array_keys($achievementSets));
+
+        if (!empty($bonusAchievementSetIds)) {
+            $bonusCoreSetIds = GameAchievementSet::whereIn('achievement_set_id', $bonusAchievementSetIds)
+                ->where('type', '=', AchievementSetType::Core)
+                ->pluck('game_id')
+                ->toArray();
+
+            $subsetGameIds = array_merge($subsetGameIds, $bonusCoreSetIds);
         }
 
         return $subsetGameIds;
@@ -421,46 +441,49 @@ class GenerateAnnualRecapAction
 
     private function getRarestAchievement(array $gameIds, User $user, Carbon $startDate, Carbon $endDate): array
     {
-        $result = [
-            'rarestHardcoreAchievement' => null,
-            'rarestHardcoreAchievementEarnRate' => 0.0,
-            'rarestSoftcoreAchievement' => null,
-            'rarestSoftcoreAchievementEarnRate' => 0.0,
+        $rarestHardcoreAchievement = null;
+        if ($user->points_hardcore > 0) {
+            $rarestHardcoreAchievement = PlayerAchievement::where(DB::raw('player_achievements.user_id'), $user->id)
+                ->where('unlocked_hardcore_at', '>=', $startDate)
+                ->where('unlocked_hardcore_at', '<', $endDate)
+                ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
+                ->join('games', 'games.id', '=', 'achievements.game_id')
+                ->whereIn('achievements.game_id', $gameIds)
+                ->where(DB::raw('achievements.is_promoted'), true)
+                ->select('achievements.id', DB::raw('achievements.unlocks_hardcore/games.players_total as EarnRate'))
+                ->orderBy('EarnRate')
+                ->first();
+        }
+
+        $rarestSoftcoreAchievement = null;
+        if ($user->points > 0) {
+            $rarestSoftcoreAchievement = PlayerAchievement::where(DB::raw('player_achievements.user_id'), $user->id)
+                ->where('unlocked_at', '>=', $startDate)
+                ->where('unlocked_at', '<', $endDate)
+                ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
+                ->join('games', 'games.id', '=', 'achievements.game_id')
+                ->whereIn('achievements.game_id', $gameIds)
+                ->where(DB::raw('achievements.is_promoted'), true)
+                ->select('achievements.id', DB::raw('achievements.unlocks_total/games.players_total as EarnRate'))
+                ->orderBy('EarnRate')
+                ->first();
+        }
+
+        // only keep the most rare achievement (regardless of softcore vs hardcore)
+        if ($rarestHardcoreAchievement && $rarestSoftcoreAchievement) {
+            if ($rarestHardcoreAchievement->EarnRate < $rarestSoftcoreAchievement->EarnRate) {
+                $rarestSoftcoreAchievement = null;
+            } else {
+                $rarestHardcoreAchievement = null;
+            }
+        }
+
+        return [
+            'rarestHardcoreAchievement' => $rarestHardcoreAchievement ? Achievement::find($rarestHardcoreAchievement->id) : null,
+            'rarestHardcoreAchievementEarnRate' => $rarestHardcoreAchievement ? sprintf("%01.2f", $rarestHardcoreAchievement->EarnRate * 100) : 0.0,
+            'rarestSoftcoreAchievement' => $rarestSoftcoreAchievement ? Achievement::find($rarestSoftcoreAchievement->id) : null,
+            'rarestSoftcoreAchievementEarnRate' => $rarestSoftcoreAchievement ? sprintf("%01.2f", $rarestSoftcoreAchievement->EarnRate * 100) : 0.0,
         ];
-
-        $rarestHardcoreAchievement = PlayerAchievement::where(DB::raw('player_achievements.user_id'), $user->id)
-            ->where('unlocked_hardcore_at', '>=', $startDate)
-            ->where('unlocked_hardcore_at', '<', $endDate)
-            ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
-            ->join('games', 'games.id', '=', 'achievements.game_id')
-            ->whereIn('achievements.game_id', $gameIds)
-            ->where(DB::raw('achievements.is_promoted'), true)
-            ->select('achievements.id', DB::raw('achievements.unlocks_hardcore/games.players_total as EarnRate'))
-            ->orderBy('EarnRate')
-            ->first();
-        if ($rarestHardcoreAchievement) {
-            $result['rarestHardcoreAchievement'] = Achievement::find($rarestHardcoreAchievement->id);
-            $result['rarestHardcoreAchievementEarnRate'] = sprintf("%01.2f", $rarestHardcoreAchievement->EarnRate * 100);
-
-            return $result; // only report rarest hardcore achievement if one was found
-        }
-
-        $rarestSoftcoreAchievement = PlayerAchievement::where(DB::raw('player_achievements.user_id'), $user->id)
-            ->where('unlocked_at', '>=', $startDate)
-            ->where('unlocked_at', '<', $endDate)
-            ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
-            ->join('games', 'games.id', '=', 'achievements.game_id')
-            ->whereIn('achievements.game_id', $gameIds)
-            ->where(DB::raw('achievements.is_promoted'), true)
-            ->select('achievements.id', DB::raw('achievements.unlocks_total/games.players_total as EarnRate'))
-            ->orderBy('EarnRate')
-            ->first();
-        if ($rarestSoftcoreAchievement) {
-            $result['rarestSoftcoreAchievement'] = Achievement::find($rarestSoftcoreAchievement->id);
-            $result['rarestSoftcoreAchievementEarnRate'] = sprintf("%01.2f", $rarestSoftcoreAchievement->EarnRate * 100);
-        }
-
-        return $result;
     }
 
     private function determineRarestSubsetAchievement(array &$recapData, User $user, array $subsetGameIds, Carbon $startDate, Carbon $endDate): void

@@ -107,4 +107,14 @@ describe('Component: CommentResultDisplay', () => {
     // ASSERT
     expect(screen.getByText(/ticket comment/i)).toBeVisible();
   });
+
+  it('given the comment has an unknown commentable type, displays the generic comment label', () => {
+    // ARRANGE
+    const comment = createComment({ commentableType: 'unknown.type' as any });
+
+    render(<CommentResultDisplay comment={comment} />);
+
+    // ASSERT
+    expect(screen.getByText('Comment')).toBeVisible();
+  });
 });

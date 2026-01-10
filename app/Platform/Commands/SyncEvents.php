@@ -839,7 +839,6 @@ class ConvertGame
                 ->select([
                     'player_achievements.user_id',
                     'player_achievements.unlocked_hardcore_at',
-                    'users.Untracked',
                     'users.unranked_at',
                 ]);
 
@@ -855,7 +854,7 @@ class ConvertGame
                 $userMainId = $this->findUserMain($winner->user_id);
                 $winnerIds[] = $userMainId;
 
-                if ($winner->Untracked || $winner->unranked_at) {
+                if ($winner->unranked_at) {
                     $existingUnlock = PlayerAchievement::where('achievement_id', $achievement->id)
                         ->where('user_id', $winner->user_id);
                     if (!$existingUnlock->exists()) {
@@ -1835,7 +1834,7 @@ class ConvertToSoftcoreTiered extends ConvertGame
 
                 if (!PlayerAchievement::where('achievement_id', $winnerAchievement->id)->exists()) {
                     foreach (PlayerAchievement::where('achievement_id', $achievement->id)->with('user')->get() as $playerAchievement) {
-                        if ($playerAchievement->user->Untracked || $playerAchievement->user->unranked_at) {
+                        if ($playerAchievement->user->unranked_at) {
                             continue;
                         }
 

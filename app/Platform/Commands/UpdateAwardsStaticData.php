@@ -36,7 +36,7 @@ class UpdateAwardsStaticData extends Command
     {
         $masteryAwardsCount = PlayerBadge::with('user')
             ->whereHas('user', function ($query) {
-                $query->where('Untracked', 0);
+                $query->whereNull('unranked_at');
             })
             ->where('award_type', AwardType::Mastery)
             ->where('award_tier', UnlockMode::Hardcore)
@@ -49,7 +49,7 @@ class UpdateAwardsStaticData extends Command
     {
         $hardcoreGameBeatenAwardsCount = PlayerBadge::with('user')
             ->whereHas('user', function ($query) {
-                $query->where('Untracked', 0);
+                $query->whereNull('unranked_at');
             })
             ->where('award_type', AwardType::GameBeaten)
             ->where('award_tier', UnlockMode::Hardcore)
@@ -62,7 +62,7 @@ class UpdateAwardsStaticData extends Command
     {
         $foundAward = PlayerBadge::with('user')
             ->whereHas('user', function ($query) {
-                $query->where('Untracked', 0);
+                $query->whereNull('unranked_at');
             })
             ->where('award_type', AwardType::Mastery)
             ->where('award_tier', UnlockMode::Hardcore)
@@ -82,7 +82,7 @@ class UpdateAwardsStaticData extends Command
     {
         $foundAward = PlayerBadge::with('user')
             ->whereHas('user', function ($query) {
-                $query->where('Untracked', 0);
+                $query->whereNull('unranked_at');
             })
             ->where('award_type', AwardType::GameBeaten)
             ->where('award_tier', UnlockMode::Hardcore)
