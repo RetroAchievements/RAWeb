@@ -87,4 +87,35 @@ class UserProfileTest extends TestCase
                 'Motto' => $user->motto,
             ]);
     }
+
+    public function testBooleanFieldsReturnIntegersNotBooleans(): void
+    {
+        /** @var User $trackedUser */
+        $trackedUser = User::factory()->create([
+            'unranked_at' => null,
+            'is_user_wall_active' => true,
+        ]);
+
+        $response = $this->get($this->apiUrl('GetUserProfile', ['u' => $trackedUser->username]));
+        $response->assertSuccessful();
+
+        $this->assertIsInt($response->json('Untracked'));
+        $this->assertSame(0, $response->json('Untracked'));
+        $this->assertIsInt($response->json('UserWallActive'));
+        $this->assertSame(1, $response->json('UserWallActive'));
+
+        /** @var User $untrackedUser */
+        $untrackedUser = User::factory()->create([
+            'unranked_at' => now(),
+            'is_user_wall_active' => false,
+        ]);
+
+        $response = $this->get($this->apiUrl('GetUserProfile', ['u' => $untrackedUser->username]));
+        $response->assertSuccessful();
+
+        $this->assertIsInt($response->json('Untracked'));
+        $this->assertSame(1, $response->json('Untracked'));
+        $this->assertIsInt($response->json('UserWallActive'));
+        $this->assertSame(0, $response->json('UserWallActive'));
+    }
 }

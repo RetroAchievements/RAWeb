@@ -174,6 +174,81 @@ class TriggerViewerServiceTest extends TestCase
         $this->assertEquals('value2', $result['alias']);
     }
 
+    public function testResolveAddressAliasResolvesTripleIndirectAddress(): void
+    {
+        /**
+         * Tests depth 3 pointer traversal using the format found in real code notes.
+         * Based on memory_notes ID 165752 from game 2646:
+         * [32-bit]
+         * +0x38
+         * ++0xdc
+         * +++0xec | Times talked to the epic guys
+         *
+         * NOTE: The tooltip's fallback value is intentionally different from the code note
+         * so we can verify the pattern matching is working, not the fallback mechanism.
+         */
+
+        // The tooltip fallback says "fallback" but the code note has "Epic Guys Counter".
+        // If pattern matching works, we get "Epic Guys Counter". If it falls back, we get "fallback".
+        $tooltip = "[Indirect 0x001234 + 0x000038 + 0x0000dc + 0x0000ec]\nfallback";
+        $groupNotes = [
+            0x001234 => "[32-bit]\n+0x38 | first pointer\n++0xdc | second pointer\n+++0xec | Epic Guys Counter",
+        ];
+
+        $result = $this->service->resolveAddressAlias($tooltip, $groupNotes);
+
+        $this->assertEquals('Epic Guys Counter', $result['alias']);
+    }
+
+    public function testResolveAddressAliasHandlesShortHexOffsetFormat(): void
+    {
+        /**
+         * Tests that short hex format (++0xec instead of ++0x000000ec) is matched correctly.
+         * Code notes in the DB often use compact hex notation without leading zeroes.
+         */
+        $tooltip = "[Indirect 0x001234 + 0x000064]\nfallback";
+        $groupNotes = [
+            0x001234 => "[32-bit] pointer\n+0x64 | Field Name\n+0x68 | Other Field",
+        ];
+
+        $result = $this->service->resolveAddressAlias($tooltip, $groupNotes);
+
+        $this->assertEquals('Field Name', $result['alias']);
+    }
+
+    public function testResolveAddressAliasHandlesDecimalOffsetFormat(): void
+    {
+        /**
+         * Tests that decimal format (++100 instead of ++0x00000064) is matched correctly.
+         * Some code notes use decimal offsets without any hex prefix.
+         */
+        $tooltip = "[Indirect 0x001234 + 0x000064]\nfallback";
+        $groupNotes = [
+            // 0x64 = 100 decimal.
+            0x001234 => "[32-bit] pointer\n+100 | Field Name\n+104 | Other Field",
+        ];
+
+        $result = $this->service->resolveAddressAlias($tooltip, $groupNotes);
+
+        $this->assertEquals('Field Name', $result['alias']);
+    }
+
+    /**
+     * Tests double indirect with short hex format used in real code notes.
+     * Based on memory_notes from game 2657 which use formats like ++b47, ++02, etc.
+     */
+    public function testResolveAddressAliasHandlesDoubleIndirectWithShortHex(): void
+    {
+        $tooltip = "[Indirect 0x78ae50 + 0x00ffffb6fc + 0x00000b47]\nfallback";
+        $groupNotes = [
+            0x78AE50 => "[32-bit] Pointer Chain Wheel of Fortune\n+ffffb6fc | pointer to pointer\n++b47 | Wheel\n++b62 | Land Value",
+        ];
+
+        $result = $this->service->resolveAddressAlias($tooltip, $groupNotes);
+
+        $this->assertEquals('Wheel', $result['alias']);
+    }
+
     public function testResolveAddressAliasHandlesMissingIndirectNote(): void
     {
         $tooltip = "[Indirect 0x001234 + 0x000064]\nFallback";
@@ -931,5 +1006,110 @@ class TriggerViewerServiceTest extends TestCase
 
         $this->assertCount(1, $hitCountLines);
         $this->assertStringContainsString('(5)', $result);
+    }
+
+    public function testFormatOperandDisplayTruncatesLongAliases(): void
+    {
+        $longAlias = 'Bit 6 = Denotes if you can move Serph or not. Useful for cutscenes.';
+        $condition = [
+            'SourceType' => 'Mem',
+            'SourceAddress' => '0x001234',
+            'SourceTooltip' => $longAlias,
+            'SourceSize' => '8-bit',
+        ];
+
+        $result = $this->service->formatOperandDisplay($condition, 'Source', []);
+
+        $this->assertEquals($longAlias, $result['display']);
+        $this->assertTrue($result['isTruncated']);
+        $this->assertEquals(43, strlen($result['displayTruncated'])); // 40 chars + "..."
+        $this->assertStringEndsWith('...', $result['displayTruncated']);
+    }
+
+    public function testFormatOperandDisplayDoesNotTruncateShortAliases(): void
+    {
+        $shortAlias = 'Player Health';
+        $condition = [
+            'SourceType' => 'Mem',
+            'SourceAddress' => '0x001234',
+            'SourceTooltip' => "[8-bit] $shortAlias",
+            'SourceSize' => '8-bit',
+        ];
+
+        $result = $this->service->formatOperandDisplay($condition, 'Source', []);
+
+        $this->assertEquals($shortAlias, $result['display']);
+        $this->assertEquals($shortAlias, $result['displayTruncated']);
+        $this->assertFalse($result['isTruncated']);
+    }
+
+    public function testFormatOperandDisplayTruncatesLongValueAliases(): void
+    {
+        $noteSection = "Game Mode\n0x30 = This is a very long description that exceeds forty characters";
+        $condition = [
+            'SourceType' => 'Mem',
+            'SourceAddress' => '0x001234',
+            'SourceTooltip' => $noteSection,
+            'SourceSize' => '8-bit',
+            'TargetType' => 'Value',
+            'TargetAddress' => '0x000030',
+        ];
+
+        $result = $this->service->formatOperandDisplay($condition, 'Target', []);
+
+        $this->assertEquals('This is a very long description that exceeds forty characters', $result['valueAlias']);
+        $this->assertTrue($result['isValueAliasTruncated']);
+        $this->assertStringEndsWith('...', $result['valueAliasTruncated']);
+    }
+
+    public function testFormatOperandDisplayDoesNotTruncateShortValueAliases(): void
+    {
+        $noteSection = "Game Mode\n0x01 = Title Screen";
+        $condition = [
+            'SourceType' => 'Mem',
+            'SourceAddress' => '0x001234',
+            'SourceTooltip' => $noteSection,
+            'SourceSize' => '8-bit',
+            'TargetType' => 'Value',
+            'TargetAddress' => '0x000001',
+        ];
+
+        $result = $this->service->formatOperandDisplay($condition, 'Target', []);
+
+        $this->assertEquals('Title Screen', $result['valueAlias']);
+        $this->assertEquals('Title Screen', $result['valueAliasTruncated']);
+        $this->assertFalse($result['isValueAliasTruncated']);
+    }
+
+    public function testFormatOperandDisplayRecallTypeHasTruncationFields(): void
+    {
+        $condition = [
+            'SourceType' => 'Recall',
+            'SourceAddress' => '',
+            'SourceTooltip' => '',
+            'SourceSize' => '',
+        ];
+
+        $result = $this->service->formatOperandDisplay($condition, 'Source', []);
+
+        $this->assertEquals('{recall}', $result['displayTruncated']);
+        $this->assertFalse($result['isTruncated']);
+        $this->assertNull($result['valueAliasTruncated']);
+        $this->assertFalse($result['isValueAliasTruncated']);
+    }
+
+    public function testFormatOperandDisplayRawAddressHasTruncationFields(): void
+    {
+        $condition = [
+            'SourceType' => 'Mem',
+            'SourceAddress' => '0x001234',
+            'SourceTooltip' => '',
+            'SourceSize' => '8-bit',
+        ];
+
+        $result = $this->service->formatOperandDisplay($condition, 'Source', []);
+
+        $this->assertEquals('0x001234', $result['displayTruncated']);
+        $this->assertFalse($result['isTruncated']);
     }
 }

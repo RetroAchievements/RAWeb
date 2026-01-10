@@ -47,7 +47,7 @@ class SubmitLeaderboardEntryTest extends TestCase
     {
         return [
             'Rank' => $rank,
-            'User' => $user->username,
+            'User' => $user->display_name,
             'Score' => $score,
             'DateSubmitted' => $when->unix(),
         ];
