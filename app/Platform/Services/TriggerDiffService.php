@@ -253,65 +253,104 @@ class TriggerDiffService
             }
         }
 
-        // Build the result by quickly walking through both arrays.
+        // Build the result using a two-pointer approach for proper ordering.
+        // This ensures removals appear before the unchanged lines they precede.
         $result = [];
-        $processedOld = [];
-        $processedNew = [];
         $rowIndex = 1;
+        $oldPtr = 0;
+        $newPtr = 0;
+        $processedNew = [];
 
-        $maxLen = max(count($oldConditions), count($newConditions));
-        for ($i = 0; $i < $maxLen; $i++) {
-            // Handle exact matches at this position.
-            if (isset($matchedOld[$i]) && $matchedOld[$i] === $i) {
-                $result[] = array_merge($newConditions[$i], [
+        $oldCount = count($oldConditions);
+        $newCount = count($newConditions);
+
+        while ($oldPtr < $oldCount || $newPtr < $newCount) {
+            $oldHasMore = $oldPtr < $oldCount;
+            $newHasMore = $newPtr < $newCount;
+
+            $oldIsMatched = $oldHasMore && isset($matchedOld[$oldPtr]);
+            $newIsMatched = $newHasMore && isset($matchedNew[$newPtr]);
+
+            // Current positions form a match pair (both point to each other).
+            if (
+                $oldIsMatched && $newIsMatched
+                && $matchedOld[$oldPtr] === $newPtr
+                && $matchedNew[$newPtr] === $oldPtr
+            ) {
+                $result[] = array_merge($newConditions[$newPtr], [
                     'DiffStatus' => 'unchanged',
                     'RowIndex' => $rowIndex++,
                 ]);
-                $processedOld[$i] = true;
-                $processedNew[$i] = true;
+                $oldPtr++;
+                $newPtr++;
+
                 continue;
             }
 
-            // Handle an unmatched old condition (removed or modified).
-            if ($i < count($oldConditions) && !isset($matchedOld[$i]) && !isset($processedOld[$i])) {
-                if (isset($modifiedPairs[$i])) {
-                    $newIdx = $modifiedPairs[$i];
-                    $changedFields = $this->getChangedFields($oldConditions[$i], $newConditions[$newIdx]);
-                    $result[] = array_merge($newConditions[$newIdx], [
+            // old is unmatched - output as removed (or modified if paired).
+            if ($oldHasMore && !$oldIsMatched) {
+                if (isset($modifiedPairs[$oldPtr])) {
+                    $targetNewIdx = $modifiedPairs[$oldPtr];
+                    $changedFields = $this->getChangedFields($oldConditions[$oldPtr], $newConditions[$targetNewIdx]);
+
+                    $result[] = array_merge($newConditions[$targetNewIdx], [
                         'DiffStatus' => 'modified',
                         'RowIndex' => $rowIndex++,
-                        'OldValues' => $oldConditions[$i],
+                        'OldValues' => $oldConditions[$oldPtr],
                         'ChangedFields' => $changedFields,
                     ]);
-                    $processedOld[$i] = true;
-                    $processedNew[$newIdx] = true;
+
+                    $processedNew[$targetNewIdx] = true;
                 } else {
-                    $result[] = array_merge($oldConditions[$i], [
+                    $result[] = array_merge($oldConditions[$oldPtr], [
                         'DiffStatus' => 'removed',
                         'RowIndex' => $rowIndex++,
                     ]);
-                    $processedOld[$i] = true;
                 }
+                $oldPtr++;
+
+                continue;
             }
 
-            // Handle an unmatched new condition (added).
-            if ($i < count($newConditions) && !isset($matchedNew[$i]) && !isset($processedNew[$i])) {
-                $result[] = array_merge($newConditions[$i], [
+            // old is matched but to a later new position.
+            // Output any unmatched new conditions before that target.
+            if ($oldIsMatched && $matchedOld[$oldPtr] > $newPtr) {
+                while ($newPtr < $matchedOld[$oldPtr]) {
+                    if (!isset($matchedNew[$newPtr]) && !isset($processedNew[$newPtr])) {
+                        $result[] = array_merge($newConditions[$newPtr], [
+                            'DiffStatus' => 'added',
+                            'RowIndex' => $rowIndex++,
+                        ]);
+
+                        $processedNew[$newPtr] = true;
+                    }
+
+                    $newPtr++;
+                }
+
+                continue;
+            }
+
+            // new is unmatched - output as added.
+            if ($newHasMore && !$newIsMatched && !isset($processedNew[$newPtr])) {
+                $result[] = array_merge($newConditions[$newPtr], [
                     'DiffStatus' => 'added',
                     'RowIndex' => $rowIndex++,
                 ]);
-                $processedNew[$i] = true;
+
+                $processedNew[$newPtr] = true;
+                $newPtr++;
+
+                continue;
             }
 
-            // Handle matched but shifted conditions (unchanged).
-            if ($i < count($newConditions) && isset($matchedNew[$i]) && !isset($processedNew[$i])) {
-                $result[] = array_merge($newConditions[$i], [
-                    'DiffStatus' => 'unchanged',
-                    'RowIndex' => $rowIndex++,
-                ]);
-                $processedNew[$i] = true;
-                $oldIdx = $matchedNew[$i];
-                $processedOld[$oldIdx] = true;
+            // Otherwise, advance pointers for remaining matched-but-shifted cases.
+            if ($newHasMore) {
+                $newPtr++;
+            } elseif ($oldHasMore) {
+                $oldPtr++;
+            } else {
+                break;
             }
         }
 

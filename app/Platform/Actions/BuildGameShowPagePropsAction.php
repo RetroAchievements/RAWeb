@@ -309,7 +309,6 @@ class BuildGameShowPagePropsAction
                 'imageBoxArtUrl',
                 'imageIngameUrl',
                 'imageTitleUrl',
-                'banner',
                 'medianTimeToBeat',
                 'medianTimeToBeatHardcore',
                 'playersHardcore',
@@ -388,6 +387,7 @@ class BuildGameShowPagePropsAction
             playerAchievementSets: $playerAchievementSets,
             seriesHub: $this->buildSeriesHubDataAction->execute($game),
             setRequestData: $this->buildSetRequestData($backingGame, $user),
+            banner: $game->banner,
             targetAchievementSetId: $targetAchievementSet?->achievement_set_id,
             targetAchievementSetPlayersTotal: $targetAchievementSetPlayersTotal,
             targetAchievementSetPlayersHardcore: $targetAchievementSetPlayersHardcore,
@@ -708,7 +708,6 @@ class BuildGameShowPagePropsAction
                 AchievementSetType::Specialty,
                 AchievementSetType::WillBeSpecialty,
                 AchievementSetType::Exclusive,
-                AchievementSetType::WillBeExclusive,
             ])) {
                 return $backingGame->hashes->where('compatibility', GameHashCompatibility::Compatible)->count();
             }

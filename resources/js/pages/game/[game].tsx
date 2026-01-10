@@ -10,6 +10,7 @@ import type { AppPage } from '@/common/models';
 import { GameShowMainRoot } from '@/features/games/components/+show';
 import { GameShowMobileRoot } from '@/features/games/components/+show-mobile';
 import { GameShowSidebarRoot } from '@/features/games/components/+show-sidebar';
+import { GameDesktopBanner } from '@/features/games/components/GameDesktopBanner';
 import { useGameMetaDescription } from '@/features/games/hooks/useGameMetaDescription';
 import {
   currentListViewAtom,
@@ -24,6 +25,7 @@ import type { TranslatedString } from '@/types/i18next';
 const GameShow: AppPage = () => {
   const {
     backingGame,
+    banner,
     game,
     initialSort,
     initialView,
@@ -63,11 +65,25 @@ const GameShow: AppPage = () => {
         noindex={noindex}
       />
 
-      {/* TODO desktop preload image */}
-      {ziggy.device === 'mobile' && (game.banner?.mobileSmAvif || game.imageIngameUrl) ? (
+      {/* TODO when banners get used on other pages, build a SEOPreloadBanner component */}
+      {ziggy.device === 'mobile' && (banner?.mobileSmAvif || game.imageIngameUrl) ? (
         <SEOPreloadImage
-          src={game.banner?.mobileSmAvif ?? (game.imageIngameUrl as string)}
-          type={game.banner?.mobileSmAvif ? 'image/avif' : 'image/png'}
+          src={banner?.mobileSmAvif ?? (game.imageIngameUrl as string)}
+          type={banner?.mobileSmAvif ? 'image/avif' : 'image/png'}
+        />
+      ) : null}
+      {ziggy.device === 'desktop' && banner?.desktopMdAvif ? (
+        <SEOPreloadImage
+          src={banner.desktopMdAvif}
+          imageSrcSet={[
+            banner.desktopMdAvif && `${banner.desktopMdAvif} 1024w`,
+            banner.desktopLgAvif && `${banner.desktopLgAvif} 1280w`,
+            banner.desktopXlAvif && `${banner.desktopXlAvif} 1920w`,
+          ]
+            .filter(Boolean)
+            .join(', ')}
+          imageSizes="100vw"
+          type="image/avif"
         />
       ) : null}
 
@@ -77,6 +93,12 @@ const GameShow: AppPage = () => {
         </AppLayout.Main>
       ) : (
         <>
+          {banner?.desktopMdWebp ? (
+            <AppLayout.Banner className="-mb-[30px]">
+              <GameDesktopBanner banner={banner} />
+            </AppLayout.Banner>
+          ) : null}
+
           <AppLayout.Main>
             <GameShowMainRoot />
           </AppLayout.Main>

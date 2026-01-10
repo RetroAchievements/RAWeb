@@ -20,11 +20,11 @@ export const SubsetConfigurationButton: FC = () => {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Only show the button if there are configurable sets (non-core, non-"will_be_*").
+  // Only show the button if there are configurable sets (non-core, non-"will_be_*", non-exclusive).
   const configurableSets = selectableGameAchievementSets.filter((set) => {
     const setType = set.type;
 
-    return !setType.startsWith('will_be_');
+    return !setType.startsWith('will_be_') && setType !== 'exclusive';
   });
 
   const isStandaloneSystem = game.system?.id === 102;
