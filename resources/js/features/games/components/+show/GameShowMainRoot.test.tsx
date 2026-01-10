@@ -8,6 +8,7 @@ import {
   createGame,
   createGameAchievementSet,
   createGameSet,
+  createPageBanner,
   createSystem,
   createZiggyProps,
 } from '@/test/factories';
@@ -388,5 +389,55 @@ describe('Component: GameShowMainRoot', () => {
     // ASSERT
     expect(screen.queryByText(/recent players/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/comments/i)).not.toBeInTheDocument();
+  });
+
+  it('given the game has a custom banner, does not render the inline breadcrumbs and header', () => {
+    // ARRANGE
+    const game = createGame({
+      badgeUrl: 'badge.jpg',
+      gameAchievementSets: [
+        createGameAchievementSet({
+          achievementSet: createAchievementSet({ achievements: [createAchievement()] }),
+        }),
+      ],
+      imageBoxArtUrl: faker.internet.url(),
+      imageTitleUrl: faker.internet.url(),
+      imageIngameUrl: faker.internet.url(),
+      system: createSystem({
+        iconUrl: 'icon.jpg',
+        name: 'Nintendo 64',
+      }),
+      title: 'Super Mario 64',
+    });
+
+    const banner = createPageBanner({
+      desktopMdWebp: 'https://example.com/banner.webp',
+    });
+
+    render(<GameShowMainRoot />, {
+      pageProps: {
+        game,
+        banner,
+        achievementSetClaims: [],
+        aggregateCredits: createAggregateAchievementSetCredits(),
+        backingGame: game,
+        can: {},
+        hubs: [],
+        selectableGameAchievementSets: [],
+        isViewingPublishedAchievements: true,
+        recentPlayers: [],
+        recentVisibleComments: [],
+        setRequestData: {
+          hasUserRequestedSet: false,
+          totalRequests: 0,
+          userRequestsRemaining: 0,
+        },
+        ziggy: createZiggyProps(),
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('heading', { name: 'Super Mario 64' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Nintendo 64')).not.toBeInTheDocument();
   });
 });
