@@ -35,7 +35,6 @@ if (str_contains($gameData['Title'], "[Subset - ")) {
         ->where('type', '!=', AchievementSetType::Core)
         // exclusive subsets can maintain their own notes
         ->where('type', '!=', AchievementSetType::Exclusive)
-        ->where('type', '!=', AchievementSetType::WillBeExclusive)
         ->first();
 
     if ($subsetGameAchievementSet) {

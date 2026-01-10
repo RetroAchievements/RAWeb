@@ -7,7 +7,8 @@ interface SEOPreloadImageProps {
    * Image URL to preload for LCP optimization.
    * This tells the browser to fetch the image as early as possible.
    * Critical for hero images, banners, and above-the-fold content.
-   * @example game.banner?.mobileSmAvif || game.imageIngameUrl
+   * For responsive images, this serves as the fallback src.
+   * @example banner?.mobileSmAvif || game.imageIngameUrl
    */
   src: string;
 
@@ -24,6 +25,20 @@ interface SEOPreloadImageProps {
    * @example "(max-width: 640px)" for mobile only
    */
   media?: string;
+
+  /**
+   * Optional srcset for responsive image preloading.
+   * Allows the browser to choose the appropriate image size based on viewport.
+   * @example "banner-md.avif 1024w, banner-lg.avif 1280w, banner-xl.avif 1920w"
+   */
+  imageSrcSet?: string;
+
+  /**
+   * Optional sizes attribute for responsive preloading.
+   * Describes how wide the image will be at different viewport widths.
+   * @example "100vw" or "(max-width: 768px) 100vw, 50vw"
+   */
+  imageSizes?: string;
 }
 
 /**
@@ -34,15 +49,38 @@ interface SEOPreloadImageProps {
  * 🔴 This dilutes browser priority and hurts LCP.
  *
  * @example
+ * // Simple preload
  * <SEOPreloadImage
- *   src={game.banner?.mobileSmAvif ?? game.imageIngameUrl}
+ *   src={banner?.mobileSmAvif ?? game.imageIngameUrl}
+ *   type="image/avif"
+ * />
+ *
+ * // Responsive preload
+ * <SEOPreloadImage
+ *   src={banner.desktopMdAvif}
+ *   srcSet="banner-md.avif 1024w, banner-lg.avif 1280w, banner-xl.avif 1920w"
+ *   sizes="100vw"
  *   type="image/avif"
  * />
  */
-export const SEOPreloadImage: FC<SEOPreloadImageProps> = ({ src, type, media }) => {
+export const SEOPreloadImage: FC<SEOPreloadImageProps> = ({
+  imageSizes,
+  imageSrcSet,
+  media,
+  src,
+  type,
+}) => {
   return (
     <Head>
-      <link rel="preload" as="image" href={src} type={type} media={media} />
+      <link
+        rel="preload"
+        as="image"
+        href={src}
+        type={type}
+        media={media}
+        imageSrcSet={imageSrcSet}
+        imageSizes={imageSizes}
+      />
     </Head>
   );
 };
