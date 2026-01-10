@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Requests;
 
+use App\Support\Rules\PasswordRules;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Validator;
 
 class UpdatePasswordRequest extends FormRequest
 {
@@ -24,19 +24,15 @@ class UpdatePasswordRequest extends FormRequest
                     $fail(__('legacy.error.credentials'));
                 }
             }],
-            'newPassword' => 'required|min:8',
+            'newPassword' => PasswordRules::get(),
         ];
     }
 
-    public function withValidator(Validator $validator): void
+    protected function prepareForValidation(): void
     {
-        $validator->after(function ($validator) {
-            $user = $this->user();
-            $newPassword = $this->input('newPassword');
-
-            if ($newPassword === $user->username) {
-                $validator->errors()->add('newPassword', 'Your password must be different from your username.');
-            }
-        });
+        // PasswordRules expects 'username' for the different:username check.
+        $this->merge([
+            'username' => $this->user()->username,
+        ]);
     }
 }

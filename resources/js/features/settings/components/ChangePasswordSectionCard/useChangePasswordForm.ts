@@ -17,8 +17,8 @@ export function useChangePasswordForm() {
       z
         .object({
           currentPassword: z.string().min(1, { message: t('Required') }),
-          newPassword: z.string().min(8, { message: t('Must be at least 8 characters.') }),
-          confirmPassword: z.string().min(8, { message: t('Must be at least 8 characters.') }),
+          newPassword: z.string().min(10, { message: t('Must be at least 10 characters.') }),
+          confirmPassword: z.string().min(10, { message: t('Must be at least 10 characters.') }),
         })
         .refine((data) => data.newPassword === data.confirmPassword, {
           message: t('Passwords must match.'),

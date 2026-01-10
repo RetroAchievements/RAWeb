@@ -31,5 +31,7 @@ class UpdateUserPassword implements UpdatesUserPasswords
         $user->forceFill([
             'password' => Hash::make($input['password']),
         ])->save();
+
+        session()->forget('password_compromised');
     }
 }

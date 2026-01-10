@@ -3,6 +3,7 @@
 use App\Models\PasswordResetToken;
 use App\Models\User;
 use App\Support\Rules\CtypeAlnum;
+use App\Support\Rules\PasswordRules;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'username' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
     'token' => 'required',
-    'password' => 'required|confirmed|min:8|different:username',
+    'password' => PasswordRules::get(requireConfirmation: true),
 ]);
 
 $passResetToken = $input['token'];

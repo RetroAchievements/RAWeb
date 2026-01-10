@@ -2,6 +2,7 @@
 
 use App\Enums\Permissions;
 use App\Models\User;
+use App\Support\Rules\PasswordRules;
 use App\Support\Rules\ValidNewUsername;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -10,7 +11,7 @@ use Illuminate\Support\Str;
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'username' => ValidNewUsername::get(),
-    'password' => 'required|min:8|different:username',
+    'password' => PasswordRules::get(checkAgainstEmail: true),
     'email' => 'required|email:filter|confirmed|not_disposable_email',
     'terms' => 'accepted',
 ]);
