@@ -76,14 +76,14 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
      */
     private function getMasterUserIds(): Collection
     {
-        // Use the optimized index hint for MariaDB.
-        // This is unfortunately not supported by SQLite.
-        return PlayerGame::where('game_id', $this->sourceGame->id)
-            ->where('user_id', '!=', $this->user->id)
-            ->whereAllAchievementsUnlocked()
-            ->withTrashed()
-            ->whereRaw('id % 100 < 5')
-            ->limit(5)
-            ->pluck('user_id');
+        return once(function () {
+            return PlayerGame::where('game_id', $this->sourceGame->id)
+                ->where('user_id', '!=', $this->user->id)
+                ->whereAllAchievementsUnlocked()
+                ->withTrashed()
+                ->whereRaw('id % 100 < 5')
+                ->limit(5)
+                ->pluck('user_id');
+        });
     }
 }
