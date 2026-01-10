@@ -39,7 +39,7 @@ class PatchDataTest extends TestCase
             'Description' => $achievement->description,
             'MemAddr' => $achievement->trigger_definition,
             'Points' => $achievement->points,
-            'Author' => $achievement->developer->username,
+            'Author' => $achievement->developer->display_name,
             'Modified' => $achievement->modified_at->unix(),
             'Created' => $achievement->created_at->unix(),
             'BadgeName' => $achievement->image_name,
@@ -270,7 +270,7 @@ class PatchDataTest extends TestCase
             ->assertStatus(404)
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'Unknown game',
+                'Error' => 'Unknown game.',
                 'Status' => 404,
                 'Code' => 'not_found',
             ]);
@@ -526,7 +526,7 @@ class PatchDataTest extends TestCase
                 'Code' => 'unsupported_client',
                 'Status' => 403,
                 'Success' => false,
-                'Error' => 'This client is not supported',
+                'Error' => 'This client is not supported.',
             ]);
 
         // valid user agent
@@ -793,7 +793,7 @@ class PatchDataTest extends TestCase
                 'Success' => true,
                 'PatchData' => [
                     'ID' => $game->id,
-                    'Title' => $game->title,
+                    'Title' => "Unsupported Game Version ({$game->title})",
                     'ConsoleID' => $game->system_id,
                     'ImageIcon' => $game->image_icon_asset_path,
                     'ImageIconURL' => media_asset($game->image_icon_asset_path),

@@ -94,6 +94,28 @@ describe('Component: SidebarClaimButtons', () => {
     expect(screen.queryByRole('button', { name: /create new claim/i })).not.toBeInTheDocument();
   });
 
+  it('given the user can create claims and has claims remaining and no existing claim and a claim exists, shows a create new collaboration claim button', () => {
+    // ARRANGE
+    render(<SidebarClaimButtons />, {
+      pageProps: {
+        achievementSetClaims: [],
+        auth: { user: createAuthenticatedUser({ roles: ['developer'] }) },
+        backingGame: createGame(),
+        claimData: createGamePageClaimData({
+          numClaimsRemaining: 1,
+          userClaim: null,
+          wouldBeCollaboration: true,
+        }),
+        game: createGame({ gameAchievementSets: [] }),
+        targetAchievementSetId: null,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /create new collaboration claim/i })).toBeVisible();
+    expect(screen.queryByRole('button', { name: /create new claim/i })).not.toBeInTheDocument();
+  });
+
   it('given the user is the sole author and has no claims remaining, still shows the create claim button', () => {
     // ARRANGE
     render(<SidebarClaimButtons />, {

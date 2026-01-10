@@ -180,4 +180,30 @@ describe('Component: WantToPlayToggle', () => {
       userGameListType: 'play',
     });
   });
+
+  it('given showSubsetIndicator is not set, does not show the subset icon', () => {
+    // ARRANGE
+    render(<WantToPlayToggle />, {
+      pageProps: {
+        backingGame: createGame(),
+        isOnWantToPlayList: false,
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByLabelText(/subset/i)).not.toBeInTheDocument();
+  });
+
+  it('given showSubsetIndicator is true, shows the subset icon', () => {
+    // ARRANGE
+    render(<WantToPlayToggle showSubsetIndicator={true} />, {
+      pageProps: {
+        backingGame: createGame(),
+        isOnWantToPlayList: false,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByLabelText(/subset/i)).toBeVisible();
+  });
 });

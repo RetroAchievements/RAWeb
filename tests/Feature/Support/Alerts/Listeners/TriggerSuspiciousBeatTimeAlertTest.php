@@ -111,4 +111,34 @@ class TriggerSuspiciousBeatTimeAlertTest extends TestCase
         // Assert
         Queue::assertNothingPushed();
     }
+
+    public function testItDoesNotTriggerForUnrankedUsers(): void
+    {
+        // Arrange
+        Queue::fake();
+
+        config(['services.discord.alerts_webhook.suspicious_beat_time' => 'https://discord.com/api/webhooks/test']);
+
+        $system = System::factory()->create();
+        $user = User::factory()->create(['unranked_at' => now()]);
+        $game = Game::factory()->create([
+            'system_id' => $system->id,
+            'times_beaten_hardcore' => 100,
+            'median_time_to_beat_hardcore' => 3600, // 1 hour
+        ]);
+
+        PlayerGame::factory()->create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'time_to_beat_hardcore' => 60, // would normally trigger an alert
+        ]);
+
+        $event = new PlayerGameBeaten($user, $game, hardcore: true);
+
+        // Act
+        (new TriggerSuspiciousBeatTimeAlert())->handle($event);
+
+        // Assert
+        Queue::assertNothingPushed();
+    }
 }

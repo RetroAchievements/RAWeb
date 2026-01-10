@@ -70,12 +70,7 @@ export function formatDate(
       timeZone: 'UTC',
     });
 
-    let timeStr = timeFormatter.format(dayjsDate.toDate());
-
-    // Replace 24:00 with 00:00 if needed.
-    if (timeStr.startsWith('24:')) {
-      timeStr = timeStr.replace('24:', '00:');
-    }
+    const timeStr = timeFormatter.format(dayjsDate.toDate());
 
     return `${dateFormatter.format(dayjsDate.toDate())}, ${timeStr}`;
   }

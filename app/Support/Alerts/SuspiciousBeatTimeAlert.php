@@ -19,7 +19,7 @@ class SuspiciousBeatTimeAlert extends Alert
     }
 
     /**
-     * "[Scott](https://retroachievements.org/user/Scott) beat [Sonic the Hedgehog](https://retroachievements.org/game/1) in 2m 5s (3.3% of 1h median)"
+     * "[Scott](<https://retroachievements.org/user/Scott>) beat [Sonic the Hedgehog](<https://retroachievements.org/game/1>) in 2m 5s (3.3% of 1h median)"
      */
     public function toDiscordMessage(): string
     {
@@ -31,7 +31,7 @@ class SuspiciousBeatTimeAlert extends Alert
         $gameUrl = route('game.show', ['game' => $this->game]);
 
         return sprintf(
-            '[%s](%s) beat [%s](%s) in %s (%.1f%% of %s median)',
+            '[%s](<%s>) beat [%s](<%s>) in %s (%.1f%% of %s median)',
             $this->user->display_name,
             $playerUrl,
             $this->game->title,
