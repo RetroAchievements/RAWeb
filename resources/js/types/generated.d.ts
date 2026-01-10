@@ -685,6 +685,7 @@ declare namespace App.Platform.Data {
     achievementsArtwork: Array<App.Platform.Data.UserCredits>;
     achievementsDesign: Array<App.Platform.Data.UserCredits>;
     achievementSetArtwork: Array<App.Platform.Data.UserCredits>;
+    achievementSetBanner: Array<App.Platform.Data.UserCredits>;
     achievementsLogic: Array<App.Platform.Data.UserCredits>;
     achievementsTesting: Array<App.Platform.Data.UserCredits>;
     achievementsWriting: Array<App.Platform.Data.UserCredits>;
@@ -1215,7 +1216,7 @@ declare namespace App.Platform.Data {
 }
 declare namespace App.Platform.Enums {
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
-  export type AchievementSetAuthorTask = 'artwork';
+  export type AchievementSetAuthorTask = 'artwork' | 'banner';
   export type UnlockMode = 0 | 1;
   export type AchievementSetType =
     | 'core'
@@ -1223,8 +1224,7 @@ declare namespace App.Platform.Enums {
     | 'specialty'
     | 'exclusive'
     | 'will_be_bonus'
-    | 'will_be_specialty'
-    | 'will_be_exclusive';
+    | 'will_be_specialty';
   export type EventState = 'active' | 'concluded' | 'evergreen';
   export type GameListProgressFilterValue =
     | 'unstarted'

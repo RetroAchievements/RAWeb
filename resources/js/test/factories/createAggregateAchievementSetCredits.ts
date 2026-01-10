@@ -7,6 +7,7 @@ export const createAggregateAchievementSetCredits =
       achievementsAuthors: [],
       achievementsDesign: [],
       achievementSetArtwork: [],
+      achievementSetBanner: [],
       achievementsLogic: [],
       achievementsMaintainers: [],
       achievementsTesting: [],

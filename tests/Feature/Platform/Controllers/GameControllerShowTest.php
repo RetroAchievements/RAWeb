@@ -12,6 +12,7 @@ use App\Models\Achievement;
 use App\Models\AchievementAuthor;
 use App\Models\AchievementGroup;
 use App\Models\AchievementMaintainer;
+use App\Models\AchievementSetAuthor;
 use App\Models\AchievementSetClaim;
 use App\Models\Comment;
 use App\Models\Event;
@@ -30,6 +31,7 @@ use App\Models\UserGameListEntry;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementAuthorTask;
+use App\Platform\Enums\AchievementSetAuthorTask;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameSetRolePermission;
 use App\Platform\Enums\GameSetType;
@@ -1623,6 +1625,70 @@ describe('Aggregate Credits Props', function () {
         $response->assertInertia(fn (Assert $page) => $page
             ->has('aggregateCredits.hashCompatibilityTesting', 1)
             ->where('aggregateCredits.hashCompatibilityTesting.0.displayName', $compatibilityTester->display_name)
+        );
+    });
+
+    it('includes achievement set artwork credits', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $developer = User::factory()->create();
+        $artworkAuthor = User::factory()->create();
+
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        $gameAchievementSet = GameAchievementSet::where('game_id', $game->id)->first();
+
+        AchievementSetAuthor::create([
+            'achievement_set_id' => $gameAchievementSet->achievement_set_id,
+            'user_id' => $artworkAuthor->id,
+            'task' => AchievementSetAuthorTask::Artwork,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('aggregateCredits.achievementSetArtwork', 1)
+            ->where('aggregateCredits.achievementSetArtwork.0.displayName', $artworkAuthor->display_name)
+        );
+    });
+
+    it('includes achievement set banner credits', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $developer = User::factory()->create();
+        $bannerAuthor = User::factory()->create();
+
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        $gameAchievementSet = GameAchievementSet::where('game_id', $game->id)->first();
+
+        AchievementSetAuthor::create([
+            'achievement_set_id' => $gameAchievementSet->achievement_set_id,
+            'user_id' => $bannerAuthor->id,
+            'task' => AchievementSetAuthorTask::Banner,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('aggregateCredits.achievementSetBanner', 1)
+            ->where('aggregateCredits.achievementSetBanner.0.displayName', $bannerAuthor->display_name)
         );
     });
 });

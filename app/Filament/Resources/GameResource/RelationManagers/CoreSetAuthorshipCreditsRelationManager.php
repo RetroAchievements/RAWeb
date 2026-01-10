@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\RelationManagers;
 
-use App\Community\Actions\AddGameBadgeCreditAction;
+use App\Community\Actions\AddGameCreditAction;
 use App\Models\AchievementSetAuthor;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
@@ -129,10 +129,11 @@ class CoreSetAuthorshipCreditsRelationManager extends RelationManager
                         $game = $this->ownerRecord;
                         $user = User::withTrashed()->find((int) $data['user_id']);
 
-                        return (new AddGameBadgeCreditAction())->execute(
+                        return (new AddGameCreditAction())->execute(
                             game: $game,
                             user: $user,
                             date: Carbon::parse($data['created_at']),
+                            task: AchievementSetAuthorTask::from($data['task']),
                         );
                     })
                     ->visible(fn () => $canManageContributionCredit),
