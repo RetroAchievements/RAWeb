@@ -91,6 +91,50 @@ describe('Redirects', function () {
         // ASSERT
         $response->assertRedirect(route('game.hashes.index', ['game' => $game]));
     });
+
+    it('given a subset game, redirects to the base game with the set param', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        ['baseGame' => $baseGame, 'subsetGame' => $subsetGame] = createGameWithSubsetForHashes(
+            $system,
+            'The Legend of Zelda',
+            'The Legend of Zelda [Subset - Low%]',
+            AchievementSetType::Specialty,
+        );
+
+        $subsetCoreSet = GameAchievementSet::where('game_id', $subsetGame->id)
+            ->where('type', AchievementSetType::Core)
+            ->first();
+
+        // ACT
+        $response = get(route('game.hashes.index', ['game' => $subsetGame]));
+
+        // ASSERT
+        $response->assertRedirect(route('game.hashes.index', [
+            'game' => $baseGame->id,
+            'set' => $subsetCoreSet->achievement_set_id,
+        ]));
+    });
+
+    it('given a subset game with a set param, does not redirect', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        ['baseGame' => $baseGame, 'subsetGame' => $subsetGame, 'subsetSet' => $subsetSet] = createGameWithSubsetForHashes(
+            $system,
+            'The Legend of Zelda',
+            'The Legend of Zelda [Subset - Low%]',
+            AchievementSetType::Specialty,
+        );
+
+        // ACT
+        $response = get(route('game.hashes.index', [
+            'game' => $baseGame,
+            'set' => $subsetSet->achievement_set_id,
+        ]));
+
+        // ASSERT
+        $response->assertOk();
+    });
 });
 
 describe('Basic Rendering', function () {

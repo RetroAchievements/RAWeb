@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
-use App\Data\UserPermissionsData;
-use App\Enums\GameHashCompatibility;
 use App\Http\Controller;
 use App\Models\Game;
+use App\Models\GameAchievementSet;
 use App\Models\GameHash;
-use App\Platform\Actions\ResolveHashesForAchievementSetAction;
-use App\Platform\Data\GameData;
-use App\Platform\Data\GameHashData;
-use App\Platform\Data\GameHashesPagePropsData;
+use App\Platform\Actions\BuildGameHashesPagePropsAction;
+use App\Platform\Actions\ResolveSubsetGameRedirectAction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,6 +17,12 @@ use Inertia\Response as InertiaResponse;
 
 class GameHashController extends Controller
 {
+    public function __construct(
+        private ResolveSubsetGameRedirectAction $resolveSubsetRedirectAction,
+        private BuildGameHashesPagePropsAction $buildPagePropsAction,
+    ) {
+    }
+
     protected function resourceName(): string
     {
         return 'game-hash';
@@ -31,39 +34,24 @@ class GameHashController extends Controller
 
         $targetSetId = $request->query('set') ? (int) $request->query('set') : null;
 
-        // Validate the set ID belongs to this game.
-        $targetAchievementSet = null;
-        if ($targetSetId !== null) {
-            $targetAchievementSet = $game->gameAchievementSets()
-                ->where('achievement_set_id', $targetSetId)
-                ->first();
-
-            if (!$targetAchievementSet) {
-                // Invalid set ID - redirect without param.
-                return redirect()->route('game.hashes.index', ['game' => $game]);
+        // Check if this is a subset game that should redirect to its backing game.
+        // eg: "/game/24186/hashes" -> "/game/668/hashes?set=8659"
+        if (!$targetSetId) {
+            if ($redirect = $this->redirectIfSubsetGame($game)) {
+                return $redirect;
             }
         }
 
-        $game->load('hashes');
+        // Validate the set ID belongs to this game.
+        $targetAchievementSet = $this->resolveTargetAchievementSet($game, $targetSetId);
+        if ($targetSetId !== null && !$targetAchievementSet) {
+            return redirect()->route('game.hashes.index', ['game' => $game]);
+        }
 
-        $gameData = GameData::fromGame($game)->include('badgeUrl', 'forumTopicId', 'system');
-
-        // Get filtered hashes based on the target set.
-        $filteredHashes = (new ResolveHashesForAchievementSetAction())->execute($game, $targetAchievementSet);
-        $hashes = GameHashData::fromCollection($filteredHashes);
-
-        $incompatibleHashes = GameHashData::fromCollection($game->hashes->where('compatibility', GameHashCompatibility::Incompatible));
-        $untestedHashes = GameHashData::fromCollection($game->hashes->where('compatibility', GameHashCompatibility::Untested));
-        $patchRequiredHashes = GameHashData::fromCollection($game->hashes->where('compatibility', GameHashCompatibility::PatchRequired));
-        $can = UserPermissionsData::fromUser($request->user())->include('manageGameHashes');
-
-        $props = new GameHashesPagePropsData(
-            game: $gameData,
-            hashes: $hashes,
-            incompatibleHashes: $incompatibleHashes,
-            untestedHashes: $untestedHashes,
-            patchRequiredHashes: $patchRequiredHashes,
-            can: $can,
+        $props = $this->buildPagePropsAction->execute(
+            $game,
+            $request->user(),
+            $targetAchievementSet,
         );
 
         return Inertia::render('game/[game]/hashes', $props);
@@ -71,7 +59,6 @@ class GameHashController extends Controller
 
     public function show(GameHash $gameHash): void
     {
-        dump($gameHash->toArray());
     }
 
     public function edit(GameHash $gameHash): void
@@ -84,5 +71,31 @@ class GameHashController extends Controller
 
     public function destroy(GameHash $gameHash): void
     {
+    }
+
+    private function redirectIfSubsetGame(Game $game): ?RedirectResponse
+    {
+        $redirectData = $this->resolveSubsetRedirectAction->execute($game);
+
+        if (!$redirectData) {
+            return null;
+        }
+
+        return redirect()->route('game.hashes.index', [
+            'game' => $redirectData['backingGameId'],
+            'set' => $redirectData['achievementSetId'],
+        ]);
+    }
+
+    private function resolveTargetAchievementSet(Game $game, ?int $targetSetId): ?GameAchievementSet
+    {
+        if ($targetSetId === null) {
+            return null;
+        }
+
+        return $game->gameAchievementSets()
+            ->where('achievement_set_id', $targetSetId)
+            ->with('achievementSet')
+            ->first();
     }
 }

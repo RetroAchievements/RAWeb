@@ -14,18 +14,24 @@ import { HashesList } from './HashesList';
 import { OtherHashesSection } from './OtherHashesSection';
 
 export const HashesMainRoot: FC = memo(() => {
-  const { can, game, hashes } = usePageProps<App.Platform.Data.GameHashesPageProps>();
+  const { can, game, hashes, targetAchievementSet } =
+    usePageProps<App.Platform.Data.GameHashesPageProps>();
 
   const { t } = useTranslation();
+
+  const gameForHeading = targetAchievementSet
+    ? { ...game, badgeUrl: targetAchievementSet.achievementSet.imageAssetPathUrl }
+    : game;
 
   return (
     <div>
       <GameBreadcrumbs
         game={game}
+        gameAchievementSet={targetAchievementSet ?? undefined}
         system={game.system}
         t_currentPageLabel={t('Supported Game Files')}
       />
-      <GameHeading game={game}>{t('Supported Game Files')}</GameHeading>
+      <GameHeading game={gameForHeading}>{t('Supported Game Files')}</GameHeading>
 
       <div className="flex flex-col gap-5">
         {can.manageGameHashes ? (
