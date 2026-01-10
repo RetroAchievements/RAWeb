@@ -30,8 +30,10 @@ trait HasAchievementSetNavigation
      */
     public function getAchievementSetNavigationData(): ?array
     {
-        /** @var Achievement $current */
         $current = $this->record;
+        if (!$current instanceof Achievement) {
+            return null;
+        }
 
         $achievementSet = $current->achievementSets()->first();
         if (!$achievementSet) {
