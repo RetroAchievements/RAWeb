@@ -79,6 +79,7 @@ class GameShowPagePropsData extends Data
         public array $selectableGameAchievementSets,
         public ?SeriesHubData $seriesHub,
         public ?GameSetRequestData $setRequestData,
+        public ?PageBannerData $banner,
         public ?int $targetAchievementSetId,
         public ?int $targetAchievementSetPlayersTotal,
         public ?int $targetAchievementSetPlayersHardcore,

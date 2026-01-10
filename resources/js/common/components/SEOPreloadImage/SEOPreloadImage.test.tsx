@@ -65,4 +65,35 @@ describe('Component: SEOPreloadImage', () => {
     const preloadLink = container.querySelector('span[rel="preload"]');
     expect(preloadLink).not.toHaveAttribute('media');
   });
+
+  it('given imageSrcSet and imageSizes are provided, includes them as imageSrcSet and imageSizes', () => {
+    // ARRANGE
+    const { container } = render(
+      <SEOPreloadImage
+        src="https://example.com/banner-md.avif"
+        imageSrcSet="https://example.com/banner-md.avif 1024w, https://example.com/banner-lg.avif 1280w"
+        imageSizes="100vw"
+        type="image/avif"
+      />,
+    );
+
+    // ASSERT
+    const preloadLink = container.querySelector('span[rel="preload"]');
+    expect(preloadLink?.getAttribute('imagesrcset')).toEqual(
+      'https://example.com/banner-md.avif 1024w, https://example.com/banner-lg.avif 1280w',
+    );
+    expect(preloadLink?.getAttribute('imagesizes')).toEqual('100vw');
+  });
+
+  it('given no imageSrcSet is provided, the imageSrcSet attribute is not present', () => {
+    // ARRANGE
+    const { container } = render(
+      <SEOPreloadImage src="https://example.com/banner.webp" type="image/webp" />,
+    );
+
+    // ASSERT
+    const preloadLink = container.querySelector('span[rel="preload"]');
+    expect(preloadLink).not.toHaveAttribute('imagesrcset');
+    expect(preloadLink).not.toHaveAttribute('imagesizes');
+  });
 });

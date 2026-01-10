@@ -32,4 +32,17 @@ describe('Component: AppLayout', () => {
     expect(screen.getByText(/main content/i)).toBeVisible();
     expect(screen.getByText(/sidebar content/i)).toBeVisible();
   });
+
+  it('renders a banner component when provided', () => {
+    // ARRANGE
+    render(
+      <AppLayout withSidebar={false}>
+        <AppLayout.Banner>banner content!</AppLayout.Banner>
+        <AppLayout.Main>main content!</AppLayout.Main>
+      </AppLayout>,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/banner content/i)).toBeVisible();
+  });
 });
