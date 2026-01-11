@@ -19,6 +19,7 @@ use App\Models\News;
 use App\Models\StaticData;
 use App\Models\System;
 use App\Models\User;
+use App\Models\UsersOnlineCount;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -27,32 +28,6 @@ use Tests\TestCase;
 class HomeControllerTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected string $logPath;
-    protected string $backupLogPath;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->logPath = storage_path('logs/playersonline.log');
-        $this->backupLogPath = storage_path('logs/playersonline_backup.log');
-
-        // Rename the log file if it exists.
-        if (file_exists($this->logPath)) {
-            rename($this->logPath, $this->backupLogPath);
-        }
-    }
-
-    protected function tearDown(): void
-    {
-        // Restore the original log file.
-        if (file_exists($this->backupLogPath)) {
-            rename($this->backupLogPath, $this->logPath);
-        }
-
-        parent::tearDown();
-    }
 
     public function testItRendersWithEmptyDatabase(): void
     {
@@ -455,7 +430,7 @@ class HomeControllerTest extends TestCase
         );
     }
 
-    public function testItReturnsEmptyCurrentlyOnlineDataWhenLogFileDoesNotExist(): void
+    public function testItReturnsEmptyCurrentlyOnlineDataWhenNoRecordsExist(): void
     {
         // Act
         $response = $this->get(route('home'));
@@ -470,7 +445,7 @@ class HomeControllerTest extends TestCase
         );
     }
 
-    public function testItCorectlyHandlesRealLogFileData(): void
+    public function testItCorrectlyHandlesUsersOnlineCountData(): void
     {
         // Arrange
         $logEntries = [
@@ -479,7 +454,14 @@ class HomeControllerTest extends TestCase
             2838, 2803, 2862, 2913, 2998, 3037, 3041, 3031, 3063, 3084, 2996, 2956,
             2914, 2845, 2945, 2882, 2800, 2750, 2666, 2508, 2331, 2177, 2022, 1873,
         ];
-        file_put_contents($this->logPath, implode("\n", $logEntries));
+
+        $baseTime = Carbon::now()->subMinutes(30 * count($logEntries));
+        foreach ($logEntries as $index => $count) {
+            UsersOnlineCount::create([
+                'online_count' => $count,
+                'created_at' => $baseTime->copy()->addMinutes(30 * $index),
+            ]);
+        }
 
         User::factory()->count(3)->create(['last_activity_at' => now()->subMinutes(5)]);
 
