@@ -42,6 +42,7 @@ class Leaderboard extends BaseModel implements HasVersionedTrigger
         LogsActivity::activities as auditLog;
     }
 
+    // TODO drop game_id, migrate to achievement_set_leaderboards
     protected $table = 'leaderboards';
 
     protected $fillable = [

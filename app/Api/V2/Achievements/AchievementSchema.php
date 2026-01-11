@@ -130,10 +130,8 @@ class AchievementSchema extends Schema
     public function indexQuery(?object $model, Builder $query): Builder
     {
         // Exclude hub and event game achievements via the game relationship.
-        $query->whereHas('game', function (Builder $gameQuery) {
-            $gameQuery->where('system_id', '!=', System::Hubs)
-                ->where('system_id', '!=', System::Events);
-        });
+        $query->whereHas('game', fn (Builder $gameQuery) => $gameQuery
+            ->whereNotIn('system_id', [System::Hubs, System::Events]));
 
         // Default to promoted only if no isPromoted filter is applied.
         // The filter will override this if explicitly set.
