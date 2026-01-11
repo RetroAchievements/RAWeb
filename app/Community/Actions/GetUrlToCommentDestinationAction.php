@@ -7,6 +7,7 @@ namespace App\Community\Actions;
 use App\Community\Enums\CommentableType;
 use App\Models\Achievement;
 use App\Models\Comment;
+use App\Models\Event;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\User;
@@ -42,20 +43,21 @@ class GetUrlToCommentDestinationAction
         return $this->buildFullCommentsPageUrl($comment, $commentable);
     }
 
-    private function resolveCommentable(CommentableType $commentableType, int $commentableId): Game|Achievement|User|Leaderboard|null
+    private function resolveCommentable(CommentableType $commentableType, int $commentableId): Achievement|Event|Game|Leaderboard|User|null
     {
         return match ($commentableType) {
-            CommentableType::Game => Game::find($commentableId),
             CommentableType::Achievement => Achievement::find($commentableId),
-            CommentableType::User => User::find($commentableId),
+            CommentableType::Event => Event::find($commentableId),
+            CommentableType::Game => Game::find($commentableId),
             CommentableType::Leaderboard => Leaderboard::find($commentableId),
+            CommentableType::User => User::find($commentableId),
             default => null,
         };
     }
 
     private function getIsCommentVisibleOnResourcePage(
         Comment $comment,
-        Game|Achievement|User|Leaderboard $commentable,
+        Achievement|Event|Game|Leaderboard|User $commentable,
     ): bool {
         /** @var ?User $currentUser */
         $currentUser = Auth::user();
@@ -71,40 +73,43 @@ class GetUrlToCommentDestinationAction
 
     private function buildResourcePageUrl(
         CommentableType $commentableType,
-        Game|Achievement|User|Leaderboard $commentable,
+        Achievement|Event|Game|Leaderboard|User $commentable,
         int $commentId,
     ): string {
         $hashAnchor = "#comment_{$commentId}";
 
         return match ($commentableType) {
-            CommentableType::Game => route('game.show', ['game' => $commentable, 'tab' => 'community']) . $hashAnchor,
             CommentableType::Achievement => route('achievement.show', ['achievementId' => $commentable->id]) . $hashAnchor,
-            CommentableType::User => route('user.show', $commentable) . $hashAnchor,
+            CommentableType::Event => route('event.show', ['event' => $commentable]) . $hashAnchor,
+            CommentableType::Game => route('game.show', ['game' => $commentable, 'tab' => 'community']) . $hashAnchor,
             CommentableType::Leaderboard => route('leaderboard.show', ['leaderboard' => $commentable]) . $hashAnchor,
+            CommentableType::User => route('user.show', $commentable) . $hashAnchor,
             default => abort(404),
         };
     }
 
     private function buildFullCommentsPageUrl(
         Comment $comment,
-        Game|Achievement|User|Leaderboard $commentable,
+        Achievement|Event|Game|Leaderboard|User $commentable,
     ): string {
         $page = $this->calculateCommentPage($comment, $commentable);
         $hashAnchor = "#comment_{$comment->id}";
 
         $routeName = match ($comment->commentable_type) {
-            CommentableType::Game => 'game.comment.index',
             CommentableType::Achievement => 'achievement.comment.index',
-            CommentableType::User => 'user.comment.index',
+            CommentableType::Event => 'event.comment.index',
+            CommentableType::Game => 'game.comment.index',
             CommentableType::Leaderboard => 'leaderboard.comment.index',
+            CommentableType::User => 'user.comment.index',
             default => abort(404),
         };
 
         $routeParam = match ($comment->commentable_type) {
-            CommentableType::Game => ['game' => $commentable, 'page' => $page],
             CommentableType::Achievement => ['achievement' => $commentable, 'page' => $page],
-            CommentableType::User => ['user' => $commentable, 'page' => $page],
+            CommentableType::Event => ['event' => $commentable, 'page' => $page],
+            CommentableType::Game => ['game' => $commentable, 'page' => $page],
             CommentableType::Leaderboard => ['leaderboard' => $commentable, 'page' => $page],
+            CommentableType::User => ['user' => $commentable, 'page' => $page],
             default => abort(404),
         };
 
@@ -113,7 +118,7 @@ class GetUrlToCommentDestinationAction
 
     private function calculateCommentPage(
         Comment $comment,
-        Game|Achievement|User|Leaderboard $commentable,
+        Achievement|Event|Game|Leaderboard|User $commentable,
     ): int {
         /** @var ?User $currentUser */
         $currentUser = Auth::user();

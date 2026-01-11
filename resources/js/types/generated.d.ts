@@ -41,6 +41,12 @@ declare namespace App.Community.Data {
     recentPlayerBadges: Array<App.Community.Data.RecentPlayerBadge>;
     recentLeaderboardEntries: Array<App.Community.Data.RecentLeaderboardEntry>;
   };
+  export type EventCommentsPageProps<TItems = App.Community.Data.Comment> = {
+    event: App.Platform.Data.Event;
+    paginatedComments: App.Data.PaginatedData<TItems>;
+    isSubscribed: boolean;
+    canComment: boolean;
+  };
   export type GameChecklistPageProps = {
     player: App.Data.User;
     groups: Array<App.Community.Data.GameGroup>;
@@ -237,6 +243,7 @@ declare namespace App.Community.Enums {
   export type CommentableType =
     | 'achievement.comment'
     | 'trigger.ticket.comment'
+    | 'event.comment'
     | 'forum-topic-comment'
     | 'game.comment'
     | 'game-hash.comment'
@@ -270,6 +277,7 @@ declare namespace App.Community.Enums {
     | 'ForumTopic'
     | 'UserWall'
     | 'GameWall'
+    | 'EventWall'
     | 'Achievement'
     | 'Leaderboard'
     | 'GameTickets'
@@ -478,6 +486,7 @@ declare namespace App.Data {
   export type UserPermissions = {
     authorizeForumTopicComments?: boolean;
     createAchievementSetClaims?: boolean;
+    createEventComments?: boolean;
     createForumTopicComments?: boolean;
     createGameComments?: boolean;
     createGameForumTopic?: boolean;
@@ -769,8 +778,11 @@ declare namespace App.Platform.Data {
     hubs: Array<App.Platform.Data.GameSet>;
     breadcrumbs: Array<App.Platform.Data.GameSet>;
     followedPlayerCompletions: Array<App.Platform.Data.FollowedPlayerCompletion>;
-    playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
+    isSubscribedToComments: boolean;
+    numComments: number;
     numMasters: number;
+    playerAchievementChartBuckets: Array<App.Platform.Data.PlayerAchievementChartBucket>;
+    recentVisibleComments: Array<App.Community.Data.Comment>;
     topAchievers: Array<App.Platform.Data.GameTopAchiever>;
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;

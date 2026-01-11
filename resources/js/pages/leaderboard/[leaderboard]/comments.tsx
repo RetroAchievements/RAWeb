@@ -13,7 +13,7 @@ const LeaderboardComments: AppPage<App.Community.Data.LeaderboardCommentsPagePro
   return (
     <>
       <SEO
-        title={t('Comments - {{leaderboardTitle}}', { leaderboardTitle: leaderboard.title })}
+        title={t('Comments - {{title}}', { title: leaderboard.title })}
         description={`General discussion about the leaderboard ${leaderboard.title}`}
         ogImage={leaderboard.game?.badgeUrl}
       />

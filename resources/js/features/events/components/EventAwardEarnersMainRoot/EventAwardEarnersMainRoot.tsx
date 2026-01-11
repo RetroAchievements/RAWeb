@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
 import { AwardEarnersList } from '@/common/components/AwardEarnersList';
+import { EventBreadcrumbs } from '@/common/components/EventBreadcrumbs';
 import { FullPaginator } from '@/common/components/FullPaginator';
 import { PlayableHeader } from '@/common/components/PlayableHeader';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { EventBreadcrumbs } from '@/features/events/components/EventBreadcrumbs';
 import { cleanEventAwardLabel } from '@/features/events/utils/cleanEventAwardLabel';
 
 export const EventAwardEarnersMainRoot: FC = memo(() => {

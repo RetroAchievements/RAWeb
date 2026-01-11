@@ -1,13 +1,14 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { EventBreadcrumbs } from '@/common/components/EventBreadcrumbs';
 import { PlayableHeader } from '@/common/components/PlayableHeader';
 import { PlayableMainMedia } from '@/common/components/PlayableMainMedia';
 import { PlayableMobileMediaCarousel } from '@/common/components/PlayableMobileMediaCarousel';
 import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { EventAchievementSetContainer } from '../EventAchievementSetContainer';
-import { EventBreadcrumbs } from '../EventBreadcrumbs';
+import { EventCommentList } from '../EventCommentList';
 import { EndDateChip } from '../EventHeader/EndDateChip';
 import { IsPlayableChip } from '../EventHeader/IsPlayableChip';
 import { StartDateChip } from '../EventHeader/StartDateChip';
@@ -52,6 +53,8 @@ export const EventShowMainRoot: FC = () => {
       </div>
 
       <EventAchievementSetContainer event={event} />
+
+      <EventCommentList />
     </div>
   );
 };

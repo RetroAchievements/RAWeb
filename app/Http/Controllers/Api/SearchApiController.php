@@ -555,10 +555,11 @@ class SearchApiController extends Controller
         // Guests should not see ticket comments.
         if (!$user) {
             $searchQuery->whereIn('commentable_type', [
-                CommentableType::Game->value,
                 CommentableType::Achievement->value,
-                CommentableType::User->value,
+                CommentableType::Event->value,
+                CommentableType::Game->value,
                 CommentableType::Leaderboard->value,
+                CommentableType::User->value,
             ]);
         }
 

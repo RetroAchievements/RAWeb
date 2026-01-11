@@ -8,6 +8,7 @@ use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\Achievement;
 use App\Models\Comment;
+use App\Models\Event;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
@@ -259,6 +260,7 @@ class SubscriptionService
         return match ($subjectType) {
             SubscriptionSubjectType::Achievement => new AchievementWallSubscriptionHandler(),
             SubscriptionSubjectType::AchievementTicket => new AchievementTicketSubscriptionHandler(),
+            SubscriptionSubjectType::EventWall => new EventWallSubscriptionHandler(),
             SubscriptionSubjectType::ForumTopic => new ForumTopicSubscriptionHandler(),
             SubscriptionSubjectType::GameAchievements => new GameAchievementsSubscriptionHandler(),
             SubscriptionSubjectType::GameTickets => new GameTicketsSubscriptionHandler(),
@@ -550,6 +552,31 @@ class AchievementTicketSubscriptionHandler extends CommentSubscriptionHandler
             }
             $query->union($query3);
         }
+
+        return $query;
+    }
+}
+
+class EventWallSubscriptionHandler extends CommentSubscriptionHandler
+{
+    protected function getCommentableType(): CommentableType
+    {
+        return CommentableType::Event;
+    }
+
+    /**
+     * @return Builder<Model>
+     */
+    public function getSubjectQuery(array $subjectIds): Builder
+    {
+        /** @var Builder<Model> $query */
+        $query = Event::whereIn('events.id', $subjectIds)
+            ->join('games', 'events.legacy_game_id', '=', 'games.id')
+            ->select([
+                DB::raw('events.id as subject_id'),
+                DB::raw('games.title as title'),
+            ])
+            ->orderBy('games.title');
 
         return $query;
     }

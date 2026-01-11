@@ -8,13 +8,14 @@ import { route } from 'ziggy-js';
  */
 const commentableTypeToRouteParam: Record<App.Community.Enums.CommentableType, string> = {
   'achievement.comment': 'achievement',
-  'trigger.ticket.comment': 'ticket',
+  'achievement-set-claim.comment': 'game',
+  'event.comment': 'event',
   'forum-topic-comment': 'forum',
   'game.comment': 'game',
   'game-hash.comment': 'game',
   'game-modification.comment': 'game',
   'leaderboard.comment': 'leaderboard',
-  'achievement-set-claim.comment': 'game',
+  'trigger.ticket.comment': 'ticket',
   'user.comment': 'user',
   'user-activity.comment': 'activity',
   'user-moderation.comment': 'user',

@@ -41,11 +41,12 @@ export const ReportCommentButton: FC<ReportCommentButtonProps> = ({ comment, cla
  */
 function getCommentTypeLabel(commentableType: App.Community.Enums.CommentableType): string {
   const labels: Partial<Record<App.Community.Enums.CommentableType, string>> = {
-    'game.comment': 'Game Wall Comment',
     'achievement.comment': 'Achievement Wall Comment',
-    'user.comment': 'User Wall Comment',
+    'event.comment': 'Event Wall Comment',
+    'game.comment': 'Game Wall Comment',
     'leaderboard.comment': 'Leaderboard Comment',
     'trigger.ticket.comment': 'Ticket Comment',
+    'user.comment': 'User Wall Comment',
   };
 
   return labels[commentableType] ?? 'Wall Comment';

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Community\Enums\CommentableType;
 use App\Platform\Enums\EventState;
 use App\Support\Database\Eloquent\BaseModel;
 use App\Support\Routing\HasSelfHealingUrls;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -228,6 +230,25 @@ class Event extends BaseModel
     public function hubs(): BelongsToMany
     {
         return $this->legacyGame->gameSets();
+    }
+
+    /**
+     * @return HasMany<Comment, $this>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'commentable_id')->where('commentable_type', CommentableType::Event);
+    }
+
+    /**
+     * @return HasMany<Comment, $this>
+     */
+    public function visibleComments(?User $user = null): HasMany
+    {
+        /** @var ?User $user */
+        $currentUser = $user ?? Auth::user();
+
+        return $this->comments()->visibleTo($currentUser);
     }
 
     // == scopes

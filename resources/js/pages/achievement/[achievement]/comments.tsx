@@ -13,7 +13,7 @@ const AchievementComments: AppPage<App.Community.Data.AchievementCommentsPagePro
   return (
     <>
       <SEO
-        title={t('Comments - {{achievementTitle}}', { achievementTitle: achievement.title })}
+        title={t('Comments - {{title}}', { title: achievement.title })}
         description={`General discussion about the achievement ${achievement.title}`}
         ogImage={achievement.badgeUnlockedUrl}
       />

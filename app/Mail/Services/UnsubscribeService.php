@@ -10,6 +10,7 @@ use App\Mail\Data\CategoryUnsubscribeData;
 use App\Mail\Data\GranularUnsubscribeData;
 use App\Mail\Data\UnsubscribeData;
 use App\Models\Achievement;
+use App\Models\Event;
 use App\Models\Game;
 use App\Models\Subscription;
 use App\Models\User;
@@ -275,8 +276,16 @@ class UnsubscribeService
                 $achievement = Achievement::find($subjectId);
 
                 return [
-                    'key' => 'unsubscribeSuccess-achievement',
-                    'params' => ['achievementTitle' => $achievement->title ?? 'Unknown Achievement'],
+                    'key' => 'unsubscribeSuccess-comments',
+                    'params' => ['title' => $achievement->title ?? 'Unknown Achievement'],
+                ];
+
+            case SubscriptionSubjectType::EventWall:
+                $event = Event::with('legacyGame')->find($subjectId);
+
+                return [
+                    'key' => 'unsubscribeSuccess-comments',
+                    'params' => ['title' => $event?->legacyGame?->title ?? 'Unknown Event'],
                 ];
 
             case SubscriptionSubjectType::UserWall:

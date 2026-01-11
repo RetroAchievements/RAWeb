@@ -11,7 +11,7 @@ const UserComments: AppPage<App.Community.Data.UserCommentsPageProps> = ({ targe
   return (
     <>
       <SEO
-        title={t('Comments - {{user}}', { user: targetUser.displayName })}
+        title={t('Comments - {{title}}', { title: targetUser.displayName })}
         description={`Comments left on ${targetUser.displayName}'s wall`}
         ogImage={targetUser.avatarUrl}
       />

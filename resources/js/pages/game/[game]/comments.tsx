@@ -11,7 +11,7 @@ const GameComments: AppPage<App.Community.Data.GameCommentsPageProps> = ({ game 
   return (
     <>
       <SEO
-        title={t('Comments - {{gameTitle}}', { gameTitle: game.title })}
+        title={t('Comments - {{title}}', { title: game.title })}
         description={`General discussion about the achievement set for ${game.title}`}
         ogImage={game.badgeUrl}
       />

@@ -6,11 +6,13 @@ namespace App\Data;
 
 use App\Models\Achievement;
 use App\Models\AchievementSetClaim;
+use App\Models\Event;
 use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\Leaderboard;
 use App\Models\User;
+use App\Policies\EventCommentPolicy;
 use App\Policies\GameCommentPolicy;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
@@ -22,6 +24,7 @@ class UserPermissionsData extends Data
     public function __construct(
         public Lazy|bool $authorizeForumTopicComments,
         public Lazy|bool $createAchievementSetClaims,
+        public Lazy|bool $createEventComments,
         public Lazy|bool $createForumTopicComments,
         public Lazy|bool $createGameComments,
         public Lazy|bool $createGameForumTopic,
@@ -59,6 +62,7 @@ class UserPermissionsData extends Data
         ?User $user,
         // TODO `?Model $triggerable`
         Achievement|Leaderboard|null $triggerable = null,
+        ?Event $event = null,
         ?Game $game = null,
         ?ForumTopic $forumTopic = null,
         ?AchievementSetClaim $claim = null,
@@ -70,6 +74,10 @@ class UserPermissionsData extends Data
                 : false
             ),
             createAchievementSetClaims: Lazy::create(fn () => $user ? $user->can('create', [AchievementSetClaim::class, $game]) : false),
+            createEventComments: Lazy::create(fn () => $user && $event
+                ? (new EventCommentPolicy())->create($user, $event)
+                : false
+            ),
             createForumTopicComments: Lazy::create(fn () => $user && $forumTopic
                 ? $user->can('create', [\App\Models\ForumTopicComment::class, $forumTopic])
                 : false
@@ -97,7 +105,7 @@ class UserPermissionsData extends Data
             manageEmulators: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\Emulator::class) : false),
             manageForumTopicComments: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\ForumTopicComment::class) : false),
             manageForumTopics: Lazy::create(fn () => $user ? $user->can('manage', ForumTopic::class) : false),
-            manageEvents: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\Event::class) : false),
+            manageEvents: Lazy::create(fn () => $user ? $user->can('manage', Event::class) : false),
             manageGameHashes: Lazy::create(fn () => $user ? $user->can('manage', \App\Models\GameHash::class) : false),
             manageGames: Lazy::create(fn () => $user ? $user->can('manage', Game::class) : false),
             manageGameSets: Lazy::create(fn () => $user ? $user->can('manage', GameSet::class) : false),

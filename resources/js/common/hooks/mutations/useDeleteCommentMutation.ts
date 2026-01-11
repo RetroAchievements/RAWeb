@@ -26,7 +26,12 @@ function buildDeleteRoute({
       comment: id,
     }),
 
-    'trigger.ticket.comment': 'TODO',
+    'achievement-set-claim.comment': route('api.game.claims.comment.destroy', {
+      game: commentableId,
+      comment: id,
+    }),
+
+    'event.comment': route('api.event.comment.destroy', { event: commentableId, comment: id }),
 
     'forum-topic-comment': 'TODO',
 
@@ -47,10 +52,7 @@ function buildDeleteRoute({
       comment: id,
     }),
 
-    'achievement-set-claim.comment': route('api.game.claims.comment.destroy', {
-      game: commentableId,
-      comment: id,
-    }),
+    'trigger.ticket.comment': 'TODO',
 
     'user.comment': route('api.user.comment.destroy', {
       user: targetUserDisplayName,

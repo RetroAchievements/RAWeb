@@ -20,6 +20,7 @@ use App\Community\Components\UserRecentlyPlayed;
 use App\Models\AchievementComment;
 use App\Models\AchievementSetClaim;
 use App\Models\Comment;
+use App\Models\EventComment;
 use App\Models\Forum;
 use App\Models\ForumCategory;
 use App\Models\ForumTopic;
@@ -68,6 +69,7 @@ class AppServiceProvider extends ServiceProvider
             'achievement.comment' => AchievementComment::class,
             'achievement-set-claim' => AchievementSetClaim::class,
             'comment' => Comment::class,
+            'event.comment' => EventComment::class,
             'forum' => Forum::class,
             'forum-category' => ForumCategory::class,
             'forum-topic' => ForumTopic::class,

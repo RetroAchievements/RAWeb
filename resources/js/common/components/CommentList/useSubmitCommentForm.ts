@@ -74,7 +74,11 @@ function buildPostRoute({
   const commentableTypeRouteMap: Record<App.Community.Enums.CommentableType, string> = {
     'achievement.comment': route('api.achievement.comment.store', { achievement: commentableId }),
 
-    'trigger.ticket.comment': 'TODO',
+    'achievement-set-claim.comment': route('api.game.claims.comment.store', {
+      game: commentableId,
+    }),
+
+    'event.comment': route('api.event.comment.store', { event: commentableId }),
 
     'forum-topic-comment': 'TODO',
 
@@ -88,9 +92,7 @@ function buildPostRoute({
 
     'leaderboard.comment': route('api.leaderboard.comment.store', { leaderboard: commentableId }),
 
-    'achievement-set-claim.comment': route('api.game.claims.comment.store', {
-      game: commentableId,
-    }),
+    'trigger.ticket.comment': 'TODO',
 
     'user.comment': route('api.user.comment.store', { user: targetUserDisplayName }),
 

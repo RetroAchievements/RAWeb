@@ -10,6 +10,7 @@ use App\Enums\UserPreference;
 use App\Mail\DailyDigestMail;
 use App\Models\Achievement;
 use App\Models\Comment;
+use App\Models\Event;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Game;
@@ -58,12 +59,13 @@ class SendDailyDigestAction
         $titles = [];
         foreach ($ids as $type => $typeIds) {
             $titles[$type] = match ($type) {
+                SubscriptionSubjectType::Achievement->value => $this->buildAchievementWallTitles($typeIds),
+                SubscriptionSubjectType::AchievementTicket->value => $this->buildTicketTitles($typeIds),
+                SubscriptionSubjectType::EventWall->value => $this->buildEventWallTitles($typeIds),
                 SubscriptionSubjectType::ForumTopic->value => ForumTopic::whereIn('id', $typeIds)->pluck('title', 'id'),
                 SubscriptionSubjectType::GameWall->value => $this->buildGameWallTitles($typeIds),
-                SubscriptionSubjectType::Achievement->value => $this->buildAchievementWallTitles($typeIds),
-                SubscriptionSubjectType::UserWall->value => User::whereIn('id', $typeIds)->pluck('display_name', 'id'),
                 SubscriptionSubjectType::Leaderboard->value => $this->buildLeaderboardTitles($typeIds),
-                SubscriptionSubjectType::AchievementTicket->value => $this->buildTicketTitles($typeIds),
+                SubscriptionSubjectType::UserWall->value => User::whereIn('id', $typeIds)->pluck('display_name', 'id'),
                 default => [],
             };
         }
@@ -148,12 +150,13 @@ class SendDailyDigestAction
     private function getHandler(SubscriptionSubjectType $subjectType): BaseDelayedSubscriptionHandler
     {
         return match ($subjectType) {
+            SubscriptionSubjectType::Achievement => new CommentDelayedSubscriptionHandler(CommentableType::Achievement),
+            SubscriptionSubjectType::AchievementTicket => new CommentDelayedSubscriptionHandler(CommentableType::AchievementTicket),
+            SubscriptionSubjectType::EventWall => new CommentDelayedSubscriptionHandler(CommentableType::Event),
             SubscriptionSubjectType::ForumTopic => new ForumTopicDelayedSubscriptionHandler(),
             SubscriptionSubjectType::GameWall => new CommentDelayedSubscriptionHandler(CommentableType::Game),
-            SubscriptionSubjectType::Achievement => new CommentDelayedSubscriptionHandler(CommentableType::Achievement),
-            SubscriptionSubjectType::UserWall => new CommentDelayedSubscriptionHandler(CommentableType::User),
             SubscriptionSubjectType::Leaderboard => new CommentDelayedSubscriptionHandler(CommentableType::Leaderboard),
-            SubscriptionSubjectType::AchievementTicket => new CommentDelayedSubscriptionHandler(CommentableType::AchievementTicket),
+            SubscriptionSubjectType::UserWall => new CommentDelayedSubscriptionHandler(CommentableType::User),
 
             // other cases will be filled in as the calls are updated.
             default => throw new InvalidArgumentException("No handler for {$subjectType->value}"),
@@ -179,6 +182,18 @@ class SendDailyDigestAction
         $achievements = Achievement::whereIn('id', $ids)->with('game')->get();
         foreach ($achievements as $achievement) {
             $result[$achievement->id] = "{$achievement->title} ({$achievement->game->title})";
+        }
+
+        return $result;
+    }
+
+    private function buildEventWallTitles(array $ids): array
+    {
+        $result = [];
+
+        $events = Event::whereIn('id', $ids)->with('legacyGame')->get();
+        foreach ($events as $event) {
+            $result[$event->id] = $event->legacyGame->title;
         }
 
         return $result;

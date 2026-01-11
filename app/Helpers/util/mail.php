@@ -9,6 +9,7 @@ use App\Mail\CommunityActivityMail;
 use App\Mail\ValidateUserEmailMail;
 use App\Models\Achievement;
 use App\Models\Comment;
+use App\Models\Event;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\Ticket;
@@ -179,6 +180,18 @@ function informAllSubscribersAboutActivity(
     $subscriptionSubjectType = null;
 
     switch ($commentableType) {
+        case CommentableType::Event:
+            $event = Event::with('legacyGame')->find($commentableId);
+            if (!$event) {
+                return;
+            }
+
+            $articleTitle = $event->legacyGame->title;
+            $urlTarget = route('event.show', ['event' => $event]);
+            $articleEmailPreference = UserPreference::EmailOn_ActivityComment;
+            $subscriptionSubjectType = SubscriptionSubjectType::EventWall;
+            break;
+
         case CommentableType::Game:
             $game = Game::with('system')->find($commentableId);
             if (!$game) {

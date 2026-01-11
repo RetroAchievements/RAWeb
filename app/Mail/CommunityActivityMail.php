@@ -126,16 +126,17 @@ class CommunityActivityMail extends Mailable
         bool $isThreadInvolved,
     ): string {
         return match ($commentableType) {
-            CommentableType::Game => "the game wall for {$articleTitle}",
             CommentableType::Achievement => "the achievement wall for {$articleTitle}",
-            CommentableType::User => $articleTitle === $toUserDisplayName
-                ? "your user wall"
-                : "{$articleTitle}'s user wall",
-            CommentableType::Leaderboard => "the leaderboard wall for {$articleTitle}",
-            CommentableType::Forum => "the forum thread \"{$articleTitle}\"",
             CommentableType::AchievementTicket => $isThreadInvolved
                 ? "a ticket you're subscribed to"
                 : "the ticket you reported",
+            CommentableType::Event => "the event page for {$articleTitle}",
+            CommentableType::Forum => "the forum thread \"{$articleTitle}\"",
+            CommentableType::Game => "the game wall for {$articleTitle}",
+            CommentableType::Leaderboard => "the leaderboard wall for {$articleTitle}",
+            CommentableType::User => $articleTitle === $toUserDisplayName
+                ? "your user wall"
+                : "{$articleTitle}'s user wall",
             default => $isThreadInvolved ? "a thread you've commented in" : "your latest activity",
         };
     }
@@ -143,12 +144,13 @@ class CommunityActivityMail extends Mailable
     private function buildEmailSubject(CommentableType $commentableType, string $activityCommenterDisplayName): string
     {
         return match ($commentableType) {
-            CommentableType::Game => "New Game Wall Comment from {$activityCommenterDisplayName}",
             CommentableType::Achievement => "New Achievement Comment from {$activityCommenterDisplayName}",
-            CommentableType::User => "New User Wall Comment from {$activityCommenterDisplayName}",
-            CommentableType::Leaderboard => "New Leaderboard Comment from {$activityCommenterDisplayName}",
-            CommentableType::Forum => "New Forum Comment from {$activityCommenterDisplayName}",
             CommentableType::AchievementTicket => "New Ticket Comment from {$activityCommenterDisplayName}",
+            CommentableType::Event => "New Event Comment from {$activityCommenterDisplayName}",
+            CommentableType::Forum => "New Forum Comment from {$activityCommenterDisplayName}",
+            CommentableType::Game => "New Game Wall Comment from {$activityCommenterDisplayName}",
+            CommentableType::Leaderboard => "New Leaderboard Comment from {$activityCommenterDisplayName}",
+            CommentableType::User => "New User Wall Comment from {$activityCommenterDisplayName}",
             default => "New Activity Comment from {$activityCommenterDisplayName}",
         };
     }
@@ -171,6 +173,21 @@ class CommunityActivityMail extends Mailable
                     UserPreference::EmailOn_AchievementComment
                 );
                 $this->categoryText = 'Unsubscribe from all wall comment emails';
+                break;
+
+            case CommentableType::Event:
+                $this->granularUrl = $unsubscribeService->generateGranularUrl(
+                    $this->toUser,
+                    SubscriptionSubjectType::EventWall,
+                    $this->activityId
+                );
+                $this->granularText = 'Unsubscribe from this event';
+
+                $this->categoryUrl = $unsubscribeService->generateCategoryUrl(
+                    $this->toUser,
+                    UserPreference::EmailOn_ActivityComment
+                );
+                $this->categoryText = 'Unsubscribe from all activity comment emails';
                 break;
 
             case CommentableType::Achievement:

@@ -240,8 +240,8 @@ class UnsubscribeServiceTest extends TestCase
 
         // Assert
         $this->assertTrue($result['success']);
-        $this->assertEquals('unsubscribeSuccess-achievement', $result['descriptionKey']);
-        $this->assertEquals(['achievementTitle' => 'First Boss Defeated'], $result['descriptionParams']);
+        $this->assertEquals('unsubscribeSuccess-comments', $result['descriptionKey']);
+        $this->assertEquals(['title' => 'First Boss Defeated'], $result['descriptionParams']);
 
         $this->assertSubscriptionExists(
             $this->user->id,
@@ -552,8 +552,8 @@ class UnsubscribeServiceTest extends TestCase
             $achievement->id
         );
         $achievementResult = $this->service->processUnsubscribe($achievementToken);
-        $this->assertEquals('unsubscribeSuccess-achievement', $achievementResult['descriptionKey']);
-        $this->assertEquals(['achievementTitle' => 'Test Achievement'], $achievementResult['descriptionParams']);
+        $this->assertEquals('unsubscribeSuccess-comments', $achievementResult['descriptionKey']);
+        $this->assertEquals(['title' => 'Test Achievement'], $achievementResult['descriptionParams']);
 
         // UserWall
         $targetUser = User::factory()->create(['username' => 'TargetUser']);

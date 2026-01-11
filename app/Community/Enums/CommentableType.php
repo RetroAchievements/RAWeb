@@ -13,6 +13,7 @@ enum CommentableType: string
 {
     case Achievement = 'achievement.comment';
     case AchievementTicket = 'trigger.ticket.comment';
+    case Event = 'event.comment';
     case Forum = 'forum-topic-comment'; // Forum topic comments (posts) use ForumTopicComment table, not the comments table. This is for email notifications only.
     case Game = 'game.comment';
     case GameHash = 'game-hash.comment';
@@ -28,6 +29,7 @@ enum CommentableType: string
         return match ($this) {
             self::Achievement => 'Achievement',
             self::AchievementTicket => 'Achievement Ticket',
+            self::Event => 'Event',
             self::Forum => 'Forum',
             self::Game => 'Game',
             self::GameHash => 'Game Hash',
@@ -59,6 +61,7 @@ enum CommentableType: string
             self::GameHash => 10,
             self::SetClaim => 11,
             self::GameModification => 12,
+            self::Event => 13,
         };
     }
 
@@ -76,6 +79,7 @@ enum CommentableType: string
             10 => self::GameHash,
             11 => self::SetClaim,
             12 => self::GameModification,
+            13 => self::Event,
             default => null,
         };
     }
@@ -88,6 +92,7 @@ enum CommentableType: string
     {
         return in_array($this, [
             self::Achievement,
+            self::Event,
             self::Game,
             self::Leaderboard,
             self::User,

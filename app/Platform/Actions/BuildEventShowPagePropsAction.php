@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Community\Data\CommentData;
 use App\Community\Enums\AwardType;
+use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Services\SubscriptionService;
 use App\Data\UserPermissionsData;
 use App\Models\Event;
 use App\Models\PlayerBadge;
@@ -14,14 +17,16 @@ use App\Platform\Data\EventShowPagePropsData;
 use App\Platform\Data\GameSetData;
 use App\Platform\Data\PlayerGameData;
 use App\Platform\Data\PlayerGameProgressionAwardsData;
+use Illuminate\Support\Collection;
 
 class BuildEventShowPagePropsAction
 {
     public function __construct(
         protected BuildFollowedPlayerCompletionAction $buildFollowedPlayerCompletionAction,
         protected BuildGameAchievementDistributionAction $buildGameAchievementDistributionAction,
-        protected LoadGameTopAchieversAction $loadGameTopAchieversAction,
         protected BuildHubBreadcrumbsAction $buildHubBreadcrumbsAction,
+        protected LoadGameTopAchieversAction $loadGameTopAchieversAction,
+        protected SubscriptionService $subscriptionService,
     ) {
     }
 
@@ -47,7 +52,8 @@ class BuildEventShowPagePropsAction
         $breadcrumbs = $this->buildEventBreadcrumbs($event);
 
         return new EventShowPagePropsData(
-            can: UserPermissionsData::fromUser($user, game: $event->legacyGame)->include(
+            can: UserPermissionsData::fromUser($user, event: $event, game: $event->legacyGame)->include(
+                'createEventComments',
                 'createGameForumTopic',
                 'manageEvents'
             ),
@@ -87,8 +93,13 @@ class BuildEventShowPagePropsAction
             hubs: $event->legacyGame->hubs->map(fn ($hub) => GameSetData::from($hub))->all(),
             breadcrumbs: $breadcrumbs,
             followedPlayerCompletions: $this->buildFollowedPlayerCompletionAction->execute($user, $event->legacyGame),
-            playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($event->legacyGame, $user),
+            isSubscribedToComments: $user
+                ? $this->subscriptionService->isSubscribed($user, SubscriptionSubjectType::EventWall, $event->id)
+                : false,
+            numComments: $event->visibleComments($user)->count(),
             numMasters: $numMasters,
+            playerAchievementChartBuckets: $this->buildGameAchievementDistributionAction->execute($event->legacyGame, $user),
+            recentVisibleComments: Collection::make(array_reverse(CommentData::fromCollection($event->visibleComments($user)->take(20)->get()))),
             topAchievers: $topAchievers,
             playerGame: $playerGame ? PlayerGameData::fromPlayerGame($playerGame) : null,
             playerGameProgressionAwards: $user

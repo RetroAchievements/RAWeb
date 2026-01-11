@@ -26,7 +26,10 @@ describe('Component: EventShowMainRoot', () => {
     const { container } = render(<EventShowMainRoot />, {
       pageProps: {
         event,
-        can: { manageEvents: false },
+        can: { createEventComments: false, manageEvents: false },
+        isSubscribedToComments: false,
+        numComments: 0,
+        recentVisibleComments: [],
       },
     });
 
@@ -43,7 +46,10 @@ describe('Component: EventShowMainRoot', () => {
     render(<EventShowMainRoot />, {
       pageProps: {
         event,
-        can: { manageEvents: false },
+        can: { createEventComments: false, manageEvents: false },
+        isSubscribedToComments: false,
+        numComments: 0,
+        recentVisibleComments: [],
       },
     });
 
@@ -64,7 +70,10 @@ describe('Component: EventShowMainRoot', () => {
     render(<EventShowMainRoot />, {
       pageProps: {
         event,
-        can: { manageEvents: false },
+        can: { createEventComments: false, manageEvents: false },
+        isSubscribedToComments: false,
+        numComments: 0,
+        recentVisibleComments: [],
       },
     });
 

@@ -10,6 +10,7 @@ use App\Community\Controllers\AchievementSetClaimController;
 use App\Community\Controllers\Api\AchievementCommentApiController;
 use App\Community\Controllers\Api\ActivePlayersApiController;
 use App\Community\Controllers\Api\BetaFeedbackApiController;
+use App\Community\Controllers\Api\EventCommentApiController;
 use App\Community\Controllers\Api\ForumTopicApiController;
 use App\Community\Controllers\Api\ForumTopicCommentApiController;
 use App\Community\Controllers\Api\GameClaimsCommentApiController;
@@ -28,6 +29,7 @@ use App\Community\Controllers\Api\UserModerationCommentApiController;
 use App\Community\Controllers\Api\UserSetRequestListApiController;
 use App\Community\Controllers\Api\ViewableApiController;
 use App\Community\Controllers\CommentController;
+use App\Community\Controllers\EventCommentController;
 use App\Community\Controllers\ForumTopicCommentController;
 use App\Community\Controllers\ForumTopicController;
 use App\Community\Controllers\GameClaimsCommentController;
@@ -87,6 +89,8 @@ class RouteServiceProvider extends ServiceProvider
 
                         Route::post('shortcode-body/preview', [ShortcodeApiController::class, 'preview'])->name('api.shortcode-body.preview');
 
+                        Route::post('event/{event}/comment', [EventCommentApiController::class, 'store'])->name('api.event.comment.store');
+
                         Route::post('forums/{category}/{forum}/topic', [ForumTopicApiController::class, 'store'])->name('api.forum-topic.store');
                         Route::delete('forums/{topic}', [ForumTopicApiController::class, 'destroy'])->name('api.forum-topic.destroy');
                         Route::put('forums/{topic}', [ForumTopicApiController::class, 'update'])->name('api.forum-topic.update');
@@ -106,6 +110,8 @@ class RouteServiceProvider extends ServiceProvider
                         Route::post('user/{user}/moderation-comment', [UserModerationCommentApiController::class, 'store'])->name('api.user.moderation-comment.store');
 
                         Route::delete('achievement/{achievement}/comment/{comment}', [AchievementCommentApiController::class, 'destroy'])->name('api.achievement.comment.destroy');
+
+                        Route::delete('event/{event}/comment/{comment}', [EventCommentApiController::class, 'destroy'])->name('api.event.comment.destroy');
 
                         Route::delete('game/{game}/claims/comment/{comment}', [GameClaimsCommentApiController::class, 'destroy'])->name('api.game.claims.comment.destroy');
                         Route::delete('game/{game}/comment/{comment}', [GameCommentApiController::class, 'destroy'])->name('api.game.comment.destroy');
@@ -155,6 +161,8 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('comment/{comment}', [CommentController::class, 'show'])->name('comment.show');
 
                     Route::get('community/patreon-supporters', [PatreonSupportersController::class, 'index'])->name('patreon-supporter.index');
+
+                    Route::get('event/{event}/comments', [EventCommentController::class, 'index'])->name('event.comment.index');
 
                     Route::get('forums/topic/{topic}', [ForumTopicController::class, 'show'])->name('forum-topic.show');
 

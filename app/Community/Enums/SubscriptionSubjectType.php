@@ -12,6 +12,7 @@ enum SubscriptionSubjectType: string
     case ForumTopic = "ForumTopic";
     case UserWall = "UserWall";
     case GameWall = "GameWall";
+    case EventWall = "EventWall";
     case Achievement = "Achievement";
     case Leaderboard = "Leaderboard";
     case GameTickets = "GameTickets";
@@ -22,6 +23,7 @@ enum SubscriptionSubjectType: string
     {
         return match ($commentableType) {
             CommentableType::Game => SubscriptionSubjectType::GameWall,
+            CommentableType::Event => SubscriptionSubjectType::EventWall,
             CommentableType::Achievement => SubscriptionSubjectType::Achievement,
             CommentableType::Leaderboard => SubscriptionSubjectType::Leaderboard,
             CommentableType::User => SubscriptionSubjectType::UserWall,

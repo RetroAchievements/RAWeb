@@ -7,6 +7,7 @@ namespace Tests\Feature\Community\Controllers;
 use App\Community\Enums\CommentableType;
 use App\Models\Achievement;
 use App\Models\Comment;
+use App\Models\Event;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\System;
@@ -373,6 +374,69 @@ class CommentControllerTest extends TestCase
         $location = $response->headers->get('Location');
 
         $this->assertStringContainsString("/leaderboard/{$leaderboard->id}/comments", $location);
+        $this->assertStringContainsString("#comment_{$oldComment->id}", $location);
+    }
+
+    public function testRedirectsToEventPageForRecentComment(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $event = Event::factory()->create(['legacy_game_id' => $game->id]);
+        $user = User::factory()->create();
+
+        $comment = Comment::factory()->create([
+            'commentable_type' => CommentableType::Event,
+            'commentable_id' => $event->id,
+            'user_id' => $user->id,
+            'created_at' => now(),
+        ]);
+
+        // Act
+        $response = $this->get(route('comment.show', ['comment' => $comment]));
+
+        // Assert
+        $response->assertRedirect();
+        $location = $response->headers->get('Location');
+
+        $this->assertStringContainsString("event/{$event->id}", $location);
+        $this->assertStringContainsString("#comment_{$comment->id}", $location);
+    }
+
+    public function testRedirectsToEventCommentsPageWhenCommentIsOld(): void
+    {
+        // Arrange
+        $system = System::factory()->create(['id' => 1]);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $event = Event::factory()->create(['legacy_game_id' => $game->id]);
+        $user = User::factory()->create();
+
+        $oldComment = Comment::factory()->create([
+            'commentable_type' => CommentableType::Event,
+            'commentable_id' => $event->id,
+            'user_id' => $user->id,
+            'created_at' => now()->subDays(30),
+        ]);
+
+        // ... create 20 newer comments to push the old one out of the recent list ...
+        for ($i = 0; $i < 20; $i++) {
+            Comment::factory()->create([
+                'commentable_type' => CommentableType::Event,
+                'commentable_id' => $event->id,
+                'user_id' => $user->id,
+                'created_at' => now()->subDays(29 - $i),
+            ]);
+        }
+
+        // Act
+        $response = $this->get(route('comment.show', ['comment' => $oldComment]));
+
+        // Assert
+        $response->assertRedirect();
+        $location = $response->headers->get('Location');
+
+        $this->assertStringContainsString("/event/{$event->id}", $location);
+        $this->assertStringContainsString("/comments", $location);
         $this->assertStringContainsString("#comment_{$oldComment->id}", $location);
     }
 }

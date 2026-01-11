@@ -5,6 +5,7 @@ namespace App\Community\Concerns;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Services\SubscriptionService;
 use App\Models\Achievement;
+use App\Models\Event;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\User;
@@ -16,7 +17,7 @@ use Inertia\Response as InertiaResponse;
 trait IndexesComments
 {
     protected function handleCommentIndex(
-        User|Game|Achievement|Leaderboard $commentable,
+        Achievement|Event|Game|Leaderboard|User $commentable,
         string $policy,
         string $routeName,
         string $routeParam,
@@ -63,10 +64,11 @@ trait IndexesComments
         $isSubscribed = false;
         if ($user) {
             $subjectType = match (true) {
-                $commentable instanceof User => SubscriptionSubjectType::UserWall,
-                $commentable instanceof Game => SubscriptionSubjectType::GameWall,
                 $commentable instanceof Achievement => SubscriptionSubjectType::Achievement,
+                $commentable instanceof Event => SubscriptionSubjectType::EventWall,
+                $commentable instanceof Game => SubscriptionSubjectType::GameWall,
                 $commentable instanceof Leaderboard => SubscriptionSubjectType::Leaderboard,
+                $commentable instanceof User => SubscriptionSubjectType::UserWall,
             };
             $isSubscribed = (new SubscriptionService())->isSubscribed($user, $subjectType, $commentable->id);
         }
