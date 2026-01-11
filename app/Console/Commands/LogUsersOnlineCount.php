@@ -6,8 +6,8 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use App\Models\UsersOnlineCount;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Carbon;
 
 class LogUsersOnlineCount extends Command
 {
@@ -18,7 +18,7 @@ class LogUsersOnlineCount extends Command
     {
         $playersOnline = User::where('last_activity_at', '>', Carbon::now()->subMinutes(10))->count();
 
-        UsersOnlineCount::create(['online_count' => $playersOnline]);
+        UsersOnlineCount::log($playersOnline);
         file_put_contents(storage_path('logs/playersonline.log'), $playersOnline . PHP_EOL, FILE_APPEND);
     }
 }

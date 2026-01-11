@@ -36,7 +36,9 @@ class BackfillUsersOnlineCounts extends Command
 
         // Calculate timestamps by working backward from the file's last modified time.
         // The log file only stores counts, so we infer timestamps from the known interval.
+        // Normalize to :00 or :30 since the cron runs on those intervals.
         $lastModified = Carbon::createFromTimestamp(filemtime($path));
+        $lastModified = $lastModified->setSecond(0)->setMinute($lastModified->minute >= 30 ? 30 : 0);
         $firstEntryTime = $lastModified->copy()->subMinutes(self::LOG_INTERVAL_MINUTES * ($lineCount - 1));
 
         $this->info("Found {$lineCount} entries.");
