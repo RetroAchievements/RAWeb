@@ -15,7 +15,12 @@ class UsersOnlineCount extends Model
 
     protected $fillable = [
         'online_count',
+        'is_new_high',
         'created_at',
+    ];
+
+    protected $casts = [
+        'is_new_high' => 'boolean',
     ];
 
     // == accessors
@@ -35,7 +40,13 @@ class UsersOnlineCount extends Model
     {
         self::backfillMissedIntervals();
 
-        return self::create(['online_count' => $count]);
+        $currentMax = self::max('online_count') ?? 0;
+        $isNewHigh = $count > $currentMax;
+
+        return self::create([
+            'online_count' => $count,
+            'is_new_high' => $isNewHigh,
+        ]);
     }
 
     /**

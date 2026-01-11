@@ -12,8 +12,10 @@ return new class extends Migration {
         Schema::create('users_online_counts', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('online_count');
+            $table->boolean('is_new_high')->default(false);
             $table->timestamp('created_at')->useCurrent();
 
+            $table->index('online_count');
             $table->index('created_at');
         });
     }

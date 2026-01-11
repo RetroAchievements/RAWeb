@@ -34,6 +34,8 @@ class BackfillUsersOnlineCounts extends Command
 
         $lineCount = count($lines);
 
+        UsersOnlineCount::truncate();
+
         // Calculate timestamps by working backward from the file's last modified time.
         // The log file only stores counts, so we infer timestamps from the known interval.
         // Normalize to :00 or :30 since the cron runs on those intervals.
@@ -45,25 +47,28 @@ class BackfillUsersOnlineCounts extends Command
         $this->info("Calculated time range: {$firstEntryTime} to {$lastModified}");
 
         $records = [];
-        $allTimeHigh = 0;
+        $runningMax = 0;
         $allTimeHighIndex = 0;
+
         foreach ($lines as $index => $line) {
             $count = (int) $line;
             $timestamp = $firstEntryTime->copy()->addMinutes(self::LOG_INTERVAL_MINUTES * $index);
+            $isNewHigh = $count > $runningMax;
 
             $records[] = [
                 'online_count' => $count,
+                'is_new_high' => $isNewHigh,
                 'created_at' => $timestamp,
             ];
 
-            if ($count > $allTimeHigh) {
-                $allTimeHigh = $count;
+            if ($isNewHigh) {
+                $runningMax = $count;
                 $allTimeHighIndex = $index;
             }
         }
 
         $allTimeHighDate = $firstEntryTime->copy()->addMinutes(self::LOG_INTERVAL_MINUTES * $allTimeHighIndex);
-        $this->info("All-time high: {$allTimeHigh} at {$allTimeHighDate}");
+        $this->info("All-time high: {$runningMax} at {$allTimeHighDate}");
 
         foreach (array_chunk($records, 1000) as $chunk) {
             UsersOnlineCount::insert($chunk);
