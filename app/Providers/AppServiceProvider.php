@@ -111,7 +111,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule = $this->app->make(Schedule::class);
 
             $schedule->command(PruneApiLogs::class)->dailyAt('9:00'); // ~ 4:00AM US Eastern
-            $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes();
+            $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes()->evenInMaintenanceMode();
 
             if (app()->environment() === 'production') {
                 $schedule->command(DeleteExpiredEmailVerificationTokens::class)->daily();
