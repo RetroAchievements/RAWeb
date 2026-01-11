@@ -9,12 +9,9 @@ use App\Components\TicketNotificationsIcon;
 use App\Console\Commands\CacheMostPopularEmulators;
 use App\Console\Commands\CacheMostPopularSystems;
 use App\Console\Commands\CleanupAvatars;
-use App\Console\Commands\DeleteExpiredEmailVerificationTokens;
-use App\Console\Commands\DeleteExpiredPasswordResetTokens;
 use App\Console\Commands\DeleteOverdueUserAccounts;
 use App\Console\Commands\GenerateTypeScript;
 use App\Console\Commands\LogUsersOnlineCount;
-use App\Console\Commands\PruneApiLogs;
 use App\Console\Commands\SquashMigrations;
 use App\Console\Commands\SystemAlert;
 use App\Http\InertiaResponseFactory;
@@ -70,12 +67,9 @@ class AppServiceProvider extends ServiceProvider
             $this->commands([
                 CacheMostPopularEmulators::class,
                 CacheMostPopularSystems::class,
-                DeleteExpiredEmailVerificationTokens::class,
-                DeleteExpiredPasswordResetTokens::class,
                 DeleteOverdueUserAccounts::class,
                 GenerateTypeScript::class,
                 LogUsersOnlineCount::class,
-                PruneApiLogs::class,
                 SquashMigrations::class,
 
                 // User Accounts
@@ -86,7 +80,7 @@ class AppServiceProvider extends ServiceProvider
             ]);
         }
 
-        Model::shouldBeStrict(!$this->app->isProduction());
+        Model::shouldBeStrict(app()->environment() !== 'production');
 
         // Filament v4: Preserve v3 behavior for layout components spanning full width.
         \Filament\Schemas\Components\Fieldset::configureUsing(fn (\Filament\Schemas\Components\Fieldset $fieldset) => $fieldset
@@ -108,12 +102,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->booted(function () {
             $schedule = $this->app->make(Schedule::class);
 
-            $schedule->command(PruneApiLogs::class)->dailyAt('9:00'); // ~ 4:00AM US Eastern
+            $schedule->command('model:prune')->dailyAt('9:00'); // ~4:00AM US Eastern
             $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes();
 
             if (app()->environment() === 'production') {
-                $schedule->command(DeleteExpiredEmailVerificationTokens::class)->daily();
-                $schedule->command(DeleteExpiredPasswordResetTokens::class)->daily();
                 $schedule->command(DeleteOverdueUserAccounts::class)->daily();
 
                 $schedule->command(CacheMostPopularEmulators::class)->weeklyOn(4, '8:00'); // Thursdays, ~3:00AM US Eastern
