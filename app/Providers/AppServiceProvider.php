@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use App\Components\GeneralNotificationsIcon;
 use App\Components\TicketNotificationsIcon;
+use App\Console\Commands\BackfillUsersOnlineCounts;
 use App\Console\Commands\CacheMostPopularEmulators;
 use App\Console\Commands\CacheMostPopularSystems;
 use App\Console\Commands\CleanupAvatars;
@@ -68,6 +69,7 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                BackfillUsersOnlineCounts::class,
                 CacheMostPopularEmulators::class,
                 CacheMostPopularSystems::class,
                 DeleteExpiredEmailVerificationTokens::class,
