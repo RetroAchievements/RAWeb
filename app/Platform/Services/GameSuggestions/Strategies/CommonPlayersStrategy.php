@@ -24,8 +24,7 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
 
     public function select(): ?Game
     {
-        // Get a pseudorandom sample of users who mastered the source game.
-        // Note that this random sample will always be the same, we're sampling using a modulo operator.
+        // Get a random sample of users who mastered the source game.
         $masterUserIds = $this->getMasterUserIds();
 
         if ($masterUserIds->isEmpty()) {
@@ -81,7 +80,7 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
                 ->where('user_id', '!=', $this->user->id)
                 ->whereAllAchievementsUnlocked()
                 ->withTrashed()
-                ->whereRaw('id % 100 < 5')
+                ->inRandomOrder()
                 ->limit(5)
                 ->pluck('user_id');
         });
