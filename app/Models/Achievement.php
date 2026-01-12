@@ -22,6 +22,7 @@ use App\Platform\Events\AchievementUnpromoted;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\AchievementFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -383,6 +384,39 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     // == mutators
+
+    /**
+     * @return Attribute<string, string>
+     */
+    protected function title(): Attribute
+    {
+        return Attribute::make(
+            set: fn (?string $value) => $value ? $this->normalizeSmartQuotes($value) : $value,
+        );
+    }
+
+    /**
+     * @return Attribute<string|null, string|null>
+     */
+    protected function description(): Attribute
+    {
+        return Attribute::make(
+            set: fn (?string $value) => $value ? $this->normalizeSmartQuotes($value) : $value,
+        );
+    }
+
+    /**
+     * Normalize smart quotes/apostrophes to ASCII equivalents.
+     * Mobile devices often insert these characters which cause rendering issues in emulators.
+     */
+    private function normalizeSmartQuotes(string $value): string
+    {
+        return str_replace(
+            ["\u{2018}", "\u{2019}", "\u{201C}", "\u{201D}"],
+            ["'", "'", '"', '"'],
+            $value
+        );
+    }
 
     // == relations
 
