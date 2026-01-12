@@ -847,6 +847,7 @@ declare namespace App.Platform.Data {
     untestedHashes: Array<App.Platform.Data.GameHash>;
     patchRequiredHashes: Array<App.Platform.Data.GameHash>;
     can: App.Data.UserPermissions;
+    targetAchievementSet: App.Platform.Data.GameAchievementSet | null;
   };
   export type GameListEntry = {
     game: App.Platform.Data.Game;
