@@ -35,7 +35,7 @@ trait HasAchievementSetNavigation
             return null;
         }
 
-        $achievementSet = $current->achievementSets()->first();
+        $achievementSet = $current->achievementSet;
         if (!$achievementSet) {
             return null;
         }
