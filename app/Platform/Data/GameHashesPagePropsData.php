@@ -24,6 +24,7 @@ class GameHashesPagePropsData extends Data
         public array $untestedHashes,
         public array $patchRequiredHashes,
         public UserPermissionsData $can,
+        public ?GameAchievementSetData $targetAchievementSet = null,
     ) {
     }
 }

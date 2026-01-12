@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Actions;
 
 use App\Models\Achievement;
+use App\Models\GameRecentPlayer;
 use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
@@ -447,5 +448,57 @@ class ResumePlayerSessionActionTest extends TestCase
         $this->assertEquals('Playing ' . $game->title, $playerSession->rich_presence);
         $this->assertEquals($backdateAt, $playerSession->created_at);
         $this->assertEquals(1, $playerSession->duration);
+    }
+
+    public function testGameRecentPlayerUpdatedWhenPresenceIsEmpty(): void
+    {
+        /**
+         * This test verifies that users playing games without RP scripts
+         * (or with empty RP) remain visible in the active players list.
+         * GameRecentPlayer's rich_presence_updated_at should be updated even
+         * when no presence is sent.
+         */
+        $sessionStartAt = Carbon::parse('2025-04-01 12:00:00');
+        Carbon::setTestNow($sessionStartAt);
+
+        $user = $this->seedUser();
+        $game = $this->seedGame();
+        $gameHash = $game->hashes->first();
+
+        // ... start a new session (no presence provided, simulating StartSessionAction) ...
+        $action = new ResumePlayerSessionAction();
+        $action->execute($user, $game, $gameHash);
+
+        // ... verify GameRecentPlayer was created with default presence ...
+        $gameRecentPlayer = GameRecentPlayer::where('user_id', $user->id)
+            ->where('game_id', $game->id)
+            ->first();
+        $this->assertNotNull($gameRecentPlayer);
+        $this->assertEquals('Playing ' . $game->title, $gameRecentPlayer->rich_presence);
+        $this->assertEquals($sessionStartAt, $gameRecentPlayer->rich_presence_updated_at);
+
+        // ... simulate the user closing and reopening the emulator 2 minutes later ...
+        $reopenAt = $sessionStartAt->clone()->addMinutes(2);
+        Carbon::setTestNow($reopenAt);
+        $action->execute($user, $game, $gameHash, null);
+
+        // ... verify the GameRecentPlayer timestamp was updated even though no presence was sent ...
+        $gameRecentPlayer->refresh();
+        $this->assertEquals($reopenAt, $gameRecentPlayer->rich_presence_updated_at);
+        $this->assertEquals('Playing ' . $game->title, $gameRecentPlayer->rich_presence);
+
+        // ... simulate a ping 2 minutes later with empty presence (the game has no RP script) ...
+        $pingAt = $reopenAt->clone()->addMinutes(2);
+        Carbon::setTestNow($pingAt);
+        $action->execute($user, $game, $gameHash, null);
+
+        // ... verify the timestamp was updated again ...
+        $gameRecentPlayer->refresh();
+        $this->assertEquals($pingAt, $gameRecentPlayer->rich_presence_updated_at);
+        $this->assertEquals('Playing ' . $game->title, $gameRecentPlayer->rich_presence);
+
+        // ... verify the user's rich_presence_updated_at was also updated ...
+        $user->refresh();
+        $this->assertEquals($pingAt, $user->rich_presence_updated_at);
     }
 }
