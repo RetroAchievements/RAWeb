@@ -404,7 +404,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     protected function title(): Attribute
     {
         return Attribute::make(
-            set: fn (?string $value) => $value ? $this->normalizeSmartQuotes($value) : $value,
+            set: fn (string $value) => $this->normalizeSmartQuotes($value),
         );
     }
 
@@ -414,7 +414,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     protected function description(): Attribute
     {
         return Attribute::make(
-            set: fn (?string $value) => $value ? $this->normalizeSmartQuotes($value) : $value,
+            set: fn (string $value) => $this->normalizeSmartQuotes($value),
         );
     }
 
