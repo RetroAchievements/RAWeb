@@ -396,7 +396,7 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     }
 
     /**
-     * @return Attribute<string|null, string|null>
+     * @return Attribute<string, string>
      */
     protected function description(): Attribute
     {
