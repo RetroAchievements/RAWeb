@@ -63,7 +63,7 @@ class UserLastActivityService
 
     /**
      * Count all users active in the last N minutes.
-     * 
+     *
      * NOTE: There's a small window where users who became active very
      * recently may not be counted if their activity hasn't been flushed
      * to the database yet.
