@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Platform\Services\UserLastActivityService;
+use App\Models\UsersOnlineCount;
 use Illuminate\Console\Command;
 
 class LogUsersOnlineCount extends Command
@@ -16,6 +17,7 @@ class LogUsersOnlineCount extends Command
     {
         $playersOnline = $userActivityService->countOnline(withinMinutes: 10);
 
+        UsersOnlineCount::log($playersOnline);
         file_put_contents(storage_path('logs/playersonline.log'), $playersOnline . PHP_EOL, FILE_APPEND);
     }
 }

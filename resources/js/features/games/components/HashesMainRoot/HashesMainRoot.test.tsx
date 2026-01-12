@@ -1,5 +1,10 @@
 import { render, screen } from '@/test';
-import { createGame, createGameHash } from '@/test/factories';
+import {
+  createAchievementSet,
+  createGame,
+  createGameAchievementSet,
+  createGameHash,
+} from '@/test/factories';
 
 import { HashesMainRoot } from './HashesMainRoot';
 
@@ -57,7 +62,9 @@ describe('Component: HashesMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/supported game file hash registered for this game/i)).toBeVisible();
+    expect(
+      screen.getByText(/supported game file hash registered for this achievement set/i),
+    ).toBeVisible();
   });
 
   it('given there are multiple hashes, pluralizes correctly', () => {
@@ -71,7 +78,9 @@ describe('Component: HashesMainRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByText(/supported game file hashes registered for this game/i)).toBeVisible();
+    expect(
+      screen.getByText(/supported game file hashes registered for this achievement set/i),
+    ).toBeVisible();
   });
 
   it('given there are no incompatible hashes, renders nothing', async () => {
@@ -102,5 +111,47 @@ describe('Component: HashesMainRoot', () => {
 
     // ASSERT
     expect(screen.getByRole('button', { name: /other known hashes/i })).toBeVisible();
+  });
+
+  it("given there is no target achievement set, uses the game's badge in the heading", () => {
+    // ARRANGE
+    const game = createGame({ badgeUrl: 'https://example.com/game-badge.png' });
+
+    render<App.Platform.Data.GameHashesPageProps>(<HashesMainRoot />, {
+      pageProps: {
+        can: { manageGameHashes: false },
+        game,
+        hashes: [],
+        targetAchievementSet: undefined,
+      },
+    });
+
+    // ASSERT
+    const headingImage = screen.getByRole('img', { name: game.title });
+    expect(headingImage).toHaveAttribute('src', 'https://example.com/game-badge.png');
+  });
+
+  it("given there is a target achievement set, uses the achievement set's badge in the heading", () => {
+    // ARRANGE
+    const game = createGame({ badgeUrl: 'https://example.com/game-badge.png' });
+    const targetAchievementSet = createGameAchievementSet({
+      title: 'Low%',
+      achievementSet: createAchievementSet({
+        imageAssetPathUrl: 'https://example.com/subset-badge.png',
+      }),
+    });
+
+    render<App.Platform.Data.GameHashesPageProps>(<HashesMainRoot />, {
+      pageProps: {
+        can: { manageGameHashes: false },
+        game,
+        hashes: [],
+        targetAchievementSet,
+      },
+    });
+
+    // ASSERT
+    const headingImage = screen.getByRole('img', { name: game.title });
+    expect(headingImage).toHaveAttribute('src', 'https://example.com/subset-badge.png');
   });
 });
