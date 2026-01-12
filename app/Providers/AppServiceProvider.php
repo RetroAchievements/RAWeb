@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use App\Components\GeneralNotificationsIcon;
 use App\Components\TicketNotificationsIcon;
+use App\Console\Commands\BackfillUsersOnlineCounts;
 use App\Console\Commands\CacheMostPopularEmulators;
 use App\Console\Commands\CacheMostPopularSystems;
 use App\Console\Commands\CleanupAvatars;
@@ -65,6 +66,7 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                BackfillUsersOnlineCounts::class,
                 CacheMostPopularEmulators::class,
                 CacheMostPopularSystems::class,
                 DeleteOverdueUserAccounts::class,
@@ -103,7 +105,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule = $this->app->make(Schedule::class);
 
             $schedule->command('model:prune')->dailyAt('9:00'); // ~4:00AM US Eastern
-            $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes();
+            $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes()->evenInMaintenanceMode();
 
             if (app()->environment() === 'production') {
                 $schedule->command(DeleteOverdueUserAccounts::class)->daily();
