@@ -318,6 +318,19 @@ class Achievement extends BaseModel implements HasVersionedTrigger
         return $links->pluck('game_id')->unique()->values()->toArray();
     }
 
+    /**
+     * Normalize smart quotes/apostrophes to ASCII equivalents.
+     * Mobile devices often insert these characters which cause rendering issues in emulators.
+     */
+    private function normalizeSmartQuotes(string $value): string
+    {
+        return str_replace(
+            ["\u{2018}", "\u{2019}", "\u{201C}", "\u{201D}"],
+            ["'", "'", '"', '"'],
+            $value
+        );
+    }
+
     // == accessors
 
     public function getCanonicalUrlAttribute(): string
@@ -402,19 +415,6 @@ class Achievement extends BaseModel implements HasVersionedTrigger
     {
         return Attribute::make(
             set: fn (?string $value) => $value ? $this->normalizeSmartQuotes($value) : $value,
-        );
-    }
-
-    /**
-     * Normalize smart quotes/apostrophes to ASCII equivalents.
-     * Mobile devices often insert these characters which cause rendering issues in emulators.
-     */
-    private function normalizeSmartQuotes(string $value): string
-    {
-        return str_replace(
-            ["\u{2018}", "\u{2019}", "\u{201C}", "\u{201D}"],
-            ["'", "'", '"', '"'],
-            $value
         );
     }
 
