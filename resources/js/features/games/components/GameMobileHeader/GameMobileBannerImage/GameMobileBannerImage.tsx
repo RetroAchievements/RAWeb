@@ -4,7 +4,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
 export const GameMobileBannerImage: FC = () => {
-  const { game } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { banner, game } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -22,7 +22,7 @@ export const GameMobileBannerImage: FC = () => {
   return (
     <>
       <div className="absolute inset-0 overflow-hidden">
-        {game.banner?.mobileSmWebp ? (
+        {banner?.mobileSmWebp ? (
           <>
             {/*
              * Blurred placeholder - loads instantly.
@@ -30,9 +30,9 @@ export const GameMobileBannerImage: FC = () => {
              *
              * @see Game::registerMediaCollections
              */}
-            {game.banner.mobilePlaceholder ? (
+            {banner.mobilePlaceholder ? (
               <img
-                src={game.banner.mobilePlaceholder}
+                src={banner.mobilePlaceholder}
                 alt="game banner"
                 className={cn(
                   'absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ease-out',
@@ -55,8 +55,8 @@ export const GameMobileBannerImage: FC = () => {
               )}
               style={{ willChange: 'opacity' }} // immediately prepare the GPU for the transition
             >
-              <source srcSet={game.banner.mobileSmAvif ?? undefined} type="image/avif" />
-              <source srcSet={game.banner.mobileSmWebp ?? undefined} type="image/webp" />
+              <source srcSet={banner.mobileSmAvif ?? undefined} type="image/avif" />
+              <source srcSet={banner.mobileSmWebp} type="image/webp" />
 
               {/* Legacy fallback to in-game screenshot */}
               <img

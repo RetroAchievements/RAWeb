@@ -155,4 +155,38 @@ describe('Component: NotificationsSmallRow', () => {
       expect.anything(),
     );
   });
+
+  it('given isInverted is false and the user checks the checkbox, stores true in the form', async () => {
+    // ARRANGE
+    const onSubmit = vi.fn();
+
+    const TestWrapper: FC = () => {
+      const form = useForm({ defaultValues: { testField: false } });
+
+      return (
+        <FormProvider {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <NotificationsSmallRow
+              t_label={i18n.t('Achievements')}
+              emailFieldName={'testField' as any}
+              isInverted={false}
+            />
+            <button type="submit">Submit</button>
+          </form>
+        </FormProvider>
+      );
+    };
+
+    render(<TestWrapper />);
+
+    // ACT
+    await userEvent.click(screen.getByRole('checkbox'));
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    // ASSERT
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ testField: true }),
+      expect.anything(),
+    );
+  });
 });

@@ -68,4 +68,21 @@ describe('Component: ReportCommentButton', () => {
     // ASSERT
     expect(screen.getByRole('link')).toHaveClass('custom-class');
   });
+
+  it('given an unknown commentable type, does not crash', () => {
+    // ARRANGE
+    const comment = createComment({
+      id: 1,
+      commentableType: 'unknown.type' as any,
+      user: createUser({
+        displayName: 'TestUser',
+      }),
+    });
+
+    const { container } = render(<ReportCommentButton comment={comment} />);
+
+    // ASSERT
+    expect(container).toBeTruthy();
+    expect(screen.getByRole('link')).toBeVisible();
+  });
 });

@@ -1,6 +1,6 @@
 import { createFactory } from '../createFactory';
 
-export const createGameBanner = createFactory<App.Platform.Data.GameBanner>((faker) => {
+export const createPageBanner = createFactory<App.Platform.Data.PageBanner>((faker) => {
   return {
     // media
     desktopLgAvif: faker.internet.url(),

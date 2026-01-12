@@ -788,22 +788,6 @@ declare namespace App.Platform.Data {
     updatedAt: string | null;
     achievementSet: App.Platform.Data.AchievementSet;
   };
-  export type GameBanner = {
-    mobileSmWebp: string | null;
-    mobileSmAvif: string | null;
-    mobileMdWebp: string | null;
-    mobileMdAvif: string | null;
-    desktopMdWebp: string | null;
-    desktopMdAvif: string | null;
-    desktopLgWebp: string | null;
-    desktopLgAvif: string | null;
-    desktopXlWebp: string | null;
-    desktopXlAvif: string | null;
-    mobilePlaceholder: string | null;
-    desktopPlaceholder: string | null;
-    leftEdgeColor: string | null;
-    rightEdgeColor: string | null;
-  };
   export type GameClaimant = {
     user: App.Data.User;
     claimType: string;
@@ -839,7 +823,7 @@ declare namespace App.Platform.Data {
     system?: App.Platform.Data.System;
     timesBeaten?: number;
     timesBeatenHardcore?: number;
-    banner?: App.Platform.Data.GameBanner;
+    banner?: App.Platform.Data.PageBanner;
     claimants?: Array<App.Platform.Data.GameClaimant>;
     gameAchievementSets?: Array<App.Platform.Data.GameAchievementSet>;
     releases?: Array<App.Platform.Data.GameRelease>;
@@ -972,6 +956,7 @@ declare namespace App.Platform.Data {
     selectableGameAchievementSets: Array<App.Platform.Data.GameAchievementSet>;
     seriesHub: App.Platform.Data.SeriesHub | null;
     setRequestData: App.Platform.Data.GameSetRequestData | null;
+    banner: App.Platform.Data.PageBanner | null;
     targetAchievementSetId: number | null;
     targetAchievementSetPlayersTotal: number | null;
     targetAchievementSetPlayersHardcore: number | null;
@@ -1037,6 +1022,22 @@ declare namespace App.Platform.Data {
     createdAt?: string;
     user?: App.Data.User | null;
     rank?: number | null;
+  };
+  export type PageBanner = {
+    mobileSmWebp: string | null;
+    mobileSmAvif: string | null;
+    mobileMdWebp: string | null;
+    mobileMdAvif: string | null;
+    desktopMdWebp: string | null;
+    desktopMdAvif: string | null;
+    desktopLgWebp: string | null;
+    desktopLgAvif: string | null;
+    desktopXlWebp: string | null;
+    desktopXlAvif: string | null;
+    mobilePlaceholder: string | null;
+    desktopPlaceholder: string | null;
+    leftEdgeColor: string | null;
+    rightEdgeColor: string | null;
   };
   export type ParsedUserAgent = {
     client: string;
