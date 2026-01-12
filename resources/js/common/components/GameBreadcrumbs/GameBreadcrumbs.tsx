@@ -103,7 +103,10 @@ export const GameBreadcrumbs: FC<GameBreadcrumbsProps> = ({
                 {t_currentPageLabel ? (
                   <BaseBreadcrumbLink asChild>
                     <InertiaLink
-                      href={route('game.show', { game: game.id })}
+                      href={route('game.show', {
+                        game: game.id,
+                        set: gameAchievementSet.achievementSet.id,
+                      })}
                       prefetch="desktop-hover-only"
                     >
                       {gameAchievementSet.title}
