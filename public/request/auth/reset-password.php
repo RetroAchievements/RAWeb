@@ -8,7 +8,17 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
-$input = Validator::validate(Arr::wrap(request()->post()), [
+$requestData = Arr::wrap(request()->post());
+
+$targetUser = User::whereName($requestData['username'] ?? '')->first();
+
+if (!$targetUser || $targetUser->isBanned()) {
+    return back()->withErrors(__('legacy.error.token'));
+}
+
+$requestData['email'] = $targetUser->email;
+
+$input = Validator::validate($requestData, [
     'username' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
     'token' => 'required',
     'password' => PasswordRules::get(requireConfirmation: true),
@@ -16,12 +26,6 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 
 $passResetToken = $input['token'];
 $newPass = $input['password'];
-
-$targetUser = User::whereName($input['username'])->first();
-
-if (!$targetUser || $targetUser->isBanned()) {
-    return back()->withErrors(__('legacy.error.token'));
-}
 
 if (!PasswordResetToken::isValidForUser($targetUser, $passResetToken)) {
     return back()->withErrors(__('legacy.error.token'));

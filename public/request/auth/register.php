@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'username' => ValidNewUsername::get(),
-    'password' => PasswordRules::get(checkAgainstEmail: true),
+    'password' => PasswordRules::get(),
     'email' => 'required|email:filter|confirmed|not_disposable_email',
     'terms' => 'accepted',
 ]);

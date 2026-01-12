@@ -92,7 +92,9 @@ export const ChangePasswordSectionCard: FC = () => {
                     />
                   </BaseFormControl>
 
-                  <BaseFormDescription>{t('Must be at least 10 characters.')}</BaseFormDescription>
+                  <BaseFormDescription>
+                    {t('Must be at least {{val, number}} characters.', { val: 10 })}
+                  </BaseFormDescription>
 
                   <BaseFormMessage />
                 </div>

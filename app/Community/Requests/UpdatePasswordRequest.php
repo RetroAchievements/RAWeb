@@ -30,9 +30,10 @@ class UpdatePasswordRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        // PasswordRules expects 'username' for the different:username check.
+        // PasswordRules expects 'username' and 'email' for the different:* checks.
         $this->merge([
             'username' => $this->user()->username,
+            'email' => $this->user()->email,
         ]);
     }
 }
