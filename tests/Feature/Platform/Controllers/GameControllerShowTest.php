@@ -21,11 +21,13 @@ use App\Models\GameAchievementSet;
 use App\Models\GameHash;
 use App\Models\GameSet;
 use App\Models\Leaderboard;
+use App\Models\LeaderboardEntry;
 use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
+use App\Models\UnrankedUser;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
@@ -1102,6 +1104,166 @@ describe('Leaderboard State Props', function () {
         $response->assertInertia(fn (Assert $page) => $page
             ->has('allLeaderboards', 1)
             ->where('allLeaderboards.0.state', 'disabled')
+        );
+    });
+});
+
+describe('User Leaderboard Entry Props', function () {
+    function createLeaderboardWithEntries(
+        Game $game,
+        array $entries,
+        bool $rankAsc = false,
+        int $orderColumn = 1,
+    ): Leaderboard {
+        $leaderboard = Leaderboard::factory()->create([
+            'game_id' => $game->id,
+            'state' => LeaderboardState::Active,
+            'order_column' => $orderColumn,
+            'rank_asc' => $rankAsc,
+        ]);
+
+        foreach ($entries as $entry) {
+            LeaderboardEntry::factory()->create([
+                'leaderboard_id' => $leaderboard->id,
+                'user_id' => $entry['user']->id,
+                'score' => $entry['score'],
+            ]);
+        }
+
+        return $leaderboard;
+    }
+
+    it('given the user has a leaderboard entry, includes their entry and rank', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create();
+
+        createLeaderboardWithEntries($game, [
+            ['user' => $user, 'score' => 1000],
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game, 'view' => 'leaderboards']));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('allLeaderboards', 1)
+            ->has('allLeaderboards.0.userEntry')
+            ->has('allLeaderboards.0.userEntry.rank')
+            ->has('allLeaderboards.0.userEntry.formattedScore')
+        );
+    });
+
+    it('given a leaderboard where rankAsc is false, calculates the user rank correctly based on higher scores being better', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create();
+
+        createLeaderboardWithEntries($game, [
+            ['user' => User::factory()->create(), 'score' => 3000], // rank 1
+            ['user' => User::factory()->create(), 'score' => 2000], // rank 2
+            ['user' => $user, 'score' => 1000],                     // rank 3
+        ], rankAsc: false);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game, 'view' => 'leaderboards']));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('allLeaderboards.0.userEntry.rank', 3)
+        );
+    });
+
+    it('given a leaderboard where rankAsc is true, calculates the user rank correctly based on lower scores being better', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create();
+
+        createLeaderboardWithEntries($game, [
+            ['user' => User::factory()->create(), 'score' => 100], // rank 1
+            ['user' => User::factory()->create(), 'score' => 200], // rank 2
+            ['user' => $user, 'score' => 300],                     // rank 3
+        ], rankAsc: true);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game, 'view' => 'leaderboards']));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('allLeaderboards.0.userEntry.rank', 3)
+        );
+    });
+
+    it('excludes unranked users from rank calculations', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create();
+
+        $unrankedUser = User::factory()->create(['unranked_at' => now()]);
+        UnrankedUser::create(['user_id' => $unrankedUser->id]);
+
+        createLeaderboardWithEntries($game, [
+            ['user' => $unrankedUser, 'score' => 5000], // would be rank 1 if not unranked
+            ['user' => $user, 'score' => 1000],
+        ], rankAsc: false);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game, 'view' => 'leaderboards']));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('allLeaderboards.0.userEntry.rank', 1)
+        );
+    });
+
+    it('given multiple leaderboards, calculates ranks correctly for each', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+
+        createLeaderboardWithEntries($game, [
+            ['user' => $otherUser, 'score' => 2000],
+            ['user' => $user, 'score' => 1000], // rank 2
+        ], rankAsc: false, orderColumn: 1);
+
+        createLeaderboardWithEntries($game, [
+            ['user' => $otherUser, 'score' => 500],
+            ['user' => $user, 'score' => 3000], // rank 1
+        ], rankAsc: false, orderColumn: 2);
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game, 'view' => 'leaderboards']));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('allLeaderboards', 2)
+            ->where('allLeaderboards.0.userEntry.rank', 2)
+            ->where('allLeaderboards.1.userEntry.rank', 1)
+        );
+    });
+
+    it('given a guest user, does not include user entries', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        createLeaderboardWithEntries($game, [
+            ['user' => User::factory()->create(), 'score' => 1000],
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game, 'view' => 'leaderboards']));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('allLeaderboards', 1)
+            ->missing('allLeaderboards.0.userEntry')
         );
     });
 });
