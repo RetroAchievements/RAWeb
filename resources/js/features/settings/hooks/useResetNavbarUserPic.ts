@@ -8,12 +8,10 @@ export function useResetNavbarUserPic() {
     // Using document functions to mutate the DOM is very bad.
     // We only do this because the app shell is still a Blade template.
 
-    const userDisplayName = auth!.user.displayName;
-    const fileName = `/UserPic/${userDisplayName}.png`;
-
+    const fileName = `/UserPic/${auth!.user.username}.png`;
     for (const element of document.querySelectorAll<HTMLImageElement>('.userpic')) {
-      const now = new Date(); // use a query param to ignore the browser cache
-      element.src = `${dangerouslyGetClientSideAssetUrl(fileName)}` + '?' + now.getTime();
+      // Use a query param to ignore the browser cache.
+      element.src = `${dangerouslyGetClientSideAssetUrl(fileName)}?${Date.now()}`;
     }
   };
 

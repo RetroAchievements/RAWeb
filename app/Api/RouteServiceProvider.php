@@ -6,12 +6,13 @@ namespace App\Api;
 
 use App\Api\Controllers\CatchAllController;
 use App\Api\Controllers\HealthController;
-use App\Api\Internal\Controllers\AchievementController;
+use App\Api\Internal\Controllers\AchievementController as InternalAchievementController;
 use App\Api\Middleware\AddContentLengthHeader;
 use App\Api\Middleware\LogApiRequest;
 use App\Api\Middleware\LogLegacyApiUsage;
 use App\Api\Middleware\ServiceAccountOnly;
 use App\Api\V1\Controllers\WebApiV1Controller;
+use App\Api\V2\Controllers\AchievementController;
 use App\Api\V2\Controllers\AchievementSetController;
 use App\Api\V2\Controllers\GameController;
 use App\Api\V2\Controllers\SystemController;
@@ -100,6 +101,10 @@ class RouteServiceProvider extends ServiceProvider
                             'throttle:' . $rateLimit
                         )
                         ->resources(function ($server) {
+                            $server->resource('achievements', AchievementController::class)
+                                ->only('index', 'show')
+                                ->readOnly();
+
                             $server->resource('achievement-sets', AchievementSetController::class)
                                 ->only('show')
                                 ->readOnly();
@@ -133,7 +138,7 @@ class RouteServiceProvider extends ServiceProvider
                         AddContentLengthHeader::class,
                         'throttle:' . $rateLimit,
                     ])->group(function () {
-                        Route::patch('achievements/{achievement}', [AchievementController::class, 'update'])
+                        Route::patch('achievements/{achievement}', [InternalAchievementController::class, 'update'])
                             ->name('internal.achievements.update');
 
                         Route::get('health', [HealthController::class, 'check'])->name('internal.health');
