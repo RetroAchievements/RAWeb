@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Platform\Services\UserLastActivityService;
 use App\Models\UsersOnlineCount;
+use App\Platform\Services\UserLastActivityService;
 use Illuminate\Console\Command;
 
 class LogUsersOnlineCount extends Command
