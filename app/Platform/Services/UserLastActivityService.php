@@ -38,8 +38,10 @@ class UserLastActivityService
         // acquire the lock within LOCK_WAIT_SECONDS will silently skip tracking.
         Cache::lock(self::PENDING_KEY . ':lock', self::LOCK_TTL_SECONDS)->block(self::LOCK_WAIT_SECONDS, function () use ($userId) {
             $pending = Cache::get(self::PENDING_KEY, []);
-            $pending[$userId] = true;
-            Cache::put(self::PENDING_KEY, $pending, now()->addHours(self::CACHE_TTL_HOURS));
+            if (!array_key_exists($userId, $pending)) {
+                $pending[$userId] = true;
+                Cache::put(self::PENDING_KEY, $pending, now()->addHours(self::CACHE_TTL_HOURS));
+            }
         });
     }
 
@@ -61,6 +63,10 @@ class UserLastActivityService
 
     /**
      * Count all users active in the last N minutes.
+     * 
+     * NOTE: There's a small window where users who became active very
+     * recently may not be counted if their activity hasn't been flushed
+     * to the database yet.
      */
     public function countOnline(int $withinMinutes = 10): int
     {
