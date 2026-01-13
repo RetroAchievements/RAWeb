@@ -6,6 +6,7 @@ namespace App\Filament\Resources\GameResource\Pages;
 
 use App\Connect\Actions\SubmitRichPresenceAction;
 use App\Filament\Actions\ApplyUploadedImageToDataAction;
+use App\Filament\Actions\ViewOnSiteAction;
 use App\Filament\Concerns\HasFieldLevelAuthorization;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\GameResource;
@@ -35,6 +36,13 @@ class Edit extends EditRecord
     public function getBreadcrumb(): string
     {
         return 'Edit';
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            ViewOnSiteAction::make('view-on-site'),
+        ];
     }
 
     protected function mutateFormDataBeforeSave(array $data): array

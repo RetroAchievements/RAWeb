@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\GameResource\Pages;
 
+use App\Filament\Actions\ViewOnSiteAction;
 use App\Filament\Resources\GameResource;
 use App\Models\Game;
 use Filament\Actions;
@@ -30,6 +31,7 @@ class Details extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            ViewOnSiteAction::make('view-on-site'),
             Actions\EditAction::make(),
         ];
     }
