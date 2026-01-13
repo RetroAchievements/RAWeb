@@ -94,8 +94,8 @@ new class extends Component implements HasForms, HasTable, HasActions {
                     $join->on('tickets.ticketable_id', '=', 'newest_tickets.ticketable_id');
                 })
                 ->select(
-                    DB::raw('MIN(tickets.id) as id'),
-                    'games.id as ID',
+                    DB::raw('MIN(tickets.id) as min_ticket_id'),
+                    'games.id as id',
                     'games.title as Title',
                     'games.system_id as ConsoleID',
                     'games.image_icon_asset_path as ImageIcon',
