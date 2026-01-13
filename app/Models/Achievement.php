@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Community\Concerns\HasAchievementCommunityFeatures;
 use App\Community\Contracts\HasComments;
 use App\Community\Enums\CommentableType;
+use App\Platform\Contracts\HasPermalink;
 use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Enums\AchievementAuthorTask;
 use App\Platform\Enums\AchievementSetType;
@@ -48,7 +49,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 /**
  * @implements HasVersionedTrigger<Achievement>
  */
-class Achievement extends BaseModel implements HasVersionedTrigger
+class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
 {
     /*
      * Community Traits
