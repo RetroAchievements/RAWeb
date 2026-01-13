@@ -20,6 +20,7 @@ use App\Platform\Data\AchievementData;
 use App\Platform\Data\EventData;
 use App\Platform\Data\GameData;
 use App\Platform\Data\GameSetData;
+use App\Support\Search\Actions\CalculateTitleRelevanceAction;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -34,6 +35,11 @@ class SearchApiController extends Controller
     private const MIN_QUERY_LENGTH = 3;
     private const MAX_RESULTS_PER_SCOPE = 10;
     private const DEFAULT_PER_PAGE = 25;
+
+    public function __construct(
+        protected readonly CalculateTitleRelevanceAction $calculateTitleRelevanceAction,
+    ) {
+    }
 
     public function index(Request $request): JsonResponse
     {
@@ -63,18 +69,22 @@ class SearchApiController extends Controller
         // Use array_fill_keys for more efficient result initialization.
         $results = array_fill_keys($requestedScopes, []);
 
+        // Pagination params are only passed for single-scope searches.
+        $paginatedPage = $shouldUsePagination ? $page : null;
+        $paginatedPerPage = $shouldUsePagination ? $perPage : null;
+
         /**
          * TODO can we use the Concurrency facade for this?
          * @see https://laravel.com/docs/11.x/concurrency
          */
         $scopeMap = [
-            'users' => fn () => $this->searchUsers($keyword, $shouldUsePagination ? $page : null, $shouldUsePagination ? $perPage : null),
-            'games' => fn () => $this->searchGames($keyword, $shouldUsePagination ? $page : null, $shouldUsePagination ? $perPage : null),
-            'hubs' => fn () => $this->searchHubs($keyword, $shouldUsePagination ? $page : null, $shouldUsePagination ? $perPage : null),
-            'events' => fn () => $this->searchEvents($keyword, $shouldUsePagination ? $page : null, $shouldUsePagination ? $perPage : null),
-            'achievements' => fn () => $this->searchAchievements($keyword, $shouldUsePagination ? $page : null, $shouldUsePagination ? $perPage : null),
-            'forum_comments' => fn () => $this->searchForumComments($keyword, $shouldUsePagination ? $page : null, $shouldUsePagination ? $perPage : null),
-            'comments' => fn () => $this->searchComments($keyword, $request->user(), $shouldUsePagination ? $page : null, $shouldUsePagination ? $perPage : null),
+            'users' => fn () => $this->searchUsers($keyword, $paginatedPage, $paginatedPerPage),
+            'games' => fn () => $this->searchGames($keyword, $paginatedPage, $paginatedPerPage),
+            'hubs' => fn () => $this->searchHubs($keyword, $paginatedPage, $paginatedPerPage),
+            'events' => fn () => $this->searchEvents($keyword, $paginatedPage, $paginatedPerPage),
+            'achievements' => fn () => $this->searchAchievements($keyword, $paginatedPage, $paginatedPerPage),
+            'forum_comments' => fn () => $this->searchForumComments($keyword, $paginatedPage, $paginatedPerPage),
+            'comments' => fn () => $this->searchComments($keyword, $request->user(), $paginatedPage, $paginatedPerPage),
         ];
 
         // Scout doesn't have the ability to directly leverage a multi-indexed search.
@@ -154,42 +164,6 @@ class SearchApiController extends Controller
     }
 
     /**
-     * Returns a float from 0.0 (not relevant) to 1.0 (very relevant).
-     *
-     * Calculate a score from 0.0 to 1.0 based on Levenshtein distance and vibes.
-     * This is different from Meilisearch's relevance ranking and is complementary to it.
-     * Meilisearch does a good job of ranking individual scope results by relevance, but
-     * we also need to weigh the scopes themselves by the relevance of their internal entries
-     * against the user's original query. This helps us know what scopes the user might care about most.
-     *
-     * This is only used to determine what order the scopes should be presented as in the UI.
-     */
-    private function calculateTitleRelevance(string $query, string $title): float
-    {
-        $query = mb_strtolower($query);
-        $title = mb_strtolower($title);
-
-        // Exact match gets a perfect score.
-        if ($query === $title) {
-            return 1.0;
-        }
-
-        // Use Levenshtein distance normalized by the longer string length.
-        $distance = levenshtein($query, $title);
-        $maxLength = max(mb_strlen($query), mb_strlen($title));
-
-        // Convert distance to similarity (0 distance = 1.0 similarity).
-        $similarity = 1.0 - ($distance / $maxLength);
-
-        // Boost if title contains the exact query.
-        if (str_contains($title, $query)) {
-            $similarity = max($similarity, 0.7);
-        }
-
-        return max(0.0, $similarity);
-    }
-
-    /**
      * Preprocess game search keywords to handle special cases.
      * This ensures queries like ".hack" match the intended games rather than generic "hack" games.
      */
@@ -198,7 +172,7 @@ class SearchApiController extends Controller
         // Replace ".hack" with its "dothack" alias to match our indexed variations.
         // This prevents ".hack" from being simplified to just "hack" by Meilisearch
         // when Meilisearch automatically fuzzes out special characters (".").
-        if (stripos($keyword, '.hack') !== false) {
+        if (str_contains(mb_strtolower($keyword), '.hack')) {
             return str_ireplace('.hack', 'dothack', $keyword);
         }
 
@@ -274,7 +248,7 @@ class SearchApiController extends Controller
 
         // Calculate average relevance for section ordering.
         $avgRelevance = $filteredUsers->isEmpty() ? 0 : $filteredUsers->map(function ($user) use ($keyword) {
-            $relevance = $this->calculateTitleRelevance($keyword, $user->display_name);
+            $relevance = $this->calculateTitleRelevanceAction->execute($keyword, $user->display_name);
 
             // If the query contains multiple words, it's less likely to be a username.
             // Usernames are always single words (eg: "PokemonRedVersion").
@@ -334,7 +308,7 @@ class SearchApiController extends Controller
 
         // Calculate average relevance just for section ordering.
         $avgRelevance = $games->isEmpty() ? 0 : $games->map(function ($game) use ($keyword) {
-            $relevance = $this->calculateTitleRelevance($keyword, $game->title);
+            $relevance = $this->calculateTitleRelevanceAction->execute($keyword, $game->title);
 
             // Apply a small boost for multi-word queries since game titles often have multiple words.
             $wordCount = str_word_count($keyword);
@@ -380,7 +354,7 @@ class SearchApiController extends Controller
 
         // Calculate average relevance for UI section ordering.
         $avgRelevance = $hubs->isEmpty() ? 0 : $hubs->map(function ($hub) use ($keyword, $hasHubIntent) {
-            $relevanceScore = $this->calculateTitleRelevance($keyword, $hub->title);
+            $relevanceScore = $this->calculateTitleRelevanceAction->execute($keyword, $hub->title);
 
             // Apply hub intent boost if necessary.
             if ($hasHubIntent && $relevanceScore > 0) {
@@ -434,7 +408,7 @@ class SearchApiController extends Controller
 
         // Calculate average relevance for UI section ordering.
         $avgRelevance = $events->isEmpty() ? 0 : $events->map(function ($event) use ($keyword) {
-            return $this->calculateTitleRelevance($keyword, $event->legacyGame->title);
+            return $this->calculateTitleRelevanceAction->execute($keyword, $event->legacyGame->title);
         })->avg();
 
         return $this->buildSearchResponse($results, $avgRelevance);
@@ -502,7 +476,7 @@ class SearchApiController extends Controller
 
         // Calculate average relevance for section ordering.
         $avgRelevance = $achievements->isEmpty() ? 0 : $achievements->map(function ($achievement) use ($keyword) {
-            return $this->calculateTitleRelevance($keyword, $achievement->title);
+            return $this->calculateTitleRelevanceAction->execute($keyword, $achievement->title);
         })->avg();
 
         return $this->buildSearchResponse($results, $avgRelevance);

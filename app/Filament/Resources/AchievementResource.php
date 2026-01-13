@@ -38,13 +38,9 @@ class AchievementResource extends Resource
     protected static ?string $model = Achievement::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'fas-trophy';
-
     protected static string|UnitEnum|null $navigationGroup = 'Platform';
-
     protected static ?int $navigationSort = 50;
-
     protected static ?string $recordTitleAttribute = 'title';
-
     protected static int $globalSearchResultsLimit = 5;
 
     /**
@@ -60,12 +56,29 @@ class AchievementResource extends Resource
         return [
             'ID' => $record->id,
             'Description' => $record->description,
+            'Game' => $record->game->title . ' (' . $record->game->system->name_short . ')',
         ];
     }
 
     public static function getGloballySearchableAttributes(): array
     {
         return ['id', 'title', 'description'];
+    }
+
+    /**
+     * @return Builder<Achievement>
+     */
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['game.system']);
+    }
+
+    /**
+     * @param Builder<Achievement> $query
+     */
+    public static function modifyGlobalSearchQuery(Builder $query, string $search): void
+    {
+        $query->orderByDesc('unlocks_total');
     }
 
     public static function infolist(Schema $schema): Schema

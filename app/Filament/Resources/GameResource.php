@@ -43,13 +43,9 @@ class GameResource extends Resource
     protected static ?string $model = Game::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'fas-gamepad';
-
     protected static string|UnitEnum|null $navigationGroup = 'Platform';
-
     protected static ?int $navigationSort = 10;
-
     protected static ?string $recordTitleAttribute = 'title';
-
     protected static int $globalSearchResultsLimit = 5;
 
     /**
@@ -74,6 +70,14 @@ class GameResource extends Resource
     public static function getGloballySearchableAttributes(): array
     {
         return ['id', 'title'];
+    }
+
+    /**
+     * @param Builder<Game> $query
+     */
+    public static function modifyGlobalSearchQuery(Builder $query, string $search): void
+    {
+        $query->orderByDesc('players_total');
     }
 
     public static function infolist(Schema $schema): Schema

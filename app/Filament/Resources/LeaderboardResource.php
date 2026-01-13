@@ -35,13 +35,9 @@ class LeaderboardResource extends Resource
     protected static ?string $model = Leaderboard::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'fas-bars-staggered';
-
     protected static string|UnitEnum|null $navigationGroup = 'Platform';
-
     protected static ?int $navigationSort = 60;
-
     protected static ?string $recordTitleAttribute = 'title';
-
     protected static int $globalSearchResultsLimit = 5;
 
     /**
@@ -52,17 +48,36 @@ class LeaderboardResource extends Resource
         return $record->title;
     }
 
+    /**
+     * @param Leaderboard $record
+     */
     public static function getGlobalSearchResultDetails(Model $record): array
     {
-        return [
-            'ID' => $record->id,
-            'Description' => $record->description,
+        $details = [
+            'ID' => (string) $record->id,
         ];
+
+        // Only include the description if it has content.
+        if (!empty($record->description)) {
+            $details['Description'] = $record->description;
+        }
+
+        $details['Game'] = $record->game->title . ' (' . $record->game->system->name_short . ')';
+
+        return $details;
     }
 
     public static function getGloballySearchableAttributes(): array
     {
         return ['id', 'title'];
+    }
+
+    /**
+     * @return Builder<Leaderboard>
+     */
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['game.system']);
     }
 
     public static function infolist(Schema $schema): Schema
