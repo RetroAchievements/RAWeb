@@ -1,7 +1,7 @@
 <?php
 
 return [
-    /**
-     * 'example' => env('FEATURE_EXAMPLE', false),
-     */
+/**
+ * 'example' => env('FEATURE_EXAMPLE', false),
+ */
 ];
