@@ -952,8 +952,6 @@ class StartSessionTest extends TestCase
 
     public function testSpecialtyHashReturnsCoreUnlocks(): void
     {
-        config(['feature.enable_multiset' => true]);
-
         $now = Carbon::create(2020, 3, 4, 16, 40, 13);
         Carbon::setTestNow($now);
 
@@ -1005,8 +1003,6 @@ class StartSessionTest extends TestCase
 
     public function testExclusiveHashReturnsOnlyExclusiveUnlocks(): void
     {
-        config(['feature.enable_multiset' => true]);
-
         $now = Carbon::create(2020, 3, 4, 16, 40, 13);
         Carbon::setTestNow($now);
 
