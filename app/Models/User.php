@@ -284,6 +284,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     {
         return [
             'display_name' => $this->display_name,
+            'is_banned' => $this->banned_at !== null,
             'last_activity_at' => $this->last_activity_at,
             'username' => $this->username,
         ];
@@ -291,10 +292,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
 
     public function shouldBeSearchable(): bool
     {
-        if (isset($this->banned_at)) {
-            return false;
-        }
-
         return true;
     }
 
