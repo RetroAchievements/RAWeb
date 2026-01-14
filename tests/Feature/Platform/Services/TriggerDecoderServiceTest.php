@@ -254,6 +254,140 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertConditionHitTarget($condition, '0');
     }
 
+    public function testValue(): void
+    {
+        $service = new TriggerDecoderService();
+        $groups = $service->decodeValue("A:0xH0001*100_M:0xH0002*10");
+
+        $this->assertEquals(1, count($groups));
+        $this->assertEquals(2, count($groups[0]['Conditions']));
+
+        $this->assertEquals('Value', $groups[0]['Label']);
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionFlag($condition, 'Add Source');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000001');
+        $this->assertConditionOperator($condition, '*');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000064');
+        $this->assertConditionHitTarget($condition, '');
+
+        $condition = $groups[0]['Conditions'][1];
+        $this->assertConditionFlag($condition, 'Measured');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000002');
+        $this->assertConditionOperator($condition, '*');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x00000a');
+        $this->assertConditionHitTarget($condition, '');
+    }
+
+    public function testValueLegacy(): void
+    {
+        $service = new TriggerDecoderService();
+        $groups = $service->decodeValue("0xH0001*100_0xH0002*10");
+
+        $this->assertEquals(1, count($groups));
+        $this->assertEquals(2, count($groups[0]['Conditions']));
+
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionFlag($condition, 'Add Source');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000001');
+        $this->assertConditionOperator($condition, '*');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000064');
+        $this->assertConditionHitTarget($condition, '');
+
+        $condition = $groups[0]['Conditions'][1];
+        $this->assertConditionFlag($condition, 'Measured');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000002');
+        $this->assertConditionOperator($condition, '*');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x00000a');
+        $this->assertConditionHitTarget($condition, '');
+    }
+
+    public function testValueLegacyFloats(): void
+    {
+        $service = new TriggerDecoderService();
+        $groups = $service->decodeValue("0xH0001*0.5_0xH0002*-2.4");
+
+        $this->assertEquals(1, count($groups));
+        $this->assertEquals(3, count($groups[0]['Conditions']));
+
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionFlag($condition, 'Add Source');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000001');
+        $this->assertConditionOperator($condition, '*');
+        $this->assertConditionTargetOperand($condition, 'Float', '', '0.5');
+        $this->assertConditionHitTarget($condition, '');
+
+        $condition = $groups[0]['Conditions'][1];
+        $this->assertConditionFlag($condition, 'Sub Source');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000002');
+        $this->assertConditionOperator($condition, '*');
+        $this->assertConditionTargetOperand($condition, 'Float', '', '2.4');
+        $this->assertConditionHitTarget($condition, '');
+
+        $condition = $groups[0]['Conditions'][2];
+        $this->assertConditionFlag($condition, 'Measured');
+        $this->assertConditionSourceOperand($condition, 'Value', '', '0x000000');
+        $this->assertConditionOperator($condition, '');
+        $this->assertConditionTargetOperand($condition, '', '', '');
+        $this->assertConditionHitTarget($condition, '');
+    }
+
+    public function testValueLegacyMaxOf(): void
+    {
+        $service = new TriggerDecoderService();
+        $groups = $service->decodeValue('0xH0001*100_0xH0002*10$0xX1234');
+
+        $this->assertEquals(2, count($groups));
+        $this->assertEquals(2, count($groups[0]['Conditions']));
+
+        $this->assertEquals('Value 1', $groups[0]['Label']);
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionFlag($condition, 'Add Source');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000001');
+        $this->assertConditionOperator($condition, '*');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000064');
+        $this->assertConditionHitTarget($condition, '');
+
+        $this->assertEquals('Value 2', $groups[1]['Label']);
+        $condition = $groups[0]['Conditions'][1];
+        $this->assertConditionFlag($condition, 'Measured');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000002');
+        $this->assertConditionOperator($condition, '*');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x00000a');
+        $this->assertConditionHitTarget($condition, '');
+
+        $this->assertEquals(1, count($groups[1]['Conditions']));
+
+        $condition = $groups[1]['Conditions'][0];
+        $this->assertConditionFlag($condition, 'Measured');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x001234');
+        $this->assertConditionOperator($condition, '');
+        $this->assertConditionTargetOperand($condition, '', '', '');
+        $this->assertConditionHitTarget($condition, '');
+    }
+
+    public function testValueLegacyComparisons(): void
+    {
+        $service = new TriggerDecoderService();
+        $groups = $service->decodeValue("0xH0001=100_0xH0002>=10");
+
+        $this->assertEquals(1, count($groups));
+        $this->assertEquals(2, count($groups[0]['Conditions']));
+
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionFlag($condition, 'Add Source');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000001');
+        $this->assertConditionOperator($condition, '');
+        $this->assertConditionTargetOperand($condition, '', '', '');
+        $this->assertConditionHitTarget($condition, '');
+
+        $condition = $groups[0]['Conditions'][1];
+        $this->assertConditionFlag($condition, 'Measured');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x000002');
+        $this->assertConditionOperator($condition, '');
+        $this->assertConditionTargetOperand($condition, '', '', '');
+        $this->assertConditionHitTarget($condition, '');
+    }
+
     public function testMergeCodeNotes(): void
     {
         $service = new TriggerDecoderService();
