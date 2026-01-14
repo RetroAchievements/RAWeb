@@ -20,6 +20,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class AchievementSetClaimResource extends Resource
@@ -44,6 +45,9 @@ class AchievementSetClaimResource extends Resource
 
     public static function table(Table $table): Table
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('game.badge_url')
@@ -119,6 +123,11 @@ class AchievementSetClaimResource extends Resource
                     ->sortable(),
             ])
             ->filters([
+                Tables\Filters\Filter::make('my_claims')
+                    ->label('My Claims')
+                    ->toggle()
+                    ->query(fn (Builder $query): Builder => $query->where('user_id', $user->id)),
+
                 Tables\Filters\SelectFilter::make('status')
                     ->label('Status')
                     ->options(
