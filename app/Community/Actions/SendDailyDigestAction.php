@@ -39,9 +39,13 @@ class SendDailyDigestAction
             ->where('id', '<=', $last->id)
             ->delete();
 
-        // if the user doesn't have an email address or is opted out, bail.
+        // if the user doesn't have an email address, is opted out, or is inactive, bail.
         // do this after deleting the pending subscriptions.
-        if (!$user->email || BitSet($user->preferences_bitfield, UserPreference::EmailOff_DailyDigest)) {
+        if (
+            !$user->email
+            || BitSet($user->preferences_bitfield, UserPreference::EmailOff_DailyDigest)
+            || $user->isInactive()
+        ) {
             return;
         }
 
