@@ -96,6 +96,13 @@ parameters:
             message: '#Call to an undefined method PHPUnit\\Framework\\TestCase::#'
             path: tests/*
 
+        # Larastan doesn't detect this BelongsToMany relationship when analyzing the trait
+        # in the context of Filament page classes. The method exists on Achievement model.
+        -
+            identifier: method.notFound
+            message: '#Achievement::achievementSets#'
+            path: app/Filament/Resources/AchievementResource/Concerns/HasAchievementSetNavigation.php
+
     excludePaths:
         # unrelated directories
         - public/storage (?)

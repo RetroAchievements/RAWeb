@@ -11,6 +11,7 @@ use App\Console\Commands\CacheMostPopularEmulators;
 use App\Console\Commands\CacheMostPopularSystems;
 use App\Console\Commands\CleanupAvatars;
 use App\Console\Commands\DeleteOverdueUserAccounts;
+use App\Console\Commands\FlushUserActivityToDatabase;
 use App\Console\Commands\GenerateTypeScript;
 use App\Console\Commands\LogUsersOnlineCount;
 use App\Console\Commands\SquashMigrations;
@@ -22,6 +23,7 @@ use App\Models\Message;
 use App\Models\News;
 use App\Models\Role;
 use App\Models\User;
+use App\Platform\Services\UserLastActivityService;
 use EragLaravelDisposableEmail\Rules\DisposableEmailRule;
 use Exception;
 use Illuminate\Console\Scheduling\Schedule;
@@ -49,6 +51,10 @@ class AppServiceProvider extends ServiceProvider
         // This can eliminate unnecessary props and speed up hydration.
         $this->app->singleton(ResponseFactory::class, InertiaResponseFactory::class);
 
+        // Track user recent activity timestamps in Redis and flush them periodically to the DB.
+        // This keeps the users table indexes from constantly rebalancing 24/7.
+        $this->app->singleton(UserLastActivityService::class);
+
         // Register Optimus for ID obfuscation. Required for spatie/laravel-medialibrary paths.
         $this->app->singleton(Optimus::class, function () {
             return new Optimus(
@@ -70,6 +76,7 @@ class AppServiceProvider extends ServiceProvider
                 CacheMostPopularEmulators::class,
                 CacheMostPopularSystems::class,
                 DeleteOverdueUserAccounts::class,
+                FlushUserActivityToDatabase::class,
                 GenerateTypeScript::class,
                 LogUsersOnlineCount::class,
                 SquashMigrations::class,
@@ -106,6 +113,7 @@ class AppServiceProvider extends ServiceProvider
 
             $schedule->command('model:prune')->dailyAt('9:00'); // ~4:00AM US Eastern
             $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes()->evenInMaintenanceMode();
+            $schedule->command(FlushUserActivityToDatabase::class)->everyMinute()->withoutOverlapping();
 
             if (app()->environment() === 'production') {
                 $schedule->command(DeleteOverdueUserAccounts::class)->daily();

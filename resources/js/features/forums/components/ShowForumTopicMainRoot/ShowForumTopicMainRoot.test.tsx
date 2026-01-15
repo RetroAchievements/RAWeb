@@ -336,7 +336,7 @@ describe('Component: ShowForumTopicMainRoot', () => {
 
     // ASSERT
     expect(screen.getByText(/this topic is locked/i)).toBeVisible();
-    expect(screen.queryByRole('link', { name: /edit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /^edit$/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   });
 

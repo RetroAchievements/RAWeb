@@ -238,25 +238,26 @@ class PlayerAchievementsSeeder extends Seeder
                 $user->rich_presence_game_id = $lastSession->game_id;
                 $user->rich_presence_updated_at = $lastSession->rich_presence_updated_at;
 
+                $lastActivityAt = Carbon::parse($lastSession->rich_presence_updated_at);
                 switch (rand(0, 3)) {
                     case 0:
-                        $user->last_activity_at = $lastSession->rich_presence_updated_at->addMinutes(rand(0, 60));
+                        $lastActivityAt = $lastActivityAt->addMinutes(rand(0, 60));
                         break;
                     case 1:
-                        $user->last_activity_at = $lastSession->rich_presence_updated_at->addMinutes(rand(60, 500));
+                        $lastActivityAt = $lastActivityAt->addMinutes(rand(60, 500));
                         break;
                     case 2:
-                        $user->last_activity_at = $lastSession->rich_presence_updated_at->addMinutes(rand(500, 2000));
+                        $lastActivityAt = $lastActivityAt->addMinutes(rand(500, 2000));
                         break;
                     case 3:
-                        $user->last_activity_at = $lastSession->rich_presence_updated_at->addMinutes(rand(2000, 10000));
+                        $lastActivityAt = $lastActivityAt->addMinutes(rand(2000, 10000));
                         break;
                 }
 
-                $user->last_activity_at = $user->last_activity_at->addSeconds(rand(0, 60));
-                if ($user->last_activity_at > Carbon::now()) {
-                    $user->last_activity_at = Carbon::now();
-                }
+                $lastActivityAt = $lastActivityAt->addSeconds(rand(0, 60));
+                $lastActivityAt = $lastActivityAt->min(Carbon::now());
+
+                $user->forceFill(['last_activity_at' => $lastActivityAt]);
 
                 $user->saveQuietly();
             }
