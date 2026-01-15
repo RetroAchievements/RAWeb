@@ -14,6 +14,7 @@ class PasswordRules
             'required',
             'different:username',
             'different:email',
+            'not_regex:/retroachievements/i',
             Password::min(10)->uncompromised(),
             new MinimumUniqueCharacters(5),
         ];
