@@ -17,6 +17,7 @@ use App\Platform\Concerns\ActsAsPlayer;
 use App\Platform\Concerns\CollectsBadges;
 use App\Platform\Concerns\HasConnectToken;
 use App\Platform\Contracts\Developer;
+use App\Platform\Contracts\HasPermalink;
 use App\Platform\Contracts\Player;
 use App\Platform\Services\UserLastActivityService;
 use App\Support\Database\Eloquent\Concerns\HasFullTableName;
@@ -47,7 +48,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 // TODO MustVerifyEmail
 // TODO HasComments
-class User extends Authenticatable implements CommunityMember, Developer, HasLocalePreference, HasMedia, Player, FilamentUser, HasName, OAuthenticatable
+class User extends Authenticatable implements CommunityMember, Developer, HasLocalePreference, HasMedia, HasPermalink, Player, FilamentUser, HasName, OAuthenticatable
 {
     /*
      * Framework Traits
@@ -285,6 +286,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
     {
         return [
             'display_name' => $this->display_name,
+            'is_banned' => $this->banned_at !== null,
             'last_activity_at' => $this->last_activity_at,
             'username' => $this->username,
         ];
@@ -292,10 +294,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasLoc
 
     public function shouldBeSearchable(): bool
     {
-        if (isset($this->banned_at)) {
-            return false;
-        }
-
         return true;
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\AchievementResource\Pages;
 
 use App\Filament\Actions\ApplyUploadedImageToDataAction;
+use App\Filament\Actions\ViewOnSiteAction;
 use App\Filament\Concerns\HasFieldLevelAuthorization;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\AchievementResource;
@@ -41,6 +42,7 @@ class Edit extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            ViewOnSiteAction::make('view-on-site'),
             Actions\DeleteAction::make(),
             Actions\RestoreAction::make(),
         ];

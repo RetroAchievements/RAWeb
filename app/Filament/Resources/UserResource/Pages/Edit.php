@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\UserResource\Pages;
 
+use App\Filament\Actions\ViewOnSiteAction;
 use App\Filament\Resources\UserResource;
 use App\Models\User;
 use Carbon\Carbon;
@@ -16,6 +17,7 @@ class Edit extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            ViewOnSiteAction::make('view-on-site'),
         ];
     }
 

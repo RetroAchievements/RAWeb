@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Platform\Actions\WriteGameSetSortTitleAction;
+use App\Platform\Contracts\HasPermalink;
 use App\Platform\Enums\GameSetRolePermission;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Services\EventHubIdCacheService;
@@ -22,7 +23,7 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 // TODO drop image_asset_path, migrate to media
-class GameSet extends BaseModel
+class GameSet extends BaseModel implements HasPermalink
 {
     use LogsActivity {
         LogsActivity::activities as auditLog;

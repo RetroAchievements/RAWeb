@@ -12,6 +12,7 @@ use App\Platform\Actions\ComputeGameSearchTitlesAction;
 use App\Platform\Actions\SyncAchievementSetImageAssetPathFromGameAction;
 use App\Platform\Actions\SyncGameTagsFromTitleAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
+use App\Platform\Contracts\HasPermalink;
 use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Data\PageBannerData;
 use App\Platform\Enums\AchievementSetType;
@@ -48,7 +49,7 @@ use Spatie\Tags\HasTags;
 /**
  * @implements HasVersionedTrigger<Game>
  */
-class Game extends BaseModel implements HasMedia, HasVersionedTrigger
+class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrigger
 {
     /*
      * Community Traits
@@ -362,6 +363,15 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
     }
 
     // == search
+
+    /**
+     * @param Builder<Game> $query
+     * @return Builder<Game>
+     */
+    protected function makeAllSearchableUsing(Builder $query): Builder
+    {
+        return $query->with(['system']);
+    }
 
     public function toSearchableArray(): array
     {

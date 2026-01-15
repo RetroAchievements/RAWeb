@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\AchievementResource\Pages;
 
+use App\Filament\Actions\ViewOnSiteAction;
 use App\Filament\Resources\AchievementResource;
 use App\Filament\Resources\AchievementResource\Concerns\HasAchievementSetNavigation;
 use App\Models\Achievement;
@@ -35,6 +36,7 @@ class Details extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            ViewOnSiteAction::make('view-on-site'),
             Actions\EditAction::make(),
             Actions\DeleteAction::make(),
             Actions\RestoreAction::make(),
