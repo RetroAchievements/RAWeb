@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\AchievementResource\Pages;
 
 use App\Filament\Resources\AchievementResource;
+use App\Filament\Resources\AchievementResource\Concerns\HasAchievementSetNavigation;
 use App\Models\Achievement;
 use App\Models\Trigger;
 use App\Models\User;
@@ -16,9 +17,11 @@ use Filament\Resources\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 
 class Logic extends Page
 {
+    use HasAchievementSetNavigation;
     use InteractsWithRecord;
 
     protected static string $resource = AchievementResource::class;
@@ -57,6 +60,21 @@ class Logic extends Page
             route('filament.admin.resources.achievements.view', $achievement) => $achievement->title,
             'Logic',
         ];
+    }
+
+    public function getSubheading(): string|Htmlable|null
+    {
+        $navData = $this->getAchievementSetNavigationData();
+        if (!$navData) {
+            return null;
+        }
+
+        return new HtmlString(
+            view('filament.resources.achievement-resource.partials.achievement-navigator', [
+                'navData' => $navData,
+                'pageType' => 'logic',
+            ])->render()
+        );
     }
 
     public static function canAccess(array $parameters = []): bool
