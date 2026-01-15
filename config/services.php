@@ -18,6 +18,11 @@ return [
         'channel' => env('BLUESKY_CHANNEL'),
     ],
 
+    'cloudflare' => [
+        'api_token' => env('CLOUDFLARE_API_TOKEN'),
+        'zone_id' => env('CLOUDFLARE_ZONE_ID'),
+    ],
+
     'discord' => [
         'client_id' => env('DISCORD_KEY'),
         'client_secret' => env('DISCORD_SECRET'),

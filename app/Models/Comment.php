@@ -47,6 +47,15 @@ class Comment extends BaseModel
 
     // == search
 
+    /**
+     * @param Builder<Comment> $query
+     * @return Builder<Comment>
+     */
+    protected function makeAllSearchableUsing(Builder $query): Builder
+    {
+        return $query->with(['userWithTrashed']);
+    }
+
     public function toSearchableArray(): array
     {
         return [

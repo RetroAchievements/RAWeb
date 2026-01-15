@@ -13,7 +13,7 @@ use App\Platform\Actions\SyncAchievementSetImageAssetPathFromGameAction;
 use App\Platform\Actions\SyncGameTagsFromTitleAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
 use App\Platform\Contracts\HasVersionedTrigger;
-use App\Platform\Data\GameBannerData;
+use App\Platform\Data\PageBannerData;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\ReleasedAtGranularity;
@@ -363,6 +363,15 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
     // == search
 
+    /**
+     * @param Builder<Game> $query
+     * @return Builder<Game>
+     */
+    protected function makeAllSearchableUsing(Builder $query): Builder
+    {
+        return $query->with(['system']);
+    }
+
     public function toSearchableArray(): array
     {
         // Get alternative titles from the game's list of releases.
@@ -472,11 +481,11 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
         return media_asset($this->image_ingame_asset_path);
     }
 
-    public function getBannerAttribute(): GameBannerData
+    public function getBannerAttribute(): PageBannerData
     {
         $banner = $this->getFirstMedia('banner');
 
-        return new GameBannerData(
+        return new PageBannerData(
             mobileSmWebp: $this->getFirstMediaUrl('banner', 'mobile-sm-webp') ?: null,
             mobileSmAvif: $this->getFirstMediaUrl('banner', 'mobile-sm-avif') ?: null,
             mobileMdWebp: $this->getFirstMediaUrl('banner', 'mobile-md-webp') ?: null,

@@ -80,6 +80,7 @@ class UserSchema extends Schema
 
             DateTime::make('joinedAt', 'created_at')->sortable()->readOnly(),
             DateTime::make('lastActivityAt', 'last_activity_at')->sortable()->readOnly(),
+            DateTime::make('deletedAt', 'deleted_at')->readOnly(),
 
             Boolean::make('isUnranked')->readOnly(),
             Boolean::make('isUserWallActive', 'is_user_wall_active')->readOnly(),
@@ -90,7 +91,7 @@ class UserSchema extends Schema
             Str::make('visibleRole')->readOnly(),
             ArrayList::make('displayableRoles')->readOnly(),
 
-            // TODO add relationships
+            // TODO add relationships and relationship endpoints
             // - lastGame (BelongsTo Game)
             // - playerGames (HasMany PlayerGame)
             // - playerAchievementSets (HasMany PlayerAchievementSet)

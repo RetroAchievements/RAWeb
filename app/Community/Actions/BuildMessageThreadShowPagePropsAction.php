@@ -14,6 +14,7 @@ use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
 use App\Policies\MessageThreadPolicy;
+use App\Support\Shortcode\Shortcode;
 
 class BuildMessageThreadShowPagePropsAction
 {
@@ -65,6 +66,12 @@ class BuildMessageThreadShowPagePropsAction
 
         // Convert user ID shortcodes to use display names.
         $updatedBodies = (new ConvertUserShortcodesFromIdsToDisplayNamesAction())->execute($messageBodies);
+
+        // Convert [game=X?set=Y] shortcodes to their backing game IDs.
+        $updatedBodies = array_map(
+            fn (string $body) => Shortcode::convertGameSetShortcodesToBackingGame($body),
+            $updatedBodies
+        );
 
         // Extract all dynamic entities from the updated bodies.
         $entities = (new ExtractDynamicShortcodeEntitiesAction())->execute($updatedBodies);
