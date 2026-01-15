@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Actions;
 
 use App\Data\CurrentlyOnlineData;
-use App\Models\User;
+use App\Platform\Services\UserLastActivityService;
 use Carbon\Carbon;
 
 class BuildCurrentlyOnlineDataAction
@@ -40,7 +40,7 @@ class BuildCurrentlyOnlineDataAction
 
     private function getNumCurrentPlayers(): int
     {
-        return User::where('last_activity_at', '>', Carbon::now()->subMinutes(10))->count();
+        return app(UserLastActivityService::class)->countOnline(withinMinutes: 10);
     }
 
     private function getLogEntries(array $logFileLines): array

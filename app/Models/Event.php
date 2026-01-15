@@ -9,6 +9,7 @@ use App\Support\Database\Eloquent\BaseModel;
 use App\Support\Routing\HasSelfHealingUrls;
 use Carbon\Carbon;
 use Database\Factories\EventFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -79,9 +80,18 @@ class Event extends BaseModel
 
     // == search
 
+    /**
+     * @param Builder<Event> $query
+     * @return Builder<Event>
+     */
+    protected function makeAllSearchableUsing(Builder $query): Builder
+    {
+        return $query->with(['legacyGame']);
+    }
+
     public function toSearchableArray(): array
     {
-        $this->load('legacyGame');
+        $this->loadMissing('legacyGame');
 
         return [
             'id' => (int) $this->id,
