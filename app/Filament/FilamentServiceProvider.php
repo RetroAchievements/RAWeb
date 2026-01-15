@@ -48,7 +48,6 @@ class FilamentServiceProvider extends \Filament\PanelProvider
             ])
             ->globalSearch(RelevanceBasedGlobalSearchProvider::class)
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
-            ->globalSearchFieldKeyBindingSuffix()
             ->maxContentWidth(\Filament\Support\Enums\Width::ScreenTwoExtraLarge)
             ->navigationGroups([
                 'Community',

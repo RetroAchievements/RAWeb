@@ -47,8 +47,19 @@ class RelevanceBasedGlobalSearchProvider implements GlobalSearchProvider
             ];
         }
 
-        // Sort categories by average relevance (highest first).
-        usort($categorizedResults, fn (array $a, array $b): int => $b['avgRelevance'] <=> $a['avgRelevance']);
+        // Sort categories by relevance, with a fixed priority as the tiebreaker.
+        $categoryPriority = ['users' => 0, 'games' => 1, 'hubs' => 2, 'achievements' => 3, 'leaderboards' => 4];
+        usort($categorizedResults, function (array $a, array $b) use ($categoryPriority): int {
+            $relevanceComparison = $b['avgRelevance'] <=> $a['avgRelevance'];
+            if ($relevanceComparison !== 0) {
+                return $relevanceComparison;
+            }
+
+            $priorityA = $categoryPriority[strtolower($a['label'])] ?? 99;
+            $priorityB = $categoryPriority[strtolower($b['label'])] ?? 99;
+
+            return $priorityA <=> $priorityB;
+        });
 
         $builder = GlobalSearchResults::make();
         foreach ($categorizedResults as $category) {

@@ -75,7 +75,7 @@ class UserResource extends Resource
      */
     public static function modifyGlobalSearchQuery(Builder $query, string $search): void
     {
-        $query->orderByDesc('points');
+        $query->orderByDesc('points_hardcore');
     }
 
     public static function infolist(Schema $schema): Schema
