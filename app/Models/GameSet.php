@@ -275,6 +275,15 @@ class GameSet extends BaseModel implements HasPermalink
         });
     }
 
+    // == constants
+
+    public const CentralHubId = 1;
+    public const GenreSubgenreHubId = 2;
+    public const SeriesHubId = 3;
+    public const CommunityEventsHubId = 4;
+    public const DeveloperEventsHubId = 5;
+    public const FreePointsHubId = 3796;
+
     // == logging
 
     public function getActivitylogOptions(): LogOptions
@@ -310,14 +319,6 @@ class GameSet extends BaseModel implements HasPermalink
     {
         return $this->type === GameSetType::Hub;
     }
-
-    // == constants
-
-    public const CentralHubId = 1;
-    public const GenreSubgenreHubId = 2;
-    public const SeriesHubId = 3;
-    public const CommunityEventsHubId = 4;
-    public const DeveloperEventsHubId = 5;
 
     // == accessors
 
