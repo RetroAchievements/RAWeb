@@ -45,11 +45,6 @@ class TriggerSuspiciousBeatTimeAlert implements ShouldQueue
             return;
         }
 
-        // It's not unusual for games in the Free Points hub to be beaten quickly.
-        if ($game->hubs()->where('game_sets.id', GameSet::FreePointsHubId)->exists()) {
-            return;
-        }
-
         // Bail if we don't have a sufficient sample size.
         if ($game->times_beaten_hardcore < 20) {
             return;
@@ -63,6 +58,11 @@ class TriggerSuspiciousBeatTimeAlert implements ShouldQueue
 
         // Flag if the player beat the game in less than 5% of the median time.
         if ($playerTime >= $medianTime / 20) {
+            return;
+        }
+
+        // It's not unusual for games in the Free Points hub to be beaten quickly.
+        if ($game->hubs()->where('game_sets.id', GameSet::FreePointsHubId)->exists()) {
             return;
         }
 
