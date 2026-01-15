@@ -9,15 +9,19 @@ use App\Filament\Actions\ViewOnSiteAction;
 use App\Filament\Concerns\HasFieldLevelAuthorization;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\AchievementResource;
+use App\Filament\Resources\AchievementResource\Concerns\HasAchievementSetNavigation;
 use App\Models\Achievement;
 use App\Platform\Actions\SyncEventAchievementMetadataAction;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\HtmlString;
 
 class Edit extends EditRecord
 {
     use HasFieldLevelAuthorization;
+    use HasAchievementSetNavigation;
 
     protected static string $resource = AchievementResource::class;
 
@@ -64,5 +68,20 @@ class Edit extends EditRecord
         $record->save();
 
         return $record;
+    }
+
+    public function getSubheading(): string|Htmlable|null
+    {
+        $navData = $this->getAchievementSetNavigationData();
+        if (!$navData) {
+            return null;
+        }
+
+        return new HtmlString(
+            view('filament.resources.achievement-resource.partials.achievement-navigator', [
+                'navData' => $navData,
+                'pageType' => 'edit',
+            ])->render()
+        );
     }
 }
