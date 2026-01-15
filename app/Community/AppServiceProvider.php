@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Community;
 
 use App\Community\Commands\BackfillModerationActions;
-use App\Community\Commands\DeleteOldUserActivities;
 use App\Community\Commands\GenerateAnnualRecap;
 use App\Community\Commands\MigrateTicketCommentMetadata;
 use App\Community\Commands\ProcessExpiredMutes;
@@ -47,7 +46,6 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 BackfillModerationActions::class,
-                DeleteOldUserActivities::class,
                 GenerateAnnualRecap::class,
                 MigrateTicketCommentMetadata::class,
                 ProcessExpiredMutes::class,
@@ -59,7 +57,6 @@ class AppServiceProvider extends ServiceProvider
             /** @var Schedule $schedule */
             $schedule = $this->app->make(Schedule::class);
 
-            $schedule->command(DeleteOldUserActivities::class)->daily();
             $schedule->command(ProcessExpiredMutes::class)->daily();
             $schedule->command(SendDailyDigest::class)->daily();
         });

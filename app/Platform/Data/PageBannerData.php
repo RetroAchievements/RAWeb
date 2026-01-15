@@ -7,8 +7,8 @@ namespace App\Platform\Data;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript('GameBanner')]
-class GameBannerData extends Data
+#[TypeScript('PageBanner')]
+class PageBannerData extends Data
 {
     public function __construct(
         public ?string $mobileSmWebp,
