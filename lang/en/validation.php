@@ -143,6 +143,7 @@ return [
     'ctype_alnum' => 'The :attribute must only contain unaccented letters and numbers.',
     'locale' => 'The :attribute locale is not currently supported.',
     'minimum_unique_characters' => 'The :attribute must contain at least :minimum different characters.',
+    'minimum_unique_characters_with_strip' => 'The :attribute contains a common word. Please add more unique characters.',
     'not_disposable_email' => 'This email provider is not allowed.',
     'no_offensive_content' => 'This username is not available.',
 

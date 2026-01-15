@@ -14,9 +14,9 @@ class PasswordRules
             'required',
             'different:username',
             'different:email',
-            'not_regex:/retroachievements/i',
+            'not_regex:/retroachievements\.org/i',
             Password::min(10)->uncompromised(),
-            new MinimumUniqueCharacters(5),
+            new MinimumUniqueCharacters(minimum: 5, stripWords: ['retroachievements']),
         ];
 
         if ($requireConfirmation) {
