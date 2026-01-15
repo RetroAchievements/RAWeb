@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Actions\UnlockPlayerAchievementAction;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Services\UserLastActivityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -63,6 +64,9 @@ class UnlockPlayerAchievementActionTest extends TestCase
         $playerAchievement = $user1->playerAchievements()->firstWhere('achievement_id', $achievement2->id);
         $this->assertNotNull($playerAchievement);
         $this->assertNull($playerAchievement->unlocker_id);
+
+        // flush cached activity timestamps to the DB before checking them
+        app(UserLastActivityService::class)->flushToDatabase();
 
         $user1->refresh();
         $this->assertEquals($now, $user1->last_activity_at);

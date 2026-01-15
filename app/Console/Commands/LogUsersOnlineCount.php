@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Models\User;
 use App\Models\UsersOnlineCount;
-use Carbon\Carbon;
+use App\Platform\Services\UserLastActivityService;
 use Illuminate\Console\Command;
 
 class LogUsersOnlineCount extends Command
@@ -14,9 +13,9 @@ class LogUsersOnlineCount extends Command
     protected $signature = 'ra:site:user:log-online-count';
     protected $description = 'Log users online count';
 
-    public function handle(): void
+    public function handle(UserLastActivityService $userActivityService): void
     {
-        $playersOnline = User::where('last_activity_at', '>', Carbon::now()->subMinutes(10))->count();
+        $playersOnline = $userActivityService->countOnline(withinMinutes: 10);
 
         UsersOnlineCount::log($playersOnline);
         file_put_contents(storage_path('logs/playersonline.log'), $playersOnline . PHP_EOL, FILE_APPEND);
