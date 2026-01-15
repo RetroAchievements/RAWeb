@@ -12,6 +12,7 @@ use App\Enums\Permissions;
 use App\Http\Responses\LoginResponse;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Validation\UncompromisedVerifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
@@ -77,6 +78,8 @@ class FortifyServiceProvider extends ServiceProvider
                 if ($user->legacy_salted_password === $pepperedPassword) {
                     changePassword($user->username, $request->input('password'));
 
+                    $this->checkForCompromisedPassword($request->input('password'));
+
                     return $user;
                 }
 
@@ -85,6 +88,8 @@ class FortifyServiceProvider extends ServiceProvider
 
             // Standard password check
             if (Hash::check($request->input('password'), $user->password)) {
+                $this->checkForCompromisedPassword($request->input('password'));
+
                 return $user;
             }
 
@@ -301,5 +306,23 @@ class FortifyServiceProvider extends ServiceProvider
                     ->middleware($twoFactorMiddleware);
             }
         });
+    }
+
+    /**
+     * Check if the password has been compromised in a data breach.
+     * If so, set a session flag to show a warning banner.
+     */
+    private function checkForCompromisedPassword(string $password): void
+    {
+        $verifier = app(UncompromisedVerifier::class);
+
+        $isSafe = $verifier->verify([
+            'value' => $password,
+            'threshold' => 0,
+        ]);
+
+        if (!$isSafe) {
+            session(['password_compromised' => true]);
+        }
     }
 }

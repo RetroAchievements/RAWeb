@@ -73,12 +73,6 @@ class LeaderboardResource extends Resource
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('canonicalUrl')
-                            ->label('Permalink')
-                            ->formatStateUsing(fn (Leaderboard $record) => url("leaderboardinfo.php?i={$record->id}"))
-                            ->url(fn (Leaderboard $record): string => url("leaderboardinfo.php?i={$record->id}"))
-                            ->extraAttributes(['class' => 'underline']),
-
                         Infolists\Components\TextEntry::make('game.title')
                             ->url(function (Leaderboard $record) {
                                 if (request()->user()->can('manage', Game::class)) {

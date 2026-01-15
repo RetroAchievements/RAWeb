@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\LeaderboardResource\Pages;
 
+use App\Filament\Actions\ViewOnSiteAction;
 use App\Filament\Resources\LeaderboardResource;
 use App\Models\Leaderboard;
 use Filament\Actions;
@@ -32,6 +33,7 @@ class Edit extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            ViewOnSiteAction::make('view-on-site'),
             Actions\DeleteAction::make(),
         ];
     }

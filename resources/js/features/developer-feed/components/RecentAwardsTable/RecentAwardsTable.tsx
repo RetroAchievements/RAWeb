@@ -46,7 +46,7 @@ export const RecentAwardsTable: FC<RecentAwardsTableProps> = ({ recentPlayerBadg
             <BaseTableBody>
               {recentPlayerBadges.map((recentPlayerBadge) => (
                 <BaseTableRow
-                  key={`recentAward-${recentPlayerBadge.user.displayName}-${recentPlayerBadge.game.title}`}
+                  key={`recentAward-${recentPlayerBadge.user.displayName}-${recentPlayerBadge.game.id}-${recentPlayerBadge.awardType}`}
                 >
                   <BaseTableCell>
                     <div className="max-w-fit">
