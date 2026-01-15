@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Alerts\Listeners;
 
+use App\Models\GameSet;
 use App\Models\PlayerGame;
 use App\Platform\Events\PlayerGameBeaten;
 use App\Support\Alerts\SuspiciousBeatTimeAlert;
@@ -57,6 +58,11 @@ class TriggerSuspiciousBeatTimeAlert implements ShouldQueue
 
         // Flag if the player beat the game in less than 5% of the median time.
         if ($playerTime >= $medianTime / 20) {
+            return;
+        }
+
+        // It's not unusual for games in the Free Points hub to be beaten quickly.
+        if ($game->hubs()->where('game_sets.id', GameSet::FreePointsHubId)->exists()) {
             return;
         }
 
