@@ -14,9 +14,7 @@ class ViewOnSiteAction extends Action
         parent::setUp();
 
         $this->label('View on Site')
-            ->icon('heroicon-m-arrow-top-right-on-square')
             ->color('gray')
-            ->url(fn (HasPermalink $record): string => $record->getPermalinkAttribute())
-            ->openUrlInNewTab();
+            ->url(fn (HasPermalink $record): string => $record->getPermalinkAttribute());
     }
 }
