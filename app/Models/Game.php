@@ -363,6 +363,15 @@ class Game extends BaseModel implements HasMedia, HasVersionedTrigger
 
     // == search
 
+    /**
+     * @param Builder<Game> $query
+     * @return Builder<Game>
+     */
+    protected function makeAllSearchableUsing(Builder $query): Builder
+    {
+        return $query->with(['system']);
+    }
+
     public function toSearchableArray(): array
     {
         // Get alternative titles from the game's list of releases.
