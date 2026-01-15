@@ -18,24 +18,21 @@ export const HashesList: FC<HashesListProps> = ({ hashes }) => {
   const namedHashes = hashes.filter((hash) => !!hash.name?.trim());
   const unnamedHashes = hashes.filter((hash) => !hash.name?.trim());
 
-  const sortedNamedHashes = [...namedHashes].sort((a, b) => a.name!.localeCompare(b.name!));
-  const sortedUnnamedHashes = [...unnamedHashes].sort((a, b) => a.md5.localeCompare(b.md5));
-
   return (
     <Embed data-testid={hashesListContainerTestId} className="flex flex-col gap-4">
-      {sortedNamedHashes.length ? (
+      {namedHashes.length ? (
         <ul className="flex flex-col gap-3" data-testid="named-hashes">
-          {sortedNamedHashes.map((labeledHash) => (
+          {namedHashes.map((labeledHash) => (
             <HashesListItem key={labeledHash.md5} hash={labeledHash} />
           ))}
         </ul>
       ) : null}
 
-      {sortedNamedHashes.length && sortedUnnamedHashes.length ? <div className="my-6" /> : null}
+      {namedHashes.length && unnamedHashes.length ? <div className="my-6" /> : null}
 
-      {sortedUnnamedHashes.length ? (
+      {unnamedHashes.length ? (
         <ul className="flex flex-col" data-testid="unnamed-hashes">
-          {sortedUnnamedHashes.map((unlabeledHash) => (
+          {unnamedHashes.map((unlabeledHash) => (
             <HashesListItem key={unlabeledHash.md5} hash={unlabeledHash} />
           ))}
         </ul>
