@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Support\Rules;
 
-use Laravel\Fortify\Rules\Password;
-
 trait PasswordValidationRules
 {
     /**
@@ -15,6 +13,6 @@ trait PasswordValidationRules
      */
     protected function passwordRules(): array
     {
-        return ['required', 'string', new Password(), 'confirmed'];
+        return PasswordRules::get(requireConfirmation: true);
     }
 }
