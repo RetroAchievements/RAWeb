@@ -36,7 +36,7 @@ interface AppLayoutSidebarProps {
 }
 
 const AppLayoutSidebar: FC<AppLayoutSidebarProps> = ({ children }) => {
-  return <aside>{children}</aside>;
+  return <aside className="relative z-10">{children}</aside>;
 };
 
 interface AppLayoutBannerProps {
