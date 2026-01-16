@@ -2,7 +2,7 @@
     $hasBanner = !empty($page['props']['banner']['desktopMdWebp'] ?? null);
 @endphp
 
-<nav class="relative z-20 {{ $class }} {{ $hasBanner ? 'has-banner !bg-transparent' : '' }}">
+<nav class="relative z-30 {{ $class }} {{ $hasBanner ? 'has-banner !bg-transparent' : '' }}">
     <x-container :fluid="$fluid">
         <div class="{{ $hasBanner ? '!bg-transparent' : 'bg-embedded' }} flex items-center flex-wrap">
             {{ $brand ?? null }}
