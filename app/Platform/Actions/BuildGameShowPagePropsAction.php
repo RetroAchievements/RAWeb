@@ -390,6 +390,7 @@ class BuildGameShowPagePropsAction
                 ? PlayerGameProgressionAwardsData::fromArray(getUserGameProgressionAwards($backingGame->id, $user))
                 : null,
             playerAchievementSets: $playerAchievementSets,
+            prefersCompactBanners: Cookie::get('prefers_compact_game_banners') === '1',
             seriesHub: $this->buildSeriesHubDataAction->execute($game),
             setRequestData: $this->buildSetRequestData($backingGame, $user),
             banner: $game->banner,
