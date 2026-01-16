@@ -245,6 +245,7 @@ class SearchApiController extends Controller
         if ($page !== null) {
             // Use paginated search. Fetch more than needed to filter unverified users.
             $paginator = User::search($keyword)
+                ->where('is_banned', false)
                 ->orderBy('last_activity_at', 'desc')
                 ->paginate($perPage, 'page', $page);
 
@@ -260,6 +261,7 @@ class SearchApiController extends Controller
         }
 
         $searchResults = User::search($keyword)
+            ->where('is_banned', false)
             ->orderBy('last_activity_at', 'desc')
             ->take(20)
             ->get();

@@ -67,12 +67,6 @@ class EventResource extends Resource
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
 
-                        Infolists\Components\TextEntry::make('permalink')
-                            ->formatStateUsing(fn () => 'Here')
-                            ->url(fn (Event $record): string => $record->getPermalinkAttribute())
-                            ->extraAttributes(['class' => 'underline'])
-                            ->openUrlInNewTab(),
-
                         Infolists\Components\TextEntry::make('legacyGame.forumTopic.id')
                             ->label('Forum Topic ID')
                             ->url(fn (?int $state) => $state ? route('forum-topic.show', ['topic' => $state]) : null)

@@ -28,23 +28,38 @@ class BuildDeveloperFeedDataAction
     public function execute(User $targetUser): DeveloperFeedPagePropsData
     {
         // Use DB::table() to avoid loading potentially thousands of Eloquent models into memory.
-        $achievementInfo = DB::table('achievements')
+        $authoredAchievementInfo = DB::table('achievements')
             ->select(['id', 'game_id'])
             ->where('user_id', $targetUser->id)
             ->where('is_promoted', true)
             ->get();
 
-        $allUserAchievementIds = $achievementInfo->pluck('id');
-        $allUserGameIds = $achievementInfo->pluck('game_id')->unique();
+        $maintainedAchievementInfo = DB::table('achievement_maintainers')
+            ->join('achievements', 'achievements.id', '=', 'achievement_maintainers.achievement_id')
+            ->select(['achievements.id', 'achievements.game_id'])
+            ->where('achievement_maintainers.user_id', $targetUser->id)
+            ->where('achievement_maintainers.is_active', true)
+            ->where('achievements.user_id', '!=', $targetUser->id)
+            ->where('achievements.is_promoted', true)
+            ->get();
 
-        $activePlayers = (new BuildActivePlayersAction())->execute(gameIds: $allUserGameIds->toArray());
+        $allAchievementIds = $authoredAchievementInfo->pluck('id')
+            ->merge($maintainedAchievementInfo->pluck('id'))
+            ->unique();
+        $allGameIds = $authoredAchievementInfo->pluck('game_id')
+            ->merge($maintainedAchievementInfo->pluck('game_id'))
+            ->unique();
+
+        $authoredGameIds = $authoredAchievementInfo->pluck('game_id')->unique();
+
+        $activePlayers = (new BuildActivePlayersAction())->execute(gameIds: $allGameIds->toArray());
 
         $recentUnlocks = $this->getRecentUnlocks(
-            $allUserAchievementIds,
+            $allAchievementIds,
             shouldUseDateRange: $targetUser->yield_unlocks <= 20_000,
         );
 
-        $recentPlayerBadges = $this->getRecentPlayerBadges($allUserGameIds->toArray());
+        $recentPlayerBadges = $this->getRecentPlayerBadges($authoredGameIds->toArray());
 
         $recentLeaderboardEntries = $this->getRecentLeaderboardEntries($targetUser);
 
@@ -53,7 +68,7 @@ class BuildDeveloperFeedDataAction
             developer: UserData::from($targetUser),
             unlocksContributed: $targetUser->yield_unlocks ?? 0,
             pointsContributed: $targetUser->yield_points ?? 0,
-            awardsContributed: $this->countAwardsForGames($allUserGameIds->toArray()),
+            awardsContributed: $this->countAwardsForGames($authoredGameIds->toArray()),
             leaderboardEntriesContributed: $this->countLeaderboardEntries($targetUser),
             recentUnlocks: $recentUnlocks,
             recentPlayerBadges: $recentPlayerBadges,

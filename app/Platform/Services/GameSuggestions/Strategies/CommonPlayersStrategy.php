@@ -24,8 +24,7 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
 
     public function select(): ?Game
     {
-        // Get a pseudorandom sample of users who mastered the source game.
-        // Note that this random sample will always be the same, we're sampling using a modulo operator.
+        // Get a random sample of users who mastered the source game.
         $masterUserIds = $this->getMasterUserIds();
 
         if ($masterUserIds->isEmpty()) {
@@ -76,14 +75,14 @@ class CommonPlayersStrategy implements GameSuggestionStrategy
      */
     private function getMasterUserIds(): Collection
     {
-        // Use the optimized index hint for MariaDB.
-        // This is unfortunately not supported by SQLite.
-        return PlayerGame::where('game_id', $this->sourceGame->id)
-            ->where('user_id', '!=', $this->user->id)
-            ->whereAllAchievementsUnlocked()
-            ->withTrashed()
-            ->whereRaw('id % 100 < 5')
-            ->limit(5)
-            ->pluck('user_id');
+        return once(function () {
+            return PlayerGame::where('game_id', $this->sourceGame->id)
+                ->where('user_id', '!=', $this->user->id)
+                ->whereAllAchievementsUnlocked()
+                ->withTrashed()
+                ->inRandomOrder()
+                ->limit(5)
+                ->pluck('user_id');
+        });
     }
 }
