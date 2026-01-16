@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Filament\Resources\AchievementSetClaimResource\Pages;
 
 use App\Filament\Resources\AchievementSetClaimResource;
-use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
 class Index extends ListRecords
@@ -15,7 +14,6 @@ class Index extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
         ];
     }
 }

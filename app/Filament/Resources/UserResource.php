@@ -133,11 +133,6 @@ class UserResource extends Resource
                                         ->label('Canonical URL')
                                         ->url(fn (User $record): string => $record->getCanonicalUrlAttribute())
                                         ->openUrlInNewTab(),
-
-                                    Infolists\Components\TextEntry::make('permalink')
-                                        ->formatStateUsing(fn () => 'Here')
-                                        ->url(fn (User $record): string => $record->getPermalinkAttribute())
-                                        ->openUrlInNewTab(),
                                 ]),
                         ]),
 

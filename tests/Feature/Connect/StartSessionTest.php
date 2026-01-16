@@ -495,7 +495,7 @@ class StartSessionTest extends TestCase
         // new session from outdated emulator
         Carbon::setTestNow($now->addHours(16));
         $this->withHeaders(['User-Agent' => $this->userAgentOutdated])
-            ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash2->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [
@@ -544,7 +544,7 @@ class StartSessionTest extends TestCase
         // new session from unsupported emulator
         Carbon::setTestNow($now->addHours(24));
         $this->withHeaders(['User-Agent' => $this->userAgentUnsupported])
-            ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash2->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [
@@ -593,7 +593,7 @@ class StartSessionTest extends TestCase
         // new session from unknown emulator
         Carbon::setTestNow($now->addHours(32));
         $this->withHeaders(['User-Agent' => $this->userAgentUnknown])
-            ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash2->md5]))
+            ->get($this->apiUrl('startsession', ['g' => $game->id, 'm' => $gameHash->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [
@@ -952,8 +952,6 @@ class StartSessionTest extends TestCase
 
     public function testSpecialtyHashReturnsCoreUnlocks(): void
     {
-        config(['feature.enable_multiset' => true]);
-
         $now = Carbon::create(2020, 3, 4, 16, 40, 13);
         Carbon::setTestNow($now);
 
@@ -1005,8 +1003,6 @@ class StartSessionTest extends TestCase
 
     public function testExclusiveHashReturnsOnlyExclusiveUnlocks(): void
     {
-        config(['feature.enable_multiset' => true]);
-
         $now = Carbon::create(2020, 3, 4, 16, 40, 13);
         Carbon::setTestNow($now);
 

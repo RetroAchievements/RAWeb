@@ -120,11 +120,6 @@ class AchievementResource extends Resource
                             ->formatStateUsing(fn (User $state) => $state->display_name)
                             ->url(fn (User $state): string => route('user.show', $state->display_name))
                             ->extraAttributes(['class' => 'underline']),
-
-                        Infolists\Components\TextEntry::make('permalink')
-                            ->url(fn (Achievement $record): string => $record->getPermalinkAttribute())
-                            ->extraAttributes(['class' => 'underline'])
-                            ->openUrlInNewTab(),
                     ]),
 
                 Schemas\Components\Section::make('Classification')
