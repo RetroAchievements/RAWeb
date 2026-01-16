@@ -25,7 +25,7 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
     <div
       data-testid="desktop-banner"
       className={cn(
-        'relative -z-10',
+        'relative',
         '-mt-[88px] h-[388px] lg:-mt-[44px] lg:h-[344px]',
         'border-b border-neutral-700',
         'ml-[calc(50%-50vw)] w-screen',
@@ -71,7 +71,7 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
       </div>
 
       {/* Layer 4: game info and associated controls */}
-      <div className="absolute inset-x-0 bottom-0 z-10 mx-auto max-w-screen-xl px-4 pb-[46px] transition-[padding] sm:px-5 md:px-6 xl:px-0">
+      <div className="absolute inset-x-0 bottom-0 z-20 mx-auto max-w-screen-xl px-4 pb-[46px] transition-[padding] sm:px-5 md:px-6 xl:px-0">
         <div className="flex items-end gap-4">
           {/* Game badge. */}
           <img
