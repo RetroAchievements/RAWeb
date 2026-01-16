@@ -45,6 +45,7 @@ class HubResource extends Resource
     protected static ?string $navigationLabel = 'Hubs';
     protected static ?int $navigationSort = 51;
     protected static ?string $recordTitleAttribute = 'title';
+    protected static int $globalSearchResultsLimit = 5;
 
     public static function infolist(Schema $schema): Schema
     {

@@ -2,6 +2,7 @@
 
 namespace App\Filament;
 
+use App\Filament\GlobalSearch\RelevanceBasedGlobalSearchProvider;
 use App\Filament\Widgets\SiteInfoWidget;
 use Illuminate\Support\Facades\Blade;
 
@@ -45,6 +46,7 @@ class FilamentServiceProvider extends \Filament\PanelProvider
                 'success' => \Filament\Support\Colors\Color::Green,
                 'warning' => \Filament\Support\Colors\Color::Amber,
             ])
+            ->globalSearch(RelevanceBasedGlobalSearchProvider::class)
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->maxContentWidth(\Filament\Support\Enums\Width::ScreenTwoExtraLarge)
             ->navigationGroups([

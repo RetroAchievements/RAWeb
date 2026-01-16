@@ -70,6 +70,14 @@ class UserResource extends Resource
         return ['id', 'username', 'display_name'];
     }
 
+    /**
+     * @param Builder<User> $query
+     */
+    public static function modifyGlobalSearchQuery(Builder $query, string $search): void
+    {
+        $query->orderByDesc('points_hardcore');
+    }
+
     public static function infolist(Schema $schema): Schema
     {
         /** @var User $user */
