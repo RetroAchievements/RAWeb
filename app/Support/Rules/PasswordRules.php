@@ -15,7 +15,7 @@ class PasswordRules
             'different:username',
             'different:email',
             'not_regex:/retroachievements\.org/i',
-            Password::min(10)->uncompromised(),
+            Password::min(10)->uncompromised(5),
             new MinimumUniqueCharacters(minimum: 5, stripWords: ['retroachievements']),
         ];
 
