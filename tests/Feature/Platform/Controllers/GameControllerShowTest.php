@@ -886,6 +886,7 @@ describe('Player Props', function () {
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
             ->has('playerGame')
+            ->where('playerGame.achievementsUnlocked', 3)
         );
     });
 
@@ -1170,8 +1171,8 @@ describe('User Leaderboard Entry Props', function () {
         $response->assertInertia(fn (Assert $page) => $page
             ->has('allLeaderboards', 1)
             ->has('allLeaderboards.0.userEntry')
-            ->has('allLeaderboards.0.userEntry.rank')
-            ->has('allLeaderboards.0.userEntry.formattedScore')
+            ->where('allLeaderboards.0.userEntry.rank', 1)
+            ->where('allLeaderboards.0.userEntry.formattedScore', '1,000')
         );
     });
 
@@ -1434,9 +1435,9 @@ describe('Subscription Props', function () {
 
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
-            ->has('isSubscribedToComments')
-            ->has('isSubscribedToAchievementComments')
-            ->has('isSubscribedToTickets')
+            ->where('isSubscribedToComments', false)
+            ->where('isSubscribedToAchievementComments', false)
+            ->where('isSubscribedToTickets', false)
         );
     });
 
@@ -1762,7 +1763,7 @@ describe('Aggregate Credits Props', function () {
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
             ->has('aggregateCredits')
-            ->has('aggregateCredits.achievementsAuthors')
+            ->has('aggregateCredits.achievementsAuthors', 1)
         );
     });
 
@@ -1944,7 +1945,7 @@ describe('Aggregate Credits Props', function () {
         );
     });
 
-    it('given multiple set authors for a task, only credits the most recent', function (AchievementSetAuthorTask $task, string $creditsKey) {
+    it('given multiple artwork authors for an achievement set, only credits the most recent', function () {
         // ARRANGE
         $system = System::factory()->create();
         $developer = User::factory()->create();
@@ -1964,13 +1965,13 @@ describe('Aggregate Credits Props', function () {
         AchievementSetAuthor::create([
             'achievement_set_id' => $gameAchievementSet->achievement_set_id,
             'user_id' => $olderAuthor->id,
-            'task' => $task,
+            'task' => AchievementSetAuthorTask::Artwork,
             'created_at' => now()->subDays(10),
         ]);
         AchievementSetAuthor::create([
             'achievement_set_id' => $gameAchievementSet->achievement_set_id,
             'user_id' => $newerAuthor->id,
-            'task' => $task,
+            'task' => AchievementSetAuthorTask::Artwork,
             'created_at' => now(),
         ]);
 
@@ -1979,13 +1980,50 @@ describe('Aggregate Credits Props', function () {
 
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
-            ->has("aggregateCredits.{$creditsKey}", 1)
-            ->where("aggregateCredits.{$creditsKey}.0.displayName", $newerAuthor->display_name)
+            ->has('aggregateCredits.achievementSetArtwork', 1)
+            ->where('aggregateCredits.achievementSetArtwork.0.displayName', $newerAuthor->display_name)
         );
-    })->with([
-        'artwork' => [AchievementSetAuthorTask::Artwork, 'achievementSetArtwork'],
-        'banner' => [AchievementSetAuthorTask::Banner, 'achievementSetBanner'],
-    ]);
+    });
+
+    it('given multiple banner authors for an achievement set, only credits the most recent', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $developer = User::factory()->create();
+        $olderAuthor = User::factory()->create();
+        $newerAuthor = User::factory()->create();
+
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        $gameAchievementSet = GameAchievementSet::where('game_id', $game->id)->first();
+
+        AchievementSetAuthor::create([
+            'achievement_set_id' => $gameAchievementSet->achievement_set_id,
+            'user_id' => $olderAuthor->id,
+            'task' => AchievementSetAuthorTask::Banner,
+            'created_at' => now()->subDays(10),
+        ]);
+        AchievementSetAuthor::create([
+            'achievement_set_id' => $gameAchievementSet->achievement_set_id,
+            'user_id' => $newerAuthor->id,
+            'task' => AchievementSetAuthorTask::Banner,
+            'created_at' => now(),
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('aggregateCredits.achievementSetBanner', 1)
+            ->where('aggregateCredits.achievementSetBanner.0.displayName', $newerAuthor->display_name)
+        );
+    });
 
     it('excludes soft deleted users from maintainer credits', function () {
         // ARRANGE
@@ -2023,7 +2061,7 @@ describe('Aggregate Credits Props', function () {
         );
     });
 
-    it('includes achievement author task credits', function (AchievementAuthorTask $task, string $creditsKey) {
+    it('includes achievement design credits', function () {
         // ARRANGE
         $system = System::factory()->create();
         $developer = User::factory()->create();
@@ -2040,7 +2078,7 @@ describe('Aggregate Credits Props', function () {
         AchievementAuthor::create([
             'achievement_id' => $achievement->id,
             'user_id' => $taskAuthor->id,
-            'task' => $task,
+            'task' => AchievementAuthorTask::Design,
         ]);
 
         // ACT
@@ -2048,15 +2086,100 @@ describe('Aggregate Credits Props', function () {
 
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
-            ->has("aggregateCredits.{$creditsKey}", 1)
-            ->where("aggregateCredits.{$creditsKey}.0.displayName", $taskAuthor->display_name)
+            ->has('aggregateCredits.achievementsDesign', 1)
+            ->where('aggregateCredits.achievementsDesign.0.displayName', $taskAuthor->display_name)
         );
-    })->with([
-        'design' => [AchievementAuthorTask::Design, 'achievementsDesign'],
-        'logic' => [AchievementAuthorTask::Logic, 'achievementsLogic'],
-        'testing' => [AchievementAuthorTask::Testing, 'achievementsTesting'],
-        'writing' => [AchievementAuthorTask::Writing, 'achievementsWriting'],
-    ]);
+    });
+
+    it('includes achievement logic credits', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $developer = User::factory()->create();
+        $taskAuthor = User::factory()->create();
+
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        AchievementAuthor::create([
+            'achievement_id' => $achievement->id,
+            'user_id' => $taskAuthor->id,
+            'task' => AchievementAuthorTask::Logic,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('aggregateCredits.achievementsLogic', 1)
+            ->where('aggregateCredits.achievementsLogic.0.displayName', $taskAuthor->display_name)
+        );
+    });
+
+    it('includes achievement testing credits', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $developer = User::factory()->create();
+        $taskAuthor = User::factory()->create();
+
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        AchievementAuthor::create([
+            'achievement_id' => $achievement->id,
+            'user_id' => $taskAuthor->id,
+            'task' => AchievementAuthorTask::Testing,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('aggregateCredits.achievementsTesting', 1)
+            ->where('aggregateCredits.achievementsTesting.0.displayName', $taskAuthor->display_name)
+        );
+    });
+
+    it('includes achievement writing credits', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $developer = User::factory()->create();
+        $taskAuthor = User::factory()->create();
+
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        AchievementAuthor::create([
+            'achievement_id' => $achievement->id,
+            'user_id' => $taskAuthor->id,
+            'task' => AchievementAuthorTask::Writing,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('aggregateCredits.achievementsWriting', 1)
+            ->where('aggregateCredits.achievementsWriting.0.displayName', $taskAuthor->display_name)
+        );
+    });
 
     it('given a compatible hash with no compatibility tester, does not include details for it in credits', function () {
         // ARRANGE
@@ -2109,7 +2232,8 @@ describe('Achievement Groups Props', function () {
 
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
-            ->has('game.gameAchievementSets.0.achievementSet.achievementGroups')
+            ->has('game.gameAchievementSets.0.achievementSet.achievementGroups', 1)
+            ->where('game.gameAchievementSets.0.achievementSet.achievementGroups.0.label', 'Test Group')
         );
     });
 
@@ -2435,7 +2559,7 @@ describe('Set Request Data Props', function () {
         $response->assertInertia(fn (Assert $page) => $page
             ->has('setRequestData')
             ->where('setRequestData.hasUserRequestedSet', false)
-            ->has('setRequestData.userRequestsRemaining')
+            ->where('setRequestData.userRequestsRemaining', fn ($value) => $value > 0)
         );
     });
 
@@ -2455,23 +2579,35 @@ describe('Set Request Data Props', function () {
 });
 
 describe('Cookie-Based Filter Props', function () {
-    it('given the cookie contains the game id, the corresponding filter prop is enabled', function (string $cookieName, string $propName) {
+    it('given hide_unlocked_achievements_games cookie contains the game id, isLockedOnlyFilterEnabled is true', function () {
         // ARRANGE
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
 
         // ACT
-        $response = $this->withUnencryptedCookies([$cookieName => (string) $game->id])
+        $response = $this->withUnencryptedCookies(['hide_unlocked_achievements_games' => (string) $game->id])
             ->get(route('game.show', ['game' => $game]));
 
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
-            ->where($propName, true)
+            ->where('isLockedOnlyFilterEnabled', true)
         );
-    })->with([
-        'locked only' => ['hide_unlocked_achievements_games', 'isLockedOnlyFilterEnabled'],
-        'missable only' => ['hide_nonmissable_achievements_games', 'isMissableOnlyFilterEnabled'],
-    ]);
+    });
+
+    it('given hide_nonmissable_achievements_games cookie contains the game id, isMissableOnlyFilterEnabled is true', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        // ACT
+        $response = $this->withUnencryptedCookies(['hide_nonmissable_achievements_games' => (string) $game->id])
+            ->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('isMissableOnlyFilterEnabled', true)
+        );
+    });
 
     it('given the cookie contains multiple game ids including the current game, returns true', function () {
         // ARRANGE
