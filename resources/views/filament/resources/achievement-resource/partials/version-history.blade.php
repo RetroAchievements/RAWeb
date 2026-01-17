@@ -73,7 +73,7 @@
             >
                 {{-- Version header --}}
                 <button
-                    @click="toggleVersion({{ $trigger->version ?? 'null' }})"
+                    @click="toggleVersion({{ $trigger->version ?? "'draft'" }})"
                     class="w-full text-left hover:bg-neutral-50 dark:hover:bg-neutral-800/50 -mx-2 px-2 py-1.5 rounded transition-colors"
                 >
                     <div class="flex items-center justify-between gap-4">
@@ -123,7 +123,7 @@
 
                             <svg
                                 class="size-4 text-neutral-400 transition-transform"
-                                :class="{ 'rotate-180': expanded[{{ $trigger->version ?? 'null' }}] }"
+                                :class="{ 'rotate-180': expanded[{{ $trigger->version ?? "'draft'" }}] }"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -136,7 +136,7 @@
 
                 {{-- Expandable content --}}
                 <div
-                    x-show="expanded[{{ $trigger->version ?? 'null' }}]"
+                    x-show="expanded[{{ $trigger->version ?? "'draft'" }}]"
                     x-cloak
                     x-collapse
                 >
@@ -144,8 +144,8 @@
                         {{-- Toggle buttons: Diff | Raw --}}
                         <div class="flex gap-1 mb-3">
                             <button
-                                @click="viewMode[{{ $trigger->version ?? 'null' }}] = 'diff'"
-                                :class="(viewMode[{{ $trigger->version ?? 'null' }}] ?? 'diff') === 'diff'
+                                @click="viewMode[{{ $trigger->version ?? "'draft'" }}] = 'diff'"
+                                :class="(viewMode[{{ $trigger->version ?? "'draft'" }}] ?? 'diff') === 'diff'
                                     ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100'
                                     : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'"
                                 class="px-3 py-1 text-xs font-medium rounded transition-colors"
@@ -154,8 +154,8 @@
                             </button>
 
                             <button
-                                @click="viewMode[{{ $trigger->version ?? 'null' }}] = 'raw'"
-                                :class="viewMode[{{ $trigger->version ?? 'null' }}] === 'raw'
+                                @click="viewMode[{{ $trigger->version ?? "'draft'" }}] = 'raw'"
+                                :class="viewMode[{{ $trigger->version ?? "'draft'" }}] === 'raw'
                                     ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100'
                                     : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'"
                                 class="px-3 py-1 text-xs font-medium rounded transition-colors"
@@ -165,9 +165,9 @@
                         </div>
 
                         {{-- Diff view (default) --}}
-                        <div x-show="(viewMode[{{ $trigger->version ?? 'null' }}] ?? 'diff') === 'diff'">
+                        <div x-show="(viewMode[{{ $trigger->version ?? "'draft'" }}] ?? 'diff') === 'diff'">
                             {{-- Loading state --}}
-                            <template x-if="loadingDiff[{{ $trigger->version ?? 'null' }}]">
+                            <template x-if="loadingDiff[{{ $trigger->version ?? "'draft'" }}]">
                                 <div class="py-8 text-center text-neutral-500 dark:text-neutral-400">
                                     <svg class="animate-spin size-5 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -178,9 +178,9 @@
                             </template>
 
                             {{-- Diff content (rendered dynamically from JS data) --}}
-                            <template x-if="diffs[{{ $trigger->version ?? 'null' }}] && !loadingDiff[{{ $trigger->version ?? 'null' }}]">
+                            <template x-if="diffs[{{ $trigger->version ?? "'draft'" }}] && !loadingDiff[{{ $trigger->version ?? "'draft'" }}]">
                                 <div class="space-y-4">
-                                    <template x-for="(group, groupIndex) in diffs[{{ $trigger->version ?? 'null' }}]" :key="groupIndex">
+                                    <template x-for="(group, groupIndex) in diffs[{{ $trigger->version ?? "'draft'" }}]" :key="groupIndex">
                                         <div class="rounded-lg bg-neutral-50 dark:bg-neutral-800/50 overflow-hidden">
                                             <div class="px-4 py-2 bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
                                                 <span class="font-medium text-sm text-neutral-700 dark:text-neutral-300" x-text="group.Label"></span>
@@ -287,7 +287,7 @@
                             </template>
 
                             {{-- Initial state before loading --}}
-                            <template x-if="!diffs[{{ $trigger->version ?? 'null' }}] && !loadingDiff[{{ $trigger->version ?? 'null' }}]">
+                            <template x-if="!diffs[{{ $trigger->version ?? "'draft'" }}] && !loadingDiff[{{ $trigger->version ?? "'draft'" }}]">
                                 <div class="py-4 text-center text-neutral-400 dark:text-neutral-500 text-sm">
                                     Click to load diff...
                                 </div>
@@ -295,7 +295,7 @@
                         </div>
 
                         {{-- Raw view, shown when user selects the 'Raw' toggle button/tab --}}
-                        <div x-show="viewMode[{{ $trigger->version ?? 'null' }}] === 'raw'" x-cloak>
+                        <div x-show="viewMode[{{ $trigger->version ?? "'draft'" }}] === 'raw'" x-cloak>
                             <code class="block p-3 font-mono text-[11px] rounded-lg bg-gray-950/[0.02] dark:bg-white/[0.02] border border-gray-950/5 dark:border-white/10 break-all text-neutral-600 dark:text-neutral-400">
                                 {{ $trigger->conditions }}
                             </code>

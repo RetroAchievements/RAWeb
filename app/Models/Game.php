@@ -895,7 +895,7 @@ class Game extends BaseModel implements HasMedia, HasPermalink, HasVersionedTrig
             return $this->belongsToMany(Game::class, 'game_set_games')->whereRaw('1 = 0');
         }
 
-        return $gameSet->games()->with('system')->withTimestamps(['created_at', 'updated_at']);
+        return $gameSet->games()->with('system');
     }
 
     /**

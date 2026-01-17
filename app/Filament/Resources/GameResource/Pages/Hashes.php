@@ -23,7 +23,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Livewire;
 
 class Hashes extends ManageRelatedRecords
 {
@@ -54,9 +53,14 @@ class Hashes extends ManageRelatedRecords
         return $user->can('manage', GameHash::class);
     }
 
-    public static function getNavigationBadge(): ?string
+    public static function getNavigationItems(array $urlParameters = []): array
     {
-        return (string) Livewire::current()->getRecord()->hashes->count();
+        $item = parent::getNavigationItems($urlParameters)[0];
+        if (($record = $urlParameters['record'] ?? null) instanceof Game) {
+            $item->badge((string) $record->hashes->count());
+        }
+
+        return [$item];
     }
 
     public function table(Table $table): Table

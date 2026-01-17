@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Livewire\WithPagination;
+use Throwable;
 
 abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implements Forms\Contracts\HasForms
 {
@@ -86,12 +87,19 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
      */
     protected function createFieldLabelMap(): Collection
     {
-        $form = static::getResource()::form(new Schemas\Schema($this));
+        try {
+            $schema = new Schemas\Schema($this);
+            $schema->model($this->record);
+            $form = static::getResource()::form($schema);
 
-        return collect($form->getFlatFields())
-            ->mapWithKeys(fn (Forms\Components\Field $field) => [
-                $field->getName() => $field->getLabel(),
-            ]);
+            return collect($form->getFlatFields())
+                ->mapWithKeys(fn (Forms\Components\Field $field) => [
+                    $field->getName() => $field->getLabel(),
+                ]);
+        } catch (Throwable) {
+            // return an empty collection and fall back to raw field names
+            return collect();
+        }
     }
 
     /**
