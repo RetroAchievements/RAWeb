@@ -152,7 +152,8 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
         onMouseEnter={() => setIsDividerHovered(true)}
         onMouseLeave={() => setIsDividerHovered(false)}
         aria-label={prefersCompactBanners ? 'Expand banner' : 'Collapse banner'}
-        className="absolute inset-x-0 -bottom-2 z-50 hidden h-5 cursor-ns-resize lg:block"
+        className="absolute inset-x-0 -bottom-2 z-10 hidden h-5 cursor-ns-resize lg:block"
+        tabIndex={-1}
       />
     </div>
   );
