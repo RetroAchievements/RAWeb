@@ -17,6 +17,7 @@ use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
+use App\Rules\DisallowAnimatedImageRule;
 use App\Rules\UploadedImageAspectRatioRule;
 use BackedEnum;
 use Filament\Actions;
@@ -342,6 +343,7 @@ class GameResource extends Resource
                             ->rules([
                                 'dimensions:min_width=1920,min_height=540',
                                 new UploadedImageAspectRatioRule(32 / 9, 0.15), // 32:9 aspect ratio with a ±15% tolerance.
+                                new DisallowAnimatedImageRule(),
                             ])
                             ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
                             ->maxSize(5120)
