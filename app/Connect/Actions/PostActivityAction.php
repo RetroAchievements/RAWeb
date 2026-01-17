@@ -63,10 +63,8 @@ class PostActivityAction extends BaseAuthenticatedApiAction
             return $this->gameNotFound();
         }
 
-        // if multiset is enabled, redirect the heartbeat to the root game.
-        if (config('feature.enable_multiset')) {
-            $game = (new ResolveRootGameFromGameAndGameHashAction())->execute(null, $game, $this->user);
-        }
+        // redirect the heartbeat to the root game.
+        $game = (new ResolveRootGameFromGameAndGameHashAction())->execute(null, $game, $this->user);
 
         PlayerSessionHeartbeat::dispatch($this->user, $game);
 

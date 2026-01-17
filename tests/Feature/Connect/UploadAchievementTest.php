@@ -1433,6 +1433,50 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals(10, $coreSet->points_total);
     }
 
+    public function testItNormalizesSmartQuotesInTitleAndDescription(): void
+    {
+        // Arrange
+        $author = User::factory()->create([
+            'Permissions' => Permissions::Developer,
+            'connect_token' => Str::random(16),
+        ]);
+        $game = $this->seedGame(withHash: false);
+
+        AchievementSetClaim::factory()->create([
+            'user_id' => $author->id,
+            'game_id' => $game->id,
+        ]);
+
+        // ... use smart quotes: ‘ (U+2018), ’ (U+2019), “ (U+201C), ” (U+201D) ...
+        $smartTitle = "\u{201C}Test\u{2019}s Achievement\u{201D}";
+        $smartDescription = "It\u{2019}s a \u{201C}test\u{201D} description";
+
+        // Act
+        $response = $this->get($this->apiUrl('uploadachievement', [
+            'u' => $author->username,
+            't' => $author->connect_token,
+            'g' => $game->id,
+            'n' => $smartTitle,
+            'd' => $smartDescription,
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => Achievement::FLAG_UNPROMOTED,
+            'b' => '001234',
+        ]));
+
+        // Assert
+        $this->assertArrayHasKey('Success', $response);
+        $this->assertTrue($response['Success']);
+        $this->assertArrayHasKey('AchievementID', $response);
+
+        $achievement = Achievement::find($response['AchievementID']);
+        $this->assertNotNull($achievement);
+
+        // ... the smart quotes should be normalized to ASCII equivalents ...
+        $this->assertEquals("\"Test's Achievement\"", $achievement->title);
+        $this->assertEquals("It's a \"test\" description", $achievement->description);
+    }
+
     public function testModifyingAfterEarnedUpdatesBeatenTimes(): void
     {
         /** @var User $author */

@@ -28,7 +28,8 @@ const Contact: AppPage = () => {
                 <h2 className="text-h4">{t('Admins and Moderators')}</h2>
                 <p>
                   <Trans
-                    i18nKey="<1>Send a message to RAdmin</1> for:"
+                    i18nKey="<1>Send a message to {{team}}</1> for:"
+                    values={{ team: 'RAdmin' }}
                     components={{
                       1: <InertiaLink href={route('message-thread.create', { to: 'RAdmin' })} />,
                     }}
@@ -38,6 +39,17 @@ const Contact: AppPage = () => {
                   <li>{t('Reporting offensive behavior.')}</li>
                   <li>{t('Reporting copyrighted material.')}</li>
                   <li>{t('Requesting to be untracked.')}</li>
+                  <li>
+                    <Trans
+                      i18nKey="Emulator <1>hardcore verification</1>."
+                      components={{
+                        1: (
+                          <a href="https://docs.retroachievements.org/general/hardcore-compliance-requirements.html" />
+                        ),
+                      }}
+                    />
+                  </li>
+                  <li>{t('Partnership inquiries.')}</li>
                 </ul>
               </div>
             </div>
@@ -47,7 +59,8 @@ const Contact: AppPage = () => {
                 <h2 className="text-h4">{t('Developer Compliance')}</h2>
                 <p>
                   <Trans
-                    i18nKey="<1>Send a message to DevCompliance</1> for:"
+                    i18nKey="<1>Send a message to {{team}}</1> for:"
+                    values={{ team: 'DevCompliance' }}
                     components={{
                       1: (
                         <InertiaLink
@@ -70,7 +83,8 @@ const Contact: AppPage = () => {
                 <h2 className="text-h4">{t('Quality Assurance')}</h2>
                 <p>
                   <Trans
-                    i18nKey="<1>Send a message to QATeam</1> for:"
+                    i18nKey="<1>Send a message to {{team}}</1> for:"
+                    values={{ team: 'QATeam' }}
                     components={{
                       1: <InertiaLink href={route('message-thread.create', { to: 'QATeam' })} />,
                     }}
@@ -89,7 +103,8 @@ const Contact: AppPage = () => {
                 <h2 className="text-h4">{t('Art Team')}</h2>
                 <p>
                   <Trans
-                    i18nKey="<1>Send a message to RAArtTeam</1> for:"
+                    i18nKey="<1>Send a message to {{team}}</1> for:"
+                    values={{ team: 'RAArtTeam' }}
                     components={{
                       1: <InertiaLink href={route('message-thread.create', { to: 'RAArtTeam' })} />,
                     }}
@@ -148,7 +163,8 @@ const Contact: AppPage = () => {
                 <h2 className="text-h4">{t('Writing Team')}</h2>
                 <p>
                   <Trans
-                    i18nKey="<1>Send a message to WritingTeam</1> for:"
+                    i18nKey="<1>Send a message to {{team}}</1> for:"
+                    values={{ team: 'WritingTeam' }}
                     components={{
                       1: (
                         <InertiaLink href={route('message-thread.create', { to: 'WritingTeam' })} />
@@ -172,7 +188,8 @@ const Contact: AppPage = () => {
                 <h2 className="text-h4">{t('RANews')}</h2>
                 <p>
                   <Trans
-                    i18nKey="<1>Send a message to RANews</1> for:"
+                    i18nKey="<1>Send a message to {{team}}</1> for:"
+                    values={{ team: 'RANews' }}
                     components={{
                       1: <InertiaLink href={route('message-thread.create', { to: 'RANews' })} />,
                     }}

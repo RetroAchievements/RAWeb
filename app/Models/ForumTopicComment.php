@@ -45,6 +45,15 @@ class ForumTopicComment extends BaseModel
 
     // == search
 
+    /**
+     * @param Builder<ForumTopicComment> $query
+     * @return Builder<ForumTopicComment>
+     */
+    protected function makeAllSearchableUsing(Builder $query): Builder
+    {
+        return $query->with(['forumTopic']);
+    }
+
     public function toSearchableArray(): array
     {
         $body = $this->body;

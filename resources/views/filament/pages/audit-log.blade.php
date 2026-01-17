@@ -86,7 +86,7 @@ use \Illuminate\Support\Js;
                             @php
                                 $oldValue = data_get($changes, "old.{$field}");
                                 $newValue = data_get($changes, "attributes.{$field}");
-                                $isRelationship = method_exists($this->record, $field);
+                                $isRelationship = method_exists($this->record, $field) && (new \ReflectionMethod($this->record, $field))->isPublic();
                                 $newRelatedModels = collect();
                                 $oldRelatedModels = collect();
                                 if ($isRelationship) {

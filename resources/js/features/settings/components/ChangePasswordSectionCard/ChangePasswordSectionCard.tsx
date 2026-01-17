@@ -87,12 +87,14 @@ export const ChangePasswordSectionCard: FC = () => {
                       placeholder={t('enter a new password here...')}
                       autoComplete="new-password"
                       required
-                      minLength={8}
+                      minLength={10}
                       {...field}
                     />
                   </BaseFormControl>
 
-                  <BaseFormDescription>{t('Must be at least 8 characters.')}</BaseFormDescription>
+                  <BaseFormDescription>
+                    {t('Must be at least {{val, number}} characters.', { val: 10 })}
+                  </BaseFormDescription>
 
                   <BaseFormMessage />
                 </div>
@@ -116,7 +118,7 @@ export const ChangePasswordSectionCard: FC = () => {
                       placeholder={t('confirm your new password here...')}
                       autoComplete="new-password"
                       required
-                      minLength={8}
+                      minLength={10}
                       {...field}
                     />
                   </BaseFormControl>

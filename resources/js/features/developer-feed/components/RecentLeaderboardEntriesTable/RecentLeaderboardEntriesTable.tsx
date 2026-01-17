@@ -45,9 +45,7 @@ export const RecentLeaderboardEntriesTable: FC<RecentLeaderboardEntriesTableProp
 
             <BaseTableBody>
               {recentLeaderboardEntries.map((entry) => (
-                <BaseTableRow
-                  key={`recentLeaderboardEntry-${entry.game.id}-${entry.leaderboardEntry.formattedScore}-${entry.user.displayName}`}
-                >
+                <BaseTableRow key={`recentLeaderboardEntry-${entry.leaderboardEntry.id}`}>
                   <BaseTableCell>
                     <a href={`/leaderboardinfo.php?i=${entry.leaderboard.id}`}>
                       {entry.leaderboard.title}

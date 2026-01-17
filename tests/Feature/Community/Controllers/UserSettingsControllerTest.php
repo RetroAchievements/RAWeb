@@ -22,22 +22,22 @@ class UserSettingsControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'password' => Hash::make('oldPassword123'),
+            'password' => Hash::make('giraffe-telescope-banana'),
             'connect_token' => 'foo',
         ]);
 
         // Act
         $response = $this->actingAs($user)
             ->putJson(route('api.settings.password.update'), [
-                'currentPassword' => 'oldPassword123',
-                'newPassword' => 'newPassword123',
+                'currentPassword' => 'giraffe-telescope-banana',
+                'newPassword' => 'walrus-clarinet-sunset',
             ]);
 
         // Assert
         $response->assertStatus(200)->assertJson(['success' => true]);
 
         $user = $user->fresh();
-        $this->assertTrue(Hash::check('newPassword123', $user->password));
+        $this->assertTrue(Hash::check('walrus-clarinet-sunset', $user->password));
         $this->assertTrue($user->connect_token !== 'foo');
     }
 
@@ -48,15 +48,15 @@ class UserSettingsControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'password' => Hash::make('oldPassword123'),
+            'password' => Hash::make('giraffe-telescope-banana'),
             'connect_token' => 'foo',
         ]);
 
         // Act
         $response = $this->actingAs($user)
             ->putJson(route('api.settings.password.update'), [
-                'currentPassword' => '12345678',
-                'newPassword' => 'newPassword123',
+                'currentPassword' => 'wrong-password-here',
+                'newPassword' => 'walrus-clarinet-sunset',
             ]);
 
         // Assert
@@ -70,21 +70,21 @@ class UserSettingsControllerTest extends TestCase
 
         /** @var User $user */
         $user = User::factory()->create([
-            'username' => 'MyUsername',
-            'password' => Hash::make('oldPassword123'),
+            'username' => 'MyUsernameLongEnough',
+            'password' => Hash::make('giraffe-telescope-banana'),
             'connect_token' => 'foo',
         ]);
 
         // Act
         $response = $this->actingAs($user)
             ->putJson(route('api.settings.password.update'), [
-                'currentPassword' => 'oldPassword123',
-                'newPassword' => 'MyUsername',
+                'currentPassword' => 'giraffe-telescope-banana',
+                'newPassword' => 'MyUsernameLongEnough',
             ]);
 
         // Assert
         $response->assertStatus(422)
-            ->assertJson(['message' => 'Your password must be different from your username.']);
+            ->assertJsonValidationErrors(['newPassword']);
     }
 
     public function testUpdateEmail(): void
