@@ -55,6 +55,16 @@ class AchievementAuthorPolicy
             return true;
         }
 
+        // Achievement developers and maintainers can delete credit on their achievements.
+        $achievementAuthor->loadMissing('achievement.developer', 'achievement.activeMaintainer.user');
+        $achievement = $achievementAuthor->achievement;
+        if (
+            $achievement
+            && ($user->is($achievement->developer) || $user->is($achievement->activeMaintainer?->user))
+        ) {
+            return true;
+        }
+
         return $user->hasAnyRole([
             Role::ADMINISTRATOR,
             Role::DEV_COMPLIANCE,
