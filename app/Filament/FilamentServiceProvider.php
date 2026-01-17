@@ -93,7 +93,6 @@ class FilamentServiceProvider extends \Filament\PanelProvider
 
                         return $user->canonicalUrl;
                     })
-                    ->openUrlInNewTab()
                     ->sort(1),
 
                 \Filament\Actions\Action::make('my-claims')

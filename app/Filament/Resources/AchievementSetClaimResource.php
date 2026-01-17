@@ -15,7 +15,6 @@ use App\Models\Game;
 use App\Models\Role;
 use App\Models\User;
 use BackedEnum;
-use Filament\Actions\EditAction;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -28,11 +27,8 @@ class AchievementSetClaimResource extends Resource
     protected static ?string $model = AchievementSetClaim::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-flag';
-
     protected static string|UnitEnum|null $navigationGroup = 'Platform';
-
     protected static ?string $navigationLabel = 'Claims';
-
     protected static ?int $navigationSort = 70;
 
     public static function form(Schema $schema): Schema
@@ -180,7 +176,7 @@ class AchievementSetClaimResource extends Resource
                     }),
             ])
             ->recordActions([
-                EditAction::make(),
+
             ])
             ->toolbarActions([
 
