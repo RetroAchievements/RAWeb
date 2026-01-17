@@ -10,4 +10,4 @@ The V1 Web API (`API_*.php` files in this directory) is in **permanent maintenan
 
 ## Adding new API functionality
 
-New API endpoints should be implemented in the V2 API, which uses the [JSON:API](https://jsonapi.org/) specification. See `app/Http/Controllers/Api/V2/` for examples.
+New API endpoints should be implemented in the V2 API, which uses the [JSON:API](https://jsonapi.org/) specification. See `app/Api/V2` for examples.
