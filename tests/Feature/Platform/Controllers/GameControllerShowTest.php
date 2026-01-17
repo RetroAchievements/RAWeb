@@ -12,6 +12,7 @@ use App\Models\Achievement;
 use App\Models\AchievementAuthor;
 use App\Models\AchievementGroup;
 use App\Models\AchievementMaintainer;
+use App\Models\AchievementSetAchievement;
 use App\Models\AchievementSetAuthor;
 use App\Models\AchievementSetClaim;
 use App\Models\Comment;
@@ -1106,6 +1107,25 @@ describe('Leaderboard State Props', function () {
             ->where('allLeaderboards.0.state', 'disabled')
         );
     });
+
+    it('given an inactive system, leaderboard count is zero', function () {
+        // ARRANGE
+        $system = System::factory()->create(['active' => false]);
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        Leaderboard::factory()->count(3)->create([
+            'game_id' => $game->id,
+            'order_column' => 1,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('numLeaderboards', 0)
+        );
+    });
 });
 
 describe('User Leaderboard Entry Props', function () {
@@ -1734,7 +1754,6 @@ describe('Aggregate Credits Props', function () {
     it('includes achievement authors in aggregate credits', function () {
         // ARRANGE
         $system = System::factory()->create();
-        $developer = User::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
 
         // ACT
@@ -1924,6 +1943,145 @@ describe('Aggregate Credits Props', function () {
             ->where('aggregateCredits.achievementSetBanner.0.displayName', $bannerAuthor->display_name)
         );
     });
+
+    it('given multiple set authors for a task, only credits the most recent', function (AchievementSetAuthorTask $task, string $creditsKey) {
+        // ARRANGE
+        $system = System::factory()->create();
+        $developer = User::factory()->create();
+        $olderAuthor = User::factory()->create();
+        $newerAuthor = User::factory()->create();
+
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        $gameAchievementSet = GameAchievementSet::where('game_id', $game->id)->first();
+
+        AchievementSetAuthor::create([
+            'achievement_set_id' => $gameAchievementSet->achievement_set_id,
+            'user_id' => $olderAuthor->id,
+            'task' => $task,
+            'created_at' => now()->subDays(10),
+        ]);
+        AchievementSetAuthor::create([
+            'achievement_set_id' => $gameAchievementSet->achievement_set_id,
+            'user_id' => $newerAuthor->id,
+            'task' => $task,
+            'created_at' => now(),
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has("aggregateCredits.{$creditsKey}", 1)
+            ->where("aggregateCredits.{$creditsKey}.0.displayName", $newerAuthor->display_name)
+        );
+    })->with([
+        'artwork' => [AchievementSetAuthorTask::Artwork, 'achievementSetArtwork'],
+        'banner' => [AchievementSetAuthorTask::Banner, 'achievementSetBanner'],
+    ]);
+
+    it('excludes soft deleted users from maintainer credits', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $originalAuthor = User::factory()->create();
+        $trashedMaintainer = User::factory()->create(['deleted_at' => now()]);
+        $activeMaintainer = User::factory()->create();
+
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $originalAuthor->id,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        AchievementMaintainer::create([
+            'achievement_id' => $achievement->id,
+            'user_id' => $trashedMaintainer->id,
+            'is_active' => true,
+        ]);
+        AchievementMaintainer::create([
+            'achievement_id' => $achievement->id,
+            'user_id' => $activeMaintainer->id,
+            'is_active' => true,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('aggregateCredits.achievementsMaintainers', 1)
+            ->where('aggregateCredits.achievementsMaintainers.0.displayName', $activeMaintainer->display_name)
+        );
+    });
+
+    it('includes achievement author task credits', function (AchievementAuthorTask $task, string $creditsKey) {
+        // ARRANGE
+        $system = System::factory()->create();
+        $developer = User::factory()->create();
+        $taskAuthor = User::factory()->create();
+
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        AchievementAuthor::create([
+            'achievement_id' => $achievement->id,
+            'user_id' => $taskAuthor->id,
+            'task' => $task,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has("aggregateCredits.{$creditsKey}", 1)
+            ->where("aggregateCredits.{$creditsKey}.0.displayName", $taskAuthor->display_name)
+        );
+    })->with([
+        'design' => [AchievementAuthorTask::Design, 'achievementsDesign'],
+        'logic' => [AchievementAuthorTask::Logic, 'achievementsLogic'],
+        'testing' => [AchievementAuthorTask::Testing, 'achievementsTesting'],
+        'writing' => [AchievementAuthorTask::Writing, 'achievementsWriting'],
+    ]);
+
+    it('given a compatible hash with no compatibility tester, does not include details for it in credits', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        $hashUploader = User::factory()->create();
+
+        GameHash::factory()->create([
+            'game_id' => $game->id,
+            'system_id' => $system->id,
+            'user_id' => $hashUploader->id,
+            'compatibility' => GameHashCompatibility::Compatible,
+            'compatibility_tester_id' => null,
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('aggregateCredits.hashCompatibilityTesting', 0)
+        );
+    });
 });
 
 describe('Achievement Groups Props', function () {
@@ -1953,6 +2111,117 @@ describe('Achievement Groups Props', function () {
         $response->assertInertia(fn (Assert $page) => $page
             ->has('game.gameAchievementSets.0.achievementSet.achievementGroups')
         );
+    });
+
+    it('given there is an empty achievement group, the page still loads without crashing', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $developer = User::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        Achievement::factory()->promoted()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        $gameAchievementSet = GameAchievementSet::where('game_id', $game->id)->first();
+
+        AchievementGroup::factory()->create([
+            'achievement_set_id' => $gameAchievementSet->achievement_set_id,
+            'label' => 'Empty Group',
+        ]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertOk();
+    });
+
+    it('given a group with win condition achievements, the page loads correctly', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $developer = User::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        $achievement1 = Achievement::factory()->promoted()->winCondition()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+            'order_column' => 1,
+        ]);
+
+        $achievement2 = Achievement::factory()->promoted()->winCondition()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+            'order_column' => 2,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        $gameAchievementSet = GameAchievementSet::where('game_id', $game->id)->first();
+
+        $group = AchievementGroup::factory()->create([
+            'achievement_set_id' => $gameAchievementSet->achievement_set_id,
+            'label' => 'Win Conditions Group',
+        ]);
+
+        AchievementSetAchievement::query()
+            ->where('achievement_set_id', $gameAchievementSet->achievement_set_id)
+            ->whereIn('achievement_id', [$achievement1->id, $achievement2->id])
+            ->update(['achievement_group_id' => $group->id]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertOk();
+    });
+
+    it('given a group with progression and missable achievements but no win conditions, the page still loads correctly', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $developer = User::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        $progressionAchievement1 = Achievement::factory()->promoted()->progression()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+            'order_column' => 1,
+        ]);
+
+        $progressionAchievement2 = Achievement::factory()->promoted()->progression()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+            'order_column' => 2,
+        ]);
+
+        $missableAchievement = Achievement::factory()->promoted()->missable()->create([
+            'game_id' => $game->id,
+            'user_id' => $developer->id,
+            'order_column' => 3,
+        ]);
+
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($game);
+
+        $gameAchievementSet = GameAchievementSet::where('game_id', $game->id)->first();
+
+        $group = AchievementGroup::factory()->create([
+            'achievement_set_id' => $gameAchievementSet->achievement_set_id,
+            'label' => 'Progression Group',
+        ]);
+
+        AchievementSetAchievement::query()
+            ->where('achievement_set_id', $gameAchievementSet->achievement_set_id)
+            ->whereIn('achievement_id', [$progressionAchievement1->id, $progressionAchievement2->id, $missableAchievement->id])
+            ->update(['achievement_group_id' => $group->id]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertOk();
     });
 });
 
@@ -2131,6 +2400,92 @@ describe('Subset Context Props', function () {
         $response->assertInertia(fn (Assert $page) => $page
             ->where('targetAchievementSetPlayersTotal', 2)
             ->where('targetAchievementSetPlayersHardcore', 1)
+        );
+    });
+});
+
+describe('Set Request Data Props', function () {
+    it('given the user is a guest viewing a game with zero achievements, returns the right set request data', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id, 'achievements_published' => 0]);
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('setRequestData')
+            ->where('setRequestData.hasUserRequestedSet', false)
+            ->where('setRequestData.totalRequests', 0) // !!
+            ->where('setRequestData.userRequestsRemaining', 0) // !!
+        );
+    });
+
+    it('given the user is authenticated and viewing a game with zero achievements, returns set request data with the user request info', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id, 'achievements_published' => 0]);
+        $user = User::factory()->create();
+
+        // ACT
+        $response = actingAs($user)->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('setRequestData')
+            ->where('setRequestData.hasUserRequestedSet', false)
+            ->has('setRequestData.userRequestsRemaining')
+        );
+    });
+
+    it('given a game with achievements, setRequestData is null', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        // ACT
+        $response = get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->missing('setRequestData')
+        );
+    });
+});
+
+describe('Cookie-Based Filter Props', function () {
+    it('given the cookie contains the game id, the corresponding filter prop is enabled', function (string $cookieName, string $propName) {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+
+        // ACT
+        $response = $this->withUnencryptedCookies([$cookieName => (string) $game->id])
+            ->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where($propName, true)
+        );
+    })->with([
+        'locked only' => ['hide_unlocked_achievements_games', 'isLockedOnlyFilterEnabled'],
+        'missable only' => ['hide_nonmissable_achievements_games', 'isMissableOnlyFilterEnabled'],
+    ]);
+
+    it('given the cookie contains multiple game ids including the current game, returns true', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = createGameWithAchievements($system, 'Test Game');
+        $otherGame = createGameWithAchievements($system, 'Other Game');
+
+        // ACT
+        $response = $this->withUnencryptedCookies(['hide_unlocked_achievements_games' => "{$otherGame->id},{$game->id}"])
+            ->get(route('game.show', ['game' => $game]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('isLockedOnlyFilterEnabled', true)
         );
     });
 });
