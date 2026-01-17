@@ -189,6 +189,43 @@ class LeaderboardsTest extends JsonApiResourceTestCase
         $this->assertNotContains((string) $unpublishedLeaderboard->id, $ids);
     }
 
+    public function testItFiltersByStateAll(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+
+        $activeLeaderboard = Leaderboard::factory()->create([
+            'game_id' => $game->id,
+            'state' => LeaderboardState::Active,
+            'order_column' => 1,
+        ]);
+        $disabledLeaderboard = Leaderboard::factory()->create([
+            'game_id' => $game->id,
+            'state' => LeaderboardState::Disabled,
+            'order_column' => 2,
+        ]);
+        $unpublishedLeaderboard = Leaderboard::factory()->create([
+            'game_id' => $game->id,
+            'state' => LeaderboardState::Unpublished,
+            'order_column' => 3,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('leaderboards')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/leaderboards?filter[state]=all');
+
+        // Assert
+        $response->assertSuccessful();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+        $this->assertContains((string) $activeLeaderboard->id, $ids);
+        $this->assertContains((string) $disabledLeaderboard->id, $ids);
+        $this->assertContains((string) $unpublishedLeaderboard->id, $ids);
+    }
+
     public function testItExcludesHubGameLeaderboards(): void
     {
         // Arrange
@@ -338,7 +375,7 @@ class LeaderboardsTest extends JsonApiResourceTestCase
         $response = $this->jsonApi('v2')
             ->expects('leaderboards')
             ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/leaderboards/{$leaderboard->id}?include=game");
+            ->get("/api/v2/leaderboards/{$leaderboard->id}?include=games");
 
         // Assert
         $response->assertSuccessful();

@@ -14,9 +14,9 @@ use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Str;
+use LaravelJsonApi\Eloquent\Filters\Scope;
 use LaravelJsonApi\Eloquent\Filters\Where;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
-use LaravelJsonApi\Eloquent\Filters\WhereIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
 
@@ -61,7 +61,7 @@ class LeaderboardSchema extends Schema
             DateTime::make('createdAt', 'created_at')->sortable()->readOnly(),
             DateTime::make('updatedAt', 'updated_at')->sortable()->readOnly(),
 
-            BelongsTo::make('game')->type('games')->readOnly(),
+            BelongsTo::make('games', 'game')->type('games')->readOnly(),
             BelongsTo::make('developer')->type('users')->readOnly(),
 
             // TODO implement relationship endpoints to enable links
@@ -78,7 +78,7 @@ class LeaderboardSchema extends Schema
         return [
             WhereIdIn::make($this),
             Where::make('gameId', 'game_id'),
-            WhereIn::make('state')->delimiter(','),
+            Scope::make('state', 'withState'),
         ];
     }
 

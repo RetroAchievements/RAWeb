@@ -8,7 +8,6 @@ use App\Models\Achievement;
 use App\Models\System;
 use Illuminate\Database\Eloquent\Builder;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
-use LaravelJsonApi\Eloquent\Fields\Boolean;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Number;
@@ -69,7 +68,7 @@ class AchievementSchema extends Schema
 
             Str::make('type')->sortable()->readOnly(),
 
-            Boolean::make('isPromoted', 'is_promoted')->readOnly(),
+            Str::make('state')->readOnly(),
 
             Number::make('orderColumn')->sortable()->readOnly(),
 
@@ -104,7 +103,7 @@ class AchievementSchema extends Schema
     {
         return [
             WhereIdIn::make($this),
-            Scope::make('isPromoted', 'withPromotedStatus'),
+            Scope::make('state', 'withState'),
             Scope::make('gameId', 'forGame'),
             WhereIn::make('type')->delimiter(','),
         ];
@@ -122,7 +121,7 @@ class AchievementSchema extends Schema
     /**
      * Build an index query for this resource.
      * Excludes achievements from Hub games (system_id=100) and Event games (system_id=101).
-     * Defaults to promoted achievements only unless isPromoted filter is explicitly set.
+     * Defaults to promoted achievements only unless state filter is explicitly set.
      *
      * @param Builder<Achievement> $query
      * @return Builder<Achievement>
@@ -133,9 +132,9 @@ class AchievementSchema extends Schema
         $query->whereHas('game', fn (Builder $gameQuery) => $gameQuery
             ->whereNotIn('system_id', [System::Hubs, System::Events]));
 
-        // Default to promoted only if no isPromoted filter is applied.
+        // Default to promoted only if no state filter is applied.
         // The filter will override this if explicitly set.
-        if (!request()->has('filter.isPromoted')) {
+        if (!request()->has('filter.state')) {
             $query->where('is_promoted', true);
         }
 

@@ -44,7 +44,7 @@ class LeaderboardResource extends BaseJsonApiResource
     public function relationships($request): iterable
     {
         return [
-            'game' => $this->relation('game')->withoutLinks(),
+            'games' => $this->relation('games')->withoutLinks(),
             'developer' => $this->relation('developer')->withoutLinks(),
         ];
     }

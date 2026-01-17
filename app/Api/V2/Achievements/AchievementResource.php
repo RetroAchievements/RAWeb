@@ -34,7 +34,7 @@ class AchievementResource extends BaseJsonApiResource
 
             'type' => $this->resource->type,
 
-            'isPromoted' => $this->resource->is_promoted,
+            'state' => $this->resource->is_promoted ? 'promoted' : 'unpromoted',
 
             'orderColumn' => $this->getOrderColumnFromPivot(),
 
