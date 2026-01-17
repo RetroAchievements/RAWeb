@@ -448,6 +448,8 @@ class HomeControllerTest extends TestCase
     public function testItCorrectlyHandlesUsersOnlineCountData(): void
     {
         // Arrange
+        Carbon::setTestNow(Carbon::now());
+
         $logEntries = [
             2487, 2335, 2193, 1963, 1869, 1765, 1676, 1531, 1538, 1583, 1555, 1579,
             1636, 1807, 1881, 2007, 2097, 2222, 2437, 2458, 2534, 2536, 2679, 2731,
@@ -455,7 +457,8 @@ class HomeControllerTest extends TestCase
             2914, 2845, 2945, 2882, 2800, 2750, 2666, 2508, 2331, 2177, 2022, 1873,
         ];
 
-        $baseTime = Carbon::now()->subMinutes(30 * count($logEntries));
+        // ... start from 23.5 hours ago so slot 47 lands at "now" ...
+        $baseTime = Carbon::now()->subMinutes(30 * (count($logEntries) - 1));
         foreach ($logEntries as $index => $count) {
             UsersOnlineCount::create([
                 'online_count' => $count,
@@ -475,6 +478,32 @@ class HomeControllerTest extends TestCase
             ->where('currentlyOnline.allTimeHighPlayers', max($logEntries))
             ->has('currentlyOnline.allTimeHighDate')
         );
+    }
+
+    public function testItPlacesRecordsInCorrectTimeSlotsWhenDataHasGaps(): void
+    {
+        // Arrange
+        Carbon::setTestNow(Carbon::now());
+
+        UsersOnlineCount::create([
+            'online_count' => 100,
+            'created_at' => Carbon::now()->subHours(3), // slot 41
+        ]);
+        UsersOnlineCount::create([
+            'online_count' => 200,
+            'created_at' => Carbon::now()->subMinutes(30), // slot 46
+        ]);
+
+        // Act
+        $response = $this->get(route('home'));
+
+        // Assert
+        $response->assertInertia(function (Assert $page) {
+            $page->where('currentlyOnline.logEntries.0', 0)   // earliest slot should be 0
+                ->where('currentlyOnline.logEntries.41', 100) // 3h ago
+                ->where('currentlyOnline.logEntries.46', 200) // 30m ago
+                ->where('currentlyOnline.logEntries.47', 0);  // now
+        });
     }
 
     public function testItReturnsAnEmptyCollectionForNewClaimsWhenThereAreNone(): void
