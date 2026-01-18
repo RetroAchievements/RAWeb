@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Api\V2;
 
 use LaravelJsonApi\Core\Server\Server as BaseServer;
@@ -32,6 +34,7 @@ class Server extends BaseServer
             Achievements\AchievementSchema::class,
             AchievementSets\AchievementSetSchema::class,
             Games\GameSchema::class,
+            Leaderboards\LeaderboardSchema::class,
             Systems\SystemSchema::class,
             Users\UserSchema::class,
         ];

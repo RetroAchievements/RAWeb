@@ -8,41 +8,45 @@ use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 
 class UserLastActivityService
 {
     private const CACHE_PREFIX = 'user-activity:';
-    private const PENDING_KEY = 'user-activity-flush:pending';
+    private const PENDING_SET_KEY = 'user-activity-flush:pending-set';
     private const CACHE_TTL_HOURS = 24;
-    private const LOCK_TTL_SECONDS = 10;
-    private const LOCK_WAIT_SECONDS = 2;
 
     /**
-     * Record user activity in the cache, which will be flushed periodically to the DB.
+     * Record user activity timestamps.
+     *
+     * When the Redis cache driver is enabled, timestamps are cached
+     * and then batch-flushed to the DB. This helps us mitigate lock
+     * contention issues on the users table.
+     *
+     * When Redis isn't being used (eg: tests), timestamps are instead
+     * written directly to the DB.
      */
     public function touch(User|int $user): void
     {
         $userId = $user instanceof User ? $user->id : $user;
         $timestamp = now()->timestamp;
 
-        // Store the user's current activity timestamp.
-        Cache::put(
-            self::CACHE_PREFIX . $userId,
-            $timestamp,
-            now()->addHours(self::CACHE_TTL_HOURS)
-        );
+        if (config('cache.default') === 'redis') {
+            // Cache for fast reads and track for batch flush.
+            Cache::put(
+                self::CACHE_PREFIX . $userId,
+                $timestamp,
+                now()->addHours(self::CACHE_TTL_HOURS)
+            );
 
-        // Track this user ID as needing to be flushed to DB.
-        // The lock prevents race conditions on the read-modify-write cycle for the pending list.
-        // Actual lock hold time is ~1-2ms. Under extreme load (1000+ req/s), requests that can't
-        // acquire the lock within LOCK_WAIT_SECONDS will silently skip tracking.
-        Cache::lock(self::PENDING_KEY . ':lock', self::LOCK_TTL_SECONDS)->block(self::LOCK_WAIT_SECONDS, function () use ($userId) {
-            $pending = Cache::get(self::PENDING_KEY, []);
-            if (!array_key_exists($userId, $pending)) {
-                $pending[$userId] = true;
-                Cache::put(self::PENDING_KEY, $pending, now()->addHours(self::CACHE_TTL_HOURS));
-            }
-        });
+            Redis::sadd(self::PENDING_SET_KEY, $userId); // https://redis.io/docs/latest/commands/sadd/
+        } else {
+            // Write directly to DB for non-Redis environments (eg: tests).
+            DB::table('users')->where('id', $userId)->update([
+                'last_activity_at' => Carbon::createFromTimestamp($timestamp),
+                'updated_at' => now(),
+            ]);
+        }
     }
 
     /**
@@ -50,12 +54,16 @@ class UserLastActivityService
      */
     public function getLastActivity(int $userId): ?Carbon
     {
-        $timestamp = Cache::get(self::CACHE_PREFIX . $userId);
-        if ($timestamp !== null) {
-            return Carbon::createFromTimestamp((int) $timestamp);
+        // Check the cache first.
+        if (config('cache.default') === 'redis') {
+            $timestamp = Cache::get(self::CACHE_PREFIX . $userId);
+            if ($timestamp !== null) {
+                return Carbon::createFromTimestamp((int) $timestamp);
+            }
         }
 
-        // Use a raw DB query here to avoid triggering the user model's accessor recursively.
+        // Otherwise, fall back to the DB.
+        // We use the DB facade so we don't trigger the user model's accessor recursively.
         $dbValue = DB::table('users')->where('id', $userId)->value('last_activity_at');
 
         return $dbValue !== null ? Carbon::parse($dbValue) : null;
@@ -84,21 +92,27 @@ class UserLastActivityService
      */
     public function flushToDatabase(): int
     {
-        // Atomically get and clear the pending updates list.
-        $pending = Cache::lock(self::PENDING_KEY . ':lock', self::LOCK_TTL_SECONDS)->block(self::LOCK_WAIT_SECONDS, function () {
-            $pending = Cache::get(self::PENDING_KEY, []);
-            Cache::forget(self::PENDING_KEY);
-
-            return $pending;
-        });
-
-        if (empty($pending)) {
+        // Batch flushing only works with Redis. Other drivers don't track pending users.
+        if (config('cache.default') !== 'redis') {
             return 0;
         }
 
-        // Collect timestamps for all the pending users.
+        // Atomically get and clear the pending user IDs.
+        /** @phpstan-ignore-next-line -- PHPStan doesn't understand Laravel's Redis facade types */
+        $results = Redis::pipeline(function ($pipe) {
+            $pipe->smembers(self::PENDING_SET_KEY); // https://redis.io/docs/latest/commands/smembers/
+            $pipe->del(self::PENDING_SET_KEY); // https://redis.io/docs/latest/commands/del/
+        });
+
+        $pendingUserIds = array_map('intval', $results[0] ?? []);
+
+        if (empty($pendingUserIds)) {
+            return 0;
+        }
+
+        // Collect timestamps for all pending users.
         $activities = [];
-        foreach (array_keys($pending) as $userId) {
+        foreach ($pendingUserIds as $userId) {
             $timestamp = Cache::pull(self::CACHE_PREFIX . $userId);
             if ($timestamp !== null) {
                 $activities[$userId] = $timestamp;
