@@ -6,11 +6,13 @@ use App\Models\User;
 use App\Platform\Services\UserLastActivityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 
 uses(RefreshDatabase::class);
 
 describe('touch', function () {
-    it('records activity in the cache and tracks users for the flush-to-DB', function () {
+    it('writes activity directly to the DB when not using the redis cache driver', function () {
         // ARRANGE
         $now = Carbon::now()->startOfSecond();
         Carbon::setTestNow($now);
@@ -22,19 +24,8 @@ describe('touch', function () {
         $service->touch($user);
 
         // ASSERT
-        // ... activity should be retrievable from the cache ...
-        $lastActivity = $service->getLastActivity($user->id);
-        expect($lastActivity)->not->toBeNull();
-        expect($lastActivity->timestamp)->toEqual($now->timestamp);
-
-        // ... the user should be tracked in a pending list for the flush ...
-        $flushedCount = $service->flushToDatabase();
-        expect($flushedCount)->toEqual(1);
-
-        // ... the db should now have the timestamp ...
         $user->refresh();
-        $dbTimestamp = $user->getRawOriginal('last_activity_at');
-        expect($dbTimestamp)->not->toBeNull();
+        expect($user->getRawOriginal('last_activity_at'))->not->toBeNull();
     });
 
     it('accepts both a User object and a user id', function () {
@@ -54,10 +45,28 @@ describe('touch', function () {
         expect($service->getLastActivity($user1->id))->not->toBeNull();
         expect($service->getLastActivity($user2->id))->not->toBeNull();
     });
+
+    it('does not write directly to DB when using redis', function () {
+        // ARRANGE
+        config(['cache.default' => 'redis']);
+
+        Cache::shouldReceive('put')->once();
+        Redis::shouldReceive('sadd')->once()->andReturn(1);
+
+        $service = app(UserLastActivityService::class);
+        $user = User::factory()->create(['last_activity_at' => null]);
+
+        // ACT
+        $service->touch($user);
+
+        // ASSERT
+        $user->refresh();
+        expect($user->getRawOriginal('last_activity_at'))->toBeNull();
+    });
 });
 
 describe('getLastActivity', function () {
-    it('returns a cached value when one is present', function () {
+    it('returns the DB value when not using the redis cache driver', function () {
         // ARRANGE
         $now = Carbon::now()->startOfSecond();
         Carbon::setTestNow($now);
@@ -74,22 +83,7 @@ describe('getLastActivity', function () {
         expect($lastActivity->timestamp)->toEqual($now->timestamp);
     });
 
-    it('falls back to the DB when cache is empty (or down)', function () {
-        // ARRANGE
-        $pastTime = Carbon::now()->subHours(2)->startOfSecond();
-        $service = app(UserLastActivityService::class);
-
-        $user = User::factory()->create();
-        $user->forceFill(['last_activity_at' => $pastTime])->saveQuietly();
-
-        // ACT
-        $lastActivity = $service->getLastActivity($user->id);
-
-        // ASSERT
-        expect($lastActivity->timestamp)->toEqual($pastTime->timestamp);
-    });
-
-    it('still returns null when the user has no activity', function () {
+    it('returns null when the user has no activity', function () {
         // ARRANGE
         $service = app(UserLastActivityService::class);
         $user = User::factory()->create(['last_activity_at' => null]);
@@ -121,13 +115,38 @@ describe('countOnline', function () {
 });
 
 describe('flushToDatabase', function () {
-    it('bulk updates the DB and clears the cache', function () {
+    it('returns 0 when not using the redis cache driver', function () {
+        // ARRANGE
+        $service = app(UserLastActivityService::class);
+
+        // ACT
+        $flushedCount = $service->flushToDatabase();
+
+        // ASSERT
+        expect($flushedCount)->toEqual(0);
+    });
+
+    it('bulk updates user records in the DB when using the redis cache driver', function () {
         // ARRANGE
         $now = Carbon::now()->startOfSecond();
         Carbon::setTestNow($now);
 
-        $service = app(UserLastActivityService::class);
+        config(['cache.default' => 'redis']);
+
         $users = User::factory()->count(3)->create(['last_activity_at' => null]);
+        $userIds = $users->pluck('id')->map(fn ($id) => (string) $id)->all();
+
+        Cache::shouldReceive('put')->times(3);
+        Cache::shouldReceive('pull')
+            ->times(3)
+            ->andReturn($now->timestamp);
+
+        Redis::shouldReceive('sadd')->times(3)->andReturn(1);
+        Redis::shouldReceive('pipeline')
+            ->once()
+            ->andReturn([$userIds, 1]);
+
+        $service = app(UserLastActivityService::class);
 
         foreach ($users as $user) {
             $service->touch($user);
@@ -141,16 +160,18 @@ describe('flushToDatabase', function () {
 
         foreach ($users as $user) {
             $user->refresh();
-            $dbTimestamp = $user->getRawOriginal('last_activity_at');
-            expect($dbTimestamp)->not->toBeNull();
+            expect($user->getRawOriginal('last_activity_at'))->not->toBeNull();
         }
-
-        // ... a flush returning 0 indicates the cache is cleared ...
-        expect($service->flushToDatabase())->toEqual(0);
     });
 
-    it('returns zero when there is nothing to flush', function () {
+    it('returns zero when there are no pending users', function () {
         // ARRANGE
+        config(['cache.default' => 'redis']);
+
+        Redis::shouldReceive('pipeline')
+            ->once()
+            ->andReturn([[], 0]);
+
         $service = app(UserLastActivityService::class);
 
         // ACT
@@ -162,7 +183,7 @@ describe('flushToDatabase', function () {
 });
 
 describe('User model accessor integration', function () {
-    it('transparently returns the cached or DB value via an accessor', function () {
+    it('transparently returns the last_activity_at value via an accessor', function () {
         // ARRANGE
         $now = Carbon::now()->startOfSecond();
         Carbon::setTestNow($now);
@@ -172,14 +193,9 @@ describe('User model accessor integration', function () {
 
         // ACT
         $service->touch($user);
+        $user->refresh();
 
         // ASSERT
-        // ... accessor should return the cached value ...
-        expect($user->last_activity_at->timestamp)->toEqual($now->timestamp);
-
-        // ... after a flush, the accessor should return the DB value ...
-        $service->flushToDatabase();
-        $user->refresh();
         expect($user->last_activity_at->timestamp)->toEqual($now->timestamp);
     });
 });
