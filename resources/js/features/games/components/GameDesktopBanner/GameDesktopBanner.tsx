@@ -79,7 +79,7 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
       </div>
 
       {/* Layer 4: game info and associated controls */}
-      <div className="absolute inset-x-0 bottom-0 z-20 mx-auto max-w-screen-xl px-4 pb-[46px] transition-[padding] sm:px-5 md:px-6 xl:px-0">
+      <div className="absolute inset-x-0 bottom-0 z-[19] mx-auto max-w-screen-xl px-4 pb-[46px] transition-[padding] sm:px-5 md:px-6 xl:px-0">
         <div className="flex items-end gap-4">
           {/* Game badge. */}
           <img
