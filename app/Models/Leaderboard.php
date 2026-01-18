@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Spatie\Activitylog\LogOptions;
@@ -43,6 +44,7 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
         LogsActivity::activities as auditLog;
     }
 
+    // TODO drop game_id, migrate to achievement_set_leaderboards, remove getGamesAttribute() in favor of true relationship
     protected $table = 'leaderboards';
 
     protected $fillable = [
@@ -108,6 +110,19 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
     public function getCanonicalUrlAttribute(): string
     {
         return route('leaderboard.show', [$this, $this->getSlugAttribute()]);
+    }
+
+    /**
+     * Get the games associated with this leaderboard.
+     * TODO replace with proper relationship through achievement_set_leaderboards
+     *
+     * @return Collection<int, Game>
+     */
+    public function getGamesAttribute(): Collection
+    {
+        $game = $this->game;
+
+        return $game ? collect([$game]) : collect();
     }
 
     public function getPermalinkAttribute(): string
@@ -250,6 +265,23 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
         return $query->with(['topEntry' => function ($q) {
             $q->with('user');
         }]);
+    }
+
+    /**
+     * Filter by leaderboard state: 'active', 'disabled', 'unpublished', 'all', or comma-separated values.
+     *
+     * @param Builder<Leaderboard> $query
+     * @return Builder<Leaderboard>
+     */
+    public function scopeWithState(Builder $query, string $value): Builder
+    {
+        if ($value === 'all') {
+            return $query;
+        }
+
+        $states = array_map('trim', explode(',', $value));
+
+        return $query->whereIn('state', $states);
     }
 
     // == helpers
