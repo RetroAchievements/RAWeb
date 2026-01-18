@@ -187,7 +187,9 @@ return [
     |
     */
     'environments' => [
-        'local' => [
+        // when true, prevents the 'local' key from being defined so the local environment
+        // will fall through to the default (production) definition.
+        env('HORIZON_LOCAL_USE_FULL_SUPERVISORS', false) ? 'unused' : 'local' => [
             'supervisor-1' => [ // locally, use single supervisor and fix it at 4 processes
 
                 // these settings all match supervisor-1 below
@@ -375,7 +377,7 @@ return [
 
             /**
              * Daily email supervisor - handles mass email distribution.
-             * Isolated to allow non-time-critial emails to be sent without affecting other queues.
+             * Isolated to allow non-time-critical emails to be sent without affecting other queues.
              */
             'supervisor-6' => [
                 'connection' => 'redis',
