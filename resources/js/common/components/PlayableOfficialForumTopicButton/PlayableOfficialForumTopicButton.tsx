@@ -18,7 +18,7 @@ export const PlayableOfficialForumTopicButton: FC<PlayableOfficialForumTopicButt
 }) => {
   const { t } = useTranslation();
 
-  if (!backingGame?.forumTopicId) {
+  if (!game.forumTopicId && !backingGame?.forumTopicId) {
     return null;
   }
 
@@ -26,22 +26,24 @@ export const PlayableOfficialForumTopicButton: FC<PlayableOfficialForumTopicButt
 
   return (
     <div className="flex flex-col gap-1">
-      <InertiaLink
-        href={route('forum-topic.show', { topic: game.forumTopicId as number })}
-        className={baseButtonVariants({
-          className: 'flex w-full items-center !justify-start gap-2 border-l-4 border-l-link',
-        })}
-        prefetch="desktop-hover-only"
-      >
-        <LuMessageSquare className="size-4 brightness-125" />
-        <span>
-          {shouldShowGameAndSetTopicLinks ? t('Game Forum Topic') : t('Official Forum Topic')}
-        </span>
-      </InertiaLink>
-
-      {shouldShowGameAndSetTopicLinks ? (
+      {game.forumTopicId ? (
         <InertiaLink
-          href={route('forum-topic.show', { topic: backingGame.forumTopicId as number })}
+          href={route('forum-topic.show', { topic: game.forumTopicId })}
+          className={baseButtonVariants({
+            className: 'flex w-full items-center !justify-start gap-2 border-l-4 border-l-link',
+          })}
+          prefetch="desktop-hover-only"
+        >
+          <LuMessageSquare className="size-4 brightness-125" />
+          <span>
+            {shouldShowGameAndSetTopicLinks ? t('Game Forum Topic') : t('Official Forum Topic')}
+          </span>
+        </InertiaLink>
+      ) : null}
+
+      {shouldShowGameAndSetTopicLinks && backingGame.forumTopicId ? (
+        <InertiaLink
+          href={route('forum-topic.show', { topic: backingGame.forumTopicId })}
           className={baseButtonVariants({
             className: 'flex w-full items-center !justify-start gap-2 border-l-4 border-l-link',
           })}
