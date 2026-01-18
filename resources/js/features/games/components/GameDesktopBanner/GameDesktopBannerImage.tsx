@@ -33,6 +33,19 @@ export const GameDesktopBannerImage: FC<GameDesktopBannerImageProps> = ({ banner
             willChange: 'opacity',
           }}
         >
+          {/* Mobile-optimized images for small viewports. */}
+          <source
+            type="image/avif"
+            media="(max-width: 767px)"
+            srcSet={banner.mobileSmAvif ?? undefined}
+          />
+          <source
+            type="image/webp"
+            media="(max-width: 767px)"
+            srcSet={banner.mobileSmWebp ?? undefined}
+          />
+
+          {/* Desktop images for larger viewports. */}
           <source
             type="image/avif"
             srcSet={[
@@ -61,7 +74,7 @@ export const GameDesktopBannerImage: FC<GameDesktopBannerImageProps> = ({ banner
             ref={handleImageRef}
             src={game.imageIngameUrl}
             alt=""
-            className="h-full w-full object-cover object-[50%_10%]"
+            className="h-full w-full object-cover object-center lg:object-[50%_10%]"
             onLoad={() => setIsImageLoaded(true)}
             fetchPriority="high"
             loading="eager"
@@ -73,6 +86,7 @@ export const GameDesktopBannerImage: FC<GameDesktopBannerImageProps> = ({ banner
       {/* Top gradient for navbar blending. */}
       <div
         className={cn(
+          'hidden md:block',
           'absolute inset-0 bg-gradient-to-b from-black/60 via-transparent via-30% to-transparent',
           'light:from-white/70 light:via-white/20',
         )}
@@ -80,6 +94,7 @@ export const GameDesktopBannerImage: FC<GameDesktopBannerImageProps> = ({ banner
       {/* Bottom gradient for game info text readability */}
       <div
         className={cn(
+          'hidden md:block',
           'absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 via-40% to-transparent',
           'light:from-white/80 light:via-white/30',
         )}
