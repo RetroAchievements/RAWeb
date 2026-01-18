@@ -3,6 +3,8 @@ import { type FC, useRef, useState } from 'react';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
+import { buildEasedGradient } from './buildEasedGradient';
+
 interface GameDesktopBannerImageProps {
   banner: App.Platform.Data.PageBanner;
 }
@@ -85,19 +87,26 @@ export const GameDesktopBannerImage: FC<GameDesktopBannerImageProps> = ({ banner
 
       {/* Top gradient for navbar blending. */}
       <div
-        className={cn(
-          'hidden md:block',
-          'absolute inset-0 bg-gradient-to-b from-black/60 via-transparent via-30% to-transparent',
-          'light:from-white/70 light:via-white/20',
-        )}
+        data-testid="top-gradient-dark"
+        className="absolute inset-0 hidden light:hidden md:block"
+        style={{ background: buildEasedGradient('to bottom', 'black', 0.6) }}
       />
+      <div
+        data-testid="top-gradient-light"
+        className="absolute inset-0 hidden light:md:block"
+        style={{ background: buildEasedGradient('to bottom', 'white', 0.7) }}
+      />
+
       {/* Bottom gradient for game info text readability */}
       <div
-        className={cn(
-          'hidden md:block',
-          'absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 via-40% to-transparent',
-          'light:from-white/80 light:via-white/30',
-        )}
+        data-testid="bottom-gradient-dark"
+        className="absolute inset-0 hidden light:hidden md:block"
+        style={{ background: buildEasedGradient('to top', 'black', 0.6) }}
+      />
+      <div
+        data-testid="bottom-gradient-light"
+        className="absolute inset-0 hidden light:md:block"
+        style={{ background: buildEasedGradient('to top', 'white', 0.8) }}
       />
     </>
   );

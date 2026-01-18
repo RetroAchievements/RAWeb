@@ -47,26 +47,47 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
       <div
         className="absolute inset-0 z-[1] hidden md:block"
         style={{
-          background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.65) 100%)',
+          background: `linear-gradient(to bottom,
+            transparent 0%,
+            rgba(0,0,0,0.01) 10%,
+            rgba(0,0,0,0.03) 20%,
+            rgba(0,0,0,0.06) 30%,
+            rgba(0,0,0,0.1) 40%,
+            rgba(0,0,0,0.16) 50%,
+            rgba(0,0,0,0.24) 60%,
+            rgba(0,0,0,0.35) 70%,
+            rgba(0,0,0,0.46) 80%,
+            rgba(0,0,0,0.56) 90%,
+            rgba(0,0,0,0.65) 100%
+          )`,
         }}
       />
 
-      {/* Layer 2: blurred MD image that fills the full viewport width */}
+      {/* Layer 1b: noise texture to reduce gradient banding on solid backgrounds */}
+      <div
+        className="pointer-events-none absolute inset-0 z-[2] hidden md:block"
+        style={{
+          // this is really annoying, but we inline this to prevent the need for a separate network request
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          opacity: 0.15,
+          mixBlendMode: 'overlay',
+        }}
+      />
+
+      {/* Layer 2: blurred image backdrop */}
       <div className="absolute inset-0 overflow-hidden">
-        <picture className="absolute inset-0">
-          <source srcSet={banner.desktopMdAvif ?? undefined} type="image/avif" />
-          <source srcSet={banner.desktopMdWebp ?? undefined} type="image/webp" />
+        <div className="relative mx-auto h-full max-w-[1920px]">
           <img
-            src={game.imageIngameUrl}
+            src={banner.desktopMdWebp ?? game.imageIngameUrl}
             alt=""
-            className="h-full w-full object-cover object-[50%_10%]"
+            className="absolute inset-0 h-full w-full object-cover object-center lg:object-[50%_10%]"
             style={{
               filter: 'blur(15px)',
             }}
             aria-hidden="true"
             data-testid="blurred-backdrop"
           />
-        </picture>
+        </div>
       </div>
 
       {/* Layer 3: full-res image constrained to max-width with edge shadows */}
@@ -137,15 +158,16 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
         </div>
       </div>
 
+      {/* Layer 5: mobile-only gradient overlay for text readability */}
       <div
         className={cn(
-          'md:hidden',
-          'absolute inset-0 bg-gradient-to-b from-black/40 from-0% via-black/50 via-60% to-black',
+          'absolute inset-0 md:hidden',
+          'bg-gradient-to-b from-black/40 from-0% via-black/50 via-60% to-black',
           'light:from-black/20 light:via-black/30 light:to-black/50',
         )}
       />
 
-      {/* Layer 5: invisible hit area to toggle compact mode. only functional on LG+. */}
+      {/* Layer 6: invisible hit area to toggle compact mode. only functional on LG+. */}
       <button
         onClick={toggleCompactBanners}
         onMouseEnter={() => setIsDividerHovered(true)}

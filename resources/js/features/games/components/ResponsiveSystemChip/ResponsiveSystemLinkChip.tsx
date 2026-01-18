@@ -25,20 +25,13 @@ export const ResponsiveSystemLinkChip: FC = () => {
       <img
         src={game.system?.iconUrl}
         alt={game.system?.nameShort}
-        width={16}
-        height={16}
-        className="sm:hidden"
-      />
-      <img
-        src={game.system?.iconUrl}
-        alt={game.system?.nameShort}
-        width={18}
-        height={18}
-        className="hidden sm:block"
+        className="size-4 sm:size-[18px]"
       />
 
-      <span className="text-xs font-medium sm:hidden">{game.system?.nameShort}</span>
-      <span className="hidden text-sm font-medium sm:inline">{game.system?.name}</span>
+      <span className="text-xs font-medium sm:text-sm">
+        <span className="sm:hidden">{game.system?.nameShort}</span>
+        <span className="hidden sm:inline">{game.system?.name}</span>
+      </span>
     </a>
   );
 };
