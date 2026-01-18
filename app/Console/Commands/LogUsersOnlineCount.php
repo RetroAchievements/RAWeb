@@ -18,6 +18,5 @@ class LogUsersOnlineCount extends Command
         $playersOnline = $userActivityService->countOnline(withinMinutes: 10);
 
         UsersOnlineCount::log($playersOnline);
-        file_put_contents(storage_path('logs/playersonline.log'), $playersOnline . PHP_EOL, FILE_APPEND);
     }
 }
