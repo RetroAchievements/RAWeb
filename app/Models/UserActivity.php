@@ -7,13 +7,16 @@ namespace App\Models;
 use App\Community\Enums\UserActivityType;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\UserActivityFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserActivity extends BaseModel
 {
     /** @use HasFactory<UserActivityFactory> */
     use HasFactory;
+    use MassPrunable;
 
     protected $fillable = [
         'user_id',
@@ -26,6 +29,14 @@ class UserActivity extends BaseModel
     protected static function newFactory(): UserActivityFactory
     {
         return UserActivityFactory::new();
+    }
+
+    /**
+     * @return Builder<UserActivity>
+     */
+    public function prunable(): Builder
+    {
+        return $this->where('created_at', '<', now()->subDays(90));
     }
 
     // == accessors

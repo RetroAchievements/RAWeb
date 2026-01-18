@@ -38,6 +38,16 @@ $user = request()->user();
             </div>
         </x-container>
     @endif
+
+    @if (session('password_compromised'))
+        <x-container>
+            <div class="bg-red-600 my-2 text-gray-200 px-5 py-2 rounded-sm">
+                <x-fas-exclamation-triangle/>
+                Your password has appeared in a data breach. Please <a href="{{ route('settings.show') }}" class="text-white underline">change your password</a> to secure your account.
+            </div>
+        </x-container>
+    @endif
+
     @if ($user->delete_requested_at)
         <x-container>
             <div class="bg-orange-500 my-2 text-gray-200 px-5 py-2 rounded-sm">

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\EventResource\Pages;
 
 use App\Filament\Actions\ApplyUploadedImageToDataAction;
+use App\Filament\Actions\ViewOnSiteAction;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\EventResource;
 use App\Models\Game;
@@ -13,6 +14,13 @@ use Filament\Resources\Pages\EditRecord;
 class Edit extends EditRecord
 {
     protected static string $resource = EventResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            ViewOnSiteAction::make('view-on-site'),
+        ];
+    }
 
     protected function mutateFormDataBeforeSave(array $data): array
     {

@@ -75,10 +75,10 @@ class StartSessionAction extends BaseAuthenticatedApiAction
         }
 
         // Resolve achievement sets for multiset. This determines which sets we should
-        // query for unlocks. If empty (no hash, multiset disabled, or no sets found),
-        // we fall back to the resolved game ID.
+        // query for unlocks. If empty (no hash or no sets found), we fall back to the
+        // resolved game ID.
         $resolvedSets = collect();
-        if (config('feature.enable_multiset') && $gameHash) {
+        if ($gameHash) {
             $resolvedSets = (new ResolveAchievementSetsAction())->execute($gameHash, $this->user);
 
             // Redirect the heartbeat to the root game.

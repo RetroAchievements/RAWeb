@@ -3,24 +3,29 @@
 use App\Models\PasswordResetToken;
 use App\Models\User;
 use App\Support\Rules\CtypeAlnum;
+use App\Support\Rules\PasswordRules;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
-$input = Validator::validate(Arr::wrap(request()->post()), [
-    'username' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
-    'token' => 'required',
-    'password' => 'required|confirmed|min:8|different:username',
-]);
+$requestData = Arr::wrap(request()->post());
 
-$passResetToken = $input['token'];
-$newPass = $input['password'];
-
-$targetUser = User::whereName($input['username'])->first();
+$targetUser = User::whereName($requestData['username'] ?? '')->first();
 
 if (!$targetUser || $targetUser->isBanned()) {
     return back()->withErrors(__('legacy.error.token'));
 }
+
+$requestData['email'] = $targetUser->email;
+
+$input = Validator::validate($requestData, [
+    'username' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
+    'token' => 'required',
+    'password' => PasswordRules::get(requireConfirmation: true),
+]);
+
+$passResetToken = $input['token'];
+$newPass = $input['password'];
 
 if (!PasswordResetToken::isValidForUser($targetUser, $passResetToken)) {
     return back()->withErrors(__('legacy.error.token'));

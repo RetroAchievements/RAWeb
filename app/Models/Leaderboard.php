@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Community\Enums\CommentableType;
 use App\Platform\Actions\RecalculateLeaderboardTopEntryAction;
+use App\Platform\Contracts\HasPermalink;
 use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\ValueFormat;
@@ -29,7 +30,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 /**
  * @implements HasVersionedTrigger<Leaderboard>
  */
-class Leaderboard extends BaseModel implements HasVersionedTrigger
+class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
 {
     /*
      * Shared Traits
