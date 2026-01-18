@@ -78,8 +78,9 @@ class GameSchema extends Schema
             BelongsToMany::make('achievementSets')->readOnly(),
 
             // TODO implement relationship endpoints to enable links
-            // - /games/{id}/system
             // - /games/{id}/achievementSets
+            // - /games/{id}/leaderboards
+            // - /games/{id}/system
         ];
     }
 
