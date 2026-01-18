@@ -32,6 +32,7 @@ class AchievementSet extends BaseModel
     use PivotEventTrait;
     use SoftDeletes;
 
+    // TODO add leaderboards() relation through achievement_set_leaderboards
     protected $table = 'achievement_sets';
 
     protected $fillable = [

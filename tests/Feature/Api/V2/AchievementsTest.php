@@ -136,7 +136,7 @@ class AchievementsTest extends JsonApiResourceTestCase
         $response = $this->jsonApi('v2')
             ->expects('achievements')
             ->withHeader('X-API-Key', 'test-key')
-            ->get('/api/v2/achievements?filter[isPromoted]=false');
+            ->get('/api/v2/achievements?filter[state]=unpromoted');
 
         // Assert
         $response->assertSuccessful();
@@ -145,7 +145,7 @@ class AchievementsTest extends JsonApiResourceTestCase
         $this->assertContains((string) $unpromotedAchievement->id, $ids);
     }
 
-    public function testItFiltersToAllWhenIsPromotedAll(): void
+    public function testItFiltersToAllWhenStateAll(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
@@ -165,7 +165,7 @@ class AchievementsTest extends JsonApiResourceTestCase
         $response = $this->jsonApi('v2')
             ->expects('achievements')
             ->withHeader('X-API-Key', 'test-key')
-            ->get('/api/v2/achievements?filter[isPromoted]=all');
+            ->get('/api/v2/achievements?filter[state]=all');
 
         // Assert
         $response->assertSuccessful();
@@ -366,7 +366,7 @@ class AchievementsTest extends JsonApiResourceTestCase
         $this->assertEquals('Test Description', $attributes['description']);
         $this->assertEquals(10, $attributes['points']);
         $this->assertEquals('progression', $attributes['type']);
-        $this->assertEquals(true, $attributes['isPromoted']);
+        $this->assertEquals('promoted', $attributes['state']);
         $this->assertArrayHasKey('pointsWeighted', $attributes);
         $this->assertArrayHasKey('badgeUrl', $attributes);
         $this->assertArrayHasKey('badgeLockedUrl', $attributes);
