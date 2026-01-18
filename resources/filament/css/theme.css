@@ -25,3 +25,13 @@
 @import '../../../vendor/filament/filament/resources/css/widgets/filament-info-widget.css' layer(components);
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* Increase the max width and max height of the global search results dropdown. */
+.fi-topbar .fi-global-search-results-ctn {
+    @apply sm:max-w-md max-h-[40rem];
+}
+
+/* Truncate global search result secondary detail values to a single row. */
+.fi-global-search-result-detail-value {
+    @apply inline-block align-bottom truncate max-w-64;
+}

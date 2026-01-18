@@ -75,6 +75,7 @@ class GameShowPagePropsData extends Data
         /** @var Collection<int, PlayerAchievementSetData> */
         #[LiteralTypeScriptType('Record<number, App.Platform.Data.PlayerAchievementSet>')]
         public Collection $playerAchievementSets,
+        public bool $prefersCompactBanners,
         /** @var GameAchievementSetData[] */
         public array $selectableGameAchievementSets,
         public ?SeriesHubData $seriesHub,

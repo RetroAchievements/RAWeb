@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\HubResource\Pages;
 
 use App\Filament\Actions\ApplyUploadedImageToDataAction;
+use App\Filament\Actions\ViewOnSiteAction;
 use App\Filament\Enums\ImageUploadType;
 use App\Filament\Resources\HubResource;
 use Filament\Actions;
@@ -17,6 +18,7 @@ class Edit extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            ViewOnSiteAction::make('view-on-site'),
             Actions\DeleteAction::make(),
             Actions\RestoreAction::make(),
         ];

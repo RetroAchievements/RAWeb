@@ -28,8 +28,10 @@ export function useSubmitCommentForm({
   const addCommentFormSchema = z.object({
     body: z
       .string()
-      .min(3, { message: t('Comment must be at least 3 characters.') })
-      .max(2000, { message: t('Comment must not be longer than 2,000 characters.') }),
+      .min(3, { message: t('Must be at least {{val, number}} characters.', { val: 3 }) })
+      .max(2000, {
+        message: t('Must not be longer than {{val, number}} characters.', { val: 2000 }),
+      }),
   });
   type FormValues = z.infer<typeof addCommentFormSchema>;
 

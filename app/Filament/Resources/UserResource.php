@@ -70,6 +70,14 @@ class UserResource extends Resource
         return ['id', 'username', 'display_name'];
     }
 
+    /**
+     * @param Builder<User> $query
+     */
+    public static function modifyGlobalSearchQuery(Builder $query, string $search): void
+    {
+        $query->orderByDesc('points_hardcore');
+    }
+
     public static function infolist(Schema $schema): Schema
     {
         /** @var User $user */
@@ -124,11 +132,6 @@ class UserResource extends Resource
                                     Infolists\Components\TextEntry::make('canonical_url')
                                         ->label('Canonical URL')
                                         ->url(fn (User $record): string => $record->getCanonicalUrlAttribute())
-                                        ->openUrlInNewTab(),
-
-                                    Infolists\Components\TextEntry::make('permalink')
-                                        ->formatStateUsing(fn () => 'Here')
-                                        ->url(fn (User $record): string => $record->getPermalinkAttribute())
                                         ->openUrlInNewTab(),
                                 ]),
                         ]),

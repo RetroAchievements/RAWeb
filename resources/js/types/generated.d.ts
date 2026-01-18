@@ -953,6 +953,7 @@ declare namespace App.Platform.Data {
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
     playerAchievementSets: Array<App.Platform.Data.PlayerAchievementSet>;
+    prefersCompactBanners: boolean;
     selectableGameAchievementSets: Array<App.Platform.Data.GameAchievementSet>;
     seriesHub: App.Platform.Data.SeriesHub | null;
     setRequestData: App.Platform.Data.GameSetRequestData | null;

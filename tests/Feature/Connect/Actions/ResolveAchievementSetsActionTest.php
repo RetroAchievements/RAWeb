@@ -536,6 +536,49 @@ class ResolveAchievementSetsActionTest extends TestCase
         $this->assertAchievementSet($set, AchievementSetType::Bonus, $baseGame->id, 2, 0);
     }
 
+    public function testLoadingSpecialtyHashDoesNotReturnOtherSpecialtySets(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements($this->system, 'Super Mario 64', publishedCount: 5);
+        $bonusGame = $this->createGameWithAchievements($this->system, 'Super Mario 64 [Subset - Bonus]', publishedCount: 3);
+        $specialtyGame1 = $this->createGameWithAchievements($this->system, 'Super Mario 64 [Subset - A Button Challenge]', publishedCount: 2);
+        $specialtyGame2 = $this->createGameWithAchievements($this->system, 'Super Mario 64 [Subset - Lazy Lakitu]', publishedCount: 4);
+        $specialtyGame3 = $this->createGameWithAchievements($this->system, 'Super Mario 64 [Subset - Speedrun Showcase]', publishedCount: 6);
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($bonusGame);
+        $this->upsertGameCoreSetAction->execute($specialtyGame1);
+        $this->upsertGameCoreSetAction->execute($specialtyGame2);
+        $this->upsertGameCoreSetAction->execute($specialtyGame3);
+
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
+        $this->associateAchievementSetToGameAction->execute($baseGame, $specialtyGame1, AchievementSetType::Specialty, 'A Button Challenge');
+        $this->associateAchievementSetToGameAction->execute($baseGame, $specialtyGame2, AchievementSetType::Specialty, 'Lazy Lakitu');
+        $this->associateAchievementSetToGameAction->execute($baseGame, $specialtyGame3, AchievementSetType::Specialty, 'Speedrun Showcase');
+
+        // ... the user loads the A Button Challenge hash directly (not the base game hash) ...
+        $specialtyGame1Hash = GameHash::factory()->create(['game_id' => $specialtyGame1->id]);
+
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // Act
+        $resolved = (new ResolveAchievementSetsAction())->execute($specialtyGame1Hash, $user);
+
+        // Assert
+        // ... should get core, bonus, and only the A Button Challenge specialty set ...
+        // ... should not get any other specialty subsets ...
+        $this->assertCount(3, $resolved);
+
+        $this->assertContainsAchievementSetType($resolved, AchievementSetType::Core);
+        $this->assertContainsAchievementSetType($resolved, AchievementSetType::Bonus);
+        $this->assertContainsAchievementSetType($resolved, AchievementSetType::Specialty);
+
+        // ... verify only the specialty set we loaded is returned ...
+        $specialtySets = $resolved->filter(fn ($set) => $set->type === AchievementSetType::Specialty);
+        $this->assertCount(1, $specialtySets);
+        $this->assertEquals('A Button Challenge', $specialtySets->first()->title);
+    }
+
     /**
      * If the user has multiset enabled, they load a bonus subset game's hash, but are locally
      * opted out of that subset, then we treat it like they loaded a core game hash. They'll

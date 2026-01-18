@@ -8,14 +8,9 @@ import { render, screen } from '@/test';
 import { PreferencesSectionCard } from './PreferencesSectionCard';
 
 describe('Component: PreferencesSectionCard', () => {
-  // TODO remove when multiset isnt behind a feature flag
-  const originalMultisetFlag = import.meta.env.VITE_FEATURE_MULTISET;
-
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(router, 'reload').mockImplementation(vi.fn());
-
-    import.meta.env.VITE_FEATURE_MULTISET = originalMultisetFlag;
   });
 
   it('renders without crashing', () => {
@@ -55,8 +50,6 @@ describe('Component: PreferencesSectionCard', () => {
 
   it('given the user does not have the game subsets opt out setting enabled, shows the toggle as checked', () => {
     // ARRANGE
-    import.meta.env.VITE_FEATURE_MULTISET = 'true';
-
     render(<PreferencesSectionCard currentPreferencesBitfield={127} />);
 
     // ASSERT
@@ -67,8 +60,6 @@ describe('Component: PreferencesSectionCard', () => {
 
   it('allows the user to change their game subsets opt out preference', async () => {
     // ARRANGE
-    vi.stubEnv('VITE_FEATURE_MULTISET', 'true');
-
     const putSpy = vi.spyOn(axios, 'put').mockResolvedValueOnce({ success: true });
 
     render(<PreferencesSectionCard currentPreferencesBitfield={127} />);
@@ -81,16 +72,6 @@ describe('Component: PreferencesSectionCard', () => {
     expect(putSpy).toHaveBeenCalledWith(route('api.settings.preferences.update'), {
       preferencesBitfield: 262271,
     });
-  });
-
-  it('given the multiset feature is not available for users, does not show the game sets opt in toggle', () => {
-    // ARRANGE
-    vi.stubEnv('VITE_FEATURE_MULTISET', '');
-
-    render(<PreferencesSectionCard currentPreferencesBitfield={127} />);
-
-    // ASSERT
-    expect(screen.queryByRole('switch', { name: /automatically opt in/i })).not.toBeInTheDocument();
   });
 
   it('given the user has beta features enabled, shows the beta features toggle as checked', () => {

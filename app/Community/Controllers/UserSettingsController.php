@@ -123,6 +123,8 @@ class UserSettingsController extends Controller
         $user->generateNewConnectToken();
         $user->saveQuietly();
 
+        session()->forget('password_compromised');
+
         return response()->json(['success' => true]);
     }
 
