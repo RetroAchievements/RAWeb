@@ -33,6 +33,11 @@ class LeaderboardPolicy
         return true;
     }
 
+    public function viewEntries(?User $user, Leaderboard $leaderboard): bool
+    {
+        return true;
+    }
+
     public function create(User $user, ?Game $game = null): bool
     {
         if ($game && $user->hasRole(Role::DEVELOPER_JUNIOR)) {
