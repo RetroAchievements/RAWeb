@@ -495,6 +495,7 @@ class GameResource extends Resource
                     ->placeholder('Select a value')
                     ->options([
                         'none' => 'Has all media',
+                        'none_excluding_banner' => 'Has all media (excluding banner)',
                         'has_banner' => 'Has banner',
                         'all' => 'Missing all media',
                         'all_excluding_banner' => 'Missing all media (excluding banner)',
@@ -523,6 +524,15 @@ class GameResource extends Resource
                                     ->whereNotNull('image_box_art_asset_path')
                                     ->where('image_box_art_asset_path', '!=', '/Images/000002.png')
                                     ->whereHas('media', fn (Builder $q) => $q->where('collection_name', 'banner'));
+                            case 'none_excluding_banner':
+                                return $query->whereNotNull('image_icon_asset_path')
+                                    ->where('image_icon_asset_path', '!=', '/Images/000001.png')
+                                    ->whereNotNull('image_title_asset_path')
+                                    ->where('image_title_asset_path', '!=', '/Images/000002.png')
+                                    ->whereNotNull('image_ingame_asset_path')
+                                    ->where('image_ingame_asset_path', '!=', '/Images/000002.png')
+                                    ->whereNotNull('image_box_art_asset_path')
+                                    ->where('image_box_art_asset_path', '!=', '/Images/000002.png');
                             case 'all':
                                 return $query->where(function ($query) {
                                     $query->whereNull('image_icon_asset_path')
