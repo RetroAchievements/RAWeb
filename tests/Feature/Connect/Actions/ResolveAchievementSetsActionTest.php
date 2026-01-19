@@ -579,6 +579,55 @@ class ResolveAchievementSetsActionTest extends TestCase
         $this->assertEquals('A Button Challenge', $specialtySets->first()->title);
     }
 
+    public function testBonusSetLinkedToMultipleParentsOnlyReturnsBonusSet(): void
+    {
+        // Arrange
+        // ... create two separate parent games with their own core sets ...
+        $parentGameA = $this->createGameWithAchievements($this->system, 'Pokemon Red', publishedCount: 5);
+        $parentGameB = $this->createGameWithAchievements($this->system, 'Pokemon Blue', publishedCount: 6);
+
+        // ... create the subset backing game for the shared bonus set ...
+        $bonusBackingGame = $this->createGameWithAchievements(
+            $this->system,
+            'Pokemon Red | Pokemon Blue [Subset - Bonus]',
+            publishedCount: 3
+        );
+
+        $this->upsertGameCoreSetAction->execute($parentGameA);
+        $this->upsertGameCoreSetAction->execute($parentGameB);
+        $this->upsertGameCoreSetAction->execute($bonusBackingGame);
+
+        // ... link the bonus set to both parent games ...
+        $this->associateAchievementSetToGameAction->execute(
+            $parentGameA,
+            $bonusBackingGame,
+            AchievementSetType::Bonus,
+            'Bonus'
+        );
+        $this->associateAchievementSetToGameAction->execute(
+            $parentGameB,
+            $bonusBackingGame,
+            AchievementSetType::Bonus,
+            'Bonus'
+        );
+
+        // ... create a hash for the subset backing game ...
+        $bonusBackingGameHash = GameHash::factory()->create(['game_id' => $bonusBackingGame->id]);
+
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // Act
+        $resolved = (new ResolveAchievementSetsAction())->execute($bonusBackingGameHash, $user);
+
+        // Assert
+        // ... should only return the bonus set, not any parent's core set ...
+        $this->assertCount(1, $resolved);
+
+        $bonusSet = $resolved->first();
+        $this->assertEquals(AchievementSetType::Core, $bonusSet->type);
+        $this->assertEquals($bonusBackingGame->id, $bonusSet->game_id);
+    }
+
     /**
      * If the user has multiset enabled, they load a bonus subset game's hash, but are locally
      * opted out of that subset, then we treat it like they loaded a core game hash. They'll
