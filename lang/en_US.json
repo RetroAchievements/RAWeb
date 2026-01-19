@@ -1326,5 +1326,16 @@
     "Disabled": "Disabled",
     "This leaderboard is currently disabled and not accepting new entries.": "This leaderboard is currently disabled and not accepting new entries.",
     "Emulator <1>hardcore verification</1>.": "Emulator <1>hardcore verification</1>.",
-    "Partnership inquiries.": "Partnership inquiries."
+    "Partnership inquiries.": "Partnership inquiries.",
+    "Popular right now": "Popular right now",
+    "Trending": "Trending",
+    "Popular": "Popular",
+    "Toggle trending": "Toggle trending",
+    "Toggle popular": "Toggle popular",
+    "new-set": "New set driving interest",
+    "revised-set": "Recently revised set",
+    "gaining-traction": "Rising in popularity",
+    "renewed-interest": "Classic seeing renewed interest",
+    "many-more-players": "Many more players than usual",
+    "more-players": "More players than usual"
 }

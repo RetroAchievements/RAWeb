@@ -6,9 +6,10 @@ namespace App\Http\Controllers;
 
 use App\Community\Actions\BuildActivePlayersAction;
 use App\Community\Actions\BuildThinRecentForumPostsDataAction;
-use App\Community\Actions\BuildTrendingGamesAction;
+use App\Community\Actions\FetchGameActivityDataAction;
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimStatus;
+use App\Community\Enums\GameActivitySnapshotType;
 use App\Community\Enums\NewsCategory;
 use App\Data\StaticDataData;
 use App\Enums\Permissions;
@@ -39,7 +40,7 @@ class HomeController extends Controller
         BuildNewsDataAction $buildNewsData,
         BuildCurrentlyOnlineDataAction $buildCurrentlyOnlineData,
         BuildActivePlayersAction $buildActivePlayers,
-        BuildTrendingGamesAction $buildTrendingGames,
+        FetchGameActivityDataAction $fetchGameActivityData,
         BuildHomePageClaimsDataAction $buildHomePageClaimsData,
         BuildThinRecentForumPostsDataAction $buildThinRecentForumPostsData,
         BuildUserCurrentGameDataAction $buildUserCurrentGameData,
@@ -62,7 +63,8 @@ class HomeController extends Controller
 
         $persistedActivePlayersSearch = $request->cookie('active_players_search');
         $activePlayers = $buildActivePlayers->execute(perPage: 20, search: $persistedActivePlayersSearch);
-        $trendingGames = $buildTrendingGames->execute();
+        $trendingGames = $fetchGameActivityData->execute(GameActivitySnapshotType::Trending);
+        $popularGames = $fetchGameActivityData->execute(GameActivitySnapshotType::Popular);
 
         $permissions = $user ? (int) $user->getAttribute('Permissions') : Permissions::Unregistered;
         $recentForumPosts = $buildThinRecentForumPostsData->execute(
@@ -83,6 +85,7 @@ class HomeController extends Controller
             newClaims: $newClaims,
             activePlayers: $activePlayers,
             trendingGames: $trendingGames,
+            popularGames: $popularGames,
             recentForumPosts: $recentForumPosts,
             persistedActivePlayersSearch: $persistedActivePlayersSearch,
             userCurrentGame: $userCurrentGameData[0] ?? null,
