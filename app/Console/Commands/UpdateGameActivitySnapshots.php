@@ -60,9 +60,9 @@ class UpdateGameActivitySnapshots extends Command
      *   score = trend * sqrt(new_players_48h) * evergreen_penalty
      *
      * Parameters:
-     * - k=10 Bayesian smoothing: Prevents small-sample noise. A game going from 2 to 6 players
-     *   (technically 21x!) gets dampened to ~3x. A game going 174 to 407 stays at 16x because
-     *   the volume is real.
+     * - k=10 Bayesian smoothing: Prevents small-sample noise by adding a prior to both numerator
+     *   and denominator. For small samples (baseline=2, recent=6), the ratio shifts from 21x to
+     *   9x. For large samples (baseline=174, recent=407), k barely matters: 16.4x becomes 15.9x.
      * - Minimum 10 new players in 48h: Filters out statistical noise from tiny games.
      * - 1.5x trend threshold: Must be 50% above baseline to qualify as "trending."
      * - Evergreen penalty: Games with huge player bases get dampened because spikes are
