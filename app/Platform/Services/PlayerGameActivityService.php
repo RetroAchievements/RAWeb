@@ -51,7 +51,8 @@ class PlayerGameActivityService
 
         if ($withSubsets) {
             $coreGameAchievementSetIds = [];
-            $coreGameAchievementSets = GameAchievementSet::whereIn('achievement_set_id', $achievementSetIds)
+            $coreGameAchievementSets = GameAchievementSet::query()
+                ->whereIn('achievement_set_id', $achievementSetIds)
                 ->where('type', AchievementSetType::Core)
                 ->get();
             foreach ($coreGameAchievementSets as $coreGameAchievementSet) {
@@ -62,6 +63,25 @@ class PlayerGameActivityService
         } else {
             $coreGameAchievementSetIds = [$game->id => $gameAchievementSets->first()->id];
             $gameIds[] = $game->id;
+        }
+
+        // if this game appears as a bonus/specialty subset, pull in the sessions for the
+        // parent game(s) as well in case the user is playing through multiset.
+        $isSubset = false;
+        $parentGameAchievementSets = GameAchievementSet::query()
+            ->where('achievement_set_id', $gameAchievementSets->first()->achievement_set_id)
+            ->whereIn('type', [AchievementSetType::Bonus, AchievementSetType::Specialty])
+            ->get();
+        foreach ($parentGameAchievementSets as $parentGameAchievementSet) {
+            $isSubset = true;
+
+            $parentGameId = $parentGameAchievementSet->game_id;
+            $gameIds[] = $parentGameId;
+
+            $coreGameAchievementSetIds[$parentGameId] = GameAchievementSet::query()
+                ->where('game_id', $parentGameId)
+                ->where('type', AchievementSetType::Core)
+                ->value('id');
         }
 
         // Get the most recent reset for this user and game(s).
@@ -136,6 +156,14 @@ class PlayerGameActivityService
                         $session['endTime'] = $playerGame->last_played_at;
                         break;
                     }
+                }
+
+                if ($playerGame->game_id === $game->id && $isSubset) {
+                    // remove any parent sessions outside of the subset playtime range
+                    $this->sessions = array_values(array_filter($this->sessions, function ($session) use ($playerGame) {
+                        return $session['startTime'] <= $playerGame->last_played_at
+                            && $session['endTime'] >= $playerGame->created_at;
+                    }));
                 }
             }
         }

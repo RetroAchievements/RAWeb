@@ -12,6 +12,7 @@ use App\Models\GameAchievementSet;
 use App\Models\PlayerProgressReset;
 use App\Models\PlayerSession;
 use App\Models\User;
+use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Actions\UnlockPlayerAchievementAction;
 use App\Platform\Enums\AchievementSetType;
@@ -273,6 +274,69 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->assertEquals($adjustment, $summary['generatedSessionAdjustment']);
         $this->assertEquals((int) $time7->diffInSeconds($time2, true), $summary['totalUnlockTime']);
         $this->assertEquals($firstSessionDuration + $adjustment + $secondSessionDuration, $summary['totalPlaytime']);
+    }
+
+    public function testMultisetActivity(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        /** @var Game $game */
+        $game = $this->seedGame(withHash: true);
+        $gameHash = $game->hashes->first();
+        /** @var Game $subsetGame */
+        $subsetGame = $this->seedGame(achievements: 5, withHash: false);
+
+        (new AssociateAchievementSetToGameAction())->execute($game, $subsetGame, AchievementSetType::Bonus, "Bonus");
+
+        // ===== Start session at time0 (playing game) =====
+        $time0 = Carbon::now()->startOfSecond()->subMinutes(100);
+        Carbon::setTestNow($time0);
+        (new ResumePlayerSessionAction())->execute($user, $game);
+
+        // ===== play for 15 minutes without any unlocks (have to do in steps to prevent separation) =====
+        Carbon::setTestNow($time0->clone()->addMinutes(8));
+        (new ResumePlayerSessionAction())->execute($user, $game);
+
+        $time1 = $time0->clone()->addMinutes(15);
+        Carbon::setTestNow($time1);
+        /** @var PlayerSession $playerSession */
+        $playerSession = (new ResumePlayerSessionAction())->execute($user, $game);
+
+        // ===== No subset activity yet =====
+        $activity = new PlayerGameActivityService();
+        $activity->initialize($user, $subsetGame);
+        $this->assertEquals(1, count($activity->sessions));
+        $session = $activity->sessions[0];
+        $this->assertEquals(PlayerGameActivitySessionType::Player, $session['type']);
+        $this->assertEquals($time0->timestamp, $session['startTime']->timestamp);
+        $this->assertEquals($time1->diffInMinutes($time0, true) * 60, $session['duration']);
+        $this->assertEquals($time1->timestamp, $session['endTime']->timestamp);
+        $this->assertEquals(1, count($session['events']));
+        $this->assertRichPresenceEvent($session['events'][0], $playerSession->rich_presence, $time1);
+
+        // ==== Unlock one subset achievement at time2 ====
+        $time2 = $time1->clone()->addMinutes(5);
+        $ach1 = $subsetGame->achievements()->first();
+        $this->addHardcoreUnlock($user, $ach1, $time2, gameHash: $gameHash);
+
+        // only one session should exist (for game) - no subset sessions should exist
+        $this->assertEquals(1, PlayerSession::where('game_id', $game->id)->count());
+        $this->assertEquals(0, PlayerSession::where('game_id', $subsetGame->id)->count());
+
+        // the subset unlock should be rolled into the parent game session
+        $activity = new PlayerGameActivityService();
+        $activity->initialize($user, $subsetGame);
+        $this->assertEquals(1, count($activity->sessions));
+        $session = $activity->sessions[0];
+        $this->assertEquals(PlayerGameActivitySessionType::Player, $session['type']);
+        $this->assertEquals($time0->timestamp, $session['startTime']->timestamp);
+        $this->assertEquals($time2->diffInMinutes($time0, true) * 60, $session['duration']);
+        $this->assertEquals($time2->timestamp, $session['endTime']->timestamp);
+        $this->assertEquals($time2->setTimezone('UTC')->toDateTimeString(), $session['endTime']->setTimezone('UTC')->toDateTimeString());
+        $this->assertEquals(2, count($session['events']));
+        $this->assertUnlockEvent($session['events'][0], $ach1->id, $time2, true);
+        $this->assertRichPresenceEvent($session['events'][1], $playerSession->rich_presence, $time2);
     }
 
     private function assertRichPresenceEvent(array $event, string $message, Carbon $time): void
