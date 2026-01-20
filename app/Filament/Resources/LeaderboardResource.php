@@ -35,13 +35,9 @@ class LeaderboardResource extends Resource
     protected static ?string $model = Leaderboard::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'fas-bars-staggered';
-
     protected static string|UnitEnum|null $navigationGroup = 'Platform';
-
     protected static ?int $navigationSort = 60;
-
     protected static ?string $recordTitleAttribute = 'title';
-
     protected static int $globalSearchResultsLimit = 5;
 
     /**
@@ -52,17 +48,36 @@ class LeaderboardResource extends Resource
         return $record->title;
     }
 
+    /**
+     * @param Leaderboard $record
+     */
     public static function getGlobalSearchResultDetails(Model $record): array
     {
-        return [
-            'ID' => $record->id,
-            'Description' => $record->description,
+        $details = [
+            'ID' => (string) $record->id,
         ];
+
+        // Only include the description if it has content.
+        if (!empty($record->description)) {
+            $details['Description'] = $record->description;
+        }
+
+        $details['Game'] = $record->game->title . ' (' . $record->game->system->name_short . ')';
+
+        return $details;
     }
 
     public static function getGloballySearchableAttributes(): array
     {
         return ['id', 'title'];
+    }
+
+    /**
+     * @return Builder<Leaderboard>
+     */
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['game.system']);
     }
 
     public static function infolist(Schema $schema): Schema
@@ -73,12 +88,6 @@ class LeaderboardResource extends Resource
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('canonicalUrl')
-                            ->label('Permalink')
-                            ->formatStateUsing(fn (Leaderboard $record) => url("leaderboardinfo.php?i={$record->id}"))
-                            ->url(fn (Leaderboard $record): string => url("leaderboardinfo.php?i={$record->id}"))
-                            ->extraAttributes(['class' => 'underline']),
-
                         Infolists\Components\TextEntry::make('game.title')
                             ->url(function (Leaderboard $record) {
                                 if (request()->user()->can('manage', Game::class)) {

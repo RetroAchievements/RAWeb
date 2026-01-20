@@ -1,3 +1,5 @@
+import userEvent from '@testing-library/user-event';
+
 import { render, screen } from '@/test';
 import { createGame, createPageBanner, createSystem } from '@/test/factories';
 
@@ -192,7 +194,7 @@ describe('Component: GameDesktopBanner', () => {
     const blurredImg = screen.getByTestId('blurred-backdrop');
     expect(blurredImg).toBeInTheDocument();
 
-    // eslint-disable-next-line testing-library/no-container -- need to peek at the DOM for this
+    // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- need to peek at the DOM for this
     const sources = container.querySelectorAll('picture source');
     expect(sources[0]).not.toHaveAttribute('srcset');
     expect(sources[1]).not.toHaveAttribute('srcset');
@@ -233,5 +235,122 @@ describe('Component: GameDesktopBanner', () => {
     // ASSERT
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toHaveClass('!text-xl');
+  });
+
+  it('renders the compact banner toggle button', () => {
+    // ARRANGE
+    const game = createGame();
+
+    render(<GameDesktopBanner banner={createPageBanner()} />, {
+      pageProps: {
+        backingGame: game,
+        game,
+        isOnWantToPlayList: false,
+        prefersCompactBanners: false,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /collapse banner/i })).toBeInTheDocument();
+  });
+
+  it('given compact banners is preferred, shows the expand label on the toggle button', () => {
+    // ARRANGE
+    const game = createGame();
+
+    render(<GameDesktopBanner banner={createPageBanner()} />, {
+      pageProps: {
+        backingGame: game,
+        game,
+        isOnWantToPlayList: false,
+        prefersCompactBanners: true,
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /expand banner/i })).toBeInTheDocument();
+  });
+
+  it('given compact banners is preferred, applies the compact height class', () => {
+    // ARRANGE
+    const game = createGame();
+
+    render(<GameDesktopBanner banner={createPageBanner()} />, {
+      pageProps: {
+        backingGame: game,
+        game,
+        isOnWantToPlayList: false,
+        prefersCompactBanners: true,
+      },
+    });
+
+    // ASSERT
+    const bannerEl = screen.getByTestId('desktop-banner');
+    expect(bannerEl).toHaveClass('lg:h-[200px]');
+  });
+
+  it('given the toggle button is clicked, toggles the compact preference', async () => {
+    // ARRANGE
+    const game = createGame();
+
+    render(<GameDesktopBanner banner={createPageBanner()} />, {
+      pageProps: {
+        backingGame: game,
+        game,
+        isOnWantToPlayList: false,
+        prefersCompactBanners: false,
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /collapse banner/i }));
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: /expand banner/i })).toBeInTheDocument();
+  });
+
+  it('given the toggle button is hovered, changes the border color', async () => {
+    // ARRANGE
+    const game = createGame();
+
+    render(<GameDesktopBanner banner={createPageBanner()} />, {
+      pageProps: {
+        backingGame: game,
+        game,
+        isOnWantToPlayList: false,
+        prefersCompactBanners: false,
+      },
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByRole('button', { name: /collapse banner/i }));
+
+    // ASSERT
+    const bannerEl = screen.getByTestId('desktop-banner');
+    expect(bannerEl).toHaveClass('border-neutral-500');
+  });
+
+  it('given the toggle button is unhovered, reverts the border color', async () => {
+    // ARRANGE
+    const game = createGame();
+
+    render(<GameDesktopBanner banner={createPageBanner()} />, {
+      pageProps: {
+        backingGame: game,
+        game,
+        isOnWantToPlayList: false,
+        prefersCompactBanners: false,
+      },
+    });
+
+    const toggleButton = screen.getByRole('button', { name: /collapse banner/i });
+
+    // ACT
+    await userEvent.hover(toggleButton);
+    await userEvent.unhover(toggleButton);
+
+    // ASSERT
+    const bannerEl = screen.getByTestId('desktop-banner');
+    expect(bannerEl).not.toHaveClass('border-neutral-500');
   });
 });

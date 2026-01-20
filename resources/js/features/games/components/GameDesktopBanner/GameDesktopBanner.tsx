@@ -1,10 +1,11 @@
-import type { FC } from 'react';
+import { type FC, useState } from 'react';
 import { route } from 'ziggy-js';
 
 import { GameTitle } from '@/common/components/GameTitle';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
+import { useCompactBannerPreference } from '../../hooks/useCompactBannerPreference';
 import { WantToPlayToggle } from '../WantToPlayToggle';
 import { GameDesktopBannerImage } from './GameDesktopBannerImage';
 
@@ -14,6 +15,10 @@ interface GameDesktopBannerProps {
 
 export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
   const { backingGame, game } = usePageProps<App.Platform.Data.GameShowPageProps>();
+
+  const { prefersCompactBanners, toggleCompactBanners } = useCompactBannerPreference();
+
+  const [isDividerHovered, setIsDividerHovered] = useState(false);
 
   const isViewingSubset = game.id !== backingGame.id;
 
@@ -25,9 +30,12 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
     <div
       data-testid="desktop-banner"
       className={cn(
-        'relative z-0',
-        '-mt-[88px] h-[388px] lg:-mt-[44px] lg:h-[344px]',
+        'relative',
+        '-mt-[44px] h-[200px] lg:h-[344px]',
+        prefersCompactBanners ? 'lg:h-[200px]' : null,
         'border-b border-neutral-700',
+        isDividerHovered ? 'border-neutral-500' : null,
+        'transition-[height,border-color] duration-200',
         'ml-[calc(50%-50vw)] w-screen',
       )}
       style={{
@@ -71,7 +79,7 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
       </div>
 
       {/* Layer 4: game info and associated controls */}
-      <div className="absolute inset-x-0 bottom-0 z-10 mx-auto max-w-screen-xl px-4 pb-[46px] transition-[padding] sm:px-5 md:px-6 xl:px-0">
+      <div className="absolute inset-x-0 bottom-0 z-[19] mx-auto max-w-screen-xl px-4 pb-[46px] transition-[padding] sm:px-5 md:px-6 xl:px-0">
         <div className="flex items-end gap-4">
           {/* Game badge. */}
           <img
@@ -137,6 +145,16 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
           </div>
         </div>
       </div>
+
+      {/* Layer 5: invisible hit area to toggle compact mode. only functional on LG+. */}
+      <button
+        onClick={toggleCompactBanners}
+        onMouseEnter={() => setIsDividerHovered(true)}
+        onMouseLeave={() => setIsDividerHovered(false)}
+        aria-label={prefersCompactBanners ? 'Expand banner' : 'Collapse banner'}
+        className="absolute inset-x-0 -bottom-2 z-10 hidden h-5 cursor-ns-resize lg:block"
+        tabIndex={-1}
+      />
     </div>
   );
 };

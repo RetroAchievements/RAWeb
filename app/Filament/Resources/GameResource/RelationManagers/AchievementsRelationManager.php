@@ -206,6 +206,41 @@ class AchievementsRelationManager extends RelationManager
                         }),
                         blank: fn (Builder $query): Builder => $query,
                     ),
+
+                Tables\Filters\SelectFilter::make('user_id')
+                    ->label('Author')
+                    ->options(function (): array {
+                        /** @var Game $game */
+                        $game = $this->getOwnerRecord();
+
+                        return User::withTrashed()
+                            ->whereIn('id', $game->achievements()->select('user_id'))
+                            ->orderBy('display_name')
+                            ->pluck('display_name', 'id')
+                            ->toArray();
+                    }),
+
+                Tables\Filters\SelectFilter::make('maintainer')
+                    ->label('Maintainer')
+                    ->options(function (): array {
+                        /** @var Game $game */
+                        $game = $this->getOwnerRecord();
+
+                        return User::query()
+                            ->whereIn('id', function ($subquery) use ($game) {
+                                $subquery->select('user_id')
+                                    ->from('achievement_maintainers')
+                                    ->whereIn('achievement_id', $game->achievements()->select('id'))
+                                    ->where('is_active', true);
+                            })
+                            ->orderBy('display_name')
+                            ->pluck('display_name', 'id')
+                            ->toArray();
+                    })
+                    ->query(fn (Builder $query, array $data): Builder => isset($data['value'])
+                        ? $query->whereHas('activeMaintainer', fn (Builder $q) => $q->where('user_id', $data['value']))
+                        : $query
+                    ),
             ])
             ->headerActions([
                 Actions\Action::make('cancel-edit-display-orders')

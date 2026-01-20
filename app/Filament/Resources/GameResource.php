@@ -17,6 +17,7 @@ use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
+use App\Rules\DisallowAnimatedImageRule;
 use App\Rules\UploadedImageAspectRatioRule;
 use BackedEnum;
 use Filament\Actions;
@@ -43,13 +44,9 @@ class GameResource extends Resource
     protected static ?string $model = Game::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'fas-gamepad';
-
     protected static string|UnitEnum|null $navigationGroup = 'Platform';
-
     protected static ?int $navigationSort = 10;
-
     protected static ?string $recordTitleAttribute = 'title';
-
     protected static int $globalSearchResultsLimit = 5;
 
     /**
@@ -76,6 +73,14 @@ class GameResource extends Resource
         return ['id', 'title'];
     }
 
+    /**
+     * @param Builder<Game> $query
+     */
+    public static function modifyGlobalSearchQuery(Builder $query, string $search): void
+    {
+        $query->orderByDesc('players_total');
+    }
+
     public static function infolist(Schema $schema): Schema
     {
         /** @var User $user */
@@ -96,11 +101,6 @@ class GameResource extends Resource
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('permalink')
-                            ->url(fn (Game $record): string => $record->getPermalinkAttribute())
-                            ->extraAttributes(['class' => 'underline'])
-                            ->openUrlInNewTab(),
-
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
 
@@ -343,6 +343,7 @@ class GameResource extends Resource
                             ->rules([
                                 'dimensions:min_width=1920,min_height=540',
                                 new UploadedImageAspectRatioRule(32 / 9, 0.15), // 32:9 aspect ratio with a ±15% tolerance.
+                                new DisallowAnimatedImageRule(),
                             ])
                             ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
                             ->maxSize(5120)

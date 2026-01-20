@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Platform\Contracts\HasPermalink;
 use App\Platform\Enums\EventState;
 use App\Support\Database\Eloquent\BaseModel;
 use App\Support\Routing\HasSelfHealingUrls;
@@ -19,7 +20,7 @@ use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Event extends BaseModel
+class Event extends BaseModel implements HasPermalink
 {
     /** @use HasFactory<EventFactory> */
     use HasFactory;

@@ -45,6 +45,7 @@ class HubResource extends Resource
     protected static ?string $navigationLabel = 'Hubs';
     protected static ?int $navigationSort = 51;
     protected static ?string $recordTitleAttribute = 'title';
+    protected static int $globalSearchResultsLimit = 5;
 
     public static function infolist(Schema $schema): Schema
     {
@@ -61,11 +62,6 @@ class HubResource extends Resource
                     ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
-                        Infolists\Components\TextEntry::make('permalink')
-                            ->url(fn (GameSet $record): string => $record->getPermalinkAttribute())
-                            ->extraAttributes(['class' => 'underline'])
-                            ->openUrlInNewTab(),
-
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
 
