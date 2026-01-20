@@ -186,176 +186,215 @@ return [
     | queued jobs and will be provisioned by Horizon during deployment.
     |
     */
-
-    /**
-     * QUEUE SUPERVISOR ARCHITECTURE
-     *
-     * This configuration was originally optimized in July 2025 to handle Sunday traffic
-     * spikes and prevent queue starvation. It was updated again in August 2025 to account
-     * for a CCX53 server upgrade which doubled the CPU and RAM. The architecture isolates
-     * high-volume and slow queues to prevent them from monopolizing shared workers.
-     *
-     * Total Workers: 45 (19+10+2+8+4+2)
-     * - supervisor-1: General queues (fast, medium volume)
-     * - supervisor-2: Batch processing (slower, larger timeout)
-     * - supervisor-3: Search indexing (very fast, isolated)
-     * - supervisor-4: Player sessions (very high volume, fast - 49M jobs/month)
-     * - supervisor-5: Game player count (very slow - 351ms avg)
-     * - supervisor-6: Email dispatching (low priority)
-     */
-    'defaults' => [
-        /**
-         * Primary supervisor for general application queues.
-         * Handles most day-to-day queue processing with auto-scaling.
-         * Volume: ~200k jobs/day across 9 queue types.
-         */
-        'supervisor-1' => [
-            'connection' => 'redis',
-            'queue' => [
-                'achievement-metrics',
-                'alerts',
-                'default',
-                'developer-metrics',
-                'game-metrics',
-                'player-achievements',
-                'player-beaten-games-stats',
-                'player-game-metrics',
-                'player-metrics',
-                'player-points-stats',
-            ],
-            'balance' => 'auto',
-            'autoScalingStrategy' => 'size',
-            'maxProcesses' => 19, // Optimized for high-volume queues with auto-scaling
-            'balanceMaxShift' => 1,
-            'balanceCooldown' => 3,
-            'maxTime' => 0,
-            'maxJobs' => 0,
-            'memory' => 128,
-            'tries' => 1,
-            'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value
-            'nice' => 0,
-        ],
-
-        /**
-         * Batch processing supervisor for heavy computational jobs.
-         * Uses time-based scaling strategy with longer timeouts.
-         * Volume: ~1k jobs/day but they're CPU-intensive operations.
-         */
-        'supervisor-2' => [
-            'connection' => 'redis',
-            'queue' => [
-                'game-beaten-metrics',
-                'game-player-games',
-                'player-game-metrics-batch',
-                'player-points-stats-batch',
-            ],
-            'balance' => 'auto',
-            'autoScalingStrategy' => 'time',
-            'maxProcesses' => 10,
-            'maxTime' => 0,
-            'maxJobs' => 0,
-            'memory' => 128,
-            'tries' => 1,
-            'timeout' => 600, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value
-            'nice' => 0,
-        ],
-
-        /**
-         * Search indexing supervisor (Laravel Scout / Meilisearch).
-         * This is isolated to prevent search reindexing from affecting other queues.
-         * Volume: ~400k jobs/day but very lightweight operations. High I/O.
-         */
-        'supervisor-3' => [
-            'connection' => 'redis',
-            'queue' => [
-                'scout',
-            ],
-            'balance' => 'simple',
-            'processes' => 2, // Pinned at 2 - search indexing is not time-critical.
-            'maxTime' => 0,
-            'maxJobs' => 0,
-            'memory' => 128,
-            'tries' => 1,
-            'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value.
-            'nice' => 0,
-        ],
-
-        /**
-         * Player sessions supervisor (real-time gaming activity & playtime tracking).
-         * Isolated due to _extremely_ high volume (49M jobs/month).
-         */
-        'supervisor-4' => [
-            'connection' => 'redis',
-            'queue' => [
-                'player-sessions',
-            ],
-            'balance' => 'simple',
-            'processes' => 8, // Pinned at 8 - 38ms avg job time
-            'maxTime' => 0,
-            'maxJobs' => 0,
-            'memory' => 128,
-            'tries' => 1,
-            'timeout' => 300,
-            'nice' => 0,
-        ],
-
-        /**
-         * Game player count supervisor - handles slow database aggregation calculations.
-         * Isolated due to slow processing time (351ms avg per job).
-         * Prevents blocking faster queues during calculation-heavy operations.
-         */
-        'supervisor-5' => [
-            'connection' => 'redis',
-            'queue' => [
-                'game-player-count',
-            ],
-            'balance' => 'simple',
-            'processes' => 4, // Pinned at 4 - limited due to slow job execution time
-            'maxTime' => 0,
-            'maxJobs' => 0,
-            'memory' => 128,
-            'tries' => 1,
-            'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value.
-            'nice' => 0,
-        ],
-
-        /**
-         * Daily email supervisor - handles mass email distribution.
-         * Isolated to allow non-time-critial emails to be sent without affecting other queues.
-         */
-        'supervisor-6' => [
-            'connection' => 'redis',
-            'queue' => [
-                'summary-emails',
-            ],
-            'balance' => 'auto',
-            'autoScalingStrategy' => 'size',
-            'maxProcesses' => 2,
-            'balanceMaxShift' => 1,
-            'balanceCooldown' => 3,
-            'maxTime' => 0,
-            'maxJobs' => 0,
-            'memory' => 128,
-            'tries' => 1,
-            'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value.
-            'nice' => 5, // low priority - don't starve other processes
-        ],
-    ],
-
     'environments' => [
-        'production' => [
-            'supervisor-1' => [
+        // when true, prevents the 'local' key from being defined so the local environment
+        // will fall through to the default (production) definition.
+        env('HORIZON_LOCAL_USE_FULL_SUPERVISORS', false) ? 'unused' : 'local' => [
+            'supervisor-1' => [ // locally, use single supervisor and fix it at 4 processes
+
+                // these settings all match supervisor-1 below
+                'connection' => 'redis',
+                'autoScalingStrategy' => 'size',
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+                'maxTime' => 0,
+                'maxJobs' => 0,
+                'memory' => 128,
+                'tries' => 1,
+                'timeout' => 300,
+                'nice' => 0,
+
+                // these settings are unique to the local environment
+                'balance' => 'false', // prevents horizon from spinning up one process per queue
+                'maxProcesses' => 4,
+                'queue' => [
+                    // supervisor-4: player activity
+                    'player-sessions',
+
+                    // supervisor-1: general queue
+                    'achievement-metrics',
+                    'alerts',
+                    'default',
+                    'developer-metrics',
+                    'game-metrics',
+                    'player-achievements',
+                    'player-beaten-games-stats',
+                    'player-game-metrics',
+                    'player-metrics',
+                    'player-points-stats',
+
+                    // supervisor-2: batch processing
+                    'game-beaten-metrics',
+                    'game-player-games',
+                    'player-game-metrics-batch',
+                    'player-points-stats-batch',
+
+                    // supervisor-5: data aggegation
+                    'game-player-count',
+
+                    // supervisor-3: search
+                    'scout',
+
+                    // supervisor-6: email dispatching
+                    'summary-emails',
+                ],
             ],
         ],
 
-        'stage' => [
-            'supervisor-1' => [
-            ],
-        ],
+        // production / stage
+        '*' => [
+            /**
+             * QUEUE SUPERVISOR ARCHITECTURE
+             *
+             * This configuration was originally optimized in July 2025 to handle Sunday traffic
+             * spikes and prevent queue starvation. It was updated again in August 2025 to account
+             * for a CCX53 server upgrade which doubled the CPU and RAM. The architecture isolates
+             * high-volume and slow queues to prevent them from monopolizing shared workers.
+             *
+             * Total Workers: 45 (19+10+2+8+4+2)
+             * - supervisor-1: General queues (fast, medium volume)
+             * - supervisor-2: Batch processing (slower, larger timeout)
+             * - supervisor-3: Search indexing (very fast, isolated)
+             * - supervisor-4: Player sessions (very high volume, fast - 49M jobs/month)
+             * - supervisor-5: Game player count (very slow - 351ms avg)
+             * - supervisor-6: Email dispatching (low priority)
+             */
 
-        'local' => [
+            /**
+             * Primary supervisor for general application queues.
+             * Handles most day-to-day queue processing with auto-scaling.
+             * Volume: ~200k jobs/day across 9 queue types.
+             */
             'supervisor-1' => [
-                'maxProcesses' => 3,
+                'connection' => 'redis',
+                'queue' => [
+                    'achievement-metrics',
+                    'alerts',
+                    'default',
+                    'developer-metrics',
+                    'game-metrics',
+                    'player-achievements',
+                    'player-beaten-games-stats',
+                    'player-game-metrics',
+                    'player-metrics',
+                    'player-points-stats',
+                ],
+                'balance' => 'auto',
+                'autoScalingStrategy' => 'size',
+                'maxProcesses' => 19, // Optimized for high-volume queues with auto-scaling
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+                'maxTime' => 0,
+                'maxJobs' => 0,
+                'memory' => 128,
+                'tries' => 1,
+                'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value
+                'nice' => 0,
+            ],
+
+            /**
+             * Batch processing supervisor for heavy computational jobs.
+             * Uses time-based scaling strategy with longer timeouts.
+             * Volume: ~1k jobs/day but they're CPU-intensive operations.
+             */
+            'supervisor-2' => [
+                'connection' => 'redis',
+                'queue' => [
+                    'game-beaten-metrics',
+                    'game-player-games',
+                    'player-game-metrics-batch',
+                    'player-points-stats-batch',
+                ],
+                'balance' => 'auto',
+                'autoScalingStrategy' => 'time',
+                'maxProcesses' => 10,
+                'maxTime' => 0,
+                'maxJobs' => 0,
+                'memory' => 128,
+                'tries' => 1,
+                'timeout' => 600, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value
+                'nice' => 0,
+            ],
+
+            /**
+             * Search indexing supervisor (Laravel Scout / Meilisearch).
+             * This is isolated to prevent search reindexing from affecting other queues.
+             * Volume: ~400k jobs/day but very lightweight operations. High I/O.
+             */
+            'supervisor-3' => [
+                'connection' => 'redis',
+                'queue' => [
+                    'scout',
+                ],
+                'balance' => 'simple',
+                'processes' => 2, // Pinned at 2 - search indexing is not time-critical.
+                'maxTime' => 0,
+                'maxJobs' => 0,
+                'memory' => 128,
+                'tries' => 1,
+                'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value.
+                'nice' => 0,
+            ],
+
+            /**
+             * Player sessions supervisor (real-time gaming activity & playtime tracking).
+             * Isolated due to _extremely_ high volume (49M jobs/month).
+             */
+            'supervisor-4' => [
+                'connection' => 'redis',
+                'queue' => [
+                    'player-sessions',
+                ],
+                'balance' => 'simple',
+                'processes' => 8, // Pinned at 8 - 38ms avg job time
+                'maxTime' => 0,
+                'maxJobs' => 0,
+                'memory' => 128,
+                'tries' => 1,
+                'timeout' => 300,
+                'nice' => 0,
+            ],
+
+            /**
+             * Game player count supervisor - handles slow database aggregation calculations.
+             * Isolated due to slow processing time (351ms avg per job).
+             * Prevents blocking faster queues during calculation-heavy operations.
+             */
+            'supervisor-5' => [
+                'connection' => 'redis',
+                'queue' => [
+                    'game-player-count',
+                ],
+                'balance' => 'simple',
+                'processes' => 4, // Pinned at 4 - limited due to slow job execution time
+                'maxTime' => 0,
+                'maxJobs' => 0,
+                'memory' => 128,
+                'tries' => 1,
+                'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value.
+                'nice' => 0,
+            ],
+
+            /**
+             * Daily email supervisor - handles mass email distribution.
+             * Isolated to allow non-time-critical emails to be sent without affecting other queues.
+             */
+            'supervisor-6' => [
+                'connection' => 'redis',
+                'queue' => [
+                    'summary-emails',
+                ],
+                'balance' => 'auto',
+                'autoScalingStrategy' => 'size',
+                'maxProcesses' => 2,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+                'maxTime' => 0,
+                'maxJobs' => 0,
+                'memory' => 128,
+                'tries' => 1,
+                'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value.
+                'nice' => 5, // low priority - don't starve other processes
             ],
         ],
     ],
