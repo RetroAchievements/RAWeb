@@ -10,7 +10,6 @@ use App\Community\Enums\TrendingReason;
 use App\Models\Game;
 use App\Models\GameActivitySnapshot;
 use App\Platform\Data\GameData;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 class FetchGameActivityDataAction
@@ -26,10 +25,9 @@ class FetchGameActivityDataAction
             return collect();
         }
 
-        $candidateGameIds = $snapshots->pluck('game_id')->toArray();
-        $filteredGameIds = $this->filterMatureContent($candidateGameIds, limit: 4);
+        $gameIds = $snapshots->pluck('game_id')->toArray();
 
-        return $this->buildDataCollection($filteredGameIds, $snapshots, $type);
+        return $this->buildDataCollection($gameIds, $snapshots, $type);
     }
 
     /**
@@ -48,30 +46,8 @@ class FetchGameActivityDataAction
         return GameActivitySnapshot::where('type', $type)
             ->where('created_at', $latestCreatedAt)
             ->orderByDesc('score')
-            ->limit(12)
+            ->limit(4)
             ->get();
-    }
-
-    /**
-     * @param array<int> $gameIds
-     * @return array<int>
-     */
-    private function filterMatureContent(array $gameIds, int $limit): array
-    {
-        if (empty($gameIds)) {
-            return [];
-        }
-
-        $matureGameIds = Game::whereIn('id', $gameIds)
-            ->whereHas('hubs', fn (Builder $query) => $query->where('has_mature_content', true))
-            ->pluck('id')
-            ->toArray();
-
-        return array_slice(
-            array_filter($gameIds, fn ($id) => !in_array($id, $matureGameIds)),
-            0,
-            $limit
-        );
     }
 
     /**

@@ -136,6 +136,12 @@ class UpdateGameActivitySnapshots extends Command
                     AND claims.set_type = 'new_set'
                     AND claims.finished_at <= '{$targetDateStr}' - INTERVAL 48 HOUR
               )
+              AND NOT EXISTS (
+                  SELECT 1 FROM game_set_games gsg
+                  JOIN game_sets gs ON gs.id = gsg.game_set_id
+                  WHERE gsg.game_id = metrics.game_id
+                    AND gs.has_mature_content = 1
+              )
             HAVING trend >= 1.5
             ORDER BY score DESC
             LIMIT 6
@@ -202,6 +208,7 @@ class UpdateGameActivitySnapshots extends Command
         $gameIds = array_keys($gameCounts);
         $gamesWithAchievements = Game::whereIn('id', $gameIds)
             ->where('achievements_published', '>', 0)
+            ->whereDoesntHave('gameSets', fn ($q) => $q->where('has_mature_content', true))
             ->pluck('id')
             ->toArray();
 
@@ -223,6 +230,7 @@ class UpdateGameActivitySnapshots extends Command
         $gameIds = Game::where('achievements_published', '>', 0)
             ->where('system_id', '!=', System::Events)
             ->where('title', 'NOT LIKE', '%[Subset%')
+            ->whereDoesntHave('gameSets', fn ($q) => $q->where('has_mature_content', true))
             ->orderByDesc('players_total')
             ->limit(100)
             ->get()
