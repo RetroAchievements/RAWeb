@@ -174,7 +174,7 @@ describe('Component: GameDesktopBanner', () => {
     expect(blurredImg).toHaveStyle({ filter: 'blur(15px)' });
   });
 
-  it('given banner sources are null, still renders the blurred backdrop without srcSet', () => {
+  it('given banner sources are null, still renders the blurred backdrop using the ingame screenshot as fallback', () => {
     // ARRANGE
     const banner = createPageBanner({
       desktopMdWebp: null,
@@ -182,7 +182,7 @@ describe('Component: GameDesktopBanner', () => {
     });
     const game = createGame({ imageIngameUrl: 'https://example.com/ingame.jpg' });
 
-    const { container } = render(<GameDesktopBanner banner={banner} />, {
+    render(<GameDesktopBanner banner={banner} />, {
       pageProps: {
         backingGame: game,
         game,
@@ -193,14 +193,10 @@ describe('Component: GameDesktopBanner', () => {
     // ASSERT
     const blurredImg = screen.getByTestId('blurred-backdrop');
     expect(blurredImg).toBeInTheDocument();
-
-    // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- need to peek at the DOM for this
-    const sources = container.querySelectorAll('picture source');
-    expect(sources[0]).not.toHaveAttribute('srcset');
-    expect(sources[1]).not.toHaveAttribute('srcset');
+    expect(blurredImg).toHaveAttribute('src', 'https://example.com/ingame.jpg');
   });
 
-  it('given a title longer than 30 characters, applies smaller text size', () => {
+  it('given a title longer than 30 characters, applies smaller text size for mobile', () => {
     // ARRANGE
     const longTitle = 'This Is A Very Long Game Title That Exceeds Thirty';
     const game = createGame({ title: longTitle });
@@ -215,10 +211,11 @@ describe('Component: GameDesktopBanner', () => {
 
     // ASSERT
     const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toHaveClass('!text-2xl');
+    expect(heading).toHaveClass('!text-base');
+    expect(heading).toHaveClass('md:!text-2xl');
   });
 
-  it('given a title longer than 50 characters, applies even smaller text size', () => {
+  it('given a title longer than 50 characters, applies even smaller text size and line clamping', () => {
     // ARRANGE
     const veryLongTitle =
       'This Is An Extremely Long Game Title That Definitely Exceeds Fifty Characters In Length';
@@ -234,7 +231,9 @@ describe('Component: GameDesktopBanner', () => {
 
     // ASSERT
     const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toHaveClass('!text-xl');
+    expect(heading).toHaveClass('!text-sm');
+    expect(heading).toHaveClass('md:!text-xl');
+    expect(heading).toHaveClass('line-clamp-2');
   });
 
   it('renders the compact banner toggle button', () => {
@@ -286,7 +285,7 @@ describe('Component: GameDesktopBanner', () => {
 
     // ASSERT
     const bannerEl = screen.getByTestId('desktop-banner');
-    expect(bannerEl).toHaveClass('lg:h-[200px]');
+    expect(bannerEl).toHaveClass('lg:h-[212px]');
   });
 
   it('given the toggle button is clicked, toggles the compact preference', async () => {

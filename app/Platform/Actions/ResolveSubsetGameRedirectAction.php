@@ -32,12 +32,20 @@ class ResolveSubsetGameRedirectAction
         }
 
         // Check if this achievement set exists on another game as a non-core type.
-        $backingGameSet = GameAchievementSet::where('achievement_set_id', $coreSet->achievement_set_id)
+        $nonCoreLinks = GameAchievementSet::where('achievement_set_id', $coreSet->achievement_set_id)
             ->where('type', '!=', AchievementSetType::Core)
             ->select('game_id')
-            ->first();
+            ->get();
 
-        if (!$backingGameSet || $backingGameSet->game_id === $game->id) {
+        // If linked to multiple parents (or no parents), don't redirect.
+        // We can't determine which parent to redirect to, so stay on this game.
+        if ($nonCoreLinks->count() !== 1) {
+            return null;
+        }
+
+        $backingGameSet = $nonCoreLinks->first();
+
+        if ($backingGameSet->game_id === $game->id) {
             return null;
         }
 
