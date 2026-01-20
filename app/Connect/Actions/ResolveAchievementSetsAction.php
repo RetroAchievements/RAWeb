@@ -198,13 +198,16 @@ class ResolveAchievementSetsAction
     private function sortSets(Collection $sets): Collection
     {
         return $sets->sortBy(function (GameAchievementSet $set) {
-            return match ($set->type) {
+            $typePriority = match ($set->type) {
                 AchievementSetType::Exclusive => 0,
                 AchievementSetType::Core => 1,
                 AchievementSetType::Specialty => 2,
                 AchievementSetType::Bonus => 3,
                 default => 4,
             };
+
+            // Sort primarily by type priority, then by order_column.
+            return ($typePriority * 100) + ($set->order_column ?? 0);
         });
     }
 
