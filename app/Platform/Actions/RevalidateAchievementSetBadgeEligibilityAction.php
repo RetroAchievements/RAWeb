@@ -7,6 +7,7 @@ namespace App\Platform\Actions;
 use App\Community\Enums\AwardType;
 use App\Models\PlayerBadge;
 use App\Models\PlayerGame;
+use App\Models\StaticData;
 use App\Models\System;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeAwarded;
@@ -88,8 +89,15 @@ class RevalidateAchievementSetBadgeEligibilityAction
             PlayerBadgeAwarded::dispatch($badge);
             PlayerGameBeaten::dispatch($playerGame->user, $playerGame->game, true);
 
-            if ($playerGame->beaten_hardcore_at->gte(Carbon::now()->subMinutes(10))) {
-                static_addnewhardcoregamebeaten($playerGame->game->id, $playerGame->user->username);
+            $lastBeatenAt = StaticData::first()?->value('last_game_hardcore_beaten_at');
+            if (!$lastBeatenAt || $playerGame->beaten_hardcore_at->gte($lastBeatenAt)) {
+                StaticData::query()->increment('num_hardcore_game_beaten_awards', 1, [
+                    'last_game_hardcore_beaten_game_id' => $playerGame->game->id,
+                    'last_game_hardcore_beaten_user_id' => $playerGame->user->id,
+                    'last_game_hardcore_beaten_at' => $playerGame->beaten_hardcore_at,
+                ]);
+            } else {
+                StaticData::query()->increment('num_hardcore_game_beaten_awards');
             }
 
             $statusChanged = true;
@@ -162,8 +170,15 @@ class RevalidateAchievementSetBadgeEligibilityAction
             PlayerBadgeAwarded::dispatch($badge);
             PlayerGameCompleted::dispatch($playerGame->user, $playerGame->game, true);
 
-            if ($playerGame->completed_hardcore_at->gte(Carbon::now()->subMinutes(10))) {
-                static_addnewhardcoremastery($playerGame->game->id, $playerGame->user->username);
+            $lastMasteredAt = StaticData::first()?->value('last_game_hardcore_mastered_at');
+            if (!$lastMasteredAt || $playerGame->completed_hardcore_at->gte($lastMasteredAt)) {
+                StaticData::query()->increment('num_hardcore_mastery_awards', 1, [
+                    'last_game_hardcore_mastered_game_id' => $playerGame->game->id,
+                    'last_game_hardcore_mastered_user_id' => $playerGame->user->id,
+                    'last_game_hardcore_mastered_at' => $playerGame->completed_hardcore_at,
+                ]);
+            } else {
+                StaticData::query()->increment('num_hardcore_mastery_awards');
             }
 
             $statusChanged = true;

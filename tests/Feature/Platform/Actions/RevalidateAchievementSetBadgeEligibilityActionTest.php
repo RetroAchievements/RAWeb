@@ -10,17 +10,20 @@ use App\Models\Event;
 use App\Models\EventAward;
 use App\Models\Game;
 use App\Models\PlayerBadge;
+use App\Models\StaticData;
 use App\Models\System;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
+use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
 use Tests\TestCase;
 
 class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
 {
     use RefreshDatabase;
     use TestsPlayerAchievements;
+    use TestsPlayerBadges;
 
     private function getPlayerBadge(User $user, Event $event): ?PlayerBadge
     {
@@ -195,5 +198,85 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $badge = $this->getPlayerBadge($user, $event);
         $this->assertNotNull($badge);
         $this->assertEquals(0, $badge->award_tier);
+    }
+
+    public function testUpdatesStaticData(): void
+    {
+        $user = User::factory()->create();
+        $game = $this->seedGame();
+        $game->points_total = 10;
+        $game->save();
+
+        /** @var Achievement $achievement1 */
+        $achievement1 = Achievement::factory()->promoted()->progression()->create(['game_id' => $game->id, 'points' => 1]);
+        /** @var Achievement $achievement2 */
+        $achievement2 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 1]);
+        /** @var Achievement $achievement3 */
+        $achievement3 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 1]);
+        /** @var Achievement $achievement4 */
+        $achievement4 = Achievement::factory()->promoted()->progression()->create(['game_id' => $game->id, 'points' => 1]);
+        /** @var Achievement $achievement5 */
+        $achievement5 = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'points' => 1]);
+        /** @var Achievement $achievement6 */
+        $achievement6 = Achievement::factory()->promoted()->winCondition()->create(['game_id' => $game->id, 'points' => 5]);
+
+        $staticData = StaticData::factory()->create([
+            'num_hardcore_mastery_awards' => 6,
+            'num_hardcore_game_beaten_awards' => 8,
+            'last_game_hardcore_mastered_game_id' => 11,
+            'last_game_hardcore_beaten_game_id' => 11,
+            'last_game_hardcore_mastered_user_id' => 9,
+            'last_game_hardcore_beaten_user_id' => 9,
+        ]);
+        $originalMasteredAt = $staticData->last_game_hardcore_mastered_at;
+
+        $now = Carbon::now()->startOfSecond();
+        Carbon::setTestNow($now);
+
+        // no badge to start
+        $this->assertDoesNotHaveBeatenBadge($user, $game);
+        $this->assertDoesNotHaveMasteryBadge($user, $game);
+
+        // unlock all progression and all but one non-progression achievements (no badge)
+        $this->addHardcoreUnlock($user, $achievement1);
+        $this->addHardcoreUnlock($user, $achievement2);
+        $this->addHardcoreUnlock($user, $achievement3);
+        $this->addHardcoreUnlock($user, $achievement4);
+
+        // unlock win condition (expect beat badge)
+        $beatenAt = $now->clone()->addMinutes(10);
+        Carbon::setTestNow($beatenAt);
+
+        $this->addHardcoreUnlock($user, $achievement6);
+        $this->assertHasBeatenBadge($user, $game, 1);
+        $this->assertDoesNotHaveMasteryBadge($user, $game);
+
+        $staticData->refresh();
+        $this->assertEquals(9, $staticData->num_hardcore_game_beaten_awards);
+        $this->assertEquals($game->id, $staticData->last_game_hardcore_beaten_game_id);
+        $this->assertEquals($user->id, $staticData->last_game_hardcore_beaten_user_id);
+        $this->assertEquals($beatenAt, $staticData->last_game_hardcore_beaten_at);
+        $this->assertEquals(6, $staticData->num_hardcore_mastery_awards);
+        $this->assertEquals(11, $staticData->last_game_hardcore_mastered_game_id);
+        $this->assertEquals(9, $staticData->last_game_hardcore_mastered_user_id);
+        $this->assertEquals($originalMasteredAt, $staticData->last_game_hardcore_mastered_at);
+
+        // unlock final achievement (expect master badge)
+        $masteredAt = $beatenAt->clone()->addMinutes(5);
+        Carbon::setTestNow($masteredAt);
+
+        $this->addHardcoreUnlock($user, $achievement5);
+        $this->assertHasBeatenBadge($user, $game, 1);
+        $this->assertHasMasteryBadge($user, $game);
+
+        $staticData->refresh();
+        $this->assertEquals(9, $staticData->num_hardcore_game_beaten_awards);
+        $this->assertEquals($game->id, $staticData->last_game_hardcore_beaten_game_id);
+        $this->assertEquals($user->id, $staticData->last_game_hardcore_beaten_user_id);
+        $this->assertEquals($beatenAt, $staticData->last_game_hardcore_beaten_at);
+        $this->assertEquals(7, $staticData->num_hardcore_mastery_awards);
+        $this->assertEquals($game->id, $staticData->last_game_hardcore_mastered_game_id);
+        $this->assertEquals($user->id, $staticData->last_game_hardcore_mastered_user_id);
+        $this->assertEquals($masteredAt, $staticData->last_game_hardcore_mastered_at);
     }
 }
