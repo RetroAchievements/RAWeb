@@ -278,5 +278,43 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $this->assertEquals($game->id, $staticData->last_game_hardcore_mastered_game_id);
         $this->assertEquals($user->id, $staticData->last_game_hardcore_mastered_user_id);
         $this->assertEquals($masteredAt, $staticData->last_game_hardcore_mastered_at);
+
+        // ===== unranked user =====
+        $unrankedUser = User::factory()->create(['unranked_at' => Carbon::now()]);
+
+        $this->assertDoesNotHaveBeatenBadge($unrankedUser, $game);
+        $this->assertDoesNotHaveMasteryBadge($unrankedUser, $game);
+
+        // unlock all progression and all but one non-progression achievements (no badge)
+        $this->addHardcoreUnlock($unrankedUser, $achievement1);
+        $this->addHardcoreUnlock($unrankedUser, $achievement2);
+        $this->addHardcoreUnlock($unrankedUser, $achievement3);
+        $this->addHardcoreUnlock($unrankedUser, $achievement4);
+
+        // unlock win condition (expect beat badge, but not static data changes)
+        Carbon::setTestNow($now->clone()->addMinutes(30));
+
+        $this->addHardcoreUnlock($unrankedUser, $achievement6);
+        $this->assertHasBeatenBadge($unrankedUser, $game, 1);
+        $this->assertDoesNotHaveMasteryBadge($unrankedUser, $game);
+
+        $staticData->refresh();
+        $this->assertEquals(9, $staticData->num_hardcore_game_beaten_awards);
+        $this->assertEquals($game->id, $staticData->last_game_hardcore_beaten_game_id);
+        $this->assertEquals($user->id, $staticData->last_game_hardcore_beaten_user_id);
+        $this->assertEquals($beatenAt, $staticData->last_game_hardcore_beaten_at);
+
+        // unlock final achievement (expect master badge but not static data changes)
+        Carbon::setTestNow($now->clone()->addMinutes(35));
+
+        $this->addHardcoreUnlock($unrankedUser, $achievement5);
+        $this->assertHasBeatenBadge($unrankedUser, $game, 1);
+        $this->assertHasMasteryBadge($unrankedUser, $game);
+
+        $staticData->refresh();
+        $this->assertEquals(7, $staticData->num_hardcore_mastery_awards);
+        $this->assertEquals($game->id, $staticData->last_game_hardcore_mastered_game_id);
+        $this->assertEquals($user->id, $staticData->last_game_hardcore_mastered_user_id);
+        $this->assertEquals($masteredAt, $staticData->last_game_hardcore_mastered_at);
     }
 }
