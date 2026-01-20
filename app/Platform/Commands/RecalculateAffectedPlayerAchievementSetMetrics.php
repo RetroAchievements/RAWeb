@@ -17,7 +17,7 @@ class RecalculateAffectedPlayerAchievementSetMetrics extends Command
     protected $description = 'Recalculates PlayerAchievementSet metrics for users affected by the multiset time_taken bug';
 
     private const AFFECTED_TYPES = [AchievementSetType::Bonus->value, AchievementSetType::Specialty->value];
-    private const MULTISET_ENABLED_DATE = '2025-12-12';
+    private const START_DATE = '2025-05-01';
 
     public function handle(): void
     {
@@ -78,7 +78,7 @@ class RecalculateAffectedPlayerAchievementSetMetrics extends Command
     {
         return PlayerAchievementSet::query()
             ->whereIn('player_achievement_sets.achievement_set_id', $nonCoreSetIds)
-            ->where('player_achievement_sets.updated_at', '>=', self::MULTISET_ENABLED_DATE)
+            ->where('player_achievement_sets.updated_at', '>=', self::START_DATE)
             ->join('game_achievement_sets', function ($join): void {
                 $join->on('player_achievement_sets.achievement_set_id', '=', 'game_achievement_sets.achievement_set_id')
                     ->whereIn('game_achievement_sets.type', self::AFFECTED_TYPES);
