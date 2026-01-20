@@ -1,10 +1,10 @@
 import type { FC } from 'react';
-import { route } from 'ziggy-js';
 
 import { GameTitle } from '@/common/components/GameTitle';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
+import { ResponsiveSystemLinkChip } from '../ResponsiveSystemChip/ResponsiveSystemLinkChip';
 import { WantToPlayToggle } from '../WantToPlayToggle';
 import { GameMobileBannerImage } from './GameMobileBannerImage';
 
@@ -19,7 +19,7 @@ export const GameMobileHeader: FC = () => {
       <GameMobileBannerImage />
 
       {/* Content */}
-      <div className="flex h-full flex-col gap-3 px-4 pb-4">
+      <div className="flex h-full flex-col gap-3 pb-4 pl-4 pr-3">
         {/* Badge */}
         <img
           loading="eager"
@@ -32,7 +32,12 @@ export const GameMobileHeader: FC = () => {
           style={{
             aspectRatio: '1/1',
           }}
-          className="z-10 mt-3 rounded-sm bg-neutral-800/60 object-cover p-px outline outline-1 outline-white/20"
+          className={cn(
+            'z-10 mt-3 rounded-sm bg-neutral-800/60 object-cover',
+            'ring-1 ring-white/20 ring-offset-2 ring-offset-black/50',
+            'shadow-md shadow-black/50',
+            'light:bg-white/50 light:shadow-black/20 light:ring-black/20 light:ring-offset-white/50',
+          )}
         />
 
         <div className="relative flex h-full items-end">
@@ -54,24 +59,7 @@ export const GameMobileHeader: FC = () => {
 
             {/* Chip buttons */}
             <div className="flex items-center gap-2">
-              {/* System name */}
-              <a
-                href={route('system.game.index', { system: game.system!.id })}
-                className={cn(
-                  'flex max-w-fit items-center gap-1 rounded-full',
-                  'border border-white/30 bg-black/70 px-2.5 py-1 shadow-md backdrop-blur-sm',
-                  'light:border-neutral-300 light:bg-white/80 light:backdrop-blur-md',
-                )}
-              >
-                <img
-                  src={game.system?.iconUrl}
-                  alt={game.system?.nameShort}
-                  width={16}
-                  height={16}
-                />
-                <span className="text-xs font-medium">{game.system?.nameShort}</span>
-              </a>
-
+              <ResponsiveSystemLinkChip />
               <WantToPlayToggle variant="sm" />
             </div>
           </div>
