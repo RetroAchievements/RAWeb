@@ -18,6 +18,7 @@ use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\PlayerProgressResetType;
 use App\Platform\Enums\UnlockMode;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 
 class PlayerGameActivityService
 {
@@ -25,6 +26,9 @@ class PlayerGameActivityService
     public int $achievementsUnlocked = 0;
     private int $sessionAdjustment = 0;
     private ?Carbon $lastResetCreatedAt = null;
+
+    /** @var Collection<int, PlayerGame> */
+    private Collection $playerGames;
 
     public function initialize(User $user, Game $game, bool $withSubsets = false): void
     {
@@ -56,12 +60,12 @@ class PlayerGameActivityService
                 ->where('type', AchievementSetType::Core)
                 ->get();
             foreach ($coreGameAchievementSets as $coreGameAchievementSet) {
-                $coreGameAchievementSetIds[$coreGameAchievementSet->game_id] = $coreGameAchievementSet->id;
+                $coreGameAchievementSetIds[$coreGameAchievementSet->game_id] = $coreGameAchievementSet->achievement_set_id;
             }
             $gameIds = array_keys($coreGameAchievementSetIds);
             $achievementIds = array_unique($achievementIds);
         } else {
-            $coreGameAchievementSetIds = [$game->id => $gameAchievementSets->first()->id];
+            $coreGameAchievementSetIds = [$game->id => $gameAchievementSets->first()->achievement_set_id];
             $gameIds[] = $game->id;
         }
 
@@ -145,8 +149,11 @@ class PlayerGameActivityService
         }
 
         // player_games records have more granular end times. try to merge them in
-        $playerGames = PlayerGame::where('user_id', $user->id)->whereIn('game_id', $gameIds)->get();
-        foreach ($playerGames as $playerGame) {
+        $this->playerGames = PlayerGame::where('user_id', $user->id)->whereIn('game_id', $gameIds)->get();
+        foreach ($this->playerGames as &$playerGame) {
+            // store the achievement_set_id on the playerGame for later use
+            $playerGame->achievement_set_id = $coreGameAchievementSetIds[$playerGame->game_id];
+
             if ($playerGame->last_played_at) {
                 $whenBefore = $playerGame->last_played_at->clone()->subMinutes(5);
                 $whenAfter = $playerGame->last_played_at->clone()->addMinutes(5);
@@ -536,8 +543,27 @@ class PlayerGameActivityService
                 $startTime = $this->lastResetCreatedAt;
             }
 
-            $metrics['achievementPlaytimeSoftcore'] = $this->calculatePlaytime($startTime, $metrics['lastUnlockTimeSoftcore'], UnlockMode::Softcore);
-            $metrics['achievementPlaytimeHardcore'] = $this->calculatePlaytime($startTime, $metrics['lastUnlockTimeHardcore'], UnlockMode::Hardcore);
+            $playerGame = $this->playerGames->where('achievement_set_id', $achievementSet->id)->first();
+
+            // if the playerGame record was created after achievements were published, use that as the start time.
+            if ($playerGame && $playerGame->created_at > $startTime) {
+                foreach ($this->sessions as $session) {
+                    if ($session['endTime'] > $playerGame->created_at) {
+                        // include the whole session containing the playerGame record - if these differ
+                        // it's typically because a subset playerGame record didn't get created until
+                        // the first achievement was unlocked.
+                        $startTime = min($playerGame->created_at, $session['startTime']);
+                        break;
+                    }
+                }
+            }
+
+            // if the user has completed the game, stop tracking at the last achievement earned
+            $endTimeSoftcore = ($playerGame && !$playerGame->completed_at) ? null : $metrics['lastUnlockTimeSoftcore'];
+            $endTimeHardcore = ($playerGame && !$playerGame->completed_hardcore_at) ? null : $metrics['lastUnlockTimeHardcore'];
+
+            $metrics['achievementPlaytimeSoftcore'] = $this->calculatePlaytime($startTime, $endTimeSoftcore, UnlockMode::Softcore);
+            $metrics['achievementPlaytimeHardcore'] = $this->calculatePlaytime($startTime, $endTimeHardcore, UnlockMode::Hardcore);
         } else {
             // don't count any playtime if achievements haven't been published yet
             $metrics['achievementPlaytimeSoftcore'] = 0;

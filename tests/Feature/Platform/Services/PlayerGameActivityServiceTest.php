@@ -288,6 +288,9 @@ class PlayerGameActivityServiceTest extends TestCase
         $subsetGame = $this->seedGame(achievements: 5, withHash: false);
 
         (new AssociateAchievementSetToGameAction())->execute($game, $subsetGame, AchievementSetType::Bonus, "Bonus");
+        $subsetAchievementSet = $subsetGame->achievementSets()->first();
+        $subsetAchievementSet->achievements_first_published_at = Carbon::now()->subDays(1);
+        $subsetAchievementSet->save();
 
         // ===== Start session at time0 (playing game) =====
         $time0 = Carbon::now()->startOfSecond()->subMinutes(100);
@@ -315,28 +318,56 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->assertEquals(1, count($session['events']));
         $this->assertRichPresenceEvent($session['events'][0], $playerSession->rich_presence, $time1);
 
-        // ==== Unlock one subset achievement at time2 ====
+        $subsetMetrics = $activity->getAchievementSetMetrics($subsetAchievementSet);
+        $this->assertNull($subsetMetrics['firstUnlockTimeSoftcore']);
+        $this->assertNull($subsetMetrics['lastUnlockTimeSoftcore']);
+        $this->assertNull($subsetMetrics['firstUnlockTimeHardcore']);
+        $this->assertNull($subsetMetrics['lastUnlockTimeHardcore']);
+        $this->assertEquals($time1->diffInMinutes($time0, true) * 60, $subsetMetrics['achievementPlaytimeSoftcore']);
+        $this->assertEquals($time1->diffInMinutes($time0, true) * 60, $subsetMetrics['achievementPlaytimeHardcore']);
+
+        // ==== Unlock one subset achievement at time2 (in hardcore) and one at time3 (in softcore) ====
         $time2 = $time1->clone()->addMinutes(5);
         $ach1 = $subsetGame->achievements()->first();
         $this->addHardcoreUnlock($user, $ach1, $time2, gameHash: $gameHash);
 
+        $time3 = $time2->clone()->addMinutes(3);
+        $ach2 = $subsetGame->achievements()->skip(1)->first();
+        $this->addSoftcoreUnlock($user, $ach2, $time3, gameHash: $gameHash);
+
+        // ===== play for some extra time without any unlocks =====
+        $time4 = $time3->clone()->addMinutes(6);
+        Carbon::setTestNow($time4);
+        (new ResumePlayerSessionAction())->execute($user, $game);
+
+        // ===== validate =====
         // only one session should exist (for game) - no subset sessions should exist
         $this->assertEquals(1, PlayerSession::where('game_id', $game->id)->count());
         $this->assertEquals(0, PlayerSession::where('game_id', $subsetGame->id)->count());
 
-        // the subset unlock should be rolled into the parent game session
+        // the subset unlocks should be rolled into the parent game session
         $activity = new PlayerGameActivityService();
         $activity->initialize($user, $subsetGame);
         $this->assertEquals(1, count($activity->sessions));
         $session = $activity->sessions[0];
         $this->assertEquals(PlayerGameActivitySessionType::Player, $session['type']);
         $this->assertEquals($time0->timestamp, $session['startTime']->timestamp);
-        $this->assertEquals($time2->diffInMinutes($time0, true) * 60, $session['duration']);
-        $this->assertEquals($time2->timestamp, $session['endTime']->timestamp);
-        $this->assertEquals($time2->setTimezone('UTC')->toDateTimeString(), $session['endTime']->setTimezone('UTC')->toDateTimeString());
-        $this->assertEquals(2, count($session['events']));
+        $this->assertEquals($time4->diffInMinutes($time0, true) * 60, $session['duration']);
+        $this->assertEquals($time4->timestamp, $session['endTime']->timestamp);
+        $this->assertEquals(3, count($session['events']));
         $this->assertUnlockEvent($session['events'][0], $ach1->id, $time2, true);
-        $this->assertRichPresenceEvent($session['events'][1], $playerSession->rich_presence, $time2);
+        $this->assertUnlockEvent($session['events'][1], $ach2->id, $time3, false);
+        $this->assertRichPresenceEvent($session['events'][2], $playerSession->rich_presence, $time4);
+
+        $subsetMetrics = $activity->getAchievementSetMetrics($subsetAchievementSet);
+        $this->assertEquals($time3, $subsetMetrics['firstUnlockTimeSoftcore']);
+        $this->assertEquals($time3, $subsetMetrics['lastUnlockTimeSoftcore']);
+        $this->assertEquals($time2, $subsetMetrics['firstUnlockTimeHardcore']);
+        $this->assertEquals($time2, $subsetMetrics['lastUnlockTimeHardcore']);
+        // softcore session continues past last unlock until game is completed
+        $this->assertEquals($time4->diffInMinutes($time0, true) * 60, $subsetMetrics['achievementPlaytimeSoftcore']);
+        // hardcore session is assumed to end when a softcore unlock occurs
+        $this->assertEquals($time3->diffInMinutes($time0, true) * 60, $subsetMetrics['achievementPlaytimeHardcore']);
     }
 
     private function assertRichPresenceEvent(array $event, string $message, Carbon $time): void
