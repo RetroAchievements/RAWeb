@@ -18,6 +18,8 @@ class NoOffensiveContent implements ValidationRule
 
         // CensorWords also checks for ways people can obfuscate the slurs. ie: "wow" === "W0W"
         $censor = new CensorWords();
+        // Clear the default dictionary - we only want to check for our specific slurs.
+        $censor->setDictionary([]);
         $censor->addFromArray($dictionary);
 
         // Check for the slurs using substring matching.

@@ -1,6 +1,6 @@
 /* eslint-disable testing-library/no-container */
 
-import { act, render } from '@/test';
+import { act, render, screen } from '@/test';
 import { createGame, createPageBanner } from '@/test/factories';
 
 import { GameDesktopBannerImage } from './GameDesktopBannerImage';
@@ -18,9 +18,31 @@ describe('Component: GameDesktopBannerImage', () => {
     expect(container).toBeTruthy();
   });
 
-  it('renders the picture element with AVIF and WebP sources', () => {
+  it('given the banner has no mobile sources, still renders without crashing', () => {
     // ARRANGE
     const banner = createPageBanner({
+      mobileSmAvif: null,
+      mobileSmWebp: null,
+    });
+
+    const { container } = render(<GameDesktopBannerImage banner={banner} />, {
+      pageProps: { game: createGame() },
+    });
+
+    // ASSERT
+    const sources = container.querySelectorAll('source');
+
+    const mobileAvifSource = sources[0];
+    const mobileWebpSource = sources[1];
+    expect(mobileAvifSource).not.toHaveAttribute('srcset');
+    expect(mobileWebpSource).not.toHaveAttribute('srcset');
+  });
+
+  it('renders the picture element with mobile and desktop AVIF/WebP sources', () => {
+    // ARRANGE
+    const banner = createPageBanner({
+      mobileSmAvif: 'https://example.com/banner-mobile.avif',
+      mobileSmWebp: 'https://example.com/banner-mobile.webp',
       desktopMdAvif: 'https://example.com/banner-md.avif',
       desktopLgAvif: 'https://example.com/banner-lg.avif',
       desktopXlAvif: 'https://example.com/banner-xl.avif',
@@ -40,18 +62,28 @@ describe('Component: GameDesktopBannerImage', () => {
     expect(picture).toBeInTheDocument();
 
     const sources = picture?.querySelectorAll('source');
-    expect(sources).toHaveLength(2);
+    expect(sources).toHaveLength(4);
 
-    // ... AVIF source ...
+    // ... mobile AVIF source ...
     expect(sources?.[0]).toHaveAttribute('type', 'image/avif');
-    expect(sources?.[0]).toHaveAttribute(
+    expect(sources?.[0]).toHaveAttribute('media', '(max-width: 767px)');
+    expect(sources?.[0]).toHaveAttribute('srcset', 'https://example.com/banner-mobile.avif');
+
+    // ... mobile WebP source ...
+    expect(sources?.[1]).toHaveAttribute('type', 'image/webp');
+    expect(sources?.[1]).toHaveAttribute('media', '(max-width: 767px)');
+    expect(sources?.[1]).toHaveAttribute('srcset', 'https://example.com/banner-mobile.webp');
+
+    // ... desktop AVIF source ...
+    expect(sources?.[2]).toHaveAttribute('type', 'image/avif');
+    expect(sources?.[2]).toHaveAttribute(
       'srcset',
       'https://example.com/banner-md.avif 1024w, https://example.com/banner-lg.avif 1280w, https://example.com/banner-xl.avif 1920w',
     );
 
-    // ... WebP source ...
-    expect(sources?.[1]).toHaveAttribute('type', 'image/webp');
-    expect(sources?.[1]).toHaveAttribute(
+    // ... desktop WebP source ...
+    expect(sources?.[3]).toHaveAttribute('type', 'image/webp');
+    expect(sources?.[3]).toHaveAttribute(
       'srcset',
       'https://example.com/banner-md.webp 1024w, https://example.com/banner-lg.webp 1280w, https://example.com/banner-xl.webp 1920w',
     );
@@ -126,12 +158,14 @@ describe('Component: GameDesktopBannerImage', () => {
 
   it('renders gradient overlays for navbar blending and text readability', () => {
     // ARRANGE
-    const { container } = render(<GameDesktopBannerImage banner={createPageBanner()} />, {
+    render(<GameDesktopBannerImage banner={createPageBanner()} />, {
       pageProps: { game: createGame() },
     });
 
     // ASSERT
-    const gradients = container.querySelectorAll('.bg-gradient-to-b, .bg-gradient-to-t');
-    expect(gradients.length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByTestId('top-gradient-dark')).toBeInTheDocument();
+    expect(screen.getByTestId('top-gradient-light')).toBeInTheDocument();
+    expect(screen.getByTestId('bottom-gradient-dark')).toBeInTheDocument();
+    expect(screen.getByTestId('bottom-gradient-light')).toBeInTheDocument();
   });
 });
