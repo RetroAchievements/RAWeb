@@ -579,6 +579,46 @@ class ResolveAchievementSetsActionTest extends TestCase
         $this->assertEquals('A Button Challenge', $specialtySets->first()->title);
     }
 
+    public function testItSortsSetsOfSameTypeByOrderColumn(): void
+    {
+        // Arrange
+        $baseGame = $this->createGameWithAchievements($this->system, 'Dragon Quest III', publishedCount: 5);
+        $bonusGame1 = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus A]', publishedCount: 1);
+        $bonusGame2 = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus B]', publishedCount: 2);
+        $bonusGame3 = $this->createGameWithAchievements($this->system, 'Dragon Quest III [Subset - Bonus C]', publishedCount: 3);
+
+        $this->upsertGameCoreSetAction->execute($baseGame);
+        $this->upsertGameCoreSetAction->execute($bonusGame1);
+        $this->upsertGameCoreSetAction->execute($bonusGame2);
+        $this->upsertGameCoreSetAction->execute($bonusGame3);
+
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame1, AchievementSetType::Bonus, 'Bonus A');
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame2, AchievementSetType::Bonus, 'Bonus B');
+        $this->associateAchievementSetToGameAction->execute($baseGame, $bonusGame3, AchievementSetType::Bonus, 'Bonus C');
+
+        GameAchievementSet::where('game_id', $baseGame->id)->where('title', 'Bonus C')->update(['order_column' => 1]);
+        GameAchievementSet::where('game_id', $baseGame->id)->where('title', 'Bonus A')->update(['order_column' => 2]);
+        GameAchievementSet::where('game_id', $baseGame->id)->where('title', 'Bonus B')->update(['order_column' => 3]);
+
+        $baseGameHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
+
+        $user = User::factory()->create(['preferences_bitfield' => self::OPT_IN_TO_ALL_SUBSETS_PREF_ENABLED]);
+
+        // Act
+        $resolved = (new ResolveAchievementSetsAction())->execute($baseGameHash, $user);
+
+        // Assert
+        $this->assertCount(4, $resolved);
+
+        $this->assertEquals(AchievementSetType::Core, $resolved[0]->type);
+
+        $bonusSets = $resolved->filter(fn ($set) => $set->type === AchievementSetType::Bonus)->values();
+        $this->assertCount(3, $bonusSets);
+        $this->assertEquals('Bonus C', $bonusSets[0]->title);
+        $this->assertEquals('Bonus A', $bonusSets[1]->title);
+        $this->assertEquals('Bonus B', $bonusSets[2]->title);
+    }
+
     public function testBonusSetLinkedToMultipleParentsOnlyReturnsBonusSet(): void
     {
         // Arrange
