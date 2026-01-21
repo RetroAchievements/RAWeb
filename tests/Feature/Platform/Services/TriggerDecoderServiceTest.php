@@ -616,4 +616,62 @@ class TriggerDecoderServiceTest extends TestCase
         $condition = $groups[0]['Conditions'][2];
         $this->assertConditionSourceTooltip($condition, 'Player Health');
     }
+
+    public function testMergeCodeNotesIndirectWithPipePrefixedFormat(): void
+    {
+        $service = new TriggerDecoderService();
+        $groups = $service->decode("I:0xX1234_0xX0000=3_I:0xX1234_0xX0010=23");
+        $service->mergeCodeNotes($groups, [
+            0x001234 => "[32-bit PTR] Current Config Slot\n" .
+                        "|0x00= [32-bit] Config Slot Interaction ID\n" .
+                        "|0x04= [32-bit] Config Slot Data Pointer\n" .
+                        "|0x10= [32-bit] Config Slot Function ID",
+        ]);
+
+        $this->assertCount(1, $groups);
+        $this->assertCount(4, $groups[0]['Conditions']);
+
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionFlag($condition, 'Add Address');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x001234');
+        $this->assertConditionSourceTooltip($condition, '[32-bit PTR] Current Config Slot');
+
+        $condition = $groups[0]['Conditions'][1];
+        $this->assertConditionFlag($condition, '');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x000000');
+        $this->assertConditionSourceTooltip($condition, "[Indirect 0x001234 + 0x000000]\n[32-bit] Config Slot Interaction ID");
+
+        $condition = $groups[0]['Conditions'][2];
+        $this->assertConditionFlag($condition, 'Add Address');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x001234');
+        $this->assertConditionSourceTooltip($condition, '[32-bit PTR] Current Config Slot');
+
+        $condition = $groups[0]['Conditions'][3];
+        $this->assertConditionFlag($condition, '');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x000010');
+        $this->assertConditionSourceTooltip($condition, "[Indirect 0x001234 + 0x000010]\n[32-bit] Config Slot Function ID");
+    }
+
+    public function testMergeCodeNotesIndirectWithParenthesizedFormat(): void
+    {
+        $service = new TriggerDecoderService();
+        $groups = $service->decode("I:0xX1234_0xX0184=3");
+        $service->mergeCodeNotes($groups, [
+            0x001234 => "[Pointer]\n" .
+                        "Right Eyerok - Health (+0x184)",
+        ]);
+
+        $this->assertCount(1, $groups);
+        $this->assertCount(2, $groups[0]['Conditions']);
+
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionFlag($condition, 'Add Address');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x001234');
+        $this->assertConditionSourceTooltip($condition, '[Pointer]');
+
+        $condition = $groups[0]['Conditions'][1];
+        $this->assertConditionFlag($condition, '');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x000184');
+        $this->assertConditionSourceTooltip($condition, "[Indirect 0x001234 + 0x000184]\nRight Eyerok - Health");
+    }
 }

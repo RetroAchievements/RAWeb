@@ -389,10 +389,10 @@ class TriggerDecoderService
 
                 if ($condition['Flag'] === 'Add Address' && ($condition['Operator'] === '' || $condition['Operator'] === '&')) {
                     $indirectNote = $condition['SourceTooltip'] ?? '';
-                    $index = strpos($indirectNote, "\n+");
-                    if ($index !== false) {
-                        // The presence of "\n+" indicates this is a pointer chain structure.
-                        $firstLine = substr($indirectNote, 0, $index);
+                    [$delimiterIndex] = $this->findStructOffsetDelimiter($indirectNote);
+                    if ($delimiterIndex !== false) {
+                        // The presence of a struct offset delimiter indicates this is a pointer chain structure.
+                        $firstLine = substr($indirectNote, 0, $delimiterIndex);
                         $condition['SourceTooltip'] = trim($firstLine);
                         if (empty($indirectChain)) {
                             $indirectChain = $condition['SourceAddress'];
@@ -448,16 +448,62 @@ class TriggerDecoderService
         }
     }
 
-    private function getIndirectNote(string $parentNote, int $offset): string
+    /**
+     * Finds the position of the first struct offset delimiter in a note.
+     * Supports formats: "+0x0 |", "|0x0=", and "Description (+0x0)".
+     *
+     * @return array{0: int|false, 1: string} Position of newline and format type ('plus', 'pipe', 'paren', or '').
+     */
+    private function findStructOffsetDelimiter(string $note): array
     {
-        $index = strpos($parentNote, "\n+");
-        if ($index === false) {
-            return ''; // unexpected - should have already been matched to reach this code
+        $plusIndex = strpos($note, "\n+");
+        $pipeIndex = strpos($note, "\n|");
+
+        // For parenthesized format, look for "(+0x" anywhere after a newline.
+        $parenIndex = preg_match('/\n.*\(\+0x/i', $note, $matches, PREG_OFFSET_CAPTURE)
+            ? $matches[0][1]
+            : false;
+
+        // Find the earliest delimiter position.
+        $candidates = [];
+        if ($plusIndex !== false) {
+            $candidates[$plusIndex] = 'plus';
+        }
+        if ($pipeIndex !== false) {
+            $candidates[$pipeIndex] = 'pipe';
+        }
+        if ($parenIndex !== false) {
+            $candidates[$parenIndex] = 'paren';
         }
 
-        $index += 2;
+        if (empty($candidates)) {
+            return [false, ''];
+        }
+
+        $minIndex = min(array_keys($candidates));
+
+        return [$minIndex, $candidates[$minIndex]];
+    }
+
+    private function getIndirectNote(string $parentNote, int $offset): string
+    {
+        [$delimiterIndex, $formatType] = $this->findStructOffsetDelimiter($parentNote);
+        if ($delimiterIndex === false) {
+            return '';
+        }
+
+        // for parenthesized format "Description (+0x184)", use regex to find matching lines
+        if ($formatType === 'paren') {
+            return $this->getIndirectNoteParenthesized($parentNote, $offset);
+        }
+
+        // for plus and pipe formats, use the line-based parsing
+        $delimiterChar = $formatType === 'plus' ? '+' : '|';
+        $delimiter = "\n" . $delimiterChar;
+
+        $index = $delimiterIndex + 2;
         while (true) {
-            $nextIndex = strpos($parentNote, "\n+", $index);
+            $nextIndex = strpos($parentNote, $delimiter, $index);
             if ($nextIndex === false) {
                 $line = trim(substr($parentNote, $index));
             } else {
@@ -466,37 +512,40 @@ class TriggerDecoderService
 
             $len = strlen($line);
             if ($len > 3) {
-                $index = 0;
-                while ($index < $len && (
-                    (($c = strtolower($line[$index])) >= '0' && $c <= '9')
+                $charIndex = 0;
+                while ($charIndex < $len && (
+                    (($c = strtolower($line[$charIndex])) >= '0' && $c <= '9')
                     || ($c >= 'a' && $c <= 'f') || ($c == 'x'))) {
-                    $index++;
+                    $charIndex++;
                 }
-                $lineOffset = intval(substr($line, 0, $index), 0);
+                $lineOffset = intval(substr($line, 0, $charIndex), 0);
                 if ($lineOffset === $offset) {
                     // found the applicable offset
-                    // skip whitespace, any single non-alphanumeric character, and whitespace
-                    while ($index < $len && ctype_space($line[$index])) {
-                        $index++;
+                    // skip whitespace, any single non-alphanumeric character (like '|', '='), and whitespace
+                    while ($charIndex < $len && ctype_space($line[$charIndex])) {
+                        $charIndex++;
                     }
-                    if ($index < $len && !ctype_alnum($line[$index])) {
-                        $index++;
-                        while ($index < $len && ctype_space($line[$index])) {
-                            $index++;
+                    if ($charIndex < $len && !ctype_alnum($line[$charIndex])) {
+                        $charIndex++;
+                        while ($charIndex < $len && ctype_space($line[$charIndex])) {
+                            $charIndex++;
                         }
                     }
 
-                    $childNote = substr($line, $index);
+                    $childNote = substr($line, $charIndex);
 
-                    while ($nextIndex !== false && $parentNote[$nextIndex + 2] === '+') {
-                        $index = $nextIndex + 2;
-                        $nextIndex = strpos($parentNote, "\n+", $index);
-                        if ($nextIndex === false) {
-                            $line = trim(substr($parentNote, $index));
-                        } else {
-                            $line = trim(substr($parentNote, $index, $nextIndex - $index));
+                    // for standard "+0x0 |" format, check for nested pointers (++, +++, etc)
+                    if ($delimiterChar === '+') {
+                        while ($nextIndex !== false && $parentNote[$nextIndex + 2] === '+') {
+                            $charIndex = $nextIndex + 2;
+                            $nextIndex = strpos($parentNote, $delimiter, $charIndex);
+                            if ($nextIndex === false) {
+                                $line = trim(substr($parentNote, $charIndex));
+                            } else {
+                                $line = trim(substr($parentNote, $charIndex, $nextIndex - $charIndex));
+                            }
+                            $childNote .= "\n" . $line;
                         }
-                        $childNote .= "\n" . $line;
                     }
 
                     return $childNote;
@@ -508,6 +557,26 @@ class TriggerDecoderService
             }
 
             $index = $nextIndex + 2;
+        }
+
+        return '';
+    }
+
+    /**
+     * Parses indirect notes in the "Description (+0x184)" format where the offset is at the end of the line.
+     */
+    private function getIndirectNoteParenthesized(string $parentNote, int $offset): string
+    {
+        $lines = explode("\n", $parentNote);
+
+        foreach ($lines as $line) {
+            // Match pattern: "Description (+0x184)" or "Description (+0x184 - extra info)"
+            if (preg_match('/^(.+?)\s*\(\+?(0x[0-9a-fA-F]+)(?:\s*-[^)]+)?\)\s*$/', $line, $matches)) {
+                $lineOffset = intval($matches[2], 0);
+                if ($lineOffset === $offset) {
+                    return trim($matches[1]);
+                }
+            }
         }
 
         return '';
