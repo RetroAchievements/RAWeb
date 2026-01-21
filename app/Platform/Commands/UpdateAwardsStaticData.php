@@ -28,16 +28,13 @@ class UpdateAwardsStaticData extends Command
     {
         $this->updateHardcoreMasteryAwardsCount();
         $this->updateHardcoreGameBeatenAwardsCount();
-        $this->updateLastGameHardcoreMastered();
-        $this->updateLastGameHardcoreBeaten();
     }
 
     private function updateHardcoreMasteryAwardsCount(): void
     {
-        $masteryAwardsCount = PlayerBadge::with('user')
-            ->whereHas('user', function ($query) {
-                $query->whereNull('unranked_at');
-            })
+        $masteryAwardsCount = PlayerBadge::query()
+            ->leftJoin('unranked_users', 'user_awards.user_id', '=', 'unranked_users.user_id')
+            ->whereNull('unranked_users.user_id')
             ->where('award_type', AwardType::Mastery)
             ->where('award_tier', UnlockMode::Hardcore)
             ->count();
@@ -47,54 +44,13 @@ class UpdateAwardsStaticData extends Command
 
     private function updateHardcoreGameBeatenAwardsCount(): void
     {
-        $hardcoreGameBeatenAwardsCount = PlayerBadge::with('user')
-            ->whereHas('user', function ($query) {
-                $query->whereNull('unranked_at');
-            })
+        $hardcoreGameBeatenAwardsCount = PlayerBadge::query()
+            ->leftJoin('unranked_users', 'user_awards.user_id', '=', 'unranked_users.user_id')
+            ->whereNull('unranked_users.user_id')
             ->where('award_type', AwardType::GameBeaten)
             ->where('award_tier', UnlockMode::Hardcore)
             ->count();
 
         StaticData::query()->update(['num_hardcore_game_beaten_awards' => $hardcoreGameBeatenAwardsCount]);
-    }
-
-    private function updateLastGameHardcoreMastered(): void
-    {
-        $foundAward = PlayerBadge::with('user')
-            ->whereHas('user', function ($query) {
-                $query->whereNull('unranked_at');
-            })
-            ->where('award_type', AwardType::Mastery)
-            ->where('award_tier', UnlockMode::Hardcore)
-            ->orderByDesc('awarded_at')
-            ->first(['award_key', 'awarded_at', 'user_id']);
-
-        if ($foundAward) {
-            StaticData::query()->update([
-                'last_game_hardcore_mastered_game_id' => $foundAward->award_key,
-                'last_game_hardcore_mastered_user_id' => $foundAward->user_id,
-                'last_game_hardcore_mastered_at' => $foundAward->awarded_at,
-            ]);
-        }
-    }
-
-    private function updateLastGameHardcoreBeaten(): void
-    {
-        $foundAward = PlayerBadge::with('user')
-            ->whereHas('user', function ($query) {
-                $query->whereNull('unranked_at');
-            })
-            ->where('award_type', AwardType::GameBeaten)
-            ->where('award_tier', UnlockMode::Hardcore)
-            ->orderByDesc('awarded_at')
-            ->first(['award_key', 'awarded_at', 'user_id']);
-
-        if ($foundAward) {
-            StaticData::query()->update([
-                'last_game_hardcore_beaten_game_id' => $foundAward->award_key,
-                'last_game_hardcore_beaten_user_id' => $foundAward->user_id,
-                'last_game_hardcore_beaten_at' => $foundAward->awarded_at,
-            ]);
-        }
     }
 }
