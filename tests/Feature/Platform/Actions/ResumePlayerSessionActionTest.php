@@ -5,12 +5,19 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Actions;
 
 use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\GameAchievementSet;
+use App\Models\GameHash;
 use App\Models\GameRecentPlayer;
 use App\Models\PlayerAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
+use App\Models\System;
+use App\Models\User;
+use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Actions\UnlockPlayerAchievementAction;
+use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementSetType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -500,5 +507,90 @@ class ResumePlayerSessionActionTest extends TestCase
         // ... verify the user's rich_presence_updated_at was also updated ...
         $user->refresh();
         $this->assertEquals($pingAt, $user->rich_presence_updated_at);
+    }
+
+    public function testItUpdatesTimeTakenForAllResolvedAchievementSets(): void
+    {
+        $sessionStartAt = Carbon::parse('2025-04-01 12:00:00');
+        Carbon::setTestNow($sessionStartAt);
+
+        // set up the base game with a core achievement set
+        $system = System::factory()->create();
+        $baseGame = Game::factory()->create(['system_id' => $system->id]);
+        Achievement::factory()->promoted()->count(3)->create(['game_id' => $baseGame->id]);
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($baseGame);
+
+        // set up the bonus game
+        $bonusGame = Game::factory()->create(['system_id' => $system->id]);
+        Achievement::factory()->promoted()->count(2)->create(['game_id' => $bonusGame->id]);
+        (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($bonusGame);
+
+        // associate the bonus game as a bonus set on the base game
+        (new AssociateAchievementSetToGameAction())->execute($baseGame, $bonusGame, AchievementSetType::Bonus, 'Bonus');
+
+        // mark achievements as published so time tracking is enabled
+        $coreSet = GameAchievementSet::where('game_id', $baseGame->id)
+            ->where('type', AchievementSetType::Core)
+            ->first();
+        $coreSet->achievementSet->achievements_first_published_at = $sessionStartAt->clone()->subDays(5);
+        $coreSet->achievementSet->save();
+
+        $bonusSet = GameAchievementSet::where('game_id', $baseGame->id)
+            ->where('type', AchievementSetType::Bonus)
+            ->first();
+        $bonusSet->achievementSet->achievements_first_published_at = $sessionStartAt->clone()->subDays(5);
+        $bonusSet->achievementSet->save();
+
+        // create a hash for the base game
+        $gameHash = GameHash::factory()->create(['game_id' => $baseGame->id]);
+
+        // create a user with multiset enabled
+        $user = User::factory()->create(['preferences_bitfield' => 8439]);
+
+        // ===== start a new session =====
+        $action = new ResumePlayerSessionAction();
+        $action->execute($user, $baseGame, $gameHash);
+
+        // the core PlayerAchievementSet is created automatically
+        $corePlayerSet = PlayerAchievementSet::where('user_id', $user->id)
+            ->where('achievement_set_id', $coreSet->achievement_set_id)
+            ->first();
+        $this->assertNotNull($corePlayerSet);
+
+        $bonusPlayerSet = PlayerAchievementSet::create([
+            'user_id' => $user->id,
+            'achievement_set_id' => $bonusSet->achievement_set_id,
+            'time_taken' => 0,
+            'time_taken_hardcore' => 0,
+        ]);
+
+        // ensure playtime_total > 0 so extendPlayTime is called instead of the metrics job
+        $playerGame = PlayerGame::where('user_id', $user->id)->where('game_id', $baseGame->id)->first();
+        $playerGame->playtime_total = 60; // 1 minute
+        $playerGame->save();
+
+        $corePlayerSet->time_taken = 0;
+        $corePlayerSet->time_taken_hardcore = 0;
+        $corePlayerSet->save();
+        $bonusPlayerSet->time_taken = 0;
+        $bonusPlayerSet->time_taken_hardcore = 0;
+        $bonusPlayerSet->save();
+
+        // ===== ping two minutes later to extend the play time =====
+        $pingAt = $sessionStartAt->clone()->addMinutes(2);
+        Carbon::setTestNow($pingAt);
+
+        $action->execute($user, $baseGame, $gameHash, 'Playing the game');
+
+        // verify time_taken was updated for the core set
+        $corePlayerSet->refresh();
+        $this->assertGreaterThan(0, $corePlayerSet->time_taken);
+
+        // verify time_taken was updated for the bonus set
+        $bonusPlayerSet->refresh();
+        $this->assertGreaterThan(0, $bonusPlayerSet->time_taken);
+
+        // both sets should have the same time_taken since they're played simultaneously
+        $this->assertEquals($corePlayerSet->time_taken, $bonusPlayerSet->time_taken);
     }
 }
