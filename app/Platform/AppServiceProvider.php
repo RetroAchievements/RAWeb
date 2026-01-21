@@ -28,6 +28,7 @@ use App\Platform\Commands\BackfillAuthorYieldUnlocks;
 use App\Platform\Commands\CrawlPlayerWeightedPoints;
 use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
+use App\Platform\Commands\FixUnversionedPromotedTriggers;
 use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ProcessExpiringClaims;
 use App\Platform\Commands\PruneDuplicateSubsetNotes;
@@ -70,6 +71,9 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                // Achievements
+                FixUnversionedPromotedTriggers::class,
+
                 // Games
                 PruneDuplicateSubsetNotes::class,
                 PruneGameRecentPlayers::class,
