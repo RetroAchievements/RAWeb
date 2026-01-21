@@ -38,6 +38,7 @@ use App\Platform\Listeners\DispatchUpdatePlayerBeatenGamesStatsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerGameMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerPointsStatsJob;
+use App\Platform\Listeners\EnsureTriggerVersionedOnPromotion;
 use App\Platform\Listeners\RecalculateLeaderboardTopEntriesForUser;
 use App\Platform\Listeners\ResetPlayerProgress;
 use App\Platform\Listeners\ResumePlayerSession;
@@ -65,6 +66,7 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
+            EnsureTriggerVersionedOnPromotion::class,
             UpdateTotalGamesCount::class,
             // TODO Notify player/developer when moved to AchievementSetPublished event
         ],

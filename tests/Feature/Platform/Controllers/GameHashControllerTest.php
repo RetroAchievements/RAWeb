@@ -135,6 +135,35 @@ describe('Redirects', function () {
         // ASSERT
         $response->assertOk();
     });
+
+    it('given a subset backing game linked to multiple parents, does not redirect', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+
+        $parentGameA = createGameWithAchievementsForHashes($system, 'Pokemon Red', 10);
+        $parentGameB = createGameWithAchievementsForHashes($system, 'Pokemon Blue', 10);
+
+        $subsetBackingGame = createGameWithAchievementsForHashes($system, 'Pokemon Red | Pokemon Blue [Subset - Bonus]', 5);
+
+        (new AssociateAchievementSetToGameAction())->execute(
+            $parentGameA,
+            $subsetBackingGame,
+            AchievementSetType::Bonus,
+            'Bonus'
+        );
+        (new AssociateAchievementSetToGameAction())->execute(
+            $parentGameB,
+            $subsetBackingGame,
+            AchievementSetType::Bonus,
+            'Bonus'
+        );
+
+        // ACT
+        $response = get(route('game.hashes.index', ['game' => $subsetBackingGame]));
+
+        // ASSERT
+        $response->assertOk();
+    });
 });
 
 describe('Basic Rendering', function () {
@@ -213,6 +242,53 @@ describe('Hash Props', function () {
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
             ->has('hashes', 5)
+        );
+    });
+
+    it('given a bonus set linked to multiple parents, excludes bonus backing hashes from the parent game views', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+
+        // ... create two parent games with their own hashes ...
+        $parentGameA = createGameWithAchievementsForHashes($system, 'Pokemon Red', 10);
+        $parentGameB = createGameWithAchievementsForHashes($system, 'Pokemon Blue', 10);
+
+        GameHash::factory()->count(3)->create([
+            'game_id' => $parentGameA->id,
+            'compatibility' => GameHashCompatibility::Compatible,
+        ]);
+        GameHash::factory()->count(2)->create([
+            'game_id' => $parentGameB->id,
+            'compatibility' => GameHashCompatibility::Compatible,
+        ]);
+
+        // ... create the shared bonus backing game with its own hashes ...
+        $bonusBackingGame = createGameWithAchievementsForHashes($system, 'Pokemon Red | Pokemon Blue [Subset - Bonus]', 5);
+        GameHash::factory()->count(4)->create([
+            'game_id' => $bonusBackingGame->id,
+            'compatibility' => GameHashCompatibility::Compatible,
+        ]);
+
+        // ... link the bonus set to both parent games ...
+        (new AssociateAchievementSetToGameAction())->execute(
+            $parentGameA,
+            $bonusBackingGame,
+            AchievementSetType::Bonus,
+            'Bonus'
+        );
+        (new AssociateAchievementSetToGameAction())->execute(
+            $parentGameB,
+            $bonusBackingGame,
+            AchievementSetType::Bonus,
+            'Bonus'
+        );
+
+        // ACT
+        $response = get(route('game.hashes.index', ['game' => $parentGameA]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('hashes', 3) // only includes Red's 3 hashes, none of the bonus backing game hashes
         );
     });
 

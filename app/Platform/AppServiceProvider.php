@@ -28,6 +28,7 @@ use App\Platform\Commands\BackfillAuthorYieldUnlocks;
 use App\Platform\Commands\CrawlPlayerWeightedPoints;
 use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
+use App\Platform\Commands\FixUnversionedPromotedTriggers;
 use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ProcessExpiringClaims;
 use App\Platform\Commands\PruneDuplicateSubsetNotes;
@@ -71,6 +72,9 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                // Achievements
+                FixUnversionedPromotedTriggers::class,
+
                 // Games
                 PruneDuplicateSubsetNotes::class,
                 PruneGameRecentPlayers::class,
@@ -136,7 +140,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
 
             if (app()->environment() === 'production') {
-                $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
+                $schedule->command(UpdateAwardsStaticData::class)->everyFourHours();
                 $schedule->command(CrawlPlayerWeightedPoints::class)->everyFiveMinutes();
                 $schedule->command(UpdateBeatenGamesLeaderboard::class)->everyFiveMinutes();
                 $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
