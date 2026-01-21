@@ -28,6 +28,8 @@ class StaticData extends BaseModel
         'LastAchievementEarnedAt' => 'datetime',
         'LastRegisteredUserAt' => 'datetime',
         'Event_AOTW_StartAt' => 'datetime',
+        'last_game_hardcore_mastered_at' => 'datetime',
+        'last_game_hardcore_beaten_at' => 'datetime',
     ];
 
     protected static function newFactory(): StaticDataFactory
