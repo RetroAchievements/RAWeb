@@ -452,7 +452,7 @@ class TriggerDecoderService
      * Finds the position of the first struct offset delimiter in a note.
      * Supports formats: "+0x0 |", "|0x0=", and "Description (+0x0)".
      *
-     * @return array{0: int|false, 1: string} Position of newline and format type ('plus', 'pipe', 'paren', or '').
+     * @return array{0: int|false, 1: string} position of newline and format type ('plus', 'pipe', 'paren', or '')
      */
     private function findStructOffsetDelimiter(string $note): array
     {
