@@ -10,7 +10,6 @@ use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\CreateAchievementOfTheWeek;
-use App\Platform\Services\UserLastActivityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
@@ -119,10 +118,6 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->addHardcoreUnlock($player2, $sourceAchievement2, $time3);
         $this->addHardcoreUnlock($player3, $sourceAchievement2, $time4);
 
-        $userLastActivityService = app(UserLastActivityService::class);
-
-        // flush activity cache to the DB to establish a baseline before creating the event
-        $userLastActivityService->flushToDatabase();
         $player1->refresh();
         $lastActivityBefore = $player1->last_activity_at;
 
@@ -195,7 +190,6 @@ class CreateAchievementOfTheWeekTest extends TestCase
         $this->assertEquals(64, $event2->achievements()->count());
 
         // unlocking event achievements should not generate user activity
-        $userLastActivityService->flushToDatabase();
         $player1->refresh();
         $this->assertEquals($lastActivityBefore, $player1->last_activity_at);
     }

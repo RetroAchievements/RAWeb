@@ -703,21 +703,33 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
     }
 
     /**
-     * Supports tri-state: 'true' (promoted only), 'false' (unpromoted only), and 'all' (no filter).
+     * Filter by achievement state: 'promoted', 'unpromoted', 'all', or comma-separated values.
      *
      * @param Builder<Achievement> $query
      * @return Builder<Achievement>
      */
-    public function scopeWithPromotedStatus(Builder $query, string $value): Builder
+    public function scopeWithState(Builder $query, string $value): Builder
     {
         if ($value === 'all') {
             return $query;
         }
 
-        $isPromoted = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        $states = array_map('trim', explode(',', $value));
 
-        if ($isPromoted !== null) {
-            return $query->where('is_promoted', $isPromoted);
+        $shouldIncludePromoted = in_array('promoted', $states, true);
+        $shouldIncludeUnpromoted = in_array('unpromoted', $states, true);
+
+        // Including both states is equivalent to no filter.
+        if ($shouldIncludePromoted && $shouldIncludeUnpromoted) {
+            return $query;
+        }
+
+        if ($shouldIncludePromoted) {
+            return $query->where('is_promoted', true);
+        }
+
+        if ($shouldIncludeUnpromoted) {
+            return $query->where('is_promoted', false);
         }
 
         return $query;

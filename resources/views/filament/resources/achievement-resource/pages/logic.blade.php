@@ -24,7 +24,7 @@
             $addrFormat = $triggerViewerService->getAddressFormat($groups);
             $markdownOutput = $triggerViewerService->generateMarkdown($groups);
 
-            $tooltipStyle = 'white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 11px';
+            $tooltipStyle = 'white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 11px; max-height: 300px; overflow-y: auto; display: block';
         @endphp
 
         <div
@@ -147,7 +147,7 @@
                                                     x-show="collapseAddAddress"
                                                     x-cloak
                                                     class="text-purple-500 dark:text-purple-400 underline decoration-dotted underline-offset-2 cursor-help"
-                                                    x-tooltip="{ content: 'AddAddress: {{ $rowLabel }} {{ $chainRowsList }}', theme: $store.theme, placement: 'left' }"
+                                                    x-tooltip="{ content: 'AddAddress: {{ $rowLabel }} {{ $chainRowsList }}', theme: $store.theme, placement: 'left', interactive: true }"
                                                 >{{ $loop->iteration }}</span>
                                                 <span x-show="!collapseAddAddress" x-cloak>{{ $loop->iteration }}</span>
                                             @else
@@ -183,7 +183,7 @@
                                                         x-show="showAliases"
                                                         x-cloak
                                                         class="text-emerald-600 dark:text-emerald-400 cursor-help underline decoration-dotted underline-offset-2"
-                                                        x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($sourceAliasTooltip) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left' }"
+                                                        x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($sourceAliasTooltip) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left', interactive: true }"
                                                     >
                                                         {{ $sourceDisplay['displayTruncated'] }}
                                                     </span>
@@ -201,7 +201,7 @@
                                                     x-show="!showAliases"
                                                     x-cloak
                                                     class="text-blue-600 dark:text-blue-400 cursor-help underline decoration-dotted underline-offset-2"
-                                                    x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($condition['SourceTooltip']) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left' }"
+                                                    x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($condition['SourceTooltip']) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left', interactive: true }"
                                                 >
                                                     {{ $condition['SourceAddress'] }}
                                                 </span>
@@ -237,7 +237,7 @@
                                                                 x-show="showAliases"
                                                                 x-cloak
                                                                 class="text-emerald-600 dark:text-emerald-400 cursor-help underline decoration-dotted underline-offset-2"
-                                                                x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($targetDisplay['valueAlias']) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left' }"
+                                                                x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($targetDisplay['valueAlias']) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left', interactive: true }"
                                                             >{{ $targetDisplay['valueAliasTruncated'] }}</span>
                                                         @else
                                                             <span x-show="showAliases" x-cloak class="text-emerald-600 dark:text-emerald-400">{{ $targetDisplay['valueAlias'] }}</span>
@@ -249,7 +249,7 @@
                                                                 x-show="!showAliases && !showDecimal"
                                                                 x-cloak
                                                                 class="cursor-help underline decoration-dotted underline-offset-2"
-                                                                x-tooltip="{ content: '{{ $targetDisplay['decimalDisplay'] }}', theme: $store.theme, placement: 'left' }"
+                                                                x-tooltip="{ content: '{{ $targetDisplay['decimalDisplay'] }}', theme: $store.theme, placement: 'left', interactive: true }"
                                                             >{{ $targetDisplay['hexDisplay'] }}</span>
                                                         @else
                                                             <span x-show="!showAliases && !showDecimal" x-cloak>{{ $targetDisplay['hexDisplay'] }}</span>
@@ -261,7 +261,7 @@
                                                                 x-show="!showDecimal"
                                                                 x-cloak
                                                                 class="cursor-help underline decoration-dotted underline-offset-2"
-                                                                x-tooltip="{ content: '{{ $targetDisplay['decimalDisplay'] }}', theme: $store.theme, placement: 'left' }"
+                                                                x-tooltip="{ content: '{{ $targetDisplay['decimalDisplay'] }}', theme: $store.theme, placement: 'left', interactive: true }"
                                                             >{{ $targetDisplay['hexDisplay'] }}</span>
                                                         @else
                                                             <span x-show="!showDecimal" x-cloak>{{ $targetDisplay['hexDisplay'] }}</span>
@@ -279,7 +279,7 @@
                                                             x-show="showAliases"
                                                             x-cloak
                                                             class="text-emerald-600 dark:text-emerald-400 cursor-help underline decoration-dotted underline-offset-2"
-                                                            x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($targetAliasTooltip) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left' }"
+                                                            x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($targetAliasTooltip) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left', interactive: true }"
                                                         >
                                                             {{ $targetDisplay['displayTruncated'] }}
                                                         </span>
@@ -297,7 +297,7 @@
                                                         x-show="!showAliases"
                                                         x-cloak
                                                         class="text-blue-600 dark:text-blue-400 cursor-help underline decoration-dotted underline-offset-2"
-                                                        x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($condition['TargetTooltip']) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left' }"
+                                                        x-tooltip="{ content: @js('<span style=\'' . $tooltipStyle . '\'>' . e($condition['TargetTooltip']) . '</span>'), theme: $store.theme, allowHTML: true, placement: 'left', interactive: true }"
                                                     >
                                                         {{ $condition['TargetAddress'] }}
                                                     </span>

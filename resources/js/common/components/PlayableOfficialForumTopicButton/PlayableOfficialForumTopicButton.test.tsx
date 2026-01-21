@@ -50,4 +50,40 @@ describe('Component: OfficialForumTopicButton', () => {
     expect(link).toBeVisible();
     expect(link).toHaveAttribute('href', expect.stringContaining('forum-topic.show'));
   });
+
+  it('given viewing a subset where both game entities have forum topics, shows both links', () => {
+    // ARRANGE
+    const baseGame = createGame({ id: 1, forumTopicId: 456 });
+    const subsetGame = createGame({ id: 2, forumTopicId: 789 });
+
+    render(<PlayableOfficialForumTopicButton game={baseGame} backingGame={subsetGame} />);
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /game forum topic/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: /subset forum topic/i })).toBeVisible();
+  });
+
+  it('given viewing a subset where only the "subset game" has a forum topic, shows only the subset forum topic link', () => {
+    // ARRANGE
+    const baseGame = createGame({ id: 1, forumTopicId: undefined });
+    const subsetGame = createGame({ id: 2, forumTopicId: 789 });
+
+    render(<PlayableOfficialForumTopicButton game={baseGame} backingGame={subsetGame} />);
+
+    // ASSERT
+    expect(screen.queryByRole('link', { name: /game forum topic/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /subset forum topic/i })).toBeVisible();
+  });
+
+  it('given viewing a subset where only the base game has a forum topic, shows only the game forum topic link', () => {
+    // ARRANGE
+    const baseGame = createGame({ id: 1, forumTopicId: 456 });
+    const subsetGame = createGame({ id: 2, forumTopicId: undefined });
+
+    render(<PlayableOfficialForumTopicButton game={baseGame} backingGame={subsetGame} />);
+
+    // ASSERT
+    expect(screen.getByRole('link', { name: /game forum topic/i })).toBeVisible();
+    expect(screen.queryByRole('link', { name: /subset forum topic/i })).not.toBeInTheDocument();
+  });
 });

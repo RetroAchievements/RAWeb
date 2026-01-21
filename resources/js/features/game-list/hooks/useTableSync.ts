@@ -1,4 +1,3 @@
-import { router } from '@inertiajs/react';
 import type {
   ColumnFiltersState,
   ColumnSort,
@@ -75,11 +74,7 @@ export function useTableSync({
       ? `${window.location.pathname}?${searchParams.toString()}`
       : window.location.pathname;
 
-    router.replace({
-      url: newUrl,
-      preserveScroll: true,
-      preserveState: true,
-    });
+    window.history.pushState({ inertia: true }, '', newUrl);
   }, [pagination, sorting, columnFilters]);
 }
 

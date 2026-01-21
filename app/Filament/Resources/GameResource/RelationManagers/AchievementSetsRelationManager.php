@@ -312,6 +312,28 @@ class AchievementSetsRelationManager extends RelationManager
                         ];
                     })
                     ->action(function (AchievementSet $record, array $data): void {
+                        $newType = AchievementSetType::tryFrom($data['type']);
+                        $isChangingToSpecialty = in_array($newType, [
+                            AchievementSetType::Specialty,
+                            AchievementSetType::WillBeSpecialty,
+                        ], true);
+
+                        // Specialty sets can only be linked to one parent game.
+                        if ($isChangingToSpecialty) {
+                            /** @var Game $currentGame */
+                            $currentGame = $this->getOwnerRecord();
+
+                            if (!$record->canBeLinkedAsSpecialtyTo($currentGame)) {
+                                Notification::make()
+                                    ->danger()
+                                    ->title('Cannot change to Specialty')
+                                    ->body('This set is linked to other parent games. Specialty sets can only be linked to one parent.')
+                                    ->send();
+
+                                return;
+                            }
+                        }
+
                         $record->games()->updateExistingPivot(
                             $this->getOwnerRecord()->id,
                             [
