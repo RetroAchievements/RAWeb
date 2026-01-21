@@ -30,6 +30,7 @@ class UpdatePlayerGameMetricsAction
             return;
         }
 
+        // get total time spent playing the game (and its subsets)
         $activityService = new PlayerGameActivityService();
         $activityService->initialize($playerGame->user, $playerGame->game, withSubsets: true);
 
