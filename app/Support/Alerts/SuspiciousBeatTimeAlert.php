@@ -19,7 +19,7 @@ class SuspiciousBeatTimeAlert extends Alert
     }
 
     /**
-     * "[Scott](<https://retroachievements.org/user/Scott>) beat [Sonic the Hedgehog](<https://retroachievements.org/game/1>) in 2m 5s (3.3% of 1h median)"
+     * "[Scott](<https://retroachievements.org/user/Scott>) beat [Sonic the Hedgehog](<https://retroachievements.org/game/1>) in 2m 5s (3.3% of 1h median) - [Activity](<https://retroachievements.org/user/Scott/game/1/activity>)"
      */
     public function toDiscordMessage(): string
     {
@@ -29,9 +29,10 @@ class SuspiciousBeatTimeAlert extends Alert
 
         $playerUrl = route('user.show', ['user' => $this->user]);
         $gameUrl = route('game.show', ['game' => $this->game]);
+        $activityUrl = route('user.game.activity.show', ['user' => $this->user, 'game' => $this->game]);
 
         return sprintf(
-            '[%s](<%s>) beat [%s](<%s>) in %s (%.1f%% of %s median)',
+            '[%s](<%s>) beat [%s](<%s>) in %s (%.1f%% of %s median) - [Activity](<%s>)',
             $this->user->display_name,
             $playerUrl,
             $this->game->title,
@@ -39,6 +40,7 @@ class SuspiciousBeatTimeAlert extends Alert
             $playerTime,
             $percentageOfMedian,
             $medianTime,
+            $activityUrl,
         );
     }
 }

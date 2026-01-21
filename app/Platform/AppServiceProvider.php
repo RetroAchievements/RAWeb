@@ -138,7 +138,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
 
             if (app()->environment() === 'production') {
-                $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
+                $schedule->command(UpdateAwardsStaticData::class)->everyFourHours();
                 $schedule->command(CrawlPlayerWeightedPoints::class)->everyFiveMinutes();
                 $schedule->command(UpdateBeatenGamesLeaderboard::class)->everyFiveMinutes();
                 $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
