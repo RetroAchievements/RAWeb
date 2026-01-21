@@ -18,20 +18,30 @@ class AssociateAchievementSetToGameAction
 {
     public function execute(Game $targetGame, Game $sourceGame, AchievementSetType $type, string $title): void
     {
-        $legacySubsetAchievementSet = $sourceGame->achievementSets()
+        $achievementSet = $sourceGame->achievementSets()
             ->wherePivot('type', AchievementSetType::Core->value)
             ->first();
 
-        if ($this->achievementSetAlreadyExists($targetGame, $legacySubsetAchievementSet)) {
+        if ($this->achievementSetAlreadyExists($targetGame, $achievementSet)) {
             throw new InvalidArgumentException("Achievement set is already associated with the game.");
         }
 
-        $this->associateAchievementSet(
-            $targetGame,
-            $legacySubsetAchievementSet,
-            $type,
-            $title
-        );
+        // Specialty sets can only be linked to one parent game.
+        if ($this->isSpecialtyType($type) && !$achievementSet->canBeLinkedAsSpecialtyTo($targetGame)) {
+            throw new InvalidArgumentException(
+                "Specialty sets cannot be linked to multiple parent games. This set is already linked to another game."
+            );
+        }
+
+        // If the set is already linked as specialty somewhere, it can't be linked elsewhere
+        // (even as bonus), because specialty requires unique hashes.
+        if ($achievementSet->isLinkedAsSpecialtyElsewhere($targetGame)) {
+            throw new InvalidArgumentException(
+                "This set is already linked as a Specialty set to another game and cannot be linked elsewhere."
+            );
+        }
+
+        $this->associateAchievementSet($targetGame, $achievementSet, $type, $title);
     }
 
     private function achievementSetAlreadyExists(Game $game, AchievementSet $achievementSet): bool
@@ -52,5 +62,10 @@ class AssociateAchievementSetToGameAction
             'order_column' => ($game->achievementSets()->max('order_column') ?? 0) + 1,
             'title' => $title,
         ]);
+    }
+
+    private function isSpecialtyType(AchievementSetType $type): bool
+    {
+        return in_array($type, [AchievementSetType::Specialty, AchievementSetType::WillBeSpecialty], true);
     }
 }
