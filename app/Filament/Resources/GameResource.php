@@ -95,7 +95,8 @@ class GameResource extends Resource
                 Infolists\Components\SpatieMediaLibraryImageEntry::make('banner')
                     ->label('Banner Image')
                     ->collection('banner')
-                    ->conversion('lg-webp'),
+                    ->conversion('lg-webp')
+                    ->filterMediaUsing(fn ($media) => $media->where('custom_properties.is_current', true)),
 
                 Schemas\Components\Section::make('Primary Details')
                     ->icon('heroicon-m-key')
@@ -348,6 +349,8 @@ class GameResource extends Resource
                             ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
                             ->maxSize(5120)
                             ->maxFiles(1)
+                            ->customProperties(['is_current' => true])
+                            ->filterMediaUsing(fn ($media) => $media->where('custom_properties.is_current', true))
                             ->helperText('Upload a high-quality 32:9 ultra-wide banner image (minimum: 1920x540, recommended: 3200x900). The image must be approximately 32:9 aspect ratio (±15% tolerance). The image will be processed to multiple sizes for mobile and desktop.')
                             ->previewable(true)
                             ->downloadable(false)
