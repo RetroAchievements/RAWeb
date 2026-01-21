@@ -144,7 +144,7 @@ class UpdateGameActivitySnapshots extends Command
               )
             HAVING trend >= 1.5
             ORDER BY score DESC
-            LIMIT 6
+            LIMIT 4
         SQL;
 
         $results = DB::select($sql);
@@ -177,7 +177,7 @@ class UpdateGameActivitySnapshots extends Command
 
         arsort($gameCounts);
 
-        $topGames = array_slice($gameCounts, 0, 6, true);
+        $topGames = array_slice($gameCounts, 0, 4, true);
 
         foreach ($topGames as $gameId => $playerCount) {
             GameActivitySnapshot::create([
