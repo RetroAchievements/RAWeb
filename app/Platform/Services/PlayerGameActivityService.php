@@ -85,7 +85,7 @@ class PlayerGameActivityService
             $coreGameAchievementSetIds[$parentGameId] = GameAchievementSet::query()
                 ->where('game_id', $parentGameId)
                 ->where('type', AchievementSetType::Core)
-                ->value('id');
+                ->value('achievement_set_id');
         }
 
         // Get the most recent reset for this user and game(s).
