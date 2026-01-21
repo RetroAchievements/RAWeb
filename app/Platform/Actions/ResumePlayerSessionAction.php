@@ -226,13 +226,13 @@ class ResumePlayerSessionAction
         if ($gameHash) {
             $resolvedSets = (new ResolveAchievementSetsAction())->execute($gameHash, $playerGame->user);
             foreach ($resolvedSets as $resolvedSet) {
-                $activeAchievementSets[] = $resolvedSet->id;
+                $activeAchievementSets[] = $resolvedSet->achievement_set_id;
             }
         }
         if (empty($resolvedSets)) {
             $coreSet = $playerGame->game->gameAchievementSets->where('type', AchievementSetType::Core)->first();
             if ($coreSet) {
-                $activeAchievementSets[] = $coreSet->id;
+                $activeAchievementSets[] = $coreSet->achievement_set_id;
             }
         }
 

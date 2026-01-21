@@ -34,6 +34,7 @@ use App\Platform\Commands\ProcessExpiringClaims;
 use App\Platform\Commands\PruneDuplicateSubsetNotes;
 use App\Platform\Commands\PruneGameRecentPlayers;
 use App\Platform\Commands\RebuildAllSearchIndexes;
+use App\Platform\Commands\RecalculateAffectedPlayerAchievementSetMetrics;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\RevertManualUnlocks;
 use App\Platform\Commands\SyncEvents;
@@ -103,6 +104,7 @@ class AppServiceProvider extends ServiceProvider
 
                 // Player Stats
                 DeleteStalePlayerPointsStatsEntries::class,
+                RecalculateAffectedPlayerAchievementSetMetrics::class,
                 UpdateBeatenGamesLeaderboard::class,
                 UpdatePlayerBeatenGamesStats::class,
                 UpdatePlayerPointsStats::class,
