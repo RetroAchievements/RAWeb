@@ -48,12 +48,13 @@ class CalculateAchievementWeightedPointsAction
     public const STABLE_PLAYER_RATIO = 0.01;
 
     /**
-     * The ultra-rare dampener activates when rarity exceeds this fraction of total players.
-     * At 0.2% (~1 in 500 unlock rate), the achievement is considered "ultra-rare" and the
-     * dampener prevents the rarity multiplier from growing linearly.
+     * The ultra-rare dampener activates when the rarity ratio (gamePlayers/unlocks) exceeds
+     * this fraction of total ranked players. With ~125,000 ranked players and a ratio of 0.002,
+     * the dampener kicks in at a rarity ratio of ~250. This prevents runaway inflation for
+     * achievements with only a handful of unlocks in popular games.
      *
      * Note: Earlier proposals suggested 5% or 1%, but testing showed 1% was effectively a no-op
-     * since very few achievements had unlock rates below 1 in 1,000.
+     * since very few achievements reached such extreme rarity ratios.
      */
     public const MAX_RARITY_RATIO = 0.002;
 
@@ -84,7 +85,7 @@ class CalculateAchievementWeightedPointsAction
         $playerCountAdjustment = max(1.0, 1.0 / log10(1 + ($gamePlayers / ($stablePlayerCount / 9))));
 
         // RARITY ADJUSTMENT
-        // Base rarity is simply the ratio of total players to achievement unlockers.
+        // Base rarity is simply the ratio of game players to achievement unlockers.
         // Higher ratio = rarer achievement = higher multiplier.
         $rarityAdjustment = $gamePlayers / $unlocks;
 
