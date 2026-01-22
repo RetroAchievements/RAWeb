@@ -7,7 +7,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Schemas;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Carbon;
-use Livewire\Volt\Component;
+use Livewire\Component;
 
 new class extends Component implements HasForms {
     use InteractsWithForms;
