@@ -10,7 +10,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Schemas\Schema;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Volt\Component;
+use Livewire\Component;
 
 new class extends Component implements HasForms {
     use InteractsWithForms;
