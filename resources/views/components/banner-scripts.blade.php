@@ -6,7 +6,11 @@
     let isScrollWatcherTicking = false;
 
     function getDesktopNav() {
-        return document.querySelector('nav.z-20');
+        return document.querySelector('nav.z-30');
+    }
+
+    function getMobileAndDesktopNavs() {
+        return document.querySelectorAll('nav.z-30, nav.z-20');
     }
 
     function updateNavbarOnScroll() {
@@ -19,15 +23,14 @@
     }
 
     function setBannerState(hasBanner) {
-        const desktopNav = getDesktopNav();
-        if (!desktopNav) {
-            return;
-        }
+        const navs = getMobileAndDesktopNavs();
 
-        desktopNav.classList.toggle('has-banner', hasBanner);
-        if (!hasBanner) {
-            desktopNav.classList.remove('scrolled-past-banner');
-        }
+        navs.forEach(function(nav) {
+            nav.classList.toggle('has-banner', hasBanner);
+            if (!hasBanner) {
+                nav.classList.remove('scrolled-past-banner');
+            }
+        });
     }
 
     @if(!empty($page['props']['banner']['desktopMdWebp']))

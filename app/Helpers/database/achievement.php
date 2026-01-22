@@ -443,14 +443,6 @@ function UploadNewAchievement(
                     versioned: $achievement->is_promoted,
                     user: $author
                 );
-            } elseif ($changingPromotedStatus && $achievement->trigger && $achievement->is_promoted) {
-                // If only published status changed, re-version the existing trigger (if it exists).
-                (new UpsertTriggerVersionAction())->execute(
-                    $achievement,
-                    $achievement->trigger->conditions,
-                    versioned: true,
-                    user: $author
-                );
             }
 
             if ($changingPromotedStatus) {

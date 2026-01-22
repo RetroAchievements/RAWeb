@@ -42,6 +42,7 @@ class SuspiciousBeatTimeAlertTest extends TestCase
         $this->assertStringContainsString('1h', $message);
         $this->assertStringContainsString(route('user.show', ['user' => $user]), $message);
         $this->assertStringContainsString(route('game.show', ['game' => $game]), $message);
+        $this->assertStringContainsString(route('user.game.activity.show', ['user' => $user, 'game' => $game]), $message);
     }
 
     public function testSendDispatchesJobWhenWebhookUrlExists(): void

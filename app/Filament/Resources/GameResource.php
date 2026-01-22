@@ -95,7 +95,8 @@ class GameResource extends Resource
                 Infolists\Components\SpatieMediaLibraryImageEntry::make('banner')
                     ->label('Banner Image')
                     ->collection('banner')
-                    ->conversion('lg-webp'),
+                    ->conversion('lg-webp')
+                    ->filterMediaUsing(fn ($media) => $media->where('custom_properties.is_current', true)),
 
                 Schemas\Components\Section::make('Primary Details')
                     ->icon('heroicon-m-key')
@@ -348,6 +349,8 @@ class GameResource extends Resource
                             ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
                             ->maxSize(5120)
                             ->maxFiles(1)
+                            ->customProperties(['is_current' => true])
+                            ->filterMediaUsing(fn ($media) => $media->where('custom_properties.is_current', true))
                             ->helperText('Upload a high-quality 32:9 ultra-wide banner image (minimum: 1920x540, recommended: 3200x900). The image must be approximately 32:9 aspect ratio (±15% tolerance). The image will be processed to multiple sizes for mobile and desktop.')
                             ->previewable(true)
                             ->downloadable(false)
@@ -495,12 +498,16 @@ class GameResource extends Resource
                     ->placeholder('Select a value')
                     ->options([
                         'none' => 'Has all media',
+                        'none_excluding_banner' => 'Has all media (excluding banner)',
+                        'has_banner' => 'Has banner',
                         'all' => 'Missing all media',
+                        'all_excluding_banner' => 'Missing all media (excluding banner)',
                         'any' => 'Missing any media',
                         'badge' => 'Missing badge icon',
                         'boxart' => 'Missing box art',
                         'title' => 'Missing title image',
                         'ingame' => 'Missing in-game image',
+                        'banner' => 'Missing banner',
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (empty($data['value'])) {
@@ -518,8 +525,32 @@ class GameResource extends Resource
                                     ->whereNotNull('image_ingame_asset_path')
                                     ->where('image_ingame_asset_path', '!=', '/Images/000002.png')
                                     ->whereNotNull('image_box_art_asset_path')
+                                    ->where('image_box_art_asset_path', '!=', '/Images/000002.png')
+                                    ->whereHas('media', fn (Builder $q) => $q->where('collection_name', 'banner'));
+                            case 'none_excluding_banner':
+                                return $query->whereNotNull('image_icon_asset_path')
+                                    ->where('image_icon_asset_path', '!=', '/Images/000001.png')
+                                    ->whereNotNull('image_title_asset_path')
+                                    ->where('image_title_asset_path', '!=', '/Images/000002.png')
+                                    ->whereNotNull('image_ingame_asset_path')
+                                    ->where('image_ingame_asset_path', '!=', '/Images/000002.png')
+                                    ->whereNotNull('image_box_art_asset_path')
                                     ->where('image_box_art_asset_path', '!=', '/Images/000002.png');
                             case 'all':
+                                return $query->where(function ($query) {
+                                    $query->whereNull('image_icon_asset_path')
+                                        ->orWhere('image_icon_asset_path', '/Images/000001.png');
+                                })->where(function ($query) {
+                                    $query->whereNull('image_title_asset_path')
+                                        ->orWhere('image_title_asset_path', '/Images/000002.png');
+                                })->where(function ($query) {
+                                    $query->whereNull('image_ingame_asset_path')
+                                        ->orWhere('image_ingame_asset_path', '/Images/000002.png');
+                                })->where(function ($query) {
+                                    $query->whereNull('image_box_art_asset_path')
+                                        ->orWhere('image_box_art_asset_path', '/Images/000002.png');
+                                })->whereDoesntHave('media', fn (Builder $q) => $q->where('collection_name', 'banner'));
+                            case 'all_excluding_banner':
                                 return $query->where(function ($query) {
                                     $query->whereNull('image_icon_asset_path')
                                         ->orWhere('image_icon_asset_path', '/Images/000001.png');
@@ -542,7 +573,8 @@ class GameResource extends Resource
                                         ->orWhereNull('image_ingame_asset_path')
                                         ->orWhere('image_ingame_asset_path', '/Images/000002.png')
                                         ->orWhereNull('image_box_art_asset_path')
-                                        ->orWhere('image_box_art_asset_path', '/Images/000002.png');
+                                        ->orWhere('image_box_art_asset_path', '/Images/000002.png')
+                                        ->orWhereDoesntHave('media', fn (Builder $q) => $q->where('collection_name', 'banner'));
                                 });
                             case 'badge':
                                 return $query->where(function ($query) {
@@ -564,6 +596,10 @@ class GameResource extends Resource
                                     $query->whereNull('image_ingame_asset_path')
                                         ->orWhere('image_ingame_asset_path', '/Images/000002.png');
                                 });
+                            case 'banner':
+                                return $query->whereDoesntHave('media', fn (Builder $q) => $q->where('collection_name', 'banner'));
+                            case 'has_banner':
+                                return $query->whereHas('media', fn (Builder $q) => $q->where('collection_name', 'banner'));
                             default:
                                 return $query;
                         }

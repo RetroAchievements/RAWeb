@@ -76,9 +76,19 @@ class ResolveAchievementSetsAction
             ];
         }
 
-        $bonusLink = $links->firstWhere('type', AchievementSetType::Bonus);
-        if ($bonusLink !== null) {
-            // Bonus set: load core and bonus sets from the linked game.
+        $bonusLinks = $links->where('type', AchievementSetType::Bonus);
+        if ($bonusLinks->isNotEmpty()) {
+            // If the bonus set is linked to multiple games, only load the bonus set itself.
+            // We can't determine which parent's core set to use, so we don't include one.
+            // This happens for situations like Pokemon Red & Blue, where a single bonus
+            // set is linked to both games.
+            if ($bonusLinks->count() > 1) {
+                return [$defaultGameId, [AchievementSetType::Core], null];
+            }
+
+            // One parent game - load core and bonus sets from the linked game.
+            $bonusLink = $bonusLinks->first();
+
             return [$bonusLink->game_id, [AchievementSetType::Core, AchievementSetType::Bonus], null];
         }
 
@@ -188,13 +198,16 @@ class ResolveAchievementSetsAction
     private function sortSets(Collection $sets): Collection
     {
         return $sets->sortBy(function (GameAchievementSet $set) {
-            return match ($set->type) {
+            $typePriority = match ($set->type) {
                 AchievementSetType::Exclusive => 0,
                 AchievementSetType::Core => 1,
                 AchievementSetType::Specialty => 2,
                 AchievementSetType::Bonus => 3,
                 default => 4,
             };
+
+            // Sort primarily by type priority, then by order_column.
+            return ($typePriority * 100) + ($set->order_column ?? 0);
         });
     }
 

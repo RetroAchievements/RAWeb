@@ -135,6 +135,7 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     protected function getIsImageField(string $fieldName): bool
     {
         return in_array($fieldName, [
+            'banner',
             'image_name',
             'image_asset_path',
 
@@ -155,6 +156,10 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     protected function getImageUrl(string $fieldName, string $path): string
     {
         switch ($fieldName) {
+            case 'banner':
+                // Banners store the full URL directly, not a relative path.
+                return $path;
+
             case 'image_name':
                 return media_asset("/Badge/{$path}.png");
 

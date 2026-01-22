@@ -4,6 +4,9 @@ namespace App\Filament;
 
 use App\Filament\GlobalSearch\RelevanceBasedGlobalSearchProvider;
 use App\Filament\Widgets\SiteInfoWidget;
+use App\Models\AchievementSetClaim;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 
 class FilamentServiceProvider extends \Filament\PanelProvider
@@ -81,6 +84,35 @@ class FilamentServiceProvider extends \Filament\PanelProvider
             ])
             ->authMiddleware([
                 \Filament\Http\Middleware\Authenticate::class,
+            ])
+            ->userMenuItems([
+                \Filament\Actions\Action::make('view-on-site')
+                    ->label('Profile')
+                    ->icon('heroicon-m-arrow-top-right-on-square')
+                    ->url(function () {
+                        /** @var User $user */
+                        $user = Auth::user();
+
+                        return $user->canonicalUrl;
+                    })
+                    ->sort(1),
+
+                \Filament\Actions\Action::make('my-claims')
+                    ->label('Active Claims')
+                    ->icon('heroicon-m-flag')
+                    ->url(fn (): string => Resources\AchievementSetClaimResource::getUrl('index', [
+                        'filters' => [
+                            'my_claims' => ['isActive' => true],
+                            'status' => ['values' => ['active', 'in_review']],
+                        ],
+                    ]))
+                    ->visible(function () {
+                        /** @var User $user */
+                        $user = Auth::user();
+
+                        return $user->can('manage', AchievementSetClaim::class);
+                    })
+                    ->sort(2),
             ]);
     }
 }

@@ -28,11 +28,13 @@ use App\Platform\Commands\BackfillAuthorYieldUnlocks;
 use App\Platform\Commands\CrawlPlayerWeightedPoints;
 use App\Platform\Commands\CreateAchievementOfTheWeek;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
+use App\Platform\Commands\FixUnversionedPromotedTriggers;
 use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ProcessExpiringClaims;
 use App\Platform\Commands\PruneDuplicateSubsetNotes;
 use App\Platform\Commands\PruneGameRecentPlayers;
 use App\Platform\Commands\RebuildAllSearchIndexes;
+use App\Platform\Commands\RecalculateAffectedPlayerAchievementSetMetrics;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\RevertManualUnlocks;
 use App\Platform\Commands\SyncEvents;
@@ -70,6 +72,9 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                // Achievements
+                FixUnversionedPromotedTriggers::class,
+
                 // Games
                 PruneDuplicateSubsetNotes::class,
                 PruneGameRecentPlayers::class,
@@ -99,6 +104,7 @@ class AppServiceProvider extends ServiceProvider
 
                 // Player Stats
                 DeleteStalePlayerPointsStatsEntries::class,
+                RecalculateAffectedPlayerAchievementSetMetrics::class,
                 UpdateBeatenGamesLeaderboard::class,
                 UpdatePlayerBeatenGamesStats::class,
                 UpdatePlayerPointsStats::class,
@@ -134,7 +140,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
 
             if (app()->environment() === 'production') {
-                $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
+                $schedule->command(UpdateAwardsStaticData::class)->everyFourHours();
                 $schedule->command(CrawlPlayerWeightedPoints::class)->everyFiveMinutes();
                 $schedule->command(UpdateBeatenGamesLeaderboard::class)->everyFiveMinutes();
                 $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();

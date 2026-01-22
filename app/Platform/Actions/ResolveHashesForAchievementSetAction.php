@@ -50,6 +50,12 @@ class ResolveHashesForAchievementSetAction
                 ->get();
 
             foreach ($bonusAndSpecialtySets as $gas) {
+                // Skip sets linked to multiple parent games. We can't determine
+                // which backing hashes belong to this parent vs other parents.
+                if ($this->isLinkedToMultipleParents($gas)) {
+                    continue;
+                }
+
                 $backingHashes = $this->getBackingGameHashesForSet($gas);
                 $allHashes = $allHashes->merge($backingHashes);
             }
@@ -140,5 +146,19 @@ class ResolveHashesForAchievementSetAction
 
             return strcasecmp($a->md5, $b->md5);
         })->values();
+    }
+
+    /**
+     * Checks if the given set is linked to multiple parent games.
+     * For example, Pokemon Red & Blue are two distinct games that
+     * share the same bonus subset.
+     */
+    private function isLinkedToMultipleParents(GameAchievementSet $set): bool
+    {
+        $nonCoreLinksCount = GameAchievementSet::where('achievement_set_id', $set->achievement_set_id)
+            ->where('type', '!=', AchievementSetType::Core)
+            ->count();
+
+        return $nonCoreLinksCount > 1;
     }
 }
