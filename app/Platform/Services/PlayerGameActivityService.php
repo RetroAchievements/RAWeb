@@ -25,7 +25,6 @@ class PlayerGameActivityService
     public array $sessions = [];
     public int $achievementsUnlocked = 0;
     private int $sessionAdjustment = 0;
-    private ?Carbon $lastResetCreatedAt = null;
 
     /** @var Collection<int, PlayerGame> */
     private Collection $playerGames;
@@ -86,28 +85,6 @@ class PlayerGameActivityService
                 ->where('game_id', $parentGameId)
                 ->where('type', AchievementSetType::Core)
                 ->value('achievement_set_id');
-        }
-
-        // Get the most recent reset for this user and game(s).
-        // If the player has a recent reset for any of the games, we only
-        // want to include sessions from after the most recent reset.
-        // When `$withSubsets` is true, we need to check all gameIds.
-        if ($withSubsets && count($gameIds) > 1) {
-            // If we're dealing with subsets, check for resets on any of the games.
-            $lastResetRecord = PlayerProgressReset::where('user_id', $user->id)
-                ->where(function ($q) use ($gameIds) {
-                    $q->where(function ($subQuery) use ($gameIds) {
-                        $subQuery->where('type', PlayerProgressResetType::Game)
-                            ->whereIn('type_id', $gameIds);
-                    })
-                    ->orWhere('type', PlayerProgressResetType::Account);
-                })
-                ->orderByDesc('created_at')
-                ->first();
-            $this->lastResetCreatedAt = $lastResetRecord?->created_at;
-        } else {
-            $lastResetRecord = PlayerProgressReset::forUserAndGame($user, $game)->first();
-            $this->lastResetCreatedAt = $lastResetRecord?->created_at;
         }
 
         $playerSessionsQuery = $user->playerSessions()
@@ -537,13 +514,26 @@ class PlayerGameActivityService
         $achievementsPublishedAt = $achievementSet->achievements_first_published_at;
 
         if ($achievementsPublishedAt) {
+            $playerGame = $this->playerGames->where('achievement_set_id', $achievementSet->id)->first();
+
             // Use the reset date as the start time if it's more recent than achievements published date.
             $startTime = $achievementsPublishedAt;
-            if ($this->lastResetCreatedAt && $this->lastResetCreatedAt->gt($achievementsPublishedAt)) {
-                $startTime = $this->lastResetCreatedAt;
-            }
+            if ($playerGame) {
+                $gameReset = PlayerProgressReset::where('user_id', $playerGame->user_id)
+                    ->where(function ($query) use ($playerGame) {
+                        $query->where('type', PlayerProgressResetType::Account)
+                            ->orWhere(fn ($q) => $q
+                                ->where('type', PlayerProgressResetType::Game)
+                                ->where('type_id', $playerGame->game_id)
+                            );
+                    })
+                    ->orderByDesc('created_at')
+                    ->first();
 
-            $playerGame = $this->playerGames->where('achievement_set_id', $achievementSet->id)->first();
+                if ($gameReset?->created_at?->gt($startTime)) {
+                    $startTime = $gameReset->created_at;
+                }
+            }
 
             // if the playerGame record was created after achievements were published, use that as the start time.
             if ($playerGame && $playerGame->created_at > $startTime) {
