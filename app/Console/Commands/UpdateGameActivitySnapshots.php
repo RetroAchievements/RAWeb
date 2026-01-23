@@ -56,15 +56,17 @@ class UpdateGameActivitySnapshots extends Command
      * is genuinely trending. A game with 500 active players when it always has 500 is just popular.
      *
      * Core Formula:
-     *   trend = (new_players_48h + k) * 7 / (new_players_baseline_14d + k)
-     *   score = trend * sqrt(new_players_48h) * evergreen_penalty
+     *   trend = (new_players_48h * 7 + k) / (new_players_baseline_14d + k)
+     *   score = min(trend, 6) * sqrt(new_players_48h) * evergreen_penalty
      *
      * Parameters:
-     * - k=10 Bayesian smoothing: Prevents small-sample noise by adding a prior to both numerator
-     *   and denominator. For small samples (baseline=2, recent=6), the ratio shifts from 21x to
-     *   9x. For large samples (baseline=174, recent=407), k barely matters: 16.4x becomes 15.9x.
+     * - k=100 Bayesian smoothing: Uses symmetric smoothing where the prior is added after
+     *   time normalization, ensuring both the numerator and denominator are in consistent units.
+     *   This prevents new sets with near-zero baselines from producing explosive ratios.
+     * - Trend cap at 6.0: Prevents runaway ratios from dominating the score.
      * - Minimum 10 new players in 48h: Filters out statistical noise from tiny games.
-     * - 1.5x trend threshold: Must be 50% above baseline to qualify as "trending."
+     * - Minimum 15 total players: Filters out micro-games where metrics are unreliable/noisy.
+     * - 1.35x trend threshold: Must be 35% above baseline to qualify as "trending."
      * - Evergreen penalty: Games with huge player bases get dampened because spikes are
      *   less noteworthy (>30k: 0.3x, >15k: 0.5x, >5k: 0.75x).
      *
@@ -86,9 +88,9 @@ class UpdateGameActivitySnapshots extends Command
                 g.players_total,
                 metrics.new_recent,
                 metrics.new_baseline,
-                ROUND((metrics.new_recent + 10) * 7.0 / (metrics.new_baseline + 10), 2) as trend,
+                ROUND((metrics.new_recent * 7.0 + 100) / (metrics.new_baseline + 100), 2) as trend,
                 ROUND(
-                    ((metrics.new_recent + 10) * 7.0 / (metrics.new_baseline + 10))
+                    LEAST((metrics.new_recent * 7.0 + 100) / (metrics.new_baseline + 100), 6.0)
                     * SQRT(metrics.new_recent)
                     * CASE
                         WHEN g.players_total > 30000 THEN 0.3
@@ -129,6 +131,7 @@ class UpdateGameActivitySnapshots extends Command
               AND g.title NOT LIKE '%[Subset%'
               AND g.deleted_at IS NULL
               AND g.achievements_published > 0
+              AND g.players_total >= 15
               AND EXISTS (
                   SELECT 1 FROM achievement_set_claims claims
                   WHERE claims.game_id = metrics.game_id
@@ -142,7 +145,7 @@ class UpdateGameActivitySnapshots extends Command
                   WHERE gsg.game_id = metrics.game_id
                     AND gs.has_mature_content = 1
               )
-            HAVING trend >= 1.5
+            HAVING trend >= 1.35
             ORDER BY score DESC
             LIMIT 4
         SQL;
