@@ -7,8 +7,6 @@ namespace Tests\Feature\Connect;
 use App\Models\Game;
 use App\Models\System;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 
 uses(LazilyRefreshDatabase::class);
@@ -62,8 +60,8 @@ function createGames(): array
     ];
 }
 
-describe('get', function() {
-    test('returns data for console 1', function() {
+describe('get', function () {
+    test('returns data for console 1', function () {
         $games = createGames();
 
         $this->get($this->apiUrl('officialgameslist', ['c' => $games[0]->system->id], credentials: false))
@@ -76,7 +74,7 @@ describe('get', function() {
             ]);
     });
 
-    test('returns data for console 2', function() {
+    test('returns data for console 2', function () {
         $games = createGames();
 
         $this->get($this->apiUrl('officialgameslist', ['c' => $games[1]->system->id], credentials: false))
@@ -96,7 +94,7 @@ describe('get', function() {
             });
     });
 
-    test('returns data for console 3', function() {
+    test('returns data for console 3', function () {
         $games = createGames();
 
         $this->get($this->apiUrl('officialgameslist', ['c' => $games[2]->system->id], credentials: false))
@@ -109,7 +107,7 @@ describe('get', function() {
             ]);
     });
 
-    test('returns all data when console not specified', function() {
+    test('returns all data when console not specified', function () {
         $games = createGames();
 
         $this->get($this->apiUrl('officialgameslist', [], credentials: false))
@@ -134,7 +132,7 @@ describe('get', function() {
             });
     });
 
-    test('returns empty array for unknown system', function() {
+    test('returns empty array for unknown system', function () {
         createGames();
 
         $this->get($this->apiUrl('officialgameslist', ['c' => 99], credentials: false))

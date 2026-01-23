@@ -6,7 +6,6 @@ use App\Models\Game;
 use App\Models\User;
 use App\Platform\Actions\TrimGameMetadataAction;
 use App\Platform\Actions\WriteGameSortTitleFromGameTitleAction;
-use Illuminate\Support\Facades\DB;
 
 /**
  * @deprecated use Eloquent

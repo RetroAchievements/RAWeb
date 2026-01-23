@@ -7,8 +7,6 @@ namespace Tests\Feature\Connect;
 use App\Models\Game;
 use App\Models\System;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 
 uses(LazilyRefreshDatabase::class);
@@ -62,8 +60,8 @@ function createGames(): array
     ];
 }
 
-describe('get', function() {
-    test('returns data for console 1', function() {
+describe('get', function () {
+    test('returns data for console 1', function () {
         $games = createGames();
 
         $this->get($this->apiUrl('gameslist', ['c' => $games[0]->system->id], credentials: false))
@@ -86,7 +84,7 @@ describe('get', function() {
             });
     });
 
-    test('returns data for console 2', function() {
+    test('returns data for console 2', function () {
         $games = createGames();
 
         $this->get($this->apiUrl('gameslist', ['c' => $games[1]->system->id], credentials: false))
@@ -108,7 +106,7 @@ describe('get', function() {
             });
     });
 
-    test('returns data for console 3', function() {
+    test('returns data for console 3', function () {
         $games = createGames();
 
         $this->get($this->apiUrl('gameslist', ['c' => $games[2]->system->id], credentials: false))
@@ -129,7 +127,7 @@ describe('get', function() {
             });
     });
 
-    test('returns empty dictionary for console with no games', function() {
+    test('returns empty dictionary for console with no games', function () {
         /** @var System $system1 */
         $system1 = System::factory()->create();
 
@@ -144,7 +142,7 @@ describe('get', function() {
             ->assertSee('"Response":{}', escape: false);
     });
 
-    test('returns data sorted by sort_title', function() {
+    test('returns data sorted by sort_title', function () {
         /** @var System $system1 */
         $system1 = System::factory()->create();
 
@@ -180,8 +178,8 @@ describe('get', function() {
     });
 });
 
-describe('error', function() {
-    test('requires c parameter', function() {
+describe('error', function () {
+    test('requires c parameter', function () {
         $this->get($this->apiUrl('gameslist', [], credentials: false))
             ->assertStatus(422)
             ->assertExactJson([
@@ -192,7 +190,7 @@ describe('error', function() {
             ]);
     });
 
-    test('unknown system', function() {
+    test('unknown system', function () {
         createGames();
 
         $this->get($this->apiUrl('gameslist', ['c' => 99], credentials: false))
@@ -205,7 +203,7 @@ describe('error', function() {
             ]);
     });
 
-    test('system 0', function() {
+    test('system 0', function () {
         createGames();
 
         // at one point, this returned all games in the system, but that list is
