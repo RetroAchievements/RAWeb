@@ -466,15 +466,11 @@ class PlayerGameActivityService
 
     public function getBeatProgressMetrics(AchievementSet $achievementSet, PlayerGame $playerGame): array
     {
-        if (!$achievementSet->achievements_first_published_at) {
-            $achievementSet->achievements_first_published_at = (new ComputeAchievementsSetPublishedAtAction())->execute($achievementSet);
-            $achievementSet->save();
-        }
-        $achievementsPublishedAt = $achievementSet->achievements_first_published_at;
+        $startTime = $this->getAchievementEarningStartTime($achievementSet);
 
         return [
-            'beatPlaytimeSoftcore' => $playerGame->beaten_at ? $this->calculatePlaytime($achievementsPublishedAt, $playerGame->beaten_at, UnlockMode::Softcore) : null,
-            'beatPlaytimeHardcore' => $playerGame->beaten_hardcore_at ? $this->calculatePlaytime($achievementsPublishedAt, $playerGame->beaten_hardcore_at, UnlockMode::Hardcore) : null,
+            'beatPlaytimeSoftcore' => $playerGame->beaten_at ? $this->calculatePlaytime($startTime, $playerGame->beaten_at, UnlockMode::Softcore) : null,
+            'beatPlaytimeHardcore' => $playerGame->beaten_hardcore_at ? $this->calculatePlaytime($startTime, $playerGame->beaten_hardcore_at, UnlockMode::Hardcore) : null,
         ];
     }
 
@@ -491,7 +487,7 @@ class PlayerGameActivityService
             $metrics['achievementPlaytimeSoftcore'] = 0;
             $metrics['achievementPlaytimeHardcore'] = 0;
 
-            // assume entiry playtime has been doing development
+            // assume entire playtime has been development work
             $summary = $this->summarize();
             $metrics['devTime'] = $summary['totalPlaytime'];
 
@@ -507,46 +503,10 @@ class PlayerGameActivityService
                 [PlayerGameActivitySessionType::ManualUnlock]);
         }
 
-        if (!$achievementSet->achievements_first_published_at) {
-            $achievementSet->achievements_first_published_at = (new ComputeAchievementsSetPublishedAtAction())->execute($achievementSet);
-            $achievementSet->save();
-        }
-        $achievementsPublishedAt = $achievementSet->achievements_first_published_at;
+        $startTime = $this->getAchievementEarningStartTime($achievementSet, includeSessionAdjustment: true);
 
-        if ($achievementsPublishedAt) {
+        if ($startTime) {
             $playerGame = $this->playerGames->where('achievement_set_id', $achievementSet->id)->first();
-
-            // Use the reset date as the start time if it's more recent than achievements published date.
-            $startTime = $achievementsPublishedAt;
-            if ($playerGame) {
-                $gameReset = PlayerProgressReset::where('user_id', $playerGame->user_id)
-                    ->where(function ($query) use ($playerGame) {
-                        $query->where('type', PlayerProgressResetType::Account)
-                            ->orWhere(fn ($q) => $q
-                                ->where('type', PlayerProgressResetType::Game)
-                                ->where('type_id', $playerGame->game_id)
-                            );
-                    })
-                    ->orderByDesc('created_at')
-                    ->first();
-
-                if ($gameReset?->created_at?->gt($startTime)) {
-                    $startTime = $gameReset->created_at;
-                }
-            }
-
-            // if the playerGame record was created after achievements were published, use that as the start time.
-            if ($playerGame && $playerGame->created_at > $startTime) {
-                foreach ($this->sessions as $session) {
-                    if ($session['endTime'] > $playerGame->created_at) {
-                        // include the whole session containing the playerGame record - if these differ
-                        // it's typically because a subset playerGame record didn't get created until
-                        // the first achievement was unlocked.
-                        $startTime = min($playerGame->created_at, $session['startTime']);
-                        break;
-                    }
-                }
-            }
 
             // if the user has completed the game, stop tracking at the last achievement earned
             $endTimeSoftcore = ($playerGame && !$playerGame->completed_at) ? null : $metrics['lastUnlockTimeSoftcore'];
@@ -560,7 +520,7 @@ class PlayerGameActivityService
             $metrics['achievementPlaytimeHardcore'] = 0;
         }
 
-        $metrics['devTime'] = $this->calculatePlaytime(null, $achievementsPublishedAt, UnlockMode::Softcore);
+        $metrics['devTime'] = $this->calculatePlaytime(null, $achievementSet->achievements_first_published_at, UnlockMode::Softcore);
 
         return $metrics;
     }
@@ -603,6 +563,62 @@ class PlayerGameActivityService
 
         $metrics['firstUnlockTimeSoftcore'] ??= $metrics['firstUnlockTimeHardcore'];
         $metrics['lastUnlockTimeSoftcore'] ??= $metrics['lastUnlockTimeHardcore'];
+    }
+
+    /**
+     * Determines the effective start time for calculating achievement-related playtime.
+     * Takes into account the achievements published date, any reset dates, and
+     * optionally the PlayerGame creation time.
+     */
+    private function getAchievementEarningStartTime(
+        AchievementSet $achievementSet,
+        bool $includeSessionAdjustment = false,
+    ): ?Carbon {
+        if (!$achievementSet->achievements_first_published_at) {
+            $achievementSet->achievements_first_published_at = (new ComputeAchievementsSetPublishedAtAction())->execute($achievementSet);
+            $achievementSet->save();
+        }
+
+        $achievementsPublishedAt = $achievementSet->achievements_first_published_at;
+        if (!$achievementsPublishedAt) {
+            return null;
+        }
+
+        $startTime = $achievementsPublishedAt;
+        $playerGame = $this->playerGames->where('achievement_set_id', $achievementSet->id)->first();
+
+        if ($playerGame) {
+            // check for account-level or game-specific resets that should override the start time
+            $gameReset = PlayerProgressReset::where('user_id', $playerGame->user_id)
+                ->where(function ($query) use ($playerGame) {
+                    $query->where('type', PlayerProgressResetType::Account)
+                        ->orWhere(fn ($q) => $q
+                            ->where('type', PlayerProgressResetType::Game)
+                            ->where('type_id', $playerGame->game_id)
+                        );
+                })
+                ->orderByDesc('created_at')
+                ->first();
+
+            if ($gameReset?->created_at?->gt($startTime)) {
+                $startTime = $gameReset->created_at;
+            }
+
+            // if the playerGame record was created after achievements were published, use that as the start time.
+            if ($includeSessionAdjustment && $playerGame->created_at > $startTime) {
+                foreach ($this->sessions as $session) {
+                    if ($session['endTime'] > $playerGame->created_at) {
+                        // include the whole session containing the playerGame record - if these differ
+                        // it's typically because a subset playerGame record didn't get created until
+                        // the first achievement was unlocked.
+                        $startTime = min($playerGame->created_at, $session['startTime']);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $startTime;
     }
 
     private function calculatePlaytime(?Carbon $startTime, ?Carbon $endTime, int $unlockMode): ?int
