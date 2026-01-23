@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
 import type { FC } from 'react';
 
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 import { useDiffForHumans } from '@/common/utils/l10n/useDiffForHumans';
 
 interface MessageTimestampProps {
@@ -11,7 +11,7 @@ interface MessageTimestampProps {
 
 export const MessageTimestamp: FC<MessageTimestampProps> = ({ message }) => {
   const { auth } = usePageProps();
-
+  const { formatDate } = useFormatDate();
   const { diffForHumans } = useDiffForHumans();
 
   const { createdAt } = message;

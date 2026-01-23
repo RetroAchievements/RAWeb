@@ -23,7 +23,7 @@ export function useColumnDefinitions(options: {
   canSeeOpenTicketsColumn: boolean;
   forUsername?: string;
 }): ColumnDef<App.Platform.Data.GameListEntry>[] {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const columnDefinitions = useMemo(() => {
     const columns: ColumnDef<App.Platform.Data.GameListEntry>[] = [
@@ -40,8 +40,13 @@ export function useColumnDefinitions(options: {
         t_label: t('Rarity'),
         strings: { t_none: t('none') },
       }),
-      buildLastUpdatedColumnDef({ tableApiRouteName, t_label: t('Last Updated') }),
+      buildLastUpdatedColumnDef({
+        locale: i18n.language,
+        tableApiRouteName,
+        t_label: t('Last Updated'),
+      }),
       buildReleasedAtColumnDef({
+        locale: i18n.language,
         tableApiRouteName,
         t_label: t('Release Date'),
         strings: { t_unknown: t('unknown') },
@@ -72,7 +77,7 @@ export function useColumnDefinitions(options: {
     );
 
     return columns;
-  }, [options.canSeeOpenTicketsColumn, options.forUsername, t]);
+  }, [i18n.language, options.canSeeOpenTicketsColumn, options.forUsername, t]);
 
   return columnDefinitions;
 }
