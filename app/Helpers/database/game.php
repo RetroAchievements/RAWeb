@@ -506,22 +506,6 @@ function getGamesList(?int $consoleID, array &$dataOut, bool $officialFlag = fal
     return count($dataOut);
 }
 
-function getGamesListDataNamesOnly(int $consoleId, bool $officialFlag = false): array
-{
-    return Game::join('systems', 'games.system_id', '=', 'systems.id')
-        ->when($consoleId !== 0, function ($query) use ($consoleId) {
-            return $query->where(DB::raw('games.system_id'), '=', $consoleId);
-        })
-        ->when($officialFlag === true, function ($query) {
-            return $query->where(DB::raw('games.achievements_published'), '>', 0);
-        })
-        ->orderBy('systems.name')
-        ->orderBy(DB::raw('games.title'))
-        ->select(DB::raw('games.title'), DB::raw('games.id'))
-        ->pluck(DB::raw('games.title'), 'games.id') // return mapping of id => title
-        ->toArray();
-}
-
 function getGameIDFromTitle(string $gameTitle, int $consoleID): int
 {
     sanitize_sql_inputs($gameTitle);
