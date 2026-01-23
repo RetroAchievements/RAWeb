@@ -18,6 +18,7 @@ dayjs.extend(localizedFormat);
 export function formatGameReleasedAt(
   releasedAt: App.Platform.Data.Game['releasedAt'],
   releasedAtGranularity: App.Platform.Data.Game['releasedAtGranularity'],
+  locale: string,
 ): string | null {
   if (!releasedAt) {
     return null;
@@ -26,9 +27,9 @@ export function formatGameReleasedAt(
   const dayjsDate = dayjs.utc(releasedAt);
   let formattedDate;
   if (releasedAtGranularity === 'day') {
-    formattedDate = formatDate(dayjsDate, 'll');
+    formattedDate = formatDate(dayjsDate, 'll', locale);
   } else if (releasedAtGranularity === 'month') {
-    formattedDate = formatDate(dayjsDate, 'MMM YYYY');
+    formattedDate = formatDate(dayjsDate, 'MMM YYYY', locale);
   } else {
     formattedDate = dayjsDate.format('YYYY');
   }

@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { PlayerGameProgressBar } from '@/common/components/PlayerGameProgressBar';
-import { formatDate } from '@/common/utils/l10n/formatDate';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 
 import { AwardIndicator } from '../AwardIndicator';
 import { GameAvatar } from '../GameAvatar';
@@ -14,6 +14,7 @@ interface GamesListItemProps {
 
 export const GamesListItem: FC<GamesListItemProps> = ({ game, playerGame }) => {
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
 
   return (
     <div className="flex w-full flex-col gap-x-2 px-2 py-2.5 sm:grid sm:grid-cols-8">

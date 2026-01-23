@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { formatDate } from '@/common/utils/l10n/formatDate';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 
 interface MutedMessageProps {
   /** ISO8601 date */
@@ -10,6 +10,7 @@ interface MutedMessageProps {
 
 export const MutedMessage: FC<MutedMessageProps> = ({ mutedUntil }) => {
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
 
   return (
     <div className="bg-embed p-2 text-center">

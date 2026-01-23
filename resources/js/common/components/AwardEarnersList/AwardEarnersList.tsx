@@ -10,8 +10,8 @@ import {
   BaseTableRow,
 } from '@/common/components/+vendor/BaseTable';
 import { UserAvatar } from '@/common/components/UserAvatar';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { cn } from '@/common/utils/cn';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 interface AwardEarnersProps {
   paginatedUsers: App.Data.PaginatedData<App.Platform.Data.AwardEarner>;
@@ -19,6 +19,7 @@ interface AwardEarnersProps {
 
 export const AwardEarnersList: FC<AwardEarnersProps> = ({ paginatedUsers }) => {
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
 
   if (!paginatedUsers.items.length) {
     return null;

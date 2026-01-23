@@ -9,9 +9,9 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { cn } from '@/common/utils/cn';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 interface MilestonePointsBoxProps {
   totalPoints: number;
@@ -19,6 +19,7 @@ interface MilestonePointsBoxProps {
 
 export const MilestonePointsBox: FC<MilestonePointsBoxProps> = ({ totalPoints }) => {
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
   const { formatNumber } = useFormatNumber();
 
   return (

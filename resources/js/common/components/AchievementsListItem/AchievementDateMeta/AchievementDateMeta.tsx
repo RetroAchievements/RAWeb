@@ -5,9 +5,9 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCircleAlert } from 'react-icons/lu';
 
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import {
   BaseTooltip,
@@ -32,8 +32,8 @@ export const AchievementDateMeta: FC<AchievementDateMetaProps> = ({
   eventAchievement,
 }) => {
   const { event } = usePageProps<App.Platform.Data.EventShowPageProps>();
-
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
 
   const { unlockedAt, unlockedHardcoreAt } = achievement;
 

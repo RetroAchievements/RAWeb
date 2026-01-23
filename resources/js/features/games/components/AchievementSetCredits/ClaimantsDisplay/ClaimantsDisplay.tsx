@@ -9,8 +9,8 @@ import {
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
 import { UserAvatarStack } from '@/common/components/UserAvatarStack';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { cn } from '@/common/utils/cn';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 import { useDiffForHumans } from '@/common/utils/l10n/useDiffForHumans';
 
 import { TooltipCreditRow } from '../TooltipCreditRow';
@@ -93,6 +93,7 @@ interface ClaimsIconProps {
 
 const ClaimsIcon: FC<ClaimsIconProps> = ({ achievementSetClaims }) => {
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
 
   const hasInReviewClaim = achievementSetClaims.some((claim) => claim.status === 'in_review');
 

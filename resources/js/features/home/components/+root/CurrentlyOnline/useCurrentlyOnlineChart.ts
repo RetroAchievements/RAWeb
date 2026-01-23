@@ -2,12 +2,13 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { useMemo } from 'react';
 
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 dayjs.extend(utc);
 
 export function useCurrentlyOnlineChart(currentlyOnline: App.Data.CurrentlyOnline) {
+  const { formatDate } = useFormatDate();
   const { formatNumber } = useFormatNumber();
 
   const chartData = buildChartData(currentlyOnline?.logEntries ?? []);

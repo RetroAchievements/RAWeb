@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { UserAvatar } from '@/common/components/UserAvatar';
-import { formatDate } from '@/common/utils/l10n/formatDate';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import type { TranslationKey } from '@/types/i18next';
 
 interface ForumPostAuthorBoxProps {
@@ -11,6 +11,7 @@ interface ForumPostAuthorBoxProps {
 
 export const ForumPostAuthorBox: FC<ForumPostAuthorBoxProps> = ({ comment }) => {
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
 
   const author = comment?.user as App.Data.User;
 

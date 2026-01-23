@@ -1,8 +1,8 @@
 import { formatDate } from '@/common/utils/l10n/formatDate';
 
 export function buildEventMetaDescription(event: App.Platform.Data.Event): string {
-  const formattedStart = event.activeFrom ? formatDate(event.activeFrom, 'll') : null;
-  const formattedEnd = event.activeThrough ? formatDate(event.activeThrough, 'll') : null;
+  const formattedStart = event.activeFrom ? formatDate(event.activeFrom, 'll', 'en_US') : null;
+  const formattedEnd = event.activeThrough ? formatDate(event.activeThrough, 'll', 'en_US') : null;
   const totalAchievements = event.eventAchievements?.length ?? 0;
 
   // Evergreen events are always ongoing and dates are just historical metadata.

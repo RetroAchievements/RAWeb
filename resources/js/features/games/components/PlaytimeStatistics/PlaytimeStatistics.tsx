@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { LuAward, LuCheck, LuCircleDot } from 'react-icons/lu';
 
 import { BaseToggleGroup, BaseToggleGroupItem } from '@/common/components/+vendor/BaseToggleGroup';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import type { PlayMode } from '@/common/models';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { PlaytimeRow } from './PlaytimeRow';
 
@@ -21,7 +21,9 @@ export const PlaytimeStatistics: FC = () => {
     targetAchievementSetPlayersHardcore,
     targetAchievementSetPlayersTotal,
   } = usePageProps<App.Platform.Data.GameShowPageProps>();
+
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
 
   const [currentMode, setCurrentMode] = useState<PlayMode>('hardcore');
   const [hasUserToggled, setHasUserToggled] = useState(false);

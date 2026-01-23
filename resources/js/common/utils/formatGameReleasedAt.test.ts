@@ -1,7 +1,5 @@
 import 'dayjs/locale/pt-br';
 
-import dayjs from 'dayjs';
-
 import { formatGameReleasedAt } from './formatGameReleasedAt';
 
 describe('Util: formatGameReleasedAt', () => {
@@ -12,7 +10,7 @@ describe('Util: formatGameReleasedAt', () => {
 
   it('given there is no release date, falls back to null', () => {
     // ACT
-    const result = formatGameReleasedAt(null, 'day');
+    const result = formatGameReleasedAt(null, 'day', 'en_US');
 
     // ASSERT
     expect(result).toBeNull();
@@ -23,10 +21,10 @@ describe('Util: formatGameReleasedAt', () => {
     const mockDate = new Date('1987-05-05').toISOString();
 
     // ACT
-    const resultOne = formatGameReleasedAt(mockDate, 'year');
-    const resultTwo = formatGameReleasedAt(mockDate, 'month');
-    const resultThree = formatGameReleasedAt(mockDate, 'day');
-    const resultFour = formatGameReleasedAt(mockDate, null);
+    const resultOne = formatGameReleasedAt(mockDate, 'year', 'en_US');
+    const resultTwo = formatGameReleasedAt(mockDate, 'month', 'en_US');
+    const resultThree = formatGameReleasedAt(mockDate, 'day', 'en_US');
+    const resultFour = formatGameReleasedAt(mockDate, null, 'en_US');
 
     // ASSERT
     expect(resultOne).toEqual('1987');
@@ -37,15 +35,13 @@ describe('Util: formatGameReleasedAt', () => {
 
   it("formats to the user's current locale, respecting the granularity value", () => {
     // ARRANGE
-    dayjs.locale('pt-br');
-
     const mockDate = new Date('1987-05-05').toISOString();
 
     // ACT
-    const resultOne = formatGameReleasedAt(mockDate, 'year');
-    const resultTwo = formatGameReleasedAt(mockDate, 'month');
-    const resultThree = formatGameReleasedAt(mockDate, 'day');
-    const resultFour = formatGameReleasedAt(mockDate, null);
+    const resultOne = formatGameReleasedAt(mockDate, 'year', 'pt_BR');
+    const resultTwo = formatGameReleasedAt(mockDate, 'month', 'pt_BR');
+    const resultThree = formatGameReleasedAt(mockDate, 'day', 'pt_BR');
+    const resultFour = formatGameReleasedAt(mockDate, null, 'pt_BR');
 
     // ASSERT
     expect(resultOne).toEqual('1987');

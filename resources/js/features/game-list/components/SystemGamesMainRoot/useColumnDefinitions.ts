@@ -24,11 +24,8 @@ export function useColumnDefinitions(options: {
   canSeeOpenTicketsColumn: boolean;
   forUsername?: string;
 }): ColumnDef<App.Platform.Data.GameListEntry>[] {
-  const { auth } = usePageProps();
-
-  const { system } = usePageProps<App.Platform.Data.SystemGameListPageProps>();
-
-  const { t } = useTranslation();
+  const { auth, system } = usePageProps<App.Platform.Data.SystemGameListPageProps>();
+  const { t, i18n } = useTranslation();
 
   const columnDefinitions = useMemo(() => {
     const tableApiRouteParams = { systemId: system.id };
@@ -53,11 +50,13 @@ export function useColumnDefinitions(options: {
         strings: { t_none: t('none') },
       }),
       buildLastUpdatedColumnDef({
+        locale: i18n.language,
         tableApiRouteName,
         tableApiRouteParams,
         t_label: t('Last Updated'),
       }),
       buildReleasedAtColumnDef({
+        locale: i18n.language,
         tableApiRouteName,
         tableApiRouteParams,
         t_label: t('Release Date'),
@@ -107,7 +106,14 @@ export function useColumnDefinitions(options: {
     );
 
     return columns;
-  }, [auth?.user, options.canSeeOpenTicketsColumn, options.forUsername, system.id, t]);
+  }, [
+    auth?.user,
+    i18n.language,
+    options.canSeeOpenTicketsColumn,
+    options.forUsername,
+    system.id,
+    t,
+  ]);
 
   return columnDefinitions;
 }

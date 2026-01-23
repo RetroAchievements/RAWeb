@@ -75,5 +75,5 @@ export function formatDate(
     return `${dateFormatter.format(dayjsDate.toDate())}, ${timeStr}`;
   }
 
-  return dayjsDate.format(format);
+  return dayjsDate.locale(dayjsLocale).format(format);
 }

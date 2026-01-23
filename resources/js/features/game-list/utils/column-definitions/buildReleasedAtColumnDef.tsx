@@ -8,6 +8,7 @@ import { DataTableColumnHeader } from '../../components/DataTableColumnHeader';
 import { gameListFieldIconMap } from '../gameListFieldIconMap';
 
 interface BuildReleasedAtColumnDefProps<TEntry> {
+  locale: string;
   t_label: TranslatedString;
   strings: { t_unknown: TranslatedString };
 
@@ -17,6 +18,7 @@ interface BuildReleasedAtColumnDefProps<TEntry> {
 }
 
 export function buildReleasedAtColumnDef<TEntry extends App.Platform.Data.GameListEntry>({
+  locale,
   options,
   strings,
   t_label,
@@ -45,7 +47,7 @@ export function buildReleasedAtColumnDef<TEntry extends App.Platform.Data.GameLi
         return <p className="text-muted italic">{strings.t_unknown}</p>;
       }
 
-      return <p>{formatGameReleasedAt(date, granularity)}</p>;
+      return <p>{formatGameReleasedAt(date, granularity, locale)}</p>;
     },
 
     ...options,

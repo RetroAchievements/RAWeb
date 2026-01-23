@@ -16,10 +16,10 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { useFormatPercentage } from '@/common/hooks/useFormatPercentage';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 import { useFormatDuration } from '@/common/utils/l10n/useFormatDuration';
 import { isResetAllProgressDialogOpenAtom } from '@/features/games/state/games.atoms';
 
@@ -148,6 +148,7 @@ const FloatableContent: FC<FloatableContentProps> = ({ achievements, achievement
   const { playerAchievementSets } = usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
+  const { formatDate } = useFormatDate();
   const { formatDuration } = useFormatDuration();
 
   // The dialog is mounted way higher than the tooltip.

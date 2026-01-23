@@ -3,10 +3,10 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { HomeHeading } from '../../HomeHeading';
 import { MilestonePointsBox } from './MilestonePointsBox';
@@ -16,7 +16,7 @@ export const GlobalStatistics: FC = () => {
   const { staticData } = usePageProps<App.Http.Data.HomePageProps>();
 
   const { t } = useTranslation();
-
+  const { formatDate } = useFormatDate();
   const { formatNumber } = useFormatNumber();
 
   const isBillionPointMilestone =

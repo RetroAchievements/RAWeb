@@ -11,9 +11,9 @@ import {
   BaseChartTooltip,
   BaseChartTooltipContent,
 } from '@/common/components/+vendor/BaseChart';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { HomeHeading } from '../../HomeHeading';
 import { useCurrentlyOnlineChart } from './useCurrentlyOnlineChart';
@@ -24,6 +24,7 @@ export const CurrentlyOnline: FC = () => {
   const { currentlyOnline, ziggy } = usePageProps<App.Http.Data.HomePageProps>();
 
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
 
   const { chartData, yAxisTicks, formatTooltipLabel, formatXAxisTick, formatYAxisTick } =
     useCurrentlyOnlineChart(currentlyOnline);
