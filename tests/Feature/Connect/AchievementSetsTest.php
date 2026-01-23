@@ -32,9 +32,16 @@ uses(LazilyRefreshDatabase::class);
 uses(TestsConnect::class);
 uses(TestsEmulatorUserAgent::class);
 
-function getAchievementPatchData(Achievement $achievement, float $rarity = 100.0, float $rarityHardcore = 100.0): array
+function getAchievementPatchData(Achievement $achievement, ?float $rarity = null, ?float $rarityHardcore = null): array
 {
     $achievement->loadMissing('developer');
+
+    if ($rarity === null) {
+        $rarity = $achievement->is_promoted ? 100.0 : 0.0;
+    }
+    if ($rarityHardcore === null) {
+        $rarityHardcore = $achievement->is_promoted ? 100.0 : 0.0;
+    }
 
     return [
         'ID' => $achievement->id,
@@ -1446,6 +1453,50 @@ describe('Rarity', function () {
                             getAchievementPatchData($data['achievements'][1], 100.0, 100.0), // DisplayOrder: 3
                         ],
                         'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+    });
+
+    test('returns 0% rarity for unpromoted achievements', function () {
+        $data = createGameWithUnpublishedAchievements();
+        $game = $data['game'];
+        $achievementSet = $game->achievementSets()->first();
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => $game->title,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            getAchievementPatchData($data['achievements'][0], 100.0, 100.0), // DisplayOrder: 1
+                            getAchievementPatchData($data['achievements'][2], 100.0, 100.0), // DisplayOrder: 2
+                            getAchievementPatchData($data['achievements'][1], 100.0, 100.0), // DisplayOrder: 3
+                            getAchievementPatchData($data['achievements'][6], 100.0, 100.0), // DisplayOrder: 4
+                            getAchievementPatchData($data['achievements'][3], 100.0, 100.0), // DisplayOrder: 5
+                            getAchievementPatchData($data['achievements'][4], 0.0, 0.0), // DisplayOrder: 6 (unpublished)
+                            getAchievementPatchData($data['achievements'][5], 100.0, 100.0), // DisplayOrder: 7
+                            getAchievementPatchData($data['achievements'][7], 0.0, 0.0), // DisplayOrder: 8 (unpublished)
+                            getAchievementPatchData($data['achievements'][8], 100.0, 100.0), // DisplayOrder: 9
+                        ],
+                        'Leaderboards' => [
+                            getLeaderboardPatchData($data['leaderboards'][2]), // DisplayOrder: -1
+                            getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
+                            getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
+                        ],
                     ],
                 ],
             ]);
