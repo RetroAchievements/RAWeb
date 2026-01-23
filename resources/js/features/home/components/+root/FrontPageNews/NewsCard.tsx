@@ -11,9 +11,9 @@ import {
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
 import { DiffTimestamp } from '@/common/components/DiffTimestamp';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { NewsCategoryLabel } from './NewsCategoryLabel';
 
@@ -25,8 +25,8 @@ interface NewsCardProps {
 
 export const NewsCard: FC<NewsCardProps> = ({ news, className }) => {
   const { ziggy } = usePageProps();
-
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
 
   const isRecentPost = dayjs.utc().diff(dayjs.utc(news.createdAt), 'hour') < 24;
 

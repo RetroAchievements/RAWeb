@@ -115,7 +115,11 @@ use \Illuminate\Support\Js;
                                             </div>
                                         @endforeach
                                     @elseif ($oldValue && $this->getIsImageField($field))
-                                        <img src="{{ $oldValue }}" alt="Old Image" class="max-w-full h-auto"/>
+                                        @if (str_starts_with($oldValue, 'http://') || str_starts_with($oldValue, 'https://'))
+                                            <img src="{{ $oldValue }}" alt="Old Image" class="max-w-full h-auto"/>
+                                        @else
+                                            {{ $oldValue }}
+                                        @endif
                                     @elseif (is_array($oldValue))
                                         <pre class="text-xs dark:text-neutral-200">{{ json_encode($oldValue, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
                                     @else
@@ -137,8 +141,12 @@ use \Illuminate\Support\Js;
                                                 {{ collect($newValue)->where('id', $relatedModel->name)->get('attributes') }}
                                             </div>
                                         @endforeach
-                                    @elseif ($this->getIsImageField($field))
-                                        <img src="{{ $newValue }}" alt="New Image" class="max-w-full h-auto"/>
+                                    @elseif ($newValue && $this->getIsImageField($field))
+                                        @if (str_starts_with($newValue, 'http://') || str_starts_with($newValue, 'https://'))
+                                            <img src="{{ $newValue }}" alt="New Image" class="max-w-full h-auto"/>
+                                        @else
+                                            {{ $newValue }}
+                                        @endif
                                     @elseif (is_array($newValue))
                                         <pre class="text-xs dark:text-neutral-200">{{ json_encode($newValue, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
                                     @else
