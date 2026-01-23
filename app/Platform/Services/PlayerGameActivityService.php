@@ -303,6 +303,62 @@ class PlayerGameActivityService
         $this->sortEvents($this->sessions[$existingSessionIndex]['events']);
     }
 
+    private function addResetEvent(Carbon $when, string $description): void
+    {
+        $event = [
+            'type' => PlayerGameActivityEventType::Reset,
+            'header' => '',
+            'description' => $description,
+            'when' => $when,
+        ];
+
+        $existingSessionIndex = $this->findSession(PlayerGameActivitySessionType::Player, $when);
+        if ($existingSessionIndex < 0) {
+            $existingSessionIndex = $this->findSession(PlayerGameActivitySessionType::Reset, $when, true);
+            if ($existingSessionIndex < 0) {
+                $existingSessionIndex = $this->generateSession(PlayerGameActivitySessionType::Reset, $when);
+            }
+        }
+
+        $this->sessions[$existingSessionIndex]['events'][] = $event;
+        $this->sortEvents($this->sessions[$existingSessionIndex]['events']);
+    }
+
+    public function addResetEvents(User $user, Game $game): void
+    {
+        $gameResets = PlayerProgressReset::where('user_id', $user->id)
+            ->where('type', PlayerProgressResetType::Game)
+            ->where('type_id', $game->id)
+            ->get();
+        foreach ($gameResets as $reset) {
+            $this->addResetEvent($reset->created_at, "Reset full game");
+        }
+
+        $achievementIds = $game->achievements()->promoted()->pluck('id');
+        $achievementResets = PlayerProgressReset::where('user_id', $user->id)
+            ->where('type', PlayerProgressResetType::Achievement)
+            ->whereIn('type_id', $achievementIds)
+            ->get();
+        foreach ($achievementResets as $reset) {
+            $achievement = $game->achievements()->where('id', $reset->type_id)->first();
+            $achievementName = $achievement ? ": {$achievement->title}" : "";
+
+            $this->addResetEvent($reset->created_at,
+                "Reset achievement {$reset->type_id}{$achievementName}",
+            );
+        }
+
+        if (!empty($this->sessions)) {
+            $fullResets = PlayerProgressReset::where('user_id', $user->id)
+                ->where('type', PlayerProgressResetType::Account)
+                ->where('created_at', '>', $this->sessions[0]['startTime'])
+                ->get();
+            foreach ($fullResets as $reset) {
+                $this->addResetEvent($reset->created_at, "Reset account");
+            }
+        }
+    }
+
     private function sortEvents(array &$events): void
     {
         usort($events, function ($a, $b) {
@@ -325,7 +381,7 @@ class PlayerGameActivityService
         });
     }
 
-    private function findSession(PlayerGameActivitySessionType $type, Carbon $when): int
+    private function findSession(PlayerGameActivitySessionType $type, Carbon $when, bool $extendSession = false): int
     {
         $index = 0;
         foreach ($this->sessions as &$session) {
@@ -336,6 +392,19 @@ class PlayerGameActivityService
             }
 
             $index++;
+        }
+
+        if ($extendSession) {
+            $index = 0;
+            foreach ($this->sessions as &$session) {
+                if ($session['type'] === $type
+                    && $session['startTime']->diffInMinutes($when) <= 5
+                    && $session['endTime']->diffInMinutes($when) >= -5) {
+                    return $index;
+                }
+
+                $index++;
+            }
         }
 
         return -1;
@@ -400,7 +469,8 @@ class PlayerGameActivityService
         $lastAchievementTime = null;
 
         foreach ($this->sessions as $session) {
-            if ($session['type'] === PlayerGameActivitySessionType::ManualUnlock) {
+            if ($session['type'] === PlayerGameActivitySessionType::ManualUnlock
+                || $session['type'] === PlayerGameActivitySessionType::Reset) {
                 continue;
             } elseif ($session['type'] === PlayerGameActivitySessionType::Reconstructed) {
                 $generatedSessionCount++;
