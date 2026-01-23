@@ -13,6 +13,7 @@ use App\Connect\Actions\GetHashLibraryAction;
 use App\Connect\Actions\GetLatestClientVersionAction;
 use App\Connect\Actions\GetLatestIntegrationVersionAction;
 use App\Connect\Actions\GetLeaderboardEntriesAction;
+use App\Connect\Actions\GetOfficialGamesListAction;
 use App\Connect\Actions\GetPlayerGameUnlocksAction;
 use App\Connect\Actions\GetUserProgressForConsoleAction;
 use App\Connect\Actions\LegacyGetPatchAction;
@@ -56,6 +57,7 @@ $handler = match ($requestType) {
     'lbinfo' => new GetLeaderboardEntriesAction(),
     'login' => new LegacyLoginAction(),
     'login2' => new LoginAction(),
+    'officialgameslist' => new GetOfficialGamesListAction(),
     'patch' => new LegacyGetPatchAction(),
     'ping' => new PingAction(),
     'postactivity' => new PostActivityAction(),
