@@ -45,5 +45,4 @@ class LeaderboardEntryResource extends BaseJsonApiResource
             'leaderboard' => $this->relation('leaderboard')->withoutLinks(),
         ];
     }
-
 }
