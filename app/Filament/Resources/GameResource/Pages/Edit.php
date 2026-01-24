@@ -92,7 +92,8 @@ class Edit extends EditRecord
 
         /** @var Game $game */
         $game = $this->record;
-        $banner = $game->getFirstMedia('banner');
+
+        $banner = $game->current_banner_media;
 
         // Extract and store edge colors.
         if ($banner && !$banner->getCustomProperty('left_edge_color')) {

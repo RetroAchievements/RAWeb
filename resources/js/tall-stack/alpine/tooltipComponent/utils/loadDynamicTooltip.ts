@@ -103,7 +103,7 @@ const fetchCache: Record<string, Promise<string> | undefined> = {};
 /**
  * Fetch dynamic tooltip content from the server.
  *
- * This function sends a POST request to the server with the provided
+ * This function sends a GET request to the server with the provided
  * type, ID, and optional context, and returns the tooltip content as an HTML string.
  *
  * @param type The type of the dynamic tooltip.
@@ -118,14 +118,14 @@ async function fetchDynamicTooltipContent(type: string, id: string, context?: un
     return fetchCache[cacheKey];
   }
 
-  let bodyString = `type=${type}&id=${id}`;
+  const params = new URLSearchParams({ type, id });
   if (context) {
-    bodyString += `&context=${context}`;
+    params.set('context', String(context));
   }
 
-  fetchCache[cacheKey] = fetcher<{ html: string }>('/request/card.php', {
-    method: 'POST',
-    body: bodyString,
+  fetchCache[cacheKey] = fetcher<{ html: string }>(`/request/card.php?${params.toString()}`, {
+    method: 'GET',
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
   }).then((response) => response.html);
 
   return fetchCache[cacheKey];

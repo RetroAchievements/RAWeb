@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\User;
 use Carbon\Carbon;
 
 /**
@@ -26,48 +25,6 @@ function static_addnewregistereduser(string $user): void
     if (!$dbResult) {
         log_sql_fail();
     }
-}
-
-/**
- * @deprecated
- */
-function static_addnewhardcoremastery(int $gameId, string $username): void
-{
-    $foundUser = User::whereName($username)->first();
-    if ($foundUser->unranked_at !== null) {
-        return;
-    }
-
-    $query = "UPDATE StaticData
-        SET
-            num_hardcore_mastery_awards = num_hardcore_mastery_awards+1,
-            last_game_hardcore_mastered_game_id = :gameId,
-            last_game_hardcore_mastered_user_id = :userId,
-            last_game_hardcore_mastered_at = :now
-    ";
-
-    legacyDbStatement($query, ['gameId' => $gameId, 'userId' => $foundUser->id, 'now' => Carbon::now()]);
-}
-
-/**
- * @deprecated
- */
-function static_addnewhardcoregamebeaten(int $gameId, string $username): void
-{
-    $foundUser = User::whereName($username)->first();
-    if ($foundUser->unranked_at !== null) {
-        return;
-    }
-
-    $query = "UPDATE StaticData
-        SET
-            num_hardcore_game_beaten_awards = num_hardcore_game_beaten_awards+1,
-            last_game_hardcore_beaten_game_id = :gameId,
-            last_game_hardcore_beaten_user_id = :userId,
-            last_game_hardcore_beaten_at = :now
-    ";
-
-    legacyDbStatement($query, ['gameId' => $gameId, 'userId' => $foundUser->id, 'now' => Carbon::now()]);
 }
 
 /**

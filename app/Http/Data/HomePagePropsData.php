@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Data;
 
-use App\Community\Data\TrendingGameData;
+use App\Community\Data\GameActivitySnapshotData;
 use App\Data\AchievementSetClaimGroupData;
 use App\Data\CurrentlyOnlineData;
 use App\Data\ForumTopicData;
@@ -24,7 +24,8 @@ class HomePagePropsData extends Data
     /**
      * @param Collection<int, NewsData> $recentNews
      * @param Collection<int, AchievementSetClaimGroupData> $completedClaims
-     * @param Collection<int, TrendingGameData> $trendingGames
+     * @param Collection<int, GameActivitySnapshotData> $trendingGames
+     * @param Collection<int, GameActivitySnapshotData> $popularGames
      * @param Collection<int, AchievementSetClaimGroupData> $newClaims
      * @param Collection<int, ForumTopicData> $recentForumPosts
      * @param Collection<int, NewsData>|DeferProp $deferredSiteReleaseNotes
@@ -39,6 +40,7 @@ class HomePagePropsData extends Data
         public CurrentlyOnlineData $currentlyOnline,
         public PaginatedData $activePlayers,
         public Collection $trendingGames,
+        public Collection $popularGames,
         public Collection $newClaims,
         public Collection $recentForumPosts,
         public ?string $persistedActivePlayersSearch,

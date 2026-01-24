@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next';
 
 import { BaseHoverCardContent } from '@/common/components/+vendor/BaseHoverCard';
 import { SubsetTag } from '@/common/components/SubsetTag';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { buildGameRarityLabel } from '@/common/utils/buildGameRarityLabel';
 import { cn } from '@/common/utils/cn';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { BASE_SET_LABEL } from '../../utils/baseSetLabel';
 
@@ -19,6 +19,7 @@ export const GameAchievementSetHoverCardContent: FC<GameAchievementSetHoverCardC
 }) => {
   const { t } = useTranslation();
 
+  const { formatDate } = useFormatDate();
   const { formatNumber } = useFormatNumber();
 
   const { achievementSet, title, type } = gameAchievementSet;

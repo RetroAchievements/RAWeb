@@ -41,6 +41,11 @@ declare namespace App.Community.Data {
     recentPlayerBadges: Array<App.Community.Data.RecentPlayerBadge>;
     recentLeaderboardEntries: Array<App.Community.Data.RecentLeaderboardEntry>;
   };
+  export type GameActivitySnapshot = {
+    game: App.Platform.Data.Game;
+    playerCount: number;
+    trendingReason: App.Community.Enums.TrendingReason | null;
+  };
   export type GameChecklistPageProps = {
     player: App.Data.User;
     groups: Array<App.Community.Data.GameGroup>;
@@ -179,10 +184,6 @@ declare namespace App.Community.Data {
     state: boolean;
     user?: App.Data.User;
   };
-  export type TrendingGame = {
-    game: App.Platform.Data.Game;
-    playerCount: number;
-  };
   export type UnsubscribeShowPageProps = {
     success: boolean;
     error: string | null;
@@ -246,6 +247,7 @@ declare namespace App.Community.Enums {
     | 'user.comment'
     | 'user-activity.comment'
     | 'user-moderation.comment';
+  export type GameActivitySnapshotType = 'trending' | 'popular';
   export type MessageThreadTemplateKind =
     | 'achievement-issue'
     | 'manual-unlock'
@@ -277,6 +279,13 @@ declare namespace App.Community.Enums {
     | 'AchievementTicket';
   export type TicketState = 'closed' | 'open' | 'resolved' | 'request';
   export type TicketType = 'triggered_at_wrong_time' | 'did_not_trigger';
+  export type TrendingReason =
+    | 'new-set'
+    | 'revised-set'
+    | 'gaining-traction'
+    | 'renewed-interest'
+    | 'many-more-players'
+    | 'more-players';
   export type UserGameListType = 'achievement_set_request' | 'play' | 'develop';
   export type UserRelationStatus = 'blocked' | 'not_following' | 'following';
 }
@@ -567,7 +576,8 @@ declare namespace App.Http.Data {
     completedClaims: Array<App.Data.AchievementSetClaimGroup>;
     currentlyOnline: App.Data.CurrentlyOnline;
     activePlayers: App.Data.PaginatedData<TItems>;
-    trendingGames: Array<App.Community.Data.TrendingGame>;
+    trendingGames: Array<App.Community.Data.GameActivitySnapshot>;
+    popularGames: Array<App.Community.Data.GameActivitySnapshot>;
     newClaims: Array<App.Data.AchievementSetClaimGroup>;
     recentForumPosts: Array<App.Data.ForumTopic>;
     persistedActivePlayersSearch: string | null;

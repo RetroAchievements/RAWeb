@@ -2,10 +2,10 @@ import { createFactory } from '@/test/createFactory';
 
 import { createAchievementSetClaimGroup } from '../createAchievementSetClaimGroup';
 import { createActivePlayer } from '../createActivePlayer';
+import { createGameActivitySnapshot } from '../createGameActivitySnapshot';
 import { createNews } from '../createNews';
 import { createPaginatedData } from '../createPaginatedData';
 import { createRecentActiveForumTopic } from '../createRecentActiveForumTopic';
-import { createTrendingGame } from '../createTrendingGame';
 import { createAchievementOfTheWeekProps } from './createAchievementOfTheWeekProps';
 import { createStaticData } from './createStaticData';
 import { createStaticGameAward } from './createStaticGameAward';
@@ -41,10 +41,17 @@ export const createHomePageProps = createFactory<App.Http.Data.HomePageProps>((f
     ),
 
     trendingGames: [
-      createTrendingGame(),
-      createTrendingGame(),
-      createTrendingGame(),
-      createTrendingGame(),
+      createGameActivitySnapshot(),
+      createGameActivitySnapshot(),
+      createGameActivitySnapshot(),
+      createGameActivitySnapshot(),
+    ],
+
+    popularGames: [
+      createGameActivitySnapshot(),
+      createGameActivitySnapshot(),
+      createGameActivitySnapshot(),
+      createGameActivitySnapshot(),
     ],
 
     persistedActivePlayersSearch: null,
