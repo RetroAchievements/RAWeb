@@ -37,7 +37,6 @@ use App\Platform\Commands\RebuildAllSearchIndexes;
 use App\Platform\Commands\RecalculateAffectedPlayerAchievementSetMetrics;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\RevertManualUnlocks;
-use App\Platform\Commands\SyncEvents;
 use App\Platform\Commands\SyncUnrankedUsersTable;
 use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAwardsStaticData;
@@ -126,7 +125,6 @@ class AppServiceProvider extends ServiceProvider
                 CreateAchievementOfTheWeek::class,
 
                 // Sync
-                SyncEvents::class,
                 SyncUnrankedUsersTable::class,
             ]);
         }
