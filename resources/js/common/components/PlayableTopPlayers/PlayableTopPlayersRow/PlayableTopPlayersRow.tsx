@@ -2,10 +2,10 @@ import type { FC } from 'react';
 
 import { BaseTableCell, BaseTableRow } from '@/common/components/+vendor/BaseTable';
 import { UserAvatar } from '@/common/components/UserAvatar';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { AwardIndicator } from '../../AwardIndicator';
 import type { TopPlayersListKind } from '../models';
@@ -29,7 +29,7 @@ export const PlayableTopPlayersRow: FC<PlayableTopPlayersRowProps> = ({
   playerIndex,
 }) => {
   const { auth } = usePageProps();
-
+  const { formatDate } = useFormatDate();
   const { formatNumber } = useFormatNumber();
 
   const getRowNumber = (): number => {

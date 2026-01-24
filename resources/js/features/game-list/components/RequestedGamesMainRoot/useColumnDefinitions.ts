@@ -14,7 +14,7 @@ import { buildTitleColumnDef } from '../../utils/column-definitions/buildTitleCo
 export function useColumnDefinitions(
   targetUser?: App.Data.User | null,
 ): ColumnDef<App.Platform.Data.GameListEntry>[] {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const tableApiRouteName: RouteName = targetUser
     ? 'api.set-request.user'
@@ -25,6 +25,7 @@ export function useColumnDefinitions(
       buildTitleColumnDef({ t_label: t('Title'), tableApiRouteName }),
       buildSystemColumnDef({ t_label: t('System'), tableApiRouteName }),
       buildReleasedAtColumnDef({
+        locale: i18n.language,
         tableApiRouteName,
         t_label: t('Release Date'),
         strings: { t_unknown: t('unknown') },
@@ -53,7 +54,7 @@ export function useColumnDefinitions(
     );
 
     return columns;
-  }, [t, tableApiRouteName, targetUser]);
+  }, [i18n.language, t, tableApiRouteName, targetUser]);
 
   return columnDefinitions;
 }

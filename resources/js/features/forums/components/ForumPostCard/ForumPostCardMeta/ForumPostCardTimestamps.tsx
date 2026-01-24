@@ -8,8 +8,8 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { usePageProps } from '@/common/hooks/usePageProps';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 import { useDiffForHumans } from '@/common/utils/l10n/useDiffForHumans';
 
 dayjs.extend(utc);
@@ -20,6 +20,7 @@ interface ForumPostCardTimestampsProps {
 
 export const ForumPostCardTimestamps: FC<ForumPostCardTimestampsProps> = ({ comment }) => {
   const { auth } = usePageProps<App.Data.ShowForumTopicPageProps>();
+  const { formatDate } = useFormatDate();
   const { diffForHumans } = useDiffForHumans();
 
   // Format timestamps based on user preference and recency.
