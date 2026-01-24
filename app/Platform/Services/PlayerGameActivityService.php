@@ -503,7 +503,7 @@ class PlayerGameActivityService
                 [PlayerGameActivitySessionType::ManualUnlock]);
         }
 
-        $startTime = $this->getAchievementEarningStartTime($achievementSet, includeSessionAdjustment: true);
+        $startTime = $this->getAchievementEarningStartTime($achievementSet);
 
         if ($startTime) {
             $playerGame = $this->playerGames->where('achievement_set_id', $achievementSet->id)->first();
@@ -568,12 +568,10 @@ class PlayerGameActivityService
     /**
      * Determines the effective start time for calculating achievement-related playtime.
      * Takes into account the achievements published date, any reset dates, and
-     * optionally the PlayerGame creation time.
+     * the PlayerGame creation time.
      */
-    private function getAchievementEarningStartTime(
-        AchievementSet $achievementSet,
-        bool $includeSessionAdjustment = false,
-    ): ?Carbon {
+    private function getAchievementEarningStartTime(AchievementSet $achievementSet): ?Carbon
+    {
         if (!$achievementSet->achievements_first_published_at) {
             $achievementSet->achievements_first_published_at = (new ComputeAchievementsSetPublishedAtAction())->execute($achievementSet);
             $achievementSet->save();
@@ -605,7 +603,7 @@ class PlayerGameActivityService
             }
 
             // if the playerGame record was created after achievements were published, use that as the start time.
-            if ($includeSessionAdjustment && $playerGame->created_at > $startTime) {
+            if ($playerGame->created_at > $startTime) {
                 foreach ($this->sessions as $session) {
                     if ($session['endTime'] > $playerGame->created_at) {
                         // include the whole session containing the playerGame record - if these differ
