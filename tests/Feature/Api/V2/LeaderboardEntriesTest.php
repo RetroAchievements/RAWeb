@@ -305,6 +305,54 @@ class LeaderboardEntriesTest extends TestCase
         $this->assertEquals((string) $targetEntry->id, $data[0]['id']);
     }
 
+    public function testItPreservesRankWhenFilteringByUser(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $leaderboard = Leaderboard::factory()->create([
+            'game_id' => $game->id,
+            'order_column' => 1,
+            'format' => ValueFormat::Score,
+            'rank_asc' => false, // !! higher score is better
+        ]);
+
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create(['display_name' => 'MiddlePlayer']);
+        $user3 = User::factory()->create();
+
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $user1->id,
+            'score' => 1000, // rank 1
+        ]);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $user2->id,
+            'score' => 750, // rank 2
+        ]);
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $user3->id,
+            'score' => 500, // rank 3
+        ]);
+
+        // Act
+        // ... filter to user2 who should still be rank 2, not rank 1 due to the applied filter ...
+        $response = $this->jsonApi('v2')
+            ->expects('leaderboard-entries')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/leaderboards/{$leaderboard->id}/entries?filter[user]=MiddlePlayer");
+
+        // Assert
+        $response->assertSuccessful();
+        $data = $response->json('data');
+        $this->assertCount(1, $data);
+
+        $this->assertEquals(2, $data[0]['attributes']['rank']);
+    }
+
     public function testItReturnsFormattedScore(): void
     {
         // Arrange

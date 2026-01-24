@@ -105,16 +105,35 @@ class LeaderboardEntrySchema extends Schema
             return $query;
         }
 
-        $direction = $leaderboard->rank_asc ? 'ASC' : 'DESC';
-        $scoreOrderExpr = $this->buildScoreOrderExpression($leaderboard->format, $direction);
-
-        // Rank is based solely on score. Ties share the same rank.
-        $query->selectRaw("*, RANK() OVER (ORDER BY {$scoreOrderExpr}) as `rank`");
+        $rankSubquery = $this->buildRankSubquery($leaderboard);
+        $query->selectRaw("*, ({$rankSubquery}) as `rank`");
 
         // Display order is calculated by rank first, then by created_at to break ties (first to submit appears first).
-        $query->orderByRaw("RANK() OVER (ORDER BY {$scoreOrderExpr}), created_at ASC");
+        $scoreOrderExpr = $this->buildScoreOrderExpression($leaderboard->format, $leaderboard->rank_asc ? 'ASC' : 'DESC');
+        $query->orderByRaw("{$scoreOrderExpr}, created_at ASC");
 
         return $query;
+    }
+
+    private function buildRankSubquery(Leaderboard $leaderboard): string
+    {
+        $table = (new LeaderboardEntry())->getTable();
+        $comparison = $leaderboard->rank_asc ? '<' : '>';
+
+        if ($leaderboard->format === ValueFormat::ValueUnsigned) {
+            $outerScore = toUnsignedStatement("{$table}.score");
+            $innerScore = toUnsignedStatement('le.score');
+            $scoreComparison = "{$innerScore} {$comparison} {$outerScore}";
+        } else {
+            $scoreComparison = "le.score {$comparison} {$table}.score";
+        }
+
+        return <<<SQL
+            SELECT COUNT(*) + 1 FROM {$table} AS le
+            WHERE le.leaderboard_id = {$table}.leaderboard_id
+            AND le.deleted_at IS NULL
+            AND {$scoreComparison}
+        SQL;
     }
 
     private function buildScoreOrderExpression(string $format, string $direction): string

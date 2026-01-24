@@ -8,7 +8,6 @@ use App\Api\V2\BaseJsonApiResource;
 use App\Models\LeaderboardEntry;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Http\Request;
-use LaravelJsonApi\Core\Document\Links;
 
 /**
  * @property LeaderboardEntry $resource
@@ -47,15 +46,4 @@ class LeaderboardEntryResource extends BaseJsonApiResource
         ];
     }
 
-    /**
-     * Get the resource's links.
-     *
-     * @param Request|null $request
-     */
-    public function links($request): Links
-    {
-        return new Links(
-            $this->selfLink(),
-        );
-    }
 }
