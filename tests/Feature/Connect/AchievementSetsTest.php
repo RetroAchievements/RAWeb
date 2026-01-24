@@ -32,9 +32,16 @@ uses(LazilyRefreshDatabase::class);
 uses(TestsConnect::class);
 uses(TestsEmulatorUserAgent::class);
 
-function getAchievementPatchData(Achievement $achievement, float $rarity = 100.0, float $rarityHardcore = 100.0): array
+function getAchievementPatchData(Achievement $achievement, ?float $rarity = null, ?float $rarityHardcore = null): array
 {
     $achievement->loadMissing('developer');
+
+    if ($rarity === null) {
+        $rarity = $achievement->is_promoted ? 100.0 : 0.0;
+    }
+    if ($rarityHardcore === null) {
+        $rarityHardcore = $achievement->is_promoted ? 100.0 : 0.0;
+    }
 
     return [
         'ID' => $achievement->id,
@@ -145,7 +152,7 @@ function createSimpleGame(): array
     ];
 }
 
-function createGameWithUnpublishedAchievements(): array
+function createGameWithUnpromotedAchievements(): array
 {
     /** @var System $system */
     $system = System::factory()->create();
@@ -354,7 +361,7 @@ beforeEach(function () {
 
 describe('Non multi-set', function () {
     test('returns data for a given id', function () {
-        $data = createGameWithUnpublishedAchievements();
+        $data = createGameWithUnpromotedAchievements();
         $game = $data['game'];
         $achievementSet = $game->achievementSets()->first();
 
@@ -382,16 +389,16 @@ describe('Non multi-set', function () {
                             getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
                             getAchievementPatchData($data['achievements'][6]), // DisplayOrder: 4
                             getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
-                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpublished)
+                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpromoted)
                             getAchievementPatchData($data['achievements'][5]), // DisplayOrder: 7
-                            getAchievementPatchData($data['achievements'][7]), // DisplayOrder: 8 (unpublished)
+                            getAchievementPatchData($data['achievements'][7]), // DisplayOrder: 8 (unpromoted)
                             getAchievementPatchData($data['achievements'][8]), // DisplayOrder: 9
                         ],
                         'Leaderboards' => [
                             getLeaderboardPatchData($data['leaderboards'][2]), // DisplayOrder: -1
                             getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
                             getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
-                            // leaderboards[3] is unpublished - have to specifically ask for those as older clients don't check state
+                            // leaderboards[3] is unpromoted - have to specifically ask for those as older clients don't check state
                             // leaderboards[4] is disabled - it should never be returned to any client
                         ],
                     ],
@@ -400,7 +407,7 @@ describe('Non multi-set', function () {
     });
 
     test('returns data for a given hash', function () {
-        $data = createGameWithUnpublishedAchievements();
+        $data = createGameWithUnpromotedAchievements();
         $game = $data['game'];
         $achievementSet = $game->achievementSets()->first();
         $gameHash = createGameHash($game);
@@ -429,16 +436,16 @@ describe('Non multi-set', function () {
                             getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
                             getAchievementPatchData($data['achievements'][6]), // DisplayOrder: 4
                             getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
-                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpublished)
+                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpromoted)
                             getAchievementPatchData($data['achievements'][5]), // DisplayOrder: 7
-                            getAchievementPatchData($data['achievements'][7]), // DisplayOrder: 8 (unpublished)
+                            getAchievementPatchData($data['achievements'][7]), // DisplayOrder: 8 (unpromoted)
                             getAchievementPatchData($data['achievements'][8]), // DisplayOrder: 9
                         ],
                         'Leaderboards' => [
                             getLeaderboardPatchData($data['leaderboards'][2]), // DisplayOrder: -1
                             getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
                             getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
-                            // leaderboards[3] is unpublished - have to specifically ask for those as older clients don't check state
+                            // leaderboards[3] is unpromoted - have to specifically ask for those as older clients don't check state
                             // leaderboards[4] is disabled - it should never be returned to any client
                         ],
                     ],
@@ -447,7 +454,7 @@ describe('Non multi-set', function () {
     });
 
     test('only returns published data for a given id', function () {
-        $data = createGameWithUnpublishedAchievements();
+        $data = createGameWithUnpromotedAchievements();
         $game = $data['game'];
         $achievementSet = $game->achievementSets()->first();
 
@@ -475,16 +482,16 @@ describe('Non multi-set', function () {
                             getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
                             getAchievementPatchData($data['achievements'][6]), // DisplayOrder: 4
                             getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
-                            // achievements[4] (DisplayOrder: 6) is unpublished - excluded when filtering for published only
+                            // achievements[4] (DisplayOrder: 6) is unpromoted - excluded when filtering for published only
                             getAchievementPatchData($data['achievements'][5]), // DisplayOrder: 7
-                            // achievements[7] (DisplayOrder: 8) is unpublished - excluded when filtering for published only
+                            // achievements[7] (DisplayOrder: 8) is unpromoted - excluded when filtering for published only
                             getAchievementPatchData($data['achievements'][8]), // DisplayOrder: 9
                         ],
                         'Leaderboards' => [
                             getLeaderboardPatchData($data['leaderboards'][2]), // DisplayOrder: -1
                             getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
                             getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
-                            // leaderboards[3] is unpublished - have to specifically ask for those as older clients don't check state
+                            // leaderboards[3] is unpromoted - have to specifically ask for those as older clients don't check state
                             // leaderboards[4] is disabled - it should never be returned to any client
                         ],
                     ],
@@ -582,7 +589,7 @@ describe('Non multi-set', function () {
 
     test('achievement with null author should not return null', function () {
         // see https://github.com/libretro/RetroArch/issues/16648
-        $data = createGameWithUnpublishedAchievements();
+        $data = createGameWithUnpromotedAchievements();
         $game = $data['game'];
         $achievementSet = $game->achievementSets()->first();
 
@@ -616,9 +623,9 @@ describe('Non multi-set', function () {
                             getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
                             getAchievementPatchData($data['achievements'][6]), // DisplayOrder: 4
                             getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
-                            // achievements[4] (DisplayOrder: 6) is unpublished - excluded when filtering for published only
+                            // achievements[4] (DisplayOrder: 6) is unpromoted - excluded when filtering for published only
                             getAchievementPatchData($data['achievements'][5]), // DisplayOrder: 7
-                            // achievements[7] (DisplayOrder: 8) is unpublished - excluded when filtering for published only
+                            // achievements[7] (DisplayOrder: 8) is unpromoted - excluded when filtering for published only
                             getAchievementPatchData($data['achievements'][8]), // DisplayOrder: 9
                         ],
                         'Leaderboards' => [
@@ -686,7 +693,7 @@ describe('Multi-set', function () {
                             getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
                             getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
                             getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
-                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpublished)
+                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpromoted)
                         ],
                         'Leaderboards' => [
                             getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
@@ -702,7 +709,7 @@ describe('Multi-set', function () {
                         'Achievements' => [
                             getAchievementPatchData($data['bonusAchievements'][1]), // DisplayOrder: 4
                             getAchievementPatchData($data['bonusAchievements'][0]), // DisplayOrder: 7
-                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpublished)
+                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpromoted)
                             getAchievementPatchData($data['bonusAchievements'][3]), // DisplayOrder: 9
                         ],
                         'Leaderboards' => [
@@ -742,7 +749,7 @@ describe('Multi-set', function () {
                             getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
                             getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
                             getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
-                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpublished)
+                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpromoted)
                         ],
                         'Leaderboards' => [
                             getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
@@ -758,7 +765,7 @@ describe('Multi-set', function () {
                         'Achievements' => [
                             getAchievementPatchData($data['bonusAchievements'][1]), // DisplayOrder: 4
                             getAchievementPatchData($data['bonusAchievements'][0]), // DisplayOrder: 7
-                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpublished)
+                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpromoted)
                             getAchievementPatchData($data['bonusAchievements'][3]), // DisplayOrder: 9
                         ],
                         'Leaderboards' => [
@@ -800,7 +807,7 @@ describe('Multi-set', function () {
                             getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
                             getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
                             getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
-                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpublished)
+                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpromoted)
                         ],
                         'Leaderboards' => [
                             getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
@@ -827,7 +834,7 @@ describe('Multi-set', function () {
                         'Achievements' => [
                             getAchievementPatchData($data['bonusAchievements'][1]), // DisplayOrder: 4
                             getAchievementPatchData($data['bonusAchievements'][0]), // DisplayOrder: 7
-                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpublished)
+                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpromoted)
                             getAchievementPatchData($data['bonusAchievements'][3]), // DisplayOrder: 9
                         ],
                         'Leaderboards' => [
@@ -900,7 +907,7 @@ describe('Multi-set', function () {
                             getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
                             getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
                             getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
-                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpublished)
+                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpromoted)
                         ],
                         'Leaderboards' => [
                             getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
@@ -938,7 +945,7 @@ describe('Multi-set', function () {
                         'Achievements' => [
                             getAchievementPatchData($data['bonusAchievements'][1]), // DisplayOrder: 4
                             getAchievementPatchData($data['bonusAchievements'][0]), // DisplayOrder: 7
-                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpublished)
+                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpromoted)
                             getAchievementPatchData($data['bonusAchievements'][3]), // DisplayOrder: 9
                         ],
                         'Leaderboards' => [
@@ -981,7 +988,7 @@ describe('Multi-set', function () {
                             getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
                             getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
                             getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
-                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpublished)
+                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpromoted)
                         ],
                         'Leaderboards' => [
                             getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
@@ -1022,7 +1029,7 @@ describe('Multi-set', function () {
                         'Achievements' => [
                             getAchievementPatchData($data['bonusAchievements'][1]), // DisplayOrder: 4
                             getAchievementPatchData($data['bonusAchievements'][0]), // DisplayOrder: 7
-                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpublished)
+                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpromoted)
                             getAchievementPatchData($data['bonusAchievements'][3]), // DisplayOrder: 9
                         ],
                         'Leaderboards' => [
@@ -1069,7 +1076,7 @@ describe('Multi-set', function () {
                             getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
                             getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
                             getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
-                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpublished)
+                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpromoted)
                         ],
                         'Leaderboards' => [
                             getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
@@ -1114,7 +1121,7 @@ describe('Multi-set', function () {
                         'Achievements' => [
                             getAchievementPatchData($data['bonusAchievements'][1]), // DisplayOrder: 4
                             getAchievementPatchData($data['bonusAchievements'][0]), // DisplayOrder: 7
-                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpublished)
+                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpromoted)
                             getAchievementPatchData($data['bonusAchievements'][3]), // DisplayOrder: 9
                         ],
                         'Leaderboards' => [
@@ -1211,7 +1218,7 @@ describe('Multi-set', function () {
                             getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
                             getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
                             getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
-                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpublished)
+                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpromoted)
                         ],
                         'Leaderboards' => [
                             getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
@@ -1227,7 +1234,7 @@ describe('Multi-set', function () {
                         'Achievements' => [
                             getAchievementPatchData($data['bonusAchievements'][1]), // DisplayOrder: 4
                             getAchievementPatchData($data['bonusAchievements'][0]), // DisplayOrder: 7
-                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpublished)
+                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpromoted)
                             getAchievementPatchData($data['bonusAchievements'][3]), // DisplayOrder: 9
                         ],
                         'Leaderboards' => [
@@ -1277,7 +1284,7 @@ describe('Multi-set', function () {
                             getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
                             getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
                             getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
-                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpublished)
+                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpromoted)
                         ],
                         'Leaderboards' => [
                             getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
@@ -1293,7 +1300,7 @@ describe('Multi-set', function () {
                         'Achievements' => [
                             getAchievementPatchData($data['bonusAchievements'][1]), // DisplayOrder: 4
                             getAchievementPatchData($data['bonusAchievements'][0]), // DisplayOrder: 7
-                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpublished)
+                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpromoted)
                             getAchievementPatchData($data['bonusAchievements'][3]), // DisplayOrder: 9
                         ],
                         'Leaderboards' => [
@@ -1337,7 +1344,7 @@ describe('Multi-set', function () {
                             getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
                             getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
                             getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
-                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpublished)
+                            getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpromoted)
                         ],
                         'Leaderboards' => [
                             getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
@@ -1364,7 +1371,7 @@ describe('Multi-set', function () {
                         'Achievements' => [
                             getAchievementPatchData($data['bonusAchievements'][1]), // DisplayOrder: 4
                             getAchievementPatchData($data['bonusAchievements'][0]), // DisplayOrder: 7
-                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpublished)
+                            getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpromoted)
                             getAchievementPatchData($data['bonusAchievements'][3]), // DisplayOrder: 9
                         ],
                         'Leaderboards' => [
@@ -1446,6 +1453,50 @@ describe('Rarity', function () {
                             getAchievementPatchData($data['achievements'][1], 100.0, 100.0), // DisplayOrder: 3
                         ],
                         'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+    });
+
+    test('returns 0% rarity for unpromoted achievements', function () {
+        $data = createGameWithUnpromotedAchievements();
+        $game = $data['game'];
+        $achievementSet = $game->achievementSets()->first();
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['g' => $game->id]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => $game->title,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            getAchievementPatchData($data['achievements'][0], 100.0, 100.0), // DisplayOrder: 1
+                            getAchievementPatchData($data['achievements'][2], 100.0, 100.0), // DisplayOrder: 2
+                            getAchievementPatchData($data['achievements'][1], 100.0, 100.0), // DisplayOrder: 3
+                            getAchievementPatchData($data['achievements'][6], 100.0, 100.0), // DisplayOrder: 4
+                            getAchievementPatchData($data['achievements'][3], 100.0, 100.0), // DisplayOrder: 5
+                            getAchievementPatchData($data['achievements'][4], 0.0, 0.0), // DisplayOrder: 6 (unpromoted)
+                            getAchievementPatchData($data['achievements'][5], 100.0, 100.0), // DisplayOrder: 7
+                            getAchievementPatchData($data['achievements'][7], 0.0, 0.0), // DisplayOrder: 8 (unpromoted)
+                            getAchievementPatchData($data['achievements'][8], 100.0, 100.0), // DisplayOrder: 9
+                        ],
+                        'Leaderboards' => [
+                            getLeaderboardPatchData($data['leaderboards'][2]), // DisplayOrder: -1
+                            getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
+                            getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
+                        ],
                     ],
                 ],
             ]);
