@@ -172,6 +172,9 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
     {
         return match ($event) {
             'created' => 'success',
+            'creditCreated' => 'success',
+            'creditDeleted' => 'danger',
+            'creditUpdated' => 'info',
             'deleted' => 'danger',
             'linkedHash' => 'success',
             'multisetDisabled' => 'danger',
