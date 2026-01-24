@@ -18,6 +18,7 @@ use LaravelJsonApi\Eloquent\Filters\Scope;
 use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\Eloquent\Sorting\SortWithCount;
 
 class HubSchema extends Schema
 {
@@ -82,6 +83,18 @@ class HubSchema extends Schema
             WhereIdIn::make($this),
             Scope::make('parentId', 'withParentId'),
             Scope::make('title', 'titleContains'),
+        ];
+    }
+
+    /**
+     * Get the sortable fields for this resource.
+     */
+    public function sortables(): iterable
+    {
+        return [
+            SortWithCount::make('games', 'gamesCount'),
+            SortWithCount::make('children', 'childHubsCount')->countAs('child_hubs_count'),
+            SortWithCount::make('parents', 'parentHubsCount')->countAs('parent_hubs_count'),
         ];
     }
 

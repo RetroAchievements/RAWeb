@@ -186,6 +186,89 @@ class HubsTest extends JsonApiResourceTestCase
         $this->assertGreaterThan(0, strcmp($titles[0], $titles[1]));
     }
 
+    public function testItSortsByGamesCount(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+
+        $hubWithFewGames = GameSet::factory()->create(['type' => GameSetType::Hub]);
+        $hubWithManyGames = GameSet::factory()->create(['type' => GameSetType::Hub]);
+
+        $fewGames = Game::factory()->count(2)->create(['system_id' => $system->id]);
+        $manyGames = Game::factory()->count(10)->create(['system_id' => $system->id]);
+
+        $hubWithFewGames->games()->attach($fewGames->pluck('id'));
+        $hubWithManyGames->games()->attach($manyGames->pluck('id'));
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('hubs')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/hubs?sort=-gamesCount');
+
+        // Assert
+        $response->assertSuccessful();
+        $counts = collect($response->json('data'))->pluck('attributes.gamesCount')->toArray();
+        $this->assertGreaterThanOrEqual($counts[1], $counts[0]);
+    }
+
+    public function testItSortsByChildHubsCount(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+
+        $hubWithFewChildren = GameSet::factory()->create(['type' => GameSetType::Hub]);
+        $hubWithManyChildren = GameSet::factory()->create(['type' => GameSetType::Hub]);
+
+        $fewChildren = GameSet::factory()->count(2)->create(['type' => GameSetType::Hub]);
+        $manyChildren = GameSet::factory()->count(10)->create(['type' => GameSetType::Hub]);
+
+        $hubWithFewChildren->children()->attach($fewChildren->pluck('id'));
+        $hubWithManyChildren->children()->attach($manyChildren->pluck('id'));
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('hubs')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/hubs?sort=-childHubsCount');
+
+        // Assert
+        $response->assertSuccessful();
+        $counts = collect($response->json('data'))->pluck('attributes.childHubsCount')->toArray();
+        $this->assertGreaterThanOrEqual($counts[1], $counts[0]);
+    }
+
+    public function testItSortsByParentHubsCount(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+
+        $hubWithFewParents = GameSet::factory()->create(['type' => GameSetType::Hub]);
+        $hubWithManyParents = GameSet::factory()->create(['type' => GameSetType::Hub]);
+
+        $fewParents = GameSet::factory()->count(2)->create(['type' => GameSetType::Hub]);
+        $manyParents = GameSet::factory()->count(5)->create(['type' => GameSetType::Hub]);
+
+        foreach ($fewParents as $parent) {
+            $parent->children()->attach($hubWithFewParents->id);
+        }
+        foreach ($manyParents as $parent) {
+            $parent->children()->attach($hubWithManyParents->id);
+        }
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('hubs')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/hubs?sort=-parentHubsCount');
+
+        // Assert
+        $response->assertSuccessful();
+        $counts = collect($response->json('data'))->pluck('attributes.parentHubsCount')->toArray();
+        $this->assertGreaterThanOrEqual($counts[1], $counts[0]);
+    }
+
     public function testItReturnsGamesViaPaginatedRelationshipEndpoint(): void
     {
         // Arrange
@@ -211,6 +294,30 @@ class HubsTest extends JsonApiResourceTestCase
         ]);
 
         $this->assertEquals('Super Mario Bros.', $response->json('data.0.attributes.title'));
+    }
+
+    public function testItCanIncludeSystemOnGamesRelationshipEndpoint(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create(['name' => 'Super Nintendo']);
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $hub = GameSet::factory()->create(['type' => GameSetType::Hub]);
+        $hub->games()->attach($game->id);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('games')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/hubs/{$hub->id}/games?include=system");
+
+        // Assert
+        $response->assertSuccessful();
+
+        $included = $response->json('included');
+        $this->assertNotEmpty($included);
+        $this->assertEquals('systems', $included[0]['type']);
+        $this->assertEquals('Super Nintendo', $included[0]['attributes']['name']);
     }
 
     public function testItPaginatesGamesRelationshipEndpoint(): void
@@ -454,67 +561,39 @@ class HubsTest extends JsonApiResourceTestCase
         $this->assertArrayNotHasKey('forumTopic', $links);
     }
 
-    public function testItRejectsIncludeGamesOnIndex(): void
+    public function testItRejectsRelationshipIncludesOnIndex(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
         GameSet::factory()->create(['type' => GameSetType::Hub]);
 
-        // Act
-        $response = $this->jsonApi('v2')
-            ->expects('hubs')
-            ->withHeader('X-API-Key', 'test-key')
-            ->get('/api/v2/hubs?include=games');
-
         // Assert
-        $response->assertStatus(400); // clients must use /hubs/{id}/games
+        // ... clients must use paginated relationship endpoints ...
+        foreach (['games', 'children', 'parents'] as $relationship) {
+            $response = $this->jsonApi('v2')
+                ->expects('hubs')
+                ->withHeader('X-API-Key', 'test-key')
+                ->get("/api/v2/hubs?include={$relationship}");
+
+            $response->assertStatus(400);
+        }
     }
 
-    public function testItRejectsIncludeGamesOnShow(): void
+    public function testItRejectsRelationshipIncludesOnShow(): void
     {
         // Arrange
         User::factory()->create(['web_api_key' => 'test-key']);
         $hub = GameSet::factory()->create(['type' => GameSetType::Hub]);
 
-        // Act
-        $response = $this->jsonApi('v2')
-            ->expects('hubs')
-            ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/hubs/{$hub->id}?include=games");
-
         // Assert
-        $response->assertStatus(400); // clients must use /hubs/{id}/games
-    }
+        // ... clients must use paginated relationship endpoints ...
+        foreach (['games', 'children', 'parents'] as $relationship) {
+            $response = $this->jsonApi('v2')
+                ->expects('hubs')
+                ->withHeader('X-API-Key', 'test-key')
+                ->get("/api/v2/hubs/{$hub->id}?include={$relationship}");
 
-    public function testItRejectsIncludeChildrenOnShow(): void
-    {
-        // Arrange
-        User::factory()->create(['web_api_key' => 'test-key']);
-        $hub = GameSet::factory()->create(['type' => GameSetType::Hub]);
-
-        // Act
-        $response = $this->jsonApi('v2')
-            ->expects('hubs')
-            ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/hubs/{$hub->id}?include=children");
-
-        // Assert
-        $response->assertStatus(400); // clients must use /hubs/{id}/children
-    }
-
-    public function testItRejectsIncludeParentsOnShow(): void
-    {
-        // Arrange
-        User::factory()->create(['web_api_key' => 'test-key']);
-        $hub = GameSet::factory()->create(['type' => GameSetType::Hub]);
-
-        // Act
-        $response = $this->jsonApi('v2')
-            ->expects('hubs')
-            ->withHeader('X-API-Key', 'test-key')
-            ->get("/api/v2/hubs/{$hub->id}?include=parents");
-
-        // Assert
-        $response->assertStatus(400); // clients must use /hubs/{id}/parents
+            $response->assertStatus(400);
+        }
     }
 }
