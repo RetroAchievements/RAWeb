@@ -71,6 +71,7 @@ describe('get', function () {
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
+                'Warning' => 'This API is deprecated. Please switch to a public API.',
                 'Response' => [
                     '1' => 'One',
                 ],
@@ -84,6 +85,7 @@ describe('get', function () {
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
+                'Warning' => 'This API is deprecated. Please switch to a public API.',
                 'Response' => [
                     '10' => 'Ten',
                     '2' => 'Two',
@@ -104,6 +106,7 @@ describe('get', function () {
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
+                'Warning' => 'This API is deprecated. Please switch to a public API.',
                 'Response' => [
                     '3' => 'Three',
                 ],
@@ -117,6 +120,7 @@ describe('get', function () {
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
+                'Warning' => 'This API is deprecated. Please switch to a public API.',
                 'Response' => [
                     // grouped by system
                     '1' => 'One',
@@ -142,6 +146,7 @@ describe('get', function () {
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
+                'Warning' => 'This API is deprecated. Please switch to a public API.',
                 'Response' => [],
             ])
             // assertExactJson converts the empty object to an array and we want to

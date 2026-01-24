@@ -56,6 +56,7 @@ class GetOfficialGamesListAction extends BaseApiAction
 
         return [
             'Success' => true,
+            'Warning' => 'This API is deprecated. Please switch to a public API.',
             'Response' => $games,
         ];
     }
