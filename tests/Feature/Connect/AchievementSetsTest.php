@@ -154,7 +154,7 @@ class AchievementSetsTestHelpers
         ];
     }
 
-    static function createGameWithUnpromotedAchievements(): array
+    public static function createGameWithUnpromotedAchievements(): array
     {
         /** @var System $system */
         $system = System::factory()->create();

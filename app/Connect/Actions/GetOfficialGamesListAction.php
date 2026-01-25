@@ -11,7 +11,7 @@ use stdClass;
 
 /**
  * @deprecated
- * 
+ *
  * This action provides support for an internal API function that was only used for a short period
  * of time. It should be deprecated and eliminated, but other clients have latched onto it and
  * until they migrate to public APIs, we have to continue supporting it.
