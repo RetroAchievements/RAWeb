@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import type { FC } from 'react';
 
-import { formatDate } from '@/common/utils/l10n/formatDate';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 
 import { ResetEventContent } from './ResetEventContent';
 import { RichPresenceEventContent } from './RichPresenceEventContent';
@@ -25,6 +25,8 @@ export const SessionTimelineEvent: FC<SessionTimelineEventProps> = ({
   sessionEvent,
   sessionType,
 }) => {
+  const { formatDate } = useFormatDate();
+
   const eventTime = formatDate(dayjs.utc(sessionEvent.when), 'LTS');
 
   return (

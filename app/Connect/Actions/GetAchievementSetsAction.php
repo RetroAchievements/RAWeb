@@ -259,10 +259,16 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
 
         $achievementsData = [];
         foreach ($achievements as $achievement) {
-            // Calculate rarity assuming it will be used when the player unlocks the achievement,
-            // which implies they haven't already unlocked it.
-            $rarity = min(100.0, round((float) ($achievement->unlocks_total + 1) * 100 / $gamePlayerCount, 2));
-            $rarityHardcore = min(100.0, round((float) ($achievement->unlocks_hardcore + 1) * 100 / $gamePlayerCount, 2));
+            if ($achievement->is_promoted) {
+                // Calculate rarity assuming it will be used when the player unlocks the achievement,
+                // which implies they haven't already unlocked it.
+                $rarity = min(100.0, round((float) ($achievement->unlocks_total + 1) * 100 / $gamePlayerCount, 2));
+                $rarityHardcore = min(100.0, round((float) ($achievement->unlocks_hardcore + 1) * 100 / $gamePlayerCount, 2));
+            } else {
+                // unpromoted achievements can't be earned, so they have no rarity.
+                // the client should use this as a signal to not display rarity on unofficial unlocks.
+                $rarity = $rarityHardcore = 0.0;
+            }
 
             $achievementsData[] = [
                 'ID' => $achievement->id,
