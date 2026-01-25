@@ -46,7 +46,10 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapWebRoutes(): void
     {
         Route::middleware(['web'])->group(function () {
-            // prohibit GET form requests in request/
+            // Allow GET requests to card.php for CDN caching of tooltip content.
+            Route::match(['get', 'post'], 'request/card.php', fn () => $this->handleRequest('request/card'));
+
+            // Prohibit GET form requests in request/.
             Route::get('request/{path}.php', fn (string $path) => abort(405))->where('path', '(.*)');
             Route::post('request/{path}.php', fn (string $path) => $this->handleRequest('request/' . $path))->where('path', '(.*)');
         });

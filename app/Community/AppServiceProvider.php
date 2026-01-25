@@ -16,6 +16,7 @@ use App\Community\Components\UserCard;
 use App\Community\Components\UserProfileMeta;
 use App\Community\Components\UserProgressionStatus;
 use App\Community\Components\UserRecentlyPlayed;
+use App\Console\Commands\UpdateGameActivitySnapshots;
 use App\Models\AchievementComment;
 use App\Models\AchievementSetClaim;
 use App\Models\Comment;
@@ -50,6 +51,7 @@ class AppServiceProvider extends ServiceProvider
                 MigrateTicketCommentMetadata::class,
                 ProcessExpiredMutes::class,
                 SendDailyDigest::class,
+                UpdateGameActivitySnapshots::class,
             ]);
         }
 
@@ -57,6 +59,7 @@ class AppServiceProvider extends ServiceProvider
             /** @var Schedule $schedule */
             $schedule = $this->app->make(Schedule::class);
 
+            $schedule->command(UpdateGameActivitySnapshots::class)->everyFifteenMinutes()->withoutOverlapping();
             $schedule->command(ProcessExpiredMutes::class)->daily();
             $schedule->command(SendDailyDigest::class)->daily();
         });

@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { FaTrophy } from 'react-icons/fa';
 import { route } from 'ziggy-js';
 
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 interface TooltipCreditRowProps {
   credit: App.Platform.Data.UserCredits;
@@ -22,6 +22,7 @@ export const TooltipCreditRow: FC<TooltipCreditRowProps> = ({
 }) => {
   const { t } = useTranslation();
 
+  const { formatDate } = useFormatDate();
   const { formatNumber } = useFormatNumber();
 
   return (

@@ -345,7 +345,7 @@ describe('Component: GameListDataTable', () => {
         <TestHarness
           columns={[
             buildTitleColumnDef({ t_label: i18n.t('Title') }),
-            buildLastUpdatedColumnDef({ t_label: i18n.t('Last Updated') }),
+            buildLastUpdatedColumnDef({ locale: 'en_US', t_label: i18n.t('Last Updated') }),
           ]}
           data={[gameListEntry]}
         />,
