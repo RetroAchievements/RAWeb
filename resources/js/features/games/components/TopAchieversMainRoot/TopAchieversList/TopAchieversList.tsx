@@ -12,15 +12,16 @@ import {
 import { PlayerBadgeIndicator } from '@/common/components/PlayerBadgeIndicator';
 import { PlayerBadgeLabel } from '@/common/components/PlayerBadgeLabel';
 import { UserAvatar } from '@/common/components/UserAvatar';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 export const TopAchieversList: FC = () => {
   const { paginatedUsers } = usePageProps<App.Platform.Data.GameTopAchieversPageProps>();
 
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
   const { formatNumber } = useFormatNumber();
 
   if (!paginatedUsers.items.length) {

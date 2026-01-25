@@ -15,7 +15,7 @@ import {
   BaseDialogTrigger,
 } from '@/common/components/+vendor/BaseDialog';
 import { UserAvatarStack } from '@/common/components/UserAvatarStack';
-import { formatDate } from '@/common/utils/l10n/formatDate';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 
 import { TooltipCreditRow } from '../TooltipCreditRow';
 import { TooltipCreditsSection } from '../TooltipCreditsSection';
@@ -36,6 +36,7 @@ export const MobileCreditDialogTrigger: FC<MobileCreditDialogTriggerProps> = ({
   designCreditUsers,
 }) => {
   const { t } = useTranslation();
+  const { formatDate } = useFormatDate();
 
   const hasInReviewClaim = achievementSetClaims.some((claim) => claim.status === 'in_review');
 

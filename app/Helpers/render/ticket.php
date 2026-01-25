@@ -35,7 +35,7 @@ function ticketAvatar(
         link: route('ticket.show', ['ticket' => $safeTicket->id]),
         tooltip: is_array($tooltip) ? renderAchievementCard($tooltip) : $tooltip,
         class: "ticket-avatar $ticketStateClass",
-        iconUrl: media_asset("/Badge/" . $safeTicket->achievement->badgeName . ".png"),
+        iconUrl: media_asset("/Badge/" . $safeTicket->achievement->image_name . ".png"),
         iconSize: $iconSize,
         iconClass: $iconClass,
         context: $context,
@@ -58,7 +58,7 @@ function renderTicketCard(int|Ticket $ticket): string
     };
 
     return "<div class='tooltip-body flex items-start' style='max-width: 400px'>" .
-        "<img style='margin-right:5px' src='" . media_asset('/Badge/' . $ticket->achievement->badgeName . '.png') . "' width='64' height='64' />" .
+        "<img style='margin-right:5px' src='" . media_asset('/Badge/' . $ticket->achievement->image_name . '.png') . "' width='64' height='64' />" .
         "<div class='ticket-tooltip-info $ticketStateClass'>" .
         "<div><b>" . $ticket->achievement->title . "</b> <i>(" . $ticket->achievement->game->title . ")</i></div>" .
         "<div>Reported by {$ticket->reporter->display_name}</div>" .

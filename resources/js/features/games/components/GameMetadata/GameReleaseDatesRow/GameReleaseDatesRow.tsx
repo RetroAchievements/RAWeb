@@ -7,7 +7,7 @@ import {
   BaseTooltipContent,
   BaseTooltipTrigger,
 } from '@/common/components/+vendor/BaseTooltip';
-import { formatGameReleasedAt } from '@/common/utils/formatGameReleasedAt';
+import { useFormatGameReleasedAt } from '@/common/hooks/useFormatGameReleasedAt';
 import { useDeduplicatedReleases } from '@/features/games/hooks/useDeduplicatedReleases';
 
 interface GameReleaseDatesRowProps {
@@ -16,6 +16,7 @@ interface GameReleaseDatesRowProps {
 
 export const GameReleaseDatesRow: FC<GameReleaseDatesRowProps> = ({ releases }) => {
   const { t } = useTranslation();
+  const { formatGameReleasedAt } = useFormatGameReleasedAt();
 
   const uniqueReleases = useDeduplicatedReleases(releases);
 
