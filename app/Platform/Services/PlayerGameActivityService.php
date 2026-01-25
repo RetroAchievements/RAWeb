@@ -339,13 +339,20 @@ class PlayerGameActivityService
             ->where('type', PlayerProgressResetType::Achievement)
             ->whereIn('type_id', $achievementIds)
             ->get();
-        foreach ($achievementResets as $reset) {
-            $achievement = $game->achievements()->where('id', $reset->type_id)->first();
-            $achievementName = $achievement ? ": {$achievement->title}" : "";
+        if (!empty($achievementResets)) {
+            $achievementTitles = Achievement::whereIn('id', $achievementResets->pluck('type_id'))
+                ->pluck('title', 'id');
 
-            $this->addResetEvent($reset->created_at,
-                "Reset achievement {$reset->type_id}{$achievementName}",
-            );
+            foreach ($achievementResets as $reset) {
+                $achievementName = $achievementTitles[$reset->type_id] ?? '';
+                if (!empty($achievementName)) {
+                    $achievementName = ': ' . $achievementName;
+                }
+
+                $this->addResetEvent($reset->created_at,
+                    "Reset achievement {$reset->type_id}{$achievementName}",
+                );
+            }
         }
 
         if (!empty($this->sessions)) {
