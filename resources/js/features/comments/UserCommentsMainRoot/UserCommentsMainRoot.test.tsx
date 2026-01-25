@@ -16,18 +16,15 @@ describe('Component: UserCommentsMainRoot', () => {
 
   it('renders without crashing', () => {
     // ARRANGE
-    const { container } = render<App.Community.Data.UserCommentsPageProps>(
-      <UserCommentsMainRoot />,
-      {
-        pageProps: {
-          auth: null,
-          canComment: true,
-          isSubscribed: false,
-          paginatedComments: createPaginatedData([]),
-          targetUser: createUser(),
-        },
+    const { container } = render<App.Community.Data.CommentPageProps>(<UserCommentsMainRoot />, {
+      pageProps: {
+        auth: null,
+        canComment: true,
+        isSubscribed: false,
+        paginatedComments: createPaginatedData([]),
+        targetUser: createUser(),
       },
-    );
+    });
 
     // ASSERT
     expect(container).toBeTruthy();
@@ -37,7 +34,7 @@ describe('Component: UserCommentsMainRoot', () => {
     // ARRANGE
     const targetUser = createUser({ displayName: 'Scott' });
 
-    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
         targetUser,
         auth: null,
@@ -56,7 +53,7 @@ describe('Component: UserCommentsMainRoot', () => {
     // ARRANGE
     const targetUser = createUser({ displayName: 'Scott' });
 
-    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
         targetUser,
         auth: null,
@@ -86,7 +83,7 @@ describe('Component: UserCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         targetUser: createUser(),
@@ -104,7 +101,7 @@ describe('Component: UserCommentsMainRoot', () => {
 
   it('given the user is currently authenticated, displays a subscribe toggle button', () => {
     // ARRANGE
-    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
         paginatedComments: createPaginatedData([]),
         targetUser: createUser(),
@@ -120,7 +117,7 @@ describe('Component: UserCommentsMainRoot', () => {
 
   it('given the user is not currently authenticated, does not display a subscribe toggle button', () => {
     // ARRANGE
-    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
         paginatedComments: createPaginatedData([]),
         targetUser: createUser(),
@@ -136,7 +133,7 @@ describe('Component: UserCommentsMainRoot', () => {
 
   it('given there are comments, displays them', () => {
     // ARRANGE
-    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
         paginatedComments: createPaginatedData([createComment({ payload: '12345678' })]),
         targetUser: createUser(),
@@ -166,7 +163,7 @@ describe('Component: UserCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         targetUser: createUser({ displayName: 'Scott' }),
@@ -207,7 +204,7 @@ describe('Component: UserCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         targetUser: createUser({ displayName: 'Scott' }),
@@ -248,7 +245,7 @@ describe('Component: UserCommentsMainRoot', () => {
       },
     });
 
-    render<App.Community.Data.UserCommentsPageProps>(<UserCommentsMainRoot />, {
+    render<App.Community.Data.CommentPageProps>(<UserCommentsMainRoot />, {
       pageProps: {
         paginatedComments,
         targetUser: createUser({ displayName: 'Scott' }),
