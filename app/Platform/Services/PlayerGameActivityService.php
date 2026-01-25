@@ -697,7 +697,8 @@ class PlayerGameActivityService
         $totalTime = null;
 
         foreach ($this->sessions as $session) {
-            if ($session['type'] === PlayerGameActivitySessionType::ManualUnlock) {
+            if ($session['type'] === PlayerGameActivitySessionType::ManualUnlock
+                || $session['type'] === PlayerGameActivitySessionType::Reset) {
                 continue;
             }
 
