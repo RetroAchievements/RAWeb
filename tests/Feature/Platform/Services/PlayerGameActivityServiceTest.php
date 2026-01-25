@@ -9,6 +9,7 @@ use App\Enums\PlayerGameActivitySessionType;
 use App\Models\AchievementSet;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
+use App\Models\PlayerGame;
 use App\Models\PlayerProgressReset;
 use App\Models\PlayerSession;
 use App\Models\User;
@@ -585,5 +586,141 @@ class PlayerGameActivityServiceTest extends TestCase
 
         // ... total time should be 20 + 10 + 15 + 5 = 50 minutes ...
         $this->assertEquals(50 * 60, $summary['totalPlaytime']); // !! 50 minutes in seconds
+    }
+
+    public function testBeatMetricsUseSessionStartWhenPlayerGameCreatedMidSession(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        $now = Carbon::now()->startOfSecond();
+
+        /** @var Game $game */
+        $game = $this->seedGame(achievements: 3, withHash: false);
+        $achievementSet = $game->achievementSets()->first();
+        $achievementSet->achievements_first_published_at = $now->clone()->subDays(200);
+        $achievementSet->save();
+
+        // ... user starts playing 100 days ago ...
+        $sessionStart = $now->clone()->subDays(100);
+        Carbon::setTestNow($sessionStart);
+        /** @var PlayerSession $playerSession */
+        $playerSession = (new ResumePlayerSessionAction())->execute($user, $game);
+        $playerSession->duration = 60 * 4; // 4 hours total session
+        $playerSession->save();
+
+        // ... unlock an achievement 2 hours into the session ...
+        $ach1 = $game->achievements()->first();
+        $this->addHardcoreUnlock($user, $ach1, $sessionStart->clone()->addHours(2));
+
+        $playerGameCreatedAt = $sessionStart->clone()->addHours(1);
+        $playerGame = $user->playerGames()->where('game_id', $game->id)->first();
+
+        // ... user beats the game 3 hours into the session ...
+        $beatenAt = $sessionStart->clone()->addHours(3);
+        PlayerGame::where('id', $playerGame->id)->update([
+            'created_at' => $playerGameCreatedAt,
+            'beaten_hardcore_at' => $beatenAt,
+        ]);
+
+        // Act
+        Carbon::setTestNow($now);
+        $activity = new PlayerGameActivityService();
+        $activity->initialize($user, $game);
+
+        $achievementSet->load('achievements');
+        $playerGame->refresh();
+
+        $beatMetrics = $activity->getBeatProgressMetrics($achievementSet, $playerGame);
+
+        // Assert
+        /**
+         * The beat time should be calculated from the session start (3 hours),
+         * not from when the PlayerGame was created (which would be 2 hours).
+         */
+        $expectedBeatTime = 3 * 60 * 60; // 3 hours
+        $this->assertNotNull($beatMetrics['beatPlaytimeHardcore']);
+        $this->assertEquals($expectedBeatTime, $beatMetrics['beatPlaytimeHardcore']);
+    }
+
+    public function testSubsetResetDoesNotAffectParentGameMetrics(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        $now = Carbon::now()->startOfSecond();
+
+        /** @var Game $parentGame */
+        $parentGame = $this->seedGame(achievements: 3, withHash: false);
+        $parentAchievementSet = $parentGame->achievementSets()->first();
+        $parentAchievementSet->achievements_first_published_at = $now->clone()->subDays(200);
+        $parentAchievementSet->save();
+
+        /** @var Game $subsetGame */
+        $subsetGame = $this->seedGame(achievements: 2, withHash: false);
+
+        (new AssociateAchievementSetToGameAction())->execute(
+            $parentGame,
+            $subsetGame,
+            AchievementSetType::Bonus,
+            "Bonus"
+        );
+        $subsetAchievementSet = $subsetGame->achievementSets()->first();
+        $subsetAchievementSet->achievements_first_published_at = $now->clone()->subDays(200);
+        $subsetAchievementSet->save();
+
+        // ... user plays parent game and earns achievements starting 100 days ago ...
+        $parentPlayStart = $now->clone()->subDays(100);
+        Carbon::setTestNow($parentPlayStart);
+        /** @var PlayerSession $parentSession */
+        $parentSession = (new ResumePlayerSessionAction())->execute($user, $parentGame);
+        $parentSession->duration = 60 * 3; // 3 hours
+        $parentSession->save();
+
+        // ... unlock parent game achievements ...
+        $parentAch1 = $parentGame->achievements()->first();
+        $parentUnlockTime1 = $parentPlayStart->clone()->addHours(1);
+        $this->addHardcoreUnlock($user, $parentAch1, $parentUnlockTime1);
+
+        $parentAch2 = $parentGame->achievements()->skip(1)->first();
+        $parentUnlockTime2 = $parentPlayStart->clone()->addHours(2);
+        $this->addHardcoreUnlock($user, $parentAch2, $parentUnlockTime2);
+
+        // ... user plays subset game and earns achievements 50 days ago ...
+        $subsetPlayStart = $now->clone()->subDays(50);
+        Carbon::setTestNow($subsetPlayStart);
+        /** @var PlayerSession $subsetSession */
+        $subsetSession = (new ResumePlayerSessionAction())->execute($user, $subsetGame);
+        $subsetSession->duration = 60 * 2; // 2 hours
+        $subsetSession->save();
+
+        // ... unlock subset achievements ...
+        $subsetAch1 = $subsetGame->achievements()->first();
+        $subsetUnlockTime = $subsetPlayStart->clone()->addHours(1);
+        $this->addHardcoreUnlock($user, $subsetAch1, $subsetUnlockTime);
+
+        // ... user resets the _subset game_ 10 days ago (should not affect parent metrics) ...
+        $resetTime = $now->clone()->subDays(10);
+        Carbon::setTestNow($resetTime);
+        PlayerProgressReset::create([
+            'user_id' => $user->id,
+            'type' => PlayerProgressResetType::Game,
+            'type_id' => $subsetGame->id,
+        ]);
+
+        // Act
+        Carbon::setTestNow($now);
+        $activity = new PlayerGameActivityService();
+        $activity->initialize($user, $parentGame, withSubsets: true);
+
+        $parentAchievementSet->load('achievements');
+
+        $parentMetrics = $activity->getAchievementSetMetrics($parentAchievementSet);
+
+        // Assert
+        $this->assertNotNull($parentMetrics['achievementPlaytimeHardcore']);
+        $this->assertGreaterThanOrEqual(60 * 60 * 3, $parentMetrics['achievementPlaytimeHardcore']);
     }
 }
