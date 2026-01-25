@@ -60,6 +60,7 @@ class AchievementAuthorPolicy
         $achievement = $achievementAuthor->achievement;
         if (
             $achievement
+            && !$user->hasRole(Role::DEVELOPER_JUNIOR)
             && ($user->is($achievement->developer) || $user->is($achievement->activeMaintainer?->user))
         ) {
             return true;
@@ -77,14 +78,7 @@ class AchievementAuthorPolicy
 
     public function restore(User $user, AchievementAuthor $achievementAuthor): bool
     {
-        return $user->hasAnyRole([
-            Role::ADMINISTRATOR,
-            Role::DEV_COMPLIANCE,
-            Role::GAME_EDITOR,
-            Role::MODERATOR,
-            Role::QUALITY_ASSURANCE,
-            Role::TEAM_ACCOUNT,
-        ]);
+        return false;
     }
 
     public function forceDelete(User $user, AchievementAuthor $achievementAuthor): bool
