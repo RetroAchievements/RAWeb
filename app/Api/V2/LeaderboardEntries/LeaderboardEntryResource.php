@@ -8,6 +8,7 @@ use App\Api\V2\BaseJsonApiResource;
 use App\Models\LeaderboardEntry;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Http\Request;
+use LaravelJsonApi\Core\Document\Links;
 
 /**
  * @property LeaderboardEntry $resource
@@ -44,5 +45,13 @@ class LeaderboardEntryResource extends BaseJsonApiResource
             'user' => $this->relation('user')->withoutLinks(),
             'leaderboard' => $this->relation('leaderboard')->withoutLinks(),
         ];
+    }
+
+    /**
+     * @param Request|null $request
+     */
+    public function links($request): Links
+    {
+        return new Links(); // there's no dedicated route for individual leaderboard entries
     }
 }

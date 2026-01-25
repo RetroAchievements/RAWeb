@@ -86,8 +86,6 @@ class LeaderboardEntrySchema extends Schema
     }
 
     /**
-     * Adds rank computation and excludes hidden/hub/event leaderboards.
-     *
      * @param Relation<LeaderboardEntry, Leaderboard, mixed> $query
      * @return Relation<LeaderboardEntry, Leaderboard, mixed>
      */
@@ -105,43 +103,14 @@ class LeaderboardEntrySchema extends Schema
             return $query;
         }
 
-        $rankSubquery = $this->buildRankSubquery($leaderboard);
-        $query->selectRaw("*, ({$rankSubquery}) as `rank`");
-
-        // Display order is calculated by rank first, then by created_at to break ties (first to submit appears first).
-        $scoreOrderExpr = $this->buildScoreOrderExpression($leaderboard->format, $leaderboard->rank_asc ? 'ASC' : 'DESC');
-        $query->orderByRaw("{$scoreOrderExpr}, created_at ASC");
+        $direction = $leaderboard->rank_asc ? 'ASC' : 'DESC';
+        if ($leaderboard->format === ValueFormat::ValueUnsigned) {
+            $query->orderByRaw(toUnsignedStatement('score') . ' ' . $direction);
+        } else {
+            $query->orderBy('score', $direction);
+        }
+        $query->orderBy('updated_at');
 
         return $query;
-    }
-
-    private function buildRankSubquery(Leaderboard $leaderboard): string
-    {
-        $table = (new LeaderboardEntry())->getTable();
-        $comparison = $leaderboard->rank_asc ? '<' : '>';
-
-        if ($leaderboard->format === ValueFormat::ValueUnsigned) {
-            $outerScore = toUnsignedStatement("{$table}.score");
-            $innerScore = toUnsignedStatement('le.score');
-            $scoreComparison = "{$innerScore} {$comparison} {$outerScore}";
-        } else {
-            $scoreComparison = "le.score {$comparison} {$table}.score";
-        }
-
-        return <<<SQL
-            SELECT COUNT(*) + 1 FROM {$table} AS le
-            WHERE le.leaderboard_id = {$table}.leaderboard_id
-            AND le.deleted_at IS NULL
-            AND {$scoreComparison}
-        SQL;
-    }
-
-    private function buildScoreOrderExpression(string $format, string $direction): string
-    {
-        if ($format === ValueFormat::ValueUnsigned) {
-            return toUnsignedStatement('score') . ' ' . $direction;
-        }
-
-        return 'score ' . $direction;
     }
 }

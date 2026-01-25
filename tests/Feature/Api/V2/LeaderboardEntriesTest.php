@@ -513,6 +513,34 @@ class LeaderboardEntriesTest extends TestCase
         $this->assertArrayHasKey('updatedAt', $attributes);
     }
 
+    public function testItDoesNotIncludeSelfLinks(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $leaderboard = Leaderboard::factory()->create([
+            'game_id' => $game->id,
+            'order_column' => 1,
+        ]);
+
+        $user = User::factory()->create();
+        LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $user->id,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('leaderboard-entries')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/leaderboards/{$leaderboard->id}/entries");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertArrayNotHasKey('links', $response->json('data.0'));
+    }
+
     public function testItHandlesLowerIsBetterLeaderboards(): void
     {
         // Arrange
