@@ -7,6 +7,8 @@ namespace App\Connect\Actions;
 use Illuminate\Http\JsonResponse;
 
 /**
+ * @deprecated
+ * 
  * This action provides support for the legacy API function used to login.
  * New clients should use ?r=login2 instead (available since rcheevos 11.0) which
  * provides HTTP status codes as part of the response.
