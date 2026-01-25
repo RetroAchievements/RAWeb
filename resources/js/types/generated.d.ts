@@ -1302,7 +1302,7 @@ declare namespace App.Platform.Enums {
     | 'shared-hub'
     | 'similar-game'
     | 'want-to-play';
-  export type LeaderboardState = 'active' | 'disabled' | 'unpublished';
+  export type LeaderboardState = 'active' | 'disabled' | 'unpromoted';
   export type PlatformExecutionEnvironment =
     | 'desktop'
     | 'mobile'
