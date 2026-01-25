@@ -14,6 +14,7 @@ dayjs.extend(utc);
 dayjs.extend(localizedFormat);
 
 interface BuildLastUpdatedColumnDefProps<TEntry> {
+  locale: string;
   t_label: TranslatedString;
 
   options?: Partial<ColumnDef<TEntry>>;
@@ -22,6 +23,7 @@ interface BuildLastUpdatedColumnDefProps<TEntry> {
 }
 
 export function buildLastUpdatedColumnDef<TEntry extends App.Platform.Data.GameListEntry>({
+  locale,
   options,
   t_label,
   tableApiRouteParams,
@@ -44,7 +46,7 @@ export function buildLastUpdatedColumnDef<TEntry extends App.Platform.Data.GameL
     cell: ({ row }) => {
       const date = row.original.game?.lastUpdated ?? new Date();
 
-      return <p>{formatDate(dayjs.utc(date), 'll')}</p>;
+      return <p>{formatDate(dayjs.utc(date), 'll', locale)}</p>;
     },
 
     ...options,

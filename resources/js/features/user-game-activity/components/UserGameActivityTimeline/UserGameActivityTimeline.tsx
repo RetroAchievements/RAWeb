@@ -4,9 +4,9 @@ import type { FC } from 'react';
 import { FaFileArchive } from 'react-icons/fa';
 
 import { Timeline, TimelineItem } from '@/common/components/Timeline';
+import { useFormatDate } from '@/common/hooks/useFormatDate';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
-import { formatDate } from '@/common/utils/l10n/formatDate';
 
 import { getShouldAchievementSessionBeVisible } from '../../utils/getShouldAchievementSessionBeVisible';
 import { ClientLabel } from './ClientLabel';
@@ -24,6 +24,7 @@ export const UserGameActivityTimeline: FC<UserGameActivityTimelineProps> = ({
   isOnlyShowingAchievementSessions,
 }) => {
   const { activity } = usePageProps<App.Platform.Data.PlayerGameActivityPageProps>();
+  const { formatDate } = useFormatDate();
 
   const { sessions } = activity;
 
