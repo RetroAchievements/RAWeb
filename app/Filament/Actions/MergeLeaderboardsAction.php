@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Actions;
 
+use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\User;
 use App\Platform\Actions\MergeLeaderboardsAction as DomainMergeLeaderboardsAction;
@@ -119,12 +120,13 @@ class MergeLeaderboardsAction extends Action
                         $set('_child_entries_count', null);
                         $set('_child_title', null);
                         $set('_top_entry_preview', null);
+                        $set('_are_games_joined_by_sets', true);
 
                         return;
                     }
 
                     $child = Leaderboard::withCount('entries')
-                        ->with(['topEntry.user'])
+                        ->with(['game', 'topEntry.user'])
                         ->find($state);
 
                     if (!$child) {
@@ -143,6 +145,11 @@ class MergeLeaderboardsAction extends Action
                         ? $this->calculateTopEntryPreview($parentLeaderboard, $child)
                         : null
                     );
+
+                    $set('_are_games_joined_by_sets', $this->areGamesJoinedBySets(
+                        $parentLeaderboard->game,
+                        $child->game
+                    ));
                 })
                 ->rules([
                     fn (): Closure => function (string $attribute, $value, Closure $fail) use ($parentLeaderboard, $user) {
@@ -183,6 +190,7 @@ class MergeLeaderboardsAction extends Action
             Forms\Components\Hidden::make('_child_entries_count'),
             Forms\Components\Hidden::make('_child_title'),
             Forms\Components\Hidden::make('_top_entry_preview'),
+            Forms\Components\Hidden::make('_are_games_joined_by_sets')->default(true),
 
             Forms\Components\Placeholder::make('merge_preview')
                 ->hiddenLabel()
@@ -197,6 +205,12 @@ class MergeLeaderboardsAction extends Action
                     return "{$entriesCount} entries will be merged. {$topEntryPreview} The source leaderboard will be set to Unpublished.";
                 })
                 ->visible($isValidSelection),
+
+            Forms\Components\Checkbox::make('confirm_different_game')
+                ->label('I understand these leaderboards are from unrelated games that do not share achievement sets')
+                ->required()
+                ->accepted()
+                ->visible(fn (Get $get): bool => $isValidSelection($get) && !$get('_are_games_joined_by_sets')),
 
             Forms\Components\Checkbox::make('confirm_move_entries')
                 ->label(fn (Get $get) => sprintf(
@@ -248,5 +262,26 @@ class MergeLeaderboardsAction extends Action
         $prefix = $childWins ? 'The new top entry will be' : 'The top entry will remain';
 
         return "{$prefix} {$formattedScore} by {$winningEntry->user->display_name}.";
+    }
+
+    /**
+     * Check if two games are related through shared achievement sets.
+     * Returns true if they're the same game or share any achievement sets.
+     */
+    private function areGamesJoinedBySets(Game $gameA, Game $gameB): bool
+    {
+        if ($gameA->id === $gameB->id) {
+            return true;
+        }
+
+        $gameASetIds = $gameA->achievementSets()->pluck('achievement_sets.id');
+
+        if ($gameASetIds->isEmpty()) {
+            return false;
+        }
+
+        return $gameB->achievementSets()
+            ->whereIn('achievement_sets.id', $gameASetIds)
+            ->exists();
     }
 }
