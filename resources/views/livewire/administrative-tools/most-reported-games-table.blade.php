@@ -12,7 +12,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
-use Livewire\Volt\Component;
+use Livewire\Component;
 
 new class extends Component implements HasForms, HasTable, HasActions {
     use InteractsWithTable;

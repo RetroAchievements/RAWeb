@@ -70,11 +70,13 @@ const GameShow: AppPage = () => {
         <SEOPreloadImage
           src={banner?.mobileSmAvif ?? (game.imageIngameUrl as string)}
           type={banner?.mobileSmAvif ? 'image/avif' : 'image/png'}
+          media="(max-width: 767px)"
         />
       ) : null}
       {ziggy.device === 'desktop' && banner?.desktopMdAvif ? (
         <SEOPreloadImage
           src={banner.desktopMdAvif}
+          media="(min-width: 768px)"
           imageSrcSet={[
             banner.desktopMdAvif && `${banner.desktopMdAvif} 1024w`,
             banner.desktopLgAvif && `${banner.desktopLgAvif} 1280w`,

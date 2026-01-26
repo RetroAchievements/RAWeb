@@ -165,6 +165,11 @@ class UpdateAchievementMetricsAction
          *   Updated = '...'
          * WHERE id IN ( ... )
          */
+
+        // Sort updates by ID to ensure consistent lock ordering across concurrent jobs.
+        // This helps prevent deadlocks when multiple jobs update overlapping row sets.
+        usort($bulkUpdates, fn ($a, $b) => $a['id'] <=> $b['id']);
+
         $ids = array_column($bulkUpdates, 'id');
         $cases = [
             'unlocks_total' => 'CASE id',
@@ -186,16 +191,19 @@ class UpdateAchievementMetricsAction
             $case .= ' END';
         }
 
-        // Use DB to bypass model events.
-        DB::table('achievements')
-            ->whereIn('id', $ids)
-            ->update([
-                'unlocks_total' => DB::raw($cases['unlocks_total']),
-                'unlocks_hardcore' => DB::raw($cases['unlocks_hardcore']),
-                'unlock_percentage' => DB::raw($cases['unlock_percentage']),
-                'unlock_hardcore_percentage' => DB::raw($cases['unlock_hardcore_percentage']),
-                'points_weighted' => DB::raw($cases['points_weighted']),
-                'updated_at' => now(),
-            ]);
+        $maxRetries = 3;
+
+        DB::transaction(function () use ($ids, $cases) {
+            DB::table('achievements') // bypass model events
+                ->whereIn('id', $ids)
+                ->update([
+                    'unlocks_total' => DB::raw($cases['unlocks_total']),
+                    'unlocks_hardcore' => DB::raw($cases['unlocks_hardcore']),
+                    'unlock_percentage' => DB::raw($cases['unlock_percentage']),
+                    'unlock_hardcore_percentage' => DB::raw($cases['unlock_hardcore_percentage']),
+                    'points_weighted' => DB::raw($cases['points_weighted']),
+                    'updated_at' => now(),
+                ]);
+        }, $maxRetries);
     }
 }
