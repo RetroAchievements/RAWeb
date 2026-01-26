@@ -40,7 +40,7 @@ class UpdateGameAchievementsMetricsActionTest extends TestCase
             $achievements->pluck('unlock_percentage')->toArray()
         );
         $this->assertEquals(
-            [3, 3, 3, 3, 3, 4, 4, 5, 7, 13],
+            [27, 30, 34, 38, 44, 53, 66, 88, 131, 260],
             $achievements->pluck('points_weighted')->toArray()
         );
     }
