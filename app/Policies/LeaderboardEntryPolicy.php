@@ -29,7 +29,7 @@ class LeaderboardEntryPolicy
 
     public function view(?User $user, LeaderboardEntry $leaderboardEntry): bool
     {
-        return false;
+        return true;
     }
 
     public function create(User $user): bool

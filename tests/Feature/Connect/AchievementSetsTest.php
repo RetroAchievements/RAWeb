@@ -199,7 +199,7 @@ class AchievementSetsTestHelpers
         /** @var Leaderboard $leaderboard3 */
         $leaderboard3 = Leaderboard::factory()->create(['game_id' => $game->id, 'order_column' => -1, 'format' => 'SECS']);
         /** @var Leaderboard $leaderboard4 */
-        $leaderboard4 = Leaderboard::factory()->create(['game_id' => $game->id, 'order_column' => 3, 'format' => 'SECS', 'state' => LeaderboardState::Unpublished]);
+        $leaderboard4 = Leaderboard::factory()->create(['game_id' => $game->id, 'order_column' => 3, 'format' => 'SECS', 'state' => LeaderboardState::Unpromoted]);
         /** @var Leaderboard $leaderboard5 */
         $leaderboard5 = Leaderboard::factory()->create(['game_id' => $game->id, 'order_column' => 4, 'format' => 'SECS', 'state' => LeaderboardState::Disabled]);
 
