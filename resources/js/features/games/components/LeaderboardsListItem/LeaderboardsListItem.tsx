@@ -42,7 +42,7 @@ export const LeaderboardsListItem: FC<LeaderboardsListItemProps> = ({
           href={`/leaderboardinfo.php?i=${leaderboard.id}`}
           className="group flex size-16 flex-col items-center justify-center gap-0.5 rounded bg-embed light:border light:border-neutral-300 light:bg-white"
         >
-          {leaderboard.state === 'active' || leaderboard.state === 'unpublished' ? (
+          {leaderboard.state === 'active' || leaderboard.state === 'unpromoted' ? (
             <LuChartBar className="size-6" />
           ) : (
             <BaseTooltip>
