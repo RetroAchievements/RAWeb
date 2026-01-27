@@ -8,10 +8,12 @@ use App\Connect\Actions\GetCodeNotesAction;
 use App\Connect\Actions\GetFriendListAction;
 use App\Connect\Actions\GetGameIdFromHashAction;
 use App\Connect\Actions\GetGameInfosAction;
+use App\Connect\Actions\GetGamesListAction;
 use App\Connect\Actions\GetHashLibraryAction;
 use App\Connect\Actions\GetLatestClientVersionAction;
 use App\Connect\Actions\GetLatestIntegrationVersionAction;
 use App\Connect\Actions\GetLeaderboardEntriesAction;
+use App\Connect\Actions\GetOfficialGamesListAction;
 use App\Connect\Actions\GetPlayerGameUnlocksAction;
 use App\Connect\Actions\GetUserProgressForConsoleAction;
 use App\Connect\Actions\LegacyGetPatchAction;
@@ -47,6 +49,7 @@ $handler = match ($requestType) {
     'codenotes2' => new GetCodeNotesAction(),
     'gameid' => new GetGameIdFromHashAction(),
     'gameinfolist' => new GetGameInfosAction(),
+    'gameslist' => new GetGamesListAction(),
     'getfriendlist' => new GetFriendListAction(),
     'hashlibrary' => new GetHashLibraryAction(),
     'latestclient' => new GetLatestClientVersionAction(),
@@ -54,6 +57,7 @@ $handler = match ($requestType) {
     'lbinfo' => new GetLeaderboardEntriesAction(),
     'login' => new LegacyLoginAction(),
     'login2' => new LoginAction(),
+    'officialgameslist' => new GetOfficialGamesListAction(),
     'patch' => new LegacyGetPatchAction(),
     'ping' => new PingAction(),
     'postactivity' => new PostActivityAction(),
@@ -215,19 +219,6 @@ if (
 }
 
 switch ($requestType) {
-    /*
-     * Global, no permissions required
-     */
-    case "gameslist":
-        $consoleID = (int) request()->input('c', 0);
-        $response['Response'] = getGamesListDataNamesOnly($consoleID);
-        break;
-
-    case "officialgameslist": // TODO: is this used anymore? It's not used by the DLL.
-        $consoleID = (int) request()->input('c', 0);
-        $response['Response'] = getGamesListDataNamesOnly($consoleID, true);
-        break;
-
     /*
      * User-based (require credentials)
      */
