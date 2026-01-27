@@ -21,6 +21,8 @@ class AuditLog extends ResourceAuditLog
         $fieldLabelMap['BadgeName'] = 'Badge';
         $fieldLabelMap['image_name'] = 'Badge';
 
+        $fieldLabelMap['credit_date'] = 'Date Credited';
+
         return $fieldLabelMap;
     }
 
