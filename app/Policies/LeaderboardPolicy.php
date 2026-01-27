@@ -33,6 +33,11 @@ class LeaderboardPolicy
         return true;
     }
 
+    public function viewEntries(?User $user, Leaderboard $leaderboard): bool
+    {
+        return true;
+    }
+
     public function create(User $user, ?Game $game = null): bool
     {
         if ($game && $user->hasRole(Role::DEVELOPER_JUNIOR)) {
@@ -153,6 +158,29 @@ class LeaderboardPolicy
     {
         return $user->hasAnyRole([
             Role::EVENT_MANAGER,
+        ]);
+    }
+
+    public function merge(User $user, Leaderboard $leaderboard): bool
+    {
+        if ($this->mergeAny($user)) {
+            return true;
+        }
+
+        // Developers can only merge leaderboards they authored.
+        if ($user->hasRole(Role::DEVELOPER)) {
+            return $leaderboard->author_id === $user->id;
+        }
+
+        return false;
+    }
+
+    public function mergeAny(User $user): bool
+    {
+        // QA and DevCompliance can merge any leaderboard.
+        return $user->hasAnyRole([
+            Role::QUALITY_ASSURANCE,
+            Role::DEV_COMPLIANCE,
         ]);
     }
 }

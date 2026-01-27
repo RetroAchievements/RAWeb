@@ -484,12 +484,13 @@ declare namespace App.Data {
 declare namespace App.Enums {
   export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4;
   export type GameHashCompatibility = 'compatible' | 'incompatible' | 'untested' | 'patch-required';
-  export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'custom';
+  export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'reset' | 'custom';
   export type PlayerGameActivitySessionType =
     | 'player-session'
     | 'reconstructed'
     | 'manual-unlock'
-    | 'ticket-created';
+    | 'ticket-created'
+    | 'reset';
   export type UserOS = 'Android' | 'iOS' | 'Linux' | 'macOS' | 'Windows';
   export type UserPreference =
     | 0
@@ -1264,7 +1265,7 @@ declare namespace App.Platform.Enums {
     | 'shared-hub'
     | 'similar-game'
     | 'want-to-play';
-  export type LeaderboardState = 'active' | 'disabled' | 'unpublished';
+  export type LeaderboardState = 'active' | 'disabled' | 'unpromoted';
   export type PlatformExecutionEnvironment =
     | 'desktop'
     | 'mobile'

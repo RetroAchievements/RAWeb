@@ -6,6 +6,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Actions\CloneLeaderboardAction;
 use App\Filament\Actions\DeleteLeaderboardAction;
+use App\Filament\Actions\MergeLeaderboardsAction;
 use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\LeaderboardResource\Pages;
@@ -156,11 +157,11 @@ class LeaderboardResource extends Resource
                         Forms\Components\Select::make('state')
                             ->label('State')
                             ->selectablePlaceholder(false)
-                            ->helperText('If set to Disabled, the leaderboard will be prevented from activating. If set to Unpublished, the leaderboard will additionally be removed from normal page listings.')
+                            ->helperText('If set to Disabled, the leaderboard will be prevented from activating. If set to Unpromoted, the leaderboard will additionally be removed from normal page listings.')
                             ->options([
                                 LeaderboardState::Active->value => 'Active',
                                 LeaderboardState::Disabled->value => 'Disabled',
-                                LeaderboardState::Unpublished->value => 'Unpublished',
+                                LeaderboardState::Unpromoted->value => 'Unpromoted',
                             ])
                             ->required()
                             ->disabled(!$user->can('updateField', [$schema->model, 'state'])),
@@ -295,6 +296,7 @@ class LeaderboardResource extends Resource
                 Actions\ActionGroup::make([
                     Actions\ActionGroup::make([
                         CloneLeaderboardAction::make('clone_leaderboard'),
+                        MergeLeaderboardsAction::make('merge_leaderboards'),
                         ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
                         DeleteLeaderboardAction::make('delete_leaderboard'),
                     ])

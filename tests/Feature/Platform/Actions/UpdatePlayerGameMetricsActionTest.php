@@ -147,7 +147,7 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         $this->assertEquals(30, $playerGame->points_total);
         $this->assertEquals(20, $playerGame->points);
         $this->assertEquals(9, $playerGame->points_hardcore);
-        $this->assertEquals(9, $playerGame->points_weighted);
+        $this->assertEquals(745, $playerGame->points_weighted);
         $this->assertEquals($createdAt, $playerGame->created_at);
         $this->assertEquals(null, $playerGame->beaten_at);
         $this->assertEquals(null, $playerGame->beaten_hardcore_at);
@@ -166,7 +166,7 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         $this->assertEquals($lastUnlockHardcoreAt, $playerAchievementSet->last_unlock_hardcore_at);
         $this->assertEquals(20, $playerAchievementSet->points);
         $this->assertEquals(9, $playerAchievementSet->points_hardcore);
-        $this->assertEquals(9, $playerAchievementSet->points_weighted);
+        $this->assertEquals(745, $playerAchievementSet->points_weighted);
 
         $this->addHardcoreUnlock($user, $achievements->get(5)); // Win Condition
         $this->addHardcoreUnlock($user, $achievements->get(1));
@@ -209,7 +209,7 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         $this->assertEquals(30, $playerGame->points_total);
         $this->assertEquals(30, $playerGame->points);
         $this->assertEquals(23, $playerGame->points_hardcore);
-        $this->assertEquals(23, $playerGame->points_weighted);
+        $this->assertEquals(1905, $playerGame->points_weighted);
         $this->assertEquals($createdAt, $playerGame->created_at);
         $this->assertEquals($beatenAt, $playerGame->beaten_at);
         $this->assertEquals($beatenHardcoreAt, $playerGame->beaten_hardcore_at);
@@ -228,6 +228,6 @@ class UpdatePlayerGameMetricsActionTest extends TestCase
         $this->assertEquals($lastUnlockHardcoreAt, $playerAchievementSet->last_unlock_hardcore_at);
         $this->assertEquals(30, $playerAchievementSet->points);
         $this->assertEquals(23, $playerAchievementSet->points_hardcore);
-        $this->assertEquals(23, $playerAchievementSet->points_weighted);
+        $this->assertEquals(1905, $playerAchievementSet->points_weighted);
     }
 }

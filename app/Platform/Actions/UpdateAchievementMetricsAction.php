@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Community\Enums\RankType;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\PlayerAchievement;
@@ -13,6 +14,11 @@ use Illuminate\Support\Facades\DB;
 
 class UpdateAchievementMetricsAction
 {
+    public function __construct(
+        protected readonly CalculateAchievementWeightedPointsAction $calculateWeightedPoints,
+    ) {
+    }
+
     public function execute(Achievement $achievement): void
     {
         $this->update($achievement->game, collect([$achievement]));
@@ -30,8 +36,8 @@ class UpdateAchievementMetricsAction
 
         // NOTE if game has a parent game it contains the parent game's players metrics
         $playersTotal = $game->players_total;
-        $playersHardcore = $game->players_hardcore;
-        $playersHardcoreCalc = $playersHardcore ?: 1;
+        $playersHardcore = $game->players_hardcore ?? 0;
+        $rankedPlayerCount = countRankedUsers(RankType::TruePoints);
 
         // Get both total and hardcore counts in a single query.
         $achievementIds = $achievements->pluck('id')->all();
@@ -68,14 +74,13 @@ class UpdateAchievementMetricsAction
 
         foreach ($achievements as $achievement) {
             $unlocksCount = $unlockCounts[$achievement->id] ?? 0;
-            $unlocksHardcoreCount = $hardcoreUnlockCounts[$achievement->id] ?? 0;
+            $unlocksHardcoreCount = (int) ($hardcoreUnlockCounts[$achievement->id] ?? 0);
 
-            // force all unachieved to be 1
-            $unlocksHardcoreCalc = $unlocksHardcoreCount ?: 1;
-            $weight = 0.4;
-            $pointsWeighted = (int) (
-                $achievement->points * (1 - $weight)
-                + $achievement->points * (($playersHardcoreCalc / $unlocksHardcoreCalc) * $weight)
+            $pointsWeighted = $this->calculateWeightedPoints->execute(
+                $achievement->points,
+                $unlocksHardcoreCount,
+                $playersHardcore,
+                $rankedPlayerCount
             );
 
             // Round percentages to 9 decimal places to match the exact database column precision (decimal(10,9)).
