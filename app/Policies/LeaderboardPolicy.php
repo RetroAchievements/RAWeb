@@ -160,4 +160,27 @@ class LeaderboardPolicy
             Role::EVENT_MANAGER,
         ]);
     }
+
+    public function merge(User $user, Leaderboard $leaderboard): bool
+    {
+        if ($this->mergeAny($user)) {
+            return true;
+        }
+
+        // Developers can only merge leaderboards they authored.
+        if ($user->hasRole(Role::DEVELOPER)) {
+            return $leaderboard->author_id === $user->id;
+        }
+
+        return false;
+    }
+
+    public function mergeAny(User $user): bool
+    {
+        // QA and DevCompliance can merge any leaderboard.
+        return $user->hasAnyRole([
+            Role::QUALITY_ASSURANCE,
+            Role::DEV_COMPLIANCE,
+        ]);
+    }
 }

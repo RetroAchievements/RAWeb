@@ -6,6 +6,7 @@ namespace App\Filament\Resources\GameResource\RelationManagers;
 
 use App\Filament\Actions\CloneLeaderboardAction;
 use App\Filament\Actions\DeleteLeaderboardAction;
+use App\Filament\Actions\MergeLeaderboardsAction;
 use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
 use App\Models\Game;
 use App\Models\Leaderboard;
@@ -163,6 +164,7 @@ class LeaderboardsRelationManager extends RelationManager
                         ->action(fn (Leaderboard $leaderboard) => $this->moveLeaderboardToPosition($leaderboard, 'bottom'))
                         ->visible(fn () => $this->canReorderLeaderboards() && !$this->isEditingDisplayOrders),
                     CloneLeaderboardAction::make('clone_leaderboard'),
+                    MergeLeaderboardsAction::make('merge_leaderboards'),
                     Action::make('promote-leaderboard')
                         ->label('Promote')
                         ->icon('heroicon-s-arrow-up-right')

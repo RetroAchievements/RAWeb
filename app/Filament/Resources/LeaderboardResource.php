@@ -6,6 +6,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Actions\CloneLeaderboardAction;
 use App\Filament\Actions\DeleteLeaderboardAction;
+use App\Filament\Actions\MergeLeaderboardsAction;
 use App\Filament\Actions\ResetAllLeaderboardEntriesAction;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\LeaderboardResource\Pages;
@@ -295,6 +296,7 @@ class LeaderboardResource extends Resource
                 Actions\ActionGroup::make([
                     Actions\ActionGroup::make([
                         CloneLeaderboardAction::make('clone_leaderboard'),
+                        MergeLeaderboardsAction::make('merge_leaderboards'),
                         ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
                         DeleteLeaderboardAction::make('delete_leaderboard'),
                     ])
