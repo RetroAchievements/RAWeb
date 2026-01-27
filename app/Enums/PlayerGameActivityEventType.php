@@ -10,5 +10,7 @@ enum PlayerGameActivityEventType: string
 
     case RichPresence = 'rich-presence';
 
+    case Reset = 'reset';
+
     case Custom = 'custom';
 }
