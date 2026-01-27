@@ -129,4 +129,46 @@ describe('Component: SessionTimelineEvent', () => {
     // ASSERT
     expect(screen.queryByText(/12:34:56/i)).not.toBeInTheDocument();
   });
+
+  it('given a reset event, renders the description', () => {
+    // ARRANGE
+    render(
+      <SessionTimelineEvent
+        isPreviousGrouped={false}
+        previousEventKind="start-session"
+        previousEventTimestamp={null}
+        sessionType="reset"
+        sessionEvent={createPlayerGameActivityEvent({
+          type: 'reset',
+          when: '2024-01-01T12:34:56Z',
+          description: 'Reset full game',
+        })}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/12:34:56/i)).toBeVisible();
+    expect(screen.getByText(/reset full game/i)).toBeVisible();
+  });
+
+  it('given a custom event, renders the description', () => {
+    // ARRANGE
+    render(
+      <SessionTimelineEvent
+        isPreviousGrouped={false}
+        previousEventKind="start-session"
+        previousEventTimestamp={null}
+        sessionType="player-session"
+        sessionEvent={createPlayerGameActivityEvent({
+          type: 'custom',
+          when: '2024-01-01T12:34:56Z',
+          description: 'Game Beaten',
+        })}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/12:34:56/i)).toBeVisible();
+    expect(screen.getByText(/game beaten/i)).toBeVisible();
+  });
 });

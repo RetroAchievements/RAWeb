@@ -986,7 +986,7 @@ describe('Achievement Set Props', function () {
 });
 
 describe('Leaderboard State Props', function () {
-    it('given leaderboards with mixed states, by default shows active and disabled, counts only active, and excludes unpublished', function () {
+    it('given leaderboards with mixed states, by default shows active and disabled, counts only active, and excludes unpromoted', function () {
         // ARRANGE
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game');
@@ -1001,9 +1001,9 @@ describe('Leaderboard State Props', function () {
             'state' => LeaderboardState::Disabled,
             'order_column' => 1,
         ]);
-        $unpublishedLeaderboard = Leaderboard::factory()->create([
+        $unpromotedLeaderboard = Leaderboard::factory()->create([
             'game_id' => $game->id,
-            'state' => LeaderboardState::Unpublished,
+            'state' => LeaderboardState::Unpromoted,
             'order_column' => 0,
         ]);
 
@@ -1015,14 +1015,14 @@ describe('Leaderboard State Props', function () {
             // ... only active leaderboards count toward numLeaderboards when viewing published ...
             ->where('numLeaderboards', 1)
 
-            // ... both active and disabled are in the listing, but not unpublished ...
+            // ... both active and disabled are in the listing, but not unpromoted ...
             ->has('allLeaderboards', 2)
             ->where('allLeaderboards.0.id', $activeLeaderboard->id)
             ->where('allLeaderboards.1.id', $disabledLeaderboard->id)
         );
     });
 
-    it('given the unpublished query param, shows only unpublished leaderboards and counts them', function () {
+    it('given the unpublished query param, shows only unpromoted leaderboards and counts them', function () {
         // ARRANGE
         $system = System::factory()->create();
         $game = createGameWithAchievements($system, 'Test Game', 5, 2);
@@ -1037,9 +1037,9 @@ describe('Leaderboard State Props', function () {
             'state' => LeaderboardState::Disabled,
             'order_column' => 2,
         ]);
-        $unpublishedLeaderboard = Leaderboard::factory()->create([
+        $unpromotedLeaderboard = Leaderboard::factory()->create([
             'game_id' => $game->id,
-            'state' => LeaderboardState::Unpublished,
+            'state' => LeaderboardState::Unpromoted,
             'order_column' => 0,
         ]);
 
@@ -1048,12 +1048,12 @@ describe('Leaderboard State Props', function () {
 
         // ASSERT
         $response->assertInertia(fn (Assert $page) => $page
-            // ... only unpublished leaderboards count when viewing unpublished ...
+            // ... only unpromoted leaderboards count when viewing unpublished ...
             ->where('numLeaderboards', 1)
 
-            // ... only unpublished leaderboards are in the listing ...
+            // ... only unpromoted leaderboards are in the listing ...
             ->has('allLeaderboards', 1)
-            ->where('allLeaderboards.0.id', $unpublishedLeaderboard->id)
+            ->where('allLeaderboards.0.id', $unpromotedLeaderboard->id)
         );
     });
 
@@ -1074,7 +1074,7 @@ describe('Leaderboard State Props', function () {
         ]);
         Leaderboard::factory()->create([
             'game_id' => $game->id,
-            'state' => LeaderboardState::Unpublished,
+            'state' => LeaderboardState::Unpromoted,
             'order_column' => 0,
         ]);
 

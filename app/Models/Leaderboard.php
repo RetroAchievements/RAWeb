@@ -268,7 +268,7 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
     }
 
     /**
-     * Filter by leaderboard state: 'active', 'disabled', 'unpublished', 'all', or comma-separated values.
+     * Filter by leaderboard state: 'active', 'disabled', 'unpromoted', 'all', or comma-separated values.
      *
      * @param Builder<Leaderboard> $query
      * @return Builder<Leaderboard>

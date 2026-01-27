@@ -31,8 +31,15 @@ class PatchDataTest extends TestCase
 
     private string $unknownClientWarning = 'The server does not recognize this client and will not allow hardcore unlocks. Please send a message to RAdmin on the RetroAchievements website for information on how to submit your emulator for hardcore consideration.';
 
-    private function getAchievementPatchData(Achievement $achievement, float $rarity = 100.0, float $rarityHardcore = 100.0): array
+    private function getAchievementPatchData(Achievement $achievement, ?float $rarity = null, ?float $rarityHardcore = null): array
     {
+        if ($rarity === null) {
+            $rarity = $achievement->is_promoted ? 100.0 : 0.0;
+        }
+        if ($rarityHardcore === null) {
+            $rarityHardcore = $achievement->is_promoted ? 100.0 : 0.0;
+        }
+
         return [
             'ID' => $achievement->id,
             'Title' => $achievement->title,
