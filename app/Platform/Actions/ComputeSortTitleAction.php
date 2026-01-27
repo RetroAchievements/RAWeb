@@ -8,6 +8,8 @@ use Transliterator;
 
 class ComputeSortTitleAction
 {
+    private static ?Transliterator $transliterator = null;
+
     public function execute(string $title): string
     {
         $sortTitle = $this->replaceRomanNumerals($title);
@@ -143,7 +145,9 @@ class ComputeSortTitleAction
      */
     private function normalizeAccents(string $title): string
     {
-        return Transliterator::create('NFD; [:Nonspacing Mark:] Remove; NFC')->transliterate($title);
+        self::$transliterator ??= Transliterator::create('NFD; [:Nonspacing Mark:] Remove; NFC');
+
+        return self::$transliterator->transliterate($title);
     }
 
     /**
