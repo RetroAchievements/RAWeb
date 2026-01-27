@@ -261,6 +261,7 @@ class CommentDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
                 ->where('commentable_id', $delayedSubscription->subject_id)
                 ->where('id', '>', $delayedSubscription->first_update_id)
                 ->where('user_id', '!=', $delayedSubscription->user_id)
+                ->where('user_id', '!=', Comment::SYSTEM_USER_ID)
                 ->orderBy('id')
                 ->first();
 
@@ -277,6 +278,7 @@ class CommentDelayedSubscriptionHandler extends BaseDelayedSubscriptionHandler
             ->where('commentable_id', $delayedSubscription->subject_id)
             ->where('id', '>=', $delayedSubscription->first_update_id)
             ->where('user_id', '!=', $delayedSubscription->user_id)
+            ->where('user_id', '!=', Comment::SYSTEM_USER_ID)
             ->count();
     }
 

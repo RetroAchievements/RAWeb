@@ -45,6 +45,22 @@ describe('Component: ClientLabel', () => {
     expect(screen.getByText(/awarded a manual unlock/i)).toBeVisible();
   });
 
+  it('given the session is a reset session, shows a no emulator message', () => {
+    // ARRANGE
+    render(
+      <ClientLabel
+        session={createPlayerGameActivitySession({
+          type: 'reset',
+          userAgent: null,
+          parsedUserAgent: null,
+        })}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/no emulator/i)).toBeVisible();
+  });
+
   it('given the session has no user agent data, shows an unknown emulator message', () => {
     // ARRANGE
     render(

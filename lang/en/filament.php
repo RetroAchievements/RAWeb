@@ -19,6 +19,8 @@ return [
             'creditUpdated' => 'Credit Updated',
             'deleted' => 'Deleted',
             'linkedHash' => 'Linked Hash',
+            'mergedFromLeaderboard' => 'Merged from leaderboard',
+            'mergedIntoLeaderboard' => 'Merged into leaderboard',
             'multisetDisabled' => 'Disabled Multiset',
             'multisetEnabled' => 'Enabled Multiset',
             'pivotAttached' => 'Attached',

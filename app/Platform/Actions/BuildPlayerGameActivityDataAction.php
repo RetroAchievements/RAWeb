@@ -29,6 +29,7 @@ class BuildPlayerGameActivityDataAction
     public function execute(User $user, Game $game): PlayerGameActivityData
     {
         $this->playerGameActivityService->initialize($user, $game);
+        $this->playerGameActivityService->addResetEvents($user, $game);
         $summary = $this->playerGameActivityService->summarize();
 
         /**
