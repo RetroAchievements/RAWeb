@@ -95,7 +95,7 @@ describe('Entry Transfer', function () {
         expect($result['entries_skipped'])->toEqual(0);
 
         $child->refresh();
-        expect($child->state)->toEqual(LeaderboardState::Unpublished);
+        expect($child->state)->toEqual(LeaderboardState::Unpromoted);
     });
 
     it('given a user exists in both leaderboards, correctly soft deletes the child entry', function () {
@@ -298,7 +298,7 @@ describe('Score Resolution', function () {
 });
 
 describe('Child Leaderboard State', function () {
-    it('given a merge completes, sets the child leaderboard to unpublished', function () {
+    it('given a merge completes, sets the child leaderboard to unpromoted', function () {
         // Arrange
         $developer = createDeveloper();
         $game = Game::factory()->create();
@@ -311,7 +311,7 @@ describe('Child Leaderboard State', function () {
 
         // Assert
         $child->refresh();
-        expect($child->state)->toEqual(LeaderboardState::Unpublished);
+        expect($child->state)->toEqual(LeaderboardState::Unpromoted);
     });
 
     it('clears the child leaderboard top entry id after a successful merge', function () {

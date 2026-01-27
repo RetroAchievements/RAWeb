@@ -111,8 +111,8 @@ class MergeLeaderboardsAction
                 LeaderboardEntry::whereIn('id', $deleteIds)->delete();
             }
 
-            // Set the child leaderboard to Unpublished and clear its top entry.
-            $childLeaderboard->state = LeaderboardState::Unpublished;
+            // Set the child leaderboard to Unpromoted and clear its top entry.
+            $childLeaderboard->state = LeaderboardState::Unpromoted;
             $childLeaderboard->top_entry_id = null;
             $childLeaderboard->save();
 
