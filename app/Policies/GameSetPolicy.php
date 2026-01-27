@@ -53,6 +53,21 @@ class GameSetPolicy
         return true;
     }
 
+    public function viewGames(): bool
+    {
+        return true;
+    }
+
+    public function viewChildren(): bool
+    {
+        return true;
+    }
+
+    public function viewParents(): bool
+    {
+        return true;
+    }
+
     public function create(User $user): bool
     {
         return $user->hasAnyRole([

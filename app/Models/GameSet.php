@@ -431,4 +431,22 @@ class GameSet extends BaseModel implements HasPermalink
     {
         return $query->whereId(self::CentralHubId);
     }
+
+    /**
+     * @param Builder<GameSet> $query
+     * @return Builder<GameSet>
+     */
+    public function scopeWithParentId(Builder $query, int $parentId): Builder
+    {
+        return $query->whereHas('parents', fn ($q) => $q->where('parent_game_set_id', $parentId));
+    }
+
+    /**
+     * @param Builder<GameSet> $query
+     * @return Builder<GameSet>
+     */
+    public function scopeTitleContains(Builder $query, string $title): Builder
+    {
+        return $query->where('title', 'LIKE', '%' . $title . '%');
+    }
 }
