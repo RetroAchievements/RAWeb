@@ -131,7 +131,7 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
             <h1
               className={cn(
                 'w-fit font-bold leading-tight text-white',
-                '[text-shadow:_0_1px_2px_rgb(0_0_0),_0_2px_8px_rgb(0_0_0),_0_0_20px_rgb(0_0_0_/_80%)]',
+                '[text-shadow:_0_1px_2px_rgb(0_0_0),_0_2px_6px_rgb(0_0_0_/_80%),_0_0_14px_rgb(0_0_0_/_60%)]',
                 'text-2xl md:text-3xl',
                 game.title.length > 26 ? '!text-xl' : null,
                 game.title.length > 30 ? '!text-base md:!text-2xl' : null,

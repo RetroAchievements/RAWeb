@@ -348,7 +348,7 @@ describe('Component: GameDesktopBanner', () => {
     await userEvent.click(screen.getByRole('button', { name: /expand banner/i }));
     expect(bannerEl).toHaveClass('lg:h-[474px]');
 
-    // ACT & ASSERT
+    // ASSERT
     // ... expanded -> normal ...
     await userEvent.click(screen.getByRole('button', { name: /collapse banner/i }));
 
