@@ -314,11 +314,15 @@ class FortifyServiceProvider extends ServiceProvider
      */
     private function checkForCompromisedPassword(string $password): void
     {
+        if (app()->environment('local')) {
+            return;
+        }
+
         $verifier = app(UncompromisedVerifier::class);
 
         $isSafe = $verifier->verify([
             'value' => $password,
-            'threshold' => 0,
+            'threshold' => 5,
         ]);
 
         if (!$isSafe) {
