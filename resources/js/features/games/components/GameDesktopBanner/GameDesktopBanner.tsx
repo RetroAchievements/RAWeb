@@ -4,7 +4,7 @@ import { GameTitle } from '@/common/components/GameTitle';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 
-import { useCompactBannerPreference } from '../../hooks/useCompactBannerPreference';
+import { useBannerPreference } from '../../hooks/useBannerPreference';
 import { ResponsiveSystemLinkChip } from '../ResponsiveSystemChip';
 import { WantToPlayToggle } from '../WantToPlayToggle';
 import { GameDesktopBannerImage } from './GameDesktopBannerImage';
@@ -16,7 +16,7 @@ interface GameDesktopBannerProps {
 export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
   const { backingGame, game } = usePageProps<App.Platform.Data.GameShowPageProps>();
 
-  const { prefersCompactBanners, toggleCompactBanners } = useCompactBannerPreference();
+  const { bannerPreference, cycleBannerPreference } = useBannerPreference();
 
   const [isDividerHovered, setIsDividerHovered] = useState(false);
 
@@ -36,7 +36,8 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
         'transition-[height,border-color] duration-200',
         'ml-[calc(50%-50vw)] w-screen',
 
-        prefersCompactBanners ? 'lg:h-[212px]' : null,
+        bannerPreference === 'compact' ? 'lg:h-[212px]' : null,
+        bannerPreference === 'expanded' ? 'lg:h-[474px]' : null,
         isDividerHovered ? 'border-neutral-500' : null,
       )}
       style={{
@@ -130,9 +131,9 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
             <h1
               className={cn(
                 'w-fit font-bold leading-tight text-white',
-                '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%),_0_0_2px_rgb(0_0_0)]',
+                '[text-shadow:_0_1px_2px_rgb(0_0_0),_0_2px_8px_rgb(0_0_0),_0_0_20px_rgb(0_0_0_/_80%)]',
                 'text-2xl md:text-3xl',
-                game.title.length > 22 ? '!text-xl' : null,
+                game.title.length > 26 ? '!text-xl' : null,
                 game.title.length > 30 ? '!text-base md:!text-2xl' : null,
                 game.title.length > 50 ? 'line-clamp-2 !text-sm md:!text-xl' : null,
               )}
@@ -169,10 +170,10 @@ export const GameDesktopBanner: FC<GameDesktopBannerProps> = ({ banner }) => {
 
       {/* Layer 6: invisible hit area to toggle compact mode. only functional on LG+. */}
       <button
-        onClick={toggleCompactBanners}
+        onClick={cycleBannerPreference}
         onMouseEnter={() => setIsDividerHovered(true)}
         onMouseLeave={() => setIsDividerHovered(false)}
-        aria-label={prefersCompactBanners ? 'Expand banner' : 'Collapse banner'}
+        aria-label={bannerPreference === 'expanded' ? 'Collapse banner' : 'Expand banner'}
         className="absolute inset-x-0 -bottom-2 z-10 hidden h-5 cursor-ns-resize lg:block"
         tabIndex={-1}
       />
