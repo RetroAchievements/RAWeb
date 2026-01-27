@@ -174,6 +174,8 @@ abstract class ResourceAuditLog extends \Filament\Resources\Pages\Page implement
             'created' => 'success',
             'deleted' => 'danger',
             'linkedHash' => 'success',
+            'mergedFromLeaderboard' => 'warning',
+            'mergedIntoLeaderboard' => 'warning',
             'multisetDisabled' => 'danger',
             'multisetEnabled' => 'info',
             'pivotAttached' => 'info',
