@@ -10,6 +10,7 @@ use App\Community\Enums\TrendingReason;
 use App\Models\Game;
 use App\Models\GameActivitySnapshot;
 use App\Platform\Data\GameData;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class FetchGameActivityDataAction
@@ -35,16 +36,14 @@ class FetchGameActivityDataAction
      */
     private function getLatestSnapshots(GameActivitySnapshotType $type): Collection
     {
-        $query = GameActivitySnapshot::where('type', $type);
-
-        $latestCreatedAt = $query->max('created_at');
+        $latestCreatedAt = GameActivitySnapshot::where('type', $type)->max('created_at');
 
         if (!$latestCreatedAt) {
             return collect();
         }
 
         return GameActivitySnapshot::where('type', $type)
-            ->where('created_at', $latestCreatedAt)
+            ->where('created_at', '>=', Carbon::parse($latestCreatedAt)->subSeconds(5))
             ->orderByDesc('score')
             ->limit(4)
             ->get();

@@ -137,6 +137,40 @@ class FetchGameActivityDataActionTest extends TestCase
         $this->assertEquals(75, $result[1]->playerCount);
     }
 
+    public function testItIncludesSnapshotsFromSameBatchSpanningSecondBoundary(): void
+    {
+        // Arrange
+        $system = System::factory()->create();
+        $game1 = Game::factory()->create(['system_id' => $system->id, 'title' => 'high_score']);
+        $game2 = Game::factory()->create(['system_id' => $system->id, 'title' => 'low_score']);
+
+        // ... simulate a batch insert that spans a second boundary ...
+        $batchStart = now();
+        GameActivitySnapshot::factory()->create([
+            'game_id' => $game1->id,
+            'type' => GameActivitySnapshotType::Trending,
+            'score' => 196.0,
+            'trending_reason' => TrendingReason::MorePlayers->value,
+            'created_at' => $batchStart,
+        ]);
+        GameActivitySnapshot::factory()->create([
+            'game_id' => $game2->id,
+            'type' => GameActivitySnapshotType::Trending,
+            'score' => 16.0,
+            'trending_reason' => TrendingReason::NewSet->value,
+            'created_at' => $batchStart->copy()->addSecond(),
+        ]);
+
+        // Act
+        $result = (new FetchGameActivityDataAction())->execute(GameActivitySnapshotType::Trending);
+
+        // Assert
+        // ... both snapshots should be included despite different created_at values ...
+        $this->assertCount(2, $result);
+        $this->assertEquals('high_score', $result[0]->game->title);
+        $this->assertEquals('low_score', $result[1]->game->title);
+    }
+
     public function testItUsesOnlyMostRecentSnapshots(): void
     {
         // Arrange
