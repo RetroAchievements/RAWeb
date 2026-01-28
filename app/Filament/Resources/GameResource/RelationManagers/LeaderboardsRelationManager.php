@@ -186,7 +186,7 @@ class LeaderboardsRelationManager extends RelationManager
                         ->color('danger')
                         ->requiresConfirmation()
                         ->action(function (Leaderboard $leaderboard) {
-                            $leaderboard->state = LeaderboardState::Unpublished;
+                            $leaderboard->state = LeaderboardState::Unpromoted;
                             $leaderboard->push();
                             Notification::make()
                                 ->success()
@@ -194,7 +194,7 @@ class LeaderboardsRelationManager extends RelationManager
                                 ->send();
                         })
                         ->visible(function (Leaderboard $leaderboard) use ($user) {
-                            return $user->can('updateField', [$leaderboard, 'state']) && $leaderboard->state !== LeaderboardState::Unpublished;
+                            return $user->can('updateField', [$leaderboard, 'state']) && $leaderboard->state !== LeaderboardState::Unpromoted;
                         }),
                     ResetAllLeaderboardEntriesAction::make('delete_all_entries'),
                     DeleteLeaderboardAction::make('delete_leaderboard'),
@@ -244,7 +244,7 @@ class LeaderboardsRelationManager extends RelationManager
                                     return;
                                 }
 
-                                $leaderboard->state = LeaderboardState::Unpublished;
+                                $leaderboard->state = LeaderboardState::Unpromoted;
                                 $leaderboard->push();
                             }
 

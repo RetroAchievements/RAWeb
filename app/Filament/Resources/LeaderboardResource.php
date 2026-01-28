@@ -156,11 +156,11 @@ class LeaderboardResource extends Resource
                         Forms\Components\Select::make('state')
                             ->label('State')
                             ->selectablePlaceholder(false)
-                            ->helperText('If set to Disabled, the leaderboard will be prevented from activating. If set to Unpublished, the leaderboard will additionally be removed from normal page listings.')
+                            ->helperText('If set to Disabled, the leaderboard will be prevented from activating. If set to Unpromoted, the leaderboard will additionally be removed from normal page listings.')
                             ->options([
                                 LeaderboardState::Active->value => 'Active',
                                 LeaderboardState::Disabled->value => 'Disabled',
-                                LeaderboardState::Unpublished->value => 'Unpublished',
+                                LeaderboardState::Unpromoted->value => 'Unpromoted',
                             ])
                             ->required()
                             ->disabled(!$user->can('updateField', [$schema->model, 'state'])),
