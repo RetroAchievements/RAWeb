@@ -26,7 +26,7 @@ class BuildShowForumTopicPagePropsAction
         ForumTopic $topic,
         ?User $user,
         int $currentPage,
-        int $perPage = 15,
+        int $perPage = ForumTopic::COMMENTS_PER_PAGE,
     ): array {
         $paginatedForumTopicComments = $topic->visibleComments()
             ->with(['sentBy', 'editedBy'])
