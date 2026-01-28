@@ -926,7 +926,7 @@ declare namespace App.Platform.Data {
     playerGame: App.Platform.Data.PlayerGame | null;
     playerGameProgressionAwards: App.Platform.Data.PlayerGameProgressionAwards | null;
     playerAchievementSets: Array<App.Platform.Data.PlayerAchievementSet>;
-    prefersCompactBanners: boolean;
+    bannerPreference: App.Platform.Enums.GameBannerPreference;
     selectableGameAchievementSets: Array<App.Platform.Data.GameAchievementSet>;
     seriesHub: App.Platform.Data.SeriesHub | null;
     setRequestData: App.Platform.Data.GameSetRequestData | null;
@@ -1190,9 +1190,9 @@ declare namespace App.Platform.Data {
   };
 }
 declare namespace App.Platform.Enums {
+  export type UnlockMode = 0 | 1;
   export type AchievementAuthorTask = 'artwork' | 'design' | 'logic' | 'testing' | 'writing';
   export type AchievementSetAuthorTask = 'artwork' | 'banner';
-  export type UnlockMode = 0 | 1;
   export type AchievementSetType =
     | 'core'
     | 'bonus'
@@ -1201,6 +1201,7 @@ declare namespace App.Platform.Enums {
     | 'will_be_bonus'
     | 'will_be_specialty';
   export type EventState = 'active' | 'concluded' | 'evergreen';
+  export type GameBannerPreference = 'compact' | 'normal' | 'expanded';
   export type GameListProgressFilterValue =
     | 'unstarted'
     | 'unfinished'
