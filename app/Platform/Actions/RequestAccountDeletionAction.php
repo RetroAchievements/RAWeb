@@ -47,7 +47,7 @@ class RequestAccountDeletionAction
     }
 
     /**
-     * Soft delete old account deletion comments, keeping only the first pair.
+     * Soft delete old account deletion comments, keeping only the first and last pairs.
      */
     private function cleanOldDeletionComments(User $user): void
     {
@@ -56,22 +56,33 @@ class RequestAccountDeletionAction
             ->where('commentable_id', $user->id)
             ->where('user_id', Comment::SYSTEM_USER_ID);
 
-        // Find the first pair to preserve.
-        $firstRequestId = $baseQuery()
-            ->where('body', 'like', '%requested account deletion%')
-            ->orderBy('created_at')
-            ->value('id');
-        $firstCancelId = $baseQuery()
-            ->where('body', 'like', '%canceled account deletion%')
-            ->orderBy('created_at')
-            ->value('id');
+        // Find the first and last pairs to preserve.
+        $keepIds = [];
+        foreach (['%requested account deletion%', '%canceled account deletion%'] as $pattern) {
+            $first = $baseQuery()
+                ->where('body', 'like', $pattern)
+                ->orderBy('created_at')
+                ->value('id');
 
-        $keepIds = array_filter([$firstRequestId, $firstCancelId]);
+            $last = $baseQuery()
+                ->where('body', 'like', $pattern)
+                ->orderByDesc('created_at')
+                ->value('id');
+
+            if ($first !== null) {
+                $keepIds[] = $first;
+            }
+            if ($last !== null) {
+                $keepIds[] = $last;
+            }
+        }
+
+        $keepIds = array_unique($keepIds);
         if (empty($keepIds)) {
             return;
         }
 
-        // Soft delete all account deletion comments except the first pair.
+        // Soft delete all account deletion comments except the first and last pairs.
         $baseQuery()
             ->where(function ($query) {
                 $query->where('body', 'like', '%requested account deletion%')

@@ -144,14 +144,30 @@ class RequestAccountDeletionActionTest extends TestCase
             'commentable_id' => $user->id,
             'user_id' => Comment::SYSTEM_USER_ID,
             'body' => $user->display_name . ' requested account deletion',
-            'created_at' => now()->subDays(5),
+            'created_at' => now()->subDays(7),
         ]);
         $secondCancel = Comment::factory()->create([
             'commentable_type' => CommentableType::UserModeration,
             'commentable_id' => $user->id,
             'user_id' => Comment::SYSTEM_USER_ID,
             'body' => $user->display_name . ' canceled account deletion',
-            'created_at' => now()->subDays(4),
+            'created_at' => now()->subDays(6),
+        ]);
+
+        // ... simulate the third request/cancel cycle ...
+        $thirdRequest = Comment::factory()->create([
+            'commentable_type' => CommentableType::UserModeration,
+            'commentable_id' => $user->id,
+            'user_id' => Comment::SYSTEM_USER_ID,
+            'body' => $user->display_name . ' requested account deletion',
+            'created_at' => now()->subDays(3),
+        ]);
+        $thirdCancel = Comment::factory()->create([
+            'commentable_type' => CommentableType::UserModeration,
+            'commentable_id' => $user->id,
+            'user_id' => Comment::SYSTEM_USER_ID,
+            'body' => $user->display_name . ' canceled account deletion',
+            'created_at' => now()->subDays(2),
         ]);
 
         // ... execute a new deletion request ...
@@ -161,9 +177,13 @@ class RequestAccountDeletionActionTest extends TestCase
         $this->assertNull($firstRequest->fresh()->deleted_at);
         $this->assertNull($firstCancel->fresh()->deleted_at);
 
-        // ... the second pair should be soft deleted ...
+        // ... the middle pair should be soft deleted ...
         $this->assertNotNull($secondRequest->fresh()->deleted_at);
         $this->assertNotNull($secondCancel->fresh()->deleted_at);
+
+        // ... the last pair should be kept ...
+        $this->assertNull($thirdRequest->fresh()->deleted_at);
+        $this->assertNull($thirdCancel->fresh()->deleted_at);
 
         $newRequest = Comment::where('commentable_type', CommentableType::UserModeration)
             ->where('commentable_id', $user->id)
