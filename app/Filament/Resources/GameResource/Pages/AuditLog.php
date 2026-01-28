@@ -83,6 +83,9 @@ class AuditLog extends ResourceAuditLog
 
         $fieldLabelMap['credit_date'] = 'Date Credited';
 
+        $fieldLabelMap['set_type'] = 'Set Type';
+        $fieldLabelMap['set_title'] = 'Set Title';
+
         return $fieldLabelMap;
     }
 
